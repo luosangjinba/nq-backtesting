@@ -4,6 +4,7 @@ import { clearEventsForTest } from '../src/runtime/events.js';
 import { CHART_COMMANDS, createChartRuntime } from '../src/runtime/chart-runtime.js';
 
 function createElement(tagName) {
+  const listeners = new Map();
   return {
     tagName,
     children: [],
@@ -22,6 +23,18 @@ function createElement(tagName) {
     },
     setAttribute(name, value) {
       this.attributes[name] = value;
+    },
+    addEventListener(type, handler) {
+      const handlers = listeners.get(type) || [];
+      handlers.push(handler);
+      listeners.set(type, handlers);
+    },
+    removeEventListener(type, handler) {
+      const handlers = listeners.get(type) || [];
+      listeners.set(type, handlers.filter((candidate) => candidate !== handler));
+    },
+    dispatchEvent(event) {
+      (listeners.get(event.type) || []).forEach((handler) => handler(event));
     },
     getBoundingClientRect() {
       return {
@@ -142,6 +155,11 @@ assert.equal(host.children[0].dataset.renderedBarCount, '2');
 assert.equal(host.children[0].children[1].children[0].dataset.chartBarCount, '2');
 assert.equal(host.children[0].children[1].children[0].children[0].title, '2026-06-01 09:32 O:102 H:103 L:101 C:102.5');
 
+host.children[0].dispatchEvent({
+  type: 'mousedown',
+  button: 0,
+  clientX: 400,
+});
 engineCalls.visibleRangeHandler({
   from: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
   to: Date.parse('2026-06-01T09:31:00.000Z') / 1000,

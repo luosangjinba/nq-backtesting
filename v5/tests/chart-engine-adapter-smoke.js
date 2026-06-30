@@ -171,6 +171,11 @@ lightweight.setVisibleRange({
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
   to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,
 });
+lightweightHost.children[0].dispatchEvent({
+  type: 'mousedown',
+  button: 0,
+  clientX: 400,
+});
 lightweightCalls.subscribed({
   from: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
   to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,

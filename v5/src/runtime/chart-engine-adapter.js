@@ -301,6 +301,7 @@ function createLightweightInstance({ engine, documentRef }) {
   let visibleRange = null;
   let metadata = {};
   let unsubscribeVisibleRange = null;
+  let lastUserInputAt = 0;
 
   function createSeries(nextChart) {
     if (typeof nextChart.addCandlestickSeries === 'function') {
@@ -310,6 +311,28 @@ function createLightweightInstance({ engine, documentRef }) {
       return nextChart.addSeries(engine.CandlestickSeries);
     }
     throw new Error('Lightweight Charts candlestick series API is unavailable.');
+  }
+
+  function markUserInput() {
+    lastUserInputAt = Date.now();
+  }
+
+  function hasRecentUserInput() {
+    return Date.now() - lastUserInputAt < 2_000;
+  }
+
+  function bindEngineInputMarkers() {
+    if (!canvas?.addEventListener) return;
+    canvas.addEventListener('mousedown', markUserInput, true);
+    canvas.addEventListener('touchstart', markUserInput, true);
+    canvas.addEventListener('wheel', markUserInput, true);
+  }
+
+  function unbindEngineInputMarkers() {
+    if (!canvas?.removeEventListener) return;
+    canvas.removeEventListener('mousedown', markUserInput, true);
+    canvas.removeEventListener('touchstart', markUserInput, true);
+    canvas.removeEventListener('wheel', markUserInput, true);
   }
 
   return {
@@ -328,6 +351,7 @@ function createLightweightInstance({ engine, documentRef }) {
       debugPlot.style.display = 'none';
       canvas.append(engineSurface);
       canvas.append(debugPlot);
+      bindEngineInputMarkers();
       host.replaceChildren?.();
       host.dataset.chartRuntimeMounted = 'true';
       host.dataset.chartEngine = 'lightweight-charts';
@@ -350,7 +374,7 @@ function createLightweightInstance({ engine, documentRef }) {
       const timeScale = chart.timeScale?.();
       if (typeof timeScale?.subscribeVisibleTimeRangeChange === 'function') {
         const handler = (range) => {
-          if (!range || !options.onVisibleRangeChange) return;
+          if (!range || !options.onVisibleRangeChange || !hasRecentUserInput()) return;
           options.onVisibleRangeChange({
             from: timestampSeconds(range.from, 'chart engine visible range from'),
             to: timestampSeconds(range.to, 'chart engine visible range to'),
@@ -408,6 +432,7 @@ function createLightweightInstance({ engine, documentRef }) {
       };
     },
     destroy() {
+      unbindEngineInputMarkers();
       unsubscribeVisibleRange?.();
       unsubscribeVisibleRange = null;
       chart?.remove?.();
