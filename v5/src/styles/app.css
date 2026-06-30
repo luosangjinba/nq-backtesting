@@ -26,6 +26,10 @@ body {
   overflow-x: hidden;
 }
 
+.app-shell[data-current-route="chart"] {
+  grid-template-rows: 1fr;
+}
+
 .top-bar {
   min-width: 0;
   min-height: 64px;
@@ -36,6 +40,10 @@ body {
   padding: 12px 20px;
   border-bottom: 1px solid #28313d;
   background: #151b24;
+}
+
+.app-shell[data-current-route="chart"] .top-bar {
+  display: none;
 }
 
 .eyebrow {
@@ -88,6 +96,10 @@ h1 {
   padding: 16px;
 }
 
+.app-shell[data-current-route="chart"] .workspace {
+  padding: 8px;
+}
+
 .panel {
   min-width: 0;
   max-width: 100%;
@@ -119,10 +131,11 @@ h1 {
 }
 
 .chart-panel {
-  min-height: calc(100vh - 96px);
+  min-height: calc(100vh - 16px);
   display: grid;
   grid-template-rows: auto auto minmax(520px, 1fr) auto;
   gap: 10px;
+  padding: 12px;
 }
 
 .chart-panel .panel-heading {
@@ -192,7 +205,7 @@ input {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: clamp(620px, calc(100vh - 240px), 880px);
+  height: clamp(620px, calc(100vh - 176px), 920px);
   margin-bottom: 0;
 }
 

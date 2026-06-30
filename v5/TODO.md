@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 392 is complete.
-- Next candidate: after Step 392, continue Phase 3 by deciding whether Layout
+- Current status: Step 393 is complete.
+- Next candidate: after Step 393, continue Phase 3 by deciding whether Layout
   needs a dedicated planning step, or prepare the Phase 3 closeout checklist if
-  chart overlay and replay controls are stable enough.
+  the compact replay workstation shell, chart overlay, and replay controls are
+  stable enough.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -1366,6 +1367,48 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/chart-overlay-visibility-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 393 - V5 Compact Workstation Shell
+
+Goal: remove the large app-shell header from the chart route so the replay
+workstation gives priority to the chart surface while preserving route
+navigation back to setup.
+
+This step advances Historical Replay Review by matching the tighter FXReplay
+workstation composition: chart-first layout, hidden global chrome on the chart
+route, and lower text density. It is a shell/layout step, not a replay runtime,
+bar-loading, chart-engine interaction, Layout split-pane, drawing, order, or
+journal step.
+
+- [x] Step 393.1: Add a router-owned current-route marker on the app shell for
+  route-scoped layout styling.
+- [x] Step 393.2: Hide the global app header on the chart route while keeping
+  the setup route's full header intact.
+- [x] Step 393.3: Add a compact Setup route entry inside the chart workstation
+  toolbar so users can still leave the chart route without relying on hidden
+  shell chrome.
+- [x] Step 393.4: Reduce chart-route outer padding and reclaim vertical space
+  for the chart viewport.
+- [x] Step 393.5: Update browser smoke coverage for route marking, hidden chart
+  header, preserved setup navigation, and workstation layout height.
+
+Manual acceptance:
+
+- On the chart route, the top `V5 / FX Replay` app header is not visible.
+- The setup route still retains the normal app header and route tabs.
+- The chart route has an in-workstation Setup entry that navigates back to the
+  setup page.
+- The chart viewport receives more vertical room without horizontal overflow.
+- Replay cursor, reveal state, chart series ownership, native Lightweight
+  interactions, and bar-data ownership remain unchanged.
+
+Checks:
+
+- `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -91,9 +91,13 @@ async function main() {
         document.querySelector('[data-route-link="chart"]')?.click();
         await new Promise((resolve) => setTimeout(resolve, 100));
         const chart = document.querySelector('[data-route="chart"]');
-        document.querySelector('[data-route-link="setup"]')?.click();
+        const currentRouteAfterChart = root?.dataset.currentRoute || '';
+        const chartSetupLink = chart?.querySelector('[data-route-link="setup"]');
+        const topBarDisplayOnChart = getComputedStyle(document.querySelector('.top-bar')).display;
+        chartSetupLink?.click();
         await new Promise((resolve) => setTimeout(resolve, 100));
         const setupAgain = document.querySelector('[data-route="setup"]');
+        const currentRouteAfterSetup = root?.dataset.currentRoute || '';
         const commands = await import('/v5/src/runtime/commands.js');
         const unsafeSessionId = '<img data-injected-session-id src=x>';
         await commands.dispatchCommand('app.navigate', {
@@ -106,7 +110,11 @@ async function main() {
           booted: root?.dataset.booted || '',
           hasSetup: Boolean(setup),
           hasChartAfterClick: Boolean(chart),
+          currentRouteAfterChart,
+          hasChartSetupLink: Boolean(chartSetupLink),
+          topBarDisplayOnChart,
           hasSetupAfterReturn: Boolean(setupAgain),
+          currentRouteAfterSetup,
           escapedSessionId: sessionIdLabel?.textContent || '',
           injectedSessionNodeCount: document.querySelectorAll('[data-injected-session-id]').length,
           title: document.querySelector('h1')?.textContent?.trim() || '',
@@ -117,7 +125,11 @@ async function main() {
     assert.equal(value.booted, 'true');
     assert.equal(value.hasSetup, true);
     assert.equal(value.hasChartAfterClick, true);
+    assert.equal(value.currentRouteAfterChart, 'chart');
+    assert.equal(value.hasChartSetupLink, true);
+    assert.equal(value.topBarDisplayOnChart, 'none');
     assert.equal(value.hasSetupAfterReturn, true);
+    assert.equal(value.currentRouteAfterSetup, 'setup');
     assert.equal(value.escapedSessionId, '<img data-injected-session-id src=x>');
     assert.equal(value.injectedSessionNodeCount, 0);
     assert.equal(value.title, 'FX Replay');

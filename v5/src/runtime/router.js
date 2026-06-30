@@ -19,6 +19,9 @@ export function createRouter({ root, outlet, routes, fallbackRouteId }) {
     currentRouteId = route.id;
     currentParams = { ...params };
     currentElement = route.render({ params: currentParams });
+    if (routeLinkRoot?.dataset) {
+      routeLinkRoot.dataset.currentRoute = currentRouteId;
+    }
     outlet.replaceChildren(currentElement);
     routeLinkRoot.querySelectorAll?.('[data-route-link]').forEach((button) => {
       button.toggleAttribute('aria-current', button.dataset.routeLink === currentRouteId);

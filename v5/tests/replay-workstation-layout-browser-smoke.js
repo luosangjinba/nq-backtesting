@@ -168,14 +168,26 @@ async function main() {
           const chartNavRect = rect('[data-chart-toolbar]');
           const footerRect = rect('[data-replay-footer]');
           const statusRect = rect('[data-replay-status]');
+          const shellTopBarRect = rect('.top-bar');
+          const shellTopBarDisplay = getComputedStyle(document.querySelector('.top-bar')).display;
+          const workspaceRect = rect('.workspace');
           const panelTitle = document.querySelector('.chart-panel h2')?.textContent || '';
           const badgeText = document.querySelector('.chart-panel .runtime-badge')?.textContent || '';
+          const setupLink = document.querySelector('[data-route="chart"] [data-route-link="setup"]');
+          setupLink?.click();
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          const returnedToSetup = Boolean(document.querySelector('[data-route="setup"]'));
           return JSON.stringify({
             error: '',
             panelTitle,
             badgeText,
             hasShellText: bodyText.includes('Chart Replay Shell'),
             hasRouteText: bodyText.includes('Chart Route'),
+            shellTopBarRect,
+            shellTopBarDisplay,
+            workspaceRect,
+            hasSetupLink: Boolean(setupLink),
+            returnedToSetup,
             toolbarRect,
             chartRect,
             chartNavRect,
@@ -198,6 +210,11 @@ async function main() {
     assert.equal(value.badgeText, 'Historical Review');
     assert.equal(value.hasShellText, false);
     assert.equal(value.hasRouteText, false);
+    assert.equal(value.shellTopBarDisplay, 'none');
+    assert.equal(value.shellTopBarRect.height, 0);
+    assert.ok(value.workspaceRect.top <= 10, `workspace starts too low: ${value.workspaceRect.top}`);
+    assert.equal(value.hasSetupLink, true);
+    assert.equal(value.returnedToSetup, true);
     assert.ok(value.toolbarRect.height <= 82, `toolbar too tall: ${value.toolbarRect.height}`);
     assert.ok(value.chartRect.height >= 620, `chart host too short: ${value.chartRect.height}`);
     assert.equal(value.footerVisible, true);

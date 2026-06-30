@@ -48,6 +48,7 @@ export function createChartReplayRoute() {
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
             <button type="button" data-chart-go-to-open disabled>Go to</button>
             <button type="button" data-chart-jump-cursor disabled>Cursor</button>
+            <button type="button" data-route-link="setup">Setup</button>
             <button type="button" data-layout-open disabled title="Layout is planned for a later step">Layout</button>
           </div>
         </div>

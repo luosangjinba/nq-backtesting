@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 392: `session_20260630_step392_v5_minimal_chart_reset_overlay.md`
+- Step 393: `session_20260630_step393_v5_compact_workstation_shell.md`
 
 ## Completed Session Index
 
@@ -57,3 +57,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 390: `session_20260630_step390_v5_responsive_chart_visual_acceptance.md`
 - Step 391: `session_20260630_step391_v5_floating_replay_controls.md`
 - Step 392: `session_20260630_step392_v5_minimal_chart_reset_overlay.md`
+- Step 393: `session_20260630_step393_v5_compact_workstation_shell.md`
