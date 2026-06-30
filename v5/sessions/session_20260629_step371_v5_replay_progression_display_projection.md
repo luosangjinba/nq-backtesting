@@ -41,7 +41,12 @@ Product rule:
 - Assert replay cursor advances by one 1m bar.
 - Assert display bars remain 5m bars only and do not include the 1m next bar.
 
-Status: planned.
+Status: complete.
+
+Red check:
+
+- `node v5/tests/replay-display-progression-smoke.js` fails because `Next`
+  currently appends the 1m replay bar into 5m display bars.
 
 ### Step 371.2 - Projection Runtime Path
 

@@ -430,7 +430,7 @@ so Next/Play move the replay cursor and then project the current display
 timeframe up to that cursor instead of appending replay-timeframe bars into a
 different display timeframe.
 
-- [ ] Step 371.1: Add a smoke proving `Next` on a non-replay display timeframe
+- [x] Step 371.1: Add a smoke proving `Next` on a non-replay display timeframe
   does not mix replay-timeframe bars into display bars.
 - [ ] Step 371.2: Refactor replay progression to advance cursor first, persist
   it, then reload/project the active display timeframe through bounded display
