@@ -10,9 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 377 is complete and reviewed.
-- Next candidate: Step 378 should continue Phase 3 real chart interaction from the chart-engine adapter foundation.
-- Before starting Step 378, add its TODO/session plan and keep the implementation bounded to the Phase 3 gate.
+- Current status: Step 378 is in progress.
+- Current step: Step 378 continues Phase 3 real chart interaction from the
+  chart-engine adapter foundation.
+- Step 378 advances Historical Replay Review by making chart navigation usable
+  without weakening no-future replay boundaries.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -724,5 +726,41 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 378 - V5 Minimal Real Chart Drag Zoom
+
+Goal: add the first real chart-surface drag/zoom input path so users can
+manually navigate visible time without breaking replay reveal boundaries or
+letting UI own chart internals.
+
+- [x] Step 378.1: Add Step 378 TODO/session plan.
+- [ ] Step 378.2: Add adapter-owned DOM fallback drag and wheel zoom input that
+  reports visible-range changes through the existing chart runtime callback.
+- [ ] Step 378.3: Preserve replay/manual-follow invariants and add runtime
+  smoke coverage for clamped drag/zoom changes.
+- [ ] Step 378.4: Add browser verification, run full smoke, and update handoff.
+
+Manual acceptance:
+
+- Dragging or wheel zooming the chart fallback surface emits a chart-runtime
+  manual visible-range change.
+- Manual interaction pauses viewport follow until explicit resume.
+- Manual interaction remains clamped to the replay right-edge limit.
+- Manual interaction may emit viewport demand, but it must not request bars
+  directly.
+- Replay runtime still owns cursor, reveal state, and no-future display
+  invariants.
+- UI modules do not import or call chart-engine APIs and do not slice chart bars.
+- Crosshair, axis labels, go-to time, orders, journal, dashboard, AI, SaaS auth,
+  billing, and production chart packaging remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
