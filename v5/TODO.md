@@ -422,3 +422,49 @@ Checks:
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 371 - V5 Replay Progression Display Projection
+
+Goal: keep display timeframe semantics clean when replay progression advances,
+so Next/Play move the replay cursor and then project the current display
+timeframe up to that cursor instead of appending replay-timeframe bars into a
+different display timeframe.
+
+- [ ] Step 371.1: Add a smoke proving `Next` on a non-replay display timeframe
+  does not mix replay-timeframe bars into display bars.
+- [ ] Step 371.2: Refactor replay progression to advance cursor first, persist
+  it, then reload/project the active display timeframe through bounded display
+  windows.
+- [ ] Step 371.3: Preserve one-bar replay progression, cursor persistence,
+  session-end behavior, and reset semantics under the projection path.
+- [ ] Step 371.4: Add Play/browser coverage for display projection and update
+  the session handoff after full smoke verification.
+
+Manual acceptance:
+
+- `session.timeframe` remains the replay progression timeframe; Next/Play reveal
+  exactly one replay-timeframe bar per step.
+- When `displayTimeframe !== replayTimeframe`, Next/Play must not append
+  replay-timeframe bars into the display bars.
+- Display bars after cursor movement are derived from the current
+  `displayTimeframe` and filtered by the replay cursor.
+- Higher display timeframes still require complete bars before the cursor unless
+  a future documented exception allows partial bars.
+- The projection path uses bounded bar-data windows and cache; it does not load
+  the full session range or session-to-end future.
+- Reset returns the cursor to the start and projects display state at the start
+  without leaking future bars.
+- UI remains command/event driven and does not request bars or write chart
+  series directly.
+
+Checks:
+
+- `node v5/tests/replay-display-progression-smoke.js`
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-play-smoke.js`
+- `node v5/tests/replay-reset-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
