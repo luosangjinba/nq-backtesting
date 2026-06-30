@@ -13,6 +13,7 @@ const commands = [
   ['node', ['v5/tests/display-timezone-runtime-smoke.js']],
   ['node', ['v5/tests/bar-data-runtime-smoke.js']],
   ['node', ['v5/tests/chart-runtime-smoke.js']],
+  ['node', ['v5/tests/chart-viewport-follow-smoke.js']],
   ['node', ['v5/tests/replay-start-bar-smoke.js']],
   ['node', ['v5/tests/replay-prefix-load-smoke.js']],
   ['node', ['v5/tests/replay-initial-render-smoke.js']],

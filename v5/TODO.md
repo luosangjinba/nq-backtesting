@@ -55,7 +55,7 @@ Goal: close the Phase 2 viewport/display gate by separating revealed
 cursor near the right side and older bars roll out of the rendered chart.
 
 - [x] Step 374.1: Add viewport follow spec plus TODO/session plan.
-- [ ] Step 374.2: Add chart runtime viewport follow contract and smoke coverage
+- [x] Step 374.2: Add chart runtime viewport follow contract and smoke coverage
   that keeps full bars state while rendering a rolling visible subset.
 - [ ] Step 374.3: Wire replay runtime to sync viewport follow after initial
   load, Next/Play, Reset, and display projection.

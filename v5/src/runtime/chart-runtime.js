@@ -23,6 +23,12 @@ function createEmptyState() {
     visibleRange: null,
     prefixDemand: null,
     viewportDemand: null,
+    viewportFollow: {
+      enabled: false,
+      cursorTimestamp: null,
+      estimatedVisibleBars: null,
+      rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
+    },
     displayContext: {
       instrument: null,
       displayTimeframe: null,
@@ -137,6 +143,54 @@ function normalizeDisplayTimeframe(value) {
   return normalized;
 }
 
+function normalizePositiveInteger(value, fallback, label) {
+  if (value == null) return fallback;
+  const normalized = Math.floor(Number(value));
+  if (!Number.isFinite(normalized) || normalized < 0) {
+    throw new Error(`${label} must be a non-negative number.`);
+  }
+  return normalized;
+}
+
+function normalizeViewportFollow(payload = {}, state) {
+  const enabled = payload.enabled == null ? state.viewportFollow.enabled : Boolean(payload.enabled);
+  return {
+    enabled,
+    cursorTimestamp: payload.cursorTimestamp == null
+      ? state.viewportFollow.cursorTimestamp
+      : timestampSeconds(payload.cursorTimestamp, 'chart viewport follow cursorTimestamp'),
+    estimatedVisibleBars: normalizePositiveInteger(
+      payload.estimatedVisibleBars,
+      state.viewportFollow.estimatedVisibleBars,
+      'chart viewport follow estimatedVisibleBars'
+    ),
+    rightOffsetBars: normalizePositiveInteger(
+      payload.rightOffsetBars,
+      state.viewportFollow.rightOffsetBars,
+      'chart viewport follow rightOffsetBars'
+    ),
+  };
+}
+
+function computeRenderedBars(state) {
+  if (!state.viewportFollow.enabled || !state.bars.length) {
+    return [...state.bars];
+  }
+
+  const capacity = state.viewportFollow.estimatedVisibleBars || state.bars.length;
+  const rightOffsetBars = Math.min(state.viewportFollow.rightOffsetBars || 0, Math.max(0, capacity - 1));
+  const visibleCapacity = Math.max(1, capacity - rightOffsetBars);
+  const cursor = state.viewportFollow.cursorTimestamp;
+  const cursorIndex = Number.isFinite(cursor)
+    ? state.bars.findLastIndex((bar) => timestampSeconds(bar.time, 'chart bar time') <= cursor)
+    : state.bars.length - 1;
+  if (cursorIndex < 0) return [];
+
+  const endIndex = cursorIndex + 1;
+  const startIndex = Math.max(0, endIndex - visibleCapacity);
+  return state.bars.slice(startIndex, endIndex);
+}
+
 function computeViewportDemand(state) {
   if (!state.visibleRange || !state.bars.length || !state.displayContext.displayTimeframe) {
     return null;
@@ -223,10 +277,11 @@ function applyPresentationLayout(canvas, displayContext) {
   canvas.style.paddingRight = `${displayContext.rightOffsetBars * 10}px`;
 }
 
-function renderBars(canvas, bars, displayContext) {
+function renderBars(canvas, bars, displayContext, fullBarCount = bars.length) {
   const plot = document.createElement('div');
   plot.className = 'chart-bar-plot';
   plot.dataset.chartBarCount = String(bars.length);
+  plot.dataset.fullChartBarCount = String(fullBarCount);
 
   const values = bars.flatMap((bar) => [bar.open, bar.high, bar.low, bar.close]);
   const min = Math.min(...values);
@@ -258,8 +313,13 @@ function renderChartFrame(host, state) {
   canvas.setAttribute('aria-label', 'Chart runtime canvas');
   applyPresentationLayout(canvas, state.displayContext);
 
-  if (state.bars.length) {
-    renderBars(canvas, state.bars, state.displayContext);
+  const renderedBars = computeRenderedBars(state);
+  canvas.dataset.viewportFollow = state.viewportFollow.enabled ? 'true' : 'false';
+  canvas.dataset.renderedBarCount = String(renderedBars.length);
+  canvas.dataset.fullBarCount = String(state.bars.length);
+
+  if (renderedBars.length) {
+    renderBars(canvas, renderedBars, state.displayContext, state.bars.length);
   } else {
     const empty = document.createElement('span');
     empty.className = 'chart-empty-state';
@@ -376,6 +436,24 @@ export function createChartRuntime() {
     };
   }
 
+  function setViewportFollow(payload = {}) {
+    state.viewportFollow = normalizeViewportFollow(payload, state);
+    rerenderMountedHosts();
+    return {
+      viewportFollow: { ...state.viewportFollow },
+      renderedBars: computeRenderedBars(state),
+      fullBarCount: state.bars.length,
+    };
+  }
+
+  function getRenderedBars() {
+    return {
+      viewportFollow: { ...state.viewportFollow },
+      renderedBars: computeRenderedBars(state),
+      fullBarCount: state.bars.length,
+    };
+  }
+
   function setDisplayContext({
     instrument = state.displayContext.instrument,
     displayTimeframe = state.displayContext.displayTimeframe,
@@ -449,6 +527,8 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, (payload) => updateVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
+      registerCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, (payload) => setViewportFollow(payload)),
+      registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
       registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand()),
       subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload)),

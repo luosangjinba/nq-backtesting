@@ -27,7 +27,17 @@ Status: complete.
 - Render a rolling visible subset while retaining full bars state.
 - Add chart runtime smoke coverage.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added chart viewport follow commands.
+- Chart runtime now keeps full bar state while rendering a follow-derived
+  visible subset when follow is enabled.
+- Added rendered/full bar count metadata to the chart DOM surface for browser
+  verification.
+- Added `v5/tests/chart-viewport-follow-smoke.js`.
+- Added the chart viewport follow smoke to `v5/scripts/smoke_all.js`.
 
 ### Step 374.3 - Replay Runtime Follow Sync
 
