@@ -130,6 +130,20 @@ async function main() {
           };
         }
 
+        function rectFor(selector) {
+          const rect = document.querySelector(selector)?.getBoundingClientRect();
+          return rect
+            ? {
+              left: rect.left,
+              right: rect.right,
+              top: rect.top,
+              bottom: rect.bottom,
+              width: rect.width,
+              height: rect.height,
+            }
+            : null;
+        }
+
         async function waitFor(label, predicate, timeoutMs = 8000) {
           const deadline = Date.now() + timeoutMs;
           while (Date.now() < deadline) {
@@ -153,6 +167,7 @@ async function main() {
             routeId: 'chart',
             params: { sessionId: created.session.id },
           });
+          document.querySelector('.chart-viewport').style.width = '120px';
           document.querySelector('[data-chart-host]').style.width = '120px';
           await waitFor('initial loaded', async () => {
             const state = await commands.dispatchCommand('replay.getState');
@@ -164,6 +179,8 @@ async function main() {
           });
 
           const toolbarButtons = Array.from(document.querySelectorAll('[data-chart-toolbar] button'));
+          const viewportRect = rectFor('.chart-viewport');
+          const toolbarRect = rectFor('[data-chart-toolbar]');
           const before = await commands.dispatchCommand('replay.getState');
           const beforeInteraction = await commands.dispatchCommand('chart.getInteractionState');
           const beforeTimestamps = beforeInteraction.renderedBars
@@ -230,6 +247,8 @@ async function main() {
             afterPanRightRange: afterPanRight.visibleRange,
             afterResetMode: afterReset.interaction.mode,
             afterResetFollow: afterReset.viewportFollow.enabled,
+            viewportRect,
+            toolbarRect,
             requestCountBefore,
             requestCountAfter: requests.length,
           });
@@ -257,6 +276,12 @@ async function main() {
     assert.ok(value.afterPanRightRange.to <= Date.parse(value.beforeCursor) / 1000);
     assert.equal(value.afterResetMode, 'follow');
     assert.equal(value.afterResetFollow, true);
+    assert.ok(value.viewportRect, 'expected chart viewport rect');
+    assert.ok(value.toolbarRect, 'expected chart toolbar rect');
+    assert.ok(value.toolbarRect.left >= value.viewportRect.left, `toolbar overflows left: ${JSON.stringify(value)}`);
+    assert.ok(value.toolbarRect.right <= value.viewportRect.right, `toolbar overflows right: ${JSON.stringify(value)}`);
+    assert.ok(value.toolbarRect.top >= value.viewportRect.top, `toolbar overflows top: ${JSON.stringify(value)}`);
+    assert.ok(value.toolbarRect.bottom <= value.viewportRect.bottom, `toolbar overflows bottom: ${JSON.stringify(value)}`);
     assert.ok(value.requestCountAfter >= value.requestCountBefore);
   } finally {
     client?.close();
