@@ -137,8 +137,24 @@ function lightweightOptionsForContext(context) {
     timeScale: {
       ...LIGHTWEIGHT_REPLAY_TIMESCALE,
       rightOffset: context.rightOffsetBars,
+      tickMarkFormatter: (time) => formatLightweightTick(time, context),
     },
   };
+}
+
+function formatLightweightTick(time, context) {
+  if (time && typeof time === 'object' && 'year' in time && 'month' in time && 'day' in time) {
+    return `${String(time.month).padStart(2, '0')}-${String(time.day).padStart(2, '0')}`;
+  }
+  const formatted = formatDisplayTimestamp(time, {
+    displayTimezone: context.displayTimezone,
+    exchangeTimezone: context.exchangeTimezone,
+    timeFormat: context.timeFormat,
+  });
+  const match = formatted.match(/^(\d{4})-(\d{2})-(\d{2}) (.+)$/);
+  if (!match) return formatted;
+  const [, , month, day, timeText] = match;
+  return timeText.startsWith('00:00') || timeText.startsWith('12:00 AM') ? `${month}-${day}` : timeText;
 }
 
 function applyLightweightMetadata(canvas, context) {
@@ -151,8 +167,17 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.handleScrollPressedMouseMove = String(LIGHTWEIGHT_REPLAY_SCROLL.pressedMouseMove);
   canvas.dataset.handleScaleMouseWheel = String(LIGHTWEIGHT_REPLAY_SCALE.mouseWheel);
   canvas.dataset.timeScaleRightOffset = String(context.rightOffsetBars);
+  canvas.dataset.lightweightMarginTopPercent = String(context.margins.topPercent);
+  canvas.dataset.lightweightMarginBottomPercent = String(context.margins.bottomPercent);
   canvas.dataset.pricePrecision = String(LIGHTWEIGHT_PRICE_FORMAT.precision);
   canvas.dataset.priceMinMove = String(LIGHTWEIGHT_PRICE_FORMAT.minMove);
+}
+
+function applyLightweightPresentation(canvas, context) {
+  canvas.style.paddingTop = '';
+  canvas.style.paddingBottom = '';
+  canvas.style.paddingRight = '';
+  applyLightweightMetadata(canvas, context);
 }
 
 function createRuntimeCanvas(documentRef) {
@@ -637,8 +662,7 @@ function createLightweightInstance({ engine, documentRef }) {
         }
       });
       if (canvas) {
-        applyFallbackPresentation(canvas, displayContext);
-        applyLightweightMetadata(canvas, displayContext);
+        applyLightweightPresentation(canvas, displayContext);
         applyFallbackMetadata(canvas, metadata);
         canvas.dataset.renderedBarCount = String(bars.length);
         canvas.dataset.fullBarCount = String(fullBarCount);
@@ -666,8 +690,7 @@ function createLightweightInstance({ engine, documentRef }) {
     setPresentation(context = {}) {
       displayContext = normalizeContext(context);
       if (canvas) {
-        applyFallbackPresentation(canvas, displayContext);
-        applyLightweightMetadata(canvas, displayContext);
+        applyLightweightPresentation(canvas, displayContext);
       }
       chart?.applyOptions?.(lightweightOptionsForContext(displayContext));
     },

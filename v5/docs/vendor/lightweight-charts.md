@@ -33,6 +33,11 @@ Official docs:
   for every pointer interaction.
 - `timeScale().setVisibleRange()` is acceptable for explicit runtime commands
   and boundary correction, not as a per-frame echo of native pan/zoom.
+- Use `timeScale.tickMarkFormatter` for V5 display timezone/time-format labels
+  when the default Lightweight formatter is too ambiguous for replay review.
+- Do not use fallback DOM canvas padding to shape the Lightweight drawing area;
+  it shrinks the engine surface. Keep Lightweight layout options and metadata
+  separate from fallback-only DOM presentation.
 
 ## Step 385 Focus
 
@@ -45,3 +50,14 @@ Step 385 fixes the current interaction bug:
   dominate the chart;
 - browser smoke coverage proves native pan/zoom does not cause a `setData`
   storm.
+
+## Step 386 Focus
+
+Step 386 fixes chart display usability after native interaction is stable:
+
+- intraday time-axis ticks use V5 display timestamp formatting and show
+  distinguishable labels such as `09:30` instead of repeated day-only labels;
+- midnight/day-boundary ticks may show compact date labels such as `06-01`;
+- Lightweight chart surfaces keep a stable usable height;
+- fallback-only presentation padding is not applied to the Lightweight engine
+  surface.

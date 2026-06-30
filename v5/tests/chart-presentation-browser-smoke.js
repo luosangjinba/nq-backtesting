@@ -130,6 +130,8 @@ async function main() {
             ohlcHidden: document.querySelector('[data-status-ohlc-row]')?.hidden,
             canvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
             canvasPaddingRight: document.querySelector('[data-chart-canvas]')?.style.paddingRight || '',
+            lightweightMarginTop: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent || '',
+            lightweightRightOffset: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset || '',
             candleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
           }));
         }
@@ -165,8 +167,12 @@ async function main() {
           await waitFor('presentation applied', async () =>
             document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 9:30 AM'
               && document.querySelector('[data-status-ohlc-row]')?.hidden === true
-              && document.querySelector('[data-chart-canvas]')?.style.paddingTop === '6%'
-              && document.querySelector('[data-chart-canvas]')?.style.paddingRight === '160px'
+              && document.querySelector('[data-chart-canvas]')?.style.paddingTop === ''
+              && document.querySelector('[data-chart-canvas]')?.style.paddingBottom === ''
+              && document.querySelector('[data-chart-canvas]')?.style.paddingRight === ''
+              && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent === '6'
+              && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginBottomPercent === '6'
+              && document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset === '16'
               && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith('2026-06-01 9:30 AM')
           );
 
@@ -181,7 +187,11 @@ async function main() {
             compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.getAttribute('aria-pressed') || '',
             rightOffsetSelected: document.querySelector('[data-presentation-right-offset="16"]')?.getAttribute('aria-pressed') || '',
             afterCanvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
+            afterCanvasPaddingBottom: document.querySelector('[data-chart-canvas]')?.style.paddingBottom || '',
             afterCanvasPaddingRight: document.querySelector('[data-chart-canvas]')?.style.paddingRight || '',
+            afterCanvasMarginTop: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent || '',
+            afterCanvasMarginBottom: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginBottomPercent || '',
+            afterCanvasRightOffset: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
             beforeDisplayCount: before.displayBars.length,
@@ -205,8 +215,12 @@ async function main() {
     assert.equal(value.selected12h, 'true');
     assert.equal(value.compactSelected, 'true');
     assert.equal(value.rightOffsetSelected, 'true');
-    assert.equal(value.afterCanvasPaddingTop, '6%');
-    assert.equal(value.afterCanvasPaddingRight, '160px');
+    assert.equal(value.afterCanvasPaddingTop, '');
+    assert.equal(value.afterCanvasPaddingBottom, '');
+    assert.equal(value.afterCanvasPaddingRight, '');
+    assert.equal(value.afterCanvasMarginTop, '6');
+    assert.equal(value.afterCanvasMarginBottom, '6');
+    assert.equal(value.afterCanvasRightOffset, '16');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

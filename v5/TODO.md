@@ -10,9 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 385 is complete.
-- Next candidate: Step 386 should continue Phase 3 with replay toolbar layout
-  consolidation after native chart interaction is stable.
+- Current status: Step 386 is complete.
+- Next candidate: Step 387 should continue Phase 3 with replay toolbar/status
+  layout consolidation now that native chart interaction and main chart
+  readability are stable.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -24,9 +25,9 @@
 - Known next issue: visible UI is still an engineering shell, not final product
   UI. Chart navigation is functional, but replay toolbar and interaction
   controls still need product-level layout and ergonomics.
-- Known current issue: native Lightweight Charts pan/zoom/crosshair interaction
-  must not be interrupted by V5 visible-range synchronization or per-frame
-  `setData()` calls.
+- Known next issue: replay controls, presentation controls, navigation controls,
+  and status rows are still separate engineering rows. They should be
+  consolidated into a denser product-level replay workstation layout.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1066,5 +1067,50 @@ Checks:
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 386 - V5 Chart Display Usability
+
+Goal: make the main Lightweight chart readable after the native interaction
+fix by correcting time-axis labels and restoring usable chart height without
+changing runtime ownership boundaries.
+
+This step advances Historical Replay Review by making the replay chart surface
+usable for visual study. It is a display/layout polish step, not a replay state
+or data-loading change.
+
+- [x] Step 386.1: Add Step 386 TODO/session plan and update chart interaction
+  specs with display usability requirements.
+- [x] Step 386.2: Add a Lightweight `timeScale.tickMarkFormatter` so intraday
+  labels show meaningful times instead of day-only `1` labels.
+- [x] Step 386.3: Stop applying fallback canvas padding to the Lightweight
+  engine surface so presentation margins do not shrink the chart box.
+- [x] Step 386.4: Increase the chart viewport to a stable viewport-relative
+  height and keep the bottom navigation toolbar as an overlay.
+- [x] Step 386.5: Add browser smoke coverage for time-axis labels and chart
+  surface dimensions, then close the step.
+
+Manual acceptance:
+
+- Intraday Lightweight time-axis ticks are distinguishable, for example
+  `09:30`, rather than repeated day-only `1` labels.
+- Midnight/day boundary ticks may show compact dates such as `06-01`.
+- The main chart host/canvas/surface retains a usable height on desktop and is
+  not compressed by presentation padding.
+- Chart navigation controls remain available as an overlay and do not take
+  layout height away from the main chart.
+- Step 385 native wheel zoom, pressed-mouse pan, price-axis scaling, and
+  crosshair ownership remain intact.
+- UI, chart runtime, replay runtime, and bar-data runtime ownership boundaries
+  remain intact.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-display-usability-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

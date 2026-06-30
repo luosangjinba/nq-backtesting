@@ -13,6 +13,9 @@ Step 383 adds chart-owned go-to time / jump-to-cursor navigation.
 Step 384 adds chart-owned toolbar zoom/pan/reset commands.
 Step 385 fixes Lightweight Charts native interaction so V5 observes native
 pan/zoom/crosshair behavior without fighting the chart engine.
+Step 386 fixes main chart display usability: intraday time-axis labels must be
+meaningful, and Lightweight presentation settings must not shrink the engine
+surface.
 
 In scope:
 
@@ -22,6 +25,7 @@ In scope:
 - toolbar zoom/pan as chart runtime commands that derive manual visible ranges;
 - native chart-engine visible-range observation without per-frame data
   replacement;
+- chart display readability required for native interaction to be usable;
 - jump-to-cursor as explicit resume-follow behavior;
 - viewport demand emission after manual range changes;
 - harnesses proving ownership boundaries.
@@ -30,7 +34,7 @@ Out of scope:
 
 - full drag/zoom pointer implementation;
 - crosshair readout;
-- axis labels and tooltip polish;
+- full axis label and tooltip polish beyond Step 386 time-axis readability;
 - replay toolbar polish outside chart navigation;
 - orders, journal, annotations, SaaS auth, billing, and server persistence.
 
@@ -75,6 +79,11 @@ Out of scope:
   must not also attach a parallel canvas `mousemove` crosshair implementation.
 - High-frequency crosshair/readout updates should be deduped or throttled
   before route DOM updates.
+- Lightweight time-axis ticks should use V5 display timezone/time-format
+  context, and intraday ticks must not collapse into repeated day-only labels.
+- Fallback DOM presentation padding must not be applied to the Lightweight
+  engine surface. Lightweight chart layout should keep the main drawing surface
+  at a stable usable height.
 - Jump-to-cursor resumes chart viewport follow explicitly. It does not advance
   replay cursor.
 - If viewport demand is consumed, replay runtime may update `displayBars`
@@ -148,6 +157,9 @@ When native Lightweight Charts pan/zoom is observed:
   event.
 - Duplicating Lightweight Charts native wheel zoom, pressed mouse pan,
   price-axis scaling, or crosshair move behavior in V5 shell code.
+- Compressing the Lightweight chart engine surface through fallback-only canvas
+  padding.
+- Leaving intraday Lightweight time-axis labels as repeated day-only values.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification
@@ -167,6 +179,8 @@ Step 376 should add or update harnesses proving:
   reset-to-cursor as explicit follow resume.
 - native Lightweight pan/zoom does not create a `setData` storm and keeps
   crosshair/grid presentation subdued.
+- intraday time-axis labels are distinguishable and the main chart surface has
+  a stable usable height.
 
 Expected checks:
 
@@ -175,5 +189,6 @@ Expected checks:
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/chart-display-usability-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
