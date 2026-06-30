@@ -177,7 +177,7 @@ async function main() {
           await waitFor('renavigate restored', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             return state.cursorTimestamp === '2026-06-01T09:31:00.000Z'
-              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01T09:31:00.000Z';
+              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 09:31';
           });
           const restored = await commands.dispatchCommand('replay.getState');
 
@@ -201,7 +201,7 @@ async function main() {
             const state = await commands.dispatchCommand('replay.getState');
             return state.cursorTimestamp === '2026-06-01T09:30:00.000Z'
               && state.revealedCount === 0
-              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01T09:30:00.000Z'
+              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 09:30'
               && document.querySelector('[data-replay-revealed-count]')?.textContent === '0';
           });
           const restoredAfterReset = await commands.dispatchCommand('replay.getState');
@@ -253,7 +253,7 @@ async function main() {
     assert.equal(value.restoredAfterResetCount, value.initialCount);
     assert.equal(value.restoredAfterResetCursor, '2026-06-01T09:30:00.000Z');
     assert.equal(value.restoredAfterResetRevealedCount, 0);
-    assert.equal(value.cursorText, '2026-06-01T09:30:00.000Z');
+    assert.equal(value.cursorText, '2026-06-01 09:30');
     assert.equal(value.revealedText, '0');
     assert.equal(
       value.barRequests.some((request) => request.start === '2026-06-01 09:30' && request.end === '2026-06-01 09:35'),
@@ -327,7 +327,7 @@ async function main() {
             const state = await commands.dispatchCommand('replay.getState');
             return state.cursorTimestamp === '2026-06-01T09:30:00.000Z'
               && state.revealedCount === 0
-              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01T09:30:00.000Z';
+              && document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 09:30';
           });
           const restored = await commands.dispatchCommand('replay.getState');
           return JSON.stringify({

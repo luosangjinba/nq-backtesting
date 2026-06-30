@@ -105,7 +105,7 @@ assert.equal(secondNext.advanced, false);
 assert.equal(secondNext.reason, 'session-end');
 assert.equal(secondNext.displayBars.length, firstNext.displayBars.length);
 assert.equal(chartBars.length, firstNext.displayBars.length);
-assert.equal(barRequests.length, 3);
+assert.equal(barRequests.length, 2);
 
 replayRuntime.stop();
 unregisterReplace();

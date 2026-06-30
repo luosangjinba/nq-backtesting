@@ -284,14 +284,14 @@ async function main() {
     assert.ok(value.terminalCount > value.afterPauseWaitCount, 'Play should continue to session end');
     assert.equal(value.terminalStoppedReason, 'session-end');
     assert.equal(value.terminalStatusText, 'Replay stopped: session-end.');
-    assert.equal(value.startText, '2026-06-01T09:30:00.000Z');
+    assert.equal(value.startText, '2026-06-01 09:30');
     assert.deepEqual(value.listenerCountsAfterNavigate, {
       initialLoaded: 0,
       next: 0,
       playbackChanged: 0,
     });
-    assert.equal(value.cursorText, '2026-06-01T09:40:00.000Z');
-    assert.equal(value.endText, '2026-06-01T09:40:00.000Z');
+    assert.equal(value.cursorText, '2026-06-01 09:40');
+    assert.equal(value.endText, '2026-06-01 09:40');
     assert.equal(value.revealedText, String(value.terminalRevealedCount));
     assert.equal(value.playbackText, 'Paused');
     assert.equal(value.afterDisposePlaying, false);

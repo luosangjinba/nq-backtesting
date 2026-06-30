@@ -67,6 +67,15 @@ assert.deepEqual(planned, {
   bounded: true,
 });
 
+const plannedWallClock = await dispatchCommand(BAR_DATA_COMMANDS.PLAN_WINDOW, {
+  instrument: 'nq',
+  timeframe: 1,
+  anchor: '2026-06-01 09:32',
+  direction: 'backward',
+  count: 3,
+});
+assert.deepEqual(plannedWallClock, planned);
+
 const loaded = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, planned);
 assert.equal(requests.length, 1);
 assert.equal(loaded.bars.length, 3);

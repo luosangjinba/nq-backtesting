@@ -478,9 +478,9 @@ annotation work makes time handling harder to change.
   smoke that separate canonical/request/display time.
 - [x] Step 372.2: Add display timezone preference runtime commands/events with
   default `Exchange` while proving timezone changes do not reload bars.
-- [ ] Step 372.3: Apply display timezone formatting to replay/chart labels and
+- [x] Step 372.3: Apply display timezone formatting to replay/chart labels and
   add browser coverage that timezone changes alter labels only.
-- [ ] Step 372.4: Add timezone smokes to `smoke_all`, run full verification,
+- [x] Step 372.4: Add timezone smokes to `smoke_all`, run full verification,
   and update the session handoff.
 
 Manual acceptance:

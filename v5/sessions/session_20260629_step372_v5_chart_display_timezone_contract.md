@@ -66,7 +66,15 @@ Completed:
 - Add browser coverage that timezone changes update labels but do not trigger
   `/v4/bars` requests or alter cursor/display bars.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added chart replay timezone controls for `Exchange`, `UTC`, and Los Angeles.
+- Replay start/cursor/end labels now format through display timezone preference.
+- Added `v5/tests/display-timezone-browser-smoke.js`.
+- Browser coverage verifies timezone changes alter labels without changing
+  cursor, display bar count, or `/v4/bars` request count.
 
 ### Step 372.4 - Final Verification
 
@@ -74,7 +82,12 @@ Status: planned.
 - Run full V5 smoke and `git diff --check`.
 - Update this handoff with completed status.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added timezone contract/runtime/browser smokes to `v5/scripts/smoke_all.js`.
+- Ran full V5 smoke verification.
 
 ## Manual Acceptance
 
@@ -99,3 +112,36 @@ Status: planned.
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Completed
+
+- Added `v5/docs/specs/chart-display-timezone.md`.
+- Added display timezone command/event contracts.
+- Added display timezone formatter utilities that map canonical exchange
+  wall-clock chart timestamps to real display timezone labels.
+- Added display timezone runtime and registered it in the V5 app shell.
+- Added chart replay timezone controls for `Exchange`, `UTC`, and Los Angeles.
+- Replay start/cursor/end labels now use display timezone formatting.
+- Fixed V5 bar data request planning so exchange wall-clock strings and pseudo
+  ISO anchors preserve their wall-clock fields instead of passing through browser
+  local timezone conversion.
+- Added timezone contract, runtime, and browser smokes.
+- Added timezone smokes to `v5/scripts/smoke_all.js`.
+
+## Verified
+
+- `node v5/tests/timezone-contracts-smoke.js`
+- `node v5/tests/display-timezone-runtime-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/bar-data-runtime-smoke.js`
+- `node v5/tests/replay-start-bar-smoke.js`
+- `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Notes For Next Session
+
+Step 372 is complete. The next V5 slice can build more realistic chart
+interaction now that time semantics are fixed: real drag/scroll visible-range
+changes, richer axis labels, or tooltip formatting should use the display
+timezone preference and must not alter `/v4/bars` request wall-clock semantics.

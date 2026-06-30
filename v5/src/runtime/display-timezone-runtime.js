@@ -5,7 +5,7 @@ import {
   DISPLAY_TIMEZONE_COMMANDS,
   DISPLAY_TIMEZONE_EVENTS,
 } from '../contracts/timezone-contracts.js';
-import { resolveDisplayTimezone } from './timezone-format.js';
+import { resolveDisplayTimezone } from '../domain/timezone-format.js';
 
 export {
   DISPLAY_TIMEZONE_COMMANDS,

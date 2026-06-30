@@ -10,7 +10,7 @@ import {
   canonicalTimestampToInstantMs,
   formatDisplayTimestamp,
   resolveDisplayTimezone,
-} from '../src/runtime/timezone-format.js';
+} from '../src/domain/timezone-format.js';
 
 const canonicalNewYork0930Summer = Date.parse('2026-06-01T09:30:00.000Z') / 1000;
 const canonicalNewYork0930Winter = Date.parse('2026-01-05T09:30:00.000Z') / 1000;
@@ -34,6 +34,10 @@ assert.equal(
 
 assert.equal(
   formatDisplayTimestamp(canonicalNewYork0930Summer, { displayTimezone: DISPLAY_TIMEZONES.EXCHANGE }),
+  '2026-06-01 09:30'
+);
+assert.equal(
+  formatDisplayTimestamp('2026-06-01 09:30', { displayTimezone: DISPLAY_TIMEZONES.EXCHANGE }),
   '2026-06-01 09:30'
 );
 assert.equal(

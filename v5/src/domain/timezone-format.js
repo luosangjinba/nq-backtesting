@@ -5,7 +5,25 @@ import {
 } from '../contracts/timezone-contracts.js';
 
 function timestampSeconds(value) {
-  const parsed = typeof value === 'number' ? value : Date.parse(value) / 1000;
+  if (typeof value === 'number') {
+    return Math.floor(value);
+  }
+
+  const text = typeof value === 'string' ? value.trim() : '';
+  const wallClockMatch = text.match(
+    /^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})(?::(\d{2}))?(?:\.\d{3}Z)?$/
+  );
+  const parsed = wallClockMatch
+    ? Date.UTC(
+      Number(wallClockMatch[1]),
+      Number(wallClockMatch[2]) - 1,
+      Number(wallClockMatch[3]),
+      Number(wallClockMatch[4]),
+      Number(wallClockMatch[5]),
+      Number(wallClockMatch[6] || 0)
+    ) / 1000
+    : Date.parse(value) / 1000;
+
   if (!Number.isFinite(parsed)) {
     throw new Error('timezone timestamp must be valid.');
   }
@@ -85,7 +103,7 @@ export function formatDisplayTimestamp(timestamp, {
   const timeZone = resolveDisplayTimezone(displayTimezone, { exchangeTimezone });
   const instantMs = canonicalTimestampToInstantMs(timestamp, { exchangeTimezone });
   const parts = getTimeZoneParts(instantMs, timeZone);
-  const pad = (value) => String(value).padStart(2, '0');
+  const pad = (item) => String(item).padStart(2, '0');
   const time = includeSeconds
     ? `${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}`
     : `${pad(parts.hour)}:${pad(parts.minute)}`;
