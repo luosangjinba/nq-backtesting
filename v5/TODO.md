@@ -57,7 +57,7 @@ project into random feature order.
 - [x] Step 375.1: Add Step 375 TODO/session plan.
 - [x] Step 375.2: Update roadmap/TODO to mark Phase 2 gate status and fix
   Step 373 documentation drift.
-- [ ] Step 375.3: Record Phase 3 entry checklist, run verification, and update
+- [x] Step 375.3: Record Phase 3 entry checklist, run verification, and update
   handoff.
 
 Manual acceptance:

@@ -40,7 +40,16 @@ Completed:
 - Run full V5 smoke and `git diff --check`.
 - Update this handoff with the result.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added Phase 3 entry checklist to `v5/docs/V5_PHASE_ROADMAP.md`.
+- Set the first Phase 3 direction as chart interaction runtime contracts for
+  true visible-range drag/zoom.
+- Marked toolbar polish, order/journal overlays, rich drawings, and full
+  settings templates as not first-entry work unless the roadmap is updated.
+- Verified full V5 smoke and whitespace checks.
 
 ## Manual Acceptance
 
@@ -53,3 +62,5 @@ Status: pending.
 
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Result: all checks passed.

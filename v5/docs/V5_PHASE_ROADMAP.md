@@ -155,6 +155,19 @@ Gate:
 - A user can navigate chart time intentionally without breaking replay reveal
   boundaries or causing implicit bar loads outside the bar data runtime.
 
+Entry checklist:
+
+- First Phase 3 step should define chart interaction runtime contracts for true
+  visible-range drag/zoom.
+- Drag/zoom must decide how manual movement pauses or resumes replay
+  auto-follow.
+- Chart runtime still owns visible range observation and chart rendering.
+- Replay runtime still owns cursor, reveal state, and no-future display
+  invariants.
+- Bar data runtime remains the only source of `/v4/bars` requests.
+- Toolbar polish, order/journal overlays, rich drawings, and full settings
+  templates must wait until their target phases unless this roadmap is updated.
+
 ## Phase 4 - Trading And Journal MVP
 
 Status: pending Phase 3 gate.
