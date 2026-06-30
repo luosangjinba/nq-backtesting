@@ -43,6 +43,7 @@ const commands = [
   ['node', ['v5/tests/chart-crosshair-browser-smoke.js']],
   ['node', ['v5/tests/chart-go-to-time-browser-smoke.js']],
   ['node', ['v5/tests/chart-navigation-toolbar-browser-smoke.js']],
+  ['node', ['v5/tests/replay-floating-controls-browser-smoke.js']],
   ['node', ['v5/tests/chart-native-interaction-browser-smoke.js']],
   ['node', ['v5/tests/chart-display-usability-browser-smoke.js']],
   ['node', ['v5/tests/replay-workstation-layout-browser-smoke.js']],

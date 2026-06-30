@@ -168,6 +168,11 @@ async function main() {
           });
           const before = await commands.dispatchCommand('replay.getState');
           const requestCountBeforeGo = requests.length;
+          document.querySelector('[data-chart-go-to-open]').click();
+          await waitFor('go-to popover open', async () => {
+            return document.querySelector('[data-chart-go-to-popover]')?.hidden === false
+              && document.querySelector('[data-chart-go-to-input]');
+          });
           const input = document.querySelector('[data-chart-go-to-input]');
           input.value = '2026-06-01T13:29';
           input.dispatchEvent(new Event('input', { bubbles: true }));
@@ -177,7 +182,8 @@ async function main() {
             const interaction = await commands.dispatchCommand('chart.getInteractionState');
             return chart.mode === 'manual'
               && chart.follow === 'false'
-              && interaction.visibleRange?.to <= Date.parse(before.cursorTimestamp) / 1000;
+              && interaction.visibleRange?.to <= Date.parse(before.cursorTimestamp) / 1000
+              && document.querySelector('[data-chart-go-to-popover]')?.hidden === true;
           });
           const afterGo = await commands.dispatchCommand('replay.getState');
           const afterGoInteraction = await commands.dispatchCommand('chart.getInteractionState');

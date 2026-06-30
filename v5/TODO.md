@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 390 is complete.
-- Next candidate: after Step 390, continue Phase 3 by tightening any remaining
-  real-chart interaction/readability issues found during manual use, or prepare
-  the Phase 3 closeout checklist if chart navigation is stable enough.
+- Current status: Step 391 is complete.
+- Next candidate: after Step 391, continue Phase 3 by deciding whether Layout
+  needs a dedicated planning step, or prepare the Phase 3 closeout checklist if
+  chart navigation is stable enough.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -22,8 +22,8 @@
 - Step 381 added chart-owned crosshair readout; follow-up fix removed
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
-- Known next issue: decide whether remaining Phase 3 chart feedback needs a
-  focused fix, or whether the phase is ready for closeout planning.
+- Known next issue: Layout split panes need a dedicated planning step before
+  implementation because multi-chart ownership and sync rules must be explicit.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1279,5 +1279,52 @@ Checks:
 - `node v5/tests/chart-overlay-visibility-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 391 - V5 Floating Replay Controls And Hidden Go To
+
+Goal: restructure the replay workstation controls so replay actions live in a
+floating chart control bar and Go to time is hidden behind an explicit popover,
+matching the FXReplay interaction model more closely.
+
+This step advances Historical Replay Review by reducing top-toolbar visual
+noise and making replay actions feel chart-native. It is a UI composition step,
+not a replay runtime, bar-loading, chart-engine, layout-splitting, drawing, or
+journal step.
+
+- [x] Step 391.1: Add Step 391 TODO/session plan with explicit non-goals for
+  multi-pane Layout and drawing tools.
+- [x] Step 391.2: Move Next/Play/Pause/Reset and display timeframe controls
+  into a floating replay bar inside the chart viewport.
+- [x] Step 391.3: Replace the permanent Go to date input with a toolbar entry
+  that opens a chart-centered popover/modal containing date/time, Go, Cancel,
+  and Cursor actions.
+- [x] Step 391.4: Add a top-toolbar Layout entry as a disabled/placeholder
+  future control without implementing split panes.
+- [x] Step 391.5: Add browser smoke coverage for floating replay controls,
+  hidden Go to behavior, existing replay commands, and layout containment.
+
+Manual acceptance:
+
+- The top workstation toolbar no longer carries primary replay controls or a
+  permanent date/time input.
+- Next, Play, Pause, Reset, and timeframe selection remain command-driven and
+  work from the floating chart replay bar.
+- The floating replay bar stays inside the chart viewport and clear of the
+  right price axis and time-axis area.
+- Go to opens only after an explicit action, can be cancelled, and still uses
+  chart runtime commands for navigation.
+- Layout is visible only as a future entry point; split panes, sync settings,
+  and drawing tools remain out of scope.
+- Replay cursor, reveal state, native Lightweight interactions, and bar-data
+  ownership remain unchanged.
+
+Checks:
+
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -32,18 +32,6 @@ export function createChartReplayRoute() {
           <span class="runtime-badge">Historical Review</span>
         </div>
         <div class="replay-workstation-toolbar" data-replay-workstation-toolbar>
-          <div class="replay-controls" data-replay-controls aria-label="Replay controls">
-            <button type="button" data-replay-next disabled>Next</button>
-            <button type="button" data-replay-play disabled>Play</button>
-            <button type="button" data-replay-pause disabled>Pause</button>
-            <button type="button" data-replay-reset disabled>Reset</button>
-          </div>
-          <div class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
-            <button type="button" data-display-timeframe="1" aria-pressed="false" disabled>1m</button>
-            <button type="button" data-display-timeframe="5" aria-pressed="false" disabled>5m</button>
-            <button type="button" data-display-timeframe="60" aria-pressed="false" disabled>1H</button>
-            <button type="button" data-display-timeframe="1440" aria-pressed="false" disabled>1D</button>
-          </div>
           <div class="display-timezone-controls" data-display-timezone-controls aria-label="Display timezone">
             <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
             <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
@@ -58,12 +46,9 @@ export function createChartReplayRoute() {
             <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
           </div>
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
-            <label>
-              Go to
-              <input type="datetime-local" data-chart-go-to-input>
-            </label>
-            <button type="button" data-chart-go-to disabled>Go</button>
+            <button type="button" data-chart-go-to-open disabled>Go to</button>
             <button type="button" data-chart-jump-cursor disabled>Cursor</button>
+            <button type="button" data-layout-open disabled title="Layout is planned for a later step">Layout</button>
           </div>
         </div>
         <div class="chart-viewport">
@@ -76,6 +61,37 @@ export function createChartReplayRoute() {
             <button type="button" data-chart-pan-left title="Pan left" aria-label="Pan left" disabled>&lsaquo;</button>
             <button type="button" data-chart-pan-right title="Pan right" aria-label="Pan right" disabled>&rsaquo;</button>
             <button type="button" data-chart-reset-view title="Reset to cursor" aria-label="Reset to cursor" disabled>&#8634;</button>
+          </div>
+          <div class="replay-floating-controls" data-replay-floating-controls aria-label="Replay controls">
+            <div class="replay-controls" data-replay-controls>
+              <button type="button" data-replay-next disabled>Next</button>
+              <button type="button" data-replay-play disabled>Play</button>
+              <button type="button" data-replay-pause disabled>Pause</button>
+              <button type="button" data-replay-reset disabled>Reset</button>
+            </div>
+            <div class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
+              <button type="button" data-display-timeframe="1" aria-pressed="false" disabled>1m</button>
+              <button type="button" data-display-timeframe="5" aria-pressed="false" disabled>5m</button>
+              <button type="button" data-display-timeframe="60" aria-pressed="false" disabled>1H</button>
+              <button type="button" data-display-timeframe="1440" aria-pressed="false" disabled>1D</button>
+            </div>
+          </div>
+          <div class="chart-go-to-popover" data-chart-go-to-popover hidden>
+            <div class="chart-go-to-panel" role="dialog" aria-modal="false" aria-label="Go to time">
+              <div class="chart-go-to-header">
+                <strong>Go to</strong>
+                <button type="button" data-chart-go-to-cancel aria-label="Close go to">&times;</button>
+              </div>
+              <label>
+                Date and time
+                <input type="datetime-local" data-chart-go-to-input>
+              </label>
+              <div class="chart-go-to-actions">
+                <button type="button" data-chart-go-to-cancel>Cancel</button>
+                <button type="button" data-chart-go-to disabled>Go</button>
+                <button type="button" data-chart-jump-cursor-popover disabled>Cursor</button>
+              </div>
+            </div>
           </div>
         </div>
         <div class="replay-footer" data-replay-footer>
@@ -118,9 +134,14 @@ export function createChartReplayRoute() {
       const presentationToggleButtons = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
       const presentationMarginButtons = Array.from(section.querySelectorAll('[data-presentation-margin]'));
       const presentationRightOffsetButtons = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
+      const goToPopover = section.querySelector('[data-chart-go-to-popover]');
+      const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
+      const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
       const goToInput = section.querySelector('[data-chart-go-to-input]');
       const goToButton = section.querySelector('[data-chart-go-to]');
       const jumpCursorButton = section.querySelector('[data-chart-jump-cursor]');
+      const jumpCursorPopoverButton = section.querySelector('[data-chart-jump-cursor-popover]');
+      const layoutOpenButton = section.querySelector('[data-layout-open]');
       const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
       const zoomOutButton = section.querySelector('[data-chart-zoom-out]');
       const zoomInButton = section.querySelector('[data-chart-zoom-in]');
@@ -232,8 +253,11 @@ export function createChartReplayRoute() {
         pauseButton.disabled = unavailable || !playbackPlaying;
         resetButton.disabled = unavailable;
         goToInput.disabled = unavailable;
+        goToOpenButton.disabled = unavailable;
         goToButton.disabled = unavailable || !goToInput.value;
         jumpCursorButton.disabled = unavailable;
+        jumpCursorPopoverButton.disabled = unavailable;
+        layoutOpenButton.disabled = true;
         chartToolbarButtons.forEach((button) => {
           button.disabled = unavailable;
         });
@@ -427,6 +451,23 @@ export function createChartReplayRoute() {
         });
       });
 
+      function openGoToPopover() {
+        if (goToOpenButton.disabled) return;
+        goToPopover.hidden = false;
+        goToInput.focus();
+        setControlsDisabled();
+      }
+
+      function closeGoToPopover() {
+        goToPopover.hidden = true;
+        setControlsDisabled();
+      }
+
+      goToOpenButton.addEventListener('click', openGoToPopover);
+      goToCancelButtons.forEach((button) => {
+        button.addEventListener('click', closeGoToPopover);
+      });
+
       goToInput.addEventListener('input', () => {
         setControlsDisabled();
       });
@@ -507,6 +548,7 @@ export function createChartReplayRoute() {
           status.textContent = result.visibleRange?.to && result.targetTimestamp > result.visibleRange.to
             ? `Viewing ${visibleText}; requested ${requestedText} is beyond cursor.`
             : `Viewing ${requestedText}.`;
+          closeGoToPopover();
         } catch (error) {
           status.textContent = error?.message || String(error);
         } finally {
@@ -515,7 +557,7 @@ export function createChartReplayRoute() {
         }
       });
 
-      jumpCursorButton.addEventListener('click', async () => {
+      async function jumpToCursor() {
         if (commandInFlight) return;
         commandInFlight = true;
         setControlsDisabled(true);
@@ -529,6 +571,12 @@ export function createChartReplayRoute() {
           commandInFlight = false;
           setControlsDisabled(false);
         }
+      }
+
+      jumpCursorButton.addEventListener('click', jumpToCursor);
+      jumpCursorPopoverButton.addEventListener('click', async () => {
+        await jumpToCursor();
+        closeGoToPopover();
       });
 
       [
