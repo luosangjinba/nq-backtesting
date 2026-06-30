@@ -15,6 +15,10 @@
 - Before starting Step 378, add its TODO/session plan and keep the implementation bounded to the Phase 3 gate.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
+- Product guardrail: Historical Replay Review and Live Execution Review can
+  coexist on one chart surface. Future order/journal/review artifacts should
+  share chart context, canonical time, and ownership paths instead of creating
+  isolated chart products.
 
 ## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
 

@@ -15,6 +15,13 @@ Chart rendering, replay controls, order models, journal entries, annotations,
 screenshots, tags, statistics, import/export, workspace sync, and SaaS packaging
 are infrastructure around these two workflows.
 
+The two workflows are not isolated chart products. They can coexist on the same
+chart surface: a user may run no-future historical replay logic while also
+overlaying actual orders, fills, notes, corrections, and process-quality tags
+from real execution history. Historical Replay Review and Live Execution Review
+are different review lenses over shared chart context, canonical time, and
+review artifacts.
+
 V4 already grew many of these ideas through replay review, order reviews, live
 records, daily time reviews, PDA annotations, segments, chart notes, and review
 archives. V5 should inherit the product lesson, not the V4 frontend ownership
@@ -105,6 +112,12 @@ Shared foundation:
 - import/export/sync model;
 - searchable review library.
 
+The shared chart surface should support multiple artifact sources at once:
+replay decisions, simulated orders, actual orders/fills, execution notes,
+annotations, evidence, and later corrections can all point to the same canonical
+chart time and instrument context. Workflow-specific rules may filter or style
+these artifacts, but they should not require separate chart ownership paths.
+
 The shared foundation must be designed early because retrofitting it later is
 exactly the kind of cost V4 exposed.
 
@@ -124,6 +137,10 @@ exactly the kind of cost V4 exposed.
   remain stable under timezone, timeframe, and viewport changes.
 - Shared evidence/tags/refs must be usable by both core workflows unless a
   workflow-specific model has a clear reason to diverge.
+- A chart may display Historical Replay Review and Live Execution Review
+  artifacts together. Workflow boundaries must be expressed through artifact
+  type, source, visibility, and review semantics, not through isolated chart
+  runtimes.
 - SaaS features should preserve user/workspace/session ownership, but public
   auth, billing, and entitlements must not displace the review loop before the
   training workflow is validated.
@@ -142,6 +159,8 @@ V4 also shows what V5 must avoid:
 
 - feature-owned chart/replay mutation paths;
 - review objects that grow separately and need expensive later unification;
+- separate chart surfaces for historical replay and execution review when both
+  should share the same chart context;
 - local-only persistence assumptions for objects that become core research
   records;
 - journal/order models that start as quick UI features before process-quality

@@ -30,6 +30,11 @@ Product north star: V5 serves two core review workflows:
 - Live Execution Review: review of past real-time execution quality, separating
   process correctness from PnL outcome.
 
+These workflows can share one chart surface. Historical replay state, simulated
+decisions, actual orders/fills, execution notes, annotations, evidence, and
+process-quality tags should be modeled as artifacts over shared chart context
+and canonical time, not as separate chart products.
+
 New steps should state which workflow they advance, or why the work is necessary
 shared infrastructure for the review loop. Historical Replay Review and Live
 Execution Review are the product center, not later add-on modules.
@@ -210,6 +215,8 @@ Gate:
   under timezone, timeframe, and viewport changes.
 - Orders and journal entries have explicit user/workspace/session ownership so
   they can move from local persistence to server persistence later.
+- Actual orders/fills and replay decisions can coexist on the same chart context
+  without creating a second chart ownership path.
 - Live Execution Review separates process quality from PnL outcome so a winning
   trade can still be marked as an execution error and a losing trade can still be
   marked as correct execution.
