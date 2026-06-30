@@ -74,7 +74,7 @@ Status: complete.
   - `replay:displayWindowLoaded`;
   - `replay:displayReloaded`.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.3 - Viewport Demand
 
@@ -170,10 +170,20 @@ Status: pending.
 - Updated `v5/docs/specs/README.md`.
 - Marked the older prefix demand/retention spec as the Step 365 MVP baseline
   that Step 369 will supersede.
+- Added replay display command/event contracts:
+  - `replay.setDisplayTimeframe`;
+  - `replay.getDisplayContext`;
+  - `replay.loadDisplayWindow`;
+  - `replay:displayTimeframeChanged`;
+  - `replay:displayWindowLoaded`;
+  - `replay:displayReloaded`.
+- Added `v5/tests/replay-display-contracts-smoke.js`.
+- Added the display contracts smoke to `v5/scripts/smoke_all.js`.
 
 ## Checks
 
 - `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-contracts-smoke.js`
 - `node v5/tests/replay-display-timeframe-no-future-smoke.js`
 - `node v5/tests/replay-display-window-cache-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-smoke.js`
@@ -183,6 +193,12 @@ Status: pending.
 
 Verified for Step 369.1:
 
+- `git diff --check`
+
+Verified for Step 369.2:
+
+- `node v5/tests/replay-display-contracts-smoke.js`
+- `node v5/tests/runtime-smoke.js`
 - `git diff --check`
 
 ## Notes For Next Session
