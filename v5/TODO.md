@@ -58,8 +58,8 @@ tooltip, toolbar, order, or journal UI.
 - [x] Step 376.2: Add chart runtime interaction state and commands for manual
   visible-range movement and follow resume.
 - [x] Step 376.3: Wire replay/chart behavior so manual movement pauses
-  auto-follow without mutating replay cursor or `displayBars`.
-- [ ] Step 376.4: Add browser verification, run full smoke, and update handoff.
+  auto-follow without directly mutating replay cursor or `displayBars`.
+- [x] Step 376.4: Add browser verification, run full smoke, and update handoff.
 
 Manual acceptance:
 
@@ -69,6 +69,8 @@ Manual acceptance:
 - Replay runtime continues to own cursor and reveal state.
 - Manual movement may emit viewport demand, but it must not request bars
   directly.
+- Replay-owned viewport demand consumption may grow `displayBars` without
+  resuming follow.
 - UI does not directly slice bars, mutate replay state, or call bar-data APIs.
 - Crosshair, axis labels, go-to time, toolbar polish, orders, journal, SaaS
   auth, and billing remain out of scope.

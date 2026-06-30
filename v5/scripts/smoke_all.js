@@ -35,6 +35,7 @@ const commands = [
   ['node', ['v5/tests/chart-presentation-browser-smoke.js']],
   ['node', ['v5/tests/replay-display-timeframe-browser-smoke.js']],
   ['node', ['v5/tests/replay-viewport-follow-browser-smoke.js']],
+  ['node', ['v5/tests/chart-interaction-browser-smoke.js']],
   ['node', ['v5/tests/replay-restore-smoke.js']],
   ['node', ['v5/tests/replay-reset-smoke.js']],
   ['node', ['v5/tests/replay-session-switch-smoke.js']],

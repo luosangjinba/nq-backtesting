@@ -58,7 +58,7 @@ Status: complete.
 Completed:
 
 - Added replay/chart integration smoke for manual viewport follow behavior.
-- Verified manual visible-range movement does not mutate replay cursor or
+- Verified manual visible-range movement does not directly mutate replay cursor or
   `displayBars`.
 - Verified Next can advance replay while chart remains in manual mode.
 - Verified replay follow sync does not auto-resume chart follow after manual
@@ -74,7 +74,21 @@ Completed:
 - Run full V5 smoke and `git diff --check`.
 - Update this session handoff.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added `v5/tests/chart-interaction-browser-smoke.js`.
+- Browser smoke proves manual visible range pauses follow in the real route.
+- Browser smoke proves Next advances replay cursor while chart remains in manual
+  mode.
+- Browser smoke proves explicit resume returns chart rendering to cursor-follow
+  mode.
+- Updated the spec/TODO language to clarify direct mutation boundaries:
+  viewport demand consumption may grow replay-owned `displayBars`, but chart
+  manual movement does not directly mutate replay state or request bars.
+- Added the browser smoke to `v5/scripts/smoke_all.js`.
+- Ran full V5 smoke and whitespace checks.
 
 ## Manual Acceptance
 
@@ -82,7 +96,8 @@ Status: pending.
 - Next/Play after manual movement does not auto-resume follow.
 - Resume follow is explicit.
 - Manual movement does not request bars directly.
-- Manual movement does not mutate replay cursor or `displayBars`.
+- Manual movement does not directly mutate replay cursor or `displayBars`.
+- Replay-owned viewport demand consumption may grow `displayBars`.
 - Full pointer drag/zoom, crosshair, go-to time, order/journal, auth, billing,
   and SaaS infrastructure are out of scope.
 
@@ -93,3 +108,5 @@ Status: pending.
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+Result: all checks passed.

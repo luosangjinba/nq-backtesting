@@ -49,7 +49,9 @@ Out of scope:
   paused it manually.
 - Resume follow is explicit.
 - Manual movement may emit viewport demand, but must not request bars by itself.
-- Manual movement must not mutate replay cursor or `displayBars`.
+- Manual movement must not directly mutate replay cursor or `displayBars`.
+- If viewport demand is consumed, replay runtime may update `displayBars`
+  through a bounded replay-owned display load.
 - Manual visible ranges remain clamped to the replay right-edge limit.
 
 ## Runtime Contract
@@ -89,7 +91,9 @@ When follow is resumed:
 Step 376 should add or update harnesses proving:
 
 - manual visible-range movement pauses follow;
-- manual movement does not mutate replay cursor or `displayBars`;
+- manual movement does not directly mutate replay cursor or `displayBars`;
+- replay-owned viewport demand consumption may grow display history without
+  resuming follow;
 - Next/Play does not auto-resume follow after manual movement;
 - resume follow returns rendering to cursor-follow behavior;
 - manual movement emits viewport demand without requesting bars directly.
