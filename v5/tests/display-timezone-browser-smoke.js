@@ -158,6 +158,9 @@ async function main() {
           const beforeCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
           const beforeEndLabel = document.querySelector('[data-replay-end]')?.textContent || '';
           const beforeCandleTitle = Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '';
+          const losAngelesButtonExists = Boolean(
+            document.querySelector('[data-display-timezone="America/Los_Angeles"]')
+          );
           const requestCount = requests.length;
           document.querySelector('[data-display-timezone="UTC"]').click();
           await waitFor('utc label', async () =>
@@ -171,6 +174,7 @@ async function main() {
             beforeCursorLabel,
             beforeEndLabel,
             beforeCandleTitle,
+            losAngelesButtonExists,
             afterCursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             afterEndLabel: document.querySelector('[data-replay-end]')?.textContent || '',
             afterCandleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
@@ -198,6 +202,7 @@ async function main() {
     assert.match(value.beforeCandleTitle, /^2026-06-01 09:30/);
     assert.match(value.afterCandleTitle, /^2026-06-01 13:30/);
     assert.equal(value.selectedUtc, 'true');
+    assert.equal(value.losAngelesButtonExists, false);
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

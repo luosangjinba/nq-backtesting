@@ -43,8 +43,13 @@ Supported initial values:
 
 - `Exchange`
 - `UTC`
-- selected IANA timezone strings such as `America/New_York`,
+- runtime/domain support for selected IANA timezone strings such as `America/New_York`,
   `America/Chicago`, and `America/Los_Angeles`.
+
+The default chart route UI should expose only broadly useful choices such as
+`Exchange` and `UTC`. Browser-local development timezones such as
+`America/Los_Angeles` must not be shown as default product buttons unless a
+future user preference/settings workflow promotes them explicitly.
 
 For the current NQ/ES MVP, `Exchange` maps to `America/New_York` because that is
 the current V4 data convention.
@@ -77,7 +82,7 @@ append, remove, or re-request bars.
   - validates `Exchange` default;
   - validates daylight-saving conversion from canonical exchange wall-clock to
     real display instants;
-  - validates Exchange/UTC/Los Angeles formatting.
+  - validates Exchange/UTC/IANA timezone formatting.
 - `v5/tests/display-timezone-runtime-smoke.js`
   - verifies runtime state and events;
   - verifies timezone change does not request bars or mutate replay display
@@ -92,4 +97,6 @@ append, remove, or re-request bars.
     parsing.
 - `v5/tests/display-timezone-browser-smoke.js`
   - verifies visible labels and current candle title change while bars, cursor,
-    and request counts remain unchanged.
+    and request counts remain unchanged;
+  - verifies the default route UI does not expose browser-local timezone buttons
+    such as Los Angeles.

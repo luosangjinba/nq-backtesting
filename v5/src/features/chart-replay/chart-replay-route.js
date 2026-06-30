@@ -42,7 +42,6 @@ export function createChartReplayRoute() {
         <div class="display-timezone-controls" data-display-timezone-controls>
           <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
           <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
-          <button type="button" data-display-timezone="America/Los_Angeles" aria-pressed="false">Los Angeles</button>
         </div>
         <div class="presentation-controls" data-presentation-controls>
           <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
