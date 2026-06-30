@@ -32,7 +32,14 @@ database stores ET wall-clock timestamps as naive DuckDB timestamps.
 - Add a pure formatter that maps canonical chart timestamps to display labels.
 - Add `v5/tests/timezone-contracts-smoke.js`.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added `v5/docs/specs/chart-display-timezone.md`.
+- Added pure display timezone command/event contracts.
+- Added display timezone formatting helpers.
+- Added `v5/tests/timezone-contracts-smoke.js`.
 
 ### Step 372.2 - Runtime Preference
 

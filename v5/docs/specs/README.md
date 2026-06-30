@@ -31,3 +31,5 @@ Specs should explain:
   bounded restore, read-only progress, and reset/restart.
 - `runtime-boundary-contracts.md`: stable rules for pure command/event
   contracts, event notification boundaries, and router root-scoped lifecycle.
+- `chart-display-timezone.md`: stable rules for canonical/request/display time,
+  display timezone preferences, and label-only timezone changes.
