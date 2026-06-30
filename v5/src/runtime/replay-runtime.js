@@ -592,6 +592,13 @@ export function createReplayRuntime() {
         reason: 'no-session',
       };
     }
+    if (state.displayTimeframe !== state.replayTimeframe) {
+      return {
+        ...clone(state),
+        loaded: false,
+        reason: 'display-window-demand-active',
+      };
+    }
     if (!prefixDemand?.anchor) {
       throw new Error('replay prefix demand anchor is required.');
     }
@@ -660,6 +667,14 @@ export function createReplayRuntime() {
   }
 
   async function applyPrefixRetention({ visibleRange } = {}) {
+    if (state.displayTimeframe !== state.replayTimeframe) {
+      return {
+        ...clone(state),
+        released: false,
+        releasedPrefixChunks: [],
+        reason: 'display-window-demand-active',
+      };
+    }
     if (!state.session || !state.prefixChunks.length) {
       return {
         ...clone(state),

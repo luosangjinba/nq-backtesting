@@ -437,7 +437,7 @@ different display timeframe.
   windows.
 - [x] Step 371.3: Preserve one-bar replay progression, cursor persistence,
   session-end behavior, and reset semantics under the projection path.
-- [ ] Step 371.4: Add Play/browser coverage for display projection and update
+- [x] Step 371.4: Add Play/browser coverage for display projection and update
   the session handoff after full smoke verification.
 
 Manual acceptance:

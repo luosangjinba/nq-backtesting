@@ -18,6 +18,7 @@ const commands = [
   ['node', ['v5/tests/replay-play-smoke.js']],
   ['node', ['v5/tests/replay-cursor-persistence-smoke.js']],
   ['node', ['v5/tests/replay-display-contracts-smoke.js']],
+  ['node', ['v5/tests/replay-display-progression-smoke.js']],
   ['node', ['v5/tests/replay-display-viewport-demand-smoke.js']],
   ['node', ['v5/tests/replay-display-viewport-demand-wiring-smoke.js']],
   ['node', ['v5/tests/replay-display-window-cache-smoke.js']],

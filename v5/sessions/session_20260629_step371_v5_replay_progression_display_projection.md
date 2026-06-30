@@ -92,7 +92,15 @@ Completed:
 - Add the new smoke to `v5/scripts/smoke_all.js`.
 - Run the Step 371 check set and update this handoff.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Added `replay-display-progression-smoke.js` to `v5/scripts/smoke_all.js`.
+- Extended the display timeframe browser smoke so the UI Next button advances a
+  1m replay cursor while the chart remains on 5m display bars.
+- Browser coverage verifies the display projection requests a bounded 5m window
+  and does not request the full session range.
 
 ## Manual Acceptance
 
@@ -122,3 +130,43 @@ Status: planned.
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Completed
+
+- Added Step 371 plan to `v5/TODO.md`.
+- Added `v5/tests/replay-display-progression-smoke.js`.
+- `Next` now advances and persists the replay cursor first.
+- When `displayTimeframe !== replayTimeframe`, replay progression projects the
+  active display timeframe through bounded display-window loading.
+- When `displayTimeframe === replayTimeframe`, existing one-bar append behavior
+  remains intact.
+- Display projection aligns bar-window anchors to display timeframe boundaries.
+- Reset now projects non-replay display timeframe state at the start cursor.
+- Legacy prefix-demand loading is ignored while a non-replay display timeframe
+  is active, so old 1m prefix chunks cannot mix into 5m/1H/1D display bars.
+- Extended browser display timeframe coverage to click Next while displaying 5m
+  bars and verify no 1m replay bar appears in display state.
+- Added the display progression smoke to `v5/scripts/smoke_all.js`.
+
+## Verified
+
+- `node v5/tests/replay-display-progression-smoke.js`
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-play-smoke.js`
+- `node v5/tests/replay-reset-smoke.js`
+- `node v5/tests/replay-session-end-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/prefix-demand-load-smoke.js`
+- `node v5/tests/prefix-retention-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Notes For Next Session
+
+Step 371 is complete. The next V5 slice can move back to product surface work:
+make panning/viewport controls more realistic than command-only visible range
+simulation, or add a small chart interaction layer that emits visible-range
+changes from actual user drag gestures while keeping chart runtime as the only
+viewport observer and chart writer.

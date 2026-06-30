@@ -181,24 +181,42 @@ async function main() {
               && requests.length > requestCountBeforePan;
           });
 
+          const beforeNextContext = await commands.dispatchCommand('replay.getDisplayContext');
+          const requestCountBeforeNext = requests.length;
+          document.querySelector('[data-replay-next]').click();
+          await waitFor('next projects 5m display', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
+            return state.cursorTimestamp === '2026-06-01T09:31:00.000Z'
+              && displayContext.displayTimeframe === 5
+              && displayContext.displayBars.every((bar) => bar.timestamp % (5 * 60) === 0)
+              && !displayContext.displayBars.some((bar) => bar.timestamp === Date.parse('2026-06-01T09:31:00.000Z') / 1000);
+          });
+
           const state = await commands.dispatchCommand('replay.getState');
           const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
           const chartCount = Number(document.querySelector('[data-chart-bar-count]')?.dataset.chartBarCount || 0);
           const displayBars = displayContext.displayBars || [];
           const lastDisplayBar = displayBars.at(-1);
           const leftPanRequests = requests.slice(requestCountBeforePan);
+          const projectionRequests = requests.slice(requestCountBeforeNext);
           return JSON.stringify({
             error: '',
             stateDisplayTimeframe: state.displayTimeframe,
             contextDisplayTimeframe: displayContext.displayTimeframe,
+            cursorTimestamp: state.cursorTimestamp,
             chartCount,
             displayCount: displayBars.length,
             beforePanDisplayCount,
+            beforeNextDisplayCount: beforeNextContext.displayBars.length,
             lastDisplayTimestamp: lastDisplayBar?.timestamp || null,
+            hasReplayOneMinuteBar: displayBars.some((bar) => bar.timestamp === Date.parse('2026-06-01T09:31:00.000Z') / 1000),
+            allDisplayBarsOn5mBoundary: displayBars.every((bar) => bar.timestamp % (5 * 60) === 0),
             selected: document.querySelector('[data-display-timeframe="5"]')?.getAttribute('aria-pressed') || '',
             statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
             requests,
             leftPanRequests,
+            projectionRequests,
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -211,9 +229,12 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.stateDisplayTimeframe, 5);
     assert.equal(value.contextDisplayTimeframe, 5);
+    assert.equal(value.cursorTimestamp, '2026-06-01T09:31:00.000Z');
     assert.equal(value.selected, 'true');
     assert.equal(value.chartCount, value.displayCount);
     assert.ok(value.displayCount > value.beforePanDisplayCount, 'Left pan should merge older display bars');
+    assert.equal(value.hasReplayOneMinuteBar, false, 'Next must not mix 1m replay bars into 5m display');
+    assert.equal(value.allDisplayBarsOn5mBoundary, true, 'Display bars should remain 5m bars after Next');
     assert.equal(value.lastDisplayTimestamp, Date.parse('2026-06-01T09:25:00.000Z') / 1000);
     assert.equal(value.statusText, `Loaded ${value.displayCount} bars.`);
     assert.ok(value.requests.some((request) => request.timeframe === 5), '5m display load should request 5m bars');
@@ -237,6 +258,14 @@ async function main() {
       ),
       false,
       'Left pan must not request the full session date range'
+    );
+    assert.equal(
+      value.projectionRequests.some((request) =>
+        request.start === '2026-06-01 09:30'
+          && request.end === '2026-06-01 09:40'
+      ),
+      false,
+      'Next display projection must not request the full session date range'
     );
   } finally {
     client?.close();
