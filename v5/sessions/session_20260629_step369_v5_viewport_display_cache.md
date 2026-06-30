@@ -126,7 +126,7 @@ Status: complete.
 - UI dispatches replay/display commands only.
 - UI derives selected timeframe/loading state from runtime events or commands.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.8 - Harnesses
 
@@ -139,7 +139,7 @@ Add tests for:
 - cache retention is delayed and observable;
 - no full-history or full-session requests.
 
-Status: pending.
+Status: complete.
 
 ## Manual Acceptance
 
@@ -207,6 +207,11 @@ Status: pending.
 - Added `v5/tests/replay-display-timeframe-smoke.js`.
 - Added `v5/tests/replay-display-timeframe-no-future-smoke.js`.
 - Added both display timeframe smokes to `v5/scripts/smoke_all.js`.
+- Added chart route display timeframe controls for `1m`, `5m`, `1H`, and `1D`.
+  The controls dispatch `replay.setDisplayTimeframe` and derive selected state
+  from replay display context/events.
+- Added `v5/tests/replay-display-timeframe-browser-smoke.js`.
+- Added the display timeframe browser smoke to `v5/scripts/smoke_all.js`.
 
 ## Checks
 
@@ -251,9 +256,17 @@ Verified for Step 369.5/369.6:
 - `node v5/tests/replay-next-smoke.js`
 - `git diff --check`
 
+Verified for Step 369.7/369.8:
+
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
 ## Notes For Next Session
 
-Start Step 369.7 by wiring display timeframe controls in the chart route. The
-runtime commands now exist; UI must only dispatch those commands and derive
-state from runtime responses/events. Step 369.8 should add browser coverage and
-final full-suite verification.
+Step 369 is complete. The next V5 slice should continue from the remaining
+product gap after viewport/display switching: route viewport-demand events into
+replay display-window loads during actual chart panning, while preserving the
+same runtime ownership boundaries.

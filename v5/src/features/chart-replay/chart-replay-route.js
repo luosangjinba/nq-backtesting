@@ -25,6 +25,12 @@ export function createChartReplayRoute() {
           <button type="button" data-replay-pause disabled>Pause</button>
           <button type="button" data-replay-reset disabled>Reset</button>
         </div>
+        <div class="display-timeframe-controls" data-display-timeframe-controls>
+          <button type="button" data-display-timeframe="1" aria-pressed="false" disabled>1m</button>
+          <button type="button" data-display-timeframe="5" aria-pressed="false" disabled>5m</button>
+          <button type="button" data-display-timeframe="60" aria-pressed="false" disabled>1H</button>
+          <button type="button" data-display-timeframe="1440" aria-pressed="false" disabled>1D</button>
+        </div>
         <div class="chart-host" data-chart-host>
           <span>Starting chart...</span>
         </div>
@@ -51,19 +57,26 @@ export function createChartReplayRoute() {
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
       const resetButton = section.querySelector('[data-replay-reset]');
+      const displayTimeframeButtons = Array.from(section.querySelectorAll('[data-display-timeframe]'));
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
       let terminalReason = '';
+      let displayTimeframe = null;
       const unsubscribeCallbacks = [];
       sessionIdLabel.textContent = sessionId;
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
-        const [state, playback] = await Promise.all([
+        const [state, playback, displayContext] = await Promise.all([
           dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null),
           dispatchCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE).catch(() => null),
+          dispatchCommand(REPLAY_COMMANDS.GET_DISPLAY_CONTEXT).catch(() => null),
         ]);
+        displayTimeframe = Number(displayContext?.displayTimeframe
+          || state?.displayTimeframe
+          || state?.session?.timeframe
+          || 0);
         playbackPlaying = Boolean(playback?.playing);
         terminalReason = playback?.stoppedReason || terminalReason;
         startLabel.textContent = state?.startBarTimestamp || '--';
@@ -75,6 +88,7 @@ export function createChartReplayRoute() {
         if (terminalReason) {
           status.textContent = `Replay stopped: ${terminalReason}.`;
         }
+        updateDisplayTimeframeButtons();
         setControlsDisabled();
       }
 
@@ -84,6 +98,16 @@ export function createChartReplayRoute() {
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
         resetButton.disabled = unavailable;
+        displayTimeframeButtons.forEach((button) => {
+          button.disabled = unavailable;
+        });
+      }
+
+      function updateDisplayTimeframeButtons() {
+        displayTimeframeButtons.forEach((button) => {
+          const pressed = Number(button.dataset.displayTimeframe) === displayTimeframe;
+          button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        });
       }
 
       async function runReplayCommand(action) {
@@ -140,11 +164,30 @@ export function createChartReplayRoute() {
         await refreshReplayStatus();
       });
 
+      displayTimeframeButtons.forEach((button) => {
+        button.addEventListener('click', async () => {
+          const nextDisplayTimeframe = Number(button.dataset.displayTimeframe);
+          if (!nextDisplayTimeframe || nextDisplayTimeframe === displayTimeframe) return;
+          const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+            sessionId: params.sessionId,
+            displayTimeframe: nextDisplayTimeframe,
+          }));
+          if (!state) return;
+          displayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
+          status.textContent = `Loaded ${state.displayBars?.length || 0} ${button.textContent} bars.`;
+          updateDisplayTimeframeButtons();
+          await refreshReplayStatus();
+        });
+      });
+
       [
         REPLAY_EVENTS.INITIAL_LOADED,
         REPLAY_EVENTS.NEXT,
         REPLAY_EVENTS.RESET,
         REPLAY_EVENTS.PLAYBACK_CHANGED,
+        REPLAY_EVENTS.DISPLAY_TIMEFRAME_CHANGED,
+        REPLAY_EVENTS.DISPLAY_WINDOW_LOADED,
+        REPLAY_EVENTS.DISPLAY_RELOADED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, () => {
           refreshReplayStatus();

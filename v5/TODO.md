@@ -343,9 +343,9 @@ full history.
   runtime commands.
 - [x] Step 369.6: Guard higher-timeframe bars against future leakage relative to
   the replay cursor.
-- [ ] Step 369.7: Add chart controls for display timeframe switching through
+- [x] Step 369.7: Add chart controls for display timeframe switching through
   command dispatch only.
-- [ ] Step 369.8: Add smoke/browser coverage for viewport lazy loading,
+- [x] Step 369.8: Add smoke/browser coverage for viewport lazy loading,
   timeframe switching, cache reuse, and no-future display.
 
 Manual acceptance:

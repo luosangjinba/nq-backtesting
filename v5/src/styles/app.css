@@ -185,7 +185,8 @@ input {
   font-size: 13px;
 }
 
-.replay-controls {
+.replay-controls,
+.display-timeframe-controls {
   min-width: 0;
   display: flex;
   align-items: center;
@@ -193,7 +194,12 @@ input {
   margin-bottom: 12px;
 }
 
-.replay-controls button {
+.display-timeframe-controls {
+  flex-wrap: wrap;
+}
+
+.replay-controls button,
+.display-timeframe-controls button {
   min-width: 64px;
   min-height: 32px;
   padding: 0 12px;
@@ -204,7 +210,14 @@ input {
   font-weight: 700;
 }
 
-.replay-controls button:disabled {
+.display-timeframe-controls button[aria-pressed="true"] {
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.24);
+  color: #f8fafc;
+}
+
+.replay-controls button:disabled,
+.display-timeframe-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }

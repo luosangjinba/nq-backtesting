@@ -22,6 +22,7 @@ const commands = [
   ['node', ['v5/tests/replay-display-window-cache-smoke.js']],
   ['node', ['v5/tests/replay-display-timeframe-smoke.js']],
   ['node', ['v5/tests/replay-display-timeframe-no-future-smoke.js']],
+  ['node', ['v5/tests/replay-display-timeframe-browser-smoke.js']],
   ['node', ['v5/tests/replay-restore-smoke.js']],
   ['node', ['v5/tests/replay-reset-smoke.js']],
   ['node', ['v5/tests/replay-session-switch-smoke.js']],
