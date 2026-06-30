@@ -57,7 +57,7 @@ cursor near the right side and older bars roll out of the rendered chart.
 - [x] Step 374.1: Add viewport follow spec plus TODO/session plan.
 - [x] Step 374.2: Add chart runtime viewport follow contract and smoke coverage
   that keeps full bars state while rendering a rolling visible subset.
-- [ ] Step 374.3: Wire replay runtime to sync viewport follow after initial
+- [x] Step 374.3: Wire replay runtime to sync viewport follow after initial
   load, Next/Play, Reset, and display projection.
 - [ ] Step 374.4: Add browser coverage proving rolling visible chart behavior
   without mutating cursor/displayBars or adding bars requests; run full smoke and

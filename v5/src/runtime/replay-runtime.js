@@ -238,6 +238,23 @@ export function createReplayRuntime() {
     });
   }
 
+  async function syncChartViewportFollow(cursorTimestamp) {
+    if (!hasCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW)) return null;
+    const metrics = hasCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS)
+      ? await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null)
+      : null;
+    return dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
+      enabled: true,
+      cursorTimestamp,
+      estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
+    });
+  }
+
+  async function renderDisplayBars(displayBars, cursorTimestamp = state.cursorTimestamp) {
+    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await syncChartViewportFollow(cursorTimestamp);
+  }
+
   async function persistReplayCursor({ cursorTimestamp, revealedCount }) {
     return dispatchCommand(SESSION_COMMANDS.UPDATE_CURSOR, {
       sessionId: state.sessionId,
@@ -394,7 +411,7 @@ export function createReplayRuntime() {
       ...persistedRevealBars,
     ];
     assertNoDisplayBarsAfter(displayBars, restoredCursorTimestamp);
-    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await renderDisplayBars(displayBars, restoredCursorTimestamp);
     await syncChartRightEdgeLimit(restoredCursorTimestamp);
     await syncChartDisplayContext({
       displayTimeframe: state.displayTimeframe || state.session.timeframe,
@@ -485,7 +502,7 @@ export function createReplayRuntime() {
       const displayBars = shouldMergeDisplayBars
         ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
         : windowDisplayBars;
-      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await renderDisplayBars(displayBars, state.cursorTimestamp);
       await syncChartRightEdgeLimit(state.cursorTimestamp);
       await syncChartDisplayContext({
         displayTimeframe: normalizedDisplayTimeframe,
@@ -647,7 +664,7 @@ export function createReplayRuntime() {
         ...state.prefixChunks,
       ];
       const displayBars = mergeSparseDisplayBars(state.displayBars, prefixChunks, state.cursorTimestamp);
-      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await renderDisplayBars(displayBars, state.cursorTimestamp);
       state = {
         ...state,
         prefixChunks,
@@ -710,7 +727,7 @@ export function createReplayRuntime() {
       state.startBar,
       ...state.displayBars.filter((bar) => Number(bar?.timestamp) >= Number(state.startBar?.timestamp)),
     ], retained, state.cursorTimestamp);
-    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+    await renderDisplayBars(displayBars, state.cursorTimestamp);
 
     const releasedSummaries = released.map((chunk) => ({
       anchor: chunk.anchor,
@@ -791,7 +808,7 @@ export function createReplayRuntime() {
       ]
       : state.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await renderDisplayBars(displayBars, nextBar.time);
       await syncChartRightEdgeLimit(nextBar.time);
     }
 
@@ -843,7 +860,7 @@ export function createReplayRuntime() {
     ];
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       assertNoFutureDisplayBars(displayBars, state.startBar);
-      await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
+      await renderDisplayBars(displayBars, state.startBar.time);
       await syncChartRightEdgeLimit(state.startBar.time);
     }
 

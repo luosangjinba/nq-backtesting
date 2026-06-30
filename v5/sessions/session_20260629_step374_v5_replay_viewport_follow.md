@@ -46,7 +46,16 @@ Completed:
 - Preserve cursor/displayBars/no-future behavior.
 - Add replay runtime smoke coverage.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Replay runtime now renders display bars through a helper that also syncs chart
+  viewport follow state.
+- Viewport follow sync runs after initial load, display window/projection
+  reloads, prefix merge/release rerenders, Next/Play progression, and Reset.
+- Added `v5/tests/replay-viewport-follow-smoke.js`.
+- Added the replay viewport follow smoke to `v5/scripts/smoke_all.js`.
 
 ### Step 374.4 - Browser Coverage And Verification
 
