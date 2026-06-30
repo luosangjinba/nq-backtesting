@@ -18,6 +18,8 @@ meaningful, and Lightweight presentation settings must not shrink the engine
 surface.
 Step 387 consolidates replay workstation layout so controls and status do not
 crowd the main chart surface.
+Step 388 tunes Lightweight price scale margins for more natural initial K-line
+vertical placement while preserving native price-axis scaling.
 
 In scope:
 
@@ -29,6 +31,7 @@ In scope:
   replacement;
 - chart display readability required for native interaction to be usable;
 - compact replay workstation layout around the chart;
+- chart adapter/presentation price scale margin tuning;
 - jump-to-cursor as explicit resume-follow behavior;
 - viewport demand emission after manual range changes;
 - harnesses proving ownership boundaries.
@@ -87,6 +90,10 @@ Out of scope:
 - Fallback DOM presentation padding must not be applied to the Lightweight
   engine surface. Lightweight chart layout should keep the main drawing surface
   at a stable usable height.
+- Lightweight price scale readability should use
+  `series.priceScale().applyOptions({ scaleMargins })` with bounded margins.
+  It must not replace native price-axis drag scaling or apply DOM padding to the
+  chart surface.
 - Replay controls, timeframe, timezone, presentation toggles, and go-to controls
   may be visually consolidated, but they must continue dispatching commands and
   using events rather than taking ownership of runtime state.
@@ -173,6 +180,9 @@ When native Lightweight Charts pan/zoom is observed:
 - Reintroducing stacked engineering control rows that crowd the main chart.
 - Showing engineering shell labels such as `Chart Replay Shell` or
   `Chart Route` in the replay workstation UI.
+- Reimplementing price-axis vertical scaling in V5 shell code when Lightweight
+  already owns native price scale interaction.
+- Tuning price placement by shrinking the Lightweight DOM surface.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification
@@ -196,6 +206,8 @@ Step 376 should add or update harnesses proving:
   a stable usable height.
 - replay workstation controls are compact, status remains visible, and the main
   chart remains the dominant surface.
+- price scale margins are applied through Lightweight price scale APIs and stay
+  compatible with native interaction.
 
 Expected checks:
 
@@ -206,5 +218,6 @@ Expected checks:
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/chart-display-usability-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 387 is complete.
-- Next candidate: Step 388 should continue Phase 3 with chart scale/readability
-  polish after the replay workstation layout is consolidated.
+- Current status: Step 388 is complete.
+- Next candidate: Step 389 should continue Phase 3 with remaining chart
+  readability polish after price scale margins are stable.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -21,9 +21,9 @@
 - Step 381 added chart-owned crosshair readout; follow-up fix removed
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
-- Known next issue: chart scale/readability still needs product polish. The
-  initial price placement can leave too much empty space, and future work should
-  tune price scale margins/fit behavior without breaking native interactions.
+- Known next issue: chart readability still needs product polish around
+  overlays, time-axis visibility near the floating navigation toolbar, and
+  screenshot-level visual acceptance across more viewport sizes.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1154,5 +1154,47 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 388 - V5 Chart Price Scale Readability
+
+Goal: tune Lightweight Charts price scale margins so the initial K-line view has
+more natural vertical placement without reimplementing price-axis scaling or
+breaking native chart interactions.
+
+This step advances Historical Replay Review by improving chart readability. It
+is a chart adapter/presentation step, not a replay cursor or bar-loading
+change.
+
+- [x] Step 388.1: Add Step 388 TODO/session plan and update chart interaction
+  specs/vendor notes with price scale margin rules.
+- [x] Step 388.2: Add bounded Lightweight price scale margin derivation from V5
+  presentation margins.
+- [x] Step 388.3: Apply margins through `series.priceScale().applyOptions()`
+  during mount, bar updates, and presentation updates.
+- [x] Step 388.4: Expose price scale margin metadata for smoke/debug
+  assertions without applying DOM padding to Lightweight.
+- [x] Step 388.5: Add adapter and browser smoke coverage for default and compact
+  price scale margins while preserving native interaction coverage.
+
+Manual acceptance:
+
+- Initial Lightweight candlestick view uses bounded price scale margins instead
+  of leaving excessive empty vertical space.
+- Compact presentation updates the series price scale margins without shrinking
+  the DOM chart surface.
+- Price-axis drag scaling remains Lightweight native behavior.
+- Price scale margin changes do not mutate replay cursor, replay `displayBars`,
+  or bar-data cache.
+- Existing chart navigation, native pan/zoom/crosshair, and presentation
+  controls remain command/event driven.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/chart-display-usability-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

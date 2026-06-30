@@ -32,6 +32,13 @@ const LIGHTWEIGHT_PRICE_FORMAT = Object.freeze({
   minMove: 0.01,
 });
 
+const LIGHTWEIGHT_PRICE_SCALE_MARGIN_LIMITS = Object.freeze({
+  minTop: 0.04,
+  maxTop: 0.24,
+  minBottom: 0.08,
+  maxBottom: 0.28,
+});
+
 const LIGHTWEIGHT_GRID = Object.freeze({
   vertLines: {
     color: 'rgba(55, 65, 81, 0.28)',
@@ -142,6 +149,27 @@ function lightweightOptionsForContext(context) {
   };
 }
 
+function clampRatio(value, min, max) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) return min;
+  return Math.min(max, Math.max(min, number));
+}
+
+function priceScaleMarginsForContext(context) {
+  return {
+    top: clampRatio(
+      context.margins.topPercent / 100,
+      LIGHTWEIGHT_PRICE_SCALE_MARGIN_LIMITS.minTop,
+      LIGHTWEIGHT_PRICE_SCALE_MARGIN_LIMITS.maxTop
+    ),
+    bottom: clampRatio(
+      context.margins.bottomPercent / 100,
+      LIGHTWEIGHT_PRICE_SCALE_MARGIN_LIMITS.minBottom,
+      LIGHTWEIGHT_PRICE_SCALE_MARGIN_LIMITS.maxBottom
+    ),
+  };
+}
+
 function formatLightweightTick(time, context) {
   if (time && typeof time === 'object' && 'year' in time && 'month' in time && 'day' in time) {
     return `${String(time.month).padStart(2, '0')}-${String(time.day).padStart(2, '0')}`;
@@ -169,6 +197,9 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.timeScaleRightOffset = String(context.rightOffsetBars);
   canvas.dataset.lightweightMarginTopPercent = String(context.margins.topPercent);
   canvas.dataset.lightweightMarginBottomPercent = String(context.margins.bottomPercent);
+  const priceScaleMargins = priceScaleMarginsForContext(context);
+  canvas.dataset.priceScaleMarginTop = String(priceScaleMargins.top);
+  canvas.dataset.priceScaleMarginBottom = String(priceScaleMargins.bottom);
   canvas.dataset.pricePrecision = String(LIGHTWEIGHT_PRICE_FORMAT.precision);
   canvas.dataset.priceMinMove = String(LIGHTWEIGHT_PRICE_FORMAT.minMove);
 }
@@ -504,6 +535,14 @@ function createLightweightInstance({ engine, documentRef }) {
     throw new Error('Lightweight Charts candlestick series API is unavailable.');
   }
 
+  function applySeriesPriceScale(context) {
+    const priceScale = series?.priceScale?.();
+    if (typeof priceScale?.applyOptions !== 'function') return;
+    priceScale.applyOptions({
+      scaleMargins: priceScaleMarginsForContext(context),
+    });
+  }
+
   function markUserInput() {
     lastUserInputAt = Date.now();
   }
@@ -612,6 +651,7 @@ function createLightweightInstance({ engine, documentRef }) {
         },
       });
       series = createSeries(chart);
+      applySeriesPriceScale(displayContext);
       const timeScale = chart.timeScale?.();
       if (typeof timeScale?.subscribeVisibleTimeRangeChange === 'function') {
         const handler = (range) => {
@@ -668,6 +708,7 @@ function createLightweightInstance({ engine, documentRef }) {
         canvas.dataset.fullBarCount = String(fullBarCount);
         renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
       }
+      applySeriesPriceScale(displayContext);
       series?.setData(bars.map(toEngineBar));
     },
     setMetadata(nextMetadata = {}) {
@@ -693,6 +734,7 @@ function createLightweightInstance({ engine, documentRef }) {
         applyLightweightPresentation(canvas, displayContext);
       }
       chart?.applyOptions?.(lightweightOptionsForContext(displayContext));
+      applySeriesPriceScale(displayContext);
     },
     readState() {
       return {

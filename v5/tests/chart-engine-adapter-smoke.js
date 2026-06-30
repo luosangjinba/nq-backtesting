@@ -144,6 +144,7 @@ const lightweightCalls = {
   setData: [],
   setVisibleRange: [],
   applyOptions: [],
+  priceScaleApplyOptions: [],
   subscribed: null,
   crosshairHandler: null,
   unsubscribed: null,
@@ -161,6 +162,13 @@ const fakeLightweightCharts = {
         lightweightCalls.series = {
           setData(data) {
             lightweightCalls.setData.push(data);
+          },
+          priceScale() {
+            return {
+              applyOptions(optionsPayload) {
+                lightweightCalls.priceScaleApplyOptions.push(optionsPayload);
+              },
+            };
           },
         };
         return lightweightCalls.series;
@@ -319,6 +327,8 @@ assert.equal(lightweightHost.children[0].dataset.handleScaleMouseWheel, 'true');
 assert.equal(lightweightHost.children[0].dataset.timeScaleRightOffset, '4');
 assert.equal(lightweightHost.children[0].dataset.lightweightMarginTopPercent, '10');
 assert.equal(lightweightHost.children[0].dataset.lightweightMarginBottomPercent, '8');
+assert.equal(lightweightHost.children[0].dataset.priceScaleMarginTop, '0.1');
+assert.equal(lightweightHost.children[0].dataset.priceScaleMarginBottom, '0.08');
 assert.equal(lightweightHost.children[0].style.paddingTop, '');
 assert.equal(lightweightHost.children[0].style.paddingBottom, '');
 assert.equal(lightweightHost.children[0].style.paddingRight, '');
@@ -388,6 +398,26 @@ assert.equal(
   lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter(Date.parse('2026-06-01T09:33:00.000Z') / 1000),
   '09:33'
 );
+assert.deepEqual(lightweightCalls.priceScaleApplyOptions, [
+  {
+    scaleMargins: {
+      top: 0.1,
+      bottom: 0.08,
+    },
+  },
+  {
+    scaleMargins: {
+      top: 0.1,
+      bottom: 0.08,
+    },
+  },
+  {
+    scaleMargins: {
+      top: 0.1,
+      bottom: 0.08,
+    },
+  },
+]);
 assert.deepEqual(lightweightCalls.setVisibleRange[0], {
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
   to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,

@@ -10,6 +10,7 @@ Official docs:
 - Time scale API: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/ITimeScaleApi
 - Scroll options: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/HandleScrollOptions
 - Scale options: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/HandleScaleOptions
+- Price scale API: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/IPriceScaleApi
 - Grid options: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/GridOptions
 - Crosshair options: https://tradingview.github.io/lightweight-charts/docs/api/interfaces/CrosshairOptions
 
@@ -38,6 +39,8 @@ Official docs:
 - Do not use fallback DOM canvas padding to shape the Lightweight drawing area;
   it shrinks the engine surface. Keep Lightweight layout options and metadata
   separate from fallback-only DOM presentation.
+- Use `series.priceScale().applyOptions({ scaleMargins })` for price placement
+  readability. Do not reimplement price-axis vertical scaling in V5 shell code.
 
 ## Step 385 Focus
 
@@ -61,3 +64,13 @@ Step 386 fixes chart display usability after native interaction is stable:
 - Lightweight chart surfaces keep a stable usable height;
 - fallback-only presentation padding is not applied to the Lightweight engine
   surface.
+
+## Step 388 Focus
+
+Step 388 tunes price scale readability:
+
+- V5 derives bounded Lightweight `scaleMargins` from presentation margins;
+- default margins keep the initial K-line view away from hard chart edges;
+- compact presentation updates the price scale through
+  `series.priceScale().applyOptions()` instead of DOM padding;
+- native price-axis drag scaling remains owned by Lightweight Charts.
