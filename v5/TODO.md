@@ -19,6 +19,10 @@
   coexist on one chart surface. Future order/journal/review artifacts should
   share chart context, canonical time, and ownership paths instead of creating
   isolated chart products.
+- Product guardrail: The heavy work after review is statistics, analysis, and
+  decision support. Future AI assistance should be grounded in structured review
+  artifacts, evidence, tags, orders, and outcomes, not detached chat or generic
+  dashboards.
 
 ## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
 

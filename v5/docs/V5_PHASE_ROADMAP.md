@@ -35,6 +35,12 @@ decisions, actual orders/fills, execution notes, annotations, evidence, and
 process-quality tags should be modeled as artifacts over shared chart context
 and canonical time, not as separate chart products.
 
+The review loop should continue after the chart session: statistics, analysis,
+and decision support should convert structured review artifacts into practice
+priorities, behavior-pattern feedback, and better next-session decisions. AI can
+be considered later as an assistant over this structured evidence, not as a
+replacement for the review model.
+
 New steps should state which workflow they advance, or why the work is necessary
 shared infrastructure for the review loop. Historical Replay Review and Live
 Execution Review are the product center, not later add-on modules.
@@ -237,12 +243,17 @@ Planned:
 - order review;
 - evidence/segment/PDA-style study tools;
 - topical Historical Replay Review and Live Execution Review comparison sets;
+- statistics and analysis over review artifacts, tags, orders, and outcomes;
+- decision-support summaries that identify what the trader should practice or
+  avoid next;
 - selective V4 workflow migration through V5 contracts.
 
 Gate:
 
 - Annotation state has a clear owner, renders through chart runtime boundaries,
   and does not mutate replay/bar runtime state directly.
+- Statistics and analysis consume structured review artifacts and canonical
+  refs, not detached screen state or generic note blobs.
 
 ## Phase 6 - Persistence, Templates, And Multi-user Maturity
 
@@ -261,6 +272,8 @@ Planned:
 - chart presentation templates;
 - layout persistence;
 - import/export;
+- AI-assisted review analysis over structured artifacts, evidence, tags, and
+  statistics;
 - server-backed multi-user boundaries;
 - collaboration-ready data model hardening.
 
@@ -270,6 +283,8 @@ Gate:
   journal, orders, and layouts restored through explicit storage contracts.
 - Hosted SaaS concerns are introduced behind existing repositories/runtimes
   without feature modules directly reading server APIs or persistence.
+- AI assistance, if introduced, cites or references the underlying review
+  artifacts it used and does not become an ungrounded generic chat surface.
 
 ## Step Selection Protocol
 

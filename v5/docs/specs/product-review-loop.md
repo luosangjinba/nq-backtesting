@@ -15,6 +15,12 @@ Chart rendering, replay controls, order models, journal entries, annotations,
 screenshots, tags, statistics, import/export, workspace sync, and SaaS packaging
 are infrastructure around these two workflows.
 
+Review is not the final product outcome. The heavy work after review is turning
+review artifacts into statistics, analysis, and better decisions. V5 should help
+the trader identify repeated behavior patterns, compare process quality against
+outcomes, decide what to practice next, and optionally use AI assistance once
+the underlying evidence and structured data are reliable enough to support it.
+
 The two workflows are not isolated chart products. They can coexist on the same
 chart surface: a user may run no-future historical replay logic while also
 overlaying actual orders, fills, notes, corrections, and process-quality tags
@@ -112,6 +118,11 @@ Shared foundation:
 - import/export/sync model;
 - searchable review library.
 
+Statistics, analysis, decision support, and future AI assistance should consume
+the same shared foundation. They should not rely on unstructured journal text or
+screen state when canonical artifacts, tags, orders, notes, and evidence refs
+can provide stronger inputs.
+
 The shared chart surface should support multiple artifact sources at once:
 replay decisions, simulated orders, actual orders/fills, execution notes,
 annotations, evidence, and later corrections can all point to the same canonical
@@ -141,6 +152,10 @@ exactly the kind of cost V4 exposed.
   artifacts together. Workflow boundaries must be expressed through artifact
   type, source, visibility, and review semantics, not through isolated chart
   runtimes.
+- Statistics, analysis, decision support, and AI assistance must be downstream
+  of structured review artifacts and evidence. They should not become detached
+  dashboards or generic chat surfaces unrelated to the trader's actual review
+  loop.
 - SaaS features should preserve user/workspace/session ownership, but public
   auth, billing, and entitlements must not displace the review loop before the
   training workflow is validated.
@@ -187,12 +202,18 @@ Phase 5:
 - annotations, evidence, and study tools should help compare repeated examples
   of the same behavior or setup;
 - topical Historical Replay Review and Live Execution Review comparison sets
-  should be first-class study workflows.
+  should be first-class study workflows;
+- statistics and analysis should turn tagged review artifacts into practice
+  priorities and decision feedback.
 
 Phase 6:
 
 - SaaS packaging should monetize and persist the review loop, not redefine the
   product around account management or dashboards.
+- AI assistance may be introduced after structured artifacts, evidence, tags,
+  and statistics exist; it should explain, summarize, classify, and suggest
+  practice focus from the user's review data instead of replacing the review
+  workflow.
 
 ## Forbidden Shortcuts
 
@@ -203,6 +224,8 @@ Phase 6:
 - Creating annotation/evidence models that only work for one workflow when the
   same object should be shared.
 - Treating PnL as the only success metric.
+- Building statistics, analytics, or AI chat as detached dashboards instead of
+  downstream decision support from review evidence.
 - Copying FXReplay surface features without checking whether they support
   Historical Replay Review or Live Execution Review.
 - Prioritizing SaaS infrastructure before replay plus execution review proves a
