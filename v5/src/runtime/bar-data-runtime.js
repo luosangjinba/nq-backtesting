@@ -187,11 +187,25 @@ export function createBarDataRuntime({
   const unregisterCallbacks = [];
   const windows = new Map();
   let emit = () => {};
+  let accessSequence = 0;
+
+  function touch(record) {
+    record.lastAccessedSequence = ++accessSequence;
+    return record;
+  }
+
+  function cloneRecord(record, extras = {}) {
+    return {
+      ...record,
+      ...extras,
+      bars: [...record.bars],
+    };
+  }
 
   function getWindow(payload = {}) {
     const planned = normalizeBarWindow(payload, { maxBarsPerWindow });
     const cached = windows.get(makeWindowKey(planned));
-    return cached ? { ...cached, bars: [...cached.bars] } : null;
+    return cached ? cloneRecord(touch(cached)) : null;
   }
 
   async function loadWindow(payload = {}) {
@@ -199,7 +213,7 @@ export function createBarDataRuntime({
     const key = makeWindowKey(planned);
     const cached = windows.get(key);
     if (cached) {
-      return { ...cached, bars: [...cached.bars], cached: true };
+      return cloneRecord(touch(cached), { cached: true });
     }
 
     const response = await fetchBars(planned);
@@ -210,8 +224,11 @@ export function createBarDataRuntime({
       bars,
       requestedRange: response?.requestedRange || null,
       cached: false,
+      releaseDeferred: false,
+      releaseRequestedSequence: null,
+      lastAccessedSequence: 0,
     };
-    windows.set(key, record);
+    windows.set(key, touch(record));
     emit(BAR_DATA_EVENTS.WINDOW_LOADED, { ...record, bars: [...record.bars] });
     return { ...record, bars: [...record.bars] };
   }
@@ -219,11 +236,47 @@ export function createBarDataRuntime({
   function releaseWindow(payload = {}) {
     const planned = normalizeBarWindow(payload, { maxBarsPerWindow });
     const key = makeWindowKey(planned);
+    const cached = windows.get(key);
+    if (payload.defer && cached) {
+      cached.releaseDeferred = true;
+      cached.releaseRequestedSequence = ++accessSequence;
+      emit(BAR_DATA_EVENTS.WINDOW_RELEASE_DEFERRED, { key, window: planned });
+      return { key, released: false, deferred: true };
+    }
     const released = windows.delete(key);
     if (released) {
       emit(BAR_DATA_EVENTS.WINDOW_RELEASED, { key, window: planned });
     }
     return { key, released };
+  }
+
+  function pruneCache({ maxWindows = windows.size, includeDeferred = true } = {}) {
+    const normalizedMaxWindows = Number(maxWindows);
+    if (!Number.isInteger(normalizedMaxWindows) || normalizedMaxWindows < 0) {
+      throw new Error('bar data cache maxWindows must be a non-negative integer.');
+    }
+
+    const released = [];
+    const candidates = [...windows.entries()]
+      .filter(([, record]) => includeDeferred || windows.size > normalizedMaxWindows || !record.releaseDeferred)
+      .sort(([, left], [, right]) => {
+        if (left.releaseDeferred !== right.releaseDeferred) {
+          return left.releaseDeferred ? -1 : 1;
+        }
+        return (left.lastAccessedSequence || 0) - (right.lastAccessedSequence || 0);
+      });
+
+    for (const [key, record] of candidates) {
+      if (windows.size <= normalizedMaxWindows && !(includeDeferred && record.releaseDeferred)) break;
+      windows.delete(key);
+      released.push({ key, window: { ...record, bars: undefined } });
+      emit(BAR_DATA_EVENTS.WINDOW_RELEASED, { key, window: record });
+    }
+
+    return {
+      released,
+      retainedWindowCount: windows.size,
+    };
   }
 
   function getCacheSummary() {
@@ -237,6 +290,8 @@ export function createBarDataRuntime({
         start: window.start,
         end: window.end,
         barCount: window.bars.length,
+        releaseDeferred: Boolean(window.releaseDeferred),
+        lastAccessedSequence: window.lastAccessedSequence || 0,
       })),
     };
   }
@@ -248,6 +303,7 @@ export function createBarDataRuntime({
       registerCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, (payload) => loadWindow(payload)),
       registerCommand(BAR_DATA_COMMANDS.GET_WINDOW, (payload) => getWindow(payload)),
       registerCommand(BAR_DATA_COMMANDS.RELEASE_WINDOW, (payload) => releaseWindow(payload)),
+      registerCommand(BAR_DATA_COMMANDS.PRUNE_CACHE, (payload) => pruneCache(payload)),
       registerCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY, () => getCacheSummary())
     );
   }

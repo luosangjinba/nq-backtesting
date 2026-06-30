@@ -96,7 +96,7 @@ Status: complete.
   capacity, distance, or both.
 - Preserve bar data runtime as the only bars API owner.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.5 - Arbitrary Display Timeframe Switching
 
@@ -188,6 +188,13 @@ Status: pending.
   missing window without requesting bars.
 - Added `v5/tests/replay-display-viewport-demand-smoke.js`.
 - Added the viewport demand smoke to `v5/scripts/smoke_all.js`.
+- Added bar data deferred release and explicit cache pruning:
+  - `barData.pruneCache`;
+  - `barData:windowReleaseDeferred`;
+  - `releaseWindow({ defer: true })` keeps the window cached;
+  - `pruneCache` performs explicit delayed release.
+- Added `v5/tests/replay-display-window-cache-smoke.js`.
+- Added the display window cache smoke to `v5/scripts/smoke_all.js`.
 
 ## Checks
 
@@ -217,10 +224,18 @@ Verified for Step 369.3:
 - `node v5/tests/chart-runtime-smoke.js`
 - `git diff --check`
 
+Verified for Step 369.4:
+
+- `node v5/tests/replay-display-window-cache-smoke.js`
+- `node v5/tests/bar-data-runtime-smoke.js`
+- `node v5/tests/prefix-retention-smoke.js`
+- `git diff --check`
+
 ## Notes For Next Session
 
-Start Step 369.4 by implementing display-window cache reuse and delayed release
-semantics around the new viewport demand shape. The most important remaining
-design choice is how to determine whether a higher-timeframe bar is complete
-relative to the replay cursor. Do not implement timeframe switching before that
-rule is explicit.
+Start Step 369.5/369.6 by implementing replay-owned display timeframe state,
+display window loading, and cursor-bound no-future filtering around the new
+viewport demand/cache foundation. The most important remaining design choice is
+how to determine whether a higher-timeframe bar is complete relative to the
+replay cursor. Do not implement timeframe switching before that rule is
+explicit.

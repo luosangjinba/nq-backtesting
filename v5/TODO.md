@@ -337,7 +337,7 @@ full history.
 - [x] Step 369.2: Define `replayTimeframe` versus `displayTimeframe` contracts.
 - [x] Step 369.3: Replace prefix-only demand semantics with viewport missing
   window demand.
-- [ ] Step 369.4: Add display-window cache retention that keeps recently loaded
+- [x] Step 369.4: Add display-window cache retention that keeps recently loaded
   windows available for smooth right-drag return.
 - [ ] Step 369.5: Support arbitrary display timeframe switching through replay
   runtime commands.
