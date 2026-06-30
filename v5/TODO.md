@@ -1,5 +1,41 @@
 # V5 TODO
 
+## Step 377 - V5 Chart Engine Adapter Foundation
+
+Goal: introduce a real chart-engine adapter boundary before implementing richer
+drag/zoom, crosshair, go-to time, orders, or journal overlays.
+
+- [ ] Step 377.1: Add chart-engine adapter spec plus TODO/session plan.
+- [ ] Step 377.2: Add adapter module and smoke coverage for DOM fallback plus
+  fake Lightweight Charts integration.
+- [ ] Step 377.3: Wire chart runtime through the adapter without changing
+  replay/bar-data ownership contracts.
+- [ ] Step 377.4: Add boundary/browser verification, run full smoke, and update
+  handoff.
+
+Manual acceptance:
+
+- Chart runtime remains the only runtime that creates or calls chart-engine
+  instances.
+- UI, replay, and bar-data modules do not import or call chart-engine APIs.
+- The adapter can use `window.LightweightCharts` when available and a DOM
+  fallback when unavailable.
+- Existing chart commands/events and interaction readback continue to work.
+- Manual visible range and viewport follow behavior remain chart-owned.
+- Engine visible range changes may emit viewport demand, but do not request bars
+  directly.
+- Full drag/zoom polish, crosshair, go-to time, orders, journal, SaaS auth, and
+  billing remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
 ## Step 357 - MVP Architecture And V5 Bootstrap
 
 Goal: start V5 with a fixed modular framework before implementation begins.
