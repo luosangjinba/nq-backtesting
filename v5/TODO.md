@@ -1,41 +1,37 @@
 # V5 TODO
 
-## Step 377 - V5 Chart Engine Adapter Foundation
+## TODO Organization
 
-Goal: introduce a real chart-engine adapter boundary before implementing richer
-drag/zoom, crosshair, go-to time, orders, or journal overlays.
+- Step numbers are historical execution IDs, not phase numbers.
+- This file keeps Current / Next at the top and completed steps in numeric order.
+- Do not move the latest completed step to the top; add or update the current/next note instead.
+- If a step number appears missing before Step 357, it is outside the V5 TODO history.
+- Future work should continue with the next explicit step number and update the session handoff.
 
-- [x] Step 377.1: Add chart-engine adapter spec plus TODO/session plan.
-- [x] Step 377.2: Add adapter module and smoke coverage for DOM fallback plus
-  fake Lightweight Charts integration.
-- [x] Step 377.3: Wire chart runtime through the adapter without changing
-  replay/bar-data ownership contracts.
-- [x] Step 377.4: Add boundary/browser verification, run full smoke, and update
-  handoff.
+## Current / Next
+
+- Current status: Step 377 is complete and reviewed.
+- Next candidate: Step 378 should continue Phase 3 real chart interaction from the chart-engine adapter foundation.
+- Before starting Step 378, add its TODO/session plan and keep the implementation bounded to the Phase 3 gate.
+
+## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
+
+Goal: preserve the option to become a hosted SaaS without slowing the current
+replay workstation MVP with premature auth, billing, or server infrastructure.
+
+- [x] Add SaaS readiness strategy to specs and phase docs.
 
 Manual acceptance:
 
-- Chart runtime remains the only runtime that creates or calls chart-engine
-  instances.
-- UI, replay, and bar-data modules do not import or call chart-engine APIs.
-- The adapter can use `window.LightweightCharts` when available and a DOM
-  fallback when unavailable.
-- Existing chart commands/events and interaction readback continue to work.
-- Manual visible range and viewport follow behavior remain chart-owned.
-- Engine visible range changes may emit viewport demand, but do not request bars
-  directly.
-- Full drag/zoom polish, crosshair, go-to time, orders, journal, SaaS auth, and
-  billing remain out of scope.
+- New durable models keep user/workspace/session ownership paths.
+- Feature modules use commands/events and repositories/runtimes, not direct
+  persistence access.
+- Phase 3 remains chart interaction work.
+- Phase 4 validates replay + order + journal training value.
+- Phase 6 is the earliest phase for public auth, billing, entitlement, and
+  server-backed multi-user maturity.
 
-Checks:
-
-- `node v5/tests/chart-engine-adapter-smoke.js`
-- `node v5/tests/chart-runtime-smoke.js`
-- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
-- `node v5/tests/chart-interaction-contracts-smoke.js`
-- `node v5/tests/chart-engine-boundary-smoke.js`
-- `node v5/scripts/smoke_all.js`
-- `git diff --check`
+## Completed Steps In Numeric Order
 
 ## Step 357 - MVP Architecture And V5 Bootstrap
 
@@ -82,155 +78,6 @@ Checks:
 - `node v5/tests/runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/app-shell-browser-smoke.js`
-- `node v5/scripts/smoke_all.js`
-- `git diff --check`
-
-## Step 376 - V5 Chart Interaction Runtime Contracts
-
-Goal: start Phase 3 by defining and implementing chart-owned interaction
-contracts for manual visible-range movement before adding richer crosshair,
-tooltip, toolbar, order, or journal UI.
-
-- [x] Step 376.1: Add chart interaction spec plus TODO/session plan.
-- [x] Step 376.2: Add chart runtime interaction state and commands for manual
-  visible-range movement and follow resume.
-- [x] Step 376.3: Wire replay/chart behavior so manual movement pauses
-  auto-follow without directly mutating replay cursor or `displayBars`.
-- [x] Step 376.4: Add browser verification, run full smoke, and update handoff.
-
-Manual acceptance:
-
-- Chart runtime owns manual visible-range interaction state.
-- Manual visible-range movement pauses auto-follow until an explicit resume
-  command.
-- Replay runtime continues to own cursor and reveal state.
-- Manual movement may emit viewport demand, but it must not request bars
-  directly.
-- Replay-owned viewport demand consumption may grow `displayBars` without
-  resuming follow.
-- Replay right-edge changes keep manual visible range, interaction readback, and
-  rendered bars aligned.
-- UI does not directly slice bars, mutate replay state, or call bar-data APIs.
-- Crosshair, axis labels, go-to time, toolbar polish, orders, journal, SaaS
-  auth, and billing remain out of scope.
-
-Checks:
-
-- `node v5/tests/chart-interaction-contracts-smoke.js`
-- `node v5/tests/replay-manual-viewport-follow-smoke.js`
-- `node v5/tests/chart-interaction-browser-smoke.js`
-- `node v5/scripts/smoke_all.js`
-- `git diff --check`
-
-## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
-
-Goal: close Phase 2 deliberately after viewport follow, fix documentation drift,
-and define the first Phase 3 step so local UI observations do not pull the
-project into random feature order.
-
-- [x] Step 375.1: Add Step 375 TODO/session plan.
-- [x] Step 375.2: Update roadmap/TODO to mark Phase 2 gate status and fix
-  Step 373 documentation drift.
-- [x] Step 375.3: Record Phase 3 entry checklist, run verification, and update
-  handoff.
-
-Manual acceptance:
-
-- Phase 2 status reflects Step 374 completion and the explicit manual viewport
-  rule: auto-follow remains active until Phase 3 defines real drag/zoom.
-- Step 373 TODO state matches the completed spec/session work.
-- Phase 3 starts with chart interaction runtime contracts, not ad hoc toolbar
-  polish or FXReplay parity details.
-- No runtime code changes are made in this closeout step.
-
-Checks:
-
-- `node v5/scripts/smoke_all.js`
-- `git diff --check`
-
-## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
-
-Goal: preserve the option to become a hosted SaaS without slowing the current
-replay workstation MVP with premature auth, billing, or server infrastructure.
-
-- [x] Add SaaS readiness strategy to specs and phase docs.
-
-Manual acceptance:
-
-- New durable models keep user/workspace/session ownership paths.
-- Feature modules use commands/events and repositories/runtimes, not direct
-  persistence access.
-- Phase 3 remains chart interaction work.
-- Phase 4 validates replay + order + journal training value.
-- Phase 6 is the earliest phase for public auth, billing, entitlement, and
-  server-backed multi-user maturity.
-
-## Step 374 - V5 Replay Viewport Follow And Rolling Window
-
-Goal: close the Phase 2 viewport/display gate by separating revealed
-`displayBars` from chart-rendered `visibleBars`, so Next/Play keep the replay
-cursor near the right side and older bars roll out of the rendered chart.
-
-- [x] Step 374.1: Add viewport follow spec plus TODO/session plan.
-- [x] Step 374.2: Add chart runtime viewport follow contract and smoke coverage
-  that keeps full bars state while rendering a rolling visible subset.
-- [x] Step 374.3: Wire replay runtime to sync viewport follow after initial
-  load, Next/Play, Reset, and display projection.
-- [x] Step 374.4: Add browser coverage proving rolling visible chart behavior
-  without mutating cursor/displayBars or adding bars requests; run full smoke and
-  update handoff.
-
-Manual acceptance:
-
-- `displayBars` remains replay-owned revealed history.
-- Chart runtime owns the rendered visible subset.
-- Next/Play keep the cursor bar near the right side with `rightOffsetBars`.
-- Older bars roll out of the rendered chart when revealed history exceeds
-  visible capacity.
-- Viewport follow does not request bars, mutate replay cursor, or mutate
-  `displayBars`.
-- Manual drag/zoom behavior remains out of scope until Phase 3.
-
-Checks:
-
-- `node v5/tests/chart-viewport-follow-smoke.js`
-- `node v5/tests/replay-viewport-follow-smoke.js`
-- `node v5/tests/replay-viewport-follow-browser-smoke.js`
-- `node v5/scripts/smoke_all.js`
-- `git diff --check`
-
-## Step 373 - V5 Chart Presentation Settings Foundation
-
-Goal: establish a small chart presentation settings foundation before chart
-axis, tooltip, order, journal, and annotation workflows depend on scattered
-display choices.
-
-- [x] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
-- [x] Step 373.2: Add presentation settings contracts/runtime with normalized
-  defaults and command/event smoke coverage.
-- [x] Step 373.3: Wire chart runtime/status presentation consumers for time
-  format, status fields, chart margins, right offset, and crosshair readout
-  state.
-- [x] Step 373.4: Add lightweight UI controls/browser coverage, full smoke,
-  and final handoff updates.
-
-Manual acceptance:
-
-- Presentation settings changes do not request bars, mutate replay cursor, or
-  mutate `displayBars`.
-- UI changes presentation settings through commands/events.
-- Chart runtime consumes chart-owned presentation settings and rerenders
-  presentation/layout without feature modules mutating chart internals.
-- Time labels continue to use the display timezone contract.
-- The foundation is intentionally smaller than FXReplay's full settings panel:
-  no template system, drawing settings, screenshot controls, or complete theme
-  editor in this step.
-
-Checks:
-
-- `node v5/tests/chart-presentation-runtime-smoke.js`
-- `node v5/tests/chart-runtime-smoke.js`
-- `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
@@ -695,5 +542,174 @@ Checks:
 - `node v5/tests/chart-runtime-smoke.js`
 - `node v5/tests/bar-data-runtime-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 373 - V5 Chart Presentation Settings Foundation
+
+Goal: establish a small chart presentation settings foundation before chart
+axis, tooltip, order, journal, and annotation workflows depend on scattered
+display choices.
+
+- [x] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
+- [x] Step 373.2: Add presentation settings contracts/runtime with normalized
+  defaults and command/event smoke coverage.
+- [x] Step 373.3: Wire chart runtime/status presentation consumers for time
+  format, status fields, chart margins, right offset, and crosshair readout
+  state.
+- [x] Step 373.4: Add lightweight UI controls/browser coverage, full smoke,
+  and final handoff updates.
+
+Manual acceptance:
+
+- Presentation settings changes do not request bars, mutate replay cursor, or
+  mutate `displayBars`.
+- UI changes presentation settings through commands/events.
+- Chart runtime consumes chart-owned presentation settings and rerenders
+  presentation/layout without feature modules mutating chart internals.
+- Time labels continue to use the display timezone contract.
+- The foundation is intentionally smaller than FXReplay's full settings panel:
+  no template system, drawing settings, screenshot controls, or complete theme
+  editor in this step.
+
+Checks:
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 374 - V5 Replay Viewport Follow And Rolling Window
+
+Goal: close the Phase 2 viewport/display gate by separating revealed
+`displayBars` from chart-rendered `visibleBars`, so Next/Play keep the replay
+cursor near the right side and older bars roll out of the rendered chart.
+
+- [x] Step 374.1: Add viewport follow spec plus TODO/session plan.
+- [x] Step 374.2: Add chart runtime viewport follow contract and smoke coverage
+  that keeps full bars state while rendering a rolling visible subset.
+- [x] Step 374.3: Wire replay runtime to sync viewport follow after initial
+  load, Next/Play, Reset, and display projection.
+- [x] Step 374.4: Add browser coverage proving rolling visible chart behavior
+  without mutating cursor/displayBars or adding bars requests; run full smoke and
+  update handoff.
+
+Manual acceptance:
+
+- `displayBars` remains replay-owned revealed history.
+- Chart runtime owns the rendered visible subset.
+- Next/Play keep the cursor bar near the right side with `rightOffsetBars`.
+- Older bars roll out of the rendered chart when revealed history exceeds
+  visible capacity.
+- Viewport follow does not request bars, mutate replay cursor, or mutate
+  `displayBars`.
+- Manual drag/zoom behavior remains out of scope until Phase 3.
+
+Checks:
+
+- `node v5/tests/chart-viewport-follow-smoke.js`
+- `node v5/tests/replay-viewport-follow-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
+
+Goal: close Phase 2 deliberately after viewport follow, fix documentation drift,
+and define the first Phase 3 step so local UI observations do not pull the
+project into random feature order.
+
+- [x] Step 375.1: Add Step 375 TODO/session plan.
+- [x] Step 375.2: Update roadmap/TODO to mark Phase 2 gate status and fix
+  Step 373 documentation drift.
+- [x] Step 375.3: Record Phase 3 entry checklist, run verification, and update
+  handoff.
+
+Manual acceptance:
+
+- Phase 2 status reflects Step 374 completion and the explicit manual viewport
+  rule: auto-follow remains active until Phase 3 defines real drag/zoom.
+- Step 373 TODO state matches the completed spec/session work.
+- Phase 3 starts with chart interaction runtime contracts, not ad hoc toolbar
+  polish or FXReplay parity details.
+- No runtime code changes are made in this closeout step.
+
+Checks:
+
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 376 - V5 Chart Interaction Runtime Contracts
+
+Goal: start Phase 3 by defining and implementing chart-owned interaction
+contracts for manual visible-range movement before adding richer crosshair,
+tooltip, toolbar, order, or journal UI.
+
+- [x] Step 376.1: Add chart interaction spec plus TODO/session plan.
+- [x] Step 376.2: Add chart runtime interaction state and commands for manual
+  visible-range movement and follow resume.
+- [x] Step 376.3: Wire replay/chart behavior so manual movement pauses
+  auto-follow without directly mutating replay cursor or `displayBars`.
+- [x] Step 376.4: Add browser verification, run full smoke, and update handoff.
+
+Manual acceptance:
+
+- Chart runtime owns manual visible-range interaction state.
+- Manual visible-range movement pauses auto-follow until an explicit resume
+  command.
+- Replay runtime continues to own cursor and reveal state.
+- Manual movement may emit viewport demand, but it must not request bars
+  directly.
+- Replay-owned viewport demand consumption may grow `displayBars` without
+  resuming follow.
+- Replay right-edge changes keep manual visible range, interaction readback, and
+  rendered bars aligned.
+- UI does not directly slice bars, mutate replay state, or call bar-data APIs.
+- Crosshair, axis labels, go-to time, toolbar polish, orders, journal, SaaS
+  auth, and billing remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 377 - V5 Chart Engine Adapter Foundation
+
+Goal: introduce a real chart-engine adapter boundary before implementing richer
+drag/zoom, crosshair, go-to time, orders, or journal overlays.
+
+- [x] Step 377.1: Add chart-engine adapter spec plus TODO/session plan.
+- [x] Step 377.2: Add adapter module and smoke coverage for DOM fallback plus
+  fake Lightweight Charts integration.
+- [x] Step 377.3: Wire chart runtime through the adapter without changing
+  replay/bar-data ownership contracts.
+- [x] Step 377.4: Add boundary/browser verification, run full smoke, and update
+  handoff.
+
+Manual acceptance:
+
+- Chart runtime remains the only runtime that creates or calls chart-engine
+  instances.
+- UI, replay, and bar-data modules do not import or call chart-engine APIs.
+- The adapter can use `window.LightweightCharts` when available and a DOM
+  fallback when unavailable.
+- Existing chart commands/events and interaction readback continue to work.
+- Manual visible range and viewport follow behavior remain chart-owned.
+- Engine visible range changes may emit viewport demand, but do not request bars
+  directly.
+- Full drag/zoom polish, crosshair, go-to time, orders, journal, SaaS auth, and
+  billing remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

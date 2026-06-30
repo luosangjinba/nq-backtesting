@@ -32,6 +32,10 @@ around by local UI observations or one-off FXReplay parity details.
 
 ## Active Specs
 
+Specs are grouped by stable behavior area, not by step number. The step notes
+below explain where a spec entered or materially changed V5; they do not imply
+that future work must follow this file order.
+
 - `fx-replay-initial-load.md`: stable rules for replay chart entry, wall-clock
   time semantics, initial display invariants, and verification harnesses.
 - `fx-replay-prefix-demand-retention.md`: stable rules for left-side prefix
@@ -63,3 +67,18 @@ around by local UI observations or one-off FXReplay parity details.
   through ownership, repositories, and canonical replay time, while deferring
   auth, billing, and server-backed multi-tenancy until the training loop is
   validated.
+
+## Step Source Map
+
+- Step 363: `fx-replay-initial-load.md`
+- Step 365: `fx-replay-prefix-demand-retention.md`
+- Step 366: `fx-replay-controls-ui.md`
+- Step 367: `runtime-boundary-contracts.md`
+- Step 368: `fx-replay-cursor-persistence.md`
+- Step 369: `fx-replay-viewport-display-cache.md`
+- Step 372: `chart-display-timezone.md`
+- Step 373: `chart-presentation-settings.md`
+- Step 374: `fx-replay-viewport-follow.md`
+- Step 376: `chart-interaction-contracts.md`
+- Step 377: `chart-engine-adapter.md`
+- Cross-phase: `saas-readiness-strategy.md`

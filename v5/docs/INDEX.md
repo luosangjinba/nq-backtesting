@@ -10,6 +10,8 @@ Read this index before working on V5.
 - `v5/docs/V5_PHASE_ROADMAP.md`: current phase roadmap and step selection
   rules.
 - `v5/TODO.md`: current step plan and manual acceptance standards.
+- `v5/sessions/README.md`: session handoff ordering and targeted lookup rules.
+- `v5/docs/specs/README.md`: stable spec index and step source map.
 
 ## Current Direction
 
