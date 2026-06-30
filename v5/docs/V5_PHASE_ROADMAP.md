@@ -40,6 +40,9 @@ and decision support should convert structured review artifacts into practice
 priorities, behavior-pattern feedback, and better next-session decisions. AI can
 be considered later as an assistant over this structured evidence, not as a
 replacement for the review model.
+Dashboard and visualization work belongs in this downstream layer: it should
+show review-derived metrics, distributions, timelines, and drilldowns that help
+the trader inspect data and decide what to change.
 
 New steps should state which workflow they advance, or why the work is necessary
 shared infrastructure for the review loop. Historical Replay Review and Live
@@ -244,6 +247,8 @@ Planned:
 - evidence/segment/PDA-style study tools;
 - topical Historical Replay Review and Live Execution Review comparison sets;
 - statistics and analysis over review artifacts, tags, orders, and outcomes;
+- visualization dashboards for review-derived metrics, distributions,
+  timelines, and drilldowns;
 - decision-support summaries that identify what the trader should practice or
   avoid next;
 - selective V4 workflow migration through V5 contracts.
@@ -254,6 +259,8 @@ Gate:
   and does not mutate replay/bar runtime state directly.
 - Statistics and analysis consume structured review artifacts and canonical
   refs, not detached screen state or generic note blobs.
+- Dashboards can drill from aggregate visualizations back to source chart
+  moments, orders/fills, notes, evidence, and tags.
 
 ## Phase 6 - Persistence, Templates, And Multi-user Maturity
 

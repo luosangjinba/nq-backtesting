@@ -20,6 +20,9 @@ review artifacts into statistics, analysis, and better decisions. V5 should help
 the trader identify repeated behavior patterns, compare process quality against
 outcomes, decide what to practice next, and optionally use AI assistance once
 the underlying evidence and structured data are reliable enough to support it.
+This implies a review-grounded analytics dashboard and data visualization layer:
+charts, tables, distributions, timelines, and drilldowns should demonstrate what
+the review data says and help the trader choose the next action.
 
 The two workflows are not isolated chart products. They can coexist on the same
 chart surface: a user may run no-future historical replay logic while also
@@ -117,11 +120,16 @@ Shared foundation:
 - calendar/session grouping;
 - import/export/sync model;
 - searchable review library.
+- analytics views and visualization-ready aggregates.
 
 Statistics, analysis, decision support, and future AI assistance should consume
 the same shared foundation. They should not rely on unstructured journal text or
 screen state when canonical artifacts, tags, orders, notes, and evidence refs
 can provide stronger inputs.
+Visualization data should be computed from stable review records and expose
+drilldown refs back to the underlying chart moments, orders, notes, tags, and
+evidence. A dashboard is useful when it makes the review loop easier to inspect
+and decide from; it is not useful when it becomes a detached KPI wall.
 
 The shared chart surface should support multiple artifact sources at once:
 replay decisions, simulated orders, actual orders/fills, execution notes,
@@ -156,6 +164,9 @@ exactly the kind of cost V4 exposed.
   of structured review artifacts and evidence. They should not become detached
   dashboards or generic chat surfaces unrelated to the trader's actual review
   loop.
+- Analytics dashboards and visual demos should make review data visible through
+  summaries, charts, distributions, timelines, and drilldowns, with links back
+  to the source artifacts they summarize.
 - SaaS features should preserve user/workspace/session ownership, but public
   auth, billing, and entitlements must not displace the review loop before the
   training workflow is validated.
@@ -204,7 +215,9 @@ Phase 5:
 - topical Historical Replay Review and Live Execution Review comparison sets
   should be first-class study workflows;
 - statistics and analysis should turn tagged review artifacts into practice
-  priorities and decision feedback.
+  priorities and decision feedback;
+- dashboard-style visualization should demonstrate review data through charts,
+  tables, timelines, distributions, and artifact drilldowns.
 
 Phase 6:
 
@@ -226,6 +239,8 @@ Phase 6:
 - Treating PnL as the only success metric.
 - Building statistics, analytics, or AI chat as detached dashboards instead of
   downstream decision support from review evidence.
+- Building pretty visualizations that cannot drill back into the review moments,
+  orders, notes, tags, or evidence that produced them.
 - Copying FXReplay surface features without checking whether they support
   Historical Replay Review or Live Execution Review.
 - Prioritizing SaaS infrastructure before replay plus execution review proves a

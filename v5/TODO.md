@@ -23,6 +23,9 @@
   decision support. Future AI assistance should be grounded in structured review
   artifacts, evidence, tags, orders, and outcomes, not detached chat or generic
   dashboards.
+- Product guardrail: Dashboards are expected, but as review-grounded data
+  visualization. They should expose metrics, distributions, timelines, and
+  drilldowns back to the underlying review artifacts.
 
 ## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
 
