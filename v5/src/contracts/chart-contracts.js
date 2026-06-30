@@ -8,7 +8,10 @@ export const CHART_COMMANDS = Object.freeze({
   GET_VISIBLE_RANGE: 'chart.getVisibleRange',
   SET_DISPLAY_CONTEXT: 'chart.setDisplayContext',
   SET_VIEWPORT_FOLLOW: 'chart.setViewportFollow',
+  SET_MANUAL_VISIBLE_RANGE: 'chart.setManualVisibleRange',
+  RESUME_VIEWPORT_FOLLOW: 'chart.resumeViewportFollow',
   GET_RENDERED_BARS: 'chart.getRenderedBars',
+  GET_INTERACTION_STATE: 'chart.getInteractionState',
   GET_VIEWPORT_DEMAND: 'chart.getViewportDemand',
   GET_PREFIX_DEMAND: 'chart.getPrefixDemand',
 });

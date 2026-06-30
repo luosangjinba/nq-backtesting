@@ -29,6 +29,10 @@ function createEmptyState() {
       estimatedVisibleBars: null,
       rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
     },
+    interaction: {
+      mode: 'follow',
+      manualVisibleRange: null,
+    },
     displayContext: {
       instrument: null,
       displayTimeframe: null,
@@ -173,6 +177,14 @@ function normalizeViewportFollow(payload = {}, state) {
 }
 
 function computeRenderedBars(state) {
+  if (state.interaction.mode === 'manual' && state.interaction.manualVisibleRange) {
+    return state.bars.filter((bar) => {
+      const timestamp = timestampSeconds(bar.time, 'chart bar time');
+      return timestamp >= state.interaction.manualVisibleRange.from
+        && timestamp <= state.interaction.manualVisibleRange.to;
+    });
+  }
+
   if (!state.viewportFollow.enabled || !state.bars.length) {
     return [...state.bars];
   }
@@ -315,6 +327,7 @@ function renderChartFrame(host, state) {
 
   const renderedBars = computeRenderedBars(state);
   canvas.dataset.viewportFollow = state.viewportFollow.enabled ? 'true' : 'false';
+  canvas.dataset.interactionMode = state.interaction.mode;
   canvas.dataset.renderedBarCount = String(renderedBars.length);
   canvas.dataset.fullBarCount = String(state.bars.length);
 
@@ -437,10 +450,66 @@ export function createChartRuntime() {
   }
 
   function setViewportFollow(payload = {}) {
-    state.viewportFollow = normalizeViewportFollow(payload, state);
+    const nextViewportFollow = normalizeViewportFollow(payload, state);
+    state.viewportFollow = state.interaction.mode === 'manual' && !payload.resume
+      ? {
+        ...nextViewportFollow,
+        enabled: false,
+      }
+      : nextViewportFollow;
     rerenderMountedHosts();
     return {
       viewportFollow: { ...state.viewportFollow },
+      interaction: structuredClone(state.interaction),
+      renderedBars: computeRenderedBars(state),
+      fullBarCount: state.bars.length,
+    };
+  }
+
+  function setManualVisibleRange(payload = {}) {
+    const visibleRange = clampVisibleRange(normalizeRange(payload), state.rightEdgeLimit);
+    state.visibleRange = visibleRange;
+    state.interaction = {
+      mode: 'manual',
+      manualVisibleRange: { ...visibleRange },
+    };
+    state.viewportFollow = {
+      ...state.viewportFollow,
+      enabled: false,
+    };
+    state.prefixDemand = computePrefixDemand(state);
+    state.viewportDemand = computeViewportDemand(state);
+    rerenderMountedHosts();
+    emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
+    if (state.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
+    }
+    if (state.prefixDemand) {
+      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
+    }
+    return {
+      visibleRange: { ...visibleRange },
+      viewportFollow: { ...state.viewportFollow },
+      interaction: structuredClone(state.interaction),
+      renderedBars: computeRenderedBars(state),
+      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+    };
+  }
+
+  function resumeViewportFollow() {
+    state.interaction = {
+      mode: 'follow',
+      manualVisibleRange: null,
+    };
+    state.viewportFollow = {
+      ...state.viewportFollow,
+      enabled: true,
+    };
+    rerenderMountedHosts();
+    return {
+      viewportFollow: { ...state.viewportFollow },
+      interaction: structuredClone(state.interaction),
       renderedBars: computeRenderedBars(state),
       fullBarCount: state.bars.length,
     };
@@ -449,6 +518,17 @@ export function createChartRuntime() {
   function getRenderedBars() {
     return {
       viewportFollow: { ...state.viewportFollow },
+      interaction: structuredClone(state.interaction),
+      renderedBars: computeRenderedBars(state),
+      fullBarCount: state.bars.length,
+    };
+  }
+
+  function getInteractionState() {
+    return {
+      viewportFollow: { ...state.viewportFollow },
+      interaction: structuredClone(state.interaction),
+      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
       renderedBars: computeRenderedBars(state),
       fullBarCount: state.bars.length,
     };
@@ -532,7 +612,10 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
       registerCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, (payload) => setViewportFollow(payload)),
+      registerCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, (payload) => setManualVisibleRange(payload)),
+      registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, () => resumeViewportFollow()),
       registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
+      registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
       registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand()),
       subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload)),

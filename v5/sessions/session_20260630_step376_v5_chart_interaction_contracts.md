@@ -31,7 +31,21 @@ Status: complete.
 - Render from manual visible range when follow is paused.
 - Add chart interaction smoke coverage.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Added chart interaction commands:
+  - `chart.setManualVisibleRange`
+  - `chart.resumeViewportFollow`
+  - `chart.getInteractionState`
+- Chart runtime now tracks follow/manual interaction mode.
+- Manual visible range disables viewport follow and renders the manual range.
+- Replay-style follow sync updates cursor/capacity but does not auto-resume
+  follow while manual mode is active.
+- Explicit resume returns rendering to cursor-follow behavior.
+- Added `v5/tests/chart-interaction-contracts-smoke.js`.
+- Added the chart interaction smoke to `v5/scripts/smoke_all.js`.
 
 ### Step 376.3 - Replay And Follow Behavior
 
