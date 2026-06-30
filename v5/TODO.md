@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 391 is complete.
-- Next candidate: after Step 391, continue Phase 3 by deciding whether Layout
+- Current status: Step 392 is complete.
+- Next candidate: after Step 392, continue Phase 3 by deciding whether Layout
   needs a dedicated planning step, or prepare the Phase 3 closeout checklist if
-  chart navigation is stable enough.
+  chart overlay and replay controls are stable enough.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -1325,6 +1325,47 @@ Checks:
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 392 - V5 Minimal Chart Reset Overlay
+
+Goal: simplify the upper-right chart overlay so it only provides reset/follow
+behavior and no longer duplicates Lightweight Charts native wheel zoom and drag
+pan interactions.
+
+This step advances Historical Replay Review by removing a visually heavy,
+amateur-looking chart overlay. It is a UI polish step, not a replay runtime,
+bar-loading, chart-engine interaction, Layout, drawing, order, or journal step.
+
+- [x] Step 392.1: Add Step 392 TODO/session plan and record that Layout
+  planning is deferred.
+- [x] Step 392.2: Remove overlay zoom out, zoom in, pan left, and pan right
+  buttons from the chart route.
+- [x] Step 392.3: Keep only a light reset/follow icon button wired to
+  `CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW`.
+- [x] Step 392.4: Restyle the overlay as a transparent/minimal icon action
+  instead of a boxed toolbar.
+- [x] Step 392.5: Update browser smoke coverage for the one-button reset
+  overlay while preserving native interaction coverage.
+
+Manual acceptance:
+
+- The upper-right chart overlay no longer contains zoom or pan buttons.
+- Reset/follow remains available through `data-chart-reset-view`.
+- The reset control is visually light and does not sit inside a heavy visible
+  box.
+- Native Lightweight wheel zoom, drag pan, and price-axis scaling remain the
+  interaction path for chart navigation.
+- Reset still resumes viewport follow without mutating replay cursor, reveal
+  state, or bar-data cache.
+
+Checks:
+
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-overlay-visibility-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

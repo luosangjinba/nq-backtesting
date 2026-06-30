@@ -56,11 +56,7 @@ export function createChartReplayRoute() {
             <span>Starting chart...</span>
           </div>
           <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
-            <button type="button" data-chart-zoom-out title="Zoom out" aria-label="Zoom out" disabled>-</button>
-            <button type="button" data-chart-zoom-in title="Zoom in" aria-label="Zoom in" disabled>+</button>
-            <button type="button" data-chart-pan-left title="Pan left" aria-label="Pan left" disabled>&lsaquo;</button>
-            <button type="button" data-chart-pan-right title="Pan right" aria-label="Pan right" disabled>&rsaquo;</button>
-            <button type="button" data-chart-reset-view title="Reset to cursor" aria-label="Reset to cursor" disabled>&#8634;</button>
+            <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
           </div>
           <div class="replay-floating-controls" data-replay-floating-controls aria-label="Replay controls">
             <div class="replay-controls" data-replay-controls>
@@ -143,10 +139,6 @@ export function createChartReplayRoute() {
       const jumpCursorPopoverButton = section.querySelector('[data-chart-jump-cursor-popover]');
       const layoutOpenButton = section.querySelector('[data-layout-open]');
       const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
-      const zoomOutButton = section.querySelector('[data-chart-zoom-out]');
-      const zoomInButton = section.querySelector('[data-chart-zoom-in]');
-      const panLeftButton = section.querySelector('[data-chart-pan-left]');
-      const panRightButton = section.querySelector('[data-chart-pan-right]');
       const resetViewButton = section.querySelector('[data-chart-reset-view]');
       let commandInFlight = false;
       let replayLoaded = false;
@@ -490,34 +482,6 @@ export function createChartReplayRoute() {
           setControlsDisabled(false);
         }
       }
-
-      zoomOutButton.addEventListener('click', () => {
-        runChartNavigation(
-          () => dispatchCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, { direction: 1, ratio: 0.25 }),
-          () => 'Zoomed out.'
-        );
-      });
-
-      zoomInButton.addEventListener('click', () => {
-        runChartNavigation(
-          () => dispatchCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, { direction: -1, ratio: 0.25 }),
-          () => 'Zoomed in.'
-        );
-      });
-
-      panLeftButton.addEventListener('click', () => {
-        runChartNavigation(
-          () => dispatchCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, { direction: -1, ratio: 0.5 }),
-          () => 'Scrolled left.'
-        );
-      });
-
-      panRightButton.addEventListener('click', () => {
-        runChartNavigation(
-          () => dispatchCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, { direction: 1, ratio: 0.5 }),
-          () => 'Scrolled right.'
-        );
-      });
 
       resetViewButton.addEventListener('click', () => {
         runChartNavigation(

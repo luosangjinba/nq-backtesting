@@ -167,8 +167,6 @@ async function main() {
             routeId: 'chart',
             params: { sessionId: created.session.id },
           });
-          document.querySelector('.chart-viewport').style.width = '120px';
-          document.querySelector('[data-chart-host]').style.width = '120px';
           await waitFor('initial loaded', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             const chart = chartSnapshot();
@@ -179,8 +177,6 @@ async function main() {
           });
 
           const toolbarButtons = Array.from(document.querySelectorAll('[data-chart-toolbar] button'));
-          const viewportRect = rectFor('.chart-viewport');
-          const toolbarRect = rectFor('[data-chart-toolbar]');
           const before = await commands.dispatchCommand('replay.getState');
           const beforeInteraction = await commands.dispatchCommand('chart.getInteractionState');
           const beforeTimestamps = beforeInteraction.renderedBars
@@ -192,8 +188,8 @@ async function main() {
           };
           const requestCountBefore = requests.length;
 
-          document.querySelector('[data-chart-zoom-in]').click();
-          await waitFor('zoom in manual', async () => {
+          await commands.dispatchCommand('chart.zoomVisibleRange', { direction: -1, ratio: 0.25 });
+          await waitFor('runtime zoom manual', async () => {
             const chart = chartSnapshot();
             const interaction = await commands.dispatchCommand('chart.getInteractionState');
             return chart.mode === 'manual'
@@ -201,24 +197,7 @@ async function main() {
               && interaction.visibleRange
               && interaction.visibleRange.to <= Date.parse(before.cursorTimestamp) / 1000;
           });
-          const afterZoom = await commands.dispatchCommand('chart.getInteractionState');
-
-          document.querySelector('[data-chart-pan-left]').click();
-          await waitFor('pan left manual', async () => {
-            const interaction = await commands.dispatchCommand('chart.getInteractionState');
-            return interaction.visibleRange?.from < afterZoom.visibleRange.from;
-          });
-          const afterPanLeft = await commands.dispatchCommand('chart.getInteractionState');
-
-          document.querySelector('[data-chart-pan-right]').click();
-          document.querySelector('[data-chart-pan-right]').click();
-          document.querySelector('[data-chart-pan-right]').click();
-          await waitFor('pan right clamped', async () => {
-            const interaction = await commands.dispatchCommand('chart.getInteractionState');
-            return interaction.visibleRange?.to <= Date.parse(before.cursorTimestamp) / 1000
-              && interaction.interaction.mode === 'manual';
-          });
-          const afterPanRight = await commands.dispatchCommand('chart.getInteractionState');
+          const afterRuntimeZoom = await commands.dispatchCommand('chart.getInteractionState');
 
           document.querySelector('[data-chart-reset-view]').click();
           await waitFor('reset follow', async () => {
@@ -228,6 +207,10 @@ async function main() {
           });
           const afterReset = await commands.dispatchCommand('chart.getInteractionState');
           const afterReplay = await commands.dispatchCommand('replay.getState');
+          document.querySelector('.chart-viewport').style.width = '120px';
+          document.querySelector('[data-chart-host]').style.width = '120px';
+          const viewportRect = rectFor('.chart-viewport');
+          const toolbarRect = rectFor('[data-chart-toolbar]');
 
           return JSON.stringify({
             error: '',
@@ -239,12 +222,10 @@ async function main() {
             afterDisplayCount: afterReplay.displayBars.length,
             beforeMode: beforeInteraction.interaction.mode,
             beforeFollow: beforeInteraction.viewportFollow.enabled,
-            afterZoomMode: afterZoom.interaction.mode,
-            afterZoomFollow: afterZoom.viewportFollow.enabled,
+            afterRuntimeZoomMode: afterRuntimeZoom.interaction.mode,
+            afterRuntimeZoomFollow: afterRuntimeZoom.viewportFollow.enabled,
             beforeRange,
-            afterZoomRange: afterZoom.visibleRange,
-            afterPanLeftRange: afterPanLeft.visibleRange,
-            afterPanRightRange: afterPanRight.visibleRange,
+            afterRuntimeZoomRange: afterRuntimeZoom.visibleRange,
             afterResetMode: afterReset.interaction.mode,
             afterResetFollow: afterReset.viewportFollow.enabled,
             viewportRect,
@@ -261,19 +242,17 @@ async function main() {
     `));
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
-    assert.equal(value.toolbarButtonCount, 5);
+    assert.equal(value.toolbarButtonCount, 1);
     assert.equal(value.toolbarDisabledCount, 0);
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.ok(value.afterDisplayCount >= value.beforeDisplayCount);
     assert.equal(value.beforeMode, 'follow');
     assert.equal(value.beforeFollow, true);
-    assert.equal(value.afterZoomMode, 'manual');
-    assert.equal(value.afterZoomFollow, false);
-    assert.ok(value.afterZoomRange.to <= Date.parse(value.beforeCursor) / 1000);
-    assert.ok(value.afterZoomRange.to - value.afterZoomRange.from < value.beforeRange.to - value.beforeRange.from);
-    assert.ok(value.afterPanLeftRange.from < value.afterZoomRange.from);
-    assert.ok(value.afterPanRightRange.to <= Date.parse(value.beforeCursor) / 1000);
+    assert.equal(value.afterRuntimeZoomMode, 'manual');
+    assert.equal(value.afterRuntimeZoomFollow, false);
+    assert.ok(value.afterRuntimeZoomRange.to <= Date.parse(value.beforeCursor) / 1000);
+    assert.ok(value.afterRuntimeZoomRange.to - value.afterRuntimeZoomRange.from < value.beforeRange.to - value.beforeRange.from);
     assert.equal(value.afterResetMode, 'follow');
     assert.equal(value.afterResetFollow, true);
     assert.ok(value.viewportRect, 'expected chart viewport rect');
