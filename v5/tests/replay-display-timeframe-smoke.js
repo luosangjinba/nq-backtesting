@@ -55,7 +55,9 @@ const barDataRuntime = createBarDataRuntime({
       };
     }
     if (window.timeframe === 5) {
-      return { bars: makeBars(startTimestamp - (3 * 5 * 60), 5, 4, 80) };
+      return {
+        bars: makeBars(timestamp(`${window.start}:00.000Z`.replace(' ', 'T')), 5, window.estimatedBars, 80),
+      };
     }
     if (window.timeframe === 60) {
       return { bars: makeBars(startTimestamp - (60 * 60), 60, 2, 70) };
@@ -147,6 +149,17 @@ const viewportDemandLoad = await dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WI
   },
 });
 assert.equal(viewportDemandLoad.displayTimeframe, 5);
+assert.deepEqual(
+  viewportDemandLoad.displayBars.map((entry) => entry.timestamp),
+  [
+    timestamp('2026-06-01T09:05:00.000Z'),
+    timestamp('2026-06-01T09:10:00.000Z'),
+    timestamp('2026-06-01T09:15:00.000Z'),
+    timestamp('2026-06-01T09:20:00.000Z'),
+    timestamp('2026-06-01T09:25:00.000Z'),
+  ]
+);
+assert.deepEqual(chartBars, viewportDemandLoad.displayBars);
 assert.equal(barRequests.at(-1).timeframe, 5);
 assert.equal(barRequests.at(-1).anchor, '2026-06-01T09:15:00.000Z');
 assert.equal(barRequests.at(-1).direction, 'backward');

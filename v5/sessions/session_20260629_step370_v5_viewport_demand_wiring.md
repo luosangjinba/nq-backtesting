@@ -84,7 +84,16 @@ Completed:
 - Use bar data runtime cache naturally through identical bounded windows.
 - Keep chart updates routed through chart runtime commands only.
 
-Status: planned.
+Status: complete.
+
+Completed:
+
+- Replay state tracks which timeframe the current display bars belong to.
+- Loading another window for the same display timeframe merges by timestamp.
+- Switching display timeframe still replaces display bars instead of mixing
+  timeframes.
+- Merged bars are filtered through the replay cursor no-future guard before
+  chart replacement.
 
 ### Step 370.5 - Browser Coverage And Handoff
 

@@ -22,6 +22,7 @@ function emptyState() {
     revealedCount: 0,
     replayTimeframe: null,
     displayTimeframe: null,
+    displayBarsTimeframe: null,
     prefixBars: [],
     prefixChunks: [],
     releasedPrefixChunks: [],
@@ -98,6 +99,15 @@ function filterDisplayBarsForCursor(bars = [], context = {}) {
   return bars
     .filter((bar) => isDisplayBarAllowed(bar, context))
     .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+}
+
+function mergeDisplayBarsForCursor(existingBars = [], nextBars = [], context = {}) {
+  return filterDisplayBarsForCursor([...new Map([
+    ...existingBars,
+    ...nextBars,
+  ]
+    .map((bar) => [Number(bar?.timestamp), bar]))
+    .values()], context);
 }
 
 export function computePrefixBarCount(metrics = {}) {
@@ -270,6 +280,7 @@ export function createReplayRuntime() {
       revealedCount: 0,
       replayTimeframe: session.timeframe,
       displayTimeframe: session.timeframe,
+      displayBarsTimeframe: null,
       prefixBars: [],
       prefixChunks: [],
       releasedPrefixChunks: [],
@@ -384,6 +395,7 @@ export function createReplayRuntime() {
       ...state,
       replayTimeframe: state.session.timeframe,
       displayTimeframe: state.displayTimeframe || state.session.timeframe,
+      displayBarsTimeframe: state.displayTimeframe || state.session.timeframe,
       cursorTimestamp: restoredCursorTimestamp,
       revealedCount,
       displayBars: clone(displayBars),
@@ -452,11 +464,16 @@ export function createReplayRuntime() {
       direction: normalizedDirection,
       count: normalizedCount,
     });
-    const displayBars = filterDisplayBarsForCursor(window.bars, {
+    const displayContext = {
       cursorTimestamp: state.cursorTimestamp,
       displayTimeframe: normalizedDisplayTimeframe,
       replayTimeframe: state.replayTimeframe || state.session.timeframe,
-    });
+    };
+    const windowDisplayBars = filterDisplayBarsForCursor(window.bars, displayContext);
+    const shouldMergeDisplayBars = state.displayBarsTimeframe === normalizedDisplayTimeframe;
+    const displayBars = shouldMergeDisplayBars
+      ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
+      : windowDisplayBars;
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
     await syncChartRightEdgeLimit(state.cursorTimestamp);
     await syncChartDisplayContext({
@@ -467,6 +484,7 @@ export function createReplayRuntime() {
     state = {
       ...state,
       displayTimeframe: normalizedDisplayTimeframe,
+      displayBarsTimeframe: normalizedDisplayTimeframe,
       displayBars: clone(displayBars),
       viewportMetrics: clone(metrics),
       status: 'display-loaded',
@@ -761,6 +779,7 @@ export function createReplayRuntime() {
       },
       cursorTimestamp: state.startBar.time,
       revealedCount: 0,
+      displayBarsTimeframe: state.displayTimeframe || state.session.timeframe,
       displayBars: clone(displayBars),
       status: 'initial-loaded',
     };

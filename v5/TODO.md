@@ -393,7 +393,7 @@ runtime ownership chain instead of remaining a test-only demand signal.
   viewport demand while a chart replay session is active.
 - [x] Step 370.3: Teach replay display-window loading to consume viewport
   missing-window payloads, dedupe in-flight demand, and keep requests bounded.
-- [ ] Step 370.4: Merge newly loaded display windows with existing display bars
+- [x] Step 370.4: Merge newly loaded display windows with existing display bars
   and reuse cached bar windows when panning back into known history.
 - [ ] Step 370.5: Add browser coverage for user-visible left pan demand and
   update the session handoff after full smoke verification.
