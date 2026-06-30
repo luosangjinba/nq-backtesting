@@ -23,7 +23,16 @@ Status: complete.
 - Fix the Step 373 TODO drift where the spec/session planning substep is still
   unchecked despite the completed spec/session work.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Updated Phase 2 roadmap status to ready for Phase 3 after Step 374.
+- Added Step 374 to Phase 2 delivered/related step lists.
+- Preserved the manual viewport rule: auto-follow remains active until Phase 3
+  defines real drag/zoom behavior.
+- Updated Phase 3 status to ready to start.
+- Fixed Step 373.1 TODO drift.
 
 ### Step 375.3 - Phase 3 Entry Checklist And Verification
 

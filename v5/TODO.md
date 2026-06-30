@@ -55,7 +55,7 @@ and define the first Phase 3 step so local UI observations do not pull the
 project into random feature order.
 
 - [x] Step 375.1: Add Step 375 TODO/session plan.
-- [ ] Step 375.2: Update roadmap/TODO to mark Phase 2 gate status and fix
+- [x] Step 375.2: Update roadmap/TODO to mark Phase 2 gate status and fix
   Step 373 documentation drift.
 - [ ] Step 375.3: Record Phase 3 entry checklist, run verification, and update
   handoff.
@@ -114,7 +114,7 @@ Goal: establish a small chart presentation settings foundation before chart
 axis, tooltip, order, journal, and annotation workflows depend on scattered
 display choices.
 
-- [ ] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
+- [x] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
 - [x] Step 373.2: Add presentation settings contracts/runtime with normalized
   defaults and command/event smoke coverage.
 - [x] Step 373.3: Wire chart runtime/status presentation consumers for time

@@ -93,7 +93,7 @@ Gate:
 
 ## Phase 2 - Viewport And Display Semantics
 
-Status: in progress.
+Status: ready for Phase 3.
 
 Goal: separate data reveal state from chart viewport presentation so V5 behaves
 like a replay chart, not a static list of revealed bars.
@@ -106,6 +106,7 @@ Delivered:
 - replay progression projection;
 - display timezone contract;
 - chart presentation settings foundation.
+- replay viewport follow with rolling visible chart windows.
 
 Related steps:
 
@@ -115,17 +116,16 @@ Related steps:
 - Step 371: replay progression display projection.
 - Step 372: chart display timezone contract.
 - Step 373: chart presentation settings foundation.
-
-Remaining phase gate:
-
-- Step 374 target: replay viewport follow / rolling visible window.
+- Step 374: replay viewport follow / rolling visible window.
+- Step 375: Phase 2 closeout and Phase 3 entry plan.
 
 Gate:
 
 - `displayBars` can retain revealed history, but the chart viewport follows the
   replay cursor with right-side offset and lets older bars roll out of view.
 - Manual viewport movement has an explicit rule for whether auto-follow remains
-  active or pauses.
+  active or pauses: until Phase 3 implements real drag/zoom, auto-follow remains
+  active after initial load, Next, Play, Reset, and display projection.
 - Timezone, time format, status fields, margins, and chart labels are governed
   by presentation settings instead of one-off feature state.
 
@@ -137,7 +137,7 @@ Out-of-phase backlog:
 
 ## Phase 3 - Real Chart Interaction
 
-Status: pending Phase 2 gate.
+Status: ready to start.
 
 Goal: make the chart interaction surface feel like a usable replay workstation.
 
