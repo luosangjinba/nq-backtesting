@@ -48,6 +48,40 @@ Checks:
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
+## Step 374 - V5 Replay Viewport Follow And Rolling Window
+
+Goal: close the Phase 2 viewport/display gate by separating revealed
+`displayBars` from chart-rendered `visibleBars`, so Next/Play keep the replay
+cursor near the right side and older bars roll out of the rendered chart.
+
+- [x] Step 374.1: Add viewport follow spec plus TODO/session plan.
+- [ ] Step 374.2: Add chart runtime viewport follow contract and smoke coverage
+  that keeps full bars state while rendering a rolling visible subset.
+- [ ] Step 374.3: Wire replay runtime to sync viewport follow after initial
+  load, Next/Play, Reset, and display projection.
+- [ ] Step 374.4: Add browser coverage proving rolling visible chart behavior
+  without mutating cursor/displayBars or adding bars requests; run full smoke and
+  update handoff.
+
+Manual acceptance:
+
+- `displayBars` remains replay-owned revealed history.
+- Chart runtime owns the rendered visible subset.
+- Next/Play keep the cursor bar near the right side with `rightOffsetBars`.
+- Older bars roll out of the rendered chart when revealed history exceeds
+  visible capacity.
+- Viewport follow does not request bars, mutate replay cursor, or mutate
+  `displayBars`.
+- Manual drag/zoom behavior remains out of scope until Phase 3.
+
+Checks:
+
+- `node v5/tests/chart-viewport-follow-smoke.js`
+- `node v5/tests/replay-viewport-follow-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
 ## Step 373 - V5 Chart Presentation Settings Foundation
 
 Goal: establish a small chart presentation settings foundation before chart

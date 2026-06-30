@@ -40,6 +40,8 @@ around by local UI observations or one-off FXReplay parity details.
 - `fx-replay-viewport-display-cache.md`: target rules for Step 369 viewport
   display windows, arbitrary display timeframe switching, cache reuse, delayed
   release, and no-future display.
+- `fx-replay-viewport-follow.md`: Phase 2 rules for auto-follow, right offset,
+  and rolling visible windows while replay advances.
 - `fx-replay-controls-ui.md`: stable rules for chart replay controls, command
   dispatch, read-only status, and browser verification.
 - `fx-replay-cursor-persistence.md`: stable rules for cursor persistence,
