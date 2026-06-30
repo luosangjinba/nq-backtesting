@@ -86,14 +86,21 @@ export function canonicalTimestampToInstantMs(timestamp, {
 export function formatDisplayTimestamp(timestamp, {
   displayTimezone = DEFAULT_DISPLAY_TIMEZONE,
   exchangeTimezone = DEFAULT_EXCHANGE_TIMEZONE,
+  timeFormat = '24h',
   includeSeconds = false,
 } = {}) {
   const timeZone = resolveDisplayTimezone(displayTimezone, { exchangeTimezone });
   const instantMs = canonicalTimestampToInstantMs(timestamp, { exchangeTimezone });
   const parts = getTimeZoneParts(instantMs, timeZone);
   const pad = (item) => String(item).padStart(2, '0');
+  const hourText = timeFormat === '12h'
+    ? String(((parts.hour + 11) % 12) + 1)
+    : pad(parts.hour);
+  const suffix = timeFormat === '12h'
+    ? ` ${parts.hour >= 12 ? 'PM' : 'AM'}`
+    : '';
   const time = includeSeconds
-    ? `${pad(parts.hour)}:${pad(parts.minute)}:${pad(parts.second)}`
-    : `${pad(parts.hour)}:${pad(parts.minute)}`;
+    ? `${hourText}:${pad(parts.minute)}:${pad(parts.second)}${suffix}`
+    : `${hourText}:${pad(parts.minute)}${suffix}`;
   return `${parts.year}-${pad(parts.month)}-${pad(parts.day)} ${time}`;
 }

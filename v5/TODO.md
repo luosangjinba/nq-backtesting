@@ -57,7 +57,7 @@ display choices.
 - [ ] Step 373.1: Add chart presentation settings spec plus TODO/session plan.
 - [x] Step 373.2: Add presentation settings contracts/runtime with normalized
   defaults and command/event smoke coverage.
-- [ ] Step 373.3: Wire chart runtime/status presentation consumers for time
+- [x] Step 373.3: Wire chart runtime/status presentation consumers for time
   format, status fields, chart margins, right offset, and crosshair readout
   state.
 - [ ] Step 373.4: Add lightweight UI controls/browser coverage, full smoke,

@@ -93,9 +93,28 @@ const replaced = await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: firs
 assert.equal(replaced.bars.length, 2);
 assert.equal(host.children[0].children[0].dataset.chartBarCount, '2');
 assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 09:30 O:100 H:104 L:99 C:103');
+assert.equal(host.children[0].style.paddingTop, '10%');
+assert.equal(host.children[0].style.paddingBottom, '8%');
+assert.equal(host.children[0].style.paddingRight, '100px');
+assert.equal(host.children[0].dataset.crosshairReadout, 'true');
 
 await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, { displayTimezone: 'UTC' });
 assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 13:30 O:100 H:104 L:99 C:103');
+
+await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
+  timeFormat: '12h',
+  showCrosshairReadout: false,
+  margins: {
+    topPercent: 12,
+    bottomPercent: 6,
+  },
+  rightOffsetBars: 14,
+});
+assert.equal(host.children[0].children[0].children[0].title, '2026-06-01 1:30 PM O:100 H:104 L:99 C:103');
+assert.equal(host.children[0].style.paddingTop, '12%');
+assert.equal(host.children[0].style.paddingBottom, '6%');
+assert.equal(host.children[0].style.paddingRight, '140px');
+assert.equal(host.children[0].dataset.crosshairReadout, 'false');
 
 const appended = await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [{ time: '2026-06-01T09:32:00.000Z', open: 102, high: 106, low: 102, close: 105 }],

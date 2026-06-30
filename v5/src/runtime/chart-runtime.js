@@ -6,6 +6,10 @@ import {
   DEFAULT_EXCHANGE_TIMEZONE,
   DISPLAY_TIMEZONE_EVENTS,
 } from '../contracts/timezone-contracts.js';
+import {
+  CHART_PRESENTATION_EVENTS,
+  DEFAULT_CHART_PRESENTATION_SETTINGS,
+} from '../contracts/chart-presentation-contracts.js';
 import { formatDisplayTimestamp } from '../domain/timezone-format.js';
 
 export { CHART_COMMANDS, CHART_EVENTS };
@@ -25,6 +29,10 @@ function createEmptyState() {
       loadedCoverage: null,
       displayTimezone: DEFAULT_DISPLAY_TIMEZONE,
       exchangeTimezone: DEFAULT_EXCHANGE_TIMEZONE,
+      timeFormat: DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
+      showCrosshairReadout: DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout,
+      margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
+      rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
     },
   };
 }
@@ -203,7 +211,16 @@ function formatChartBarTime(bar, displayContext) {
   return formatDisplayTimestamp(bar.time, {
     displayTimezone: displayContext.displayTimezone,
     exchangeTimezone: displayContext.exchangeTimezone,
+    timeFormat: displayContext.timeFormat,
   });
+}
+
+function applyPresentationLayout(canvas, displayContext) {
+  canvas.dataset.crosshairReadout = displayContext.showCrosshairReadout ? 'true' : 'false';
+  canvas.dataset.rightOffsetBars = String(displayContext.rightOffsetBars);
+  canvas.style.paddingTop = `${displayContext.margins.topPercent}%`;
+  canvas.style.paddingBottom = `${displayContext.margins.bottomPercent}%`;
+  canvas.style.paddingRight = `${displayContext.rightOffsetBars * 10}px`;
 }
 
 function renderBars(canvas, bars, displayContext) {
@@ -239,6 +256,7 @@ function renderChartFrame(host, state) {
   canvas.dataset.chartCanvas = 'true';
   canvas.setAttribute('role', 'img');
   canvas.setAttribute('aria-label', 'Chart runtime canvas');
+  applyPresentationLayout(canvas, state.displayContext);
 
   if (state.bars.length) {
     renderBars(canvas, state.bars, state.displayContext);
@@ -364,6 +382,10 @@ export function createChartRuntime() {
     loadedCoverage = state.displayContext.loadedCoverage,
     displayTimezone = state.displayContext.displayTimezone,
     exchangeTimezone = state.displayContext.exchangeTimezone,
+    timeFormat = state.displayContext.timeFormat,
+    showCrosshairReadout = state.displayContext.showCrosshairReadout,
+    margins = state.displayContext.margins,
+    rightOffsetBars = state.displayContext.rightOffsetBars,
   } = {}) {
     state.displayContext = {
       instrument: instrument == null ? null : String(instrument),
@@ -371,6 +393,15 @@ export function createChartRuntime() {
       loadedCoverage: normalizeLoadedCoverage(loadedCoverage),
       displayTimezone: displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
       exchangeTimezone: exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
+      timeFormat: timeFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
+      showCrosshairReadout: showCrosshairReadout == null
+        ? DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout
+        : Boolean(showCrosshairReadout),
+      margins: {
+        topPercent: Number(margins?.topPercent ?? DEFAULT_CHART_PRESENTATION_SETTINGS.margins.topPercent),
+        bottomPercent: Number(margins?.bottomPercent ?? DEFAULT_CHART_PRESENTATION_SETTINGS.margins.bottomPercent),
+      },
+      rightOffsetBars: Number(rightOffsetBars ?? DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars),
     };
     state.viewportDemand = computeViewportDemand(state);
     rerenderMountedHosts();
@@ -384,6 +415,15 @@ export function createChartRuntime() {
     return setDisplayContext({
       displayTimezone: payload.displayTimezone,
       exchangeTimezone: payload.exchangeTimezone,
+    });
+  }
+
+  function updatePresentationContext(payload = {}) {
+    return setDisplayContext({
+      timeFormat: payload.timeFormat,
+      showCrosshairReadout: payload.showCrosshairReadout,
+      margins: payload.margins,
+      rightOffsetBars: payload.rightOffsetBars,
     });
   }
 
@@ -411,7 +451,8 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
       registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand()),
-      subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload))
+      subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload)),
+      subscribeEvent(CHART_PRESENTATION_EVENTS.CHANGED, (payload) => updatePresentationContext(payload))
     );
     mountAvailableHosts();
 

@@ -44,7 +44,19 @@ Completed:
 - Let chart replay status consume status field visibility and time format.
 - Preserve chart/runtime ownership boundaries.
 
-Status: pending.
+Status: complete.
+
+Completed:
+
+- Extended display timestamp formatting with `12h` support.
+- Chart runtime now consumes presentation settings for candle title time format,
+  margins, right offset, and crosshair readout state.
+- Chart runtime subscribes to presentation setting changes and rerenders
+  mounted hosts without changing chart bars.
+- Chart replay route status now has OHLC/change rows controlled by presentation
+  settings.
+- Added chart runtime smoke assertions for presentation layout and 12-hour
+  chart titles.
 
 ### Step 373.4 - UI And Verification
 

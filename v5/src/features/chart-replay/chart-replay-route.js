@@ -1,6 +1,10 @@
 import { dispatchCommand } from '../../runtime/commands.js';
 import { subscribeEvent } from '../../runtime/events.js';
 import { CHART_COMMANDS } from '../../contracts/chart-contracts.js';
+import {
+  CHART_PRESENTATION_COMMANDS,
+  CHART_PRESENTATION_EVENTS,
+} from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
 import { formatDisplayTimestamp } from '../../domain/timezone-format.js';
@@ -51,6 +55,8 @@ export function createChartReplayRoute() {
           <span>Revealed <strong data-replay-revealed-count>0</strong></span>
           <span>Playback <strong data-replay-playback>Paused</strong></span>
           <span>State <strong data-replay-state>Idle</strong></span>
+          <span data-status-ohlc-row>OHLC <strong data-status-ohlc>--</strong></span>
+          <span data-status-change-row>Change <strong data-status-change>--</strong></span>
         </div>
         <p data-replay-load-status>Waiting for replay session.</p>
       `;
@@ -62,6 +68,10 @@ export function createChartReplayRoute() {
       const revealedCountLabel = section.querySelector('[data-replay-revealed-count]');
       const playbackLabel = section.querySelector('[data-replay-playback]');
       const stateLabel = section.querySelector('[data-replay-state]');
+      const statusOhlcRow = section.querySelector('[data-status-ohlc-row]');
+      const statusChangeRow = section.querySelector('[data-status-change-row]');
+      const statusOhlcLabel = section.querySelector('[data-status-ohlc]');
+      const statusChangeLabel = section.querySelector('[data-status-change]');
       const nextButton = section.querySelector('[data-replay-next]');
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
@@ -75,6 +85,11 @@ export function createChartReplayRoute() {
       let displayTimeframe = null;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
+      let presentationSettings = {
+        timeFormat: '24h',
+        showStatusOhlc: true,
+        showStatusChange: true,
+      };
       const unsubscribeCallbacks = [];
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
@@ -90,11 +105,12 @@ export function createChartReplayRoute() {
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
-        const [state, playback, displayContext, timezoneContext] = await Promise.all([
+        const [state, playback, displayContext, timezoneContext, presentationContext] = await Promise.all([
           dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null),
           dispatchCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE).catch(() => null),
           dispatchCommand(REPLAY_COMMANDS.GET_DISPLAY_CONTEXT).catch(() => null),
           dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.GET).catch(() => null),
+          dispatchCommand(CHART_PRESENTATION_COMMANDS.GET).catch(() => null),
         ]);
         displayTimeframe = Number(displayContext?.displayTimeframe
           || state?.displayTimeframe
@@ -102,6 +118,7 @@ export function createChartReplayRoute() {
           || 0);
         displayTimezone = timezoneContext?.displayTimezone || displayTimezone;
         exchangeTimezone = timezoneContext?.exchangeTimezone || exchangeTimezone;
+        presentationSettings = presentationContext || presentationSettings;
         playbackPlaying = Boolean(playback?.playing);
         terminalReason = playback?.stoppedReason || terminalReason;
         startLabel.textContent = formatReplayTimestamp(state?.startBarTimestamp);
@@ -110,6 +127,7 @@ export function createChartReplayRoute() {
         revealedCountLabel.textContent = String(state?.revealedCount || 0);
         playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
         stateLabel.textContent = terminalReason || state?.status || 'Idle';
+        refreshStatusLineValues(state);
         if (terminalReason) {
           status.textContent = `Replay stopped: ${terminalReason}.`;
         }
@@ -123,7 +141,23 @@ export function createChartReplayRoute() {
         return formatDisplayTimestamp(value, {
           displayTimezone,
           exchangeTimezone,
+          timeFormat: presentationSettings.timeFormat,
         });
+      }
+
+      function refreshStatusLineValues(state) {
+        const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
+        statusOhlcRow.hidden = !presentationSettings.showStatusOhlc;
+        statusChangeRow.hidden = !presentationSettings.showStatusChange;
+        if (!latest) {
+          statusOhlcLabel.textContent = '--';
+          statusChangeLabel.textContent = '--';
+          return;
+        }
+        statusOhlcLabel.textContent = `O ${latest.open} H ${latest.high} L ${latest.low} C ${latest.close}`;
+        const previous = state.displayBars.length > 1 ? state.displayBars.at(-2) : null;
+        const change = previous ? Number(latest.close) - Number(previous.close) : 0;
+        statusChangeLabel.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}`;
       }
 
       function setControlsDisabled(disabled = false) {
@@ -155,6 +189,16 @@ export function createChartReplayRoute() {
         await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
           displayTimezone,
           exchangeTimezone,
+          timeFormat: presentationSettings.timeFormat,
+        }).catch(() => null);
+      }
+
+      async function syncChartPresentationSettings() {
+        await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
+          timeFormat: presentationSettings.timeFormat,
+          showCrosshairReadout: presentationSettings.showCrosshairReadout,
+          margins: presentationSettings.margins,
+          rightOffsetBars: presentationSettings.rightOffsetBars,
         }).catch(() => null);
       }
 
@@ -252,8 +296,18 @@ export function createChartReplayRoute() {
         REPLAY_EVENTS.DISPLAY_WINDOW_LOADED,
         REPLAY_EVENTS.DISPLAY_RELOADED,
         DISPLAY_TIMEZONE_EVENTS.CHANGED,
+        CHART_PRESENTATION_EVENTS.CHANGED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, () => {
+          if (eventName === CHART_PRESENTATION_EVENTS.CHANGED) {
+            dispatchCommand(CHART_PRESENTATION_COMMANDS.GET)
+              .then((settings) => {
+                presentationSettings = settings || presentationSettings;
+                return syncChartPresentationSettings();
+              })
+              .finally(() => refreshReplayStatus());
+            return;
+          }
           if (eventName === DISPLAY_TIMEZONE_EVENTS.CHANGED) {
             dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.GET)
               .then((timezone) => {
