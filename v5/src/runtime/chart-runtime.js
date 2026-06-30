@@ -444,6 +444,18 @@ export function createChartRuntime() {
   let emit = () => {};
   let applyingRuntimeVisibleRange = false;
 
+  function buildChartMetadata(renderedBars = computeRenderedBars(state)) {
+    return {
+      viewportFollow: state.viewportFollow.enabled ? 'true' : 'false',
+      interactionMode: state.interaction.mode,
+      renderedBarCount: renderedBars.length,
+      fullBarCount: state.bars.length,
+      crosshairActive: state.crosshair.active ? 'true' : 'false',
+      crosshairTime: state.crosshair.time || '',
+      crosshairPrice: state.crosshair.price == null ? '' : state.crosshair.price,
+    };
+  }
+
   function syncChartHost(host) {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
@@ -452,15 +464,7 @@ export function createChartRuntime() {
     adapter.setBars(renderedBars, {
       fullBarCount: state.bars.length,
       displayContext: state.displayContext,
-      metadata: {
-        viewportFollow: state.viewportFollow.enabled ? 'true' : 'false',
-        interactionMode: state.interaction.mode,
-        renderedBarCount: renderedBars.length,
-        fullBarCount: state.bars.length,
-        crosshairActive: state.crosshair.active ? 'true' : 'false',
-        crosshairTime: state.crosshair.time || '',
-        crosshairPrice: state.crosshair.price == null ? '' : state.crosshair.price,
-      },
+      metadata: buildChartMetadata(renderedBars),
     });
     applyingRuntimeVisibleRange = true;
     try {
@@ -478,8 +482,12 @@ export function createChartRuntime() {
     chartAdapters.set(host, adapter);
     adapter.mount(host, {
       displayContext: state.displayContext,
-      onVisibleRangeChange: (visibleRange) => {
+      onVisibleRangeChange: (visibleRange, metadata = {}) => {
         if (applyingRuntimeVisibleRange) return;
+        if (metadata.source === 'lightweight-native') {
+          observeNativeVisibleRange(visibleRange);
+          return;
+        }
         setManualVisibleRange(visibleRange);
       },
       onCrosshairChange: (crosshair) => {
@@ -506,6 +514,27 @@ export function createChartRuntime() {
         mountedHosts.delete(host);
         mountedHostList.delete(host);
       }
+    }
+  }
+
+  function syncVisibleRangeToMountedHosts() {
+    for (const host of mountedHostList) {
+      if (!host.isConnected) continue;
+      const adapter = chartAdapters.get(host);
+      applyingRuntimeVisibleRange = true;
+      try {
+        adapter?.setVisibleRange(state.visibleRange);
+      } finally {
+        applyingRuntimeVisibleRange = false;
+      }
+    }
+  }
+
+  function syncMetadataToMountedHosts() {
+    const metadata = buildChartMetadata();
+    for (const host of mountedHostList) {
+      if (!host.isConnected) continue;
+      chartAdapters.get(host)?.setMetadata?.(metadata);
     }
   }
 
@@ -651,6 +680,43 @@ export function createChartRuntime() {
       renderedBars: computeRenderedBars(state),
       viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
       prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+    };
+  }
+
+  function observeNativeVisibleRange(payload = {}) {
+    const requestedRange = normalizeRange(payload);
+    const visibleRange = clampVisibleRange(requestedRange, state.rightEdgeLimit);
+    const clamped = !rangesEqual(requestedRange, visibleRange);
+    state.visibleRange = visibleRange;
+    state.interaction = {
+      mode: 'manual',
+      manualVisibleRange: { ...visibleRange },
+    };
+    state.viewportFollow = {
+      ...state.viewportFollow,
+      enabled: false,
+    };
+    state.prefixDemand = computePrefixDemand(state);
+    state.viewportDemand = computeViewportDemand(state);
+    syncMetadataToMountedHosts();
+    if (clamped) {
+      syncVisibleRangeToMountedHosts();
+    }
+    emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
+    if (state.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
+    }
+    if (state.prefixDemand) {
+      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
+    }
+    return {
+      visibleRange: { ...visibleRange },
+      viewportFollow: { ...state.viewportFollow },
+      interaction: structuredClone(state.interaction),
+      renderedBars: computeRenderedBars(state),
+      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+      clamped,
     };
   }
 

@@ -32,6 +32,34 @@ const LIGHTWEIGHT_PRICE_FORMAT = Object.freeze({
   minMove: 0.01,
 });
 
+const LIGHTWEIGHT_GRID = Object.freeze({
+  vertLines: {
+    color: 'rgba(55, 65, 81, 0.28)',
+    style: 0,
+    visible: true,
+  },
+  horzLines: {
+    color: 'rgba(55, 65, 81, 0.28)',
+    style: 0,
+    visible: true,
+  },
+});
+
+const LIGHTWEIGHT_CROSSHAIR = Object.freeze({
+  vertLine: {
+    color: 'rgba(148, 163, 184, 0.42)',
+    width: 1,
+    style: 2,
+    labelBackgroundColor: '#334155',
+  },
+  horzLine: {
+    color: 'rgba(148, 163, 184, 0.42)',
+    width: 1,
+    style: 2,
+    labelBackgroundColor: '#334155',
+  },
+});
+
 function timestampSeconds(value, label) {
   const parsed = typeof value === 'number' ? value * 1000 : Date.parse(value);
   if (!Number.isFinite(parsed)) {
@@ -101,6 +129,8 @@ function lightweightOptionsForContext(context) {
   return {
     handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
     handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
+    grid: structuredClone(LIGHTWEIGHT_GRID),
+    crosshair: structuredClone(LIGHTWEIGHT_CROSSHAIR),
     localization: {
       priceFormatter: (price) => formatPrice(price),
     },
@@ -380,6 +410,12 @@ function createFallbackInstance({ documentRef }) {
       metadata = options.metadata ? { ...options.metadata } : metadata;
       render();
     },
+    setMetadata(nextMetadata = {}) {
+      metadata = { ...metadata, ...nextMetadata };
+      if (canvas) {
+        applyFallbackMetadata(canvas, metadata);
+      }
+    },
     setVisibleRange(range) {
       visibleRange = range ? { ...range } : null;
     },
@@ -425,6 +461,9 @@ function createLightweightInstance({ engine, documentRef }) {
   let unsubscribeVisibleRange = null;
   let unsubscribeCrosshair = null;
   let lastUserInputAt = 0;
+  let pendingCrosshair = null;
+  let crosshairFrame = null;
+  let lastCrosshairKey = '';
 
   function createSeries(nextChart) {
     if (typeof nextChart.addCandlestickSeries === 'function') {
@@ -444,27 +483,6 @@ function createLightweightInstance({ engine, documentRef }) {
     lastUserInputAt = Date.now();
   }
 
-  function emitShellCrosshair(event) {
-    const candidates = visibleBarsForRange(bars, visibleRange);
-    if (!candidates.length || typeof host?.dataset === 'undefined') return;
-    const rect = canvas?.getBoundingClientRect?.();
-    const left = Number(rect?.left || 0);
-    const width = Math.max(1, Number(rect?.width || canvas?.clientWidth || 1));
-    const ratio = Math.min(1, Math.max(0, (Number(event.clientX || left) - left) / width));
-    const index = Math.min(candidates.length - 1, Math.max(0, Math.round(ratio * (candidates.length - 1))));
-    const bar = candidates[index];
-    host.__v5OnCrosshairChange?.({
-      active: true,
-      time: bar.time,
-      price: Number(bar.close),
-      bar: toChartBar(bar),
-      point: {
-        x: Number(event.clientX || 0),
-        y: Number(event.clientY || 0),
-      },
-    });
-  }
-
   function clearShellCrosshair() {
     host?.__v5OnCrosshairChange?.({ active: false });
   }
@@ -478,7 +496,6 @@ function createLightweightInstance({ engine, documentRef }) {
     canvas.addEventListener('mousedown', markUserInput, true);
     canvas.addEventListener('touchstart', markUserInput, true);
     canvas.addEventListener('wheel', markUserInput, true);
-    canvas.addEventListener('mousemove', emitShellCrosshair);
     canvas.addEventListener('mouseleave', clearShellCrosshair);
   }
 
@@ -487,7 +504,6 @@ function createLightweightInstance({ engine, documentRef }) {
     canvas.removeEventListener('mousedown', markUserInput, true);
     canvas.removeEventListener('touchstart', markUserInput, true);
     canvas.removeEventListener('wheel', markUserInput, true);
-    canvas.removeEventListener('mousemove', emitShellCrosshair);
     canvas.removeEventListener('mouseleave', clearShellCrosshair);
   }
 
@@ -500,6 +516,32 @@ function createLightweightInstance({ engine, documentRef }) {
   function crosshairPrice(param, seriesBar, bar) {
     const price = Number(param?.price ?? seriesBar?.close ?? bar?.close);
     return Number.isFinite(price) ? price : null;
+  }
+
+  function crosshairKey(crosshair) {
+    if (!crosshair?.active) return 'inactive';
+    return [
+      crosshair.time || '',
+      crosshair.price == null ? '' : crosshair.price,
+      crosshair.point?.x ?? '',
+      crosshair.point?.y ?? '',
+    ].join('|');
+  }
+
+  function scheduleCrosshairChange(crosshair) {
+    if (typeof host?.__v5OnCrosshairChange !== 'function') return;
+    pendingCrosshair = crosshair;
+    if (crosshairFrame !== null) return;
+    const schedule = globalThis.requestAnimationFrame || ((callback) => setTimeout(callback, 16));
+    crosshairFrame = schedule(() => {
+      crosshairFrame = null;
+      const nextCrosshair = pendingCrosshair;
+      pendingCrosshair = null;
+      const nextKey = crosshairKey(nextCrosshair);
+      if (nextKey === lastCrosshairKey) return;
+      lastCrosshairKey = nextKey;
+      host?.__v5OnCrosshairChange?.(nextCrosshair);
+    });
   }
 
   return {
@@ -530,9 +572,11 @@ function createLightweightInstance({ engine, documentRef }) {
       chart = engine.createChart(engineSurface, {
         autoSize: true,
         layout: {
-          background: { color: '#111' },
+          background: { color: '#0d1219' },
           textColor: '#d8dde8',
         },
+        grid: structuredClone(LIGHTWEIGHT_GRID),
+        crosshair: structuredClone(LIGHTWEIGHT_CROSSHAIR),
         rightPriceScale: {
           borderColor: '#2b2f36',
         },
@@ -550,7 +594,7 @@ function createLightweightInstance({ engine, documentRef }) {
           options.onVisibleRangeChange({
             from: timestampSeconds(range.from, 'chart engine visible range from'),
             to: timestampSeconds(range.to, 'chart engine visible range to'),
-          });
+          }, { source: 'lightweight-native' });
         };
         timeScale.subscribeVisibleTimeRangeChange(handler);
         unsubscribeVisibleRange = () => timeScale.unsubscribeVisibleTimeRangeChange?.(handler);
@@ -558,12 +602,12 @@ function createLightweightInstance({ engine, documentRef }) {
       if (typeof chart.subscribeCrosshairMove === 'function' && typeof options.onCrosshairChange === 'function') {
         const handler = (param = {}) => {
           if (!param?.time) {
-            options.onCrosshairChange({ active: false });
+            scheduleCrosshairChange({ active: false });
             return;
           }
           const seriesBar = param.seriesData?.get?.(series);
           const bar = toChartBar(seriesBar || barForEngineTime(param.time));
-          options.onCrosshairChange({
+          scheduleCrosshairChange({
             active: true,
             time: param.time,
             price: crosshairPrice(param, seriesBar, bar),
@@ -601,6 +645,17 @@ function createLightweightInstance({ engine, documentRef }) {
         renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
       }
       series?.setData(bars.map(toEngineBar));
+    },
+    setMetadata(nextMetadata = {}) {
+      metadata = { ...metadata, ...nextMetadata };
+      Object.entries(metadata).forEach(([key, value]) => {
+        if (host?.dataset) {
+          host.dataset[key] = String(value);
+        }
+      });
+      if (canvas) {
+        applyFallbackMetadata(canvas, metadata);
+      }
     },
     setVisibleRange(range) {
       visibleRange = range ? { ...range } : null;
@@ -644,6 +699,9 @@ function createLightweightInstance({ engine, documentRef }) {
       debugPlot = null;
       bars = [];
       visibleRange = null;
+      pendingCrosshair = null;
+      crosshairFrame = null;
+      lastCrosshairKey = '';
     },
   };
 }

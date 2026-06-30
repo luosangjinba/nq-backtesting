@@ -65,6 +65,10 @@ function bar(minute, open) {
   };
 }
 
+function flushFrame() {
+  return new Promise((resolve) => setTimeout(resolve, 20));
+}
+
 clearCommandsForTest();
 clearEventsForTest();
 
@@ -165,6 +169,7 @@ host.children[0].dispatchEvent({
   button: 0,
   clientX: 400,
 });
+const setDataCallsBeforeNativeRange = engineCalls.setData.length;
 engineCalls.visibleRangeHandler({
   from: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
   to: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
@@ -183,6 +188,7 @@ assert.equal(host.dataset.interactionMode, 'manual');
 assert.equal(host.dataset.viewportFollow, 'false');
 assert.equal(host.children[0].dataset.interactionMode, 'manual');
 assert.equal(host.children[0].dataset.viewportFollow, 'false');
+assert.equal(engineCalls.setData.length, setDataCallsBeforeNativeRange);
 
 const setDataCallsBeforeCrosshair = engineCalls.setData.length;
 engineCalls.crosshairHandler({
@@ -191,6 +197,7 @@ engineCalls.crosshairHandler({
   point: { x: 35, y: 55 },
   seriesData: new Map(),
 });
+await flushFrame();
 const crosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE);
 assert.equal(crosshair.crosshair.active, true);
 assert.equal(crosshair.crosshair.time, '2026-06-01T09:31:00.000Z');
@@ -201,6 +208,7 @@ assert.deepEqual(crosshair.visibleRange, interaction.visibleRange);
 assert.equal(engineCalls.setData.length, setDataCallsBeforeCrosshair);
 
 engineCalls.crosshairHandler({});
+await flushFrame();
 const clearedCrosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE);
 assert.equal(clearedCrosshair.crosshair.active, false);
 assert.equal(engineCalls.setData.length, setDataCallsBeforeCrosshair);

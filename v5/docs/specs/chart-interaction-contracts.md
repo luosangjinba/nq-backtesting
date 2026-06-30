@@ -11,6 +11,8 @@ Step 376 introduces chart-owned interaction contracts for manual visible-range
 movement.
 Step 383 adds chart-owned go-to time / jump-to-cursor navigation.
 Step 384 adds chart-owned toolbar zoom/pan/reset commands.
+Step 385 fixes Lightweight Charts native interaction so V5 observes native
+pan/zoom/crosshair behavior without fighting the chart engine.
 
 In scope:
 
@@ -18,6 +20,8 @@ In scope:
 - explicit follow pause/resume state;
 - go-to time as a chart runtime command that derives a manual visible range;
 - toolbar zoom/pan as chart runtime commands that derive manual visible ranges;
+- native chart-engine visible-range observation without per-frame data
+  replacement;
 - jump-to-cursor as explicit resume-follow behavior;
 - viewport demand emission after manual range changes;
 - harnesses proving ownership boundaries.
@@ -61,6 +65,16 @@ Out of scope:
 - Toolbar zoom and pan follow the same manual movement rules: they pause
   auto-follow, derive chart-owned manual visible ranges, clamp to the replay
   right-edge limit, and may emit viewport demand without requesting bars.
+- Native Lightweight Charts pan/zoom remains owned by Lightweight Charts during
+  pointer interaction. V5 observes the resulting visible range and updates
+  chart-owned interaction state without calling `series.setData()` for every
+  native interaction frame.
+- Replay right-edge/no-future enforcement may correct a native visible range
+  only when it exceeds the replay cursor boundary.
+- Lightweight mode must use `subscribeCrosshairMove` for crosshair readout and
+  must not also attach a parallel canvas `mousemove` crosshair implementation.
+- High-frequency crosshair/readout updates should be deduped or throttled
+  before route DOM updates.
 - Jump-to-cursor resumes chart viewport follow explicitly. It does not advance
   replay cursor.
 - If viewport demand is consumed, replay runtime may update `displayBars`
@@ -109,6 +123,15 @@ When toolbar zoom or pan is requested:
 - viewport/prefix demand may be emitted;
 - chart runtime does not request bars directly.
 
+When native Lightweight Charts pan/zoom is observed:
+
+- chart runtime records manual interaction state and visible range;
+- chart runtime emits visible-range and viewport-demand events as needed;
+- chart runtime does not rerender bars or call `setData()` just to echo the
+  native range;
+- only out-of-bounds future movement is corrected back to the replay right-edge
+  limit.
+
 ## Forbidden
 
 - UI slicing `displayBars`.
@@ -121,6 +144,10 @@ When toolbar zoom or pan is requested:
   bars. Replay-owned viewport demand handling may grow `displayBars`.
 - Toolbar zoom or pan directly changing replay cursor, replay reveal state, or
   display bars. Replay-owned viewport demand handling may grow `displayBars`.
+- Replacing chart data on every native mousemove, wheel, drag, or crosshair
+  event.
+- Duplicating Lightweight Charts native wheel zoom, pressed mouse pan,
+  price-axis scaling, or crosshair move behavior in V5 shell code.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification
@@ -138,6 +165,8 @@ Step 376 should add or update harnesses proving:
   rendered bars together.
 - toolbar zoom/pan pause follow, clamp at the replay right edge, and preserve
   reset-to-cursor as explicit follow resume.
+- native Lightweight pan/zoom does not create a `setData` storm and keeps
+  crosshair/grid presentation subdued.
 
 Expected checks:
 
@@ -145,5 +174,6 @@ Expected checks:
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

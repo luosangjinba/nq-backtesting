@@ -135,6 +135,40 @@ async function main() {
 
         try {
           const commands = await import('/v5/src/runtime/commands.js');
+          const originalLightweightCharts = window.LightweightCharts;
+          const originalCreateChart = originalLightweightCharts.createChart.bind(originalLightweightCharts);
+          const crosshairMetrics = {
+            handler: null,
+            series: null,
+          };
+          window.__v5CrosshairMetrics = crosshairMetrics;
+          window.LightweightCharts = {
+            ...originalLightweightCharts,
+            createChart(...args) {
+              const chart = originalCreateChart(...args);
+              function wrapSeries(series) {
+                crosshairMetrics.series = series;
+                return series;
+              }
+              if (typeof chart.addCandlestickSeries === 'function') {
+                const originalAddCandlestickSeries = chart.addCandlestickSeries.bind(chart);
+                chart.addCandlestickSeries = (...seriesArgs) => wrapSeries(originalAddCandlestickSeries(...seriesArgs));
+              }
+              if (typeof chart.addSeries === 'function') {
+                const originalAddSeries = chart.addSeries.bind(chart);
+                chart.addSeries = (...seriesArgs) => wrapSeries(originalAddSeries(...seriesArgs));
+              }
+              if (typeof chart.subscribeCrosshairMove === 'function') {
+                const originalSubscribeCrosshair = chart.subscribeCrosshairMove.bind(chart);
+                chart.subscribeCrosshairMove = (handler) => {
+                  crosshairMetrics.handler = handler;
+                  return originalSubscribeCrosshair(handler);
+                };
+              }
+              return chart;
+            },
+          };
+          await commands.dispatchCommand('app.navigate', { routeId: 'setup' }).catch(() => null);
           const created = await commands.dispatchCommand('session.create', {
             id: 'browser-chart-crosshair',
             instrument: 'NQ',
@@ -150,7 +184,8 @@ async function main() {
           await waitFor('initial loaded', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             return state.status === 'initial-loaded'
-              && document.querySelector('[data-chart-host]')?.dataset.chartEngine === 'lightweight-charts';
+              && document.querySelector('[data-chart-host]')?.dataset.chartEngine === 'lightweight-charts'
+              && typeof crosshairMetrics.handler === 'function';
           });
           await commands.dispatchCommand('chart.setViewportFollow', {
             enabled: true,
@@ -186,13 +221,17 @@ async function main() {
 
     const value = JSON.parse(await evaluate(client, `
       (async () => {
-        const canvas = document.querySelector('[data-chart-canvas]');
-        canvas.dispatchEvent(new MouseEvent('mousemove', {
-          bubbles: true,
-          cancelable: true,
-          clientX: ${setup.x},
-          clientY: ${setup.y},
-        }));
+        window.__v5CrosshairMetrics.handler({
+          time: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
+          point: { x: ${setup.x}, y: ${setup.y} },
+          seriesData: new Map([[window.__v5CrosshairMetrics.series, {
+            time: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
+            open: 300,
+            high: 301,
+            low: 299,
+            close: 300.5,
+          }]]),
+        });
 
         async function waitFor(label, predicate, timeoutMs = 8000) {
           const deadline = Date.now() + timeoutMs;

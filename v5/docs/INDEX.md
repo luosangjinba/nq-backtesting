@@ -14,6 +14,8 @@ Read this index before working on V5.
 - `v5/docs/specs/README.md`: stable spec index and step source map.
 - `v5/docs/specs/product-review-loop.md`: product north star for Historical
   Replay Review and Live Execution Review.
+- `v5/docs/vendor/lightweight-charts.md`: official Lightweight Charts API links
+  and V5 usage rules before chart-engine work.
 
 ## Current Direction
 

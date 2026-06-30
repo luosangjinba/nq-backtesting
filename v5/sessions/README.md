@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 384: `session_20260630_step384_v5_chart_navigation_toolbar.md`
+- Step 385: `session_20260630_step385_v5_lightweight_native_interaction_fix.md`
 
 ## Completed Session Index
 
@@ -49,3 +49,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 382: `session_20260630_step382_v5_axis_tooltip_formatting.md`
 - Step 383: `session_20260630_step383_v5_go_to_time_navigation.md`
 - Step 384: `session_20260630_step384_v5_chart_navigation_toolbar.md`
+- Step 385: `session_20260630_step385_v5_lightweight_native_interaction_fix.md`

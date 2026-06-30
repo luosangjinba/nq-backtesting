@@ -57,6 +57,10 @@ function bar(minute, open) {
   };
 }
 
+function flushFrame() {
+  return new Promise((resolve) => setTimeout(resolve, 20));
+}
+
 const documentRef = { createElement };
 
 const fallbackVisibleRangeEvents = [];
@@ -199,7 +203,7 @@ const lightweight = createChartEngineAdapter({
 });
 lightweight.mount(lightweightHost, {
   displayContext: { rightOffsetBars: 3 },
-  onVisibleRangeChange: (range) => visibleRangeEvents.push(range),
+  onVisibleRangeChange: (range, metadata) => visibleRangeEvents.push({ range, metadata }),
   onCrosshairChange: (crosshair) => lightweightCrosshairEvents.push(crosshair),
 });
 lightweight.setBars([bar(32, 102), bar(33, 103)], { fullBarCount: 8 });
@@ -232,7 +236,9 @@ lightweightCalls.crosshairHandler({
     },
   ]]),
 });
+await flushFrame();
 lightweightCalls.crosshairHandler({});
+await flushFrame();
 
 assert.equal(lightweight.readState().engineType, 'lightweight-charts');
 assert.equal(lightweight.readState().barCount, 2);
@@ -250,6 +256,32 @@ assert.deepEqual(lightweightCalls.options.handleScale, {
   pinch: true,
 });
 assert.equal(lightweightCalls.options.localization.priceFormatter(103.5), '103.50');
+assert.deepEqual(lightweightCalls.options.grid, {
+  vertLines: {
+    color: 'rgba(55, 65, 81, 0.28)',
+    style: 0,
+    visible: true,
+  },
+  horzLines: {
+    color: 'rgba(55, 65, 81, 0.28)',
+    style: 0,
+    visible: true,
+  },
+});
+assert.deepEqual(lightweightCalls.options.crosshair, {
+  vertLine: {
+    color: 'rgba(148, 163, 184, 0.42)',
+    width: 1,
+    style: 2,
+    labelBackgroundColor: '#334155',
+  },
+  horzLine: {
+    color: 'rgba(148, 163, 184, 0.42)',
+    width: 1,
+    style: 2,
+    labelBackgroundColor: '#334155',
+  },
+});
 assert.deepEqual(lightweightCalls.options.timeScale, {
   borderColor: '#2b2f36',
   barSpacing: 10,
@@ -297,6 +329,32 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     mouseWheel: true,
     pinch: true,
   },
+  grid: {
+    vertLines: {
+      color: 'rgba(55, 65, 81, 0.28)',
+      style: 0,
+      visible: true,
+    },
+    horzLines: {
+      color: 'rgba(55, 65, 81, 0.28)',
+      style: 0,
+      visible: true,
+    },
+  },
+  crosshair: {
+    vertLine: {
+      color: 'rgba(148, 163, 184, 0.42)',
+      width: 1,
+      style: 2,
+      labelBackgroundColor: '#334155',
+    },
+    horzLine: {
+      color: 'rgba(148, 163, 184, 0.42)',
+      width: 1,
+      style: 2,
+      labelBackgroundColor: '#334155',
+    },
+  },
   localization: {
     priceFormatter: lightweightCalls.applyOptions[0].localization.priceFormatter,
   },
@@ -316,8 +374,11 @@ assert.deepEqual(lightweightCalls.setVisibleRange[0], {
   to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,
 });
 assert.deepEqual(visibleRangeEvents[0], {
-  from: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
-  to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,
+  range: {
+    from: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+    to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,
+  },
+  metadata: { source: 'lightweight-native' },
 });
 assert.deepEqual(lightweightCrosshairEvents[0], {
   active: true,

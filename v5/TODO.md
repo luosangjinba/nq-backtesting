@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 384 is complete.
-- Next candidate: Step 385 should continue Phase 3 with replay toolbar layout
-  consolidation before order, journal, dashboard, AI, or SaaS work.
+- Current status: Step 385 is complete.
+- Next candidate: Step 386 should continue Phase 3 with replay toolbar layout
+  consolidation after native chart interaction is stable.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -24,6 +24,9 @@
 - Known next issue: visible UI is still an engineering shell, not final product
   UI. Chart navigation is functional, but replay toolbar and interaction
   controls still need product-level layout and ergonomics.
+- Known current issue: native Lightweight Charts pan/zoom/crosshair interaction
+  must not be interrupted by V5 visible-range synchronization or per-frame
+  `setData()` calls.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -1015,5 +1018,53 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 385 - V5 Lightweight Native Interaction Fix
+
+Goal: fix the K-line chart's mouse interaction path so Lightweight Charts
+native wheel zoom, pressed-mouse pan, price-axis scaling, and crosshair behavior
+work without V5 fighting the chart engine.
+
+This step advances Historical Replay Review by making chart interaction usable
+enough for replay study. It is a bug-fix/performance step, not a new product
+feature.
+
+- [x] Step 385.1: Add Step 385 TODO/session plan, Lightweight Charts vendor
+  docs, and native interaction spec rules.
+- [x] Step 385.2: Observe native visible-range changes without calling
+  `setData()` on every interaction frame.
+- [x] Step 385.3: Remove duplicate Lightweight mousemove crosshair handling and
+  throttle/dedupe high-frequency readout updates.
+- [x] Step 385.4: Explicitly style Lightweight grid/crosshair lines so bright
+  default white lines do not dominate the chart.
+- [x] Step 385.5: Add browser smoke coverage for native interaction behavior
+  and close the step.
+
+Manual acceptance:
+
+- Wheel over the chart zooms the time axis through Lightweight Charts native
+  behavior.
+- Left-button drag over the chart pans horizontally through Lightweight Charts
+  native behavior.
+- Left-button drag on the price axis keeps native vertical scaling behavior.
+- Native pan/zoom does not repeatedly call `series.setData()`.
+- Replay right-edge/no-future clamping still prevents scrolling into unrevealed
+  future bars.
+- Crosshair readout remains functional without duplicate canvas mousemove
+  handlers.
+- Grid/crosshair lines are subdued and no unexpected bright white solid lines
+  dominate the chart.
+- UI, chart runtime, replay runtime, and bar-data runtime ownership boundaries
+  remain intact.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
