@@ -12,6 +12,7 @@ export const CHART_COMMANDS = Object.freeze({
   RESUME_VIEWPORT_FOLLOW: 'chart.resumeViewportFollow',
   GET_RENDERED_BARS: 'chart.getRenderedBars',
   GET_INTERACTION_STATE: 'chart.getInteractionState',
+  GET_CROSSHAIR_STATE: 'chart.getCrosshairState',
   GET_VIEWPORT_DEMAND: 'chart.getViewportDemand',
   GET_PREFIX_DEMAND: 'chart.getPrefixDemand',
 });
@@ -20,6 +21,7 @@ export const CHART_EVENTS = Object.freeze({
   READY: 'chart:ready',
   BARS_CHANGED: 'chart:barsChanged',
   VISIBLE_RANGE_CHANGED: 'chart:visibleRangeChanged',
+  CROSSHAIR_CHANGED: 'chart:crosshairChanged',
   VIEWPORT_DEMAND: 'chart:viewportDemand',
   PREFIX_DEMAND: 'chart:prefixDemand',
 });

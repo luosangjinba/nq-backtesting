@@ -1,6 +1,6 @@
 import { dispatchCommand } from '../../runtime/commands.js';
 import { subscribeEvent } from '../../runtime/events.js';
-import { CHART_COMMANDS } from '../../contracts/chart-contracts.js';
+import { CHART_COMMANDS, CHART_EVENTS } from '../../contracts/chart-contracts.js';
 import {
   CHART_PRESENTATION_COMMANDS,
   CHART_PRESENTATION_EVENTS,
@@ -65,6 +65,7 @@ export function createChartReplayRoute() {
           <span>State <strong data-replay-state>Idle</strong></span>
           <span data-status-ohlc-row>OHLC <strong data-status-ohlc>--</strong></span>
           <span data-status-change-row>Change <strong data-status-change>--</strong></span>
+          <span data-crosshair-row>Inspect <strong data-crosshair-inspection-readout>--</strong></span>
         </div>
         <p data-replay-load-status>Waiting for replay session.</p>
       `;
@@ -80,6 +81,8 @@ export function createChartReplayRoute() {
       const statusChangeRow = section.querySelector('[data-status-change-row]');
       const statusOhlcLabel = section.querySelector('[data-status-ohlc]');
       const statusChangeLabel = section.querySelector('[data-status-change]');
+      const crosshairRow = section.querySelector('[data-crosshair-row]');
+      const crosshairReadoutLabel = section.querySelector('[data-crosshair-inspection-readout]');
       const nextButton = section.querySelector('[data-replay-next]');
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
@@ -101,7 +104,9 @@ export function createChartReplayRoute() {
         timeFormat: '24h',
         showStatusOhlc: true,
         showStatusChange: true,
+        showCrosshairReadout: true,
       };
+      let crosshairState = { active: false };
       const unsubscribeCallbacks = [];
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
@@ -146,6 +151,7 @@ export function createChartReplayRoute() {
         updateDisplayTimeframeButtons();
         updateDisplayTimezoneButtons();
         updatePresentationButtons();
+        refreshCrosshairReadout();
         setControlsDisabled();
       }
 
@@ -171,6 +177,25 @@ export function createChartReplayRoute() {
         const previous = state.displayBars.length > 1 ? state.displayBars.at(-2) : null;
         const change = previous ? Number(latest.close) - Number(previous.close) : 0;
         statusChangeLabel.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}`;
+      }
+
+      function refreshCrosshairReadout() {
+        crosshairRow.hidden = !presentationSettings.showCrosshairReadout;
+        if (!presentationSettings.showCrosshairReadout || !crosshairState?.active) {
+          crosshairReadoutLabel.textContent = '--';
+          return;
+        }
+        const bar = crosshairState.bar;
+        const timeText = formatReplayTimestamp(crosshairState.time || bar?.time);
+        const price = crosshairState.price == null ? bar?.close : crosshairState.price;
+        const parts = [timeText];
+        if (price != null && Number.isFinite(Number(price))) {
+          parts.push(`P ${Number(price).toFixed(2)}`);
+        }
+        if (bar) {
+          parts.push(`O ${bar.open} H ${bar.high} L ${bar.low} C ${bar.close}`);
+        }
+        crosshairReadoutLabel.textContent = parts.filter(Boolean).join('  ');
       }
 
       function setControlsDisabled(disabled = false) {
@@ -379,15 +404,24 @@ export function createChartReplayRoute() {
         REPLAY_EVENTS.DISPLAY_RELOADED,
         DISPLAY_TIMEZONE_EVENTS.CHANGED,
         CHART_PRESENTATION_EVENTS.CHANGED,
+        CHART_EVENTS.CROSSHAIR_CHANGED,
       ].forEach((eventName) => {
-        const unsubscribe = subscribeEvent(eventName, () => {
+        const unsubscribe = subscribeEvent(eventName, (payload = {}) => {
+          if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
+            crosshairState = payload.crosshair || { active: false };
+            refreshCrosshairReadout();
+            return;
+          }
           if (eventName === CHART_PRESENTATION_EVENTS.CHANGED) {
             dispatchCommand(CHART_PRESENTATION_COMMANDS.GET)
               .then((settings) => {
                 presentationSettings = settings || presentationSettings;
                 return syncChartPresentationSettings();
               })
-              .finally(() => refreshReplayStatus());
+              .finally(() => {
+                refreshCrosshairReadout();
+                refreshReplayStatus();
+              });
             return;
           }
           if (eventName === DISPLAY_TIMEZONE_EVENTS.CHANGED) {
@@ -416,6 +450,12 @@ export function createChartReplayRoute() {
         });
       };
       viewportDemandBridge.start();
+      dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE)
+        .then((state) => {
+          crosshairState = state?.crosshair || crosshairState;
+          refreshCrosshairReadout();
+        })
+        .catch(() => null);
 
       if (params.sessionId) {
         setTimeout(async () => {

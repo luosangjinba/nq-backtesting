@@ -43,6 +43,19 @@ function toEngineBar(bar) {
   };
 }
 
+function toChartBar(bar) {
+  if (!bar) return null;
+  return {
+    time: typeof bar.time === 'number'
+      ? new Date(timestampSeconds(bar.time, 'chart readout bar time') * 1000).toISOString()
+      : bar.time,
+    open: Number(bar.open),
+    high: Number(bar.high),
+    low: Number(bar.low),
+    close: Number(bar.close),
+  };
+}
+
 function normalizeContext(context = {}) {
   return {
     displayTimezone: context.displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
@@ -145,6 +158,14 @@ function renderFallbackBars(documentRef, canvas, bars, context, fullBarCount = b
   canvas.append(plot);
 }
 
+function visibleBarsForRange(bars, range) {
+  if (!range) return [...bars];
+  return bars.filter((bar) => {
+    const timestamp = timestampSeconds(bar.time, 'chart visible readout bar time');
+    return timestamp >= range.from && timestamp <= range.to;
+  });
+}
+
 function renderHiddenDebugBars(documentRef, debugPlot, bars, context, fullBarCount = bars.length) {
   debugPlot.replaceChildren();
   if (!bars.length) return;
@@ -179,6 +200,7 @@ function createFallbackInstance({ documentRef }) {
   let visibleRange = null;
   let metadata = {};
   let onVisibleRangeChange = null;
+  let onCrosshairChange = null;
   let dragState = null;
 
   function activeVisibleRange() {
@@ -194,6 +216,32 @@ function createFallbackInstance({ documentRef }) {
   function canvasWidth() {
     const rect = canvas?.getBoundingClientRect?.();
     return Math.max(1, Number(rect?.width || canvas?.clientWidth || 1));
+  }
+
+  function emitFallbackCrosshair(event) {
+    if (!onCrosshairChange || dragState || !bars.length) return;
+    const candidates = visibleBarsForRange(bars, activeVisibleRange());
+    if (!candidates.length) return;
+    const rect = canvas?.getBoundingClientRect?.();
+    const left = Number(rect?.left || 0);
+    const width = canvasWidth();
+    const ratio = Math.min(1, Math.max(0, (Number(event.clientX || left) - left) / width));
+    const index = Math.min(candidates.length - 1, Math.max(0, Math.round(ratio * (candidates.length - 1))));
+    const bar = candidates[index];
+    onCrosshairChange({
+      active: true,
+      time: bar.time,
+      price: Number(bar.close),
+      bar: toChartBar(bar),
+      point: {
+        x: Number(event.clientX || 0),
+        y: Number(event.clientY || 0),
+      },
+    });
+  }
+
+  function clearFallbackCrosshair() {
+    onCrosshairChange?.({ active: false });
   }
 
   function onPointerDown(event) {
@@ -216,6 +264,14 @@ function createFallbackInstance({ documentRef }) {
       to: dragState.range.to + shiftSeconds,
     });
     event.preventDefault?.();
+  }
+
+  function onMouseMove(event) {
+    if (dragState) {
+      onPointerMove(event);
+      return;
+    }
+    emitFallbackCrosshair(event);
   }
 
   function onPointerUp() {
@@ -243,18 +299,20 @@ function createFallbackInstance({ documentRef }) {
   function bindFallbackInput() {
     if (!canvas?.addEventListener) return;
     canvas.addEventListener('mousedown', onPointerDown);
-    canvas.addEventListener('mousemove', onPointerMove);
+    canvas.addEventListener('mousemove', onMouseMove);
     canvas.addEventListener('mouseup', onPointerUp);
     canvas.addEventListener('mouseleave', onPointerUp);
+    canvas.addEventListener('mouseleave', clearFallbackCrosshair);
     canvas.addEventListener('wheel', onWheel, { passive: false });
   }
 
   function unbindFallbackInput() {
     if (!canvas?.removeEventListener) return;
     canvas.removeEventListener('mousedown', onPointerDown);
-    canvas.removeEventListener('mousemove', onPointerMove);
+    canvas.removeEventListener('mousemove', onMouseMove);
     canvas.removeEventListener('mouseup', onPointerUp);
     canvas.removeEventListener('mouseleave', onPointerUp);
+    canvas.removeEventListener('mouseleave', clearFallbackCrosshair);
     canvas.removeEventListener('wheel', onWheel);
   }
 
@@ -285,6 +343,9 @@ function createFallbackInstance({ documentRef }) {
       displayContext = normalizeContext(options.displayContext);
       onVisibleRangeChange = typeof options.onVisibleRangeChange === 'function'
         ? options.onVisibleRangeChange
+        : null;
+      onCrosshairChange = typeof options.onCrosshairChange === 'function'
+        ? options.onCrosshairChange
         : null;
       canvas = createRuntimeCanvas(documentRef);
       canvas.style.cursor = 'grab';
@@ -329,6 +390,7 @@ function createFallbackInstance({ documentRef }) {
       bars = [];
       visibleRange = null;
       onVisibleRangeChange = null;
+      onCrosshairChange = null;
       dragState = null;
     },
   };
@@ -347,6 +409,7 @@ function createLightweightInstance({ engine, documentRef }) {
   let visibleRange = null;
   let metadata = {};
   let unsubscribeVisibleRange = null;
+  let unsubscribeCrosshair = null;
   let lastUserInputAt = 0;
 
   function createSeries(nextChart) {
@@ -363,6 +426,31 @@ function createLightweightInstance({ engine, documentRef }) {
     lastUserInputAt = Date.now();
   }
 
+  function emitShellCrosshair(event) {
+    const candidates = visibleBarsForRange(bars, visibleRange);
+    if (!candidates.length || typeof host?.dataset === 'undefined') return;
+    const rect = canvas?.getBoundingClientRect?.();
+    const left = Number(rect?.left || 0);
+    const width = Math.max(1, Number(rect?.width || canvas?.clientWidth || 1));
+    const ratio = Math.min(1, Math.max(0, (Number(event.clientX || left) - left) / width));
+    const index = Math.min(candidates.length - 1, Math.max(0, Math.round(ratio * (candidates.length - 1))));
+    const bar = candidates[index];
+    host.__v5OnCrosshairChange?.({
+      active: true,
+      time: bar.time,
+      price: Number(bar.close),
+      bar: toChartBar(bar),
+      point: {
+        x: Number(event.clientX || 0),
+        y: Number(event.clientY || 0),
+      },
+    });
+  }
+
+  function clearShellCrosshair() {
+    host?.__v5OnCrosshairChange?.({ active: false });
+  }
+
   function hasRecentUserInput() {
     return Date.now() - lastUserInputAt < 2_000;
   }
@@ -372,6 +460,8 @@ function createLightweightInstance({ engine, documentRef }) {
     canvas.addEventListener('mousedown', markUserInput, true);
     canvas.addEventListener('touchstart', markUserInput, true);
     canvas.addEventListener('wheel', markUserInput, true);
+    canvas.addEventListener('mousemove', emitShellCrosshair);
+    canvas.addEventListener('mouseleave', clearShellCrosshair);
   }
 
   function unbindEngineInputMarkers() {
@@ -379,6 +469,19 @@ function createLightweightInstance({ engine, documentRef }) {
     canvas.removeEventListener('mousedown', markUserInput, true);
     canvas.removeEventListener('touchstart', markUserInput, true);
     canvas.removeEventListener('wheel', markUserInput, true);
+    canvas.removeEventListener('mousemove', emitShellCrosshair);
+    canvas.removeEventListener('mouseleave', clearShellCrosshair);
+  }
+
+  function barForEngineTime(time) {
+    if (time == null) return null;
+    const timestamp = timestampSeconds(time, 'chart engine crosshair time');
+    return bars.find((bar) => timestampSeconds(bar.time, 'chart readout bar time') === timestamp) || null;
+  }
+
+  function crosshairPrice(param, seriesBar, bar) {
+    const price = Number(param?.price ?? seriesBar?.close ?? bar?.close);
+    return Number.isFinite(price) ? price : null;
   }
 
   return {
@@ -386,6 +489,9 @@ function createLightweightInstance({ engine, documentRef }) {
     mount(nextHost, options = {}) {
       host = nextHost;
       displayContext = normalizeContext(options.displayContext);
+      host.__v5OnCrosshairChange = typeof options.onCrosshairChange === 'function'
+        ? options.onCrosshairChange
+        : null;
       canvas = createRuntimeCanvas(documentRef);
       engineSurface = documentRef.createElement('div');
       engineSurface.className = 'chart-engine-surface';
@@ -430,6 +536,30 @@ function createLightweightInstance({ engine, documentRef }) {
         };
         timeScale.subscribeVisibleTimeRangeChange(handler);
         unsubscribeVisibleRange = () => timeScale.unsubscribeVisibleTimeRangeChange?.(handler);
+      }
+      if (typeof chart.subscribeCrosshairMove === 'function' && typeof options.onCrosshairChange === 'function') {
+        const handler = (param = {}) => {
+          if (!param?.time) {
+            options.onCrosshairChange({ active: false });
+            return;
+          }
+          const seriesBar = param.seriesData?.get?.(series);
+          const bar = toChartBar(seriesBar || barForEngineTime(param.time));
+          options.onCrosshairChange({
+            active: true,
+            time: param.time,
+            price: crosshairPrice(param, seriesBar, bar),
+            bar,
+            point: param.point
+              ? {
+                x: Number(param.point.x || 0),
+                y: Number(param.point.y || 0),
+              }
+              : null,
+          });
+        };
+        chart.subscribeCrosshairMove(handler);
+        unsubscribeCrosshair = () => chart.unsubscribeCrosshairMove?.(handler);
       }
     },
     setBars(nextBars = [], options = {}) {
@@ -480,9 +610,14 @@ function createLightweightInstance({ engine, documentRef }) {
     destroy() {
       unbindEngineInputMarkers();
       unsubscribeVisibleRange?.();
+      unsubscribeCrosshair?.();
       unsubscribeVisibleRange = null;
+      unsubscribeCrosshair = null;
       chart?.remove?.();
       host?.replaceChildren?.();
+      if (host) {
+        delete host.__v5OnCrosshairChange;
+      }
       chart = null;
       series = null;
       host = null;

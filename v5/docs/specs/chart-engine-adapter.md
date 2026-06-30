@@ -12,6 +12,8 @@ Step 379 introduces the normal static-page loading path for the real
 Lightweight Charts standalone build.
 Step 380 tunes the real Lightweight Charts timeScale and interaction defaults
 for replay-workstation behavior.
+Step 381 adds adapter-owned crosshair event normalization for time/price
+inspection.
 
 In scope:
 
@@ -21,6 +23,8 @@ In scope:
 - a local, pinned Lightweight Charts standalone script for the V5 static page;
 - adapter-owned Lightweight Charts timeScale defaults for horizontal pan/zoom,
   right offset, stable spacing, and resize behavior;
+- adapter-owned Lightweight Charts crosshair event subscription normalized to
+  V5 chart-domain data;
 - a DOM fallback so local static smoke tests remain deterministic without
   network or package installation;
 - harnesses proving feature modules still do not call chart-engine APIs.
@@ -29,8 +33,8 @@ Out of scope:
 
 - full production Lightweight Charts packaging decision;
 - full drag/zoom pointer behavior;
-- crosshair readout;
 - custom price/time axis formatting beyond existing presentation context;
+- full tooltip/crosshair polish beyond the first chart-owned readout;
 - orders, journal, annotations, auth, billing, and server persistence.
 
 ## Rules
@@ -60,6 +64,10 @@ Out of scope:
   manual visible range state before they affect the rest of V5.
 - Engine visible range changes may emit viewport demand, but must not request
   bars directly.
+- Crosshair movement from the engine must be converted into chart-runtime
+  inspection state before it affects UI.
+- Crosshair movement must not mutate replay cursor, display bars, visible range,
+  follow state, or bar-data cache.
 
 ## Adapter Contract
 
@@ -69,6 +77,7 @@ The adapter should expose a narrow instance API:
 - `setBars(bars, context)`;
 - `setVisibleRange(range)`;
 - `setPresentation(context)`;
+- `onCrosshairChange` mount option;
 - `destroy()`;
 - `readState()`.
 

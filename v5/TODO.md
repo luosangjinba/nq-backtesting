@@ -10,19 +10,18 @@
 
 ## Current / Next
 
-- Current status: Step 380 is complete.
-- Next candidate: Step 381 should continue Phase 3 chart interaction work with
-  crosshair readout and time/price inspection before axis/tooltip formatting,
-  go-to time, order, journal, dashboard, AI, or SaaS work.
+- Current status: Step 381 is complete.
+- Next candidate: Step 382 should continue Phase 3 chart interaction work with
+  axis/tooltip formatting polish before go-to time, order, journal, dashboard,
+  AI, or SaaS work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
 - Step 380 advances Historical Replay Review by making the real chart engine's
   pan/zoom/right-edge behavior obey replay-workstation boundaries.
 - Known next issue: visible UI is still an engineering shell, not final product
-  UI. Lightweight chart timeScale has replay-workstation defaults, but there is
-  still no product-grade crosshair readout, axis/tooltip formatting, or go-to
-  time.
+  UI. Crosshair readout is chart-owned, but axis labels and tooltip formatting
+  still need product-grade presentation.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -852,6 +851,44 @@ Checks:
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 381 - V5 Crosshair Readout And Inspection
+
+Goal: add chart-owned crosshair readout and time/price inspection so users can
+inspect replay bars without giving UI, replay, or bar-data modules ownership of
+chart internals.
+
+- [x] Step 381.1: Add Step 381 TODO/session plan and update presentation/engine
+  specs with chart-owned crosshair readout rules.
+- [x] Step 381.2: Add adapter callbacks for DOM fallback hover and Lightweight
+  `subscribeCrosshairMove` events, normalized to V5 chart-domain data.
+- [x] Step 381.3: Add chart-runtime crosshair state, event emission, and readback
+  command without mutating replay cursor, display bars, visible range, or bar
+  cache.
+- [x] Step 381.4: Render crosshair readout in the chart route through
+  commands/events and presentation settings, including hide/show behavior.
+- [x] Step 381.5: Strengthen runtime/browser smoke coverage and close the step.
+
+Manual acceptance:
+
+- Moving the chart crosshair updates a visible time/price/OHLC readout.
+- Crosshair readout obeys the `showCrosshairReadout` presentation setting.
+- Crosshair movement does not request bars, mutate replay cursor, mutate
+  `displayBars`, or change visible range/follow state.
+- Lightweight engine crosshair events remain behind the chart-engine adapter.
+- DOM fallback keeps deterministic hover/readout coverage for runtime tests.
+- Axis labels, tooltip polish, go-to time, order, journal, dashboard, AI, SaaS
+  auth, billing, and production packaging remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

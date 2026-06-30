@@ -82,6 +82,7 @@ const engineCalls = {
   created: 0,
   setData: [],
   visibleRangeHandler: null,
+  crosshairHandler: null,
   removed: 0,
 };
 globalThis.LightweightCharts = {
@@ -106,6 +107,10 @@ globalThis.LightweightCharts = {
           unsubscribeVisibleTimeRangeChange() {},
         };
       },
+      subscribeCrosshairMove(handler) {
+        engineCalls.crosshairHandler = handler;
+      },
+      unsubscribeCrosshairMove() {},
       remove() {
         engineCalls.removed += 1;
       },
@@ -178,6 +183,27 @@ assert.equal(host.dataset.interactionMode, 'manual');
 assert.equal(host.dataset.viewportFollow, 'false');
 assert.equal(host.children[0].dataset.interactionMode, 'manual');
 assert.equal(host.children[0].dataset.viewportFollow, 'false');
+
+engineCalls.crosshairHandler({
+  time: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+  price: 101.25,
+  point: { x: 35, y: 55 },
+  seriesData: new Map(),
+});
+const crosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE);
+assert.equal(crosshair.crosshair.active, true);
+assert.equal(crosshair.crosshair.time, '2026-06-01T09:31:00.000Z');
+assert.equal(crosshair.crosshair.price, 101.25);
+assert.equal(crosshair.interaction.mode, 'manual');
+assert.equal(crosshair.viewportFollow.enabled, false);
+assert.deepEqual(crosshair.visibleRange, interaction.visibleRange);
+assert.equal(host.children[0].dataset.crosshairActive, 'true');
+assert.equal(host.children[0].dataset.crosshairTime, '2026-06-01T09:31:00.000Z');
+assert.equal(host.children[0].dataset.crosshairPrice, '101.25');
+
+engineCalls.crosshairHandler({});
+const clearedCrosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE);
+assert.equal(clearedCrosshair.crosshair.active, false);
 
 host.isConnected = false;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {

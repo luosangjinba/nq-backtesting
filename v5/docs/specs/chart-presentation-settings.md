@@ -14,6 +14,7 @@ The initial presentation settings foundation covers:
 - status line field visibility;
 - chart margins and right offset;
 - crosshair readout enablement.
+- chart-owned crosshair readout visibility and formatting.
 
 It does not implement a full FXReplay/TradingView settings panel, template
 system, drawing-tool preferences, screenshot controls, or complete color/theme
@@ -26,6 +27,7 @@ editing.
 - UI dispatches presentation settings commands and subscribes to events.
 - Chart runtime owns chart rendering and consumes presentation settings through
   commands/events.
+- Chart runtime owns crosshair inspection state and emits readout events.
 - Replay runtime continues to own cursor, reveal state, and display bars.
 - Bar data runtime continues to own `/v4/bars` requests and cache.
 
@@ -53,6 +55,11 @@ space for replay progression.
 - Presentation setting changes must not mutate replay cursor.
 - Presentation setting changes must not mutate `displayBars`.
 - Presentation setting changes may rerender chart presentation text/layout.
+- Crosshair movement may update chart-owned inspection/readout state.
+- Crosshair movement must not request bars, mutate replay cursor, mutate
+  `displayBars`, or change visible range/follow state.
+- UI may display crosshair readout by subscribing to chart events or reading
+  chart commands, but it must not call chart-engine APIs directly.
 - Time labels use the display timezone contract from
   `chart-display-timezone.md`.
 - Chart margins/right offset belong to chart presentation and must not be

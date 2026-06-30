@@ -33,6 +33,13 @@ function createEmptyState() {
       mode: 'follow',
       manualVisibleRange: null,
     },
+    crosshair: {
+      active: false,
+      time: null,
+      price: null,
+      bar: null,
+      point: null,
+    },
     displayContext: {
       instrument: null,
       displayTimeframe: null,
@@ -268,6 +275,39 @@ function normalizeBar(bar) {
   return { time: hasStringTime ? time.trim() : time, open, high, low, close };
 }
 
+function normalizeCrosshairBar(bar) {
+  if (!bar || typeof bar !== 'object') return null;
+  return normalizeBar(bar);
+}
+
+function normalizeCrosshair(payload = {}) {
+  if (!payload || typeof payload !== 'object' || !payload.active) {
+    return {
+      active: false,
+      time: null,
+      price: null,
+      bar: null,
+      point: null,
+    };
+  }
+
+  const price = payload.price == null ? null : Number(payload.price);
+  return {
+    active: true,
+    time: payload.time == null
+      ? null
+      : new Date(timestampSeconds(payload.time, 'chart crosshair time') * 1000).toISOString(),
+    price: Number.isFinite(price) ? price : null,
+    bar: normalizeCrosshairBar(payload.bar),
+    point: payload.point && typeof payload.point === 'object'
+      ? {
+        x: Number(payload.point.x ?? 0),
+        y: Number(payload.point.y ?? 0),
+      }
+      : null,
+  };
+}
+
 function normalizeBars(bars) {
   if (!Array.isArray(bars)) {
     throw new Error('chart bars payload must be an array.');
@@ -313,6 +353,9 @@ export function createChartRuntime() {
         interactionMode: state.interaction.mode,
         renderedBarCount: renderedBars.length,
         fullBarCount: state.bars.length,
+        crosshairActive: state.crosshair.active ? 'true' : 'false',
+        crosshairTime: state.crosshair.time || '',
+        crosshairPrice: state.crosshair.price == null ? '' : state.crosshair.price,
       },
     });
     applyingRuntimeVisibleRange = true;
@@ -334,6 +377,9 @@ export function createChartRuntime() {
       onVisibleRangeChange: (visibleRange) => {
         if (applyingRuntimeVisibleRange) return;
         setManualVisibleRange(visibleRange);
+      },
+      onCrosshairChange: (crosshair) => {
+        updateCrosshair(crosshair);
       },
     });
     syncChartHost(host);
@@ -541,6 +587,29 @@ export function createChartRuntime() {
     };
   }
 
+  function updateCrosshair(payload = {}) {
+    state.crosshair = normalizeCrosshair(payload);
+    rerenderMountedHosts();
+    emit(CHART_EVENTS.CROSSHAIR_CHANGED, { crosshair: structuredClone(state.crosshair) });
+    return {
+      crosshair: structuredClone(state.crosshair),
+      interaction: structuredClone(state.interaction),
+      viewportFollow: { ...state.viewportFollow },
+      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+    };
+  }
+
+  function getCrosshairState() {
+    return {
+      crosshair: structuredClone(state.crosshair),
+      interaction: structuredClone(state.interaction),
+      viewportFollow: { ...state.viewportFollow },
+      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+      renderedBars: computeRenderedBars(state),
+      fullBarCount: state.bars.length,
+    };
+  }
+
   function setDisplayContext({
     instrument = state.displayContext.instrument,
     displayTimeframe = state.displayContext.displayTimeframe,
@@ -623,6 +692,7 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, () => resumeViewportFollow()),
       registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
       registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),
+      registerCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE, () => getCrosshairState()),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
       registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand()),
       subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload)),
