@@ -290,7 +290,7 @@ function readHostMetrics(host) {
 }
 
 export function createChartRuntime() {
-  const mountedHosts = new WeakSet();
+  const mountedHosts = new Set();
   const mountedHostList = new Set();
   const chartAdapters = new Map();
   const unregisterCallbacks = [];
@@ -353,6 +353,7 @@ export function createChartRuntime() {
       } else {
         chartAdapters.get(host)?.destroy();
         chartAdapters.delete(host);
+        mountedHosts.delete(host);
         mountedHostList.delete(host);
       }
     }
@@ -647,6 +648,7 @@ export function createChartRuntime() {
       adapter.destroy();
     }
     chartAdapters.clear();
+    mountedHosts.clear();
     mountedHostList.clear();
     observer = null;
     rootElement = null;

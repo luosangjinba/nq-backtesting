@@ -110,3 +110,17 @@ Status: complete.
 - `git diff --check`
 
 Result: all checks passed.
+
+## Review Follow-Up
+
+Accepted fixes after Step 377 review:
+
+- Lightweight Charts adapter path now creates the same runtime-owned
+  `[data-chart-canvas]` shell as the DOM fallback path.
+- Lightweight Charts adapter path now keeps hidden debug candles for stable
+  browser/readback harnesses while rendering the real engine in a dedicated
+  engine surface.
+- Chart runtime now uses a deletable mounted-host `Set` so disconnected hosts
+  can be remounted after their adapter is destroyed.
+- Runtime fake-engine smoke now covers shell/debug metadata and detach/reattach
+  remount behavior.

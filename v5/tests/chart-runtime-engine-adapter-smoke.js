@@ -56,18 +56,25 @@ clearCommandsForTest();
 clearEventsForTest();
 
 globalThis.document = { createElement };
+let mutationCallback = null;
 globalThis.MutationObserver = class {
+  constructor(callback) {
+    mutationCallback = callback;
+  }
   observe() {}
   disconnect() {}
 };
 
 const engineCalls = {
+  created: 0,
   setData: [],
   visibleRangeHandler: null,
   removed: 0,
 };
 globalThis.LightweightCharts = {
-  createChart() {
+  createChart(hostElement) {
+    engineCalls.created += 1;
+    engineCalls.engineHost = hostElement;
     return {
       addCandlestickSeries() {
         return {
@@ -102,6 +109,9 @@ const runtime = createChartRuntime();
 runtime.start({ root });
 
 assert.equal(host.dataset.chartEngine, 'lightweight-charts');
+assert.equal(host.children[0].dataset.chartCanvas, 'true');
+assert.equal(host.children[0].children[0].dataset.chartEngineSurface, 'true');
+assert.equal(engineCalls.engineHost, host.children[0].children[0]);
 
 const bars = [
   bar(30, 100),
@@ -126,6 +136,11 @@ assert.deepEqual(
 );
 assert.equal(host.dataset.viewportFollow, 'true');
 assert.equal(host.dataset.interactionMode, 'follow');
+assert.equal(host.children[0].dataset.viewportFollow, 'true');
+assert.equal(host.children[0].dataset.interactionMode, 'follow');
+assert.equal(host.children[0].dataset.renderedBarCount, '2');
+assert.equal(host.children[0].children[1].children[0].dataset.chartBarCount, '2');
+assert.equal(host.children[0].children[1].children[0].children[0].title, '2026-06-01 09:32 O:102 H:103 L:101 C:102.5');
 
 engineCalls.visibleRangeHandler({
   from: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
@@ -143,9 +158,31 @@ assert.deepEqual(
 );
 assert.equal(host.dataset.interactionMode, 'manual');
 assert.equal(host.dataset.viewportFollow, 'false');
+assert.equal(host.children[0].dataset.interactionMode, 'manual');
+assert.equal(host.children[0].dataset.viewportFollow, 'false');
+
+host.isConnected = false;
+await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
+  bars: [bar(34, 104)],
+});
+assert.equal(engineCalls.removed, 1);
+assert.equal(host.children.length, 0);
+
+host.isConnected = true;
+mutationCallback();
+assert.equal(engineCalls.created, 2);
+assert.equal(host.dataset.chartEngine, 'lightweight-charts');
+assert.equal(host.children[0].dataset.chartCanvas, 'true');
+assert.deepEqual(
+  engineCalls.setData.at(-1).map((item) => item.time),
+  [
+    Date.parse('2026-06-01T09:30:00.000Z') / 1000,
+    Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+  ]
+);
 
 runtime.stop();
-assert.equal(engineCalls.removed, 1);
+assert.equal(engineCalls.removed, 2);
 delete globalThis.LightweightCharts;
 
 console.log('v5 chart runtime engine adapter smoke passed');

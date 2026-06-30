@@ -54,6 +54,15 @@ function applyFallbackMetadata(canvas, metadata = {}) {
   });
 }
 
+function createRuntimeCanvas(documentRef) {
+  const canvas = documentRef.createElement('div');
+  canvas.className = 'chart-runtime-canvas';
+  canvas.dataset.chartCanvas = 'true';
+  canvas.setAttribute('role', 'img');
+  canvas.setAttribute('aria-label', 'Chart runtime canvas');
+  return canvas;
+}
+
 function formatChartBarTime(bar, context) {
   if (typeof bar.time === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(bar.time)) {
     return bar.time;
@@ -90,6 +99,15 @@ function renderFallbackBars(documentRef, canvas, bars, context, fullBarCount = b
   canvas.append(plot);
 }
 
+function renderHiddenDebugBars(documentRef, debugPlot, bars, context, fullBarCount = bars.length) {
+  debugPlot.replaceChildren();
+  if (!bars.length) return;
+  renderFallbackBars(documentRef, debugPlot, bars, context, fullBarCount);
+  const plot = debugPlot.children[0];
+  plot.dataset.chartDebugPlot = 'true';
+  plot.style.display = 'none';
+}
+
 function createFallbackInstance({ documentRef }) {
   let host = null;
   let canvas = null;
@@ -124,10 +142,7 @@ function createFallbackInstance({ documentRef }) {
     mount(nextHost, options = {}) {
       host = nextHost;
       displayContext = normalizeContext(options.displayContext);
-      canvas = documentRef.createElement('div');
-      canvas.className = 'chart-runtime-canvas';
-      canvas.setAttribute('role', 'img');
-      canvas.setAttribute('aria-label', 'Chart runtime canvas');
+      canvas = createRuntimeCanvas(documentRef);
       host.replaceChildren();
       host.dataset.chartRuntimeMounted = 'true';
       host.dataset.chartEngine = 'dom-fallback';
@@ -169,12 +184,16 @@ function createFallbackInstance({ documentRef }) {
   };
 }
 
-function createLightweightInstance({ engine }) {
+function createLightweightInstance({ engine, documentRef }) {
   let chart = null;
   let series = null;
   let host = null;
+  let canvas = null;
+  let engineSurface = null;
+  let debugPlot = null;
   let bars = [];
   let fullBarCount = 0;
+  let displayContext = normalizeContext();
   let visibleRange = null;
   let metadata = {};
   let unsubscribeVisibleRange = null;
@@ -193,10 +212,23 @@ function createLightweightInstance({ engine }) {
     engineType: 'lightweight-charts',
     mount(nextHost, options = {}) {
       host = nextHost;
+      displayContext = normalizeContext(options.displayContext);
+      canvas = createRuntimeCanvas(documentRef);
+      engineSurface = documentRef.createElement('div');
+      engineSurface.className = 'chart-engine-surface';
+      engineSurface.dataset.chartEngineSurface = 'true';
+      engineSurface.style.width = '100%';
+      engineSurface.style.height = '100%';
+      debugPlot = documentRef.createElement('div');
+      debugPlot.dataset.chartDebugContainer = 'true';
+      debugPlot.style.display = 'none';
+      canvas.append(engineSurface);
+      canvas.append(debugPlot);
       host.replaceChildren?.();
       host.dataset.chartRuntimeMounted = 'true';
       host.dataset.chartEngine = 'lightweight-charts';
-      chart = engine.createChart(host, {
+      host.append(canvas);
+      chart = engine.createChart(engineSurface, {
         autoSize: true,
         layout: {
           background: { color: '#111' },
@@ -207,7 +239,7 @@ function createLightweightInstance({ engine }) {
         },
         timeScale: {
           borderColor: '#2b2f36',
-          rightOffset: normalizeContext(options.displayContext).rightOffsetBars,
+          rightOffset: displayContext.rightOffsetBars,
         },
       });
       series = createSeries(chart);
@@ -227,12 +259,22 @@ function createLightweightInstance({ engine }) {
     setBars(nextBars = [], options = {}) {
       bars = [...nextBars];
       fullBarCount = Number(options.fullBarCount ?? bars.length);
+      if (options.displayContext) {
+        displayContext = normalizeContext(options.displayContext);
+      }
       metadata = options.metadata ? { ...options.metadata } : metadata;
       Object.entries(metadata).forEach(([key, value]) => {
         if (host?.dataset) {
           host.dataset[key] = String(value);
         }
       });
+      if (canvas) {
+        applyFallbackPresentation(canvas, displayContext);
+        applyFallbackMetadata(canvas, metadata);
+        canvas.dataset.renderedBarCount = String(bars.length);
+        canvas.dataset.fullBarCount = String(fullBarCount);
+        renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
+      }
       series?.setData(bars.map(toEngineBar));
     },
     setVisibleRange(range) {
@@ -243,6 +285,9 @@ function createLightweightInstance({ engine }) {
     },
     setPresentation(context = {}) {
       const displayContext = normalizeContext(context);
+      if (canvas) {
+        applyFallbackPresentation(canvas, displayContext);
+      }
       chart?.applyOptions?.({
         timeScale: {
           rightOffset: displayContext.rightOffsetBars,
@@ -262,9 +307,13 @@ function createLightweightInstance({ engine }) {
       unsubscribeVisibleRange?.();
       unsubscribeVisibleRange = null;
       chart?.remove?.();
+      host?.replaceChildren?.();
       chart = null;
       series = null;
       host = null;
+      canvas = null;
+      engineSurface = null;
+      debugPlot = null;
       bars = [];
       visibleRange = null;
     },
@@ -276,7 +325,10 @@ export function createChartEngineAdapter({
   documentRef = globalThis.document,
 } = {}) {
   if (engine?.createChart) {
-    return createLightweightInstance({ engine });
+    if (!documentRef?.createElement) {
+      throw new Error('Chart engine adapter requires a document for Lightweight Charts shell.');
+    }
+    return createLightweightInstance({ engine, documentRef });
   }
   if (!documentRef?.createElement) {
     throw new Error('Chart engine adapter requires a document for DOM fallback.');
