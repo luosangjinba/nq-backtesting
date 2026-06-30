@@ -11,6 +11,12 @@ function createEmptyState() {
     rightEdgeLimit: null,
     visibleRange: null,
     prefixDemand: null,
+    viewportDemand: null,
+    displayContext: {
+      instrument: null,
+      displayTimeframe: null,
+      loadedCoverage: null,
+    },
   };
 }
 
@@ -80,6 +86,74 @@ function computePrefixDemand(state) {
       PREFIX_DEMAND_THRESHOLD_BARS + 1,
       Math.ceil((earliestLoadedTimestamp + thresholdSeconds - state.visibleRange.from) / barSpacingSeconds) + 1
     ),
+  };
+}
+
+function computeLoadedCoverage(bars) {
+  const timestamps = bars
+    .map((bar) => timestampSeconds(bar.time, 'chart bar time'))
+    .filter(Number.isFinite)
+    .sort((left, right) => left - right);
+  if (!timestamps.length) return null;
+  return {
+    from: timestamps[0],
+    to: timestamps[timestamps.length - 1],
+  };
+}
+
+function normalizeLoadedCoverage(coverage) {
+  if (!coverage || typeof coverage !== 'object') return null;
+  const from = timestampSeconds(coverage.from, 'chart loaded coverage from');
+  const to = timestampSeconds(coverage.to, 'chart loaded coverage to');
+  if (to < from) {
+    throw new Error('chart loaded coverage to must be greater than or equal to from.');
+  }
+  return { from, to };
+}
+
+function normalizeDisplayTimeframe(value) {
+  if (value == null) return null;
+  const normalized = Number(value);
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error('chart display timeframe must be a positive number.');
+  }
+  return normalized;
+}
+
+function computeViewportDemand(state) {
+  if (!state.visibleRange || !state.bars.length || !state.displayContext.displayTimeframe) {
+    return null;
+  }
+
+  const loadedCoverage = state.displayContext.loadedCoverage || computeLoadedCoverage(state.bars);
+  if (!loadedCoverage) return null;
+
+  const barSpacingSeconds = estimateBarSpacingSeconds(state.bars);
+  const thresholdSeconds = barSpacingSeconds * PREFIX_DEMAND_THRESHOLD_BARS;
+  if (state.visibleRange.from > loadedCoverage.from + thresholdSeconds) {
+    return null;
+  }
+
+  const suggestedCount = Math.max(
+    PREFIX_DEMAND_THRESHOLD_BARS + 1,
+    Math.ceil((loadedCoverage.from + thresholdSeconds - state.visibleRange.from) / barSpacingSeconds) + 1
+  );
+
+  return {
+    instrument: state.displayContext.instrument,
+    displayTimeframe: state.displayContext.displayTimeframe,
+    direction: 'backward',
+    visibleFrom: state.visibleRange.from,
+    visibleTo: state.visibleRange.to,
+    loadedCoverage: { ...loadedCoverage },
+    missingWindow: {
+      direction: 'backward',
+      anchor: new Date(loadedCoverage.from * 1000).toISOString(),
+      from: state.visibleRange.from,
+      to: loadedCoverage.from,
+      suggestedCount,
+    },
+    thresholdSeconds,
   };
 }
 
@@ -207,6 +281,7 @@ export function createChartRuntime() {
   function updateBars(nextBars) {
     state.bars = nextBars;
     state.prefixDemand = computePrefixDemand(state);
+    state.viewportDemand = computeViewportDemand(state);
     rerenderMountedHosts();
     emit(CHART_EVENTS.BARS_CHANGED, { bars: [...state.bars] });
     return { bars: [...state.bars] };
@@ -221,12 +296,17 @@ export function createChartRuntime() {
     const visibleRange = clampVisibleRange(normalizeRange(range), state.rightEdgeLimit);
     state.visibleRange = visibleRange;
     state.prefixDemand = computePrefixDemand(state);
+    state.viewportDemand = computeViewportDemand(state);
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
+    if (state.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
+    }
     if (state.prefixDemand) {
       emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
     }
     return {
       visibleRange: { ...visibleRange },
+      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
       prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
     };
   }
@@ -257,6 +337,30 @@ export function createChartRuntime() {
     };
   }
 
+  function setDisplayContext({
+    instrument = state.displayContext.instrument,
+    displayTimeframe = state.displayContext.displayTimeframe,
+    loadedCoverage = state.displayContext.loadedCoverage,
+  } = {}) {
+    state.displayContext = {
+      instrument: instrument == null ? null : String(instrument),
+      displayTimeframe: normalizeDisplayTimeframe(displayTimeframe),
+      loadedCoverage: normalizeLoadedCoverage(loadedCoverage),
+    };
+    state.viewportDemand = computeViewportDemand(state);
+    return {
+      displayContext: structuredClone(state.displayContext),
+      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+    };
+  }
+
+  function getViewportDemand() {
+    state.viewportDemand = computeViewportDemand(state);
+    return {
+      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+    };
+  }
+
   function start({ root, emitEvent } = {}) {
     rootElement = root;
     emit = emitEvent || emit;
@@ -271,6 +375,8 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, (payload) => setRightEdgeLimit(payload)),
       registerCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, (payload) => updateVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
+      registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
+      registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
       registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand())
     );
     mountAvailableHosts();

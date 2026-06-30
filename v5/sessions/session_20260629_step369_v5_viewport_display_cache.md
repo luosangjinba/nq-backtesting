@@ -86,7 +86,7 @@ Status: complete.
   - missing left/right-in-cache ranges as needed.
 - Chart runtime still must not request bars.
 
-Status: pending.
+Status: complete.
 
 ### Step 369.4 - Display Window Cache
 
@@ -179,14 +179,23 @@ Status: pending.
   - `replay:displayReloaded`.
 - Added `v5/tests/replay-display-contracts-smoke.js`.
 - Added the display contracts smoke to `v5/scripts/smoke_all.js`.
+- Added chart viewport display context/demand contracts:
+  - `chart.setDisplayContext`;
+  - `chart.getViewportDemand`;
+  - `chart:viewportDemand`.
+- Added chart runtime viewport missing-window demand state. It describes
+  display timeframe, visible range, loaded coverage, and bounded backward
+  missing window without requesting bars.
+- Added `v5/tests/replay-display-viewport-demand-smoke.js`.
+- Added the viewport demand smoke to `v5/scripts/smoke_all.js`.
 
 ## Checks
 
 - `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-display-contracts-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/replay-display-timeframe-no-future-smoke.js`
 - `node v5/tests/replay-display-window-cache-smoke.js`
-- `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
@@ -201,10 +210,17 @@ Verified for Step 369.2:
 - `node v5/tests/runtime-smoke.js`
 - `git diff --check`
 
+Verified for Step 369.3:
+
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/prefix-demand-detect-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `git diff --check`
+
 ## Notes For Next Session
 
-Start Step 369.2 by defining command/event contracts and harness expectations
-before changing runtime behavior. The most important remaining design choice is
-how to determine whether a higher-timeframe bar is complete relative to the
-replay cursor. Do not implement timeframe switching before that rule is
-explicit.
+Start Step 369.4 by implementing display-window cache reuse and delayed release
+semantics around the new viewport demand shape. The most important remaining
+design choice is how to determine whether a higher-timeframe bar is complete
+relative to the replay cursor. Do not implement timeframe switching before that
+rule is explicit.

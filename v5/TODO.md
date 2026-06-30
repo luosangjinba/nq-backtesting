@@ -335,7 +335,7 @@ full history.
 
 - [x] Step 369.1: Write the viewport display cache spec.
 - [x] Step 369.2: Define `replayTimeframe` versus `displayTimeframe` contracts.
-- [ ] Step 369.3: Replace prefix-only demand semantics with viewport missing
+- [x] Step 369.3: Replace prefix-only demand semantics with viewport missing
   window demand.
 - [ ] Step 369.4: Add display-window cache retention that keeps recently loaded
   windows available for smooth right-drag return.
@@ -373,10 +373,10 @@ Manual acceptance:
 Checks:
 
 - `node v5/tests/replay-display-contracts-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-display-timeframe-no-future-smoke.js`
 - `node v5/tests/replay-display-window-cache-smoke.js`
-- `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
