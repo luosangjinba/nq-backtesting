@@ -64,8 +64,17 @@ export function createChartReplayRoute() {
           <button type="button" data-chart-go-to disabled>Go</button>
           <button type="button" data-chart-jump-cursor disabled>Cursor</button>
         </div>
-        <div class="chart-host" data-chart-host>
-          <span>Starting chart...</span>
+        <div class="chart-viewport">
+          <div class="chart-host" data-chart-host>
+            <span>Starting chart...</span>
+          </div>
+          <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
+            <button type="button" data-chart-zoom-out title="Zoom out" aria-label="Zoom out" disabled>-</button>
+            <button type="button" data-chart-zoom-in title="Zoom in" aria-label="Zoom in" disabled>+</button>
+            <button type="button" data-chart-pan-left title="Pan left" aria-label="Pan left" disabled>&lsaquo;</button>
+            <button type="button" data-chart-pan-right title="Pan right" aria-label="Pan right" disabled>&rsaquo;</button>
+            <button type="button" data-chart-reset-view title="Reset to cursor" aria-label="Reset to cursor" disabled>&#8634;</button>
+          </div>
         </div>
         <p>Session: <strong data-session-id-label></strong></p>
         <div class="replay-status-grid" data-replay-status>
@@ -108,6 +117,12 @@ export function createChartReplayRoute() {
       const goToInput = section.querySelector('[data-chart-go-to-input]');
       const goToButton = section.querySelector('[data-chart-go-to]');
       const jumpCursorButton = section.querySelector('[data-chart-jump-cursor]');
+      const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
+      const zoomOutButton = section.querySelector('[data-chart-zoom-out]');
+      const zoomInButton = section.querySelector('[data-chart-zoom-in]');
+      const panLeftButton = section.querySelector('[data-chart-pan-left]');
+      const panRightButton = section.querySelector('[data-chart-pan-right]');
+      const resetViewButton = section.querySelector('[data-chart-reset-view]');
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
@@ -215,6 +230,9 @@ export function createChartReplayRoute() {
         goToInput.disabled = unavailable;
         goToButton.disabled = unavailable || !goToInput.value;
         jumpCursorButton.disabled = unavailable;
+        chartToolbarButtons.forEach((button) => {
+          button.disabled = unavailable;
+        });
         displayTimeframeButtons.forEach((button) => {
           button.disabled = unavailable;
         });
@@ -407,6 +425,60 @@ export function createChartReplayRoute() {
 
       goToInput.addEventListener('input', () => {
         setControlsDisabled();
+      });
+
+      async function runChartNavigation(action, statusText) {
+        if (commandInFlight) return null;
+        commandInFlight = true;
+        setControlsDisabled(true);
+        try {
+          const result = await action();
+          if (statusText) {
+            status.textContent = statusText(result);
+          }
+          return result;
+        } catch (error) {
+          status.textContent = error?.message || String(error);
+          return null;
+        } finally {
+          commandInFlight = false;
+          setControlsDisabled(false);
+        }
+      }
+
+      zoomOutButton.addEventListener('click', () => {
+        runChartNavigation(
+          () => dispatchCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, { direction: 1, ratio: 0.25 }),
+          () => 'Zoomed out.'
+        );
+      });
+
+      zoomInButton.addEventListener('click', () => {
+        runChartNavigation(
+          () => dispatchCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, { direction: -1, ratio: 0.25 }),
+          () => 'Zoomed in.'
+        );
+      });
+
+      panLeftButton.addEventListener('click', () => {
+        runChartNavigation(
+          () => dispatchCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, { direction: -1, ratio: 0.5 }),
+          () => 'Scrolled left.'
+        );
+      });
+
+      panRightButton.addEventListener('click', () => {
+        runChartNavigation(
+          () => dispatchCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, { direction: 1, ratio: 0.5 }),
+          () => 'Scrolled right.'
+        );
+      });
+
+      resetViewButton.addEventListener('click', () => {
+        runChartNavigation(
+          () => dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW),
+          () => 'Following cursor.'
+        );
       });
 
       goToButton.addEventListener('click', async () => {

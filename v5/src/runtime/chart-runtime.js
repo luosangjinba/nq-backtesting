@@ -182,6 +182,21 @@ function normalizeGoToPayload(payload = {}) {
   };
 }
 
+function normalizeNavigationPayload(payload = {}, {
+  defaultDirection = 1,
+  defaultRatio = 0.25,
+} = {}) {
+  if (!payload || typeof payload !== 'object') {
+    throw new Error('chart navigation payload must be an object.');
+  }
+  const direction = Math.sign(Number(payload.direction ?? defaultDirection)) || defaultDirection;
+  const ratio = Number(payload.ratio ?? defaultRatio);
+  if (!Number.isFinite(ratio) || ratio <= 0) {
+    throw new Error('chart navigation ratio must be a positive number.');
+  }
+  return { direction, ratio };
+}
+
 function normalizeViewportFollow(payload = {}, state) {
   const enabled = payload.enabled == null ? state.viewportFollow.enabled : Boolean(payload.enabled);
   return {
@@ -245,6 +260,62 @@ function deriveGoToRange(state, {
   return clampVisibleRange({
     from: targetTimestamp - halfSpan,
     to: targetTimestamp + halfSpan,
+  }, state.rightEdgeLimit);
+}
+
+function deriveCurrentVisibleRange(state) {
+  if (state.visibleRange) {
+    return { ...state.visibleRange };
+  }
+  const renderedBars = computeRenderedBars(state);
+  const coverage = computeLoadedCoverage(renderedBars.length ? renderedBars : state.bars);
+  if (coverage) return coverage;
+  const cursor = state.viewportFollow.cursorTimestamp;
+  if (Number.isFinite(cursor)) {
+    const barSpacingSeconds = estimateBarSpacingSeconds(state.bars);
+    return {
+      from: cursor - Math.max(barSpacingSeconds, barSpacingSeconds * 5),
+      to: cursor,
+    };
+  }
+  return null;
+}
+
+function deriveZoomRange(state, payload = {}) {
+  const { direction, ratio } = normalizeNavigationPayload(payload, {
+    defaultDirection: -1,
+    defaultRatio: 0.25,
+  });
+  const range = deriveCurrentVisibleRange(state);
+  if (!range) {
+    throw new Error('chart visible range is required before zooming.');
+  }
+  const span = Math.max(1, range.to - range.from);
+  const center = range.from + (span / 2);
+  const multiplier = direction > 0
+    ? 1 + ratio
+    : Math.max(0.1, 1 - ratio);
+  const nextSpan = Math.max(1, span * multiplier);
+  return clampVisibleRange({
+    from: Math.floor(center - (nextSpan / 2)),
+    to: Math.ceil(center + (nextSpan / 2)),
+  }, state.rightEdgeLimit);
+}
+
+function derivePanRange(state, payload = {}) {
+  const { direction, ratio } = normalizeNavigationPayload(payload, {
+    defaultDirection: -1,
+    defaultRatio: 0.5,
+  });
+  const range = deriveCurrentVisibleRange(state);
+  if (!range) {
+    throw new Error('chart visible range is required before panning.');
+  }
+  const span = Math.max(1, range.to - range.from);
+  const offset = Math.max(1, Math.floor(span * ratio)) * direction;
+  return clampVisibleRange({
+    from: range.from + offset,
+    to: range.to + offset,
   }, state.rightEdgeLimit);
 }
 
@@ -593,6 +664,16 @@ export function createChartRuntime() {
     };
   }
 
+  function zoomVisibleRange(payload = {}) {
+    const visibleRange = deriveZoomRange(state, payload);
+    return setManualVisibleRange(visibleRange);
+  }
+
+  function panVisibleRange(payload = {}) {
+    const visibleRange = derivePanRange(state, payload);
+    return setManualVisibleRange(visibleRange);
+  }
+
   function resumeViewportFollow() {
     state.interaction = {
       mode: 'follow',
@@ -732,6 +813,8 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, (payload) => setViewportFollow(payload)),
       registerCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, (payload) => setManualVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.GO_TO_TIME, (payload) => goToTime(payload)),
+      registerCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, (payload) => zoomVisibleRange(payload)),
+      registerCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, (payload) => panVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, () => resumeViewportFollow()),
       registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
       registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),

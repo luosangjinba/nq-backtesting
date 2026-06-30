@@ -82,6 +82,8 @@ runtime.start({ root, emitEvent });
 
 assert.equal(hasCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE), true);
 assert.equal(hasCommand(CHART_COMMANDS.GO_TO_TIME), true);
+assert.equal(hasCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE), true);
+assert.equal(hasCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE), true);
 assert.equal(hasCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW), true);
 assert.equal(hasCommand(CHART_COMMANDS.GET_INTERACTION_STATE), true);
 
@@ -201,6 +203,58 @@ assert.deepEqual(
 );
 assert.equal(visibleRangeEvents.length, 1);
 
+visibleRangeEvents.length = 0;
+viewportDemandEvents.length = 0;
+const zoomedIn = await dispatchCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, {
+  direction: -1,
+  ratio: 0.4,
+});
+assert.equal(zoomedIn.interaction.mode, 'manual');
+assert.equal(zoomedIn.viewportFollow.enabled, false);
+assert.deepEqual(zoomedIn.visibleRange, {
+  from: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:34:00.000Z') / 1000,
+});
+assert.deepEqual(
+  zoomedIn.renderedBars.map((item) => item.time),
+  [
+    '2026-06-01T09:31:00.000Z',
+    '2026-06-01T09:32:00.000Z',
+    '2026-06-01T09:33:00.000Z',
+    '2026-06-01T09:34:00.000Z',
+  ]
+);
+assert.equal(visibleRangeEvents.length, 1);
+
+const pannedLeft = await dispatchCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, {
+  direction: -1,
+  ratio: 1,
+});
+assert.equal(pannedLeft.interaction.mode, 'manual');
+assert.equal(pannedLeft.viewportFollow.enabled, false);
+assert.deepEqual(pannedLeft.visibleRange, {
+  from: Date.parse('2026-06-01T09:28:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+});
+
+const pannedRight = await dispatchCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, {
+  direction: 1,
+  ratio: 3,
+});
+assert.deepEqual(pannedRight.visibleRange, {
+  from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:35:00.000Z') / 1000,
+});
+assert.deepEqual(
+  pannedRight.renderedBars.map((item) => item.time),
+  [
+    '2026-06-01T09:32:00.000Z',
+    '2026-06-01T09:33:00.000Z',
+    '2026-06-01T09:34:00.000Z',
+    '2026-06-01T09:35:00.000Z',
+  ]
+);
+
 const replayFollowSync = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
   enabled: true,
   cursorTimestamp: '2026-06-01T09:35:00.000Z',
@@ -210,7 +264,7 @@ assert.equal(replayFollowSync.interaction.mode, 'manual');
 assert.equal(replayFollowSync.viewportFollow.enabled, false);
 assert.deepEqual(
   replayFollowSync.renderedBars.map((item) => item.time),
-  goTo.renderedBars.map((item) => item.time)
+  pannedRight.renderedBars.map((item) => item.time)
 );
 
 const resumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);

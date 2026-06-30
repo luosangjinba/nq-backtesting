@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 383 is complete.
-- Next candidate: Step 384 should continue Phase 3 with replay toolbar and
-  interaction-control polish before order, journal, dashboard, AI, or SaaS work.
+- Current status: Step 384 is complete.
+- Next candidate: Step 385 should continue Phase 3 with replay toolbar layout
+  consolidation before order, journal, dashboard, AI, or SaaS work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -968,6 +968,51 @@ Checks:
 - `node v5/tests/timezone-contracts-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 384 - V5 Chart Navigation Toolbar
+
+Goal: add a compact chart navigation toolbar so users can zoom, scroll, and
+reset to the replay cursor without breaking no-future replay boundaries or
+runtime ownership.
+
+This step advances Historical Replay Review by making chart navigation usable
+from visible controls similar to a trading replay workstation.
+
+- [x] Step 384.1: Add Step 384 TODO/session plan and update interaction specs
+  with toolbar zoom/pan/reset rules.
+- [x] Step 384.2: Add chart runtime commands for bounded visible-range zoom and
+  pan.
+- [x] Step 384.3: Add a bottom chart navigation toolbar in the chart route using
+  commands/events only.
+- [x] Step 384.4: Preserve viewport demand behavior and right-edge clamping
+  without direct UI/replay mutation.
+- [x] Step 384.5: Strengthen runtime/browser smoke coverage and close the step.
+
+Manual acceptance:
+
+- The chart shows compact controls for zoom out, zoom in, pan left, pan right,
+  and reset/follow cursor.
+- Zoom and pan pause viewport follow and update chart-owned manual visible
+  range.
+- Pan right remains clamped to the replay right-edge limit and cannot reveal
+  unrevealed future bars.
+- Pan left may emit viewport demand, but bars are loaded only through replay and
+  bar-data runtimes.
+- Reset resumes viewport follow through the chart runtime and does not advance
+  replay cursor.
+- UI does not slice `displayBars`, request bars, mutate replay state, or import
+  chart internals.
+- Order, journal, dashboard, AI, SaaS auth, billing, and full settings
+  templates remain out of scope.
+
+Checks:
+
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
