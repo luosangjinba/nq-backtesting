@@ -356,7 +356,7 @@ async function main() {
     assert.equal(value.dragRequestDelta, 0);
     assert.equal(value.dragDataset, 'true');
     assert.deepEqual(value.disabledTransportPlaceholders, {
-      truncate: true,
+      truncate: false,
       previous: true,
       interval: true,
       sync: true,

@@ -233,6 +233,24 @@ input {
   font-size: 13px;
 }
 
+.chart-viewport[data-truncate-pick-mode="true"] .chart-host {
+  cursor: crosshair;
+}
+
+.replay-truncate-pick-line {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 3;
+  width: 1px;
+  background: rgba(59, 130, 246, 0.92);
+  pointer-events: none;
+}
+
+.replay-truncate-pick-line[hidden] {
+  display: none;
+}
+
 .chart-toolbar {
   position: absolute;
   top: 14px;
@@ -426,6 +444,11 @@ input {
   font-weight: 800;
 }
 
+.replay-floating-controls > button[aria-pressed="true"] {
+  background: rgba(37, 99, 235, 0.86);
+  color: #f8fafc;
+}
+
 .replay-drag-handle {
   width: 14px;
   color: #94a3b8;
@@ -588,11 +611,13 @@ input {
   pointer-events: none;
 }
 
-.chart-go-to-popover[hidden] {
+.chart-go-to-popover[hidden],
+.replay-truncate-error-popover[hidden] {
   display: none;
 }
 
-.chart-go-to-panel {
+.chart-go-to-panel,
+.replay-truncate-error-panel {
   width: min(320px, calc(100vw - 48px));
   display: grid;
   gap: 14px;
@@ -604,20 +629,38 @@ input {
   pointer-events: auto;
 }
 
+.replay-truncate-error-popover {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(3, 7, 12, 0.24);
+}
+
+.replay-truncate-error-panel {
+  width: min(560px, calc(100vw - 48px));
+}
+
 .chart-go-to-header,
-.chart-go-to-actions {
+.chart-go-to-actions,
+.replay-truncate-error-header,
+.replay-truncate-error-actions {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
 }
 
-.chart-go-to-header strong {
+.chart-go-to-header strong,
+.replay-truncate-error-header strong {
   color: #eef3f8;
   font-size: 15px;
 }
 
-.chart-go-to-header button {
+.chart-go-to-header button,
+.replay-truncate-error-header button {
   width: 28px;
   height: 28px;
   display: grid;
@@ -631,11 +674,19 @@ input {
   line-height: 1;
 }
 
-.chart-go-to-actions {
+.replay-truncate-error-panel p {
+  margin: 0;
+  color: #cbd5e1;
+  line-height: 1.45;
+}
+
+.chart-go-to-actions,
+.replay-truncate-error-actions {
   justify-content: flex-end;
 }
 
-.chart-go-to-actions button {
+.chart-go-to-actions button,
+.replay-truncate-error-actions button {
   min-width: 64px;
   min-height: 30px;
   padding: 0 10px;

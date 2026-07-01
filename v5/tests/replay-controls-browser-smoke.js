@@ -134,6 +134,36 @@ async function main() {
           }));
         }
 
+        async function clickRenderedBar(predicate) {
+          const chartHost = document.querySelector('[data-chart-host]');
+          const rendered = await window.__v5Commands.dispatchCommand('chart.getRenderedBars');
+          const bars = Array.isArray(rendered?.renderedBars) ? rendered.renderedBars : [];
+          const index = bars.findIndex(predicate);
+          if (!chartHost || index < 0) {
+            throw new Error('Unable to find rendered bar for click: ' + JSON.stringify({
+              count: bars.length,
+              first: bars[0]?.time,
+              last: bars.at(-1)?.time,
+            }));
+          }
+          const rect = chartHost.getBoundingClientRect();
+          const ratio = bars.length <= 1 ? 0.5 : index / (bars.length - 1);
+          const x = rect.left + Math.min(Math.max(ratio, 0), 1) * rect.width;
+          const y = rect.top + rect.height / 2;
+          chartHost.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            clientX: x,
+            clientY: y,
+            pointerId: 99,
+          }));
+          chartHost.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            clientX: x,
+            clientY: y,
+          }));
+          return bars[index].time;
+        }
+
         try {
           const commands = await import('/v5/src/runtime/commands.js');
           window.__v5Commands = commands;
@@ -184,20 +214,15 @@ async function main() {
           const afterNextAgain = await commands.dispatchCommand('replay.getState');
 
           const truncateRequestCountBefore = window.__v5BarRequestCount || 0;
-          const eventsRuntime = await import('/v5/src/runtime/events.js');
-          eventsRuntime.emitEvent('chart:crosshairChanged', {
-            crosshair: {
-              active: true,
-              time: initialState.cursorTimestamp,
-              price: initialState.displayBars.at(-1)?.close || 0,
-              bar: initialState.displayBars.at(-1),
-              point: { x: 20, y: 20 },
-            },
-          });
-          await waitFor('truncate enabled for selected bar', () =>
+          await waitFor('truncate enabled after replay load', () =>
             document.querySelector('[data-replay-truncate-to-selection]')?.disabled === false
           );
           document.querySelector('[data-replay-truncate-to-selection]').click();
+          await waitFor('truncate pick mode active', () =>
+            document.querySelector('.chart-viewport')?.dataset.truncatePickMode === 'true'
+              && document.querySelector('[data-replay-truncate-to-selection]')?.getAttribute('aria-pressed') === 'true'
+          );
+          await clickRenderedBar((bar) => bar.time === initialState.cursorTimestamp);
           await waitFor('truncate to selected bar', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             return state.displayBars.length === initialCount
@@ -213,6 +238,25 @@ async function main() {
             return state.displayBars.length === initialCount + 1;
           });
           const afterTruncateNext = await commands.dispatchCommand('replay.getState');
+
+          const beforeStartStateCount = afterTruncateNext.displayBars.length;
+          document.querySelector('[data-replay-truncate-to-selection]').click();
+          await waitFor('truncate pick mode active for before-start warning', () =>
+            document.querySelector('.chart-viewport')?.dataset.truncatePickMode === 'true'
+          );
+          const beforeStartClickedTimestamp = await clickRenderedBar((bar) =>
+            Date.parse(bar.time) < Date.parse(afterTruncateNext.startBarTimestamp)
+          );
+          await waitFor('before start truncate warning visible', () =>
+            document.querySelector('[data-replay-truncate-error]')?.hidden === false
+              && document.querySelector('[data-replay-truncate-error-title]')?.textContent.includes('cannot go further back')
+          );
+          const beforeStartWarningText = document.querySelector('[data-replay-truncate-error-message]')?.textContent || '';
+          const afterBeforeStartWarning = await commands.dispatchCommand('replay.getState');
+          document.querySelector('[data-replay-truncate-error-close]')?.click();
+          await waitFor('before start warning closed', () =>
+            document.querySelector('[data-replay-truncate-error]')?.hidden === true
+          );
 
           document.querySelector('[data-replay-play]').click();
           await waitFor('playback started', async () => {
@@ -312,6 +356,11 @@ async function main() {
             afterTruncateRevealedCount: afterTruncate.revealedCount,
             truncateRequestDelta,
             afterTruncateNextCount: afterTruncateNext.displayBars.length,
+            beforeStartClickedTimestamp,
+            beforeStartWarningText,
+            afterBeforeStartWarningCount: afterBeforeStartWarning.displayBars.length,
+            afterBeforeStartWarningCursor: afterBeforeStartWarning.cursorTimestamp,
+            beforeStartStateCount,
             duringPlayCount: duringPlay.displayBars.length,
             pausedCount: paused.displayBars.length,
             afterPauseWaitCount: afterPauseWait.displayBars.length,
@@ -353,6 +402,13 @@ async function main() {
     assert.equal(value.afterTruncateRevealedCount, 0);
     assert.equal(value.truncateRequestDelta, 0);
     assert.equal(value.afterTruncateNextCount, value.initialCount + 1);
+    assert.ok(
+      Date.parse(value.beforeStartClickedTimestamp) < Date.parse('2026-06-01T09:30:00.000Z'),
+      'Before-start warning should be exercised with a prefix bar'
+    );
+    assert.ok(value.beforeStartWarningText.includes('session start date'));
+    assert.equal(value.afterBeforeStartWarningCount, value.beforeStartStateCount);
+    assert.equal(value.afterBeforeStartWarningCursor, '2026-06-01T09:31:00.000Z');
     assert.ok(value.duringPlayCount > value.afterNextCount, 'Play should advance replay');
     assert.equal(value.afterPauseWaitCount, value.pausedCount, 'Pause should stop replay advancement');
     assert.equal(value.fullChartCount, value.afterPauseWaitCount);

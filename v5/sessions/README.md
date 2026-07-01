@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 399: `session_20260630_step399_v5_replay_truncate_selected_bar.md`
+- Step 400: `session_20260630_step400_v5_replay_truncate_pick_mode.md`
 
 ## Completed Session Index
 
@@ -64,3 +64,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 397: `session_20260630_step397_v5_floating_replay_controls_dragging.md`
 - Step 398: `session_20260630_step398_v5_replay_previous_runtime.md`
 - Step 399: `session_20260630_step399_v5_replay_truncate_selected_bar.md`
+- Step 400: `session_20260630_step400_v5_replay_truncate_pick_mode.md`

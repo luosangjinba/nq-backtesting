@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 399 is complete.
-- Next candidate: after Step 399, continue transport runtime semantics for
-  active chart interval sync, or decide whether Layout needs a dedicated
-  planning step before implementation.
+- Current status: Step 400 is complete.
+- Next candidate: after Step 400, continue transport runtime semantics for
+  replay playback interval selection / active chart interval sync, or decide
+  whether Layout needs a dedicated planning step before implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -67,11 +67,14 @@
   floating controls inside the chart viewport. Initial implementation may keep
   position as route-local UI state; dragging must not mutate replay cursor,
   display bars, chart data, or bar-data windows.
-- UI decision: `|<-` selected-bar truncation uses the current chart crosshair
-  inspected bar as the selected bar for the first implementation. The action is
-  enabled only when the selected timestamp is between replay start and current
-  cursor. It must dispatch a replay runtime command; UI must not directly
-  mutate cursor, display bars, or persistence.
+- UI decision: `|<-` selected-bar truncation should follow FXReplay pick-mode
+  semantics. Clicking the transport button enters a route-local pick mode with a
+  vertical chart guide; the next chart click selects the truncation timestamp.
+  A timestamp before the replay session start must not truncate and should show
+  an explicit modal-style warning. A timestamp after the current replay cursor
+  must also be rejected by UI/runtime guardrails. The final mutation must still
+  go through a replay runtime command; UI must not directly mutate cursor,
+  display bars, or persistence.
 - UI decision: the Setup route remains functionally necessary as the session
   selection/creation surface, but its current MVP visual treatment is not the
   final workstation quality bar. Give it a later visual pass after the chart
@@ -1726,6 +1729,51 @@ Manual acceptance:
 Checks:
 
 - `node v5/tests/replay-truncate-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 400 - V5 Replay Truncate Pick Mode
+
+Goal: align the `|<-` transport action with FXReplay's pick-then-click
+truncation interaction.
+
+This step advances Historical Replay Review by correcting the selected-bar
+truncation UX while preserving the Step 399 replay runtime command boundary. It
+is a route interaction and browser-smoke step, not a replay interval sync,
+Layout split-pane, drawing, order, or journal step.
+
+- [x] Step 400.1: Document the corrected `|<-` pick-mode decision and Step 400
+  plan in TODO/session handoff.
+- [x] Step 400.2: Replace crosshair-driven immediate truncation with
+  button-entered pick mode and a vertical chart guide.
+- [x] Step 400.3: Map the chart click to an existing rendered bar timestamp via
+  chart runtime command data, then dispatch `replay.truncateToTimestamp`.
+- [x] Step 400.4: Add modal-style guardrail feedback for clicks before session
+  start and reject clicks after the current replay cursor.
+- [x] Step 400.5: Update browser smoke coverage for pick mode, valid
+  truncation, no extra same-timeframe bar requests, and before-start warning.
+- [x] Step 400.6: Run targeted replay smokes, full V5 smoke, and `git
+  diff --check` before commit.
+
+Manual acceptance:
+
+- `|<-` is enabled when a replay session is loaded, independent of current
+  crosshair state.
+- Clicking `|<-` does not truncate immediately; it enters pick mode and shows a
+  vertical guide over the chart.
+- Clicking an already revealed chart bar between session start and cursor
+  truncates through replay runtime and removes later bars.
+- Clicking a chart time before replay session start shows a warning instead of
+  mutating replay state.
+- Same-timeframe truncation does not request additional bars.
+
+Checks:
+
+- `node v5/tests/replay-truncate-smoke.js`
+- `node v5/tests/replay-display-contracts-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/chart-crosshair-browser-smoke.js`
