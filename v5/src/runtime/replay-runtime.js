@@ -933,6 +933,109 @@ export function createReplayRuntime() {
     return result;
   }
 
+  async function truncateToTimestamp({
+    sessionId = state.sessionId,
+    timestamp,
+  } = {}) {
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    if (timestamp == null) {
+      throw new Error('replay truncate timestamp is required.');
+    }
+    pause();
+    if (state.sessionId !== sessionId || state.status === 'idle') {
+      await loadInitialSession({ sessionId });
+    }
+    if (!state.displayBars.length || !state.cursorTimestamp || !state.startBar) {
+      throw new Error('replay initial session must be loaded before truncation.');
+    }
+
+    const normalizedDisplayTimeframe = normalizeTimeframe(
+      state.displayTimeframe || state.session.timeframe,
+      'display timeframe'
+    );
+    const normalizedReplayTimeframe = normalizeTimeframe(
+      state.replayTimeframe || state.session.timeframe,
+      'replay timeframe'
+    );
+    const selectedTimestamp = timestampSeconds(timestamp);
+    const startTimestamp = timestampSeconds(state.startBar.time);
+    const cursorTimestamp = timestampSeconds(state.cursorTimestamp);
+    if (selectedTimestamp < startTimestamp || selectedTimestamp > cursorTimestamp) {
+      return {
+        ...clone(state),
+        truncated: false,
+        reason: 'selected-bar-out-of-range',
+      };
+    }
+
+    const replayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
+      ? state.displayBars
+        .filter((bar) => Number(bar?.timestamp) >= startTimestamp && Number(bar?.timestamp) <= cursorTimestamp)
+        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp))
+      : [];
+    const selectedBar = normalizedDisplayTimeframe === normalizedReplayTimeframe
+      ? replayBars.find((bar) => Number(bar?.timestamp) === selectedTimestamp)
+      : {
+        timestamp: selectedTimestamp,
+        time: isoFromTimestamp(selectedTimestamp),
+      };
+    if (!selectedBar) {
+      return {
+        ...clone(state),
+        truncated: false,
+        reason: 'selected-bar-unavailable',
+      };
+    }
+
+    const revealedCount = Math.max(
+      0,
+      Math.floor((selectedTimestamp - startTimestamp) / timeframeSeconds(normalizedReplayTimeframe))
+    );
+    const persisted = await persistReplayCursor({
+      cursorTimestamp: selectedBar.time,
+      revealedCount,
+    });
+    let displayBars = state.displayBars;
+    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      displayBars = filterDisplayBarsForCursor(state.displayBars, {
+        cursorTimestamp: selectedBar.time,
+        displayTimeframe: normalizedDisplayTimeframe,
+        replayTimeframe: normalizedReplayTimeframe,
+      });
+      assertNoDisplayBarsAfter(displayBars, selectedBar.time);
+      await renderDisplayBars(displayBars, selectedBar.time);
+      await syncChartRightEdgeLimit(selectedBar.time);
+    }
+
+    state = {
+      ...state,
+      persistedCursor: clone(persisted.cursor),
+      cursorTimestamp: selectedBar.time,
+      revealedCount,
+      displayBarsTimeframe: normalizedDisplayTimeframe,
+      displayBars: clone(displayBars),
+      status: revealedCount > 0 ? 'replay-ready' : 'initial-loaded',
+    };
+    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
+      await syncChartRightEdgeLimit(selectedBar.time);
+      await projectDisplayForCursor({
+        sessionId,
+        displayTimeframe: normalizedDisplayTimeframe,
+        cursorTimestamp: selectedBar.time,
+      });
+      displayBars = state.displayBars;
+    }
+    const result = {
+      ...clone(state),
+      truncated: true,
+      selectedBar: clone(selectedBar),
+    };
+    emit(REPLAY_EVENTS.TRUNCATED, result);
+    return result;
+  }
+
   async function reset({ sessionId = state.sessionId } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -1070,6 +1173,7 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => applyPrefixRetention(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PREVIOUS, (payload) => previous(payload)),
+      registerCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, (payload) => truncateToTimestamp(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
       registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => pause(payload)),
       registerCommand(REPLAY_COMMANDS.RESET, (payload) => reset(payload)),

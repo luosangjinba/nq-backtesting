@@ -9,6 +9,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   APPLY_PREFIX_RETENTION: 'replay.applyPrefixRetention',
   NEXT: 'replay.next',
   PREVIOUS: 'replay.previous',
+  TRUNCATE_TO_TIMESTAMP: 'replay.truncateToTimestamp',
   PLAY: 'replay.play',
   PAUSE: 'replay.pause',
   RESET: 'replay.reset',
@@ -27,6 +28,7 @@ export const REPLAY_EVENTS = Object.freeze({
   INITIAL_LOADED: 'replay:initialLoaded',
   NEXT: 'replay:next',
   PREVIOUS: 'replay:previous',
+  TRUNCATED: 'replay:truncated',
   RESET: 'replay:reset',
   PLAYBACK_CHANGED: 'replay:playbackChanged',
 });

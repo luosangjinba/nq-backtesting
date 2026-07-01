@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 398 is complete.
-- Next candidate: after Step 398, continue transport runtime semantics for
-  selected-bar truncation and active chart interval
-  sync, or decide whether Layout needs a dedicated planning step before
-  implementation.
+- Current status: Step 399 is complete.
+- Next candidate: after Step 399, continue transport runtime semantics for
+  active chart interval sync, or decide whether Layout needs a dedicated
+  planning step before implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -68,6 +67,11 @@
   floating controls inside the chart viewport. Initial implementation may keep
   position as route-local UI state; dragging must not mutate replay cursor,
   display bars, chart data, or bar-data windows.
+- UI decision: `|<-` selected-bar truncation uses the current chart crosshair
+  inspected bar as the selected bar for the first implementation. The action is
+  enabled only when the selected timestamp is between replay start and current
+  cursor. It must dispatch a replay runtime command; UI must not directly
+  mutate cursor, display bars, or persistence.
 - UI decision: the Setup route remains functionally necessary as the session
   selection/creation surface, but its current MVP visual treatment is not the
   final workstation quality bar. Give it a later visual pass after the chart
@@ -1682,5 +1686,48 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/replay-restore-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 399 - V5 Replay Truncate To Selected Bar
+
+Goal: implement the `|<-` transport action using the current crosshair-inspected
+bar as the selected replay bar.
+
+This step advances Historical Replay Review by replacing the selected-bar
+truncation placeholder with command-driven replay runtime behavior. It is a
+replay runtime and UI wiring step, not a chart drawing, Layout split-pane,
+active chart interval sync, order, or journal step.
+
+- [x] Step 399.1: Add `replay.truncateToTimestamp` command/event contracts and
+  Step 399 TODO/session plan.
+- [x] Step 399.2: Implement replay runtime truncation to a selected timestamp
+  within the already revealed range.
+- [x] Step 399.3: Persist the truncated cursor/revealed count and pause playback
+  before truncating.
+- [x] Step 399.4: Enable `data-replay-truncate-to-selection` only when the
+  current crosshair bar is between replay start and cursor.
+- [x] Step 399.5: Add runtime and browser smoke coverage for multi-Next then
+  selected-bar truncate, persisted cursor, no future display bars, no extra bar
+  requests, and continued Next/Play usability.
+- [x] Step 399.6: Run targeted replay smokes, full V5 smoke, and `git
+  diff --check` before commit.
+
+Manual acceptance:
+
+- `|<-` is disabled without a valid crosshair-selected replay bar.
+- Hovering/inspecting an already revealed bar enables `|<-`.
+- Clicking `|<-` moves cursor to the selected bar, removes bars after it,
+  recalculates revealed count, persists cursor, and pauses playback.
+- Truncation does not load the full session range or request new bars for
+  same-timeframe display.
+- Active chart interval sync remains deferred.
+
+Checks:
+
+- `node v5/tests/replay-truncate-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

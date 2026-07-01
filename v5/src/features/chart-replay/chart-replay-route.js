@@ -224,6 +224,8 @@ export function createChartReplayRoute() {
       let playbackIntervalMs = 500;
       let terminalReason = '';
       let revealedCount = 0;
+      let startTimestamp = null;
+      let cursorTimestamp = null;
       let displayTimeframe = null;
       let replayIntervalTimeframe = null;
       let displayTimezone = 'Exchange';
@@ -272,6 +274,8 @@ export function createChartReplayRoute() {
           playbackIntervalMs = Number(playback.intervalMs);
         }
         revealedCount = Number(state?.revealedCount || 0);
+        startTimestamp = state?.startBarTimestamp || null;
+        cursorTimestamp = state?.cursorTimestamp || null;
         terminalReason = playback?.stoppedReason || terminalReason;
         startLabel.textContent = formatReplayTimestamp(state?.startBarTimestamp);
         cursorLabel.textContent = formatReplayTimestamp(state?.cursorTimestamp);
@@ -326,13 +330,31 @@ export function createChartReplayRoute() {
         crosshairReadoutLabel.textContent = formatInspectionReadout({ timeText, price, bar });
       }
 
+      function selectedCrosshairTimestamp() {
+        if (!crosshairState?.active) return null;
+        return crosshairState.time || crosshairState.bar?.time || null;
+      }
+
+      function isSelectedReplayBarTruncatable() {
+        const selected = selectedCrosshairTimestamp();
+        if (!selected || !startTimestamp || !cursorTimestamp) return false;
+        const selectedMs = Date.parse(selected);
+        const startMs = Date.parse(startTimestamp);
+        const cursorMs = Date.parse(cursorTimestamp);
+        return Number.isFinite(selectedMs)
+          && Number.isFinite(startMs)
+          && Number.isFinite(cursorMs)
+          && selectedMs >= startMs
+          && selectedMs <= cursorMs;
+      }
+
       function setControlsDisabled(disabled = false) {
         const unavailable = disabled || commandInFlight || !replayLoaded || !params.sessionId;
         nextButton.disabled = unavailable;
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
         resetButton.disabled = unavailable;
-        replayTruncateButton.disabled = true;
+        replayTruncateButton.disabled = unavailable || !isSelectedReplayBarTruncatable();
         replayPreviousButton.disabled = unavailable || revealedCount <= 0;
         replaySpeedInput.disabled = unavailable;
         replayIntervalSelect.disabled = true;
@@ -514,6 +536,21 @@ export function createChartReplayRoute() {
         status.textContent = state.advanced
           ? `Loaded ${state.displayBars.length} bars.`
           : `Replay stopped: ${state.reason || 'no next bar'}.`;
+        await refreshReplayStatus();
+      });
+
+      replayTruncateButton.addEventListener('click', async () => {
+        const selectedTimestamp = selectedCrosshairTimestamp();
+        if (!selectedTimestamp) return;
+        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, {
+          sessionId: params.sessionId,
+          timestamp: selectedTimestamp,
+        }));
+        if (!state) return;
+        terminalReason = state.truncated ? '' : state.reason || 'stopped';
+        status.textContent = state.truncated
+          ? `Truncated to ${formatReplayTimestamp(state.cursorTimestamp)}.`
+          : `Replay stopped: ${state.reason || 'selected bar unavailable'}.`;
         await refreshReplayStatus();
       });
 
@@ -764,6 +801,7 @@ export function createChartReplayRoute() {
         REPLAY_EVENTS.INITIAL_LOADED,
         REPLAY_EVENTS.NEXT,
         REPLAY_EVENTS.PREVIOUS,
+        REPLAY_EVENTS.TRUNCATED,
         REPLAY_EVENTS.RESET,
         REPLAY_EVENTS.PLAYBACK_CHANGED,
         REPLAY_EVENTS.DISPLAY_TIMEFRAME_CHANGED,
@@ -777,6 +815,7 @@ export function createChartReplayRoute() {
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
             crosshairState = payload.crosshair || { active: false };
             refreshCrosshairReadout();
+            setControlsDisabled();
             return;
           }
           if (eventName === CHART_PRESENTATION_EVENTS.CHANGED) {

@@ -91,6 +91,7 @@ async function main() {
           if (!url.includes('/v4/bars')) {
             return originalFetch(...args);
           }
+          window.__v5BarRequestCount = Number(window.__v5BarRequestCount || 0) + 1;
           const parsed = new URL(url, window.location.href);
           const start = Date.parse(parsed.searchParams.get('start').replace(' ', 'T') + ':00.000Z') / 1000;
           const end = Date.parse(parsed.searchParams.get('end').replace(' ', 'T') + ':00.000Z') / 1000;
@@ -182,6 +183,37 @@ async function main() {
           });
           const afterNextAgain = await commands.dispatchCommand('replay.getState');
 
+          const truncateRequestCountBefore = window.__v5BarRequestCount || 0;
+          const eventsRuntime = await import('/v5/src/runtime/events.js');
+          eventsRuntime.emitEvent('chart:crosshairChanged', {
+            crosshair: {
+              active: true,
+              time: initialState.cursorTimestamp,
+              price: initialState.displayBars.at(-1)?.close || 0,
+              bar: initialState.displayBars.at(-1),
+              point: { x: 20, y: 20 },
+            },
+          });
+          await waitFor('truncate enabled for selected bar', () =>
+            document.querySelector('[data-replay-truncate-to-selection]')?.disabled === false
+          );
+          document.querySelector('[data-replay-truncate-to-selection]').click();
+          await waitFor('truncate to selected bar', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.displayBars.length === initialCount
+              && state.cursorTimestamp === initialState.cursorTimestamp
+              && state.revealedCount === 0;
+          });
+          const afterTruncate = await commands.dispatchCommand('replay.getState');
+          const truncateRequestDelta = (window.__v5BarRequestCount || 0) - truncateRequestCountBefore;
+
+          document.querySelector('[data-replay-next]').click();
+          await waitFor('next advanced after truncate', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.displayBars.length === initialCount + 1;
+          });
+          const afterTruncateNext = await commands.dispatchCommand('replay.getState');
+
           document.querySelector('[data-replay-play]').click();
           await waitFor('playback started', async () => {
             const playback = await commands.dispatchCommand('replay.getPlaybackState');
@@ -189,7 +221,7 @@ async function main() {
           });
           await waitFor('play advanced', async () => {
             const state = await commands.dispatchCommand('replay.getState');
-            return state.displayBars.length >= afterNextAgain.displayBars.length + 1;
+            return state.displayBars.length >= afterTruncateNext.displayBars.length + 1;
           }, 4000);
           const duringPlay = await commands.dispatchCommand('replay.getState');
 
@@ -275,6 +307,11 @@ async function main() {
             afterPreviousCursor: afterPrevious.cursorTimestamp,
             afterPreviousRevealedCount: afterPrevious.revealedCount,
             afterNextAgainCount: afterNextAgain.displayBars.length,
+            afterTruncateCount: afterTruncate.displayBars.length,
+            afterTruncateCursor: afterTruncate.cursorTimestamp,
+            afterTruncateRevealedCount: afterTruncate.revealedCount,
+            truncateRequestDelta,
+            afterTruncateNextCount: afterTruncateNext.displayBars.length,
             duringPlayCount: duringPlay.displayBars.length,
             pausedCount: paused.displayBars.length,
             afterPauseWaitCount: afterPauseWait.displayBars.length,
@@ -311,6 +348,11 @@ async function main() {
     assert.equal(value.afterPreviousCursor, '2026-06-01T09:30:00.000Z');
     assert.equal(value.afterPreviousRevealedCount, 0);
     assert.equal(value.afterNextAgainCount, value.initialCount + 1);
+    assert.equal(value.afterTruncateCount, value.initialCount);
+    assert.equal(value.afterTruncateCursor, '2026-06-01T09:30:00.000Z');
+    assert.equal(value.afterTruncateRevealedCount, 0);
+    assert.equal(value.truncateRequestDelta, 0);
+    assert.equal(value.afterTruncateNextCount, value.initialCount + 1);
     assert.ok(value.duringPlayCount > value.afterNextCount, 'Play should advance replay');
     assert.equal(value.afterPauseWaitCount, value.pausedCount, 'Pause should stop replay advancement');
     assert.equal(value.fullChartCount, value.afterPauseWaitCount);

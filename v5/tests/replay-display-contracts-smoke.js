@@ -25,5 +25,7 @@ assert.equal(REPLAY_COMMANDS.NEXT, 'replay.next');
 assert.equal(REPLAY_EVENTS.NEXT, 'replay:next');
 assert.equal(REPLAY_COMMANDS.PREVIOUS, 'replay.previous');
 assert.equal(REPLAY_EVENTS.PREVIOUS, 'replay:previous');
+assert.equal(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, 'replay.truncateToTimestamp');
+assert.equal(REPLAY_EVENTS.TRUNCATED, 'replay:truncated');
 
 console.log('v5 replay display contracts smoke passed');
