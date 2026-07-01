@@ -180,6 +180,8 @@ async function main() {
           const displayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
           const replaySpeedInput = floating.querySelector('[data-replay-speed]');
           const initialReplayIntervalSelectValue = replayIntervalSelect?.value || '';
+          const replayIntervalValues = Array.from(replayIntervalSelect?.options || []).map((option) => option.value);
+          const displayTimeframeValues = Array.from(displayTimeframeSelect?.options || []).map((option) => option.value);
           const floatingZIndex = Number(getComputedStyle(floating).zIndex);
           const settingsZIndex = Number(getComputedStyle(document.querySelector('[data-chart-settings-popover]')).zIndex);
           const goToZIndex = Number(getComputedStyle(document.querySelector('[data-chart-go-to-popover]')).zIndex);
@@ -365,6 +367,8 @@ async function main() {
             floatingDisplayTimeframeCount,
             replayIntervalSelectCount: floating.querySelectorAll('[data-replay-interval-select]').length,
             replayIntervalSelectValue: initialReplayIntervalSelectValue,
+            replayIntervalValues,
+            displayTimeframeValues,
             replaySpeedValue: replaySpeedInput?.value || '',
             floatingZIndex,
             settingsZIndex,
@@ -391,6 +395,8 @@ async function main() {
     assert.equal(value.floatingDisplayTimeframeCount, 0);
     assert.equal(value.replayIntervalSelectCount, 1);
     assert.equal(value.replayIntervalSelectValue, '1');
+    assert.deepEqual(value.replayIntervalValues, ['1', '2', '3', '4', '5', '10', '15', '30', '60', '120', '180', '240']);
+    assert.deepEqual(value.displayTimeframeValues, ['1', '2', '3', '4', '5', '10', '15', '30', '60', '120', '180', '240', '1440', '10080', '43200']);
     assert.equal(value.selectedReplayIntervalValue, '5');
     assert.equal(value.selectedReplaySyncChecked, false);
     assert.equal(value.syncedReplayIntervalValue, '5');

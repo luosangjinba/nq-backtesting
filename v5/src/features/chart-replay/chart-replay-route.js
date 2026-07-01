@@ -66,16 +66,21 @@ export function createChartReplayRoute() {
                   <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
                     <span>Display interval</span>
                     <select data-display-timeframe-select disabled>
-                      <optgroup label="Minutes">
-                        <option value="1" data-display-timeframe="1">1m</option>
-                        <option value="5" data-display-timeframe="5">5m</option>
-                      </optgroup>
-                      <optgroup label="Hours">
-                        <option value="60" data-display-timeframe="60">1H</option>
-                      </optgroup>
-                      <optgroup label="Days">
-                        <option value="1440" data-display-timeframe="1440">1D</option>
-                      </optgroup>
+                      <option value="1" data-display-timeframe="1">1m</option>
+                      <option value="2" data-display-timeframe="2">2m</option>
+                      <option value="3" data-display-timeframe="3">3m</option>
+                      <option value="4" data-display-timeframe="4">4m</option>
+                      <option value="5" data-display-timeframe="5">5m</option>
+                      <option value="10" data-display-timeframe="10">10m</option>
+                      <option value="15" data-display-timeframe="15">15m</option>
+                      <option value="30" data-display-timeframe="30">30m</option>
+                      <option value="60" data-display-timeframe="60">1H</option>
+                      <option value="120" data-display-timeframe="120">2H</option>
+                      <option value="180" data-display-timeframe="180">3H</option>
+                      <option value="240" data-display-timeframe="240">4H</option>
+                      <option value="1440" data-display-timeframe="1440">1D</option>
+                      <option value="10080" data-display-timeframe="10080">1W</option>
+                      <option value="43200" data-display-timeframe="43200">1M</option>
                     </select>
                   </label>
                 </section>
@@ -122,16 +127,18 @@ export function createChartReplayRoute() {
             <label class="replay-interval-controls" data-replay-interval-controls aria-label="Replay interval">
               <span class="sr-only">Replay interval</span>
               <select data-replay-interval-select disabled title="Replay interval">
-                <optgroup label="Minutes">
-                  <option value="1">1m</option>
-                  <option value="5">5m</option>
-                </optgroup>
-                <optgroup label="Hours">
-                  <option value="60">1H</option>
-                </optgroup>
-                <optgroup label="Days">
-                  <option value="1440">1D</option>
-                </optgroup>
+                <option value="1">1m</option>
+                <option value="2">2m</option>
+                <option value="3">3m</option>
+                <option value="4">4m</option>
+                <option value="5">5m</option>
+                <option value="10">10m</option>
+                <option value="15">15m</option>
+                <option value="30">30m</option>
+                <option value="60">1H</option>
+                <option value="120">2H</option>
+                <option value="180">3H</option>
+                <option value="240">4H</option>
               </select>
             </label>
             <label class="replay-sync-control" title="Sync replay interval with active chart interval">

@@ -59,6 +59,12 @@ Replay interval rules:
 
 - the replay interval dropdown controls transport step size, not chart display
   timeframe;
+- supported replay interval options are `1m`, `2m`, `3m`, `4m`, `5m`, `10m`,
+  `15m`, `30m`, `1H`, `2H`, `3H`, and `4H`;
+- replay interval must not include very large chart study intervals such as
+  `1D`, `1W`, or `1M` because they are not practical transport step sizes;
+- chart display interval may include the replay interval options plus `1D`,
+  `1W`, and `1M`;
 - UI converts the selected replay interval into a replay command `stepCount`
   relative to the session timeframe;
 - for a 1m replay session, `5m` means Next, Previous, and Play move five
