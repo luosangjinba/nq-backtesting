@@ -308,6 +308,19 @@ input {
   display: none;
 }
 
+.chart-ohlc-overlay [hidden] {
+  display: none;
+}
+
+.chart-ohlc-overlay [data-chart-market-status] {
+  width: 9px;
+  height: 9px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.14);
+}
+
 .chart-ohlc-overlay [data-chart-ohlc-symbol],
 .chart-ohlc-overlay [data-chart-ohlc-timeframe] {
   color: #7dd3fc;
@@ -543,8 +556,32 @@ input {
   font-weight: 700;
 }
 
+.chart-settings-number-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(180px, 220px);
+  align-items: center;
+  gap: 16px;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.chart-settings-number-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.chart-settings-number-input input[type="number"] {
+  width: 96px;
+  min-height: 38px;
+  background: #2b3037;
+  color: #f1f5f9;
+}
+
 .chart-settings-color-pair {
   display: flex;
+  align-items: center;
   gap: 10px;
 }
 
@@ -556,6 +593,13 @@ input {
   border: 1px solid #64748b;
   border-radius: 6px;
   background: #111827;
+}
+
+.chart-settings-scale-pair select {
+  width: 76px;
+  min-height: 36px;
+  background: #2b3037;
+  color: #f1f5f9;
 }
 
 .chart-settings-check {

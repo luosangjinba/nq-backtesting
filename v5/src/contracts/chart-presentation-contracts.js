@@ -47,9 +47,21 @@ export const DEFAULT_CROSSHAIR_STYLE = Object.freeze({
   labelBackgroundColor: '#334155',
 });
 
+export const DEFAULT_BACKGROUND_STYLE = Object.freeze({
+  color: '#111827',
+});
+
+export const DEFAULT_SCALE_STYLE = Object.freeze({
+  textColor: '#22d3ee',
+  lineColor: '#334155',
+  fontSize: 12,
+});
+
 export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   timeFormat: CHART_TIME_FORMATS.H24,
   dateFormat: CHART_DATE_FORMATS.ISO_DATE,
+  showStatusTitle: true,
+  showOpenMarketStatus: true,
   showStatusOhlc: true,
   showStatusChange: true,
   showCrosshairReadout: true,
@@ -61,4 +73,6 @@ export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   candleStyle: DEFAULT_CANDLE_STYLE,
   gridStyle: DEFAULT_GRID_STYLE,
   crosshairStyle: DEFAULT_CROSSHAIR_STYLE,
+  backgroundStyle: DEFAULT_BACKGROUND_STYLE,
+  scaleStyle: DEFAULT_SCALE_STYLE,
 });

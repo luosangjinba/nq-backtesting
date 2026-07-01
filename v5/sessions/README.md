@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 417: `session_20260701_step417_v5_grid_crosshair_style_settings.md`
+- Step 418: `session_20260701_step418_v5_settings_fxreplay_parity.md`
 
 ## Completed Session Index
 
@@ -82,3 +82,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 415: `session_20260701_step415_v5_fxreplay_settings_modal.md`
 - Step 416: `session_20260701_step416_v5_candle_style_settings.md`
 - Step 417: `session_20260701_step417_v5_grid_crosshair_style_settings.md`
+- Step 418: `session_20260701_step418_v5_settings_fxreplay_parity.md`

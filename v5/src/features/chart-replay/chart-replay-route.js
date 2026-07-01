@@ -122,6 +122,14 @@ export function createChartReplayRoute() {
                 <section data-chart-settings-section="status" hidden>
                   <h3>Status line</h3>
                   <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showStatusTitle">
+                    <span>Title</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showOpenMarketStatus">
+                    <span>Open market status</span>
+                  </label>
+                  <label class="chart-settings-check">
                     <input type="checkbox" data-presentation-toggle="showStatusOhlc">
                     <span>Chart values</span>
                   </label>
@@ -172,6 +180,26 @@ export function createChartReplayRoute() {
                     <input type="checkbox" data-presentation-margin="compact">
                     <span>Compact chart margins</span>
                   </label>
+                  <label class="chart-settings-number-row">
+                    <span>Top</span>
+                    <span class="chart-settings-number-input">
+                      <input type="number" min="0" max="40" step="1" data-presentation-margin-value="topPercent">
+                      <span>%</span>
+                    </span>
+                  </label>
+                  <label class="chart-settings-number-row">
+                    <span>Bottom</span>
+                    <span class="chart-settings-number-input">
+                      <input type="number" min="0" max="40" step="1" data-presentation-margin-value="bottomPercent">
+                      <span>%</span>
+                    </span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Background</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-background-style-color="color" aria-label="Chart background color">
+                    </span>
+                  </label>
                   <h3>Grid</h3>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-grid-style-toggle="verticalVisible">
@@ -188,6 +216,25 @@ export function createChartReplayRoute() {
                       <input type="color" data-grid-style-color="horizontalColor" aria-label="Horizontal grid color">
                     </span>
                   </label>
+                  <h3>Scales</h3>
+                  <label class="chart-settings-color-row">
+                    <span>Text</span>
+                    <span class="chart-settings-color-pair chart-settings-scale-pair">
+                      <input type="color" data-scale-style-color="textColor" aria-label="Scale text color">
+                      <select data-scale-style-font-size aria-label="Scale text size">
+                        <option value="10">10</option>
+                        <option value="12">12</option>
+                        <option value="14">14</option>
+                        <option value="16">16</option>
+                      </select>
+                    </span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Lines</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-scale-style-color="lineColor" aria-label="Scale line color">
+                    </span>
+                  </label>
                 </section>
               </div>
             </div>
@@ -202,6 +249,7 @@ export function createChartReplayRoute() {
             <span>Starting chart...</span>
           </div>
           <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
+            <span data-chart-market-status aria-label="Open market status"></span>
             <span data-chart-ohlc-symbol>NQ</span>
             <span data-chart-ohlc-timeframe>1m</span>
             <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
@@ -304,6 +352,7 @@ export function createChartReplayRoute() {
       const statusChangeRow = section.querySelector('[data-status-change-row]');
       const statusOhlcLabel = section.querySelector('[data-status-ohlc]');
       const chartOhlcOverlay = section.querySelector('[data-chart-ohlc-overlay]');
+      const chartMarketStatus = section.querySelector('[data-chart-market-status]');
       const chartOhlcSymbol = section.querySelector('[data-chart-ohlc-symbol]');
       const chartOhlcTimeframe = section.querySelector('[data-chart-ohlc-timeframe]');
       const chartOhlcLegend = section.querySelector('[data-chart-ohlc-legend]');
@@ -333,12 +382,16 @@ export function createChartReplayRoute() {
       const presentationTimeFormatControls = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
       const presentationToggleControls = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
       const presentationMarginControls = Array.from(section.querySelectorAll('[data-presentation-margin]'));
+      const presentationMarginValueControls = Array.from(section.querySelectorAll('[data-presentation-margin-value]'));
       const presentationRightOffsetControls = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
       const candleStyleControls = Array.from(section.querySelectorAll('[data-candle-style]'));
       const gridStyleToggleControls = Array.from(section.querySelectorAll('[data-grid-style-toggle]'));
       const gridStyleColorControls = Array.from(section.querySelectorAll('[data-grid-style-color]'));
       const crosshairStyleToggleControls = Array.from(section.querySelectorAll('[data-crosshair-style-toggle]'));
       const crosshairStyleColorControls = Array.from(section.querySelectorAll('[data-crosshair-style-color]'));
+      const backgroundStyleColorControls = Array.from(section.querySelectorAll('[data-background-style-color]'));
+      const scaleStyleColorControls = Array.from(section.querySelectorAll('[data-scale-style-color]'));
+      const scaleStyleFontSizeControls = Array.from(section.querySelectorAll('[data-scale-style-font-size]'));
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -377,6 +430,8 @@ export function createChartReplayRoute() {
       let truncatePickMode = false;
       let presentationSettings = {
         timeFormat: '24h',
+        showStatusTitle: DEFAULT_CHART_PRESENTATION_SETTINGS.showStatusTitle,
+        showOpenMarketStatus: DEFAULT_CHART_PRESENTATION_SETTINGS.showOpenMarketStatus,
         showStatusOhlc: true,
         showStatusChange: true,
         showCrosshairReadout: true,
@@ -385,6 +440,8 @@ export function createChartReplayRoute() {
         candleStyle: cloneCandleStyle(),
         gridStyle: cloneGridStyle(),
         crosshairStyle: cloneCrosshairStyle(),
+        backgroundStyle: cloneBackgroundStyle(),
+        scaleStyle: cloneScaleStyle(),
       };
       let crosshairState = { active: false };
       let lastReplayState = null;
@@ -500,6 +557,9 @@ export function createChartReplayRoute() {
         const hoverBar = crosshairState?.active && crosshairState?.bar ? crosshairState.bar : null;
         const displayBar = hoverBar || latest;
         chartOhlcOverlay.hidden = !presentationSettings.showStatusOhlc || !displayBar;
+        chartMarketStatus.hidden = !presentationSettings.showOpenMarketStatus;
+        chartOhlcSymbol.hidden = !presentationSettings.showStatusTitle;
+        chartOhlcTimeframe.hidden = !presentationSettings.showStatusTitle;
         renderChartOhlcLegend(displayBar);
         chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
         chartOhlcTimeframe.textContent = formatTimeframeLabel(
@@ -847,6 +907,14 @@ export function createChartReplayRoute() {
         return { ...style };
       }
 
+      function cloneBackgroundStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.backgroundStyle) {
+        return { ...style };
+      }
+
+      function cloneScaleStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle) {
+        return { ...style };
+      }
+
       function candleStyleValue(style, path) {
         const [group, direction] = String(path || '').split('.');
         return style?.[group]?.[direction] || DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle[group]?.[direction] || '#000000';
@@ -862,14 +930,19 @@ export function createChartReplayRoute() {
         return {
           displayTimezone,
           timeFormat: presentationSettings.timeFormat,
+          showStatusTitle: Boolean(presentationSettings.showStatusTitle),
+          showOpenMarketStatus: Boolean(presentationSettings.showOpenMarketStatus),
           showStatusOhlc: Boolean(presentationSettings.showStatusOhlc),
           showStatusChange: Boolean(presentationSettings.showStatusChange),
           showCrosshairReadout: Boolean(presentationSettings.showCrosshairReadout),
           compactMargins: compactMarginsEnabled(),
+          margins: { ...presentationSettings.margins },
           rightOffsetBars: Number(presentationSettings.rightOffsetBars || 10),
           candleStyle: cloneCandleStyle(presentationSettings.candleStyle),
           gridStyle: cloneGridStyle(presentationSettings.gridStyle),
           crosshairStyle: cloneCrosshairStyle(presentationSettings.crosshairStyle),
+          backgroundStyle: cloneBackgroundStyle(presentationSettings.backgroundStyle),
+          scaleStyle: cloneScaleStyle(presentationSettings.scaleStyle),
         };
       }
 
@@ -896,6 +969,11 @@ export function createChartReplayRoute() {
             control.checked = Boolean(draft.compactMargins);
           }
         });
+        presentationMarginValueControls.forEach((control) => {
+          if (control.type === 'number') {
+            control.value = String(draft.margins?.[control.dataset.presentationMarginValue] ?? '');
+          }
+        });
         presentationRightOffsetControls.forEach((control) => {
           if (control.tagName === 'SELECT') {
             control.value = String(draft.rightOffsetBars || 10);
@@ -919,6 +997,21 @@ export function createChartReplayRoute() {
           control.value = draft.crosshairStyle?.[control.dataset.crosshairStyleColor]
             || DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle[control.dataset.crosshairStyleColor]
             || '#000000';
+        });
+        backgroundStyleColorControls.forEach((control) => {
+          control.value = draft.backgroundStyle?.[control.dataset.backgroundStyleColor]
+            || DEFAULT_CHART_PRESENTATION_SETTINGS.backgroundStyle[control.dataset.backgroundStyleColor]
+            || '#000000';
+        });
+        scaleStyleColorControls.forEach((control) => {
+          control.value = draft.scaleStyle?.[control.dataset.scaleStyleColor]
+            || DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle[control.dataset.scaleStyleColor]
+            || '#000000';
+        });
+        scaleStyleFontSizeControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = String(draft.scaleStyle?.fontSize || DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle.fontSize);
+          }
         });
       }
 
@@ -948,6 +1041,8 @@ export function createChartReplayRoute() {
           candleStyle: presentationSettings.candleStyle,
           gridStyle: presentationSettings.gridStyle,
           crosshairStyle: presentationSettings.crosshairStyle,
+          backgroundStyle: presentationSettings.backgroundStyle,
+          scaleStyle: presentationSettings.scaleStyle,
         }).catch(() => null);
       }
 
@@ -1166,6 +1261,20 @@ export function createChartReplayRoute() {
         control.addEventListener('change', () => {
           if (!settingsDraft || control.type !== 'checkbox') return;
           settingsDraft.compactMargins = control.checked;
+          settingsDraft.margins = control.checked
+            ? { topPercent: 6, bottomPercent: 6 }
+            : { topPercent: 10, bottomPercent: 8 };
+          renderSettingsDraft();
+        });
+      });
+      presentationMarginValueControls.forEach((control) => {
+        control.addEventListener('input', () => {
+          if (!settingsDraft || control.type !== 'number') return;
+          const key = control.dataset.presentationMarginValue;
+          settingsDraft.margins[key] = Number(control.value);
+          settingsDraft.compactMargins = settingsDraft.margins.topPercent === 6
+            && settingsDraft.margins.bottomPercent === 6;
+          renderSettingsDraft();
         });
       });
       presentationRightOffsetControls.forEach((control) => {
@@ -1212,6 +1321,28 @@ export function createChartReplayRoute() {
         control.addEventListener('input', updateCrosshairStyleColor);
         control.addEventListener('change', updateCrosshairStyleColor);
       });
+      backgroundStyleColorControls.forEach((control) => {
+        const updateBackgroundStyleColor = () => {
+          if (!settingsDraft) return;
+          settingsDraft.backgroundStyle[control.dataset.backgroundStyleColor] = control.value;
+        };
+        control.addEventListener('input', updateBackgroundStyleColor);
+        control.addEventListener('change', updateBackgroundStyleColor);
+      });
+      scaleStyleColorControls.forEach((control) => {
+        const updateScaleStyleColor = () => {
+          if (!settingsDraft) return;
+          settingsDraft.scaleStyle[control.dataset.scaleStyleColor] = control.value;
+        };
+        control.addEventListener('input', updateScaleStyleColor);
+        control.addEventListener('change', updateScaleStyleColor);
+      });
+      scaleStyleFontSizeControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.scaleStyle.fontSize = Number(control.value);
+        });
+      });
       chartSettingsApplyButton.addEventListener('click', async () => {
         if (!settingsDraft) return;
         const draft = settingsDraft;
@@ -1224,16 +1355,18 @@ export function createChartReplayRoute() {
         }
         presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
           timeFormat: draft.timeFormat,
+          showStatusTitle: draft.showStatusTitle,
+          showOpenMarketStatus: draft.showOpenMarketStatus,
           showStatusOhlc: draft.showStatusOhlc,
           showStatusChange: draft.showStatusChange,
           showCrosshairReadout: draft.showCrosshairReadout,
-          margins: draft.compactMargins
-            ? { topPercent: 6, bottomPercent: 6 }
-            : { topPercent: 10, bottomPercent: 8 },
+          margins: { ...draft.margins },
           rightOffsetBars: Number(draft.rightOffsetBars || 10),
           candleStyle: cloneCandleStyle(draft.candleStyle),
           gridStyle: cloneGridStyle(draft.gridStyle),
           crosshairStyle: cloneCrosshairStyle(draft.crosshairStyle),
+          backgroundStyle: cloneBackgroundStyle(draft.backgroundStyle),
+          scaleStyle: cloneScaleStyle(draft.scaleStyle),
         });
         await syncChartDisplayTimezone();
         await syncChartPresentationSettings();

@@ -10,11 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 417 is complete. Chart Settings now includes functional
-  grid and crosshair style controls with Ok/Cancel draft semantics, and chart
-  runtime applies those presentation options through the chart-engine adapter.
-- Next candidate: continue single-pane polish before split panes, likely setup
-  route visual cleanup or denser FXReplay-style chart header alignment.
+- Current status: Step 418 is complete. Chart Settings now adds FXReplay-style
+  status title/open-market toggles, explicit margin inputs, background color,
+  and scale text/line styling while preserving Ok/Cancel draft semantics.
+- Next candidate: continue Settings parity with a bounded planning step for
+  price-scale modes, time-scale date format, watermark/session breaks, and
+  template behavior; keep split panes deferred until single-pane chart
+  infrastructure remains stable.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2696,6 +2698,68 @@ Manual acceptance:
   display bars, bar-data windows, active pane identity, or chart runtime
   ownership.
 - Invalid grid/crosshair colors are rejected by the presentation runtime.
+
+Checks:
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 418 - V5 Settings FXReplay Parity Pass
+
+Status: completed.
+
+Goal: improve Chart Settings parity with FXReplay's settings dialog by adding
+the next low-risk presentation controls without changing replay, bar-data, or
+multi-pane ownership.
+
+Problem:
+
+- FXReplay exposes more practical settings than V5 after Step 417, especially
+  status title/open-market controls, explicit chart margins, background color,
+  and scale text/line styling.
+- These are presentation concerns and should flow through the existing
+  presentation runtime -> chart display context -> chart-engine adapter path,
+  not as route-local chart-engine calls.
+
+Implementation:
+
+- [x] Step 418.1: Add `showStatusTitle` and `showOpenMarketStatus` presentation
+  settings and wire them to the top-left chart OHLC overlay.
+- [x] Step 418.2: Add explicit top/bottom margin inputs while preserving the
+  existing compact margin shortcut.
+- [x] Step 418.3: Add chart background color and scale text color, line color,
+  and font-size presentation settings.
+- [x] Step 418.4: Carry background/scale style through chart runtime display
+  context and apply them in the chart-engine adapter for Lightweight layout,
+  time scale, and price scale options plus DOM fallback metadata.
+- [x] Step 418.5: Preserve Settings draft semantics so all new controls remain
+  local until `Ok`; `Cancel`, close, and backdrop dismiss discard edits.
+- [x] Step 418.6: Update runtime, adapter, browser smokes plus presentation
+  docs and session handoff.
+
+Manual acceptance:
+
+- Settings exposes Status line controls for title and open-market status.
+- Settings exposes Canvas controls for top/bottom margins, background color,
+  scale text color, scale line color, and scale text size.
+- Changing these controls does not affect the chart until `Ok`.
+- `Ok` updates only presentation state and chart display context; it does not
+  change replay cursor, display bars, bar-data windows, active pane identity, or
+  chart runtime ownership.
+- Invalid background/scale colors and out-of-range scale font sizes are
+  rejected by the presentation runtime.
+
+Non-goals:
+
+- No price-scale mode/placement implementation.
+- No watermark/session-break implementation.
+- No template persistence system.
+- No split-pane layout or chart sync work.
 
 Checks:
 

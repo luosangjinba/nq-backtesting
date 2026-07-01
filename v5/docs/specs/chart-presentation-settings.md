@@ -17,6 +17,8 @@ The initial presentation settings foundation covers:
 - candle body, border, and wick colors for up/down candles;
 - grid line visibility and colors;
 - crosshair line visibility, line colors, and label background color;
+- chart background color;
+- price/time scale text color, line color, and text size;
 - chart-owned crosshair readout visibility and formatting;
 - shared price, OHLC, change, candle-title, and inspection formatting.
 
@@ -44,6 +46,10 @@ presentation setting changes.
 - `dateFormat`: initially `YYYY-MM-DD`.
 - `showStatusOhlc`: whether the chart route status line shows OHLC.
 - `showStatusChange`: whether the chart route status line shows bar change.
+- `showStatusTitle`: whether the chart canvas OHLC overlay shows
+  instrument/timeframe title text.
+- `showOpenMarketStatus`: whether the chart canvas OHLC overlay shows the market
+  status dot.
 - `showCrosshairReadout`: whether chart-owned hover/readout text may be shown.
 - `margins`: top and bottom percentages for chart layout.
 - `rightOffsetBars`: number of bars reserved to the right of the latest visible
@@ -54,6 +60,9 @@ presentation setting changes.
   `#rrggbb`.
 - `crosshairStyle`: vertical/horizontal crosshair visibility, line colors, and
   label background color, normalized as `#rrggbb`.
+- `backgroundStyle`: chart background color, normalized as `#rrggbb`.
+- `scaleStyle`: price/time scale text color, line color, and font size. Colors
+  normalize to `#rrggbb`; font size is bounded presentation state.
 
 Defaults should match the current V5 dark replay layout and be conservative:
 OHLC/status change on, 24-hour time, visible crosshair readout, and right-side
@@ -84,6 +93,12 @@ space for replay progression.
 - Grid and crosshair style belong to chart presentation and flow through chart
   display context into the chart-engine adapter. UI must not call Lightweight
   chart APIs directly to mutate grid or crosshair options.
+- Background and scale style belong to chart presentation and flow through chart
+  display context into the chart-engine adapter. UI must not call Lightweight
+  chart APIs directly to mutate layout, time scale, or price scale options.
+- Settings modal edits remain route-local draft state until `Ok`; cancel, close,
+  or backdrop dismiss must not mutate presentation, replay, chart data, or
+  bar-data state.
 
 ## Verification
 
@@ -92,5 +107,7 @@ space for replay progression.
   layout state.
 - Adapter smoke verifies candle, grid, and crosshair style reach Lightweight
   series/chart options.
+- Adapter smoke verifies background and scale style reach Lightweight
+  layout/time-scale/price-scale options.
 - Browser smoke verifies settings changes affect visible presentation while
   cursor, display bars, and `/v4/bars` request counts remain unchanged.

@@ -186,20 +186,48 @@ async function main() {
           timeFormatSelect.dispatchEvent(new Event('change', { bubbles: true }));
           document.querySelector('[data-chart-settings-tab="status"]').click();
           const ohlcToggle = document.querySelector('[data-presentation-toggle="showStatusOhlc"]');
+          const titleToggle = document.querySelector('[data-presentation-toggle="showStatusTitle"]');
+          const marketStatusToggle = document.querySelector('[data-presentation-toggle="showOpenMarketStatus"]');
+          titleToggle.checked = false;
+          titleToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          marketStatusToggle.checked = false;
+          marketStatusToggle.dispatchEvent(new Event('change', { bubbles: true }));
           ohlcToggle.checked = false;
           ohlcToggle.dispatchEvent(new Event('change', { bubbles: true }));
           document.querySelector('[data-chart-settings-tab="canvas"]').click();
           const compactToggle = document.querySelector('[data-presentation-margin="compact"]');
           compactToggle.checked = true;
           compactToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          const marginTopInput = document.querySelector('[data-presentation-margin-value="topPercent"]');
+          const marginBottomInput = document.querySelector('[data-presentation-margin-value="bottomPercent"]');
+          marginTopInput.value = '7';
+          marginTopInput.dispatchEvent(new Event('input', { bubbles: true }));
+          marginBottomInput.value = '9';
+          marginBottomInput.dispatchEvent(new Event('input', { bubbles: true }));
+          const backgroundColor = document.querySelector('[data-background-style-color="color"]');
+          backgroundColor.value = '#020617';
+          backgroundColor.dispatchEvent(new Event('input', { bubbles: true }));
           const gridVerticalToggle = document.querySelector('[data-grid-style-toggle="verticalVisible"]');
           const gridHorizontalColor = document.querySelector('[data-grid-style-color="horizontalColor"]');
           const beforeApplyGridVerticalVisible = document.querySelector('[data-chart-canvas]')?.dataset.gridVerticalVisible || '';
           const beforeApplyGridHorizontalColor = document.querySelector('[data-chart-canvas]')?.dataset.gridHorizontalColor || '';
+          const beforeApplyBackgroundColor = document.querySelector('[data-chart-canvas]')?.dataset.backgroundColor || '';
+          const beforeApplyScaleTextColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '';
+          const beforeApplyScaleLineColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '';
+          const beforeApplyScaleFontSize = document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '';
           gridVerticalToggle.checked = false;
           gridVerticalToggle.dispatchEvent(new Event('change', { bubbles: true }));
           gridHorizontalColor.value = '#1f2937';
           gridHorizontalColor.dispatchEvent(new Event('input', { bubbles: true }));
+          const scaleTextColor = document.querySelector('[data-scale-style-color="textColor"]');
+          const scaleLineColor = document.querySelector('[data-scale-style-color="lineColor"]');
+          const scaleFontSize = document.querySelector('[data-scale-style-font-size]');
+          scaleTextColor.value = '#38bdf8';
+          scaleTextColor.dispatchEvent(new Event('input', { bubbles: true }));
+          scaleLineColor.value = '#475569';
+          scaleLineColor.dispatchEvent(new Event('input', { bubbles: true }));
+          scaleFontSize.value = '14';
+          scaleFontSize.dispatchEvent(new Event('change', { bubbles: true }));
           document.querySelector('[data-chart-settings-tab="scales"]').click();
           const rightOffsetSelect = document.querySelector('select[data-presentation-right-offset]');
           rightOffsetSelect.value = '16';
@@ -218,6 +246,10 @@ async function main() {
           const beforeApplyDraftOnlyCandleBodyUp = document.querySelector('[data-chart-canvas]')?.dataset.candleBodyUp || '';
           const beforeApplyDraftOnlyGridVerticalVisible = document.querySelector('[data-chart-canvas]')?.dataset.gridVerticalVisible || '';
           const beforeApplyDraftOnlyGridHorizontalColor = document.querySelector('[data-chart-canvas]')?.dataset.gridHorizontalColor || '';
+          const beforeApplyDraftOnlyBackgroundColor = document.querySelector('[data-chart-canvas]')?.dataset.backgroundColor || '';
+          const beforeApplyDraftOnlyScaleTextColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '';
+          const beforeApplyDraftOnlyScaleLineColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '';
+          const beforeApplyDraftOnlyScaleFontSize = document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '';
           const beforeApplyDraftOnlyCrosshairHorizontalVisible = document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible || '';
           const beforeApplyDraftOnlyCrosshairLabelBackground = document.querySelector('[data-chart-canvas]')?.dataset.crosshairLabelBackgroundColor || '';
           document.querySelector('[data-chart-settings-apply]').click();
@@ -229,14 +261,18 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.style.paddingTop === ''
               && document.querySelector('[data-chart-canvas]')?.style.paddingBottom === ''
               && document.querySelector('[data-chart-canvas]')?.style.paddingRight === ''
-              && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent === '6'
-              && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginBottomPercent === '6'
+              && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent === '7'
+              && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginBottomPercent === '9'
               && document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset === '16'
               && document.querySelector('[data-chart-canvas]')?.dataset.candleBodyUp === '#22c55e'
               && document.querySelector('[data-chart-canvas]')?.dataset.gridVerticalVisible === 'false'
               && document.querySelector('[data-chart-canvas]')?.dataset.gridHorizontalColor === '#1f2937'
               && document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible === 'false'
               && document.querySelector('[data-chart-canvas]')?.dataset.crosshairLabelBackgroundColor === '#0f172a'
+              && document.querySelector('[data-chart-canvas]')?.dataset.backgroundColor === '#020617'
+              && document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor === '#38bdf8'
+              && document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor === '#475569'
+              && document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize === '14'
               && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith('2026-06-01 9:30 AM')
           );
 
@@ -266,18 +302,34 @@ async function main() {
             beforeApplyGridHorizontalColor,
             beforeApplyDraftOnlyGridVerticalVisible,
             beforeApplyDraftOnlyGridHorizontalColor,
+            beforeApplyBackgroundColor,
+            beforeApplyScaleTextColor,
+            beforeApplyScaleLineColor,
+            beforeApplyScaleFontSize,
+            beforeApplyDraftOnlyBackgroundColor,
+            beforeApplyDraftOnlyScaleTextColor,
+            beforeApplyDraftOnlyScaleLineColor,
+            beforeApplyDraftOnlyScaleFontSize,
             beforeApplyCrosshairHorizontalVisible,
             beforeApplyCrosshairLabelBackground,
             beforeApplyDraftOnlyCrosshairHorizontalVisible,
             beforeApplyDraftOnlyCrosshairLabelBackground,
             selected12h: document.querySelector('select[data-presentation-time-format]')?.value || '',
+            titleSelected: document.querySelector('[data-presentation-toggle="showStatusTitle"]')?.checked,
+            marketStatusSelected: document.querySelector('[data-presentation-toggle="showOpenMarketStatus"]')?.checked,
             selectedBodyUpColor: document.querySelector('[data-candle-style="body.up"]')?.value || '',
             compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.checked,
+            marginTopSelected: document.querySelector('[data-presentation-margin-value="topPercent"]')?.value || '',
+            marginBottomSelected: document.querySelector('[data-presentation-margin-value="bottomPercent"]')?.value || '',
             rightOffsetSelected: document.querySelector('select[data-presentation-right-offset]')?.value || '',
             gridVerticalSelected: document.querySelector('[data-grid-style-toggle="verticalVisible"]')?.checked,
             gridHorizontalColorSelected: document.querySelector('[data-grid-style-color="horizontalColor"]')?.value || '',
             crosshairHorizontalSelected: document.querySelector('[data-crosshair-style-toggle="horizontalVisible"]')?.checked,
             crosshairLabelBackgroundSelected: document.querySelector('[data-crosshair-style-color="labelBackgroundColor"]')?.value || '',
+            backgroundColorSelected: document.querySelector('[data-background-style-color="color"]')?.value || '',
+            scaleTextColorSelected: document.querySelector('[data-scale-style-color="textColor"]')?.value || '',
+            scaleLineColorSelected: document.querySelector('[data-scale-style-color="lineColor"]')?.value || '',
+            scaleFontSizeSelected: document.querySelector('[data-scale-style-font-size]')?.value || '',
             afterCanvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
             afterCanvasPaddingBottom: document.querySelector('[data-chart-canvas]')?.style.paddingBottom || '',
             afterCanvasPaddingRight: document.querySelector('[data-chart-canvas]')?.style.paddingRight || '',
@@ -289,6 +341,10 @@ async function main() {
             afterCanvasGridHorizontalColor: document.querySelector('[data-chart-canvas]')?.dataset.gridHorizontalColor || '',
             afterCanvasCrosshairHorizontalVisible: document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible || '',
             afterCanvasCrosshairLabelBackground: document.querySelector('[data-chart-canvas]')?.dataset.crosshairLabelBackgroundColor || '',
+            afterCanvasBackgroundColor: document.querySelector('[data-chart-canvas]')?.dataset.backgroundColor || '',
+            afterCanvasScaleTextColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '',
+            afterCanvasScaleLineColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '',
+            afterCanvasScaleFontSize: document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
             beforeDisplayCount: before.displayBars.length,
@@ -328,29 +384,49 @@ async function main() {
     assert.equal(value.beforeApplyGridHorizontalColor, '#374151');
     assert.equal(value.beforeApplyDraftOnlyGridVerticalVisible, 'true');
     assert.equal(value.beforeApplyDraftOnlyGridHorizontalColor, '#374151');
+    assert.equal(value.beforeApplyBackgroundColor, '#111827');
+    assert.equal(value.beforeApplyScaleTextColor, '#22d3ee');
+    assert.equal(value.beforeApplyScaleLineColor, '#334155');
+    assert.equal(value.beforeApplyScaleFontSize, '12');
+    assert.equal(value.beforeApplyDraftOnlyBackgroundColor, '#111827');
+    assert.equal(value.beforeApplyDraftOnlyScaleTextColor, '#22d3ee');
+    assert.equal(value.beforeApplyDraftOnlyScaleLineColor, '#334155');
+    assert.equal(value.beforeApplyDraftOnlyScaleFontSize, '12');
     assert.equal(value.beforeApplyCrosshairHorizontalVisible, 'true');
     assert.equal(value.beforeApplyCrosshairLabelBackground, '#334155');
     assert.equal(value.beforeApplyDraftOnlyCrosshairHorizontalVisible, 'true');
     assert.equal(value.beforeApplyDraftOnlyCrosshairLabelBackground, '#334155');
     assert.equal(value.selected12h, '12h');
+    assert.equal(value.titleSelected, false);
+    assert.equal(value.marketStatusSelected, false);
     assert.equal(value.selectedBodyUpColor, '#22c55e');
-    assert.equal(value.compactSelected, true);
+    assert.equal(value.compactSelected, false);
+    assert.equal(value.marginTopSelected, '7');
+    assert.equal(value.marginBottomSelected, '9');
     assert.equal(value.rightOffsetSelected, '16');
     assert.equal(value.gridVerticalSelected, false);
     assert.equal(value.gridHorizontalColorSelected, '#1f2937');
     assert.equal(value.crosshairHorizontalSelected, false);
     assert.equal(value.crosshairLabelBackgroundSelected, '#0f172a');
+    assert.equal(value.backgroundColorSelected, '#020617');
+    assert.equal(value.scaleTextColorSelected, '#38bdf8');
+    assert.equal(value.scaleLineColorSelected, '#475569');
+    assert.equal(value.scaleFontSizeSelected, '14');
     assert.equal(value.afterCanvasPaddingTop, '');
     assert.equal(value.afterCanvasPaddingBottom, '');
     assert.equal(value.afterCanvasPaddingRight, '');
-    assert.equal(value.afterCanvasMarginTop, '6');
-    assert.equal(value.afterCanvasMarginBottom, '6');
+    assert.equal(value.afterCanvasMarginTop, '7');
+    assert.equal(value.afterCanvasMarginBottom, '9');
     assert.equal(value.afterCanvasRightOffset, '16');
     assert.equal(value.afterCanvasCandleBodyUp, '#22c55e');
     assert.equal(value.afterCanvasGridVerticalVisible, 'false');
     assert.equal(value.afterCanvasGridHorizontalColor, '#1f2937');
     assert.equal(value.afterCanvasCrosshairHorizontalVisible, 'false');
     assert.equal(value.afterCanvasCrosshairLabelBackground, '#0f172a');
+    assert.equal(value.afterCanvasBackgroundColor, '#020617');
+    assert.equal(value.afterCanvasScaleTextColor, '#38bdf8');
+    assert.equal(value.afterCanvasScaleLineColor, '#475569');
+    assert.equal(value.afterCanvasScaleFontSize, '14');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

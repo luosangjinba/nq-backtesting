@@ -144,6 +144,14 @@ assert.deepEqual(context.displayContext, {
     horizontalColor: '#94a3b8',
     labelBackgroundColor: '#334155',
   },
+  backgroundStyle: {
+    color: '#111827',
+  },
+  scaleStyle: {
+    textColor: '#22d3ee',
+    lineColor: '#334155',
+    fontSize: 12,
+  },
 });
 assert.equal(context.viewportDemand, null);
 

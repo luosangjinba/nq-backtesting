@@ -37,6 +37,8 @@ const defaults = await dispatchCommand(CHART_PRESENTATION_COMMANDS.GET);
 assert.deepEqual(defaults, {
   timeFormat: '24h',
   dateFormat: 'YYYY-MM-DD',
+  showStatusTitle: true,
+  showOpenMarketStatus: true,
   showStatusOhlc: true,
   showStatusChange: true,
   showCrosshairReadout: true,
@@ -72,10 +74,19 @@ assert.deepEqual(defaults, {
     horizontalColor: '#94a3b8',
     labelBackgroundColor: '#334155',
   },
+  backgroundStyle: {
+    color: '#111827',
+  },
+  scaleStyle: {
+    textColor: '#22d3ee',
+    lineColor: '#334155',
+    fontSize: 12,
+  },
 });
 
 const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
   timeFormat: '12h',
+  showStatusTitle: false,
   showStatusOhlc: false,
   margins: {
     topPercent: 12,
@@ -94,10 +105,18 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
     horizontalVisible: false,
     labelBackgroundColor: '#0f172a',
   },
+  backgroundStyle: {
+    color: '#020617',
+  },
+  scaleStyle: {
+    textColor: '#38bdf8',
+    fontSize: 14,
+  },
 });
 assert.deepEqual(updated, {
   ...defaults,
   timeFormat: '12h',
+  showStatusTitle: false,
   showStatusOhlc: false,
   margins: {
     topPercent: 12,
@@ -131,6 +150,14 @@ assert.deepEqual(updated, {
     horizontalColor: '#94a3b8',
     labelBackgroundColor: '#0f172a',
   },
+  backgroundStyle: {
+    color: '#020617',
+  },
+  scaleStyle: {
+    textColor: '#38bdf8',
+    lineColor: '#334155',
+    fontSize: 14,
+  },
 });
 assert.deepEqual(changedEvent, updated);
 
@@ -160,6 +187,14 @@ await assert.rejects(
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { crosshairStyle: { labelBackgroundColor: 'blue' } }),
   /crosshairStyle.labelBackgroundColor must be a #rrggbb color/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { backgroundStyle: { color: 'black' } }),
+  /backgroundStyle.color must be a #rrggbb color/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { scaleStyle: { fontSize: 24 } }),
+  /scaleStyle.fontSize must be between 9 and 18/
 );
 assert.equal(normalizeChartPresentationSettings({ showCrosshairReadout: 0 }).showCrosshairReadout, false);
 

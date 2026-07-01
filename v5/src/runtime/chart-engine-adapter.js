@@ -102,6 +102,8 @@ function normalizeContext(context = {}) {
   const defaultCandleStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle;
   const defaultGridStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.gridStyle;
   const defaultCrosshairStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle;
+  const defaultBackgroundStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.backgroundStyle;
+  const defaultScaleStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle;
   return {
     displayTimezone: context.displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
     exchangeTimezone: context.exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
@@ -153,6 +155,14 @@ function normalizeContext(context = {}) {
       horizontalColor: context.crosshairStyle?.horizontalColor || defaultCrosshairStyle.horizontalColor,
       labelBackgroundColor: context.crosshairStyle?.labelBackgroundColor || defaultCrosshairStyle.labelBackgroundColor,
     },
+    backgroundStyle: {
+      color: context.backgroundStyle?.color || defaultBackgroundStyle.color,
+    },
+    scaleStyle: {
+      textColor: context.scaleStyle?.textColor || defaultScaleStyle.textColor,
+      lineColor: context.scaleStyle?.lineColor || defaultScaleStyle.lineColor,
+      fontSize: Number(context.scaleStyle?.fontSize ?? defaultScaleStyle.fontSize),
+    },
   };
 }
 
@@ -174,6 +184,12 @@ function applyFallbackPresentation(canvas, context) {
   canvas.dataset.crosshairVerticalColor = context.crosshairStyle.verticalColor;
   canvas.dataset.crosshairHorizontalColor = context.crosshairStyle.horizontalColor;
   canvas.dataset.crosshairLabelBackgroundColor = context.crosshairStyle.labelBackgroundColor;
+  canvas.dataset.backgroundColor = context.backgroundStyle.color;
+  canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
+  canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
+  canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.style.backgroundColor = context.backgroundStyle.color;
+  canvas.style.color = context.scaleStyle.textColor;
   canvas.style.paddingTop = `${context.margins.topPercent}%`;
   canvas.style.paddingBottom = `${context.margins.bottomPercent}%`;
   canvas.style.paddingRight = `${context.rightOffsetBars * 10}px`;
@@ -221,6 +237,11 @@ function lightweightOptionsForContext(context) {
   return {
     handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
     handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
+    layout: {
+      background: { type: 'solid', color: context.backgroundStyle.color },
+      textColor: context.scaleStyle.textColor,
+      fontSize: context.scaleStyle.fontSize,
+    },
     grid: gridOptionsForContext(context),
     crosshair: crosshairOptionsForContext(context),
     localization: {
@@ -229,7 +250,11 @@ function lightweightOptionsForContext(context) {
     timeScale: {
       ...LIGHTWEIGHT_REPLAY_TIMESCALE,
       rightOffset: context.rightOffsetBars,
+      borderColor: context.scaleStyle.lineColor,
       tickMarkFormatter: (time) => formatLightweightTick(time, context),
+    },
+    rightPriceScale: {
+      borderColor: context.scaleStyle.lineColor,
     },
   };
 }
@@ -314,12 +339,18 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.crosshairVerticalColor = context.crosshairStyle.verticalColor;
   canvas.dataset.crosshairHorizontalColor = context.crosshairStyle.horizontalColor;
   canvas.dataset.crosshairLabelBackgroundColor = context.crosshairStyle.labelBackgroundColor;
+  canvas.dataset.backgroundColor = context.backgroundStyle.color;
+  canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
+  canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
+  canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
 }
 
 function applyLightweightPresentation(canvas, context) {
   canvas.style.paddingTop = '';
   canvas.style.paddingBottom = '';
   canvas.style.paddingRight = '';
+  canvas.style.backgroundColor = '';
+  canvas.style.color = '';
   applyLightweightMetadata(canvas, context);
 }
 

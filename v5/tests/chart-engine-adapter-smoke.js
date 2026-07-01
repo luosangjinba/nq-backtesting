@@ -243,6 +243,14 @@ lightweight.setPresentation({
     horizontalColor: '#64748b',
     labelBackgroundColor: '#0f172a',
   },
+  backgroundStyle: {
+    color: '#020617',
+  },
+  scaleStyle: {
+    textColor: '#38bdf8',
+    lineColor: '#475569',
+    fontSize: 14,
+  },
 });
 lightweight.setVisibleRange({
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
@@ -292,6 +300,11 @@ assert.deepEqual(lightweightCalls.options.handleScale, {
   pinch: true,
 });
 assert.equal(lightweightCalls.options.localization.priceFormatter(103.5), '103.50');
+assert.deepEqual(lightweightCalls.options.layout, {
+  background: { type: 'solid', color: '#111827' },
+  textColor: '#22d3ee',
+  fontSize: 12,
+});
 assert.deepEqual(lightweightCalls.options.grid, {
   vertLines: {
     color: '#374151',
@@ -349,7 +362,6 @@ assert.deepEqual(lightweightCalls.applyOptions.at(-1).crosshair, {
   },
 });
 assert.deepEqual(lightweightCalls.options.timeScale, {
-  borderColor: '#2b2f36',
   barSpacing: 10,
   minBarSpacing: 3,
   lockVisibleTimeRangeOnResize: true,
@@ -358,7 +370,11 @@ assert.deepEqual(lightweightCalls.options.timeScale, {
   fixLeftEdge: false,
   fixRightEdge: false,
   rightOffset: 3,
+  borderColor: '#334155',
   tickMarkFormatter: lightweightCalls.options.timeScale.tickMarkFormatter,
+});
+assert.deepEqual(lightweightCalls.options.rightPriceScale, {
+  borderColor: '#334155',
 });
 assert.equal(
   lightweightCalls.options.timeScale.tickMarkFormatter(Date.parse('2026-06-01T09:33:00.000Z') / 1000),
@@ -417,6 +433,10 @@ assert.equal(lightweightHost.children[0].dataset.gridVerticalVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.gridHorizontalColor, '#1f2937');
 assert.equal(lightweightHost.children[0].dataset.crosshairHorizontalVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.crosshairLabelBackgroundColor, '#0f172a');
+assert.equal(lightweightHost.children[0].dataset.backgroundColor, '#020617');
+assert.equal(lightweightHost.children[0].dataset.scaleTextColor, '#38bdf8');
+assert.equal(lightweightHost.children[0].dataset.scaleLineColor, '#475569');
+assert.equal(lightweightHost.children[0].dataset.scaleFontSize, '14');
 assert.deepEqual(
   lightweightCalls.setData[0].map((item) => item.time),
   [
@@ -438,6 +458,11 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     axisPressedMouseMove: true,
     mouseWheel: true,
     pinch: true,
+  },
+  layout: {
+    background: { type: 'solid', color: '#020617' },
+    textColor: '#38bdf8',
+    fontSize: 14,
   },
   grid: {
     vertLines: {
@@ -479,7 +504,11 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     fixLeftEdge: false,
     fixRightEdge: false,
     rightOffset: 4,
+    borderColor: '#475569',
     tickMarkFormatter: lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter,
+  },
+  rightPriceScale: {
+    borderColor: '#475569',
   },
 });
 assert.equal(

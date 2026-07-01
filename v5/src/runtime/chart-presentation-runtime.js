@@ -5,9 +5,11 @@ import {
   CHART_PRESENTATION_EVENTS,
   CHART_TIME_FORMATS,
   DEFAULT_CHART_PRESENTATION_SETTINGS,
+  DEFAULT_BACKGROUND_STYLE,
   DEFAULT_CANDLE_STYLE,
   DEFAULT_CROSSHAIR_STYLE,
   DEFAULT_GRID_STYLE,
+  DEFAULT_SCALE_STYLE,
 } from '../contracts/chart-presentation-contracts.js';
 
 export {
@@ -53,6 +55,14 @@ function normalizeColor(value, fallback, name) {
   throw new Error(`chart presentation ${name} must be a #rrggbb color.`);
 }
 
+function normalizeScaleFontSize(value, fallback = DEFAULT_SCALE_STYLE.fontSize) {
+  const normalized = Number(value ?? fallback);
+  if (!Number.isFinite(normalized) || normalized < 9 || normalized > 18) {
+    throw new Error('chart presentation scaleStyle.fontSize must be between 9 and 18.');
+  }
+  return normalized;
+}
+
 function normalizeCandleStyle(value = {}, base = DEFAULT_CANDLE_STYLE) {
   return {
     body: {
@@ -93,11 +103,27 @@ function normalizeCrosshairStyle(value = {}, base = DEFAULT_CROSSHAIR_STYLE) {
   };
 }
 
+function normalizeBackgroundStyle(value = {}, base = DEFAULT_BACKGROUND_STYLE) {
+  return {
+    color: normalizeColor(value.color, base.color, 'backgroundStyle.color'),
+  };
+}
+
+function normalizeScaleStyle(value = {}, base = DEFAULT_SCALE_STYLE) {
+  return {
+    textColor: normalizeColor(value.textColor, base.textColor, 'scaleStyle.textColor'),
+    lineColor: normalizeColor(value.lineColor, base.lineColor, 'scaleStyle.lineColor'),
+    fontSize: normalizeScaleFontSize(value.fontSize, base.fontSize),
+  };
+}
+
 export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CHART_PRESENTATION_SETTINGS) {
   const margins = input.margins || {};
   return {
     timeFormat: normalizeTimeFormat(input.timeFormat ?? base.timeFormat),
     dateFormat: normalizeDateFormat(input.dateFormat ?? base.dateFormat),
+    showStatusTitle: normalizeBoolean(input.showStatusTitle, base.showStatusTitle),
+    showOpenMarketStatus: normalizeBoolean(input.showOpenMarketStatus, base.showOpenMarketStatus),
     showStatusOhlc: normalizeBoolean(input.showStatusOhlc, base.showStatusOhlc),
     showStatusChange: normalizeBoolean(input.showStatusChange, base.showStatusChange),
     showCrosshairReadout: normalizeBoolean(input.showCrosshairReadout, base.showCrosshairReadout),
@@ -109,6 +135,8 @@ export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CH
     candleStyle: normalizeCandleStyle(input.candleStyle, base.candleStyle),
     gridStyle: normalizeGridStyle(input.gridStyle, base.gridStyle),
     crosshairStyle: normalizeCrosshairStyle(input.crosshairStyle, base.crosshairStyle),
+    backgroundStyle: normalizeBackgroundStyle(input.backgroundStyle, base.backgroundStyle),
+    scaleStyle: normalizeScaleStyle(input.scaleStyle, base.scaleStyle),
   };
 }
 
