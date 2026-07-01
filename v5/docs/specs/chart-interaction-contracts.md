@@ -32,6 +32,9 @@ Lightweight Charts is actively processing a pointer drag.
 Step 406 clarifies sparse-market left drag behavior: replay display loading may
 seek across empty bounded windows when the user drags materially earlier than
 the current loaded display coverage.
+Step 407 locks the settle-after-drag policy: newly loaded left-side bars render
+after pointer release / native interaction settle, not during the active native
+drag.
 
 In scope:
 
@@ -102,6 +105,9 @@ Out of scope:
   record manual visible range and emit demand, but must not write replacement
   data or visible ranges back into the chart engine. Queued runtime chart syncs
   should flush once the native interaction settles.
+- The active native drag guard applies even when replay/bar-data work expands
+  loaded chart coverage. Newly available left-side bars should render after
+  mouseup / interaction settle rather than via active-drag `setData()`.
 - Viewport demand identity should be stable at the load-window level. Tiny
   visible-range differences during a drag must not create distinct load keys if
   they map to the same bounded history window.

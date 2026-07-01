@@ -310,6 +310,26 @@ async function main() {
           const nativeInteractionDuringDrag = afterFutureWhitespace.nativeInteraction || null;
           await commands.dispatchCommand('chart.setDisplayContext', { displayTimezone: 'UTC' });
           const setDataAfterDeferredContext = metrics.setDataCount;
+          const activeExpandedBars = [];
+          for (
+            let timestamp = Date.parse('2026-06-01T08:00:00.000Z') / 1000;
+            timestamp <= Date.parse('2026-06-01T09:45:00.000Z') / 1000;
+            timestamp += 60
+          ) {
+            const index = Math.round((timestamp - (Date.parse('2026-06-01T08:00:00.000Z') / 1000)) / 60);
+            const open = 480 + index;
+            activeExpandedBars.push({
+              time: new Date(timestamp * 1000).toISOString(),
+              open,
+              high: open + 1,
+              low: open - 1,
+              close: open + 0.5,
+            });
+          }
+          await commands.dispatchCommand('chart.replaceBars', {
+            bars: activeExpandedBars,
+          });
+          const setDataAfterActiveReplace = metrics.setDataCount;
           document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 0 }));
           await waitFor('native interaction settled', async () => {
             const interaction = await commands.dispatchCommand('chart.getInteractionState');
@@ -361,6 +381,7 @@ async function main() {
             setDataAfterNativeRange,
             setDataAfterFutureWhitespace,
             setDataAfterDeferredContext,
+            setDataAfterActiveReplace,
             setDataAfterNativeSettle,
             setDataAfterRouteNext,
             setDataAfterCrosshair,
@@ -399,7 +420,8 @@ async function main() {
     assert.equal(value.setDataAfterNativeRange, value.setDataBeforeNativeRange);
     assert.equal(value.setDataAfterFutureWhitespace, value.setDataBeforeNativeRange);
     assert.equal(value.setDataAfterDeferredContext, value.setDataBeforeNativeRange);
-    assert.ok(value.setDataAfterNativeSettle > value.setDataAfterDeferredContext);
+    assert.equal(value.setDataAfterActiveReplace, value.setDataBeforeNativeRange);
+    assert.ok(value.setDataAfterNativeSettle > value.setDataAfterActiveReplace);
     assert.ok(value.setDataAfterRouteNext > value.setDataAfterNativeSettle);
     assert.equal(value.setDataAfterCrosshair, value.setDataAfterRouteNext);
     assert.equal(value.afterNativeMode, 'manual');

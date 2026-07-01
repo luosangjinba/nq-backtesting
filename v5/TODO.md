@@ -10,13 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 406 is complete. Backward display-window loading can seek
-  across sparse/empty market windows, and display-window attempts are recorded
-  for diagnostics. A follow-up real-data check confirmed the 1m NQ Sunday
-  18:00 boundary can now seek back to Friday data.
-- Next candidate: manually re-test 1m left drag across the Sunday open boundary.
-  If fast-drag pointer drift remains, add a browser diagnostic that records
-  pointer pixel deltas against Lightweight logical-range deltas.
+- Current status: Step 407 is complete. Active native drag keeps runtime chart
+  data writes deferred until pointer release / interaction settle, including
+  sparse backward display-window extensions.
+- Next candidate: if fast-drag pointer drift remains, add a browser diagnostic
+  that records pointer pixel deltas against Lightweight logical-range deltas.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2154,5 +2152,64 @@ Checks:
 - `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 407 - V5 Settle-After-Drag Loading Policy
+
+Status: completed.
+
+Goal: lock the product/runtime decision that left-drag history extension renders
+after mouseup / native interaction settle, not while the left mouse button is
+still held.
+
+Problem:
+
+- Step 406 made sparse backward display-window loading able to find older bars.
+- A Step 407 experiment attempted active-drag `setData()` so newly loaded
+  left-side bars appeared before mouseup.
+- That path required suppressing Lightweight range echoes and compensating
+  logical range shifts, which increased risk to native drag fidelity and manual
+  replay anchoring.
+- The accepted behavior is simpler and more stable: keep the drag attached to
+  the pointer, then render newly loaded extension bars after release.
+
+Decision:
+
+- Native pointer drag remains an active interaction phase.
+- While native drag is active, chart runtime may record observed visible range,
+  update chart-owned manual state, and emit viewport demand.
+- While native drag is active, chart runtime must not write replacement data or
+  explicit visible ranges back into the chart engine, even if bar coverage has
+  expanded.
+- A queued chart sync flushes after pointer release / native interaction settle,
+  so newly loaded left-side bars become visible after mouseup.
+- Do not reintroduce active-drag `setData()` unless there is a measured,
+  separate design step that proves it preserves Lightweight native drag
+  fidelity and replay manual anchors.
+
+Implementation:
+
+- [x] Step 407.1: Revert the active-drag data-rendering experiment.
+- [x] Step 407.2: Keep Step 405's writeback guard as the active policy.
+- [x] Step 407.3: Strengthen browser smoke coverage so coverage-expanding
+  `chart.replaceBars` during active drag still does not call `setData()`.
+- [x] Step 407.4: Document the settle-after-drag loading policy in TODO,
+  interaction contracts, and session handoff.
+
+Manual acceptance:
+
+- Holding left mouse and dragging the chart keeps K-line movement attached to
+  pointer movement.
+- Left-side extension bars may remain invisible while the button is held.
+- After mouseup / native interaction settle, queued chart sync may render the
+  newly loaded older bars.
+- Replay manual anchor and no-future display behavior remain intact.
+
+Checks:
+
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
