@@ -25,6 +25,8 @@ critical regions.
 Step 401 clarifies that replay transport controls are viewport-level controls
 rather than chart-canvas overlays, while chart viewport anchoring remains owned
 by chart runtime.
+Step 404 plans the drag smoothness rule: native drag frames must not be coupled
+one-for-one to viewport demand loading or full chart data replacement.
 
 In scope:
 
@@ -34,6 +36,7 @@ In scope:
 - toolbar zoom/pan as chart runtime commands that derive manual visible ranges;
 - native chart-engine visible-range observation without per-frame data
   replacement;
+- settled or coalesced viewport demand consumption after native drag movement;
 - chart display readability required for native interaction to be usable;
 - compact replay workstation layout around the chart;
 - viewport-level floating replay transport positioning;
@@ -86,6 +89,16 @@ Out of scope:
   pointer interaction. V5 observes the resulting visible range and updates
   chart-owned interaction state without calling `series.setData()` for every
   native interaction frame.
+- Native visible-range observation may update chart-owned manual range state
+  promptly, but replay-owned viewport demand consumption should be coalesced or
+  debounced so left-drag movement does not trigger a bounded bar load for every
+  pointer frame.
+- Viewport demand identity should be stable at the load-window level. Tiny
+  visible-range differences during a drag must not create distinct load keys if
+  they map to the same bounded history window.
+- Consuming cached or duplicate viewport demand must not call chart
+  `replaceBars` / Lightweight `series.setData()` when merged display bars are
+  unchanged.
 - Replay right-edge/no-future enforcement may correct a native visible range
   only when it exceeds the replay cursor boundary.
 - Lightweight mode must use `subscribeCrosshairMove` for crosshair readout and
@@ -185,6 +198,12 @@ When native Lightweight Charts pan/zoom is observed:
   display bars. Replay-owned viewport demand handling may grow `displayBars`.
 - Replacing chart data on every native mousemove, wheel, drag, or crosshair
   event.
+- Triggering replay display-window loads for every native visible-range event
+  while the user is actively dragging.
+- Including high-frequency visible range details in viewport demand identity
+  when they do not materially change the bounded load window.
+- Re-rendering chart data for cached or duplicate display windows whose merged
+  display bars have not changed.
 - Duplicating Lightweight Charts native wheel zoom, pressed mouse pan,
   price-axis scaling, or crosshair move behavior in V5 shell code.
 - Compressing the Lightweight chart engine surface through fallback-only canvas

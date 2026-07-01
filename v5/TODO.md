@@ -1957,3 +1957,73 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 404 - V5 Viewport Demand Drag Smoothness Plan
+
+Status: planned, documentation only. No code changes in this step.
+
+Goal: reduce left-drag chart stutter by decoupling native chart drag frames from
+history-demand loading and full chart data replacement.
+
+Investigation summary:
+
+- Lightweight native visible-range events fire at drag-frame frequency.
+- Chart runtime currently observes those events immediately, records manual
+  range state, computes viewport demand, and emits `chart:viewportDemand`.
+- The replay viewport demand bridge consumes each emitted demand immediately.
+- Demand identity includes high-frequency range details such as `from`, `to`,
+  and `suggestedCount`, so tiny drag movements can produce distinct demand keys.
+- Replay runtime loads/merges bounded display windows and calls chart
+  `replaceBars`; the Lightweight adapter then calls `series.setData`.
+- When dragging left near the loaded-history boundary, these effects can happen
+  while the pointer is still moving, causing visible stutter and uneven new
+  K-line appearance.
+
+Decision:
+
+- Native drag should remain visually owned by Lightweight Charts during pointer
+  movement.
+- Chart runtime should still record manual visible range promptly, but viewport
+  demand consumption must be settled/throttled rather than handled per drag
+  frame.
+- Viewport demand keys should be stable at the load-window level, not at every
+  visible-range pixel/second change.
+- Cached or duplicate display windows must not cause unnecessary chart
+  `setData()` calls when the merged display bars are unchanged.
+
+Planned implementation outline:
+
+- [ ] Step 404.1: Add a small debounce or animation-frame coalescing layer to
+  viewport demand consumption. Target 120-180ms after the latest native range
+  change, or a trailing call when drag settles.
+- [ ] Step 404.2: Reduce viewport demand bridge identity to stable load-window
+  fields: session, instrument, display timeframe, direction, anchor, and
+  normalized count. Do not include high-frequency `visibleFrom`/`visibleTo`
+  unless they materially change the load window.
+- [ ] Step 404.3: Keep chart manual range updates immediate, but avoid
+  replay/bar-data loads during every native visible-range event.
+- [ ] Step 404.4: Add replay/chart runtime guard so an already-loaded display
+  window or unchanged merged display bars does not trigger another
+  `chart.replaceBars` / Lightweight `setData`.
+- [ ] Step 404.5: Add instrumentation or browser smoke that simulates left drag
+  near the loaded boundary and asserts bounded demand/load/render counts.
+- [ ] Step 404.6: Preserve no-future display, right-edge clamp, manual anchor,
+  and prefix/display cache ownership boundaries.
+
+Success criteria:
+
+- Left drag remains native and responsive while the pointer is moving.
+- Older bars load after demand settles or in coarse batches, not for every
+  native range event.
+- Repeated cached demand does not repeatedly call `series.setData`.
+- Replay runtime remains the only owner of display history growth.
+- Bar data runtime remains the only owner of bounded bar requests and cache.
+
+Suggested checks for the implementation step:
+
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
+- new/updated browser diagnostic for left-drag demand coalescing
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
