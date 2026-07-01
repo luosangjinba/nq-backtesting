@@ -145,6 +145,14 @@ function computeLoadedCoverage(bars) {
   };
 }
 
+function dataCoverageExpands(previousBars, nextBars) {
+  const previousCoverage = computeLoadedCoverage(previousBars);
+  const nextCoverage = computeLoadedCoverage(nextBars);
+  if (!nextCoverage) return false;
+  if (!previousCoverage) return true;
+  return nextCoverage.from < previousCoverage.from || nextCoverage.to > previousCoverage.to;
+}
+
 function normalizeLoadedCoverage(coverage) {
   if (!coverage || typeof coverage !== 'object') return null;
   const from = timestampSeconds(coverage.from, 'chart loaded coverage from');
@@ -486,11 +494,31 @@ export function createChartRuntime() {
     };
   }
 
-  function syncChartHost(host, { deferDuringNativeInteraction = true } = {}) {
+  function syncChartHost(host, {
+    allowDataDuringNativeInteraction = false,
+    deferDuringNativeInteraction = true,
+  } = {}) {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
     if (deferDuringNativeInteraction && state.nativeInteraction.active) {
       pendingChartSyncAfterNativeInteraction = true;
+      if (allowDataDuringNativeInteraction) {
+        const renderedBars = computeRenderedBars(state);
+        applyingRuntimeVisibleRange = true;
+        try {
+          adapter.setPresentation(state.displayContext);
+          adapter.setBars(renderedBars, {
+            fullBarCount: state.bars.length,
+            displayContext: state.displayContext,
+            metadata: buildChartMetadata(renderedBars),
+            followViewport: false,
+            preserveNativeViewport: true,
+          });
+        } finally {
+          applyingRuntimeVisibleRange = false;
+        }
+        return;
+      }
       adapter.setMetadata?.(buildChartMetadata());
       return;
     }
@@ -583,10 +611,11 @@ export function createChartRuntime() {
   }
 
   function updateBars(nextBars) {
+    const allowDataDuringNativeInteraction = dataCoverageExpands(state.bars, nextBars);
     state.bars = nextBars;
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
-    rerenderMountedHosts();
+    rerenderMountedHosts({ allowDataDuringNativeInteraction });
     emit(CHART_EVENTS.BARS_CHANGED, { bars: [...state.bars] });
     return { bars: [...state.bars] };
   }

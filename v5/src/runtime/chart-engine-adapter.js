@@ -220,6 +220,12 @@ function followLogicalRangeForBars(bars, context) {
   };
 }
 
+function countPrependedBars(previousBars, nextBars) {
+  if (!previousBars.length || !nextBars.length) return 0;
+  const previousFirst = timestampSeconds(previousBars[0].time, 'chart previous first bar time');
+  return nextBars.filter((bar) => timestampSeconds(bar.time, 'chart next bar time') < previousFirst).length;
+}
+
 function estimateRenderedBarSpacingSeconds(bars) {
   const timestamps = bars
     .map((bar) => timestampSeconds(bar.time, 'chart engine visible range bar time'))
@@ -805,6 +811,12 @@ function createLightweightInstance({ engine, documentRef }) {
       }
     },
     setBars(nextBars = [], options = {}) {
+      const previousBars = bars;
+      const previousLogicalRange = options.preserveNativeViewport
+        && typeof chart?.timeScale?.().getVisibleLogicalRange === 'function'
+        ? chart.timeScale().getVisibleLogicalRange()
+        : null;
+      const prependedCount = previousLogicalRange ? countPrependedBars(previousBars, nextBars) : 0;
       bars = [...nextBars];
       fullBarCount = Number(options.fullBarCount ?? bars.length);
       if (options.displayContext) {
@@ -824,7 +836,20 @@ function createLightweightInstance({ engine, documentRef }) {
         renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
       }
       applySeriesPriceScale(displayContext);
+      if (options.preserveNativeViewport) {
+        suppressRuntimeVisibleRangeEcho = true;
+      }
       series?.setData(bars.map(toEngineBar));
+      if (previousLogicalRange && prependedCount > 0 && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
+        const preservedRange = {
+          from: Number(previousLogicalRange.from) + prependedCount,
+          to: Number(previousLogicalRange.to) + prependedCount,
+        };
+        if (Number.isFinite(preservedRange.from) && Number.isFinite(preservedRange.to)) {
+          suppressRuntimeVisibleRangeEcho = true;
+          chart.timeScale().setVisibleLogicalRange(preservedRange);
+        }
+      }
       if (options.followViewport) {
         const logicalRange = followLogicalRangeForBars(bars, displayContext);
         if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {

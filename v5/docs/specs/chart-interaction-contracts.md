@@ -32,6 +32,10 @@ Lightweight Charts is actively processing a pointer drag.
 Step 406 clarifies sparse-market left drag behavior: replay display loading may
 seek across empty bounded windows when the user drags materially earlier than
 the current loaded display coverage.
+Step 407 refines active native drag writeback: coverage-expanding chart data
+replacement may render during drag, while runtime visible-range writeback
+remains blocked until drag settles. The chart adapter may do a native viewport
+preservation compensation around prepended data.
 
 In scope:
 
@@ -99,9 +103,16 @@ Out of scope:
   debounced so left-drag movement does not trigger a bounded bar load for every
   pointer frame.
 - Native pointer drag is an active interaction phase. While it is active, V5 may
-  record manual visible range and emit demand, but must not write replacement
-  data or visible ranges back into the chart engine. Queued runtime chart syncs
-  should flush once the native interaction settles.
+  record manual visible range and emit demand, but must not write visible ranges
+  back into the chart engine. Queued runtime chart syncs should flush once the
+  native interaction settles.
+- Active native drag may render newly loaded chart data with `setData()` so
+  left-drag history appears before mouseup. The runtime should only use this
+  path for data coverage expansion.
+- Active `setData()` must suppress engine-generated visible-range echoes. When
+  bars are prepended, the adapter may apply a compensating logical range to
+  preserve the native viewport; this does not update runtime visible-range
+  state.
 - Viewport demand identity should be stable at the load-window level. Tiny
   visible-range differences during a drag must not create distinct load keys if
   they map to the same bounded history window.
