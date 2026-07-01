@@ -223,6 +223,7 @@ export function createChartReplayRoute() {
       let playbackPlaying = false;
       let playbackIntervalMs = 500;
       let terminalReason = '';
+      let revealedCount = 0;
       let displayTimeframe = null;
       let replayIntervalTimeframe = null;
       let displayTimezone = 'Exchange';
@@ -270,11 +271,12 @@ export function createChartReplayRoute() {
         if (playbackPlaying && Number(playback?.intervalMs) > 0) {
           playbackIntervalMs = Number(playback.intervalMs);
         }
+        revealedCount = Number(state?.revealedCount || 0);
         terminalReason = playback?.stoppedReason || terminalReason;
         startLabel.textContent = formatReplayTimestamp(state?.startBarTimestamp);
         cursorLabel.textContent = formatReplayTimestamp(state?.cursorTimestamp);
         endLabel.textContent = formatReplayTimestamp(state?.session?.sessionEnd);
-        revealedCountLabel.textContent = String(state?.revealedCount || 0);
+        revealedCountLabel.textContent = String(revealedCount);
         playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
         stateLabel.textContent = terminalReason || state?.status || 'Idle';
         refreshStatusLineValues(state);
@@ -331,7 +333,7 @@ export function createChartReplayRoute() {
         pauseButton.disabled = unavailable || !playbackPlaying;
         resetButton.disabled = unavailable;
         replayTruncateButton.disabled = true;
-        replayPreviousButton.disabled = true;
+        replayPreviousButton.disabled = unavailable || revealedCount <= 0;
         replaySpeedInput.disabled = unavailable;
         replayIntervalSelect.disabled = true;
         replaySyncIntervalInput.disabled = true;
@@ -512,6 +514,18 @@ export function createChartReplayRoute() {
         status.textContent = state.advanced
           ? `Loaded ${state.displayBars.length} bars.`
           : `Replay stopped: ${state.reason || 'no next bar'}.`;
+        await refreshReplayStatus();
+      });
+
+      replayPreviousButton.addEventListener('click', async () => {
+        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PREVIOUS, {
+          sessionId: params.sessionId,
+        }));
+        if (!state) return;
+        terminalReason = state.rewound ? '' : state.reason || 'stopped';
+        status.textContent = state.rewound
+          ? `Rewound to ${formatReplayTimestamp(state.cursorTimestamp)}.`
+          : `Replay stopped: ${state.reason || 'no previous bar'}.`;
         await refreshReplayStatus();
       });
 
@@ -749,6 +763,7 @@ export function createChartReplayRoute() {
       [
         REPLAY_EVENTS.INITIAL_LOADED,
         REPLAY_EVENTS.NEXT,
+        REPLAY_EVENTS.PREVIOUS,
         REPLAY_EVENTS.RESET,
         REPLAY_EVENTS.PLAYBACK_CHANGED,
         REPLAY_EVENTS.DISPLAY_TIMEFRAME_CHANGED,

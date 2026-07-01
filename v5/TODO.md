@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 397 is complete.
-- Next candidate: after Step 397, continue transport runtime semantics for
-  previous-bar stepping, selected-bar truncation, and active chart interval
+- Current status: Step 398 is complete.
+- Next candidate: after Step 398, continue transport runtime semantics for
+  selected-bar truncation and active chart interval
   sync, or decide whether Layout needs a dedicated planning step before
   implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -1639,5 +1639,48 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 398 - V5 Replay Previous Bar Runtime
+
+Goal: implement the `<|` previous-bar transport action as the inverse of
+`Next` for already revealed replay bars.
+
+This step advances Historical Replay Review by replacing another disabled
+transport placeholder with real replay runtime behavior. It is a replay runtime
+and UI wiring step, not a bar-loading expansion, chart-engine interaction
+change, Layout split-pane, selected-bar truncation, drawing, order, or journal
+step.
+
+- [x] Step 398.1: Add `replay.previous` command/event contracts and Step 398
+  TODO/session plan.
+- [x] Step 398.2: Implement replay runtime previous behavior using already
+  revealed replay bars; start-bar state returns a no-op reason.
+- [x] Step 398.3: Persist the rewound cursor/revealed count and pause playback
+  before rewinding.
+- [x] Step 398.4: Enable `data-replay-previous` only when `revealedCount > 0`
+  and wire it through the command bus.
+- [x] Step 398.5: Add runtime and browser smoke coverage for Next then
+  Previous, start-bar no-op/disabled, no bar requests, and continued
+  Next/Play usability.
+- [x] Step 398.6: Run targeted replay smokes, full V5 smoke, and `git
+  diff --check` before commit.
+
+Manual acceptance:
+
+- `<|` is disabled at the start bar and enabled after at least one revealed bar.
+- Clicking `<|` after Next rewinds one revealed bar and updates cursor,
+  revealed count, chart bars, footer labels, and persisted session cursor.
+- Previous pauses playback before rewinding.
+- Previous does not request new bars and does not reveal future bars.
+- Selected-bar truncation and active chart interval sync remain deferred.
+
+Checks:
+
+- `node v5/tests/replay-previous-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-restore-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

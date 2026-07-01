@@ -8,6 +8,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   LOAD_DISPLAY_WINDOW: 'replay.loadDisplayWindow',
   APPLY_PREFIX_RETENTION: 'replay.applyPrefixRetention',
   NEXT: 'replay.next',
+  PREVIOUS: 'replay.previous',
   PLAY: 'replay.play',
   PAUSE: 'replay.pause',
   RESET: 'replay.reset',
@@ -25,6 +26,7 @@ export const REPLAY_EVENTS = Object.freeze({
   DISPLAY_RELOADED: 'replay:displayReloaded',
   INITIAL_LOADED: 'replay:initialLoaded',
   NEXT: 'replay:next',
+  PREVIOUS: 'replay:previous',
   RESET: 'replay:reset',
   PLAYBACK_CHANGED: 'replay:playbackChanged',
 });

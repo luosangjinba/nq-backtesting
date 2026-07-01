@@ -126,6 +126,7 @@ async function main() {
             state,
             playback,
             nextDisabled: document.querySelector('[data-replay-next]')?.disabled,
+            previousDisabled: document.querySelector('[data-replay-previous]')?.disabled,
             playDisabled: document.querySelector('[data-replay-play]')?.disabled,
             pauseDisabled: document.querySelector('[data-replay-pause]')?.disabled,
             statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
@@ -154,13 +155,32 @@ async function main() {
           });
           const initialState = await commands.dispatchCommand('replay.getState');
           const initialCount = initialState.displayBars.length;
+          const previousInitiallyDisabled = document.querySelector('[data-replay-previous]')?.disabled === true;
 
           document.querySelector('[data-replay-next]').click();
           await waitFor('next advanced', async () => {
             const state = await commands.dispatchCommand('replay.getState');
-            return state.displayBars.length === initialCount + 1;
+            return state.displayBars.length === initialCount + 1
+              && document.querySelector('[data-replay-previous]')?.disabled === false;
           });
           const afterNext = await commands.dispatchCommand('replay.getState');
+
+          document.querySelector('[data-replay-previous]').click();
+          await waitFor('previous rewound', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.displayBars.length === initialCount
+              && state.cursorTimestamp === initialState.cursorTimestamp
+              && state.revealedCount === 0
+              && document.querySelector('[data-replay-previous]')?.disabled === true;
+          });
+          const afterPrevious = await commands.dispatchCommand('replay.getState');
+
+          document.querySelector('[data-replay-next]').click();
+          await waitFor('next advanced after previous', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.displayBars.length === initialCount + 1;
+          });
+          const afterNextAgain = await commands.dispatchCommand('replay.getState');
 
           document.querySelector('[data-replay-play]').click();
           await waitFor('playback started', async () => {
@@ -169,7 +189,7 @@ async function main() {
           });
           await waitFor('play advanced', async () => {
             const state = await commands.dispatchCommand('replay.getState');
-            return state.displayBars.length >= afterNext.displayBars.length + 1;
+            return state.displayBars.length >= afterNextAgain.displayBars.length + 1;
           }, 4000);
           const duringPlay = await commands.dispatchCommand('replay.getState');
 
@@ -242,13 +262,19 @@ async function main() {
           const listenerCountsAfterNavigate = {
             initialLoaded: events.listenerCount('replay:initialLoaded'),
             next: events.listenerCount('replay:next'),
+            previous: events.listenerCount('replay:previous'),
             playbackChanged: events.listenerCount('replay:playbackChanged'),
           };
 
           return JSON.stringify({
             error: '',
             initialCount,
+            previousInitiallyDisabled,
             afterNextCount: afterNext.displayBars.length,
+            afterPreviousCount: afterPrevious.displayBars.length,
+            afterPreviousCursor: afterPrevious.cursorTimestamp,
+            afterPreviousRevealedCount: afterPrevious.revealedCount,
+            afterNextAgainCount: afterNextAgain.displayBars.length,
             duringPlayCount: duringPlay.displayBars.length,
             pausedCount: paused.displayBars.length,
             afterPauseWaitCount: afterPauseWait.displayBars.length,
@@ -279,7 +305,12 @@ async function main() {
     `));
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
+    assert.equal(value.previousInitiallyDisabled, true);
     assert.equal(value.afterNextCount, value.initialCount + 1);
+    assert.equal(value.afterPreviousCount, value.initialCount);
+    assert.equal(value.afterPreviousCursor, '2026-06-01T09:30:00.000Z');
+    assert.equal(value.afterPreviousRevealedCount, 0);
+    assert.equal(value.afterNextAgainCount, value.initialCount + 1);
     assert.ok(value.duringPlayCount > value.afterNextCount, 'Play should advance replay');
     assert.equal(value.afterPauseWaitCount, value.pausedCount, 'Pause should stop replay advancement');
     assert.equal(value.fullChartCount, value.afterPauseWaitCount);
@@ -292,6 +323,7 @@ async function main() {
     assert.deepEqual(value.listenerCountsAfterNavigate, {
       initialLoaded: 0,
       next: 0,
+      previous: 0,
       playbackChanged: 0,
     });
     assert.equal(value.cursorText, '2026-06-01 09:40');

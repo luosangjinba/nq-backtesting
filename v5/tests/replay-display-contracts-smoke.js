@@ -23,5 +23,7 @@ assert.equal(REPLAY_EVENTS.DISPLAY_RELOADED, 'replay:displayReloaded');
 
 assert.equal(REPLAY_COMMANDS.NEXT, 'replay.next');
 assert.equal(REPLAY_EVENTS.NEXT, 'replay:next');
+assert.equal(REPLAY_COMMANDS.PREVIOUS, 'replay.previous');
+assert.equal(REPLAY_EVENTS.PREVIOUS, 'replay:previous');
 
 console.log('v5 replay display contracts smoke passed');

@@ -838,6 +838,101 @@ export function createReplayRuntime() {
     return result;
   }
 
+  async function previous({ sessionId = state.sessionId } = {}) {
+    if (!sessionId) {
+      throw new Error('replay sessionId is required.');
+    }
+    pause();
+    if (state.sessionId !== sessionId || state.status === 'idle') {
+      await loadInitialSession({ sessionId });
+    }
+    if (!state.displayBars.length || !state.cursorTimestamp) {
+      throw new Error('replay initial session must be loaded before Previous.');
+    }
+    if (!state.revealedCount || state.revealedCount <= 0) {
+      return {
+        ...clone(state),
+        rewound: false,
+        reason: 'start-bar',
+      };
+    }
+
+    const normalizedDisplayTimeframe = normalizeTimeframe(
+      state.displayTimeframe || state.session.timeframe,
+      'display timeframe'
+    );
+    const normalizedReplayTimeframe = normalizeTimeframe(
+      state.replayTimeframe || state.session.timeframe,
+      'replay timeframe'
+    );
+    const cursorTimestamp = timestampSeconds(state.cursorTimestamp);
+    const replayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
+      ? state.displayBars
+        .filter((bar) => Number(bar?.timestamp) <= cursorTimestamp)
+        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp))
+      : [];
+    const currentBarIndex = replayBars.findIndex((bar) => Number(bar?.timestamp) === cursorTimestamp);
+    const previousCursorTimestamp = cursorTimestamp - timeframeSeconds(normalizedReplayTimeframe);
+    const previousCursorBar = normalizedDisplayTimeframe === normalizedReplayTimeframe
+      ? currentBarIndex > 0
+        ? replayBars[currentBarIndex - 1]
+        : null
+      : {
+        timestamp: previousCursorTimestamp,
+        time: isoFromTimestamp(previousCursorTimestamp),
+      };
+    if (!previousCursorBar) {
+      return {
+        ...clone(state),
+        rewound: false,
+        reason: 'previous-bar-unavailable',
+      };
+    }
+
+    const revealedCount = Math.max(0, state.revealedCount - 1);
+    const persisted = await persistReplayCursor({
+      cursorTimestamp: previousCursorBar.time,
+      revealedCount,
+    });
+    let displayBars = state.displayBars;
+    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      displayBars = filterDisplayBarsForCursor(state.displayBars, {
+        cursorTimestamp: previousCursorBar.time,
+        displayTimeframe: normalizedDisplayTimeframe,
+        replayTimeframe: normalizedReplayTimeframe,
+      });
+      assertNoDisplayBarsAfter(displayBars, previousCursorBar.time);
+      await renderDisplayBars(displayBars, previousCursorBar.time);
+      await syncChartRightEdgeLimit(previousCursorBar.time);
+    }
+
+    state = {
+      ...state,
+      persistedCursor: clone(persisted.cursor),
+      cursorTimestamp: previousCursorBar.time,
+      revealedCount,
+      displayBarsTimeframe: normalizedDisplayTimeframe,
+      displayBars: clone(displayBars),
+      status: revealedCount > 0 ? 'replay-ready' : 'initial-loaded',
+    };
+    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
+      await syncChartRightEdgeLimit(previousCursorBar.time);
+      await projectDisplayForCursor({
+        sessionId,
+        displayTimeframe: normalizedDisplayTimeframe,
+        cursorTimestamp: previousCursorBar.time,
+      });
+      displayBars = state.displayBars;
+    }
+    const result = {
+      ...clone(state),
+      rewound: true,
+      cursorBar: clone(previousCursorBar),
+    };
+    emit(REPLAY_EVENTS.PREVIOUS, result);
+    return result;
+  }
+
   async function reset({ sessionId = state.sessionId } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -974,6 +1069,7 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, (payload) => loadDisplayWindow(payload)),
       registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => applyPrefixRetention(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
+      registerCommand(REPLAY_COMMANDS.PREVIOUS, (payload) => previous(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
       registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => pause(payload)),
       registerCommand(REPLAY_COMMANDS.RESET, (payload) => reset(payload)),
