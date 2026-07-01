@@ -10,6 +10,7 @@ export { REPLAY_COMMANDS, REPLAY_EVENTS };
 const DEFAULT_PREFIX_BARS = 119;
 const MAX_PREFIX_BARS = 499;
 const PREFIX_RETENTION_VISIBLE_SPANS = 2;
+const MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS = 6;
 
 function emptyState() {
   return {
@@ -138,6 +139,38 @@ function displayBarsEqual(leftBars = [], rightBars = []) {
       && Number(left?.low) === Number(right?.low)
       && Number(left?.close) === Number(right?.close);
   });
+}
+
+function earliestBarTimestamp(bars = []) {
+  const timestamps = bars
+    .map((bar) => Number(bar?.timestamp))
+    .filter(Number.isFinite);
+  return timestamps.length ? Math.min(...timestamps) : null;
+}
+
+function previousWindowAnchor(window = {}, timeframe) {
+  const startTimestamp = timestampSeconds(window.start);
+  const seconds = timeframeSeconds(timeframe);
+  return isoFromTimestamp(Math.floor((startTimestamp - seconds) / seconds) * seconds);
+}
+
+function shouldSeekEarlierDisplayWindow({
+  direction,
+  attempt,
+  displayTimeframe,
+  missingWindow,
+  currentEarliestTimestamp,
+  windowDisplayBars,
+} = {}) {
+  if (direction !== 'backward') return false;
+  if (attempt >= MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS - 1) return false;
+  if (!Number.isFinite(currentEarliestTimestamp)) return false;
+  const requestedFrom = Number(missingWindow?.from);
+  if (!Number.isFinite(requestedFrom)) return false;
+  const seekThreshold = timeframeSeconds(displayTimeframe) * 2;
+  if (requestedFrom >= currentEarliestTimestamp - seekThreshold) return false;
+  const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
+  return !Number.isFinite(nextEarliestTimestamp) || nextEarliestTimestamp >= currentEarliestTimestamp;
 }
 
 export function computePrefixBarCount(metrics = {}) {
@@ -536,23 +569,56 @@ export function createReplayRuntime() {
 
     loadingDisplayWindowKeys.add(demandKey);
     try {
-      const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
-        instrument: state.session.instrument,
-        timeframe: normalizedDisplayTimeframe,
-        anchor: normalizedAnchor,
-        direction: normalizedDirection,
-        count: normalizedCount,
-      });
       const displayContext = {
         cursorTimestamp: state.cursorTimestamp,
         displayTimeframe: normalizedDisplayTimeframe,
         replayTimeframe: state.replayTimeframe || state.session.timeframe,
       };
-      const windowDisplayBars = filterDisplayBarsForCursor(window.bars, displayContext);
       const shouldMergeDisplayBars = state.displayBarsTimeframe === normalizedDisplayTimeframe;
-      const displayBars = shouldMergeDisplayBars
-        ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
-        : windowDisplayBars;
+      const currentEarliestTimestamp = earliestBarTimestamp(state.displayBars);
+      const displayWindowAttempts = [];
+      let nextAnchor = normalizedAnchor;
+      let window = null;
+      let windowDisplayBars = [];
+      let displayBars = state.displayBars;
+
+      for (let attempt = 0; attempt < MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS; attempt += 1) {
+        window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+          instrument: state.session.instrument,
+          timeframe: normalizedDisplayTimeframe,
+          anchor: nextAnchor,
+          direction: normalizedDirection,
+          count: normalizedCount,
+        });
+        windowDisplayBars = filterDisplayBarsForCursor(window.bars, displayContext);
+        displayBars = shouldMergeDisplayBars
+          ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
+          : windowDisplayBars;
+        const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
+        displayWindowAttempts.push({
+          key: window.key,
+          start: window.start,
+          end: window.end,
+          anchor: window.anchor,
+          cached: Boolean(window.cached),
+          barCount: window.bars.length,
+          displayBarCount: windowDisplayBars.length,
+          earliestTimestamp: Number.isFinite(nextEarliestTimestamp) ? nextEarliestTimestamp : null,
+        });
+
+        if (!shouldSeekEarlierDisplayWindow({
+          direction: normalizedDirection,
+          attempt,
+          displayTimeframe: normalizedDisplayTimeframe,
+          missingWindow,
+          currentEarliestTimestamp,
+          windowDisplayBars,
+        })) {
+          break;
+        }
+        nextAnchor = previousWindowAnchor(window, normalizedDisplayTimeframe);
+      }
+
       const displayBarsChanged = !displayBarsEqual(state.displayBars, displayBars);
       if (displayBarsChanged) {
         await renderDisplayBars(displayBars, state.cursorTimestamp);
@@ -584,6 +650,8 @@ export function createReplayRuntime() {
           estimatedBars: window.estimatedBars,
           cached: Boolean(window.cached),
           rendered: displayBarsChanged,
+          attempts: displayWindowAttempts,
+          seekAttempts: Math.max(0, displayWindowAttempts.length - 1),
         },
       };
       emit(REPLAY_EVENTS.DISPLAY_WINDOW_LOADED, result);

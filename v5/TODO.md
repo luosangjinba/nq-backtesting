@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 405 is complete. Runtime chart writes are deferred while
-  Lightweight Charts native drag is active, then flushed once the interaction
-  settles.
-- Next candidate: after Step 405, manually verify drag fidelity on the live V5
-  page, then either tune drag-settle thresholds or continue single-pane setup/UI
-  completion before layout split panes.
+- Current status: Step 406 is complete. Backward display-window loading can seek
+  across sparse/empty market windows, and display-window attempts are recorded
+  for diagnostics.
+- Next candidate: manually re-test 1m left drag across the Sunday open boundary.
+  If fast-drag pointer drift remains, add a browser diagnostic that records
+  pointer pixel deltas against Lightweight logical-range deltas.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2088,5 +2088,67 @@ Checks:
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 406 - V5 Sparse Backward Display Seek
+
+Status: completed.
+
+Goal: let replay display-window loading continue left across sparse market gaps
+such as futures weekend/closed-session windows instead of stopping at the first
+empty or duplicate boundary.
+
+Problem:
+
+- On 1m NQ data, dragging left could stop around Sunday 18:00 even when the
+  replay session spans multiple later days.
+- A backward load from that boundary can request a bounded time window that
+  contains no earlier trading bars, or only bars already present.
+- Without another seek, `loadedCoverage.from` does not move left, so viewport
+  demand keeps anchoring at the same boundary.
+- Fast drag still has a small pointer/content drift, but after Step 405 that is
+  a separate diagnostic problem rather than a runtime writeback interruption.
+
+Decision:
+
+- Bar-data runtime still owns only one bounded window request at a time.
+- Replay runtime owns the higher-level sparse display seek: when a backward
+  display request clearly targets earlier than the current earliest bar, and
+  the returned window adds no older display bars, replay runtime may request the
+  next earlier bounded window.
+- Sparse seek must be capped to avoid unbounded API loops.
+- Results should expose display-window attempts for diagnostics.
+
+Implementation:
+
+- [x] Step 406.1: Add replay-runtime helpers for earliest display timestamp,
+  previous bounded-window anchor, and sparse backward seek eligibility.
+- [x] Step 406.2: Change `loadDisplayWindow()` to attempt up to six backward
+  windows when the first window adds no older display bars and the requested
+  viewport is materially earlier.
+- [x] Step 406.3: Keep normal duplicate/cached window behavior unchanged for
+  small repeated requests near the current earliest bar.
+- [x] Step 406.4: Return `displayWindow.attempts` and `seekAttempts` for
+  debugging sparse/gap behavior.
+- [x] Step 406.5: Add runtime smoke coverage for sparse backward seek and add it
+  to full V5 smoke.
+- [x] Step 406.6: Update docs/session handoff and run targeted smokes, full V5
+  smoke, and `git diff --check`.
+
+Manual acceptance:
+
+- Dragging left across a futures closed/session gap can continue loading older
+  available bars instead of stopping at the gap boundary.
+- Replay runtime remains the only owner of display history growth.
+- Bar-data runtime remains the only owner of individual bounded bar requests.
+- No-future display and manual viewport anchor behavior remain intact.
+
+Checks:
+
+- `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

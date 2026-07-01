@@ -35,6 +35,7 @@ const commands = [
   ['node', ['v5/tests/replay-display-viewport-demand-smoke.js']],
   ['node', ['v5/tests/replay-display-viewport-demand-wiring-smoke.js']],
   ['node', ['v5/tests/replay-display-window-cache-smoke.js']],
+  ['node', ['v5/tests/replay-display-sparse-backward-seek-smoke.js']],
   ['node', ['v5/tests/replay-display-timeframe-smoke.js']],
   ['node', ['v5/tests/replay-display-timeframe-no-future-smoke.js']],
   ['node', ['v5/tests/display-timezone-browser-smoke.js']],

@@ -29,6 +29,9 @@ Step 404 plans the drag smoothness rule: native drag frames must not be coupled
 one-for-one to viewport demand loading or full chart data replacement.
 Step 405 hardens native drag fidelity: runtime chart writes must wait while
 Lightweight Charts is actively processing a pointer drag.
+Step 406 clarifies sparse-market left drag behavior: replay display loading may
+seek across empty bounded windows when the user drags materially earlier than
+the current loaded display coverage.
 
 In scope:
 
@@ -105,6 +108,12 @@ Out of scope:
 - Consuming cached or duplicate viewport demand must not call chart
   `replaceBars` / Lightweight `series.setData()` when merged display bars are
   unchanged.
+- Backward display-window loading may encounter sparse market gaps such as
+  futures weekends or closed-session periods. Replay runtime may request the
+  next earlier bounded display window when the current backward window adds no
+  older display bars and the requested viewport is materially earlier than the
+  current earliest display bar. This seek must stay capped and must keep
+  individual bar requests inside bar-data runtime.
 - Replay right-edge/no-future enforcement may correct a native visible range
   only when it exceeds the replay cursor boundary.
 - Lightweight mode must use `subscribeCrosshairMove` for crosshair readout and
