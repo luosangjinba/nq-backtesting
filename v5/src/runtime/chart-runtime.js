@@ -637,6 +637,12 @@ export function createChartRuntime() {
 
   function setViewportFollow(payload = {}) {
     const nextViewportFollow = normalizeViewportFollow(payload, state);
+    if (payload.resume) {
+      state.interaction = {
+        mode: 'follow',
+        manualVisibleRange: null,
+      };
+    }
     state.viewportFollow = state.interaction.mode === 'manual' && !payload.resume
       ? {
         ...nextViewportFollow,

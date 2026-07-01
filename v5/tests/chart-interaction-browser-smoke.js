@@ -264,14 +264,14 @@ async function main() {
 
           const requestCountBeforeNext = requests.length;
           document.querySelector('[data-replay-next]').click();
-          await waitFor('next keeps manual range', async () => {
+          await waitFor('next resumes replay follow', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             const chart = chartSnapshot();
             return state.cursorTimestamp === '2026-06-01T09:31:00.000Z'
-              && chart.mode === 'manual'
-              && chart.follow === 'false'
+              && chart.mode === 'follow'
+              && chart.follow === 'true'
               && chart.full === state.displayBars.length
-              && chart.titles.at(-1) === manualChart.titles.at(-1);
+              && chart.titles.at(-1)?.startsWith('2026-06-01 09:31');
           });
           const afterNext = await commands.dispatchCommand('replay.getState');
           const afterNextChart = chartSnapshot();
@@ -345,9 +345,8 @@ async function main() {
     assert.equal(value.manualMode, 'manual');
     assert.ok(value.manualRendered >= 1);
     assert.notEqual(value.manualLastTitle, '2026-06-01 09:30 O 300.00 H 301.00 L 299.00 C 300.50');
-    assert.equal(value.afterNextMode, 'manual');
-    assert.equal(value.afterNextFirstTitle, value.manualFirstTitle);
-    assert.equal(value.afterNextLastTitle, value.manualLastTitle);
+    assert.equal(value.afterNextMode, 'follow');
+    assert.ok(value.afterNextLastTitle.startsWith('2026-06-01 09:31'));
     assert.equal(value.resumedMode, 'follow');
     assert.match(value.resumedLastTitle, /^2026-06-01 09:31/);
     assert.equal(value.timeScaleBarSpacing, '10');

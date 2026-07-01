@@ -139,18 +139,11 @@ assert.ok(
 );
 
 const afterNextInteraction = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
-assert.equal(afterNextInteraction.interaction.mode, 'manual');
-assert.equal(afterNextInteraction.viewportFollow.enabled, false);
+assert.equal(afterNextInteraction.interaction.mode, 'follow');
+assert.equal(afterNextInteraction.viewportFollow.enabled, true);
 assert.equal(afterNextInteraction.fullBarCount, next.displayBars.length);
-assert.deepEqual(
-  afterNextInteraction.renderedBars.map((item) => item.time),
-  [
-    '2026-06-01T09:25:00.000Z',
-    '2026-06-01T09:26:00.000Z',
-    '2026-06-01T09:27:00.000Z',
-  ]
-);
-assert.equal(host.children[0].dataset.interactionMode, 'manual');
+assert.equal(afterNextInteraction.renderedBars.at(-1).time, '2026-06-01T09:31:00.000Z');
+assert.equal(host.children[0].dataset.interactionMode, 'follow');
 
 const resumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
 assert.equal(resumed.interaction.mode, 'follow');

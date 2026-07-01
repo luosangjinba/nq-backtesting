@@ -238,21 +238,26 @@ export function createReplayRuntime() {
     });
   }
 
-  async function syncChartViewportFollow(cursorTimestamp) {
+  async function syncChartViewportFollow(cursorTimestamp, { resume = false } = {}) {
     if (!hasCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW)) return null;
     const metrics = hasCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS)
       ? await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null)
       : null;
     return dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
       enabled: true,
+      resume,
       cursorTimestamp,
       estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
     });
   }
 
-  async function renderDisplayBars(displayBars, cursorTimestamp = state.cursorTimestamp) {
+  async function renderDisplayBars(
+    displayBars,
+    cursorTimestamp = state.cursorTimestamp,
+    { resumeViewportFollow = false } = {}
+  ) {
     await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
-    await syncChartViewportFollow(cursorTimestamp);
+    await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow });
   }
 
   async function persistReplayCursor({ cursorTimestamp, revealedCount }) {
@@ -411,7 +416,7 @@ export function createReplayRuntime() {
       ...persistedRevealBars,
     ];
     assertNoDisplayBarsAfter(displayBars, restoredCursorTimestamp);
-    await renderDisplayBars(displayBars, restoredCursorTimestamp);
+    await renderDisplayBars(displayBars, restoredCursorTimestamp, { resumeViewportFollow: true });
     await syncChartRightEdgeLimit(restoredCursorTimestamp);
     await syncChartDisplayContext({
       displayTimeframe: state.displayTimeframe || state.session.timeframe,
@@ -808,7 +813,7 @@ export function createReplayRuntime() {
       ]
       : state.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      await renderDisplayBars(displayBars, nextBar.time);
+      await renderDisplayBars(displayBars, nextBar.time, { resumeViewportFollow: true });
       await syncChartRightEdgeLimit(nextBar.time);
     }
 
@@ -902,7 +907,7 @@ export function createReplayRuntime() {
         replayTimeframe: normalizedReplayTimeframe,
       });
       assertNoDisplayBarsAfter(displayBars, previousCursorBar.time);
-      await renderDisplayBars(displayBars, previousCursorBar.time);
+      await renderDisplayBars(displayBars, previousCursorBar.time, { resumeViewportFollow: true });
       await syncChartRightEdgeLimit(previousCursorBar.time);
     }
 
@@ -1005,7 +1010,7 @@ export function createReplayRuntime() {
         replayTimeframe: normalizedReplayTimeframe,
       });
       assertNoDisplayBarsAfter(displayBars, selectedBar.time);
-      await renderDisplayBars(displayBars, selectedBar.time);
+      await renderDisplayBars(displayBars, selectedBar.time, { resumeViewportFollow: true });
       await syncChartRightEdgeLimit(selectedBar.time);
     }
 
@@ -1058,7 +1063,7 @@ export function createReplayRuntime() {
     ];
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       assertNoFutureDisplayBars(displayBars, state.startBar);
-      await renderDisplayBars(displayBars, state.startBar.time);
+      await renderDisplayBars(displayBars, state.startBar.time, { resumeViewportFollow: true });
       await syncChartRightEdgeLimit(state.startBar.time);
     }
 
