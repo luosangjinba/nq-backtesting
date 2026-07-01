@@ -161,6 +161,11 @@ async function main() {
           const beforeOhlcHidden = document.querySelector('[data-status-ohlc-row]')?.hidden;
           const beforeChartOhlcHidden = document.querySelector('[data-chart-ohlc-overlay]')?.hidden;
           const beforeChartOhlcText = document.querySelector('[data-chart-ohlc-overlay]')?.textContent?.replace(/\\s+/g, ' ').trim() || '';
+          const beforeChartOhlcPartCount = document.querySelectorAll('[data-chart-ohlc-legend] .chart-ohlc-part').length;
+          const beforeChartOhlcValueClasses = Array
+            .from(document.querySelectorAll('[data-chart-ohlc-legend] .chart-ohlc-value'))
+            .map((node) => node.className)
+            .join('|');
           const toolbarPresentationButtonCount = document.querySelector('[data-replay-workstation-toolbar]')
             ?.querySelectorAll('[data-display-timezone], [data-presentation-time-format], [data-presentation-toggle], [data-presentation-margin], [data-presentation-right-offset]')
             .length || 0;
@@ -170,10 +175,27 @@ async function main() {
           await waitFor('settings open', async () =>
             document.querySelector('[data-chart-settings-popover]')?.hidden === false
           );
-          document.querySelector('[data-presentation-time-format="12h"]').click();
-          document.querySelector('[data-presentation-toggle="showStatusOhlc"]').click();
-          document.querySelector('[data-presentation-margin="compact"]').click();
-          document.querySelector('[data-presentation-right-offset="16"]').click();
+          const tabCount = document.querySelectorAll('[data-chart-settings-tab]').length;
+          const sectionCount = document.querySelectorAll('[data-chart-settings-section]').length;
+          const timeFormatSelect = document.querySelector('select[data-presentation-time-format]');
+          timeFormatSelect.value = '12h';
+          timeFormatSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          document.querySelector('[data-chart-settings-tab="status"]').click();
+          const ohlcToggle = document.querySelector('[data-presentation-toggle="showStatusOhlc"]');
+          ohlcToggle.checked = false;
+          ohlcToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          document.querySelector('[data-chart-settings-tab="canvas"]').click();
+          const compactToggle = document.querySelector('[data-presentation-margin="compact"]');
+          compactToggle.checked = true;
+          compactToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          document.querySelector('[data-chart-settings-tab="scales"]').click();
+          const rightOffsetSelect = document.querySelector('select[data-presentation-right-offset]');
+          rightOffsetSelect.value = '16';
+          rightOffsetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          const beforeApplyCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
+          const beforeApplyChartOhlcHidden = document.querySelector('[data-chart-ohlc-overlay]')?.hidden;
+          const beforeApplyRightOffset = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset || '';
+          document.querySelector('[data-chart-settings-apply]').click();
 
           await waitFor('presentation applied', async () =>
             document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 9:30 AM'
@@ -198,12 +220,19 @@ async function main() {
             beforeChartOhlcHidden,
             afterChartOhlcHidden: document.querySelector('[data-chart-ohlc-overlay]')?.hidden,
             beforeChartOhlcText,
+            beforeChartOhlcPartCount,
+            beforeChartOhlcValueClasses,
             toolbarPresentationButtonCount,
             settingsInitiallyHidden,
             settingsOpen: document.querySelector('[data-chart-settings-popover]')?.hidden === false,
-            selected12h: document.querySelector('[data-presentation-time-format="12h"]')?.getAttribute('aria-pressed') || '',
-            compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.getAttribute('aria-pressed') || '',
-            rightOffsetSelected: document.querySelector('[data-presentation-right-offset="16"]')?.getAttribute('aria-pressed') || '',
+            tabCount,
+            sectionCount,
+            beforeApplyCursorLabel,
+            beforeApplyChartOhlcHidden,
+            beforeApplyRightOffset,
+            selected12h: document.querySelector('select[data-presentation-time-format]')?.value || '',
+            compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.checked,
+            rightOffsetSelected: document.querySelector('select[data-presentation-right-offset]')?.value || '',
             afterCanvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
             afterCanvasPaddingBottom: document.querySelector('[data-chart-canvas]')?.style.paddingBottom || '',
             afterCanvasPaddingRight: document.querySelector('[data-chart-canvas]')?.style.paddingRight || '',
@@ -232,13 +261,20 @@ async function main() {
     assert.equal(value.afterOhlcHidden, true);
     assert.equal(value.beforeChartOhlcHidden, false);
     assert.equal(value.afterChartOhlcHidden, true);
-    assert.match(value.beforeChartOhlcText, /^NQ 1m O /);
+    assert.match(value.beforeChartOhlcText, /^NQ 1m O/);
+    assert.equal(value.beforeChartOhlcPartCount, 4);
+    assert.match(value.beforeChartOhlcValueClasses, /is-up/);
     assert.equal(value.toolbarPresentationButtonCount, 0);
     assert.equal(value.settingsInitiallyHidden, true);
-    assert.equal(value.settingsOpen, true);
-    assert.equal(value.selected12h, 'true');
-    assert.equal(value.compactSelected, 'true');
-    assert.equal(value.rightOffsetSelected, 'true');
+    assert.equal(value.settingsOpen, false);
+    assert.equal(value.tabCount, 4);
+    assert.equal(value.sectionCount, 4);
+    assert.equal(value.beforeApplyCursorLabel, '2026-06-01 09:30');
+    assert.equal(value.beforeApplyChartOhlcHidden, false);
+    assert.equal(value.beforeApplyRightOffset, '10');
+    assert.equal(value.selected12h, '12h');
+    assert.equal(value.compactSelected, true);
+    assert.equal(value.rightOffsetSelected, '16');
     assert.equal(value.afterCanvasPaddingTop, '');
     assert.equal(value.afterCanvasPaddingBottom, '');
     assert.equal(value.afterCanvasPaddingRight, '');

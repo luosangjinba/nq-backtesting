@@ -131,7 +131,7 @@ async function main() {
             cursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             endLabel: document.querySelector('[data-replay-end]')?.textContent || '',
             candleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
-            selectedUtc: document.querySelector('[data-display-timezone="UTC"]')?.getAttribute('aria-pressed') || '',
+            selectedUtc: document.querySelector('select[data-display-timezone]')?.value || '',
           }));
         }
 
@@ -169,7 +169,11 @@ async function main() {
           await waitFor('settings open', async () =>
             document.querySelector('[data-chart-settings-popover]')?.hidden === false
           );
-          document.querySelector('[data-display-timezone="UTC"]').click();
+          const timezoneSelect = document.querySelector('select[data-display-timezone]');
+          timezoneSelect.value = 'UTC';
+          timezoneSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          const beforeApplyCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
+          document.querySelector('[data-chart-settings-apply]').click();
           await waitFor('utc label', async () =>
             document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 13:30'
               && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith('2026-06-01 13:30')
@@ -185,10 +189,11 @@ async function main() {
             toolbarTimezoneButtonCount,
             settingsInitiallyHidden,
             settingsOpen: document.querySelector('[data-chart-settings-popover]')?.hidden === false,
+            beforeApplyCursorLabel,
             afterCursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             afterEndLabel: document.querySelector('[data-replay-end]')?.textContent || '',
             afterCandleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
-            selectedUtc: document.querySelector('[data-display-timezone="UTC"]')?.getAttribute('aria-pressed') || '',
+            selectedUtc: document.querySelector('select[data-display-timezone]')?.value || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
             beforeDisplayCount: before.displayBars.length,
@@ -211,11 +216,12 @@ async function main() {
     assert.equal(value.afterEndLabel, '2026-06-01 13:40');
     assert.match(value.beforeCandleTitle, /^2026-06-01 09:30/);
     assert.match(value.afterCandleTitle, /^2026-06-01 13:30/);
-    assert.equal(value.selectedUtc, 'true');
+    assert.equal(value.beforeApplyCursorLabel, '2026-06-01 09:30');
+    assert.equal(value.selectedUtc, 'UTC');
     assert.equal(value.losAngelesButtonExists, false);
     assert.equal(value.toolbarTimezoneButtonCount, 0);
     assert.equal(value.settingsInitiallyHidden, true);
-    assert.equal(value.settingsOpen, true);
+    assert.equal(value.settingsOpen, false);
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

@@ -165,7 +165,10 @@ async function main() {
           await waitFor('settings open', async () =>
             document.querySelector('[data-chart-settings-popover]')?.hidden === false
           );
-          document.querySelector('[data-display-timezone="UTC"]').click();
+          const timezoneSelect = document.querySelector('select[data-display-timezone]');
+          timezoneSelect.value = 'UTC';
+          timezoneSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          document.querySelector('[data-chart-settings-apply]').click();
           await waitFor('utc display timezone', async () => {
             const timezone = await commands.dispatchCommand('displayTimezone.get');
             return timezone.displayTimezone === 'UTC';

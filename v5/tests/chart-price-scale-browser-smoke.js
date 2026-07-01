@@ -206,7 +206,11 @@ async function main() {
           await waitFor('settings open', async () =>
             document.querySelector('[data-chart-settings-popover]')?.hidden === false
           );
-          document.querySelector('[data-presentation-margin="compact"]').click();
+          document.querySelector('[data-chart-settings-tab="canvas"]').click();
+          const compactToggle = document.querySelector('[data-presentation-margin="compact"]');
+          compactToggle.checked = true;
+          compactToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          document.querySelector('[data-chart-settings-apply]').click();
           await waitFor('compact price scale applied', async () =>
             metrics.priceScaleApplyOptions.some((payload) =>
               payload?.scaleMargins?.top === 0.06 && payload?.scaleMargins?.bottom === 0.08

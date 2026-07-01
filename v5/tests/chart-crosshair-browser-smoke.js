@@ -226,10 +226,10 @@ async function main() {
           point: { x: ${setup.x}, y: ${setup.y} },
           seriesData: new Map([[window.__v5CrosshairMetrics.series, {
             time: Date.parse('2026-06-01T09:30:00.000Z') / 1000,
-            open: 300,
-            high: 301,
-            low: 299,
-            close: 300.5,
+            open: 777,
+            high: 779,
+            low: 776,
+            close: 778.5,
           }]]),
         });
 
@@ -250,9 +250,12 @@ async function main() {
           const commands = await import('/v5/src/runtime/commands.js');
           await waitFor('crosshair readout', async () => {
             const readout = document.querySelector('[data-crosshair-inspection-readout]')?.textContent || '';
-            return readout.includes('P ') && readout.includes('O ');
+            const chartOhlc = document.querySelector('[data-chart-ohlc-overlay]')?.textContent || '';
+            return readout.includes('P ') && readout.includes('O 777.00') && chartOhlc.includes('777.00');
           });
           const readout = document.querySelector('[data-crosshair-inspection-readout]')?.textContent || '';
+          const chartOhlcText = document.querySelector('[data-chart-ohlc-overlay]')?.textContent || '';
+          const chartOhlcPartCount = document.querySelectorAll('[data-chart-ohlc-legend] .chart-ohlc-part').length;
           const crosshair = await commands.dispatchCommand('chart.getCrosshairState');
           const state = await commands.dispatchCommand('replay.getState');
           const interaction = await commands.dispatchCommand('chart.getInteractionState');
@@ -260,7 +263,11 @@ async function main() {
           await waitFor('settings open', async () =>
             document.querySelector('[data-chart-settings-popover]')?.hidden === false
           );
-          document.querySelector('[data-presentation-toggle="showCrosshairReadout"]').click();
+          document.querySelector('[data-chart-settings-tab="status"]').click();
+          const crosshairToggle = document.querySelector('[data-presentation-toggle="showCrosshairReadout"]');
+          crosshairToggle.checked = false;
+          crosshairToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          document.querySelector('[data-chart-settings-apply]').click();
           await waitFor('crosshair hidden', async () =>
             document.querySelector('[data-crosshair-row]')?.hidden === true
               && document.querySelector('[data-crosshair-inspection-readout]')?.textContent === '--'
@@ -271,6 +278,8 @@ async function main() {
           return JSON.stringify({
             error: '',
             readout,
+            chartOhlcText,
+            chartOhlcPartCount,
             crosshairActive: crosshair.crosshair.active,
             crosshairTime: crosshair.crosshair.time,
             crosshairPrice: crosshair.crosshair.price,
@@ -296,7 +305,10 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.crosshairActive, true);
     assert.match(value.readout, /P \d+\.\d{2}/);
-    assert.match(value.readout, /O \d+/);
+    assert.match(value.readout, /O 777\.00/);
+    assert.match(value.chartOhlcText, /777\.00/);
+    assert.match(value.chartOhlcText, /778\.50/);
+    assert.equal(value.chartOhlcPartCount, 4);
     assert.ok(value.crosshairTime);
     assert.equal(value.cursor, setup.beforeCursor);
     assert.equal(value.afterCursor, setup.beforeCursor);

@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 414 is complete. The chart route heading/navigation
-  chrome is now compact and secondary to the chart surface, while session
-  navigation remains route-level UI.
+- Current status: Step 415 is complete. Chart Settings now uses an
+  FXReplay-style sectioned modal with Ok/Cancel draft semantics, and the chart
+  OHLC overlay now follows crosshair hover bars like V4.
 - Next candidate: continue single-pane polish before split panes, likely setup
-  route visual cleanup, chart settings surface refinement, or denser
-  FXReplay-style chart header alignment.
+  route visual cleanup, denser FXReplay-style chart header alignment, or
+  deeper chart settings options such as candle/grid/crosshair colors.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -41,6 +41,14 @@
   area, consistent with V4 and FX Replay. The footer/status band may still
   expose compact state, but the chart inspection/status line should be visible
   on the canvas and controlled by the same OHLC presentation setting.
+- UI decision: the chart OHLC overlay follows V4 hover semantics. When
+  crosshair hover identifies a bar, the top-left OHLC legend shows that bar;
+  otherwise it shows the latest replay display bar.
+- UI decision: Chart Settings should follow the FXReplay modal pattern: left
+  section navigation, right-side grouped settings, and bottom `Cancel` / `Ok`.
+  Edits inside the modal are draft route UI state until `Ok`; `Cancel`, close,
+  or backdrop dismiss must discard the draft without mutating presentation,
+  timezone, replay, chart, or bar-data runtime state.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2539,5 +2547,60 @@ Checks:
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-display-usability-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 415 - V5 FXReplay-Style Chart Settings Modal
+
+Status: completed.
+
+Goal: make Chart Settings behave like a formal FXReplay-style settings modal
+instead of a small immediate-apply popover, while improving the chart OHLC
+legend behavior.
+
+Problem:
+
+- Settings was visually too lightweight and did not match FXReplay's sectioned
+  settings dialog pattern.
+- Settings controls applied immediately, which made `Cancel` semantics
+  impossible and made future settings expansion risky.
+- The top-left OHLC overlay used the latest replay bar only; it did not show
+  the bar currently under the crosshair like V4.
+
+Implementation:
+
+- [x] Step 415.1: Convert Chart Settings to a modal with left-side sections:
+  `Symbol`, `Status line`, `Scales and lines`, and `Canvas`.
+- [x] Step 415.2: Keep only currently functional settings in the modal:
+  display timezone, time format, status line toggles, right offset, and compact
+  margins.
+- [x] Step 415.3: Add draft-state semantics so controls do not dispatch runtime
+  mutations until `Ok`; `Cancel`, close, and backdrop dismiss discard the draft.
+- [x] Step 415.4: Style the top-left OHLC overlay as a V4-like segmented legend
+  and show crosshair hover bar OHLC when available.
+- [x] Step 415.5: Update browser smokes for Settings draft/Ok behavior,
+  timezone, crosshair OHLC, and price-scale settings.
+- [x] Step 415.6: Update interaction contracts, TODO, and session handoff.
+
+Manual acceptance:
+
+- Settings opens as a centered modal with section navigation and bottom
+  `Cancel` / `Ok`.
+- Changing Settings controls does not affect chart labels, OHLC visibility, or
+  price scale margins until `Ok`.
+- `Cancel`/close/backdrop dismiss discard unsaved Settings edits.
+- The chart OHLC overlay displays crosshair bar OHLC while hovering and falls
+  back to the latest replay display bar otherwise.
+- Replay cursor, display bars, bar-data windows, chart runtime ownership, and
+  single-pane active pane identity are unchanged.
+
+Checks:
+
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

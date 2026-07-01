@@ -55,6 +55,9 @@ top-left read-only overlay, matching the FX Replay / V4 chart inspection
 pattern.
 Step 414 compresses the chart route chrome so route identity/navigation remains
 available without consuming workstation chart space.
+Step 415 upgrades chart settings to an FXReplay-style modal with left-side
+sections and Ok/Cancel draft semantics, and aligns the canvas OHLC overlay with
+V4 hover behavior.
 
 In scope:
 
@@ -188,8 +191,15 @@ Out of scope:
 - The current-bar OHLC readout should be visible in the chart canvas top-left
   area, not only in the footer/status band. It remains read-only route UI that
   uses replay display state and must not write chart series or mutate replay.
+- The chart OHLC overlay follows V4 legend behavior: when crosshair hover has a
+  bar, the overlay shows that hover bar's OHLC; otherwise it falls back to the
+  latest replay display bar. This overlay remains read-only route UI.
 - The visible chart route should not expose engineering shell labels as product
   UI.
+- Chart Settings should use a formal modal structure with left-side sections
+  such as Symbol, Status line, Scales and lines, and Canvas. Settings edits are
+  draft UI state until the user confirms with Ok; Cancel/close must discard the
+  draft without dispatching runtime mutation commands.
 - Route heading/navigation chrome should stay compact and secondary to the
   chart surface. Session navigation remains route-level UI, while TF, Go to,
   Layout, and Settings remain active-pane controls.

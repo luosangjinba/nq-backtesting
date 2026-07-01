@@ -7,7 +7,7 @@ import {
 } from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
-import { formatChange, formatInspectionReadout, formatOhlc } from '../../domain/chart-formatting.js';
+import { formatChange, formatInspectionReadout, formatOhlc, formatPrice } from '../../domain/chart-formatting.js';
 import {
   displayWallClockToCanonicalTimestamp,
   formatDisplayTimestamp,
@@ -66,45 +66,73 @@ export function createChartReplayRoute() {
           </div>
         </div>
         <div class="chart-settings-popover" data-chart-settings-popover hidden>
-          <div class="chart-settings-panel" role="dialog" aria-modal="false" aria-label="Chart settings">
+          <div class="chart-settings-panel" role="dialog" aria-modal="true" aria-label="Chart settings">
             <div class="chart-settings-header">
               <strong>Settings</strong>
-              <button type="button" data-chart-settings-close aria-label="Close settings">&times;</button>
+              <button type="button" data-chart-settings-cancel aria-label="Close settings">&times;</button>
             </div>
             <div class="chart-settings-body">
               <nav class="chart-settings-tabs" aria-label="Chart settings sections">
-                <span aria-current="true">Time</span>
-                <span>Status line</span>
-                <span>Canvas</span>
+                <button type="button" data-chart-settings-tab="symbol" aria-current="true">Symbol</button>
+                <button type="button" data-chart-settings-tab="status">Status line</button>
+                <button type="button" data-chart-settings-tab="scales">Scales and lines</button>
+                <button type="button" data-chart-settings-tab="canvas">Canvas</button>
               </nav>
               <div class="chart-settings-sections">
-                <section>
-                  <h3>Time</h3>
-                  <div class="display-timezone-controls" data-display-timezone-controls aria-label="Display timezone">
-                    <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
-                    <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
-                  </div>
-                  <div class="presentation-controls" data-presentation-time-controls aria-label="Time format">
-                    <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
-                    <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
-                  </div>
+                <section data-chart-settings-section="symbol">
+                  <h3>Data modification</h3>
+                  <label class="chart-settings-row">
+                    <span>Timezone</span>
+                    <select data-display-timezone>
+                      <option value="Exchange">Exchange</option>
+                      <option value="UTC">UTC</option>
+                    </select>
+                  </label>
+                  <label class="chart-settings-row">
+                    <span>Time hours format</span>
+                    <select data-presentation-time-format>
+                      <option value="24h">24-hours</option>
+                      <option value="12h">12-hours</option>
+                    </select>
+                  </label>
                 </section>
-                <section>
+                <section data-chart-settings-section="status" hidden>
                   <h3>Status line</h3>
-                  <div class="presentation-controls" data-presentation-status-controls aria-label="Status line">
-                    <button type="button" data-presentation-toggle="showStatusOhlc" aria-pressed="false">OHLC</button>
-                    <button type="button" data-presentation-toggle="showStatusChange" aria-pressed="false">Change</button>
-                    <button type="button" data-presentation-toggle="showCrosshairReadout" aria-pressed="false">Crosshair</button>
-                  </div>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showStatusOhlc">
+                    <span>Chart values</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showStatusChange">
+                    <span>Bar change values</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showCrosshairReadout">
+                    <span>Crosshair readout</span>
+                  </label>
                 </section>
-                <section>
-                  <h3>Canvas</h3>
-                  <div class="presentation-controls" data-presentation-canvas-controls aria-label="Canvas">
-                    <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
-                    <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
-                  </div>
+                <section data-chart-settings-section="scales" hidden>
+                  <h3>Time scale</h3>
+                  <label class="chart-settings-row">
+                    <span>Right offset</span>
+                    <select data-presentation-right-offset>
+                      <option value="10">10 bars</option>
+                      <option value="16">16 bars</option>
+                    </select>
+                  </label>
+                </section>
+                <section data-chart-settings-section="canvas" hidden>
+                  <h3>Margins</h3>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-margin="compact">
+                    <span>Compact chart margins</span>
+                  </label>
                 </section>
               </div>
+            </div>
+            <div class="chart-settings-footer">
+              <button type="button" data-chart-settings-cancel>Cancel</button>
+              <button type="button" data-chart-settings-apply>Ok</button>
             </div>
           </div>
         </div>
@@ -115,7 +143,7 @@ export function createChartReplayRoute() {
           <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
             <span data-chart-ohlc-symbol>NQ</span>
             <span data-chart-ohlc-timeframe>1m</span>
-            <strong data-chart-ohlc-value>--</strong>
+            <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
           </div>
           <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
           <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
@@ -217,7 +245,7 @@ export function createChartReplayRoute() {
       const chartOhlcOverlay = section.querySelector('[data-chart-ohlc-overlay]');
       const chartOhlcSymbol = section.querySelector('[data-chart-ohlc-symbol]');
       const chartOhlcTimeframe = section.querySelector('[data-chart-ohlc-timeframe]');
-      const chartOhlcValue = section.querySelector('[data-chart-ohlc-value]');
+      const chartOhlcLegend = section.querySelector('[data-chart-ohlc-legend]');
       const statusChangeLabel = section.querySelector('[data-status-change]');
       const crosshairRow = section.querySelector('[data-crosshair-row]');
       const crosshairReadoutLabel = section.querySelector('[data-crosshair-inspection-readout]');
@@ -240,11 +268,11 @@ export function createChartReplayRoute() {
       const replayIntervalSelect = section.querySelector('[data-replay-interval-select]');
       const replaySyncIntervalInput = section.querySelector('[data-replay-sync-interval]');
       const displayTimeframeSelect = section.querySelector('[data-display-timeframe-select]');
-      const displayTimezoneButtons = Array.from(section.querySelectorAll('[data-display-timezone]'));
-      const presentationTimeFormatButtons = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
-      const presentationToggleButtons = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
-      const presentationMarginButtons = Array.from(section.querySelectorAll('[data-presentation-margin]'));
-      const presentationRightOffsetButtons = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
+      const displayTimezoneControls = Array.from(section.querySelectorAll('[data-display-timezone]'));
+      const presentationTimeFormatControls = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
+      const presentationToggleControls = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
+      const presentationMarginControls = Array.from(section.querySelectorAll('[data-presentation-margin]'));
+      const presentationRightOffsetControls = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -254,7 +282,10 @@ export function createChartReplayRoute() {
       const jumpCursorPopoverButton = section.querySelector('[data-chart-jump-cursor-popover]');
       const chartSettingsPopover = section.querySelector('[data-chart-settings-popover]');
       const chartSettingsOpenButton = section.querySelector('[data-chart-settings-open]');
-      const chartSettingsCloseButton = section.querySelector('[data-chart-settings-close]');
+      const chartSettingsCancelButtons = Array.from(section.querySelectorAll('[data-chart-settings-cancel]'));
+      const chartSettingsApplyButton = section.querySelector('[data-chart-settings-apply]');
+      const chartSettingsTabButtons = Array.from(section.querySelectorAll('[data-chart-settings-tab]'));
+      const chartSettingsSections = Array.from(section.querySelectorAll('[data-chart-settings-section]'));
       const layoutOpenButton = section.querySelector('[data-layout-open]');
       const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
       const resetViewButton = section.querySelector('[data-chart-reset-view]');
@@ -285,6 +316,8 @@ export function createChartReplayRoute() {
         showCrosshairReadout: true,
       };
       let crosshairState = { active: false };
+      let lastReplayState = null;
+      let settingsDraft = null;
       const unsubscribeCallbacks = [];
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
@@ -363,24 +396,60 @@ export function createChartReplayRoute() {
         return `${minutes}m`;
       }
 
+      function createChartOhlcPart(label, value, className) {
+        const group = document.createElement('span');
+        group.className = 'chart-ohlc-part';
+        const labelEl = document.createElement('span');
+        labelEl.className = 'chart-ohlc-label';
+        labelEl.textContent = label;
+        const valueEl = document.createElement('span');
+        valueEl.className = `chart-ohlc-value ${className}`;
+        valueEl.textContent = formatPrice(value);
+        group.append(labelEl, valueEl);
+        return group;
+      }
+
+      function renderChartOhlcLegend(bar) {
+        chartOhlcLegend.replaceChildren();
+        if (!bar) {
+          chartOhlcLegend.textContent = '--';
+          return;
+        }
+        const className = Number(bar.close) >= Number(bar.open) ? 'is-up' : 'is-down';
+        chartOhlcLegend.append(
+          createChartOhlcPart('O', bar.open, className),
+          createChartOhlcPart('H', bar.high, className),
+          createChartOhlcPart('L', bar.low, className),
+          createChartOhlcPart('C', bar.close, className)
+        );
+      }
+
+      function refreshChartOhlcOverlay(state = lastReplayState) {
+        const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
+        const hoverBar = crosshairState?.active && crosshairState?.bar ? crosshairState.bar : null;
+        const displayBar = hoverBar || latest;
+        chartOhlcOverlay.hidden = !presentationSettings.showStatusOhlc || !displayBar;
+        renderChartOhlcLegend(displayBar);
+        chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
+        chartOhlcTimeframe.textContent = formatTimeframeLabel(
+          displayTimeframe || state?.displayTimeframe || state?.session?.timeframe || 1
+        );
+      }
+
       function refreshStatusLineValues(state) {
+        lastReplayState = state || null;
         const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
         statusOhlcRow.hidden = !presentationSettings.showStatusOhlc;
-        chartOhlcOverlay.hidden = !presentationSettings.showStatusOhlc || !latest;
         statusChangeRow.hidden = !presentationSettings.showStatusChange;
         if (!latest) {
           statusOhlcLabel.textContent = '--';
-          chartOhlcValue.textContent = '--';
+          refreshChartOhlcOverlay(state);
           statusChangeLabel.textContent = '--';
           return;
         }
         const ohlcText = formatOhlc(latest);
         statusOhlcLabel.textContent = ohlcText;
-        chartOhlcValue.textContent = ohlcText;
-        chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
-        chartOhlcTimeframe.textContent = formatTimeframeLabel(
-          displayTimeframe || state?.displayTimeframe || state?.session?.timeframe || 1
-        );
+        refreshChartOhlcOverlay(state);
         const previous = state.displayBars.length > 1 ? state.displayBars.at(-2) : null;
         const change = previous ? Number(latest.close) - Number(previous.close) : 0;
         statusChangeLabel.textContent = formatChange(change);
@@ -553,9 +622,13 @@ export function createChartReplayRoute() {
       }
 
       function updateDisplayTimezoneButtons() {
-        displayTimezoneButtons.forEach((button) => {
-          const pressed = button.dataset.displayTimezone === displayTimezone;
-          button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        displayTimezoneControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = displayTimezone;
+            return;
+          }
+          const pressed = control.dataset.displayTimezone === displayTimezone;
+          control.setAttribute('aria-pressed', pressed ? 'true' : 'false');
         });
       }
 
@@ -646,24 +719,95 @@ export function createChartReplayRoute() {
       replayDragHandle.addEventListener('pointercancel', endFloatingDrag);
 
       function updatePresentationButtons() {
-        presentationTimeFormatButtons.forEach((button) => {
-          button.setAttribute(
+        presentationTimeFormatControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = presentationSettings.timeFormat;
+            return;
+          }
+          control.setAttribute(
             'aria-pressed',
-            button.dataset.presentationTimeFormat === presentationSettings.timeFormat ? 'true' : 'false'
+            control.dataset.presentationTimeFormat === presentationSettings.timeFormat ? 'true' : 'false'
           );
         });
-        presentationToggleButtons.forEach((button) => {
-          const key = button.dataset.presentationToggle;
-          button.setAttribute('aria-pressed', presentationSettings[key] ? 'true' : 'false');
+        presentationToggleControls.forEach((control) => {
+          const key = control.dataset.presentationToggle;
+          if (control.type === 'checkbox') {
+            control.checked = Boolean(presentationSettings[key]);
+            return;
+          }
+          control.setAttribute('aria-pressed', presentationSettings[key] ? 'true' : 'false');
         });
-        presentationMarginButtons.forEach((button) => {
+        presentationMarginControls.forEach((control) => {
           const compact = presentationSettings.margins?.topPercent === 6
             && presentationSettings.margins?.bottomPercent === 6;
-          button.setAttribute('aria-pressed', compact ? 'true' : 'false');
+          if (control.type === 'checkbox') {
+            control.checked = compact;
+            return;
+          }
+          control.setAttribute('aria-pressed', compact ? 'true' : 'false');
         });
-        presentationRightOffsetButtons.forEach((button) => {
-          const pressed = Number(button.dataset.presentationRightOffset) === Number(presentationSettings.rightOffsetBars);
-          button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        presentationRightOffsetControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = String(presentationSettings.rightOffsetBars || 10);
+            return;
+          }
+          const pressed = Number(control.dataset.presentationRightOffset) === Number(presentationSettings.rightOffsetBars);
+          control.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        });
+      }
+
+      function compactMarginsEnabled(settings = presentationSettings) {
+        return settings?.margins?.topPercent === 6 && settings?.margins?.bottomPercent === 6;
+      }
+
+      function createSettingsDraft() {
+        return {
+          displayTimezone,
+          timeFormat: presentationSettings.timeFormat,
+          showStatusOhlc: Boolean(presentationSettings.showStatusOhlc),
+          showStatusChange: Boolean(presentationSettings.showStatusChange),
+          showCrosshairReadout: Boolean(presentationSettings.showCrosshairReadout),
+          compactMargins: compactMarginsEnabled(),
+          rightOffsetBars: Number(presentationSettings.rightOffsetBars || 10),
+        };
+      }
+
+      function renderSettingsDraft() {
+        const draft = settingsDraft || createSettingsDraft();
+        displayTimezoneControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = draft.displayTimezone;
+          }
+        });
+        presentationTimeFormatControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = draft.timeFormat;
+          }
+        });
+        presentationToggleControls.forEach((control) => {
+          const key = control.dataset.presentationToggle;
+          if (control.type === 'checkbox') {
+            control.checked = Boolean(draft[key]);
+          }
+        });
+        presentationMarginControls.forEach((control) => {
+          if (control.type === 'checkbox') {
+            control.checked = Boolean(draft.compactMargins);
+          }
+        });
+        presentationRightOffsetControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = String(draft.rightOffsetBars || 10);
+          }
+        });
+      }
+
+      function showSettingsSection(sectionId) {
+        chartSettingsTabButtons.forEach((button) => {
+          button.setAttribute('aria-current', button.dataset.chartSettingsTab === sectionId ? 'true' : 'false');
+        });
+        chartSettingsSections.forEach((settingsSection) => {
+          settingsSection.hidden = settingsSection.dataset.chartSettingsSection !== sectionId;
         });
       }
 
@@ -825,68 +969,6 @@ export function createChartReplayRoute() {
         await refreshReplayStatus();
       });
 
-      displayTimezoneButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-          const nextDisplayTimezone = button.dataset.displayTimezone;
-          if (!nextDisplayTimezone || nextDisplayTimezone === displayTimezone) return;
-          const timezone = await dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.SET, {
-            displayTimezone: nextDisplayTimezone,
-          });
-          displayTimezone = timezone.displayTimezone;
-          exchangeTimezone = timezone.exchangeTimezone;
-          await syncChartDisplayTimezone();
-          updateDisplayTimezoneButtons();
-          await refreshReplayStatus();
-        });
-      });
-
-      presentationTimeFormatButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-          const timeFormat = button.dataset.presentationTimeFormat;
-          if (!timeFormat || timeFormat === presentationSettings.timeFormat) return;
-          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { timeFormat });
-          await syncChartPresentationSettings();
-          updatePresentationButtons();
-          await refreshReplayStatus();
-        });
-      });
-
-      presentationToggleButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-          const key = button.dataset.presentationToggle;
-          if (!key) return;
-          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
-            [key]: !presentationSettings[key],
-          });
-          await syncChartPresentationSettings();
-          updatePresentationButtons();
-          await refreshReplayStatus();
-        });
-      });
-
-      presentationMarginButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
-            margins: {
-              topPercent: 6,
-              bottomPercent: 6,
-            },
-          });
-          await syncChartPresentationSettings();
-          updatePresentationButtons();
-        });
-      });
-
-      presentationRightOffsetButtons.forEach((button) => {
-        button.addEventListener('click', async () => {
-          presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
-            rightOffsetBars: Number(button.dataset.presentationRightOffset),
-          });
-          await syncChartPresentationSettings();
-          updatePresentationButtons();
-        });
-      });
-
       function openGoToPopover() {
         if (goToOpenButton.disabled) return;
         goToPopover.hidden = false;
@@ -909,21 +991,94 @@ export function createChartReplayRoute() {
       });
 
       function openChartSettings() {
+        settingsDraft = createSettingsDraft();
+        showSettingsSection('symbol');
+        renderSettingsDraft();
         chartSettingsPopover.hidden = false;
-        chartSettingsCloseButton.focus();
+        chartSettingsCancelButtons[0]?.focus();
       }
 
       function closeChartSettings() {
         chartSettingsPopover.hidden = true;
+        settingsDraft = null;
+        updateDisplayTimezoneButtons();
+        updatePresentationButtons();
         chartSettingsOpenButton.focus();
       }
 
       chartSettingsOpenButton.addEventListener('click', openChartSettings);
-      chartSettingsCloseButton.addEventListener('click', closeChartSettings);
+      chartSettingsCancelButtons.forEach((button) => {
+        button.addEventListener('click', closeChartSettings);
+      });
       chartSettingsPopover.addEventListener('click', (event) => {
         if (event.target === chartSettingsPopover) {
           closeChartSettings();
         }
+      });
+      chartSettingsTabButtons.forEach((button) => {
+        button.addEventListener('click', () => {
+          showSettingsSection(button.dataset.chartSettingsTab || 'symbol');
+        });
+      });
+      displayTimezoneControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.displayTimezone = control.value;
+        });
+      });
+      presentationTimeFormatControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.timeFormat = control.value;
+        });
+      });
+      presentationToggleControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          const key = control.dataset.presentationToggle;
+          if (!settingsDraft || !key || control.type !== 'checkbox') return;
+          settingsDraft[key] = control.checked;
+        });
+      });
+      presentationMarginControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.type !== 'checkbox') return;
+          settingsDraft.compactMargins = control.checked;
+        });
+      });
+      presentationRightOffsetControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.rightOffsetBars = Number(control.value);
+        });
+      });
+      chartSettingsApplyButton.addEventListener('click', async () => {
+        if (!settingsDraft) return;
+        const draft = settingsDraft;
+        if (draft.displayTimezone !== displayTimezone) {
+          const timezone = await dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.SET, {
+            displayTimezone: draft.displayTimezone,
+          });
+          displayTimezone = timezone.displayTimezone;
+          exchangeTimezone = timezone.exchangeTimezone;
+        }
+        presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
+          timeFormat: draft.timeFormat,
+          showStatusOhlc: draft.showStatusOhlc,
+          showStatusChange: draft.showStatusChange,
+          showCrosshairReadout: draft.showCrosshairReadout,
+          margins: draft.compactMargins
+            ? { topPercent: 6, bottomPercent: 6 }
+            : { topPercent: 10, bottomPercent: 8 },
+          rightOffsetBars: Number(draft.rightOffsetBars || 10),
+        });
+        await syncChartDisplayTimezone();
+        await syncChartPresentationSettings();
+        updateDisplayTimezoneButtons();
+        updatePresentationButtons();
+        chartSettingsPopover.hidden = true;
+        settingsDraft = null;
+        await refreshReplayStatus();
+        chartSettingsOpenButton.focus();
       });
 
       async function runChartNavigation(action, statusText) {
@@ -1022,6 +1177,7 @@ export function createChartReplayRoute() {
         const unsubscribe = subscribeEvent(eventName, (payload = {}) => {
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
             crosshairState = payload.crosshair || { active: false };
+            refreshChartOhlcOverlay();
             refreshCrosshairReadout();
             setControlsDisabled();
             return;
