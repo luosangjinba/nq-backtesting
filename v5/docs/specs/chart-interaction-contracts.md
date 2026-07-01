@@ -41,6 +41,9 @@ Lightweight callback path, and runtime write counters without changing drag
 behavior.
 Step 409 accepts minor fast-drag pointer/content offset as a comparable
 TradingView/Lightweight native behavior and not a current V5 correction target.
+Step 410 clarifies single-pane chart shell semantics before layout split panes:
+the chart route exposes one active pane (`primary`) and layout controls remain
+deferred instead of implying multi-pane behavior.
 
 In scope:
 
@@ -53,6 +56,7 @@ In scope:
 - settled or coalesced viewport demand consumption after native drag movement;
 - chart display readability required for native interaction to be usable;
 - compact replay workstation layout around the chart;
+- single-pane active chart pane semantics that future layout work can reuse;
 - viewport-level floating replay transport positioning;
 - chart adapter/presentation price scale margin tuning;
 - chart navigation overlay placement that preserves axis readability;
@@ -151,6 +155,13 @@ Out of scope:
 - Replay controls, timeframe, timezone, presentation toggles, and go-to controls
   may be visually consolidated, but they must continue dispatching commands and
   using events rather than taking ownership of runtime state.
+- Until multi-pane layout is implemented, the chart route must expose exactly
+  one active chart pane with stable `primary` pane identity. Chart display
+  timeframe, go-to, settings, replay transport, and reset/follow actions target
+  that active pane by default.
+- The disabled Layout entry is a deferred affordance only. It must not create
+  panes, mutate chart layout state, or suggest active split-pane behavior until
+  a dedicated layout ownership step defines multi-pane synchronization rules.
 - The floating replay transport may be dragged outside the chart/canvas area,
   but it remains clamped to the visible browser viewport and must stay below
   modal/popover layers while those layers are open.
@@ -246,6 +257,9 @@ When native Lightweight Charts pan/zoom is observed:
 - Reintroducing stacked engineering control rows that crowd the main chart.
 - Showing engineering shell labels such as `Chart Replay Shell` or
   `Chart Route` in the replay workstation UI.
+- Adding multi-pane chart behavior without first defining active-pane ownership,
+  chart runtime routing, and sync rules.
+- Letting the deferred Layout control mutate route state or chart layout.
 - Reimplementing price-axis vertical scaling in V5 shell code when Lightweight
   already owns native price scale interaction.
 - Tuning price placement by shrinking the Lightweight DOM surface.
@@ -278,6 +292,8 @@ Step 376 should add or update harnesses proving:
   a stable usable height.
 - replay workstation controls are compact, status remains visible, and the main
   chart remains the dominant surface.
+- the chart route exposes one active `primary` pane, keeps Layout deferred, and
+  leaves TF/Go-to/Settings visible as active-pane controls.
 - price scale margins are applied through Lightweight price scale APIs and stay
   compatible with native interaction.
 - chart navigation overlays keep measurable clearance from the time axis and

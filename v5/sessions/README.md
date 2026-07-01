@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 409: `session_20260701_step409_v5_accept_native_fast_drag_offset.md`
+- Step 410: `session_20260701_step410_v5_single_pane_chart_shell_semantics.md`
 
 ## Completed Session Index
 
@@ -74,3 +74,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 407: `session_20260701_step407_v5_settle_after_drag_loading_policy.md`
 - Step 408: `session_20260701_step408_v5_native_drag_diagnostic_harness.md`
 - Step 409: `session_20260701_step409_v5_accept_native_fast_drag_offset.md`
+- Step 410: `session_20260701_step410_v5_single_pane_chart_shell_semantics.md`

@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 409 is complete. Fast native-drag pointer/content offset
-  is accepted as a TradingView/Lightweight-style characteristic and is not a
-  current V5 correction target.
-- Next candidate: return to single-pane chart shell cleanup and UI
-  infrastructure, keeping layout split panes deferred.
+- Current status: Step 410 is complete. The chart route now has explicit
+  single-pane active-pane metadata and a guarded deferred Layout affordance.
+- Next candidate: continue single-pane polish before split panes, likely setup
+  route visual cleanup or chart settings/go-to surface refinement.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2317,4 +2316,52 @@ Manual acceptance:
 
 Checks:
 
+- `git diff --check`
+
+## Step 410 - V5 Single-Pane Chart Shell Semantics
+
+Status: completed.
+
+Goal: make the current single-pane chart shell explicit and testable before
+any layout split-pane implementation begins.
+
+Problem:
+
+- Single-pane chart usage is the current product path, but future layout work
+  needs stable active-pane semantics instead of ad hoc DOM assumptions.
+- The Layout control is visible as a future entry point, but it must remain
+  clearly deferred and unable to mutate chart layout state until multi-pane
+  ownership and sync rules are defined.
+- The high-frequency single-pane controls, especially chart display timeframe,
+  Go to, Settings, and Setup route access, must remain visible and compact.
+
+Implementation:
+
+- [x] Step 410.1: Add route-level single-pane metadata:
+  `data-active-pane-id="primary"`, `data-active-pane-count="1"`, and
+  `data-layout-mode="single"`.
+- [x] Step 410.2: Mark the chart viewport and chart host as the active
+  `primary` pane.
+- [x] Step 410.3: Mark the Layout control as disabled/deferred/single-mode
+  instead of an active multi-pane command.
+- [x] Step 410.4: Strengthen workstation layout browser smoke coverage for
+  active pane metadata, deferred Layout state, and visible TF/Go-to/Settings
+  controls.
+- [x] Step 410.5: Update interaction contracts and session handoff.
+
+Manual acceptance:
+
+- Chart route exposes exactly one active pane with stable `primary` identity.
+- Display timeframe, Go to, Settings, replay transport, and reset/follow
+  remain active-pane controls in the single-pane shell.
+- Layout remains disabled and documented as deferred.
+- No replay cursor, display bars, bar-data windows, or chart runtime ownership
+  rules change.
+
+Checks:
+
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -173,6 +173,13 @@ async function main() {
           const workspaceRect = rect('.workspace');
           const panelTitle = document.querySelector('.chart-panel h2')?.textContent || '';
           const badgeText = document.querySelector('.chart-panel .runtime-badge')?.textContent || '';
+          const chartRoute = document.querySelector('[data-route="chart"]');
+          const chartViewport = document.querySelector('.chart-viewport');
+          const chartHost = document.querySelector('[data-chart-host]');
+          const timeframeControlRect = rect('[data-display-timeframe-controls]');
+          const goToRect = rect('[data-chart-go-to-open]');
+          const settingsRect = rect('[data-chart-settings-open]');
+          const layoutButton = document.querySelector('[data-layout-open]');
           const setupLink = document.querySelector('[data-route="chart"] [data-route-link="setup"]');
           setupLink?.click();
           await new Promise((resolve) => setTimeout(resolve, 100));
@@ -181,6 +188,18 @@ async function main() {
             error: '',
             panelTitle,
             badgeText,
+            activePaneId: chartRoute?.dataset.activePaneId || '',
+            activePaneCount: chartRoute?.dataset.activePaneCount || '',
+            layoutMode: chartRoute?.dataset.layoutMode || '',
+            viewportPaneId: chartViewport?.dataset.chartPaneId || '',
+            viewportActivePane: chartViewport?.dataset.activePane || '',
+            viewportPaneRole: chartViewport?.dataset.paneRole || '',
+            hostPaneId: chartHost?.dataset.chartPaneId || '',
+            hostActivePane: chartHost?.dataset.activePane || '',
+            layoutButtonDisabled: Boolean(layoutButton?.disabled),
+            layoutButtonAriaDisabled: layoutButton?.getAttribute('aria-disabled') || '',
+            layoutButtonState: layoutButton?.dataset.layoutState || '',
+            layoutButtonMode: layoutButton?.dataset.layoutMode || '',
             hasShellText: bodyText.includes('Chart Replay Shell'),
             hasRouteText: bodyText.includes('Chart Route'),
             shellTopBarRect,
@@ -193,6 +212,9 @@ async function main() {
             chartNavRect,
             footerRect,
             statusRect,
+            timeframeControlVisible: timeframeControlRect.width > 0 && timeframeControlRect.height > 0,
+            goToVisible: goToRect.width > 0 && goToRect.height > 0,
+            settingsVisible: settingsRect.width > 0 && settingsRect.height > 0,
             footerVisible: footerRect.height > 0 && footerRect.top >= chartRect.bottom,
             statusVisible: statusRect.height > 0,
             chartNavBottomGap: chartRect.bottom - chartNavRect.bottom,
@@ -208,6 +230,18 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.panelTitle, 'FX Session Replay');
     assert.equal(value.badgeText, 'Historical Review');
+    assert.equal(value.activePaneId, 'primary');
+    assert.equal(value.activePaneCount, '1');
+    assert.equal(value.layoutMode, 'single');
+    assert.equal(value.viewportPaneId, 'primary');
+    assert.equal(value.viewportActivePane, 'true');
+    assert.equal(value.viewportPaneRole, 'primary-chart');
+    assert.equal(value.hostPaneId, 'primary');
+    assert.equal(value.hostActivePane, 'true');
+    assert.equal(value.layoutButtonDisabled, true);
+    assert.equal(value.layoutButtonAriaDisabled, 'true');
+    assert.equal(value.layoutButtonState, 'deferred');
+    assert.equal(value.layoutButtonMode, 'single');
     assert.equal(value.hasShellText, false);
     assert.equal(value.hasRouteText, false);
     assert.equal(value.shellTopBarDisplay, 'none');
@@ -215,6 +249,9 @@ async function main() {
     assert.ok(value.workspaceRect.top <= 10, `workspace starts too low: ${value.workspaceRect.top}`);
     assert.equal(value.hasSetupLink, true);
     assert.equal(value.returnedToSetup, true);
+    assert.equal(value.timeframeControlVisible, true);
+    assert.equal(value.goToVisible, true);
+    assert.equal(value.settingsVisible, true);
     assert.ok(value.toolbarRect.height <= 82, `toolbar too tall: ${value.toolbarRect.height}`);
     assert.ok(value.chartRect.height >= 620, `chart host too short: ${value.chartRect.height}`);
     assert.equal(value.footerVisible, true);

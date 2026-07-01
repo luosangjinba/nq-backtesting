@@ -25,6 +25,8 @@ export function createChartReplayRoute() {
       section.dataset.route = 'chart';
       section.dataset.sessionId = params.sessionId || '';
       section.dataset.activePaneId = activePaneId;
+      section.dataset.activePaneCount = '1';
+      section.dataset.layoutMode = 'single';
       section.innerHTML = `
         <div class="panel-heading">
           <div>
@@ -58,7 +60,7 @@ export function createChartReplayRoute() {
             <button type="button" data-chart-go-to-open disabled>Go to</button>
             <button type="button" data-chart-jump-cursor disabled>Cursor</button>
             <button type="button" data-route-link="setup">Setup</button>
-            <button type="button" data-layout-open disabled title="Layout is planned for a later step">Layout</button>
+            <button type="button" data-layout-open data-layout-state="deferred" data-layout-mode="single" disabled aria-disabled="true" title="Layout is planned for a later step">Layout</button>
             <button type="button" data-chart-settings-open title="Chart settings" aria-label="Chart settings">Settings</button>
           </div>
         </div>
@@ -105,8 +107,8 @@ export function createChartReplayRoute() {
             </div>
           </div>
         </div>
-        <div class="chart-viewport" data-chart-pane-id="${activePaneId}" data-active-pane="true">
-          <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}">
+        <div class="chart-viewport" data-chart-pane-id="${activePaneId}" data-active-pane="true" data-pane-role="primary-chart" aria-label="Active chart pane">
+          <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}" data-active-pane="true">
             <span>Starting chart...</span>
           </div>
           <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
