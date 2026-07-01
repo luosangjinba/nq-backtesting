@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 407 is complete. Active native drag now allows coverage
-  expanding chart data replacement so newly loaded left-side bars can render
-  before mouseup, while runtime visible-range writeback remains deferred until
-  native drag settles.
-- Next candidate: if fast-drag pointer drift remains, add a browser diagnostic
-  that records pointer pixel deltas against Lightweight logical-range deltas.
+- Current status: Step 406 is complete. Backward display-window loading can seek
+  across sparse/empty market windows, and display-window attempts are recorded
+  for diagnostics. A follow-up real-data check confirmed the 1m NQ Sunday
+  18:00 boundary can now seek back to Friday data.
+- Next candidate: manually re-test 1m left drag across the Sunday open boundary.
+  If fast-drag pointer drift remains, add a browser diagnostic that records
+  pointer pixel deltas against Lightweight logical-range deltas.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2153,55 +2154,5 @@ Checks:
 - `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
-- `node v5/scripts/smoke_all.js`
-- `git diff --check`
-
-## Step 407 - V5 Active Drag Data Rendering
-
-Status: completed.
-
-Goal: render newly loaded left-side K-lines while the user is still holding the
-mouse button during native drag, without reintroducing runtime visible-range
-writeback drift.
-
-Decision:
-
-- Step 405's broad active-drag writeback guard was too conservative for
-  left-drag history loading.
-- During active native drag, chart runtime may call adapter `setBars()` only
-  when replacement expands loaded bar coverage.
-- During active native drag, chart runtime must still not call explicit
-  `setVisibleRange()` back into Lightweight Charts.
-- Lightweight adapter may suppress setData-generated visible-range echoes and
-  perform a native-viewport-preserving logical-range compensation when bars are
-  prepended, so the drag anchor does not jump.
-- After native drag settles, one queued full sync may still flush the latest
-  visible range and metadata.
-
-Implementation:
-
-- [x] Step 407.1: Add `allowDataDuringNativeInteraction` sync option inside
-  chart runtime.
-- [x] Step 407.2: Use that option for chart bar update paths only when data
-  coverage expands.
-- [x] Step 407.3: Keep non-data rerenders and explicit visible-range writes
-  deferred during active native drag.
-- [x] Step 407.4: Suppress active `setData()` range echo and preserve the native
-  logical viewport when prepending bars.
-- [x] Step 407.5: Update runtime/browser smoke coverage so active drag permits
-  data rendering while preserving the manual anchor.
-
-Manual acceptance:
-
-- When dragging left and holding the mouse button down, newly loaded left-side
-  bars can appear before mouseup.
-- Drag movement should not snap because `setVisibleRange()` remains blocked
-  during active native drag.
-
-Checks:
-
-- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
-- `node v5/tests/chart-native-interaction-browser-smoke.js`
-- `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

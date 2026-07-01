@@ -228,21 +228,14 @@ const deferredBars = [
 const setDataCallsBeforeDeferredReplace = engineCalls.setData.length;
 const setVisibleRangeBeforeDeferredReplace = engineCalls.setVisibleRange.length;
 await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: deferredBars });
-assert.equal(engineCalls.setData.length, setDataCallsBeforeDeferredReplace + 1);
+assert.equal(engineCalls.setData.length, setDataCallsBeforeDeferredReplace);
 assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeBeforeDeferredReplace);
-assert.deepEqual(
-  engineCalls.setData.at(-1).map((item) => item.time),
-  [
-    Date.parse('2026-06-01T09:30:00.000Z') / 1000,
-    Date.parse('2026-06-01T09:31:00.000Z') / 1000,
-  ]
-);
 
 globalThis.document.dispatchEvent({ type: 'mouseup' });
 await flushFrame();
 const interactionAfterNativeSettle = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
 assert.equal(interactionAfterNativeSettle.nativeInteraction.active, false);
-assert.ok(engineCalls.setData.length > setDataCallsBeforeDeferredReplace + 1);
+assert.ok(engineCalls.setData.length > setDataCallsBeforeDeferredReplace);
 assert.deepEqual(
   engineCalls.setData.at(-1).map((item) => item.time),
   [
