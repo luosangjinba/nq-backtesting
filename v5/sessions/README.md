@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 404: `session_20260701_step404_v5_viewport_demand_drag_smoothness.md`
+- Step 405: `session_20260701_step405_v5_native_drag_writeback_guard.md`
 
 ## Completed Session Index
 
@@ -69,3 +69,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 402: `session_20260701_step402_v5_replay_interval_sync.md`
 - Step 403: `session_20260701_step403_v5_single_pane_timeframe_control.md`
 - Step 404: `session_20260701_step404_v5_viewport_demand_drag_smoothness.md`
+- Step 405: `session_20260701_step405_v5_native_drag_writeback_guard.md`

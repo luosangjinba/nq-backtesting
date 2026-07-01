@@ -307,6 +307,15 @@ async function main() {
           const futureWhitespaceLogicalRange = metrics.setVisibleLogicalRanges.at(-1) || null;
           const afterFutureWhitespace = await commands.dispatchCommand('chart.getInteractionState');
           const setDataAfterFutureWhitespace = metrics.setDataCount;
+          const nativeInteractionDuringDrag = afterFutureWhitespace.nativeInteraction || null;
+          await commands.dispatchCommand('chart.setDisplayContext', { displayTimezone: 'UTC' });
+          const setDataAfterDeferredContext = metrics.setDataCount;
+          document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, button: 0 }));
+          await waitFor('native interaction settled', async () => {
+            const interaction = await commands.dispatchCommand('chart.getInteractionState');
+            return interaction.nativeInteraction?.active === false;
+          });
+          const setDataAfterNativeSettle = metrics.setDataCount;
 
           const nextButton = document.querySelector('[data-replay-next]');
           if (!nextButton || nextButton.disabled) {
@@ -351,6 +360,8 @@ async function main() {
             setDataBeforeNativeRange,
             setDataAfterNativeRange,
             setDataAfterFutureWhitespace,
+            setDataAfterDeferredContext,
+            setDataAfterNativeSettle,
             setDataAfterRouteNext,
             setDataAfterCrosshair,
             setVisibleRangeCount: metrics.setVisibleRangeCount,
@@ -360,6 +371,7 @@ async function main() {
             visibleLogicalRanges: metrics.setVisibleLogicalRanges,
             afterNativeMode: afterNativeRange.interaction.mode,
             afterNativeFollow: afterNativeRange.viewportFollow.enabled,
+            nativeInteractionDuringDrag,
             afterNativeRange: afterNativeRange.visibleRange,
             afterFutureWhitespaceRange: afterFutureWhitespace.visibleRange,
             afterFutureWhitespaceLastRendered: afterFutureWhitespace.renderedBars.at(-1)?.time || '',
@@ -386,11 +398,15 @@ async function main() {
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
     assert.equal(value.setDataAfterNativeRange, value.setDataBeforeNativeRange);
     assert.equal(value.setDataAfterFutureWhitespace, value.setDataBeforeNativeRange);
-    assert.ok(value.setDataAfterRouteNext > value.setDataAfterFutureWhitespace);
+    assert.equal(value.setDataAfterDeferredContext, value.setDataBeforeNativeRange);
+    assert.ok(value.setDataAfterNativeSettle > value.setDataAfterDeferredContext);
+    assert.ok(value.setDataAfterRouteNext > value.setDataAfterNativeSettle);
     assert.equal(value.setDataAfterCrosshair, value.setDataAfterRouteNext);
     assert.equal(value.afterNativeMode, 'manual');
     assert.equal(value.afterNativeFollow, false);
     assert.ok(value.afterNativeRange.to <= Date.parse('2026-06-01T09:30:00.000Z') / 1000);
+    assert.equal(value.nativeInteractionDuringDrag.active, true);
+    assert.equal(value.nativeInteractionDuringDrag.type, 'drag');
     assert.ok(value.futureWhitespaceLogicalRange.to > 0);
     assert.equal(value.afterFutureWhitespaceRange.from, Date.parse('2026-06-01T09:24:00.000Z') / 1000);
     assert.equal(value.afterFutureWhitespaceRange.to, Date.parse('2026-06-01T09:40:00.000Z') / 1000);

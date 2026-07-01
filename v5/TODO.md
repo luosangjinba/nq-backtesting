@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 401 is complete, including the follow-up fix that
-  preserves manual right-side whitespace after chart drag during
-  Next/Previous/Play.
-- Next candidate: after Step 401, continue transport runtime semantics for
-  replay playback interval selection / active chart interval sync, or decide
-  whether Layout needs a dedicated planning step before implementation.
+- Current status: Step 405 is complete. Runtime chart writes are deferred while
+  Lightweight Charts native drag is active, then flushed once the interaction
+  settles.
+- Next candidate: after Step 405, manually verify drag fidelity on the live V5
+  page, then either tune drag-settle thresholds or continue single-pane setup/UI
+  completion before layout split panes.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2025,5 +2025,68 @@ Checks:
 - `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
 - `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 405 - V5 Native Drag Writeback Guard
+
+Status: completed.
+
+Goal: keep Lightweight Charts native drag visually attached to the mouse by
+blocking V5 runtime chart writebacks while a native pointer drag is active.
+
+Problem:
+
+- During native drag, Lightweight Charts owns the immediate chart movement.
+- V5 observes native visible-range changes and stores manual range state.
+- If replay/display-window work completes before pointer release, chart runtime
+  can call `series.setData()` and `timeScale().setVisibleRange()` through
+  `syncChartHost()`.
+- That runtime writeback can interrupt Lightweight's native drag math, causing
+  chart movement to feel detached from pointer movement.
+
+Decision:
+
+- Native pointer drag is an active interaction phase, not only a recent input
+  timestamp.
+- While native interaction is active, chart runtime may record observed visible
+  range and emit demand, but it must not write visible range or replacement data
+  back into the engine.
+- Any runtime render requested during active native interaction should be
+  deferred and flushed after pointer release / interaction settle.
+- Explicit non-native chart commands may still update chart-owned state, but
+  their engine write should also wait until the active native drag settles.
+
+Implementation:
+
+- [x] Step 405.1: Add Lightweight adapter native-interaction phase callbacks
+  for pointer down/up, touch start/end/cancel, and wheel settle.
+- [x] Step 405.2: Store native interaction state inside chart runtime and expose
+  it in chart interaction state for diagnostics.
+- [x] Step 405.3: Guard chart host synchronization so active native interaction
+  queues runtime `setData()` / visible-range writes instead of applying them.
+- [x] Step 405.4: Flush one queued chart sync after native interaction settles.
+- [x] Step 405.5: Add runtime/browser smoke coverage proving runtime writes do
+  not occur during active native drag and do flush after release.
+- [x] Step 405.6: Update specs/session handoff and run targeted smokes, full V5
+  smoke, and `git diff --check`.
+
+Manual acceptance:
+
+- Holding left mouse and dragging the chart keeps K-line movement visually
+  attached to pointer movement.
+- Crosshair and chart content do not drift because of runtime visible-range
+  writebacks during drag.
+- History demand and replay progression can still update internal runtime state
+  during drag, but chart engine writes happen only after native drag settles.
+- Manual replay viewport anchor, no-future display, and right-edge boundaries
+  remain intact.
+
+Checks:
+
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -72,7 +72,22 @@ function flushFrame() {
 clearCommandsForTest();
 clearEventsForTest();
 
-globalThis.document = { createElement };
+const documentListeners = new Map();
+globalThis.document = {
+  createElement,
+  addEventListener(type, handler) {
+    const handlers = documentListeners.get(type) || [];
+    handlers.push(handler);
+    documentListeners.set(type, handlers);
+  },
+  removeEventListener(type, handler) {
+    const handlers = documentListeners.get(type) || [];
+    documentListeners.set(type, handlers.filter((candidate) => candidate !== handler));
+  },
+  dispatchEvent(event) {
+    (documentListeners.get(event.type) || []).forEach((handler) => handler(event));
+  },
+};
 let mutationCallback = null;
 globalThis.MutationObserver = class {
   constructor(callback) {
@@ -187,6 +202,8 @@ engineCalls.visibleRangeHandler({
 const interaction = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
 assert.equal(interaction.interaction.mode, 'manual');
 assert.equal(interaction.viewportFollow.enabled, false);
+assert.equal(interaction.nativeInteraction.active, true);
+assert.equal(interaction.nativeInteraction.type, 'drag');
 assert.notEqual(interaction.visibleRange, null);
 assert.deepEqual(
   interaction.renderedBars.map((item) => item.time),
@@ -200,6 +217,32 @@ assert.equal(host.dataset.viewportFollow, 'false');
 assert.equal(host.children[0].dataset.interactionMode, 'manual');
 assert.equal(host.children[0].dataset.viewportFollow, 'false');
 assert.equal(engineCalls.setData.length, setDataCallsBeforeNativeRange);
+
+const deferredBars = [
+  bar(30, 110),
+  bar(31, 111),
+  bar(32, 112),
+  bar(33, 113),
+  bar(34, 114),
+];
+const setDataCallsBeforeDeferredReplace = engineCalls.setData.length;
+const setVisibleRangeBeforeDeferredReplace = engineCalls.setVisibleRange.length;
+await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: deferredBars });
+assert.equal(engineCalls.setData.length, setDataCallsBeforeDeferredReplace);
+assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeBeforeDeferredReplace);
+
+globalThis.document.dispatchEvent({ type: 'mouseup' });
+await flushFrame();
+const interactionAfterNativeSettle = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
+assert.equal(interactionAfterNativeSettle.nativeInteraction.active, false);
+assert.ok(engineCalls.setData.length > setDataCallsBeforeDeferredReplace);
+assert.deepEqual(
+  engineCalls.setData.at(-1).map((item) => item.time),
+  [
+    Date.parse('2026-06-01T09:30:00.000Z') / 1000,
+    Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+  ]
+);
 
 const setDataCallsBeforeCrosshair = engineCalls.setData.length;
 engineCalls.crosshairHandler({

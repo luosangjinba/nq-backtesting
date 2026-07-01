@@ -27,6 +27,8 @@ rather than chart-canvas overlays, while chart viewport anchoring remains owned
 by chart runtime.
 Step 404 plans the drag smoothness rule: native drag frames must not be coupled
 one-for-one to viewport demand loading or full chart data replacement.
+Step 405 hardens native drag fidelity: runtime chart writes must wait while
+Lightweight Charts is actively processing a pointer drag.
 
 In scope:
 
@@ -93,6 +95,10 @@ Out of scope:
   promptly, but replay-owned viewport demand consumption should be coalesced or
   debounced so left-drag movement does not trigger a bounded bar load for every
   pointer frame.
+- Native pointer drag is an active interaction phase. While it is active, V5 may
+  record manual visible range and emit demand, but must not write replacement
+  data or visible ranges back into the chart engine. Queued runtime chart syncs
+  should flush once the native interaction settles.
 - Viewport demand identity should be stable at the load-window level. Tiny
   visible-range differences during a drag must not create distinct load keys if
   they map to the same bounded history window.

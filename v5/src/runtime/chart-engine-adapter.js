@@ -572,6 +572,34 @@ function createLightweightInstance({ engine, documentRef }) {
   let crosshairFrame = null;
   let lastCrosshairKey = '';
   let suppressRuntimeVisibleRangeEcho = false;
+  let nativeInteractionActive = false;
+  let nativeInteractionType = null;
+  let nativeInteractionSettleTimer = null;
+
+  function emitNativeInteraction(active, type = nativeInteractionType) {
+    if (nativeInteractionActive === active && nativeInteractionType === type) return;
+    nativeInteractionActive = active;
+    nativeInteractionType = active ? type : null;
+    host?.__v5OnNativeInteractionChange?.({
+      active: nativeInteractionActive,
+      type: nativeInteractionType,
+      source: 'lightweight-native',
+    });
+  }
+
+  function clearNativeInteractionSettleTimer() {
+    if (nativeInteractionSettleTimer === null) return;
+    clearTimeout(nativeInteractionSettleTimer);
+    nativeInteractionSettleTimer = null;
+  }
+
+  function scheduleNativeInteractionSettle(type = nativeInteractionType, delayMs = 120) {
+    clearNativeInteractionSettleTimer();
+    nativeInteractionSettleTimer = setTimeout(() => {
+      nativeInteractionSettleTimer = null;
+      emitNativeInteraction(false, type);
+    }, delayMs);
+  }
 
   function createSeries(nextChart) {
     if (typeof nextChart.addCandlestickSeries === 'function') {
@@ -595,9 +623,25 @@ function createLightweightInstance({ engine, documentRef }) {
     });
   }
 
-  function markUserInput() {
+  function markUserInput(event) {
     lastUserInputAt = Date.now();
     suppressRuntimeVisibleRangeEcho = false;
+    const type = event?.type === 'wheel'
+      ? 'wheel'
+      : event?.type?.startsWith?.('touch')
+        ? 'touch'
+        : 'drag';
+    emitNativeInteraction(true, type);
+    if (type === 'wheel') {
+      scheduleNativeInteractionSettle(type);
+    } else {
+      clearNativeInteractionSettleTimer();
+    }
+  }
+
+  function settleUserInput(event) {
+    const type = event?.type?.startsWith?.('touch') ? 'touch' : nativeInteractionType;
+    scheduleNativeInteractionSettle(type, 0);
   }
 
   function clearShellCrosshair() {
@@ -614,6 +658,9 @@ function createLightweightInstance({ engine, documentRef }) {
     canvas.addEventListener('touchstart', markUserInput, true);
     canvas.addEventListener('wheel', markUserInput, true);
     canvas.addEventListener('mouseleave', clearShellCrosshair);
+    documentRef.addEventListener?.('mouseup', settleUserInput, true);
+    documentRef.addEventListener?.('touchend', settleUserInput, true);
+    documentRef.addEventListener?.('touchcancel', settleUserInput, true);
   }
 
   function unbindEngineInputMarkers() {
@@ -622,6 +669,9 @@ function createLightweightInstance({ engine, documentRef }) {
     canvas.removeEventListener('touchstart', markUserInput, true);
     canvas.removeEventListener('wheel', markUserInput, true);
     canvas.removeEventListener('mouseleave', clearShellCrosshair);
+    documentRef.removeEventListener?.('mouseup', settleUserInput, true);
+    documentRef.removeEventListener?.('touchend', settleUserInput, true);
+    documentRef.removeEventListener?.('touchcancel', settleUserInput, true);
   }
 
   function barForEngineTime(time) {
@@ -668,6 +718,9 @@ function createLightweightInstance({ engine, documentRef }) {
       displayContext = normalizeContext(options.displayContext);
       host.__v5OnCrosshairChange = typeof options.onCrosshairChange === 'function'
         ? options.onCrosshairChange
+        : null;
+      host.__v5OnNativeInteractionChange = typeof options.onNativeInteractionChange === 'function'
+        ? options.onNativeInteractionChange
         : null;
       canvas = createRuntimeCanvas(documentRef);
       engineSurface = documentRef.createElement('div');
@@ -837,6 +890,8 @@ function createLightweightInstance({ engine, documentRef }) {
       };
     },
     destroy() {
+      clearNativeInteractionSettleTimer();
+      emitNativeInteraction(false);
       unbindEngineInputMarkers();
       unsubscribeVisibleRange?.();
       unsubscribeCrosshair?.();
@@ -846,6 +901,7 @@ function createLightweightInstance({ engine, documentRef }) {
       host?.replaceChildren?.();
       if (host) {
         delete host.__v5OnCrosshairChange;
+        delete host.__v5OnNativeInteractionChange;
       }
       chart = null;
       series = null;
@@ -858,6 +914,8 @@ function createLightweightInstance({ engine, documentRef }) {
       pendingCrosshair = null;
       crosshairFrame = null;
       lastCrosshairKey = '';
+      nativeInteractionActive = false;
+      nativeInteractionType = null;
     },
   };
 }

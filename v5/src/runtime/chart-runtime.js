@@ -33,6 +33,11 @@ function createEmptyState() {
       mode: 'follow',
       manualVisibleRange: null,
     },
+    nativeInteraction: {
+      active: false,
+      type: null,
+      source: null,
+    },
     crosshair: {
       active: false,
       time: null,
@@ -465,6 +470,7 @@ export function createChartRuntime() {
   let observer = null;
   let emit = () => {};
   let applyingRuntimeVisibleRange = false;
+  let pendingChartSyncAfterNativeInteraction = false;
 
   function buildChartMetadata(renderedBars = computeRenderedBars(state)) {
     return {
@@ -475,12 +481,19 @@ export function createChartRuntime() {
       crosshairActive: state.crosshair.active ? 'true' : 'false',
       crosshairTime: state.crosshair.time || '',
       crosshairPrice: state.crosshair.price == null ? '' : state.crosshair.price,
+      nativeInteractionActive: state.nativeInteraction.active ? 'true' : 'false',
+      nativeInteractionType: state.nativeInteraction.type || '',
     };
   }
 
-  function syncChartHost(host) {
+  function syncChartHost(host, { deferDuringNativeInteraction = true } = {}) {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
+    if (deferDuringNativeInteraction && state.nativeInteraction.active) {
+      pendingChartSyncAfterNativeInteraction = true;
+      adapter.setMetadata?.(buildChartMetadata());
+      return;
+    }
     const renderedBars = computeRenderedBars(state);
     applyingRuntimeVisibleRange = true;
     try {
@@ -516,6 +529,9 @@ export function createChartRuntime() {
       onCrosshairChange: (crosshair) => {
         updateCrosshair(crosshair);
       },
+      onNativeInteractionChange: (interaction) => {
+        updateNativeInteraction(interaction);
+      },
     });
     syncChartHost(host);
     emit(CHART_EVENTS.READY, { host });
@@ -527,10 +543,10 @@ export function createChartRuntime() {
       .forEach((host) => mountHost(host));
   }
 
-  function rerenderMountedHosts() {
+  function rerenderMountedHosts(options = {}) {
     for (const host of mountedHostList) {
       if (host.isConnected) {
-        syncChartHost(host);
+        syncChartHost(host, options);
       } else {
         chartAdapters.get(host)?.destroy();
         chartAdapters.delete(host);
@@ -544,6 +560,11 @@ export function createChartRuntime() {
     for (const host of mountedHostList) {
       if (!host.isConnected) continue;
       const adapter = chartAdapters.get(host);
+      if (state.nativeInteraction.active) {
+        pendingChartSyncAfterNativeInteraction = true;
+        adapter?.setMetadata?.(buildChartMetadata());
+        continue;
+      }
       applyingRuntimeVisibleRange = true;
       try {
         adapter?.setVisibleRange(state.visibleRange);
@@ -805,6 +826,7 @@ export function createChartRuntime() {
     return {
       viewportFollow: { ...state.viewportFollow },
       interaction: structuredClone(state.interaction),
+      nativeInteraction: structuredClone(state.nativeInteraction),
       visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
       renderedBars: computeRenderedBars(state),
       fullBarCount: state.bars.length,
@@ -819,6 +841,24 @@ export function createChartRuntime() {
       interaction: structuredClone(state.interaction),
       viewportFollow: { ...state.viewportFollow },
       visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+    };
+  }
+
+  function updateNativeInteraction(payload = {}) {
+    const wasActive = state.nativeInteraction.active;
+    state.nativeInteraction = {
+      active: Boolean(payload.active),
+      type: payload.active && payload.type ? String(payload.type) : null,
+      source: payload.source ? String(payload.source) : null,
+    };
+    syncMetadataToMountedHosts();
+    if (wasActive && !state.nativeInteraction.active && pendingChartSyncAfterNativeInteraction) {
+      pendingChartSyncAfterNativeInteraction = false;
+      rerenderMountedHosts({ deferDuringNativeInteraction: false });
+    }
+    return {
+      nativeInteraction: structuredClone(state.nativeInteraction),
+      pendingChartSyncAfterNativeInteraction,
     };
   }
 
