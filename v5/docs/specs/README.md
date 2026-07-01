@@ -48,10 +48,12 @@ that future work must follow this file order.
 - `fx-replay-viewport-display-cache.md`: target rules for Step 369 viewport
   display windows, arbitrary display timeframe switching, cache reuse, delayed
   release, and no-future display.
-- `fx-replay-viewport-follow.md`: Phase 2 rules for auto-follow, right offset,
-  and rolling visible windows while replay advances.
+- `fx-replay-viewport-follow.md`: Phase 2/3 rules for auto-follow, right
+  offset, rolling visible windows, and manual replay viewport anchors while
+  replay advances.
 - `fx-replay-controls-ui.md`: stable rules for chart replay controls, command
-  dispatch, read-only status, and browser verification.
+  dispatch/serialization, floating transport behavior, read-only status, route
+  lifecycle, and browser verification.
 - `fx-replay-cursor-persistence.md`: stable rules for cursor persistence,
   bounded restore, read-only progress, and reset/restart.
 - `runtime-boundary-contracts.md`: stable rules for pure command/event
@@ -62,8 +64,9 @@ that future work must follow this file order.
   such as time label format, status fields, margins, right offset, and crosshair
   readouts without mutating replay/bar state.
 - `chart-interaction-contracts.md`: Phase 3 rules for chart-owned manual
-  visible-range movement, explicit auto-follow pause/resume, and viewport demand
-  boundaries.
+  visible-range movement, explicit auto-follow pause/resume, viewport demand
+  boundaries, native chart interaction, and viewport-level replay transport
+  layering.
 - `chart-engine-adapter.md`: Phase 3 rules for isolating real chart engine
   usage behind chart runtime/adapter boundaries while preserving offline smoke
   tests.
@@ -86,4 +89,34 @@ that future work must follow this file order.
 - Step 374: `fx-replay-viewport-follow.md`
 - Step 376: `chart-interaction-contracts.md`
 - Step 377: `chart-engine-adapter.md`
+- Step 378: `chart-interaction-contracts.md`
+- Step 379: `chart-engine-adapter.md`, `chart-interaction-contracts.md`
+- Step 380: `chart-interaction-contracts.md`,
+  `fx-replay-viewport-follow.md`
+- Step 381: `chart-interaction-contracts.md`
+- Step 382: `chart-interaction-contracts.md`,
+  `chart-presentation-settings.md`
+- Step 383: `chart-interaction-contracts.md`
+- Step 384: `chart-interaction-contracts.md`
+- Step 385: `chart-engine-adapter.md`, `chart-interaction-contracts.md`
+- Step 386: `chart-interaction-contracts.md`,
+  `chart-presentation-settings.md`
+- Step 387: `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
+- Step 388: `chart-interaction-contracts.md`,
+  `chart-presentation-settings.md`
+- Step 389: `chart-interaction-contracts.md`
+- Step 390: `chart-interaction-contracts.md`
+- Step 391: `fx-replay-controls-ui.md`
+- Step 392: `chart-interaction-contracts.md`
+- Step 393: `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
+- Step 394: `fx-replay-controls-ui.md`
+- Step 395: `fx-replay-controls-ui.md`,
+  `chart-presentation-settings.md`
+- Step 396: `fx-replay-controls-ui.md`
+- Step 397: `fx-replay-controls-ui.md`
+- Step 398: `fx-replay-controls-ui.md`
+- Step 399: `fx-replay-controls-ui.md`
+- Step 400: `fx-replay-controls-ui.md`
+- Step 401: `fx-replay-viewport-follow.md`,
+  `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
 - Cross-phase: `saas-readiness-strategy.md`

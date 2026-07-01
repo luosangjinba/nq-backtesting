@@ -10,6 +10,10 @@ Applies to the chart replay route controls for:
 - Play;
 - Pause;
 - Reset;
+- Previous;
+- truncate pick mode;
+- replay playback speed / interval placeholders;
+- floating transport positioning;
 - read-only replay status.
 
 It does not define chart rendering internals, bar request planning, or prefix
@@ -38,14 +42,27 @@ The chart replay route exposes compact controls:
 Rules:
 
 - controls remain disabled until initial replay loading completes;
-- controls are disabled while a command is in flight;
-- event-driven status refreshes must not re-enable controls while a command is
-  still in flight;
+- command execution is serialized, but normal replay transport command-in-flight
+  is not a disabled UI state. Next, Previous, and Play must not flash disabled
+  or show a forbidden cursor while their command is being processed;
+- duplicate or adjacent replay commands may queue behind the current command,
+  but the route must not silently drop user transport commands just because
+  another replay command is in flight;
 - Play is disabled while playback is active;
 - Pause is disabled while playback is inactive;
-- Reset is disabled until initial replay loading completes or while another
-  command is in flight;
+- Reset is disabled until initial replay loading completes;
 - terminal replay state must not expose future bars.
+- replay controls that are intentionally deferred, such as unsupported interval
+  sync, remain visibly disabled and must not be wired to unrelated behavior.
+
+The floating replay transport is viewport-level UI:
+
+- it may be moved with the drag handle outside the chart/canvas area;
+- it is clamped to the visible browser viewport;
+- dragging is route-local UI state and must not mutate replay cursor,
+  `displayBars`, chart data, or bar-data windows;
+- modal/popover surfaces such as Settings, Go to, and truncate warnings must
+  layer above the floating transport while open.
 
 ## Status
 
@@ -78,6 +95,11 @@ Rules:
 - replay controls must not leave `replay:initialLoaded`, `replay:next`,
   `replay:reset`, or `replay:playbackChanged` listeners behind after navigating
   away.
+- initial route loading is disposable. A chart route that has been unmounted
+  must not continue updating its DOM after async initial-load work completes.
+- stale initial replay loads must not overwrite a newer session load. Replay
+  runtime is the final guard against concurrent `LOAD_INITIAL_SESSION` requests
+  completing out of order.
 
 ## Browser Verification
 
@@ -94,6 +116,10 @@ chain:
 8. resume Play and verify automatic stop at `session-end`;
 9. verify progress labels reflect runtime state;
 10. navigate away and verify replay event subscriptions are cleaned up.
+11. verify transport buttons do not flash disabled during normal command
+    execution.
+12. verify floating transport can leave the chart area while staying inside the
+    browser viewport and below open popovers.
 
 The browser smoke may use synthetic bars to isolate controls behavior from V4
 data availability. Wall-clock request semantics are covered by the initial-load
@@ -108,6 +134,10 @@ spec and related harnesses.
 - Controls mutating replay state directly.
 - Controls using events as hidden mutation channels.
 - Controls persisting cursor state directly.
+- Treating command-in-flight as a normal disabled visual state for replay
+  transport buttons.
+- Letting viewport-level floating controls cover active modal/popover surfaces.
+- Allowing unmounted route async work to continue writing route DOM.
 
 ## Verification
 
@@ -119,6 +149,11 @@ Current harnesses:
   - runtime Play/Pause behavior.
 - `v5/tests/replay-controls-browser-smoke.js`
   - browser-level controls interaction.
+- `v5/tests/replay-floating-controls-browser-smoke.js`
+  - browser-level floating transport movement, disabled placeholders, and
+    popover layering.
+- `v5/tests/replay-session-switch-smoke.js`
+  - stale concurrent initial session loads are ignored.
 - `v5/tests/replay-restore-browser-smoke.js`
   - browser-level re-enter restore and Reset interaction.
 - `v5/tests/boundary-smoke.js`

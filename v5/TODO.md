@@ -65,10 +65,12 @@
   replay transport control. Keep it in chart settings until a broader interval
   menu is designed, and preserve the existing display-projection/no-future
   runtime invariants.
-- UI decision: the replay transport drag handle should actually move the
-  floating controls inside the chart viewport. Initial implementation may keep
-  position as route-local UI state; dragging must not mutate replay cursor,
-  display bars, chart data, or bar-data windows.
+- UI decision: the replay transport drag handle should move the floating
+  controls as a viewport-level control, not as a chart-canvas overlay. It may
+  leave the chart area but must remain clamped to the visible browser viewport.
+  Position may remain route-local UI state; dragging must not mutate replay
+  cursor, display bars, chart data, or bar-data windows. Modal/popover layers
+  must remain above the floating transport.
 - UI decision: `|<-` selected-bar truncation should follow FXReplay pick-mode
   semantics. Clicking the transport button enters a route-local pick mode with a
   vertical chart guide; the next chart click selects the truncation timestamp.
@@ -1860,5 +1862,7 @@ Checks:
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-session-switch-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

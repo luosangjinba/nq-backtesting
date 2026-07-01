@@ -65,6 +65,9 @@ native chart drag/zoom now has replay transport semantics.
   time-based visible range before sending it to chart runtime.
 - The explicit reset/follow control resumes viewport follow and clears the
   manual anchor.
+- Manual replay viewport anchoring is independent of the floating replay
+  transport's screen position. Moving the transport controls must not alter
+  follow/manual state, replay cursor, display bars, or bar-data windows.
 
 ## Manual Viewport Rule
 
@@ -143,6 +146,8 @@ Expected checks:
 
 - `node v5/tests/chart-viewport-follow-smoke.js`
 - `node v5/tests/replay-viewport-follow-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

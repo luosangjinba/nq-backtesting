@@ -171,7 +171,7 @@ Status: in progress.
 
 Goal: make the chart interaction surface feel like a usable replay workstation.
 
-Planned:
+Delivered in Phase 3 so far:
 
 - true visible-range drag and zoom;
 - Lightweight Charts timeScale/right-edge interaction tuning;
@@ -180,6 +180,15 @@ Planned:
 - go-to time;
 - stable right/left pan behavior;
 - replay toolbar polish after viewport follow is correct.
+- compact workstation shell;
+- floating replay transport, drag handle, previous/next/play, truncate pick
+  mode, and manual replay viewport anchoring.
+
+Still planned:
+
+- Layout split panes with explicit multi-chart ownership and sync rules;
+- richer chart settings organization;
+- future order/journal overlays after the chart/replay surface is stable.
 
 Gate:
 
@@ -192,9 +201,10 @@ Entry checklist:
   visible-range drag/zoom.
 - Completed: drag/zoom contracts decide how manual movement pauses replay
   auto-follow.
-- Current next: tune real Lightweight Charts timeScale behavior so native
-  pan/zoom feels like a replay workstation while preserving the chart runtime
-  right-edge/no-future boundary.
+- Current next: either continue replay transport runtime semantics for playback
+  interval selection / active chart interval sync, or plan Layout split panes
+  before implementation because multi-chart ownership and sync rules must be
+  explicit.
 - Chart runtime still owns visible range observation and chart rendering.
 - Replay runtime still owns cursor, reveal state, and no-future display
   invariants.

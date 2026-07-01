@@ -22,6 +22,9 @@ Step 388 tunes Lightweight price scale margins for more natural initial K-line
 vertical placement while preserving native price-axis scaling.
 Step 389 moves chart navigation overlays away from the time axis and price axis
 critical regions.
+Step 401 clarifies that replay transport controls are viewport-level controls
+rather than chart-canvas overlays, while chart viewport anchoring remains owned
+by chart runtime.
 
 In scope:
 
@@ -33,6 +36,7 @@ In scope:
   replacement;
 - chart display readability required for native interaction to be usable;
 - compact replay workstation layout around the chart;
+- viewport-level floating replay transport positioning;
 - chart adapter/presentation price scale margin tuning;
 - chart navigation overlay placement that preserves axis readability;
 - jump-to-cursor as explicit resume-follow behavior;
@@ -100,6 +104,9 @@ Out of scope:
 - Replay controls, timeframe, timezone, presentation toggles, and go-to controls
   may be visually consolidated, but they must continue dispatching commands and
   using events rather than taking ownership of runtime state.
+- The floating replay transport may be dragged outside the chart/canvas area,
+  but it remains clamped to the visible browser viewport and must stay below
+  modal/popover layers while those layers are open.
 - Status can move into a compact footer band, but status rendering must remain
   read-only with respect to replay/chart/bar-data state.
 - The visible chart route should not expose engineering shell labels as product
@@ -191,6 +198,10 @@ When native Lightweight Charts pan/zoom is observed:
 - Tuning price placement by shrinking the Lightweight DOM surface.
 - Placing chart navigation overlays where they cover the time axis or right
   price axis.
+- Letting viewport-level replay transport controls cover active Settings,
+  Go-to, or replay warning popovers.
+- Treating movement of the floating replay transport as chart viewport
+  movement.
 - Implementing full pointer drag/zoom in Step 376.
 
 ## Verification
@@ -218,6 +229,8 @@ Step 376 should add or update harnesses proving:
   compatible with native interaction.
 - chart navigation overlays keep measurable clearance from the time axis and
   right price axis across desktop and low-height desktop viewports.
+- floating replay transport movement does not mutate replay/chart/bar-data
+  state and remains below active popovers.
 
 Expected checks:
 
@@ -230,5 +243,6 @@ Expected checks:
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-price-scale-browser-smoke.js`
 - `node v5/tests/chart-overlay-visibility-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

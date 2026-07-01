@@ -79,6 +79,10 @@ while open.
   session loads.
 - Popover/modal z-index values are above the viewport-level floating replay
   controls.
+- Documentation cleanup moved stable Step 401 rules into specs:
+  `fx-replay-viewport-follow.md`, `fx-replay-controls-ui.md`, and
+  `chart-interaction-contracts.md`; specs index and harness index now point to
+  the relevant checks.
 
 ## Manual Acceptance
 
