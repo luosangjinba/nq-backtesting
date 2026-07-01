@@ -141,6 +141,7 @@ assert.ok(
 const afterNextInteraction = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
 assert.equal(afterNextInteraction.interaction.mode, 'follow');
 assert.equal(afterNextInteraction.viewportFollow.enabled, true);
+assert.equal(afterNextInteraction.visibleRange, null);
 assert.equal(afterNextInteraction.fullBarCount, next.displayBars.length);
 assert.equal(afterNextInteraction.renderedBars.at(-1).time, '2026-06-01T09:31:00.000Z');
 assert.equal(host.children[0].dataset.interactionMode, 'follow');

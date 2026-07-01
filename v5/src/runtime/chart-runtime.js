@@ -639,6 +639,7 @@ export function createChartRuntime() {
   function setViewportFollow(payload = {}) {
     const nextViewportFollow = normalizeViewportFollow(payload, state);
     if (payload.resume) {
+      state.visibleRange = null;
       state.interaction = {
         mode: 'follow',
         manualVisibleRange: null,
@@ -654,6 +655,7 @@ export function createChartRuntime() {
     return {
       viewportFollow: { ...state.viewportFollow },
       interaction: structuredClone(state.interaction),
+      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
       renderedBars: computeRenderedBars(state),
       fullBarCount: state.bars.length,
     };

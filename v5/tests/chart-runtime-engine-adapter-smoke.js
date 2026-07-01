@@ -85,6 +85,7 @@ globalThis.MutationObserver = class {
 const engineCalls = {
   created: 0,
   setData: [],
+  setVisibleRange: [],
   setVisibleLogicalRange: [],
   visibleRangeHandler: null,
   crosshairHandler: null,
@@ -108,7 +109,9 @@ globalThis.LightweightCharts = {
           setVisibleLogicalRange(range) {
             engineCalls.setVisibleLogicalRange.push(range);
           },
-          setVisibleRange() {},
+          setVisibleRange(range) {
+            engineCalls.setVisibleRange.push(range);
+          },
           subscribeVisibleTimeRangeChange(handler) {
             engineCalls.visibleRangeHandler = handler;
           },
@@ -184,6 +187,7 @@ engineCalls.visibleRangeHandler({
 const interaction = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
 assert.equal(interaction.interaction.mode, 'manual');
 assert.equal(interaction.viewportFollow.enabled, false);
+assert.notEqual(interaction.visibleRange, null);
 assert.deepEqual(
   interaction.renderedBars.map((item) => item.time),
   [
@@ -220,6 +224,19 @@ const clearedCrosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STAT
 assert.equal(clearedCrosshair.crosshair.active, false);
 assert.equal(engineCalls.setData.length, setDataCallsBeforeCrosshair);
 
+const setVisibleRangeCallsBeforeResume = engineCalls.setVisibleRange.length;
+const resumed = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
+  enabled: true,
+  resume: true,
+  cursorTimestamp: '2026-06-01T09:33:00.000Z',
+  estimatedVisibleBars: 3,
+  rightOffsetBars: 1,
+});
+assert.equal(resumed.interaction.mode, 'follow');
+assert.equal(resumed.visibleRange, null);
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
+assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeCallsBeforeResume);
+
 host.isConnected = false;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [bar(34, 104)],
@@ -235,8 +252,8 @@ assert.equal(host.children[0].dataset.chartCanvas, 'true');
 assert.deepEqual(
   engineCalls.setData.at(-1).map((item) => item.time),
   [
-    Date.parse('2026-06-01T09:30:00.000Z') / 1000,
-    Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+    Date.parse('2026-06-01T09:32:00.000Z') / 1000,
+    Date.parse('2026-06-01T09:33:00.000Z') / 1000,
   ]
 );
 
