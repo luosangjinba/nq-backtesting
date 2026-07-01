@@ -75,6 +75,14 @@ function normalizeTimeframe(value, fieldName = 'replay timeframe') {
   return normalized;
 }
 
+function normalizeStepCount(value = 1) {
+  const normalized = Math.floor(Number(value || 1));
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error('replay stepCount must be a positive integer.');
+  }
+  return normalized;
+}
+
 function timeframeSeconds(timeframe) {
   return normalizeTimeframe(timeframe) * 60;
 }
@@ -208,6 +216,7 @@ export function createReplayRuntime() {
   let playback = {
     playing: false,
     intervalMs: 500,
+    stepCount: 1,
     timerId: null,
     advancing: false,
     stoppedReason: null,
@@ -783,9 +792,18 @@ export function createReplayRuntime() {
     return result;
   }
 
-  async function next({ sessionId = state.sessionId } = {}) {
+  async function next({ sessionId = state.sessionId, stepCount = 1 } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
+    }
+    const normalizedStepCount = normalizeStepCount(stepCount);
+    if (normalizedStepCount > 1) {
+      let result = null;
+      for (let index = 0; index < normalizedStepCount; index += 1) {
+        result = await next({ sessionId, stepCount: 1 });
+        if (!result.advanced) return result;
+      }
+      return result;
     }
     if (state.sessionId !== sessionId || state.status === 'idle') {
       await loadInitialSession({ sessionId });
@@ -868,9 +886,18 @@ export function createReplayRuntime() {
     return result;
   }
 
-  async function previous({ sessionId = state.sessionId } = {}) {
+  async function previous({ sessionId = state.sessionId, stepCount = 1 } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
+    }
+    const normalizedStepCount = normalizeStepCount(stepCount);
+    if (normalizedStepCount > 1) {
+      let result = null;
+      for (let index = 0; index < normalizedStepCount; index += 1) {
+        result = await previous({ sessionId, stepCount: 1 });
+        if (!result.rewound) return result;
+      }
+      return result;
     }
     pause();
     if (state.sessionId !== sessionId || state.status === 'idle') {
@@ -1128,6 +1155,7 @@ export function createReplayRuntime() {
     return {
       playing: playback.playing,
       intervalMs: playback.intervalMs,
+      stepCount: playback.stepCount,
       stoppedReason: playback.stoppedReason,
     };
   }
@@ -1146,7 +1174,7 @@ export function createReplayRuntime() {
     if (playback.advancing || !playback.playing) return;
     playback.advancing = true;
     try {
-      const result = await next({ sessionId });
+      const result = await next({ sessionId, stepCount: playback.stepCount || 1 });
       if (!result.advanced) {
         pause({ reason: result.reason || 'stopped' });
       }
@@ -1155,7 +1183,7 @@ export function createReplayRuntime() {
     }
   }
 
-  function play({ sessionId = state.sessionId, intervalMs = 500 } = {}) {
+  function play({ sessionId = state.sessionId, intervalMs = 500, stepCount = 1 } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
     }
@@ -1163,6 +1191,7 @@ export function createReplayRuntime() {
     if (!Number.isFinite(normalizedInterval) || normalizedInterval <= 0) {
       throw new Error('replay play intervalMs must be a positive number.');
     }
+    const normalizedStepCount = normalizeStepCount(stepCount);
     if (playback.playing) {
       return playbackSnapshot();
     }
@@ -1174,6 +1203,7 @@ export function createReplayRuntime() {
     return setPlayback({
       playing: true,
       intervalMs: normalizedInterval,
+      stepCount: normalizedStepCount,
       timerId,
       stoppedReason: null,
     });

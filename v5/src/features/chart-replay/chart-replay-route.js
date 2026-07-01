@@ -121,7 +121,7 @@ export function createChartReplayRoute() {
             </div>
             <label class="replay-interval-controls" data-replay-interval-controls aria-label="Replay interval">
               <span class="sr-only">Replay interval</span>
-              <select data-replay-interval-select disabled title="Replay interval sync is planned">
+              <select data-replay-interval-select disabled title="Replay interval">
                 <optgroup label="Minutes">
                   <option value="1">1m</option>
                   <option value="5">5m</option>
@@ -134,7 +134,7 @@ export function createChartReplayRoute() {
                 </optgroup>
               </select>
             </label>
-            <label class="replay-sync-control" title="Sync replay interval with active chart interval is planned">
+            <label class="replay-sync-control" title="Sync replay interval with active chart interval">
               <span class="sr-only">Sync active chart interval</span>
               <input type="checkbox" data-replay-sync-interval disabled>
             </label>
@@ -248,8 +248,10 @@ export function createChartReplayRoute() {
       let revealedCount = 0;
       let startTimestamp = null;
       let cursorTimestamp = null;
+      let sessionTimeframe = null;
       let displayTimeframe = null;
       let replayIntervalTimeframe = null;
+      let replayIntervalSync = false;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
       let floatingPosition = null;
@@ -288,7 +290,12 @@ export function createChartReplayRoute() {
           || state?.displayTimeframe
           || state?.session?.timeframe
           || 0);
-        replayIntervalTimeframe = Number(state?.session?.timeframe || replayIntervalTimeframe || displayTimeframe || 1);
+        sessionTimeframe = Number(state?.session?.timeframe || sessionTimeframe || 1);
+        if (replayIntervalSync) {
+          replayIntervalTimeframe = Number(displayTimeframe || sessionTimeframe || 1);
+        } else {
+          replayIntervalTimeframe = Number(replayIntervalTimeframe || sessionTimeframe || displayTimeframe || 1);
+        }
         displayTimezone = timezoneContext?.displayTimezone || displayTimezone;
         exchangeTimezone = timezoneContext?.exchangeTimezone || exchangeTimezone;
         presentationSettings = presentationContext || presentationSettings;
@@ -363,8 +370,8 @@ export function createChartReplayRoute() {
         replayTruncateButton.setAttribute('aria-pressed', truncatePickMode ? 'true' : 'false');
         replayPreviousButton.disabled = unavailable || revealedCount <= 0;
         replaySpeedInput.disabled = unavailable;
-        replayIntervalSelect.disabled = true;
-        replaySyncIntervalInput.disabled = true;
+        replayIntervalSelect.disabled = unavailable;
+        replaySyncIntervalInput.disabled = unavailable;
         goToInput.disabled = unavailable;
         goToOpenButton.disabled = unavailable;
         goToButton.disabled = unavailable || !goToInput.value;
@@ -492,7 +499,17 @@ export function createChartReplayRoute() {
       function updateDisplayTimeframeButtons() {
         displayTimeframeSelect.value = displayTimeframe ? String(displayTimeframe) : '1';
         replayIntervalSelect.value = replayIntervalTimeframe ? String(replayIntervalTimeframe) : '1';
+        replaySyncIntervalInput.checked = replayIntervalSync;
         replaySpeedInput.value = String(playbackIntervalMs);
+      }
+
+      function replayStepCount() {
+        const base = Number(sessionTimeframe || 1);
+        const selected = Number(replayIntervalTimeframe || base);
+        if (!Number.isFinite(base) || base <= 0 || !Number.isFinite(selected) || selected <= 0) {
+          return 1;
+        }
+        return Math.max(1, Math.round(selected / base));
       }
 
       function updateDisplayTimezoneButtons() {
@@ -646,6 +663,7 @@ export function createChartReplayRoute() {
       nextButton.addEventListener('click', async () => {
         const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
           sessionId: params.sessionId,
+          stepCount: replayStepCount(),
         }));
         if (!state) return;
         terminalReason = state.advanced ? '' : state.reason || 'stopped';
@@ -685,6 +703,7 @@ export function createChartReplayRoute() {
       replayPreviousButton.addEventListener('click', async () => {
         const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PREVIOUS, {
           sessionId: params.sessionId,
+          stepCount: replayStepCount(),
         }));
         if (!state) return;
         terminalReason = state.rewound ? '' : state.reason || 'stopped';
@@ -698,6 +717,7 @@ export function createChartReplayRoute() {
         const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PLAY, {
           sessionId: params.sessionId,
           intervalMs: playbackIntervalMs,
+          stepCount: replayStepCount(),
         }));
         if (!playback) return;
         playbackPlaying = Boolean(playback.playing);
@@ -730,6 +750,22 @@ export function createChartReplayRoute() {
         playbackIntervalMs = nextInterval;
       });
 
+      replayIntervalSelect.addEventListener('change', () => {
+        const nextReplayInterval = Number(replayIntervalSelect.value);
+        if (!Number.isFinite(nextReplayInterval) || nextReplayInterval <= 0) return;
+        replayIntervalSync = false;
+        replayIntervalTimeframe = nextReplayInterval;
+        updateDisplayTimeframeButtons();
+      });
+
+      replaySyncIntervalInput.addEventListener('change', () => {
+        replayIntervalSync = replaySyncIntervalInput.checked;
+        if (replayIntervalSync) {
+          replayIntervalTimeframe = Number(displayTimeframe || sessionTimeframe || 1);
+        }
+        updateDisplayTimeframeButtons();
+      });
+
       displayTimeframeSelect.addEventListener('change', async () => {
         const nextDisplayTimeframe = Number(displayTimeframeSelect.value);
         if (!nextDisplayTimeframe || nextDisplayTimeframe === displayTimeframe) return;
@@ -740,6 +776,9 @@ export function createChartReplayRoute() {
         }));
         if (!state) return;
         displayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
+        if (replayIntervalSync) {
+          replayIntervalTimeframe = displayTimeframe;
+        }
         status.textContent = `Loaded ${state.displayBars?.length || 0} ${selectedOption?.textContent || ''} bars.`;
         updateDisplayTimeframeButtons();
         await refreshReplayStatus();

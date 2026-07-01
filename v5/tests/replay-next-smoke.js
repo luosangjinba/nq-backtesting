@@ -78,7 +78,7 @@ const created = await dispatchCommand(SESSION_COMMANDS.CREATE, {
   instrument: 'NQ',
   timeframe: 1,
   sessionStart: '2026-06-01 09:30',
-  sessionEnd: '2026-06-01 09:31',
+  sessionEnd: '2026-06-01 09:32',
 });
 const initial = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
   sessionId: created.session.id,
@@ -87,15 +87,16 @@ assert.equal(initial.displayBars.length, 3);
 
 const firstNext = await dispatchCommand(REPLAY_COMMANDS.NEXT, {
   sessionId: created.session.id,
+  stepCount: 2,
 });
 assert.equal(firstNext.advanced, true);
-assert.equal(firstNext.revealedBar.timestamp, timestamp('2026-06-01T09:31:00.000Z'));
-assert.equal(firstNext.displayBars.length, initial.displayBars.length + 1);
-assert.equal(firstNext.cursorTimestamp, '2026-06-01T09:31:00.000Z');
+assert.equal(firstNext.revealedBar.timestamp, timestamp('2026-06-01T09:32:00.000Z'));
+assert.equal(firstNext.displayBars.length, initial.displayBars.length + 2);
+assert.equal(firstNext.cursorTimestamp, '2026-06-01T09:32:00.000Z');
 assert.equal(chartBars.length, firstNext.displayBars.length);
 assert.deepEqual(
   firstNext.displayBars.slice(initial.displayBars.length).map((item) => item.timestamp),
-  [timestamp('2026-06-01T09:31:00.000Z')]
+  [timestamp('2026-06-01T09:31:00.000Z'), timestamp('2026-06-01T09:32:00.000Z')]
 );
 
 const secondNext = await dispatchCommand(REPLAY_COMMANDS.NEXT, {
@@ -105,7 +106,7 @@ assert.equal(secondNext.advanced, false);
 assert.equal(secondNext.reason, 'session-end');
 assert.equal(secondNext.displayBars.length, firstNext.displayBars.length);
 assert.equal(chartBars.length, firstNext.displayBars.length);
-assert.equal(barRequests.length, 2);
+assert.equal(barRequests.length, 3);
 
 replayRuntime.stop();
 unregisterReplace();

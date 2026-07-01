@@ -12,7 +12,7 @@ Applies to the chart replay route controls for:
 - Reset;
 - Previous;
 - truncate pick mode;
-- replay playback speed / interval placeholders;
+- replay playback speed / interval controls;
 - floating transport positioning;
 - read-only replay status.
 
@@ -52,8 +52,24 @@ Rules:
 - Pause is disabled while playback is inactive;
 - Reset is disabled until initial replay loading completes;
 - terminal replay state must not expose future bars.
-- replay controls that are intentionally deferred, such as unsupported interval
-  sync, remain visibly disabled and must not be wired to unrelated behavior.
+- replay controls that are intentionally deferred remain visibly disabled and
+  must not be wired to unrelated behavior.
+
+Replay interval rules:
+
+- the replay interval dropdown controls transport step size, not chart display
+  timeframe;
+- UI converts the selected replay interval into a replay command `stepCount`
+  relative to the session timeframe;
+- for a 1m replay session, `5m` means Next, Previous, and Play move five
+  session bars per transport step;
+- changing the replay interval alone must not dispatch chart display timeframe
+  commands;
+- the active-chart sync toggle is explicit. When enabled, chart display interval
+  changes copy into the replay interval selection;
+- replay runtime owns the cursor/reveal mutation. The route may keep local
+  interval and sync UI state, but it must only affect replay transport through
+  command payloads.
 
 The floating replay transport is viewport-level UI:
 
@@ -120,6 +136,9 @@ chain:
     execution.
 12. verify floating transport can leave the chart area while staying inside the
     browser viewport and below open popovers.
+13. verify replay interval controls are enabled after initial load, 5m interval
+    advances five 1m session bars, and active-chart sync follows display
+    interval changes.
 
 The browser smoke may use synthetic bars to isolate controls behavior from V4
 data availability. Wall-clock request semantics are covered by the initial-load
@@ -138,6 +157,9 @@ spec and related harnesses.
   transport buttons.
 - Letting viewport-level floating controls cover active modal/popover surfaces.
 - Allowing unmounted route async work to continue writing route DOM.
+- Treating replay interval selection as a direct chart display timeframe change.
+- Implementing active-chart interval sync by feature modules directly mutating
+  each other's state instead of using runtime commands/events.
 
 ## Verification
 
@@ -150,8 +172,8 @@ Current harnesses:
 - `v5/tests/replay-controls-browser-smoke.js`
   - browser-level controls interaction.
 - `v5/tests/replay-floating-controls-browser-smoke.js`
-  - browser-level floating transport movement, disabled placeholders, and
-    popover layering.
+  - browser-level floating transport movement, enabled interval controls, active
+    interval sync, and popover layering.
 - `v5/tests/replay-session-switch-smoke.js`
   - stale concurrent initial session loads are ignored.
 - `v5/tests/replay-restore-browser-smoke.js`

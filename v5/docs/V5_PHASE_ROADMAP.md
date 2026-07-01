@@ -201,10 +201,9 @@ Entry checklist:
   visible-range drag/zoom.
 - Completed: drag/zoom contracts decide how manual movement pauses replay
   auto-follow.
-- Current next: either continue replay transport runtime semantics for playback
-  interval selection / active chart interval sync, or plan Layout split panes
-  before implementation because multi-chart ownership and sync rules must be
-  explicit.
+- Current next: plan Layout split panes before implementation because
+  multi-chart ownership, active chart identity, replay interval sync, and
+  viewport synchronization rules must be explicit.
 - Chart runtime still owns visible range observation and chart rendering.
 - Replay runtime still owns cursor, reveal state, and no-future display
   invariants.
@@ -319,5 +318,5 @@ Before starting a new V5 step:
 
 Current active phase: Phase 3.
 
-Current recommended next step: Step 376 - Chart interaction runtime contracts
-for true visible-range drag/zoom.
+Current recommended next step: define the V5 Layout split-pane contract before
+implementing multi-chart UI.

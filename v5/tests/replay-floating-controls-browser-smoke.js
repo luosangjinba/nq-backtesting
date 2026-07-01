@@ -176,7 +176,10 @@ async function main() {
           const goToInitiallyHidden = document.querySelector('[data-chart-go-to-popover]')?.hidden === true;
           const floatingDisplayTimeframeCount = floating.querySelectorAll('[data-display-timeframe-select]').length;
           const replayIntervalSelect = floating.querySelector('[data-replay-interval-select]');
+          const replaySyncIntervalInput = floating.querySelector('[data-replay-sync-interval]');
+          const displayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
           const replaySpeedInput = floating.querySelector('[data-replay-speed]');
+          const initialReplayIntervalSelectValue = replayIntervalSelect?.value || '';
           const floatingZIndex = Number(getComputedStyle(floating).zIndex);
           const settingsZIndex = Number(getComputedStyle(document.querySelector('[data-chart-settings-popover]')).zIndex);
           const goToZIndex = Number(getComputedStyle(document.querySelector('[data-chart-go-to-popover]')).zIndex);
@@ -185,7 +188,7 @@ async function main() {
             truncate: floating.querySelector('[data-replay-truncate-to-selection]')?.disabled === true,
             previous: floating.querySelector('[data-replay-previous]')?.disabled === true,
             interval: replayIntervalSelect?.disabled === true,
-            sync: floating.querySelector('[data-replay-sync-interval]')?.disabled === true,
+            sync: replaySyncIntervalInput?.disabled === true,
           };
 
           const dragStartRevealed = before.revealedCount;
@@ -229,6 +232,7 @@ async function main() {
           });
           const afterDrag = await commands.dispatchCommand('replay.getState');
           const draggedRect = rect('[data-replay-floating-controls]');
+          const dragRequestDelta = (window.__v5BarRequestCount || 0) - dragStartRequests;
           await new Promise((resolve) => {
             const bodyX = draggedRect.left + Math.round(draggedRect.width / 2);
             const bodyY = draggedRect.top + Math.round(draggedRect.height / 2);
@@ -264,12 +268,28 @@ async function main() {
           });
           const afterBodyDragRect = rect('[data-replay-floating-controls]');
 
+          replayIntervalSelect.value = '5';
+          replayIntervalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          const selectedReplayIntervalValue = replayIntervalSelect.value;
+          const selectedReplaySyncChecked = replaySyncIntervalInput.checked;
+
           document.querySelector('[data-replay-next]').click();
           await waitFor('next advanced', async () => {
             const state = await commands.dispatchCommand('replay.getState');
-            return state.revealedCount === before.revealedCount + 1;
+            return state.revealedCount === before.revealedCount + 5;
           });
           const afterNext = await commands.dispatchCommand('replay.getState');
+
+          replaySyncIntervalInput.checked = true;
+          replaySyncIntervalInput.dispatchEvent(new Event('change', { bubbles: true }));
+          displayTimeframeSelect.value = '5';
+          displayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('replay interval synced to display interval', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            return state.displayTimeframe === 5 && replayIntervalSelect.value === '5';
+          });
+          const syncedReplayIntervalValue = replayIntervalSelect.value;
+          const syncedReplayChecked = replaySyncIntervalInput.checked;
 
           replaySpeedInput.value = '300';
           replaySpeedInput.dispatchEvent(new Event('input', { bubbles: true }));
@@ -301,6 +321,11 @@ async function main() {
             error: '',
             beforeCursor: before.cursorTimestamp,
             afterNextCursor: afterNext.cursorTimestamp,
+            afterNextRevealed: afterNext.revealedCount,
+            selectedReplayIntervalValue,
+            selectedReplaySyncChecked,
+            syncedReplayIntervalValue,
+            syncedReplayChecked,
             speedPlaybackInterval: (await commands.dispatchCommand('replay.getPlaybackState')).intervalMs,
             afterResetCursor: afterReset.cursorTimestamp,
             afterResetRevealed: afterReset.revealedCount,
@@ -318,7 +343,7 @@ async function main() {
             bodyDragMoved: Math.abs(afterBodyDragRect.left - draggedRect.left) > 2
               || Math.abs(afterBodyDragRect.top - draggedRect.top) > 2,
             dragChangedReplay: afterDrag.revealedCount !== dragStartRevealed,
-            dragRequestDelta: (window.__v5BarRequestCount || 0) - dragStartRequests,
+            dragRequestDelta,
             dragDataset: document.querySelector('[data-replay-floating-controls]')?.dataset.dragged || '',
             viewport: {
               width: window.innerWidth,
@@ -339,7 +364,7 @@ async function main() {
             floatingButtonCount: floating.querySelectorAll('button').length,
             floatingDisplayTimeframeCount,
             replayIntervalSelectCount: floating.querySelectorAll('[data-replay-interval-select]').length,
-            replayIntervalSelectValue: replayIntervalSelect?.value || '',
+            replayIntervalSelectValue: initialReplayIntervalSelectValue,
             replaySpeedValue: replaySpeedInput?.value || '',
             floatingZIndex,
             settingsZIndex,
@@ -366,6 +391,10 @@ async function main() {
     assert.equal(value.floatingDisplayTimeframeCount, 0);
     assert.equal(value.replayIntervalSelectCount, 1);
     assert.equal(value.replayIntervalSelectValue, '1');
+    assert.equal(value.selectedReplayIntervalValue, '5');
+    assert.equal(value.selectedReplaySyncChecked, false);
+    assert.equal(value.syncedReplayIntervalValue, '5');
+    assert.equal(value.syncedReplayChecked, true);
     assert.equal(value.replaySpeedValue, '300');
     assert.equal(value.speedPlaybackInterval, 300);
     assert.ok(value.settingsZIndex > value.floatingZIndex, `settings should layer above floating controls: ${JSON.stringify(value)}`);
@@ -379,14 +408,15 @@ async function main() {
     assert.deepEqual(value.disabledTransportPlaceholders, {
       truncate: false,
       previous: true,
-      interval: true,
-      sync: true,
+      interval: false,
+      sync: false,
     });
     assert.equal(value.floatingInsideChart, true, `initial floating controls should start inside chart: ${JSON.stringify(value)}`);
     assert.equal(value.draggedInsideViewport, true, `dragged floating controls outside viewport: ${JSON.stringify(value)}`);
     assert.equal(value.draggedOutsideChart, true, `dragged floating controls should be able to leave chart: ${JSON.stringify(value)}`);
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
-    assert.notEqual(value.afterNextCursor, value.beforeCursor);
+    assert.equal(value.afterNextCursor, '2026-06-01T09:35:00.000Z');
+    assert.equal(value.afterNextRevealed, 5);
     assert.equal(value.afterResetCursor, value.beforeCursor);
     assert.equal(value.afterResetRevealed, 0);
   } finally {

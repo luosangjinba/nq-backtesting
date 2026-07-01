@@ -1866,3 +1866,51 @@ Checks:
 - `node v5/tests/replay-session-switch-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 402 - V5 Replay Interval Sync
+
+Goal: make the floating replay interval dropdown and active-chart sync toggle
+real replay transport controls without confusing them with chart display
+timeframe.
+
+Decision: the replay interval dropdown controls replay transport step size. It
+does not change the chart display interval by itself. For a 1m replay session,
+selecting `5m` makes Next/Previous/Play advance in five 1m replay bars per
+transport step. The sync toggle copies the active chart display interval into
+the replay interval while enabled. UI remains route-local and dispatches replay
+commands with `stepCount`; replay runtime still owns cursor and reveal state.
+
+- [x] Step 402.1: Document the replay interval versus chart display interval
+  decision and Step 402 plan in TODO/session/spec handoff.
+- [x] Step 402.2: Add replay runtime `stepCount` support for Next, Previous,
+  and Play while preserving one-bar default behavior.
+- [x] Step 402.3: Enable the floating replay interval dropdown and sync toggle
+  after initial replay load.
+- [x] Step 402.4: Convert selected replay interval to a replay runtime
+  `stepCount` payload instead of mutating chart display timeframe directly.
+- [x] Step 402.5: Keep display interval sync explicit: when enabled, changing
+  the chart display interval updates the replay interval selection.
+- [x] Step 402.6: Add runtime and browser smoke coverage for multi-step replay
+  transport, enabled interval controls, and sync behavior.
+- [x] Step 402.7: Run targeted replay/control smokes, full V5 smoke, and `git
+  diff --check` before commit.
+
+Manual acceptance:
+
+- Floating replay interval defaults to the replay session timeframe.
+- Selecting `5m` on a 1m session makes Next advance five session bars.
+- Previous and Play use the same selected replay interval step size.
+- Turning sync on makes replay interval follow the active chart display
+  interval.
+- Changing replay interval alone does not change chart display interval.
+- No replay interval control directly requests bars or writes chart series.
+
+Checks:
+
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-previous-smoke.js`
+- `node v5/tests/replay-play-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
