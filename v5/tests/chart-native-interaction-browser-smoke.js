@@ -175,6 +175,8 @@ async function main() {
             setVisibleRangeCount: 0,
             setVisibleRanges: [],
             setVisibleLogicalRanges: [],
+            lastSetDataLength: 0,
+            nativeVisibleLogicalRange: null,
             crosshairHandler: null,
             visibleRangeHandler: null,
             series: null,
@@ -194,6 +196,7 @@ async function main() {
               const originalSetData = series.setData.bind(series);
               series.setData = (data) => {
                 metrics.setDataCount += 1;
+                metrics.lastSetDataLength = data.length;
                 return originalSetData(data);
               };
               return series;
@@ -222,6 +225,10 @@ async function main() {
                 metrics.setVisibleLogicalRanges.push(range);
                 return originalSetVisibleLogicalRange(range);
               };
+            }
+            if (typeof timeScale.getVisibleLogicalRange === 'function') {
+              const originalGetVisibleLogicalRange = timeScale.getVisibleLogicalRange.bind(timeScale);
+              timeScale.getVisibleLogicalRange = () => metrics.nativeVisibleLogicalRange || originalGetVisibleLogicalRange();
             }
             if (typeof timeScale.subscribeVisibleTimeRangeChange === 'function') {
               const originalSubscribe = timeScale.subscribeVisibleTimeRangeChange.bind(timeScale);
@@ -266,6 +273,7 @@ async function main() {
           const setDataBeforeNativeRange = metrics.setDataCount;
           const canvas = document.querySelector('[data-chart-canvas]');
           canvas.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, button: 0, clientX: 300 }));
+          metrics.nativeVisibleLogicalRange = { from: 0, to: 0 };
           for (let index = 0; index < 8; index += 1) {
             metrics.visibleRangeHandler({
               from: Date.parse('2026-06-01T09:22:00.000Z') / 1000 + index,
@@ -280,9 +288,13 @@ async function main() {
           const afterNativeRange = await commands.dispatchCommand('chart.getInteractionState');
           const setDataAfterNativeRange = metrics.setDataCount;
 
+          metrics.nativeVisibleLogicalRange = {
+            from: 0,
+            to: Math.max(0, metrics.lastSetDataLength - 1 + 10),
+          };
           metrics.visibleRangeHandler({
             from: cursor - 360,
-            to: cursor + 600,
+            to: cursor,
           });
           await waitFor('manual future whitespace retained', async () => {
             const interaction = await commands.dispatchCommand('chart.getInteractionState');
@@ -290,6 +302,7 @@ async function main() {
               && interaction.visibleRange?.to === cursor + 600
               && interaction.renderedBars.every((bar) => Date.parse(bar.time) / 1000 <= cursor);
           });
+          metrics.nativeVisibleLogicalRange = null;
           const futureWhitespaceRange = metrics.setVisibleRanges.at(-1) || null;
           const futureWhitespaceLogicalRange = metrics.setVisibleLogicalRanges.at(-1) || null;
           const afterFutureWhitespace = await commands.dispatchCommand('chart.getInteractionState');

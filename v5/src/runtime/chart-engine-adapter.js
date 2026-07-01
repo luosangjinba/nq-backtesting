@@ -245,6 +245,23 @@ function manualLogicalRangeForVisibleRange(range, bars) {
   };
 }
 
+function visibleRangeWithLogicalWhitespace(range, logicalRange, bars) {
+  if (!range || !logicalRange || !bars.length) return range;
+  const logicalFrom = Number(logicalRange.from);
+  const logicalTo = Number(logicalRange.to);
+  if (!Number.isFinite(logicalFrom) || !Number.isFinite(logicalTo)) return range;
+  const spacing = estimateRenderedBarSpacingSeconds(bars);
+  const firstLogicalIndex = 0;
+  const lastLogicalIndex = bars.length - 1;
+  const leftWhitespaceBars = Math.max(0, firstLogicalIndex - logicalFrom);
+  const rightWhitespaceBars = Math.max(0, logicalTo - lastLogicalIndex);
+  if (!leftWhitespaceBars && !rightWhitespaceBars) return range;
+  return {
+    from: Math.floor(range.from - (leftWhitespaceBars * spacing)),
+    to: Math.ceil(range.to + (rightWhitespaceBars * spacing)),
+  };
+}
+
 function createRuntimeCanvas(documentRef) {
   const canvas = documentRef.createElement('div');
   canvas.className = 'chart-runtime-canvas';
@@ -692,10 +709,19 @@ function createLightweightInstance({ engine, documentRef }) {
       if (typeof timeScale?.subscribeVisibleTimeRangeChange === 'function') {
         const handler = (range) => {
           if (!range || !options.onVisibleRangeChange || suppressRuntimeVisibleRangeEcho || !hasRecentUserInput()) return;
-          options.onVisibleRangeChange({
+          const timeRange = {
             from: timestampSeconds(range.from, 'chart engine visible range from'),
             to: timestampSeconds(range.to, 'chart engine visible range to'),
-          }, { source: 'lightweight-native' });
+          };
+          const logicalRange = typeof timeScale.getVisibleLogicalRange === 'function'
+            ? timeScale.getVisibleLogicalRange()
+            : null;
+          options.onVisibleRangeChange(
+            visibleRangeWithLogicalWhitespace(timeRange, logicalRange, bars),
+            logicalRange
+              ? { source: 'lightweight-native', logicalRange }
+              : { source: 'lightweight-native' }
+          );
         };
         timeScale.subscribeVisibleTimeRangeChange(handler);
         unsubscribeVisibleRange = () => timeScale.unsubscribeVisibleTimeRangeChange?.(handler);

@@ -21,6 +21,10 @@ manual anchor. The chart may keep a manual visible range whose `to` is beyond
 the replay cursor, but it must render only bars at or before the replay right
 edge. Lightweight native visible-range callbacks caused by runtime writes are
 engine echo, not user input, and must not collapse the manual anchor.
+Native Lightweight user drag callbacks must be interpreted with visible logical
+range as well as visible time range, because the time range can end at the last
+data bar even when the user dragged the newest K-line left and created right-side
+empty space.
 
 ## Plan
 
@@ -49,6 +53,9 @@ engine echo, not user input, and must not collapse the manual anchor.
   chart state; rendered bars are filtered to the right-edge limit instead.
 - The Lightweight adapter maps manual right-side whitespace to logical range so
   the engine preserves empty space after the last rendered bar.
+- The Lightweight adapter also maps native visible logical range back into
+  chart-runtime time range so user-created right-side empty space is captured as
+  the replay transport anchor.
 - Chart runtime guards the full programmatic adapter sync, including `setData()`,
   from native visible-range echo callbacks.
 

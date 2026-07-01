@@ -1799,6 +1799,10 @@ the replay cursor, but chart runtime must still render only bars at or before
 the replay right edge. Programmatic chart writes must ignore Lightweight native
 visible-range echo callbacks so `setData()` cannot silently collapse the manual
 range back to the latest rendered bar.
+Native Lightweight drag events must also preserve logical right-side whitespace:
+`subscribeVisibleTimeRangeChange` alone can report a range ending at the last
+data bar, so the adapter must combine it with the current visible logical range
+before updating chart-runtime manual anchor state.
 
 - [x] Step 401.1: Document the manual replay viewport anchor decision in
   TODO/spec/session handoff.
@@ -1815,6 +1819,9 @@ range back to the latest rendered bar.
   by rendering no future bars while keeping the user-established visible range.
 - [x] Step 401.8: Guard runtime-originated Lightweight `setData()` /
   visible-range writes from being reinterpreted as user drag events.
+- [x] Step 401.9: Convert native Lightweight logical right-side whitespace into
+  chart-runtime manual visible range so transport anchors the newest K-line at
+  the post-drag screen position.
 
 Manual acceptance:
 

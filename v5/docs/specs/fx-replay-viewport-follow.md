@@ -59,6 +59,10 @@ native chart drag/zoom now has replay transport semantics.
   visible-range/logical-range updates, must not be reinterpreted as native user
   drag events. Native engine visible-range callbacks are user input only when
   they follow actual chart pointer/wheel/touch input.
+- Native engine user input must preserve right-side logical whitespace. If an
+  engine's visible time range excludes empty space after the latest data bar,
+  the adapter must use the visible logical range to reconstruct the manual
+  time-based visible range before sending it to chart runtime.
 - The explicit reset/follow control resumes viewport follow and clears the
   manual anchor.
 
@@ -76,6 +80,9 @@ whose `to` is after the final rendered bar can otherwise be normalized back to
 the last data timestamp. The adapter should keep that engine detail internal:
 chart runtime state remains expressed as a time-based visible range, while the
 adapter maps it to the engine representation needed to preserve the viewport.
+The reverse mapping is also required for native drag: when Lightweight reports a
+visible time range ending at the final data timestamp, the adapter should read
+the visible logical range and extend the time range by the logical right offset.
 
 ## Runtime Contract
 
