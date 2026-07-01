@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 407: `session_20260701_step407_v5_settle_after_drag_loading_policy.md`
+- Step 408: `session_20260701_step408_v5_native_drag_diagnostic_harness.md`
 
 ## Completed Session Index
 
@@ -72,3 +72,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 405: `session_20260701_step405_v5_native_drag_writeback_guard.md`
 - Step 406: `session_20260701_step406_v5_sparse_backward_display_seek.md`
 - Step 407: `session_20260701_step407_v5_settle_after_drag_loading_policy.md`
+- Step 408: `session_20260701_step408_v5_native_drag_diagnostic_harness.md`

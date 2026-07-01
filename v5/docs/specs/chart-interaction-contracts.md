@@ -35,6 +35,10 @@ the current loaded display coverage.
 Step 407 locks the settle-after-drag policy: newly loaded left-side bars render
 after pointer release / native interaction settle, not during the active native
 drag.
+Step 408 adds a diagnostic-only harness for slow/fast drag observation. It
+records pointer deltas, synthetic native visible-range deltas through the
+Lightweight callback path, and runtime write counters without changing drag
+behavior.
 
 In scope:
 
@@ -111,6 +115,9 @@ Out of scope:
 - Viewport demand identity should be stable at the load-window level. Tiny
   visible-range differences during a drag must not create distinct load keys if
   they map to the same bounded history window.
+- Drag diagnostics may inject synthetic native visible-range frames in tests,
+  but production behavior must continue to observe the real chart engine and
+  must not use diagnostic hooks to mutate replay/chart state.
 - Consuming cached or duplicate viewport demand must not call chart
   `replaceBars` / Lightweight `series.setData()` when merged display bars are
   unchanged.

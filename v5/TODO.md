@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 407 is complete. Active native drag keeps runtime chart
-  data writes deferred until pointer release / interaction settle, including
-  sparse backward display-window extensions.
-- Next candidate: if fast-drag pointer drift remains, add a browser diagnostic
-  that records pointer pixel deltas against Lightweight logical-range deltas.
+- Current status: Step 408 is complete. V5 now has a native-drag diagnostic
+  browser smoke that records pointer deltas, native visible-range deltas, and
+  runtime write counts without changing chart behavior.
+- Next candidate: use the Step 408 diagnostics to compare manual fast-drag
+  reports against V5's observed range/writeback chain before attempting another
+  drag behavior fix.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2211,5 +2212,60 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 408 - V5 Native Drag Diagnostic Harness
+
+Status: completed.
+
+Goal: add a repeatable diagnostic harness for fast/slow native drag analysis
+without changing chart runtime behavior.
+
+Problem:
+
+- User-observed drag drift is hard to describe precisely and appears speed
+  sensitive.
+- Step 407 deliberately kept runtime chart writes deferred during active drag,
+  so remaining drift needs measurement before another behavior change.
+- Headless Chrome CDP mouse movement produces reliable pointer samples in the
+  harness, but does not reliably make Lightweight emit native pan frames by
+  itself.
+
+Decision:
+
+- Step 408 is diagnostic-only.
+- The harness records real CDP pointer deltas for slow and fast drags.
+- The harness feeds synthetic native visible-range frames through the same
+  subscribed Lightweight visible-range callback path, while V5 native
+  interaction phase is active.
+- The harness records `setData`, `setVisibleRange`, and
+  `setVisibleLogicalRange` deltas so future investigations can separate pointer
+  movement, range observation, and runtime writeback effects.
+- This harness does not claim to measure Lightweight's internal native pan
+  physics in headless Chrome; manual browser repro remains necessary for that
+  part.
+
+Implementation:
+
+- [x] Step 408.1: Add `chart-native-drag-diagnostic-browser-smoke.js`.
+- [x] Step 408.2: Instrument pointer samples, visible-range samples, logical
+  range samples, and runtime chart write counters.
+- [x] Step 408.3: Run slow and fast drag scenarios and assert range movement is
+  measurable while runtime `setData` stays quiet.
+- [x] Step 408.4: Add the diagnostic smoke to `v5/scripts/smoke_all.js`.
+- [x] Step 408.5: Update TODO, interaction contracts, and session handoff.
+
+Manual acceptance:
+
+- The diagnostic smoke produces comparable slow/fast drag summaries.
+- The test fails if pointer movement is not sampled, if observed range movement
+  is missing, or if drag diagnostics trigger runtime `setData()`.
+- Runtime behavior remains unchanged.
+
+Checks:
+
+- `node v5/tests/chart-native-drag-diagnostic-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
