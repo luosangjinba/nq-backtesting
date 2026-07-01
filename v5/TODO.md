@@ -1914,3 +1914,46 @@ Checks:
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 403 - V5 Single Pane Timeframe Control
+
+Goal: make chart timeframe switching a visible single-pane control and verify
+that changing TF actually reloads/render display timeframe bars.
+
+Decision: chart display TF is an active chart pane control, not a hidden
+Settings-only preference. V5 still has one pane, but the chart route now names
+that pane `primary` and treats the toolbar TF dropdown as acting on the active
+pane. This prepares the route for future multi-pane work without implementing
+layout split panes yet.
+
+- [x] Step 403.1: Investigate the current TF change path and confirm
+  `replay.setDisplayTimeframe` owns display timeframe reload/render.
+- [x] Step 403.2: Move chart TF selection out of Settings into the visible
+  replay workstation toolbar.
+- [x] Step 403.3: Keep replay interval separate from chart TF: replay interval
+  remains in floating transport controls; chart TF remains in the toolbar.
+- [x] Step 403.4: Add single-pane active pane semantics with `primary` pane
+  markers and command payload context.
+- [x] Step 403.5: Update browser smoke coverage to switch TF from the visible
+  toolbar and assert the chart display context/data really becomes 5m bars.
+- [x] Step 403.6: Update docs/session handoff and run targeted smokes,
+  `smoke_all`, and `git diff --check` before commit.
+
+Manual acceptance:
+
+- The chart TF dropdown is visible on the chart page without opening Settings.
+- Changing chart TF to `5m` dispatches display timeframe reload and chart data
+  changes to 5m bars.
+- Settings no longer owns the primary chart TF dropdown.
+- Replay interval dropdown remains in the floating replay transport and remains
+  playback-step semantics.
+- The single chart pane is marked as active pane `primary` for future multi-pane
+  expansion.
+
+Checks:
+
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`

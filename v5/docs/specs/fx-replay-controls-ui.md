@@ -57,6 +57,11 @@ Rules:
 
 Replay interval rules:
 
+- chart display timeframe is an active chart pane control and must be visible
+  from the chart page without opening Settings;
+- the current single-pane route uses active pane id `primary`. Future multi-pane
+  work must extend this pane identity instead of replacing the single-pane
+  command path;
 - the replay interval dropdown controls transport step size, not chart display
   timeframe;
 - supported replay interval options are `1m`, `2m`, `3m`, `4m`, `5m`, `10m`,
@@ -145,6 +150,9 @@ chain:
 13. verify replay interval controls are enabled after initial load, 5m interval
     advances five 1m session bars, and active-chart sync follows display
     interval changes.
+14. verify the visible chart toolbar TF dropdown changes the active pane display
+    timeframe and rendered chart bars, while Settings does not own a duplicate
+    primary TF dropdown.
 
 The browser smoke may use synthetic bars to isolate controls behavior from V4
 data availability. Wall-clock request semantics are covered by the initial-load
@@ -166,6 +174,9 @@ spec and related harnesses.
 - Treating replay interval selection as a direct chart display timeframe change.
 - Implementing active-chart interval sync by feature modules directly mutating
   each other's state instead of using runtime commands/events.
+- Hiding the primary chart TF control inside Settings only.
+- Adding multi-pane UI before the single-pane route has a stable active pane
+  identity.
 
 ## Verification
 
@@ -180,6 +191,9 @@ Current harnesses:
 - `v5/tests/replay-floating-controls-browser-smoke.js`
   - browser-level floating transport movement, enabled interval controls, active
     interval sync, and popover layering.
+- `v5/tests/replay-display-timeframe-browser-smoke.js`
+  - browser-level active pane chart TF switching from the visible toolbar and
+    rendered display timeframe verification.
 - `v5/tests/replay-session-switch-smoke.js`
   - stale concurrent initial session loads are ignored.
 - `v5/tests/replay-restore-browser-smoke.js`

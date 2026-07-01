@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 402: `session_20260701_step402_v5_replay_interval_sync.md`
+- Step 403: `session_20260701_step403_v5_single_pane_timeframe_control.md`
 
 ## Completed Session Index
 
@@ -67,3 +67,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 400: `session_20260630_step400_v5_replay_truncate_pick_mode.md`
 - Step 401: `session_20260630_step401_v5_manual_replay_viewport_anchor.md`
 - Step 402: `session_20260701_step402_v5_replay_interval_sync.md`
+- Step 403: `session_20260701_step403_v5_single_pane_timeframe_control.md`

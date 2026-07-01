@@ -120,4 +120,5 @@ that future work must follow this file order.
 - Step 401: `fx-replay-viewport-follow.md`,
   `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
 - Step 402: `fx-replay-controls-ui.md`
+- Step 403: `fx-replay-controls-ui.md`
 - Cross-phase: `saas-readiness-strategy.md`

@@ -19,10 +19,12 @@ export function createChartReplayRoute() {
     id: 'chart',
     render({ params = {} } = {}) {
       const sessionId = params.sessionId || 'No session selected';
+      const activePaneId = 'primary';
       const section = document.createElement('section');
       section.className = 'panel chart-panel';
       section.dataset.route = 'chart';
       section.dataset.sessionId = params.sessionId || '';
+      section.dataset.activePaneId = activePaneId;
       section.innerHTML = `
         <div class="panel-heading">
           <div>
@@ -32,6 +34,26 @@ export function createChartReplayRoute() {
           <span class="runtime-badge">Historical Review</span>
         </div>
         <div class="replay-workstation-toolbar" data-replay-workstation-toolbar>
+          <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Active chart timeframe">
+            <span>TF</span>
+            <select data-display-timeframe-select disabled>
+              <option value="1" data-display-timeframe="1">1m</option>
+              <option value="2" data-display-timeframe="2">2m</option>
+              <option value="3" data-display-timeframe="3">3m</option>
+              <option value="4" data-display-timeframe="4">4m</option>
+              <option value="5" data-display-timeframe="5">5m</option>
+              <option value="10" data-display-timeframe="10">10m</option>
+              <option value="15" data-display-timeframe="15">15m</option>
+              <option value="30" data-display-timeframe="30">30m</option>
+              <option value="60" data-display-timeframe="60">1H</option>
+              <option value="120" data-display-timeframe="120">2H</option>
+              <option value="180" data-display-timeframe="180">3H</option>
+              <option value="240" data-display-timeframe="240">4H</option>
+              <option value="1440" data-display-timeframe="1440">1D</option>
+              <option value="10080" data-display-timeframe="10080">1W</option>
+              <option value="43200" data-display-timeframe="43200">1M</option>
+            </select>
+          </label>
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
             <button type="button" data-chart-go-to-open disabled>Go to</button>
             <button type="button" data-chart-jump-cursor disabled>Cursor</button>
@@ -63,26 +85,6 @@ export function createChartReplayRoute() {
                     <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
                     <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
                   </div>
-                  <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
-                    <span>Display interval</span>
-                    <select data-display-timeframe-select disabled>
-                      <option value="1" data-display-timeframe="1">1m</option>
-                      <option value="2" data-display-timeframe="2">2m</option>
-                      <option value="3" data-display-timeframe="3">3m</option>
-                      <option value="4" data-display-timeframe="4">4m</option>
-                      <option value="5" data-display-timeframe="5">5m</option>
-                      <option value="10" data-display-timeframe="10">10m</option>
-                      <option value="15" data-display-timeframe="15">15m</option>
-                      <option value="30" data-display-timeframe="30">30m</option>
-                      <option value="60" data-display-timeframe="60">1H</option>
-                      <option value="120" data-display-timeframe="120">2H</option>
-                      <option value="180" data-display-timeframe="180">3H</option>
-                      <option value="240" data-display-timeframe="240">4H</option>
-                      <option value="1440" data-display-timeframe="1440">1D</option>
-                      <option value="10080" data-display-timeframe="10080">1W</option>
-                      <option value="43200" data-display-timeframe="43200">1M</option>
-                    </select>
-                  </label>
                 </section>
                 <section>
                   <h3>Status line</h3>
@@ -103,8 +105,8 @@ export function createChartReplayRoute() {
             </div>
           </div>
         </div>
-        <div class="chart-viewport">
-          <div class="chart-host" data-chart-host>
+        <div class="chart-viewport" data-chart-pane-id="${activePaneId}" data-active-pane="true">
+          <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}">
             <span>Starting chart...</span>
           </div>
           <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
@@ -779,6 +781,7 @@ export function createChartReplayRoute() {
         const selectedOption = displayTimeframeSelect.selectedOptions[0];
         const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
           sessionId: params.sessionId,
+          paneId: activePaneId,
           displayTimeframe: nextDisplayTimeframe,
         }));
         if (!state) return;
