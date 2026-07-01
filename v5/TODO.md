@@ -1779,3 +1779,45 @@ Checks:
 - `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
+
+## Step 401 - V5 Manual Replay Viewport Anchor
+
+Goal: preserve the user's manually dragged chart viewport during replay
+transport actions.
+
+Decision: manual chart drag/zoom establishes a replay viewport anchor. After
+that, Next, Previous, and Play must not resume cursor follow automatically.
+Instead, chart runtime keeps manual mode and shifts the manual visible range by
+the replay cursor delta so the newest replay bar keeps its screen anchor.
+Reset/follow cursor remains the explicit way to leave manual mode.
+
+- [x] Step 401.1: Document the manual replay viewport anchor decision in
+  TODO/spec/session handoff.
+- [x] Step 401.2: Make chart runtime translate a manual visible range when
+  replay cursor updates arrive without explicit resume.
+- [x] Step 401.3: Change replay Next/Previous transport renders to avoid
+  forcing viewport follow resume; Play inherits the same behavior through Next.
+- [x] Step 401.4: Keep initial load and Reset as explicit follow-resume paths.
+- [x] Step 401.5: Add runtime and browser smoke coverage for manual anchor
+  preservation after replay transport.
+- [x] Step 401.6: Run targeted replay/chart smokes, full V5 smoke, and `git
+  diff --check` before commit.
+
+Manual acceptance:
+
+- Dragging/panning the chart leaves it in manual viewport mode.
+- Clicking Next/Previous or running Play after manual drag does not snap the
+  newest K-line to the canvas right edge.
+- The manual visible range moves by the replay cursor delta so the newest
+  replay bar remains visible at the established anchor.
+- Clicking reset/follow cursor exits manual mode and resumes normal follow.
+
+Checks:
+
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
+- `node v5/tests/replay-viewport-follow-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`

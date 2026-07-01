@@ -356,6 +356,25 @@ function computeViewportDemand(state) {
   };
 }
 
+function deriveManualAnchorRange(state, nextViewportFollow) {
+  if (state.interaction.mode !== 'manual' || !state.interaction.manualVisibleRange) {
+    return null;
+  }
+  const previousCursor = state.viewportFollow.cursorTimestamp;
+  const nextCursor = nextViewportFollow.cursorTimestamp;
+  if (!Number.isFinite(previousCursor) || !Number.isFinite(nextCursor)) {
+    return state.interaction.manualVisibleRange;
+  }
+  const delta = nextCursor - previousCursor;
+  if (!delta) {
+    return state.interaction.manualVisibleRange;
+  }
+  return clampVisibleRange({
+    from: state.interaction.manualVisibleRange.from + delta,
+    to: state.interaction.manualVisibleRange.to + delta,
+  }, state.rightEdgeLimit);
+}
+
 function normalizeBar(bar) {
   if (!bar || typeof bar !== 'object') {
     throw new Error('chart bar must be an object.');
@@ -638,12 +657,26 @@ export function createChartRuntime() {
 
   function setViewportFollow(payload = {}) {
     const nextViewportFollow = normalizeViewportFollow(payload, state);
+    let visibleRangeChanged = false;
     if (payload.resume) {
       state.visibleRange = null;
       state.interaction = {
         mode: 'follow',
         manualVisibleRange: null,
       };
+    } else {
+      const manualAnchorRange = deriveManualAnchorRange(state, nextViewportFollow);
+      if (manualAnchorRange) {
+        visibleRangeChanged = !rangesEqual(state.visibleRange, manualAnchorRange)
+          || !rangesEqual(state.interaction.manualVisibleRange, manualAnchorRange);
+        state.visibleRange = { ...manualAnchorRange };
+        state.interaction = {
+          mode: 'manual',
+          manualVisibleRange: { ...manualAnchorRange },
+        };
+        state.prefixDemand = computePrefixDemand(state);
+        state.viewportDemand = computeViewportDemand(state);
+      }
     }
     state.viewportFollow = state.interaction.mode === 'manual' && !payload.resume
       ? {
@@ -652,6 +685,15 @@ export function createChartRuntime() {
       }
       : nextViewportFollow;
     rerenderMountedHosts();
+    if (visibleRangeChanged && state.visibleRange) {
+      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
+    }
+    if (visibleRangeChanged && state.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
+    }
+    if (visibleRangeChanged && state.prefixDemand) {
+      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
+    }
     return {
       viewportFollow: { ...state.viewportFollow },
       interaction: structuredClone(state.interaction),

@@ -16,10 +16,9 @@ This spec covers auto-follow behavior while a replay session is active:
 - Reset;
 - display timeframe projection after cursor movement.
 
-This step does not implement full manual drag/zoom interaction. Real drag/zoom,
-crosshair navigation, and user-controlled visible range editing belong to Phase
-3. Step 374 only defines the runtime contract and default auto-follow behavior
-needed for replay progression.
+Step 401 extends the original Step 374 contract with a manual replay viewport
+anchor. Real drawing tools and split-layout behavior remain out of scope, but
+native chart drag/zoom now has replay transport semantics.
 
 ## Concepts
 
@@ -43,17 +42,25 @@ needed for replay progression.
   of the rendered chart with `rightOffsetBars` reserved.
 - If there are more revealed bars than fit the visible capacity, older left-side
   bars roll out of the rendered viewport.
+- Initial load follows the replay cursor.
 - Reset follows back to the start cursor.
+- Manual drag/zoom pauses viewport follow and establishes a manual viewport
+  anchor.
+- While the chart is manually anchored, Next, Previous, and Play advance replay
+  reveal state without resuming follow.
+- While manually anchored, replay transport cursor deltas shift the manual
+  visible range by the same delta so the newest replay bar keeps its screen
+  anchor instead of snapping to the canvas right edge.
+- The explicit reset/follow control resumes viewport follow and clears the
+  manual anchor.
 
 ## Manual Viewport Rule
 
-Until Phase 3 implements real drag/zoom:
-
-- auto-follow is always active after initial load, Next, Play, and Reset;
-- manual pan/zoom does not have a user-facing contract in Step 374.
-
-Phase 3 must explicitly decide whether manual viewport movement pauses
-auto-follow, and how the user resumes following the replay cursor.
+Manual viewport movement pauses follow. Replay transport must preserve the
+manual anchor until the user explicitly requests reset/follow cursor behavior.
+This means replay runtime may keep sending cursor updates to chart runtime, but
+chart runtime remains the owner of whether those updates are applied as follow
+or as a manual anchor shift.
 
 ## Runtime Contract
 
@@ -82,6 +89,10 @@ Replay runtime should call this command after:
 - Reset;
 - display timeframe reload/projection.
 
+Initial load and Reset should pass an explicit resume/follow intent. Next,
+Previous, and Play ticks should not pass resume; chart runtime decides whether
+the current viewport is follow mode or manual-anchor mode.
+
 ## Forbidden
 
 - Slicing display bars in feature route code.
@@ -98,6 +109,8 @@ Step 374 should add or update harnesses proving:
   capacity is smaller than the bar count;
 - Next/Play keep cursor near the right side and roll older bars out of the
   rendered chart;
+- manual drag followed by Next/Previous/Play preserves manual mode and shifts
+  the manual visible range by replay cursor deltas;
 - replay `displayBars` length and cursor identity do not change because of
   viewport follow;
 - `/v4/bars` request count does not increase solely from follow updates.

@@ -224,6 +224,29 @@ const clearedCrosshair = await dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STAT
 assert.equal(clearedCrosshair.crosshair.active, false);
 assert.equal(engineCalls.setData.length, setDataCallsBeforeCrosshair);
 
+const setLogicalRangeCallsBeforeManualAnchor = engineCalls.setVisibleLogicalRange.length;
+const manualAnchor = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
+  enabled: true,
+  cursorTimestamp: '2026-06-01T09:34:00.000Z',
+  estimatedVisibleBars: 3,
+  rightOffsetBars: 1,
+});
+assert.equal(manualAnchor.interaction.mode, 'manual');
+assert.equal(manualAnchor.viewportFollow.enabled, false);
+assert.deepEqual(manualAnchor.visibleRange, {
+  from: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
+});
+assert.deepEqual(
+  manualAnchor.renderedBars.map((item) => item.time),
+  [
+    '2026-06-01T09:31:00.000Z',
+    '2026-06-01T09:32:00.000Z',
+  ]
+);
+assert.equal(engineCalls.setVisibleLogicalRange.length, setLogicalRangeCallsBeforeManualAnchor);
+assert.deepEqual(engineCalls.setVisibleRange.at(-1), manualAnchor.visibleRange);
+
 const setVisibleRangeCallsBeforeResume = engineCalls.setVisibleRange.length;
 const resumed = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
   enabled: true,

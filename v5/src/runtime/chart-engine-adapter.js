@@ -728,6 +728,9 @@ function createLightweightInstance({ engine, documentRef }) {
             canvas.dataset.visibleLogicalRangeTo = String(logicalRange.to);
           }
         }
+      } else if (canvas) {
+        delete canvas.dataset.visibleLogicalRangeFrom;
+        delete canvas.dataset.visibleLogicalRangeTo;
       }
     },
     setMetadata(nextMetadata = {}) {

@@ -813,8 +813,8 @@ export function createReplayRuntime() {
       ]
       : state.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      await renderDisplayBars(displayBars, nextBar.time, { resumeViewportFollow: true });
       await syncChartRightEdgeLimit(nextBar.time);
+      await renderDisplayBars(displayBars, nextBar.time);
     }
 
     state = {
@@ -907,8 +907,8 @@ export function createReplayRuntime() {
         replayTimeframe: normalizedReplayTimeframe,
       });
       assertNoDisplayBarsAfter(displayBars, previousCursorBar.time);
-      await renderDisplayBars(displayBars, previousCursorBar.time, { resumeViewportFollow: true });
       await syncChartRightEdgeLimit(previousCursorBar.time);
+      await renderDisplayBars(displayBars, previousCursorBar.time);
     }
 
     state = {

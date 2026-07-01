@@ -101,7 +101,7 @@ assert.equal(next.cursorTimestamp, '2026-06-01T09:31:00.000Z');
 assert.equal(next.displayBars.length, 5);
 assert.equal(chartReplaces.at(-1).length, 5);
 assert.equal(followUpdates.at(-1).cursorTimestamp, '2026-06-01T09:31:00.000Z');
-assert.equal(followUpdates.at(-1).resume, true);
+assert.equal(followUpdates.at(-1).resume, false);
 assert.equal(followUpdates.at(-1).estimatedVisibleBars, 4);
 assert.equal(barRequests.length, 2);
 

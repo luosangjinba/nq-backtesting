@@ -218,15 +218,15 @@ async function main() {
           let afterWheelInteraction = null;
           if (chartEngine === 'lightweight-charts') {
             await commands.dispatchCommand('chart.setManualVisibleRange', {
-              from: '2026-06-01T09:26:00.000Z',
-              to: '2026-06-01T09:28:00.000Z',
+              from: '2026-06-01T09:28:00.000Z',
+              to: '2026-06-01T09:30:00.000Z',
             });
             await waitFor('lightweight manual range rendered', async () => {
               const chart = chartSnapshot();
               return chart.mode === 'manual'
                 && chart.follow === 'false'
-                && chart.titles[0]?.startsWith('2026-06-01 09:26')
-                && chart.titles.at(-1)?.startsWith('2026-06-01 09:28');
+                && chart.titles[0]?.startsWith('2026-06-01 09:28')
+                && chart.titles.at(-1)?.startsWith('2026-06-01 09:30');
             });
             afterDragInteraction = await commands.dispatchCommand('chart.getInteractionState');
             afterWheelInteraction = afterDragInteraction;
@@ -259,19 +259,19 @@ async function main() {
             return chart.mode === 'manual'
               && chart.follow === 'false'
               && chart.rendered >= 1
-              && !chart.titles.at(-1)?.startsWith('2026-06-01 09:30');
+              && chart.titles.at(-1)?.startsWith('2026-06-01 09:30');
           });
           const manualChart = chartSnapshot();
           const afterManual = await commands.dispatchCommand('replay.getState');
 
           const requestCountBeforeNext = requests.length;
           document.querySelector('[data-replay-next]').click();
-          await waitFor('next resumes replay follow', async () => {
+          await waitFor('next advances manual replay anchor', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             const chart = chartSnapshot();
             return state.cursorTimestamp === '2026-06-01T09:31:00.000Z'
-              && chart.mode === 'follow'
-              && chart.follow === 'true'
+              && chart.mode === 'manual'
+              && chart.follow === 'false'
               && chart.full === state.displayBars.length
               && chart.titles.at(-1)?.startsWith('2026-06-01 09:31');
           });
@@ -348,11 +348,11 @@ async function main() {
     assert.ok(value.wheelRightEdge <= Date.parse(value.beforeCursor) / 1000);
     assert.equal(value.manualMode, 'manual');
     assert.ok(value.manualRendered >= 1);
-    assert.notEqual(value.manualLastTitle, '2026-06-01 09:30 O 300.00 H 301.00 L 299.00 C 300.50');
-    assert.equal(value.afterNextMode, 'follow');
+    assert.match(value.manualLastTitle, /^2026-06-01 09:30/);
+    assert.equal(value.afterNextMode, 'manual');
     assert.ok(value.afterNextLastTitle.startsWith('2026-06-01 09:31'));
-    assert.equal(value.afterNextLogicalFrom, '0');
-    assert.ok(Number(value.afterNextLogicalTo) >= 1);
+    assert.equal(value.afterNextLogicalFrom, '');
+    assert.equal(value.afterNextLogicalTo, '');
     assert.equal(value.resumedMode, 'follow');
     assert.match(value.resumedLastTitle, /^2026-06-01 09:31/);
     assert.equal(value.timeScaleBarSpacing, '10');
