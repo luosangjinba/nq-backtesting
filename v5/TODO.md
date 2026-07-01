@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 418 is complete. Chart Settings now adds FXReplay-style
-  status title/open-market toggles, explicit margin inputs, background color,
-  and scale text/line styling while preserving Ok/Cancel draft semantics.
-- Next candidate: continue Settings parity with a bounded planning step for
-  price-scale modes, time-scale date format, watermark/session breaks, and
-  template behavior; keep split panes deferred until single-pane chart
-  infrastructure remains stable.
+- Current status: Step 419 is complete. Remaining FXReplay Settings parity is
+  scoped into staged presentation work, advanced chart-engine work, and deferred
+  template/split-pane work before more controls are implemented.
+- Next candidate: Step 420 - Time And Label Presentation. Add the next pure
+  presentation settings only: time-scale date/day label preferences and
+  implemented label visibility controls that can be verified without touching
+  replay cursor, bar-data cache, or split-pane ownership.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -58,6 +58,12 @@
   They belong in Settings as draft edits, normalize colors to `#rrggbb`, and
   apply only through presentation runtime -> chart display context ->
   chart-engine adapter. UI must not call Lightweight chart APIs directly.
+- UI decision: remaining FXReplay Settings parity must be staged. Step 420 can
+  implement pure presentation controls such as time/date labels and current
+  label visibility. Price-scale modes, scale placement, lock price-to-bar ratio,
+  watermark, and session breaks need explicit chart-engine/runtime acceptance
+  before implementation. Template behavior is deferred until presentation
+  settings persistence is designed.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2769,4 +2775,94 @@ Checks:
 - `node v5/tests/chart-price-scale-browser-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 419 - V5 Remaining Settings Planning And Scope Lock
+
+Status: completed.
+
+Goal: lock the remaining FXReplay Settings parity plan before implementing more
+controls, so Settings work stays inside V5 runtime ownership boundaries.
+
+Problem:
+
+- FXReplay Settings still includes many controls not covered by Step 418.
+- Some remaining controls are simple presentation state, while others affect
+  chart engine behavior, future multi-pane semantics, or persistence.
+- Implementing all remaining controls in one step would risk route-local
+  one-off behavior and hidden coupling to chart/replay internals.
+
+Plan:
+
+- [x] Step 419.1: Classify remaining FXReplay Settings controls into staged
+  implementation groups.
+- [x] Step 419.2: Define Step 420 as the next implementation step for pure time
+  and label presentation controls.
+- [x] Step 419.3: Define Step 421 as the advanced chart-engine presentation
+  step for price-scale, canvas, watermark, and session-break behavior that
+  needs adapter/runtime acceptance first.
+- [x] Step 419.4: Explicitly defer template persistence and split-pane/pane
+  settings until their ownership models exist.
+- [x] Step 419.5: Update chart presentation spec, TODO, specs index, and
+  session handoff.
+
+Step 420 - Time And Label Presentation:
+
+- Implement only controls that are pure presentation state.
+- Candidate controls:
+  - time-scale date format options;
+  - day-of-week label display;
+  - current symbol label display mode where V5 already has visible label
+    ownership;
+  - previous-day-close and high/low label controls only if they can be rendered
+    from existing display bars without new bar requests;
+  - plus button visibility if it maps to existing chart affordances without
+    changing replay or bar-data state.
+- Required checks:
+  - presentation runtime normalization smoke;
+  - chart adapter or route browser smoke for visible label changes;
+  - no cursor/display-bar/request-count changes in browser smoke;
+  - `v5/scripts/smoke_all.js`;
+  - `git diff --check`.
+
+Step 421 - Advanced Chart-Engine Settings:
+
+- Implement only after checking Lightweight Charts support and V5 chart runtime
+  ownership.
+- Candidate controls:
+  - price scale visibility/mode;
+  - scale placement;
+  - lock price-to-bar ratio;
+  - no-overlapping-label behavior if supported by the chart engine;
+  - countdown to bar close if it can be computed from replay/display time
+    without introducing live timers as replay state;
+  - watermark;
+  - session breaks.
+- Required checks:
+  - adapter smoke proving options reach Lightweight/fallback metadata;
+  - browser smoke proving Settings draft semantics;
+  - boundary smoke proving UI does not call chart-engine APIs directly;
+  - no replay cursor, display bar, or bar-data mutation on presentation changes.
+
+Deferred:
+
+- Template dropdown and save/apply behavior are deferred until presentation
+  settings persistence is designed.
+- Pane button visibility and pane-specific settings are deferred until the
+  split-pane ownership and active-pane sync model is planned.
+- Any control requiring additional historical bars is not a Settings-only
+  presentation step and must go through bar-data/replay planning.
+
+Manual acceptance:
+
+- The next Settings implementation step has a bounded scope.
+- Remaining FXReplay controls are not treated as one route-local checklist.
+- The plan preserves V5 rules: UI dispatches commands, chart runtime owns chart
+  presentation, replay runtime owns replay state, and bar-data runtime owns bar
+  requests/cache.
+- Template and pane settings are explicitly non-goals until their ownership
+  models exist.
+
+Checks:
+
 - `git diff --check`

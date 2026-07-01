@@ -26,6 +26,61 @@ It does not implement a full FXReplay/TradingView settings panel, template
 system, drawing-tool preferences, screenshot controls, or complete color/theme
 editing.
 
+## Remaining FXReplay Settings Parity
+
+Remaining Settings parity must be staged instead of implemented as one broad
+route-local checklist.
+
+### Step 420 Target - Time And Label Presentation
+
+Step 420 may implement controls that are pure presentation state and can be
+verified without changing replay or bar-data state:
+
+- time-scale date format options;
+- day-of-week label display;
+- symbol label display mode where V5 already owns the visible label;
+- previous-day-close and high/low labels only if they can be rendered from
+  existing display bars without additional bar requests;
+- plus button visibility only if it maps to existing chart affordances without
+  changing replay or bar-data state.
+
+Rules:
+
+- These settings must flow through presentation runtime state.
+- Settings edits remain draft-only until `Ok`.
+- Label/date changes must not alter canonical timestamps, replay cursor,
+  display-bar identity, request ranges, or bar-cache keys.
+
+### Step 421 Target - Advanced Chart-Engine Presentation
+
+The following controls require chart-engine/runtime acceptance before
+implementation:
+
+- price scale visibility/mode;
+- scale placement;
+- lock price-to-bar ratio;
+- no-overlapping-label behavior;
+- countdown to bar close;
+- watermark;
+- session breaks.
+
+Rules:
+
+- UI must not call Lightweight chart APIs directly.
+- Chart runtime and chart-engine adapter must remain the only path for applying
+  chart options.
+- Countdown behavior must be derived presentation, not replay state mutation.
+- Session breaks and labels must not request bars from the route UI.
+
+### Deferred
+
+- Template dropdown save/apply behavior is deferred until presentation settings
+  persistence is designed.
+- Pane button visibility and pane-specific settings are deferred until split
+  panes have an explicit ownership and active-pane sync model.
+- Any setting that needs additional historical bars is not Settings-only work
+  and must be planned through bar-data/replay ownership first.
+
 ## Ownership
 
 - Presentation settings runtime owns settings state and persistence-ready
