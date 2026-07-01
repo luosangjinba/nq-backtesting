@@ -160,7 +160,12 @@ async function main() {
             return state.status === 'initial-loaded' && select && !select.disabled;
           });
 
+          document.querySelector('[data-chart-settings-open]').click();
+          await waitFor('settings open', () => document.querySelector('[data-chart-settings-popover]')?.hidden === false);
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          const floatingDisplaySelectCount = document
+            .querySelector('[data-replay-floating-controls]')
+            ?.querySelectorAll('[data-display-timeframe-select]').length || 0;
           timeframeSelect.value = '5';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           await waitFor('5m display loaded', async () => {
@@ -204,6 +209,7 @@ async function main() {
             hasReplayOneMinuteBar: displayBars.some((bar) => bar.timestamp === Date.parse('2026-06-01T09:31:00.000Z') / 1000),
             allDisplayBarsOn5mBoundary: displayBars.every((bar) => bar.timestamp % (5 * 60) === 0),
             selected: document.querySelector('[data-display-timeframe-select]')?.value || '',
+            floatingDisplaySelectCount,
             statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
             requests,
             projectionRequests,
@@ -219,6 +225,7 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.stateDisplayTimeframe, 5);
     assert.equal(value.contextDisplayTimeframe, 5);
+    assert.equal(value.floatingDisplaySelectCount, 0);
     assert.equal(value.cursorTimestamp, '2026-06-01T09:31:00.000Z');
     assert.equal(value.selected, '5');
     assert.equal(value.fullChartCount, value.displayCount);

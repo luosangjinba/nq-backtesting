@@ -63,6 +63,21 @@ export function createChartReplayRoute() {
                     <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
                     <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
                   </div>
+                  <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
+                    <span>Display interval</span>
+                    <select data-display-timeframe-select disabled>
+                      <optgroup label="Minutes">
+                        <option value="1" data-display-timeframe="1">1m</option>
+                        <option value="5" data-display-timeframe="5">5m</option>
+                      </optgroup>
+                      <optgroup label="Hours">
+                        <option value="60" data-display-timeframe="60">1H</option>
+                      </optgroup>
+                      <optgroup label="Days">
+                        <option value="1440" data-display-timeframe="1440">1D</option>
+                      </optgroup>
+                    </select>
+                  </label>
                 </section>
                 <section>
                   <h3>Status line</h3>
@@ -92,26 +107,35 @@ export function createChartReplayRoute() {
           </div>
           <div class="replay-floating-controls" data-replay-floating-controls aria-label="Replay controls">
             <div class="replay-drag-handle" aria-hidden="true">::</div>
+            <button type="button" data-replay-truncate-to-selection title="Replay to selected bar is planned" aria-label="Replay to selected bar" disabled>|&lt;</button>
+            <label class="replay-speed-control" aria-label="Playback speed">
+              <span class="sr-only">Playback speed</span>
+              <input type="range" data-replay-speed min="100" max="1000" step="100" value="500" disabled>
+            </label>
             <div class="replay-controls" data-replay-controls>
-              <button type="button" data-replay-reset title="Reset replay" aria-label="Reset replay" disabled>|&lt;</button>
+              <button type="button" data-replay-previous title="Previous bar is planned" aria-label="Previous bar" disabled>&lt;|</button>
               <button type="button" data-replay-play title="Play replay" aria-label="Play replay" disabled>&#9654;</button>
-              <button type="button" data-replay-pause title="Pause replay" aria-label="Pause replay" disabled>&#10073;&#10073;</button>
+              <button type="button" data-replay-pause title="Pause replay" aria-label="Pause replay" disabled hidden>&#10073;&#10073;</button>
               <button type="button" data-replay-next title="Next bar" aria-label="Next bar" disabled>&gt;|</button>
             </div>
-            <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Display timeframe">
-              <span class="sr-only">Display timeframe</span>
-              <select data-display-timeframe-select disabled>
+            <label class="replay-interval-controls" data-replay-interval-controls aria-label="Replay interval">
+              <span class="sr-only">Replay interval</span>
+              <select data-replay-interval-select disabled title="Replay interval sync is planned">
                 <optgroup label="Minutes">
-                  <option value="1" data-display-timeframe="1">1m</option>
-                  <option value="5" data-display-timeframe="5">5m</option>
+                  <option value="1">1m</option>
+                  <option value="5">5m</option>
                 </optgroup>
                 <optgroup label="Hours">
-                  <option value="60" data-display-timeframe="60">1H</option>
+                  <option value="60">1H</option>
                 </optgroup>
                 <optgroup label="Days">
-                  <option value="1440" data-display-timeframe="1440">1D</option>
+                  <option value="1440">1D</option>
                 </optgroup>
               </select>
+            </label>
+            <label class="replay-sync-control" title="Sync replay interval with active chart interval is planned">
+              <span class="sr-only">Sync active chart interval</span>
+              <input type="checkbox" data-replay-sync-interval disabled>
             </label>
           </div>
           <div class="chart-go-to-popover" data-chart-go-to-popover hidden>
@@ -128,6 +152,7 @@ export function createChartReplayRoute() {
                 <button type="button" data-chart-go-to-cancel>Cancel</button>
                 <button type="button" data-chart-go-to disabled>Go</button>
                 <button type="button" data-chart-jump-cursor-popover disabled>Cursor</button>
+                <button type="button" data-replay-reset disabled>Reset replay</button>
               </div>
             </div>
           </div>
@@ -166,6 +191,11 @@ export function createChartReplayRoute() {
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
       const resetButton = section.querySelector('[data-replay-reset]');
+      const replayTruncateButton = section.querySelector('[data-replay-truncate-to-selection]');
+      const replayPreviousButton = section.querySelector('[data-replay-previous]');
+      const replaySpeedInput = section.querySelector('[data-replay-speed]');
+      const replayIntervalSelect = section.querySelector('[data-replay-interval-select]');
+      const replaySyncIntervalInput = section.querySelector('[data-replay-sync-interval]');
       const displayTimeframeSelect = section.querySelector('[data-display-timeframe-select]');
       const displayTimezoneButtons = Array.from(section.querySelectorAll('[data-display-timezone]'));
       const presentationTimeFormatButtons = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
@@ -188,8 +218,10 @@ export function createChartReplayRoute() {
       let commandInFlight = false;
       let replayLoaded = false;
       let playbackPlaying = false;
+      let playbackIntervalMs = 500;
       let terminalReason = '';
       let displayTimeframe = null;
+      let replayIntervalTimeframe = null;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
       let presentationSettings = {
@@ -225,10 +257,14 @@ export function createChartReplayRoute() {
           || state?.displayTimeframe
           || state?.session?.timeframe
           || 0);
+        replayIntervalTimeframe = Number(state?.session?.timeframe || replayIntervalTimeframe || displayTimeframe || 1);
         displayTimezone = timezoneContext?.displayTimezone || displayTimezone;
         exchangeTimezone = timezoneContext?.exchangeTimezone || exchangeTimezone;
         presentationSettings = presentationContext || presentationSettings;
         playbackPlaying = Boolean(playback?.playing);
+        if (playbackPlaying && Number(playback?.intervalMs) > 0) {
+          playbackIntervalMs = Number(playback.intervalMs);
+        }
         terminalReason = playback?.stoppedReason || terminalReason;
         startLabel.textContent = formatReplayTimestamp(state?.startBarTimestamp);
         cursorLabel.textContent = formatReplayTimestamp(state?.cursorTimestamp);
@@ -289,6 +325,11 @@ export function createChartReplayRoute() {
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
         resetButton.disabled = unavailable;
+        replayTruncateButton.disabled = true;
+        replayPreviousButton.disabled = true;
+        replaySpeedInput.disabled = unavailable;
+        replayIntervalSelect.disabled = true;
+        replaySyncIntervalInput.disabled = true;
         goToInput.disabled = unavailable;
         goToOpenButton.disabled = unavailable;
         goToButton.disabled = unavailable || !goToInput.value;
@@ -299,10 +340,14 @@ export function createChartReplayRoute() {
           button.disabled = unavailable;
         });
         displayTimeframeSelect.disabled = unavailable;
+        playButton.hidden = playbackPlaying;
+        pauseButton.hidden = !playbackPlaying;
       }
 
       function updateDisplayTimeframeButtons() {
         displayTimeframeSelect.value = displayTimeframe ? String(displayTimeframe) : '1';
+        replayIntervalSelect.value = replayIntervalTimeframe ? String(replayIntervalTimeframe) : '1';
+        replaySpeedInput.value = String(playbackIntervalMs);
       }
 
       function updateDisplayTimezoneButtons() {
@@ -378,7 +423,7 @@ export function createChartReplayRoute() {
       playButton.addEventListener('click', async () => {
         const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PLAY, {
           sessionId: params.sessionId,
-          intervalMs: 500,
+          intervalMs: playbackIntervalMs,
         }));
         if (!playback) return;
         playbackPlaying = Boolean(playback.playing);
@@ -403,6 +448,12 @@ export function createChartReplayRoute() {
         terminalReason = '';
         status.textContent = `Loaded ${state.displayBars.length} bars.`;
         await refreshReplayStatus();
+      });
+
+      replaySpeedInput.addEventListener('input', () => {
+        const nextInterval = Number(replaySpeedInput.value);
+        if (!Number.isFinite(nextInterval) || nextInterval <= 0) return;
+        playbackIntervalMs = nextInterval;
       });
 
       displayTimeframeSelect.addEventListener('change', async () => {

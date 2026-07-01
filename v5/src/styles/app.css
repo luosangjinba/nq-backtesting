@@ -407,6 +407,20 @@ input {
   transform: translateX(-50%);
 }
 
+.replay-floating-controls > button,
+.replay-sync-control {
+  min-width: 30px;
+  min-height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #eef3f8;
+  font-size: 15px;
+  font-weight: 800;
+}
+
 .replay-drag-handle {
   width: 14px;
   color: #94a3b8;
@@ -420,6 +434,7 @@ input {
 
 .replay-controls,
 .display-timeframe-controls,
+.replay-interval-controls,
 .display-timezone-controls,
 .presentation-controls,
 .chart-navigation-controls {
@@ -431,6 +446,7 @@ input {
 }
 
 .display-timeframe-controls,
+.replay-interval-controls,
 .display-timezone-controls,
 .presentation-controls,
 .chart-navigation-controls {
@@ -468,6 +484,17 @@ input {
   background: rgba(71, 85, 105, 0.54);
 }
 
+.replay-speed-control {
+  width: 112px;
+  display: flex;
+  align-items: center;
+}
+
+.replay-speed-control input {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
 .display-timeframe-controls select {
   min-width: 68px;
   min-height: 30px;
@@ -478,6 +505,24 @@ input {
   color: #eef3f8;
   font-size: 13px;
   font-weight: 800;
+}
+
+.replay-interval-controls select {
+  min-width: 58px;
+  min-height: 30px;
+  padding: 0 20px 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #05080d;
+  color: #eef3f8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.display-timeframe-controls span {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .display-timeframe-controls select:not(:disabled):hover {
@@ -497,6 +542,10 @@ input {
 }
 
 .replay-controls button:disabled,
+.replay-floating-controls > button:disabled,
+.replay-speed-control input:disabled,
+.replay-interval-controls select:disabled,
+.replay-sync-control input:disabled,
 .display-timeframe-controls select:disabled,
 .display-timezone-controls button:disabled,
 .presentation-controls button:disabled,

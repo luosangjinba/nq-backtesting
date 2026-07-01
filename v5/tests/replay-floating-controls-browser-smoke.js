@@ -172,6 +172,15 @@ async function main() {
           const topGoToInputs = toolbar.querySelectorAll('[data-chart-go-to-input]').length;
           const layoutDisabled = document.querySelector('[data-layout-open]')?.disabled === true;
           const goToInitiallyHidden = document.querySelector('[data-chart-go-to-popover]')?.hidden === true;
+          const floatingDisplayTimeframeCount = floating.querySelectorAll('[data-display-timeframe-select]').length;
+          const replayIntervalSelect = floating.querySelector('[data-replay-interval-select]');
+          const replaySpeedInput = floating.querySelector('[data-replay-speed]');
+          const disabledTransportPlaceholders = {
+            truncate: floating.querySelector('[data-replay-truncate-to-selection]')?.disabled === true,
+            previous: floating.querySelector('[data-replay-previous]')?.disabled === true,
+            interval: replayIntervalSelect?.disabled === true,
+            sync: floating.querySelector('[data-replay-sync-interval]')?.disabled === true,
+          };
 
           document.querySelector('[data-replay-next]').click();
           await waitFor('next advanced', async () => {
@@ -180,15 +189,18 @@ async function main() {
           });
           const afterNext = await commands.dispatchCommand('replay.getState');
 
-          const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
-          timeframeSelect.value = '5';
-          timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          await waitFor('timeframe changed', async () => {
-            const state = await commands.dispatchCommand('replay.getState');
-            return Number(state.displayTimeframe) === 5
-              && document.querySelector('[data-chart-go-to-open]')?.disabled === false;
+          replaySpeedInput.value = '300';
+          replaySpeedInput.dispatchEvent(new Event('input', { bubbles: true }));
+          document.querySelector('[data-replay-play]').click();
+          await waitFor('play uses selected speed', async () => {
+            const playback = await commands.dispatchCommand('replay.getPlaybackState');
+            return playback.playing === true && playback.intervalMs === 300;
           });
-          const afterTimeframe = await commands.dispatchCommand('replay.getState');
+          document.querySelector('[data-replay-pause]').click();
+          await waitFor('playback paused after speed check', async () => {
+            const playback = await commands.dispatchCommand('replay.getPlaybackState');
+            return playback.playing === false;
+          });
 
           document.querySelector('[data-chart-go-to-open]').click();
           await waitFor('go to open', async () => document.querySelector('[data-chart-go-to-popover]')?.hidden === false);
@@ -207,7 +219,7 @@ async function main() {
             error: '',
             beforeCursor: before.cursorTimestamp,
             afterNextCursor: afterNext.cursorTimestamp,
-            afterTimeframe: afterTimeframe.displayTimeframe,
+            speedPlaybackInterval: (await commands.dispatchCommand('replay.getPlaybackState')).intervalMs,
             afterResetCursor: afterReset.cursorTimestamp,
             afterResetRevealed: afterReset.revealedCount,
             toolbarReplayCount,
@@ -225,8 +237,11 @@ async function main() {
             priceAxisGap: chart.right - floatingRect.right,
             timeAxisGap: chart.bottom - floatingRect.bottom,
             floatingButtonCount: floating.querySelectorAll('button').length,
-            timeframeSelectCount: floating.querySelectorAll('[data-display-timeframe-select]').length,
-            timeframeSelectValue: document.querySelector('[data-display-timeframe-select]')?.value || '',
+            floatingDisplayTimeframeCount,
+            replayIntervalSelectCount: floating.querySelectorAll('[data-replay-interval-select]').length,
+            replayIntervalSelectValue: replayIntervalSelect?.value || '',
+            replaySpeedValue: replaySpeedInput?.value || '',
+            disabledTransportPlaceholders,
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -243,15 +258,23 @@ async function main() {
     assert.equal(value.goToInitiallyHidden, true);
     assert.equal(value.goToOpened, true);
     assert.equal(value.goToClosed, true);
-    assert.equal(value.floatingButtonCount, 4);
-    assert.equal(value.timeframeSelectCount, 1);
-    assert.equal(value.timeframeSelectValue, '5');
+    assert.ok(value.floatingButtonCount >= 5);
+    assert.equal(value.floatingDisplayTimeframeCount, 0);
+    assert.equal(value.replayIntervalSelectCount, 1);
+    assert.equal(value.replayIntervalSelectValue, '1');
+    assert.equal(value.replaySpeedValue, '300');
+    assert.equal(value.speedPlaybackInterval, 300);
+    assert.deepEqual(value.disabledTransportPlaceholders, {
+      truncate: true,
+      previous: true,
+      interval: true,
+      sync: true,
+    });
     assert.equal(value.floatingInsideChart, true, `floating controls outside chart: ${JSON.stringify(value)}`);
     assert.ok(value.priceAxisGap >= 120, `floating controls too close to price axis: ${value.priceAxisGap}`);
     assert.ok(value.timeAxisGap >= 80, `floating controls too close to time axis: ${value.timeAxisGap}`);
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
     assert.notEqual(value.afterNextCursor, value.beforeCursor);
-    assert.equal(Number(value.afterTimeframe), 5);
     assert.equal(value.afterResetCursor, value.beforeCursor);
     assert.equal(value.afterResetRevealed, 0);
   } finally {

@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 395 is complete.
-- Next candidate: after Step 395, decide whether Layout needs a dedicated
-  planning step before implementation, or continue compacting remaining chart
-  navigation affordances such as Cursor/Reset naming.
+- Current status: Step 396 is complete.
+- Next candidate: after Step 396, continue transport runtime semantics for
+  selected-bar truncation, previous-bar stepping, and active chart interval
+  sync, or decide whether Layout needs a dedicated planning step before
+  implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -51,6 +52,18 @@
   `1m v`. The dropdown should be grouped by Seconds / Minutes / Hours / Days
   when broader intervals are supported; MVP can initially expose only the
   already supported `1m`, `5m`, `1H`, and `1D` entries.
+- UI decision: the compact floating replay transport follows FXReplay
+  semantics, not generic chart display controls. From left to right: drag
+  handle; `|<-` means pick a bar/date and truncate future bars after it;
+  slider means playback speed; `<|` means previous bar; `Play` means autoplay
+  bars; `1m v` means replay playback interval, not chart display timeframe;
+  `>|` means next bar; the toggle means sync the replay playback interval with
+  the active chart interval. Unsupported semantics must appear disabled or be
+  deferred; do not wire them to unrelated display-timeframe behavior.
+- UI decision: display timeframe remains a chart display preference, not a
+  replay transport control. Keep it in chart settings until a broader interval
+  menu is designed, and preserve the existing display-projection/no-future
+  runtime invariants.
 - UI decision: the Setup route remains functionally necessary as the session
   selection/creation surface, but its current MVP visual treatment is not the
   final workstation quality bar. Give it a later visual pass after the chart
@@ -1531,5 +1544,55 @@ Checks:
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 396 - V5 Replay Transport Semantic Alignment
+
+Goal: correct the floating replay transport semantics after comparing against
+the FXReplay reference controls.
+
+This step advances Historical Replay Review by preventing high-frequency replay
+controls from misleading users. It is a UI composition and command-wiring
+correction step, not a replay runtime rewrite, bar-loading change, chart-engine
+interaction change, Layout split-pane, drawing, order, or journal step.
+
+- [x] Step 396.1: Record the durable transport decision in Current / Next so
+  future sessions do not confuse playback interval with chart display
+  timeframe.
+- [x] Step 396.2: Move the existing display timeframe dropdown into the chart
+  settings surface as a display preference.
+- [x] Step 396.3: Replace the floating transport contents with FXReplay-style
+  semantics: drag handle, selected-bar truncation placeholder, playback speed,
+  previous bar placeholder, play/pause, replay interval placeholder, next bar,
+  and sync-interval placeholder.
+- [x] Step 396.4: Keep unsupported semantics disabled instead of wiring them to
+  unrelated runtime behavior; keep Next/Play/Pause/Reset command behavior
+  correct.
+- [x] Step 396.5: Update browser smoke coverage for the corrected selectors,
+  display timeframe location, and no misleading transport/display mixing.
+- [x] Step 396.6: Run targeted replay/settings smokes, full V5 smoke, and
+  `git diff --check` before commit.
+
+Manual acceptance:
+
+- Floating replay controls no longer expose chart display timeframe as a
+  transport interval.
+- Display timeframe remains available through chart settings and still drives
+  display projection through `replay.setDisplayTimeframe`.
+- Transport placeholders that are not backed by runtime commands are visibly
+  disabled and do not mutate replay state.
+- Playback speed controls the interval used by Play without moving ownership
+  out of replay runtime.
+- Replay cursor ownership, reveal state, chart series ownership, native
+  Lightweight interactions, and bar-data ownership remain unchanged.
+
+Checks:
+
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
