@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 411: `session_20260701_step411_v5_go_to_cursor_follow_semantics.md`
+- Step 412: `session_20260701_step412_v5_sessions_route_navigation_cleanup.md`
 
 ## Completed Session Index
 
@@ -76,3 +76,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 409: `session_20260701_step409_v5_accept_native_fast_drag_offset.md`
 - Step 410: `session_20260701_step410_v5_single_pane_chart_shell_semantics.md`
 - Step 411: `session_20260701_step411_v5_go_to_cursor_follow_semantics.md`
+- Step 412: `session_20260701_step412_v5_sessions_route_navigation_cleanup.md`

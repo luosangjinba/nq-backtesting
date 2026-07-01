@@ -47,6 +47,9 @@ deferred instead of implying multi-pane behavior.
 Step 411 removes the ambiguous top-level `Cursor` control and keeps the
 behavior inside the Go to surface as an explicit `Jump to replay cursor`
 resume-follow action.
+Step 412 moves session-selection navigation out of the chart control toolbar:
+the route-level return action is labeled `Sessions` and lives in the heading
+area instead of the active-pane controls.
 
 In scope:
 
@@ -162,6 +165,9 @@ Out of scope:
 - Replay controls, timeframe, timezone, presentation toggles, and go-to controls
   may be visually consolidated, but they must continue dispatching commands and
   using events rather than taking ownership of runtime state.
+- Route navigation back to session selection is not a chart command. It should
+  live in route-level heading/navigation UI and use clear wording such as
+  `Sessions`, not `Setup` inside active-pane chart controls.
 - Until multi-pane layout is implemented, the chart route must expose exactly
   one active chart pane with stable `primary` pane identity. Chart display
   timeframe, go-to, settings, replay transport, and reset/follow actions target
@@ -269,6 +275,8 @@ When native Lightweight Charts pan/zoom is observed:
 - Reintroducing stacked engineering control rows that crowd the main chart.
 - Showing engineering shell labels such as `Chart Replay Shell` or
   `Chart Route` in the replay workstation UI.
+- Placing session-selection route navigation inside the active chart-control
+  toolbar as though it were a chart command.
 - Adding multi-pane chart behavior without first defining active-pane ownership,
   chart runtime routing, and sync rules.
 - Letting the deferred Layout control mutate route state or chart layout.
@@ -308,6 +316,8 @@ Step 376 should add or update harnesses proving:
   leaves TF/Go-to/Settings visible as active-pane controls.
 - Go to contains the explicit `Jump to replay cursor` action, and the top-level
   toolbar does not expose an ambiguous `Cursor` button.
+- session-selection navigation is available as `Sessions` in route-level
+  heading/navigation UI and is absent from the chart-control toolbar.
 - price scale margins are applied through Lightweight price scale APIs and stay
   compatible with native interaction.
 - chart navigation overlays keep measurable clearance from the time axis and

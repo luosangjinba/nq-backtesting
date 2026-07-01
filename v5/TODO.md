@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 411 is complete. The ambiguous top-level `Cursor`
-  control was removed, and the behavior now lives in the Go to surface as
-  `Jump to replay cursor`.
+- Current status: Step 412 is complete. Session-selection navigation moved out
+  of the active chart-control toolbar and is now a route-level `Sessions`
+  action in the chart heading.
 - Next candidate: continue single-pane polish before split panes, likely setup
   route visual cleanup or chart settings surface refinement.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -78,8 +78,10 @@
   display bars, or persistence.
 - UI decision: the Setup route remains functionally necessary as the session
   selection/creation surface, but its current MVP visual treatment is not the
-  final workstation quality bar. Give it a later visual pass after the chart
-  route's high-frequency replay controls and settings surfaces are cleaned up.
+  final workstation quality bar. Step 412 renamed the chart route return entry
+  to `Sessions` and moved it to route-level heading navigation; give the setup
+  route itself a later visual pass after the chart route's high-frequency
+  replay controls and settings surfaces are cleaned up.
 - New steps should state whether they advance Historical Replay Review, Live
   Execution Review, both, or necessary shared infrastructure.
 - Product guardrail: Historical Replay Review and Live Execution Review can
@@ -2405,5 +2407,46 @@ Checks:
 
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 412 - V5 Sessions Route Navigation Cleanup
+
+Status: completed.
+
+Goal: move session-selection navigation out of the chart-control toolbar and
+make the destination wording clear.
+
+Problem:
+
+- The former `Setup` button returned to the session selection/creation route,
+  but it sat beside active chart controls like TF, Go to, Layout, and Settings.
+- That placement made route navigation look like a chart/pane command.
+- The destination is better described as `Sessions` than `Setup`.
+
+Implementation:
+
+- [x] Step 412.1: Move the chart route's setup-route link from the chart
+  control toolbar into the panel heading.
+- [x] Step 412.2: Rename the visible action from `Setup` to `Sessions`.
+- [x] Step 412.3: Add route-level navigation styling that keeps the action
+  visually separate from chart controls.
+- [x] Step 412.4: Update workstation layout browser smoke coverage so the
+  heading `Sessions` action navigates back to setup and the chart toolbar has
+  no setup-route link.
+- [x] Step 412.5: Update TODO, interaction contracts, and session handoff.
+
+Manual acceptance:
+
+- The chart-control toolbar no longer contains `Setup`.
+- The chart heading exposes `Sessions` as the route-level return action.
+- Clicking `Sessions` returns to the session selection/creation route.
+- No replay cursor, display bars, bar-data windows, or chart runtime ownership
+  behavior changes.
+
+Checks:
+
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/app-shell-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

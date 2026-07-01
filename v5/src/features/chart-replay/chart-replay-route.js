@@ -33,7 +33,10 @@ export function createChartReplayRoute() {
             <div class="eyebrow">Replay workstation</div>
             <h2>FX Session Replay</h2>
           </div>
-          <span class="runtime-badge">Historical Review</span>
+          <div class="panel-heading-actions" data-route-navigation aria-label="Route navigation">
+            <button type="button" class="route-back-button" data-route-link="setup" title="Back to sessions">Sessions</button>
+            <span class="runtime-badge">Historical Review</span>
+          </div>
         </div>
         <div class="replay-workstation-toolbar" data-replay-workstation-toolbar>
           <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Active chart timeframe">
@@ -58,7 +61,6 @@ export function createChartReplayRoute() {
           </label>
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
             <button type="button" data-chart-go-to-open disabled>Go to</button>
-            <button type="button" data-route-link="setup">Setup</button>
             <button type="button" data-layout-open data-layout-state="deferred" data-layout-mode="single" disabled aria-disabled="true" title="Layout is planned for a later step">Layout</button>
             <button type="button" data-chart-settings-open title="Chart settings" aria-label="Chart settings">Settings</button>
           </div>

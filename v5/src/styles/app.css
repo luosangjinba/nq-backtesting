@@ -157,6 +157,29 @@ h1 {
   margin-bottom: 0;
 }
 
+.panel-heading-actions {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.route-back-button {
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  background: #101722;
+  color: #dbeafe;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.route-back-button:hover {
+  border-color: rgba(125, 211, 252, 0.54);
+  color: #f8fafc;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(140px, 1fr));

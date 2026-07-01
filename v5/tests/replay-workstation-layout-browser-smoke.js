@@ -180,8 +180,12 @@ async function main() {
           const goToRect = rect('[data-chart-go-to-open]');
           const settingsRect = rect('[data-chart-settings-open]');
           const layoutButton = document.querySelector('[data-layout-open]');
-          const setupLink = document.querySelector('[data-route="chart"] [data-route-link="setup"]');
-          setupLink?.click();
+          const routeNavigation = document.querySelector('[data-route-navigation]');
+          const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
+          const toolbarSetupLinkCount = document
+            .querySelector('[data-replay-workstation-toolbar]')
+            ?.querySelectorAll('[data-route-link="setup"]').length || 0;
+          sessionsLink?.click();
           await new Promise((resolve) => setTimeout(resolve, 100));
           const returnedToSetup = Boolean(document.querySelector('[data-route="setup"]'));
           return JSON.stringify({
@@ -205,7 +209,10 @@ async function main() {
             shellTopBarRect,
             shellTopBarDisplay,
             workspaceRect,
-            hasSetupLink: Boolean(setupLink),
+            hasSetupLink: Boolean(sessionsLink),
+            sessionsLinkText: sessionsLink?.textContent?.trim() || '',
+            hasRouteNavigation: Boolean(routeNavigation),
+            toolbarSetupLinkCount,
             returnedToSetup,
             toolbarRect,
             chartRect,
@@ -248,6 +255,9 @@ async function main() {
     assert.equal(value.shellTopBarRect.height, 0);
     assert.ok(value.workspaceRect.top <= 10, `workspace starts too low: ${value.workspaceRect.top}`);
     assert.equal(value.hasSetupLink, true);
+    assert.equal(value.hasRouteNavigation, true);
+    assert.equal(value.sessionsLinkText, 'Sessions');
+    assert.equal(value.toolbarSetupLinkCount, 0);
     assert.equal(value.returnedToSetup, true);
     assert.equal(value.timeframeControlVisible, true);
     assert.equal(value.goToVisible, true);
