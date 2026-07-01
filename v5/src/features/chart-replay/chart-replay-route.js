@@ -501,20 +501,17 @@ export function createChartReplayRoute() {
       }
 
       function clampFloatingPosition(position) {
-        const viewportRect = chartViewport.getBoundingClientRect();
         const controlsRect = replayFloatingControls.getBoundingClientRect();
-        const axisRightPadding = 78;
-        const axisBottomPadding = 52;
         const edgePadding = 12;
         const minLeft = edgePadding;
         const minTop = edgePadding;
         const maxLeft = Math.max(
           minLeft,
-          viewportRect.width - controlsRect.width - axisRightPadding
+          window.innerWidth - controlsRect.width - edgePadding
         );
         const maxTop = Math.max(
           minTop,
-          viewportRect.height - controlsRect.height - axisBottomPadding
+          window.innerHeight - controlsRect.height - edgePadding
         );
         return {
           left: Math.min(Math.max(position.left, minLeft), maxLeft),
@@ -534,11 +531,10 @@ export function createChartReplayRoute() {
       }
 
       function getCurrentFloatingPosition() {
-        const viewportRect = chartViewport.getBoundingClientRect();
         const controlsRect = replayFloatingControls.getBoundingClientRect();
         return {
-          left: controlsRect.left - viewportRect.left,
-          top: controlsRect.top - viewportRect.top,
+          left: controlsRect.left,
+          top: controlsRect.top,
         };
       }
 

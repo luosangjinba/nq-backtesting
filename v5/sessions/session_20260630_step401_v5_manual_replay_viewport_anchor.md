@@ -28,6 +28,9 @@ empty space.
 Replay transport command-in-flight is not a disabled UI state: duplicate clicks
 and adjacent commands are serialized by the route, but Next/Previous/Play should
 not flash disabled or show a forbidden cursor during normal use.
+Replay floating controls are viewport-level controls rather than chart-canvas
+overlays: the drag handle can move them outside the chart area, with browser
+viewport edges as the clamp boundary.
 
 ## Plan
 
@@ -64,6 +67,8 @@ not flash disabled or show a forbidden cursor during normal use.
 - Replay route no longer maps `commandInFlight` to button `disabled`; transport
   buttons remain visually accessible while `runReplayCommand` serializes replay
   commands.
+- Replay floating controls now use fixed viewport positioning and clamp drag
+  movement to browser viewport edges instead of chart viewport edges.
 
 ## Manual Acceptance
 

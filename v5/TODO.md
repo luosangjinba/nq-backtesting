@@ -1806,6 +1806,9 @@ before updating chart-runtime manual anchor state.
 Replay transport command execution is not a disabled UI state. Next/Previous/Play
 commands should serialize while a command is in flight, but buttons should not
 flash disabled or show a forbidden cursor during normal transport commands.
+Replay floating controls are viewport-level controls, not chart-canvas overlays:
+the drag handle may move them outside the chart area, clamped only to the visible
+browser viewport.
 
 - [x] Step 401.1: Document the manual replay viewport anchor decision in
   TODO/spec/session handoff.
@@ -1827,6 +1830,8 @@ flash disabled or show a forbidden cursor during normal transport commands.
   the post-drag screen position.
 - [x] Step 401.10: Keep replay transport buttons visually enabled during
   command-in-flight windows while serializing replay commands.
+- [x] Step 401.11: Allow replay floating controls to drag outside the chart
+  canvas while remaining inside the browser viewport.
 
 Manual acceptance:
 

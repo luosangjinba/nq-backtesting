@@ -405,10 +405,10 @@ input {
 }
 
 .replay-floating-controls {
-  position: absolute;
+  position: fixed;
   left: 50%;
   bottom: 116px;
-  z-index: 2;
+  z-index: 20;
   min-width: 0;
   display: flex;
   align-items: center;

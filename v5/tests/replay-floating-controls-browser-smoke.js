@@ -189,7 +189,7 @@ async function main() {
           const handleX = handleRect.left + Math.round(handleRect.width / 2);
           const handleY = handleRect.top + Math.round(handleRect.height / 2);
           const dragTargetX = handleX + 180;
-          const dragTargetY = handleY - 70;
+          const dragTargetY = 18;
           await new Promise((resolve) => {
             const down = new PointerEvent('pointerdown', {
               bubbles: true,
@@ -316,12 +316,22 @@ async function main() {
             dragChangedReplay: afterDrag.revealedCount !== dragStartRevealed,
             dragRequestDelta: (window.__v5BarRequestCount || 0) - dragStartRequests,
             dragDataset: document.querySelector('[data-replay-floating-controls]')?.dataset.dragged || '',
+            viewport: {
+              width: window.innerWidth,
+              height: window.innerHeight,
+            },
             floatingInsideChart: floatingRect.left >= chart.left
               && floatingRect.right <= chart.right
               && floatingRect.top >= chart.top
               && floatingRect.bottom <= chart.bottom,
-            priceAxisGap: chart.right - floatingRect.right,
-            timeAxisGap: chart.bottom - floatingRect.bottom,
+            draggedInsideViewport: draggedRect.left >= 0
+              && draggedRect.right <= window.innerWidth
+              && draggedRect.top >= 0
+              && draggedRect.bottom <= window.innerHeight,
+            draggedOutsideChart: draggedRect.bottom < chart.top
+              || draggedRect.top > chart.bottom
+              || draggedRect.right < chart.left
+              || draggedRect.left > chart.right,
             floatingButtonCount: floating.querySelectorAll('button').length,
             floatingDisplayTimeframeCount,
             replayIntervalSelectCount: floating.querySelectorAll('[data-replay-interval-select]').length,
@@ -361,17 +371,9 @@ async function main() {
       interval: true,
       sync: true,
     });
-    assert.equal(value.floatingInsideChart, true, `floating controls outside chart: ${JSON.stringify(value)}`);
-    assert.equal(
-      value.dragged.left >= value.chart.left
-        && value.dragged.right <= value.chart.right
-        && value.dragged.top >= value.chart.top
-        && value.dragged.bottom <= value.chart.bottom,
-      true,
-      `dragged floating controls outside chart: ${JSON.stringify(value)}`
-    );
-    assert.ok(value.priceAxisGap >= 120, `floating controls too close to price axis: ${value.priceAxisGap}`);
-    assert.ok(value.timeAxisGap >= 80, `floating controls too close to time axis: ${value.timeAxisGap}`);
+    assert.equal(value.floatingInsideChart, true, `initial floating controls should start inside chart: ${JSON.stringify(value)}`);
+    assert.equal(value.draggedInsideViewport, true, `dragged floating controls outside viewport: ${JSON.stringify(value)}`);
+    assert.equal(value.draggedOutsideChart, true, `dragged floating controls should be able to leave chart: ${JSON.stringify(value)}`);
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
     assert.notEqual(value.afterNextCursor, value.beforeCursor);
     assert.equal(value.afterResetCursor, value.beforeCursor);
