@@ -211,6 +211,15 @@ function applyLightweightPresentation(canvas, context) {
   applyLightweightMetadata(canvas, context);
 }
 
+function followLogicalRangeForBars(bars, context) {
+  if (!bars.length) return null;
+  const rightOffset = Math.max(0, Number(context.rightOffsetBars || 0));
+  return {
+    from: 0,
+    to: Math.max(0, bars.length - 1 + rightOffset),
+  };
+}
+
 function createRuntimeCanvas(documentRef) {
   const canvas = documentRef.createElement('div');
   canvas.className = 'chart-runtime-canvas';
@@ -710,6 +719,16 @@ function createLightweightInstance({ engine, documentRef }) {
       }
       applySeriesPriceScale(displayContext);
       series?.setData(bars.map(toEngineBar));
+      if (options.followViewport) {
+        const logicalRange = followLogicalRangeForBars(bars, displayContext);
+        if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
+          chart.timeScale().setVisibleLogicalRange(logicalRange);
+          if (canvas) {
+            canvas.dataset.visibleLogicalRangeFrom = String(logicalRange.from);
+            canvas.dataset.visibleLogicalRangeTo = String(logicalRange.to);
+          }
+        }
+      }
     },
     setMetadata(nextMetadata = {}) {
       metadata = { ...metadata, ...nextMetadata };

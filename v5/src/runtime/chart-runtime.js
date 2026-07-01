@@ -465,6 +465,7 @@ export function createChartRuntime() {
       fullBarCount: state.bars.length,
       displayContext: state.displayContext,
       metadata: buildChartMetadata(renderedBars),
+      followViewport: state.interaction.mode === 'follow' && state.viewportFollow.enabled,
     });
     applyingRuntimeVisibleRange = true;
     try {

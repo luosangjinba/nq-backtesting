@@ -143,6 +143,7 @@ const lightweightCalls = {
   created: 0,
   setData: [],
   setVisibleRange: [],
+  setVisibleLogicalRange: [],
   applyOptions: [],
   priceScaleApplyOptions: [],
   subscribed: null,
@@ -178,6 +179,9 @@ const fakeLightweightCharts = {
       },
       timeScale() {
         return {
+          setVisibleLogicalRange(range) {
+            lightweightCalls.setVisibleLogicalRange.push(range);
+          },
           setVisibleRange(range) {
             lightweightCalls.setVisibleRange.push(range);
           },
@@ -214,7 +218,7 @@ lightweight.mount(lightweightHost, {
   onVisibleRangeChange: (range, metadata) => visibleRangeEvents.push({ range, metadata }),
   onCrosshairChange: (crosshair) => lightweightCrosshairEvents.push(crosshair),
 });
-lightweight.setBars([bar(32, 102), bar(33, 103)], { fullBarCount: 8 });
+lightweight.setBars([bar(32, 102), bar(33, 103)], { fullBarCount: 8, followViewport: true });
 lightweight.setPresentation({ rightOffsetBars: 4 });
 lightweight.setVisibleRange({
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
@@ -341,6 +345,9 @@ assert.deepEqual(
     Date.parse('2026-06-01T09:33:00.000Z') / 1000,
   ]
 );
+assert.deepEqual(lightweightCalls.setVisibleLogicalRange[0], { from: 0, to: 4 });
+assert.equal(lightweightHost.children[0].dataset.visibleLogicalRangeFrom, '0');
+assert.equal(lightweightHost.children[0].dataset.visibleLogicalRangeTo, '4');
 assert.deepEqual(lightweightCalls.applyOptions[0], {
   handleScroll: {
     mouseWheel: false,

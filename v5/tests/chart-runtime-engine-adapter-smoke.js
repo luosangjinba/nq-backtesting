@@ -85,6 +85,7 @@ globalThis.MutationObserver = class {
 const engineCalls = {
   created: 0,
   setData: [],
+  setVisibleLogicalRange: [],
   visibleRangeHandler: null,
   crosshairHandler: null,
   removed: 0,
@@ -104,6 +105,9 @@ globalThis.LightweightCharts = {
       applyOptions() {},
       timeScale() {
         return {
+          setVisibleLogicalRange(range) {
+            engineCalls.setVisibleLogicalRange.push(range);
+          },
           setVisibleRange() {},
           subscribeVisibleTimeRangeChange(handler) {
             engineCalls.visibleRangeHandler = handler;
@@ -156,6 +160,9 @@ assert.deepEqual(
     Date.parse('2026-06-01T09:33:00.000Z') / 1000,
   ]
 );
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
+assert.equal(host.children[0].dataset.visibleLogicalRangeFrom, '0');
+assert.equal(host.children[0].dataset.visibleLogicalRangeTo, '11');
 assert.equal(host.dataset.viewportFollow, 'true');
 assert.equal(host.dataset.interactionMode, 'follow');
 assert.equal(host.children[0].dataset.viewportFollow, 'true');

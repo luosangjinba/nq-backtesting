@@ -135,6 +135,8 @@ async function main() {
             handleScrollPressedMouseMove: canvas?.dataset.handleScrollPressedMouseMove || '',
             handleScaleMouseWheel: canvas?.dataset.handleScaleMouseWheel || '',
             timeScaleRightOffset: canvas?.dataset.timeScaleRightOffset || '',
+            visibleLogicalRangeFrom: canvas?.dataset.visibleLogicalRangeFrom || '',
+            visibleLogicalRangeTo: canvas?.dataset.visibleLogicalRangeTo || '',
             titles: Array.from(document.querySelectorAll('.chart-candle')).map((item) => item.title),
           };
         }
@@ -306,6 +308,8 @@ async function main() {
             afterNextMode: afterNextChart.mode,
             afterNextFirstTitle: afterNextChart.titles[0] || '',
             afterNextLastTitle: afterNextChart.titles.at(-1) || '',
+            afterNextLogicalFrom: afterNextChart.visibleLogicalRangeFrom,
+            afterNextLogicalTo: afterNextChart.visibleLogicalRangeTo,
             resumedMode: resumedChart.mode,
             resumedLastTitle: resumedChart.titles.at(-1) || '',
             timeScaleBarSpacing: resumedChart.timeScaleBarSpacing,
@@ -347,6 +351,8 @@ async function main() {
     assert.notEqual(value.manualLastTitle, '2026-06-01 09:30 O 300.00 H 301.00 L 299.00 C 300.50');
     assert.equal(value.afterNextMode, 'follow');
     assert.ok(value.afterNextLastTitle.startsWith('2026-06-01 09:31'));
+    assert.equal(value.afterNextLogicalFrom, '0');
+    assert.ok(Number(value.afterNextLogicalTo) >= 1);
     assert.equal(value.resumedMode, 'follow');
     assert.match(value.resumedLastTitle, /^2026-06-01 09:31/);
     assert.equal(value.timeScaleBarSpacing, '10');
