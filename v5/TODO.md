@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 394 is complete.
-- Next candidate: after Step 394, continue Phase 3 with a chart settings
-  surface for low-frequency display preferences, or decide whether Layout needs
-  a dedicated planning step before implementation.
+- Current status: Step 395 is complete.
+- Next candidate: after Step 395, decide whether Layout needs a dedicated
+  planning step before implementation, or continue compacting remaining chart
+  navigation affordances such as Cursor/Reset naming.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -1484,6 +1484,51 @@ Checks:
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 395 - V5 Chart Settings Surface
+
+Goal: move low-frequency chart display preferences out of the top-level
+workstation toolbar and into a chart settings surface.
+
+This step advances Historical Replay Review by reducing toolbar noise after the
+transport controls were compacted. It is a UI composition step, not a replay
+runtime, bar-loading, chart-engine interaction, Layout split-pane, drawing,
+order, or journal step.
+
+- [x] Step 395.1: Add Step 395 TODO/session plan with explicit non-goals.
+- [x] Step 395.2: Remove top-level `Exchange / UTC`, `24h / 12h`, `OHLC`,
+  `Change`, `Crosshair`, `Compact`, and `+16` button groups from the
+  workstation toolbar.
+- [x] Step 395.3: Add a compact chart `Settings` entry that opens a dialog with
+  Time, Status line, and Canvas sections.
+- [x] Step 395.4: Reuse the existing display timezone and chart presentation
+  command wiring inside the settings surface.
+- [x] Step 395.5: Update browser smoke coverage for hidden top-level controls,
+  settings open behavior, and existing display preference effects.
+
+Manual acceptance:
+
+- The top workstation toolbar no longer shows low-frequency display preference
+  button rows.
+- Settings opens a chart settings surface with Time, Status line, and Canvas
+  sections.
+- Timezone, time format, status rows, compact margins, right offset, and
+  crosshair readout toggles still work through existing commands.
+- Display preference changes do not advance replay, request bars, mutate replay
+  cursor, or bypass chart runtime ownership.
+- Layout split panes, drawing tools, order, and journal remain out of scope.
+
+Checks:
+
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`

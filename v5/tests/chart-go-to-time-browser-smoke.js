@@ -161,6 +161,10 @@ async function main() {
               && chart.mode === 'follow'
               && chart.follow === 'true';
           });
+          document.querySelector('[data-chart-settings-open]').click();
+          await waitFor('settings open', async () =>
+            document.querySelector('[data-chart-settings-popover]')?.hidden === false
+          );
           document.querySelector('[data-display-timezone="UTC"]').click();
           await waitFor('utc display timezone', async () => {
             const timezone = await commands.dispatchCommand('displayTimezone.get');

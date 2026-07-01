@@ -202,6 +202,10 @@ async function main() {
               );
           });
 
+          document.querySelector('[data-chart-settings-open]').click();
+          await waitFor('settings open', async () =>
+            document.querySelector('[data-chart-settings-popover]')?.hidden === false
+          );
           document.querySelector('[data-presentation-margin="compact"]').click();
           await waitFor('compact price scale applied', async () =>
             metrics.priceScaleApplyOptions.some((payload) =>

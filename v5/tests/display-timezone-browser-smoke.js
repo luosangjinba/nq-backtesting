@@ -161,7 +161,14 @@ async function main() {
           const losAngelesButtonExists = Boolean(
             document.querySelector('[data-display-timezone="America/Los_Angeles"]')
           );
+          const toolbarTimezoneButtonCount = document.querySelector('[data-replay-workstation-toolbar]')
+            ?.querySelectorAll('[data-display-timezone]').length || 0;
+          const settingsInitiallyHidden = document.querySelector('[data-chart-settings-popover]')?.hidden === true;
           const requestCount = requests.length;
+          document.querySelector('[data-chart-settings-open]').click();
+          await waitFor('settings open', async () =>
+            document.querySelector('[data-chart-settings-popover]')?.hidden === false
+          );
           document.querySelector('[data-display-timezone="UTC"]').click();
           await waitFor('utc label', async () =>
             document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 13:30'
@@ -175,6 +182,9 @@ async function main() {
             beforeEndLabel,
             beforeCandleTitle,
             losAngelesButtonExists,
+            toolbarTimezoneButtonCount,
+            settingsInitiallyHidden,
+            settingsOpen: document.querySelector('[data-chart-settings-popover]')?.hidden === false,
             afterCursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             afterEndLabel: document.querySelector('[data-replay-end]')?.textContent || '',
             afterCandleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
@@ -203,6 +213,9 @@ async function main() {
     assert.match(value.afterCandleTitle, /^2026-06-01 13:30/);
     assert.equal(value.selectedUtc, 'true');
     assert.equal(value.losAngelesButtonExists, false);
+    assert.equal(value.toolbarTimezoneButtonCount, 0);
+    assert.equal(value.settingsInitiallyHidden, true);
+    assert.equal(value.settingsOpen, true);
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

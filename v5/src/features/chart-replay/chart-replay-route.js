@@ -32,24 +32,55 @@ export function createChartReplayRoute() {
           <span class="runtime-badge">Historical Review</span>
         </div>
         <div class="replay-workstation-toolbar" data-replay-workstation-toolbar>
-          <div class="display-timezone-controls" data-display-timezone-controls aria-label="Display timezone">
-            <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
-            <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
-          </div>
-          <div class="presentation-controls" data-presentation-controls aria-label="Chart presentation">
-            <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
-            <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
-            <button type="button" data-presentation-toggle="showStatusOhlc" aria-pressed="false">OHLC</button>
-            <button type="button" data-presentation-toggle="showStatusChange" aria-pressed="false">Change</button>
-            <button type="button" data-presentation-toggle="showCrosshairReadout" aria-pressed="false">Crosshair</button>
-            <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
-            <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
-          </div>
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
             <button type="button" data-chart-go-to-open disabled>Go to</button>
             <button type="button" data-chart-jump-cursor disabled>Cursor</button>
             <button type="button" data-route-link="setup">Setup</button>
             <button type="button" data-layout-open disabled title="Layout is planned for a later step">Layout</button>
+            <button type="button" data-chart-settings-open title="Chart settings" aria-label="Chart settings">Settings</button>
+          </div>
+        </div>
+        <div class="chart-settings-popover" data-chart-settings-popover hidden>
+          <div class="chart-settings-panel" role="dialog" aria-modal="false" aria-label="Chart settings">
+            <div class="chart-settings-header">
+              <strong>Settings</strong>
+              <button type="button" data-chart-settings-close aria-label="Close settings">&times;</button>
+            </div>
+            <div class="chart-settings-body">
+              <nav class="chart-settings-tabs" aria-label="Chart settings sections">
+                <span aria-current="true">Time</span>
+                <span>Status line</span>
+                <span>Canvas</span>
+              </nav>
+              <div class="chart-settings-sections">
+                <section>
+                  <h3>Time</h3>
+                  <div class="display-timezone-controls" data-display-timezone-controls aria-label="Display timezone">
+                    <button type="button" data-display-timezone="Exchange" aria-pressed="false">Exchange</button>
+                    <button type="button" data-display-timezone="UTC" aria-pressed="false">UTC</button>
+                  </div>
+                  <div class="presentation-controls" data-presentation-time-controls aria-label="Time format">
+                    <button type="button" data-presentation-time-format="24h" aria-pressed="false">24h</button>
+                    <button type="button" data-presentation-time-format="12h" aria-pressed="false">12h</button>
+                  </div>
+                </section>
+                <section>
+                  <h3>Status line</h3>
+                  <div class="presentation-controls" data-presentation-status-controls aria-label="Status line">
+                    <button type="button" data-presentation-toggle="showStatusOhlc" aria-pressed="false">OHLC</button>
+                    <button type="button" data-presentation-toggle="showStatusChange" aria-pressed="false">Change</button>
+                    <button type="button" data-presentation-toggle="showCrosshairReadout" aria-pressed="false">Crosshair</button>
+                  </div>
+                </section>
+                <section>
+                  <h3>Canvas</h3>
+                  <div class="presentation-controls" data-presentation-canvas-controls aria-label="Canvas">
+                    <button type="button" data-presentation-margin="compact" aria-pressed="false">Compact</button>
+                    <button type="button" data-presentation-right-offset="16" aria-pressed="false">+16</button>
+                  </div>
+                </section>
+              </div>
+            </div>
           </div>
         </div>
         <div class="chart-viewport">
@@ -148,6 +179,9 @@ export function createChartReplayRoute() {
       const goToButton = section.querySelector('[data-chart-go-to]');
       const jumpCursorButton = section.querySelector('[data-chart-jump-cursor]');
       const jumpCursorPopoverButton = section.querySelector('[data-chart-jump-cursor-popover]');
+      const chartSettingsPopover = section.querySelector('[data-chart-settings-popover]');
+      const chartSettingsOpenButton = section.querySelector('[data-chart-settings-open]');
+      const chartSettingsCloseButton = section.querySelector('[data-chart-settings-close]');
       const layoutOpenButton = section.querySelector('[data-layout-open]');
       const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
       const resetViewButton = section.querySelector('[data-chart-reset-view]');
@@ -467,6 +501,24 @@ export function createChartReplayRoute() {
 
       goToInput.addEventListener('input', () => {
         setControlsDisabled();
+      });
+
+      function openChartSettings() {
+        chartSettingsPopover.hidden = false;
+        chartSettingsCloseButton.focus();
+      }
+
+      function closeChartSettings() {
+        chartSettingsPopover.hidden = true;
+        chartSettingsOpenButton.focus();
+      }
+
+      chartSettingsOpenButton.addEventListener('click', openChartSettings);
+      chartSettingsCloseButton.addEventListener('click', closeChartSettings);
+      chartSettingsPopover.addEventListener('click', (event) => {
+        if (event.target === chartSettingsPopover) {
+          closeChartSettings();
+        }
       });
 
       async function runChartNavigation(action, statusText) {

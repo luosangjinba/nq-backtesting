@@ -158,7 +158,15 @@ async function main() {
           const requestCount = requests.length;
           const beforeCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
           const beforeOhlcHidden = document.querySelector('[data-status-ohlc-row]')?.hidden;
+          const toolbarPresentationButtonCount = document.querySelector('[data-replay-workstation-toolbar]')
+            ?.querySelectorAll('[data-display-timezone], [data-presentation-time-format], [data-presentation-toggle], [data-presentation-margin], [data-presentation-right-offset]')
+            .length || 0;
+          const settingsInitiallyHidden = document.querySelector('[data-chart-settings-popover]')?.hidden === true;
 
+          document.querySelector('[data-chart-settings-open]').click();
+          await waitFor('settings open', async () =>
+            document.querySelector('[data-chart-settings-popover]')?.hidden === false
+          );
           document.querySelector('[data-presentation-time-format="12h"]').click();
           document.querySelector('[data-presentation-toggle="showStatusOhlc"]').click();
           document.querySelector('[data-presentation-margin="compact"]').click();
@@ -183,6 +191,9 @@ async function main() {
             afterCursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             beforeOhlcHidden,
             afterOhlcHidden: document.querySelector('[data-status-ohlc-row]')?.hidden,
+            toolbarPresentationButtonCount,
+            settingsInitiallyHidden,
+            settingsOpen: document.querySelector('[data-chart-settings-popover]')?.hidden === false,
             selected12h: document.querySelector('[data-presentation-time-format="12h"]')?.getAttribute('aria-pressed') || '',
             compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.getAttribute('aria-pressed') || '',
             rightOffsetSelected: document.querySelector('[data-presentation-right-offset="16"]')?.getAttribute('aria-pressed') || '',
@@ -212,6 +223,9 @@ async function main() {
     assert.equal(value.afterCursorLabel, '2026-06-01 9:30 AM');
     assert.equal(value.beforeOhlcHidden, false);
     assert.equal(value.afterOhlcHidden, true);
+    assert.equal(value.toolbarPresentationButtonCount, 0);
+    assert.equal(value.settingsInitiallyHidden, true);
+    assert.equal(value.settingsOpen, true);
     assert.equal(value.selected12h, 'true');
     assert.equal(value.compactSelected, 'true');
     assert.equal(value.rightOffsetSelected, 'true');

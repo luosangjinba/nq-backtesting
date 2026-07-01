@@ -256,6 +256,10 @@ async function main() {
           const crosshair = await commands.dispatchCommand('chart.getCrosshairState');
           const state = await commands.dispatchCommand('replay.getState');
           const interaction = await commands.dispatchCommand('chart.getInteractionState');
+          document.querySelector('[data-chart-settings-open]').click();
+          await waitFor('settings open', async () =>
+            document.querySelector('[data-chart-settings-popover]')?.hidden === false
+          );
           document.querySelector('[data-presentation-toggle="showCrosshairReadout"]').click();
           await waitFor('crosshair hidden', async () =>
             document.querySelector('[data-crosshair-row]')?.hidden === true
