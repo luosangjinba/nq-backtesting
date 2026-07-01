@@ -16,6 +16,14 @@ export { CHART_COMMANDS, CHART_EVENTS };
 
 const PREFIX_DEMAND_THRESHOLD_BARS = 2;
 
+function cloneCandleStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle) {
+  return {
+    body: { ...style.body },
+    border: { ...style.border },
+    wick: { ...style.wick },
+  };
+}
+
 function createEmptyState() {
   return {
     bars: [],
@@ -55,6 +63,7 @@ function createEmptyState() {
       showCrosshairReadout: DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout,
       margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
       rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
+      candleStyle: cloneCandleStyle(),
     },
   };
 }
@@ -883,6 +892,7 @@ export function createChartRuntime() {
     showCrosshairReadout = state.displayContext.showCrosshairReadout,
     margins = state.displayContext.margins,
     rightOffsetBars = state.displayContext.rightOffsetBars,
+    candleStyle = state.displayContext.candleStyle,
   } = {}) {
     state.displayContext = {
       instrument: instrument == null ? null : String(instrument),
@@ -899,6 +909,7 @@ export function createChartRuntime() {
         bottomPercent: Number(margins?.bottomPercent ?? DEFAULT_CHART_PRESENTATION_SETTINGS.margins.bottomPercent),
       },
       rightOffsetBars: Number(rightOffsetBars ?? DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars),
+      candleStyle: cloneCandleStyle(candleStyle),
     };
     state.viewportFollow = {
       ...state.viewportFollow,
@@ -925,6 +936,7 @@ export function createChartRuntime() {
       showCrosshairReadout: payload.showCrosshairReadout,
       margins: payload.margins,
       rightOffsetBars: payload.rightOffsetBars,
+      candleStyle: payload.candleStyle,
     });
   }
 

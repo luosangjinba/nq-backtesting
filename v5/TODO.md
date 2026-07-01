@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 415 is complete. Chart Settings now uses an
-  FXReplay-style sectioned modal with Ok/Cancel draft semantics, and the chart
-  OHLC overlay now follows crosshair hover bars like V4.
+- Current status: Step 416 is complete. Chart Settings now includes functional
+  candle body/border/wick up/down color controls with Ok/Cancel draft
+  semantics, and chart runtime applies the style through the chart-engine
+  adapter.
 - Next candidate: continue single-pane polish before split panes, likely setup
   route visual cleanup, denser FXReplay-style chart header alignment, or
-  deeper chart settings options such as candle/grid/crosshair colors.
+  deeper chart settings options such as grid/crosshair colors.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -49,6 +50,10 @@
   Edits inside the modal are draft route UI state until `Ok`; `Cancel`, close,
   or backdrop dismiss must discard the draft without mutating presentation,
   timezone, replay, chart, or bar-data runtime state.
+- UI decision: candle body/border/wick colors are chart presentation settings.
+  They belong in the Settings `Symbol` section as draft edits, normalize to
+  `#rrggbb`, and apply only through presentation runtime -> chart display
+  context -> chart-engine adapter. UI must not call chart series APIs directly.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2602,5 +2607,50 @@ Checks:
 - `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 416 - V5 Candle Style Settings
+
+Status: completed.
+
+Goal: make the Settings `Symbol` section control real candle body, border, and
+wick colors without bypassing chart presentation/runtime ownership.
+
+Problem:
+
+- Step 415 created the correct Settings modal shape, but candle styling was
+  still hardcoded in chart adapter defaults.
+- Future settings expansion needs a verified route from modal draft state to
+  presentation runtime, chart display context, and chart-engine adapter.
+
+Implementation:
+
+- [x] Step 416.1: Add `candleStyle` defaults and normalization to chart
+  presentation contracts/runtime.
+- [x] Step 416.2: Add body, border, and wick up/down color inputs to the
+  Settings `Symbol` section.
+- [x] Step 416.3: Preserve Settings draft semantics so color changes do not
+  mutate chart presentation until `Ok`.
+- [x] Step 416.4: Carry candle style through chart runtime display context.
+- [x] Step 416.5: Apply candle style in the chart-engine adapter for
+  Lightweight series options and DOM fallback metadata.
+- [x] Step 416.6: Update runtime, adapter, and browser smokes plus
+  presentation/interaction docs and session handoff.
+
+Manual acceptance:
+
+- Settings exposes candle `Body`, `Borders`, and `Wick` color pairs.
+- Changing a color in Settings does not affect the chart until `Ok`.
+- `Ok` updates chart candle colors without changing replay cursor, display
+  bars, bar-data windows, active pane identity, or chart runtime ownership.
+- Invalid presentation colors are rejected by the presentation runtime.
+
+Checks:
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

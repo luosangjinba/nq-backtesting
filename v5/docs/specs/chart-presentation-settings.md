@@ -14,6 +14,7 @@ The initial presentation settings foundation covers:
 - status line field visibility;
 - chart margins and right offset;
 - crosshair readout enablement;
+- candle body, border, and wick colors for up/down candles;
 - chart-owned crosshair readout visibility and formatting.
 - shared price, OHLC, change, candle-title, and inspection formatting.
 
@@ -45,6 +46,8 @@ presentation setting changes.
 - `margins`: top and bottom percentages for chart layout.
 - `rightOffsetBars`: number of bars reserved to the right of the latest visible
   bar.
+- `candleStyle`: up/down colors for candle body, border, and wick, normalized
+  as `#rrggbb`.
 
 Defaults should match the current V5 dark replay layout and be conservative:
 OHLC/status change on, 24-hour time, visible crosshair readout, and right-side
@@ -69,11 +72,15 @@ space for replay progression.
   `chart-display-timezone.md`.
 - Chart margins/right offset belong to chart presentation and must not be
   encoded in replay display state.
+- Candle style belongs to chart presentation and flows through chart display
+  context into the chart-engine adapter. UI must not call Lightweight series
+  APIs directly to change candle colors.
 
 ## Verification
 
 - Runtime smoke verifies normalization, events, and no bar/replay mutation.
 - Chart runtime smoke verifies margins/right offset are consumed by chart-owned
   layout state.
+- Adapter smoke verifies candle style reaches Lightweight series options.
 - Browser smoke verifies settings changes affect visible presentation while
   cursor, display bars, and `/v4/bars` request counts remain unchanged.

@@ -99,6 +99,7 @@ function toChartBar(bar) {
 }
 
 function normalizeContext(context = {}) {
+  const defaultCandleStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle;
   return {
     displayTimezone: context.displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
     exchangeTimezone: context.exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
@@ -115,12 +116,32 @@ function normalizeContext(context = {}) {
       ),
     },
     rightOffsetBars: Number(context.rightOffsetBars ?? DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars),
+    candleStyle: {
+      body: {
+        up: context.candleStyle?.body?.up || defaultCandleStyle.body.up,
+        down: context.candleStyle?.body?.down || defaultCandleStyle.body.down,
+      },
+      border: {
+        up: context.candleStyle?.border?.up || defaultCandleStyle.border.up,
+        down: context.candleStyle?.border?.down || defaultCandleStyle.border.down,
+      },
+      wick: {
+        up: context.candleStyle?.wick?.up || defaultCandleStyle.wick.up,
+        down: context.candleStyle?.wick?.down || defaultCandleStyle.wick.down,
+      },
+    },
   };
 }
 
 function applyFallbackPresentation(canvas, context) {
   canvas.dataset.crosshairReadout = context.showCrosshairReadout ? 'true' : 'false';
   canvas.dataset.rightOffsetBars = String(context.rightOffsetBars);
+  canvas.dataset.candleBodyUp = context.candleStyle.body.up;
+  canvas.dataset.candleBodyDown = context.candleStyle.body.down;
+  canvas.dataset.candleBorderUp = context.candleStyle.border.up;
+  canvas.dataset.candleBorderDown = context.candleStyle.border.down;
+  canvas.dataset.candleWickUp = context.candleStyle.wick.up;
+  canvas.dataset.candleWickDown = context.candleStyle.wick.down;
   canvas.style.paddingTop = `${context.margins.topPercent}%`;
   canvas.style.paddingBottom = `${context.margins.bottomPercent}%`;
   canvas.style.paddingRight = `${context.rightOffsetBars * 10}px`;
@@ -146,6 +167,18 @@ function lightweightOptionsForContext(context) {
       rightOffset: context.rightOffsetBars,
       tickMarkFormatter: (time) => formatLightweightTick(time, context),
     },
+  };
+}
+
+function lightweightSeriesOptionsForContext(context) {
+  return {
+    priceFormat: { ...LIGHTWEIGHT_PRICE_FORMAT },
+    upColor: context.candleStyle.body.up,
+    downColor: context.candleStyle.body.down,
+    borderUpColor: context.candleStyle.border.up,
+    borderDownColor: context.candleStyle.border.down,
+    wickUpColor: context.candleStyle.wick.up,
+    wickDownColor: context.candleStyle.wick.down,
   };
 }
 
@@ -202,6 +235,12 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.priceScaleMarginBottom = String(priceScaleMargins.bottom);
   canvas.dataset.pricePrecision = String(LIGHTWEIGHT_PRICE_FORMAT.precision);
   canvas.dataset.priceMinMove = String(LIGHTWEIGHT_PRICE_FORMAT.minMove);
+  canvas.dataset.candleBodyUp = context.candleStyle.body.up;
+  canvas.dataset.candleBodyDown = context.candleStyle.body.down;
+  canvas.dataset.candleBorderUp = context.candleStyle.border.up;
+  canvas.dataset.candleBorderDown = context.candleStyle.border.down;
+  canvas.dataset.candleWickUp = context.candleStyle.wick.up;
+  canvas.dataset.candleWickDown = context.candleStyle.wick.down;
 }
 
 function applyLightweightPresentation(canvas, context) {
@@ -297,9 +336,12 @@ function renderFallbackBars(documentRef, canvas, bars, context, fullBarCount = b
     const candle = documentRef.createElement('div');
     const top = ((max - bar.high) / range) * 100;
     const height = Math.max(((bar.high - bar.low) / range) * 100, 4);
-    candle.className = `chart-candle ${bar.close >= bar.open ? 'is-up' : 'is-down'}`;
+    const isUp = bar.close >= bar.open;
+    candle.className = `chart-candle ${isUp ? 'is-up' : 'is-down'}`;
     candle.style.top = `${top}%`;
     candle.style.height = `${height}%`;
+    candle.style.backgroundColor = isUp ? context.candleStyle.body.up : context.candleStyle.body.down;
+    candle.style.borderColor = isUp ? context.candleStyle.border.up : context.candleStyle.border.down;
     candle.title = formatCandleTitle(bar, {
       timeText: formatChartBarTime(bar, context),
     });
@@ -602,17 +644,19 @@ function createLightweightInstance({ engine, documentRef }) {
   }
 
   function createSeries(nextChart) {
+    const seriesOptions = lightweightSeriesOptionsForContext(displayContext);
     if (typeof nextChart.addCandlestickSeries === 'function') {
-      return nextChart.addCandlestickSeries({
-        priceFormat: { ...LIGHTWEIGHT_PRICE_FORMAT },
-      });
+      return nextChart.addCandlestickSeries(seriesOptions);
     }
     if (typeof nextChart.addSeries === 'function' && engine.CandlestickSeries) {
-      return nextChart.addSeries(engine.CandlestickSeries, {
-        priceFormat: { ...LIGHTWEIGHT_PRICE_FORMAT },
-      });
+      return nextChart.addSeries(engine.CandlestickSeries, seriesOptions);
     }
     throw new Error('Lightweight Charts candlestick series API is unavailable.');
+  }
+
+  function applySeriesOptions(context) {
+    if (typeof series?.applyOptions !== 'function') return;
+    series.applyOptions(lightweightSeriesOptionsForContext(context));
   }
 
   function applySeriesPriceScale(context) {
@@ -823,6 +867,7 @@ function createLightweightInstance({ engine, documentRef }) {
         canvas.dataset.fullBarCount = String(fullBarCount);
         renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
       }
+      applySeriesOptions(displayContext);
       applySeriesPriceScale(displayContext);
       series?.setData(bars.map(toEngineBar));
       if (options.followViewport) {
@@ -878,6 +923,7 @@ function createLightweightInstance({ engine, documentRef }) {
         applyLightweightPresentation(canvas, displayContext);
       }
       chart?.applyOptions?.(lightweightOptionsForContext(displayContext));
+      applySeriesOptions(displayContext);
       applySeriesPriceScale(displayContext);
     },
     readState() {

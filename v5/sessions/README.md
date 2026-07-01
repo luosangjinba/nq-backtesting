@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 415: `session_20260701_step415_v5_fxreplay_settings_modal.md`
+- Step 416: `session_20260701_step416_v5_candle_style_settings.md`
 
 ## Completed Session Index
 
@@ -80,3 +80,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 413: `session_20260701_step413_v5_chart_ohlc_top_left_overlay.md`
 - Step 414: `session_20260701_step414_v5_compact_chart_route_chrome.md`
 - Step 415: `session_20260701_step415_v5_fxreplay_settings_modal.md`
+- Step 416: `session_20260701_step416_v5_candle_style_settings.md`

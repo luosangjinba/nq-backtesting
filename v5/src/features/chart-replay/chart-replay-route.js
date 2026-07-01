@@ -4,6 +4,7 @@ import { CHART_COMMANDS, CHART_EVENTS } from '../../contracts/chart-contracts.js
 import {
   CHART_PRESENTATION_COMMANDS,
   CHART_PRESENTATION_EVENTS,
+  DEFAULT_CHART_PRESENTATION_SETTINGS,
 } from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
@@ -80,6 +81,28 @@ export function createChartReplayRoute() {
               </nav>
               <div class="chart-settings-sections">
                 <section data-chart-settings-section="symbol">
+                  <h3>Candles</h3>
+                  <label class="chart-settings-color-row">
+                    <span>Body</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-candle-style="body.up" aria-label="Up body color">
+                      <input type="color" data-candle-style="body.down" aria-label="Down body color">
+                    </span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Borders</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-candle-style="border.up" aria-label="Up border color">
+                      <input type="color" data-candle-style="border.down" aria-label="Down border color">
+                    </span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Wick</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-candle-style="wick.up" aria-label="Up wick color">
+                      <input type="color" data-candle-style="wick.down" aria-label="Down wick color">
+                    </span>
+                  </label>
                   <h3>Data modification</h3>
                   <label class="chart-settings-row">
                     <span>Timezone</span>
@@ -273,6 +296,7 @@ export function createChartReplayRoute() {
       const presentationToggleControls = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
       const presentationMarginControls = Array.from(section.querySelectorAll('[data-presentation-margin]'));
       const presentationRightOffsetControls = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
+      const candleStyleControls = Array.from(section.querySelectorAll('[data-candle-style]'));
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -314,6 +338,9 @@ export function createChartReplayRoute() {
         showStatusOhlc: true,
         showStatusChange: true,
         showCrosshairReadout: true,
+        margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
+        rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
+        candleStyle: cloneCandleStyle(),
       };
       let crosshairState = { active: false };
       let lastReplayState = null;
@@ -760,6 +787,25 @@ export function createChartReplayRoute() {
         return settings?.margins?.topPercent === 6 && settings?.margins?.bottomPercent === 6;
       }
 
+      function cloneCandleStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle) {
+        return {
+          body: { ...style.body },
+          border: { ...style.border },
+          wick: { ...style.wick },
+        };
+      }
+
+      function candleStyleValue(style, path) {
+        const [group, direction] = String(path || '').split('.');
+        return style?.[group]?.[direction] || DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle[group]?.[direction] || '#000000';
+      }
+
+      function setCandleStyleValue(style, path, value) {
+        const [group, direction] = String(path || '').split('.');
+        if (!style[group]) style[group] = {};
+        style[group][direction] = value;
+      }
+
       function createSettingsDraft() {
         return {
           displayTimezone,
@@ -769,6 +815,7 @@ export function createChartReplayRoute() {
           showCrosshairReadout: Boolean(presentationSettings.showCrosshairReadout),
           compactMargins: compactMarginsEnabled(),
           rightOffsetBars: Number(presentationSettings.rightOffsetBars || 10),
+          candleStyle: cloneCandleStyle(presentationSettings.candleStyle),
         };
       }
 
@@ -800,6 +847,9 @@ export function createChartReplayRoute() {
             control.value = String(draft.rightOffsetBars || 10);
           }
         });
+        candleStyleControls.forEach((control) => {
+          control.value = candleStyleValue(draft.candleStyle, control.dataset.candleStyle);
+        });
       }
 
       function showSettingsSection(sectionId) {
@@ -825,6 +875,7 @@ export function createChartReplayRoute() {
           showCrosshairReadout: presentationSettings.showCrosshairReadout,
           margins: presentationSettings.margins,
           rightOffsetBars: presentationSettings.rightOffsetBars,
+          candleStyle: presentationSettings.candleStyle,
         }).catch(() => null);
       }
 
@@ -1051,6 +1102,16 @@ export function createChartReplayRoute() {
           settingsDraft.rightOffsetBars = Number(control.value);
         });
       });
+      candleStyleControls.forEach((control) => {
+        control.addEventListener('input', () => {
+          if (!settingsDraft) return;
+          setCandleStyleValue(settingsDraft.candleStyle, control.dataset.candleStyle, control.value);
+        });
+        control.addEventListener('change', () => {
+          if (!settingsDraft) return;
+          setCandleStyleValue(settingsDraft.candleStyle, control.dataset.candleStyle, control.value);
+        });
+      });
       chartSettingsApplyButton.addEventListener('click', async () => {
         if (!settingsDraft) return;
         const draft = settingsDraft;
@@ -1070,6 +1131,7 @@ export function createChartReplayRoute() {
             ? { topPercent: 6, bottomPercent: 6 }
             : { topPercent: 10, bottomPercent: 8 },
           rightOffsetBars: Number(draft.rightOffsetBars || 10),
+          candleStyle: cloneCandleStyle(draft.candleStyle),
         });
         await syncChartDisplayTimezone();
         await syncChartPresentationSettings();

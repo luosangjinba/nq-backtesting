@@ -17,6 +17,21 @@ export const CHART_DATE_FORMATS = Object.freeze({
   ISO_DATE: 'YYYY-MM-DD',
 });
 
+export const DEFAULT_CANDLE_STYLE = Object.freeze({
+  body: Object.freeze({
+    up: '#26a69a',
+    down: '#ef5350',
+  }),
+  border: Object.freeze({
+    up: '#26a69a',
+    down: '#ef5350',
+  }),
+  wick: Object.freeze({
+    up: '#26a69a',
+    down: '#ef5350',
+  }),
+});
+
 export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   timeFormat: CHART_TIME_FORMATS.H24,
   dateFormat: CHART_DATE_FORMATS.ISO_DATE,
@@ -28,4 +43,5 @@ export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
     bottomPercent: 8,
   }),
   rightOffsetBars: 10,
+  candleStyle: DEFAULT_CANDLE_STYLE,
 });

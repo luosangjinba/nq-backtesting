@@ -533,6 +533,31 @@ input {
   color: #f1f5f9;
 }
 
+.chart-settings-color-row {
+  display: grid;
+  grid-template-columns: minmax(150px, 1fr) minmax(180px, 220px);
+  align-items: center;
+  gap: 16px;
+  color: #d1d5db;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.chart-settings-color-pair {
+  display: flex;
+  gap: 10px;
+}
+
+.chart-settings-color-pair input[type="color"] {
+  width: 44px;
+  height: 36px;
+  min-height: 0;
+  padding: 2px;
+  border: 1px solid #64748b;
+  border-radius: 6px;
+  background: #111827;
+}
+
 .chart-settings-check {
   min-height: 44px;
   display: flex;
@@ -1034,7 +1059,8 @@ input {
     padding: 0 10px;
   }
 
-  .chart-settings-row {
+  .chart-settings-row,
+  .chart-settings-color-row {
     grid-template-columns: 1fr;
   }
 

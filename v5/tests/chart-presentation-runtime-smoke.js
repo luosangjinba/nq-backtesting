@@ -45,6 +45,20 @@ assert.deepEqual(defaults, {
     bottomPercent: 8,
   },
   rightOffsetBars: 10,
+  candleStyle: {
+    body: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+    border: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+    wick: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+  },
 });
 
 const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
@@ -54,6 +68,11 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
     topPercent: 12,
   },
   rightOffsetBars: 16,
+  candleStyle: {
+    body: {
+      up: '#22c55e',
+    },
+  },
 });
 assert.deepEqual(updated, {
   ...defaults,
@@ -64,6 +83,20 @@ assert.deepEqual(updated, {
     bottomPercent: 8,
   },
   rightOffsetBars: 16,
+  candleStyle: {
+    body: {
+      up: '#22c55e',
+      down: '#ef5350',
+    },
+    border: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+    wick: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+  },
 });
 assert.deepEqual(changedEvent, updated);
 
@@ -81,6 +114,10 @@ await assert.rejects(
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { margins: { topPercent: 60 } }),
   /topPercent must be between 0 and 40/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { candleStyle: { body: { up: 'green' } } }),
+  /candleStyle.body.up must be a #rrggbb color/
 );
 assert.equal(normalizeChartPresentationSettings({ showCrosshairReadout: 0 }).showCrosshairReadout, false);
 

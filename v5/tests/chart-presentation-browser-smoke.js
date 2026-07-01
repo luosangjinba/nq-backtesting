@@ -177,6 +177,10 @@ async function main() {
           );
           const tabCount = document.querySelectorAll('[data-chart-settings-tab]').length;
           const sectionCount = document.querySelectorAll('[data-chart-settings-section]').length;
+          const bodyUpInput = document.querySelector('[data-candle-style="body.up"]');
+          const beforeApplyCandleBodyUp = document.querySelector('[data-chart-canvas]')?.dataset.candleBodyUp || '';
+          bodyUpInput.value = '#22c55e';
+          bodyUpInput.dispatchEvent(new Event('input', { bubbles: true }));
           const timeFormatSelect = document.querySelector('select[data-presentation-time-format]');
           timeFormatSelect.value = '12h';
           timeFormatSelect.dispatchEvent(new Event('change', { bubbles: true }));
@@ -195,6 +199,7 @@ async function main() {
           const beforeApplyCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
           const beforeApplyChartOhlcHidden = document.querySelector('[data-chart-ohlc-overlay]')?.hidden;
           const beforeApplyRightOffset = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset || '';
+          const beforeApplyDraftOnlyCandleBodyUp = document.querySelector('[data-chart-canvas]')?.dataset.candleBodyUp || '';
           document.querySelector('[data-chart-settings-apply]').click();
 
           await waitFor('presentation applied', async () =>
@@ -207,6 +212,7 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent === '6'
               && document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginBottomPercent === '6'
               && document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset === '16'
+              && document.querySelector('[data-chart-canvas]')?.dataset.candleBodyUp === '#22c55e'
               && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith('2026-06-01 9:30 AM')
           );
 
@@ -230,7 +236,10 @@ async function main() {
             beforeApplyCursorLabel,
             beforeApplyChartOhlcHidden,
             beforeApplyRightOffset,
+            beforeApplyCandleBodyUp,
+            beforeApplyDraftOnlyCandleBodyUp,
             selected12h: document.querySelector('select[data-presentation-time-format]')?.value || '',
+            selectedBodyUpColor: document.querySelector('[data-candle-style="body.up"]')?.value || '',
             compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.checked,
             rightOffsetSelected: document.querySelector('select[data-presentation-right-offset]')?.value || '',
             afterCanvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
@@ -239,6 +248,7 @@ async function main() {
             afterCanvasMarginTop: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent || '',
             afterCanvasMarginBottom: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginBottomPercent || '',
             afterCanvasRightOffset: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset || '',
+            afterCanvasCandleBodyUp: document.querySelector('[data-chart-canvas]')?.dataset.candleBodyUp || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
             beforeDisplayCount: before.displayBars.length,
@@ -272,7 +282,10 @@ async function main() {
     assert.equal(value.beforeApplyCursorLabel, '2026-06-01 09:30');
     assert.equal(value.beforeApplyChartOhlcHidden, false);
     assert.equal(value.beforeApplyRightOffset, '10');
+    assert.equal(value.beforeApplyCandleBodyUp, '#26a69a');
+    assert.equal(value.beforeApplyDraftOnlyCandleBodyUp, '#26a69a');
     assert.equal(value.selected12h, '12h');
+    assert.equal(value.selectedBodyUpColor, '#22c55e');
     assert.equal(value.compactSelected, true);
     assert.equal(value.rightOffsetSelected, '16');
     assert.equal(value.afterCanvasPaddingTop, '');
@@ -281,6 +294,7 @@ async function main() {
     assert.equal(value.afterCanvasMarginTop, '6');
     assert.equal(value.afterCanvasMarginBottom, '6');
     assert.equal(value.afterCanvasRightOffset, '16');
+    assert.equal(value.afterCanvasCandleBodyUp, '#22c55e');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

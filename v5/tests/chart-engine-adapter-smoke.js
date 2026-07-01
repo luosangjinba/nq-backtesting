@@ -145,6 +145,7 @@ const lightweightCalls = {
   setVisibleRange: [],
   setVisibleLogicalRange: [],
   applyOptions: [],
+  seriesApplyOptions: [],
   priceScaleApplyOptions: [],
   subscribed: null,
   crosshairHandler: null,
@@ -170,6 +171,9 @@ const fakeLightweightCharts = {
                 lightweightCalls.priceScaleApplyOptions.push(optionsPayload);
               },
             };
+          },
+          applyOptions(optionsPayload) {
+            lightweightCalls.seriesApplyOptions.push(optionsPayload);
           },
         };
         return lightweightCalls.series;
@@ -219,7 +223,14 @@ lightweight.mount(lightweightHost, {
   onCrosshairChange: (crosshair) => lightweightCrosshairEvents.push(crosshair),
 });
 lightweight.setBars([bar(32, 102), bar(33, 103)], { fullBarCount: 8, followViewport: true });
-lightweight.setPresentation({ rightOffsetBars: 4 });
+lightweight.setPresentation({
+  rightOffsetBars: 4,
+  candleStyle: {
+    body: { up: '#22c55e', down: '#dc2626' },
+    border: { up: '#16a34a', down: '#991b1b' },
+    wick: { up: '#86efac', down: '#fca5a5' },
+  },
+});
 lightweight.setVisibleRange({
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
   to: Date.parse('2026-06-01T09:33:00.000Z') / 1000,
@@ -320,6 +331,25 @@ assert.deepEqual(lightweightCalls.seriesOptions, {
     precision: 2,
     minMove: 0.01,
   },
+  upColor: '#26a69a',
+  downColor: '#ef5350',
+  borderUpColor: '#26a69a',
+  borderDownColor: '#ef5350',
+  wickUpColor: '#26a69a',
+  wickDownColor: '#ef5350',
+});
+assert.deepEqual(lightweightCalls.seriesApplyOptions.at(-1), {
+  priceFormat: {
+    type: 'price',
+    precision: 2,
+    minMove: 0.01,
+  },
+  upColor: '#22c55e',
+  downColor: '#dc2626',
+  borderUpColor: '#16a34a',
+  borderDownColor: '#991b1b',
+  wickUpColor: '#86efac',
+  wickDownColor: '#fca5a5',
 });
 assert.equal(lightweightHost.children[0].dataset.timeScaleBarSpacing, '10');
 assert.equal(lightweightHost.children[0].dataset.timeScaleMinBarSpacing, '3');
@@ -338,6 +368,8 @@ assert.equal(lightweightHost.children[0].style.paddingBottom, '');
 assert.equal(lightweightHost.children[0].style.paddingRight, '');
 assert.equal(lightweightHost.children[0].dataset.pricePrecision, '2');
 assert.equal(lightweightHost.children[0].dataset.priceMinMove, '0.01');
+assert.equal(lightweightHost.children[0].dataset.candleBodyUp, '#22c55e');
+assert.equal(lightweightHost.children[0].dataset.candleBorderDown, '#991b1b');
 assert.deepEqual(
   lightweightCalls.setData[0].map((item) => item.time),
   [

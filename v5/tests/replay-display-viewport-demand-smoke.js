@@ -117,6 +117,20 @@ assert.deepEqual(context.displayContext, {
     bottomPercent: 8,
   },
   rightOffsetBars: 10,
+  candleStyle: {
+    body: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+    border: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+    wick: {
+      up: '#26a69a',
+      down: '#ef5350',
+    },
+  },
 });
 assert.equal(context.viewportDemand, null);
 

@@ -200,6 +200,10 @@ Out of scope:
   such as Symbol, Status line, Scales and lines, and Canvas. Settings edits are
   draft UI state until the user confirms with Ok; Cancel/close must discard the
   draft without dispatching runtime mutation commands.
+- Candle color settings belong in Chart Settings as draft presentation edits.
+  Confirming with `Ok` updates presentation runtime state, then chart runtime
+  passes the style through display context to the adapter. Route UI must not
+  mutate Lightweight series options directly.
 - Route heading/navigation chrome should stay compact and secondary to the
   chart surface. Session navigation remains route-level UI, while TF, Go to,
   Layout, and Settings remain active-pane controls.

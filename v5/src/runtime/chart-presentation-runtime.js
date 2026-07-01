@@ -5,6 +5,7 @@ import {
   CHART_PRESENTATION_EVENTS,
   CHART_TIME_FORMATS,
   DEFAULT_CHART_PRESENTATION_SETTINGS,
+  DEFAULT_CANDLE_STYLE,
 } from '../contracts/chart-presentation-contracts.js';
 
 export {
@@ -44,6 +45,29 @@ function normalizeRightOffsetBars(value = DEFAULT_CHART_PRESENTATION_SETTINGS.ri
   return normalized;
 }
 
+function normalizeColor(value, fallback, name) {
+  const normalized = String((value ?? fallback) || '').trim();
+  if (/^#[0-9a-fA-F]{6}$/.test(normalized)) return normalized.toLowerCase();
+  throw new Error(`chart presentation ${name} must be a #rrggbb color.`);
+}
+
+function normalizeCandleStyle(value = {}, base = DEFAULT_CANDLE_STYLE) {
+  return {
+    body: {
+      up: normalizeColor(value.body?.up, base.body.up, 'candleStyle.body.up'),
+      down: normalizeColor(value.body?.down, base.body.down, 'candleStyle.body.down'),
+    },
+    border: {
+      up: normalizeColor(value.border?.up, base.border.up, 'candleStyle.border.up'),
+      down: normalizeColor(value.border?.down, base.border.down, 'candleStyle.border.down'),
+    },
+    wick: {
+      up: normalizeColor(value.wick?.up, base.wick.up, 'candleStyle.wick.up'),
+      down: normalizeColor(value.wick?.down, base.wick.down, 'candleStyle.wick.down'),
+    },
+  };
+}
+
 export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CHART_PRESENTATION_SETTINGS) {
   const margins = input.margins || {};
   return {
@@ -57,6 +81,7 @@ export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CH
       bottomPercent: normalizePercent(margins.bottomPercent, base.margins.bottomPercent, 'bottomPercent'),
     },
     rightOffsetBars: normalizeRightOffsetBars(input.rightOffsetBars ?? base.rightOffsetBars),
+    candleStyle: normalizeCandleStyle(input.candleStyle, base.candleStyle),
   };
 }
 
