@@ -160,6 +160,7 @@ function shouldSeekEarlierDisplayWindow({
   displayTimeframe,
   missingWindow,
   currentEarliestTimestamp,
+  window,
   windowDisplayBars,
 } = {}) {
   if (direction !== 'backward') return false;
@@ -170,7 +171,12 @@ function shouldSeekEarlierDisplayWindow({
   const seekThreshold = timeframeSeconds(displayTimeframe) * 2;
   if (requestedFrom >= currentEarliestTimestamp - seekThreshold) return false;
   const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
-  return !Number.isFinite(nextEarliestTimestamp) || nextEarliestTimestamp >= currentEarliestTimestamp;
+  if (!Number.isFinite(nextEarliestTimestamp)) return true;
+  if (nextEarliestTimestamp >= currentEarliestTimestamp) return true;
+  if (requestedFrom >= nextEarliestTimestamp - seekThreshold) return false;
+  const windowStartTimestamp = window?.start ? timestampSeconds(window.start) : null;
+  return Number.isFinite(windowStartTimestamp)
+    && windowStartTimestamp < nextEarliestTimestamp - seekThreshold;
 }
 
 export function computePrefixBarCount(metrics = {}) {
@@ -580,6 +586,7 @@ export function createReplayRuntime() {
       let nextAnchor = normalizedAnchor;
       let window = null;
       let windowDisplayBars = [];
+      let accumulatedWindowDisplayBars = [];
       let displayBars = state.displayBars;
 
       for (let attempt = 0; attempt < MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS; attempt += 1) {
@@ -591,9 +598,14 @@ export function createReplayRuntime() {
           count: normalizedCount,
         });
         windowDisplayBars = filterDisplayBarsForCursor(window.bars, displayContext);
+        accumulatedWindowDisplayBars = mergeDisplayBarsForCursor(
+          accumulatedWindowDisplayBars,
+          windowDisplayBars,
+          displayContext
+        );
         displayBars = shouldMergeDisplayBars
-          ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
-          : windowDisplayBars;
+          ? mergeDisplayBarsForCursor(state.displayBars, accumulatedWindowDisplayBars, displayContext)
+          : accumulatedWindowDisplayBars;
         const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
         displayWindowAttempts.push({
           key: window.key,
@@ -612,6 +624,7 @@ export function createReplayRuntime() {
           displayTimeframe: normalizedDisplayTimeframe,
           missingWindow,
           currentEarliestTimestamp,
+          window,
           windowDisplayBars,
         })) {
           break;

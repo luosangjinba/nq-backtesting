@@ -58,6 +58,12 @@ Sparse seek is allowed only when:
 5. Added `replay-display-sparse-backward-seek-smoke.js` and included it in
    `v5/scripts/smoke_all.js`.
 
+6. Follow-up real-data validation showed the first Sunday 18:00 backward window
+   can return a few opening bars but still leave a large empty gap on the left.
+   The seek predicate now continues when the requested viewport is materially
+   earlier and the returned window's earliest display bar is still far to the
+   right of the bounded window start.
+
 ## Checks
 
 - `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
@@ -76,3 +82,7 @@ windows, duplicate boundary bars, or older valid bars that filtering rejects.
 If the remaining fast-drag offset is still noticeable, add a browser diagnostic
 that records pointer `clientX` deltas, Lightweight logical-range deltas, and V5
 manual visible-range deltas for the same drag gesture.
+
+Real API validation on 2026-07-01 confirmed a request anchored at
+`2026-05-31T18:00:00.000Z` seeks across the weekend gap and reaches
+`2026-05-29T15:48:00.000Z` data after five seek attempts.

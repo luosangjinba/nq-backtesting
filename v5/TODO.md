@@ -12,7 +12,8 @@
 
 - Current status: Step 406 is complete. Backward display-window loading can seek
   across sparse/empty market windows, and display-window attempts are recorded
-  for diagnostics.
+  for diagnostics. A follow-up real-data check confirmed the 1m NQ Sunday
+  18:00 boundary can now seek back to Friday data.
 - Next candidate: manually re-test 1m left drag across the Sunday open boundary.
   If fast-drag pointer drift remains, add a browser diagnostic that records
   pointer pixel deltas against Lightweight logical-range deltas.
@@ -2135,6 +2136,9 @@ Implementation:
   to full V5 smoke.
 - [x] Step 406.6: Update docs/session handoff and run targeted smokes, full V5
   smoke, and `git diff --check`.
+- [x] Step 406.7: Validate against real 1m NQ weekend data and continue seeking
+  when a bounded window returns a few opening bars but still has a large left
+  gap before the requested viewport.
 
 Manual acceptance:
 

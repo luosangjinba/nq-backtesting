@@ -51,6 +51,7 @@ const barDataRuntime = createBarDataRuntime({
     if (window.anchor === '2026-06-01T09:27:00.000Z') {
       return {
         bars: [
+          bar('2026-06-01T09:20:00.000Z', 90),
           bar('2026-06-01T09:27:00.000Z', 97),
         ],
       };
@@ -100,7 +101,7 @@ const loaded = await dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, {
     instrument: 'NQ',
     displayTimeframe: 1,
     direction: 'backward',
-    visibleFrom: timestamp('2026-06-01T01:00:00.000Z'),
+    visibleFrom: timestamp('2026-06-01T01:04:00.000Z'),
     visibleTo: timestamp('2026-06-01T09:29:00.000Z'),
     loadedCoverage: {
       from: timestamp('2026-06-01T09:27:00.000Z'),
@@ -109,7 +110,7 @@ const loaded = await dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, {
     missingWindow: {
       direction: 'backward',
       anchor: '2026-06-01T09:27:00.000Z',
-      from: timestamp('2026-06-01T01:00:00.000Z'),
+      from: timestamp('2026-06-01T01:04:00.000Z'),
       to: timestamp('2026-06-01T09:27:00.000Z'),
       suggestedCount: 499,
     },
@@ -123,6 +124,7 @@ assert.deepEqual(
   [
     timestamp('2026-06-01T01:05:00.000Z'),
     timestamp('2026-06-01T01:06:00.000Z'),
+    timestamp('2026-06-01T09:20:00.000Z'),
     timestamp('2026-06-01T09:27:00.000Z'),
     timestamp('2026-06-01T09:28:00.000Z'),
     timestamp('2026-06-01T09:29:00.000Z'),
