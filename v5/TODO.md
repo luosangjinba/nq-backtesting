@@ -1803,6 +1803,9 @@ Native Lightweight drag events must also preserve logical right-side whitespace:
 `subscribeVisibleTimeRangeChange` alone can report a range ending at the last
 data bar, so the adapter must combine it with the current visible logical range
 before updating chart-runtime manual anchor state.
+Replay transport command execution is not a disabled UI state. Next/Previous/Play
+commands should serialize while a command is in flight, but buttons should not
+flash disabled or show a forbidden cursor during normal transport commands.
 
 - [x] Step 401.1: Document the manual replay viewport anchor decision in
   TODO/spec/session handoff.
@@ -1822,6 +1825,8 @@ before updating chart-runtime manual anchor state.
 - [x] Step 401.9: Convert native Lightweight logical right-side whitespace into
   chart-runtime manual visible range so transport anchors the newest K-line at
   the post-drag screen position.
+- [x] Step 401.10: Keep replay transport buttons visually enabled during
+  command-in-flight windows while serializing replay commands.
 
 Manual acceptance:
 

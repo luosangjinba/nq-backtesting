@@ -238,6 +238,7 @@ export function createChartReplayRoute() {
       const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
       const resetViewButton = section.querySelector('[data-chart-reset-view]');
       let commandInFlight = false;
+      let replayCommandQueue = Promise.resolve();
       let replayLoaded = false;
       let playbackPlaying = false;
       let playbackIntervalMs = 500;
@@ -351,7 +352,7 @@ export function createChartReplayRoute() {
       }
 
       function setControlsDisabled(disabled = false) {
-        const unavailable = disabled || commandInFlight || !replayLoaded || !params.sessionId;
+        const unavailable = disabled || !replayLoaded || !params.sessionId;
         nextButton.disabled = unavailable;
         playButton.disabled = unavailable || playbackPlaying;
         pauseButton.disabled = unavailable || !playbackPlaying;
@@ -629,15 +630,19 @@ export function createChartReplayRoute() {
       }
 
       async function runReplayCommand(action) {
-        if (commandInFlight || !params.sessionId) return null;
-        commandInFlight = true;
-        setControlsDisabled(true);
-        try {
-          return await action();
-        } finally {
-          commandInFlight = false;
-          setControlsDisabled(false);
-        }
+        if (!params.sessionId) return null;
+        const runQueued = async () => {
+          commandInFlight = true;
+          try {
+            return await action();
+          } finally {
+            commandInFlight = false;
+            setControlsDisabled(false);
+          }
+        };
+        const result = replayCommandQueue.then(runQueued, runQueued);
+        replayCommandQueue = result.catch(() => null);
+        return result;
       }
 
       nextButton.addEventListener('click', async () => {

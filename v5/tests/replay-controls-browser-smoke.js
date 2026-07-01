@@ -189,6 +189,7 @@ async function main() {
           const previousInitiallyDisabled = document.querySelector('[data-replay-previous]')?.disabled === true;
 
           document.querySelector('[data-replay-next]').click();
+          const nextDisabledImmediatelyAfterClick = document.querySelector('[data-replay-next]')?.disabled === true;
           await waitFor('next advanced', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             return state.displayBars.length === initialCount + 1
@@ -197,6 +198,7 @@ async function main() {
           const afterNext = await commands.dispatchCommand('replay.getState');
 
           document.querySelector('[data-replay-previous]').click();
+          const previousDisabledImmediatelyAfterClick = document.querySelector('[data-replay-previous]')?.disabled === true;
           await waitFor('previous rewound', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             return state.displayBars.length === initialCount
@@ -259,6 +261,7 @@ async function main() {
           );
 
           document.querySelector('[data-replay-play]').click();
+          const playDisabledImmediatelyAfterClick = document.querySelector('[data-replay-play]')?.disabled === true;
           await waitFor('playback started', async () => {
             const playback = await commands.dispatchCommand('replay.getPlaybackState');
             return playback.playing === true && !document.querySelector('[data-replay-pause]').disabled;
@@ -347,9 +350,11 @@ async function main() {
             initialCount,
             previousInitiallyDisabled,
             afterNextCount: afterNext.displayBars.length,
+            nextDisabledImmediatelyAfterClick,
             afterPreviousCount: afterPrevious.displayBars.length,
             afterPreviousCursor: afterPrevious.cursorTimestamp,
             afterPreviousRevealedCount: afterPrevious.revealedCount,
+            previousDisabledImmediatelyAfterClick,
             afterNextAgainCount: afterNextAgain.displayBars.length,
             afterTruncateCount: afterTruncate.displayBars.length,
             afterTruncateCursor: afterTruncate.cursorTimestamp,
@@ -361,6 +366,7 @@ async function main() {
             afterBeforeStartWarningCount: afterBeforeStartWarning.displayBars.length,
             afterBeforeStartWarningCursor: afterBeforeStartWarning.cursorTimestamp,
             beforeStartStateCount,
+            playDisabledImmediatelyAfterClick,
             duringPlayCount: duringPlay.displayBars.length,
             pausedCount: paused.displayBars.length,
             afterPauseWaitCount: afterPauseWait.displayBars.length,
@@ -392,10 +398,12 @@ async function main() {
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.previousInitiallyDisabled, true);
+    assert.equal(value.nextDisabledImmediatelyAfterClick, false);
     assert.equal(value.afterNextCount, value.initialCount + 1);
     assert.equal(value.afterPreviousCount, value.initialCount);
     assert.equal(value.afterPreviousCursor, '2026-06-01T09:30:00.000Z');
     assert.equal(value.afterPreviousRevealedCount, 0);
+    assert.equal(value.previousDisabledImmediatelyAfterClick, false);
     assert.equal(value.afterNextAgainCount, value.initialCount + 1);
     assert.equal(value.afterTruncateCount, value.initialCount);
     assert.equal(value.afterTruncateCursor, '2026-06-01T09:30:00.000Z');
@@ -409,6 +417,7 @@ async function main() {
     assert.ok(value.beforeStartWarningText.includes('session start date'));
     assert.equal(value.afterBeforeStartWarningCount, value.beforeStartStateCount);
     assert.equal(value.afterBeforeStartWarningCursor, '2026-06-01T09:31:00.000Z');
+    assert.equal(value.playDisabledImmediatelyAfterClick, false);
     assert.ok(value.duringPlayCount > value.afterNextCount, 'Play should advance replay');
     assert.equal(value.afterPauseWaitCount, value.pausedCount, 'Pause should stop replay advancement');
     assert.equal(value.fullChartCount, value.afterPauseWaitCount);

@@ -25,6 +25,9 @@ Native Lightweight user drag callbacks must be interpreted with visible logical
 range as well as visible time range, because the time range can end at the last
 data bar even when the user dragged the newest K-line left and created right-side
 empty space.
+Replay transport command-in-flight is not a disabled UI state: duplicate clicks
+and adjacent commands are serialized by the route, but Next/Previous/Play should
+not flash disabled or show a forbidden cursor during normal use.
 
 ## Plan
 
@@ -58,6 +61,9 @@ empty space.
   the replay transport anchor.
 - Chart runtime guards the full programmatic adapter sync, including `setData()`,
   from native visible-range echo callbacks.
+- Replay route no longer maps `commandInFlight` to button `disabled`; transport
+  buttons remain visually accessible while `runReplayCommand` serializes replay
+  commands.
 
 ## Manual Acceptance
 
