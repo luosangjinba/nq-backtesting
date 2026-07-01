@@ -16,6 +16,12 @@ anchor instead of snapping to the canvas right edge.
 Reset/follow cursor remains the explicit way to leave manual mode and resume
 normal replay cursor follow.
 
+Follow-up decision: right-side whitespace after a manual drag is part of the
+manual anchor. The chart may keep a manual visible range whose `to` is beyond
+the replay cursor, but it must render only bars at or before the replay right
+edge. Lightweight native visible-range callbacks caused by runtime writes are
+engine echo, not user input, and must not collapse the manual anchor.
+
 ## Plan
 
 - Document the manual replay viewport anchor decision in TODO/spec/session
@@ -39,6 +45,12 @@ normal replay cursor follow.
 - `replay.play` inherits the same behavior because playback advances through
   `replay.next`.
 - Initial session load and `replay.reset` still explicitly resume follow.
+- Manual visible ranges are no longer clamped to the replay right-edge limit in
+  chart state; rendered bars are filtered to the right-edge limit instead.
+- The Lightweight adapter maps manual right-side whitespace to logical range so
+  the engine preserves empty space after the last rendered bar.
+- Chart runtime guards the full programmatic adapter sync, including `setData()`,
+  from native visible-range echo callbacks.
 
 ## Manual Acceptance
 
@@ -47,11 +59,15 @@ normal replay cursor follow.
   newest K-line to the canvas right edge.
 - The manual visible range moves by the replay cursor delta so the newest
   replay bar remains visible at the established anchor.
+- Right-side empty space created by manual drag remains after Next/Previous/Play,
+  while future bars after the replay cursor remain hidden.
 - Clicking reset/follow cursor exits manual mode and resumes normal follow.
 
 ## Checks
 
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/replay-viewport-follow-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`

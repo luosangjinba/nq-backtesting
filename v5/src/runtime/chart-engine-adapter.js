@@ -220,6 +220,31 @@ function followLogicalRangeForBars(bars, context) {
   };
 }
 
+function estimateRenderedBarSpacingSeconds(bars) {
+  const timestamps = bars
+    .map((bar) => timestampSeconds(bar.time, 'chart engine visible range bar time'))
+    .sort((left, right) => left - right);
+  const gaps = timestamps
+    .slice(1)
+    .map((timestamp, index) => timestamp - timestamps[index])
+    .filter((gap) => gap > 0);
+  return gaps[0] || 60;
+}
+
+function manualLogicalRangeForVisibleRange(range, bars) {
+  if (!range || !bars.length) return null;
+  const first = timestampSeconds(bars[0].time, 'chart engine visible range first bar time');
+  const last = timestampSeconds(bars[bars.length - 1].time, 'chart engine visible range last bar time');
+  if (range.to <= last) return null;
+  const spacing = estimateRenderedBarSpacingSeconds(bars);
+  const leftOffsetBars = Math.max(0, Math.floor((first - range.from) / spacing));
+  const rightOffsetBars = Math.max(1, Math.ceil((range.to - last) / spacing));
+  return {
+    from: -leftOffsetBars,
+    to: bars.length - 1 + rightOffsetBars,
+  };
+}
+
 function createRuntimeCanvas(documentRef) {
   const canvas = documentRef.createElement('div');
   canvas.className = 'chart-runtime-canvas';
@@ -529,6 +554,7 @@ function createLightweightInstance({ engine, documentRef }) {
   let pendingCrosshair = null;
   let crosshairFrame = null;
   let lastCrosshairKey = '';
+  let suppressRuntimeVisibleRangeEcho = false;
 
   function createSeries(nextChart) {
     if (typeof nextChart.addCandlestickSeries === 'function') {
@@ -554,6 +580,7 @@ function createLightweightInstance({ engine, documentRef }) {
 
   function markUserInput() {
     lastUserInputAt = Date.now();
+    suppressRuntimeVisibleRangeEcho = false;
   }
 
   function clearShellCrosshair() {
@@ -664,7 +691,7 @@ function createLightweightInstance({ engine, documentRef }) {
       const timeScale = chart.timeScale?.();
       if (typeof timeScale?.subscribeVisibleTimeRangeChange === 'function') {
         const handler = (range) => {
-          if (!range || !options.onVisibleRangeChange || !hasRecentUserInput()) return;
+          if (!range || !options.onVisibleRangeChange || suppressRuntimeVisibleRangeEcho || !hasRecentUserInput()) return;
           options.onVisibleRangeChange({
             from: timestampSeconds(range.from, 'chart engine visible range from'),
             to: timestampSeconds(range.to, 'chart engine visible range to'),
@@ -722,6 +749,7 @@ function createLightweightInstance({ engine, documentRef }) {
       if (options.followViewport) {
         const logicalRange = followLogicalRangeForBars(bars, displayContext);
         if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
+          suppressRuntimeVisibleRangeEcho = true;
           chart.timeScale().setVisibleLogicalRange(logicalRange);
           if (canvas) {
             canvas.dataset.visibleLogicalRangeFrom = String(logicalRange.from);
@@ -746,8 +774,23 @@ function createLightweightInstance({ engine, documentRef }) {
     },
     setVisibleRange(range) {
       visibleRange = range ? { ...range } : null;
-      if (visibleRange && typeof chart?.timeScale?.().setVisibleRange === 'function') {
+      if (!visibleRange) return;
+      suppressRuntimeVisibleRangeEcho = true;
+      const logicalRange = manualLogicalRangeForVisibleRange(visibleRange, bars);
+      if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
+        chart.timeScale().setVisibleLogicalRange(logicalRange);
+        if (canvas) {
+          canvas.dataset.visibleLogicalRangeFrom = String(logicalRange.from);
+          canvas.dataset.visibleLogicalRangeTo = String(logicalRange.to);
+        }
+        return;
+      }
+      if (typeof chart?.timeScale?.().setVisibleRange === 'function') {
         chart.timeScale().setVisibleRange({ ...visibleRange });
+        if (canvas) {
+          delete canvas.dataset.visibleLogicalRangeFrom;
+          delete canvas.dataset.visibleLogicalRangeTo;
+        }
       }
     },
     setPresentation(context = {}) {

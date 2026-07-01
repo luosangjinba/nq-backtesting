@@ -219,10 +219,13 @@ function normalizeViewportFollow(payload = {}, state) {
 
 function computeRenderedBars(state) {
   if (state.interaction.mode === 'manual' && state.interaction.manualVisibleRange) {
+    const manualTo = Number.isFinite(state.rightEdgeLimit)
+      ? Math.min(state.interaction.manualVisibleRange.to, state.rightEdgeLimit)
+      : state.interaction.manualVisibleRange.to;
     return state.bars.filter((bar) => {
       const timestamp = timestampSeconds(bar.time, 'chart bar time');
       return timestamp >= state.interaction.manualVisibleRange.from
-        && timestamp <= state.interaction.manualVisibleRange.to;
+        && timestamp <= manualTo;
     });
   }
 
@@ -369,10 +372,10 @@ function deriveManualAnchorRange(state, nextViewportFollow) {
   if (!delta) {
     return state.interaction.manualVisibleRange;
   }
-  return clampVisibleRange({
+  return {
     from: state.interaction.manualVisibleRange.from + delta,
     to: state.interaction.manualVisibleRange.to + delta,
-  }, state.rightEdgeLimit);
+  };
 }
 
 function normalizeBar(bar) {
@@ -479,15 +482,15 @@ export function createChartRuntime() {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
     const renderedBars = computeRenderedBars(state);
-    adapter.setPresentation(state.displayContext);
-    adapter.setBars(renderedBars, {
-      fullBarCount: state.bars.length,
-      displayContext: state.displayContext,
-      metadata: buildChartMetadata(renderedBars),
-      followViewport: state.interaction.mode === 'follow' && state.viewportFollow.enabled,
-    });
     applyingRuntimeVisibleRange = true;
     try {
+      adapter.setPresentation(state.displayContext);
+      adapter.setBars(renderedBars, {
+        fullBarCount: state.bars.length,
+        displayContext: state.displayContext,
+        metadata: buildChartMetadata(renderedBars),
+        followViewport: state.interaction.mode === 'follow' && state.viewportFollow.enabled,
+      });
       adapter.setVisibleRange(state.visibleRange);
     } finally {
       applyingRuntimeVisibleRange = false;
@@ -596,25 +599,10 @@ export function createChartRuntime() {
     state.rightEdgeLimit = timestampSeconds(rightEdge, 'chart right edge limit');
     let visibleRangeChanged = false;
 
-    if (state.visibleRange) {
+    if (state.visibleRange && state.interaction.mode !== 'manual') {
       const visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
       visibleRangeChanged = !rangesEqual(state.visibleRange, visibleRange);
       state.visibleRange = visibleRange;
-    }
-
-    if (state.interaction.mode === 'manual' && state.interaction.manualVisibleRange) {
-      const manualVisibleRange = clampVisibleRange(
-        state.interaction.manualVisibleRange,
-        state.rightEdgeLimit
-      );
-      visibleRangeChanged = visibleRangeChanged
-        || !rangesEqual(state.interaction.manualVisibleRange, manualVisibleRange)
-        || !rangesEqual(state.visibleRange, manualVisibleRange);
-      state.interaction = {
-        ...state.interaction,
-        manualVisibleRange: { ...manualVisibleRange },
-      };
-      state.visibleRange = { ...manualVisibleRange };
     }
 
     state.prefixDemand = computePrefixDemand(state);
@@ -704,7 +692,7 @@ export function createChartRuntime() {
   }
 
   function setManualVisibleRange(payload = {}) {
-    const visibleRange = clampVisibleRange(normalizeRange(payload), state.rightEdgeLimit);
+    const visibleRange = normalizeRange(payload);
     state.visibleRange = visibleRange;
     state.interaction = {
       mode: 'manual',
@@ -735,9 +723,7 @@ export function createChartRuntime() {
   }
 
   function observeNativeVisibleRange(payload = {}) {
-    const requestedRange = normalizeRange(payload);
-    const visibleRange = clampVisibleRange(requestedRange, state.rightEdgeLimit);
-    const clamped = !rangesEqual(requestedRange, visibleRange);
+    const visibleRange = normalizeRange(payload);
     state.visibleRange = visibleRange;
     state.interaction = {
       mode: 'manual',
@@ -750,9 +736,6 @@ export function createChartRuntime() {
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
     syncMetadataToMountedHosts();
-    if (clamped) {
-      syncVisibleRangeToMountedHosts();
-    }
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -767,7 +750,7 @@ export function createChartRuntime() {
       renderedBars: computeRenderedBars(state),
       viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
       prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
-      clamped,
+      clamped: false,
     };
   }
 

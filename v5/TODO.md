@@ -10,8 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 400 is complete.
-- Next candidate: after Step 400, continue transport runtime semantics for
+- Current status: Step 401 is complete, including the follow-up fix that
+  preserves manual right-side whitespace after chart drag during
+  Next/Previous/Play.
+- Next candidate: after Step 401, continue transport runtime semantics for
   replay playback interval selection / active chart interval sync, or decide
   whether Layout needs a dedicated planning step before implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -1791,6 +1793,13 @@ Instead, chart runtime keeps manual mode and shifts the manual visible range by
 the replay cursor delta so the newest replay bar keeps its screen anchor.
 Reset/follow cursor remains the explicit way to leave manual mode.
 
+Follow-up decision: right-side whitespace after a manual drag is part of the
+manual anchor. Runtime may keep a manual visible range whose `to` extends beyond
+the replay cursor, but chart runtime must still render only bars at or before
+the replay right edge. Programmatic chart writes must ignore Lightweight native
+visible-range echo callbacks so `setData()` cannot silently collapse the manual
+range back to the latest rendered bar.
+
 - [x] Step 401.1: Document the manual replay viewport anchor decision in
   TODO/spec/session handoff.
 - [x] Step 401.2: Make chart runtime translate a manual visible range when
@@ -1802,6 +1811,10 @@ Reset/follow cursor remains the explicit way to leave manual mode.
   preservation after replay transport.
 - [x] Step 401.6: Run targeted replay/chart smokes, full V5 smoke, and `git
   diff --check` before commit.
+- [x] Step 401.7: Preserve manual right-side whitespace across replay transport
+  by rendering no future bars while keeping the user-established visible range.
+- [x] Step 401.8: Guard runtime-originated Lightweight `setData()` /
+  visible-range writes from being reinterpreted as user drag events.
 
 Manual acceptance:
 
@@ -1810,6 +1823,9 @@ Manual acceptance:
   newest K-line to the canvas right edge.
 - The manual visible range moves by the replay cursor delta so the newest
   replay bar remains visible at the established anchor.
+- If the manual visible range includes empty space to the right of the cursor,
+  Next/Previous/Play preserve that empty-space anchor without rendering future
+  K-lines.
 - Clicking reset/follow cursor exits manual mode and resumes normal follow.
 
 Checks:
@@ -1817,6 +1833,7 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/replay-manual-viewport-follow-smoke.js`
 - `node v5/tests/replay-viewport-follow-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/chart-interaction-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`

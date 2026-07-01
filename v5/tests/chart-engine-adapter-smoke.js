@@ -346,8 +346,8 @@ assert.deepEqual(
   ]
 );
 assert.deepEqual(lightweightCalls.setVisibleLogicalRange[0], { from: 0, to: 4 });
-assert.equal(lightweightHost.children[0].dataset.visibleLogicalRangeFrom, '0');
-assert.equal(lightweightHost.children[0].dataset.visibleLogicalRangeTo, '4');
+assert.equal(lightweightHost.children[0].dataset.visibleLogicalRangeFrom, undefined);
+assert.equal(lightweightHost.children[0].dataset.visibleLogicalRangeTo, undefined);
 assert.deepEqual(lightweightCalls.applyOptions[0], {
   handleScroll: {
     mouseWheel: false,

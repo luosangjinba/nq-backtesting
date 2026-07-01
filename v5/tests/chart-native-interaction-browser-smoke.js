@@ -131,9 +131,25 @@ async function main() {
                   return;
                 }
                 if (Date.now() > deadline) {
+                  const commandModule = window.__v5NativeCommands;
+                  const interaction = await commandModule?.dispatchCommand?.('chart.getInteractionState').catch(() => null);
+                  const replay = await commandModule?.dispatchCommand?.('replay.getState').catch(() => null);
                   reject(new Error('waitFor timed out: ' + label + ' ' + JSON.stringify({
                     statusText: document.querySelector('[data-replay-load-status]')?.textContent || '',
                     chartEngine: document.querySelector('[data-chart-host]')?.dataset.chartEngine || '',
+                    replay: replay ? {
+                      cursorTimestamp: replay.cursorTimestamp,
+                      revealedCount: replay.revealedCount,
+                      status: replay.status,
+                    } : null,
+                    interaction: interaction ? {
+                      viewportFollow: interaction.viewportFollow,
+                      mode: interaction.interaction?.mode,
+                      visibleRange: interaction.visibleRange,
+                      manualVisibleRange: interaction.interaction?.manualVisibleRange,
+                      lastRendered: interaction.renderedBars?.at?.(-1)?.time || '',
+                      renderedBarCount: interaction.renderedBars?.length || 0,
+                    } : null,
                     hasVisibleRangeHandler: typeof window.__v5NativeInteractionMetrics?.visibleRangeHandler === 'function',
                     hasCrosshairHandler: typeof window.__v5NativeInteractionMetrics?.crosshairHandler === 'function',
                     chartOptionsCaptured: Boolean(window.__v5NativeInteractionMetrics?.chartOptions),
@@ -153,10 +169,12 @@ async function main() {
 
         try {
           const commands = await import('/v5/src/runtime/commands.js');
+          window.__v5NativeCommands = commands;
           const metrics = {
             setDataCount: 0,
             setVisibleRangeCount: 0,
             setVisibleRanges: [],
+            setVisibleLogicalRanges: [],
             crosshairHandler: null,
             visibleRangeHandler: null,
             series: null,
@@ -196,6 +214,13 @@ async function main() {
                 metrics.setVisibleRangeCount += 1;
                 metrics.setVisibleRanges.push(range);
                 return originalSetVisibleRange(range);
+              };
+            }
+            if (typeof timeScale.setVisibleLogicalRange === 'function') {
+              const originalSetVisibleLogicalRange = timeScale.setVisibleLogicalRange.bind(timeScale);
+              timeScale.setVisibleLogicalRange = (range) => {
+                metrics.setVisibleLogicalRanges.push(range);
+                return originalSetVisibleLogicalRange(range);
               };
             }
             if (typeof timeScale.subscribeVisibleTimeRangeChange === 'function') {
@@ -256,12 +281,36 @@ async function main() {
           const setDataAfterNativeRange = metrics.setDataCount;
 
           metrics.visibleRangeHandler({
-            from: cursor + 60,
+            from: cursor - 360,
             to: cursor + 600,
           });
-          await waitFor('right edge clamp', async () => metrics.setVisibleRanges.some((range) => range.to <= cursor));
-          const afterClamp = await commands.dispatchCommand('chart.getInteractionState');
-          const setDataAfterClamp = metrics.setDataCount;
+          await waitFor('manual future whitespace retained', async () => {
+            const interaction = await commands.dispatchCommand('chart.getInteractionState');
+            return interaction.interaction.mode === 'manual'
+              && interaction.visibleRange?.to === cursor + 600
+              && interaction.renderedBars.every((bar) => Date.parse(bar.time) / 1000 <= cursor);
+          });
+          const futureWhitespaceRange = metrics.setVisibleRanges.at(-1) || null;
+          const futureWhitespaceLogicalRange = metrics.setVisibleLogicalRanges.at(-1) || null;
+          const afterFutureWhitespace = await commands.dispatchCommand('chart.getInteractionState');
+          const setDataAfterFutureWhitespace = metrics.setDataCount;
+
+          const nextButton = document.querySelector('[data-replay-next]');
+          if (!nextButton || nextButton.disabled) {
+            throw new Error('Replay next button is not available after native drag.');
+          }
+          nextButton.click();
+          await waitFor('route next preserves manual anchor', async () => {
+            const state = await commands.dispatchCommand('replay.getState');
+            const interaction = await commands.dispatchCommand('chart.getInteractionState');
+            return state.cursorTimestamp === '2026-06-01T09:31:00.000Z'
+              && interaction.interaction.mode === 'manual'
+              && interaction.viewportFollow.enabled === false
+              && interaction.visibleRange?.to === Date.parse('2026-06-01T09:41:00.000Z') / 1000
+              && interaction.renderedBars.every((bar) => Date.parse(bar.time) / 1000 <= Date.parse(state.cursorTimestamp) / 1000);
+          });
+          const afterRouteNext = await commands.dispatchCommand('chart.getInteractionState');
+          const setDataAfterRouteNext = metrics.setDataCount;
 
           for (let index = 0; index < 10; index += 1) {
             metrics.crosshairHandler({
@@ -288,14 +337,22 @@ async function main() {
             beforeCursor: before.cursorTimestamp,
             setDataBeforeNativeRange,
             setDataAfterNativeRange,
-            setDataAfterClamp,
+            setDataAfterFutureWhitespace,
+            setDataAfterRouteNext,
             setDataAfterCrosshair,
             setVisibleRangeCount: metrics.setVisibleRangeCount,
-            clampedRange: metrics.setVisibleRanges.at(-1) || null,
+            futureWhitespaceRange,
+            futureWhitespaceLogicalRange,
+            routeNextVisibleLogicalRange: metrics.setVisibleLogicalRanges.at(-1) || null,
+            visibleLogicalRanges: metrics.setVisibleLogicalRanges,
             afterNativeMode: afterNativeRange.interaction.mode,
             afterNativeFollow: afterNativeRange.viewportFollow.enabled,
             afterNativeRange: afterNativeRange.visibleRange,
-            afterClampRange: afterClamp.visibleRange,
+            afterFutureWhitespaceRange: afterFutureWhitespace.visibleRange,
+            afterFutureWhitespaceLastRendered: afterFutureWhitespace.renderedBars.at(-1)?.time || '',
+            afterRouteNextMode: afterRouteNext.interaction.mode,
+            afterRouteNextFollow: afterRouteNext.viewportFollow.enabled,
+            afterRouteNextRange: afterRouteNext.visibleRange,
             canvasMode: canvas.dataset.interactionMode,
             canvasFollow: canvas.dataset.viewportFollow,
             gridColor: metrics.chartOptions?.grid?.vertLines?.color || '',
@@ -315,14 +372,21 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
     assert.equal(value.setDataAfterNativeRange, value.setDataBeforeNativeRange);
-    assert.equal(value.setDataAfterClamp, value.setDataBeforeNativeRange);
-    assert.equal(value.setDataAfterCrosshair, value.setDataBeforeNativeRange);
+    assert.equal(value.setDataAfterFutureWhitespace, value.setDataBeforeNativeRange);
+    assert.ok(value.setDataAfterRouteNext > value.setDataAfterFutureWhitespace);
+    assert.equal(value.setDataAfterCrosshair, value.setDataAfterRouteNext);
     assert.equal(value.afterNativeMode, 'manual');
     assert.equal(value.afterNativeFollow, false);
     assert.ok(value.afterNativeRange.to <= Date.parse('2026-06-01T09:30:00.000Z') / 1000);
-    assert.ok(value.setVisibleRangeCount >= 1);
-    assert.ok(value.clampedRange.to <= Date.parse('2026-06-01T09:30:00.000Z') / 1000);
-    assert.ok(value.afterClampRange.to <= Date.parse('2026-06-01T09:30:00.000Z') / 1000);
+    assert.ok(value.futureWhitespaceLogicalRange.to > 0);
+    assert.equal(value.afterFutureWhitespaceRange.from, Date.parse('2026-06-01T09:24:00.000Z') / 1000);
+    assert.equal(value.afterFutureWhitespaceRange.to, Date.parse('2026-06-01T09:40:00.000Z') / 1000);
+    assert.ok(Date.parse(value.afterFutureWhitespaceLastRendered) / 1000 <= Date.parse('2026-06-01T09:30:00.000Z') / 1000);
+    assert.equal(value.afterRouteNextMode, 'manual');
+    assert.equal(value.afterRouteNextFollow, false);
+    assert.equal(value.afterRouteNextRange.from, Date.parse('2026-06-01T09:25:00.000Z') / 1000);
+    assert.equal(value.afterRouteNextRange.to, Date.parse('2026-06-01T09:41:00.000Z') / 1000);
+    assert.ok(value.routeNextVisibleLogicalRange.to > 0);
     assert.equal(value.canvasMode, 'manual');
     assert.equal(value.canvasFollow, 'false');
     assert.equal(value.gridColor, 'rgba(55, 65, 81, 0.28)');

@@ -51,6 +51,14 @@ native chart drag/zoom now has replay transport semantics.
 - While manually anchored, replay transport cursor deltas shift the manual
   visible range by the same delta so the newest replay bar keeps its screen
   anchor instead of snapping to the canvas right edge.
+- Manual visible ranges may include empty right-side whitespace beyond the
+  replay cursor. That whitespace is part of the user's viewport anchor, but
+  chart runtime must still render only bars at or before the replay right-edge
+  limit.
+- Runtime-originated chart writes, including `setData()` and programmatic
+  visible-range/logical-range updates, must not be reinterpreted as native user
+  drag events. Native engine visible-range callbacks are user input only when
+  they follow actual chart pointer/wheel/touch input.
 - The explicit reset/follow control resumes viewport follow and clears the
   manual anchor.
 
@@ -61,6 +69,13 @@ manual anchor until the user explicitly requests reset/follow cursor behavior.
 This means replay runtime may keep sending cursor updates to chart runtime, but
 chart runtime remains the owner of whether those updates are applied as follow
 or as a manual anchor shift.
+
+For Lightweight Charts, preserving right-side whitespace can require
+`setVisibleLogicalRange` rather than `setVisibleRange`, because a time range
+whose `to` is after the final rendered bar can otherwise be normalized back to
+the last data timestamp. The adapter should keep that engine detail internal:
+chart runtime state remains expressed as a time-based visible range, while the
+adapter maps it to the engine representation needed to preserve the viewport.
 
 ## Runtime Contract
 
@@ -111,6 +126,8 @@ Step 374 should add or update harnesses proving:
   rendered chart;
 - manual drag followed by Next/Previous/Play preserves manual mode and shifts
   the manual visible range by replay cursor deltas;
+- manual right-side whitespace survives Next/Previous/Play without rendering
+  future bars after the replay cursor;
 - replay `displayBars` length and cursor identity do not change because of
   viewport follow;
 - `/v4/bars` request count does not increase solely from follow updates.
