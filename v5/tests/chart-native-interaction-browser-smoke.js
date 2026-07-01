@@ -440,8 +440,8 @@ async function main() {
     assert.ok(value.routeNextVisibleLogicalRange.to > 0);
     assert.equal(value.canvasMode, 'manual');
     assert.equal(value.canvasFollow, 'false');
-    assert.equal(value.gridColor, 'rgba(55, 65, 81, 0.28)');
-    assert.equal(value.crosshairColor, 'rgba(148, 163, 184, 0.42)');
+    assert.equal(value.gridColor, '#374151');
+    assert.equal(value.crosshairColor, '#94a3b8');
     assert.equal(value.crosshairActive, true);
     assert.ok(value.crosshairTime);
     assert.ok(value.requestCount >= 1);

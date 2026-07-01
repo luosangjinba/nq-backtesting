@@ -59,6 +59,19 @@ assert.deepEqual(defaults, {
       down: '#ef5350',
     },
   },
+  gridStyle: {
+    verticalVisible: true,
+    horizontalVisible: true,
+    verticalColor: '#374151',
+    horizontalColor: '#374151',
+  },
+  crosshairStyle: {
+    verticalVisible: true,
+    horizontalVisible: true,
+    verticalColor: '#94a3b8',
+    horizontalColor: '#94a3b8',
+    labelBackgroundColor: '#334155',
+  },
 });
 
 const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
@@ -72,6 +85,14 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
     body: {
       up: '#22c55e',
     },
+  },
+  gridStyle: {
+    verticalVisible: false,
+    horizontalColor: '#1f2937',
+  },
+  crosshairStyle: {
+    horizontalVisible: false,
+    labelBackgroundColor: '#0f172a',
   },
 });
 assert.deepEqual(updated, {
@@ -97,6 +118,19 @@ assert.deepEqual(updated, {
       down: '#ef5350',
     },
   },
+  gridStyle: {
+    verticalVisible: false,
+    horizontalVisible: true,
+    verticalColor: '#374151',
+    horizontalColor: '#1f2937',
+  },
+  crosshairStyle: {
+    verticalVisible: true,
+    horizontalVisible: false,
+    verticalColor: '#94a3b8',
+    horizontalColor: '#94a3b8',
+    labelBackgroundColor: '#0f172a',
+  },
 });
 assert.deepEqual(changedEvent, updated);
 
@@ -118,6 +152,14 @@ await assert.rejects(
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { candleStyle: { body: { up: 'green' } } }),
   /candleStyle.body.up must be a #rrggbb color/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { gridStyle: { verticalColor: 'gray' } }),
+  /gridStyle.verticalColor must be a #rrggbb color/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { crosshairStyle: { labelBackgroundColor: 'blue' } }),
+  /crosshairStyle.labelBackgroundColor must be a #rrggbb color/
 );
 assert.equal(normalizeChartPresentationSettings({ showCrosshairReadout: 0 }).showCrosshairReadout, false);
 

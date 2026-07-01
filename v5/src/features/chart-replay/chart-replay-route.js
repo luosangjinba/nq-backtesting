@@ -143,12 +143,50 @@ export function createChartReplayRoute() {
                       <option value="16">16 bars</option>
                     </select>
                   </label>
+                  <h3>Crosshair</h3>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-crosshair-style-toggle="verticalVisible">
+                    <span>Vertical line</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-crosshair-style-toggle="horizontalVisible">
+                    <span>Horizontal line</span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Line colors</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-crosshair-style-color="verticalColor" aria-label="Vertical crosshair color">
+                      <input type="color" data-crosshair-style-color="horizontalColor" aria-label="Horizontal crosshair color">
+                    </span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Label background</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-crosshair-style-color="labelBackgroundColor" aria-label="Crosshair label background color">
+                    </span>
+                  </label>
                 </section>
                 <section data-chart-settings-section="canvas" hidden>
                   <h3>Margins</h3>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-presentation-margin="compact">
                     <span>Compact chart margins</span>
+                  </label>
+                  <h3>Grid</h3>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-grid-style-toggle="verticalVisible">
+                    <span>Vertical grid lines</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-grid-style-toggle="horizontalVisible">
+                    <span>Horizontal grid lines</span>
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Grid colors</span>
+                    <span class="chart-settings-color-pair">
+                      <input type="color" data-grid-style-color="verticalColor" aria-label="Vertical grid color">
+                      <input type="color" data-grid-style-color="horizontalColor" aria-label="Horizontal grid color">
+                    </span>
                   </label>
                 </section>
               </div>
@@ -297,6 +335,10 @@ export function createChartReplayRoute() {
       const presentationMarginControls = Array.from(section.querySelectorAll('[data-presentation-margin]'));
       const presentationRightOffsetControls = Array.from(section.querySelectorAll('[data-presentation-right-offset]'));
       const candleStyleControls = Array.from(section.querySelectorAll('[data-candle-style]'));
+      const gridStyleToggleControls = Array.from(section.querySelectorAll('[data-grid-style-toggle]'));
+      const gridStyleColorControls = Array.from(section.querySelectorAll('[data-grid-style-color]'));
+      const crosshairStyleToggleControls = Array.from(section.querySelectorAll('[data-crosshair-style-toggle]'));
+      const crosshairStyleColorControls = Array.from(section.querySelectorAll('[data-crosshair-style-color]'));
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -341,6 +383,8 @@ export function createChartReplayRoute() {
         margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
         rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
         candleStyle: cloneCandleStyle(),
+        gridStyle: cloneGridStyle(),
+        crosshairStyle: cloneCrosshairStyle(),
       };
       let crosshairState = { active: false };
       let lastReplayState = null;
@@ -795,6 +839,14 @@ export function createChartReplayRoute() {
         };
       }
 
+      function cloneGridStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.gridStyle) {
+        return { ...style };
+      }
+
+      function cloneCrosshairStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle) {
+        return { ...style };
+      }
+
       function candleStyleValue(style, path) {
         const [group, direction] = String(path || '').split('.');
         return style?.[group]?.[direction] || DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle[group]?.[direction] || '#000000';
@@ -816,6 +868,8 @@ export function createChartReplayRoute() {
           compactMargins: compactMarginsEnabled(),
           rightOffsetBars: Number(presentationSettings.rightOffsetBars || 10),
           candleStyle: cloneCandleStyle(presentationSettings.candleStyle),
+          gridStyle: cloneGridStyle(presentationSettings.gridStyle),
+          crosshairStyle: cloneCrosshairStyle(presentationSettings.crosshairStyle),
         };
       }
 
@@ -850,6 +904,22 @@ export function createChartReplayRoute() {
         candleStyleControls.forEach((control) => {
           control.value = candleStyleValue(draft.candleStyle, control.dataset.candleStyle);
         });
+        gridStyleToggleControls.forEach((control) => {
+          control.checked = Boolean(draft.gridStyle?.[control.dataset.gridStyleToggle]);
+        });
+        gridStyleColorControls.forEach((control) => {
+          control.value = draft.gridStyle?.[control.dataset.gridStyleColor]
+            || DEFAULT_CHART_PRESENTATION_SETTINGS.gridStyle[control.dataset.gridStyleColor]
+            || '#000000';
+        });
+        crosshairStyleToggleControls.forEach((control) => {
+          control.checked = Boolean(draft.crosshairStyle?.[control.dataset.crosshairStyleToggle]);
+        });
+        crosshairStyleColorControls.forEach((control) => {
+          control.value = draft.crosshairStyle?.[control.dataset.crosshairStyleColor]
+            || DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle[control.dataset.crosshairStyleColor]
+            || '#000000';
+        });
       }
 
       function showSettingsSection(sectionId) {
@@ -876,6 +946,8 @@ export function createChartReplayRoute() {
           margins: presentationSettings.margins,
           rightOffsetBars: presentationSettings.rightOffsetBars,
           candleStyle: presentationSettings.candleStyle,
+          gridStyle: presentationSettings.gridStyle,
+          crosshairStyle: presentationSettings.crosshairStyle,
         }).catch(() => null);
       }
 
@@ -1112,6 +1184,34 @@ export function createChartReplayRoute() {
           setCandleStyleValue(settingsDraft.candleStyle, control.dataset.candleStyle, control.value);
         });
       });
+      gridStyleToggleControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft) return;
+          settingsDraft.gridStyle[control.dataset.gridStyleToggle] = control.checked;
+        });
+      });
+      gridStyleColorControls.forEach((control) => {
+        const updateGridStyleColor = () => {
+          if (!settingsDraft) return;
+          settingsDraft.gridStyle[control.dataset.gridStyleColor] = control.value;
+        };
+        control.addEventListener('input', updateGridStyleColor);
+        control.addEventListener('change', updateGridStyleColor);
+      });
+      crosshairStyleToggleControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft) return;
+          settingsDraft.crosshairStyle[control.dataset.crosshairStyleToggle] = control.checked;
+        });
+      });
+      crosshairStyleColorControls.forEach((control) => {
+        const updateCrosshairStyleColor = () => {
+          if (!settingsDraft) return;
+          settingsDraft.crosshairStyle[control.dataset.crosshairStyleColor] = control.value;
+        };
+        control.addEventListener('input', updateCrosshairStyleColor);
+        control.addEventListener('change', updateCrosshairStyleColor);
+      });
       chartSettingsApplyButton.addEventListener('click', async () => {
         if (!settingsDraft) return;
         const draft = settingsDraft;
@@ -1132,6 +1232,8 @@ export function createChartReplayRoute() {
             : { topPercent: 10, bottomPercent: 8 },
           rightOffsetBars: Number(draft.rightOffsetBars || 10),
           candleStyle: cloneCandleStyle(draft.candleStyle),
+          gridStyle: cloneGridStyle(draft.gridStyle),
+          crosshairStyle: cloneCrosshairStyle(draft.crosshairStyle),
         });
         await syncChartDisplayTimezone();
         await syncChartPresentationSettings();

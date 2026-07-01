@@ -10,13 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 416 is complete. Chart Settings now includes functional
-  candle body/border/wick up/down color controls with Ok/Cancel draft
-  semantics, and chart runtime applies the style through the chart-engine
-  adapter.
+- Current status: Step 417 is complete. Chart Settings now includes functional
+  grid and crosshair style controls with Ok/Cancel draft semantics, and chart
+  runtime applies those presentation options through the chart-engine adapter.
 - Next candidate: continue single-pane polish before split panes, likely setup
-  route visual cleanup, denser FXReplay-style chart header alignment, or
-  deeper chart settings options such as grid/crosshair colors.
+  route visual cleanup or denser FXReplay-style chart header alignment.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -54,6 +52,10 @@
   They belong in the Settings `Symbol` section as draft edits, normalize to
   `#rrggbb`, and apply only through presentation runtime -> chart display
   context -> chart-engine adapter. UI must not call chart series APIs directly.
+- UI decision: grid and crosshair visual style are chart presentation settings.
+  They belong in Settings as draft edits, normalize colors to `#rrggbb`, and
+  apply only through presentation runtime -> chart display context ->
+  chart-engine adapter. UI must not call Lightweight chart APIs directly.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2652,5 +2654,55 @@ Checks:
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 417 - V5 Grid And Crosshair Style Settings
+
+Status: completed.
+
+Goal: make Chart Settings control real grid and crosshair presentation options
+without bypassing chart runtime or chart-engine adapter ownership.
+
+Problem:
+
+- Step 416 proved the Settings-to-adapter style path for candle colors, but grid
+  and crosshair styling were still hardcoded in the chart-engine adapter.
+- Future chart customization needs these options to be presentation runtime
+  state, not route-local one-off UI behavior.
+
+Implementation:
+
+- [x] Step 417.1: Add `gridStyle` and `crosshairStyle` defaults and
+  normalization to chart presentation contracts/runtime.
+- [x] Step 417.2: Add Settings controls for grid visibility/color in `Canvas`
+  and crosshair visibility/color/label background in `Scales and lines`.
+- [x] Step 417.3: Preserve Settings draft semantics so grid/crosshair changes
+  do not mutate chart presentation until `Ok`.
+- [x] Step 417.4: Carry grid/crosshair style through chart runtime display
+  context.
+- [x] Step 417.5: Apply grid/crosshair style in the chart-engine adapter for
+  Lightweight chart options and DOM fallback metadata.
+- [x] Step 417.6: Update runtime, adapter, browser, display-context smokes plus
+  presentation/interaction docs and session handoff.
+
+Manual acceptance:
+
+- Settings exposes grid vertical/horizontal visibility and color controls.
+- Settings exposes crosshair vertical/horizontal visibility, line colors, and
+  label background color controls.
+- Changing those controls does not affect the chart until `Ok`.
+- `Ok` updates chart grid/crosshair appearance without changing replay cursor,
+  display bars, bar-data windows, active pane identity, or chart runtime
+  ownership.
+- Invalid grid/crosshair colors are rejected by the presentation runtime.
+
+Checks:
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

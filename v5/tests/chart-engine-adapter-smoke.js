@@ -230,6 +230,19 @@ lightweight.setPresentation({
     border: { up: '#16a34a', down: '#991b1b' },
     wick: { up: '#86efac', down: '#fca5a5' },
   },
+  gridStyle: {
+    verticalVisible: false,
+    horizontalVisible: true,
+    verticalColor: '#111827',
+    horizontalColor: '#1f2937',
+  },
+  crosshairStyle: {
+    verticalVisible: true,
+    horizontalVisible: false,
+    verticalColor: '#f8fafc',
+    horizontalColor: '#64748b',
+    labelBackgroundColor: '#0f172a',
+  },
 });
 lightweight.setVisibleRange({
   from: Date.parse('2026-06-01T09:32:00.000Z') / 1000,
@@ -281,28 +294,58 @@ assert.deepEqual(lightweightCalls.options.handleScale, {
 assert.equal(lightweightCalls.options.localization.priceFormatter(103.5), '103.50');
 assert.deepEqual(lightweightCalls.options.grid, {
   vertLines: {
-    color: 'rgba(55, 65, 81, 0.28)',
+    color: '#374151',
     style: 0,
     visible: true,
   },
   horzLines: {
-    color: 'rgba(55, 65, 81, 0.28)',
+    color: '#374151',
     style: 0,
     visible: true,
   },
 });
 assert.deepEqual(lightweightCalls.options.crosshair, {
   vertLine: {
-    color: 'rgba(148, 163, 184, 0.42)',
+    color: '#94a3b8',
     width: 1,
     style: 2,
+    visible: true,
     labelBackgroundColor: '#334155',
   },
   horzLine: {
-    color: 'rgba(148, 163, 184, 0.42)',
+    color: '#94a3b8',
     width: 1,
     style: 2,
+    visible: true,
     labelBackgroundColor: '#334155',
+  },
+});
+assert.deepEqual(lightweightCalls.applyOptions.at(-1).grid, {
+  vertLines: {
+    color: '#111827',
+    style: 0,
+    visible: false,
+  },
+  horzLines: {
+    color: '#1f2937',
+    style: 0,
+    visible: true,
+  },
+});
+assert.deepEqual(lightweightCalls.applyOptions.at(-1).crosshair, {
+  vertLine: {
+    color: '#f8fafc',
+    width: 1,
+    style: 2,
+    visible: true,
+    labelBackgroundColor: '#0f172a',
+  },
+  horzLine: {
+    color: '#64748b',
+    width: 1,
+    style: 2,
+    visible: false,
+    labelBackgroundColor: '#0f172a',
   },
 });
 assert.deepEqual(lightweightCalls.options.timeScale, {
@@ -370,6 +413,10 @@ assert.equal(lightweightHost.children[0].dataset.pricePrecision, '2');
 assert.equal(lightweightHost.children[0].dataset.priceMinMove, '0.01');
 assert.equal(lightweightHost.children[0].dataset.candleBodyUp, '#22c55e');
 assert.equal(lightweightHost.children[0].dataset.candleBorderDown, '#991b1b');
+assert.equal(lightweightHost.children[0].dataset.gridVerticalVisible, 'false');
+assert.equal(lightweightHost.children[0].dataset.gridHorizontalColor, '#1f2937');
+assert.equal(lightweightHost.children[0].dataset.crosshairHorizontalVisible, 'false');
+assert.equal(lightweightHost.children[0].dataset.crosshairLabelBackgroundColor, '#0f172a');
 assert.deepEqual(
   lightweightCalls.setData[0].map((item) => item.time),
   [
@@ -394,28 +441,30 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
   },
   grid: {
     vertLines: {
-      color: 'rgba(55, 65, 81, 0.28)',
+      color: '#111827',
       style: 0,
-      visible: true,
+      visible: false,
     },
     horzLines: {
-      color: 'rgba(55, 65, 81, 0.28)',
+      color: '#1f2937',
       style: 0,
       visible: true,
     },
   },
   crosshair: {
     vertLine: {
-      color: 'rgba(148, 163, 184, 0.42)',
+      color: '#f8fafc',
       width: 1,
       style: 2,
-      labelBackgroundColor: '#334155',
+      visible: true,
+      labelBackgroundColor: '#0f172a',
     },
     horzLine: {
-      color: 'rgba(148, 163, 184, 0.42)',
+      color: '#64748b',
       width: 1,
       style: 2,
-      labelBackgroundColor: '#334155',
+      visible: false,
+      labelBackgroundColor: '#0f172a',
     },
   },
   localization: {

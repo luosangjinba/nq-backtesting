@@ -32,6 +32,21 @@ export const DEFAULT_CANDLE_STYLE = Object.freeze({
   }),
 });
 
+export const DEFAULT_GRID_STYLE = Object.freeze({
+  verticalVisible: true,
+  horizontalVisible: true,
+  verticalColor: '#374151',
+  horizontalColor: '#374151',
+});
+
+export const DEFAULT_CROSSHAIR_STYLE = Object.freeze({
+  verticalVisible: true,
+  horizontalVisible: true,
+  verticalColor: '#94a3b8',
+  horizontalColor: '#94a3b8',
+  labelBackgroundColor: '#334155',
+});
+
 export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   timeFormat: CHART_TIME_FORMATS.H24,
   dateFormat: CHART_DATE_FORMATS.ISO_DATE,
@@ -44,4 +59,6 @@ export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   }),
   rightOffsetBars: 10,
   candleStyle: DEFAULT_CANDLE_STYLE,
+  gridStyle: DEFAULT_GRID_STYLE,
+  crosshairStyle: DEFAULT_CROSSHAIR_STYLE,
 });

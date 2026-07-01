@@ -204,6 +204,10 @@ Out of scope:
   Confirming with `Ok` updates presentation runtime state, then chart runtime
   passes the style through display context to the adapter. Route UI must not
   mutate Lightweight series options directly.
+- Grid and crosshair style settings follow the same Settings draft path:
+  presentation runtime owns normalized state, chart runtime carries it in
+  display context, and the adapter maps it to chart-engine options. Route UI
+  must not mutate Lightweight grid/crosshair options directly.
 - Route heading/navigation chrome should stay compact and secondary to the
   chart surface. Session navigation remains route-level UI, while TF, Go to,
   Layout, and Settings remain active-pane controls.

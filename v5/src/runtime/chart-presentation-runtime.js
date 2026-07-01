@@ -6,6 +6,8 @@ import {
   CHART_TIME_FORMATS,
   DEFAULT_CHART_PRESENTATION_SETTINGS,
   DEFAULT_CANDLE_STYLE,
+  DEFAULT_CROSSHAIR_STYLE,
+  DEFAULT_GRID_STYLE,
 } from '../contracts/chart-presentation-contracts.js';
 
 export {
@@ -68,6 +70,29 @@ function normalizeCandleStyle(value = {}, base = DEFAULT_CANDLE_STYLE) {
   };
 }
 
+function normalizeGridStyle(value = {}, base = DEFAULT_GRID_STYLE) {
+  return {
+    verticalVisible: normalizeBoolean(value.verticalVisible, base.verticalVisible),
+    horizontalVisible: normalizeBoolean(value.horizontalVisible, base.horizontalVisible),
+    verticalColor: normalizeColor(value.verticalColor, base.verticalColor, 'gridStyle.verticalColor'),
+    horizontalColor: normalizeColor(value.horizontalColor, base.horizontalColor, 'gridStyle.horizontalColor'),
+  };
+}
+
+function normalizeCrosshairStyle(value = {}, base = DEFAULT_CROSSHAIR_STYLE) {
+  return {
+    verticalVisible: normalizeBoolean(value.verticalVisible, base.verticalVisible),
+    horizontalVisible: normalizeBoolean(value.horizontalVisible, base.horizontalVisible),
+    verticalColor: normalizeColor(value.verticalColor, base.verticalColor, 'crosshairStyle.verticalColor'),
+    horizontalColor: normalizeColor(value.horizontalColor, base.horizontalColor, 'crosshairStyle.horizontalColor'),
+    labelBackgroundColor: normalizeColor(
+      value.labelBackgroundColor,
+      base.labelBackgroundColor,
+      'crosshairStyle.labelBackgroundColor'
+    ),
+  };
+}
+
 export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CHART_PRESENTATION_SETTINGS) {
   const margins = input.margins || {};
   return {
@@ -82,6 +107,8 @@ export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CH
     },
     rightOffsetBars: normalizeRightOffsetBars(input.rightOffsetBars ?? base.rightOffsetBars),
     candleStyle: normalizeCandleStyle(input.candleStyle, base.candleStyle),
+    gridStyle: normalizeGridStyle(input.gridStyle, base.gridStyle),
+    crosshairStyle: normalizeCrosshairStyle(input.crosshairStyle, base.crosshairStyle),
   };
 }
 

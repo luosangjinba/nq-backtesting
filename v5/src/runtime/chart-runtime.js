@@ -24,6 +24,14 @@ function cloneCandleStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyl
   };
 }
 
+function cloneGridStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.gridStyle) {
+  return { ...style };
+}
+
+function cloneCrosshairStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle) {
+  return { ...style };
+}
+
 function createEmptyState() {
   return {
     bars: [],
@@ -64,6 +72,8 @@ function createEmptyState() {
       margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
       rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
       candleStyle: cloneCandleStyle(),
+      gridStyle: cloneGridStyle(),
+      crosshairStyle: cloneCrosshairStyle(),
     },
   };
 }
@@ -893,6 +903,8 @@ export function createChartRuntime() {
     margins = state.displayContext.margins,
     rightOffsetBars = state.displayContext.rightOffsetBars,
     candleStyle = state.displayContext.candleStyle,
+    gridStyle = state.displayContext.gridStyle,
+    crosshairStyle = state.displayContext.crosshairStyle,
   } = {}) {
     state.displayContext = {
       instrument: instrument == null ? null : String(instrument),
@@ -910,6 +922,8 @@ export function createChartRuntime() {
       },
       rightOffsetBars: Number(rightOffsetBars ?? DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars),
       candleStyle: cloneCandleStyle(candleStyle),
+      gridStyle: cloneGridStyle(gridStyle),
+      crosshairStyle: cloneCrosshairStyle(crosshairStyle),
     };
     state.viewportFollow = {
       ...state.viewportFollow,
@@ -937,6 +951,8 @@ export function createChartRuntime() {
       margins: payload.margins,
       rightOffsetBars: payload.rightOffsetBars,
       candleStyle: payload.candleStyle,
+      gridStyle: payload.gridStyle,
+      crosshairStyle: payload.crosshairStyle,
     });
   }
 

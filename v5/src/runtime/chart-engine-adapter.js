@@ -100,6 +100,8 @@ function toChartBar(bar) {
 
 function normalizeContext(context = {}) {
   const defaultCandleStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle;
+  const defaultGridStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.gridStyle;
+  const defaultCrosshairStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle;
   return {
     displayTimezone: context.displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
     exchangeTimezone: context.exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
@@ -130,6 +132,27 @@ function normalizeContext(context = {}) {
         down: context.candleStyle?.wick?.down || defaultCandleStyle.wick.down,
       },
     },
+    gridStyle: {
+      verticalVisible: context.gridStyle?.verticalVisible == null
+        ? defaultGridStyle.verticalVisible
+        : Boolean(context.gridStyle.verticalVisible),
+      horizontalVisible: context.gridStyle?.horizontalVisible == null
+        ? defaultGridStyle.horizontalVisible
+        : Boolean(context.gridStyle.horizontalVisible),
+      verticalColor: context.gridStyle?.verticalColor || defaultGridStyle.verticalColor,
+      horizontalColor: context.gridStyle?.horizontalColor || defaultGridStyle.horizontalColor,
+    },
+    crosshairStyle: {
+      verticalVisible: context.crosshairStyle?.verticalVisible == null
+        ? defaultCrosshairStyle.verticalVisible
+        : Boolean(context.crosshairStyle.verticalVisible),
+      horizontalVisible: context.crosshairStyle?.horizontalVisible == null
+        ? defaultCrosshairStyle.horizontalVisible
+        : Boolean(context.crosshairStyle.horizontalVisible),
+      verticalColor: context.crosshairStyle?.verticalColor || defaultCrosshairStyle.verticalColor,
+      horizontalColor: context.crosshairStyle?.horizontalColor || defaultCrosshairStyle.horizontalColor,
+      labelBackgroundColor: context.crosshairStyle?.labelBackgroundColor || defaultCrosshairStyle.labelBackgroundColor,
+    },
   };
 }
 
@@ -142,6 +165,15 @@ function applyFallbackPresentation(canvas, context) {
   canvas.dataset.candleBorderDown = context.candleStyle.border.down;
   canvas.dataset.candleWickUp = context.candleStyle.wick.up;
   canvas.dataset.candleWickDown = context.candleStyle.wick.down;
+  canvas.dataset.gridVerticalVisible = String(context.gridStyle.verticalVisible);
+  canvas.dataset.gridHorizontalVisible = String(context.gridStyle.horizontalVisible);
+  canvas.dataset.gridVerticalColor = context.gridStyle.verticalColor;
+  canvas.dataset.gridHorizontalColor = context.gridStyle.horizontalColor;
+  canvas.dataset.crosshairVerticalVisible = String(context.crosshairStyle.verticalVisible);
+  canvas.dataset.crosshairHorizontalVisible = String(context.crosshairStyle.horizontalVisible);
+  canvas.dataset.crosshairVerticalColor = context.crosshairStyle.verticalColor;
+  canvas.dataset.crosshairHorizontalColor = context.crosshairStyle.horizontalColor;
+  canvas.dataset.crosshairLabelBackgroundColor = context.crosshairStyle.labelBackgroundColor;
   canvas.style.paddingTop = `${context.margins.topPercent}%`;
   canvas.style.paddingBottom = `${context.margins.bottomPercent}%`;
   canvas.style.paddingRight = `${context.rightOffsetBars * 10}px`;
@@ -153,12 +185,44 @@ function applyFallbackMetadata(canvas, metadata = {}) {
   });
 }
 
+function gridOptionsForContext(context) {
+  return {
+    vertLines: {
+      ...LIGHTWEIGHT_GRID.vertLines,
+      color: context.gridStyle.verticalColor,
+      visible: context.gridStyle.verticalVisible,
+    },
+    horzLines: {
+      ...LIGHTWEIGHT_GRID.horzLines,
+      color: context.gridStyle.horizontalColor,
+      visible: context.gridStyle.horizontalVisible,
+    },
+  };
+}
+
+function crosshairOptionsForContext(context) {
+  return {
+    vertLine: {
+      ...LIGHTWEIGHT_CROSSHAIR.vertLine,
+      color: context.crosshairStyle.verticalColor,
+      visible: context.crosshairStyle.verticalVisible,
+      labelBackgroundColor: context.crosshairStyle.labelBackgroundColor,
+    },
+    horzLine: {
+      ...LIGHTWEIGHT_CROSSHAIR.horzLine,
+      color: context.crosshairStyle.horizontalColor,
+      visible: context.crosshairStyle.horizontalVisible,
+      labelBackgroundColor: context.crosshairStyle.labelBackgroundColor,
+    },
+  };
+}
+
 function lightweightOptionsForContext(context) {
   return {
     handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
     handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
-    grid: structuredClone(LIGHTWEIGHT_GRID),
-    crosshair: structuredClone(LIGHTWEIGHT_CROSSHAIR),
+    grid: gridOptionsForContext(context),
+    crosshair: crosshairOptionsForContext(context),
     localization: {
       priceFormatter: (price) => formatPrice(price),
     },
@@ -241,6 +305,15 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.candleBorderDown = context.candleStyle.border.down;
   canvas.dataset.candleWickUp = context.candleStyle.wick.up;
   canvas.dataset.candleWickDown = context.candleStyle.wick.down;
+  canvas.dataset.gridVerticalVisible = String(context.gridStyle.verticalVisible);
+  canvas.dataset.gridHorizontalVisible = String(context.gridStyle.horizontalVisible);
+  canvas.dataset.gridVerticalColor = context.gridStyle.verticalColor;
+  canvas.dataset.gridHorizontalColor = context.gridStyle.horizontalColor;
+  canvas.dataset.crosshairVerticalVisible = String(context.crosshairStyle.verticalVisible);
+  canvas.dataset.crosshairHorizontalVisible = String(context.crosshairStyle.horizontalVisible);
+  canvas.dataset.crosshairVerticalColor = context.crosshairStyle.verticalColor;
+  canvas.dataset.crosshairHorizontalColor = context.crosshairStyle.horizontalColor;
+  canvas.dataset.crosshairLabelBackgroundColor = context.crosshairStyle.labelBackgroundColor;
 }
 
 function applyLightweightPresentation(canvas, context) {
@@ -789,8 +862,8 @@ function createLightweightInstance({ engine, documentRef }) {
           background: { color: '#0d1219' },
           textColor: '#d8dde8',
         },
-        grid: structuredClone(LIGHTWEIGHT_GRID),
-        crosshair: structuredClone(LIGHTWEIGHT_CROSSHAIR),
+        grid: gridOptionsForContext(displayContext),
+        crosshair: crosshairOptionsForContext(displayContext),
         rightPriceScale: {
           borderColor: '#2b2f36',
         },

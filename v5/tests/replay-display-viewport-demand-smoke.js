@@ -131,6 +131,19 @@ assert.deepEqual(context.displayContext, {
       down: '#ef5350',
     },
   },
+  gridStyle: {
+    verticalVisible: true,
+    horizontalVisible: true,
+    verticalColor: '#374151',
+    horizontalColor: '#374151',
+  },
+  crosshairStyle: {
+    verticalVisible: true,
+    horizontalVisible: true,
+    verticalColor: '#94a3b8',
+    horizontalColor: '#94a3b8',
+    labelBackgroundColor: '#334155',
+  },
 });
 assert.equal(context.viewportDemand, null);
 

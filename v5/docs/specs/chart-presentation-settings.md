@@ -15,7 +15,9 @@ The initial presentation settings foundation covers:
 - chart margins and right offset;
 - crosshair readout enablement;
 - candle body, border, and wick colors for up/down candles;
-- chart-owned crosshair readout visibility and formatting.
+- grid line visibility and colors;
+- crosshair line visibility, line colors, and label background color;
+- chart-owned crosshair readout visibility and formatting;
 - shared price, OHLC, change, candle-title, and inspection formatting.
 
 It does not implement a full FXReplay/TradingView settings panel, template
@@ -48,6 +50,10 @@ presentation setting changes.
   bar.
 - `candleStyle`: up/down colors for candle body, border, and wick, normalized
   as `#rrggbb`.
+- `gridStyle`: vertical/horizontal grid visibility plus colors, normalized as
+  `#rrggbb`.
+- `crosshairStyle`: vertical/horizontal crosshair visibility, line colors, and
+  label background color, normalized as `#rrggbb`.
 
 Defaults should match the current V5 dark replay layout and be conservative:
 OHLC/status change on, 24-hour time, visible crosshair readout, and right-side
@@ -75,12 +81,16 @@ space for replay progression.
 - Candle style belongs to chart presentation and flows through chart display
   context into the chart-engine adapter. UI must not call Lightweight series
   APIs directly to change candle colors.
+- Grid and crosshair style belong to chart presentation and flow through chart
+  display context into the chart-engine adapter. UI must not call Lightweight
+  chart APIs directly to mutate grid or crosshair options.
 
 ## Verification
 
 - Runtime smoke verifies normalization, events, and no bar/replay mutation.
 - Chart runtime smoke verifies margins/right offset are consumed by chart-owned
   layout state.
-- Adapter smoke verifies candle style reaches Lightweight series options.
+- Adapter smoke verifies candle, grid, and crosshair style reach Lightweight
+  series/chart options.
 - Browser smoke verifies settings changes affect visible presentation while
   cursor, display bars, and `/v4/bars` request counts remain unchanged.
