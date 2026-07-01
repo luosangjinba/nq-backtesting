@@ -164,6 +164,8 @@ async function main() {
 
           const bodyText = document.body.innerText;
           const toolbarRect = rect('[data-replay-workstation-toolbar]');
+          const headingRect = rect('.chart-route-heading');
+          const headingActionsRect = rect('.chart-route-actions');
           const chartRect = rect('[data-chart-host]');
           const chartNavRect = rect('[data-chart-toolbar]');
           const footerRect = rect('[data-replay-footer]');
@@ -215,6 +217,8 @@ async function main() {
             toolbarSetupLinkCount,
             returnedToSetup,
             toolbarRect,
+            headingRect,
+            headingActionsRect,
             chartRect,
             chartNavRect,
             footerRect,
@@ -225,6 +229,7 @@ async function main() {
             footerVisible: footerRect.height > 0 && footerRect.top >= chartRect.bottom,
             statusVisible: statusRect.height > 0,
             chartNavBottomGap: chartRect.bottom - chartNavRect.bottom,
+            headingToolbarGap: toolbarRect.top - headingRect.bottom,
           });
         } catch (error) {
           return JSON.stringify({ error: error?.stack || error?.message || String(error) });
@@ -262,8 +267,11 @@ async function main() {
     assert.equal(value.timeframeControlVisible, true);
     assert.equal(value.goToVisible, true);
     assert.equal(value.settingsVisible, true);
-    assert.ok(value.toolbarRect.height <= 82, `toolbar too tall: ${value.toolbarRect.height}`);
-    assert.ok(value.chartRect.height >= 620, `chart host too short: ${value.chartRect.height}`);
+    assert.ok(value.headingRect.height <= 34, `route heading too tall: ${value.headingRect.height}`);
+    assert.ok(value.headingActionsRect.height <= 28, `route actions too tall: ${value.headingActionsRect.height}`);
+    assert.ok(value.headingToolbarGap <= 10, `heading-to-toolbar gap too large: ${value.headingToolbarGap}`);
+    assert.ok(value.toolbarRect.height <= 46, `toolbar too tall: ${value.toolbarRect.height}`);
+    assert.ok(value.chartRect.height >= 640, `chart host too short: ${value.chartRect.height}`);
     assert.equal(value.footerVisible, true);
     assert.equal(value.statusVisible, true);
     assert.ok(value.chartNavBottomGap >= 20, `chart toolbar too close to bottom: ${value.chartNavBottomGap}`);

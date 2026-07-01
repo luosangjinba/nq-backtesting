@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 413 is complete. The current-bar OHLC readout now
-  renders as a read-only top-left chart overlay, matching FX Replay / V4
-  placement.
+- Current status: Step 414 is complete. The chart route heading/navigation
+  chrome is now compact and secondary to the chart surface, while session
+  navigation remains route-level UI.
 - Next candidate: continue single-pane polish before split panes, likely setup
-  route visual cleanup or chart settings surface refinement.
+  route visual cleanup, chart settings surface refinement, or denser
+  FXReplay-style chart header alignment.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2494,5 +2495,49 @@ Checks:
 
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 414 - V5 Compact Chart Route Chrome
+
+Status: completed.
+
+Goal: make the chart route's route-level chrome compact enough that the
+single-pane chart surface remains visually dominant.
+
+Problem:
+
+- After moving `Sessions` into route-level navigation, the chart route still
+  had page-like heading chrome above the active chart controls.
+- FXReplay-style usage expects dense workstation chrome, not a marketing/admin
+  panel heading that competes with the chart.
+- The change should stay visual/route-level and must not alter replay, chart,
+  or bar-data runtime behavior.
+
+Implementation:
+
+- [x] Step 414.1: Add stable route heading/action class names for chart-route
+  chrome without changing command ownership.
+- [x] Step 414.2: Compress chart heading, route action, toolbar spacing, and
+  chart viewport sizing so the chart surface gets more vertical priority.
+- [x] Step 414.3: Keep `Sessions` route navigation separate from active-pane
+  controls.
+- [x] Step 414.4: Extend workstation layout smoke coverage with route chrome
+  height and chart-height assertions.
+- [x] Step 414.5: Update interaction contracts, TODO, and session handoff.
+
+Manual acceptance:
+
+- The chart route no longer reads as a large page header above the workstation.
+- `Sessions` remains visible as route navigation, not a chart command.
+- TF, Go to, Layout, and Settings remain in the active chart control row.
+- Replay cursor, display bars, bar-data windows, chart runtime ownership, and
+  single-pane active pane identity are unchanged.
+
+Checks:
+
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-display-usability-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

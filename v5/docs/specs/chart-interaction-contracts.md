@@ -53,6 +53,8 @@ area instead of the active-pane controls.
 Step 413 moves the primary OHLC readout into the chart canvas area as a
 top-left read-only overlay, matching the FX Replay / V4 chart inspection
 pattern.
+Step 414 compresses the chart route chrome so route identity/navigation remains
+available without consuming workstation chart space.
 
 In scope:
 
@@ -188,6 +190,11 @@ Out of scope:
   uses replay display state and must not write chart series or mutate replay.
 - The visible chart route should not expose engineering shell labels as product
   UI.
+- Route heading/navigation chrome should stay compact and secondary to the
+  chart surface. Session navigation remains route-level UI, while TF, Go to,
+  Layout, and Settings remain active-pane controls.
+- Chart route chrome compression must not change replay cursor, display bars,
+  bar-data windows, chart runtime ownership, or active pane identity.
 - Chart navigation overlays must not obscure the time axis, bottom chart area,
   or right price axis. Overlay placement may change visually, but command
   dispatch and chart runtime ownership must remain unchanged.

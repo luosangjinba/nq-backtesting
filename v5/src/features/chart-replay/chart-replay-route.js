@@ -28,12 +28,12 @@ export function createChartReplayRoute() {
       section.dataset.activePaneCount = '1';
       section.dataset.layoutMode = 'single';
       section.innerHTML = `
-        <div class="panel-heading">
-          <div>
+        <div class="panel-heading chart-route-heading">
+          <div class="chart-route-title">
             <div class="eyebrow">Replay workstation</div>
             <h2>FX Session Replay</h2>
           </div>
-          <div class="panel-heading-actions" data-route-navigation aria-label="Route navigation">
+          <div class="panel-heading-actions chart-route-actions" data-route-navigation aria-label="Route navigation">
             <button type="button" class="route-back-button" data-route-link="setup" title="Back to sessions">Sessions</button>
             <span class="runtime-badge">Historical Review</span>
           </div>

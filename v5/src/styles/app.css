@@ -144,17 +144,41 @@ h1 {
 .chart-panel {
   min-height: calc(100vh - 16px);
   display: grid;
-  grid-template-rows: auto auto minmax(520px, 1fr) auto;
-  gap: 10px;
-  padding: 12px;
+  grid-template-rows: auto auto minmax(540px, 1fr) auto;
+  gap: 6px;
+  padding: 8px;
 }
 
 .chart-panel .panel-heading {
+  min-height: 28px;
   margin-bottom: 0;
 }
 
 .chart-panel .panel-heading h2 {
   margin-bottom: 0;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.chart-route-title {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chart-panel .chart-route-title .eyebrow {
+  margin-bottom: 0;
+  font-size: 10px;
+  line-height: 1;
+}
+
+.chart-panel .runtime-badge,
+.chart-panel .route-back-button {
+  min-height: 24px;
+  padding: 0 8px;
+  font-size: 11px;
+  line-height: 1;
 }
 
 .panel-heading-actions {
@@ -239,7 +263,7 @@ input {
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: clamp(620px, calc(100vh - 176px), 920px);
+  height: clamp(640px, calc(100vh - 148px), 940px);
   margin-bottom: 0;
 }
 
@@ -248,7 +272,7 @@ input {
   height: 100%;
   max-width: 100%;
   min-width: 0;
-  min-height: 620px;
+  min-height: 640px;
   overflow: hidden;
   border: 1px solid #28313d;
   background: #0d1219;
@@ -348,7 +372,8 @@ input {
   flex-wrap: nowrap;
   gap: 8px;
   justify-content: flex-end;
-  padding: 5px 6px;
+  min-height: 36px;
+  padding: 3px 5px;
   border: 1px solid #263241;
   border-radius: 8px;
   background: #101720;
