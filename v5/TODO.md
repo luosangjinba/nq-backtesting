@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 410 is complete. The chart route now has explicit
-  single-pane active-pane metadata and a guarded deferred Layout affordance.
+- Current status: Step 411 is complete. The ambiguous top-level `Cursor`
+  control was removed, and the behavior now lives in the Go to surface as
+  `Jump to replay cursor`.
 - Next candidate: continue single-pane polish before split panes, likely setup
-  route visual cleanup or chart settings/go-to surface refinement.
+  route visual cleanup or chart settings surface refinement.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -36,11 +37,9 @@
   button that opens a settings dialog/panel with sections for symbol/status
   line/scales/canvas-style display preferences.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
-  chart actions. Long term, keep one visible chart action for `Reset view` /
-  `Follow replay`; move the current `Cursor` behavior into the Go To surface as
-  an auxiliary action such as `Use current replay time` or rename it so it
-  clearly means jumping to the replay cursor without resetting zoom/follow
-  state.
+  chart actions. Step 411 moved the old top-level `Cursor` behavior into the
+  Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
+  without advancing replay cursor or resetting replay state.
 - UI decision: replace the current floating replay text-button group
   (`Next / Play / Pause / Reset`) with a compact FXReplay-style transport bar.
   Use icon buttons for step/back/play-pause/step-forward/reset or follow,
@@ -2363,5 +2362,48 @@ Checks:
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 411 - V5 Go-To Cursor Follow Semantics
+
+Status: completed.
+
+Goal: remove the ambiguous top-level `Cursor` action and keep the same behavior
+inside the Go to surface with explicit wording.
+
+Problem:
+
+- `Cursor` in the top toolbar reads like a crosshair/tool toggle, but its
+  actual behavior is `chart.resumeViewportFollow`.
+- Having both a top-level `Cursor` and chart reset/follow controls makes view
+  navigation semantics harder to learn.
+- The action is still useful, but it should be named by behavior and live near
+  Go to time navigation.
+
+Implementation:
+
+- [x] Step 411.1: Remove the top-level toolbar `Cursor` button from the chart
+  route.
+- [x] Step 411.2: Keep the Go to popover action and rename it to
+  `Jump to replay cursor`.
+- [x] Step 411.3: Keep the implementation command-driven through chart runtime
+  `RESUME_VIEWPORT_FOLLOW`.
+- [x] Step 411.4: Update browser smoke coverage so jump-to-cursor is exercised
+  through the Go to popover and the top-level ambiguous button stays absent.
+- [x] Step 411.5: Update TODO, interaction contracts, and session handoff.
+
+Manual acceptance:
+
+- The top toolbar no longer shows a `Cursor` button.
+- The Go to popover exposes `Jump to replay cursor`.
+- Clicking `Jump to replay cursor` resumes chart follow mode.
+- The action does not advance replay cursor, reset replay, change revealed
+  count, or directly request bars.
+
+Checks:
+
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

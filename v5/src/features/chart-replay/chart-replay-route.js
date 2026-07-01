@@ -58,7 +58,6 @@ export function createChartReplayRoute() {
           </label>
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
             <button type="button" data-chart-go-to-open disabled>Go to</button>
-            <button type="button" data-chart-jump-cursor disabled>Cursor</button>
             <button type="button" data-route-link="setup">Setup</button>
             <button type="button" data-layout-open data-layout-state="deferred" data-layout-mode="single" disabled aria-disabled="true" title="Layout is planned for a later step">Layout</button>
             <button type="button" data-chart-settings-open title="Chart settings" aria-label="Chart settings">Settings</button>
@@ -163,7 +162,7 @@ export function createChartReplayRoute() {
               <div class="chart-go-to-actions">
                 <button type="button" data-chart-go-to-cancel>Cancel</button>
                 <button type="button" data-chart-go-to disabled>Go</button>
-                <button type="button" data-chart-jump-cursor-popover disabled>Cursor</button>
+                <button type="button" data-chart-jump-cursor-popover disabled>Jump to replay cursor</button>
                 <button type="button" data-replay-reset disabled>Reset replay</button>
               </div>
             </div>
@@ -386,7 +385,9 @@ export function createChartReplayRoute() {
         goToInput.disabled = unavailable;
         goToOpenButton.disabled = unavailable;
         goToButton.disabled = unavailable || !goToInput.value;
-        jumpCursorButton.disabled = unavailable;
+        if (jumpCursorButton) {
+          jumpCursorButton.disabled = unavailable;
+        }
         jumpCursorPopoverButton.disabled = unavailable;
         layoutOpenButton.disabled = true;
         chartToolbarButtons.forEach((button) => {
@@ -970,7 +971,7 @@ export function createChartReplayRoute() {
         }
       }
 
-      jumpCursorButton.addEventListener('click', jumpToCursor);
+      jumpCursorButton?.addEventListener('click', jumpToCursor);
       jumpCursorPopoverButton.addEventListener('click', async () => {
         await jumpToCursor();
         closeGoToPopover();

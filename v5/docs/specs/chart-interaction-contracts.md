@@ -44,12 +44,16 @@ TradingView/Lightweight native behavior and not a current V5 correction target.
 Step 410 clarifies single-pane chart shell semantics before layout split panes:
 the chart route exposes one active pane (`primary`) and layout controls remain
 deferred instead of implying multi-pane behavior.
+Step 411 removes the ambiguous top-level `Cursor` control and keeps the
+behavior inside the Go to surface as an explicit `Jump to replay cursor`
+resume-follow action.
 
 In scope:
 
 - manual visible-range movement as a runtime command;
 - explicit follow pause/resume state;
 - go-to time as a chart runtime command that derives a manual visible range;
+- jump-to-replay-cursor as an explicit Go to surface action;
 - toolbar zoom/pan as chart runtime commands that derive manual visible ranges;
 - native chart-engine visible-range observation without per-frame data
   replacement;
@@ -100,6 +104,9 @@ Out of scope:
   clamps to the replay right-edge limit, and must not directly mutate replay
   cursor or `displayBars`. If viewport demand is consumed, replay runtime may
   grow `displayBars` through its bounded display-load path.
+- Jump-to-replay-cursor is a chart follow action exposed from the Go to surface.
+  It resumes viewport follow without advancing replay cursor, resetting replay,
+  or changing revealed bars.
 - Toolbar zoom and pan follow the same manual movement rules: they pause
   auto-follow, derive chart-owned manual visible ranges, clamp to the replay
   right-edge limit, and may emit viewport demand without requesting bars.
@@ -174,6 +181,9 @@ Out of scope:
   dispatch and chart runtime ownership must remain unchanged.
 - Jump-to-cursor resumes chart viewport follow explicitly. It does not advance
   replay cursor.
+- The chart route should not expose a top-level button labeled `Cursor` because
+  that reads like a crosshair/tool toggle. The visible action should be named
+  by behavior, such as `Jump to replay cursor`.
 - If viewport demand is consumed, replay runtime may update `displayBars`
   through a bounded replay-owned display load.
 - Manual visible ranges remain clamped to the replay right-edge limit.
@@ -239,6 +249,8 @@ When native Lightweight Charts pan/zoom is observed:
   resume command.
 - Go-to time directly changing replay cursor, replay reveal state, or display
   bars. Replay-owned viewport demand handling may grow `displayBars`.
+- Jump-to-replay-cursor changing replay cursor, replay reveal state, or
+  display bars.
 - Toolbar zoom or pan directly changing replay cursor, replay reveal state, or
   display bars. Replay-owned viewport demand handling may grow `displayBars`.
 - Replacing chart data on every native mousemove, wheel, drag, or crosshair
@@ -294,6 +306,8 @@ Step 376 should add or update harnesses proving:
   chart remains the dominant surface.
 - the chart route exposes one active `primary` pane, keeps Layout deferred, and
   leaves TF/Go-to/Settings visible as active-pane controls.
+- Go to contains the explicit `Jump to replay cursor` action, and the top-level
+  toolbar does not expose an ambiguous `Cursor` button.
 - price scale margins are applied through Lightweight price scale APIs and stay
   compatible with native interaction.
 - chart navigation overlays keep measurable clearance from the time axis and

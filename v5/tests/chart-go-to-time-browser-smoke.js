@@ -191,7 +191,19 @@ async function main() {
           });
           const afterGo = await commands.dispatchCommand('replay.getState');
           const afterGoInteraction = await commands.dispatchCommand('chart.getInteractionState');
-          document.querySelector('[data-chart-jump-cursor]').click();
+          document.querySelector('[data-chart-go-to-open]').click();
+          await waitFor('go-to popover reopen', async () => {
+            return document.querySelector('[data-chart-go-to-popover]')?.hidden === false
+              && document.querySelector('[data-chart-jump-cursor-popover]')?.disabled === false;
+          });
+          const topLevelCursorCount = document.querySelectorAll(
+            '[data-replay-workstation-toolbar] [data-chart-jump-cursor]'
+          ).length;
+          const popoverJumpCursorText = document
+            .querySelector('[data-chart-jump-cursor-popover]')
+            ?.textContent
+            ?.trim() || '';
+          document.querySelector('[data-chart-jump-cursor-popover]').click();
           await waitFor('jump cursor follow', async () => {
             const chart = chartSnapshot();
             return chart.mode === 'follow'
@@ -213,6 +225,8 @@ async function main() {
             afterGoVisibleFrom: afterGoInteraction.visibleRange?.from || null,
             afterJumpMode: afterJumpInteraction.interaction.mode,
             afterJumpFollow: afterJumpInteraction.viewportFollow.enabled,
+            topLevelCursorCount,
+            popoverJumpCursorText,
             requestCountBeforeGo,
             requestCountAfterGo: requests.length,
           });
@@ -237,6 +251,8 @@ async function main() {
     assert.ok(value.afterGoRightEdge >= Date.parse('2026-06-01T09:29:00.000Z') / 1000);
     assert.equal(value.afterJumpMode, 'follow');
     assert.equal(value.afterJumpFollow, true);
+    assert.equal(value.topLevelCursorCount, 0);
+    assert.equal(value.popoverJumpCursorText, 'Jump to replay cursor');
     assert.ok(value.requestCountAfterGo >= value.requestCountBeforeGo);
   } finally {
     client?.close();
