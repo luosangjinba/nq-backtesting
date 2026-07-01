@@ -177,6 +177,10 @@ async function main() {
           const floatingDisplayTimeframeCount = floating.querySelectorAll('[data-display-timeframe-select]').length;
           const replayIntervalSelect = floating.querySelector('[data-replay-interval-select]');
           const replaySpeedInput = floating.querySelector('[data-replay-speed]');
+          const floatingZIndex = Number(getComputedStyle(floating).zIndex);
+          const settingsZIndex = Number(getComputedStyle(document.querySelector('[data-chart-settings-popover]')).zIndex);
+          const goToZIndex = Number(getComputedStyle(document.querySelector('[data-chart-go-to-popover]')).zIndex);
+          const truncateWarningZIndex = Number(getComputedStyle(document.querySelector('[data-replay-truncate-error]')).zIndex);
           const disabledTransportPlaceholders = {
             truncate: floating.querySelector('[data-replay-truncate-to-selection]')?.disabled === true,
             previous: floating.querySelector('[data-replay-previous]')?.disabled === true,
@@ -337,6 +341,10 @@ async function main() {
             replayIntervalSelectCount: floating.querySelectorAll('[data-replay-interval-select]').length,
             replayIntervalSelectValue: replayIntervalSelect?.value || '',
             replaySpeedValue: replaySpeedInput?.value || '',
+            floatingZIndex,
+            settingsZIndex,
+            goToZIndex,
+            truncateWarningZIndex,
             disabledTransportPlaceholders,
           });
         } catch (error) {
@@ -360,6 +368,9 @@ async function main() {
     assert.equal(value.replayIntervalSelectValue, '1');
     assert.equal(value.replaySpeedValue, '300');
     assert.equal(value.speedPlaybackInterval, 300);
+    assert.ok(value.settingsZIndex > value.floatingZIndex, `settings should layer above floating controls: ${JSON.stringify(value)}`);
+    assert.ok(value.goToZIndex > value.floatingZIndex, `go to should layer above floating controls: ${JSON.stringify(value)}`);
+    assert.ok(value.truncateWarningZIndex > value.floatingZIndex, `truncate warning should layer above floating controls: ${JSON.stringify(value)}`);
     assert.equal(value.movedByDrag, true, `floating controls did not move enough: ${JSON.stringify(value)}`);
     assert.equal(value.bodyDragMoved, false, `floating controls moved from body drag: ${JSON.stringify(value)}`);
     assert.equal(value.dragChangedReplay, false);

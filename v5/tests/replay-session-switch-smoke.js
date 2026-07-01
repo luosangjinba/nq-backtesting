@@ -94,9 +94,23 @@ host.dataset.chartHost = '';
 root.append(host);
 
 const requests = [];
+let delayFirstStartLoad = false;
+let firstStartLoadArrived = false;
+let releaseFirstStartLoad = null;
 const barDataRuntime = createBarDataRuntime({
   fetchBars: async (window) => {
     requests.push(window);
+    if (
+      delayFirstStartLoad
+      && window.direction === 'forward'
+      && timestamp(window.anchor) === timestamp('2026-06-01T09:30:00.000Z')
+      && !firstStartLoadArrived
+    ) {
+      firstStartLoadArrived = true;
+      await new Promise((resolve) => {
+        releaseFirstStartLoad = resolve;
+      });
+    }
     const anchorTimestamp = timestamp(window.anchor);
     if (window.direction === 'forward') {
       return { bars: makeBars(anchorTimestamp, window.estimatedBars) };
@@ -127,6 +141,20 @@ const second = await dispatchCommand(SESSION_COMMANDS.CREATE, {
   sessionStart: '2026-06-01 10:00',
   sessionEnd: '2026-06-01 10:10',
 });
+
+delayFirstStartLoad = true;
+const staleFirstInitial = dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
+  sessionId: first.session.id,
+});
+await waitFor(async () => firstStartLoadArrived && releaseFirstStartLoad);
+const concurrentSecondInitial = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
+  sessionId: second.session.id,
+});
+delayFirstStartLoad = false;
+releaseFirstStartLoad();
+await assert.rejects(staleFirstInitial, /Stale replay initial load ignored/);
+assert.equal(concurrentSecondInitial.sessionId, second.session.id);
+assert.equal((await dispatchCommand(REPLAY_COMMANDS.GET_STATE)).sessionId, second.session.id);
 
 const firstInitial = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
   sessionId: first.session.id,

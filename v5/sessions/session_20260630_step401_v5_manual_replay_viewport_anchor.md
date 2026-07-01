@@ -31,6 +31,11 @@ not flash disabled or show a forbidden cursor during normal use.
 Replay floating controls are viewport-level controls rather than chart-canvas
 overlays: the drag handle can move them outside the chart area, with browser
 viewport edges as the clamp boundary.
+Replay initial session loading is session-safe and disposable: an unmounted
+chart route cannot keep updating its DOM, and a stale initial-load command cannot
+overwrite a newer replay session. Floating replay controls remain below
+popover/modal layers so Settings, Go to, and truncate warnings own interaction
+while open.
 
 ## Plan
 
@@ -69,6 +74,11 @@ viewport edges as the clamp boundary.
   commands.
 - Replay floating controls now use fixed viewport positioning and clamp drag
   movement to browser viewport edges instead of chart viewport edges.
+- Replay route clears pending initial-load timers on dispose, guards async DOM
+  updates after unmount, and replay runtime rejects stale concurrent initial
+  session loads.
+- Popover/modal z-index values are above the viewport-level floating replay
+  controls.
 
 ## Manual Acceptance
 

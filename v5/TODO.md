@@ -1809,6 +1809,11 @@ flash disabled or show a forbidden cursor during normal transport commands.
 Replay floating controls are viewport-level controls, not chart-canvas overlays:
 the drag handle may move them outside the chart area, clamped only to the visible
 browser viewport.
+Replay route initial loading must be disposable and session-safe: a chart route
+that has been unmounted must not continue updating DOM, and an older
+`LOAD_INITIAL_SESSION` request must not overwrite a newer session load.
+Floating replay controls sit below modal/popover layers so Settings, Go to, and
+truncate warnings remain the top interactive surface when open.
 
 - [x] Step 401.1: Document the manual replay viewport anchor decision in
   TODO/spec/session handoff.
@@ -1832,6 +1837,8 @@ browser viewport.
   command-in-flight windows while serializing replay commands.
 - [x] Step 401.11: Allow replay floating controls to drag outside the chart
   canvas while remaining inside the browser viewport.
+- [x] Step 401.12: Guard stale route initial loads and keep popovers layered
+  above viewport-level replay controls.
 
 Manual acceptance:
 

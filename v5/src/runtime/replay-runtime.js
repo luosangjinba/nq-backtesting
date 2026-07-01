@@ -212,6 +212,7 @@ export function createReplayRuntime() {
     advancing: false,
     stoppedReason: null,
   };
+  let initialLoadSequence = 0;
   let emit = () => {};
   const loadedPrefixAnchors = new Set();
   const loadingPrefixAnchors = new Set();
@@ -278,7 +279,14 @@ export function createReplayRuntime() {
     });
   }
 
-  async function resolveStartBar({ sessionId } = {}) {
+  function assertCurrentInitialLoad(sessionId, loadSequence) {
+    if (!loadSequence) return;
+    if (loadSequence !== initialLoadSequence || state.sessionId !== sessionId) {
+      throw new Error('Stale replay initial load ignored.');
+    }
+  }
+
+  async function resolveStartBar({ sessionId, loadSequence } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
     }
@@ -297,6 +305,9 @@ export function createReplayRuntime() {
       direction: 'forward',
       count: 2,
     });
+    if (loadSequence && loadSequence !== initialLoadSequence) {
+      throw new Error('Stale replay initial load ignored.');
+    }
     const startBar = selectStartBar(window.bars, session.sessionStart);
     loadedPrefixAnchors.clear();
     loadingPrefixAnchors.clear();
@@ -327,8 +338,9 @@ export function createReplayRuntime() {
     return clone(state);
   }
 
-  async function loadPersistedRevealBars(cursor) {
+  async function loadPersistedRevealBars(cursor, { sessionId = state.sessionId, loadSequence } = {}) {
     if (!cursor?.cursorTimestamp || !state.startBar) return [];
+    assertCurrentInitialLoad(sessionId, loadSequence);
     const startTimestamp = Number(state.startBar.timestamp);
     const targetTimestamp = timestampSeconds(cursor.cursorTimestamp);
     if (targetTimestamp <= startTimestamp) return [];
@@ -346,6 +358,7 @@ export function createReplayRuntime() {
         direction: 'forward',
         count,
       });
+      assertCurrentInitialLoad(sessionId, loadSequence);
       const nextBars = window.bars
         .filter((bar) => Number(bar?.timestamp) > timestampSeconds(anchor))
         .filter((bar) => Number(bar?.timestamp) <= targetTimestamp)
@@ -363,12 +376,14 @@ export function createReplayRuntime() {
     return revealedBars.slice(0, targetRevealCount);
   }
 
-  async function loadInitialPrefix({ sessionId } = {}) {
+  async function loadInitialPrefix({ sessionId, loadSequence } = {}) {
     if (!state.startBar || state.sessionId !== sessionId) {
-      await resolveStartBar({ sessionId });
+      await resolveStartBar({ sessionId, loadSequence });
     }
+    assertCurrentInitialLoad(sessionId, loadSequence);
 
     const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS);
+    assertCurrentInitialLoad(sessionId, loadSequence);
     const prefixCount = computePrefixBarCount(metrics);
     const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
       instrument: state.session.instrument,
@@ -377,6 +392,7 @@ export function createReplayRuntime() {
       direction: 'backward',
       count: prefixCount + 1,
     });
+    assertCurrentInitialLoad(sessionId, loadSequence);
     const startTimestamp = Number(state.startBar.timestamp);
     const prefixBars = window.bars
       .filter((bar) => Number(bar?.timestamp) < startTimestamp)
@@ -400,11 +416,17 @@ export function createReplayRuntime() {
   }
 
   async function loadInitialSession({ sessionId } = {}) {
+    const loadSequence = ++initialLoadSequence;
     if (state.status !== 'prefix-loaded' || state.sessionId !== sessionId) {
-      await loadInitialPrefix({ sessionId });
+      await loadInitialPrefix({ sessionId, loadSequence });
     }
+    assertCurrentInitialLoad(sessionId, loadSequence);
 
-    const persistedRevealBars = await loadPersistedRevealBars(state.persistedCursor);
+    const persistedRevealBars = await loadPersistedRevealBars(state.persistedCursor, {
+      sessionId,
+      loadSequence,
+    });
+    assertCurrentInitialLoad(sessionId, loadSequence);
     const restoredCursor = persistedRevealBars.length
       ? persistedRevealBars[persistedRevealBars.length - 1]
       : state.startBar;
@@ -417,11 +439,14 @@ export function createReplayRuntime() {
     ];
     assertNoDisplayBarsAfter(displayBars, restoredCursorTimestamp);
     await renderDisplayBars(displayBars, restoredCursorTimestamp, { resumeViewportFollow: true });
+    assertCurrentInitialLoad(sessionId, loadSequence);
     await syncChartRightEdgeLimit(restoredCursorTimestamp);
+    assertCurrentInitialLoad(sessionId, loadSequence);
     await syncChartDisplayContext({
       displayTimeframe: state.displayTimeframe || state.session.timeframe,
       bars: displayBars,
     });
+    assertCurrentInitialLoad(sessionId, loadSequence);
 
     state = {
       ...state,
@@ -1207,6 +1232,7 @@ export function createReplayRuntime() {
     }
     pause();
     state = emptyState();
+    initialLoadSequence = 0;
     loadedPrefixAnchors.clear();
     loadingPrefixAnchors.clear();
   }

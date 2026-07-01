@@ -240,6 +240,8 @@ export function createChartReplayRoute() {
       let commandInFlight = false;
       let replayCommandQueue = Promise.resolve();
       let replayLoaded = false;
+      let disposed = false;
+      let initialLoadTimer = null;
       let playbackPlaying = false;
       let playbackIntervalMs = 500;
       let terminalReason = '';
@@ -971,6 +973,11 @@ export function createChartReplayRoute() {
         unsubscribeCallbacks.push(unsubscribe);
       });
       section.dispose = () => {
+        disposed = true;
+        if (initialLoadTimer !== null) {
+          clearTimeout(initialLoadTimer);
+          initialLoadTimer = null;
+        }
         viewportDemandBridge.stop();
         while (unsubscribeCallbacks.length) {
           unsubscribeCallbacks.pop()();
@@ -984,25 +991,32 @@ export function createChartReplayRoute() {
       viewportDemandBridge.start();
       dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE)
         .then((state) => {
+          if (disposed) return;
           crosshairState = state?.crosshair || crosshairState;
           refreshCrosshairReadout();
         })
         .catch(() => null);
 
       if (params.sessionId) {
-        setTimeout(async () => {
+        initialLoadTimer = setTimeout(async () => {
+          initialLoadTimer = null;
+          if (disposed) return;
           status.textContent = 'Loading replay start...';
           setControlsDisabled(true);
           try {
             const state = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
               sessionId: params.sessionId,
             });
+            if (disposed) return;
             replayLoaded = true;
             status.textContent = `Loaded ${state.displayBars.length} bars.`;
             await refreshReplayStatus();
           } catch (error) {
+            if (disposed && error?.message === 'Stale replay initial load ignored.') return;
+            if (disposed) return;
             status.textContent = error?.message || String(error);
           } finally {
+            if (disposed) return;
             setControlsDisabled(false);
           }
         }, 0);
