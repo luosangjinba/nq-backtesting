@@ -112,6 +112,11 @@ export function createChartReplayRoute() {
           <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}" data-active-pane="true">
             <span>Starting chart...</span>
           </div>
+          <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
+            <span data-chart-ohlc-symbol>NQ</span>
+            <span data-chart-ohlc-timeframe>1m</span>
+            <strong data-chart-ohlc-value>--</strong>
+          </div>
           <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
           <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
             <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
@@ -209,6 +214,10 @@ export function createChartReplayRoute() {
       const statusOhlcRow = section.querySelector('[data-status-ohlc-row]');
       const statusChangeRow = section.querySelector('[data-status-change-row]');
       const statusOhlcLabel = section.querySelector('[data-status-ohlc]');
+      const chartOhlcOverlay = section.querySelector('[data-chart-ohlc-overlay]');
+      const chartOhlcSymbol = section.querySelector('[data-chart-ohlc-symbol]');
+      const chartOhlcTimeframe = section.querySelector('[data-chart-ohlc-timeframe]');
+      const chartOhlcValue = section.querySelector('[data-chart-ohlc-value]');
       const statusChangeLabel = section.querySelector('[data-status-change]');
       const crosshairRow = section.querySelector('[data-crosshair-row]');
       const crosshairReadoutLabel = section.querySelector('[data-crosshair-inspection-readout]');
@@ -345,16 +354,33 @@ export function createChartReplayRoute() {
         });
       }
 
+      function formatTimeframeLabel(value) {
+        const minutes = Number(value || 1);
+        if (minutes === 43200) return '1M';
+        if (minutes === 10080) return '1W';
+        if (minutes === 1440) return '1D';
+        if (minutes >= 60 && minutes % 60 === 0) return `${minutes / 60}H`;
+        return `${minutes}m`;
+      }
+
       function refreshStatusLineValues(state) {
         const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
         statusOhlcRow.hidden = !presentationSettings.showStatusOhlc;
+        chartOhlcOverlay.hidden = !presentationSettings.showStatusOhlc || !latest;
         statusChangeRow.hidden = !presentationSettings.showStatusChange;
         if (!latest) {
           statusOhlcLabel.textContent = '--';
+          chartOhlcValue.textContent = '--';
           statusChangeLabel.textContent = '--';
           return;
         }
-        statusOhlcLabel.textContent = formatOhlc(latest);
+        const ohlcText = formatOhlc(latest);
+        statusOhlcLabel.textContent = ohlcText;
+        chartOhlcValue.textContent = ohlcText;
+        chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
+        chartOhlcTimeframe.textContent = formatTimeframeLabel(
+          displayTimeframe || state?.displayTimeframe || state?.session?.timeframe || 1
+        );
         const previous = state.displayBars.length > 1 ? state.displayBars.at(-2) : null;
         const change = previous ? Number(latest.close) - Number(previous.close) : 0;
         statusChangeLabel.textContent = formatChange(change);

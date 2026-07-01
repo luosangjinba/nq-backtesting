@@ -260,6 +260,34 @@ input {
   cursor: crosshair;
 }
 
+.chart-ohlc-overlay {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  max-width: min(820px, calc(100% - 120px));
+  overflow: hidden;
+  color: #7dd3fc;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+  pointer-events: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.chart-ohlc-overlay[hidden] {
+  display: none;
+}
+
+.chart-ohlc-overlay strong {
+  color: #f97316;
+  font-weight: 700;
+}
+
 .replay-truncate-pick-line {
   position: absolute;
   top: 0;

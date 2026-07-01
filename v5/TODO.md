@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 412 is complete. Session-selection navigation moved out
-  of the active chart-control toolbar and is now a route-level `Sessions`
-  action in the chart heading.
+- Current status: Step 413 is complete. The current-bar OHLC readout now
+  renders as a read-only top-left chart overlay, matching FX Replay / V4
+  placement.
 - Next candidate: continue single-pane polish before split panes, likely setup
   route visual cleanup or chart settings surface refinement.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -36,6 +36,10 @@
   is a compact entry point such as a context-menu `Settings...` item or gear
   button that opens a settings dialog/panel with sections for symbol/status
   line/scales/canvas-style display preferences.
+- UI decision: the primary OHLC readout belongs in the chart canvas top-left
+  area, consistent with V4 and FX Replay. The footer/status band may still
+  expose compact state, but the chart inspection/status line should be visible
+  on the canvas and controlled by the same OHLC presentation setting.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2448,5 +2452,47 @@ Checks:
 
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/app-shell-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 413 - V5 Chart OHLC Top-Left Overlay
+
+Status: completed.
+
+Goal: render the current-bar OHLC readout in the chart canvas top-left area,
+matching V4 and FX Replay visual placement.
+
+Problem:
+
+- OHLC was available only in the compact footer/status band.
+- FX Replay and V4 place the active chart OHLC/status readout in the canvas
+  top-left area, where chart users expect to inspect it.
+- The change should remain presentation-only and must not change chart runtime
+  ownership or replay state.
+
+Implementation:
+
+- [x] Step 413.1: Add a read-only chart OHLC overlay inside the chart viewport.
+- [x] Step 413.2: Populate the overlay from the same current display-bar
+  formatting used by the footer OHLC status.
+- [x] Step 413.3: Keep the overlay tied to the existing `showStatusOhlc`
+  presentation setting.
+- [x] Step 413.4: Style the overlay as top-left canvas text with pointer events
+  disabled.
+- [x] Step 413.5: Update browser smoke coverage, interaction contracts, TODO,
+  and session handoff.
+
+Manual acceptance:
+
+- The chart canvas shows instrument, timeframe, and OHLC at top-left.
+- The overlay hides when the OHLC presentation setting is disabled.
+- The overlay is read-only and does not intercept chart mouse interaction.
+- Replay cursor, display bars, bar-data windows, and chart runtime ownership are
+  unchanged.
+
+Checks:
+
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -128,6 +128,7 @@ async function main() {
           throw new Error('waitFor timed out: ' + label + ' ' + JSON.stringify({
             cursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             ohlcHidden: document.querySelector('[data-status-ohlc-row]')?.hidden,
+            chartOhlcHidden: document.querySelector('[data-chart-ohlc-overlay]')?.hidden,
             canvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
             canvasPaddingRight: document.querySelector('[data-chart-canvas]')?.style.paddingRight || '',
             lightweightMarginTop: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent || '',
@@ -158,6 +159,8 @@ async function main() {
           const requestCount = requests.length;
           const beforeCursorLabel = document.querySelector('[data-replay-cursor]')?.textContent || '';
           const beforeOhlcHidden = document.querySelector('[data-status-ohlc-row]')?.hidden;
+          const beforeChartOhlcHidden = document.querySelector('[data-chart-ohlc-overlay]')?.hidden;
+          const beforeChartOhlcText = document.querySelector('[data-chart-ohlc-overlay]')?.textContent?.replace(/\\s+/g, ' ').trim() || '';
           const toolbarPresentationButtonCount = document.querySelector('[data-replay-workstation-toolbar]')
             ?.querySelectorAll('[data-display-timezone], [data-presentation-time-format], [data-presentation-toggle], [data-presentation-margin], [data-presentation-right-offset]')
             .length || 0;
@@ -175,6 +178,7 @@ async function main() {
           await waitFor('presentation applied', async () =>
             document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 9:30 AM'
               && document.querySelector('[data-status-ohlc-row]')?.hidden === true
+              && document.querySelector('[data-chart-ohlc-overlay]')?.hidden === true
               && document.querySelector('[data-chart-canvas]')?.style.paddingTop === ''
               && document.querySelector('[data-chart-canvas]')?.style.paddingBottom === ''
               && document.querySelector('[data-chart-canvas]')?.style.paddingRight === ''
@@ -191,6 +195,9 @@ async function main() {
             afterCursorLabel: document.querySelector('[data-replay-cursor]')?.textContent || '',
             beforeOhlcHidden,
             afterOhlcHidden: document.querySelector('[data-status-ohlc-row]')?.hidden,
+            beforeChartOhlcHidden,
+            afterChartOhlcHidden: document.querySelector('[data-chart-ohlc-overlay]')?.hidden,
+            beforeChartOhlcText,
             toolbarPresentationButtonCount,
             settingsInitiallyHidden,
             settingsOpen: document.querySelector('[data-chart-settings-popover]')?.hidden === false,
@@ -223,6 +230,9 @@ async function main() {
     assert.equal(value.afterCursorLabel, '2026-06-01 9:30 AM');
     assert.equal(value.beforeOhlcHidden, false);
     assert.equal(value.afterOhlcHidden, true);
+    assert.equal(value.beforeChartOhlcHidden, false);
+    assert.equal(value.afterChartOhlcHidden, true);
+    assert.match(value.beforeChartOhlcText, /^NQ 1m O /);
     assert.equal(value.toolbarPresentationButtonCount, 0);
     assert.equal(value.settingsInitiallyHidden, true);
     assert.equal(value.settingsOpen, true);

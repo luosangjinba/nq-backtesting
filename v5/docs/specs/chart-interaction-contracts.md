@@ -50,6 +50,9 @@ resume-follow action.
 Step 412 moves session-selection navigation out of the chart control toolbar:
 the route-level return action is labeled `Sessions` and lives in the heading
 area instead of the active-pane controls.
+Step 413 moves the primary OHLC readout into the chart canvas area as a
+top-left read-only overlay, matching the FX Replay / V4 chart inspection
+pattern.
 
 In scope:
 
@@ -180,6 +183,9 @@ Out of scope:
   modal/popover layers while those layers are open.
 - Status can move into a compact footer band, but status rendering must remain
   read-only with respect to replay/chart/bar-data state.
+- The current-bar OHLC readout should be visible in the chart canvas top-left
+  area, not only in the footer/status band. It remains read-only route UI that
+  uses replay display state and must not write chart series or mutate replay.
 - The visible chart route should not expose engineering shell labels as product
   UI.
 - Chart navigation overlays must not obscure the time axis, bottom chart area,
@@ -277,6 +283,8 @@ When native Lightweight Charts pan/zoom is observed:
   `Chart Route` in the replay workstation UI.
 - Placing session-selection route navigation inside the active chart-control
   toolbar as though it were a chart command.
+- Hiding the primary OHLC readout only in the footer when chart users expect it
+  near the canvas status line.
 - Adding multi-pane chart behavior without first defining active-pane ownership,
   chart runtime routing, and sync rules.
 - Letting the deferred Layout control mutate route state or chart layout.
@@ -318,6 +326,8 @@ Step 376 should add or update harnesses proving:
   toolbar does not expose an ambiguous `Cursor` button.
 - session-selection navigation is available as `Sessions` in route-level
   heading/navigation UI and is absent from the chart-control toolbar.
+- current-bar OHLC is visible as a chart top-left overlay and follows the same
+  show/hide presentation setting as the status OHLC row.
 - price scale margins are applied through Lightweight price scale APIs and stay
   compatible with native interaction.
 - chart navigation overlays keep measurable clearance from the time axis and
