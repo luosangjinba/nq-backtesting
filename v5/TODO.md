@@ -1958,9 +1958,9 @@ Checks:
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
-## Step 404 - V5 Viewport Demand Drag Smoothness Plan
+## Step 404 - V5 Viewport Demand Drag Smoothness
 
-Status: planned, documentation only. No code changes in this step.
+Status: completed.
 
 Goal: reduce left-drag chart stutter by decoupling native chart drag frames from
 history-demand loading and full chart data replacement.
@@ -1991,23 +1991,23 @@ Decision:
 - Cached or duplicate display windows must not cause unnecessary chart
   `setData()` calls when the merged display bars are unchanged.
 
-Planned implementation outline:
+Implementation:
 
-- [ ] Step 404.1: Add a small debounce or animation-frame coalescing layer to
+- [x] Step 404.1: Add a small debounce/coalescing layer to
   viewport demand consumption. Target 120-180ms after the latest native range
   change, or a trailing call when drag settles.
-- [ ] Step 404.2: Reduce viewport demand bridge identity to stable load-window
+- [x] Step 404.2: Reduce viewport demand bridge identity to stable load-window
   fields: session, instrument, display timeframe, direction, anchor, and
   normalized count. Do not include high-frequency `visibleFrom`/`visibleTo`
   unless they materially change the load window.
-- [ ] Step 404.3: Keep chart manual range updates immediate, but avoid
+- [x] Step 404.3: Keep chart manual range updates immediate, but avoid
   replay/bar-data loads during every native visible-range event.
-- [ ] Step 404.4: Add replay/chart runtime guard so an already-loaded display
+- [x] Step 404.4: Add replay runtime guard so an already-loaded display
   window or unchanged merged display bars does not trigger another
   `chart.replaceBars` / Lightweight `setData`.
-- [ ] Step 404.5: Add instrumentation or browser smoke that simulates left drag
-  near the loaded boundary and asserts bounded demand/load/render counts.
-- [ ] Step 404.6: Preserve no-future display, right-edge clamp, manual anchor,
+- [x] Step 404.5: Add wiring/runtime smoke coverage for coalesced viewport
+  demand, short duplicate suppression, and unchanged displayBars not rendering.
+- [x] Step 404.6: Preserve no-future display, right-edge clamp, manual anchor,
   and prefix/display cache ownership boundaries.
 
 Success criteria:
@@ -2019,11 +2019,11 @@ Success criteria:
 - Replay runtime remains the only owner of display history growth.
 - Bar data runtime remains the only owner of bounded bar requests and cache.
 
-Suggested checks for the implementation step:
+Checks:
 
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
-- new/updated browser diagnostic for left-drag demand coalescing
+- `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

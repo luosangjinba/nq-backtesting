@@ -9,19 +9,20 @@ clearCommandsForTest();
 clearEventsForTest();
 
 const replayLoads = [];
-let resolveReplayLoad = null;
+const replayResolvers = [];
 const unsubscribeCommand = registerCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, (payload = {}) => {
   replayLoads.push(payload);
   return new Promise((resolve) => {
-    resolveReplayLoad = () => resolve({
+    replayResolvers.push(() => resolve({
       loaded: true,
       displayBars: [],
-    });
+    }));
   });
 });
 
 const bridge = createReplayViewportDemandBridge({
   getSessionId: () => 'viewport-demand-session',
+  settleMs: 0,
 });
 bridge.start();
 
@@ -62,14 +63,55 @@ assert.equal(
   'duplicate viewport demand should not dispatch a second in-flight replay load'
 );
 
-resolveReplayLoad();
+replayResolvers.shift()();
 await new Promise((resolve) => setTimeout(resolve, 0));
+
+emitEvent(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand });
+await new Promise((resolve) => setTimeout(resolve, 0));
+
+assert.equal(
+  replayLoads.length,
+  1,
+  'completed viewport demand window should not dispatch a cached duplicate load'
+);
 
 bridge.stop();
 emitEvent(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand });
 await new Promise((resolve) => setTimeout(resolve, 0));
 
 assert.equal(replayLoads.length, 1);
+
+const coalescedBridge = createReplayViewportDemandBridge({
+  getSessionId: () => 'viewport-demand-session',
+  settleMs: 20,
+});
+coalescedBridge.start();
+const jitteredDemand = {
+  ...viewportDemand,
+  visibleFrom: viewportDemand.visibleFrom - 60,
+  visibleTo: viewportDemand.visibleTo - 60,
+  missingWindow: {
+    ...viewportDemand.missingWindow,
+    from: viewportDemand.missingWindow.from - 60,
+    to: viewportDemand.missingWindow.to - 60,
+  },
+};
+emitEvent(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand });
+emitEvent(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: jitteredDemand });
+await new Promise((resolve) => setTimeout(resolve, 40));
+
+assert.equal(
+  replayLoads.length,
+  2,
+  'drag-frame jitter for the same bounded window should coalesce into one replay load'
+);
+assert.deepEqual(replayLoads[1], {
+  sessionId: 'viewport-demand-session',
+  viewportDemand: jitteredDemand,
+});
+replayResolvers.shift()();
+await new Promise((resolve) => setTimeout(resolve, 0));
+coalescedBridge.stop();
 
 unsubscribeCommand();
 

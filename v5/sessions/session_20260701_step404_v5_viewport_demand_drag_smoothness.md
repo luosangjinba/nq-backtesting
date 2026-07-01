@@ -1,8 +1,8 @@
-# Step 404 - V5 Viewport Demand Drag Smoothness Plan
+# Step 404 - V5 Viewport Demand Drag Smoothness
 
 Date: 2026-07-01
 
-Status: planning only. No runtime or UI code changes in this step.
+Status: completed.
 
 ## Goal
 
@@ -53,30 +53,29 @@ load window, not every observed visible range.
 Cached or duplicate display windows must not trigger another full chart data
 replacement when the merged display bars have not changed.
 
-## Planned Implementation
+## Implementation
 
-1. Add a coalescing/debounce layer around viewport demand consumption.
-   Target: run trailing demand about 120-180ms after the latest native range
-   event, or after drag settles.
+1. Added a coalescing/debounce layer around viewport demand consumption.
+   The replay viewport demand bridge now uses trailing demand dispatch with a
+   default 140ms settle window.
 
-2. Normalize demand identity around stable load-window fields:
+2. Normalized demand identity around stable load-window fields:
    session id, instrument, display timeframe, direction, anchor, and normalized
-   count. Do not key by high-frequency `visibleFrom`/`visibleTo` unless they
-   change the actual bounded window.
+   count. It no longer keys by high-frequency `visibleFrom`/`visibleTo`.
 
-3. Keep chart manual range updates immediate.
+3. Kept chart manual range updates immediate.
    The user should see native pan movement without waiting for replay/bar-data
    work.
 
-4. Avoid redundant data replacement.
+4. Avoided redundant data replacement.
    If a loaded/cached window merges to the same display bar timestamp sequence,
-   replay runtime should not call `chart.replaceBars`; the adapter should not
-   call `series.setData`.
+   replay runtime does not call `chart.replaceBars`; the adapter therefore does
+   not call `series.setData`.
 
-5. Add measurement-focused coverage.
-   A browser diagnostic should simulate left drag near the loaded boundary and
-   assert bounded counts for viewport demand, replay load display window, and
-   chart data replacement.
+5. Added measurement-focused coverage.
+   The viewport demand wiring smoke now verifies drag-frame jitter coalesces
+   into one replay load. The display timeframe smoke verifies cached unchanged
+   display windows do not call `chart.replaceBars` again.
 
 ## Success Criteria
 
@@ -88,17 +87,17 @@ replacement when the merged display bars have not changed.
 - Bar data runtime remains the only owner of bounded bar requests/cache.
 - Existing no-future and right-edge clamp rules remain intact.
 
-## Suggested Checks For Implementation
+## Checks
 
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
-- new/updated left-drag demand coalescing browser diagnostic
+- `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
 ## Next
 
-Implement Step 404 in a separate code step. Keep that step focused on demand
-coalescing and redundant render avoidance; do not combine it with Layout,
-drawing, orders, or additional UI redesign.
+Continue with manual visual validation of left drag. If stutter remains, add a
+browser-level drag performance harness that records native visible-range event
+counts, replay load counts, and `series.setData` counts during a synthetic drag.

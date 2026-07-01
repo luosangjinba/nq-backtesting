@@ -128,6 +128,18 @@ function mergeDisplayBarsForCursor(existingBars = [], nextBars = [], context = {
     .values()], context);
 }
 
+function displayBarsEqual(leftBars = [], rightBars = []) {
+  if (leftBars.length !== rightBars.length) return false;
+  return leftBars.every((left, index) => {
+    const right = rightBars[index];
+    return Number(left?.timestamp) === Number(right?.timestamp)
+      && Number(left?.open) === Number(right?.open)
+      && Number(left?.high) === Number(right?.high)
+      && Number(left?.low) === Number(right?.low)
+      && Number(left?.close) === Number(right?.close);
+  });
+}
+
 export function computePrefixBarCount(metrics = {}) {
   const estimatedVisibleBars = Number(metrics?.estimatedVisibleBars);
   if (!Number.isFinite(estimatedVisibleBars) || estimatedVisibleBars <= 1) {
@@ -541,12 +553,15 @@ export function createReplayRuntime() {
       const displayBars = shouldMergeDisplayBars
         ? mergeDisplayBarsForCursor(state.displayBars, windowDisplayBars, displayContext)
         : windowDisplayBars;
-      await renderDisplayBars(displayBars, state.cursorTimestamp);
-      await syncChartRightEdgeLimit(state.cursorTimestamp);
-      await syncChartDisplayContext({
-        displayTimeframe: normalizedDisplayTimeframe,
-        bars: displayBars,
-      });
+      const displayBarsChanged = !displayBarsEqual(state.displayBars, displayBars);
+      if (displayBarsChanged) {
+        await renderDisplayBars(displayBars, state.cursorTimestamp);
+        await syncChartRightEdgeLimit(state.cursorTimestamp);
+        await syncChartDisplayContext({
+          displayTimeframe: normalizedDisplayTimeframe,
+          bars: displayBars,
+        });
+      }
 
       state = {
         ...state,
@@ -568,6 +583,7 @@ export function createReplayRuntime() {
           direction: window.direction,
           estimatedBars: window.estimatedBars,
           cached: Boolean(window.cached),
+          rendered: displayBarsChanged,
         },
       };
       emit(REPLAY_EVENTS.DISPLAY_WINDOW_LOADED, result);
