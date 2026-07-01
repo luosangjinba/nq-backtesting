@@ -39,6 +39,8 @@ Step 408 adds a diagnostic-only harness for slow/fast drag observation. It
 records pointer deltas, synthetic native visible-range deltas through the
 Lightweight callback path, and runtime write counters without changing drag
 behavior.
+Step 409 accepts minor fast-drag pointer/content offset as a comparable
+TradingView/Lightweight native behavior and not a current V5 correction target.
 
 In scope:
 
@@ -118,6 +120,10 @@ Out of scope:
 - Drag diagnostics may inject synthetic native visible-range frames in tests,
   but production behavior must continue to observe the real chart engine and
   must not use diagnostic hooks to mutate replay/chart state.
+- Minor pointer/content offset during very fast native drag is acceptable when
+  it is comparable to TradingView/FxReplay behavior and does not break replay
+  navigation accuracy. V5 must not add compensating production writebacks that
+  risk native drag fidelity or manual replay anchors.
 - Consuming cached or duplicate viewport demand must not call chart
   `replaceBars` / Lightweight `series.setData()` when merged display bars are
   unchanged.

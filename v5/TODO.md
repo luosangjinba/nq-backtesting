@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 408 is complete. V5 now has a native-drag diagnostic
-  browser smoke that records pointer deltas, native visible-range deltas, and
-  runtime write counts without changing chart behavior.
-- Next candidate: use the Step 408 diagnostics to compare manual fast-drag
-  reports against V5's observed range/writeback chain before attempting another
-  drag behavior fix.
+- Current status: Step 409 is complete. Fast native-drag pointer/content offset
+  is accepted as a TradingView/Lightweight-style characteristic and is not a
+  current V5 correction target.
+- Next candidate: return to single-pane chart shell cleanup and UI
+  infrastructure, keeping layout split panes deferred.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2268,4 +2267,54 @@ Checks:
 - `node v5/tests/chart-native-drag-diagnostic-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 409 - V5 Accept Native Fast-Drag Offset
+
+Status: completed.
+
+Goal: close the fast-drag pointer/content offset investigation as an accepted
+native chart-engine characteristic rather than a current V5 behavior bug.
+
+Problem:
+
+- Manual observation found that very fast horizontal chart dragging can make
+  K-line movement feel slightly offset from pointer movement.
+- The same class of offset is observable in FX Replay / TradingView-style chart
+  surfaces, suggesting it is a native chart-engine interaction characteristic
+  rather than a V5-specific runtime writeback issue.
+- Step 407 already prevents active-drag runtime chart writes, and Step 408 adds
+  diagnostics for future investigation. Continuing to force a correction now
+  risks degrading stable native drag, manual anchor, and replay viewport
+  behavior.
+
+Decision:
+
+- Treat minor fast-drag pointer/content offset as acceptable for the current V5
+  replay workstation.
+- Do not add production code to compensate for this offset.
+- Keep Step 408's diagnostic harness as a future regression/investigation tool,
+  not as an active repair plan.
+- Reopen only if the offset becomes materially worse than comparable
+  TradingView/FxReplay behavior or starts breaking replay navigation accuracy.
+- Resume work on single-pane chart shell/UI infrastructure before layout split
+  panes.
+
+Implementation:
+
+- [x] Step 409.1: Record the accepted fast-drag offset decision in TODO.
+- [x] Step 409.2: Update chart interaction contracts to classify minor
+  fast-drag offset as acceptable native behavior.
+- [x] Step 409.3: Add a session handoff documenting the decision and next
+  direction.
+- [x] Step 409.4: Run documentation sanity check and commit.
+
+Manual acceptance:
+
+- V5 no longer plans active correction for minor fast-drag offset.
+- Step 408 diagnostics remain available for future comparisons.
+- Next planning can move back to single-pane chart shell/UI infrastructure.
+
+Checks:
+
 - `git diff --check`
