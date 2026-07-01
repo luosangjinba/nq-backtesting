@@ -106,7 +106,7 @@ export function createChartReplayRoute() {
             <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
           </div>
           <div class="replay-floating-controls" data-replay-floating-controls aria-label="Replay controls">
-            <div class="replay-drag-handle" aria-hidden="true">::</div>
+            <div class="replay-drag-handle" data-replay-drag-handle role="button" tabindex="0" aria-label="Move replay controls">::</div>
             <button type="button" data-replay-truncate-to-selection title="Replay to selected bar is planned" aria-label="Replay to selected bar" disabled>|&lt;</button>
             <label class="replay-speed-control" aria-label="Playback speed">
               <span class="sr-only">Playback speed</span>
@@ -187,6 +187,9 @@ export function createChartReplayRoute() {
       const statusChangeLabel = section.querySelector('[data-status-change]');
       const crosshairRow = section.querySelector('[data-crosshair-row]');
       const crosshairReadoutLabel = section.querySelector('[data-crosshair-inspection-readout]');
+      const chartViewport = section.querySelector('.chart-viewport');
+      const replayFloatingControls = section.querySelector('[data-replay-floating-controls]');
+      const replayDragHandle = section.querySelector('[data-replay-drag-handle]');
       const nextButton = section.querySelector('[data-replay-next]');
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
@@ -224,6 +227,8 @@ export function createChartReplayRoute() {
       let replayIntervalTimeframe = null;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
+      let floatingPosition = null;
+      let floatingDragState = null;
       let presentationSettings = {
         timeFormat: '24h',
         showStatusOhlc: true,
@@ -356,6 +361,96 @@ export function createChartReplayRoute() {
           button.setAttribute('aria-pressed', pressed ? 'true' : 'false');
         });
       }
+
+      function clampFloatingPosition(position) {
+        const viewportRect = chartViewport.getBoundingClientRect();
+        const controlsRect = replayFloatingControls.getBoundingClientRect();
+        const axisRightPadding = 78;
+        const axisBottomPadding = 52;
+        const edgePadding = 12;
+        const minLeft = edgePadding;
+        const minTop = edgePadding;
+        const maxLeft = Math.max(
+          minLeft,
+          viewportRect.width - controlsRect.width - axisRightPadding
+        );
+        const maxTop = Math.max(
+          minTop,
+          viewportRect.height - controlsRect.height - axisBottomPadding
+        );
+        return {
+          left: Math.min(Math.max(position.left, minLeft), maxLeft),
+          top: Math.min(Math.max(position.top, minTop), maxTop),
+        };
+      }
+
+      function applyFloatingPosition(position) {
+        const nextPosition = clampFloatingPosition(position);
+        floatingPosition = nextPosition;
+        replayFloatingControls.style.left = `${Math.round(nextPosition.left)}px`;
+        replayFloatingControls.style.top = `${Math.round(nextPosition.top)}px`;
+        replayFloatingControls.style.right = 'auto';
+        replayFloatingControls.style.bottom = 'auto';
+        replayFloatingControls.style.transform = 'none';
+        replayFloatingControls.dataset.dragged = 'true';
+      }
+
+      function getCurrentFloatingPosition() {
+        const viewportRect = chartViewport.getBoundingClientRect();
+        const controlsRect = replayFloatingControls.getBoundingClientRect();
+        return {
+          left: controlsRect.left - viewportRect.left,
+          top: controlsRect.top - viewportRect.top,
+        };
+      }
+
+      function beginFloatingDrag(event) {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        event.stopPropagation();
+        const startPosition = floatingPosition || getCurrentFloatingPosition();
+        floatingDragState = {
+          pointerId: event.pointerId,
+          startX: event.clientX,
+          startY: event.clientY,
+          startLeft: startPosition.left,
+          startTop: startPosition.top,
+        };
+        replayFloatingControls.dataset.dragging = 'true';
+        try {
+          replayDragHandle.setPointerCapture?.(event.pointerId);
+        } catch {
+          // Synthetic pointer events in browser smokes may not have an active pointer capture target.
+        }
+      }
+
+      function moveFloatingDrag(event) {
+        if (!floatingDragState || floatingDragState.pointerId !== event.pointerId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        applyFloatingPosition({
+          left: floatingDragState.startLeft + event.clientX - floatingDragState.startX,
+          top: floatingDragState.startTop + event.clientY - floatingDragState.startY,
+        });
+      }
+
+      function endFloatingDrag(event) {
+        if (!floatingDragState || floatingDragState.pointerId !== event.pointerId) return;
+        event.preventDefault();
+        event.stopPropagation();
+        try {
+          replayDragHandle.releasePointerCapture?.(event.pointerId);
+        } catch {
+          // See pointer capture note in beginFloatingDrag.
+        }
+        floatingDragState = null;
+        delete replayFloatingControls.dataset.dragging;
+      }
+
+      replayDragHandle.addEventListener('pointerdown', beginFloatingDrag);
+      replayDragHandle.addEventListener('pointermove', moveFloatingDrag);
+      replayDragHandle.addEventListener('pointerup', endFloatingDrag);
+      replayDragHandle.addEventListener('pointercancel', endFloatingDrag);
 
       function updatePresentationButtons() {
         presentationTimeFormatButtons.forEach((button) => {

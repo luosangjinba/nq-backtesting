@@ -405,6 +405,11 @@ input {
   background: rgba(4, 7, 11, 0.92);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
   transform: translateX(-50%);
+  user-select: none;
+}
+
+.replay-floating-controls[data-dragging="true"] {
+  cursor: grabbing;
 }
 
 .replay-floating-controls > button,
@@ -424,12 +429,19 @@ input {
 .replay-drag-handle {
   width: 14px;
   color: #94a3b8;
+  cursor: grab;
   font-size: 18px;
   font-weight: 800;
   line-height: 0.65;
   text-align: center;
   opacity: 0.78;
+  touch-action: none;
   writing-mode: vertical-rl;
+}
+
+.replay-drag-handle:focus-visible {
+  outline: 2px solid rgba(125, 211, 252, 0.8);
+  outline-offset: 3px;
 }
 
 .replay-controls,

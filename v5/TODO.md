@@ -10,9 +10,9 @@
 
 ## Current / Next
 
-- Current status: Step 396 is complete.
-- Next candidate: after Step 396, continue transport runtime semantics for
-  selected-bar truncation, previous-bar stepping, and active chart interval
+- Current status: Step 397 is complete.
+- Next candidate: after Step 397, continue transport runtime semantics for
+  previous-bar stepping, selected-bar truncation, and active chart interval
   sync, or decide whether Layout needs a dedicated planning step before
   implementation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -64,6 +64,10 @@
   replay transport control. Keep it in chart settings until a broader interval
   menu is designed, and preserve the existing display-projection/no-future
   runtime invariants.
+- UI decision: the replay transport drag handle should actually move the
+  floating controls inside the chart viewport. Initial implementation may keep
+  position as route-local UI state; dragging must not mutate replay cursor,
+  display bars, chart data, or bar-data windows.
 - UI decision: the Setup route remains functionally necessary as the session
   selection/creation surface, but its current MVP visual treatment is not the
   final workstation quality bar. Give it a later visual pass after the chart
@@ -1594,5 +1598,46 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 397 - V5 Floating Replay Controls Dragging
+
+Goal: make the replay transport drag handle move the floating control bar inside
+the chart viewport.
+
+This step advances Historical Replay Review by making the FXReplay-style
+transport behave like a movable overlay. It is a UI behavior step, not a replay
+runtime, bar-loading, chart-engine interaction, Layout split-pane, drawing,
+order, or journal step.
+
+- [x] Step 397.1: Add Step 397 plan and durable drag-handle decision to TODO.
+- [x] Step 397.2: Implement pointer-driven dragging from the transport drag
+  handle only.
+- [x] Step 397.3: Constrain the floating control bar inside the chart viewport
+  with enough edge padding for chart axes.
+- [x] Step 397.4: Keep drag position route-local and ensure dragging does not
+  mutate replay cursor, display bars, playback state, chart series, or bar
+  requests.
+- [x] Step 397.5: Extend browser smoke coverage for drag movement, bounds, and
+  post-drag replay control usability.
+- [x] Step 397.6: Run targeted replay/layout smokes, full V5 smoke, and
+  `git diff --check` before commit.
+
+Manual acceptance:
+
+- Dragging the handle moves the replay controls.
+- Dragging the control body outside the handle does not initiate overlay
+  movement.
+- The control bar remains inside the chart viewport after drag.
+- Next/Play/Pause still work after moving the overlay.
+- Dragging does not advance replay, request bars, or bypass runtime ownership.
+
+Checks:
+
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

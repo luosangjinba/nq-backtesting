@@ -94,6 +94,7 @@ async function main() {
           if (!url.includes('/v4/bars')) {
             return originalFetch(...args);
           }
+          window.__v5BarRequestCount = Number(window.__v5BarRequestCount || 0) + 1;
           const parsed = new URL(url, window.location.href);
           const timeframe = Number(parsed.searchParams.get('tf') || 1);
           const stepSeconds = timeframe * 60;
@@ -168,6 +169,7 @@ async function main() {
           const before = await commands.dispatchCommand('replay.getState');
           const chart = rect('[data-chart-host]');
           const floatingRect = rect('[data-replay-floating-controls]');
+          const handleRect = rect('[data-replay-drag-handle]');
           const toolbarReplayCount = toolbar.querySelectorAll('[data-replay-next], [data-replay-play], [data-replay-pause], [data-replay-reset]').length;
           const topGoToInputs = toolbar.querySelectorAll('[data-chart-go-to-input]').length;
           const layoutDisabled = document.querySelector('[data-layout-open]')?.disabled === true;
@@ -181,6 +183,82 @@ async function main() {
             interval: replayIntervalSelect?.disabled === true,
             sync: floating.querySelector('[data-replay-sync-interval]')?.disabled === true,
           };
+
+          const dragStartRevealed = before.revealedCount;
+          const dragStartRequests = window.__v5BarRequestCount || 0;
+          const handleX = handleRect.left + Math.round(handleRect.width / 2);
+          const handleY = handleRect.top + Math.round(handleRect.height / 2);
+          const dragTargetX = handleX + 180;
+          const dragTargetY = handleY - 70;
+          await new Promise((resolve) => {
+            const down = new PointerEvent('pointerdown', {
+              bubbles: true,
+              pointerId: 91,
+              pointerType: 'mouse',
+              button: 0,
+              buttons: 1,
+              clientX: handleX,
+              clientY: handleY,
+            });
+            document.querySelector('[data-replay-drag-handle]').dispatchEvent(down);
+            const move = new PointerEvent('pointermove', {
+              bubbles: true,
+              pointerId: 91,
+              pointerType: 'mouse',
+              button: 0,
+              buttons: 1,
+              clientX: dragTargetX,
+              clientY: dragTargetY,
+            });
+            document.querySelector('[data-replay-drag-handle]').dispatchEvent(move);
+            const up = new PointerEvent('pointerup', {
+              bubbles: true,
+              pointerId: 91,
+              pointerType: 'mouse',
+              button: 0,
+              buttons: 0,
+              clientX: dragTargetX,
+              clientY: dragTargetY,
+            });
+            document.querySelector('[data-replay-drag-handle]').dispatchEvent(up);
+            requestAnimationFrame(resolve);
+          });
+          const afterDrag = await commands.dispatchCommand('replay.getState');
+          const draggedRect = rect('[data-replay-floating-controls]');
+          await new Promise((resolve) => {
+            const bodyX = draggedRect.left + Math.round(draggedRect.width / 2);
+            const bodyY = draggedRect.top + Math.round(draggedRect.height / 2);
+            const target = document.querySelector('[data-replay-floating-controls]');
+            target.dispatchEvent(new PointerEvent('pointerdown', {
+              bubbles: true,
+              pointerId: 92,
+              pointerType: 'mouse',
+              button: 0,
+              buttons: 1,
+              clientX: bodyX,
+              clientY: bodyY,
+            }));
+            target.dispatchEvent(new PointerEvent('pointermove', {
+              bubbles: true,
+              pointerId: 92,
+              pointerType: 'mouse',
+              button: 0,
+              buttons: 1,
+              clientX: bodyX - 120,
+              clientY: bodyY + 80,
+            }));
+            target.dispatchEvent(new PointerEvent('pointerup', {
+              bubbles: true,
+              pointerId: 92,
+              pointerType: 'mouse',
+              button: 0,
+              buttons: 0,
+              clientX: bodyX - 120,
+              clientY: bodyY + 80,
+            }));
+            requestAnimationFrame(resolve);
+          });
+          const afterBodyDragRect = rect('[data-replay-floating-controls]');
 
           document.querySelector('[data-replay-next]').click();
           await waitFor('next advanced', async () => {
@@ -230,6 +308,14 @@ async function main() {
             goToClosed,
             chart,
             floating: floatingRect,
+            dragged: draggedRect,
+            movedByDrag: Math.abs(draggedRect.left - floatingRect.left) >= 80
+              || Math.abs(draggedRect.top - floatingRect.top) >= 40,
+            bodyDragMoved: Math.abs(afterBodyDragRect.left - draggedRect.left) > 2
+              || Math.abs(afterBodyDragRect.top - draggedRect.top) > 2,
+            dragChangedReplay: afterDrag.revealedCount !== dragStartRevealed,
+            dragRequestDelta: (window.__v5BarRequestCount || 0) - dragStartRequests,
+            dragDataset: document.querySelector('[data-replay-floating-controls]')?.dataset.dragged || '',
             floatingInsideChart: floatingRect.left >= chart.left
               && floatingRect.right <= chart.right
               && floatingRect.top >= chart.top
@@ -264,6 +350,11 @@ async function main() {
     assert.equal(value.replayIntervalSelectValue, '1');
     assert.equal(value.replaySpeedValue, '300');
     assert.equal(value.speedPlaybackInterval, 300);
+    assert.equal(value.movedByDrag, true, `floating controls did not move enough: ${JSON.stringify(value)}`);
+    assert.equal(value.bodyDragMoved, false, `floating controls moved from body drag: ${JSON.stringify(value)}`);
+    assert.equal(value.dragChangedReplay, false);
+    assert.equal(value.dragRequestDelta, 0);
+    assert.equal(value.dragDataset, 'true');
     assert.deepEqual(value.disabledTransportPlaceholders, {
       truncate: true,
       previous: true,
@@ -271,6 +362,14 @@ async function main() {
       sync: true,
     });
     assert.equal(value.floatingInsideChart, true, `floating controls outside chart: ${JSON.stringify(value)}`);
+    assert.equal(
+      value.dragged.left >= value.chart.left
+        && value.dragged.right <= value.chart.right
+        && value.dragged.top >= value.chart.top
+        && value.dragged.bottom <= value.chart.bottom,
+      true,
+      `dragged floating controls outside chart: ${JSON.stringify(value)}`
+    );
     assert.ok(value.priceAxisGap >= 120, `floating controls too close to price axis: ${value.priceAxisGap}`);
     assert.ok(value.timeAxisGap >= 80, `floating controls too close to time axis: ${value.timeAxisGap}`);
     assert.equal(value.beforeCursor, '2026-06-01T09:30:00.000Z');
