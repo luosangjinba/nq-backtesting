@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 468 is complete. Layout runtime now stores pane-level
-  crosshair metadata, `sync.crosshair` mirrors chart-owned hover metadata
-  through layout commands, and the Step 463-468 multi-pane acceptance sequence
-  covers layout modes, active pane selection, interval/time/date-range/crosshair
-  sync, and boundary smokes.
-- Next candidate: Step 469 - decide whether to make secondary/tertiary panes
+- Current status: Step 469 is complete. The Layout popover now uses an
+  FXReplay-style icon matrix for `single`, `twice`, and `triple` mode selection
+  instead of large text segment buttons, while keeping the existing
+  `layout.setMode` command boundary.
+- Next candidate: Step 470 - decide whether to make secondary/tertiary panes
   real chart hosts or return to Settings polish, then plan the next bounded
   product step.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -72,6 +71,10 @@
   crosshair metadata into layout only when `sync.crosshair` is enabled, and it
   does not write chart series, request bars, or mutate replay cursor/reveal
   state.
+- Layout UI decision: Step 469 changes only the Layout mode selector shape to
+  an FXReplay-style icon matrix. Multiple icon choices can currently map to the
+  same bounded mode (`single`, `twice`, or `triple`) until orientation-specific
+  layout variants are modeled explicitly in layout state.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3324,6 +3327,48 @@ Checks:
 - `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 469 - V5 Layout Icon Matrix
+
+Status: completed.
+
+Goal: replace the Layout popover's large text mode buttons with an
+FXReplay-style icon matrix while preserving the existing layout runtime command
+boundary.
+
+Problem:
+
+- The Step 463 Layout popover used `Single`, `Twice`, and `Triple` text segment
+  buttons.
+- The desired UX is closer to FXReplay: rows labeled `1`, `2`, and `3`, with
+  compact pane-layout icons.
+- V5 currently supports only the bounded `single`, `twice`, and `triple` modes,
+  so orientation-specific icons should map to those modes without introducing
+  new runtime state yet.
+
+Plan:
+
+- [x] Step 469.1: Replace Layout mode text buttons with icon buttons grouped in
+  `1`, `2`, and `3` rows.
+- [x] Step 469.2: Keep all mode options dispatching the existing
+  `layout.setMode` command through `data-layout-mode-option`.
+- [x] Step 469.3: Style compact layout icons without adding SVG assets or
+  route-owned layout state.
+- [x] Step 469.4: Add browser smoke assertions for the icon matrix shape.
+- [x] Step 469.5: Update docs/session handoff.
+
+Manual acceptance:
+
+- Layout popover shows rows labeled `1`, `2`, and `3`.
+- Layout mode choices are compact icons, not large text segment buttons.
+- Icon clicks still update layout mode through layout runtime commands.
+- Sync switches remain below the mode matrix.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan

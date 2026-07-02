@@ -62,7 +62,7 @@
 }
 
 .chart-layout-panel {
-  width: min(280px, calc(100vw - 36px));
+  width: min(300px, calc(100vw - 36px));
   display: grid;
   gap: 12px;
   padding: 14px;
@@ -101,14 +101,110 @@
 
 .chart-layout-modes {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 6px;
+  gap: 8px;
+}
+
+.chart-layout-mode-row {
+  display: grid;
+  grid-template-columns: 18px repeat(6, 28px);
+  align-items: center;
+  gap: 10px;
+  min-height: 32px;
+}
+
+.chart-layout-mode-count {
+  color: #9ca3af;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.chart-layout-modes button {
+  width: 28px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: #d1d5db;
 }
 
 .chart-layout-modes button[aria-pressed="true"] {
   border-color: #38bdf8;
-  background: #123047;
+  background: rgba(56, 189, 248, 0.14);
   color: #e0f2fe;
+}
+
+.chart-layout-icon {
+  width: 20px;
+  height: 18px;
+  display: grid;
+  gap: 2px;
+}
+
+.chart-layout-icon span {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+}
+
+.chart-layout-icon-single {
+  grid-template-columns: 1fr;
+}
+
+.chart-layout-icon-twice-vertical {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.chart-layout-icon-twice-horizontal {
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.chart-layout-icon-triple-vertical {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.chart-layout-icon-triple-horizontal {
+  grid-template-rows: repeat(3, 1fr);
+}
+
+.chart-layout-icon-triple-left {
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.chart-layout-icon-triple-left span:first-child {
+  grid-row: 1 / 3;
+}
+
+.chart-layout-icon-triple-right {
+  grid-template-columns: 1fr 1.35fr;
+  grid-template-rows: repeat(2, 1fr);
+}
+
+.chart-layout-icon-triple-right span:last-child {
+  grid-column: 2;
+  grid-row: 1 / 3;
+}
+
+.chart-layout-icon-triple-top {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1.35fr 1fr;
+}
+
+.chart-layout-icon-triple-top span:first-child {
+  grid-column: 1 / 3;
+}
+
+.chart-layout-icon-triple-bottom {
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: 1fr 1.35fr;
+}
+
+.chart-layout-icon-triple-bottom span:last-child {
+  grid-column: 1 / 3;
 }
 
 .chart-layout-sync {

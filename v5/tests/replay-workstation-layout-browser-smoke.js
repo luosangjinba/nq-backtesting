@@ -184,6 +184,9 @@ async function main() {
           const singleModeButton = document.querySelector('[data-layout-mode-option="single"]');
           const twiceModeButton = document.querySelector('[data-layout-mode-option="twice"]');
           const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
+          const layoutModeRows = Array.from(document.querySelectorAll('.chart-layout-mode-row'));
+          const layoutModeButtons = Array.from(document.querySelectorAll('[data-layout-mode-option]'));
+          const layoutModeIconCount = document.querySelectorAll('.chart-layout-icon').length;
           const symbolSyncInput = document.querySelector('[data-layout-sync="symbol"]');
           const intervalSyncInput = document.querySelector('[data-layout-sync="interval"]');
           const crosshairSyncInput = document.querySelector('[data-layout-sync="crosshair"]');
@@ -322,6 +325,9 @@ async function main() {
             layoutPopoverInitiallyVisible,
             layoutPopoverVisible: Boolean(layoutPopover && !layoutPopover.hidden),
             singleModeInitiallyPressed,
+            layoutModeRowLabels: layoutModeRows.map((row) => row.querySelector('.chart-layout-mode-count')?.textContent || ''),
+            layoutModeButtonCount: layoutModeButtons.length,
+            layoutModeIconCount,
             twiceModePressed: twiceModeButton?.getAttribute('aria-pressed') || '',
             tripleModeExists: Boolean(tripleModeButton),
             symbolSyncDisabled: Boolean(symbolSyncInput?.disabled),
@@ -416,6 +422,9 @@ async function main() {
     assert.equal(value.layoutPopoverInitiallyVisible, true);
     assert.equal(value.layoutPopoverVisible, false);
     assert.equal(value.singleModeInitiallyPressed, 'true');
+    assert.deepEqual(value.layoutModeRowLabels, ['1', '2', '3']);
+    assert.equal(value.layoutModeButtonCount, 9);
+    assert.equal(value.layoutModeIconCount, 9);
     assert.equal(value.twiceModePressed, 'true');
     assert.equal(value.tripleModeExists, true);
     assert.equal(value.symbolSyncDisabled, true);
