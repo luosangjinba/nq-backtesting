@@ -10,11 +10,7 @@ import {
 } from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
-import { formatChange, formatInspectionReadout, formatOhlc, formatPrice } from '../../domain/chart-formatting.js';
-import {
-  displayWallClockToCanonicalTimestamp,
-  formatDisplayTimestamp,
-} from '../../domain/timezone-format.js';
+import { displayWallClockToCanonicalTimestamp } from '../../domain/timezone-format.js';
 import {
   cloneBackgroundStyle,
   cloneCandleStyle,
@@ -25,6 +21,7 @@ import {
   createChartSettingsController,
 } from './chart-settings-panel.js';
 import { renderChartReplayTemplate } from './chart-replay-template.js';
+import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
@@ -43,26 +40,6 @@ export function createChartReplayRoute() {
       section.dataset.layoutMode = 'single';
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
-      const sessionIdLabel = section.querySelector('[data-session-id-label]');
-      const startLabel = section.querySelector('[data-replay-start]');
-      const cursorLabel = section.querySelector('[data-replay-cursor]');
-      const endLabel = section.querySelector('[data-replay-end]');
-      const revealedCountLabel = section.querySelector('[data-replay-revealed-count]');
-      const playbackLabel = section.querySelector('[data-replay-playback]');
-      const stateLabel = section.querySelector('[data-replay-state]');
-      const statusOhlcRow = section.querySelector('[data-status-ohlc-row]');
-      const statusChangeRow = section.querySelector('[data-status-change-row]');
-      const statusOhlcLabel = section.querySelector('[data-status-ohlc]');
-      const chartOhlcOverlay = section.querySelector('[data-chart-ohlc-overlay]');
-      const chartMarketStatus = section.querySelector('[data-chart-market-status]');
-      const chartOhlcSymbol = section.querySelector('[data-chart-ohlc-symbol]');
-      const chartOhlcTimeframe = section.querySelector('[data-chart-ohlc-timeframe]');
-      const chartOhlcLegend = section.querySelector('[data-chart-ohlc-legend]');
-      const statusChangeLabel = section.querySelector('[data-status-change]');
-      const crosshairRow = section.querySelector('[data-crosshair-row]');
-      const crosshairReadoutLabel = section.querySelector('[data-crosshair-inspection-readout]');
-      const countdownRow = section.querySelector('[data-countdown-row]');
-      const countdownLabel = section.querySelector('[data-bar-countdown]');
       const chartViewport = section.querySelector('.chart-viewport');
       const chartHost = section.querySelector('[data-chart-host]');
       const replayTruncatePickLine = section.querySelector('[data-replay-truncate-pick-line]');
@@ -128,8 +105,6 @@ export function createChartReplayRoute() {
         scaleStyle: cloneScaleStyle(),
         watermarkStyle: cloneWatermarkStyle(),
       };
-      let crosshairState = { active: false };
-      let lastReplayState = null;
       const unsubscribeCallbacks = [];
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
@@ -141,7 +116,14 @@ export function createChartReplayRoute() {
           status.textContent = error?.message || String(error);
         },
       });
-      sessionIdLabel.textContent = sessionId;
+      const statusController = createChartReplayStatusController({
+        root: section,
+        getDisplayTimezone: () => displayTimezone,
+        getExchangeTimezone: () => exchangeTimezone,
+        getPresentationSettings: () => presentationSettings,
+        getDisplayTimeframe: () => displayTimeframe,
+      });
+      statusController.setSessionId(sessionId);
       createReplayFloatingControlsController({ root: section });
       const chartSettingsController = createChartSettingsController({
         root: section,
@@ -217,125 +199,23 @@ export function createChartReplayRoute() {
         startTimestamp = state?.startBarTimestamp || null;
         cursorTimestamp = state?.cursorTimestamp || null;
         terminalReason = playback?.stoppedReason || terminalReason;
-        startLabel.textContent = formatReplayTimestamp(state?.startBarTimestamp);
-        cursorLabel.textContent = formatReplayTimestamp(state?.cursorTimestamp);
-        endLabel.textContent = formatReplayTimestamp(state?.session?.sessionEnd);
-        revealedCountLabel.textContent = String(revealedCount);
-        playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
-        stateLabel.textContent = terminalReason || state?.status || 'Idle';
-        refreshStatusLineValues(state);
-        refreshCountdown(state);
+        statusController.renderReplayStatus({
+          state,
+          playbackPlaying,
+          terminalReason,
+          revealedCount,
+        });
         if (terminalReason) {
           status.textContent = `Replay stopped: ${terminalReason}.`;
         }
         updateDisplayTimeframeButtons();
         updateDisplayTimezoneButtons();
         updatePresentationButtons();
-        refreshCrosshairReadout();
         setControlsDisabled();
       }
 
       function formatReplayTimestamp(value) {
-        if (!value) return '--';
-        return formatDisplayTimestamp(value, {
-          displayTimezone,
-          exchangeTimezone,
-          timeFormat: presentationSettings.timeFormat,
-          dateFormat: presentationSettings.dateFormat,
-          showDayOfWeekLabels: presentationSettings.showDayOfWeekLabels,
-        });
-      }
-
-      function formatTimeframeLabel(value) {
-        const minutes = Number(value || 1);
-        if (minutes === 43200) return '1M';
-        if (minutes === 10080) return '1W';
-        if (minutes === 1440) return '1D';
-        if (minutes >= 60 && minutes % 60 === 0) return `${minutes / 60}H`;
-        return `${minutes}m`;
-      }
-
-      function createChartOhlcPart(label, value, className) {
-        const group = document.createElement('span');
-        group.className = 'chart-ohlc-part';
-        const labelEl = document.createElement('span');
-        labelEl.className = 'chart-ohlc-label';
-        labelEl.textContent = label;
-        const valueEl = document.createElement('span');
-        valueEl.className = `chart-ohlc-value ${className}`;
-        valueEl.textContent = formatPrice(value);
-        group.append(labelEl, valueEl);
-        return group;
-      }
-
-      function renderChartOhlcLegend(bar) {
-        chartOhlcLegend.replaceChildren();
-        if (!bar) {
-          chartOhlcLegend.textContent = '--';
-          return;
-        }
-        const className = Number(bar.close) >= Number(bar.open) ? 'is-up' : 'is-down';
-        chartOhlcLegend.append(
-          createChartOhlcPart('O', bar.open, className),
-          createChartOhlcPart('H', bar.high, className),
-          createChartOhlcPart('L', bar.low, className),
-          createChartOhlcPart('C', bar.close, className)
-        );
-      }
-
-      function refreshChartOhlcOverlay(state = lastReplayState) {
-        const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
-        const hoverBar = crosshairState?.active && crosshairState?.bar ? crosshairState.bar : null;
-        const displayBar = hoverBar || latest;
-        chartOhlcOverlay.hidden = !presentationSettings.showStatusOhlc || !displayBar;
-        chartMarketStatus.hidden = !presentationSettings.showOpenMarketStatus;
-        chartOhlcSymbol.hidden = !presentationSettings.showStatusTitle
-          || presentationSettings.statusTitleMode === STATUS_TITLE_MODES.TIMEFRAME;
-        chartOhlcTimeframe.hidden = !presentationSettings.showStatusTitle
-          || presentationSettings.statusTitleMode === STATUS_TITLE_MODES.SYMBOL;
-        renderChartOhlcLegend(displayBar);
-        chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
-        chartOhlcTimeframe.textContent = formatTimeframeLabel(
-          displayTimeframe || state?.displayTimeframe || state?.session?.timeframe || 1
-        );
-      }
-
-      function refreshStatusLineValues(state) {
-        lastReplayState = state || null;
-        const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
-        statusOhlcRow.hidden = !presentationSettings.showStatusOhlc;
-        statusChangeRow.hidden = !presentationSettings.showStatusChange;
-        if (!latest) {
-          statusOhlcLabel.textContent = '--';
-          refreshChartOhlcOverlay(state);
-          statusChangeLabel.textContent = '--';
-          return;
-        }
-        const ohlcText = formatOhlc(latest);
-        statusOhlcLabel.textContent = ohlcText;
-        refreshChartOhlcOverlay(state);
-        const previous = state.displayBars.length > 1 ? state.displayBars.at(-2) : null;
-        const change = previous ? Number(latest.close) - Number(previous.close) : 0;
-        statusChangeLabel.textContent = formatChange(change);
-      }
-
-      function refreshCrosshairReadout() {
-        crosshairRow.hidden = !presentationSettings.showCrosshairReadout;
-        if (!presentationSettings.showCrosshairReadout || !crosshairState?.active) {
-          crosshairReadoutLabel.textContent = '--';
-          return;
-        }
-        const bar = crosshairState.bar;
-        const timeText = formatReplayTimestamp(crosshairState.time || bar?.time);
-        const price = crosshairState.price == null ? bar?.close : crosshairState.price;
-        crosshairReadoutLabel.textContent = formatInspectionReadout({ timeText, price, bar });
-      }
-
-      function refreshCountdown(state = lastReplayState) {
-        countdownRow.hidden = !presentationSettings.showBarCountdown;
-        countdownLabel.textContent = presentationSettings.showBarCountdown
-          ? state?.countdown?.label || '--'
-          : '--';
+        return statusController.formatReplayTimestamp(value);
       }
 
       function setControlsDisabled(disabled = false) {
@@ -784,9 +664,7 @@ export function createChartReplayRoute() {
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, (payload = {}) => {
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
-            crosshairState = payload.crosshair || { active: false };
-            refreshChartOhlcOverlay();
-            refreshCrosshairReadout();
+            statusController.setCrosshairState(payload.crosshair || { active: false });
             setControlsDisabled();
             return;
           }
@@ -797,7 +675,7 @@ export function createChartReplayRoute() {
                 return syncChartPresentationSettings();
               })
               .finally(() => {
-                refreshCrosshairReadout();
+                statusController.refreshCrosshairReadout();
                 refreshReplayStatus();
               });
             return;
@@ -836,8 +714,7 @@ export function createChartReplayRoute() {
       dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE)
         .then((state) => {
           if (disposed) return;
-          crosshairState = state?.crosshair || crosshairState;
-          refreshCrosshairReadout();
+          statusController.setCrosshairState(state?.crosshair || { active: false });
         })
         .catch(() => null);
 

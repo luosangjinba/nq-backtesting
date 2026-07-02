@@ -10,14 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 437 is complete. Lock price-to-bar ratio now has an
-  explicit chart-engine presentation contract, normalized under `scaleStyle`,
-  exposed in the Settings draft UI, and mapped by the chart-engine adapter to
-  price-axis scaling behavior without changing replay cursor, display bars, or
-  bar requests.
-- Next candidate: Step 438 - continue Settings backlog work with the next
-  planned contract row, likely no-overlap labels or session breaks depending on
-  whether the next focus is chart-label ergonomics or replay/session semantics.
+- Current status: Step 438 is complete. `chart-replay-route.js` has started
+  route-shell modularization: footer replay status, OHLC overlay, crosshair
+  readout, countdown, and route-local display formatting now live in
+  `features/chart-replay/chart-replay-status.js`.
+- Next candidate: Step 439 - continue `chart-replay-route.js` decomposition by
+  splitting replay command controls, truncate pick mode, or chart navigation
+  popover behavior into route-local controllers before moving to
+  `chart-settings-panel.js`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -110,6 +110,12 @@
   bridges. Page template modules may compose UI templates, and UI controllers
   may own DOM-only behavior such as floating transport drag, but replay/chart
   mutations must still flow through route callbacks and runtime commands.
+- Refactor decision: chart replay status/readout rendering is route-local UI
+  behavior, not route orchestration. `chart-replay-status.js` owns footer
+  status labels, chart OHLC overlay, crosshair inspection readout, countdown
+  visibility, and display-timezone-aware formatting. `chart-replay-route.js`
+  may fetch runtime snapshots and pass state into the controller, but it should
+  not reintroduce these rendering helpers inline.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1432,6 +1438,64 @@ Checks:
 - `node v5/tests/chart-presentation-runtime-smoke.js`
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 438 - V5 Chart Replay Route Status Controller Split
+
+Status: completed.
+
+Goal: begin the planned `chart-replay-route.js` decomposition by extracting
+route-local replay status/readout rendering into a dedicated controller.
+
+Problem:
+
+- `chart-replay-route.js` had grown to 872 lines and mixed route
+  orchestration, runtime command dispatch, replay status formatting, chart OHLC
+  overlay rendering, crosshair readout behavior, countdown rendering, truncate
+  pick behavior, go-to navigation, and Settings orchestration.
+- Status/readout rendering is a stable route-local UI responsibility with no
+  runtime mutation authority. Keeping it inline made the route harder to
+  extend and obscured the remaining command-handler boundaries that still need
+  splitting.
+
+Implementation:
+
+- [x] Step 438.1: Define the first `chart-replay-route.js` split boundary as
+  route-local status/readout rendering.
+- [x] Step 438.2: Add `features/chart-replay/chart-replay-status.js` with
+  injected getters for display timezone, exchange timezone, presentation
+  settings, and active display timeframe.
+- [x] Step 438.3: Move replay footer labels, OHLC status row, chart OHLC
+  overlay, crosshair readout, countdown rendering, and display-timezone-aware
+  replay timestamp formatting into the status controller.
+- [x] Step 438.4: Keep `chart-replay-route.js` responsible for runtime
+  commands, event subscriptions, initial load, Settings orchestration, replay
+  controls, truncate pick mode, and chart navigation.
+- [x] Step 438.5: Preserve existing browser smoke behavior and reduce
+  `chart-replay-route.js` from 872 lines to 749 lines.
+
+Manual acceptance:
+
+- Replay footer status, chart OHLC overlay, crosshair readout, and countdown
+  continue to update after initial load, replay navigation, Settings changes,
+  display timezone changes, and crosshair events.
+- UI rendering still receives state from route/runtime snapshots; the status
+  controller does not dispatch replay, chart, bar-data, or presentation
+  mutation commands.
+- `chart-replay-route.js` remains the route orchestration owner and still
+  disposes event subscriptions and viewport-demand bridge.
+- No replay cursor, display bars, chart series, or bar request behavior changes.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-status.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-restore-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
