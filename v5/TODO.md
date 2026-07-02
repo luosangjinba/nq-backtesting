@@ -10,12 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 430 is complete. Bar countdown now has a replay-owned
-  derived-state contract, a Settings visibility toggle, and route rendering
-  that does not calculate countdown in UI.
-- Next candidate: Step 431 - plan the next high-risk settings contract before
-  UI, likely lock price-to-bar ratio or session breaks, with explicit owner,
-  command/event surface, adapter behavior, and smoke acceptance.
+- Current status: Step 431 is complete. Replay runtime state/time/display-bar
+  helpers now live in `runtime/replay-runtime-state.js`, chart sync commands
+  live in `runtime/replay-chart-sync.js`, and `replay-runtime.js` is back to
+  replay/session/bar orchestration.
+- Next candidate: Step 432 - continue the larger replay runtime split by
+  extracting display-window loading, prefix-demand retention, and/or navigation
+  controllers behind explicit factory APIs before adding more Settings
+  contracts.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -107,6 +109,13 @@
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
   runtime command/event owner and the only runtime that writes chart adapters.
+- Refactor decision: replay runtime pure helpers and chart synchronization
+  belong outside the runtime shell. `replay-runtime-state.js` owns replay state
+  shape, timestamp/timeframe math, display-bar safety filters, prefix retention
+  helpers, and countdown derivation. `replay-chart-sync.js` is the only replay
+  helper that dispatches chart commands. `replay-runtime.js` should remain the
+  command owner/orchestrator and should not accumulate new feature logic that
+  fits one of those boundaries.
 - Refactor decision: chart engine adapter modules should separate factory,
   context normalization, presentation/options mapping, DOM fallback rendering,
   and Lightweight engine integration. Adapter implementations may write their
@@ -998,6 +1007,61 @@ Checks:
 - `node v5/tests/chart-presentation-runtime-smoke.js`
 - `node v5/tests/replay-next-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 431 - V5 Replay Runtime Boundary Split
+
+Status: completed.
+
+Goal: continue the larger V5 modularization work by splitting replay runtime
+state helpers and chart synchronization out of the main replay command owner
+before more replay/settings features are added.
+
+Problem:
+
+- `runtime/replay-runtime.js` had grown to 1421 lines and mixed pure replay
+  state/time/display-window helpers, countdown derivation, chart command sync,
+  session persistence, display-window loading, prefix retention, navigation,
+  and playback.
+- Leaving helper logic in the main runtime would make future Settings contracts
+  and replay interactions harder to place cleanly and would repeat the V4
+  failure mode of accumulating unrelated feature logic in one file.
+
+Implementation:
+
+- [x] Step 431.1: Define the split boundary: pure replay state helpers vs.
+  replay-owned chart synchronization vs. replay command orchestration.
+- [x] Step 431.2: Add `runtime/replay-runtime-state.js` for state shape,
+  timestamp/timeframe normalization, display-bar filtering/merging, prefix
+  retention helpers, no-future guards, and countdown derivation.
+- [x] Step 431.3: Add `runtime/replay-chart-sync.js` for replay-to-chart
+  command synchronization: replace bars, right-edge limit, display context, and
+  viewport follow.
+- [x] Step 431.4: Keep public helper exports compatible by re-exporting the
+  existing replay helper API from `replay-runtime.js`.
+- [x] Step 431.5: Reduce `replay-runtime.js` from 1421 lines to 1132 lines
+  without changing command names, event names, replay cursor ownership, or chart
+  writer ownership.
+
+Manual acceptance:
+
+- Replay UI and other callers still import replay commands/events and exported
+  helper guards from `replay-runtime.js`.
+- Only replay runtime still owns cursor/reveal state and persistence commands.
+- Only chart runtime still writes chart series; replay chart sync only
+  dispatches chart runtime commands.
+- Countdown remains replay-derived state, not route UI math.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/replay-runtime-state.js`
+- `node --check v5/src/runtime/replay-chart-sync.js`
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-previous-smoke.js`
+- `node v5/tests/replay-display-window-cache-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 

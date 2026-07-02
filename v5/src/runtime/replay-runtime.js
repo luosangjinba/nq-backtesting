@@ -4,277 +4,54 @@ import { BAR_DATA_COMMANDS } from '../contracts/bar-data-contracts.js';
 import { CHART_COMMANDS, CHART_EVENTS } from '../contracts/chart-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../contracts/replay-contracts.js';
 import { SESSION_COMMANDS } from '../contracts/session-contracts.js';
+import { createReplayChartSync } from './replay-chart-sync.js';
+import {
+  DEFAULT_PREFIX_BARS,
+  MAX_PREFIX_BARS,
+  MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS,
+  alignTimestampToTimeframe,
+  assertNoDisplayBarsAfter,
+  assertNoFutureDisplayBars,
+  canRevealBar,
+  cloneReplayValue as clone,
+  computePrefixBarCount,
+  createCountdownSnapshot,
+  displayBarsEqual,
+  earliestBarTimestamp,
+  emptyReplayState,
+  filterDisplayBarsForCursor,
+  isoFromTimestamp,
+  isAtOrAfterSessionEnd,
+  mergeDisplayBarsForCursor,
+  mergeSparseDisplayBars,
+  normalizeStepCount,
+  normalizeTimeframe,
+  previousWindowAnchor,
+  selectNextBar,
+  selectStartBar,
+  shouldSeekEarlierDisplayWindow,
+  splitRetainedPrefixChunks,
+  timeframeSeconds,
+  timestampSeconds,
+} from './replay-runtime-state.js';
 
 export { REPLAY_COMMANDS, REPLAY_EVENTS };
-
-const DEFAULT_PREFIX_BARS = 119;
-const MAX_PREFIX_BARS = 499;
-const PREFIX_RETENTION_VISIBLE_SPANS = 2;
-const MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS = 6;
-
-function emptyState() {
-  return {
-    sessionId: null,
-    session: null,
-    persistedCursor: null,
-    startBar: null,
-    startBarTimestamp: null,
-    cursorTimestamp: null,
-    revealedCount: 0,
-    replayTimeframe: null,
-    displayTimeframe: null,
-    displayBarsTimeframe: null,
-    prefixBars: [],
-    prefixChunks: [],
-    releasedPrefixChunks: [],
-    displayBars: [],
-    viewportMetrics: null,
-    status: 'idle',
-  };
-}
-
-function clone(value) {
-  return value == null ? value : structuredClone(value);
-}
-
-function timestampSeconds(value) {
-  const normalized = typeof value === 'string' && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$/.test(value)
-    ? `${value.replace(' ', 'T')}:00.000Z`
-    : value;
-  const parsed = Date.parse(normalized);
-  if (!Number.isFinite(parsed)) {
-    throw new Error('replay timestamp must be valid.');
-  }
-  return Math.floor(parsed / 1000);
-}
-
-function selectStartBar(bars = [], sessionStart) {
-  const startTimestamp = timestampSeconds(sessionStart);
-  const candidates = bars
-    .filter((bar) => Number(bar?.timestamp) >= startTimestamp)
-    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
-  const startBar = candidates[0];
-  if (!startBar) {
-    throw new Error('Unable to resolve replay start bar.');
-  }
-  return startBar;
-}
-
-function selectNextBar(bars = [], cursorTimestamp) {
-  const cursor = timestampSeconds(cursorTimestamp);
-  const candidates = bars
-    .filter((bar) => Number(bar?.timestamp) > cursor)
-    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
-  return candidates[0] || null;
-}
-
-function normalizeTimeframe(value, fieldName = 'replay timeframe') {
-  const normalized = Number(value);
-  if (!Number.isFinite(normalized) || normalized <= 0) {
-    throw new Error(`${fieldName} must be a positive number.`);
-  }
-  return normalized;
-}
-
-function normalizeStepCount(value = 1) {
-  const normalized = Math.floor(Number(value || 1));
-  if (!Number.isFinite(normalized) || normalized <= 0) {
-    throw new Error('replay stepCount must be a positive integer.');
-  }
-  return normalized;
-}
-
-function timeframeSeconds(timeframe) {
-  return normalizeTimeframe(timeframe) * 60;
-}
-
-function isoFromTimestamp(timestampValue) {
-  return new Date(timestampValue * 1000).toISOString();
-}
-
-function formatCountdownLabel(totalSeconds) {
-  const normalized = Math.max(0, Math.floor(Number(totalSeconds) || 0));
-  const hours = Math.floor(normalized / 3600);
-  const minutes = Math.floor((normalized % 3600) / 60);
-  const seconds = normalized % 60;
-  if (hours > 0) {
-    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-  }
-  return `${minutes}:${String(seconds).padStart(2, '0')}`;
-}
-
-function alignTimestampToTimeframe(value, timeframe) {
-  const timestamp = timestampSeconds(value);
-  const seconds = timeframeSeconds(timeframe);
-  return Math.floor(timestamp / seconds) * seconds;
-}
-
-export function isDisplayBarAllowed(bar, {
-  cursorTimestamp,
-  displayTimeframe,
-  replayTimeframe,
-} = {}) {
-  const barTimestamp = Number(bar?.timestamp);
-  if (!Number.isFinite(barTimestamp)) return false;
-  const cursor = timestampSeconds(cursorTimestamp);
-  const displayTf = normalizeTimeframe(displayTimeframe, 'display timeframe');
-  const replayTf = normalizeTimeframe(replayTimeframe, 'replay timeframe');
-  if (displayTf > replayTf) {
-    return barTimestamp + timeframeSeconds(displayTf) <= cursor;
-  }
-  return barTimestamp <= cursor;
-}
-
-function filterDisplayBarsForCursor(bars = [], context = {}) {
-  return bars
-    .filter((bar) => isDisplayBarAllowed(bar, context))
-    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
-}
-
-function mergeDisplayBarsForCursor(existingBars = [], nextBars = [], context = {}) {
-  return filterDisplayBarsForCursor([...new Map([
-    ...existingBars,
-    ...nextBars,
-  ]
-    .map((bar) => [Number(bar?.timestamp), bar]))
-    .values()], context);
-}
-
-function displayBarsEqual(leftBars = [], rightBars = []) {
-  if (leftBars.length !== rightBars.length) return false;
-  return leftBars.every((left, index) => {
-    const right = rightBars[index];
-    return Number(left?.timestamp) === Number(right?.timestamp)
-      && Number(left?.open) === Number(right?.open)
-      && Number(left?.high) === Number(right?.high)
-      && Number(left?.low) === Number(right?.low)
-      && Number(left?.close) === Number(right?.close);
-  });
-}
-
-function earliestBarTimestamp(bars = []) {
-  const timestamps = bars
-    .map((bar) => Number(bar?.timestamp))
-    .filter(Number.isFinite);
-  return timestamps.length ? Math.min(...timestamps) : null;
-}
-
-function previousWindowAnchor(window = {}, timeframe) {
-  const startTimestamp = timestampSeconds(window.start);
-  const seconds = timeframeSeconds(timeframe);
-  return isoFromTimestamp(Math.floor((startTimestamp - seconds) / seconds) * seconds);
-}
-
-function shouldSeekEarlierDisplayWindow({
-  direction,
-  attempt,
-  displayTimeframe,
-  missingWindow,
-  currentEarliestTimestamp,
-  window,
-  windowDisplayBars,
-} = {}) {
-  if (direction !== 'backward') return false;
-  if (attempt >= MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS - 1) return false;
-  if (!Number.isFinite(currentEarliestTimestamp)) return false;
-  const requestedFrom = Number(missingWindow?.from);
-  if (!Number.isFinite(requestedFrom)) return false;
-  const seekThreshold = timeframeSeconds(displayTimeframe) * 2;
-  if (requestedFrom >= currentEarliestTimestamp - seekThreshold) return false;
-  const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
-  if (!Number.isFinite(nextEarliestTimestamp)) return true;
-  if (nextEarliestTimestamp >= currentEarliestTimestamp) return true;
-  if (requestedFrom >= nextEarliestTimestamp - seekThreshold) return false;
-  const windowStartTimestamp = window?.start ? timestampSeconds(window.start) : null;
-  return Number.isFinite(windowStartTimestamp)
-    && windowStartTimestamp < nextEarliestTimestamp - seekThreshold;
-}
-
-export function computePrefixBarCount(metrics = {}) {
-  const estimatedVisibleBars = Number(metrics?.estimatedVisibleBars);
-  if (!Number.isFinite(estimatedVisibleBars) || estimatedVisibleBars <= 1) {
-    return DEFAULT_PREFIX_BARS;
-  }
-  return Math.min(Math.max(1, Math.floor(estimatedVisibleBars) - 1), MAX_PREFIX_BARS);
-}
-
-export function assertNoFutureDisplayBars(displayBars = [], startBar) {
-  return assertNoDisplayBarsAfter(displayBars, startBar);
-}
-
-export function assertNoDisplayBarsAfter(displayBars = [], cursorBarOrTimestamp) {
-  const rawTimestamp = typeof cursorBarOrTimestamp === 'object'
-    ? cursorBarOrTimestamp?.timestamp
-    : cursorBarOrTimestamp;
-  const cursorTimestamp = typeof rawTimestamp === 'number'
-    ? rawTimestamp
-    : timestampSeconds(rawTimestamp);
-  if (!Number.isFinite(cursorTimestamp)) {
-    throw new Error('replay cursor timestamp is required.');
-  }
-  const futureBar = displayBars.find((bar) => Number(bar?.timestamp) > cursorTimestamp);
-  if (futureBar) {
-    throw new Error('replay display state must not include future bars.');
-  }
-}
-
-export function isAtOrAfterSessionEnd(cursorTimestamp, sessionEnd) {
-  return timestampSeconds(cursorTimestamp) >= timestampSeconds(sessionEnd);
-}
-
-export function canRevealBar(bar, sessionEnd) {
-  return Number(bar?.timestamp) <= timestampSeconds(sessionEnd);
-}
-
-export function mergeSparseDisplayBars(displayBars = [], prefixChunks = [], cursorTimestamp) {
-  const cursor = timestampSeconds(cursorTimestamp);
-  return [...new Map([
-    ...prefixChunks.flatMap((chunk) => chunk.bars || []),
-    ...displayBars,
-  ]
-    .filter((bar) => Number(bar?.timestamp) <= cursor)
-    .map((bar) => [Number(bar.timestamp), bar]))
-    .values()]
-    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
-}
-
-export function splitRetainedPrefixChunks(prefixChunks = [], visibleRange = {}) {
-  const from = Number(visibleRange.from);
-  const to = Number(visibleRange.to);
-  if (!Number.isFinite(from) || !Number.isFinite(to) || to <= from) {
-    return {
-      retained: prefixChunks,
-      released: [],
-      releaseBefore: null,
-    };
-  }
-
-  const visibleSpan = to - from;
-  const releaseBefore = from - (visibleSpan * PREFIX_RETENTION_VISIBLE_SPANS);
-  const retained = [];
-  const released = [];
-  for (const chunk of prefixChunks) {
-    const latestTimestamp = Math.max(
-      ...((chunk.bars || []).map((bar) => Number(bar?.timestamp)).filter(Number.isFinite))
-    );
-    if (Number.isFinite(latestTimestamp) && latestTimestamp < releaseBefore) {
-      released.push(chunk);
-    } else {
-      retained.push(chunk);
-    }
-  }
-  return {
-    retained,
-    released,
-    releaseBefore,
-  };
-}
+export {
+  assertNoDisplayBarsAfter,
+  assertNoFutureDisplayBars,
+  canRevealBar,
+  computePrefixBarCount,
+  isAtOrAfterSessionEnd,
+  isDisplayBarAllowed,
+  mergeSparseDisplayBars,
+  splitRetainedPrefixChunks,
+} from './replay-runtime-state.js';
 
 export function createReplayRuntime() {
   const unregisterCallbacks = [];
   const setTimer = globalThis.setInterval?.bind(globalThis);
   const clearTimer = globalThis.clearInterval?.bind(globalThis);
-  let state = emptyState();
+  let state = emptyReplayState();
   let playback = {
     playing: false,
     intervalMs: 500,
@@ -288,86 +65,20 @@ export function createReplayRuntime() {
   const loadedPrefixAnchors = new Set();
   const loadingPrefixAnchors = new Set();
   const loadingDisplayWindowKeys = new Set();
-
-  function countdownSnapshot(sourceState = state) {
-    if (!sourceState.cursorTimestamp || !sourceState.session) {
-      return {
-        active: false,
-        remainingSeconds: null,
-        closeTimestamp: null,
-        label: '--',
-      };
-    }
-    const cursor = timestampSeconds(sourceState.cursorTimestamp);
-    const displayTimeframe = normalizeTimeframe(
-      sourceState.displayTimeframe || sourceState.session.timeframe,
-      'display timeframe'
-    );
-    const seconds = timeframeSeconds(displayTimeframe);
-    const sessionEnd = sourceState.session?.sessionEnd
-      ? timestampSeconds(sourceState.session.sessionEnd)
-      : null;
-    const barClose = Math.floor(cursor / seconds) * seconds + seconds;
-    const closeTimestamp = Number.isFinite(sessionEnd) ? Math.min(barClose, sessionEnd) : barClose;
-    const remainingSeconds = Math.max(0, closeTimestamp - cursor);
-    return {
-      active: remainingSeconds > 0,
-      remainingSeconds,
-      closeTimestamp: isoFromTimestamp(closeTimestamp),
-      label: formatCountdownLabel(remainingSeconds),
-    };
-  }
+  const chartSync = createReplayChartSync({
+    getState: () => state,
+    dispatchCommand,
+    hasCommand,
+    chartCommands: CHART_COMMANDS,
+  });
 
   function replaySnapshot(extra = {}) {
     const snapshot = clone(state);
     return {
       ...snapshot,
-      countdown: countdownSnapshot(snapshot),
+      countdown: createCountdownSnapshot(snapshot),
       ...extra,
     };
-  }
-
-  async function syncChartRightEdgeLimit(rightEdge) {
-    if (hasCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT)) {
-      await dispatchCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, { rightEdge });
-    }
-  }
-
-  async function syncChartDisplayContext({ displayTimeframe, bars }) {
-    if (!hasCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT)) return;
-    const timestamps = (bars || [])
-      .map((bar) => Number(bar?.timestamp))
-      .filter(Number.isFinite)
-      .sort((left, right) => left - right);
-    await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
-      instrument: state.session?.instrument || null,
-      displayTimeframe,
-      loadedCoverage: timestamps.length
-        ? { from: timestamps[0], to: timestamps[timestamps.length - 1] }
-        : null,
-    });
-  }
-
-  async function syncChartViewportFollow(cursorTimestamp, { resume = false } = {}) {
-    if (!hasCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW)) return null;
-    const metrics = hasCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS)
-      ? await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null)
-      : null;
-    return dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
-      enabled: true,
-      resume,
-      cursorTimestamp,
-      estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
-    });
-  }
-
-  async function renderDisplayBars(
-    displayBars,
-    cursorTimestamp = state.cursorTimestamp,
-    { resumeViewportFollow = false } = {}
-  ) {
-    await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars: displayBars });
-    await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow });
   }
 
   async function persistReplayCursor({ cursorTimestamp, revealedCount }) {
@@ -547,11 +258,11 @@ export function createReplayRuntime() {
       ...persistedRevealBars,
     ];
     assertNoDisplayBarsAfter(displayBars, restoredCursorTimestamp);
-    await renderDisplayBars(displayBars, restoredCursorTimestamp, { resumeViewportFollow: true });
+    await chartSync.renderDisplayBars(displayBars, restoredCursorTimestamp, { resumeViewportFollow: true });
     assertCurrentInitialLoad(sessionId, loadSequence);
-    await syncChartRightEdgeLimit(restoredCursorTimestamp);
+    await chartSync.syncChartRightEdgeLimit(restoredCursorTimestamp);
     assertCurrentInitialLoad(sessionId, loadSequence);
-    await syncChartDisplayContext({
+    await chartSync.syncChartDisplayContext({
       displayTimeframe: state.displayTimeframe || state.session.timeframe,
       bars: displayBars,
     });
@@ -683,9 +394,9 @@ export function createReplayRuntime() {
 
       const displayBarsChanged = !displayBarsEqual(state.displayBars, displayBars);
       if (displayBarsChanged) {
-        await renderDisplayBars(displayBars, state.cursorTimestamp);
-        await syncChartRightEdgeLimit(state.cursorTimestamp);
-        await syncChartDisplayContext({
+        await chartSync.renderDisplayBars(displayBars, state.cursorTimestamp);
+        await chartSync.syncChartRightEdgeLimit(state.cursorTimestamp);
+        await chartSync.syncChartDisplayContext({
           displayTimeframe: normalizedDisplayTimeframe,
           bars: displayBars,
         });
@@ -849,7 +560,7 @@ export function createReplayRuntime() {
         ...state.prefixChunks,
       ];
       const displayBars = mergeSparseDisplayBars(state.displayBars, prefixChunks, state.cursorTimestamp);
-      await renderDisplayBars(displayBars, state.cursorTimestamp);
+      await chartSync.renderDisplayBars(displayBars, state.cursorTimestamp);
       state = {
         ...state,
         prefixChunks,
@@ -912,7 +623,7 @@ export function createReplayRuntime() {
       state.startBar,
       ...state.displayBars.filter((bar) => Number(bar?.timestamp) >= Number(state.startBar?.timestamp)),
     ], retained, state.cursorTimestamp);
-    await renderDisplayBars(displayBars, state.cursorTimestamp);
+    await chartSync.renderDisplayBars(displayBars, state.cursorTimestamp);
 
     const releasedSummaries = released.map((chunk) => ({
       anchor: chunk.anchor,
@@ -1002,8 +713,8 @@ export function createReplayRuntime() {
       ]
       : state.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      await syncChartRightEdgeLimit(nextBar.time);
-      await renderDisplayBars(displayBars, nextBar.time);
+      await chartSync.syncChartRightEdgeLimit(nextBar.time);
+      await chartSync.renderDisplayBars(displayBars, nextBar.time);
     }
 
     state = {
@@ -1016,7 +727,7 @@ export function createReplayRuntime() {
       status: 'replay-ready',
     };
     if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await syncChartRightEdgeLimit(nextBar.time);
+      await chartSync.syncChartRightEdgeLimit(nextBar.time);
       await projectDisplayForCursor({
         sessionId,
         displayTimeframe: normalizedDisplayTimeframe,
@@ -1105,8 +816,8 @@ export function createReplayRuntime() {
         replayTimeframe: normalizedReplayTimeframe,
       });
       assertNoDisplayBarsAfter(displayBars, previousCursorBar.time);
-      await syncChartRightEdgeLimit(previousCursorBar.time);
-      await renderDisplayBars(displayBars, previousCursorBar.time);
+      await chartSync.syncChartRightEdgeLimit(previousCursorBar.time);
+      await chartSync.renderDisplayBars(displayBars, previousCursorBar.time);
     }
 
     state = {
@@ -1119,7 +830,7 @@ export function createReplayRuntime() {
       status: revealedCount > 0 ? 'replay-ready' : 'initial-loaded',
     };
     if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await syncChartRightEdgeLimit(previousCursorBar.time);
+      await chartSync.syncChartRightEdgeLimit(previousCursorBar.time);
       await projectDisplayForCursor({
         sessionId,
         displayTimeframe: normalizedDisplayTimeframe,
@@ -1208,8 +919,8 @@ export function createReplayRuntime() {
         replayTimeframe: normalizedReplayTimeframe,
       });
       assertNoDisplayBarsAfter(displayBars, selectedBar.time);
-      await renderDisplayBars(displayBars, selectedBar.time, { resumeViewportFollow: true });
-      await syncChartRightEdgeLimit(selectedBar.time);
+      await chartSync.renderDisplayBars(displayBars, selectedBar.time, { resumeViewportFollow: true });
+      await chartSync.syncChartRightEdgeLimit(selectedBar.time);
     }
 
     state = {
@@ -1222,7 +933,7 @@ export function createReplayRuntime() {
       status: revealedCount > 0 ? 'replay-ready' : 'initial-loaded',
     };
     if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await syncChartRightEdgeLimit(selectedBar.time);
+      await chartSync.syncChartRightEdgeLimit(selectedBar.time);
       await projectDisplayForCursor({
         sessionId,
         displayTimeframe: normalizedDisplayTimeframe,
@@ -1261,8 +972,8 @@ export function createReplayRuntime() {
     ];
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       assertNoFutureDisplayBars(displayBars, state.startBar);
-      await renderDisplayBars(displayBars, state.startBar.time, { resumeViewportFollow: true });
-      await syncChartRightEdgeLimit(state.startBar.time);
+      await chartSync.renderDisplayBars(displayBars, state.startBar.time, { resumeViewportFollow: true });
+      await chartSync.syncChartRightEdgeLimit(state.startBar.time);
     }
 
     state = {
@@ -1281,7 +992,7 @@ export function createReplayRuntime() {
     };
     await clearPersistedReplayCursor();
     if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await syncChartRightEdgeLimit(state.startBar.time);
+      await chartSync.syncChartRightEdgeLimit(state.startBar.time);
       await projectDisplayForCursor({
         sessionId,
         displayTimeframe: normalizedDisplayTimeframe,
@@ -1407,7 +1118,7 @@ export function createReplayRuntime() {
       unregisterCallbacks.pop()();
     }
     pause();
-    state = emptyState();
+    state = emptyReplayState();
     initialLoadSequence = 0;
     loadedPrefixAnchors.clear();
     loadingPrefixAnchors.clear();
