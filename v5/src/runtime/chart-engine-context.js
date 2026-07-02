@@ -111,6 +111,9 @@ export function normalizeContext(context = {}) {
       scaleBordersVisible: context.scaleStyle?.scaleBordersVisible == null
         ? defaultScaleStyle.scaleBordersVisible
         : Boolean(context.scaleStyle.scaleBordersVisible),
+      lockPriceToBarRatio: context.scaleStyle?.lockPriceToBarRatio == null
+        ? defaultScaleStyle.lockPriceToBarRatio
+        : Boolean(context.scaleStyle.lockPriceToBarRatio),
     },
     watermarkStyle: {
       visible: context.watermarkStyle?.visible == null

@@ -227,6 +227,7 @@ async function main() {
           const beforeApplyPriceScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '';
           const beforeApplyTimeScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '';
           const beforeApplyScaleBordersVisible = document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '';
+          const beforeApplyLockPriceToBarRatio = document.querySelector('[data-chart-canvas]')?.dataset.lockPriceToBarRatio || '';
           const beforeApplyWatermarkVisible = document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible || '';
           const beforeApplyWatermarkText = document.querySelector('[data-chart-canvas]')?.dataset.watermarkText || '';
           const beforeApplyWatermarkColor = document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor || '';
@@ -269,6 +270,7 @@ async function main() {
           const priceScaleToggle = document.querySelector('[data-scale-style-toggle="priceScaleVisible"]');
           const timeScaleToggle = document.querySelector('[data-scale-style-toggle="timeScaleVisible"]');
           const scaleBordersToggle = document.querySelector('[data-scale-style-toggle="scaleBordersVisible"]');
+          const lockPriceToBarRatioToggle = document.querySelector('[data-scale-style-toggle="lockPriceToBarRatio"]');
           priceScaleToggle.checked = false;
           priceScaleToggle.dispatchEvent(new Event('change', { bubbles: true }));
           const priceScaleSideSelect = document.querySelector('[data-scale-style-side]');
@@ -278,6 +280,8 @@ async function main() {
           timeScaleToggle.dispatchEvent(new Event('change', { bubbles: true }));
           scaleBordersToggle.checked = false;
           scaleBordersToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          lockPriceToBarRatioToggle.checked = true;
+          lockPriceToBarRatioToggle.dispatchEvent(new Event('change', { bubbles: true }));
           const crosshairHorizontalToggle = document.querySelector('[data-crosshair-style-toggle="horizontalVisible"]');
           const crosshairLabelBackground = document.querySelector('[data-crosshair-style-color="labelBackgroundColor"]');
           const beforeApplyCrosshairHorizontalVisible = document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible || '';
@@ -300,6 +304,7 @@ async function main() {
           const beforeApplyDraftOnlyPriceScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '';
           const beforeApplyDraftOnlyTimeScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '';
           const beforeApplyDraftOnlyScaleBordersVisible = document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '';
+          const beforeApplyDraftOnlyLockPriceToBarRatio = document.querySelector('[data-chart-canvas]')?.dataset.lockPriceToBarRatio || '';
           const beforeApplyDraftOnlyWatermarkVisible = document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible || '';
           const beforeApplyDraftOnlyWatermarkText = document.querySelector('[data-chart-canvas]')?.dataset.watermarkText || '';
           const beforeApplyDraftOnlyWatermarkColor = document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor || '';
@@ -331,6 +336,7 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible === 'false'
               && document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible === 'false'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible === 'false'
+              && document.querySelector('[data-chart-canvas]')?.dataset.lockPriceToBarRatio === 'true'
               && document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible === 'true'
               && document.querySelector('[data-chart-canvas]')?.dataset.watermarkText === 'Replay Review'
               && document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor === '#64748b'
@@ -377,6 +383,7 @@ async function main() {
             beforeApplyPriceScaleVisible,
             beforeApplyTimeScaleVisible,
             beforeApplyScaleBordersVisible,
+            beforeApplyLockPriceToBarRatio,
             beforeApplyWatermarkVisible,
             beforeApplyWatermarkText,
             beforeApplyWatermarkColor,
@@ -389,6 +396,7 @@ async function main() {
             beforeApplyDraftOnlyPriceScaleVisible,
             beforeApplyDraftOnlyTimeScaleVisible,
             beforeApplyDraftOnlyScaleBordersVisible,
+            beforeApplyDraftOnlyLockPriceToBarRatio,
             beforeApplyDraftOnlyWatermarkVisible,
             beforeApplyDraftOnlyWatermarkText,
             beforeApplyDraftOnlyWatermarkColor,
@@ -421,6 +429,7 @@ async function main() {
             priceScaleSelected: document.querySelector('[data-scale-style-toggle="priceScaleVisible"]')?.checked,
             timeScaleSelected: document.querySelector('[data-scale-style-toggle="timeScaleVisible"]')?.checked,
             scaleBordersSelected: document.querySelector('[data-scale-style-toggle="scaleBordersVisible"]')?.checked,
+            lockPriceToBarRatioSelected: document.querySelector('[data-scale-style-toggle="lockPriceToBarRatio"]')?.checked,
             watermarkSelected: document.querySelector('[data-watermark-style-toggle="visible"]')?.checked,
             watermarkTextSelected: document.querySelector('[data-watermark-style-text="text"]')?.value || '',
             watermarkColorSelected: document.querySelector('[data-watermark-style-color="color"]')?.value || '',
@@ -444,6 +453,7 @@ async function main() {
             afterCanvasPriceScaleVisible: document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '',
             afterCanvasTimeScaleVisible: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '',
             afterCanvasScaleBordersVisible: document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '',
+            afterCanvasLockPriceToBarRatio: document.querySelector('[data-chart-canvas]')?.dataset.lockPriceToBarRatio || '',
             afterCanvasWatermarkVisible: document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible || '',
             afterCanvasWatermarkText: document.querySelector('[data-chart-canvas]')?.dataset.watermarkText || '',
             afterCanvasWatermarkColor: document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor || '',
@@ -501,6 +511,7 @@ async function main() {
     assert.equal(value.beforeApplyPriceScaleVisible, 'true');
     assert.equal(value.beforeApplyTimeScaleVisible, 'true');
     assert.equal(value.beforeApplyScaleBordersVisible, 'true');
+    assert.equal(value.beforeApplyLockPriceToBarRatio, 'false');
     assert.equal(value.beforeApplyWatermarkVisible, 'false');
     assert.equal(value.beforeApplyWatermarkText, 'FX Replay');
     assert.equal(value.beforeApplyWatermarkColor, '#334155');
@@ -512,6 +523,7 @@ async function main() {
     assert.equal(value.beforeApplyDraftOnlyPriceScaleVisible, 'true');
     assert.equal(value.beforeApplyDraftOnlyTimeScaleVisible, 'true');
     assert.equal(value.beforeApplyDraftOnlyScaleBordersVisible, 'true');
+    assert.equal(value.beforeApplyDraftOnlyLockPriceToBarRatio, 'false');
     assert.equal(value.beforeApplyDraftOnlyWatermarkVisible, 'false');
     assert.equal(value.beforeApplyDraftOnlyWatermarkText, 'FX Replay');
     assert.equal(value.beforeApplyDraftOnlyWatermarkColor, '#334155');
@@ -544,6 +556,7 @@ async function main() {
     assert.equal(value.priceScaleSelected, false);
     assert.equal(value.timeScaleSelected, false);
     assert.equal(value.scaleBordersSelected, false);
+    assert.equal(value.lockPriceToBarRatioSelected, true);
     assert.equal(value.watermarkSelected, true);
     assert.equal(value.watermarkTextSelected, 'Replay Review');
     assert.equal(value.watermarkColorSelected, '#64748b');
@@ -567,6 +580,7 @@ async function main() {
     assert.equal(value.afterCanvasPriceScaleVisible, 'false');
     assert.equal(value.afterCanvasTimeScaleVisible, 'false');
     assert.equal(value.afterCanvasScaleBordersVisible, 'false');
+    assert.equal(value.afterCanvasLockPriceToBarRatio, 'true');
     assert.equal(value.afterCanvasWatermarkVisible, 'true');
     assert.equal(value.afterCanvasWatermarkText, 'Replay Review');
     assert.equal(value.afterCanvasWatermarkColor, '#64748b');

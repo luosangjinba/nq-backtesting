@@ -28,7 +28,7 @@ planning guardrail, not a UI checklist to implement all at once.
 | Watermark text/color/size | presentation-runtime | implemented | Adapter-owned chart decoration. |
 | Price scale side | presentation-runtime | implemented in Step 429 | `right`/`left`; hidden state still uses price scale visibility. |
 | Scale placement beyond side | chart-engine-contract | planned | Requires explicit mapping for multiple scales and future panes. |
-| Lock price-to-bar ratio | chart-engine-contract | planned | Needs chart-engine behavior contract and acceptance harness. |
+| Lock price-to-bar ratio | chart-engine-contract | implemented in Step 437 | Presentation setting; adapter disables price-axis drag scaling while preserving time-axis zoom. |
 | No-overlap labels | chart-engine-contract | planned | Needs label ownership and collision rules. |
 | Countdown to bar close | replay-runtime-contract | implemented in Step 430 | Replay runtime derives countdown; Settings only controls visibility. |
 | Session breaks | replay-runtime-contract | planned | Requires exchange/session calendar contract and bar gaps policy. |

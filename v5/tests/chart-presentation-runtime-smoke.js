@@ -88,6 +88,7 @@ assert.deepEqual(defaults, {
     priceScaleVisible: true,
     timeScaleVisible: true,
     scaleBordersVisible: true,
+    lockPriceToBarRatio: false,
   },
   watermarkStyle: {
     visible: false,
@@ -130,6 +131,7 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
     fontSize: 14,
     priceScaleVisible: false,
     scaleBordersVisible: false,
+    lockPriceToBarRatio: true,
   },
   watermarkStyle: {
     visible: true,
@@ -190,6 +192,7 @@ assert.deepEqual(updated, {
     priceScaleVisible: false,
     timeScaleVisible: true,
     scaleBordersVisible: false,
+    lockPriceToBarRatio: true,
   },
   watermarkStyle: {
     visible: true,

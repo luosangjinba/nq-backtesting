@@ -132,6 +132,10 @@ export function renderChartSettingsPopover() {
                     <input type="checkbox" data-scale-style-toggle="scaleBordersVisible">
                     <span>Scale borders</span>
                   </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-scale-style-toggle="lockPriceToBarRatio">
+                    <span>Lock price-to-bar ratio</span>
+                  </label>
                   <h3>Crosshair</h3>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-crosshair-style-toggle="verticalVisible">

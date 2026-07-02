@@ -147,6 +147,7 @@ function normalizeScaleStyle(value = {}, base = DEFAULT_SCALE_STYLE) {
     priceScaleVisible: normalizeBoolean(value.priceScaleVisible, base.priceScaleVisible),
     timeScaleVisible: normalizeBoolean(value.timeScaleVisible, base.timeScaleVisible),
     scaleBordersVisible: normalizeBoolean(value.scaleBordersVisible, base.scaleBordersVisible),
+    lockPriceToBarRatio: normalizeBoolean(value.lockPriceToBarRatio, base.lockPriceToBarRatio),
   };
 }
 

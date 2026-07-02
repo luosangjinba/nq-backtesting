@@ -273,6 +273,7 @@ lightweight.setPresentation({
     priceScaleVisible: false,
     timeScaleVisible: false,
     scaleBordersVisible: false,
+    lockPriceToBarRatio: true,
   },
   watermarkStyle: {
     visible: true,
@@ -474,6 +475,7 @@ assert.equal(lightweightHost.children[0].dataset.timeScaleRightBarStaysOnScroll,
 assert.equal(lightweightHost.children[0].dataset.handleScrollMouseWheel, 'false');
 assert.equal(lightweightHost.children[0].dataset.handleScrollPressedMouseMove, 'true');
 assert.equal(lightweightHost.children[0].dataset.handleScaleMouseWheel, 'true');
+assert.equal(lightweightHost.children[0].dataset.handleScaleAxisPressedMouseMove, 'false');
 assert.equal(lightweightHost.children[0].dataset.timeScaleRightOffset, '4');
 assert.equal(lightweightHost.children[0].dataset.lightweightMarginTopPercent, '10');
 assert.equal(lightweightHost.children[0].dataset.lightweightMarginBottomPercent, '8');
@@ -500,6 +502,7 @@ assert.equal(lightweightHost.children[0].dataset.priceScaleSide, 'left');
 assert.equal(lightweightHost.children[0].dataset.priceScaleVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.timeScaleVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.scaleBordersVisible, 'false');
+assert.equal(lightweightHost.children[0].dataset.lockPriceToBarRatio, 'true');
 assert.equal(lightweightHost.children[0].dataset.watermarkVisible, 'true');
 assert.equal(lightweightHost.children[0].dataset.watermarkText, 'Replay Review');
 assert.equal(lightweightHost.children[0].dataset.watermarkColor, '#64748b');
@@ -522,7 +525,7 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     vertTouchDrag: false,
   },
   handleScale: {
-    axisPressedMouseMove: true,
+    axisPressedMouseMove: false,
     mouseWheel: true,
     pinch: true,
   },

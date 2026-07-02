@@ -72,6 +72,7 @@ export const DEFAULT_SCALE_STYLE = Object.freeze({
   priceScaleVisible: true,
   timeScaleVisible: true,
   scaleBordersVisible: true,
+  lockPriceToBarRatio: false,
 });
 
 export const DEFAULT_WATERMARK_STYLE = Object.freeze({

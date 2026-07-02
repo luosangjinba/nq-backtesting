@@ -157,6 +157,7 @@ assert.deepEqual(context.displayContext, {
     priceScaleVisible: true,
     timeScaleVisible: true,
     scaleBordersVisible: true,
+    lockPriceToBarRatio: false,
   },
   watermarkStyle: {
     visible: false,

@@ -10,14 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 436 is complete. Replay session bootstrap and restore
-  now live in `runtime/replay-bootstrap-controller.js`; the main replay runtime
-  delegates `RESOLVE_START_BAR`, `LOAD_INITIAL_PREFIX`, and
-  `LOAD_INITIAL_SESSION` and no longer owns initial-load sequence, start-bar
-  resolution, prefix bootstrap, or persisted cursor restore bodies.
-- Next candidate: Step 437 - return to the Settings backlog matrix and pick
-  the next explicit contract row, now that the replay runtime shell has stable
-  subsystem boundaries.
+- Current status: Step 437 is complete. Lock price-to-bar ratio now has an
+  explicit chart-engine presentation contract, normalized under `scaleStyle`,
+  exposed in the Settings draft UI, and mapped by the chart-engine adapter to
+  price-axis scaling behavior without changing replay cursor, display bars, or
+  bar requests.
+- Next candidate: Step 438 - continue Settings backlog work with the next
+  planned contract row, likely no-overlap labels or session breaks depending on
+  whether the next focus is chart-label ergonomics or replay/session semantics.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -77,6 +77,11 @@
   `priceScaleVisible`. The route UI edits draft settings only, and the
   chart-engine adapter maps the side to Lightweight left/right price scale
   options.
+- UI decision: lock price-to-bar ratio is a chart-engine presentation setting.
+  It lives under Settings `Scales and lines`, normalizes through
+  `scaleStyle.lockPriceToBarRatio`, and the adapter maps it to price-axis
+  scaling behavior. In the Lightweight adapter, enabled disables price-axis
+  drag scaling while preserving time-axis zoom.
 - Planning decision: Settings work must follow the backlog matrix in
   `v5/docs/SETTINGS_BACKLOG_MATRIX.md`. Only presentation-runtime rows can be
   implemented directly from the Settings UI; chart-engine, replay-runtime,
@@ -1373,6 +1378,60 @@ Checks:
 - `node v5/tests/replay-session-switch-smoke.js`
 - `node v5/tests/replay-cursor-persistence-smoke.js`
 - `node v5/tests/runtime-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 437 - V5 Lock Price-To-Bar Ratio Settings Contract
+
+Status: completed.
+
+Goal: implement the Settings backlog `Lock price-to-bar ratio` row with an
+explicit chart-engine presentation contract before adding more chart settings.
+
+Problem:
+
+- The backlog marked lock price-to-bar ratio as `chart-engine-contract`, not a
+  pure route UI toggle, because it changes how the chart engine handles price
+  scale interaction.
+- Adding it directly in the Settings UI without presentation/runtime/adapter
+  coverage would repeat the V4 pattern of UI controls drifting into chart
+  internals.
+
+Implementation:
+
+- [x] Step 437.1: Define the contract as a `scaleStyle.lockPriceToBarRatio`
+  presentation setting that flows through presentation runtime and chart
+  display context.
+- [x] Step 437.2: Normalize the setting in chart presentation runtime with a
+  conservative default of `false`.
+- [x] Step 437.3: Map the setting in chart-engine context and adapter
+  presentation metadata. In the Lightweight adapter, enabled disables
+  `handleScale.axisPressedMouseMove` while preserving time-axis zoom.
+- [x] Step 437.4: Add a Settings `Scales and lines` draft checkbox that only
+  applies through the existing Settings `Ok` path.
+- [x] Step 437.5: Update specs, Settings backlog matrix, runtime smoke,
+  adapter smoke, and browser smoke to cover the contract.
+
+Manual acceptance:
+
+- Toggling lock price-to-bar ratio in Settings remains draft-only until `Ok`.
+- Applying the setting updates chart-engine presentation metadata and adapter
+  options through the runtime path, not direct UI chart API calls.
+- Applying the setting does not request bars, mutate replay cursor, or mutate
+  replay `displayBars`.
+- Time-axis zoom remains available while price-axis drag scaling is disabled
+  when the setting is enabled in the Lightweight adapter.
+
+Checks:
+
+- `node --check v5/src/contracts/chart-presentation-contracts.js`
+- `node --check v5/src/runtime/chart-presentation-runtime.js`
+- `node --check v5/src/runtime/chart-engine-context.js`
+- `node --check v5/src/runtime/chart-engine-presentation.js`
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 

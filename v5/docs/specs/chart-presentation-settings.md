@@ -133,8 +133,9 @@ presentation setting changes.
   label background color, normalized as `#rrggbb`.
 - `backgroundStyle`: chart background color, normalized as `#rrggbb`.
 - `scaleStyle`: price/time scale text color, line color, font size,
-  price-scale visibility, time-scale visibility, and scale border visibility.
-  Colors normalize to `#rrggbb`; font size is bounded presentation state.
+  price-scale side, price-scale visibility, time-scale visibility, scale border
+  visibility, and `lockPriceToBarRatio`. Colors normalize to `#rrggbb`; font
+  size is bounded presentation state.
 - `watermarkStyle`: text watermark visibility, text, color, and font size.
   Color normalizes to `#rrggbb`; font size and text length are bounded
   presentation state.
@@ -162,6 +163,10 @@ space for replay progression.
   `chart-display-timezone.md`.
 - Chart margins/right offset belong to chart presentation and must not be
   encoded in replay display state.
+- Lock price-to-bar ratio is a chart-engine presentation contract. It must flow
+  through presentation runtime and chart display context, and the adapter maps
+  it to price-axis scaling behavior. In the Lightweight adapter, enabled means
+  price-axis drag scaling is disabled while time-axis zoom remains available.
 - Candle style belongs to chart presentation and flows through chart display
   context into the chart-engine adapter. UI must not call Lightweight series
   APIs directly to change candle colors.
@@ -187,6 +192,8 @@ space for replay progression.
   series/chart options.
 - Adapter smoke verifies background and scale style reach Lightweight
   layout/time-scale/price-scale options.
+- Adapter smoke verifies lock price-to-bar ratio reaches Lightweight
+  `handleScale.axisPressedMouseMove` through the chart-engine adapter.
 - Adapter smoke verifies watermark style reaches the Lightweight text
   watermark primitive through the chart-engine adapter.
 - Browser smoke verifies settings changes affect visible presentation while

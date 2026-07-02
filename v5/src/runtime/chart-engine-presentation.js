@@ -149,6 +149,10 @@ export function crosshairOptionsForContext(context) {
 
 export function lightweightOptionsForContext(context) {
   const priceScaleSide = context.scaleStyle.priceScaleSide || 'right';
+  const handleScale = {
+    ...LIGHTWEIGHT_REPLAY_SCALE,
+    axisPressedMouseMove: !context.scaleStyle.lockPriceToBarRatio,
+  };
   const priceScaleOptions = {
     visible: context.scaleStyle.priceScaleVisible,
     borderVisible: context.scaleStyle.scaleBordersVisible,
@@ -160,7 +164,6 @@ export function lightweightOptionsForContext(context) {
   };
   return {
     handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
-    handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
     layout: {
       background: { type: 'solid', color: context.backgroundStyle.color },
       textColor: context.scaleStyle.textColor,
@@ -168,6 +171,7 @@ export function lightweightOptionsForContext(context) {
     },
     grid: gridOptionsForContext(context),
     crosshair: crosshairOptionsForContext(context),
+    handleScale,
     localization: {
       priceFormatter: (price) => formatPrice(price),
     },
@@ -272,6 +276,7 @@ export function applyLightweightMetadata(canvas, context) {
   canvas.dataset.handleScrollMouseWheel = String(LIGHTWEIGHT_REPLAY_SCROLL.mouseWheel);
   canvas.dataset.handleScrollPressedMouseMove = String(LIGHTWEIGHT_REPLAY_SCROLL.pressedMouseMove);
   canvas.dataset.handleScaleMouseWheel = String(LIGHTWEIGHT_REPLAY_SCALE.mouseWheel);
+  canvas.dataset.handleScaleAxisPressedMouseMove = String(!context.scaleStyle.lockPriceToBarRatio);
   canvas.dataset.timeScaleRightOffset = String(context.rightOffsetBars);
   canvas.dataset.lightweightMarginTopPercent = String(context.margins.topPercent);
   canvas.dataset.lightweightMarginBottomPercent = String(context.margins.bottomPercent);
@@ -303,6 +308,7 @@ export function applyLightweightMetadata(canvas, context) {
   canvas.dataset.priceScaleVisible = String(context.scaleStyle.priceScaleVisible);
   canvas.dataset.timeScaleVisible = String(context.scaleStyle.timeScaleVisible);
   canvas.dataset.scaleBordersVisible = String(context.scaleStyle.scaleBordersVisible);
+  canvas.dataset.lockPriceToBarRatio = String(context.scaleStyle.lockPriceToBarRatio);
   canvas.dataset.watermarkVisible = String(context.watermarkStyle.visible);
   canvas.dataset.watermarkText = context.watermarkStyle.text;
   canvas.dataset.watermarkColor = context.watermarkStyle.color;
