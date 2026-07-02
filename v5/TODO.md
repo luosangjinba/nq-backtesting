@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 442 is complete. Settings template markup now lives in
-  `features/chart-replay/chart-settings-template.js`, and Settings draft/clone
-  helpers now live in `features/chart-replay/chart-settings-draft.js`.
-  `chart-settings-panel.js` remains the Settings controller and delegates
-  draft creation/cloning plus static markup to dedicated modules.
-- Next candidate: Step 443 - continue `chart-settings-panel.js` cleanup by
-  splitting Settings event binding/render adapters by section while preserving
-  the draft-only apply/cancel flow and presentation runtime ownership.
+- Current status: Step 443 is complete. Settings field rendering and draft
+  change bindings now live in `features/chart-replay/chart-settings-bindings.js`.
+  `chart-settings-panel.js` is reduced to the modal controller: open/close,
+  tab switching, draft lifecycle, apply/cancel, and route callback wiring.
+- Next candidate: Step 444 - either continue Settings cleanup by splitting
+  `chart-settings-bindings.js` into section-specific adapters, or move to the
+  next large file with clear module boundaries.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -142,6 +141,13 @@
   controller that wires DOM events to draft state and route-provided apply/cancel
   callbacks. Static markup and draft helpers should not dispatch commands or
   mutate runtime state directly.
+- Refactor decision: chart settings field adapters should live outside the
+  modal controller. `chart-settings-bindings.js` owns Settings field DOM
+  queries, draft-to-control rendering, and control-to-draft event binding.
+  `chart-settings-panel.js` owns modal lifecycle, tab selection, draft
+  lifecycle, and route-provided apply/cancel callbacks. Bindings may mutate the
+  active draft object only; they must not dispatch commands, emit events, write
+  chart adapters, or touch replay/bar-data state.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1741,6 +1747,58 @@ Checks:
 - `node --check v5/src/features/chart-replay/chart-settings-template.js`
 - `node --check v5/src/features/chart-replay/chart-settings-draft.js`
 - `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 443 - V5 Chart Settings Field Bindings Split
+
+Status: completed.
+
+Goal: continue Settings modular cleanup by extracting Settings field rendering
+and draft-change event bindings out of the modal controller.
+
+Problem:
+
+- After Step 442, `chart-settings-panel.js` still owned every Settings field
+  query, draft-to-control render path, and control-to-draft event handler.
+- That kept the modal lifecycle controller mixed with section-specific field
+  adapters and made future Settings additions likely to re-grow the controller.
+
+Implementation:
+
+- [x] Step 443.1: Define the split boundary as Settings field adapters:
+  controls queries, rendering, and draft mutation handlers.
+- [x] Step 443.2: Add `features/chart-replay/chart-settings-bindings.js` with
+  `createChartSettingsBindings(...)`.
+- [x] Step 443.3: Move display timezone, presentation, candle, grid,
+  crosshair, background, scale, and watermark field rendering/event binding
+  into the bindings module.
+- [x] Step 443.4: Keep `chart-settings-panel.js` as the modal controller for
+  open/close, tab switching, draft lifecycle, apply/cancel, and route callback
+  wiring.
+- [x] Step 443.5: Reduce `chart-settings-panel.js` from 389 lines to 110 lines.
+
+Manual acceptance:
+
+- Opening Settings, switching sections, editing draft controls, canceling, and
+  applying should behave the same as before the split.
+- Bindings may mutate only the active draft object supplied by the controller.
+- Bindings must not dispatch commands, emit events, write chart adapters, touch
+  replay/bar-data state, or persist settings directly.
+- Presentation and timezone changes must still apply only through the existing
+  route callbacks and presentation/runtime command path.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node --check v5/src/features/chart-replay/chart-settings-bindings.js`
+- `node --check v5/src/features/chart-replay/chart-settings-template.js`
+- `node --check v5/src/features/chart-replay/chart-settings-draft.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
