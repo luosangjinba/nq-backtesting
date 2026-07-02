@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 476 is complete. Multi-pane Lightweight charts now use
-  manual sizing instead of `autoSize`, so chart-runtime resize calls are not
-  ignored by ResizeObserver, and each chart reserves minimum price/time scale
-  space.
-- Next candidate: Step 477 - design and implement resizable split pane
+- Current status: Step 477 is complete. Multi-pane resize now reads dimensions
+  from the outer runtime canvas/host instead of the Lightweight engine surface,
+  preventing stale single-pane surface width from overflowing into neighboring
+  panes and hiding axis chrome.
+- Next candidate: Step 478 - design and implement resizable split pane
   boundaries. The split state should own pane ratios/min sizes and trigger the
   existing chart runtime resize path instead of writing chart APIs from route
   UI.
@@ -99,6 +99,12 @@
   resize width/height are ignored while `autoSize` is active and ResizeObserver
   is available. Price scale `minimumWidth` and time scale `minimumHeight` are
   set by the adapter options so every pane keeps axis chrome space.
+- Lightweight resize-source decision: Step 477 corrects the resize measurement
+  source to the outer runtime canvas/host. The internal Lightweight engine
+  surface can retain the previous chart width after layout changes, so using it
+  as the resize source can preserve stale widths and visually hide neighboring
+  pane axis chrome. Regression coverage must assert the engine surface no
+  longer overflows its canvas.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

@@ -356,6 +356,7 @@ async function main() {
               return {
                 paneId: pane.dataset.paneId || '',
                 host: elementRect(host),
+                canvas: elementRect(canvas),
                 surface: elementRect(surface),
                 resizeWidth: Number(host?.dataset.chartResizeWidth || 0),
                 resizeHeight: Number(host?.dataset.chartResizeHeight || 0),
@@ -570,14 +571,20 @@ async function main() {
     value.tripleResizeMetrics.forEach((metric) => {
       assert.ok(metric.host.width > 180, `pane ${metric.paneId} host width should be non-zero`);
       assert.ok(metric.host.height > 180, `pane ${metric.paneId} host height should be non-zero`);
+      assert.ok(metric.canvas.width > 180, `pane ${metric.paneId} canvas width should be non-zero`);
+      assert.ok(metric.canvas.height > 180, `pane ${metric.paneId} canvas height should be non-zero`);
       assert.ok(metric.surface.width > 180, `pane ${metric.paneId} engine surface width should be non-zero`);
       assert.ok(metric.surface.height > 180, `pane ${metric.paneId} engine surface height should be non-zero`);
-      assert.equal(metric.resizeWidth, metric.surface.width);
-      assert.equal(metric.resizeHeight, metric.surface.height);
-      assert.equal(metric.canvasResizeWidth, metric.surface.width);
-      assert.equal(metric.canvasResizeHeight, metric.surface.height);
-      assert.equal(metric.surfaceResizeWidth, metric.surface.width);
-      assert.equal(metric.surfaceResizeHeight, metric.surface.height);
+      assert.ok(Math.abs(metric.resizeWidth - metric.canvas.width) <= 2);
+      assert.ok(Math.abs(metric.resizeHeight - metric.canvas.height) <= 2);
+      assert.ok(Math.abs(metric.canvasResizeWidth - metric.canvas.width) <= 2);
+      assert.ok(Math.abs(metric.canvasResizeHeight - metric.canvas.height) <= 2);
+      assert.ok(Math.abs(metric.surfaceResizeWidth - metric.canvas.width) <= 2);
+      assert.ok(Math.abs(metric.surfaceResizeHeight - metric.canvas.height) <= 2);
+      assert.ok(
+        Math.abs(metric.surface.width - metric.canvas.width) <= 2,
+        `pane ${metric.paneId} engine surface should not overflow canvas width`
+      );
     });
     assert.ok(
       value.triplePrimaryRect.width > value.tripleSecondaryRect.width,

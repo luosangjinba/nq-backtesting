@@ -112,7 +112,7 @@ export function createLightweightInstance({ engine, documentRef }) {
   }
 
   function readHostSize() {
-    const target = engineSurface || host;
+    const target = canvas || host;
     const box = target?.getBoundingClientRect?.();
     const width = Math.floor(Number(box?.width || target?.clientWidth || host?.clientWidth || 0));
     const height = Math.floor(Number(box?.height || target?.clientHeight || host?.clientHeight || 0));
