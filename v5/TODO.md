@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 446 is complete. Settings draft lifecycle and
-  apply/cancel flow now live in `chart-settings-lifecycle.js`; the root
-  `chart-settings-panel.js` is a smaller composition layer for modal, bindings,
-  and lifecycle.
-- Next candidate: Step 447 - continue Settings cleanup only where a clear
-  boundary remains, or move to the next large file with a stronger
-  product/runtime boundary.
+- Current status: Step 447 is complete. Settings modal styles are split from
+  `app.css` into `src/styles/chart-settings.css`, while `app.css` remains the
+  single stylesheet entrypoint through a top-level import.
+- Next candidate: Step 448 - continue CSS modularization by moving another
+  clearly bounded route surface such as replay transport or chart navigation,
+  or pause CSS splitting if a stronger product/runtime boundary is more urgent.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -170,6 +169,12 @@
   only. The lifecycle module may call route-provided apply/cancel callbacks but
   must not dispatch runtime commands directly, emit events, write chart
   adapters, persist settings, or touch replay/bar-data state.
+- Refactor decision: V5 CSS should follow the same feature boundaries as the
+  JavaScript modules. `src/styles/app.css` remains the single stylesheet
+  entrypoint loaded by `index.html`, but feature surfaces should move into
+  focused files imported by `app.css`. Settings modal styles live in
+  `src/styles/chart-settings.css`; future CSS splits should move complete
+  route/feature surfaces, not scattered one-off selectors.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1989,6 +1994,55 @@ Checks:
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 447 - V5 Settings CSS Module Split
+
+Status: completed.
+
+Goal: begin CSS modularization by moving a complete feature surface out of the
+large `app.css` file while keeping a stable stylesheet entrypoint.
+
+Problem:
+
+- `src/styles/app.css` had grown to 1132 lines and mixed global shell, setup
+  route, chart replay, transport, popovers, footer, fallback chart, responsive,
+  and Settings modal styles.
+- Settings JavaScript is now strongly modularized, but its CSS still lived in
+  the shared stylesheet, making future Settings additions likely to reintroduce
+  mixed ownership.
+
+Implementation:
+
+- [x] Step 447.1: Audit `src/styles/app.css` and identify Settings modal styles
+  as a complete low-risk feature surface.
+- [x] Step 447.2: Add `src/styles/chart-settings.css` for Settings popover,
+  modal panel, tabs, rows, controls, footer, and mobile layout rules.
+- [x] Step 447.3: Keep `src/styles/app.css` as the single HTML stylesheet
+  entrypoint by importing `chart-settings.css` at the top.
+- [x] Step 447.4: Remove Settings selectors from `app.css`; Settings selectors
+  now live only in `chart-settings.css`.
+- [x] Step 447.5: Reduce `app.css` from 1132 lines to 885 lines.
+
+Manual acceptance:
+
+- `index.html` still loads only `src/styles/app.css`.
+- Settings modal desktop and mobile layout must match previous behavior.
+- `app.css` may import focused feature CSS files, but HTML should not gain a
+  growing list of feature-specific stylesheet links.
+- CSS splits should move complete route/feature surfaces, not scattered one-off
+  selectors.
+- This step must not change Settings JavaScript behavior or runtime ownership.
+
+Checks:
+
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`

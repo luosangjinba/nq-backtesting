@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 446: `session_20260702_step446_v5_chart_settings_draft_lifecycle_split.md`
+- Step 447: `session_20260702_step447_v5_settings_css_module_split.md`
 
 ## Completed Session Index
 
@@ -111,3 +111,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 444: `session_20260702_step444_v5_chart_settings_modal_shell_split.md`
 - Step 445: `session_20260702_step445_v5_chart_settings_section_bindings_split.md`
 - Step 446: `session_20260702_step446_v5_chart_settings_draft_lifecycle_split.md`
+- Step 447: `session_20260702_step447_v5_settings_css_module_split.md`
