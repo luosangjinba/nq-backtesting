@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 447 is complete. Settings modal styles are split from
-  `app.css` into `src/styles/chart-settings.css`, while `app.css` remains the
-  single stylesheet entrypoint through a top-level import.
-- Next candidate: Step 448 - continue CSS modularization by moving another
-  clearly bounded route surface such as replay transport or chart navigation,
-  or pause CSS splitting if a stronger product/runtime boundary is more urgent.
+- Current status: Step 448 is complete. Replay transport and floating controls
+  styles are split from `app.css` into `src/styles/replay-transport.css`, with
+  `app.css` still acting as the single stylesheet entrypoint.
+- Next candidate: Step 449 - continue CSS modularization with another complete
+  route surface such as chart navigation popovers or replay status/footer, or
+  pause CSS splitting if a stronger product/runtime boundary is more urgent.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -175,6 +175,12 @@
   focused files imported by `app.css`. Settings modal styles live in
   `src/styles/chart-settings.css`; future CSS splits should move complete
   route/feature surfaces, not scattered one-off selectors.
+- Refactor decision: replay transport CSS belongs with the replay transport UI
+  surface. `src/styles/replay-transport.css` owns floating replay controls,
+  replay buttons, drag handle, playback speed, replay interval, sync control,
+  display-timeframe control, and transport disabled/pressed/hover states.
+  Shared selector groups in `app.css` should be split by feature owner instead
+  of keeping unrelated controls coupled for convenience.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -2044,6 +2050,56 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 448 - V5 Replay Transport CSS Module Split
+
+Status: completed.
+
+Goal: continue CSS modularization by moving replay transport and floating
+controls styles out of `app.css`.
+
+Problem:
+
+- After Step 447, `app.css` still mixed replay transport, display-timeframe,
+  replay interval, timezone, presentation, and chart navigation controls in
+  shared selector groups.
+- Future replay transport changes would keep touching the shared stylesheet and
+  could accidentally alter unrelated toolbar controls.
+
+Implementation:
+
+- [x] Step 448.1: Define replay transport CSS ownership as floating controls,
+  replay buttons, drag handle, speed slider, replay interval, sync control, and
+  display-timeframe control.
+- [x] Step 448.2: Add `src/styles/replay-transport.css` for replay transport
+  layout and interaction states.
+- [x] Step 448.3: Import `replay-transport.css` from `src/styles/app.css` while
+  keeping `index.html` pointed at `app.css` only.
+- [x] Step 448.4: Split mixed selector groups so timezone, presentation, and
+  chart navigation styles remain in `app.css`.
+- [x] Step 448.5: Reduce `app.css` from 885 lines to 749 lines.
+
+Manual acceptance:
+
+- Floating replay controls keep the same layout, drag handle, hover, pressed,
+  speed, interval, sync, and disabled styling.
+- Display-timeframe control remains part of the transport surface.
+- Timezone, presentation, and chart navigation controls must keep their
+  previous styling after mixed selector groups are split.
+- `index.html` still loads only `src/styles/app.css`.
+- This step must not change JavaScript behavior, DOM classes, replay commands,
+  chart commands, or runtime ownership.
+
+Checks:
+
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

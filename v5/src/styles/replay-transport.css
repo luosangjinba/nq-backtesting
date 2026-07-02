@@ -1,0 +1,150 @@
+.replay-floating-controls {
+  position: fixed;
+  left: 50%;
+  bottom: 116px;
+  z-index: 20;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  justify-content: center;
+  gap: 6px;
+  max-width: calc(100% - 24px);
+  min-height: 44px;
+  padding: 5px 7px;
+  border: 1px solid rgba(71, 85, 105, 0.68);
+  border-radius: 8px;
+  background: rgba(4, 7, 11, 0.92);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
+  transform: translateX(-50%);
+  user-select: none;
+}
+
+.replay-floating-controls[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.replay-floating-controls > button,
+.replay-sync-control {
+  min-width: 30px;
+  min-height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #eef3f8;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.replay-floating-controls > button[aria-pressed="true"] {
+  background: rgba(37, 99, 235, 0.86);
+  color: #f8fafc;
+}
+
+.replay-drag-handle {
+  width: 14px;
+  color: #94a3b8;
+  cursor: grab;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 0.65;
+  text-align: center;
+  opacity: 0.78;
+  touch-action: none;
+  writing-mode: vertical-rl;
+}
+
+.replay-drag-handle:focus-visible {
+  outline: 2px solid rgba(125, 211, 252, 0.8);
+  outline-offset: 3px;
+}
+
+.replay-controls,
+.display-timeframe-controls,
+.replay-interval-controls {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 0;
+}
+
+.display-timeframe-controls,
+.replay-interval-controls {
+  flex-wrap: wrap;
+}
+
+.replay-controls button {
+  min-width: 34px;
+  width: 34px;
+  min-height: 30px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: transparent;
+  color: #eef3f8;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.replay-controls button:not(:disabled):hover {
+  background: rgba(71, 85, 105, 0.54);
+}
+
+.replay-speed-control {
+  width: 112px;
+  display: flex;
+  align-items: center;
+}
+
+.replay-speed-control input {
+  width: 100%;
+  accent-color: #2563eb;
+}
+
+.display-timeframe-controls select {
+  min-width: 68px;
+  min-height: 30px;
+  padding: 0 24px 0 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #05080d;
+  color: #eef3f8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.replay-interval-controls select {
+  min-width: 58px;
+  min-height: 30px;
+  padding: 0 20px 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: #05080d;
+  color: #eef3f8;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.display-timeframe-controls span {
+  color: #cbd5e1;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.display-timeframe-controls select:not(:disabled):hover {
+  border-color: rgba(125, 211, 252, 0.42);
+  background: #0d141f;
+}
+
+.replay-controls button:disabled,
+.replay-floating-controls > button:disabled,
+.replay-speed-control input:disabled,
+.replay-interval-controls select:disabled,
+.replay-sync-control input:disabled,
+.display-timeframe-controls select:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
