@@ -7,6 +7,7 @@ import {
   LAYOUT_EVENTS,
   LAYOUT_MODES,
   LAYOUT_SYNC_KEYS,
+  LAYOUT_VARIANTS,
 } from '../contracts/layout-contracts.js';
 
 export {
@@ -105,6 +106,41 @@ function paneCountForMode(mode) {
   return 1;
 }
 
+function modeForVariant(variant) {
+  if (String(variant).startsWith('triple.')) return LAYOUT_MODES.TRIPLE;
+  if (String(variant).startsWith('twice.')) return LAYOUT_MODES.TWICE;
+  return LAYOUT_MODES.SINGLE;
+}
+
+function defaultVariantForMode(mode) {
+  if (mode === LAYOUT_MODES.TRIPLE) return LAYOUT_VARIANTS.TRIPLE_VERTICAL;
+  if (mode === LAYOUT_MODES.TWICE) return LAYOUT_VARIANTS.TWICE_VERTICAL;
+  return LAYOUT_VARIANTS.SINGLE_DEFAULT;
+}
+
+function normalizeLayoutVariant({ mode, variant } = {}) {
+  if (variant != null) {
+    if (!Object.values(LAYOUT_VARIANTS).includes(variant)) {
+      throw new Error(`Unsupported layout variant: ${variant}`);
+    }
+    const variantMode = modeForVariant(variant);
+    if (mode && mode !== variantMode) {
+      throw new Error(`Layout variant ${variant} is not valid for ${mode} mode.`);
+    }
+    return {
+      mode: variantMode,
+      variant,
+    };
+  }
+  if (!Object.values(LAYOUT_MODES).includes(mode)) {
+    throw new Error(`Unsupported layout mode: ${mode}`);
+  }
+  return {
+    mode,
+    variant: defaultVariantForMode(mode),
+  };
+}
+
 function defaultPaneForIndex(index, existingPane = {}) {
   const defaults = [
     { id: 'primary', role: 'primary' },
@@ -125,23 +161,25 @@ function panesForMode(mode, currentPanes = []) {
 }
 
 function normalizeLayoutState(input = DEFAULT_LAYOUT_STATE) {
-  const mode = Object.values(LAYOUT_MODES).includes(input.mode)
-    ? input.mode
-    : LAYOUT_MODES.SINGLE;
+  const layout = normalizeLayoutVariant({
+    mode: input.mode || DEFAULT_LAYOUT_STATE.mode,
+    variant: input.variant || defaultVariantForMode(input.mode || DEFAULT_LAYOUT_STATE.mode),
+  });
   const panes = (Array.isArray(input.panes) && input.panes.length
     ? input.panes
     : DEFAULT_LAYOUT_STATE.panes
   ).map(normalizePane);
-  const expectedPaneCount = paneCountForMode(mode);
+  const expectedPaneCount = paneCountForMode(layout.mode);
   if (panes.length !== expectedPaneCount) {
-    throw new Error(`${mode} layout mode must contain exactly ${expectedPaneCount} pane(s).`);
+    throw new Error(`${layout.mode} layout mode must contain exactly ${expectedPaneCount} pane(s).`);
   }
   const activePaneId = String(input.activePaneId || DEFAULT_ACTIVE_PANE_ID || panes[0].id).trim();
   if (!panes.some((pane) => pane.id === activePaneId)) {
     throw new Error(`layout active pane "${activePaneId}" does not exist.`);
   }
   return {
-    mode,
+    mode: layout.mode,
+    variant: layout.variant,
     activePaneId,
     sync: normalizeSync(input.sync),
     panes,
@@ -183,11 +221,9 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
-  function setMode({ mode } = {}) {
-    const nextMode = Object.values(LAYOUT_MODES).includes(mode) ? mode : null;
-    if (!nextMode) {
-      throw new Error(`Unsupported layout mode: ${mode}`);
-    }
+  function setMode({ mode, variant } = {}) {
+    const layout = normalizeLayoutVariant({ mode, variant });
+    const nextMode = layout.mode;
     const panes = panesForMode(nextMode, state.panes);
     const activePaneId = panes.some((pane) => pane.id === state.activePaneId)
       ? state.activePaneId
@@ -195,6 +231,7 @@ export function createLayoutRuntime({
     const nextState = normalizeLayoutState({
       ...state,
       mode: nextMode,
+      variant: layout.variant,
       activePaneId,
       panes,
     });

@@ -19,6 +19,18 @@ export const LAYOUT_MODES = Object.freeze({
   TRIPLE: 'triple',
 });
 
+export const LAYOUT_VARIANTS = Object.freeze({
+  SINGLE_DEFAULT: 'single.default',
+  TWICE_VERTICAL: 'twice.vertical',
+  TWICE_HORIZONTAL: 'twice.horizontal',
+  TRIPLE_VERTICAL: 'triple.vertical',
+  TRIPLE_HORIZONTAL: 'triple.horizontal',
+  TRIPLE_LEFT: 'triple.left',
+  TRIPLE_RIGHT: 'triple.right',
+  TRIPLE_TOP: 'triple.top',
+  TRIPLE_BOTTOM: 'triple.bottom',
+});
+
 export const LAYOUT_SYNC_KEYS = Object.freeze({
   SYMBOL: 'symbol',
   INTERVAL: 'interval',
@@ -39,6 +51,7 @@ export const DEFAULT_LAYOUT_SYNC = Object.freeze({
 
 export const DEFAULT_LAYOUT_STATE = Object.freeze({
   mode: LAYOUT_MODES.SINGLE,
+  variant: LAYOUT_VARIANTS.SINGLE_DEFAULT,
   activePaneId: DEFAULT_ACTIVE_PANE_ID,
   sync: DEFAULT_LAYOUT_SYNC,
   panes: Object.freeze([

@@ -37,6 +37,7 @@ assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR), true);
 const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
   mode: 'single',
+  variant: 'single.default',
   activePaneId: 'primary',
   sync: {
     symbol: false,
@@ -72,9 +73,18 @@ await assert.rejects(
 
 const twice = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'twice' });
 assert.equal(twice.mode, 'twice');
+assert.equal(twice.variant, 'twice.vertical');
 assert.equal(twice.activePaneId, 'primary');
 assert.deepEqual(twice.panes.map((pane) => pane.id), ['primary', 'secondary']);
 assert.equal(changedEvent.mode, 'twice');
+assert.equal(changedEvent.variant, 'twice.vertical');
+
+const twiceHorizontal = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
+  variant: 'twice.horizontal',
+});
+assert.equal(twiceHorizontal.mode, 'twice');
+assert.equal(twiceHorizontal.variant, 'twice.horizontal');
+assert.deepEqual(twiceHorizontal.panes.map((pane) => pane.id), ['primary', 'secondary']);
 
 changedEvent = null;
 const secondaryFiveMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
@@ -203,6 +213,14 @@ await assert.rejects(
   /Unsupported layout mode/
 );
 await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { variant: 'twice.grid' }),
+  /Unsupported layout variant/
+);
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'twice', variant: 'triple.left' }),
+  /not valid for twice mode/
+);
+await assert.rejects(
   () => dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, { key: 'viewport', value: true }),
   /Unsupported layout sync key/
 );
@@ -271,6 +289,7 @@ const secondary = await dispatchCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, {
   paneId: 'secondary',
 });
 assert.equal(secondary.activePaneId, 'secondary');
+assert.equal(secondary.variant, 'twice.vertical');
 assert.equal(secondary.panes.length, 2);
 assert.equal(secondary.sync.interval, true);
 assert.equal(secondary.sync.time, true);
@@ -294,6 +313,7 @@ clearCommandsForTest();
 triplePaneRuntime.start();
 const triple = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.equal(triple.mode, 'triple');
+assert.equal(triple.variant, 'triple.vertical');
 assert.equal(triple.panes.length, 3);
 triplePaneRuntime.stop();
 

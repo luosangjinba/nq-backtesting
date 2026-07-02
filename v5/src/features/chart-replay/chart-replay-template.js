@@ -49,37 +49,37 @@ export function renderChartReplayTemplate({ activePaneId }) {
             <div class="chart-layout-modes" aria-label="Pane layout">
               <div class="chart-layout-mode-row" aria-label="One pane layouts">
                 <span class="chart-layout-mode-count">1</span>
-                <button type="button" data-layout-mode-option="single" title="Single pane" aria-label="Single pane layout">
+                <button type="button" data-layout-mode-option="single" data-layout-variant-option="single.default" title="Single pane" aria-label="Single pane layout">
                   <span class="chart-layout-icon chart-layout-icon-single" aria-hidden="true"><span></span></span>
                 </button>
               </div>
               <div class="chart-layout-mode-row" aria-label="Two pane layouts">
                 <span class="chart-layout-mode-count">2</span>
-                <button type="button" data-layout-mode-option="twice" title="Two panes vertical" aria-label="Two panes vertical layout">
+                <button type="button" data-layout-mode-option="twice" data-layout-variant-option="twice.vertical" title="Two panes vertical" aria-label="Two panes vertical layout">
                   <span class="chart-layout-icon chart-layout-icon-twice-vertical" aria-hidden="true"><span></span><span></span></span>
                 </button>
-                <button type="button" data-layout-mode-option="twice" title="Two panes horizontal" aria-label="Two panes horizontal layout">
+                <button type="button" data-layout-mode-option="twice" data-layout-variant-option="twice.horizontal" title="Two panes horizontal" aria-label="Two panes horizontal layout">
                   <span class="chart-layout-icon chart-layout-icon-twice-horizontal" aria-hidden="true"><span></span><span></span></span>
                 </button>
               </div>
               <div class="chart-layout-mode-row" aria-label="Three pane layouts">
                 <span class="chart-layout-mode-count">3</span>
-                <button type="button" data-layout-mode-option="triple" title="Three panes vertical" aria-label="Three panes vertical layout">
+                <button type="button" data-layout-mode-option="triple" data-layout-variant-option="triple.vertical" title="Three panes vertical" aria-label="Three panes vertical layout">
                   <span class="chart-layout-icon chart-layout-icon-triple-vertical" aria-hidden="true"><span></span><span></span><span></span></span>
                 </button>
-                <button type="button" data-layout-mode-option="triple" title="Three panes horizontal" aria-label="Three panes horizontal layout">
+                <button type="button" data-layout-mode-option="triple" data-layout-variant-option="triple.horizontal" title="Three panes horizontal" aria-label="Three panes horizontal layout">
                   <span class="chart-layout-icon chart-layout-icon-triple-horizontal" aria-hidden="true"><span></span><span></span><span></span></span>
                 </button>
-                <button type="button" data-layout-mode-option="triple" title="Large left pane" aria-label="Three panes large left layout">
+                <button type="button" data-layout-mode-option="triple" data-layout-variant-option="triple.left" title="Large left pane" aria-label="Three panes large left layout">
                   <span class="chart-layout-icon chart-layout-icon-triple-left" aria-hidden="true"><span></span><span></span><span></span></span>
                 </button>
-                <button type="button" data-layout-mode-option="triple" title="Large right pane" aria-label="Three panes large right layout">
+                <button type="button" data-layout-mode-option="triple" data-layout-variant-option="triple.right" title="Large right pane" aria-label="Three panes large right layout">
                   <span class="chart-layout-icon chart-layout-icon-triple-right" aria-hidden="true"><span></span><span></span><span></span></span>
                 </button>
-                <button type="button" data-layout-mode-option="triple" title="Large top pane" aria-label="Three panes large top layout">
+                <button type="button" data-layout-mode-option="triple" data-layout-variant-option="triple.top" title="Large top pane" aria-label="Three panes large top layout">
                   <span class="chart-layout-icon chart-layout-icon-triple-top" aria-hidden="true"><span></span><span></span><span></span></span>
                 </button>
-                <button type="button" data-layout-mode-option="triple" title="Large bottom pane" aria-label="Three panes large bottom layout">
+                <button type="button" data-layout-mode-option="triple" data-layout-variant-option="triple.bottom" title="Large bottom pane" aria-label="Three panes large bottom layout">
                   <span class="chart-layout-icon chart-layout-icon-triple-bottom" aria-hidden="true"><span></span><span></span><span></span></span>
                 </button>
               </div>

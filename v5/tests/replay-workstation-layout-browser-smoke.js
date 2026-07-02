@@ -182,10 +182,11 @@ async function main() {
           await new Promise((resolve) => setTimeout(resolve, 50));
           const layoutPopover = document.querySelector('[data-layout-popover]');
           const singleModeButton = document.querySelector('[data-layout-mode-option="single"]');
-          const twiceModeButton = document.querySelector('[data-layout-mode-option="twice"]');
+          const twiceModeButton = document.querySelector('[data-layout-variant-option="twice.horizontal"]');
           const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
           const layoutModeRows = Array.from(document.querySelectorAll('.chart-layout-mode-row'));
           const layoutModeButtons = Array.from(document.querySelectorAll('[data-layout-mode-option]'));
+          const layoutVariantButtons = Array.from(document.querySelectorAll('[data-layout-variant-option]'));
           const layoutModeIconCount = document.querySelectorAll('.chart-layout-icon').length;
           const symbolSyncInput = document.querySelector('[data-layout-sync="symbol"]');
           const intervalSyncInput = document.querySelector('[data-layout-sync="interval"]');
@@ -197,6 +198,7 @@ async function main() {
           twiceModeButton?.click();
           await waitFor('twice layout mode', async () => (
             chartRoute?.dataset.layoutMode === 'twice'
+            && chartRoute?.dataset.layoutVariant === 'twice.horizontal'
             && document.querySelectorAll('[data-layout-pane]').length === 2
           ));
           intervalSyncInput?.click();
@@ -299,6 +301,7 @@ async function main() {
             activePaneIdAfterSecondarySelect,
             activePaneCount: chartRoute?.dataset.activePaneCount || '',
             layoutMode: chartRoute?.dataset.layoutMode || '',
+            layoutVariant: chartRoute?.dataset.layoutVariant || '',
             chartHostCount,
             paneCount,
             placeholderPaneCount,
@@ -327,6 +330,7 @@ async function main() {
             singleModeInitiallyPressed,
             layoutModeRowLabels: layoutModeRows.map((row) => row.querySelector('.chart-layout-mode-count')?.textContent || ''),
             layoutModeButtonCount: layoutModeButtons.length,
+            layoutVariantButtonValues: layoutVariantButtons.map((button) => button.dataset.layoutVariantOption || ''),
             layoutModeIconCount,
             twiceModePressed: twiceModeButton?.getAttribute('aria-pressed') || '',
             tripleModeExists: Boolean(tripleModeButton),
@@ -342,6 +346,7 @@ async function main() {
             layoutButtonExpanded: layoutButton?.getAttribute('aria-expanded') || '',
             layoutButtonState: layoutButton?.dataset.layoutState || '',
             layoutButtonMode: layoutButton?.dataset.layoutMode || '',
+            layoutButtonVariant: layoutButton?.dataset.layoutVariant || '',
             hasShellText: bodyText.includes('Chart Replay Shell'),
             hasRouteText: bodyText.includes('Chart Route'),
             shellTopBarRect,
@@ -382,6 +387,7 @@ async function main() {
     assert.equal(value.activePaneIdAfterSecondarySelect, 'secondary');
     assert.equal(value.activePaneCount, '2');
     assert.equal(value.layoutMode, 'twice');
+    assert.equal(value.layoutVariant, 'twice.horizontal');
     assert.equal(value.chartHostCount, 1);
     assert.equal(value.paneCount, 2);
     assert.equal(value.placeholderPaneCount, 1);
@@ -424,6 +430,17 @@ async function main() {
     assert.equal(value.singleModeInitiallyPressed, 'true');
     assert.deepEqual(value.layoutModeRowLabels, ['1', '2', '3']);
     assert.equal(value.layoutModeButtonCount, 9);
+    assert.deepEqual(value.layoutVariantButtonValues, [
+      'single.default',
+      'twice.vertical',
+      'twice.horizontal',
+      'triple.vertical',
+      'triple.horizontal',
+      'triple.left',
+      'triple.right',
+      'triple.top',
+      'triple.bottom',
+    ]);
     assert.equal(value.layoutModeIconCount, 9);
     assert.equal(value.twiceModePressed, 'true');
     assert.equal(value.tripleModeExists, true);
@@ -439,6 +456,7 @@ async function main() {
     assert.equal(value.layoutButtonExpanded, 'false');
     assert.equal(value.layoutButtonState, 'ready');
     assert.equal(value.layoutButtonMode, 'twice');
+    assert.equal(value.layoutButtonVariant, 'twice.horizontal');
     assert.equal(value.hasShellText, false);
     assert.equal(value.hasRouteText, false);
     assert.equal(value.shellTopBarDisplay, 'none');

@@ -16,10 +16,13 @@ export function createChartReplayLayoutController({
 
   function renderState(layoutState = {}) {
     const mode = layoutState.mode || 'single';
+    const variant = layoutState.variant || `${mode}.default`;
     openButton.dataset.layoutMode = mode;
+    openButton.dataset.layoutVariant = variant;
     openButton.dataset.layoutState = 'ready';
     modeButtons.forEach((button) => {
-      button.setAttribute('aria-pressed', button.dataset.layoutModeOption === mode ? 'true' : 'false');
+      const buttonVariant = button.dataset.layoutVariantOption || button.dataset.layoutModeOption;
+      button.setAttribute('aria-pressed', buttonVariant === variant ? 'true' : 'false');
     });
     syncInputs.forEach((input) => {
       const key = input.dataset.layoutSync;
@@ -60,6 +63,7 @@ export function createChartReplayLayoutController({
       try {
         const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
           mode: button.dataset.layoutModeOption,
+          variant: button.dataset.layoutVariantOption,
         });
         onLayoutState(layoutState);
         renderState(layoutState);

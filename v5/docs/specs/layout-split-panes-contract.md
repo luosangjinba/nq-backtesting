@@ -175,6 +175,16 @@ Steps 470-472 planned implementation sequence:
 - Step 472 mounts real secondary/tertiary chart hosts through chart runtime and
   only after the variant state and visual shell are stable.
 
+Step 470 implementation status:
+
+- layout state stores `variant` alongside `mode`;
+- `mode` remains the pane-count category: `single`, `twice`, or `triple`;
+- `layout.setMode` accepts explicit variants and normalizes mode/pane count
+  from the variant;
+- Layout icon buttons dispatch stable `data-layout-variant-option` values;
+- invalid variants and mode/variant mismatches are rejected by layout runtime;
+- route metadata exposes the selected variant while host count remains one.
+
 ## Pane Model
 
 A pane record should be serializable and persistence-ready:
@@ -331,7 +341,7 @@ Deferred beyond Step 468:
 
 Steps 470-472 should proceed next in this order:
 
-1. Step 470 - Layout variant state.
+1. Step 470 - Layout variant state. Completed.
    Add explicit `variant` state and variant-aware icon dispatch. Keep `mode` as
    the pane-count category and keep only one real primary chart host.
 2. Step 471 - Variant pane shell layout.

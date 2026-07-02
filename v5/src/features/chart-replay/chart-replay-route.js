@@ -308,6 +308,7 @@ export function createChartReplayRoute() {
         section.dataset.activePaneId = nextActivePaneId;
         section.dataset.activePaneCount = String(nextPaneCount);
         section.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
+        section.dataset.layoutVariant = layoutState.variant || DEFAULT_LAYOUT_STATE.variant;
         displayTimeframe = activePaneDisplayTimeframe(layoutState);
         layoutController?.renderState(layoutState);
         paneShellController?.renderState(layoutState);

@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 470-472 are planned. Continue Layout work in three
-  bounded steps: model layout variants, apply variant-driven pane shell layout,
-  then make secondary/tertiary panes real chart hosts through chart runtime.
-- Next candidate: Step 470 - add explicit layout variant state and wire Layout
-  icon clicks to variants without changing chart host behavior yet.
+- Current status: Step 470 is complete. Layout state now stores explicit
+  variants such as `twice.horizontal` and `triple.left`; icon clicks dispatch
+  variants through layout runtime while `mode` remains the pane-count category.
+- Next candidate: Step 471 - make the pane shell visually render each layout
+  variant with CSS/DOM layout while secondary/tertiary panes remain
+  placeholders.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -3377,7 +3378,7 @@ Checks:
 
 ## Step 470 - V5 Layout Variant State
 
-Status: planned.
+Status: completed.
 
 Goal: model explicit Layout variants so each icon in the FXReplay-style matrix
 has precise runtime state instead of collapsing every icon into only
@@ -3394,19 +3395,19 @@ Problem:
 
 Plan:
 
-- [ ] Step 470.1: Add a layout variant contract with supported variants:
+- [x] Step 470.1: Add a layout variant contract with supported variants:
   `single.default`, `twice.vertical`, `twice.horizontal`,
   `triple.vertical`, `triple.horizontal`, `triple.left`, `triple.right`,
   `triple.top`, and `triple.bottom`.
-- [ ] Step 470.2: Store `variant` in layout state while keeping `mode` as the
+- [x] Step 470.2: Store `variant` in layout state while keeping `mode` as the
   pane-count category.
-- [ ] Step 470.3: Update `layout.setMode` or add a bounded variant-aware command
+- [x] Step 470.3: Update `layout.setMode` or add a bounded variant-aware command
   so icon clicks can choose a variant and normalize mode/pane count together.
-- [ ] Step 470.4: Update the Layout popover buttons to dispatch specific
+- [x] Step 470.4: Update the Layout popover buttons to dispatch specific
   variants through data attributes while preserving command-bus ownership.
-- [ ] Step 470.5: Add layout runtime smoke coverage for variant normalization,
+- [x] Step 470.5: Add layout runtime smoke coverage for variant normalization,
   mode derivation, and invalid variant rejection.
-- [ ] Step 470.6: Update route/browser smoke metadata to assert selected
+- [x] Step 470.6: Update route/browser smoke metadata to assert selected
   variant without changing chart host count.
 
 Manual acceptance:
