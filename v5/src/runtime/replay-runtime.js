@@ -6,25 +6,17 @@ import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../contracts/replay-contracts.js
 import { SESSION_COMMANDS } from '../contracts/session-contracts.js';
 import { createReplayChartSync } from './replay-chart-sync.js';
 import { createReplayDisplayWindowController } from './replay-display-window-controller.js';
+import { createReplayNavigationController } from './replay-navigation-controller.js';
 import { createReplayPlaybackController } from './replay-playback-controller.js';
 import { createReplayPrefixController } from './replay-prefix-controller.js';
 import {
   MAX_PREFIX_BARS,
   assertNoDisplayBarsAfter,
-  assertNoFutureDisplayBars,
-  canRevealBar,
   cloneReplayValue as clone,
   computePrefixBarCount,
   createCountdownSnapshot,
   emptyReplayState,
-  filterDisplayBarsForCursor,
-  isoFromTimestamp,
-  isAtOrAfterSessionEnd,
-  normalizeStepCount,
-  normalizeTimeframe,
-  selectNextBar,
   selectStartBar,
-  timeframeSeconds,
   timestampSeconds,
 } from './replay-runtime-state.js';
 
@@ -72,9 +64,26 @@ export function createReplayRuntime() {
     ensureInitialSession: (payload) => loadInitialSession(payload),
     emitEvent: (eventName, payload) => emit(eventName, payload),
   });
-  const playbackController = createReplayPlaybackController({
+  let playbackController = null;
+  const navigationController = createReplayNavigationController({
+    getState: () => state,
+    setState: (nextState) => {
+      state = nextState;
+      return state;
+    },
+    dispatchCommand,
+    chartSync,
+    displayWindowController,
+    ensureInitialSession: (payload) => loadInitialSession(payload),
+    loadInitialPrefix: (payload) => loadInitialPrefix(payload),
+    persistReplayCursor: (payload) => persistReplayCursor(payload),
+    clearPersistedReplayCursor: () => clearPersistedReplayCursor(),
+    pausePlayback: (payload) => playbackController.pause(payload),
+    emitEvent: (eventName, payload) => emit(eventName, payload),
+  });
+  playbackController = createReplayPlaybackController({
     getSessionId: () => state.sessionId,
-    advanceReplay: (payload) => next(payload),
+    advanceReplay: (payload) => navigationController.next(payload),
     emitEvent: (eventName, payload) => emit(eventName, payload),
   });
 
@@ -298,365 +307,6 @@ export function createReplayRuntime() {
     return displayWindowController.displayContextSnapshot();
   }
 
-  async function next({ sessionId = state.sessionId, stepCount = 1 } = {}) {
-    if (!sessionId) {
-      throw new Error('replay sessionId is required.');
-    }
-    const normalizedStepCount = normalizeStepCount(stepCount);
-    if (normalizedStepCount > 1) {
-      let result = null;
-      for (let index = 0; index < normalizedStepCount; index += 1) {
-        result = await next({ sessionId, stepCount: 1 });
-        if (!result.advanced) return result;
-      }
-      return result;
-    }
-    if (state.sessionId !== sessionId || state.status === 'idle') {
-      await loadInitialSession({ sessionId });
-    }
-    if (!state.displayBars.length || !state.cursorTimestamp) {
-      throw new Error('replay initial session must be loaded before Next.');
-    }
-
-    if (isAtOrAfterSessionEnd(state.cursorTimestamp, state.session.sessionEnd)) {
-      return {
-        ...clone(state),
-        advanced: false,
-        reason: 'session-end',
-      };
-    }
-
-    const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
-      instrument: state.session.instrument,
-      timeframe: state.session.timeframe,
-      anchor: state.cursorTimestamp,
-      direction: 'forward',
-      count: 2,
-    });
-    const nextBar = selectNextBar(window.bars, state.cursorTimestamp);
-    if (!nextBar || !canRevealBar(nextBar, state.session.sessionEnd)) {
-      return {
-        ...clone(state),
-        advanced: false,
-        reason: 'session-end',
-      };
-    }
-
-    const revealedCount = state.revealedCount + 1;
-    const persisted = await persistReplayCursor({
-      cursorTimestamp: nextBar.time,
-      revealedCount,
-    });
-    const normalizedDisplayTimeframe = normalizeTimeframe(
-      state.displayTimeframe || state.session.timeframe,
-      'display timeframe'
-    );
-    const normalizedReplayTimeframe = normalizeTimeframe(
-      state.replayTimeframe || state.session.timeframe,
-      'replay timeframe'
-    );
-    const displayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
-      ? [
-        ...state.displayBars,
-        nextBar,
-      ]
-      : state.displayBars;
-    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      await chartSync.syncChartRightEdgeLimit(nextBar.time);
-      await chartSync.renderDisplayBars(displayBars, nextBar.time);
-    }
-
-    state = {
-      ...state,
-      persistedCursor: clone(persisted.cursor),
-      cursorTimestamp: nextBar.time,
-      revealedCount,
-      displayBarsTimeframe: normalizedDisplayTimeframe,
-      displayBars: clone(displayBars),
-      status: 'replay-ready',
-    };
-    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await chartSync.syncChartRightEdgeLimit(nextBar.time);
-      await displayWindowController.projectDisplayForCursor({
-        sessionId,
-        displayTimeframe: normalizedDisplayTimeframe,
-        cursorTimestamp: nextBar.time,
-      });
-    }
-    const result = {
-      ...clone(state),
-      advanced: true,
-      revealedBar: clone(nextBar),
-    };
-    emit(REPLAY_EVENTS.NEXT, result);
-    return result;
-  }
-
-  async function previous({ sessionId = state.sessionId, stepCount = 1 } = {}) {
-    if (!sessionId) {
-      throw new Error('replay sessionId is required.');
-    }
-    const normalizedStepCount = normalizeStepCount(stepCount);
-    if (normalizedStepCount > 1) {
-      let result = null;
-      for (let index = 0; index < normalizedStepCount; index += 1) {
-        result = await previous({ sessionId, stepCount: 1 });
-        if (!result.rewound) return result;
-      }
-      return result;
-    }
-    playbackController.pause();
-    if (state.sessionId !== sessionId || state.status === 'idle') {
-      await loadInitialSession({ sessionId });
-    }
-    if (!state.displayBars.length || !state.cursorTimestamp) {
-      throw new Error('replay initial session must be loaded before Previous.');
-    }
-    if (!state.revealedCount || state.revealedCount <= 0) {
-      return {
-        ...clone(state),
-        rewound: false,
-        reason: 'start-bar',
-      };
-    }
-
-    const normalizedDisplayTimeframe = normalizeTimeframe(
-      state.displayTimeframe || state.session.timeframe,
-      'display timeframe'
-    );
-    const normalizedReplayTimeframe = normalizeTimeframe(
-      state.replayTimeframe || state.session.timeframe,
-      'replay timeframe'
-    );
-    const cursorTimestamp = timestampSeconds(state.cursorTimestamp);
-    const replayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
-      ? state.displayBars
-        .filter((bar) => Number(bar?.timestamp) <= cursorTimestamp)
-        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp))
-      : [];
-    const currentBarIndex = replayBars.findIndex((bar) => Number(bar?.timestamp) === cursorTimestamp);
-    const previousCursorTimestamp = cursorTimestamp - timeframeSeconds(normalizedReplayTimeframe);
-    const previousCursorBar = normalizedDisplayTimeframe === normalizedReplayTimeframe
-      ? currentBarIndex > 0
-        ? replayBars[currentBarIndex - 1]
-        : null
-      : {
-        timestamp: previousCursorTimestamp,
-        time: isoFromTimestamp(previousCursorTimestamp),
-      };
-    if (!previousCursorBar) {
-      return {
-        ...clone(state),
-        rewound: false,
-        reason: 'previous-bar-unavailable',
-      };
-    }
-
-    const revealedCount = Math.max(0, state.revealedCount - 1);
-    const persisted = await persistReplayCursor({
-      cursorTimestamp: previousCursorBar.time,
-      revealedCount,
-    });
-    let displayBars = state.displayBars;
-    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      displayBars = filterDisplayBarsForCursor(state.displayBars, {
-        cursorTimestamp: previousCursorBar.time,
-        displayTimeframe: normalizedDisplayTimeframe,
-        replayTimeframe: normalizedReplayTimeframe,
-      });
-      assertNoDisplayBarsAfter(displayBars, previousCursorBar.time);
-      await chartSync.syncChartRightEdgeLimit(previousCursorBar.time);
-      await chartSync.renderDisplayBars(displayBars, previousCursorBar.time);
-    }
-
-    state = {
-      ...state,
-      persistedCursor: clone(persisted.cursor),
-      cursorTimestamp: previousCursorBar.time,
-      revealedCount,
-      displayBarsTimeframe: normalizedDisplayTimeframe,
-      displayBars: clone(displayBars),
-      status: revealedCount > 0 ? 'replay-ready' : 'initial-loaded',
-    };
-    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await chartSync.syncChartRightEdgeLimit(previousCursorBar.time);
-      await displayWindowController.projectDisplayForCursor({
-        sessionId,
-        displayTimeframe: normalizedDisplayTimeframe,
-        cursorTimestamp: previousCursorBar.time,
-      });
-      displayBars = state.displayBars;
-    }
-    const result = {
-      ...clone(state),
-      rewound: true,
-      cursorBar: clone(previousCursorBar),
-    };
-    emit(REPLAY_EVENTS.PREVIOUS, result);
-    return result;
-  }
-
-  async function truncateToTimestamp({
-    sessionId = state.sessionId,
-    timestamp,
-  } = {}) {
-    if (!sessionId) {
-      throw new Error('replay sessionId is required.');
-    }
-    if (timestamp == null) {
-      throw new Error('replay truncate timestamp is required.');
-    }
-    playbackController.pause();
-    if (state.sessionId !== sessionId || state.status === 'idle') {
-      await loadInitialSession({ sessionId });
-    }
-    if (!state.displayBars.length || !state.cursorTimestamp || !state.startBar) {
-      throw new Error('replay initial session must be loaded before truncation.');
-    }
-
-    const normalizedDisplayTimeframe = normalizeTimeframe(
-      state.displayTimeframe || state.session.timeframe,
-      'display timeframe'
-    );
-    const normalizedReplayTimeframe = normalizeTimeframe(
-      state.replayTimeframe || state.session.timeframe,
-      'replay timeframe'
-    );
-    const selectedTimestamp = timestampSeconds(timestamp);
-    const startTimestamp = timestampSeconds(state.startBar.time);
-    const cursorTimestamp = timestampSeconds(state.cursorTimestamp);
-    if (selectedTimestamp < startTimestamp || selectedTimestamp > cursorTimestamp) {
-      return {
-        ...clone(state),
-        truncated: false,
-        reason: 'selected-bar-out-of-range',
-      };
-    }
-
-    const replayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
-      ? state.displayBars
-        .filter((bar) => Number(bar?.timestamp) >= startTimestamp && Number(bar?.timestamp) <= cursorTimestamp)
-        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp))
-      : [];
-    const selectedBar = normalizedDisplayTimeframe === normalizedReplayTimeframe
-      ? replayBars.find((bar) => Number(bar?.timestamp) === selectedTimestamp)
-      : {
-        timestamp: selectedTimestamp,
-        time: isoFromTimestamp(selectedTimestamp),
-      };
-    if (!selectedBar) {
-      return {
-        ...clone(state),
-        truncated: false,
-        reason: 'selected-bar-unavailable',
-      };
-    }
-
-    const revealedCount = Math.max(
-      0,
-      Math.floor((selectedTimestamp - startTimestamp) / timeframeSeconds(normalizedReplayTimeframe))
-    );
-    const persisted = await persistReplayCursor({
-      cursorTimestamp: selectedBar.time,
-      revealedCount,
-    });
-    let displayBars = state.displayBars;
-    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      displayBars = filterDisplayBarsForCursor(state.displayBars, {
-        cursorTimestamp: selectedBar.time,
-        displayTimeframe: normalizedDisplayTimeframe,
-        replayTimeframe: normalizedReplayTimeframe,
-      });
-      assertNoDisplayBarsAfter(displayBars, selectedBar.time);
-      await chartSync.renderDisplayBars(displayBars, selectedBar.time, { resumeViewportFollow: true });
-      await chartSync.syncChartRightEdgeLimit(selectedBar.time);
-    }
-
-    state = {
-      ...state,
-      persistedCursor: clone(persisted.cursor),
-      cursorTimestamp: selectedBar.time,
-      revealedCount,
-      displayBarsTimeframe: normalizedDisplayTimeframe,
-      displayBars: clone(displayBars),
-      status: revealedCount > 0 ? 'replay-ready' : 'initial-loaded',
-    };
-    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await chartSync.syncChartRightEdgeLimit(selectedBar.time);
-      await displayWindowController.projectDisplayForCursor({
-        sessionId,
-        displayTimeframe: normalizedDisplayTimeframe,
-        cursorTimestamp: selectedBar.time,
-      });
-      displayBars = state.displayBars;
-    }
-    const result = {
-      ...clone(state),
-      truncated: true,
-      selectedBar: clone(selectedBar),
-    };
-    emit(REPLAY_EVENTS.TRUNCATED, result);
-    return result;
-  }
-
-  async function reset({ sessionId = state.sessionId } = {}) {
-    if (!sessionId) {
-      throw new Error('replay sessionId is required.');
-    }
-    playbackController.pause();
-    if (!state.startBar || state.sessionId !== sessionId) {
-      await loadInitialPrefix({ sessionId });
-    }
-    const normalizedDisplayTimeframe = normalizeTimeframe(
-      state.displayTimeframe || state.session.timeframe,
-      'display timeframe'
-    );
-    const normalizedReplayTimeframe = normalizeTimeframe(
-      state.replayTimeframe || state.session.timeframe,
-      'replay timeframe'
-    );
-    let displayBars = [
-      ...state.prefixBars,
-      state.startBar,
-    ];
-    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      assertNoFutureDisplayBars(displayBars, state.startBar);
-      await chartSync.renderDisplayBars(displayBars, state.startBar.time, { resumeViewportFollow: true });
-      await chartSync.syncChartRightEdgeLimit(state.startBar.time);
-    }
-
-    state = {
-      ...state,
-      persistedCursor: {
-        sessionId,
-        startBarTimestamp: state.startBar.time,
-        cursorTimestamp: state.startBar.time,
-        revealedCount: 0,
-      },
-      cursorTimestamp: state.startBar.time,
-      revealedCount: 0,
-      displayBarsTimeframe: normalizedDisplayTimeframe,
-      displayBars: clone(displayBars),
-      status: 'initial-loaded',
-    };
-    await clearPersistedReplayCursor();
-    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
-      await chartSync.syncChartRightEdgeLimit(state.startBar.time);
-      await displayWindowController.projectDisplayForCursor({
-        sessionId,
-        displayTimeframe: normalizedDisplayTimeframe,
-        cursorTimestamp: state.startBar.time,
-      });
-      displayBars = state.displayBars;
-    }
-    const result = {
-      ...clone(state),
-      reset: true,
-    };
-    emit(REPLAY_EVENTS.RESET, result);
-    return result;
-  }
-
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
@@ -668,12 +318,12 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.GET_DISPLAY_CONTEXT, () => getDisplayContext()),
       registerCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, (payload) => displayWindowController.loadDisplayWindow(payload)),
       registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => prefixController.applyPrefixRetention(payload)),
-      registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
-      registerCommand(REPLAY_COMMANDS.PREVIOUS, (payload) => previous(payload)),
-      registerCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, (payload) => truncateToTimestamp(payload)),
+      registerCommand(REPLAY_COMMANDS.NEXT, (payload) => navigationController.next(payload)),
+      registerCommand(REPLAY_COMMANDS.PREVIOUS, (payload) => navigationController.previous(payload)),
+      registerCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, (payload) => navigationController.truncateToTimestamp(payload)),
       registerCommand(REPLAY_COMMANDS.PLAY, (payload) => playbackController.play(payload)),
       registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => playbackController.pause(payload)),
-      registerCommand(REPLAY_COMMANDS.RESET, (payload) => reset(payload)),
+      registerCommand(REPLAY_COMMANDS.RESET, (payload) => navigationController.reset(payload)),
       registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackController.snapshot()),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => replaySnapshot()),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {

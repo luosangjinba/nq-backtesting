@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 434 is complete. Replay playback timer/state now lives
-  in `runtime/replay-playback-controller.js`; the main replay runtime delegates
-  `PLAY`, `PAUSE`, and `GET_PLAYBACK_STATE` and no longer owns playback timer
-  lifecycle or advancing guards.
-- Next candidate: Step 435 - finish the replay runtime split by extracting
-  navigation/truncation/reset cursor mutation into an explicit controller, then
-  return to the next Settings contract once replay runtime boundaries are small
-  enough to absorb new behavior cleanly.
+- Current status: Step 435 is complete. Replay cursor navigation, truncation,
+  and reset now live in `runtime/replay-navigation-controller.js`; the main
+  replay runtime delegates `NEXT`, `PREVIOUS`, `TRUNCATE_TO_TIMESTAMP`, and
+  `RESET` and no longer owns cursor-mutation command bodies.
+- Next candidate: Step 436 - decide whether to split the remaining session
+  bootstrap/restore flow from `replay-runtime.js` or return to the next
+  Settings contract now that replay subsystem boundaries are explicit.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -135,6 +134,13 @@
   `PLAYBACK_CHANGED` emission. `replay-runtime.js` may register playback
   commands and inject `next` as the advance callback, but it should not
   reintroduce playback implementation bodies.
+- Refactor decision: cursor navigation is a replay subsystem, not main-runtime
+  inline logic. `replay-navigation-controller.js` owns `NEXT`, `PREVIOUS`,
+  `TRUNCATE_TO_TIMESTAMP`, and `RESET` cursor/reveal mutations, persistence,
+  replay display-bar updates, and navigation events. `replay-runtime.js` may
+  register commands and compose the controller with session bootstrap,
+  playback, chart sync, and display projection, but it should not reintroduce
+  navigation implementation bodies.
 - Refactor decision: chart engine adapter modules should separate factory,
   context normalization, presentation/options mapping, DOM fallback rendering,
   and Lightweight engine integration. Adapter implementations may write their
@@ -1242,6 +1248,62 @@ Checks:
 - `node v5/tests/replay-play-smoke.js`
 - `node v5/tests/replay-next-smoke.js`
 - `node v5/tests/replay-previous-smoke.js`
+- `node v5/tests/runtime-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 435 - V5 Replay Navigation Controller Split
+
+Status: completed.
+
+Goal: finish the large replay runtime split by extracting cursor navigation,
+truncation, and reset mutations into a dedicated controller.
+
+Problem:
+
+- After Step 434, `replay-runtime.js` still owned the largest remaining mixed
+  behavior: `NEXT`, `PREVIOUS`, `TRUNCATE_TO_TIMESTAMP`, and `RESET`.
+- Those paths combine replay cursor/reveal mutation, persistence writes,
+  display-bar filtering, no-future guards, chart sync, playback pause, and
+  display-timeframe projection. Keeping them inline would make future session
+  breaks, replay controls, and Settings contracts hard to place cleanly.
+
+Implementation:
+
+- [x] Step 435.1: Define the boundary as cursor navigation/truncation/reset,
+  leaving session bootstrap/restore in the runtime shell for now.
+- [x] Step 435.2: Add `runtime/replay-navigation-controller.js` with injected
+  state access, bar-data dispatch, chart sync, display-window projection,
+  session bootstrap hooks, persistence hooks, playback pause, and event emit.
+- [x] Step 435.3: Move `next`, `previous`, `truncateToTimestamp`, and `reset`
+  implementations into the controller while preserving command/event payloads.
+- [x] Step 435.4: Keep `replay-runtime.js` as command/event owner by
+  delegating navigation commands to the controller and injecting
+  `navigationController.next` into playback.
+- [x] Step 435.5: Update `runtime-boundary-smoke` so navigation implementation
+  bodies cannot drift back into `replay-runtime.js`.
+- [x] Step 435.6: Reduce `replay-runtime.js` from 712 lines to 363 lines.
+
+Manual acceptance:
+
+- Replay runtime still owns composition, command registration, lifecycle, and
+  session bootstrap/restore.
+- Navigation still writes replay cursor persistence through the session runtime
+  command hook injected by replay runtime.
+- Navigation still writes chart state only through `replay-chart-sync` and
+  chart runtime commands.
+- Public replay helper exports remain unchanged.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/replay-navigation-controller.js`
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-previous-smoke.js`
+- `node v5/tests/replay-truncate-smoke.js`
+- `node v5/tests/replay-reset-smoke.js`
+- `node v5/tests/replay-play-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
 - `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

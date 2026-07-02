@@ -19,6 +19,10 @@ const replayPlaybackControllerSource = readFileSync(
   resolve(repoRoot, 'v5/src/runtime/replay-playback-controller.js'),
   'utf8'
 );
+const replayNavigationControllerSource = readFileSync(
+  resolve(repoRoot, 'v5/src/runtime/replay-navigation-controller.js'),
+  'utf8'
+);
 
 assert.ok(
   replayRuntimeSource.includes('createReplayPrefixController('),
@@ -67,6 +71,24 @@ assert.ok(
     && replayPlaybackControllerSource.includes('function setPlayback(')
     && replayPlaybackControllerSource.includes('async function tick('),
   'replay playback controller must own playback implementations'
+);
+assert.ok(
+  replayRuntimeSource.includes('createReplayNavigationController('),
+  'replay runtime must delegate cursor navigation to the navigation controller'
+);
+assert.ok(
+  !replayRuntimeSource.includes('async function next(')
+    && !replayRuntimeSource.includes('async function previous(')
+    && !replayRuntimeSource.includes('async function truncateToTimestamp(')
+    && !replayRuntimeSource.includes('async function reset('),
+  'replay runtime must not own cursor navigation implementations'
+);
+assert.ok(
+  replayNavigationControllerSource.includes('async function next(')
+    && replayNavigationControllerSource.includes('async function previous(')
+    && replayNavigationControllerSource.includes('async function truncateToTimestamp(')
+    && replayNavigationControllerSource.includes('async function reset('),
+  'replay navigation controller must own cursor navigation implementations'
 );
 
 const mutationHelperCalls = [
