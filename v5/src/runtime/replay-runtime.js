@@ -92,6 +92,17 @@ function isoFromTimestamp(timestampValue) {
   return new Date(timestampValue * 1000).toISOString();
 }
 
+function formatCountdownLabel(totalSeconds) {
+  const normalized = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const hours = Math.floor(normalized / 3600);
+  const minutes = Math.floor((normalized % 3600) / 60);
+  const seconds = normalized % 60;
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  }
+  return `${minutes}:${String(seconds).padStart(2, '0')}`;
+}
+
 function alignTimestampToTimeframe(value, timeframe) {
   const timestamp = timestampSeconds(value);
   const seconds = timeframeSeconds(timeframe);
@@ -277,6 +288,44 @@ export function createReplayRuntime() {
   const loadedPrefixAnchors = new Set();
   const loadingPrefixAnchors = new Set();
   const loadingDisplayWindowKeys = new Set();
+
+  function countdownSnapshot(sourceState = state) {
+    if (!sourceState.cursorTimestamp || !sourceState.session) {
+      return {
+        active: false,
+        remainingSeconds: null,
+        closeTimestamp: null,
+        label: '--',
+      };
+    }
+    const cursor = timestampSeconds(sourceState.cursorTimestamp);
+    const displayTimeframe = normalizeTimeframe(
+      sourceState.displayTimeframe || sourceState.session.timeframe,
+      'display timeframe'
+    );
+    const seconds = timeframeSeconds(displayTimeframe);
+    const sessionEnd = sourceState.session?.sessionEnd
+      ? timestampSeconds(sourceState.session.sessionEnd)
+      : null;
+    const barClose = Math.floor(cursor / seconds) * seconds + seconds;
+    const closeTimestamp = Number.isFinite(sessionEnd) ? Math.min(barClose, sessionEnd) : barClose;
+    const remainingSeconds = Math.max(0, closeTimestamp - cursor);
+    return {
+      active: remainingSeconds > 0,
+      remainingSeconds,
+      closeTimestamp: isoFromTimestamp(closeTimestamp),
+      label: formatCountdownLabel(remainingSeconds),
+    };
+  }
+
+  function replaySnapshot(extra = {}) {
+    const snapshot = clone(state);
+    return {
+      ...snapshot,
+      countdown: countdownSnapshot(snapshot),
+      ...extra,
+    };
+  }
 
   async function syncChartRightEdgeLimit(rightEdge) {
     if (hasCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT)) {
@@ -1335,7 +1384,7 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => pause(payload)),
       registerCommand(REPLAY_COMMANDS.RESET, (payload) => reset(payload)),
       registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
-      registerCommand(REPLAY_COMMANDS.GET_STATE, () => clone(state)),
+      registerCommand(REPLAY_COMMANDS.GET_STATE, () => replaySnapshot()),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
         dispatchCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, payload).catch((error) => {
           queueMicrotask(() => {

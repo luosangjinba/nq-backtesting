@@ -190,6 +190,9 @@ async function main() {
           const titleToggle = document.querySelector('[data-presentation-toggle="showStatusTitle"]');
           const titleModeSelect = document.querySelector('[data-presentation-status-title-mode]');
           const marketStatusToggle = document.querySelector('[data-presentation-toggle="showOpenMarketStatus"]');
+          const countdownToggle = document.querySelector('[data-presentation-toggle="showBarCountdown"]');
+          const beforeCountdownHidden = document.querySelector('[data-countdown-row]')?.hidden;
+          const beforeCountdownText = document.querySelector('[data-bar-countdown]')?.textContent || '';
           titleModeSelect.value = 'symbol';
           titleModeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           titleToggle.checked = false;
@@ -198,6 +201,8 @@ async function main() {
           marketStatusToggle.dispatchEvent(new Event('change', { bubbles: true }));
           ohlcToggle.checked = false;
           ohlcToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          countdownToggle.checked = true;
+          countdownToggle.dispatchEvent(new Event('change', { bubbles: true }));
           document.querySelector('[data-chart-settings-tab="canvas"]').click();
           const compactToggle = document.querySelector('[data-presentation-margin="compact"]');
           compactToggle.checked = true;
@@ -332,6 +337,8 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.dataset.watermarkFontSize === '64'
               && document.querySelector('[data-chart-canvas]')?.dataset.dateFormat === "MMM DD 'YY"
               && document.querySelector('[data-chart-canvas]')?.dataset.showDayOfWeekLabels === 'true'
+              && document.querySelector('[data-countdown-row]')?.hidden === false
+              && document.querySelector('[data-bar-countdown]')?.textContent === '1:00'
               && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith("Mon Jun 01 '26 9:30 AM")
           );
 
@@ -344,6 +351,8 @@ async function main() {
             afterOhlcHidden: document.querySelector('[data-status-ohlc-row]')?.hidden,
             beforeChartOhlcHidden,
             afterChartOhlcHidden: document.querySelector('[data-chart-ohlc-overlay]')?.hidden,
+            beforeCountdownHidden,
+            beforeCountdownText,
             beforeChartOhlcText,
             beforeChartOhlcPartCount,
             beforeChartOhlcValueClasses,
@@ -392,6 +401,7 @@ async function main() {
             titleSelected: document.querySelector('[data-presentation-toggle="showStatusTitle"]')?.checked,
             titleModeSelected: document.querySelector('[data-presentation-status-title-mode]')?.value || '',
             marketStatusSelected: document.querySelector('[data-presentation-toggle="showOpenMarketStatus"]')?.checked,
+            countdownSelected: document.querySelector('[data-presentation-toggle="showBarCountdown"]')?.checked,
             selectedBodyUpColor: document.querySelector('[data-candle-style="body.up"]')?.value || '',
             compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.checked,
             marginTopSelected: document.querySelector('[data-presentation-margin-value="topPercent"]')?.value || '',
@@ -440,6 +450,8 @@ async function main() {
             afterCanvasWatermarkFontSize: document.querySelector('[data-chart-canvas]')?.dataset.watermarkFontSize || '',
             afterCanvasDateFormat: document.querySelector('[data-chart-canvas]')?.dataset.dateFormat || '',
             afterCanvasShowDayOfWeekLabels: document.querySelector('[data-chart-canvas]')?.dataset.showDayOfWeekLabels || '',
+            afterCountdownHidden: document.querySelector('[data-countdown-row]')?.hidden,
+            afterCountdownText: document.querySelector('[data-bar-countdown]')?.textContent || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
             beforeDisplayCount: before.displayBars.length,
@@ -462,6 +474,8 @@ async function main() {
     assert.equal(value.afterOhlcHidden, true);
     assert.equal(value.beforeChartOhlcHidden, false);
     assert.equal(value.afterChartOhlcHidden, true);
+    assert.equal(value.beforeCountdownHidden, true);
+    assert.equal(value.beforeCountdownText, '--');
     assert.match(value.beforeChartOhlcText, /^NQ 1m O/);
     assert.equal(value.beforeChartOhlcPartCount, 4);
     assert.match(value.beforeChartOhlcValueClasses, /is-up/);
@@ -510,6 +524,7 @@ async function main() {
     assert.equal(value.titleSelected, false);
     assert.equal(value.titleModeSelected, 'symbol');
     assert.equal(value.marketStatusSelected, false);
+    assert.equal(value.countdownSelected, true);
     assert.equal(value.selectedBodyUpColor, '#22c55e');
     assert.equal(value.compactSelected, false);
     assert.equal(value.marginTopSelected, '7');
@@ -558,6 +573,8 @@ async function main() {
     assert.equal(value.afterCanvasWatermarkFontSize, '64');
     assert.equal(value.afterCanvasDateFormat, "MMM DD 'YY");
     assert.equal(value.afterCanvasShowDayOfWeekLabels, 'true');
+    assert.equal(value.afterCountdownHidden, false);
+    assert.equal(value.afterCountdownText, '1:00');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

@@ -87,6 +87,10 @@ export function renderChartSettingsPopover() {
                     <input type="checkbox" data-presentation-toggle="showCrosshairReadout">
                     <span>Crosshair readout</span>
                   </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showBarCountdown">
+                    <span>Bar countdown</span>
+                  </label>
                 </section>
                 <section data-chart-settings-section="scales" hidden>
                   <h3>Time scale</h3>
@@ -338,6 +342,7 @@ export function createChartSettingsController({
       showStatusOhlc: Boolean(presentationSettings.showStatusOhlc),
       showStatusChange: Boolean(presentationSettings.showStatusChange),
       showCrosshairReadout: Boolean(presentationSettings.showCrosshairReadout),
+      showBarCountdown: Boolean(presentationSettings.showBarCountdown),
       compactMargins: compactMarginsEnabled(presentationSettings),
       margins: { ...presentationSettings.margins },
       rightOffsetBars: Number(presentationSettings.rightOffsetBars || 10),

@@ -44,6 +44,7 @@ assert.deepEqual(defaults, {
   showStatusOhlc: true,
   showStatusChange: true,
   showCrosshairReadout: true,
+  showBarCountdown: false,
   margins: {
     topPercent: 10,
     bottomPercent: 8,
@@ -103,6 +104,7 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
   statusTitleMode: 'symbol',
   showDayOfWeekLabels: true,
   showStatusOhlc: false,
+  showBarCountdown: true,
   margins: {
     topPercent: 12,
   },
@@ -144,6 +146,7 @@ assert.deepEqual(updated, {
   statusTitleMode: 'symbol',
   showDayOfWeekLabels: true,
   showStatusOhlc: false,
+  showBarCountdown: true,
   margins: {
     topPercent: 12,
     bottomPercent: 8,

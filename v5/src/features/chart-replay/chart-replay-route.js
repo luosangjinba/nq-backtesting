@@ -61,6 +61,8 @@ export function createChartReplayRoute() {
       const statusChangeLabel = section.querySelector('[data-status-change]');
       const crosshairRow = section.querySelector('[data-crosshair-row]');
       const crosshairReadoutLabel = section.querySelector('[data-crosshair-inspection-readout]');
+      const countdownRow = section.querySelector('[data-countdown-row]');
+      const countdownLabel = section.querySelector('[data-bar-countdown]');
       const chartViewport = section.querySelector('.chart-viewport');
       const chartHost = section.querySelector('[data-chart-host]');
       const replayTruncatePickLine = section.querySelector('[data-replay-truncate-pick-line]');
@@ -116,6 +118,7 @@ export function createChartReplayRoute() {
         showStatusOhlc: true,
         showStatusChange: true,
         showCrosshairReadout: true,
+        showBarCountdown: DEFAULT_CHART_PRESENTATION_SETTINGS.showBarCountdown,
         margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
         rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
         candleStyle: cloneCandleStyle(),
@@ -166,6 +169,7 @@ export function createChartReplayRoute() {
             showStatusOhlc: draft.showStatusOhlc,
             showStatusChange: draft.showStatusChange,
             showCrosshairReadout: draft.showCrosshairReadout,
+            showBarCountdown: draft.showBarCountdown,
             margins: { ...draft.margins },
             rightOffsetBars: Number(draft.rightOffsetBars || 10),
             candleStyle: cloneCandleStyle(draft.candleStyle),
@@ -220,6 +224,7 @@ export function createChartReplayRoute() {
         playbackLabel.textContent = playbackPlaying ? 'Playing' : 'Paused';
         stateLabel.textContent = terminalReason || state?.status || 'Idle';
         refreshStatusLineValues(state);
+        refreshCountdown(state);
         if (terminalReason) {
           status.textContent = `Replay stopped: ${terminalReason}.`;
         }
@@ -324,6 +329,13 @@ export function createChartReplayRoute() {
         const timeText = formatReplayTimestamp(crosshairState.time || bar?.time);
         const price = crosshairState.price == null ? bar?.close : crosshairState.price;
         crosshairReadoutLabel.textContent = formatInspectionReadout({ timeText, price, bar });
+      }
+
+      function refreshCountdown(state = lastReplayState) {
+        countdownRow.hidden = !presentationSettings.showBarCountdown;
+        countdownLabel.textContent = presentationSettings.showBarCountdown
+          ? state?.countdown?.label || '--'
+          : '--';
       }
 
       function setControlsDisabled(disabled = false) {

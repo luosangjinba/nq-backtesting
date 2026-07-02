@@ -84,6 +84,13 @@ const initial = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
   sessionId: created.session.id,
 });
 assert.equal(initial.displayBars.length, 3);
+const initialState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+assert.deepEqual(initialState.countdown, {
+  active: true,
+  remainingSeconds: 60,
+  closeTimestamp: '2026-06-01T09:31:00.000Z',
+  label: '1:00',
+});
 
 const firstNext = await dispatchCommand(REPLAY_COMMANDS.NEXT, {
   sessionId: created.session.id,
@@ -98,6 +105,13 @@ assert.deepEqual(
   firstNext.displayBars.slice(initial.displayBars.length).map((item) => item.timestamp),
   [timestamp('2026-06-01T09:31:00.000Z'), timestamp('2026-06-01T09:32:00.000Z')]
 );
+const endState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+assert.deepEqual(endState.countdown, {
+  active: false,
+  remainingSeconds: 0,
+  closeTimestamp: '2026-06-01T09:32:00.000Z',
+  label: '0:00',
+});
 
 const secondNext = await dispatchCommand(REPLAY_COMMANDS.NEXT, {
   sessionId: created.session.id,

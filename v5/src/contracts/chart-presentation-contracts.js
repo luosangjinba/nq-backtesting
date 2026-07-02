@@ -91,6 +91,7 @@ export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   showStatusOhlc: true,
   showStatusChange: true,
   showCrosshairReadout: true,
+  showBarCountdown: false,
   margins: Object.freeze({
     topPercent: 10,
     bottomPercent: 8,

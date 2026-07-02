@@ -73,7 +73,15 @@ assert.equal(state.cursorTimestamp, state.startBarTimestamp);
 assert.equal(resolvedEvent.startBar.timestamp, state.startBar.timestamp);
 
 const stored = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
-assert.deepEqual(stored, state);
+assert.deepEqual(stored, {
+  ...state,
+  countdown: {
+    active: true,
+    remainingSeconds: 60,
+    closeTimestamp: '2026-06-01T09:32:00.000Z',
+    label: '1:00',
+  },
+});
 
 await assert.rejects(
   () => dispatchCommand(REPLAY_COMMANDS.RESOLVE_START_BAR, { sessionId: 'missing' }),

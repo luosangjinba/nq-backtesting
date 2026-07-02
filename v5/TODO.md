@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 429 is complete. Settings now has a documented backlog
-  ownership matrix, and price scale side is a presentation-runtime setting that
-  applies through chart display context and chart-engine adapter options.
-- Next candidate: Step 430 - plan the first high-risk settings contract before
-  UI, likely lock price-to-bar ratio or countdown/session breaks, with explicit
-  owner, command/event surface, adapter behavior, and smoke acceptance.
+- Current status: Step 430 is complete. Bar countdown now has a replay-owned
+  derived-state contract, a Settings visibility toggle, and route rendering
+  that does not calculate countdown in UI.
+- Next candidate: Step 431 - plan the next high-risk settings contract before
+  UI, likely lock price-to-bar ratio or session breaks, with explicit owner,
+  command/event surface, adapter behavior, and smoke acceptance.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -79,6 +79,10 @@
   `v5/docs/SETTINGS_BACKLOG_MATRIX.md`. Only presentation-runtime rows can be
   implemented directly from the Settings UI; chart-engine, replay-runtime,
   persistence, and pane rows need a dedicated contract step first.
+- Replay contract decision: bar countdown is replay-derived display state, not
+  route UI math. Replay runtime owns `countdown` on `GET_STATE`, presentation
+  runtime owns only the `showBarCountdown` visibility preference, and route UI
+  only renders the provided label.
 - Bugfix decision: Reset View and Jump-to-cursor resume chart viewport follow.
   They must clear any previous manual/native visible range before rerendering,
   and chart sync must not write stale manual ranges after a follow-mode logical
@@ -941,6 +945,58 @@ Checks:
 - `node --check v5/src/features/chart-replay/chart-settings-panel.js`
 - `node v5/tests/chart-presentation-runtime-smoke.js`
 - `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 430 - V5 Replay Countdown Settings Contract
+
+Status: completed.
+
+Goal: implement the first high-risk Settings item contract-first by making bar
+countdown replay-owned derived display state, then exposing only a visibility
+toggle in Settings.
+
+Problem:
+
+- Countdown looks like a UI setting, but it depends on replay cursor, display
+  timeframe, session end, and replay state. If route UI calculates it directly,
+  Settings would bypass runtime ownership boundaries.
+- Remaining Settings backlog items need proof that non-presentation controls can
+  be added through explicit owner contracts instead of direct UI behavior.
+
+Implementation:
+
+- [x] Step 430.1: Add `docs/REPLAY_COUNTDOWN_CONTRACT.md` defining replay
+  runtime ownership, input state, output shape, and non-mutation rules.
+- [x] Step 430.2: Add replay runtime `countdown` derived state on
+  `REPLAY_COMMANDS.GET_STATE`.
+- [x] Step 430.3: Add presentation setting `showBarCountdown` as a route
+  visibility preference only.
+- [x] Step 430.4: Add Settings draft UI for `Bar countdown` in the Status line
+  section.
+- [x] Step 430.5: Render the route footer countdown label from replay state
+  without calculating remaining time in UI.
+- [x] Step 430.6: Update runtime/browser smokes proving countdown derivation,
+  visibility toggle behavior, and no replay/bar-data mutation.
+
+Manual acceptance:
+
+- Countdown label comes from replay runtime state.
+- Settings controls only whether the countdown row is visible.
+- Enabling countdown must not move replay cursor, mutate `displayBars`, request
+  bars, or write chart series.
+- Countdown close timestamp is capped by session end.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/chart-presentation-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/replay-next-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -171,6 +171,7 @@ export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CH
     showStatusOhlc: normalizeBoolean(input.showStatusOhlc, base.showStatusOhlc),
     showStatusChange: normalizeBoolean(input.showStatusChange, base.showStatusChange),
     showCrosshairReadout: normalizeBoolean(input.showCrosshairReadout, base.showCrosshairReadout),
+    showBarCountdown: normalizeBoolean(input.showBarCountdown, base.showBarCountdown),
     margins: {
       topPercent: normalizePercent(margins.topPercent, base.margins.topPercent, 'topPercent'),
       bottomPercent: normalizePercent(margins.bottomPercent, base.margins.bottomPercent, 'bottomPercent'),

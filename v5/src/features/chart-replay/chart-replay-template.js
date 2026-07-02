@@ -99,6 +99,7 @@ export function renderChartReplayTemplate({ activePaneId }) {
             <span data-status-ohlc-row>OHLC <strong data-status-ohlc>--</strong></span>
             <span data-status-change-row>Change <strong data-status-change>--</strong></span>
             <span data-crosshair-row>Inspect <strong data-crosshair-inspection-readout>--</strong></span>
+            <span data-countdown-row hidden>Countdown <strong data-bar-countdown>--</strong></span>
           </div>
           <p data-replay-load-status>Waiting for replay session.</p>
         </div>

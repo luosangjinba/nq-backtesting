@@ -12,6 +12,8 @@ Read this index before working on V5.
 - `v5/docs/SETTINGS_BACKLOG_MATRIX.md`: staged Settings ownership matrix for
   deciding whether a control can be implemented directly or needs a new
   runtime/adapter contract first.
+- `v5/docs/REPLAY_COUNTDOWN_CONTRACT.md`: replay-owned bar countdown derived
+  state contract and UI ownership rules.
 - `v5/TODO.md`: current step plan and manual acceptance standards.
 - `v5/sessions/README.md`: session handoff ordering and targeted lookup rules.
 - `v5/docs/specs/README.md`: stable spec index and step source map.

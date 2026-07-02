@@ -30,7 +30,7 @@ planning guardrail, not a UI checklist to implement all at once.
 | Scale placement beyond side | chart-engine-contract | planned | Requires explicit mapping for multiple scales and future panes. |
 | Lock price-to-bar ratio | chart-engine-contract | planned | Needs chart-engine behavior contract and acceptance harness. |
 | No-overlap labels | chart-engine-contract | planned | Needs label ownership and collision rules. |
-| Countdown to bar close | replay-runtime-contract | planned | Depends on replay clock semantics and active interval. |
+| Countdown to bar close | replay-runtime-contract | implemented in Step 430 | Replay runtime derives countdown; Settings only controls visibility. |
 | Session breaks | replay-runtime-contract | planned | Requires exchange/session calendar contract and bar gaps policy. |
 | Templates/presets | deferred-persistence | planned | Needs workspace persistence and reset/overwrite rules. |
 | Pane-specific settings | future-pane | deferred | Requires split-pane ownership and sync design first. |
