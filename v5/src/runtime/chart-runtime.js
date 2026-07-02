@@ -30,9 +30,17 @@ import {
 
 export { CHART_COMMANDS, CHART_EVENTS };
 
+const DEFAULT_CHART_PANE_ID = 'primary';
+
+function normalizePaneId(value) {
+  const paneId = String(value || DEFAULT_CHART_PANE_ID).trim();
+  return paneId || DEFAULT_CHART_PANE_ID;
+}
+
 export function createChartRuntime() {
   const mountedHosts = new Set();
   const mountedHostList = new Set();
+  const mountedHostByPaneId = new Map();
   const chartAdapters = new Map();
   const unregisterCallbacks = [];
   const state = createEmptyChartState();
@@ -43,13 +51,39 @@ export function createChartRuntime() {
     state,
     mountedHosts,
     mountedHostList,
+    mountedHostByPaneId,
     chartAdapters,
   });
 
-  function mountHost(host) {
-    if (!host || mountedHosts.has(host)) return;
+  function mountHost(host, { paneId } = {}) {
+    if (!host) {
+      throw new Error('chart host element is required.');
+    }
+    const nextPaneId = normalizePaneId(paneId || host.dataset?.chartPaneId);
+    const previousHost = mountedHostByPaneId.get(nextPaneId);
+    if (previousHost && previousHost !== host) {
+      chartAdapters.get(previousHost)?.destroy();
+      chartAdapters.delete(previousHost);
+      mountedHosts.delete(previousHost);
+      mountedHostList.delete(previousHost);
+    }
+    for (const [existingPaneId, existingHost] of mountedHostByPaneId) {
+      if (existingHost === host && existingPaneId !== nextPaneId) {
+        mountedHostByPaneId.delete(existingPaneId);
+      }
+    }
+    host.dataset.chartPaneId = nextPaneId;
+    if (mountedHosts.has(host)) {
+      mountedHostByPaneId.set(nextPaneId, host);
+      return {
+        paneId: nextPaneId,
+        mounted: true,
+        reused: true,
+      };
+    }
     mountedHosts.add(host);
     mountedHostList.add(host);
+    mountedHostByPaneId.set(nextPaneId, host);
     const adapter = createChartEngineAdapter();
     chartAdapters.set(host, adapter);
     adapter.mount(host, {
@@ -70,13 +104,20 @@ export function createChartRuntime() {
       },
     });
     hostSync.syncChartHost(host);
-    emit(CHART_EVENTS.READY, { host });
+    emit(CHART_EVENTS.READY, { host, paneId: nextPaneId });
+    return {
+      paneId: nextPaneId,
+      mounted: true,
+      reused: false,
+    };
   }
 
   function mountAvailableHosts() {
     rootElement
       ?.querySelectorAll('[data-chart-host]')
-      .forEach((host) => mountHost(host));
+      .forEach((host) => mountHost(host, {
+        paneId: host.dataset?.chartPaneId,
+      }));
   }
 
   function updateBars(nextBars) {
@@ -88,8 +129,15 @@ export function createChartRuntime() {
     return { bars: [...state.bars] };
   }
 
-  function getViewportMetrics() {
-    const host = [...mountedHostList].find((candidate) => candidate.isConnected);
+  function connectedHostForPane(paneId = DEFAULT_CHART_PANE_ID) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const paneHost = mountedHostByPaneId.get(normalizedPaneId);
+    if (paneHost?.isConnected) return paneHost;
+    return [...mountedHostList].find((candidate) => candidate.isConnected);
+  }
+
+  function getViewportMetrics({ paneId } = {}) {
+    const host = connectedHostForPane(paneId);
     return readHostMetrics(host);
   }
 
@@ -425,13 +473,14 @@ export function createChartRuntime() {
     rootElement = root;
     emit = emitEvent || emit;
     unregisterCallbacks.push(
+      registerCommand(CHART_COMMANDS.MOUNT_HOST, (payload = {}) => mountHost(payload.host, payload)),
       registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars } = {}) => updateBars(normalizeBars(bars))),
       registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars } = {}) => updateBars([
         ...state.bars,
         ...normalizeBars(bars),
       ])),
       registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
-      registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, () => getViewportMetrics()),
+      registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, (payload) => getViewportMetrics(payload)),
       registerCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, (payload) => setRightEdgeLimit(payload)),
       registerCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, (payload) => updateVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
@@ -472,6 +521,7 @@ export function createChartRuntime() {
     chartAdapters.clear();
     mountedHosts.clear();
     mountedHostList.clear();
+    mountedHostByPaneId.clear();
     observer = null;
     rootElement = null;
   }

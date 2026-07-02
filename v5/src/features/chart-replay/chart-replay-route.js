@@ -50,6 +50,7 @@ export function createChartReplayRoute() {
       section.dataset.layoutMode = DEFAULT_LAYOUT_STATE.mode;
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
+      const primaryChartHost = section.querySelector('[data-chart-host]');
       let commandInFlight = false;
       let replayLoaded = false;
       let disposed = false;
@@ -413,6 +414,10 @@ export function createChartReplayRoute() {
         });
       };
       viewportDemandBridge.start();
+      dispatchCommand(CHART_COMMANDS.MOUNT_HOST, {
+        paneId: activePaneId,
+        host: primaryChartHost,
+      }).catch(() => null);
       dispatchCommand(LAYOUT_COMMANDS.GET_STATE)
         .then((layoutState) => {
           if (disposed) return;

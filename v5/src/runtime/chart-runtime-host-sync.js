@@ -4,6 +4,7 @@ export function createChartRuntimeHostSync({
   state,
   mountedHosts,
   mountedHostList,
+  mountedHostByPaneId,
   chartAdapters,
 } = {}) {
   let applyingRuntimeVisibleRange = false;
@@ -54,10 +55,14 @@ export function createChartRuntimeHostSync({
       if (host.isConnected) {
         syncChartHost(host, options);
       } else {
+        const paneId = host.dataset?.chartPaneId || '';
         chartAdapters.get(host)?.destroy();
         chartAdapters.delete(host);
         mountedHosts.delete(host);
         mountedHostList.delete(host);
+        if (paneId && mountedHostByPaneId?.get(paneId) === host) {
+          mountedHostByPaneId.delete(paneId);
+        }
       }
     }
   }

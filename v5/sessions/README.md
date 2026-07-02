@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 464: `session_20260702_step464_v5_multi_pane_dom_shell.md`
+- Step 465: `session_20260702_step465_v5_chart_runtime_pane_host_mounting.md`
 
 ## Completed Session Index
 
@@ -130,3 +130,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 463-468: `session_20260702_step463_468_v5_multi_pane_plan.md`
 - Step 463: `session_20260702_step463_v5_layout_popover_command_surface.md`
 - Step 464: `session_20260702_step464_v5_multi_pane_dom_shell.md`
+- Step 465: `session_20260702_step465_v5_chart_runtime_pane_host_mounting.md`

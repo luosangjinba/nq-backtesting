@@ -21,6 +21,9 @@ layout state only. It still does not render multiple chart panes.
 Step 464 implements the multi-pane DOM shell. It renders one, two, or three
 pane containers from layout state while keeping a single real primary chart
 host and placeholder secondary/tertiary panes.
+Step 465 makes chart host mounting pane-id aware. The route passes host
+elements through chart commands, and chart runtime owns adapter lifecycle per
+pane id.
 
 This is a planning contract, not an implementation step.
 
@@ -95,6 +98,16 @@ Step 464 implementation status:
   pane-id-aware host mounting;
 - pane selection dispatches `layout.setActivePane` and updates active-pane
   metadata without requesting bars or writing chart series.
+
+Step 465 implementation status:
+
+- chart runtime exposes `chart.mountHost`;
+- mounted chart hosts/adapters are tracked by pane id;
+- mounting the same host for the same pane is idempotent;
+- replacing a host for an existing pane destroys the previous adapter;
+- viewport metrics can target a pane id;
+- route UI passes the primary host through `chart.mountHost` and still does not
+  create adapters, write chart data, or request bars.
 
 ## Pane Model
 
@@ -219,7 +232,7 @@ Steps 463-468 should proceed in this order:
    Render one, two, or three pane containers from layout state. Keep one real
    chart host initially, render secondary/tertiary placeholders, and dispatch
    `layout.setActivePane` on pane selection.
-3. Step 465 - Chart runtime multi-host mounting contract.
+3. Step 465 - Chart runtime multi-host mounting contract. Completed.
    Make chart host mounting pane-id aware. Chart runtime owns per-pane adapter
    lifecycle and chart writes; route UI only passes host elements through
    commands.

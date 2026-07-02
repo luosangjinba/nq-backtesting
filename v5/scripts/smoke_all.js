@@ -16,6 +16,7 @@ const commands = [
   ['node', ['v5/tests/bar-data-runtime-smoke.js']],
   ['node', ['v5/tests/chart-engine-adapter-smoke.js']],
   ['node', ['v5/tests/chart-runtime-smoke.js']],
+  ['node', ['v5/tests/chart-runtime-pane-host-smoke.js']],
   ['node', ['v5/tests/chart-runtime-engine-adapter-smoke.js']],
   ['node', ['v5/tests/chart-runtime-fallback-input-smoke.js']],
   ['node', ['v5/tests/chart-viewport-follow-smoke.js']],

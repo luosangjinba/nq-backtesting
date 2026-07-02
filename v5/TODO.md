@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 464 is complete. The chart route now renders a
-  layout-driven pane shell for Single/Twice/Triple, keeps one real primary chart
-  host, and uses placeholder panes for secondary/tertiary.
-- Next candidate: Step 465 - make chart runtime host mounting pane-id aware so
-  chart runtime, not route UI, owns future per-pane adapter lifecycle and chart
-  writes.
+- Current status: Step 465 is complete. Chart runtime now exposes
+  `chart.mountHost`, tracks hosts/adapters by pane id, and route UI explicitly
+  passes the primary host to chart runtime without owning chart lifecycle.
+- Next candidate: Step 466 - store pane-level display timeframe in layout state
+  and make active-pane timeframe changes respect `sync.interval`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -51,6 +50,10 @@
   `primary` pane owns a real `data-chart-host`; secondary/tertiary remain
   placeholders until chart runtime host mounting becomes pane-id aware in
   Step 465.
+- Chart host lifecycle decision: Step 465 adds `chart.mountHost` and makes chart
+  runtime track mounted hosts/adapters by pane id. The route may pass host
+  elements through commands, but chart runtime owns adapter creation, replacement,
+  cleanup, chart writes, and pane-targeted viewport metrics.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3093,6 +3096,58 @@ Checks:
 - `node --check v5/src/features/chart-replay/chart-replay-template.js`
 - `node --check v5/src/features/chart-replay/chart-replay-route.js`
 - `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 465 - V5 Chart Runtime Pane Host Mounting
+
+Status: completed.
+
+Goal: make chart host mounting pane-id aware so chart runtime owns future
+per-pane adapter lifecycle and route UI only passes host elements through
+commands.
+
+Problem:
+
+- Before this step, chart runtime auto-mounted any `[data-chart-host]` under the
+  root and tracked hosts as an unordered set.
+- Multi-pane work needs pane identity at the chart host boundary before
+  secondary/tertiary panes can safely receive real chart hosts.
+- Route UI must not create adapters, write chart series, or decide chart host
+  replacement behavior.
+
+Plan:
+
+- [x] Step 465.1: Add `chart.mountHost` to the chart command contract.
+- [x] Step 465.2: Track mounted chart hosts/adapters by pane id inside chart
+  runtime.
+- [x] Step 465.3: Preserve existing auto-mount fallback while making route UI
+  explicitly pass the primary host through `chart.mountHost`.
+- [x] Step 465.4: Make viewport metrics accept an optional pane id.
+- [x] Step 465.5: Add pane-host runtime smoke coverage and update docs/session
+  handoff.
+
+Manual acceptance:
+
+- Chart runtime mounts the primary host with pane id `primary`.
+- Re-mounting the same pane/host is idempotent.
+- Mounting another pane id creates a separate chart adapter owned by chart
+  runtime.
+- Replacing a host for the same pane destroys the previous adapter.
+- Existing replay workstation layout behavior still renders one real chart host
+  until Step 466+ adds additional pane data behavior.
+
+Checks:
+
+- `node --check v5/src/runtime/chart-runtime.js`
+- `node --check v5/src/runtime/chart-runtime-host-sync.js`
+- `node --check v5/tests/chart-runtime-pane-host-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-pane-host-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-fallback-input-smoke.js`
+- `node v5/tests/chart-viewport-follow-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
