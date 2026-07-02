@@ -10,14 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 451 is complete. The V5 modularization audit confirms
-  CSS feature surfaces are now aligned enough for the current phase; `app.css`
-  is down to 616 lines and focused CSS modules own Settings, replay transport,
-  chart navigation, and replay truncate styling.
-- Next candidate: Step 452 - prefer a runtime/product boundary over more CSS
-  splitting unless a new UI surface forces it. The strongest candidates are
-  `chart-runtime.js` ownership reduction, `chart-engine-presentation.js`
-  presentation mapping split, or a dedicated product bug/interaction step.
+- Current status: Step 452 is complete. Chart display-context normalization is
+  split from `chart-runtime.js` into `chart-runtime-display-context.js`, keeping
+  chart runtime as the command/event owner and sole chart adapter writer while
+  moving presentation context merging into a pure helper.
+- Next candidate: Step 453 - continue the runtime/product boundary work by
+  splitting another low-risk `chart-runtime.js` seam such as mounted-host sync
+  metadata, or switch to `chart-engine-presentation.js` if presentation mapping
+  has become the larger near-term risk.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -205,6 +205,13 @@
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
   runtime command/event owner and the only runtime that writes chart adapters.
+- Refactor decision: chart display-context normalization is a pure chart runtime
+  helper, not runtime orchestration. `chart-runtime-display-context.js` owns
+  merging display context patches with current context, timezone defaults,
+  presentation defaults, loaded coverage/display timeframe normalization, and
+  defensive style cloning. `chart-runtime.js` may call the helper before
+  rerendering, but it must remain the command/event owner and the only runtime
+  layer that writes chart adapters or series data.
 - Refactor decision: replay runtime pure helpers and chart synchronization
   belong outside the runtime shell. `replay-runtime-state.js` owns replay state
   shape, timestamp/timeframe math, display-bar safety filters, prefix retention
@@ -2277,6 +2284,58 @@ Manual acceptance:
 
 Checks:
 
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 452 - V5 Chart Runtime Display Context Helper Split
+
+Status: completed.
+
+Goal: reduce `chart-runtime.js` ownership pressure by moving display-context
+normalization into a pure helper while preserving chart runtime's adapter and
+series ownership.
+
+Problem:
+
+- Step 451 identified `chart-runtime.js` as the largest runtime hotspot at 612
+  lines after previous state and viewport helper splits.
+- The runtime still mixed command/event orchestration with display context
+  patch merging, timezone defaults, presentation defaults, loaded coverage
+  normalization, and style cloning.
+- Future Settings and chart-engine work will keep touching display context, so
+  leaving that logic inline would keep adding pressure to the runtime shell.
+
+Implementation:
+
+- [x] Step 452.1: Add `src/runtime/chart-runtime-display-context.js` for pure
+  display context construction.
+- [x] Step 452.2: Move presentation/timezone defaults, timeframe/coverage
+  normalization, and defensive style cloning behind `buildChartDisplayContext`.
+- [x] Step 452.3: Keep `chart-runtime.js` responsible for command/event
+  registration, state assignment, rerendering, viewport demand refresh, and
+  chart adapter writes.
+- [x] Step 452.4: Add `tests/chart-runtime-display-context-smoke.js` to cover
+  default construction, partial patch preservation, loaded coverage
+  normalization, and style clone isolation.
+- [x] Step 452.5: Update TODO/session handoff and run focused chart runtime
+  checks.
+
+Manual acceptance:
+
+- `chart-runtime.js` remains the only chart runtime layer that calls chart
+  adapters or writes chart series data.
+- `chart-runtime-display-context.js` has no command bus, event bus, DOM, chart
+  adapter, replay, or bar-data dependency.
+- Partial display-context updates preserve existing context values and clone
+  nested style objects.
+- No UI, DOM, or chart behavior changes are intended.
+
+Checks:
+
+- `node v5/tests/chart-runtime-display-context-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 

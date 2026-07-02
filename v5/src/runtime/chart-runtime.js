@@ -2,24 +2,14 @@ import { registerCommand } from './commands.js';
 import { subscribeEvent } from './events.js';
 import { CHART_COMMANDS, CHART_EVENTS } from '../contracts/chart-contracts.js';
 import { DISPLAY_TIMEZONE_EVENTS } from '../contracts/timezone-contracts.js';
-import {
-  CHART_PRESENTATION_EVENTS,
-  DEFAULT_CHART_PRESENTATION_SETTINGS,
-} from '../contracts/chart-presentation-contracts.js';
+import { CHART_PRESENTATION_EVENTS } from '../contracts/chart-presentation-contracts.js';
 import { createChartEngineAdapter } from './chart-engine-adapter.js';
+import { buildChartDisplayContext } from './chart-runtime-display-context.js';
 import {
-  cloneBackgroundStyle,
-  cloneCandleStyle,
-  cloneCrosshairStyle,
-  cloneGridStyle,
-  cloneScaleStyle,
-  cloneWatermarkStyle,
   createEmptyChartState,
   normalizeBars,
   normalizeCrosshair,
-  normalizeDisplayTimeframe,
   normalizeGoToPayload,
-  normalizeLoadedCoverage,
   normalizeRange,
   normalizeViewportFollow,
   rangesEqual,
@@ -461,51 +451,8 @@ export function createChartRuntime() {
     };
   }
 
-  function setDisplayContext({
-    instrument = state.displayContext.instrument,
-    displayTimeframe = state.displayContext.displayTimeframe,
-    loadedCoverage = state.displayContext.loadedCoverage,
-    displayTimezone = state.displayContext.displayTimezone,
-    exchangeTimezone = state.displayContext.exchangeTimezone,
-    timeFormat = state.displayContext.timeFormat,
-    dateFormat = state.displayContext.dateFormat,
-    showDayOfWeekLabels = state.displayContext.showDayOfWeekLabels,
-    showCrosshairReadout = state.displayContext.showCrosshairReadout,
-    margins = state.displayContext.margins,
-    rightOffsetBars = state.displayContext.rightOffsetBars,
-    candleStyle = state.displayContext.candleStyle,
-    gridStyle = state.displayContext.gridStyle,
-    crosshairStyle = state.displayContext.crosshairStyle,
-    backgroundStyle = state.displayContext.backgroundStyle,
-    scaleStyle = state.displayContext.scaleStyle,
-    watermarkStyle = state.displayContext.watermarkStyle,
-  } = {}) {
-    state.displayContext = {
-      instrument: instrument == null ? null : String(instrument),
-      displayTimeframe: normalizeDisplayTimeframe(displayTimeframe),
-      loadedCoverage: normalizeLoadedCoverage(loadedCoverage),
-      displayTimezone: displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
-      exchangeTimezone: exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
-      timeFormat: timeFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
-      dateFormat: dateFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.dateFormat,
-      showDayOfWeekLabels: showDayOfWeekLabels == null
-        ? DEFAULT_CHART_PRESENTATION_SETTINGS.showDayOfWeekLabels
-        : Boolean(showDayOfWeekLabels),
-      showCrosshairReadout: showCrosshairReadout == null
-        ? DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout
-        : Boolean(showCrosshairReadout),
-      margins: {
-        topPercent: Number(margins?.topPercent ?? DEFAULT_CHART_PRESENTATION_SETTINGS.margins.topPercent),
-        bottomPercent: Number(margins?.bottomPercent ?? DEFAULT_CHART_PRESENTATION_SETTINGS.margins.bottomPercent),
-      },
-      rightOffsetBars: Number(rightOffsetBars ?? DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars),
-      candleStyle: cloneCandleStyle(candleStyle),
-      gridStyle: cloneGridStyle(gridStyle),
-      crosshairStyle: cloneCrosshairStyle(crosshairStyle),
-      backgroundStyle: cloneBackgroundStyle(backgroundStyle),
-      scaleStyle: cloneScaleStyle(scaleStyle),
-      watermarkStyle: cloneWatermarkStyle(watermarkStyle),
-    };
+  function setDisplayContext(payload = {}) {
+    state.displayContext = buildChartDisplayContext(payload, state.displayContext);
     state.viewportFollow = {
       ...state.viewportFollow,
       rightOffsetBars: state.displayContext.rightOffsetBars,
