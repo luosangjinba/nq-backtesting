@@ -185,6 +185,17 @@ Step 470 implementation status:
 - invalid variants and mode/variant mismatches are rejected by layout runtime;
 - route metadata exposes the selected variant while host count remains one.
 
+Step 471 implementation status:
+
+- pane shell exposes `data-layout-variant`;
+- CSS grid renders the supported variant geometries;
+- `twice.horizontal` renders stacked panes;
+- `triple.left` renders a larger left primary pane with secondary/tertiary on
+  the right;
+- secondary/tertiary panes remain placeholders and still do not contain
+  `data-chart-host`;
+- browser smoke verifies geometry, active-pane metadata, and host count.
+
 ## Pane Model
 
 A pane record should be serializable and persistence-ready:
@@ -344,7 +355,7 @@ Steps 470-472 should proceed next in this order:
 1. Step 470 - Layout variant state. Completed.
    Add explicit `variant` state and variant-aware icon dispatch. Keep `mode` as
    the pane-count category and keep only one real primary chart host.
-2. Step 471 - Variant pane shell layout.
+2. Step 471 - Variant pane shell layout. Completed.
    Render the visual geometry for each variant through pane shell data
    attributes and CSS grid. Secondary/tertiary panes remain placeholders.
 3. Step 472 - Real multi-pane chart hosts.

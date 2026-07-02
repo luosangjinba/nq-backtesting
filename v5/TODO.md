@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 470 is complete. Layout state now stores explicit
-  variants such as `twice.horizontal` and `triple.left`; icon clicks dispatch
-  variants through layout runtime while `mode` remains the pane-count category.
-- Next candidate: Step 471 - make the pane shell visually render each layout
-  variant with CSS/DOM layout while secondary/tertiary panes remain
-  placeholders.
+- Current status: Step 471 is complete. The pane shell now exposes
+  `data-layout-variant` and renders supported variants with CSS grid while
+  secondary/tertiary panes remain placeholders.
+- Next candidate: Step 472 - make secondary/tertiary panes real chart hosts
+  through chart runtime while preserving replay/bar-data ownership boundaries.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -3431,7 +3430,7 @@ Checks:
 
 ## Step 471 - V5 Variant Pane Shell Layout
 
-Status: planned.
+Status: completed.
 
 Goal: make the pane shell render each layout variant with the correct CSS grid
 shape while keeping secondary/tertiary panes as placeholders.
@@ -3446,17 +3445,17 @@ Problem:
 
 Plan:
 
-- [ ] Step 471.1: Add pane shell data attributes for `layoutVariant`.
-- [ ] Step 471.2: Add CSS grid layouts for the supported variants:
+- [x] Step 471.1: Add pane shell data attributes for `layoutVariant`.
+- [x] Step 471.2: Add CSS grid layouts for the supported variants:
   single, two vertical, two horizontal, three vertical, three horizontal,
   large-left, large-right, large-top, and large-bottom.
-- [ ] Step 471.3: Keep stable pane ids and active-pane selection across variant
+- [x] Step 471.3: Keep stable pane ids and active-pane selection across variant
   changes.
-- [ ] Step 471.4: Ensure placeholder panes remain visually distinct but do not
+- [x] Step 471.4: Ensure placeholder panes remain visually distinct but do not
   contain `data-chart-host`.
-- [ ] Step 471.5: Add browser smoke assertions for pane geometry, host count,
+- [x] Step 471.5: Add browser smoke assertions for pane geometry, host count,
   active-pane metadata, and no route-owned chart data.
-- [ ] Step 471.6: Update docs/session handoff.
+- [x] Step 471.6: Update docs/session handoff.
 
 Manual acceptance:
 

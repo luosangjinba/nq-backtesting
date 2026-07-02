@@ -284,6 +284,79 @@ input {
   grid-template-rows: repeat(3, minmax(0, 1fr));
 }
 
+.chart-pane-shell[data-layout-variant="twice.vertical"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: "primary secondary";
+}
+
+.chart-pane-shell[data-layout-variant="twice.horizontal"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "primary"
+    "secondary";
+}
+
+.chart-pane-shell[data-layout-variant="triple.vertical"] {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr);
+  grid-template-areas: "primary secondary tertiary";
+}
+
+.chart-pane-shell[data-layout-variant="triple.horizontal"] {
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-template-areas:
+    "primary"
+    "secondary"
+    "tertiary";
+}
+
+.chart-pane-shell[data-layout-variant="triple.left"] {
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "primary secondary"
+    "primary tertiary";
+}
+
+.chart-pane-shell[data-layout-variant="triple.right"] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-areas:
+    "secondary primary"
+    "tertiary primary";
+}
+
+.chart-pane-shell[data-layout-variant="triple.top"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-areas:
+    "primary primary"
+    "secondary tertiary";
+}
+
+.chart-pane-shell[data-layout-variant="triple.bottom"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1.35fr);
+  grid-template-areas:
+    "secondary tertiary"
+    "primary primary";
+}
+
+.chart-pane-shell:not([data-layout-variant="single.default"]) > .chart-pane[data-pane-id="primary"] {
+  grid-area: primary;
+}
+
+.chart-pane-shell:not([data-layout-variant="single.default"]) > .chart-pane[data-pane-id="secondary"] {
+  grid-area: secondary;
+}
+
+.chart-pane-shell:not([data-layout-variant="single.default"]) > .chart-pane[data-pane-id="tertiary"] {
+  grid-area: tertiary;
+}
+
 .chart-pane {
   position: relative;
   min-width: 0;

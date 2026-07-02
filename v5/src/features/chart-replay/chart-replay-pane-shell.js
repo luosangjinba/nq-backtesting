@@ -70,6 +70,7 @@ export function createChartReplayPaneShellController({
     const activePaneId = layoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
     currentActivePaneId = activePaneId;
     shell.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
+    shell.dataset.layoutVariant = layoutState.variant || DEFAULT_LAYOUT_STATE.variant;
     shell.dataset.activePaneId = activePaneId;
     shell.dataset.paneCount = String(panes.length);
 

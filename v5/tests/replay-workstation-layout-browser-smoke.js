@@ -121,6 +121,8 @@ async function main() {
           const box = document.querySelector(selector)?.getBoundingClientRect();
           return {
             top: Math.round(box?.top || 0),
+            left: Math.round(box?.left || 0),
+            right: Math.round(box?.right || 0),
             bottom: Math.round(box?.bottom || 0),
             width: Math.round(box?.width || 0),
             height: Math.round(box?.height || 0),
@@ -183,6 +185,7 @@ async function main() {
           const layoutPopover = document.querySelector('[data-layout-popover]');
           const singleModeButton = document.querySelector('[data-layout-mode-option="single"]');
           const twiceModeButton = document.querySelector('[data-layout-variant-option="twice.horizontal"]');
+          const tripleLeftModeButton = document.querySelector('[data-layout-variant-option="triple.left"]');
           const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
           const layoutModeRows = Array.from(document.querySelectorAll('.chart-layout-mode-row'));
           const layoutModeButtons = Array.from(document.querySelectorAll('[data-layout-mode-option]'));
@@ -280,11 +283,37 @@ async function main() {
           const primaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
           const paneCount = document.querySelectorAll('[data-layout-pane]').length;
           const placeholderPaneCount = document.querySelectorAll('[data-layout-pane][data-has-chart-host="false"]').length;
+          const layoutModeBeforeVariantSwitch = chartRoute?.dataset.layoutMode || '';
+          const layoutVariantBeforeVariantSwitch = chartRoute?.dataset.layoutVariant || '';
+          const activePaneCountBeforeVariantSwitch = chartRoute?.dataset.activePaneCount || '';
+          const paneShellModeBeforeVariantSwitch = paneShell?.dataset.layoutMode || '';
+          const paneShellVariantBeforeVariantSwitch = paneShell?.dataset.layoutVariant || '';
+          const twiceModePressedBeforeVariantSwitch = twiceModeButton?.getAttribute('aria-pressed') || '';
+          const layoutButtonModeBeforeVariantSwitch = layoutButton?.dataset.layoutMode || '';
+          const layoutButtonVariantBeforeVariantSwitch = layoutButton?.dataset.layoutVariant || '';
           const chartRect = rect('[data-chart-host]');
           const paneShellRect = rect('[data-layout-pane-shell]');
+          const primaryPaneRect = rect('[data-layout-pane][data-pane-id="primary"]');
+          const secondaryPaneRect = rect('[data-layout-pane][data-pane-id="secondary"]');
           const chartNavRect = rect('[data-chart-toolbar]');
           const footerRect = rect('[data-replay-footer]');
           const statusRect = rect('[data-replay-status]');
+          layoutButton?.click();
+          await waitFor('layout popover re-open for triple left', async () =>
+            document.querySelector('[data-layout-popover]')?.hidden === false
+          );
+          tripleLeftModeButton?.click();
+          await waitFor('triple left layout geometry', async () => (
+            chartRoute?.dataset.layoutVariant === 'triple.left'
+            && document.querySelector('[data-layout-pane-shell]')?.dataset.layoutVariant === 'triple.left'
+            && document.querySelectorAll('[data-layout-pane]').length === 3
+            && document.querySelectorAll('[data-chart-host]').length === 1
+          ));
+          const triplePrimaryRect = rect('[data-layout-pane][data-pane-id="primary"]');
+          const tripleSecondaryRect = rect('[data-layout-pane][data-pane-id="secondary"]');
+          const tripleTertiaryRect = rect('[data-layout-pane][data-pane-id="tertiary"]');
+          const tripleHostCount = document.querySelectorAll('[data-chart-host]').length;
+          document.querySelector('[data-layout-close]')?.click();
           const routeNavigation = document.querySelector('[data-route-navigation]');
           const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
           const toolbarSetupLinkCount = document
@@ -299,13 +328,14 @@ async function main() {
             badgeText,
             activePaneId: chartRoute?.dataset.activePaneId || '',
             activePaneIdAfterSecondarySelect,
-            activePaneCount: chartRoute?.dataset.activePaneCount || '',
-            layoutMode: chartRoute?.dataset.layoutMode || '',
-            layoutVariant: chartRoute?.dataset.layoutVariant || '',
+            activePaneCount: activePaneCountBeforeVariantSwitch,
+            layoutMode: layoutModeBeforeVariantSwitch,
+            layoutVariant: layoutVariantBeforeVariantSwitch,
             chartHostCount,
             paneCount,
             placeholderPaneCount,
-            paneShellMode: paneShell?.dataset.layoutMode || '',
+            paneShellMode: paneShellModeBeforeVariantSwitch,
+            paneShellVariant: paneShellVariantBeforeVariantSwitch,
             paneShellActivePaneId: paneShell?.dataset.activePaneId || '',
             paneShellActivePaneIdAfterSecondarySelect,
             primaryPaneActive: primaryPane?.dataset.activePane || '',
@@ -332,7 +362,7 @@ async function main() {
             layoutModeButtonCount: layoutModeButtons.length,
             layoutVariantButtonValues: layoutVariantButtons.map((button) => button.dataset.layoutVariantOption || ''),
             layoutModeIconCount,
-            twiceModePressed: twiceModeButton?.getAttribute('aria-pressed') || '',
+            twiceModePressed: twiceModePressedBeforeVariantSwitch,
             tripleModeExists: Boolean(tripleModeButton),
             symbolSyncDisabled: Boolean(symbolSyncInput?.disabled),
             intervalSyncChecked: Boolean(intervalSyncInput?.checked),
@@ -345,8 +375,8 @@ async function main() {
             layoutButtonAriaDisabled: layoutButton?.getAttribute('aria-disabled') || '',
             layoutButtonExpanded: layoutButton?.getAttribute('aria-expanded') || '',
             layoutButtonState: layoutButton?.dataset.layoutState || '',
-            layoutButtonMode: layoutButton?.dataset.layoutMode || '',
-            layoutButtonVariant: layoutButton?.dataset.layoutVariant || '',
+            layoutButtonMode: layoutButtonModeBeforeVariantSwitch,
+            layoutButtonVariant: layoutButtonVariantBeforeVariantSwitch,
             hasShellText: bodyText.includes('Chart Replay Shell'),
             hasRouteText: bodyText.includes('Chart Route'),
             shellTopBarRect,
@@ -362,6 +392,12 @@ async function main() {
             headingActionsRect,
             chartRect,
             paneShellRect,
+            primaryPaneRect,
+            secondaryPaneRect,
+            triplePrimaryRect,
+            tripleSecondaryRect,
+            tripleTertiaryRect,
+            tripleHostCount,
             chartNavRect,
             footerRect,
             statusRect,
@@ -392,6 +428,7 @@ async function main() {
     assert.equal(value.paneCount, 2);
     assert.equal(value.placeholderPaneCount, 1);
     assert.equal(value.paneShellMode, 'twice');
+    assert.equal(value.paneShellVariant, 'twice.horizontal');
     assert.equal(value.paneShellActivePaneIdAfterSecondarySelect, 'secondary');
     assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
     assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
@@ -457,6 +494,23 @@ async function main() {
     assert.equal(value.layoutButtonState, 'ready');
     assert.equal(value.layoutButtonMode, 'twice');
     assert.equal(value.layoutButtonVariant, 'twice.horizontal');
+    assert.ok(
+      Math.abs(value.primaryPaneRect.left - value.secondaryPaneRect.left) <= 2,
+      'twice.horizontal panes should share the same left edge'
+    );
+    assert.ok(
+      value.secondaryPaneRect.top > value.primaryPaneRect.top,
+      'twice.horizontal secondary pane should be below primary pane'
+    );
+    assert.equal(value.tripleHostCount, 1);
+    assert.ok(
+      value.triplePrimaryRect.width > value.tripleSecondaryRect.width,
+      'triple.left primary pane should be wider than secondary pane'
+    );
+    assert.ok(
+      value.tripleTertiaryRect.top > value.tripleSecondaryRect.top,
+      'triple.left tertiary pane should be below secondary pane'
+    );
     assert.equal(value.hasShellText, false);
     assert.equal(value.hasRouteText, false);
     assert.equal(value.shellTopBarDisplay, 'none');
