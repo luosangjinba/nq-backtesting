@@ -61,6 +61,9 @@ V4 hover behavior.
 Step 422 fixes Reset View / resume-follow after native drag or wheel zoom:
 explicit follow resume must clear stale manual visible ranges before chart
 sync writes back to the adapter.
+Step 423 fixes wheel zoom left-extension loading: wheel is treated as an
+active native interaction long enough for viewport-demand loading to coalesce
+and flush after settle.
 
 In scope:
 
@@ -136,6 +139,9 @@ Out of scope:
   record manual visible range and emit demand, but must not write replacement
   data or visible ranges back into the chart engine. Queued runtime chart syncs
   should flush once the native interaction settles.
+- Native wheel zoom is also an active interaction phase. Its settle window must
+  be long enough for viewport-demand debounce/load to defer chart writes until
+  after the wheel interaction settles.
 - The active native drag guard applies even when replay/bar-data work expands
   loaded chart coverage. Newly available left-side bars should render after
   mouseup / interaction settle rather than via active-drag `setData()`.
@@ -225,6 +231,10 @@ Out of scope:
   range. Once interaction mode is follow, chart host sync must not call
   adapter visible-range writes with a stale manual range after applying the
   follow logical range.
+- Native interaction settle may re-emit the current viewport demand. The replay
+  viewport-demand bridge must de-dupe by demand key, so this settled emission is
+  a reliability guard for wheel-created left-side blank space rather than a
+  separate loading path.
 - The chart route should not expose a top-level button labeled `Cursor` because
   that reads like a crosshair/tool toggle. The visible action should be named
   by behavior, such as `Jump to replay cursor`.

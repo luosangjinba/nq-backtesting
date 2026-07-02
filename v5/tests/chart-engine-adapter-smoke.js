@@ -227,6 +227,7 @@ const fakeLightweightCharts = {
 
 const visibleRangeEvents = [];
 const lightweightCrosshairEvents = [];
+const lightweightNativeInteractionEvents = [];
 const lightweightHost = createElement('div');
 const lightweight = createChartEngineAdapter({
   engine: fakeLightweightCharts,
@@ -236,6 +237,7 @@ lightweight.mount(lightweightHost, {
   displayContext: { rightOffsetBars: 3 },
   onVisibleRangeChange: (range, metadata) => visibleRangeEvents.push({ range, metadata }),
   onCrosshairChange: (crosshair) => lightweightCrosshairEvents.push(crosshair),
+  onNativeInteractionChange: (interaction) => lightweightNativeInteractionEvents.push(interaction),
 });
 lightweight.setBars([bar(32, 102), bar(33, 103)], { fullBarCount: 8, followViewport: true });
 lightweight.setPresentation({
@@ -309,6 +311,23 @@ lightweightCalls.crosshairHandler({
 await flushFrame();
 lightweightCalls.crosshairHandler({});
 await flushFrame();
+lightweightHost.children[0].dispatchEvent({
+  type: 'wheel',
+  clientX: 400,
+  deltaY: 1,
+});
+await new Promise((resolve) => setTimeout(resolve, 150));
+assert.deepEqual(lightweightNativeInteractionEvents.at(-1), {
+  active: true,
+  type: 'wheel',
+  source: 'lightweight-native',
+});
+await new Promise((resolve) => setTimeout(resolve, 140));
+assert.deepEqual(lightweightNativeInteractionEvents.at(-1), {
+  active: false,
+  type: null,
+  source: 'lightweight-native',
+});
 
 assert.equal(lightweight.readState().engineType, 'lightweight-charts');
 assert.equal(lightweight.readState().barCount, 2);

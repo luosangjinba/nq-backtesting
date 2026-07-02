@@ -898,6 +898,9 @@ export function createChartRuntime() {
       pendingChartSyncAfterNativeInteraction = false;
       rerenderMountedHosts({ deferDuringNativeInteraction: false });
     }
+    if (wasActive && !state.nativeInteraction.active && state.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
+    }
     return {
       nativeInteraction: structuredClone(state.nativeInteraction),
       pendingChartSyncAfterNativeInteraction,

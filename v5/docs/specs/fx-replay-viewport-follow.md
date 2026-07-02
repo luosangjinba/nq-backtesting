@@ -63,6 +63,9 @@ native chart drag/zoom now has replay transport semantics.
   engine's visible time range excludes empty space after the latest data bar,
   the adapter must use the visible logical range to reconstruct the manual
   time-based visible range before sending it to chart runtime.
+- Native wheel zoom that exposes left-side blank space should produce settled
+  viewport demand for older display bars and should not require a later mouse
+  click or drag to refresh the chart.
 - The explicit reset/follow control resumes viewport follow and clears the
   manual anchor.
 - Resuming viewport follow must also clear the chart runtime's stored

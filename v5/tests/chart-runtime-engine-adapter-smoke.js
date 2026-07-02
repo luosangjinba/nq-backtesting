@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { clearCommandsForTest, dispatchCommand } from '../src/runtime/commands.js';
-import { clearEventsForTest } from '../src/runtime/events.js';
-import { CHART_COMMANDS, createChartRuntime } from '../src/runtime/chart-runtime.js';
+import { clearEventsForTest, emitEvent, subscribeEvent } from '../src/runtime/events.js';
+import { CHART_COMMANDS, CHART_EVENTS, createChartRuntime } from '../src/runtime/chart-runtime.js';
 
 function createElement(tagName) {
   const listeners = new Map();
@@ -149,8 +149,13 @@ const host = createElement('div');
 host.dataset.chartHost = '';
 root.append(host);
 
+const viewportDemandEvents = [];
+const unsubscribeViewportDemand = subscribeEvent(CHART_EVENTS.VIEWPORT_DEMAND, (payload) => {
+  viewportDemandEvents.push(payload);
+});
+
 const runtime = createChartRuntime();
-runtime.start({ root });
+runtime.start({ root, emitEvent });
 
 assert.equal(host.dataset.chartEngine, 'lightweight-charts');
 assert.equal(host.children[0].dataset.chartCanvas, 'true');
@@ -164,6 +169,14 @@ const bars = [
   bar(33, 103),
 ];
 await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, { bars });
+await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
+  instrument: 'NQ',
+  displayTimeframe: 1,
+  loadedCoverage: {
+    from: '2026-06-01T09:30:00.000Z',
+    to: '2026-06-01T09:33:00.000Z',
+  },
+});
 await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
   enabled: true,
   cursorTimestamp: '2026-06-01T09:33:00.000Z',
@@ -188,6 +201,20 @@ assert.equal(host.children[0].dataset.interactionMode, 'follow');
 assert.equal(host.children[0].dataset.renderedBarCount, '2');
 assert.equal(host.children[0].children[1].children[0].dataset.chartBarCount, '2');
 assert.equal(host.children[0].children[1].children[0].children[0].title, '2026-06-01 09:32 O 102.00 H 103.00 L 101.00 C 102.50');
+
+viewportDemandEvents.length = 0;
+host.children[0].dispatchEvent({
+  type: 'wheel',
+  clientX: 400,
+  deltaY: 1,
+});
+engineCalls.visibleRangeHandler({
+  from: Date.parse('2026-06-01T09:28:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:31:00.000Z') / 1000,
+});
+await new Promise((resolve) => setTimeout(resolve, 300));
+assert.ok(viewportDemandEvents.length >= 2);
+assert.equal(viewportDemandEvents.at(-1).viewportDemand.missingWindow.anchor, '2026-06-01T09:30:00.000Z');
 
 host.children[0].dispatchEvent({
   type: 'mousedown',
@@ -343,6 +370,7 @@ assert.deepEqual(
 );
 
 runtime.stop();
+unsubscribeViewportDemand();
 assert.equal(engineCalls.removed, 2);
 delete globalThis.LightweightCharts;
 

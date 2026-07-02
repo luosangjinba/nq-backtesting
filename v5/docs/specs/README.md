@@ -128,4 +128,6 @@ that future work must follow this file order.
 - Step 421: `chart-presentation-settings.md`
 - Step 422: `chart-interaction-contracts.md`,
   `fx-replay-viewport-follow.md`
+- Step 423: `chart-interaction-contracts.md`,
+  `fx-replay-viewport-follow.md`
 - Cross-phase: `saas-readiness-strategy.md`

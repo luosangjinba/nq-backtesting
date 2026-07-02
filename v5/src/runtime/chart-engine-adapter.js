@@ -43,6 +43,8 @@ const LIGHTWEIGHT_PRICE_SCALE_MARGIN_LIMITS = Object.freeze({
   maxBottom: 0.28,
 });
 
+const LIGHTWEIGHT_WHEEL_SETTLE_MS = 260;
+
 const LIGHTWEIGHT_GRID = Object.freeze({
   vertLines: {
     color: 'rgba(55, 65, 81, 0.28)',
@@ -872,7 +874,7 @@ function createLightweightInstance({ engine, documentRef }) {
         : 'drag';
     emitNativeInteraction(true, type);
     if (type === 'wheel') {
-      scheduleNativeInteractionSettle(type);
+      scheduleNativeInteractionSettle(type, LIGHTWEIGHT_WHEEL_SETTLE_MS);
     } else {
       clearNativeInteractionSettleTimer();
     }

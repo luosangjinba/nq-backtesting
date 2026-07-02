@@ -10,10 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 422 is complete. Reset View / resume-follow now clears
-  stale manual visible ranges and no longer reapplies a previous drag/zoom
-  range after restoring cursor follow.
-- Next candidate: Step 423 - Settings remaining-deferred cleanup. Reassess
+- Current status: Step 423 is complete. Native wheel zoom now keeps the chart
+  in the active interaction window long enough for viewport-demand loads to
+  defer and flush automatically, and settled native interactions re-emit any
+  pending viewport demand so left-side K-line extension does not require a
+  left-click stimulus.
+- Next candidate: Step 424 - Settings remaining-deferred cleanup. Reassess
   FXReplay settings items that still need explicit runtime design before UI:
   scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
   session breaks, templates, and split-pane/pane-specific settings.
@@ -75,6 +77,11 @@
   They must clear any previous manual/native visible range before rerendering,
   and chart sync must not write stale manual ranges after a follow-mode logical
   range has been applied.
+- Bugfix decision: native wheel zoom is an active chart interaction, not an
+  instantaneous event. Wheel settle must stay long enough for viewport-demand
+  loading to be coalesced and flushed after interaction settle, and settle
+  should re-emit an existing viewport demand because the replay bridge de-dupes
+  by demand key.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -3047,5 +3054,55 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 423 - V5 Wheel Zoom Viewport Demand Settle Fix
+
+Status: completed.
+
+Goal: make native wheel zoom left-extension behave like drag settle: when zoom
+creates left-side blank space, V5 should load and render older K-lines
+automatically without requiring a follow-up left-click or drag.
+
+Problem:
+
+- Drag interactions have an explicit mouseup settle point, so deferred chart
+  writes flush after older bars load.
+- Wheel interactions used a shorter native-active window than the viewport
+  demand bridge debounce. That let some demand loads and chart writes happen
+  outside the intended settle window, where Lightweight could leave the visible
+  canvas blank until another pointer interaction caused a refresh.
+- If demand was computed during native wheel interaction, the initial demand
+  event was the only trigger; there was no final settled demand emission to
+  guarantee the replay bridge saw the final viewport gap.
+
+Implementation:
+
+- [x] Step 423.1: Treat Lightweight wheel input as an active native interaction
+  for 260ms, longer than the viewport-demand bridge debounce.
+- [x] Step 423.2: On native interaction settle, re-emit the current
+  `viewportDemand` when one exists. The replay bridge de-dupes by demand key.
+- [x] Step 423.3: Add adapter smoke coverage proving wheel remains active past
+  the old 120ms window and then settles.
+- [x] Step 423.4: Add runtime/adapter smoke coverage proving wheel native
+  settle re-emits viewport demand for left-side extension.
+
+Manual acceptance:
+
+- Wheel zoom that exposes blank space to the left of loaded bars should trigger
+  older-bar loading and chart refresh after wheel settle.
+- Users should not need to left-click, drag, or otherwise stimulate the chart
+  for the extension K-lines to appear.
+- Runtime chart writes still remain deferred during active native interaction.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

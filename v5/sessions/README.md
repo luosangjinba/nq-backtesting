@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 422: `session_20260702_step422_v5_reset_view_follow_range_fix.md`
+- Step 423: `session_20260702_step423_v5_wheel_zoom_viewport_demand_settle_fix.md`
 
 ## Completed Session Index
 
@@ -87,3 +87,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 420: `session_20260701_step420_v5_time_label_presentation_settings.md`
 - Step 421: `session_20260701_step421_v5_advanced_chart_engine_settings.md`
 - Step 422: `session_20260702_step422_v5_reset_view_follow_range_fix.md`
+- Step 423: `session_20260702_step423_v5_wheel_zoom_viewport_demand_settle_fix.md`
