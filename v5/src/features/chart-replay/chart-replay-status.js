@@ -19,11 +19,6 @@ export function createChartReplayStatusController({
   const statusOhlcRow = root.querySelector('[data-status-ohlc-row]');
   const statusChangeRow = root.querySelector('[data-status-change-row]');
   const statusOhlcLabel = root.querySelector('[data-status-ohlc]');
-  const chartOhlcOverlay = root.querySelector('[data-chart-ohlc-overlay]');
-  const chartMarketStatus = root.querySelector('[data-chart-market-status]');
-  const chartOhlcSymbol = root.querySelector('[data-chart-ohlc-symbol]');
-  const chartOhlcTimeframe = root.querySelector('[data-chart-ohlc-timeframe]');
-  const chartOhlcLegend = root.querySelector('[data-chart-ohlc-legend]');
   const statusChangeLabel = root.querySelector('[data-status-change]');
   const crosshairRow = root.querySelector('[data-crosshair-row]');
   const crosshairReadoutLabel = root.querySelector('[data-crosshair-inspection-readout]');
@@ -71,14 +66,14 @@ export function createChartReplayStatusController({
     return group;
   }
 
-  function renderChartOhlcLegend(bar) {
-    chartOhlcLegend.replaceChildren();
+  function renderChartOhlcLegend(legend, bar) {
+    legend.replaceChildren();
     if (!bar) {
-      chartOhlcLegend.textContent = '--';
+      legend.textContent = '--';
       return;
     }
     const className = Number(bar.close) >= Number(bar.open) ? 'is-up' : 'is-down';
-    chartOhlcLegend.append(
+    legend.append(
       createChartOhlcPart('O', bar.open, className),
       createChartOhlcPart('H', bar.high, className),
       createChartOhlcPart('L', bar.low, className),
@@ -91,17 +86,31 @@ export function createChartReplayStatusController({
     const latest = Array.isArray(state?.displayBars) ? state.displayBars.at(-1) : null;
     const hoverBar = crosshairState?.active && crosshairState?.bar ? crosshairState.bar : null;
     const displayBar = hoverBar || latest;
-    chartOhlcOverlay.hidden = !settings.showStatusOhlc || !displayBar;
-    chartMarketStatus.hidden = !settings.showOpenMarketStatus;
-    chartOhlcSymbol.hidden = !settings.showStatusTitle
-      || settings.statusTitleMode === STATUS_TITLE_MODES.TIMEFRAME;
-    chartOhlcTimeframe.hidden = !settings.showStatusTitle
-      || settings.statusTitleMode === STATUS_TITLE_MODES.SYMBOL;
-    renderChartOhlcLegend(displayBar);
-    chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
-    chartOhlcTimeframe.textContent = formatTimeframeLabel(
-      getDisplayTimeframe() || state?.displayTimeframe || state?.session?.timeframe || 1
-    );
+    root.querySelectorAll('[data-chart-ohlc-overlay]').forEach((overlay) => {
+      const marketStatus = overlay.querySelector('[data-chart-market-status]');
+      const symbol = overlay.querySelector('[data-chart-ohlc-symbol]');
+      const timeframe = overlay.querySelector('[data-chart-ohlc-timeframe]');
+      const legend = overlay.querySelector('[data-chart-ohlc-legend]');
+      overlay.hidden = !settings.showStatusOhlc || !displayBar;
+      if (marketStatus) {
+        marketStatus.hidden = !settings.showOpenMarketStatus;
+      }
+      if (symbol) {
+        symbol.hidden = !settings.showStatusTitle
+          || settings.statusTitleMode === STATUS_TITLE_MODES.TIMEFRAME;
+        symbol.textContent = state?.session?.instrument || 'NQ';
+      }
+      if (timeframe) {
+        timeframe.hidden = !settings.showStatusTitle
+          || settings.statusTitleMode === STATUS_TITLE_MODES.SYMBOL;
+        timeframe.textContent = formatTimeframeLabel(
+          getDisplayTimeframe() || state?.displayTimeframe || state?.session?.timeframe || 1
+        );
+      }
+      if (legend) {
+        renderChartOhlcLegend(legend, displayBar);
+      }
+    });
   }
 
   function refreshStatusLineValues(state) {

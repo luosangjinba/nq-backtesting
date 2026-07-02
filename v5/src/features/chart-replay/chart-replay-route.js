@@ -321,6 +321,7 @@ export function createChartReplayRoute() {
         layoutController?.renderState(layoutState);
         paneShellController?.renderState(layoutState);
         mountChartHosts();
+        statusController.refreshChartOhlcOverlay();
         replayControlsController?.renderControls();
         replayControlsController?.setControlsDisabled();
       }

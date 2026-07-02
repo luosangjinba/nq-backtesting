@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 472 is complete. Secondary and tertiary panes now render
-  real `data-chart-host` elements and mount through chart runtime while replay
-  cursor/reveal and bar-data ownership remain unchanged.
-- Next candidate: Step 473 - audit multi-pane behavior in-browser and decide
+- Current status: Step 473 is complete. Every real layout pane now has its own
+  chart OHLC overlay, and browser smoke verifies every multi-pane chart canvas
+  keeps a visible price scale.
+- Next candidate: Step 474 - audit multi-pane behavior in-browser and decide
   whether to add pane-specific data policies/settings or return to Settings
   polish.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -80,6 +80,9 @@
   secondary/tertiary panes remain placeholders. Step 472 is the first step that
   should create real secondary/tertiary chart hosts, and it must do so only
   through chart runtime host mounting and existing replay/bar-data ownership.
+- Multi-pane display decision: Step 473 makes OHLC overlays pane-local. Price
+  scales remain chart-runtime/adapter presentation state and must be present on
+  every mounted chart host when `priceScaleVisible` is true.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3529,6 +3532,48 @@ Checks:
 - `node v5/tests/replay-initial-browser-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 473 - V5 Multi-Pane OHLC And Price Scales
+
+Status: completed.
+
+Goal: make every real layout pane show chart inspection context: visible price
+scale and OHLC overlay.
+
+Problem:
+
+- Step 472 mounted real secondary/tertiary chart hosts, but only the primary
+  pane had the chart OHLC overlay.
+- Users expect every visible chart pane to carry its own price axis and OHLC
+  context.
+
+Plan:
+
+- [x] Step 473.1: Add OHLC overlay markup to dynamically-created secondary and
+  tertiary chart panes.
+- [x] Step 473.2: Update the status controller to refresh all pane OHLC
+  overlays instead of only the first overlay.
+- [x] Step 473.3: Refresh OHLC overlays after layout changes so newly-created
+  panes populate immediately.
+- [x] Step 473.4: Add browser smoke coverage that all three panes have visible
+  OHLC overlays and visible chart price scales.
+
+Manual acceptance:
+
+- Single pane still shows OHLC.
+- Twice layouts show OHLC in both panes.
+- Triple layouts show OHLC in all three panes.
+- Every mounted chart canvas keeps `priceScaleVisible=true` by default.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-status.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan

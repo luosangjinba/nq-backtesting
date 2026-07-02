@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 472: `session_20260702_step472_v5_real_multi_pane_chart_hosts.md`
+- Step 473: `session_20260702_step473_v5_multi_pane_ohlc_price_scales.md`
 
 ## Completed Session Index
 
@@ -139,3 +139,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 470: `session_20260702_step470_v5_layout_variant_state.md`
 - Step 471: `session_20260702_step471_v5_variant_pane_shell_layout.md`
 - Step 472: `session_20260702_step472_v5_real_multi_pane_chart_hosts.md`
+- Step 473: `session_20260702_step473_v5_multi_pane_ohlc_price_scales.md`

@@ -26,6 +26,12 @@ function createChartPane(pane) {
       <div class="chart-host" data-chart-host data-chart-pane-id="" data-active-pane="false">
         <span data-layout-pane-title></span>
       </div>
+      <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
+        <span data-chart-market-status aria-label="Open market status"></span>
+        <span data-chart-ohlc-symbol>NQ</span>
+        <span data-chart-ohlc-timeframe>1m</span>
+        <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
+      </div>
     </div>
   `;
   updatePaneElement(element, pane, false);
