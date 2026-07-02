@@ -225,6 +225,26 @@ Forbidden:
 - replay cursor progression;
 - chart series writes.
 
+### Layout Split Panes
+
+Future split panes must be introduced through an explicit layout contract, not
+by duplicating route-owned chart UI.
+
+Rules:
+
+- Layout runtime owns pane list, active pane id, and sync flags.
+- Chart runtime owns chart host lifecycle, series writes, visible ranges, and
+  follow/manual viewport state per pane.
+- Replay runtime owns the shared replay cursor, reveal state, session bounds,
+  and no-future invariant.
+- Bar data runtime remains the only bars requester/cache owner.
+- Settings target the active pane by default unless a shared/global scope is
+  explicitly modeled.
+- Route UI dispatches commands and renders active-pane controls; it must not
+  directly create chart series, request pane bars, or persist layouts.
+
+See `docs/specs/layout-split-panes-contract.md`.
+
 ### Feature Modules
 
 Feature modules include setup page UI, replay toolbar, overlays, notes, journal,

@@ -149,6 +149,24 @@ Owns:
 
 Does not own replay cursor or chart series.
 
+### Layout Runtime
+
+Future split panes require a dedicated layout boundary.
+
+Owns:
+
+- pane list;
+- active pane id;
+- pane sync flags;
+- layout state that can later be persisted by workspace runtime.
+
+Does not own:
+
+- chart series;
+- bars requests;
+- replay cursor;
+- Settings draft state.
+
 ### Feature Modules
 
 Examples:

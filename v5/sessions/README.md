@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 459: `session_20260702_step459_v5_modularization_hotspot_audit.md`
+- Step 460: `session_20260702_step460_v5_layout_split_panes_contract.md`
 
 ## Completed Session Index
 
@@ -124,3 +124,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 457: `session_20260702_step457_v5_chart_engine_lightweight_options_split.md`
 - Step 458: `session_20260702_step458_v5_chart_engine_range_projection_rename.md`
 - Step 459: `session_20260702_step459_v5_modularization_hotspot_audit.md`
+- Step 460: `session_20260702_step460_v5_layout_split_panes_contract.md`

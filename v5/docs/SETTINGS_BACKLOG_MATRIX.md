@@ -33,7 +33,7 @@ planning guardrail, not a UI checklist to implement all at once.
 | Countdown to bar close | replay-runtime-contract | implemented in Step 430 | Replay runtime derives countdown; Settings only controls visibility. |
 | Session breaks | replay-runtime-contract | planned | Requires exchange/session calendar contract and bar gaps policy. |
 | Templates/presets | deferred-persistence | planned | Needs workspace persistence and reset/overwrite rules. |
-| Pane-specific settings | future-pane | deferred | Requires split-pane ownership and sync design first. |
+| Pane-specific settings | future-pane | contract planned in Step 460 | Requires implementation of active-pane Settings scope before UI controls are added. |
 
 ## Implementation Rule
 

@@ -14,6 +14,8 @@ Read this index before working on V5.
   runtime/adapter contract first.
 - `v5/docs/REPLAY_COUNTDOWN_CONTRACT.md`: replay-owned bar countdown derived
   state contract and UI ownership rules.
+- `v5/docs/specs/layout-split-panes-contract.md`: split-pane ownership,
+  active-pane, Settings scope, and sync contract before multi-pane UI work.
 - `v5/TODO.md`: current step plan and manual acceptance standards.
 - `v5/sessions/README.md`: session handoff ordering and targeted lookup rules.
 - `v5/docs/specs/README.md`: stable spec index and step source map.

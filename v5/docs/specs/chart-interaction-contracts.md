@@ -64,6 +64,9 @@ sync writes back to the adapter.
 Step 423 fixes wheel zoom left-extension loading: wheel is treated as an
 active native interaction long enough for viewport-demand loading to coalesce
 and flush after settle.
+Step 460 defines the Layout split panes contract before implementation:
+multi-pane work must extend stable active-pane semantics, keep replay cursor
+shared by default, and route pane chart writes through chart runtime.
 
 In scope:
 
@@ -192,6 +195,11 @@ Out of scope:
 - The disabled Layout entry is a deferred affordance only. It must not create
   panes, mutate chart layout state, or suggest active split-pane behavior until
   a dedicated layout ownership step defines multi-pane synchronization rules.
+- Future Layout split panes must follow
+  `layout-split-panes-contract.md`: layout runtime owns pane identity and sync
+  flags, chart runtime owns per-pane chart hosts/visible ranges, replay runtime
+  owns the shared cursor/reveal state, and Settings targets the active pane by
+  default.
 - The floating replay transport may be dragged outside the chart/canvas area,
   but it remains clamped to the visible browser viewport and must stay below
   modal/popover layers while those layers are open.

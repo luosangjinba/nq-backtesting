@@ -89,8 +89,9 @@ Rules for deferred items:
 
 - Template dropdown save/apply behavior is deferred until presentation settings
   persistence is designed.
-- Pane button visibility and pane-specific settings are deferred until split
-  panes have an explicit ownership and active-pane sync model.
+- Pane button visibility and pane-specific settings follow the Step 460
+  split-pane contract. They remain deferred until active-pane Settings scope is
+  implemented in layout/presentation commands.
 - Any setting that needs additional historical bars is not Settings-only work
   and must be planned through bar-data/replay ownership first.
 
@@ -182,6 +183,9 @@ space for replay progression.
 - Settings modal edits remain route-local draft state until `Ok`; cancel, close,
   or backdrop dismiss must not mutate presentation, replay, chart data, or
   bar-data state.
+- In future split-pane mode, Settings targets the active pane by default.
+  Shared/global Settings scope must be explicitly modeled; route-local draft
+  state must not become persisted pane state until `Ok`.
 
 ## Verification
 

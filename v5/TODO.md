@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 459 is complete. The modularization audit found no
-  immediate need for another chart-engine split; current hotspots are route,
-  runtime orchestration, replay navigation, and the remaining CSS shell.
-- Next candidate: Step 460 - return to product work with a dedicated Layout
-  split panes contract/planning step before implementation, because multi-chart
-  ownership and sync rules must be explicit.
+- Current status: Step 460 is complete. Layout split panes now have a contract
+  for pane identity, active-pane Settings scope, shared replay cursor, chart
+  runtime ownership, bar-data ownership, and sync defaults before UI work.
+- Next candidate: Step 461 - either add the smallest layout state skeleton that
+  preserves the Step 460 contract, or resume Settings only within the active
+  pane scope defined by that contract.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -24,8 +24,15 @@
 - Step 381 added chart-owned crosshair readout; follow-up fix removed
   crosshair-triggered chart rerenders so hover inspection cannot call
   `setData()` on every mouse move.
-- Known next issue: Layout split panes need a dedicated planning step before
-  implementation because multi-chart ownership and sync rules must be explicit.
+- Known next issue: Layout split panes now have a Step 460 contract; any
+  implementation must follow that active-pane/layout-runtime boundary instead
+  of adding route-local multi-chart state.
+- Layout contract decision: split panes must extend the current single-pane
+  active pane model. Layout runtime owns pane list, active pane id, and sync
+  flags; chart runtime owns per-pane hosts/series/visible ranges; replay runtime
+  owns the shared cursor and no-future reveal state; bar-data runtime remains
+  the only bars requester. Settings target the active pane by default unless a
+  shared/global scope is explicitly modeled.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -2756,6 +2763,67 @@ Checks:
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-runtime-smoke.js`
+- `git diff --check`
+
+## Step 460 - V5 Layout Split Panes Contract
+
+Status: completed.
+
+Goal: define split-pane ownership, active-pane Settings scope, and sync rules
+before implementing any multi-pane UI.
+
+Problem:
+
+- Layout split panes affect chart runtime hosts, replay cursor ownership,
+  viewport demand, Settings scope, and future layout persistence.
+- Implementing split panes directly in the route would recreate the V4 problem
+  of route/UI code owning chart state, bar loading, and feature coupling.
+- Continuing Settings before defining pane scope would risk single-pane-only
+  assumptions that later need to be undone.
+
+Contract summary:
+
+- Current single pane remains `primary`.
+- First implementation should introduce layout state that can represent one or
+  two panes; arbitrary grid layouts remain out of scope.
+- Layout runtime owns pane list, active pane id, and sync flags.
+- Chart runtime owns chart host lifecycle, chart series writes, visible ranges,
+  and viewport/follow state per pane.
+- Replay runtime owns the shared replay cursor, reveal state, session bounds,
+  and no-future invariant.
+- Bar data runtime remains the only owner of bar requests and cache windows.
+- Presentation runtime owns normalized chart presentation settings.
+- Settings open against the active pane and apply to that pane by default; any
+  shared/global scope must be explicitly modeled.
+- Viewport, crosshair, and timeframe sync default off unless explicitly enabled
+  by future layout commands.
+
+Implementation:
+
+- [x] Step 460.1: Add `docs/specs/layout-split-panes-contract.md`.
+- [x] Step 460.2: Update architecture/execution docs with the layout runtime
+  and split-pane ownership boundary.
+- [x] Step 460.3: Update chart interaction and presentation Settings specs so
+  future split-pane work extends active-pane semantics.
+- [x] Step 460.4: Update Settings backlog matrix, docs index, specs index, and
+  roadmap handoff.
+- [x] Step 460.5: Update TODO/session handoff and run documentation/boundary
+  checks.
+
+Manual acceptance:
+
+- No runtime or UI behavior changes.
+- Split-pane implementation is blocked on the documented layout runtime and
+  active-pane command boundary.
+- Settings pane scope is explicit before more Settings work resumes.
+- Route UI remains forbidden from directly creating chart series or requesting
+  pane bars.
+
+Checks:
+
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
