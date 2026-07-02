@@ -1,4 +1,5 @@
 @import "./chart-settings.css";
+@import "./chart-navigation.css";
 @import "./replay-transport.css";
 
 :root {
@@ -424,8 +425,7 @@ input {
 }
 
 .display-timezone-controls,
-.presentation-controls,
-.chart-navigation-controls {
+.presentation-controls {
   min-width: 0;
   display: flex;
   align-items: center;
@@ -434,14 +434,12 @@ input {
 }
 
 .display-timezone-controls,
-.presentation-controls,
-.chart-navigation-controls {
+.presentation-controls {
   flex-wrap: wrap;
 }
 
 .display-timezone-controls button,
-.presentation-controls button,
-.chart-navigation-controls button {
+.presentation-controls button {
   min-width: 44px;
   min-height: 28px;
   padding: 0 9px;
@@ -453,10 +451,6 @@ input {
   font-weight: 700;
 }
 
-.chart-navigation-controls button[data-layout-open] {
-  opacity: 0.62;
-}
-
 .display-timezone-controls button[aria-pressed="true"],
 .presentation-controls button[aria-pressed="true"] {
   border-color: #2563eb;
@@ -465,42 +459,16 @@ input {
 }
 
 .display-timezone-controls button:disabled,
-.presentation-controls button:disabled,
-.chart-navigation-controls button:disabled,
-.chart-navigation-controls input:disabled {
+.presentation-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
 }
 
-.chart-navigation-controls label {
-  display: grid;
-  gap: 6px;
-}
-
-.chart-navigation-controls input {
-  min-width: 0;
-  flex: 1;
-  min-height: 28px;
-}
-
-.chart-go-to-popover {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  pointer-events: none;
-}
-
-.chart-go-to-popover[hidden],
 .replay-truncate-error-popover[hidden] {
   display: none;
 }
 
-.chart-go-to-panel,
 .replay-truncate-error-panel {
-  width: min(320px, calc(100vw - 48px));
   display: grid;
   gap: 14px;
   padding: 16px;
@@ -525,8 +493,6 @@ input {
   width: min(560px, calc(100vw - 48px));
 }
 
-.chart-go-to-header,
-.chart-go-to-actions,
 .replay-truncate-error-header,
 .replay-truncate-error-actions {
   display: flex;
@@ -535,13 +501,11 @@ input {
   gap: 8px;
 }
 
-.chart-go-to-header strong,
 .replay-truncate-error-header strong {
   color: #eef3f8;
   font-size: 15px;
 }
 
-.chart-go-to-header button,
 .replay-truncate-error-header button {
   width: 28px;
   height: 28px;
@@ -562,12 +526,10 @@ input {
   line-height: 1.45;
 }
 
-.chart-go-to-actions,
 .replay-truncate-error-actions {
   justify-content: flex-end;
 }
 
-.chart-go-to-actions button,
 .replay-truncate-error-actions button {
   min-width: 64px;
   min-height: 30px;
@@ -577,11 +539,6 @@ input {
   background: #101722;
   color: #eff6ff;
   font-weight: 700;
-}
-
-.chart-go-to-actions button:disabled {
-  cursor: not-allowed;
-  opacity: 0.45;
 }
 
 .replay-status-grid {

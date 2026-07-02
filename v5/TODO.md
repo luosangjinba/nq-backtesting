@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 448 is complete. Replay transport and floating controls
-  styles are split from `app.css` into `src/styles/replay-transport.css`, with
-  `app.css` still acting as the single stylesheet entrypoint.
-- Next candidate: Step 449 - continue CSS modularization with another complete
-  route surface such as chart navigation popovers or replay status/footer, or
+- Current status: Step 449 is complete. Chart navigation controls and Go to
+  popover styles are split from `app.css` into `src/styles/chart-navigation.css`;
+  shared Go to/truncate popover selectors have been separated by owner.
+- Next candidate: Step 450 - continue CSS modularization with another complete
+  route surface such as replay truncate popover or replay status/footer, or
   pause CSS splitting if a stronger product/runtime boundary is more urgent.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
@@ -181,6 +181,11 @@
   display-timeframe control, and transport disabled/pressed/hover states.
   Shared selector groups in `app.css` should be split by feature owner instead
   of keeping unrelated controls coupled for convenience.
+- Refactor decision: chart navigation CSS belongs with the chart navigation UI
+  surface. `src/styles/chart-navigation.css` owns chart navigation controls,
+  Go to popover, Go to panel, Go to header/actions, navigation inputs, and
+  navigation disabled/layout button states. Shared selector groups with replay
+  truncate popovers should be separated by owner before further feature work.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -2099,6 +2104,55 @@ Checks:
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 449 - V5 Chart Navigation CSS Module Split
+
+Status: completed.
+
+Goal: continue CSS modularization by moving chart navigation controls and Go to
+popover styles out of `app.css`.
+
+Problem:
+
+- After Step 448, `app.css` still mixed chart navigation controls, Go to
+  popover/panel styles, and replay truncate error popover styles in shared
+  selector groups.
+- Future Go to or truncate changes could accidentally affect the other popover
+  surface because their layout/header/action rules were coupled.
+
+Implementation:
+
+- [x] Step 449.1: Define chart navigation CSS ownership as navigation controls,
+  Go to popover, Go to panel, Go to header/actions, navigation inputs, and
+  navigation disabled/layout states.
+- [x] Step 449.2: Add `src/styles/chart-navigation.css`.
+- [x] Step 449.3: Import `chart-navigation.css` from `src/styles/app.css`
+  while keeping `index.html` pointed at `app.css` only.
+- [x] Step 449.4: Split shared Go to/truncate selector groups so replay
+  truncate error styles remain independently in `app.css`.
+- [x] Step 449.5: Reduce `app.css` from 749 lines to 706 lines.
+
+Manual acceptance:
+
+- Chart navigation toolbar buttons and disabled states keep their previous
+  styling.
+- Go to popover, panel, header, actions, and disabled button behavior keep
+  their previous styling.
+- Replay truncate error popover keeps its previous styling after shared
+  selector groups are separated.
+- `index.html` still loads only `src/styles/app.css`.
+- This step must not change JavaScript behavior, DOM classes, chart commands,
+  replay commands, or runtime ownership.
+
+Checks:
+
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
