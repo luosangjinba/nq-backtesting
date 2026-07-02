@@ -21,6 +21,7 @@ import {
   createChartSettingsController,
 } from './chart-settings-panel.js';
 import { renderChartReplayTemplate } from './chart-replay-template.js';
+import { createChartReplayControlsController } from './chart-replay-controls.js';
 import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
@@ -47,16 +48,7 @@ export function createChartReplayRoute() {
       const replayTruncateErrorTitle = section.querySelector('[data-replay-truncate-error-title]');
       const replayTruncateErrorMessage = section.querySelector('[data-replay-truncate-error-message]');
       const replayTruncateErrorCloseButtons = Array.from(section.querySelectorAll('[data-replay-truncate-error-close]'));
-      const nextButton = section.querySelector('[data-replay-next]');
-      const playButton = section.querySelector('[data-replay-play]');
-      const pauseButton = section.querySelector('[data-replay-pause]');
-      const resetButton = section.querySelector('[data-replay-reset]');
       const replayTruncateButton = section.querySelector('[data-replay-truncate-to-selection]');
-      const replayPreviousButton = section.querySelector('[data-replay-previous]');
-      const replaySpeedInput = section.querySelector('[data-replay-speed]');
-      const replayIntervalSelect = section.querySelector('[data-replay-interval-select]');
-      const replaySyncIntervalInput = section.querySelector('[data-replay-sync-interval]');
-      const displayTimeframeSelect = section.querySelector('[data-display-timeframe-select]');
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -64,11 +56,8 @@ export function createChartReplayRoute() {
       const goToButton = section.querySelector('[data-chart-go-to]');
       const jumpCursorButton = section.querySelector('[data-chart-jump-cursor]');
       const jumpCursorPopoverButton = section.querySelector('[data-chart-jump-cursor-popover]');
-      const layoutOpenButton = section.querySelector('[data-layout-open]');
-      const chartToolbarButtons = Array.from(section.querySelectorAll('[data-chart-toolbar] button'));
       const resetViewButton = section.querySelector('[data-chart-reset-view]');
       let commandInFlight = false;
-      let replayCommandQueue = Promise.resolve();
       let replayLoaded = false;
       let disposed = false;
       let initialLoadTimer = null;
@@ -125,6 +114,7 @@ export function createChartReplayRoute() {
       });
       statusController.setSessionId(sessionId);
       createReplayFloatingControlsController({ root: section });
+      let replayControlsController = null;
       const chartSettingsController = createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -168,6 +158,50 @@ export function createChartReplayRoute() {
           await refreshReplayStatus();
         },
       });
+      replayControlsController = createChartReplayControlsController({
+        root: section,
+        activePaneId,
+        dispatchCommand,
+        getSessionId: () => params.sessionId || '',
+        getReplayLoaded: () => replayLoaded,
+        getPlaybackPlaying: () => playbackPlaying,
+        setPlaybackPlaying: (value) => {
+          playbackPlaying = Boolean(value);
+        },
+        getPlaybackIntervalMs: () => playbackIntervalMs,
+        setPlaybackIntervalMs: (value) => {
+          playbackIntervalMs = Number(value);
+        },
+        getTerminalReason: () => terminalReason,
+        setTerminalReason: (value) => {
+          terminalReason = value || '';
+        },
+        getRevealedCount: () => revealedCount,
+        getSessionTimeframe: () => sessionTimeframe,
+        getDisplayTimeframe: () => displayTimeframe,
+        setDisplayTimeframe: (value) => {
+          displayTimeframe = Number(value || 0);
+        },
+        getReplayIntervalTimeframe: () => replayIntervalTimeframe,
+        setReplayIntervalTimeframe: (value) => {
+          replayIntervalTimeframe = Number(value || 0);
+        },
+        getReplayIntervalSync: () => replayIntervalSync,
+        setReplayIntervalSync: (value) => {
+          replayIntervalSync = Boolean(value);
+        },
+        getTruncatePickMode: () => truncatePickMode,
+        getGoToInputValue: () => goToInput.value,
+        formatReplayTimestamp,
+        refreshReplayStatus,
+        setStatusText: (message) => {
+          status.textContent = message;
+        },
+        getCommandInFlight: () => commandInFlight,
+        setCommandInFlight: (value) => {
+          commandInFlight = Boolean(value);
+        },
+      });
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
@@ -208,42 +242,14 @@ export function createChartReplayRoute() {
         if (terminalReason) {
           status.textContent = `Replay stopped: ${terminalReason}.`;
         }
-        updateDisplayTimeframeButtons();
+        replayControlsController.renderControls();
         updateDisplayTimezoneButtons();
         updatePresentationButtons();
-        setControlsDisabled();
+        replayControlsController.setControlsDisabled();
       }
 
       function formatReplayTimestamp(value) {
         return statusController.formatReplayTimestamp(value);
-      }
-
-      function setControlsDisabled(disabled = false) {
-        const unavailable = disabled || !replayLoaded || !params.sessionId;
-        nextButton.disabled = unavailable;
-        playButton.disabled = unavailable || playbackPlaying;
-        pauseButton.disabled = unavailable || !playbackPlaying;
-        resetButton.disabled = unavailable;
-        replayTruncateButton.disabled = unavailable;
-        replayTruncateButton.setAttribute('aria-pressed', truncatePickMode ? 'true' : 'false');
-        replayPreviousButton.disabled = unavailable || revealedCount <= 0;
-        replaySpeedInput.disabled = unavailable;
-        replayIntervalSelect.disabled = unavailable;
-        replaySyncIntervalInput.disabled = unavailable;
-        goToInput.disabled = unavailable;
-        goToOpenButton.disabled = unavailable;
-        goToButton.disabled = unavailable || !goToInput.value;
-        if (jumpCursorButton) {
-          jumpCursorButton.disabled = unavailable;
-        }
-        jumpCursorPopoverButton.disabled = unavailable;
-        layoutOpenButton.disabled = true;
-        chartToolbarButtons.forEach((button) => {
-          button.disabled = unavailable;
-        });
-        displayTimeframeSelect.disabled = unavailable;
-        playButton.hidden = playbackPlaying;
-        pauseButton.hidden = !playbackPlaying;
       }
 
       function parseTimestampMs(value) {
@@ -276,7 +282,7 @@ export function createChartReplayRoute() {
           replayTruncatePickLine.style.left = '';
         }
         replayTruncateButton.setAttribute('aria-pressed', truncatePickMode ? 'true' : 'false');
-        setControlsDisabled();
+        replayControlsController.setControlsDisabled();
       }
 
       function updateTruncatePickGuide(event) {
@@ -344,7 +350,7 @@ export function createChartReplayRoute() {
           return;
         }
         setTruncatePickMode(false);
-        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, {
+        const state = await replayControlsController.runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, {
           sessionId: params.sessionId,
           timestamp: selectedTimestamp,
         }));
@@ -354,22 +360,6 @@ export function createChartReplayRoute() {
           ? `Truncated to ${formatReplayTimestamp(state.cursorTimestamp)}.`
           : `Replay stopped: ${state.reason || 'selected bar unavailable'}.`;
         await refreshReplayStatus();
-      }
-
-      function updateDisplayTimeframeButtons() {
-        displayTimeframeSelect.value = displayTimeframe ? String(displayTimeframe) : '1';
-        replayIntervalSelect.value = replayIntervalTimeframe ? String(replayIntervalTimeframe) : '1';
-        replaySyncIntervalInput.checked = replayIntervalSync;
-        replaySpeedInput.value = String(playbackIntervalMs);
-      }
-
-      function replayStepCount() {
-        const base = Number(sessionTimeframe || 1);
-        const selected = Number(replayIntervalTimeframe || base);
-        if (!Number.isFinite(base) || base <= 0 || !Number.isFinite(selected) || selected <= 0) {
-          return 1;
-        }
-        return Math.max(1, Math.round(selected / base));
       }
 
       function updateDisplayTimezoneButtons() {
@@ -407,35 +397,6 @@ export function createChartReplayRoute() {
         }).catch(() => null);
       }
 
-      async function runReplayCommand(action) {
-        if (!params.sessionId) return null;
-        const runQueued = async () => {
-          commandInFlight = true;
-          try {
-            return await action();
-          } finally {
-            commandInFlight = false;
-            setControlsDisabled(false);
-          }
-        };
-        const result = replayCommandQueue.then(runQueued, runQueued);
-        replayCommandQueue = result.catch(() => null);
-        return result;
-      }
-
-      nextButton.addEventListener('click', async () => {
-        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
-          sessionId: params.sessionId,
-          stepCount: replayStepCount(),
-        }));
-        if (!state) return;
-        terminalReason = state.advanced ? '' : state.reason || 'stopped';
-        status.textContent = state.advanced
-          ? `Loaded ${state.displayBars.length} bars.`
-          : `Replay stopped: ${state.reason || 'no next bar'}.`;
-        await refreshReplayStatus();
-      });
-
       replayTruncateButton.addEventListener('click', () => {
         if (replayTruncateButton.disabled) return;
         closeTruncateError();
@@ -463,101 +424,16 @@ export function createChartReplayRoute() {
         }
       });
 
-      replayPreviousButton.addEventListener('click', async () => {
-        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PREVIOUS, {
-          sessionId: params.sessionId,
-          stepCount: replayStepCount(),
-        }));
-        if (!state) return;
-        terminalReason = state.rewound ? '' : state.reason || 'stopped';
-        status.textContent = state.rewound
-          ? `Rewound to ${formatReplayTimestamp(state.cursorTimestamp)}.`
-          : `Replay stopped: ${state.reason || 'no previous bar'}.`;
-        await refreshReplayStatus();
-      });
-
-      playButton.addEventListener('click', async () => {
-        const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PLAY, {
-          sessionId: params.sessionId,
-          intervalMs: playbackIntervalMs,
-          stepCount: replayStepCount(),
-        }));
-        if (!playback) return;
-        playbackPlaying = Boolean(playback.playing);
-        terminalReason = '';
-        status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
-        await refreshReplayStatus();
-      });
-
-      pauseButton.addEventListener('click', async () => {
-        const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PAUSE));
-        if (!playback) return;
-        playbackPlaying = Boolean(playback.playing);
-        status.textContent = playbackPlaying ? 'Playing replay.' : 'Replay paused.';
-        await refreshReplayStatus();
-      });
-
-      resetButton.addEventListener('click', async () => {
-        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.RESET, {
-          sessionId: params.sessionId,
-        }));
-        if (!state) return;
-        terminalReason = '';
-        status.textContent = `Loaded ${state.displayBars.length} bars.`;
-        await refreshReplayStatus();
-      });
-
-      replaySpeedInput.addEventListener('input', () => {
-        const nextInterval = Number(replaySpeedInput.value);
-        if (!Number.isFinite(nextInterval) || nextInterval <= 0) return;
-        playbackIntervalMs = nextInterval;
-      });
-
-      replayIntervalSelect.addEventListener('change', () => {
-        const nextReplayInterval = Number(replayIntervalSelect.value);
-        if (!Number.isFinite(nextReplayInterval) || nextReplayInterval <= 0) return;
-        replayIntervalSync = false;
-        replayIntervalTimeframe = nextReplayInterval;
-        updateDisplayTimeframeButtons();
-      });
-
-      replaySyncIntervalInput.addEventListener('change', () => {
-        replayIntervalSync = replaySyncIntervalInput.checked;
-        if (replayIntervalSync) {
-          replayIntervalTimeframe = Number(displayTimeframe || sessionTimeframe || 1);
-        }
-        updateDisplayTimeframeButtons();
-      });
-
-      displayTimeframeSelect.addEventListener('change', async () => {
-        const nextDisplayTimeframe = Number(displayTimeframeSelect.value);
-        if (!nextDisplayTimeframe || nextDisplayTimeframe === displayTimeframe) return;
-        const selectedOption = displayTimeframeSelect.selectedOptions[0];
-        const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-          sessionId: params.sessionId,
-          paneId: activePaneId,
-          displayTimeframe: nextDisplayTimeframe,
-        }));
-        if (!state) return;
-        displayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
-        if (replayIntervalSync) {
-          replayIntervalTimeframe = displayTimeframe;
-        }
-        status.textContent = `Loaded ${state.displayBars?.length || 0} ${selectedOption?.textContent || ''} bars.`;
-        updateDisplayTimeframeButtons();
-        await refreshReplayStatus();
-      });
-
       function openGoToPopover() {
         if (goToOpenButton.disabled) return;
         goToPopover.hidden = false;
         goToInput.focus();
-        setControlsDisabled();
+        replayControlsController.setControlsDisabled();
       }
 
       function closeGoToPopover() {
         goToPopover.hidden = true;
-        setControlsDisabled();
+        replayControlsController.setControlsDisabled();
       }
 
       goToOpenButton.addEventListener('click', openGoToPopover);
@@ -566,13 +442,13 @@ export function createChartReplayRoute() {
       });
 
       goToInput.addEventListener('input', () => {
-        setControlsDisabled();
+        replayControlsController.setControlsDisabled();
       });
 
       async function runChartNavigation(action, statusText) {
         if (commandInFlight) return null;
         commandInFlight = true;
-        setControlsDisabled(true);
+        replayControlsController.setControlsDisabled(true);
         try {
           const result = await action();
           if (statusText) {
@@ -584,7 +460,7 @@ export function createChartReplayRoute() {
           return null;
         } finally {
           commandInFlight = false;
-          setControlsDisabled(false);
+          replayControlsController.setControlsDisabled(false);
         }
       }
 
@@ -598,7 +474,7 @@ export function createChartReplayRoute() {
       goToButton.addEventListener('click', async () => {
         if (!goToInput.value || commandInFlight) return;
         commandInFlight = true;
-        setControlsDisabled(true);
+        replayControlsController.setControlsDisabled(true);
         try {
           const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null);
           const targetTimestamp = displayWallClockToCanonicalTimestamp(goToInput.value, {
@@ -622,14 +498,14 @@ export function createChartReplayRoute() {
           status.textContent = error?.message || String(error);
         } finally {
           commandInFlight = false;
-          setControlsDisabled(false);
+          replayControlsController.setControlsDisabled(false);
         }
       });
 
       async function jumpToCursor() {
         if (commandInFlight) return;
         commandInFlight = true;
-        setControlsDisabled(true);
+        replayControlsController.setControlsDisabled(true);
         try {
           await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
           const state = await dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null);
@@ -638,7 +514,7 @@ export function createChartReplayRoute() {
           status.textContent = error?.message || String(error);
         } finally {
           commandInFlight = false;
-          setControlsDisabled(false);
+          replayControlsController.setControlsDisabled(false);
         }
       }
 
@@ -665,7 +541,7 @@ export function createChartReplayRoute() {
         const unsubscribe = subscribeEvent(eventName, (payload = {}) => {
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
             statusController.setCrosshairState(payload.crosshair || { active: false });
-            setControlsDisabled();
+            replayControlsController.setControlsDisabled();
             return;
           }
           if (eventName === CHART_PRESENTATION_EVENTS.CHANGED) {
@@ -723,7 +599,7 @@ export function createChartReplayRoute() {
           initialLoadTimer = null;
           if (disposed) return;
           status.textContent = 'Loading replay start...';
-          setControlsDisabled(true);
+          replayControlsController.setControlsDisabled(true);
           try {
             const state = await dispatchCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, {
               sessionId: params.sessionId,
@@ -738,7 +614,7 @@ export function createChartReplayRoute() {
             status.textContent = error?.message || String(error);
           } finally {
             if (disposed) return;
-            setControlsDisabled(false);
+            replayControlsController.setControlsDisabled(false);
           }
         }, 0);
       }

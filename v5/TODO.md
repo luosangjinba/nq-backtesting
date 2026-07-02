@@ -10,14 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 438 is complete. `chart-replay-route.js` has started
-  route-shell modularization: footer replay status, OHLC overlay, crosshair
-  readout, countdown, and route-local display formatting now live in
-  `features/chart-replay/chart-replay-status.js`.
-- Next candidate: Step 439 - continue `chart-replay-route.js` decomposition by
-  splitting replay command controls, truncate pick mode, or chart navigation
-  popover behavior into route-local controllers before moving to
-  `chart-settings-panel.js`.
+- Current status: Step 439 is complete. Replay transport and display-timeframe
+  controls now live in `features/chart-replay/chart-replay-controls.js`;
+  `chart-replay-route.js` delegates Next/Previous/Play/Pause/Reset, replay
+  interval, playback speed, sync interval, display timeframe, shared replay
+  command queueing, and control disabled state.
+- Next candidate: Step 440 - continue `chart-replay-route.js` decomposition by
+  splitting truncate pick mode or chart go-to/reset navigation into route-local
+  controllers before moving to `chart-settings-panel.js`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -116,6 +116,13 @@
   visibility, and display-timezone-aware formatting. `chart-replay-route.js`
   may fetch runtime snapshots and pass state into the controller, but it should
   not reintroduce these rendering helpers inline.
+- Refactor decision: chart replay transport controls are route-local command UI,
+  not route orchestration. `chart-replay-controls.js` owns replay transport
+  button bindings, replay interval/speed controls, display-timeframe selection,
+  shared replay command queueing, and disabled/visible control state.
+  `chart-replay-route.js` may inject runtime command dispatch and mutable route
+  state accessors, but it should not reintroduce transport command handlers
+  inline.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1495,6 +1502,61 @@ Checks:
 - `node v5/tests/chart-crosshair-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-restore-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 439 - V5 Chart Replay Controls Controller Split
+
+Status: completed.
+
+Goal: continue `chart-replay-route.js` decomposition by extracting replay
+transport controls and display-timeframe command handling into a route-local
+controller.
+
+Problem:
+
+- After Step 438, `chart-replay-route.js` still owned replay transport button
+  bindings, replay command queueing, playback speed, replay interval sync,
+  display-timeframe switching, and disabled/visible control state.
+- Those responsibilities are route-local command UI. Keeping them inline would
+  keep the route shell mixed with transport-specific behavior and make the next
+  truncate/go-to splits harder.
+
+Implementation:
+
+- [x] Step 439.1: Define the second route split boundary as replay transport
+  and display-timeframe controls.
+- [x] Step 439.2: Add `features/chart-replay/chart-replay-controls.js` with
+  injected runtime command dispatch, route state getters/setters, status text,
+  timestamp formatting, and refresh hooks.
+- [x] Step 439.3: Move Next, Previous, Play, Pause, Reset, speed, replay
+  interval, sync interval, display timeframe, replay command queueing, and
+  control disabled/visible state into the controller.
+- [x] Step 439.4: Preserve shared in-flight behavior by wiring the controller
+  to the route's `commandInFlight` flag so replay and chart navigation commands
+  cannot overlap.
+- [x] Step 439.5: Reduce `chart-replay-route.js` from 749 lines to 625 lines.
+
+Manual acceptance:
+
+- Replay Next/Previous/Play/Pause/Reset still dispatch through replay runtime
+  commands only.
+- Replay interval sync and display timeframe selection keep existing behavior.
+- Control disabled/visible state still updates after initial load, replay
+  events, crosshair events, Settings changes, and go-to/truncate actions.
+- `chart-replay-route.js` remains responsible for initial load, Settings,
+  truncate pick mode, chart go-to/reset navigation, event subscriptions, and
+  lifecycle disposal.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-controls.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
