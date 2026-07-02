@@ -7,7 +7,7 @@ const srcRoot = resolve(repoRoot, 'v5/src');
 const allowedEngineApiFiles = new Set([
   'v5/src/runtime/chart-engine-adapter.js',
   'v5/src/runtime/chart-engine-lightweight-adapter.js',
-  'v5/src/runtime/chart-engine-presentation.js',
+  'v5/src/runtime/chart-engine-range-projection.js',
 ]);
 
 function listJsFiles(root) {

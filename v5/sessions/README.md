@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 457: `session_20260702_step457_v5_chart_engine_lightweight_options_split.md`
+- Step 458: `session_20260702_step458_v5_chart_engine_range_projection_rename.md`
 
 ## Completed Session Index
 
@@ -122,3 +122,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 455: `session_20260702_step455_v5_chart_engine_dom_metadata_split.md`
 - Step 456: `session_20260702_step456_v5_chart_interaction_regression_audit.md`
 - Step 457: `session_20260702_step457_v5_chart_engine_lightweight_options_split.md`
+- Step 458: `session_20260702_step458_v5_chart_engine_range_projection_rename.md`

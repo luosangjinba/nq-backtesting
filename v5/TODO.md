@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 457 is complete. Lightweight chart option mapping is
-  split from `chart-engine-presentation.js` into
-  `chart-engine-lightweight-options.js`; `chart-engine-presentation.js` is now
-  a 52-line visible/logical range projection helper.
-- Next candidate: Step 458 - either rename `chart-engine-presentation.js` to a
-  range-projection module, or pause refactoring and pick the next verified
-  product issue from manual replay use.
+- Current status: Step 458 is complete. The remaining range projection helpers
+  were renamed from `chart-engine-presentation.js` to
+  `chart-engine-range-projection.js`, so chart engine option mapping and range
+  projection now have explicit module names.
+- Next candidate: Step 459 - pause broad chart-engine refactoring and pick the
+  next verified product issue from manual replay use, unless a concrete file-size
+  hotspot reappears in the current code audit.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -293,6 +293,11 @@
   formatting. `chart-engine-presentation.js` now only owns follow/manual
   visible-logical range projection and logical-whitespace range expansion until
   it is renamed to a range-projection module.
+- Refactor decision: range projection is now named directly.
+  `chart-engine-range-projection.js` owns follow/manual visible-logical range
+  projection and logical-whitespace expansion. New chart presentation settings
+  should not be added to this module; use chart-engine option or display-context
+  modules according to runtime ownership.
 - Refactor decision: Lightweight chart adapter internals should keep lifecycle,
   native input/writeback tracking, and crosshair/readout mapping separate. This
   keeps future reset/zoom/drag, multi-pane sync, order markers, and review
@@ -2621,6 +2626,50 @@ Manual acceptance:
 
 Checks:
 
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 458 - V5 Chart Engine Range Projection Rename
+
+Status: completed.
+
+Goal: make the remaining `chart-engine-presentation.js` ownership explicit by
+renaming it to a range-projection module after Step 457 removed Lightweight
+option mapping.
+
+Problem:
+
+- After Step 457, `chart-engine-presentation.js` only owned visible/logical
+  range projection helpers, but the old generic name could invite future chart
+  settings, style, or Lightweight option logic back into the file.
+- The Lightweight adapter should import range projection from a module whose
+  name describes the contract it owns.
+- Boundary smoke coverage should track the renamed runtime module.
+
+Implementation:
+
+- [x] Step 458.1: Rename `src/runtime/chart-engine-presentation.js` to
+  `src/runtime/chart-engine-range-projection.js`.
+- [x] Step 458.2: Update `chart-engine-lightweight-adapter.js` to import range
+  projection helpers from the renamed module.
+- [x] Step 458.3: Update chart-engine boundary smoke tracked module paths.
+- [x] Step 458.4: Update TODO/session handoff with the new ownership rule.
+- [x] Step 458.5: Run focused chart-engine and boundary checks.
+
+Manual acceptance:
+
+- No runtime behavior changes.
+- `chart-engine-range-projection.js` owns only follow/manual visible-logical
+  range projection and logical-whitespace expansion.
+- No source import references `chart-engine-presentation.js`.
+- Chart engine public adapter API is unchanged.
+
+Checks:
+
+- `node --check v5/src/runtime/chart-engine-range-projection.js`
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-runtime-smoke.js`

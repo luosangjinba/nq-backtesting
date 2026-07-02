@@ -21,7 +21,7 @@ import {
   followLogicalRangeForBars,
   manualLogicalRangeForVisibleRange,
   visibleRangeWithLogicalWhitespace,
-} from './chart-engine-presentation.js';
+} from './chart-engine-range-projection.js';
 import {
   createRuntimeCanvas,
   renderHiddenDebugBars,
