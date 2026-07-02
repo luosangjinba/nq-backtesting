@@ -10,13 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 435 is complete. Replay cursor navigation, truncation,
-  and reset now live in `runtime/replay-navigation-controller.js`; the main
-  replay runtime delegates `NEXT`, `PREVIOUS`, `TRUNCATE_TO_TIMESTAMP`, and
-  `RESET` and no longer owns cursor-mutation command bodies.
-- Next candidate: Step 436 - decide whether to split the remaining session
-  bootstrap/restore flow from `replay-runtime.js` or return to the next
-  Settings contract now that replay subsystem boundaries are explicit.
+- Current status: Step 436 is complete. Replay session bootstrap and restore
+  now live in `runtime/replay-bootstrap-controller.js`; the main replay runtime
+  delegates `RESOLVE_START_BAR`, `LOAD_INITIAL_PREFIX`, and
+  `LOAD_INITIAL_SESSION` and no longer owns initial-load sequence, start-bar
+  resolution, prefix bootstrap, or persisted cursor restore bodies.
+- Next candidate: Step 437 - return to the Settings backlog matrix and pick
+  the next explicit contract row, now that the replay runtime shell has stable
+  subsystem boundaries.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -141,6 +142,14 @@
   register commands and compose the controller with session bootstrap,
   playback, chart sync, and display projection, but it should not reintroduce
   navigation implementation bodies.
+- Refactor decision: session bootstrap and persisted cursor restore are a
+  replay subsystem, not main-runtime inline logic.
+  `replay-bootstrap-controller.js` owns start-bar resolution, initial prefix
+  loading, persisted reveal-bar restore, initial chart render, stale
+  initial-load sequence guards, and bootstrap events. `replay-runtime.js` may
+  register bootstrap commands and inject bootstrap hooks into display and
+  navigation controllers, but it should not reintroduce bootstrap/restore
+  implementation bodies.
 - Refactor decision: chart engine adapter modules should separate factory,
   context normalization, presentation/options mapping, DOM fallback rendering,
   and Lightweight engine integration. Adapter implementations may write their
@@ -1304,6 +1313,65 @@ Checks:
 - `node v5/tests/replay-reset-smoke.js`
 - `node v5/tests/replay-play-smoke.js`
 - `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/runtime-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 436 - V5 Replay Bootstrap Controller Split
+
+Status: completed.
+
+Goal: finish the replay runtime shell split by extracting session bootstrap,
+initial prefix load, initial chart render, and persisted cursor restore into a
+dedicated controller.
+
+Problem:
+
+- After Step 435, `replay-runtime.js` was much smaller but still owned
+  `RESOLVE_START_BAR`, `LOAD_INITIAL_PREFIX`, `LOAD_INITIAL_SESSION`, stale
+  initial-load sequencing, and persisted reveal-bar restore.
+- Those paths are session bootstrap behavior, not command registration. Keeping
+  them inline would keep the runtime shell responsible for both orchestration
+  and a long-lived replay subsystem, making future session breaks, restore
+  policy, and Settings-backed startup options harder to isolate.
+
+Implementation:
+
+- [x] Step 436.1: Define the boundary as replay session bootstrap and restore,
+  leaving `replay-runtime.js` as composition, lifecycle, event subscription,
+  and command registration owner.
+- [x] Step 436.2: Add `runtime/replay-bootstrap-controller.js` with injected
+  state access, command dispatch, chart sync, prefix-anchor reset, and event
+  emit APIs.
+- [x] Step 436.3: Move start-bar resolution, initial prefix loading, persisted
+  reveal-bar restore, initial display render, and stale load-sequence guards
+  into the bootstrap controller.
+- [x] Step 436.4: Delegate `RESOLVE_START_BAR`, `LOAD_INITIAL_PREFIX`, and
+  `LOAD_INITIAL_SESSION` from `replay-runtime.js`, and inject bootstrap hooks
+  into display-window and navigation controllers.
+- [x] Step 436.5: Update `runtime-boundary-smoke` so bootstrap/restore
+  implementation bodies cannot drift back into `replay-runtime.js`.
+- [x] Step 436.6: Reduce `replay-runtime.js` from 363 lines to 178 lines.
+
+Manual acceptance:
+
+- Session bootstrap still loads bars only through bar-data runtime commands.
+- Initial chart render still writes chart state only through `replay-chart-sync`
+  and chart runtime commands.
+- Replay runtime still owns command registration, event subscription,
+  controller composition, lifecycle reset, and public helper exports.
+- Public replay command/event payloads remain unchanged.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/replay-bootstrap-controller.js`
+- `node v5/tests/replay-start-bar-smoke.js`
+- `node v5/tests/replay-prefix-load-smoke.js`
+- `node v5/tests/replay-initial-render-smoke.js`
+- `node v5/tests/replay-restore-smoke.js`
+- `node v5/tests/replay-session-switch-smoke.js`
+- `node v5/tests/replay-cursor-persistence-smoke.js`
 - `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

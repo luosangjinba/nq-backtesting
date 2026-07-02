@@ -11,6 +11,10 @@ const replayPrefixControllerSource = readFileSync(
   resolve(repoRoot, 'v5/src/runtime/replay-prefix-controller.js'),
   'utf8'
 );
+const replayBootstrapControllerSource = readFileSync(
+  resolve(repoRoot, 'v5/src/runtime/replay-bootstrap-controller.js'),
+  'utf8'
+);
 const replayDisplayWindowControllerSource = readFileSync(
   resolve(repoRoot, 'v5/src/runtime/replay-display-window-controller.js'),
   'utf8'
@@ -37,6 +41,24 @@ assert.ok(
   replayPrefixControllerSource.includes('async function loadPrefixDemand(')
     && replayPrefixControllerSource.includes('async function applyPrefixRetention('),
   'replay prefix controller must own prefix demand/retention implementations'
+);
+assert.ok(
+  replayRuntimeSource.includes('createReplayBootstrapController('),
+  'replay runtime must delegate session bootstrap/restore to the bootstrap controller'
+);
+assert.ok(
+  !replayRuntimeSource.includes('async function resolveStartBar(')
+    && !replayRuntimeSource.includes('async function loadInitialPrefix(')
+    && !replayRuntimeSource.includes('async function loadInitialSession(')
+    && !replayRuntimeSource.includes('async function loadPersistedRevealBars('),
+  'replay runtime must not own session bootstrap/restore implementations'
+);
+assert.ok(
+  replayBootstrapControllerSource.includes('async function resolveStartBar(')
+    && replayBootstrapControllerSource.includes('async function loadInitialPrefix(')
+    && replayBootstrapControllerSource.includes('async function loadInitialSession(')
+    && replayBootstrapControllerSource.includes('async function loadPersistedRevealBars('),
+  'replay bootstrap controller must own session bootstrap/restore implementations'
 );
 assert.ok(
   replayRuntimeSource.includes('createReplayDisplayWindowController('),
