@@ -319,16 +319,22 @@ async function main() {
             return overlays.length === 3
               && overlays.every((overlay) => overlay.hidden === false)
               && overlays.every((overlay) => overlay.querySelector('[data-chart-ohlc-legend]')?.textContent?.includes('O'))
+              && document.querySelectorAll('[data-layout-pane] [data-chart-toolbar]').length === 3
               && canvases.length === 3
-              && canvases.every((canvas) => canvas.dataset.priceScaleVisible === 'true');
+              && canvases.every((canvas) => canvas.dataset.priceScaleVisible === 'true')
+              && canvases.every((canvas) => canvas.dataset.timeScaleVisible === 'true');
           });
           const tripleOhlcOverlayCount = document.querySelectorAll('[data-layout-pane] [data-chart-ohlc-overlay]').length;
           const tripleVisibleOhlcOverlayCount = Array
             .from(document.querySelectorAll('[data-layout-pane] [data-chart-ohlc-overlay]'))
             .filter((overlay) => overlay.hidden === false).length;
+          const tripleToolbarCount = document.querySelectorAll('[data-layout-pane] [data-chart-toolbar]').length;
           const triplePriceScaleCanvasCount = Array
             .from(document.querySelectorAll('[data-chart-canvas]'))
             .filter((canvas) => canvas.dataset.priceScaleVisible === 'true').length;
+          const tripleTimeScaleCanvasCount = Array
+            .from(document.querySelectorAll('[data-chart-canvas]'))
+            .filter((canvas) => canvas.dataset.timeScaleVisible === 'true').length;
           document.querySelector('[data-layout-close]')?.click();
           const routeNavigation = document.querySelector('[data-route-navigation]');
           const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
@@ -416,7 +422,9 @@ async function main() {
             tripleHostCount,
             tripleOhlcOverlayCount,
             tripleVisibleOhlcOverlayCount,
+            tripleToolbarCount,
             triplePriceScaleCanvasCount,
+            tripleTimeScaleCanvasCount,
             chartNavRect,
             footerRect,
             statusRect,
@@ -524,7 +532,9 @@ async function main() {
     assert.equal(value.tripleHostCount, 3);
     assert.equal(value.tripleOhlcOverlayCount, 3);
     assert.equal(value.tripleVisibleOhlcOverlayCount, 3);
+    assert.equal(value.tripleToolbarCount, 3);
     assert.equal(value.triplePriceScaleCanvasCount, 3);
+    assert.equal(value.tripleTimeScaleCanvasCount, 3);
     assert.ok(
       value.triplePrimaryRect.width > value.tripleSecondaryRect.width,
       'triple.left primary pane should be wider than secondary pane'

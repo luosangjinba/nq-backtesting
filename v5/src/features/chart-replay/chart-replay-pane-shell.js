@@ -32,6 +32,9 @@ function createChartPane(pane) {
         <span data-chart-ohlc-timeframe>1m</span>
         <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
       </div>
+      <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
+        <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
+      </div>
     </div>
   `;
   updatePaneElement(element, pane, false);

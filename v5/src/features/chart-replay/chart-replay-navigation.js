@@ -21,7 +21,6 @@ export function createChartReplayNavigationController({
   const goToButton = root.querySelector('[data-chart-go-to]');
   const jumpCursorButton = root.querySelector('[data-chart-jump-cursor]');
   const jumpCursorPopoverButton = root.querySelector('[data-chart-jump-cursor-popover]');
-  const resetViewButton = root.querySelector('[data-chart-reset-view]');
 
   function openGoToPopover() {
     if (goToOpenButton.disabled) return;
@@ -110,7 +109,9 @@ export function createChartReplayNavigationController({
   goToInput.addEventListener('input', () => {
     setControlsDisabled();
   });
-  resetViewButton.addEventListener('click', () => {
+  root.addEventListener('click', (event) => {
+    const resetViewButton = event.target.closest('[data-chart-reset-view]');
+    if (!resetViewButton || !root.contains(resetViewButton)) return;
     runChartNavigation(
       () => dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW),
       () => 'Following cursor.'

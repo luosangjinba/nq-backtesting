@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 473 is complete. Every real layout pane now has its own
-  chart OHLC overlay, and browser smoke verifies every multi-pane chart canvas
-  keeps a visible price scale.
-- Next candidate: Step 474 - audit multi-pane behavior in-browser and decide
+- Current status: Step 474 is complete. Every real layout pane now mirrors the
+  single-pane chart chrome: OHLC/TF overlay, chart toolbar/reset entry, visible
+  price scale, and visible time scale.
+- Next candidate: Step 475 - audit multi-pane behavior in-browser and decide
   whether to add pane-specific data policies/settings or return to Settings
   polish.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -83,6 +83,9 @@
 - Multi-pane display decision: Step 473 makes OHLC overlays pane-local. Price
   scales remain chart-runtime/adapter presentation state and must be present on
   every mounted chart host when `priceScaleVisible` is true.
+- Multi-pane chrome decision: Step 474 makes dynamically-created panes carry
+  the same chart chrome contract as the primary pane. Dynamic toolbar buttons
+  use delegated handlers so they are real controls, not inert markup.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3574,6 +3577,47 @@ Checks:
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-crosshair-browser-smoke.js`
+- `git diff --check`
+
+## Step 474 - V5 Multi-Pane Chart Chrome Parity
+
+Status: completed.
+
+Goal: make secondary and tertiary layout panes match the single-pane chart
+surface elements.
+
+Problem:
+
+- Secondary/tertiary panes had real chart hosts, but they still lacked the same
+  complete chart chrome contract as the primary pane.
+- Each pane should expose OHLC/TF, price scale, time scale, and reset-view
+  access.
+
+Plan:
+
+- [x] Step 474.1: Add pane-local chart toolbar/reset markup to dynamically
+  created panes.
+- [x] Step 474.2: Make replay controls dynamically enable/disable all current
+  chart toolbar buttons.
+- [x] Step 474.3: Use delegated reset-view click handling so dynamic pane reset
+  buttons are real controls.
+- [x] Step 474.4: Extend browser smoke to verify OHLC overlays, chart toolbars,
+  visible price scales, and visible time scales across all panes.
+
+Manual acceptance:
+
+- Every pane has an OHLC/TF overlay.
+- Every pane has a chart toolbar/reset entry.
+- Every mounted chart canvas has visible price scale metadata by default.
+- Every mounted chart canvas has visible time scale metadata by default.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node --check v5/src/features/chart-replay/chart-replay-controls.js`
+- `node --check v5/src/features/chart-replay/chart-replay-navigation.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
