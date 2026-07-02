@@ -23,6 +23,7 @@ import {
 import { renderChartReplayTemplate } from './chart-replay-template.js';
 import { createChartReplayControlsController } from './chart-replay-controls.js';
 import { createChartReplayStatusController } from './chart-replay-status.js';
+import { createChartReplayTruncateController } from './chart-replay-truncate.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
@@ -41,14 +42,6 @@ export function createChartReplayRoute() {
       section.dataset.layoutMode = 'single';
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
-      const chartViewport = section.querySelector('.chart-viewport');
-      const chartHost = section.querySelector('[data-chart-host]');
-      const replayTruncatePickLine = section.querySelector('[data-replay-truncate-pick-line]');
-      const replayTruncateErrorPopover = section.querySelector('[data-replay-truncate-error]');
-      const replayTruncateErrorTitle = section.querySelector('[data-replay-truncate-error-title]');
-      const replayTruncateErrorMessage = section.querySelector('[data-replay-truncate-error-message]');
-      const replayTruncateErrorCloseButtons = Array.from(section.querySelectorAll('[data-replay-truncate-error-close]'));
-      const replayTruncateButton = section.querySelector('[data-replay-truncate-to-selection]');
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -73,7 +66,6 @@ export function createChartReplayRoute() {
       let replayIntervalSync = false;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
-      let truncatePickMode = false;
       let presentationSettings = {
         timeFormat: DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
         dateFormat: CHART_DATE_FORMATS.ISO_DATE,
@@ -115,6 +107,7 @@ export function createChartReplayRoute() {
       statusController.setSessionId(sessionId);
       createReplayFloatingControlsController({ root: section });
       let replayControlsController = null;
+      let truncateController = null;
       const chartSettingsController = createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -190,7 +183,7 @@ export function createChartReplayRoute() {
         setReplayIntervalSync: (value) => {
           replayIntervalSync = Boolean(value);
         },
-        getTruncatePickMode: () => truncatePickMode,
+        getTruncatePickMode: () => truncateController?.isPickMode() || false,
         getGoToInputValue: () => goToInput.value,
         formatReplayTimestamp,
         refreshReplayStatus,
@@ -200,6 +193,24 @@ export function createChartReplayRoute() {
         getCommandInFlight: () => commandInFlight,
         setCommandInFlight: (value) => {
           commandInFlight = Boolean(value);
+        },
+      });
+      truncateController = createChartReplayTruncateController({
+        root: section,
+        dispatchCommand,
+        getSessionId: () => params.sessionId || '',
+        getReplayLoaded: () => replayLoaded,
+        getStartTimestamp: () => startTimestamp,
+        getCursorTimestamp: () => cursorTimestamp,
+        formatReplayTimestamp,
+        runReplayCommand: (action) => replayControlsController.runReplayCommand(action),
+        refreshReplayStatus,
+        setControlsDisabled: (disabled) => replayControlsController.setControlsDisabled(disabled),
+        setTerminalReason: (value) => {
+          terminalReason = value || '';
+        },
+        setStatusText: (message) => {
+          status.textContent = message;
         },
       });
 
@@ -252,116 +263,6 @@ export function createChartReplayRoute() {
         return statusController.formatReplayTimestamp(value);
       }
 
-      function parseTimestampMs(value) {
-        const parsed = Date.parse(value);
-        return Number.isFinite(parsed) ? parsed : null;
-      }
-
-      function normalizeBarTime(value) {
-        if (value == null) return null;
-        if (typeof value === 'number') return new Date(value * 1000).toISOString();
-        const parsed = Date.parse(value);
-        return Number.isFinite(parsed) ? new Date(parsed).toISOString() : null;
-      }
-
-      function closeTruncateError() {
-        replayTruncateErrorPopover.hidden = true;
-      }
-
-      function showTruncateError(title, message) {
-        replayTruncateErrorTitle.textContent = title;
-        replayTruncateErrorMessage.textContent = message;
-        replayTruncateErrorPopover.hidden = false;
-      }
-
-      function setTruncatePickMode(enabled) {
-        truncatePickMode = Boolean(enabled) && replayLoaded && Boolean(params.sessionId);
-        chartViewport.dataset.truncatePickMode = truncatePickMode ? 'true' : 'false';
-        replayTruncatePickLine.hidden = !truncatePickMode;
-        if (!truncatePickMode) {
-          replayTruncatePickLine.style.left = '';
-        }
-        replayTruncateButton.setAttribute('aria-pressed', truncatePickMode ? 'true' : 'false');
-        replayControlsController.setControlsDisabled();
-      }
-
-      function updateTruncatePickGuide(event) {
-        if (!truncatePickMode) return;
-        const hostRect = chartHost.getBoundingClientRect();
-        if (!hostRect.width) return;
-        const viewportRect = chartViewport.getBoundingClientRect();
-        const x = Math.min(Math.max(event.clientX - hostRect.left, 0), hostRect.width);
-        replayTruncatePickLine.style.left = `${Math.round(hostRect.left - viewportRect.left + x)}px`;
-        replayTruncatePickLine.hidden = false;
-      }
-
-      async function timestampFromChartPointer(event) {
-        const rendered = await dispatchCommand(CHART_COMMANDS.GET_RENDERED_BARS).catch(() => null);
-        const bars = Array.isArray(rendered?.renderedBars) ? rendered.renderedBars : [];
-        if (!bars.length) return null;
-        const hostRect = chartHost.getBoundingClientRect();
-        if (!hostRect.width) return null;
-        const ratio = Math.min(Math.max((event.clientX - hostRect.left) / hostRect.width, 0), 1);
-        const index = Math.min(
-          bars.length - 1,
-          Math.max(0, Math.round(ratio * Math.max(0, bars.length - 1)))
-        );
-        return normalizeBarTime(bars[index]?.time);
-      }
-
-      function validateTruncateTimestamp(timestamp) {
-        const selectedMs = parseTimestampMs(timestamp);
-        const startMs = parseTimestampMs(startTimestamp);
-        const cursorMs = parseTimestampMs(cursorTimestamp);
-        if (selectedMs == null || startMs == null || cursorMs == null) {
-          return {
-            ok: false,
-            title: 'Cannot truncate replay',
-            message: 'Select a visible replay bar before truncating.',
-          };
-        }
-        if (selectedMs < startMs) {
-          return {
-            ok: false,
-            title: 'You cannot go further back than this date',
-            message: `You cannot go further back than the session start date: ${formatReplayTimestamp(startTimestamp)}`,
-          };
-        }
-        if (selectedMs > cursorMs) {
-          return {
-            ok: false,
-            title: 'Cannot truncate beyond current replay bar',
-            message: `Select a bar at or before the current replay cursor: ${formatReplayTimestamp(cursorTimestamp)}`,
-          };
-        }
-        return { ok: true };
-      }
-
-      async function pickTruncateTimestamp(event) {
-        if (!truncatePickMode) return;
-        event.preventDefault();
-        event.stopPropagation();
-        updateTruncatePickGuide(event);
-        const selectedTimestamp = await timestampFromChartPointer(event);
-        const validation = validateTruncateTimestamp(selectedTimestamp);
-        if (!validation.ok) {
-          setTruncatePickMode(false);
-          showTruncateError(validation.title, validation.message);
-          return;
-        }
-        setTruncatePickMode(false);
-        const state = await replayControlsController.runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, {
-          sessionId: params.sessionId,
-          timestamp: selectedTimestamp,
-        }));
-        if (!state) return;
-        terminalReason = state.truncated ? '' : state.reason || 'stopped';
-        status.textContent = state.truncated
-          ? `Truncated to ${formatReplayTimestamp(state.cursorTimestamp)}.`
-          : `Replay stopped: ${state.reason || 'selected bar unavailable'}.`;
-        await refreshReplayStatus();
-      }
-
       function updateDisplayTimezoneButtons() {
         chartSettingsController.renderCurrent();
       }
@@ -396,33 +297,6 @@ export function createChartReplayRoute() {
           watermarkStyle: presentationSettings.watermarkStyle,
         }).catch(() => null);
       }
-
-      replayTruncateButton.addEventListener('click', () => {
-        if (replayTruncateButton.disabled) return;
-        closeTruncateError();
-        setTruncatePickMode(!truncatePickMode);
-        status.textContent = truncatePickMode
-          ? 'Select a replay bar to truncate future bars.'
-          : 'Replay truncate selection canceled.';
-      });
-
-      chartHost.addEventListener('pointermove', updateTruncatePickGuide);
-      chartHost.addEventListener('click', pickTruncateTimestamp);
-
-      replayTruncateErrorCloseButtons.forEach((button) => {
-        button.addEventListener('click', closeTruncateError);
-      });
-      replayTruncateErrorPopover.addEventListener('click', (event) => {
-        if (event.target === replayTruncateErrorPopover) {
-          closeTruncateError();
-        }
-      });
-      section.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && truncatePickMode) {
-          setTruncatePickMode(false);
-          status.textContent = 'Replay truncate selection canceled.';
-        }
-      });
 
       function openGoToPopover() {
         if (goToOpenButton.disabled) return;

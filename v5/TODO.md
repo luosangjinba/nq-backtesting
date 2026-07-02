@@ -10,14 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 439 is complete. Replay transport and display-timeframe
-  controls now live in `features/chart-replay/chart-replay-controls.js`;
-  `chart-replay-route.js` delegates Next/Previous/Play/Pause/Reset, replay
-  interval, playback speed, sync interval, display timeframe, shared replay
-  command queueing, and control disabled state.
-- Next candidate: Step 440 - continue `chart-replay-route.js` decomposition by
-  splitting truncate pick mode or chart go-to/reset navigation into route-local
-  controllers before moving to `chart-settings-panel.js`.
+- Current status: Step 440 is complete. Truncate selected-bar pick mode now
+  lives in `features/chart-replay/chart-replay-truncate.js`;
+  `chart-replay-route.js` delegates truncate guide rendering, validation,
+  warning popover behavior, and replay truncate command wiring through injected
+  route state and refresh callbacks.
+- Next candidate: Step 441 - continue `chart-replay-route.js` decomposition by
+  splitting chart go-to/reset/jump navigation into a route-local controller
+  before moving to `chart-settings-panel.js`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -123,6 +123,12 @@
   `chart-replay-route.js` may inject runtime command dispatch and mutable route
   state accessors, but it should not reintroduce transport command handlers
   inline.
+- Refactor decision: chart replay truncate pick mode is route-local command UI,
+  not route orchestration. `chart-replay-truncate.js` owns the selected-bar
+  pick mode, vertical pick guide, warning popover, timestamp validation, and
+  injected replay truncate command call. `chart-replay-route.js` may provide
+  replay-loaded/cursor/start state and refresh/status callbacks, but it should
+  not reintroduce truncate DOM/event handlers inline.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1557,6 +1563,62 @@ Checks:
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 440 - V5 Chart Replay Truncate Controller Split
+
+Status: completed.
+
+Goal: continue `chart-replay-route.js` decomposition by extracting replay
+selected-bar truncate pick mode into a route-local controller.
+
+Problem:
+
+- After Step 439, `chart-replay-route.js` still owned truncate pick button
+  bindings, chart pointer-to-bar selection, pick guide rendering, warning
+  popover behavior, timestamp guardrails, and the replay truncate command call.
+- Truncate pick mode is a stable route-local command UI surface. Keeping it
+  inline would keep the route shell mixed with feature-specific DOM behavior and
+  make chart navigation/settings splits harder.
+
+Implementation:
+
+- [x] Step 440.1: Define the third route split boundary as replay selected-bar
+  truncate pick mode.
+- [x] Step 440.2: Add `features/chart-replay/chart-replay-truncate.js` with
+  injected runtime command dispatch, replay-loaded/start/cursor state getters,
+  timestamp formatting, status text, terminal reason, controls-disabled, and
+  refresh hooks.
+- [x] Step 440.3: Move truncate button binding, vertical pick guide, warning
+  popover, Escape cancel behavior, rendered-bar timestamp selection, and
+  timestamp validation into the controller.
+- [x] Step 440.4: Preserve runtime boundaries by dispatching
+  `REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP` through injected route callbacks; UI
+  still does not mutate replay cursor, display bars, chart series, or
+  persistence directly.
+- [x] Step 440.5: Reduce `chart-replay-route.js` from 625 lines to 499 lines.
+
+Manual acceptance:
+
+- Clicking the truncate transport button still enters pick mode and shows the
+  vertical guide over the chart.
+- Selecting a valid visible bar still truncates future replay bars through the
+  replay runtime command.
+- Selecting before session start or after current replay cursor still exits
+  pick mode and shows the warning popover.
+- Control disabled/visible state still respects truncate pick mode.
+- `chart-replay-route.js` remains responsible for initial load, Settings,
+  chart go-to/reset navigation, event subscriptions, and lifecycle disposal.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-truncate.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
