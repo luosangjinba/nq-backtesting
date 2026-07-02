@@ -6,6 +6,7 @@ import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../contracts/replay-contracts.js
 import { SESSION_COMMANDS } from '../contracts/session-contracts.js';
 import { createReplayChartSync } from './replay-chart-sync.js';
 import { createReplayDisplayWindowController } from './replay-display-window-controller.js';
+import { createReplayPlaybackController } from './replay-playback-controller.js';
 import { createReplayPrefixController } from './replay-prefix-controller.js';
 import {
   MAX_PREFIX_BARS,
@@ -41,17 +42,7 @@ export {
 
 export function createReplayRuntime() {
   const unregisterCallbacks = [];
-  const setTimer = globalThis.setInterval?.bind(globalThis);
-  const clearTimer = globalThis.clearInterval?.bind(globalThis);
   let state = emptyReplayState();
-  let playback = {
-    playing: false,
-    intervalMs: 500,
-    stepCount: 1,
-    timerId: null,
-    advancing: false,
-    stoppedReason: null,
-  };
   let initialLoadSequence = 0;
   let emit = () => {};
   const chartSync = createReplayChartSync({
@@ -79,6 +70,11 @@ export function createReplayRuntime() {
     dispatchCommand,
     chartSync,
     ensureInitialSession: (payload) => loadInitialSession(payload),
+    emitEvent: (eventName, payload) => emit(eventName, payload),
+  });
+  const playbackController = createReplayPlaybackController({
+    getSessionId: () => state.sessionId,
+    advanceReplay: (payload) => next(payload),
     emitEvent: (eventName, payload) => emit(eventName, payload),
   });
 
@@ -409,7 +405,7 @@ export function createReplayRuntime() {
       }
       return result;
     }
-    pause();
+    playbackController.pause();
     if (state.sessionId !== sessionId || state.status === 'idle') {
       await loadInitialSession({ sessionId });
     }
@@ -510,7 +506,7 @@ export function createReplayRuntime() {
     if (timestamp == null) {
       throw new Error('replay truncate timestamp is required.');
     }
-    pause();
+    playbackController.pause();
     if (state.sessionId !== sessionId || state.status === 'idle') {
       await loadInitialSession({ sessionId });
     }
@@ -607,7 +603,7 @@ export function createReplayRuntime() {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
     }
-    pause();
+    playbackController.pause();
     if (!state.startBar || state.sessionId !== sessionId) {
       await loadInitialPrefix({ sessionId });
     }
@@ -661,75 +657,6 @@ export function createReplayRuntime() {
     return result;
   }
 
-  function playbackSnapshot() {
-    return {
-      playing: playback.playing,
-      intervalMs: playback.intervalMs,
-      stepCount: playback.stepCount,
-      stoppedReason: playback.stoppedReason,
-    };
-  }
-
-  function setPlayback(nextPlayback) {
-    playback = {
-      ...playback,
-      ...nextPlayback,
-    };
-    const snapshot = playbackSnapshot();
-    emit(REPLAY_EVENTS.PLAYBACK_CHANGED, snapshot);
-    return snapshot;
-  }
-
-  async function playTick(sessionId) {
-    if (playback.advancing || !playback.playing) return;
-    playback.advancing = true;
-    try {
-      const result = await next({ sessionId, stepCount: playback.stepCount || 1 });
-      if (!result.advanced) {
-        pause({ reason: result.reason || 'stopped' });
-      }
-    } finally {
-      playback.advancing = false;
-    }
-  }
-
-  function play({ sessionId = state.sessionId, intervalMs = 500, stepCount = 1 } = {}) {
-    if (!sessionId) {
-      throw new Error('replay sessionId is required.');
-    }
-    const normalizedInterval = Number(intervalMs);
-    if (!Number.isFinite(normalizedInterval) || normalizedInterval <= 0) {
-      throw new Error('replay play intervalMs must be a positive number.');
-    }
-    const normalizedStepCount = normalizeStepCount(stepCount);
-    if (playback.playing) {
-      return playbackSnapshot();
-    }
-    if (typeof setTimer !== 'function' || typeof clearTimer !== 'function') {
-      throw new Error('replay playback timers are unavailable.');
-    }
-
-    const timerId = setTimer(() => playTick(sessionId), normalizedInterval);
-    return setPlayback({
-      playing: true,
-      intervalMs: normalizedInterval,
-      stepCount: normalizedStepCount,
-      timerId,
-      stoppedReason: null,
-    });
-  }
-
-  function pause({ reason = null } = {}) {
-    if (playback.timerId !== null && typeof clearTimer === 'function') {
-      clearTimer(playback.timerId);
-    }
-    return setPlayback({
-      playing: false,
-      timerId: null,
-      stoppedReason: reason,
-    });
-  }
-
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
@@ -744,10 +671,10 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PREVIOUS, (payload) => previous(payload)),
       registerCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, (payload) => truncateToTimestamp(payload)),
-      registerCommand(REPLAY_COMMANDS.PLAY, (payload) => play(payload)),
-      registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => pause(payload)),
+      registerCommand(REPLAY_COMMANDS.PLAY, (payload) => playbackController.play(payload)),
+      registerCommand(REPLAY_COMMANDS.PAUSE, (payload) => playbackController.pause(payload)),
       registerCommand(REPLAY_COMMANDS.RESET, (payload) => reset(payload)),
-      registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackSnapshot()),
+      registerCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE, () => playbackController.snapshot()),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => replaySnapshot()),
       subscribeEvent(CHART_EVENTS.PREFIX_DEMAND, (payload) => {
         dispatchCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, payload).catch((error) => {
@@ -770,7 +697,7 @@ export function createReplayRuntime() {
     while (unregisterCallbacks.length) {
       unregisterCallbacks.pop()();
     }
-    pause();
+    playbackController.reset();
     state = emptyReplayState();
     initialLoadSequence = 0;
     prefixController.resetAnchors();

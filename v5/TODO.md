@@ -10,15 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 433 is complete. Replay display-window loading,
-  display-timeframe switching, and cursor display projection now live in
-  `runtime/replay-display-window-controller.js`; the main replay runtime
-  delegates display commands and no longer owns display-window demand de-dupe or
-  sparse backward seek implementation.
-- Next candidate: Step 434 - continue replay runtime modularization by
-  extracting navigation/truncation/reset or playback into explicit controllers,
-  then return to the next Settings contract once replay runtime boundaries are
-  small enough to absorb new behavior cleanly.
+- Current status: Step 434 is complete. Replay playback timer/state now lives
+  in `runtime/replay-playback-controller.js`; the main replay runtime delegates
+  `PLAY`, `PAUSE`, and `GET_PLAYBACK_STATE` and no longer owns playback timer
+  lifecycle or advancing guards.
+- Next candidate: Step 435 - finish the replay runtime split by extracting
+  navigation/truncation/reset cursor mutation into an explicit controller, then
+  return to the next Settings contract once replay runtime boundaries are small
+  enough to absorb new behavior cleanly.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -130,6 +129,12 @@
   snapshots, and cursor display projection. `replay-runtime.js` may register
   display commands and call projection after cursor moves, but it should not
   reintroduce display-window implementation bodies.
+- Refactor decision: playback timer/state is a replay subsystem, not
+  main-runtime inline logic. `replay-playback-controller.js` owns playing state,
+  interval/step settings, timer lifecycle, advancing guard, and
+  `PLAYBACK_CHANGED` emission. `replay-runtime.js` may register playback
+  commands and inject `next` as the advance callback, but it should not
+  reintroduce playback implementation bodies.
 - Refactor decision: chart engine adapter modules should separate factory,
   context normalization, presentation/options mapping, DOM fallback rendering,
   and Lightweight engine integration. Adapter implementations may write their
@@ -1185,6 +1190,58 @@ Checks:
 - `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/replay-display-window-cache-smoke.js`
 - `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
+- `node v5/tests/runtime-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 434 - V5 Replay Playback Controller Split
+
+Status: completed.
+
+Goal: continue replay runtime modularization by extracting playback timer/state
+management into a dedicated controller before splitting remaining cursor
+navigation behavior.
+
+Problem:
+
+- After Step 433, `replay-runtime.js` still owned playback state, timer
+  lifecycle, `PLAYBACK_CHANGED` emission, advancing guards, and play/pause
+  command implementations alongside replay cursor mutation.
+- Playback is a long-lived subsystem with timer behavior and can be cleanly
+  injected with a replay-advance callback. Keeping it inline would make future
+  transport controls, variable speed, or keyboard playback harder to isolate.
+
+Implementation:
+
+- [x] Step 434.1: Define the next boundary as playback timer/state, leaving
+  cursor navigation/truncation/reset for the next step.
+- [x] Step 434.2: Add `runtime/replay-playback-controller.js` with injected
+  `getSessionId`, `advanceReplay`, and `emitEvent` APIs.
+- [x] Step 434.3: Move playback snapshot, state mutation, play/pause, timer
+  ticks, advancing guard, interval validation, and `PLAYBACK_CHANGED` emission
+  into the controller.
+- [x] Step 434.4: Keep `replay-runtime.js` as command/event owner by
+  delegating `PLAY`, `PAUSE`, and `GET_PLAYBACK_STATE` to the controller and
+  injecting `next` as the advance callback.
+- [x] Step 434.5: Update `runtime-boundary-smoke` so playback implementation
+  bodies cannot drift back into `replay-runtime.js`.
+- [x] Step 434.6: Reduce `replay-runtime.js` from 785 lines to 712 lines.
+
+Manual acceptance:
+
+- Playback still advances through replay runtime `next`, so replay cursor and
+  reveal ownership remain unchanged.
+- Playback pause is still used by Previous, Truncate, Reset, and runtime stop.
+- Playback state snapshots and events preserve the existing public shape.
+- Public replay helper exports remain unchanged.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/replay-playback-controller.js`
+- `node v5/tests/replay-play-smoke.js`
+- `node v5/tests/replay-next-smoke.js`
+- `node v5/tests/replay-previous-smoke.js`
 - `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

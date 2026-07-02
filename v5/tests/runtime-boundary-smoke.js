@@ -15,6 +15,10 @@ const replayDisplayWindowControllerSource = readFileSync(
   resolve(repoRoot, 'v5/src/runtime/replay-display-window-controller.js'),
   'utf8'
 );
+const replayPlaybackControllerSource = readFileSync(
+  resolve(repoRoot, 'v5/src/runtime/replay-playback-controller.js'),
+  'utf8'
+);
 
 assert.ok(
   replayRuntimeSource.includes('createReplayPrefixController('),
@@ -45,6 +49,24 @@ assert.ok(
     && replayDisplayWindowControllerSource.includes('async function setDisplayTimeframe(')
     && replayDisplayWindowControllerSource.includes('async function projectDisplayForCursor('),
   'replay display-window controller must own display-window implementations'
+);
+assert.ok(
+  replayRuntimeSource.includes('createReplayPlaybackController('),
+  'replay runtime must delegate playback state to the playback controller'
+);
+assert.ok(
+  !replayRuntimeSource.includes('function play(')
+    && !replayRuntimeSource.includes('function pause(')
+    && !replayRuntimeSource.includes('function setPlayback(')
+    && !replayRuntimeSource.includes('async function playTick('),
+  'replay runtime must not own playback implementations'
+);
+assert.ok(
+  replayPlaybackControllerSource.includes('function play(')
+    && replayPlaybackControllerSource.includes('function pause(')
+    && replayPlaybackControllerSource.includes('function setPlayback(')
+    && replayPlaybackControllerSource.includes('async function tick('),
+  'replay playback controller must own playback implementations'
 );
 
 const mutationHelperCalls = [
