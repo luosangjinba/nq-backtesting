@@ -11,14 +11,16 @@ import {
 } from './chart-engine-dom-metadata.js';
 import {
   crosshairOptionsForContext,
-  followLogicalRangeForBars,
   gridOptionsForContext,
   lightweightOptionsForContext,
   lightweightSeriesOptionsForContext,
-  manualLogicalRangeForVisibleRange,
   priceScaleMarginsForContext,
-  visibleRangeWithLogicalWhitespace,
   watermarkOptionsForContext,
+} from './chart-engine-lightweight-options.js';
+import {
+  followLogicalRangeForBars,
+  manualLogicalRangeForVisibleRange,
+  visibleRangeWithLogicalWhitespace,
 } from './chart-engine-presentation.js';
 import {
   createRuntimeCanvas,

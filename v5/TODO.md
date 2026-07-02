@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 456 is complete. Wheel zoom, native drag, reset/follow,
-  and viewport-demand regressions were audited with focused runtime and browser
-  smoke coverage. The earlier left-side blank/viewport-demand-left-click
-  issue is currently not reproducible, so no product fix was applied.
-- Next candidate: Step 457 - either continue chart-engine modularization by
-  splitting Lightweight options mapping, or pick the next verified product
-  issue from manual replay use.
+- Current status: Step 457 is complete. Lightweight chart option mapping is
+  split from `chart-engine-presentation.js` into
+  `chart-engine-lightweight-options.js`; `chart-engine-presentation.js` is now
+  a 52-line visible/logical range projection helper.
+- Next candidate: Step 458 - either rename `chart-engine-presentation.js` to a
+  range-projection module, or pause refactoring and pick the next verified
+  product issue from manual replay use.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -286,6 +286,13 @@
   chart-engine presentation constants/helpers for values, but it must not
   import runtime commands/events, replay runtime, bar-data runtime, or own
   adapter lifecycle.
+- Refactor decision: Lightweight chart option mapping belongs outside chart
+  visible/logical range projection. `chart-engine-lightweight-options.js` owns
+  Lightweight replay constants, grid/crosshair/chart options, series options,
+  watermark options, price-scale margin derivation, and Lightweight tick
+  formatting. `chart-engine-presentation.js` now only owns follow/manual
+  visible-logical range projection and logical-whitespace range expansion until
+  it is renamed to a range-projection module.
 - Refactor decision: Lightweight chart adapter internals should keep lifecycle,
   native input/writeback tracking, and crosshair/readout mapping separate. This
   keeps future reset/zoom/drag, multi-pane sync, order markers, and review
@@ -2569,6 +2576,55 @@ Checks:
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/chart-native-drag-diagnostic-browser-smoke.js`
+- `git diff --check`
+
+## Step 457 - V5 Chart Engine Lightweight Options Split
+
+Status: completed.
+
+Goal: reduce `chart-engine-presentation.js` to range projection by moving
+Lightweight-specific option mapping into a dedicated module while preserving
+adapter behavior and public API.
+
+Problem:
+
+- After Step 455, `chart-engine-presentation.js` still mixed Lightweight option
+  mapping with visible/logical range projection helpers.
+- Future Settings, watermark, price scale, session break, and pane work will
+  touch Lightweight options; those changes should not be mixed into range
+  projection logic.
+- DOM metadata should reuse the same Lightweight constants and margin helper
+  without depending on a generic presentation/range file.
+
+Implementation:
+
+- [x] Step 457.1: Add `src/runtime/chart-engine-lightweight-options.js`.
+- [x] Step 457.2: Move Lightweight replay constants, grid/crosshair options,
+  chart options, series options, watermark options, price-scale margins, and
+  Lightweight tick formatting into the new module.
+- [x] Step 457.3: Update `chart-engine-lightweight-adapter.js` to import
+  option mapping from the new module and range projection from
+  `chart-engine-presentation.js`.
+- [x] Step 457.4: Update `chart-engine-dom-metadata.js` to reuse Lightweight
+  constants and margin helper from `chart-engine-lightweight-options.js`.
+- [x] Step 457.5: Run focused chart-engine and boundary checks.
+
+Manual acceptance:
+
+- `createChartEngineAdapter` public API is unchanged.
+- `chart-engine-presentation.js` retains only visible/logical range projection
+  helpers.
+- Lightweight constants are not duplicated between DOM metadata and adapter
+  option mapping.
+- New options module does not import runtime commands/events, replay runtime,
+  or bar-data runtime.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan

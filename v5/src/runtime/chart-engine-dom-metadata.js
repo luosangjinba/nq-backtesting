@@ -4,7 +4,7 @@ import {
   LIGHTWEIGHT_REPLAY_SCROLL,
   LIGHTWEIGHT_REPLAY_TIMESCALE,
   priceScaleMarginsForContext,
-} from './chart-engine-presentation.js';
+} from './chart-engine-lightweight-options.js';
 
 export function applyFallbackPresentation(canvas, context) {
   canvas.dataset.crosshairReadout = context.showCrosshairReadout ? 'true' : 'false';
