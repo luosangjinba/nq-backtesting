@@ -303,6 +303,25 @@ assert.equal(resumed.visibleRange, null);
 assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
 assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeCallsBeforeResume);
 
+const setVisibleRangeBeforeDirectResumeManual = engineCalls.setVisibleRange.length;
+const directResumeManual = await dispatchCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, {
+  from: '2026-06-01T09:30:00.000Z',
+  to: '2026-06-01T09:31:00.000Z',
+});
+assert.equal(directResumeManual.interaction.mode, 'manual');
+assert.notEqual(directResumeManual.visibleRange, null);
+assert.ok(engineCalls.setVisibleRange.length >= setVisibleRangeBeforeDirectResumeManual);
+const setVisibleRangeBeforeDirectResume = engineCalls.setVisibleRange.length;
+const directResumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
+assert.equal(directResumed.interaction.mode, 'follow');
+assert.equal(directResumed.visibleRange, null);
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
+assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeBeforeDirectResume);
+const directResumeState = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
+assert.equal(directResumeState.visibleRange, null);
+assert.equal(host.children[0].dataset.interactionMode, 'follow');
+assert.equal(host.children[0].dataset.viewportFollow, 'true');
+
 host.isConnected = false;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [bar(34, 104)],

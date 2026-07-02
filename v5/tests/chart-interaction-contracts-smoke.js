@@ -269,6 +269,7 @@ assert.deepEqual(
 const resumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
 assert.equal(resumed.interaction.mode, 'follow');
 assert.equal(resumed.viewportFollow.enabled, true);
+assert.equal(resumed.visibleRange, null);
 assert.deepEqual(
   resumed.renderedBars.map((item) => item.time),
   [
@@ -283,6 +284,7 @@ assert.equal(host.children[0].dataset.viewportFollow, 'true');
 
 const state = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
 assert.equal(state.interaction.mode, 'follow');
+assert.equal(state.visibleRange, null);
 assert.equal(state.fullBarCount, 11);
 
 runtime.stop();

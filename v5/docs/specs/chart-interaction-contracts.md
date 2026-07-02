@@ -58,6 +58,9 @@ available without consuming workstation chart space.
 Step 415 upgrades chart settings to an FXReplay-style modal with left-side
 sections and Ok/Cancel draft semantics, and aligns the canvas OHLC overlay with
 V4 hover behavior.
+Step 422 fixes Reset View / resume-follow after native drag or wheel zoom:
+explicit follow resume must clear stale manual visible ranges before chart
+sync writes back to the adapter.
 
 In scope:
 
@@ -218,6 +221,10 @@ Out of scope:
   dispatch and chart runtime ownership must remain unchanged.
 - Jump-to-cursor resumes chart viewport follow explicitly. It does not advance
   replay cursor.
+- Reset View / resume-follow must clear the previous manual/native visible
+  range. Once interaction mode is follow, chart host sync must not call
+  adapter visible-range writes with a stale manual range after applying the
+  follow logical range.
 - The chart route should not expose a top-level button labeled `Cursor` because
   that reads like a crosshair/tool toggle. The visible action should be named
   by behavior, such as `Jump to replay cursor`.

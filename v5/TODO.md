@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 421 is complete. Advanced chart-engine presentation
-  settings now cover price/time scale visibility, scale borders, and text
-  watermark through presentation runtime -> chart runtime -> chart-engine
-  adapter ownership.
-- Next candidate: Step 422 - Settings remaining-deferred cleanup. Reassess
+- Current status: Step 422 is complete. Reset View / resume-follow now clears
+  stale manual visible ranges and no longer reapplies a previous drag/zoom
+  range after restoring cursor follow.
+- Next candidate: Step 423 - Settings remaining-deferred cleanup. Reassess
   FXReplay settings items that still need explicit runtime design before UI:
   scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
   session breaks, templates, and split-pane/pane-specific settings.
@@ -72,6 +71,10 @@
   watermark are chart-engine presentation settings. They must normalize through
   presentation runtime state and apply only through chart display context and
   the chart-engine adapter. UI must not call Lightweight APIs directly.
+- Bugfix decision: Reset View and Jump-to-cursor resume chart viewport follow.
+  They must clear any previous manual/native visible range before rerendering,
+  and chart sync must not write stale manual ranges after a follow-mode logical
+  range has been applied.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2994,5 +2997,55 @@ Checks:
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 422 - V5 Reset View Follow Range Fix
+
+Status: completed.
+
+Goal: fix Reset View after native drag/zoom so it restores replay cursor follow
+instead of reapplying a stale manual visible range.
+
+Problem:
+
+- The right-top Reset View button dispatches `chart.resumeViewportFollow`.
+- `chart.resumeViewportFollow` returned to follow mode but left
+  `state.visibleRange` from the prior native drag/wheel interaction intact.
+- Chart host sync then applied follow logical range and immediately wrote the
+  old manual visible range back into the adapter, causing reset/zoom behavior
+  like the reported screenshots: follow state looked active while the viewport
+  could jump, lose left extension, or re-expand unpredictably after further
+  wheel/drag input.
+
+Implementation:
+
+- [x] Step 422.1: Make `RESUME_VIEWPORT_FOLLOW` clear `state.visibleRange`.
+- [x] Step 422.2: Clear stale prefix/viewport demand when explicit follow is
+  resumed.
+- [x] Step 422.3: Make mounted chart sync write `adapter.setVisibleRange(...)`
+  only while interaction mode is manual.
+- [x] Step 422.4: Add runtime/adapter smoke coverage for the direct
+  `chart.resumeViewportFollow` command after a manual visible range.
+- [x] Step 422.5: Add interaction contract assertions that resumed follow has
+  no visible range.
+
+Manual acceptance:
+
+- After native drag or wheel zoom, Reset View returns to replay cursor follow.
+- Reset View must not reuse the previous manual/native visible range after
+  setting follow logical range.
+- Replay cursor, reveal state, display bars, and bar-data ownership remain
+  unchanged by Reset View.
+
+Checks:
+
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/replay-manual-viewport-follow-smoke.js`
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

@@ -540,7 +540,9 @@ export function createChartRuntime() {
         metadata: buildChartMetadata(renderedBars),
         followViewport: state.interaction.mode === 'follow' && state.viewportFollow.enabled,
       });
-      adapter.setVisibleRange(state.visibleRange);
+      if (state.interaction.mode === 'manual') {
+        adapter.setVisibleRange(state.visibleRange);
+      }
     } finally {
       applyingRuntimeVisibleRange = false;
     }
@@ -832,6 +834,7 @@ export function createChartRuntime() {
   }
 
   function resumeViewportFollow() {
+    state.visibleRange = null;
     state.interaction = {
       mode: 'follow',
       manualVisibleRange: null,
@@ -840,10 +843,13 @@ export function createChartRuntime() {
       ...state.viewportFollow,
       enabled: true,
     };
+    state.prefixDemand = null;
+    state.viewportDemand = null;
     rerenderMountedHosts();
     return {
       viewportFollow: { ...state.viewportFollow },
       interaction: structuredClone(state.interaction),
+      visibleRange: null,
       renderedBars: computeRenderedBars(state),
       fullBarCount: state.bars.length,
     };
