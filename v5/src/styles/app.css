@@ -402,6 +402,10 @@ input {
   min-height: 0;
 }
 
+.chart-pane-shell:not([data-pane-count="1"]) .chart-runtime-canvas {
+  min-height: 0;
+}
+
 .chart-pane-placeholder {
   display: grid;
   place-items: center;

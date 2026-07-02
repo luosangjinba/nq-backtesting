@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 477 is complete. Multi-pane resize now reads dimensions
-  from the outer runtime canvas/host instead of the Lightweight engine surface,
-  preventing stale single-pane surface width from overflowing into neighboring
-  panes and hiding axis chrome.
-- Next candidate: Step 478 - design and implement resizable split pane
+- Current status: Step 478 is complete. Multi-pane runtime canvases no longer
+  inherit the single-pane fixed minimum height, so horizontal split panes keep
+  their time axes inside the pane instead of clipping them below the host.
+- Next candidate: Step 479 - design and implement resizable split pane
   boundaries. The split state should own pane ratios/min sizes and trigger the
   existing chart runtime resize path instead of writing chart APIs from route
   UI.
@@ -105,6 +104,12 @@
   as the resize source can preserve stale widths and visually hide neighboring
   pane axis chrome. Regression coverage must assert the engine surface no
   longer overflows its canvas.
+- Multi-pane canvas sizing decision: Step 478 keeps the single-pane
+  `chart-runtime-canvas` minimum height for full-screen chart readability, but
+  clears that minimum inside multi-pane shells. Multi-pane heights must come
+  from responsive grid tracks and future split ratios, not fixed pixel heights.
+  Regression coverage must assert stacked panes keep canvas/surface height
+  within the host so time axes are not clipped.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

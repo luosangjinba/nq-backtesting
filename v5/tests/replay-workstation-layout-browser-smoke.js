@@ -141,6 +141,28 @@ async function main() {
           };
         }
 
+        function paneResizeMetrics() {
+          return Array
+            .from(document.querySelectorAll('[data-layout-pane]'))
+            .map((pane) => {
+              const host = pane.querySelector('[data-chart-host]');
+              const canvas = pane.querySelector('[data-chart-canvas]');
+              const surface = pane.querySelector('[data-chart-engine-surface]');
+              return {
+                paneId: pane.dataset.paneId || '',
+                host: elementRect(host),
+                canvas: elementRect(canvas),
+                surface: elementRect(surface),
+                resizeWidth: Number(host?.dataset.chartResizeWidth || 0),
+                resizeHeight: Number(host?.dataset.chartResizeHeight || 0),
+                canvasResizeWidth: Number(canvas?.dataset.chartResizeWidth || 0),
+                canvasResizeHeight: Number(canvas?.dataset.chartResizeHeight || 0),
+                surfaceResizeWidth: Number(surface?.dataset.chartResizeWidth || 0),
+                surfaceResizeHeight: Number(surface?.dataset.chartResizeHeight || 0),
+              };
+            });
+        }
+
         async function waitFor(label, predicate, timeoutMs = 8000) {
           const deadline = Date.now() + timeoutMs;
           while (Date.now() < deadline) {
@@ -216,6 +238,8 @@ async function main() {
             && chartRoute?.dataset.layoutVariant === 'twice.horizontal'
             && document.querySelectorAll('[data-layout-pane]').length === 2
           ));
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const twiceHorizontalResizeMetrics = paneResizeMetrics();
           intervalSyncInput?.click();
           await waitFor('interval sync enabled', async () => intervalSyncInput?.checked === true);
           const secondaryPane = document.querySelector('[data-layout-pane][data-pane-id="secondary"]');
@@ -347,25 +371,7 @@ async function main() {
           const tripleTimeScaleCanvasCount = Array
             .from(document.querySelectorAll('[data-chart-canvas]'))
             .filter((canvas) => canvas.dataset.timeScaleVisible === 'true').length;
-          const tripleResizeMetrics = Array
-            .from(document.querySelectorAll('[data-layout-pane]'))
-            .map((pane) => {
-              const host = pane.querySelector('[data-chart-host]');
-              const canvas = pane.querySelector('[data-chart-canvas]');
-              const surface = pane.querySelector('[data-chart-engine-surface]');
-              return {
-                paneId: pane.dataset.paneId || '',
-                host: elementRect(host),
-                canvas: elementRect(canvas),
-                surface: elementRect(surface),
-                resizeWidth: Number(host?.dataset.chartResizeWidth || 0),
-                resizeHeight: Number(host?.dataset.chartResizeHeight || 0),
-                canvasResizeWidth: Number(canvas?.dataset.chartResizeWidth || 0),
-                canvasResizeHeight: Number(canvas?.dataset.chartResizeHeight || 0),
-                surfaceResizeWidth: Number(surface?.dataset.chartResizeWidth || 0),
-                surfaceResizeHeight: Number(surface?.dataset.chartResizeHeight || 0),
-              };
-            });
+          const tripleResizeMetrics = paneResizeMetrics();
           document.querySelector('[data-layout-close]')?.click();
           const routeNavigation = document.querySelector('[data-route-navigation]');
           const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
@@ -456,6 +462,7 @@ async function main() {
             tripleToolbarCount,
             triplePriceScaleCanvasCount,
             tripleTimeScaleCanvasCount,
+            twiceHorizontalResizeMetrics,
             tripleResizeMetrics,
             chartNavRect,
             footerRect,
@@ -561,6 +568,21 @@ async function main() {
       value.secondaryPaneRect.top > value.primaryPaneRect.top,
       'twice.horizontal secondary pane should be below primary pane'
     );
+    assert.equal(value.twiceHorizontalResizeMetrics.length, 2);
+    value.twiceHorizontalResizeMetrics.forEach((metric) => {
+      assert.ok(metric.host.width > 180, `pane ${metric.paneId} host width should be non-zero`);
+      assert.ok(metric.host.height > 180, `pane ${metric.paneId} host height should be non-zero`);
+      assert.ok(
+        metric.canvas.height <= metric.host.height + 2,
+        `pane ${metric.paneId} canvas should not exceed host height`
+      );
+      assert.ok(
+        metric.surface.height <= metric.host.height + 2,
+        `pane ${metric.paneId} engine surface should not exceed host height`
+      );
+      assert.ok(Math.abs(metric.canvasResizeHeight - metric.canvas.height) <= 2);
+      assert.ok(Math.abs(metric.surfaceResizeHeight - metric.canvas.height) <= 2);
+    });
     assert.equal(value.tripleHostCount, 3);
     assert.equal(value.tripleOhlcOverlayCount, 3);
     assert.equal(value.tripleVisibleOhlcOverlayCount, 3);
