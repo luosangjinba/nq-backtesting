@@ -30,6 +30,7 @@ import { createChartReplayControlsController } from './chart-replay-controls.js'
 import { createChartReplayNavigationController } from './chart-replay-navigation.js';
 import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createChartReplayTruncateController } from './chart-replay-truncate.js';
+import { createChartReplayLayoutController } from './chart-replay-layout.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
@@ -107,6 +108,7 @@ export function createChartReplayRoute() {
       let replayControlsController = null;
       let truncateController = null;
       let navigationController = null;
+      let layoutController = null;
       const chartSettingsController = createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -293,7 +295,17 @@ export function createChartReplayRoute() {
         section.dataset.activePaneId = nextActivePaneId;
         section.dataset.activePaneCount = String(nextPaneCount);
         section.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
+        layoutController?.renderState(layoutState);
       }
+
+      layoutController = createChartReplayLayoutController({
+        root: section,
+        dispatchCommand,
+        onLayoutState: applyLayoutState,
+        setStatusText: (message) => {
+          status.textContent = message;
+        },
+      });
 
       async function syncChartDisplayTimezone() {
         await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {

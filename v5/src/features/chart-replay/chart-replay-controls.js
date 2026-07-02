@@ -43,7 +43,6 @@ export function createChartReplayControlsController({
   const goToButton = root.querySelector('[data-chart-go-to]');
   const jumpCursorButton = root.querySelector('[data-chart-jump-cursor]');
   const jumpCursorPopoverButton = root.querySelector('[data-chart-jump-cursor-popover]');
-  const layoutOpenButton = root.querySelector('[data-layout-open]');
   const chartToolbarButtons = Array.from(root.querySelectorAll('[data-chart-toolbar] button'));
   let replayCommandQueue = Promise.resolve();
 
@@ -83,7 +82,6 @@ export function createChartReplayControlsController({
       jumpCursorButton.disabled = unavailable;
     }
     jumpCursorPopoverButton.disabled = unavailable;
-    layoutOpenButton.disabled = true;
     chartToolbarButtons.forEach((button) => {
       button.disabled = unavailable;
     });

@@ -182,6 +182,21 @@ async function main() {
           const goToRect = rect('[data-chart-go-to-open]');
           const settingsRect = rect('[data-chart-settings-open]');
           const layoutButton = document.querySelector('[data-layout-open]');
+          layoutButton?.click();
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          const layoutPopover = document.querySelector('[data-layout-popover]');
+          const singleModeButton = document.querySelector('[data-layout-mode-option="single"]');
+          const twiceModeButton = document.querySelector('[data-layout-mode-option="twice"]');
+          const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
+          const symbolSyncInput = document.querySelector('[data-layout-sync="symbol"]');
+          const intervalSyncInput = document.querySelector('[data-layout-sync="interval"]');
+          const layoutPopoverInitiallyVisible = Boolean(layoutPopover && !layoutPopover.hidden);
+          const singleModeInitiallyPressed = singleModeButton?.getAttribute('aria-pressed') || '';
+          twiceModeButton?.click();
+          await waitFor('twice layout mode', async () => chartRoute?.dataset.layoutMode === 'twice');
+          intervalSyncInput?.click();
+          await waitFor('interval sync enabled', async () => intervalSyncInput?.checked === true);
+          const chartHostCount = document.querySelectorAll('[data-chart-host]').length;
           const routeNavigation = document.querySelector('[data-route-navigation]');
           const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
           const toolbarSetupLinkCount = document
@@ -197,6 +212,14 @@ async function main() {
             activePaneId: chartRoute?.dataset.activePaneId || '',
             activePaneCount: chartRoute?.dataset.activePaneCount || '',
             layoutMode: chartRoute?.dataset.layoutMode || '',
+            chartHostCount,
+            layoutPopoverInitiallyVisible,
+            layoutPopoverVisible: Boolean(layoutPopover && !layoutPopover.hidden),
+            singleModeInitiallyPressed,
+            twiceModePressed: twiceModeButton?.getAttribute('aria-pressed') || '',
+            tripleModeExists: Boolean(tripleModeButton),
+            symbolSyncDisabled: Boolean(symbolSyncInput?.disabled),
+            intervalSyncChecked: Boolean(intervalSyncInput?.checked),
             viewportPaneId: chartViewport?.dataset.chartPaneId || '',
             viewportActivePane: chartViewport?.dataset.activePane || '',
             viewportPaneRole: chartViewport?.dataset.paneRole || '',
@@ -204,6 +227,7 @@ async function main() {
             hostActivePane: chartHost?.dataset.activePane || '',
             layoutButtonDisabled: Boolean(layoutButton?.disabled),
             layoutButtonAriaDisabled: layoutButton?.getAttribute('aria-disabled') || '',
+            layoutButtonExpanded: layoutButton?.getAttribute('aria-expanded') || '',
             layoutButtonState: layoutButton?.dataset.layoutState || '',
             layoutButtonMode: layoutButton?.dataset.layoutMode || '',
             hasShellText: bodyText.includes('Chart Replay Shell'),
@@ -243,17 +267,26 @@ async function main() {
     assert.equal(value.panelTitle, 'FX Session Replay');
     assert.equal(value.badgeText, 'Historical Review');
     assert.equal(value.activePaneId, 'primary');
-    assert.equal(value.activePaneCount, '1');
-    assert.equal(value.layoutMode, 'single');
+    assert.equal(value.activePaneCount, '2');
+    assert.equal(value.layoutMode, 'twice');
+    assert.equal(value.chartHostCount, 1);
+    assert.equal(value.layoutPopoverInitiallyVisible, true);
+    assert.equal(value.layoutPopoverVisible, true);
+    assert.equal(value.singleModeInitiallyPressed, 'true');
+    assert.equal(value.twiceModePressed, 'true');
+    assert.equal(value.tripleModeExists, true);
+    assert.equal(value.symbolSyncDisabled, true);
+    assert.equal(value.intervalSyncChecked, true);
     assert.equal(value.viewportPaneId, 'primary');
     assert.equal(value.viewportActivePane, 'true');
     assert.equal(value.viewportPaneRole, 'primary-chart');
     assert.equal(value.hostPaneId, 'primary');
     assert.equal(value.hostActivePane, 'true');
-    assert.equal(value.layoutButtonDisabled, true);
-    assert.equal(value.layoutButtonAriaDisabled, 'true');
-    assert.equal(value.layoutButtonState, 'deferred');
-    assert.equal(value.layoutButtonMode, 'single');
+    assert.equal(value.layoutButtonDisabled, false);
+    assert.equal(value.layoutButtonAriaDisabled, '');
+    assert.equal(value.layoutButtonExpanded, 'true');
+    assert.equal(value.layoutButtonState, 'ready');
+    assert.equal(value.layoutButtonMode, 'twice');
     assert.equal(value.hasShellText, false);
     assert.equal(value.hasRouteText, false);
     assert.equal(value.shellTopBarDisplay, 'none');

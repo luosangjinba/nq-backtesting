@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 463-468 planning is complete. The multi-pane sequence is
-  staged from Layout popover state, to DOM pane shell, to chart host mounting,
-  to interval/time/date-range/crosshair sync. No code changes were made for the
-  future implementation steps in this planning pass.
-- Next candidate: Step 463 - implement the Layout popover command surface for
-  Single / Twice / Triple and the five sync switches, without rendering extra
-  chart panes yet.
+- Current status: Step 463 is complete. The Layout button now opens a compact
+  popover that dispatches layout mode/sync commands and updates route metadata
+  without rendering extra chart panes.
+- Next candidate: Step 464 - render the multi-pane DOM shell from layout state,
+  preserving one real chart host initially and using placeholder chrome for
+  secondary/tertiary panes.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -43,6 +42,10 @@
   Layout sync toggles are root layout settings: `symbol`, `interval`,
   `crosshair`, `time`, and `dateRange`. Symbol sync is modeled but should stay
   disabled in UI while replay sessions remain single-instrument.
+- Layout popover decision: Step 463 enables the Layout command surface only.
+  `layout.setMode` and `layout.setSync` update layout runtime state and route
+  metadata, the `symbol` switch is visible but UI-disabled, and the chart route
+  must still render a single real chart host until the Step 464 DOM pane shell.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -2994,6 +2997,51 @@ Deferred:
 
 Checks for this planning pass:
 
+- `git diff --check`
+
+## Step 463 - V5 Layout Popover Command Surface
+
+Status: completed.
+
+Goal: enable the first user-facing Layout control without creating additional
+chart hosts or weakening runtime ownership boundaries.
+
+Problem:
+
+- The chart route needs a compact Layout surface for `single`, `twice`, and
+  `triple`, plus the five FXReplay-style sync switches.
+- This step must prepare layout state for multi-pane work while keeping the
+  route single-host until Step 464.
+- UI must dispatch layout commands; it must not create chart series, request
+  bars, or directly couple pane controls to chart/replay runtimes.
+
+Plan:
+
+- [x] Step 463.1: Add `layout.setMode` and `layout.setSync` runtime commands.
+- [x] Step 463.2: Enable the Layout button and add a compact popover with
+  Single, Twice, Triple, and sync switches.
+- [x] Step 463.3: Keep `symbol` sync visible but disabled while replay sessions
+  remain single-instrument.
+- [x] Step 463.4: Wire the chart route to render layout mode/sync metadata from
+  layout runtime state without rendering extra panes.
+- [x] Step 463.5: Update layout/runtime and browser smoke coverage plus
+  docs/session handoff.
+
+Manual acceptance:
+
+- Layout opens from the chart route toolbar.
+- Single/Twice/Triple update `data-layout-mode` and active pane metadata.
+- Interval sync can be toggled through `layout.setSync`.
+- Symbol sync is visible but disabled in the UI.
+- Switching to Twice/Triple does not render extra chart hosts yet.
+
+Checks:
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-layout.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan

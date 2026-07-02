@@ -15,6 +15,9 @@ known panes, and leaves multi-pane rendering disabled.
 Step 462 formalizes the supported layout modes as `single`, `twice`, and
 `triple`, and adds the five FXReplay-style sync toggles as layout state:
 symbol, interval, crosshair, time, and date range.
+Step 463 implements the first user-facing Layout command surface. It adds
+layout mode/sync commands, enables the toolbar Layout popover, and updates
+layout state only. It still does not render multiple chart panes.
 
 This is a planning contract, not an implementation step.
 
@@ -66,6 +69,18 @@ Step 462 implementation status:
 - sync toggles default off;
 - `symbol` sync is modeled but should remain disabled in UI while replay
   sessions are single-instrument.
+
+Step 463 implementation status:
+
+- `layout.setMode` changes layout runtime mode and normalizes panes for
+  `single`, `twice`, or `triple`;
+- `layout.setSync` changes root layout sync flags;
+- the chart route Layout button opens a compact popover with Single, Twice,
+  Triple, and the five sync switches;
+- `symbol` sync is visible but disabled in the UI while sessions remain
+  single-instrument;
+- switching layout mode updates route metadata only and still renders one real
+  chart host.
 
 ## Pane Model
 
@@ -181,7 +196,7 @@ for:
 
 Steps 463-468 should proceed in this order:
 
-1. Step 463 - Layout popover command surface.
+1. Step 463 - Layout popover command surface. Completed.
    Add `layout.setMode` and `layout.setSync`; enable a compact Layout popover
    with Single, Twice, Triple, and the five sync switches. `symbol` is visible
    but disabled while replay sessions are single-instrument. This step updates

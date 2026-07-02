@@ -6,6 +6,7 @@ import {
   LAYOUT_COMMANDS,
   LAYOUT_EVENTS,
   LAYOUT_MODES,
+  LAYOUT_SYNC_KEYS,
 } from '../contracts/layout-contracts.js';
 
 export {
@@ -45,6 +46,25 @@ function paneCountForMode(mode) {
   if (mode === LAYOUT_MODES.TRIPLE) return 3;
   if (mode === LAYOUT_MODES.TWICE) return 2;
   return 1;
+}
+
+function defaultPaneForIndex(index, existingPane = {}) {
+  const defaults = [
+    { id: 'primary', role: 'primary' },
+    { id: 'secondary', role: 'secondary' },
+    { id: 'tertiary', role: 'tertiary' },
+  ];
+  return normalizePane({
+    ...defaults[index],
+    ...existingPane,
+    id: existingPane.id || defaults[index].id,
+    role: existingPane.role || defaults[index].role,
+  });
+}
+
+function panesForMode(mode, currentPanes = []) {
+  const count = paneCountForMode(mode);
+  return Array.from({ length: count }, (_, index) => defaultPaneForIndex(index, currentPanes[index]));
 }
 
 function normalizeLayoutState(input = DEFAULT_LAYOUT_STATE) {
@@ -106,11 +126,55 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
+  function setMode({ mode } = {}) {
+    const nextMode = Object.values(LAYOUT_MODES).includes(mode) ? mode : null;
+    if (!nextMode) {
+      throw new Error(`Unsupported layout mode: ${mode}`);
+    }
+    const panes = panesForMode(nextMode, state.panes);
+    const activePaneId = panes.some((pane) => pane.id === state.activePaneId)
+      ? state.activePaneId
+      : DEFAULT_ACTIVE_PANE_ID;
+    const nextState = normalizeLayoutState({
+      ...state,
+      mode: nextMode,
+      activePaneId,
+      panes,
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
+  function setSync({ key, value } = {}) {
+    if (!Object.values(LAYOUT_SYNC_KEYS).includes(key)) {
+      throw new Error(`Unsupported layout sync key: ${key}`);
+    }
+    const nextState = normalizeLayoutState({
+      ...state,
+      sync: {
+        ...state.sync,
+        [key]: Boolean(value),
+      },
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
       registerCommand(LAYOUT_COMMANDS.GET_STATE, () => snapshot()),
-      registerCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, (payload) => setActivePane(payload))
+      registerCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, (payload) => setActivePane(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_MODE, (payload) => setMode(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_SYNC, (payload) => setSync(payload))
     );
   }
 

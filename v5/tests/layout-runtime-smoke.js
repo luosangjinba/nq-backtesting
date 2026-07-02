@@ -27,6 +27,8 @@ runtime.start({
 
 assert.equal(hasCommand(LAYOUT_COMMANDS.GET_STATE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_MODE), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_SYNC), true);
 
 const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
@@ -59,6 +61,35 @@ assert.equal(changedEvent, null);
 await assert.rejects(
   () => dispatchCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, { paneId: 'secondary' }),
   /does not exist/
+);
+
+const twice = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'twice' });
+assert.equal(twice.mode, 'twice');
+assert.equal(twice.activePaneId, 'primary');
+assert.deepEqual(twice.panes.map((pane) => pane.id), ['primary', 'secondary']);
+assert.equal(changedEvent.mode, 'twice');
+
+changedEvent = null;
+const synced = await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, {
+  key: 'interval',
+  value: true,
+});
+assert.equal(synced.sync.interval, true);
+assert.equal(changedEvent.sync.interval, true);
+
+const symbolSynced = await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, {
+  key: 'symbol',
+  value: true,
+});
+assert.equal(symbolSynced.sync.symbol, true);
+
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'grid-4' }),
+  /Unsupported layout mode/
+);
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, { key: 'viewport', value: true }),
+  /Unsupported layout sync key/
 );
 
 assert.throws(

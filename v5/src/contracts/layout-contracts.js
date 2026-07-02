@@ -1,6 +1,8 @@
 export const LAYOUT_COMMANDS = Object.freeze({
   GET_STATE: 'layout.getState',
   SET_ACTIVE_PANE: 'layout.setActivePane',
+  SET_MODE: 'layout.setMode',
+  SET_SYNC: 'layout.setSync',
 });
 
 export const LAYOUT_EVENTS = Object.freeze({

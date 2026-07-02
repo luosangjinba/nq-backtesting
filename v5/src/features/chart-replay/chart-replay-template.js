@@ -36,8 +36,28 @@ export function renderChartReplayTemplate({ activePaneId }) {
           </label>
           <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
             <button type="button" data-chart-go-to-open disabled>Go to</button>
-            <button type="button" data-layout-open data-layout-state="deferred" data-layout-mode="single" disabled aria-disabled="true" title="Layout is planned for a later step">Layout</button>
+            <button type="button" data-layout-open data-layout-state="ready" data-layout-mode="single" aria-expanded="false" title="Chart layout">Layout</button>
             <button type="button" data-chart-settings-open title="Chart settings" aria-label="Chart settings">Settings</button>
+          </div>
+        </div>
+        <div class="chart-layout-popover" data-layout-popover hidden>
+          <div class="chart-layout-panel" role="dialog" aria-modal="false" aria-label="Chart layout">
+            <div class="chart-layout-header">
+              <strong>Layout</strong>
+              <button type="button" data-layout-close aria-label="Close layout">&times;</button>
+            </div>
+            <div class="chart-layout-modes" aria-label="Pane layout">
+              <button type="button" data-layout-mode-option="single">Single</button>
+              <button type="button" data-layout-mode-option="twice">Twice</button>
+              <button type="button" data-layout-mode-option="triple">Triple</button>
+            </div>
+            <div class="chart-layout-sync" aria-label="Layout sync options">
+              <label><input type="checkbox" data-layout-sync="symbol" disabled> Symbol</label>
+              <label><input type="checkbox" data-layout-sync="interval"> Interval</label>
+              <label><input type="checkbox" data-layout-sync="crosshair"> Crosshair</label>
+              <label><input type="checkbox" data-layout-sync="time"> Time</label>
+              <label><input type="checkbox" data-layout-sync="dateRange"> Date range</label>
+            </div>
           </div>
         </div>
         ${renderChartSettingsPopover()}
