@@ -28,6 +28,9 @@ Step 466 stores display timeframe on pane records and wires active-pane
 timeframe changes through layout state before replay display reloads.
 Step 467 stores pane-level time/date-range sync metadata and wires Go to,
 Jump cursor, and chart visible-range events through layout commands.
+Step 468 stores pane-level crosshair metadata, mirrors chart-owned crosshair
+events through layout commands when `sync.crosshair` is enabled, and completes
+the Step 463-468 multi-pane acceptance sequence.
 
 This is a planning contract, not an implementation step.
 
@@ -135,6 +138,20 @@ Step 467 implementation status:
   `sync.dateRange` is enabled;
 - chart runtime remains the owner of visible ranges and replay runtime remains
   the owner of cursor/reveal state.
+
+Step 468 implementation status:
+
+- pane records store `crosshair`;
+- layout runtime exposes `layout.setPaneCrosshair`;
+- with sync off, crosshair changes update only the selected pane;
+- with `sync.crosshair` on, changes copy to all panes;
+- chart runtime remains the owner/source of crosshair events;
+- chart route mirrors normalized crosshair metadata into layout only when
+  `sync.crosshair` is enabled;
+- crosshair sync does not write chart series, request bars, or mutate replay
+  cursor/reveal state;
+- browser acceptance covers layout switching, active pane selection, interval
+  sync, time/date-range sync, crosshair sync, and boundary smokes.
 
 ## Pane Model
 
@@ -271,7 +288,7 @@ Steps 463-468 should proceed in this order:
    Implement `sync.time` for go-to/jump-time alignment and `sync.dateRange`
    for visible-range mirroring. Chart runtime owns visible ranges; replay
    runtime continues to own cursor/reveal.
-6. Step 468 - Crosshair sync and multi-pane acceptance.
+6. Step 468 - Crosshair sync and multi-pane acceptance. Completed.
    Implement `sync.crosshair` through chart-owned events/commands with
    deduping/throttling, then verify Single/Twice/Triple, active pane selection,
    interval/time/date-range/crosshair sync, and no-future replay boundaries.

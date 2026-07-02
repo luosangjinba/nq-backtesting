@@ -6,6 +6,7 @@ export const LAYOUT_COMMANDS = Object.freeze({
   SET_PANE_DISPLAY_TIMEFRAME: 'layout.setPaneDisplayTimeframe',
   SET_PANE_TIME: 'layout.setPaneTime',
   SET_PANE_DATE_RANGE: 'layout.setPaneDateRange',
+  SET_PANE_CROSSHAIR: 'layout.setPaneCrosshair',
 });
 
 export const LAYOUT_EVENTS = Object.freeze({
@@ -48,6 +49,7 @@ export const DEFAULT_LAYOUT_STATE = Object.freeze({
       displayTimeframe: null,
       time: null,
       dateRange: null,
+      crosshair: null,
       presentationSettingsId: null,
     }),
   ]),

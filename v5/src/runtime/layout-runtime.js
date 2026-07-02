@@ -30,6 +30,7 @@ function normalizePane(pane = {}) {
     displayTimeframe: pane.displayTimeframe == null ? null : Number(pane.displayTimeframe),
     time: normalizePaneTime(pane.time),
     dateRange: normalizePaneDateRange(pane.dateRange),
+    crosshair: normalizePaneCrosshair(pane.crosshair),
     presentationSettingsId: pane.presentationSettingsId || null,
   };
 }
@@ -57,6 +58,26 @@ function normalizePaneDateRange(value) {
     throw new Error('layout pane date range to must be greater than or equal to from.');
   }
   return { from, to };
+}
+
+function normalizePaneCrosshair(value) {
+  if (value == null || value === false) return null;
+  if (!value || typeof value !== 'object' || !value.active) {
+    return { active: false, time: null, price: null, point: null };
+  }
+  const price = value.price == null ? null : Number(value.price);
+  const point = value.point && typeof value.point === 'object'
+    ? {
+      x: Number(value.point.x ?? 0),
+      y: Number(value.point.y ?? 0),
+    }
+    : null;
+  return {
+    active: true,
+    time: normalizePaneTime(value.time),
+    price: Number.isFinite(price) ? price : null,
+    point,
+  };
 }
 
 function normalizeDisplayTimeframe(value) {
@@ -284,6 +305,23 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
+  function setPaneCrosshair({ paneId, crosshair } = {}) {
+    const nextState = normalizeLayoutState({
+      ...state,
+      panes: updatePanesForSync({
+        paneId,
+        syncKey: 'crosshair',
+        patch: { crosshair: normalizePaneCrosshair(crosshair) },
+      }),
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
@@ -293,7 +331,8 @@ export function createLayoutRuntime({
       registerCommand(LAYOUT_COMMANDS.SET_SYNC, (payload) => setSync(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, (payload) => setPaneDisplayTimeframe(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_PANE_TIME, (payload) => setPaneTime(payload)),
-      registerCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, (payload) => setPaneDateRange(payload))
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, (payload) => setPaneDateRange(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, (payload) => setPaneCrosshair(payload))
     );
   }
 

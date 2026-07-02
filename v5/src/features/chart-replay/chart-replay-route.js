@@ -367,6 +367,16 @@ export function createChartReplayRoute() {
         return layoutState;
       }
 
+      async function syncLayoutCrosshair(crosshair) {
+        if (!currentLayoutState.sync?.crosshair) return null;
+        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, {
+          paneId: currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+          crosshair: crosshair || { active: false },
+        });
+        applyLayoutState(layoutState);
+        return layoutState;
+      }
+
       paneShellController = createChartReplayPaneShellController({
         root: section,
         dispatchCommand,
@@ -435,6 +445,7 @@ export function createChartReplayRoute() {
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
             statusController.setCrosshairState(payload.crosshair || { active: false });
             replayControlsController.setControlsDisabled();
+            syncLayoutCrosshair(payload.crosshair).catch(() => null);
             return;
           }
           if (eventName === CHART_EVENTS.VISIBLE_RANGE_CHANGED) {

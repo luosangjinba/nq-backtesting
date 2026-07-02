@@ -39,6 +39,9 @@ function updatePaneElement(element, pane, active) {
   element.dataset.time = pane.time || '';
   element.dataset.dateRangeFrom = pane.dateRange?.from || '';
   element.dataset.dateRangeTo = pane.dateRange?.to || '';
+  element.dataset.crosshairActive = pane.crosshair?.active ? 'true' : 'false';
+  element.dataset.crosshairTime = pane.crosshair?.time || '';
+  element.dataset.crosshairPrice = pane.crosshair?.price == null ? '' : String(pane.crosshair.price);
   element.classList.toggle('is-active', active);
   element.setAttribute('aria-label', `${paneTitle(pane)} chart pane`);
   element.setAttribute('aria-pressed', active ? 'true' : 'false');

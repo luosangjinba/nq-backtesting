@@ -10,12 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 467 is complete. Layout runtime now stores pane-level
-  time and date range state, `sync.time` mirrors Go to / Jump cursor timestamps,
-  and `sync.dateRange` mirrors chart-runtime-owned visible ranges into layout
-  pane metadata.
-- Next candidate: Step 468 - implement `sync.crosshair` through chart-owned
-  hover events/commands, then complete multi-pane acceptance coverage.
+- Current status: Step 468 is complete. Layout runtime now stores pane-level
+  crosshair metadata, `sync.crosshair` mirrors chart-owned hover metadata
+  through layout commands, and the Step 463-468 multi-pane acceptance sequence
+  covers layout modes, active pane selection, interval/time/date-range/crosshair
+  sync, and boundary smokes.
+- Next candidate: Step 469 - decide whether to make secondary/tertiary panes
+  real chart hosts or return to Settings polish, then plan the next bounded
+  product step.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -65,6 +67,11 @@
   layout commands, while chart visible-range events update pane `dateRange`
   only when `sync.dateRange` is enabled. Chart runtime still owns visible
   ranges; replay runtime still owns cursor/reveal state.
+- Crosshair sync decision: Step 468 adds `layout.setPaneCrosshair`. Chart
+  runtime remains the crosshair event source. The chart route mirrors normalized
+  crosshair metadata into layout only when `sync.crosshair` is enabled, and it
+  does not write chart series, request bars, or mutate replay cursor/reveal
+  state.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3262,6 +3269,60 @@ Checks:
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 468 - V5 Crosshair Sync And Multi-Pane Acceptance
+
+Status: completed.
+
+Goal: implement `sync.crosshair` as layout pane metadata and close the bounded
+Step 463-468 multi-pane acceptance sequence without moving chart data, bar
+loading, or replay cursor ownership into the route.
+
+Problem:
+
+- Layout sync state already covered interval, time, and date ranges, but
+  crosshair sync was still only modeled as a toggle.
+- Crosshair input is chart-runtime-owned and can be high-frequency, so route UI
+  must only mirror normalized metadata through layout commands when the sync
+  toggle is enabled.
+- The multi-pane sequence needed one acceptance pass covering modes, active
+  pane selection, sync toggles, and no-future ownership boundaries.
+
+Plan:
+
+- [x] Step 468.1: Add pane-level `crosshair` metadata to layout state.
+- [x] Step 468.2: Add `layout.setPaneCrosshair` with sync-off target-pane
+  updates and `sync.crosshair` all-pane mirroring.
+- [x] Step 468.3: Wire chart-owned crosshair events into layout metadata only
+  when `sync.crosshair` is enabled.
+- [x] Step 468.4: Expose pane shell crosshair metadata for browser acceptance.
+- [x] Step 468.5: Extend multi-pane browser smoke coverage for interval,
+  time/date-range, crosshair sync, and boundary invariants.
+- [x] Step 468.6: Update docs/session handoff and complete the Step 463-468
+  acceptance sequence.
+
+Manual acceptance:
+
+- Crosshair sync defaults off.
+- With sync off, `layout.setPaneCrosshair` updates only the target pane.
+- With `sync.crosshair` on, chart-owned crosshair metadata mirrors to all panes.
+- The route mirrors metadata only; chart runtime still owns crosshair events and
+  chart writes.
+- Replay cursor/reveal state is not mutated by crosshair sync.
+- Single/Twice/Triple layout switching, active-pane selection, interval sync,
+  time/date-range sync, and no-future boundary smokes still pass.
+
+Checks:
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-crosshair-browser-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 

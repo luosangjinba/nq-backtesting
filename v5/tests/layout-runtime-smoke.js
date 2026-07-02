@@ -32,6 +32,7 @@ assert.equal(hasCommand(LAYOUT_COMMANDS.SET_SYNC), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_TIME), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR), true);
 
 const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
@@ -52,6 +53,7 @@ assert.deepEqual(defaults, {
       displayTimeframe: null,
       time: null,
       dateRange: null,
+      crosshair: null,
       presentationSettingsId: null,
     },
   ],
@@ -146,6 +148,47 @@ assert.deepEqual(syncedDateRange.panes.map((pane) => pane.dateRange), [
   {
     from: '2026-06-01T09:31:00.000Z',
     to: '2026-06-01T09:36:00.000Z',
+  },
+]);
+
+const secondaryCrosshair = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, {
+  paneId: 'secondary',
+  crosshair: {
+    active: true,
+    time: '2026-06-01T09:32:00.000Z',
+    price: 101.25,
+    point: { x: 40, y: 50 },
+  },
+});
+assert.equal(secondaryCrosshair.panes.find((pane) => pane.id === 'primary').crosshair, null);
+assert.deepEqual(secondaryCrosshair.panes.find((pane) => pane.id === 'secondary').crosshair, {
+  active: true,
+  time: '2026-06-01T09:32:00.000Z',
+  price: 101.25,
+  point: { x: 40, y: 50 },
+});
+
+await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, { key: 'crosshair', value: true });
+const syncedCrosshair = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, {
+  paneId: 'secondary',
+  crosshair: {
+    active: true,
+    time: '2026-06-01T09:33:00.000Z',
+    price: 102.5,
+  },
+});
+assert.deepEqual(syncedCrosshair.panes.map((pane) => pane.crosshair), [
+  {
+    active: true,
+    time: '2026-06-01T09:33:00.000Z',
+    price: 102.5,
+    point: null,
+  },
+  {
+    active: true,
+    time: '2026-06-01T09:33:00.000Z',
+    price: 102.5,
+    point: null,
   },
 ]);
 

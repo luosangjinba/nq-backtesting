@@ -186,6 +186,7 @@ async function main() {
           const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
           const symbolSyncInput = document.querySelector('[data-layout-sync="symbol"]');
           const intervalSyncInput = document.querySelector('[data-layout-sync="interval"]');
+          const crosshairSyncInput = document.querySelector('[data-layout-sync="crosshair"]');
           const timeSyncInput = document.querySelector('[data-layout-sync="time"]');
           const dateRangeSyncInput = document.querySelector('[data-layout-sync="dateRange"]');
           const layoutPopoverInitiallyVisible = Boolean(layoutPopover && !layoutPopover.hidden);
@@ -219,9 +220,12 @@ async function main() {
           const replayDisplayContextAfterTimeframe = await commands.dispatchCommand('replay.getDisplayContext');
           timeSyncInput?.click();
           dateRangeSyncInput?.click();
-          await waitFor('time and date range sync enabled', async () => {
+          crosshairSyncInput?.click();
+          await waitFor('time, date range, and crosshair sync enabled', async () => {
             const layoutState = await commands.dispatchCommand('layout.getState');
-            return layoutState.sync.time === true && layoutState.sync.dateRange === true;
+            return layoutState.sync.time === true
+              && layoutState.sync.dateRange === true
+              && layoutState.sync.crosshair === true;
           });
           document.querySelector('[data-layout-close]')?.click();
           document.querySelector('[data-chart-go-to-open]')?.click();
@@ -251,6 +255,19 @@ async function main() {
             return layoutState.panes.length === 2
               && layoutState.panes.every((pane) => pane.dateRange?.from === expectedDateRange.from)
               && layoutState.panes.every((pane) => pane.dateRange?.to === expectedDateRange.to);
+          });
+          document.querySelector('[data-chart-host]')?.__v5OnCrosshairChange?.({
+            active: true,
+            time: '2026-06-01T09:32:00.000Z',
+            price: 30123.5,
+            point: { x: 120, y: 140 },
+          });
+          await waitFor('layout crosshair synced', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            return layoutState.panes.length === 2
+              && layoutState.panes.every((pane) => pane.crosshair?.active === true)
+              && layoutState.panes.every((pane) => pane.crosshair?.time === '2026-06-01T09:32:00.000Z')
+              && layoutState.panes.every((pane) => pane.crosshair?.price === 30123.5);
           });
           const layoutStateAfterTimeDateSync = await commands.dispatchCommand('layout.getState');
           const chartHostCount = document.querySelectorAll('[data-chart-host]').length;
@@ -295,9 +312,11 @@ async function main() {
             layoutPaneDisplayTimeframes: layoutStateAfterTimeframe.panes.map((pane) => pane.displayTimeframe),
             layoutPaneTimes: layoutStateAfterTimeDateSync.panes.map((pane) => pane.time),
             layoutPaneDateRanges: layoutStateAfterTimeDateSync.panes.map((pane) => pane.dateRange),
+            layoutPaneCrosshairs: layoutStateAfterTimeDateSync.panes.map((pane) => pane.crosshair),
             expectedDateRange,
             timeSyncChecked: Boolean(timeSyncInput?.checked),
             dateRangeSyncChecked: Boolean(dateRangeSyncInput?.checked),
+            crosshairSyncChecked: Boolean(crosshairSyncInput?.checked),
             replayDisplayTimeframe: replayDisplayContextAfterTimeframe.displayTimeframe,
             displayTimeframeSelectValue: displayTimeframeSelect?.value || '',
             layoutPopoverInitiallyVisible,
@@ -370,12 +389,27 @@ async function main() {
     assert.deepEqual(value.layoutPaneDisplayTimeframes, [5, 5]);
     assert.equal(value.timeSyncChecked, true);
     assert.equal(value.dateRangeSyncChecked, true);
+    assert.equal(value.crosshairSyncChecked, true);
     assert.equal(value.layoutPaneTimes.length, 2);
     assert.equal(new Set(value.layoutPaneTimes).size, 1);
     assert.ok(value.layoutPaneTimes[0], 'layout time should sync to both panes');
     assert.deepEqual(value.layoutPaneDateRanges, [
       value.expectedDateRange,
       value.expectedDateRange,
+    ]);
+    assert.deepEqual(value.layoutPaneCrosshairs, [
+      {
+        active: true,
+        time: '2026-06-01T09:32:00.000Z',
+        price: 30123.5,
+        point: { x: 120, y: 140 },
+      },
+      {
+        active: true,
+        time: '2026-06-01T09:32:00.000Z',
+        price: 30123.5,
+        point: { x: 120, y: 140 },
+      },
     ]);
     assert.equal(value.replayDisplayTimeframe, 5);
     assert.equal(value.displayTimeframeSelectValue, '5');
