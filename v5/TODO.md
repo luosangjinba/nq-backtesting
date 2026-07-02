@@ -10,14 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 440 is complete. Truncate selected-bar pick mode now
-  lives in `features/chart-replay/chart-replay-truncate.js`;
-  `chart-replay-route.js` delegates truncate guide rendering, validation,
-  warning popover behavior, and replay truncate command wiring through injected
-  route state and refresh callbacks.
-- Next candidate: Step 441 - continue `chart-replay-route.js` decomposition by
-  splitting chart go-to/reset/jump navigation into a route-local controller
-  before moving to `chart-settings-panel.js`.
+- Current status: Step 441 is complete. Chart go-to/reset/jump navigation now
+  lives in `features/chart-replay/chart-replay-navigation.js`;
+  `chart-replay-route.js` delegates Go to popover behavior, Reset View,
+  Jump-to-cursor, wall-clock parsing, and chart navigation command queueing
+  through injected route state and status callbacks.
+- Next candidate: Step 442 - continue modular cleanup with a targeted
+  `chart-settings-panel.js` split, separating Settings draft state helpers,
+  template sections, and event binding without changing presentation runtime
+  ownership.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -129,6 +130,12 @@
   injected replay truncate command call. `chart-replay-route.js` may provide
   replay-loaded/cursor/start state and refresh/status callbacks, but it should
   not reintroduce truncate DOM/event handlers inline.
+- Refactor decision: chart replay navigation is route-local chart command UI,
+  not route orchestration. `chart-replay-navigation.js` owns Go to popover
+  behavior, Go to wall-clock parsing, Reset View, Jump-to-cursor, and shared
+  chart navigation command queueing. `chart-replay-route.js` may inject display
+  timezone, formatting, status, and command-in-flight accessors, but it should
+  not reintroduce chart navigation DOM/event handlers inline.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1619,6 +1626,64 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 441 - V5 Chart Replay Navigation Controller Split
+
+Status: completed.
+
+Goal: continue `chart-replay-route.js` decomposition by extracting chart
+Go to / Reset View / Jump-to-cursor navigation into a route-local controller.
+
+Problem:
+
+- After Step 440, `chart-replay-route.js` still owned Go to popover DOM
+  bindings, wall-clock-to-canonical timestamp parsing, chart viewport
+  navigation commands, Reset View, Jump-to-cursor, and chart navigation command
+  queueing.
+- These responsibilities are route-local chart command UI. Keeping them inline
+  would keep the route shell mixed with feature-specific navigation behavior
+  and delay the larger Settings split.
+
+Implementation:
+
+- [x] Step 441.1: Define the fourth route split boundary as chart navigation
+  controls.
+- [x] Step 441.2: Add `features/chart-replay/chart-replay-navigation.js` with
+  injected command dispatch, display/exchange timezone getters, timestamp
+  formatting, shared command-in-flight accessors, controls-disabled rendering,
+  and status text callbacks.
+- [x] Step 441.3: Move Go to popover open/close, input disabled-state refresh,
+  `GO_TO_TIME`, `GET_VIEWPORT_METRICS`, Reset View, Jump-to-cursor, and chart
+  navigation command queueing into the controller.
+- [x] Step 441.4: Preserve runtime boundaries by dispatching chart/replay
+  commands through injected callbacks; UI still does not mutate chart adapter,
+  replay cursor, display bars, or persistence directly.
+- [x] Step 441.5: Reduce `chart-replay-route.js` from 499 lines to 407 lines.
+
+Manual acceptance:
+
+- Go to still accepts the display wall-clock input and navigates via chart
+  runtime `GO_TO_TIME`.
+- Reset View still resumes chart viewport follow without advancing replay
+  cursor or resetting replay state.
+- Jump to replay cursor still resumes viewport follow and reports the replay
+  cursor timestamp.
+- Navigation commands still share the same in-flight guard with replay controls
+  so chart and replay commands cannot overlap.
+- `chart-replay-route.js` remains responsible for initial load, Settings,
+  runtime event subscriptions, viewport-demand bridge, and lifecycle disposal.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-navigation.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

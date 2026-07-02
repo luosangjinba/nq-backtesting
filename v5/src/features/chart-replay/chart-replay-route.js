@@ -10,7 +10,6 @@ import {
 } from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
-import { displayWallClockToCanonicalTimestamp } from '../../domain/timezone-format.js';
 import {
   cloneBackgroundStyle,
   cloneCandleStyle,
@@ -22,6 +21,7 @@ import {
 } from './chart-settings-panel.js';
 import { renderChartReplayTemplate } from './chart-replay-template.js';
 import { createChartReplayControlsController } from './chart-replay-controls.js';
+import { createChartReplayNavigationController } from './chart-replay-navigation.js';
 import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createChartReplayTruncateController } from './chart-replay-truncate.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
@@ -42,14 +42,6 @@ export function createChartReplayRoute() {
       section.dataset.layoutMode = 'single';
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
-      const goToPopover = section.querySelector('[data-chart-go-to-popover]');
-      const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
-      const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
-      const goToInput = section.querySelector('[data-chart-go-to-input]');
-      const goToButton = section.querySelector('[data-chart-go-to]');
-      const jumpCursorButton = section.querySelector('[data-chart-jump-cursor]');
-      const jumpCursorPopoverButton = section.querySelector('[data-chart-jump-cursor-popover]');
-      const resetViewButton = section.querySelector('[data-chart-reset-view]');
       let commandInFlight = false;
       let replayLoaded = false;
       let disposed = false;
@@ -108,6 +100,7 @@ export function createChartReplayRoute() {
       createReplayFloatingControlsController({ root: section });
       let replayControlsController = null;
       let truncateController = null;
+      let navigationController = null;
       const chartSettingsController = createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -184,7 +177,7 @@ export function createChartReplayRoute() {
           replayIntervalSync = Boolean(value);
         },
         getTruncatePickMode: () => truncateController?.isPickMode() || false,
-        getGoToInputValue: () => goToInput.value,
+        getGoToInputValue: () => navigationController?.getGoToInputValue() || '',
         formatReplayTimestamp,
         refreshReplayStatus,
         setStatusText: (message) => {
@@ -193,6 +186,21 @@ export function createChartReplayRoute() {
         getCommandInFlight: () => commandInFlight,
         setCommandInFlight: (value) => {
           commandInFlight = Boolean(value);
+        },
+      });
+      navigationController = createChartReplayNavigationController({
+        root: section,
+        dispatchCommand,
+        getDisplayTimezone: () => displayTimezone,
+        getExchangeTimezone: () => exchangeTimezone,
+        formatReplayTimestamp,
+        getCommandInFlight: () => commandInFlight,
+        setCommandInFlight: (value) => {
+          commandInFlight = Boolean(value);
+        },
+        setControlsDisabled: (disabled) => replayControlsController.setControlsDisabled(disabled),
+        setStatusText: (message) => {
+          status.textContent = message;
         },
       });
       truncateController = createChartReplayTruncateController({
@@ -297,106 +305,6 @@ export function createChartReplayRoute() {
           watermarkStyle: presentationSettings.watermarkStyle,
         }).catch(() => null);
       }
-
-      function openGoToPopover() {
-        if (goToOpenButton.disabled) return;
-        goToPopover.hidden = false;
-        goToInput.focus();
-        replayControlsController.setControlsDisabled();
-      }
-
-      function closeGoToPopover() {
-        goToPopover.hidden = true;
-        replayControlsController.setControlsDisabled();
-      }
-
-      goToOpenButton.addEventListener('click', openGoToPopover);
-      goToCancelButtons.forEach((button) => {
-        button.addEventListener('click', closeGoToPopover);
-      });
-
-      goToInput.addEventListener('input', () => {
-        replayControlsController.setControlsDisabled();
-      });
-
-      async function runChartNavigation(action, statusText) {
-        if (commandInFlight) return null;
-        commandInFlight = true;
-        replayControlsController.setControlsDisabled(true);
-        try {
-          const result = await action();
-          if (statusText) {
-            status.textContent = statusText(result);
-          }
-          return result;
-        } catch (error) {
-          status.textContent = error?.message || String(error);
-          return null;
-        } finally {
-          commandInFlight = false;
-          replayControlsController.setControlsDisabled(false);
-        }
-      }
-
-      resetViewButton.addEventListener('click', () => {
-        runChartNavigation(
-          () => dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW),
-          () => 'Following cursor.'
-        );
-      });
-
-      goToButton.addEventListener('click', async () => {
-        if (!goToInput.value || commandInFlight) return;
-        commandInFlight = true;
-        replayControlsController.setControlsDisabled(true);
-        try {
-          const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null);
-          const targetTimestamp = displayWallClockToCanonicalTimestamp(goToInput.value, {
-            displayTimezone,
-            exchangeTimezone,
-          });
-          const result = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
-            targetTimestamp,
-            estimatedVisibleBars: metrics?.estimatedVisibleBars || null,
-          });
-          const visibleTo = result.visibleRange?.to
-            ? new Date(result.visibleRange.to * 1000).toISOString()
-            : targetTimestamp;
-          const requestedText = formatReplayTimestamp(targetTimestamp);
-          const visibleText = formatReplayTimestamp(visibleTo);
-          status.textContent = result.visibleRange?.to && result.targetTimestamp > result.visibleRange.to
-            ? `Viewing ${visibleText}; requested ${requestedText} is beyond cursor.`
-            : `Viewing ${requestedText}.`;
-          closeGoToPopover();
-        } catch (error) {
-          status.textContent = error?.message || String(error);
-        } finally {
-          commandInFlight = false;
-          replayControlsController.setControlsDisabled(false);
-        }
-      });
-
-      async function jumpToCursor() {
-        if (commandInFlight) return;
-        commandInFlight = true;
-        replayControlsController.setControlsDisabled(true);
-        try {
-          await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
-          const state = await dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null);
-          status.textContent = `Following cursor ${formatReplayTimestamp(state?.cursorTimestamp)}.`;
-        } catch (error) {
-          status.textContent = error?.message || String(error);
-        } finally {
-          commandInFlight = false;
-          replayControlsController.setControlsDisabled(false);
-        }
-      }
-
-      jumpCursorButton?.addEventListener('click', jumpToCursor);
-      jumpCursorPopoverButton.addEventListener('click', async () => {
-        await jumpToCursor();
-        closeGoToPopover();
-      });
 
       [
         REPLAY_EVENTS.INITIAL_LOADED,
