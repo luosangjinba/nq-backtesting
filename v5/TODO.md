@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 419 is complete. Remaining FXReplay Settings parity is
-  scoped into staged presentation work, advanced chart-engine work, and deferred
-  template/split-pane work before more controls are implemented.
-- Next candidate: Step 420 - Time And Label Presentation. Add the next pure
-  presentation settings only: time-scale date/day label preferences and
-  implemented label visibility controls that can be verified without touching
-  replay cursor, bar-data cache, or split-pane ownership.
+- Current status: Step 420 is complete. Time/date label formatting and existing
+  OHLC title display mode are now functional presentation settings with
+  Settings Ok/Cancel draft semantics.
+- Next candidate: Step 421 - Advanced Chart-Engine Settings. Plan and implement
+  only chart-engine-supported price-scale/canvas controls such as scale mode,
+  placement, countdown, watermark, and session breaks while preserving chart
+  runtime/adapter ownership.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -64,6 +64,9 @@
   watermark, and session breaks need explicit chart-engine/runtime acceptance
   before implementation. Template behavior is deferred until presentation
   settings persistence is designed.
+- UI decision: date format, day-of-week labels, and status title mode are chart
+  presentation settings. They must affect labels and titles only, not canonical
+  timestamps, replay cursor, display bars, request ranges, or bar-cache keys.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2865,4 +2868,67 @@ Manual acceptance:
 
 Checks:
 
+- `git diff --check`
+
+## Step 420 - V5 Time And Label Presentation Settings
+
+Status: completed.
+
+Goal: implement the next pure FXReplay Settings parity slice for time/date label
+presentation and existing chart title labels without touching replay or bar-data
+ownership.
+
+Problem:
+
+- `dateFormat` existed in chart presentation contracts but did not affect
+  route labels, candle titles, or chart tick labels.
+- FXReplay Settings exposes day-of-week label and title display controls that
+  are presentation-only and can be added before advanced price-scale/canvas
+  controls.
+
+Implementation:
+
+- [x] Step 420.1: Add supported date formats:
+  `YYYY-MM-DD`, `MMM DD 'YY`, and `DD MMM 'YY`.
+- [x] Step 420.2: Add `showDayOfWeekLabels` presentation state and formatting
+  support.
+- [x] Step 420.3: Add `statusTitleMode` for existing OHLC overlay title display:
+  symbol + timeframe, symbol only, or timeframe only.
+- [x] Step 420.4: Apply date/day formatting to route timestamps, fallback
+  candle titles, and Lightweight tick labels through chart display context.
+- [x] Step 420.5: Add Settings controls for Date format, Day of week on labels,
+  and Title mode while preserving draft-only edits until `Ok`.
+- [x] Step 420.6: Update runtime, adapter, browser, and timezone smokes plus
+  presentation docs and session handoff.
+
+Manual acceptance:
+
+- Settings exposes Date format and Day of week on labels under Time scale.
+- Settings exposes Status line title mode for the existing chart OHLC overlay.
+- Changing these controls does not affect the chart until `Ok`.
+- `Ok` updates label/title presentation without changing replay cursor,
+  display bars, bar-data windows, request ranges, active pane identity, or chart
+  runtime ownership.
+- Invalid date formats and status title modes are rejected by the presentation
+  runtime.
+
+Non-goals:
+
+- No price-scale mode/placement implementation.
+- No countdown, watermark, or session-break implementation.
+- No previous-day-close/high-low label implementation because those need a
+  separate decision about deriving labels from existing display bars.
+- No template persistence system.
+- No split-pane or pane-specific settings work.
+
+Checks:
+
+- `node v5/tests/timezone-contracts-smoke.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-display-usability-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/scripts/smoke_all.js`
 - `git diff --check`

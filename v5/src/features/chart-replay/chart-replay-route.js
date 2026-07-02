@@ -2,9 +2,11 @@ import { dispatchCommand } from '../../runtime/commands.js';
 import { subscribeEvent } from '../../runtime/events.js';
 import { CHART_COMMANDS, CHART_EVENTS } from '../../contracts/chart-contracts.js';
 import {
+  CHART_DATE_FORMATS,
   CHART_PRESENTATION_COMMANDS,
   CHART_PRESENTATION_EVENTS,
   DEFAULT_CHART_PRESENTATION_SETTINGS,
+  STATUS_TITLE_MODES,
 } from '../../contracts/chart-presentation-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
@@ -125,6 +127,14 @@ export function createChartReplayRoute() {
                     <input type="checkbox" data-presentation-toggle="showStatusTitle">
                     <span>Title</span>
                   </label>
+                  <label class="chart-settings-row">
+                    <span>Title mode</span>
+                    <select data-presentation-status-title-mode>
+                      <option value="symbol-timeframe">Symbol and timeframe</option>
+                      <option value="symbol">Symbol only</option>
+                      <option value="timeframe">Timeframe only</option>
+                    </select>
+                  </label>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-presentation-toggle="showOpenMarketStatus">
                     <span>Open market status</span>
@@ -150,6 +160,18 @@ export function createChartReplayRoute() {
                       <option value="10">10 bars</option>
                       <option value="16">16 bars</option>
                     </select>
+                  </label>
+                  <label class="chart-settings-row">
+                    <span>Date format</span>
+                    <select data-presentation-date-format>
+                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                      <option value="MMM DD 'YY">Mon 29 Sep '97</option>
+                      <option value="DD MMM 'YY">29 Sep '97</option>
+                    </select>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-presentation-toggle="showDayOfWeekLabels">
+                    <span>Day of week on labels</span>
                   </label>
                   <h3>Crosshair</h3>
                   <label class="chart-settings-check">
@@ -380,6 +402,8 @@ export function createChartReplayRoute() {
       const displayTimeframeSelect = section.querySelector('[data-display-timeframe-select]');
       const displayTimezoneControls = Array.from(section.querySelectorAll('[data-display-timezone]'));
       const presentationTimeFormatControls = Array.from(section.querySelectorAll('[data-presentation-time-format]'));
+      const presentationDateFormatControls = Array.from(section.querySelectorAll('[data-presentation-date-format]'));
+      const presentationStatusTitleModeControls = Array.from(section.querySelectorAll('[data-presentation-status-title-mode]'));
       const presentationToggleControls = Array.from(section.querySelectorAll('[data-presentation-toggle]'));
       const presentationMarginControls = Array.from(section.querySelectorAll('[data-presentation-margin]'));
       const presentationMarginValueControls = Array.from(section.querySelectorAll('[data-presentation-margin-value]'));
@@ -429,9 +453,12 @@ export function createChartReplayRoute() {
       let floatingDragState = null;
       let truncatePickMode = false;
       let presentationSettings = {
-        timeFormat: '24h',
+        timeFormat: DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
+        dateFormat: CHART_DATE_FORMATS.ISO_DATE,
         showStatusTitle: DEFAULT_CHART_PRESENTATION_SETTINGS.showStatusTitle,
+        statusTitleMode: STATUS_TITLE_MODES.SYMBOL_TIMEFRAME,
         showOpenMarketStatus: DEFAULT_CHART_PRESENTATION_SETTINGS.showOpenMarketStatus,
+        showDayOfWeekLabels: DEFAULT_CHART_PRESENTATION_SETTINGS.showDayOfWeekLabels,
         showStatusOhlc: true,
         showStatusChange: true,
         showCrosshairReadout: true,
@@ -512,6 +539,8 @@ export function createChartReplayRoute() {
           displayTimezone,
           exchangeTimezone,
           timeFormat: presentationSettings.timeFormat,
+          dateFormat: presentationSettings.dateFormat,
+          showDayOfWeekLabels: presentationSettings.showDayOfWeekLabels,
         });
       }
 
@@ -558,8 +587,10 @@ export function createChartReplayRoute() {
         const displayBar = hoverBar || latest;
         chartOhlcOverlay.hidden = !presentationSettings.showStatusOhlc || !displayBar;
         chartMarketStatus.hidden = !presentationSettings.showOpenMarketStatus;
-        chartOhlcSymbol.hidden = !presentationSettings.showStatusTitle;
-        chartOhlcTimeframe.hidden = !presentationSettings.showStatusTitle;
+        chartOhlcSymbol.hidden = !presentationSettings.showStatusTitle
+          || presentationSettings.statusTitleMode === STATUS_TITLE_MODES.TIMEFRAME;
+        chartOhlcTimeframe.hidden = !presentationSettings.showStatusTitle
+          || presentationSettings.statusTitleMode === STATUS_TITLE_MODES.SYMBOL;
         renderChartOhlcLegend(displayBar);
         chartOhlcSymbol.textContent = state?.session?.instrument || 'NQ';
         chartOhlcTimeframe.textContent = formatTimeframeLabel(
@@ -860,6 +891,16 @@ export function createChartReplayRoute() {
             control.dataset.presentationTimeFormat === presentationSettings.timeFormat ? 'true' : 'false'
           );
         });
+        presentationDateFormatControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = presentationSettings.dateFormat;
+          }
+        });
+        presentationStatusTitleModeControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = presentationSettings.statusTitleMode;
+          }
+        });
         presentationToggleControls.forEach((control) => {
           const key = control.dataset.presentationToggle;
           if (control.type === 'checkbox') {
@@ -930,8 +971,11 @@ export function createChartReplayRoute() {
         return {
           displayTimezone,
           timeFormat: presentationSettings.timeFormat,
+          dateFormat: presentationSettings.dateFormat,
+          statusTitleMode: presentationSettings.statusTitleMode,
           showStatusTitle: Boolean(presentationSettings.showStatusTitle),
           showOpenMarketStatus: Boolean(presentationSettings.showOpenMarketStatus),
+          showDayOfWeekLabels: Boolean(presentationSettings.showDayOfWeekLabels),
           showStatusOhlc: Boolean(presentationSettings.showStatusOhlc),
           showStatusChange: Boolean(presentationSettings.showStatusChange),
           showCrosshairReadout: Boolean(presentationSettings.showCrosshairReadout),
@@ -956,6 +1000,16 @@ export function createChartReplayRoute() {
         presentationTimeFormatControls.forEach((control) => {
           if (control.tagName === 'SELECT') {
             control.value = draft.timeFormat;
+          }
+        });
+        presentationDateFormatControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = draft.dateFormat;
+          }
+        });
+        presentationStatusTitleModeControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = draft.statusTitleMode;
           }
         });
         presentationToggleControls.forEach((control) => {
@@ -1029,12 +1083,16 @@ export function createChartReplayRoute() {
           displayTimezone,
           exchangeTimezone,
           timeFormat: presentationSettings.timeFormat,
+          dateFormat: presentationSettings.dateFormat,
+          showDayOfWeekLabels: presentationSettings.showDayOfWeekLabels,
         }).catch(() => null);
       }
 
       async function syncChartPresentationSettings() {
         await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
           timeFormat: presentationSettings.timeFormat,
+          dateFormat: presentationSettings.dateFormat,
+          showDayOfWeekLabels: presentationSettings.showDayOfWeekLabels,
           showCrosshairReadout: presentationSettings.showCrosshairReadout,
           margins: presentationSettings.margins,
           rightOffsetBars: presentationSettings.rightOffsetBars,
@@ -1250,6 +1308,18 @@ export function createChartReplayRoute() {
           settingsDraft.timeFormat = control.value;
         });
       });
+      presentationDateFormatControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.dateFormat = control.value;
+        });
+      });
+      presentationStatusTitleModeControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.statusTitleMode = control.value;
+        });
+      });
       presentationToggleControls.forEach((control) => {
         control.addEventListener('change', () => {
           const key = control.dataset.presentationToggle;
@@ -1355,8 +1425,11 @@ export function createChartReplayRoute() {
         }
         presentationSettings = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
           timeFormat: draft.timeFormat,
+          dateFormat: draft.dateFormat,
           showStatusTitle: draft.showStatusTitle,
+          statusTitleMode: draft.statusTitleMode,
           showOpenMarketStatus: draft.showOpenMarketStatus,
+          showDayOfWeekLabels: draft.showDayOfWeekLabels,
           showStatusOhlc: draft.showStatusOhlc,
           showStatusChange: draft.showStatusChange,
           showCrosshairReadout: draft.showCrosshairReadout,

@@ -243,6 +243,8 @@ lightweight.setPresentation({
     horizontalColor: '#64748b',
     labelBackgroundColor: '#0f172a',
   },
+  dateFormat: "MMM DD 'YY",
+  showDayOfWeekLabels: true,
   backgroundStyle: {
     color: '#020617',
   },
@@ -433,6 +435,8 @@ assert.equal(lightweightHost.children[0].dataset.gridVerticalVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.gridHorizontalColor, '#1f2937');
 assert.equal(lightweightHost.children[0].dataset.crosshairHorizontalVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.crosshairLabelBackgroundColor, '#0f172a');
+assert.equal(lightweightHost.children[0].dataset.dateFormat, "MMM DD 'YY");
+assert.equal(lightweightHost.children[0].dataset.showDayOfWeekLabels, 'true');
 assert.equal(lightweightHost.children[0].dataset.backgroundColor, '#020617');
 assert.equal(lightweightHost.children[0].dataset.scaleTextColor, '#38bdf8');
 assert.equal(lightweightHost.children[0].dataset.scaleLineColor, '#475569');
@@ -514,6 +518,10 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
 assert.equal(
   lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter(Date.parse('2026-06-01T09:33:00.000Z') / 1000),
   '09:33'
+);
+assert.equal(
+  lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter(Date.parse('2026-06-01T00:00:00.000Z') / 1000),
+  "Mon Jun 01 '26"
 );
 assert.deepEqual(lightweightCalls.priceScaleApplyOptions, [
   {

@@ -111,6 +111,8 @@ assert.deepEqual(context.displayContext, {
   displayTimezone: 'Exchange',
   exchangeTimezone: 'America/New_York',
   timeFormat: '24h',
+  dateFormat: 'YYYY-MM-DD',
+  showDayOfWeekLabels: false,
   showCrosshairReadout: true,
   margins: {
     topPercent: 10,

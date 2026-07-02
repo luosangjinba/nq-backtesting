@@ -9,6 +9,8 @@ import {
 import {
   canonicalTimestampToInstantMs,
   displayWallClockToCanonicalTimestamp,
+  formatDisplayDate,
+  formatDisplayDateFromParts,
   formatDisplayTimestamp,
   resolveDisplayTimezone,
 } from '../src/domain/timezone-format.js';
@@ -52,6 +54,34 @@ assert.equal(
 assert.equal(
   formatDisplayTimestamp(canonicalNewYork0930Winter, { displayTimezone: DISPLAY_TIMEZONES.UTC }),
   '2026-01-05 14:30'
+);
+assert.equal(
+  formatDisplayTimestamp(canonicalNewYork0930Summer, {
+    displayTimezone: DISPLAY_TIMEZONES.EXCHANGE,
+    dateFormat: "MMM DD 'YY",
+    showDayOfWeekLabels: true,
+  }),
+  "Mon Jun 01 '26 09:30"
+);
+assert.equal(
+  formatDisplayDate(canonicalNewYork0930Summer, {
+    displayTimezone: DISPLAY_TIMEZONES.EXCHANGE,
+    dateFormat: "DD MMM 'YY",
+    showDayOfWeekLabels: true,
+  }),
+  "Mon 01 Jun '26"
+);
+assert.equal(
+  formatDisplayDateFromParts({
+    year: 2026,
+    month: 6,
+    day: 1,
+  }, {
+    dateFormat: 'YYYY-MM-DD',
+    showDayOfWeekLabels: true,
+    compactIso: true,
+  }),
+  'Mon 06-01'
 );
 
 assert.equal(

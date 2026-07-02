@@ -10,6 +10,7 @@ import {
   DEFAULT_CROSSHAIR_STYLE,
   DEFAULT_GRID_STYLE,
   DEFAULT_SCALE_STYLE,
+  STATUS_TITLE_MODES,
 } from '../contracts/chart-presentation-contracts.js';
 
 export {
@@ -30,6 +31,11 @@ function normalizeTimeFormat(value = DEFAULT_CHART_PRESENTATION_SETTINGS.timeFor
 function normalizeDateFormat(value = DEFAULT_CHART_PRESENTATION_SETTINGS.dateFormat) {
   if (Object.values(CHART_DATE_FORMATS).includes(value)) return value;
   throw new Error(`Unsupported chart date format: ${value}`);
+}
+
+function normalizeStatusTitleMode(value = DEFAULT_CHART_PRESENTATION_SETTINGS.statusTitleMode) {
+  if (Object.values(STATUS_TITLE_MODES).includes(value)) return value;
+  throw new Error(`Unsupported chart status title mode: ${value}`);
 }
 
 function normalizePercent(value, fallback, name) {
@@ -123,7 +129,9 @@ export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CH
     timeFormat: normalizeTimeFormat(input.timeFormat ?? base.timeFormat),
     dateFormat: normalizeDateFormat(input.dateFormat ?? base.dateFormat),
     showStatusTitle: normalizeBoolean(input.showStatusTitle, base.showStatusTitle),
+    statusTitleMode: normalizeStatusTitleMode(input.statusTitleMode ?? base.statusTitleMode),
     showOpenMarketStatus: normalizeBoolean(input.showOpenMarketStatus, base.showOpenMarketStatus),
+    showDayOfWeekLabels: normalizeBoolean(input.showDayOfWeekLabels, base.showDayOfWeekLabels),
     showStatusOhlc: normalizeBoolean(input.showStatusOhlc, base.showStatusOhlc),
     showStatusChange: normalizeBoolean(input.showStatusChange, base.showStatusChange),
     showCrosshairReadout: normalizeBoolean(input.showCrosshairReadout, base.showCrosshairReadout),

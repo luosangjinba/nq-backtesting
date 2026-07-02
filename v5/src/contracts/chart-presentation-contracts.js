@@ -15,6 +15,14 @@ export const CHART_TIME_FORMATS = Object.freeze({
 
 export const CHART_DATE_FORMATS = Object.freeze({
   ISO_DATE: 'YYYY-MM-DD',
+  MONTH_DAY_YEAR: "MMM DD 'YY",
+  DAY_MONTH_YEAR: "DD MMM 'YY",
+});
+
+export const STATUS_TITLE_MODES = Object.freeze({
+  SYMBOL_TIMEFRAME: 'symbol-timeframe',
+  SYMBOL: 'symbol',
+  TIMEFRAME: 'timeframe',
 });
 
 export const DEFAULT_CANDLE_STYLE = Object.freeze({
@@ -61,7 +69,9 @@ export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   timeFormat: CHART_TIME_FORMATS.H24,
   dateFormat: CHART_DATE_FORMATS.ISO_DATE,
   showStatusTitle: true,
+  statusTitleMode: STATUS_TITLE_MODES.SYMBOL_TIMEFRAME,
   showOpenMarketStatus: true,
+  showDayOfWeekLabels: false,
   showStatusOhlc: true,
   showStatusChange: true,
   showCrosshairReadout: true,

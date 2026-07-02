@@ -31,18 +31,14 @@ editing.
 Remaining Settings parity must be staged instead of implemented as one broad
 route-local checklist.
 
-### Step 420 Target - Time And Label Presentation
+### Implemented Step 420 - Time And Label Presentation
 
-Step 420 may implement controls that are pure presentation state and can be
+Step 420 implements controls that are pure presentation state and can be
 verified without changing replay or bar-data state:
 
 - time-scale date format options;
 - day-of-week label display;
-- symbol label display mode where V5 already owns the visible label;
-- previous-day-close and high/low labels only if they can be rendered from
-  existing display bars without additional bar requests;
-- plus button visibility only if it maps to existing chart affordances without
-  changing replay or bar-data state.
+- status title mode for the existing chart OHLC overlay.
 
 Rules:
 
@@ -50,6 +46,11 @@ Rules:
 - Settings edits remain draft-only until `Ok`.
 - Label/date changes must not alter canonical timestamps, replay cursor,
   display-bar identity, request ranges, or bar-cache keys.
+- Route timestamps, fallback candle titles, and chart-engine tick labels consume
+  date/day settings through formatting helpers and chart display context.
+- Previous-day-close, high/low labels, and plus button visibility remain
+  unimplemented until a separate decision proves they can be rendered from
+  existing display state without extra bar requests or chart-engine coupling.
 
 ### Step 421 Target - Advanced Chart-Engine Presentation
 
@@ -98,13 +99,16 @@ presentation setting changes.
 ## Initial Settings
 
 - `timeFormat`: `24h` or `12h`.
-- `dateFormat`: initially `YYYY-MM-DD`.
+- `dateFormat`: `YYYY-MM-DD`, `MMM DD 'YY`, or `DD MMM 'YY`.
 - `showStatusOhlc`: whether the chart route status line shows OHLC.
 - `showStatusChange`: whether the chart route status line shows bar change.
 - `showStatusTitle`: whether the chart canvas OHLC overlay shows
   instrument/timeframe title text.
+- `statusTitleMode`: whether that title shows symbol + timeframe, symbol only,
+  or timeframe only.
 - `showOpenMarketStatus`: whether the chart canvas OHLC overlay shows the market
   status dot.
+- `showDayOfWeekLabels`: whether date labels include a short weekday prefix.
 - `showCrosshairReadout`: whether chart-owned hover/readout text may be shown.
 - `margins`: top and bottom percentages for chart layout.
 - `rightOffsetBars`: number of bars reserved to the right of the latest visible

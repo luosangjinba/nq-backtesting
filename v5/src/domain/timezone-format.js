@@ -3,7 +3,11 @@ import {
   DEFAULT_DISPLAY_TIMEZONE,
   DISPLAY_TIMEZONES,
 } from '../contracts/timezone-contracts.js';
+import { CHART_DATE_FORMATS } from '../contracts/chart-presentation-contracts.js';
 import { parseCanonicalTimeMs } from './canonical-time.js';
+
+const MONTH_NAMES = Object.freeze(['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']);
+const WEEKDAY_NAMES = Object.freeze(['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']);
 
 function timestampSeconds(value) {
   if (typeof value === 'number') {
@@ -73,7 +77,39 @@ function getTimeZoneParts(epochMs, timeZone) {
 }
 
 function partsToUtcMs(parts) {
-  return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour, parts.minute, parts.second);
+  return Date.UTC(
+    parts.year,
+    parts.month - 1,
+    parts.day,
+    parts.hour || 0,
+    parts.minute || 0,
+    parts.second || 0
+  );
+}
+
+function weekdayNameForParts(parts) {
+  return WEEKDAY_NAMES[new Date(partsToUtcMs(parts)).getUTCDay()];
+}
+
+function formatDateParts(parts, {
+  dateFormat = CHART_DATE_FORMATS.ISO_DATE,
+  showDayOfWeekLabels = false,
+  compactIso = false,
+} = {}) {
+  const pad = (item) => String(item).padStart(2, '0');
+  const month = pad(parts.month);
+  const day = pad(parts.day);
+  const shortYear = String(parts.year).slice(-2);
+  const monthName = MONTH_NAMES[parts.month - 1] || month;
+  let dateText;
+  if (dateFormat === CHART_DATE_FORMATS.MONTH_DAY_YEAR) {
+    dateText = `${monthName} ${day} '${shortYear}`;
+  } else if (dateFormat === CHART_DATE_FORMATS.DAY_MONTH_YEAR) {
+    dateText = `${day} ${monthName} '${shortYear}`;
+  } else {
+    dateText = compactIso ? `${month}-${day}` : `${parts.year}-${month}-${day}`;
+  }
+  return showDayOfWeekLabels ? `${weekdayNameForParts(parts)} ${dateText}` : dateText;
 }
 
 function getOffsetMs(epochMs, timeZone) {
@@ -118,6 +154,8 @@ export function formatDisplayTimestamp(timestamp, {
   displayTimezone = DEFAULT_DISPLAY_TIMEZONE,
   exchangeTimezone = DEFAULT_EXCHANGE_TIMEZONE,
   timeFormat = '24h',
+  dateFormat = CHART_DATE_FORMATS.ISO_DATE,
+  showDayOfWeekLabels = false,
   includeSeconds = false,
 } = {}) {
   const timeZone = resolveDisplayTimezone(displayTimezone, { exchangeTimezone });
@@ -133,5 +171,26 @@ export function formatDisplayTimestamp(timestamp, {
   const time = includeSeconds
     ? `${hourText}:${pad(parts.minute)}:${pad(parts.second)}${suffix}`
     : `${hourText}:${pad(parts.minute)}${suffix}`;
-  return `${parts.year}-${pad(parts.month)}-${pad(parts.day)} ${time}`;
+  return `${formatDateParts(parts, { dateFormat, showDayOfWeekLabels })} ${time}`;
+}
+
+export function formatDisplayDate(timestamp, {
+  displayTimezone = DEFAULT_DISPLAY_TIMEZONE,
+  exchangeTimezone = DEFAULT_EXCHANGE_TIMEZONE,
+  dateFormat = CHART_DATE_FORMATS.ISO_DATE,
+  showDayOfWeekLabels = false,
+  compactIso = false,
+} = {}) {
+  const timeZone = resolveDisplayTimezone(displayTimezone, { exchangeTimezone });
+  const instantMs = canonicalTimestampToInstantMs(timestamp, { exchangeTimezone });
+  const parts = getTimeZoneParts(instantMs, timeZone);
+  return formatDateParts(parts, { dateFormat, showDayOfWeekLabels, compactIso });
+}
+
+export function formatDisplayDateFromParts(parts, {
+  dateFormat = CHART_DATE_FORMATS.ISO_DATE,
+  showDayOfWeekLabels = false,
+  compactIso = false,
+} = {}) {
+  return formatDateParts(parts, { dateFormat, showDayOfWeekLabels, compactIso });
 }

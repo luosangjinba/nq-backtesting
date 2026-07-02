@@ -187,7 +187,10 @@ async function main() {
           document.querySelector('[data-chart-settings-tab="status"]').click();
           const ohlcToggle = document.querySelector('[data-presentation-toggle="showStatusOhlc"]');
           const titleToggle = document.querySelector('[data-presentation-toggle="showStatusTitle"]');
+          const titleModeSelect = document.querySelector('[data-presentation-status-title-mode]');
           const marketStatusToggle = document.querySelector('[data-presentation-toggle="showOpenMarketStatus"]');
+          titleModeSelect.value = 'symbol';
+          titleModeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           titleToggle.checked = false;
           titleToggle.dispatchEvent(new Event('change', { bubbles: true }));
           marketStatusToggle.checked = false;
@@ -232,6 +235,12 @@ async function main() {
           const rightOffsetSelect = document.querySelector('select[data-presentation-right-offset]');
           rightOffsetSelect.value = '16';
           rightOffsetSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          const dateFormatSelect = document.querySelector('[data-presentation-date-format]');
+          const dayLabelsToggle = document.querySelector('[data-presentation-toggle="showDayOfWeekLabels"]');
+          dateFormatSelect.value = "MMM DD 'YY";
+          dateFormatSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          dayLabelsToggle.checked = true;
+          dayLabelsToggle.dispatchEvent(new Event('change', { bubbles: true }));
           const crosshairHorizontalToggle = document.querySelector('[data-crosshair-style-toggle="horizontalVisible"]');
           const crosshairLabelBackground = document.querySelector('[data-crosshair-style-color="labelBackgroundColor"]');
           const beforeApplyCrosshairHorizontalVisible = document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible || '';
@@ -255,7 +264,7 @@ async function main() {
           document.querySelector('[data-chart-settings-apply]').click();
 
           await waitFor('presentation applied', async () =>
-            document.querySelector('[data-replay-cursor]')?.textContent === '2026-06-01 9:30 AM'
+            document.querySelector('[data-replay-cursor]')?.textContent === "Mon Jun 01 '26 9:30 AM"
               && document.querySelector('[data-status-ohlc-row]')?.hidden === true
               && document.querySelector('[data-chart-ohlc-overlay]')?.hidden === true
               && document.querySelector('[data-chart-canvas]')?.style.paddingTop === ''
@@ -273,7 +282,9 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor === '#38bdf8'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor === '#475569'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize === '14'
-              && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith('2026-06-01 9:30 AM')
+              && document.querySelector('[data-chart-canvas]')?.dataset.dateFormat === "MMM DD 'YY"
+              && document.querySelector('[data-chart-canvas]')?.dataset.showDayOfWeekLabels === 'true'
+              && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith("Mon Jun 01 '26 9:30 AM")
           );
 
           const after = await commands.dispatchCommand('replay.getState');
@@ -316,12 +327,15 @@ async function main() {
             beforeApplyDraftOnlyCrosshairLabelBackground,
             selected12h: document.querySelector('select[data-presentation-time-format]')?.value || '',
             titleSelected: document.querySelector('[data-presentation-toggle="showStatusTitle"]')?.checked,
+            titleModeSelected: document.querySelector('[data-presentation-status-title-mode]')?.value || '',
             marketStatusSelected: document.querySelector('[data-presentation-toggle="showOpenMarketStatus"]')?.checked,
             selectedBodyUpColor: document.querySelector('[data-candle-style="body.up"]')?.value || '',
             compactSelected: document.querySelector('[data-presentation-margin="compact"]')?.checked,
             marginTopSelected: document.querySelector('[data-presentation-margin-value="topPercent"]')?.value || '',
             marginBottomSelected: document.querySelector('[data-presentation-margin-value="bottomPercent"]')?.value || '',
             rightOffsetSelected: document.querySelector('select[data-presentation-right-offset]')?.value || '',
+            dateFormatSelected: document.querySelector('[data-presentation-date-format]')?.value || '',
+            dayLabelsSelected: document.querySelector('[data-presentation-toggle="showDayOfWeekLabels"]')?.checked,
             gridVerticalSelected: document.querySelector('[data-grid-style-toggle="verticalVisible"]')?.checked,
             gridHorizontalColorSelected: document.querySelector('[data-grid-style-color="horizontalColor"]')?.value || '',
             crosshairHorizontalSelected: document.querySelector('[data-crosshair-style-toggle="horizontalVisible"]')?.checked,
@@ -345,6 +359,8 @@ async function main() {
             afterCanvasScaleTextColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '',
             afterCanvasScaleLineColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '',
             afterCanvasScaleFontSize: document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '',
+            afterCanvasDateFormat: document.querySelector('[data-chart-canvas]')?.dataset.dateFormat || '',
+            afterCanvasShowDayOfWeekLabels: document.querySelector('[data-chart-canvas]')?.dataset.showDayOfWeekLabels || '',
             beforeCursor: before.cursorTimestamp,
             afterCursor: after.cursorTimestamp,
             beforeDisplayCount: before.displayBars.length,
@@ -362,7 +378,7 @@ async function main() {
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.beforeCursorLabel, '2026-06-01 09:30');
-    assert.equal(value.afterCursorLabel, '2026-06-01 9:30 AM');
+    assert.equal(value.afterCursorLabel, "Mon Jun 01 '26 9:30 AM");
     assert.equal(value.beforeOhlcHidden, false);
     assert.equal(value.afterOhlcHidden, true);
     assert.equal(value.beforeChartOhlcHidden, false);
@@ -398,12 +414,15 @@ async function main() {
     assert.equal(value.beforeApplyDraftOnlyCrosshairLabelBackground, '#334155');
     assert.equal(value.selected12h, '12h');
     assert.equal(value.titleSelected, false);
+    assert.equal(value.titleModeSelected, 'symbol');
     assert.equal(value.marketStatusSelected, false);
     assert.equal(value.selectedBodyUpColor, '#22c55e');
     assert.equal(value.compactSelected, false);
     assert.equal(value.marginTopSelected, '7');
     assert.equal(value.marginBottomSelected, '9');
     assert.equal(value.rightOffsetSelected, '16');
+    assert.equal(value.dateFormatSelected, "MMM DD 'YY");
+    assert.equal(value.dayLabelsSelected, true);
     assert.equal(value.gridVerticalSelected, false);
     assert.equal(value.gridHorizontalColorSelected, '#1f2937');
     assert.equal(value.crosshairHorizontalSelected, false);
@@ -427,6 +446,8 @@ async function main() {
     assert.equal(value.afterCanvasScaleTextColor, '#38bdf8');
     assert.equal(value.afterCanvasScaleLineColor, '#475569');
     assert.equal(value.afterCanvasScaleFontSize, '14');
+    assert.equal(value.afterCanvasDateFormat, "MMM DD 'YY");
+    assert.equal(value.afterCanvasShowDayOfWeekLabels, 'true');
     assert.equal(value.afterCursor, value.beforeCursor);
     assert.equal(value.afterDisplayCount, value.beforeDisplayCount);
     assert.equal(value.afterRequestCount, value.requestCount);

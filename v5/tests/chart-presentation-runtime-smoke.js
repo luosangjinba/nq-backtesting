@@ -38,7 +38,9 @@ assert.deepEqual(defaults, {
   timeFormat: '24h',
   dateFormat: 'YYYY-MM-DD',
   showStatusTitle: true,
+  statusTitleMode: 'symbol-timeframe',
   showOpenMarketStatus: true,
+  showDayOfWeekLabels: false,
   showStatusOhlc: true,
   showStatusChange: true,
   showCrosshairReadout: true,
@@ -86,7 +88,10 @@ assert.deepEqual(defaults, {
 
 const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
   timeFormat: '12h',
+  dateFormat: "MMM DD 'YY",
   showStatusTitle: false,
+  statusTitleMode: 'symbol',
+  showDayOfWeekLabels: true,
   showStatusOhlc: false,
   margins: {
     topPercent: 12,
@@ -116,7 +121,10 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
 assert.deepEqual(updated, {
   ...defaults,
   timeFormat: '12h',
+  dateFormat: "MMM DD 'YY",
   showStatusTitle: false,
+  statusTitleMode: 'symbol',
+  showDayOfWeekLabels: true,
   showStatusOhlc: false,
   margins: {
     topPercent: 12,
@@ -171,6 +179,14 @@ assert.equal(changedEvent, null);
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { timeFormat: 'local' }),
   /Unsupported chart time format/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { dateFormat: 'MM/DD/YYYY' }),
+  /Unsupported chart date format/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { statusTitleMode: 'description' }),
+  /Unsupported chart status title mode/
 );
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { margins: { topPercent: 60 } }),

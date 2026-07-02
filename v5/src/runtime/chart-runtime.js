@@ -76,6 +76,8 @@ function createEmptyState() {
       displayTimezone: DEFAULT_DISPLAY_TIMEZONE,
       exchangeTimezone: DEFAULT_EXCHANGE_TIMEZONE,
       timeFormat: DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
+      dateFormat: DEFAULT_CHART_PRESENTATION_SETTINGS.dateFormat,
+      showDayOfWeekLabels: DEFAULT_CHART_PRESENTATION_SETTINGS.showDayOfWeekLabels,
       showCrosshairReadout: DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout,
       margins: { ...DEFAULT_CHART_PRESENTATION_SETTINGS.margins },
       rightOffsetBars: DEFAULT_CHART_PRESENTATION_SETTINGS.rightOffsetBars,
@@ -909,6 +911,8 @@ export function createChartRuntime() {
     displayTimezone = state.displayContext.displayTimezone,
     exchangeTimezone = state.displayContext.exchangeTimezone,
     timeFormat = state.displayContext.timeFormat,
+    dateFormat = state.displayContext.dateFormat,
+    showDayOfWeekLabels = state.displayContext.showDayOfWeekLabels,
     showCrosshairReadout = state.displayContext.showCrosshairReadout,
     margins = state.displayContext.margins,
     rightOffsetBars = state.displayContext.rightOffsetBars,
@@ -925,6 +929,10 @@ export function createChartRuntime() {
       displayTimezone: displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
       exchangeTimezone: exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
       timeFormat: timeFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
+      dateFormat: dateFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.dateFormat,
+      showDayOfWeekLabels: showDayOfWeekLabels == null
+        ? DEFAULT_CHART_PRESENTATION_SETTINGS.showDayOfWeekLabels
+        : Boolean(showDayOfWeekLabels),
       showCrosshairReadout: showCrosshairReadout == null
         ? DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout
         : Boolean(showCrosshairReadout),
@@ -961,6 +969,8 @@ export function createChartRuntime() {
   function updatePresentationContext(payload = {}) {
     return setDisplayContext({
       timeFormat: payload.timeFormat,
+      dateFormat: payload.dateFormat,
+      showDayOfWeekLabels: payload.showDayOfWeekLabels,
       showCrosshairReadout: payload.showCrosshairReadout,
       margins: payload.margins,
       rightOffsetBars: payload.rightOffsetBars,

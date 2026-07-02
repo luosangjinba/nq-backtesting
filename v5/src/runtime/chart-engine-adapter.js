@@ -1,7 +1,11 @@
 import { DEFAULT_DISPLAY_TIMEZONE, DEFAULT_EXCHANGE_TIMEZONE } from '../contracts/timezone-contracts.js';
 import { DEFAULT_CHART_PRESENTATION_SETTINGS } from '../contracts/chart-presentation-contracts.js';
 import { formatCandleTitle, formatPrice } from '../domain/chart-formatting.js';
-import { formatDisplayTimestamp } from '../domain/timezone-format.js';
+import {
+  formatDisplayDate,
+  formatDisplayDateFromParts,
+  formatDisplayTimestamp,
+} from '../domain/timezone-format.js';
 
 const LIGHTWEIGHT_REPLAY_TIMESCALE = Object.freeze({
   barSpacing: 10,
@@ -108,6 +112,10 @@ function normalizeContext(context = {}) {
     displayTimezone: context.displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
     exchangeTimezone: context.exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
     timeFormat: context.timeFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
+    dateFormat: context.dateFormat || DEFAULT_CHART_PRESENTATION_SETTINGS.dateFormat,
+    showDayOfWeekLabels: context.showDayOfWeekLabels == null
+      ? DEFAULT_CHART_PRESENTATION_SETTINGS.showDayOfWeekLabels
+      : Boolean(context.showDayOfWeekLabels),
     showCrosshairReadout: context.showCrosshairReadout == null
       ? DEFAULT_CHART_PRESENTATION_SETTINGS.showCrosshairReadout
       : Boolean(context.showCrosshairReadout),
@@ -188,6 +196,8 @@ function applyFallbackPresentation(canvas, context) {
   canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
   canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
   canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.dataset.dateFormat = context.dateFormat;
+  canvas.dataset.showDayOfWeekLabels = String(context.showDayOfWeekLabels);
   canvas.style.backgroundColor = context.backgroundStyle.color;
   canvas.style.color = context.scaleStyle.textColor;
   canvas.style.paddingTop = `${context.margins.topPercent}%`;
@@ -294,17 +304,31 @@ function priceScaleMarginsForContext(context) {
 
 function formatLightweightTick(time, context) {
   if (time && typeof time === 'object' && 'year' in time && 'month' in time && 'day' in time) {
-    return `${String(time.month).padStart(2, '0')}-${String(time.day).padStart(2, '0')}`;
+    return formatDisplayDateFromParts(time, {
+      dateFormat: context.dateFormat,
+      showDayOfWeekLabels: context.showDayOfWeekLabels,
+      compactIso: true,
+    });
   }
   const formatted = formatDisplayTimestamp(time, {
     displayTimezone: context.displayTimezone,
     exchangeTimezone: context.exchangeTimezone,
     timeFormat: context.timeFormat,
+    dateFormat: context.dateFormat,
+    showDayOfWeekLabels: context.showDayOfWeekLabels,
   });
-  const match = formatted.match(/^(\d{4})-(\d{2})-(\d{2}) (.+)$/);
+  const match = formatted.match(/^(.+) (.+)$/);
   if (!match) return formatted;
-  const [, , month, day, timeText] = match;
-  return timeText.startsWith('00:00') || timeText.startsWith('12:00 AM') ? `${month}-${day}` : timeText;
+  const [, , timeText] = match;
+  return timeText.startsWith('00:00') || timeText.startsWith('12:00 AM')
+    ? formatDisplayDate(time, {
+      displayTimezone: context.displayTimezone,
+      exchangeTimezone: context.exchangeTimezone,
+      dateFormat: context.dateFormat,
+      showDayOfWeekLabels: context.showDayOfWeekLabels,
+      compactIso: true,
+    })
+    : timeText;
 }
 
 function applyLightweightMetadata(canvas, context) {
@@ -343,6 +367,8 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
   canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
   canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.dataset.dateFormat = context.dateFormat;
+  canvas.dataset.showDayOfWeekLabels = String(context.showDayOfWeekLabels);
 }
 
 function applyLightweightPresentation(canvas, context) {
@@ -422,6 +448,8 @@ function formatChartBarTime(bar, context) {
     displayTimezone: context.displayTimezone,
     exchangeTimezone: context.exchangeTimezone,
     timeFormat: context.timeFormat,
+    dateFormat: context.dateFormat,
+    showDayOfWeekLabels: context.showDayOfWeekLabels,
   });
 }
 
