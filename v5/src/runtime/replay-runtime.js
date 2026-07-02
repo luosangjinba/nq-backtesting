@@ -5,8 +5,8 @@ import { CHART_COMMANDS, CHART_EVENTS } from '../contracts/chart-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../contracts/replay-contracts.js';
 import { SESSION_COMMANDS } from '../contracts/session-contracts.js';
 import { createReplayChartSync } from './replay-chart-sync.js';
+import { createReplayPrefixController } from './replay-prefix-controller.js';
 import {
-  DEFAULT_PREFIX_BARS,
   MAX_PREFIX_BARS,
   MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS,
   alignTimestampToTimeframe,
@@ -23,14 +23,12 @@ import {
   isoFromTimestamp,
   isAtOrAfterSessionEnd,
   mergeDisplayBarsForCursor,
-  mergeSparseDisplayBars,
   normalizeStepCount,
   normalizeTimeframe,
   previousWindowAnchor,
   selectNextBar,
   selectStartBar,
   shouldSeekEarlierDisplayWindow,
-  splitRetainedPrefixChunks,
   timeframeSeconds,
   timestampSeconds,
 } from './replay-runtime-state.js';
@@ -62,14 +60,22 @@ export function createReplayRuntime() {
   };
   let initialLoadSequence = 0;
   let emit = () => {};
-  const loadedPrefixAnchors = new Set();
-  const loadingPrefixAnchors = new Set();
   const loadingDisplayWindowKeys = new Set();
   const chartSync = createReplayChartSync({
     getState: () => state,
     dispatchCommand,
     hasCommand,
     chartCommands: CHART_COMMANDS,
+  });
+  const prefixController = createReplayPrefixController({
+    getState: () => state,
+    setState: (nextState) => {
+      state = nextState;
+      return state;
+    },
+    dispatchCommand,
+    chartSync,
+    emitEvent: (eventName, payload) => emit(eventName, payload),
   });
 
   function replaySnapshot(extra = {}) {
@@ -129,8 +135,7 @@ export function createReplayRuntime() {
       throw new Error('Stale replay initial load ignored.');
     }
     const startBar = selectStartBar(window.bars, session.sessionStart);
-    loadedPrefixAnchors.clear();
-    loadingPrefixAnchors.clear();
+    prefixController.resetAnchors();
 
     state = {
       ...state,
@@ -495,158 +500,6 @@ export function createReplayRuntime() {
       viewportMetrics: clone(state.viewportMetrics),
       status: state.status,
     };
-  }
-
-  async function loadPrefixDemand({ prefixDemand } = {}) {
-    if (!state.session || !state.sessionId) {
-      return {
-        ...clone(state),
-        loaded: false,
-        reason: 'no-session',
-      };
-    }
-    if (state.displayTimeframe !== state.replayTimeframe) {
-      return {
-        ...clone(state),
-        loaded: false,
-        reason: 'display-window-demand-active',
-      };
-    }
-    if (!prefixDemand?.anchor) {
-      throw new Error('replay prefix demand anchor is required.');
-    }
-
-    const anchor = prefixDemand.anchor;
-    if (loadedPrefixAnchors.has(anchor) || loadingPrefixAnchors.has(anchor)) {
-      return {
-        ...clone(state),
-        loaded: false,
-        reason: 'duplicate-prefix-demand',
-      };
-    }
-
-    const suggestedCount = Number(prefixDemand.suggestedCount || DEFAULT_PREFIX_BARS);
-    const count = Math.min(Math.max(1, Math.ceil(suggestedCount)), MAX_PREFIX_BARS);
-    loadingPrefixAnchors.add(anchor);
-    try {
-      const window = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
-        instrument: state.session.instrument,
-        timeframe: state.session.timeframe,
-        anchor,
-        direction: 'backward',
-        count,
-      });
-      const earliestLoadedTimestamp = Number(prefixDemand.earliestLoadedTimestamp);
-      const bars = window.bars
-        .filter((bar) => !Number.isFinite(earliestLoadedTimestamp) || Number(bar?.timestamp) < earliestLoadedTimestamp)
-        .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
-      const chunk = {
-        anchor,
-        earliestLoadedTimestamp: Number.isFinite(earliestLoadedTimestamp) ? earliestLoadedTimestamp : null,
-        bars: clone(bars),
-        window: {
-          key: window.key,
-          instrument: window.instrument,
-          timeframe: window.timeframe,
-          start: window.start,
-          end: window.end,
-          anchor: window.anchor,
-          direction: window.direction,
-          estimatedBars: window.estimatedBars,
-        },
-      };
-      const prefixChunks = [
-        chunk,
-        ...state.prefixChunks,
-      ];
-      const displayBars = mergeSparseDisplayBars(state.displayBars, prefixChunks, state.cursorTimestamp);
-      await chartSync.renderDisplayBars(displayBars, state.cursorTimestamp);
-      state = {
-        ...state,
-        prefixChunks,
-        displayBars: clone(displayBars),
-      };
-      loadedPrefixAnchors.add(anchor);
-      const result = {
-        ...clone(state),
-        loaded: true,
-        prefixChunk: clone(chunk),
-      };
-      emit(REPLAY_EVENTS.PREFIX_CHUNK_LOADED, result);
-      return result;
-    } finally {
-      loadingPrefixAnchors.delete(anchor);
-    }
-  }
-
-  async function applyPrefixRetention({ visibleRange } = {}) {
-    if (state.displayTimeframe !== state.replayTimeframe) {
-      return {
-        ...clone(state),
-        released: false,
-        releasedPrefixChunks: [],
-        reason: 'display-window-demand-active',
-      };
-    }
-    if (!state.session || !state.prefixChunks.length) {
-      return {
-        ...clone(state),
-        released: false,
-        releasedPrefixChunks: [],
-      };
-    }
-
-    const { retained, released, releaseBefore } = splitRetainedPrefixChunks(state.prefixChunks, visibleRange);
-    if (!released.length) {
-      return {
-        ...clone(state),
-        released: false,
-        releasedPrefixChunks: [],
-        releaseBefore,
-      };
-    }
-
-    for (const chunk of released) {
-      if (chunk.window) {
-        await dispatchCommand(BAR_DATA_COMMANDS.RELEASE_WINDOW, {
-          instrument: chunk.window.instrument,
-          timeframe: chunk.window.timeframe,
-          anchor: chunk.window.anchor || chunk.anchor,
-          direction: chunk.window.direction,
-          count: chunk.window.estimatedBars,
-        });
-      }
-      loadedPrefixAnchors.delete(chunk.anchor);
-    }
-    const displayBars = mergeSparseDisplayBars([
-      ...state.prefixBars,
-      state.startBar,
-      ...state.displayBars.filter((bar) => Number(bar?.timestamp) >= Number(state.startBar?.timestamp)),
-    ], retained, state.cursorTimestamp);
-    await chartSync.renderDisplayBars(displayBars, state.cursorTimestamp);
-
-    const releasedSummaries = released.map((chunk) => ({
-      anchor: chunk.anchor,
-      window: clone(chunk.window),
-      barCount: chunk.bars?.length || 0,
-    }));
-    state = {
-      ...state,
-      prefixChunks: retained,
-      releasedPrefixChunks: [
-        ...state.releasedPrefixChunks,
-        ...releasedSummaries,
-      ],
-      displayBars: clone(displayBars),
-    };
-    const result = {
-      ...clone(state),
-      released: true,
-      releasedPrefixChunks: clone(releasedSummaries),
-      releaseBefore,
-    };
-    emit(REPLAY_EVENTS.PREFIX_CHUNK_RELEASED, result);
-    return result;
   }
 
   async function next({ sessionId = state.sessionId, stepCount = 1 } = {}) {
@@ -1083,11 +936,11 @@ export function createReplayRuntime() {
       registerCommand(REPLAY_COMMANDS.RESOLVE_START_BAR, (payload) => resolveStartBar(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_PREFIX, (payload) => loadInitialPrefix(payload)),
       registerCommand(REPLAY_COMMANDS.LOAD_INITIAL_SESSION, (payload) => loadInitialSession(payload)),
-      registerCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, (payload) => loadPrefixDemand(payload)),
+      registerCommand(REPLAY_COMMANDS.LOAD_PREFIX_DEMAND, (payload) => prefixController.loadPrefixDemand(payload)),
       registerCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, (payload) => setDisplayTimeframe(payload)),
       registerCommand(REPLAY_COMMANDS.GET_DISPLAY_CONTEXT, () => getDisplayContext()),
       registerCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, (payload) => loadDisplayWindow(payload)),
-      registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => applyPrefixRetention(payload)),
+      registerCommand(REPLAY_COMMANDS.APPLY_PREFIX_RETENTION, (payload) => prefixController.applyPrefixRetention(payload)),
       registerCommand(REPLAY_COMMANDS.NEXT, (payload) => next(payload)),
       registerCommand(REPLAY_COMMANDS.PREVIOUS, (payload) => previous(payload)),
       registerCommand(REPLAY_COMMANDS.TRUNCATE_TO_TIMESTAMP, (payload) => truncateToTimestamp(payload)),
@@ -1120,8 +973,7 @@ export function createReplayRuntime() {
     pause();
     state = emptyReplayState();
     initialLoadSequence = 0;
-    loadedPrefixAnchors.clear();
-    loadingPrefixAnchors.clear();
+    prefixController.resetAnchors();
   }
 
   return {

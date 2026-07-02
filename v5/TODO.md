@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 431 is complete. Replay runtime state/time/display-bar
-  helpers now live in `runtime/replay-runtime-state.js`, chart sync commands
-  live in `runtime/replay-chart-sync.js`, and `replay-runtime.js` is back to
-  replay/session/bar orchestration.
-- Next candidate: Step 432 - continue the larger replay runtime split by
-  extracting display-window loading, prefix-demand retention, and/or navigation
-  controllers behind explicit factory APIs before adding more Settings
-  contracts.
+- Current status: Step 432 is complete. Replay prefix demand and prefix
+  retention now live in `runtime/replay-prefix-controller.js`; the main replay
+  runtime delegates prefix commands and no longer owns prefix anchor de-dupe,
+  sparse merge, or retention release implementation.
+- Next candidate: Step 433 - continue the replay runtime split by extracting
+  display-window loading and display-timeframe projection behind an explicit
+  controller API before adding more Settings contracts.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -116,6 +115,12 @@
   helper that dispatches chart commands. `replay-runtime.js` should remain the
   command owner/orchestrator and should not accumulate new feature logic that
   fits one of those boundaries.
+- Refactor decision: prefix demand and prefix retention are a replay subsystem,
+  not main-runtime inline logic. `replay-prefix-controller.js` owns left-side
+  sparse prefix loading, anchor de-dupe, prefix chunk release, and sparse
+  display merge after retention. `replay-runtime.js` may register the replay
+  commands and reset the controller lifecycle, but it should not reintroduce
+  prefix implementation bodies.
 - Refactor decision: chart engine adapter modules should separate factory,
   context normalization, presentation/options mapping, DOM fallback rendering,
   and Lightweight engine integration. Adapter implementations may write their
@@ -1062,6 +1067,60 @@ Checks:
 - `node v5/tests/replay-previous-smoke.js`
 - `node v5/tests/replay-display-window-cache-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 432 - V5 Replay Prefix Controller Split
+
+Status: completed.
+
+Goal: continue replay runtime modularization by extracting prefix demand and
+prefix retention into a dedicated controller before more left-extension,
+viewport, or Settings behavior is added.
+
+Problem:
+
+- After Step 431, `replay-runtime.js` still owned prefix-demand loading,
+  duplicate anchor tracking, sparse display merging, retention release, and
+  replay command registration in one file.
+- Prefix demand is a long-lived subsystem tied to the user-visible left-side
+  chart extension behavior. Keeping it inline would make future wheel/drag
+  loading fixes and session-break behavior harder to isolate.
+
+Implementation:
+
+- [x] Step 432.1: Define the next boundary as replay prefix-demand/retention,
+  not display-window or navigation yet.
+- [x] Step 432.2: Add `runtime/replay-prefix-controller.js` with an injected
+  `getState`/`setState`, `dispatchCommand`, `chartSync`, and `emitEvent` API.
+- [x] Step 432.3: Move prefix anchor de-dupe, prefix window loading, sparse
+  display merge, chunk release, and retention event emission into the
+  controller.
+- [x] Step 432.4: Keep `replay-runtime.js` as the command/event owner by
+  delegating `LOAD_PREFIX_DEMAND` and `APPLY_PREFIX_RETENTION` to the
+  controller and resetting controller anchors on session resolve/stop.
+- [x] Step 432.5: Update `runtime-boundary-smoke` so the boundary test prevents
+  prefix implementations from returning to `replay-runtime.js`.
+- [x] Step 432.6: Reduce `replay-runtime.js` from 1132 lines to 984 lines.
+
+Manual acceptance:
+
+- Prefix demand still dispatches bar-data window loads through bar-data runtime
+  commands.
+- Prefix controller may dispatch chart runtime commands only through
+  `replay-chart-sync`.
+- Replay runtime still owns replay command registration and lifecycle reset.
+- Public replay helper exports remain unchanged.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/replay-prefix-controller.js`
+- `node v5/tests/prefix-demand-load-smoke.js`
+- `node v5/tests/prefix-demand-merge-smoke.js`
+- `node v5/tests/prefix-retention-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 

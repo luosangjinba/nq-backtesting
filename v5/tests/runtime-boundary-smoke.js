@@ -7,6 +7,25 @@ const replayRuntimeSource = readFileSync(
   resolve(repoRoot, 'v5/src/runtime/replay-runtime.js'),
   'utf8'
 );
+const replayPrefixControllerSource = readFileSync(
+  resolve(repoRoot, 'v5/src/runtime/replay-prefix-controller.js'),
+  'utf8'
+);
+
+assert.ok(
+  replayRuntimeSource.includes('createReplayPrefixController('),
+  'replay runtime must delegate prefix demand/retention to the prefix controller'
+);
+assert.ok(
+  !replayRuntimeSource.includes('async function loadPrefixDemand(')
+    && !replayRuntimeSource.includes('async function applyPrefixRetention('),
+  'replay runtime must not own prefix demand/retention implementations'
+);
+assert.ok(
+  replayPrefixControllerSource.includes('async function loadPrefixDemand(')
+    && replayPrefixControllerSource.includes('async function applyPrefixRetention('),
+  'replay prefix controller must own prefix demand/retention implementations'
+);
 
 const mutationHelperCalls = [
   'resolveStartBar(',
