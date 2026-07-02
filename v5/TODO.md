@@ -10,14 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 444 is complete. Settings modal shell behavior now lives
-  in `features/chart-replay/chart-settings-modal.js`; `chart-settings-panel.js`
-  is reduced to the Settings composition controller that connects draft
-  creation, field bindings, modal lifecycle hooks, and route-provided apply /
-  cancel callbacks.
-- Next candidate: Step 445 - decide whether to split
-  `chart-settings-bindings.js` into section-specific adapters or move to the
-  next large file with a clearer product-facing boundary.
+- Current status: Step 445 is complete. Settings field adapters are split by
+  section into Symbol, Status, Scales, and Canvas bindings; the root
+  `chart-settings-bindings.js` is now a small adapter composer.
+- Next candidate: Step 446 - move to the next large file with a clear boundary,
+  or continue Settings only if there is a concrete section-level behavior
+  change to isolate.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -155,6 +153,14 @@
   `chart-settings-panel.js` composes modal, draft helpers, field bindings, and
   route apply/cancel callbacks. The modal shell must not mutate Settings draft
   values, dispatch runtime commands, or touch chart/replay/bar-data state.
+- Refactor decision: chart settings field bindings should be section-local
+  adapters. `chart-settings-symbol-bindings.js`, `chart-settings-status-bindings.js`,
+  `chart-settings-scales-bindings.js`, and `chart-settings-canvas-bindings.js`
+  own only their section's DOM field queries, draft-to-field rendering, and
+  field-to-draft event handlers. The root `chart-settings-bindings.js` composes
+  section adapters only. Section adapters may mutate the active draft object
+  but must not dispatch commands, emit events, write chart adapters, or touch
+  replay/bar-data state.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1859,6 +1865,60 @@ Checks:
 - `node --check v5/src/features/chart-replay/chart-settings-panel.js`
 - `node --check v5/src/features/chart-replay/chart-settings-modal.js`
 - `node --check v5/src/features/chart-replay/chart-settings-bindings.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 445 - V5 Chart Settings Section Bindings Split
+
+Status: completed.
+
+Goal: continue splitting `chart-settings-bindings.js` by moving Settings field
+adapters into section-local modules.
+
+Problem:
+
+- After Step 444, `chart-settings-bindings.js` still contained every Settings
+  section's field queries, draft rendering, and draft mutation handlers.
+- Adding one section or setting would still force edits in a 327-line adapter
+  file and make unrelated Settings sections easier to regress.
+
+Implementation:
+
+- [x] Step 445.1: Define the split boundary as Settings section field adapters.
+- [x] Step 445.2: Add `chart-settings-symbol-bindings.js` for display timezone,
+  time format, and candle style controls.
+- [x] Step 445.3: Add `chart-settings-status-bindings.js` for status title and
+  status/readout/countdown toggles.
+- [x] Step 445.4: Add `chart-settings-scales-bindings.js` for date/right offset,
+  price/time scale toggles, price scale side, and crosshair controls.
+- [x] Step 445.5: Add `chart-settings-canvas-bindings.js` for margins,
+  background, grid, scale text/lines, and watermark controls.
+- [x] Step 445.6: Reduce root `chart-settings-bindings.js` from 327 lines to a
+  31-line adapter composer.
+
+Manual acceptance:
+
+- Opening Settings, editing all existing sections, canceling, and applying
+  should behave the same as before the split.
+- Section adapters may mutate only the active draft object supplied by the
+  controller.
+- Section adapters must not dispatch commands, emit events, write chart
+  adapters, touch replay/bar-data state, or persist settings directly.
+- Presentation and timezone changes must still apply only through the existing
+  route callbacks and presentation/runtime command path.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-settings-bindings.js`
+- `node --check v5/src/features/chart-replay/chart-settings-symbol-bindings.js`
+- `node --check v5/src/features/chart-replay/chart-settings-status-bindings.js`
+- `node --check v5/src/features/chart-replay/chart-settings-scales-bindings.js`
+- `node --check v5/src/features/chart-replay/chart-settings-canvas-bindings.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
