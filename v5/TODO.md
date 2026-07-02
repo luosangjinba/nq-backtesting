@@ -10,13 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 443 is complete. Settings field rendering and draft
-  change bindings now live in `features/chart-replay/chart-settings-bindings.js`.
-  `chart-settings-panel.js` is reduced to the modal controller: open/close,
-  tab switching, draft lifecycle, apply/cancel, and route callback wiring.
-- Next candidate: Step 444 - either continue Settings cleanup by splitting
-  `chart-settings-bindings.js` into section-specific adapters, or move to the
-  next large file with clear module boundaries.
+- Current status: Step 444 is complete. Settings modal shell behavior now lives
+  in `features/chart-replay/chart-settings-modal.js`; `chart-settings-panel.js`
+  is reduced to the Settings composition controller that connects draft
+  creation, field bindings, modal lifecycle hooks, and route-provided apply /
+  cancel callbacks.
+- Next candidate: Step 445 - decide whether to split
+  `chart-settings-bindings.js` into section-specific adapters or move to the
+  next large file with a clearer product-facing boundary.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -148,6 +149,12 @@
   lifecycle, and route-provided apply/cancel callbacks. Bindings may mutate the
   active draft object only; they must not dispatch commands, emit events, write
   chart adapters, or touch replay/bar-data state.
+- Refactor decision: chart settings modal shell behavior should live outside
+  the Settings composition controller. `chart-settings-modal.js` owns popover
+  show/hide, open/cancel/backdrop events, tab selection, and focus restoration.
+  `chart-settings-panel.js` composes modal, draft helpers, field bindings, and
+  route apply/cancel callbacks. The modal shell must not mutate Settings draft
+  values, dispatch runtime commands, or touch chart/replay/bar-data state.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1799,6 +1806,59 @@ Checks:
 - `node --check v5/src/features/chart-replay/chart-settings-bindings.js`
 - `node --check v5/src/features/chart-replay/chart-settings-template.js`
 - `node --check v5/src/features/chart-replay/chart-settings-draft.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 444 - V5 Chart Settings Modal Shell Split
+
+Status: completed.
+
+Goal: continue splitting `chart-settings-panel.js` by extracting Settings modal
+shell behavior into its own route-local controller.
+
+Problem:
+
+- After Step 443, `chart-settings-panel.js` still owned popover open/close,
+  cancel/backdrop handling, tab selection, focus restoration, draft lifecycle,
+  field bindings, and apply wiring.
+- Modal shell behavior is reusable route-local UI behavior and should not share
+  the same file as draft composition and apply/cancel wiring.
+
+Implementation:
+
+- [x] Step 444.1: Define the split boundary as modal shell behavior:
+  popover show/hide, open/cancel/backdrop events, tab selection, and focus
+  restoration.
+- [x] Step 444.2: Add `features/chart-replay/chart-settings-modal.js` with
+  `createChartSettingsModalController(...)`.
+- [x] Step 444.3: Move Settings open/cancel/backdrop/tab bindings and focus
+  restore into the modal controller.
+- [x] Step 444.4: Keep `chart-settings-panel.js` as the Settings composition
+  controller that wires draft helpers, field bindings, modal lifecycle hooks,
+  apply, and route-provided callbacks.
+- [x] Step 444.5: Reduce `chart-settings-panel.js` from 110 lines to 82 lines.
+
+Manual acceptance:
+
+- Opening Settings starts with the Symbol section and focuses the first cancel
+  button as before.
+- Cancel, close button, and backdrop dismiss discard draft edits and call the
+  route cancel callback.
+- Applying settings hides the modal, clears the draft, restores focus to the
+  Settings button, and keeps the existing presentation/runtime command path.
+- Modal shell code must not mutate Settings fields, dispatch runtime commands,
+  write chart adapters, or touch replay/bar-data state.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node --check v5/src/features/chart-replay/chart-settings-modal.js`
+- `node --check v5/src/features/chart-replay/chart-settings-bindings.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
