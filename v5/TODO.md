@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 455 is complete. Chart engine canvas dataset/style
-  writers are split from `chart-engine-presentation.js` into
-  `chart-engine-dom-metadata.js`; presentation mapping is down to 274 lines and
-  no adapter public API changed.
-- Next candidate: Step 456 - either split Lightweight options mapping from
-  `chart-engine-presentation.js` if continuing modularization, or pause
-  refactoring and address the highest-priority chart interaction/product bug.
+- Current status: Step 456 is complete. Wheel zoom, native drag, reset/follow,
+  and viewport-demand regressions were audited with focused runtime and browser
+  smoke coverage. The earlier left-side blank/viewport-demand-left-click
+  issue is currently not reproducible, so no product fix was applied.
+- Next candidate: Step 457 - either continue chart-engine modularization by
+  splitting Lightweight options mapping, or pick the next verified product
+  issue from manual replay use.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -98,6 +98,13 @@
   loading to be coalesced and flushed after interaction settle, and settle
   should re-emit an existing viewport demand because the replay bridge de-dupes
   by demand key.
+- Regression decision: the older wheel-zoom left blank area and
+  viewport-demand-left-click-stimulation symptoms are not reproducible as of
+  Step 456. The current regression suite covers native wheel/drag interaction,
+  viewport demand wiring/loading, replay viewport follow, chart navigation
+  reset/follow behavior, and native drag diagnostics. Do not add speculative
+  fixes for this path until the issue is observed again with a concrete
+  reproduction.
 - Refactor decision: chart route modularization should start with stable
   route-local UI surfaces before runtime internals. Settings can own its modal
   HTML, draft controls, tab switching, and apply/cancel bindings, but it must
@@ -2507,6 +2514,61 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 456 - V5 Chart Interaction Regression Audit
+
+Status: completed.
+
+Goal: verify the previously reported wheel zoom and viewport-demand interaction
+symptoms before choosing another fix or refactor step.
+
+Problem:
+
+- The earlier user-observed symptoms were:
+  - wheel zoom could leave a blank area on the left side of the canvas;
+  - viewport demand sometimes appeared to require a left-click or drag release
+    before older prefix bars extended into the blank area.
+- Current manual feedback says both symptoms no longer appear. Before changing
+  code, the project needs an explicit regression audit so future sessions do
+  not chase a stale product bug.
+
+Audit result:
+
+- No code changes were made.
+- The currently relevant runtime and browser smoke coverage passes for native
+  wheel/drag interaction, viewport demand wiring/loading, replay viewport
+  follow, chart navigation reset/follow behavior, and native drag diagnostics.
+- Treat the old wheel/viewport-demand symptom as not currently reproducible.
+  Reopen only with a concrete reproduction path or failing harness.
+
+Implementation:
+
+- [x] Step 456.1: Confirm the old symptom description and current user feedback.
+- [x] Step 456.2: Run chart runtime/native interaction smoke coverage.
+- [x] Step 456.3: Run viewport-demand wiring/loading smoke coverage.
+- [x] Step 456.4: Run browser-level native interaction, viewport follow,
+  navigation toolbar, and native drag diagnostic smoke coverage.
+- [x] Step 456.5: Update TODO/session handoff and commit the audit result.
+
+Manual acceptance:
+
+- No runtime, UI, DOM, CSS, replay, or bar-data behavior changes are made.
+- The old wheel/left-prefix issue is documented as currently not reproducible.
+- Follow-up work is selected from confirmed product issues or clear
+  modularization boundaries.
+
+Checks:
+
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-wiring-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-native-drag-diagnostic-browser-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
