@@ -2,7 +2,6 @@ import { REPLAY_COMMANDS } from '../../contracts/replay-contracts.js';
 
 export function createChartReplayControlsController({
   root,
-  activePaneId,
   dispatchCommand,
   getSessionId,
   getReplayLoaded,
@@ -16,6 +15,7 @@ export function createChartReplayControlsController({
   getSessionTimeframe,
   getDisplayTimeframe,
   setDisplayTimeframe,
+  setActivePaneDisplayTimeframe,
   getReplayIntervalTimeframe,
   setReplayIntervalTimeframe,
   getReplayIntervalSync,
@@ -190,9 +190,7 @@ export function createChartReplayControlsController({
     const nextDisplayTimeframe = Number(displayTimeframeSelect.value);
     if (!nextDisplayTimeframe || nextDisplayTimeframe === getDisplayTimeframe()) return;
     const selectedOption = displayTimeframeSelect.selectedOptions[0];
-    const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-      sessionId: getSessionId(),
-      paneId: activePaneId,
+    const state = await runReplayCommand(() => setActivePaneDisplayTimeframe({
       displayTimeframe: nextDisplayTimeframe,
     }));
     if (!state) return;
@@ -200,7 +198,9 @@ export function createChartReplayControlsController({
     if (getReplayIntervalSync()) {
       setReplayIntervalTimeframe(getDisplayTimeframe());
     }
-    setStatusText(`Loaded ${state.displayBars?.length || 0} ${selectedOption?.textContent || ''} bars.`);
+    setStatusText(state.replayReloaded
+      ? `Loaded ${state.displayBars?.length || 0} ${selectedOption?.textContent || ''} bars.`
+      : `Updated ${state.paneId || 'active pane'} timeframe to ${selectedOption?.textContent || ''}.`);
     renderControls();
     await refreshReplayStatus();
   });

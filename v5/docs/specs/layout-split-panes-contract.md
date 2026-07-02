@@ -24,6 +24,8 @@ host and placeholder secondary/tertiary panes.
 Step 465 makes chart host mounting pane-id aware. The route passes host
 elements through chart commands, and chart runtime owns adapter lifecycle per
 pane id.
+Step 466 stores display timeframe on pane records and wires active-pane
+timeframe changes through layout state before replay display reloads.
 
 This is a planning contract, not an implementation step.
 
@@ -108,6 +110,16 @@ Step 465 implementation status:
 - viewport metrics can target a pane id;
 - route UI passes the primary host through `chart.mountHost` and still does not
   create adapters, write chart data, or request bars.
+
+Step 466 implementation status:
+
+- layout runtime exposes `layout.setPaneDisplayTimeframe`;
+- pane records store `displayTimeframe`;
+- with `sync.interval` off, timeframe changes update only the selected pane;
+- with `sync.interval` on, timeframe changes copy to all panes;
+- chart route display timeframe controls update layout state first;
+- primary replay display reload remains routed through replay runtime and
+  bar-data runtime.
 
 ## Pane Model
 
@@ -236,7 +248,7 @@ Steps 463-468 should proceed in this order:
    Make chart host mounting pane-id aware. Chart runtime owns per-pane adapter
    lifecycle and chart writes; route UI only passes host elements through
    commands.
-4. Step 466 - Pane display timeframe and Interval sync.
+4. Step 466 - Pane display timeframe and Interval sync. Completed.
    Store pane-level display timeframe in layout state. Active pane TF changes
    update one pane unless `sync.interval` is enabled, in which case the value
    copies to all panes through layout/runtime commands.

@@ -10,11 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 465 is complete. Chart runtime now exposes
-  `chart.mountHost`, tracks hosts/adapters by pane id, and route UI explicitly
-  passes the primary host to chart runtime without owning chart lifecycle.
-- Next candidate: Step 466 - store pane-level display timeframe in layout state
-  and make active-pane timeframe changes respect `sync.interval`.
+- Current status: Step 466 is complete. Layout runtime now owns pane-level
+  display timeframe, active-pane TF changes update one pane by default, and
+  `sync.interval` copies TF changes to all panes while the primary replay chart
+  reload remains routed through replay/bar-data ownership.
+- Next candidate: Step 467 - implement `sync.time` and `sync.dateRange` so
+  go-to/jump-time and visible-range mirroring stay chart-runtime owned and
+  replay cursor/reveal state remains shared.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -54,6 +56,11 @@
   runtime track mounted hosts/adapters by pane id. The route may pass host
   elements through commands, but chart runtime owns adapter creation, replacement,
   cleanup, chart writes, and pane-targeted viewport metrics.
+- Pane timeframe decision: Step 466 adds `layout.setPaneDisplayTimeframe`.
+  Display timeframe is stored on pane records. With `sync.interval` off, the
+  active pane changes only that pane's layout state; with `sync.interval` on,
+  the change copies to all panes. Primary replay display reload still goes
+  through replay runtime and bar-data runtime, not route-local chart writes.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3150,6 +3157,57 @@ Checks:
 - `node v5/tests/chart-viewport-follow-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 466 - V5 Pane Display Timeframe And Interval Sync
+
+Status: completed.
+
+Goal: store display timeframe on layout panes and make active-pane timeframe
+changes respect the `sync.interval` layout setting.
+
+Problem:
+
+- Display timeframe was still route/replay global state, so split panes could
+  not preserve independent interval choices.
+- Step 466 must introduce pane-level timeframe state without letting route UI
+  request bars directly or write chart series.
+- Secondary/tertiary panes are still placeholders, so their timeframe changes
+  should update layout state first and only reload the primary replay chart when
+  the primary pane is affected or interval sync is enabled.
+
+Plan:
+
+- [x] Step 466.1: Add `layout.setPaneDisplayTimeframe`.
+- [x] Step 466.2: With `sync.interval` off, update only the target/active
+  pane's `displayTimeframe`.
+- [x] Step 466.3: With `sync.interval` on, copy the timeframe to all panes.
+- [x] Step 466.4: Route display timeframe controls through layout state before
+  replay display reload.
+- [x] Step 466.5: Update pane shell metadata, browser smoke coverage, docs, and
+  session handoff.
+
+Manual acceptance:
+
+- Active pane timeframe changes are reflected in layout pane state.
+- Secondary placeholder timeframe changes do not directly create chart hosts or
+  request bars when interval sync is off.
+- With `sync.interval` on, changing secondary timeframe copies the value to all
+  panes and reloads the primary replay display through replay runtime.
+- Existing primary single-pane display timeframe behavior remains intact.
+
+Checks:
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-controls.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan

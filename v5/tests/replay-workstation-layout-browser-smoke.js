@@ -198,6 +198,19 @@ async function main() {
           const secondaryPane = document.querySelector('[data-layout-pane][data-pane-id="secondary"]');
           secondaryPane?.click();
           await waitFor('secondary active pane', async () => chartRoute?.dataset.activePaneId === 'secondary');
+          const displayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          displayTimeframeSelect.value = '5';
+          displayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('synced secondary display timeframe', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
+            return layoutState.panes.length === 2
+              && layoutState.panes.every((pane) => pane.displayTimeframe === 5)
+              && displayContext.displayTimeframe === 5
+              && document.querySelector('[data-display-timeframe-select]')?.value === '5';
+          });
+          const layoutStateAfterTimeframe = await commands.dispatchCommand('layout.getState');
+          const replayDisplayContextAfterTimeframe = await commands.dispatchCommand('replay.getDisplayContext');
           const chartHostCount = document.querySelectorAll('[data-chart-host]').length;
           const paneShell = document.querySelector('[data-layout-pane-shell]');
           const primaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
@@ -231,6 +244,11 @@ async function main() {
             primaryPaneActive: primaryPane?.dataset.activePane || '',
             secondaryPaneActive: secondaryPane?.dataset.activePane || '',
             secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
+            primaryPaneDisplayTimeframe: primaryPane?.dataset.displayTimeframe || '',
+            secondaryPaneDisplayTimeframe: secondaryPane?.dataset.displayTimeframe || '',
+            layoutPaneDisplayTimeframes: layoutStateAfterTimeframe.panes.map((pane) => pane.displayTimeframe),
+            replayDisplayTimeframe: replayDisplayContextAfterTimeframe.displayTimeframe,
+            displayTimeframeSelectValue: displayTimeframeSelect?.value || '',
             layoutPopoverInitiallyVisible,
             layoutPopoverVisible: Boolean(layoutPopover && !layoutPopover.hidden),
             singleModeInitiallyPressed,
@@ -296,6 +314,11 @@ async function main() {
     assert.equal(value.primaryPaneActive, 'false');
     assert.equal(value.secondaryPaneActive, 'true');
     assert.equal(value.secondaryPaneHasChartHost, 'false');
+    assert.equal(value.primaryPaneDisplayTimeframe, '5');
+    assert.equal(value.secondaryPaneDisplayTimeframe, '5');
+    assert.deepEqual(value.layoutPaneDisplayTimeframes, [5, 5]);
+    assert.equal(value.replayDisplayTimeframe, 5);
+    assert.equal(value.displayTimeframeSelectValue, '5');
     assert.equal(value.layoutPopoverInitiallyVisible, true);
     assert.equal(value.layoutPopoverVisible, true);
     assert.equal(value.singleModeInitiallyPressed, 'true');

@@ -3,6 +3,7 @@ export const LAYOUT_COMMANDS = Object.freeze({
   SET_ACTIVE_PANE: 'layout.setActivePane',
   SET_MODE: 'layout.setMode',
   SET_SYNC: 'layout.setSync',
+  SET_PANE_DISPLAY_TIMEFRAME: 'layout.setPaneDisplayTimeframe',
 });
 
 export const LAYOUT_EVENTS = Object.freeze({

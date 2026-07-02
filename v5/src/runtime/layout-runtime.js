@@ -32,6 +32,15 @@ function normalizePane(pane = {}) {
   };
 }
 
+function normalizeDisplayTimeframe(value) {
+  if (value == null) return null;
+  const normalized = Number(value);
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error('layout display timeframe must be a positive number.');
+  }
+  return normalized;
+}
+
 function normalizeSync(sync = {}) {
   return {
     symbol: Boolean(sync.symbol ?? DEFAULT_LAYOUT_SYNC.symbol),
@@ -168,13 +177,42 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
+  function setPaneDisplayTimeframe({ paneId, displayTimeframe } = {}) {
+    const targetPaneId = String(paneId || state.activePaneId || DEFAULT_ACTIVE_PANE_ID).trim();
+    if (!targetPaneId) {
+      throw new Error('layout pane id must be a non-empty string.');
+    }
+    if (!state.panes.some((pane) => pane.id === targetPaneId)) {
+      throw new Error(`layout pane "${targetPaneId}" does not exist.`);
+    }
+    const normalizedDisplayTimeframe = normalizeDisplayTimeframe(displayTimeframe);
+    const nextState = normalizeLayoutState({
+      ...state,
+      panes: state.panes.map((pane) => (
+        state.sync.interval || pane.id === targetPaneId
+          ? {
+            ...pane,
+            displayTimeframe: normalizedDisplayTimeframe,
+          }
+          : pane
+      )),
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
       registerCommand(LAYOUT_COMMANDS.GET_STATE, () => snapshot()),
       registerCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, (payload) => setActivePane(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_MODE, (payload) => setMode(payload)),
-      registerCommand(LAYOUT_COMMANDS.SET_SYNC, (payload) => setSync(payload))
+      registerCommand(LAYOUT_COMMANDS.SET_SYNC, (payload) => setSync(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, (payload) => setPaneDisplayTimeframe(payload))
     );
   }
 

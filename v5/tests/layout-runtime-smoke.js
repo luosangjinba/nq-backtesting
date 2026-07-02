@@ -29,6 +29,7 @@ assert.equal(hasCommand(LAYOUT_COMMANDS.GET_STATE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_MODE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_SYNC), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME), true);
 
 const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
@@ -70,12 +71,27 @@ assert.deepEqual(twice.panes.map((pane) => pane.id), ['primary', 'secondary']);
 assert.equal(changedEvent.mode, 'twice');
 
 changedEvent = null;
+const secondaryFiveMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+  paneId: 'secondary',
+  displayTimeframe: 5,
+});
+assert.equal(secondaryFiveMinute.panes.find((pane) => pane.id === 'primary').displayTimeframe, null);
+assert.equal(secondaryFiveMinute.panes.find((pane) => pane.id === 'secondary').displayTimeframe, 5);
+assert.equal(changedEvent.panes.find((pane) => pane.id === 'secondary').displayTimeframe, 5);
+
+changedEvent = null;
 const synced = await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, {
   key: 'interval',
   value: true,
 });
 assert.equal(synced.sync.interval, true);
 assert.equal(changedEvent.sync.interval, true);
+
+const syncedTenMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+  paneId: 'secondary',
+  displayTimeframe: 10,
+});
+assert.deepEqual(syncedTenMinute.panes.map((pane) => pane.displayTimeframe), [10, 10]);
 
 const symbolSynced = await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, {
   key: 'symbol',
@@ -90,6 +106,13 @@ await assert.rejects(
 await assert.rejects(
   () => dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, { key: 'viewport', value: true }),
   /Unsupported layout sync key/
+);
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+    paneId: 'secondary',
+    displayTimeframe: 0,
+  }),
+  /positive number/
 );
 
 assert.throws(

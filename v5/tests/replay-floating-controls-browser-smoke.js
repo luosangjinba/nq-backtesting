@@ -387,7 +387,7 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.toolbarReplayCount, 0);
     assert.equal(value.topGoToInputs, 0);
-    assert.equal(value.layoutDisabled, true);
+    assert.equal(value.layoutDisabled, false);
     assert.equal(value.goToInitiallyHidden, true);
     assert.equal(value.goToOpened, true);
     assert.equal(value.goToClosed, true);

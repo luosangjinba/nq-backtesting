@@ -63,8 +63,10 @@ export function createChartReplayRoute() {
       let cursorTimestamp = null;
       let sessionTimeframe = null;
       let displayTimeframe = null;
+      let replayDisplayTimeframe = null;
       let replayIntervalTimeframe = null;
       let replayIntervalSync = false;
+      let currentLayoutState = DEFAULT_LAYOUT_STATE;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
       let presentationSettings = {
@@ -157,7 +159,6 @@ export function createChartReplayRoute() {
       });
       replayControlsController = createChartReplayControlsController({
         root: section,
-        activePaneId,
         dispatchCommand,
         getSessionId: () => params.sessionId || '',
         getReplayLoaded: () => replayLoaded,
@@ -179,6 +180,7 @@ export function createChartReplayRoute() {
         setDisplayTimeframe: (value) => {
           displayTimeframe = Number(value || 0);
         },
+        setActivePaneDisplayTimeframe,
         getReplayIntervalTimeframe: () => replayIntervalTimeframe,
         setReplayIntervalTimeframe: (value) => {
           replayIntervalTimeframe = Number(value || 0);
@@ -242,10 +244,11 @@ export function createChartReplayRoute() {
           dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.GET).catch(() => null),
           dispatchCommand(CHART_PRESENTATION_COMMANDS.GET).catch(() => null),
         ]);
-        displayTimeframe = Number(displayContext?.displayTimeframe
+        replayDisplayTimeframe = Number(displayContext?.displayTimeframe
           || state?.displayTimeframe
           || state?.session?.timeframe
           || 0);
+        displayTimeframe = activePaneDisplayTimeframe();
         sessionTimeframe = Number(state?.session?.timeframe || sessionTimeframe || 1);
         if (replayIntervalSync) {
           replayIntervalTimeframe = Number(displayTimeframe || sessionTimeframe || 1);
@@ -290,7 +293,13 @@ export function createChartReplayRoute() {
         chartSettingsController.renderCurrent();
       }
 
+      function activePaneDisplayTimeframe(layoutState = currentLayoutState) {
+        const activePane = layoutState.panes?.find((pane) => pane.id === layoutState.activePaneId);
+        return Number(activePane?.displayTimeframe || replayDisplayTimeframe || sessionTimeframe || 1);
+      }
+
       function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
+        currentLayoutState = layoutState;
         const nextActivePaneId = layoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
         const nextPaneCount = Array.isArray(layoutState.panes)
           ? layoutState.panes.length
@@ -298,8 +307,40 @@ export function createChartReplayRoute() {
         section.dataset.activePaneId = nextActivePaneId;
         section.dataset.activePaneCount = String(nextPaneCount);
         section.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
+        displayTimeframe = activePaneDisplayTimeframe(layoutState);
         layoutController?.renderState(layoutState);
         paneShellController?.renderState(layoutState);
+        replayControlsController?.renderControls();
+        replayControlsController?.setControlsDisabled();
+      }
+
+      async function setActivePaneDisplayTimeframe({ displayTimeframe: nextDisplayTimeframe } = {}) {
+        const paneId = currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
+        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+          paneId,
+          displayTimeframe: nextDisplayTimeframe,
+        });
+        applyLayoutState(layoutState);
+        const shouldReloadPrimary = paneId === DEFAULT_ACTIVE_PANE_ID || layoutState.sync?.interval;
+        if (!shouldReloadPrimary) {
+          return {
+            paneId,
+            displayTimeframe: Number(nextDisplayTimeframe),
+            replayReloaded: false,
+          };
+        }
+        const state = await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+          sessionId: params.sessionId || '',
+          paneId: DEFAULT_ACTIVE_PANE_ID,
+          displayTimeframe: nextDisplayTimeframe,
+        });
+        replayDisplayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
+        displayTimeframe = activePaneDisplayTimeframe(layoutState);
+        return {
+          ...state,
+          paneId,
+          replayReloaded: true,
+        };
       }
 
       paneShellController = createChartReplayPaneShellController({
