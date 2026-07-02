@@ -233,6 +233,8 @@ by duplicating route-owned chart UI.
 Rules:
 
 - Layout runtime owns pane list, active pane id, and sync flags.
+- The first layout runtime skeleton exposes a single `primary` pane by default
+  and must not render additional chart panes until a later implementation step.
 - Chart runtime owns chart host lifecycle, series writes, visible ranges, and
   follow/manual viewport state per pane.
 - Replay runtime owns the shared replay cursor, reveal state, session bounds,

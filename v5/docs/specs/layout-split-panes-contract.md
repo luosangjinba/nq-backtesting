@@ -9,6 +9,9 @@ reveal boundaries or causing implicit bar loads outside the bar data runtime.
 
 Step 460 defines the contract for future Layout split panes before any
 multi-pane UI or runtime implementation begins.
+Step 461 adds the first layout runtime skeleton: it registers layout commands,
+keeps the default `primary` pane state, supports active-pane selection inside
+known panes, and leaves multi-pane rendering disabled.
 
 This is a planning contract, not an implementation step.
 
@@ -42,6 +45,14 @@ The first implementation should be conservative:
 - default to one replay session shared by all panes.
 
 Do not implement arbitrary grid layouts until the two-pane model is stable.
+
+Step 461 implementation status:
+
+- `layout.getState` returns the current layout state;
+- `layout.setActivePane` changes active pane only when the target pane exists;
+- default app layout is single mode with one `primary` pane;
+- chart route reads layout state for route metadata but still renders one pane;
+- Layout button remains disabled/deferred.
 
 ## Pane Model
 

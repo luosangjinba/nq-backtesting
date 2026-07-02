@@ -6,6 +6,7 @@ import { createBarDataRuntime } from './runtime/bar-data-runtime.js';
 import { createChartPresentationRuntime } from './runtime/chart-presentation-runtime.js';
 import { createChartRuntime } from './runtime/chart-runtime.js';
 import { createDisplayTimezoneRuntime } from './runtime/display-timezone-runtime.js';
+import { createLayoutRuntime } from './runtime/layout-runtime.js';
 import { createReplayRuntime } from './runtime/replay-runtime.js';
 import { createSessionRuntime } from './runtime/session-runtime.js';
 import { createSessionRepository } from './session/session-repository.js';
@@ -43,6 +44,7 @@ registerModule(createChartRuntime());
 registerModule(createChartPresentationRuntime());
 registerModule(createBarDataRuntime());
 registerModule(createDisplayTimezoneRuntime());
+registerModule(createLayoutRuntime());
 registerModule(createSessionRuntime(createSessionRepository({
   storage: createLocalSessionStorage(),
 })));

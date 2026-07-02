@@ -11,6 +11,12 @@ import {
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../../contracts/replay-contracts.js';
 import { DISPLAY_TIMEZONE_COMMANDS, DISPLAY_TIMEZONE_EVENTS } from '../../contracts/timezone-contracts.js';
 import {
+  DEFAULT_ACTIVE_PANE_ID,
+  DEFAULT_LAYOUT_STATE,
+  LAYOUT_COMMANDS,
+  LAYOUT_EVENTS,
+} from '../../contracts/layout-contracts.js';
+import {
   cloneBackgroundStyle,
   cloneCandleStyle,
   cloneCrosshairStyle,
@@ -32,14 +38,14 @@ export function createChartReplayRoute() {
     id: 'chart',
     render({ params = {} } = {}) {
       const sessionId = params.sessionId || 'No session selected';
-      const activePaneId = 'primary';
+      const activePaneId = DEFAULT_ACTIVE_PANE_ID;
       const section = document.createElement('section');
       section.className = 'panel chart-panel';
       section.dataset.route = 'chart';
       section.dataset.sessionId = params.sessionId || '';
       section.dataset.activePaneId = activePaneId;
-      section.dataset.activePaneCount = '1';
-      section.dataset.layoutMode = 'single';
+      section.dataset.activePaneCount = String(DEFAULT_LAYOUT_STATE.panes.length);
+      section.dataset.layoutMode = DEFAULT_LAYOUT_STATE.mode;
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
       let commandInFlight = false;
@@ -279,6 +285,16 @@ export function createChartReplayRoute() {
         chartSettingsController.renderCurrent();
       }
 
+      function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
+        const nextActivePaneId = layoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
+        const nextPaneCount = Array.isArray(layoutState.panes)
+          ? layoutState.panes.length
+          : DEFAULT_LAYOUT_STATE.panes.length;
+        section.dataset.activePaneId = nextActivePaneId;
+        section.dataset.activePaneCount = String(nextPaneCount);
+        section.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
+      }
+
       async function syncChartDisplayTimezone() {
         await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
           displayTimezone,
@@ -318,9 +334,14 @@ export function createChartReplayRoute() {
         REPLAY_EVENTS.DISPLAY_RELOADED,
         DISPLAY_TIMEZONE_EVENTS.CHANGED,
         CHART_PRESENTATION_EVENTS.CHANGED,
+        LAYOUT_EVENTS.CHANGED,
         CHART_EVENTS.CROSSHAIR_CHANGED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, (payload = {}) => {
+          if (eventName === LAYOUT_EVENTS.CHANGED) {
+            applyLayoutState(payload);
+            return;
+          }
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
             statusController.setCrosshairState(payload.crosshair || { active: false });
             replayControlsController.setControlsDisabled();
@@ -369,6 +390,12 @@ export function createChartReplayRoute() {
         });
       };
       viewportDemandBridge.start();
+      dispatchCommand(LAYOUT_COMMANDS.GET_STATE)
+        .then((layoutState) => {
+          if (disposed) return;
+          applyLayoutState(layoutState);
+        })
+        .catch(() => null);
       dispatchCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE)
         .then((state) => {
           if (disposed) return;

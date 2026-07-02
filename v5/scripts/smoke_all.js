@@ -12,6 +12,7 @@ const commands = [
   ['node', ['v5/tests/chart-presentation-runtime-smoke.js']],
   ['node', ['v5/tests/timezone-contracts-smoke.js']],
   ['node', ['v5/tests/display-timezone-runtime-smoke.js']],
+  ['node', ['v5/tests/layout-runtime-smoke.js']],
   ['node', ['v5/tests/bar-data-runtime-smoke.js']],
   ['node', ['v5/tests/chart-engine-adapter-smoke.js']],
   ['node', ['v5/tests/chart-runtime-smoke.js']],

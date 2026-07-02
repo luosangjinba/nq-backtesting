@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 460 is complete. Layout split panes now have a contract
-  for pane identity, active-pane Settings scope, shared replay cursor, chart
-  runtime ownership, bar-data ownership, and sync defaults before UI work.
-- Next candidate: Step 461 - either add the smallest layout state skeleton that
-  preserves the Step 460 contract, or resume Settings only within the active
-  pane scope defined by that contract.
+- Current status: Step 461 is complete. The layout runtime skeleton now exposes
+  single-pane `primary` layout state, active-pane commands, and route metadata
+  wiring without enabling multi-pane rendering.
+- Next candidate: Step 462 - resume Settings within the Step 460 active-pane
+  scope, or add a two-pane layout state/UI affordance only after defining the
+  chart host mounting path.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -33,6 +33,10 @@
   owns the shared cursor and no-future reveal state; bar-data runtime remains
   the only bars requester. Settings target the active pane by default unless a
   shared/global scope is explicitly modeled.
+- Layout runtime decision: Step 461 introduces only the runtime skeleton:
+  `layout.getState`, `layout.setActivePane`, default `single` mode, and one
+  `primary` pane. The chart route may render metadata from layout state, but it
+  still renders one pane and the Layout button remains deferred.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -2821,6 +2825,55 @@ Manual acceptance:
 
 Checks:
 
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 461 - V5 Layout Runtime Skeleton
+
+Status: completed.
+
+Goal: turn the Step 460 layout split-pane contract into the smallest runtime
+state boundary without enabling multi-pane rendering.
+
+Problem:
+
+- Step 460 defined layout ownership, but the route still hard-coded single-pane
+  metadata without a layout runtime boundary.
+- Future Settings and split-pane work need a command/event surface for active
+  pane state before UI starts mutating route-local pane assumptions.
+- The first implementation must not create second chart hosts, request bars,
+  or affect replay cursor/reveal state.
+
+Implementation:
+
+- [x] Step 461.1: Add `src/contracts/layout-contracts.js` with layout commands,
+  events, modes, default active pane id, and default single-pane state.
+- [x] Step 461.2: Add `src/runtime/layout-runtime.js` with `layout.getState`
+  and `layout.setActivePane`.
+- [x] Step 461.3: Register layout runtime in app startup.
+- [x] Step 461.4: Update chart replay route metadata to initialize from layout
+  defaults and refresh from `layout.getState` / `layout:changed`.
+- [x] Step 461.5: Add `tests/layout-runtime-smoke.js` and include it in
+  `scripts/smoke_all.js`.
+- [x] Step 461.6: Update docs/session handoff and run focused checks.
+
+Manual acceptance:
+
+- Default layout state is `single` with one `primary` pane.
+- `layout.setActivePane` rejects pane ids that do not exist.
+- Chart route still renders one pane; the Layout button remains disabled and
+  deferred.
+- Layout runtime does not import chart runtime, replay runtime, bar-data
+  runtime, chart-engine modules, or persistence.
+- No bars are requested and no replay cursor/reveal state changes are made by
+  layout commands.
+
+Checks:
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node v5/tests/layout-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`

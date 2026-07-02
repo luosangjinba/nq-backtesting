@@ -135,4 +135,5 @@ that future work must follow this file order.
   `fx-replay-viewport-follow.md`
 - Step 460: `layout-split-panes-contract.md`,
   `chart-interaction-contracts.md`, `chart-presentation-settings.md`
+- Step 461: `layout-split-panes-contract.md`
 - Cross-phase: `saas-readiness-strategy.md`

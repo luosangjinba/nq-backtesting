@@ -160,6 +160,13 @@ Owns:
 - pane sync flags;
 - layout state that can later be persisted by workspace runtime.
 
+Current skeleton:
+
+- starts in `single` mode;
+- exposes one `primary` pane;
+- supports `layout.getState` and `layout.setActivePane`;
+- rejects active pane ids that are not present in layout state.
+
 Does not own:
 
 - chart series;
