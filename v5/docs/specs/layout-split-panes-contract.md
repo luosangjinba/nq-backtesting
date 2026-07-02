@@ -26,6 +26,8 @@ elements through chart commands, and chart runtime owns adapter lifecycle per
 pane id.
 Step 466 stores display timeframe on pane records and wires active-pane
 timeframe changes through layout state before replay display reloads.
+Step 467 stores pane-level time/date-range sync metadata and wires Go to,
+Jump cursor, and chart visible-range events through layout commands.
 
 This is a planning contract, not an implementation step.
 
@@ -120,6 +122,19 @@ Step 466 implementation status:
 - chart route display timeframe controls update layout state first;
 - primary replay display reload remains routed through replay runtime and
   bar-data runtime.
+
+Step 467 implementation status:
+
+- pane records store `time` and `dateRange`;
+- layout runtime exposes `layout.setPaneTime` and
+  `layout.setPaneDateRange`;
+- with sync off, time/date-range changes update only the selected pane;
+- with `sync.time` or `sync.dateRange` on, changes copy to all panes;
+- Go to and Jump cursor update pane time through layout commands;
+- chart visible-range events update pane date range only when
+  `sync.dateRange` is enabled;
+- chart runtime remains the owner of visible ranges and replay runtime remains
+  the owner of cursor/reveal state.
 
 ## Pane Model
 
@@ -252,7 +267,7 @@ Steps 463-468 should proceed in this order:
    Store pane-level display timeframe in layout state. Active pane TF changes
    update one pane unless `sync.interval` is enabled, in which case the value
    copies to all panes through layout/runtime commands.
-5. Step 467 - Time and Date range sync.
+5. Step 467 - Time and Date range sync. Completed.
    Implement `sync.time` for go-to/jump-time alignment and `sync.dateRange`
    for visible-range mirroring. Chart runtime owns visible ranges; replay
    runtime continues to own cursor/reveal.

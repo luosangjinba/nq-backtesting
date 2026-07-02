@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 466 is complete. Layout runtime now owns pane-level
-  display timeframe, active-pane TF changes update one pane by default, and
-  `sync.interval` copies TF changes to all panes while the primary replay chart
-  reload remains routed through replay/bar-data ownership.
-- Next candidate: Step 467 - implement `sync.time` and `sync.dateRange` so
-  go-to/jump-time and visible-range mirroring stay chart-runtime owned and
-  replay cursor/reveal state remains shared.
+- Current status: Step 467 is complete. Layout runtime now stores pane-level
+  time and date range state, `sync.time` mirrors Go to / Jump cursor timestamps,
+  and `sync.dateRange` mirrors chart-runtime-owned visible ranges into layout
+  pane metadata.
+- Next candidate: Step 468 - implement `sync.crosshair` through chart-owned
+  hover events/commands, then complete multi-pane acceptance coverage.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -61,6 +60,11 @@
   active pane changes only that pane's layout state; with `sync.interval` on,
   the change copies to all panes. Primary replay display reload still goes
   through replay runtime and bar-data runtime, not route-local chart writes.
+- Time/date-range sync decision: Step 467 adds `layout.setPaneTime` and
+  `layout.setPaneDateRange`. Go to and Jump cursor update pane `time` through
+  layout commands, while chart visible-range events update pane `dateRange`
+  only when `sync.dateRange` is enabled. Chart runtime still owns visible
+  ranges; replay runtime still owns cursor/reveal state.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3207,6 +3211,57 @@ Checks:
 - `node v5/tests/replay-display-timeframe-browser-smoke.js`
 - `node v5/tests/replay-display-timeframe-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 467 - V5 Time And Date Range Sync
+
+Status: completed.
+
+Goal: implement `sync.time` and `sync.dateRange` as layout pane metadata while
+keeping chart runtime responsible for visible ranges and replay runtime
+responsible for cursor/reveal state.
+
+Problem:
+
+- Split panes need shared time/date-range intent before secondary chart hosts
+  become real.
+- Time sync must not move replay cursor or reveal future bars.
+- Date-range sync must mirror chart-runtime-owned visible ranges, not let route
+  UI own chart viewport state.
+
+Plan:
+
+- [x] Step 467.1: Add pane-level `time` and `dateRange` fields to layout state.
+- [x] Step 467.2: Add `layout.setPaneTime` and `layout.setPaneDateRange`.
+- [x] Step 467.3: With sync off, update only the target/active pane.
+- [x] Step 467.4: With `sync.time` or `sync.dateRange` on, copy values to all
+  panes.
+- [x] Step 467.5: Wire Go to / Jump cursor to layout time sync and chart
+  visible-range events to layout date-range sync.
+- [x] Step 467.6: Update pane shell metadata, browser smoke coverage, docs, and
+  session handoff.
+
+Manual acceptance:
+
+- Go to updates pane `time` through layout runtime.
+- With `sync.time` on, Go to mirrors the same time to all panes.
+- Chart visible-range changes update pane `dateRange` only when
+  `sync.dateRange` is enabled.
+- With `sync.dateRange` on, the chart-runtime-owned visible range mirrors to
+  all panes.
+- Replay cursor/reveal state is not owned or mutated by layout sync.
+
+Checks:
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-navigation.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 

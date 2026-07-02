@@ -186,6 +186,8 @@ async function main() {
           const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
           const symbolSyncInput = document.querySelector('[data-layout-sync="symbol"]');
           const intervalSyncInput = document.querySelector('[data-layout-sync="interval"]');
+          const timeSyncInput = document.querySelector('[data-layout-sync="time"]');
+          const dateRangeSyncInput = document.querySelector('[data-layout-sync="dateRange"]');
           const layoutPopoverInitiallyVisible = Boolean(layoutPopover && !layoutPopover.hidden);
           const singleModeInitiallyPressed = singleModeButton?.getAttribute('aria-pressed') || '';
           twiceModeButton?.click();
@@ -198,6 +200,10 @@ async function main() {
           const secondaryPane = document.querySelector('[data-layout-pane][data-pane-id="secondary"]');
           secondaryPane?.click();
           await waitFor('secondary active pane', async () => chartRoute?.dataset.activePaneId === 'secondary');
+          const activePaneIdAfterSecondarySelect = chartRoute?.dataset.activePaneId || '';
+          const paneShellActivePaneIdAfterSecondarySelect = document.querySelector('[data-layout-pane-shell]')?.dataset.activePaneId || '';
+          const primaryPaneActiveAfterSecondarySelect = document.querySelector('[data-layout-pane][data-pane-id="primary"]')?.dataset.activePane || '';
+          const secondaryPaneActiveAfterSecondarySelect = secondaryPane?.dataset.activePane || '';
           const displayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
           displayTimeframeSelect.value = '5';
           displayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
@@ -211,6 +217,42 @@ async function main() {
           });
           const layoutStateAfterTimeframe = await commands.dispatchCommand('layout.getState');
           const replayDisplayContextAfterTimeframe = await commands.dispatchCommand('replay.getDisplayContext');
+          timeSyncInput?.click();
+          dateRangeSyncInput?.click();
+          await waitFor('time and date range sync enabled', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            return layoutState.sync.time === true && layoutState.sync.dateRange === true;
+          });
+          document.querySelector('[data-layout-close]')?.click();
+          document.querySelector('[data-chart-go-to-open]')?.click();
+          await waitFor('go-to popover open for sync time', async () =>
+            document.querySelector('[data-chart-go-to-popover]')?.hidden === false
+          );
+          const goToInput = document.querySelector('[data-chart-go-to-input]');
+          goToInput.value = '2026-06-01T09:35';
+          goToInput.dispatchEvent(new Event('input', { bubbles: true }));
+          document.querySelector('[data-chart-go-to]')?.click();
+          await waitFor('layout time synced', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            return layoutState.panes.length === 2
+              && layoutState.panes.every((pane) => pane.time)
+              && new Set(layoutState.panes.map((pane) => pane.time)).size === 1;
+          });
+          const syncedVisibleRange = await commands.dispatchCommand('chart.setVisibleRange', {
+            from: '2026-06-01T09:31:00.000Z',
+            to: '2026-06-01T09:36:00.000Z',
+          });
+          const expectedDateRange = {
+            from: new Date(syncedVisibleRange.visibleRange.from * 1000).toISOString(),
+            to: new Date(syncedVisibleRange.visibleRange.to * 1000).toISOString(),
+          };
+          await waitFor('layout date range synced', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            return layoutState.panes.length === 2
+              && layoutState.panes.every((pane) => pane.dateRange?.from === expectedDateRange.from)
+              && layoutState.panes.every((pane) => pane.dateRange?.to === expectedDateRange.to);
+          });
+          const layoutStateAfterTimeDateSync = await commands.dispatchCommand('layout.getState');
           const chartHostCount = document.querySelectorAll('[data-chart-host]').length;
           const paneShell = document.querySelector('[data-layout-pane-shell]');
           const primaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
@@ -234,6 +276,7 @@ async function main() {
             panelTitle,
             badgeText,
             activePaneId: chartRoute?.dataset.activePaneId || '',
+            activePaneIdAfterSecondarySelect,
             activePaneCount: chartRoute?.dataset.activePaneCount || '',
             layoutMode: chartRoute?.dataset.layoutMode || '',
             chartHostCount,
@@ -241,12 +284,20 @@ async function main() {
             placeholderPaneCount,
             paneShellMode: paneShell?.dataset.layoutMode || '',
             paneShellActivePaneId: paneShell?.dataset.activePaneId || '',
+            paneShellActivePaneIdAfterSecondarySelect,
             primaryPaneActive: primaryPane?.dataset.activePane || '',
+            primaryPaneActiveAfterSecondarySelect,
             secondaryPaneActive: secondaryPane?.dataset.activePane || '',
+            secondaryPaneActiveAfterSecondarySelect,
             secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
             primaryPaneDisplayTimeframe: primaryPane?.dataset.displayTimeframe || '',
             secondaryPaneDisplayTimeframe: secondaryPane?.dataset.displayTimeframe || '',
             layoutPaneDisplayTimeframes: layoutStateAfterTimeframe.panes.map((pane) => pane.displayTimeframe),
+            layoutPaneTimes: layoutStateAfterTimeDateSync.panes.map((pane) => pane.time),
+            layoutPaneDateRanges: layoutStateAfterTimeDateSync.panes.map((pane) => pane.dateRange),
+            expectedDateRange,
+            timeSyncChecked: Boolean(timeSyncInput?.checked),
+            dateRangeSyncChecked: Boolean(dateRangeSyncInput?.checked),
             replayDisplayTimeframe: replayDisplayContextAfterTimeframe.displayTimeframe,
             displayTimeframeSelectValue: displayTimeframeSelect?.value || '',
             layoutPopoverInitiallyVisible,
@@ -303,37 +354,46 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.panelTitle, 'FX Session Replay');
     assert.equal(value.badgeText, 'Historical Review');
-    assert.equal(value.activePaneId, 'secondary');
+    assert.equal(value.activePaneIdAfterSecondarySelect, 'secondary');
     assert.equal(value.activePaneCount, '2');
     assert.equal(value.layoutMode, 'twice');
     assert.equal(value.chartHostCount, 1);
     assert.equal(value.paneCount, 2);
     assert.equal(value.placeholderPaneCount, 1);
     assert.equal(value.paneShellMode, 'twice');
-    assert.equal(value.paneShellActivePaneId, 'secondary');
-    assert.equal(value.primaryPaneActive, 'false');
-    assert.equal(value.secondaryPaneActive, 'true');
+    assert.equal(value.paneShellActivePaneIdAfterSecondarySelect, 'secondary');
+    assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
+    assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
     assert.equal(value.secondaryPaneHasChartHost, 'false');
     assert.equal(value.primaryPaneDisplayTimeframe, '5');
     assert.equal(value.secondaryPaneDisplayTimeframe, '5');
     assert.deepEqual(value.layoutPaneDisplayTimeframes, [5, 5]);
+    assert.equal(value.timeSyncChecked, true);
+    assert.equal(value.dateRangeSyncChecked, true);
+    assert.equal(value.layoutPaneTimes.length, 2);
+    assert.equal(new Set(value.layoutPaneTimes).size, 1);
+    assert.ok(value.layoutPaneTimes[0], 'layout time should sync to both panes');
+    assert.deepEqual(value.layoutPaneDateRanges, [
+      value.expectedDateRange,
+      value.expectedDateRange,
+    ]);
     assert.equal(value.replayDisplayTimeframe, 5);
     assert.equal(value.displayTimeframeSelectValue, '5');
     assert.equal(value.layoutPopoverInitiallyVisible, true);
-    assert.equal(value.layoutPopoverVisible, true);
+    assert.equal(value.layoutPopoverVisible, false);
     assert.equal(value.singleModeInitiallyPressed, 'true');
     assert.equal(value.twiceModePressed, 'true');
     assert.equal(value.tripleModeExists, true);
     assert.equal(value.symbolSyncDisabled, true);
     assert.equal(value.intervalSyncChecked, true);
     assert.equal(value.viewportPaneId, 'primary');
-    assert.equal(value.viewportActivePane, 'false');
+    assert.equal(value.viewportActivePane, 'true');
     assert.equal(value.viewportPaneRole, 'primary-chart');
     assert.equal(value.hostPaneId, 'primary');
-    assert.equal(value.hostActivePane, 'false');
+    assert.equal(value.hostActivePane, 'true');
     assert.equal(value.layoutButtonDisabled, false);
     assert.equal(value.layoutButtonAriaDisabled, '');
-    assert.equal(value.layoutButtonExpanded, 'true');
+    assert.equal(value.layoutButtonExpanded, 'false');
     assert.equal(value.layoutButtonState, 'ready');
     assert.equal(value.layoutButtonMode, 'twice');
     assert.equal(value.hasShellText, false);

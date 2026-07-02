@@ -12,6 +12,7 @@ export function createChartReplayNavigationController({
   setCommandInFlight,
   setControlsDisabled,
   setStatusText,
+  syncLayoutTime = () => {},
 }) {
   const goToPopover = root.querySelector('[data-chart-go-to-popover]');
   const goToOpenButton = root.querySelector('[data-chart-go-to-open]');
@@ -75,6 +76,7 @@ export function createChartReplayNavigationController({
       setStatusText(result.visibleRange?.to && result.targetTimestamp > result.visibleRange.to
         ? `Viewing ${visibleText}; requested ${requestedText} is beyond cursor.`
         : `Viewing ${requestedText}.`);
+      await syncLayoutTime(targetTimestamp);
       closeGoToPopover();
     } catch (error) {
       setStatusText(error?.message || String(error));
@@ -91,6 +93,7 @@ export function createChartReplayNavigationController({
     try {
       await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
       const state = await dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null);
+      await syncLayoutTime(state?.cursorTimestamp);
       setStatusText(`Following cursor ${formatReplayTimestamp(state?.cursorTimestamp)}.`);
     } catch (error) {
       setStatusText(error?.message || String(error));

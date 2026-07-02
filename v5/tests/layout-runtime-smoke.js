@@ -30,6 +30,8 @@ assert.equal(hasCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_MODE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_SYNC), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_TIME), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE), true);
 
 const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
@@ -48,6 +50,8 @@ assert.deepEqual(defaults, {
       role: 'primary',
       instrument: null,
       displayTimeframe: null,
+      time: null,
+      dateRange: null,
       presentationSettingsId: null,
     },
   ],
@@ -93,6 +97,58 @@ const syncedTenMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_T
 });
 assert.deepEqual(syncedTenMinute.panes.map((pane) => pane.displayTimeframe), [10, 10]);
 
+const secondaryTime = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
+  paneId: 'secondary',
+  time: '2026-06-01T09:34:00.000Z',
+});
+assert.equal(secondaryTime.panes.find((pane) => pane.id === 'primary').time, null);
+assert.equal(
+  secondaryTime.panes.find((pane) => pane.id === 'secondary').time,
+  '2026-06-01T09:34:00.000Z'
+);
+
+await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, { key: 'time', value: true });
+const syncedTime = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
+  paneId: 'secondary',
+  time: '2026-06-01T09:35:00.000Z',
+});
+assert.deepEqual(syncedTime.panes.map((pane) => pane.time), [
+  '2026-06-01T09:35:00.000Z',
+  '2026-06-01T09:35:00.000Z',
+]);
+
+const secondaryDateRange = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, {
+  paneId: 'secondary',
+  dateRange: {
+    from: '2026-06-01T09:30:00.000Z',
+    to: '2026-06-01T09:35:00.000Z',
+  },
+});
+assert.equal(secondaryDateRange.panes.find((pane) => pane.id === 'primary').dateRange, null);
+assert.deepEqual(secondaryDateRange.panes.find((pane) => pane.id === 'secondary').dateRange, {
+  from: '2026-06-01T09:30:00.000Z',
+  to: '2026-06-01T09:35:00.000Z',
+});
+
+await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, { key: 'dateRange', value: true });
+const syncedDateRange = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, {
+  paneId: 'secondary',
+  dateRange: {
+    from: '2026-06-01T09:31:00.000Z',
+    to: '2026-06-01T09:36:00.000Z',
+  },
+});
+assert.deepEqual(syncedDateRange.panes.map((pane) => pane.dateRange), [
+  {
+    from: '2026-06-01T09:31:00.000Z',
+    to: '2026-06-01T09:36:00.000Z',
+  },
+  {
+    from: '2026-06-01T09:31:00.000Z',
+    to: '2026-06-01T09:36:00.000Z',
+  },
+]);
+
 const symbolSynced = await dispatchCommand(LAYOUT_COMMANDS.SET_SYNC, {
   key: 'symbol',
   value: true,
@@ -113,6 +169,23 @@ await assert.rejects(
     displayTimeframe: 0,
   }),
   /positive number/
+);
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
+    paneId: 'secondary',
+    time: 'not a timestamp',
+  }),
+  /valid timestamp/
+);
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, {
+    paneId: 'secondary',
+    dateRange: {
+      from: '2026-06-01T09:36:00.000Z',
+      to: '2026-06-01T09:31:00.000Z',
+    },
+  }),
+  /greater than or equal/
 );
 
 assert.throws(

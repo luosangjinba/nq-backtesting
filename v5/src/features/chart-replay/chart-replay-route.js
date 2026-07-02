@@ -215,6 +215,7 @@ export function createChartReplayRoute() {
         setStatusText: (message) => {
           status.textContent = message;
         },
+        syncLayoutTime,
       });
       truncateController = createChartReplayTruncateController({
         root: section,
@@ -343,6 +344,29 @@ export function createChartReplayRoute() {
         };
       }
 
+      async function syncLayoutTime(time) {
+        if (!time) return null;
+        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
+          paneId: currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+          time,
+        });
+        applyLayoutState(layoutState);
+        return layoutState;
+      }
+
+      async function syncLayoutDateRange(visibleRange) {
+        if (!visibleRange || !currentLayoutState.sync?.dateRange) return null;
+        const from = visibleRange.from == null ? null : new Date(Number(visibleRange.from) * 1000).toISOString();
+        const to = visibleRange.to == null ? null : new Date(Number(visibleRange.to) * 1000).toISOString();
+        if (!from || !to) return null;
+        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, {
+          paneId: currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+          dateRange: { from, to },
+        });
+        applyLayoutState(layoutState);
+        return layoutState;
+      }
+
       paneShellController = createChartReplayPaneShellController({
         root: section,
         dispatchCommand,
@@ -400,6 +424,7 @@ export function createChartReplayRoute() {
         DISPLAY_TIMEZONE_EVENTS.CHANGED,
         CHART_PRESENTATION_EVENTS.CHANGED,
         LAYOUT_EVENTS.CHANGED,
+        CHART_EVENTS.VISIBLE_RANGE_CHANGED,
         CHART_EVENTS.CROSSHAIR_CHANGED,
       ].forEach((eventName) => {
         const unsubscribe = subscribeEvent(eventName, (payload = {}) => {
@@ -410,6 +435,10 @@ export function createChartReplayRoute() {
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
             statusController.setCrosshairState(payload.crosshair || { active: false });
             replayControlsController.setControlsDisabled();
+            return;
+          }
+          if (eventName === CHART_EVENTS.VISIBLE_RANGE_CHANGED) {
+            syncLayoutDateRange(payload.visibleRange).finally(() => refreshReplayStatus());
             return;
           }
           if (eventName === CHART_PRESENTATION_EVENTS.CHANGED) {

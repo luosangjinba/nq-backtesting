@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 466: `session_20260702_step466_v5_pane_display_timeframe_interval_sync.md`
+- Step 467: `session_20260702_step467_v5_time_date_range_sync.md`
 
 ## Completed Session Index
 
@@ -132,3 +132,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 464: `session_20260702_step464_v5_multi_pane_dom_shell.md`
 - Step 465: `session_20260702_step465_v5_chart_runtime_pane_host_mounting.md`
 - Step 466: `session_20260702_step466_v5_pane_display_timeframe_interval_sync.md`
+- Step 467: `session_20260702_step467_v5_time_date_range_sync.md`

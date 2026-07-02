@@ -4,6 +4,8 @@ export const LAYOUT_COMMANDS = Object.freeze({
   SET_MODE: 'layout.setMode',
   SET_SYNC: 'layout.setSync',
   SET_PANE_DISPLAY_TIMEFRAME: 'layout.setPaneDisplayTimeframe',
+  SET_PANE_TIME: 'layout.setPaneTime',
+  SET_PANE_DATE_RANGE: 'layout.setPaneDateRange',
 });
 
 export const LAYOUT_EVENTS = Object.freeze({
@@ -44,6 +46,8 @@ export const DEFAULT_LAYOUT_STATE = Object.freeze({
       role: 'primary',
       instrument: null,
       displayTimeframe: null,
+      time: null,
+      dateRange: null,
       presentationSettingsId: null,
     }),
   ]),

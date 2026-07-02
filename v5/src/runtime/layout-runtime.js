@@ -28,8 +28,35 @@ function normalizePane(pane = {}) {
     role: pane.role || 'primary',
     instrument: pane.instrument || null,
     displayTimeframe: pane.displayTimeframe == null ? null : Number(pane.displayTimeframe),
+    time: normalizePaneTime(pane.time),
+    dateRange: normalizePaneDateRange(pane.dateRange),
     presentationSettingsId: pane.presentationSettingsId || null,
   };
+}
+
+function normalizePaneTime(value) {
+  if (value == null || value === '') return null;
+  const parsed = typeof value === 'number' ? value * 1000 : Date.parse(value);
+  if (!Number.isFinite(parsed)) {
+    throw new Error('layout pane time must be a valid timestamp.');
+  }
+  return new Date(parsed).toISOString();
+}
+
+function normalizePaneDateRange(value) {
+  if (value == null) return null;
+  if (!value || typeof value !== 'object') {
+    throw new Error('layout pane date range must be an object.');
+  }
+  const from = normalizePaneTime(value.from);
+  const to = normalizePaneTime(value.to);
+  if (from == null || to == null) {
+    throw new Error('layout pane date range must include from and to.');
+  }
+  if (Date.parse(to) < Date.parse(from)) {
+    throw new Error('layout pane date range to must be greater than or equal to from.');
+  }
+  return { from, to };
 }
 
 function normalizeDisplayTimeframe(value) {
@@ -205,6 +232,58 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
+  function updatePanesForSync({ paneId, syncKey, patch }) {
+    const targetPaneId = String(paneId || state.activePaneId || DEFAULT_ACTIVE_PANE_ID).trim();
+    if (!targetPaneId) {
+      throw new Error('layout pane id must be a non-empty string.');
+    }
+    if (!state.panes.some((pane) => pane.id === targetPaneId)) {
+      throw new Error(`layout pane "${targetPaneId}" does not exist.`);
+    }
+    return state.panes.map((pane) => (
+      state.sync[syncKey] || pane.id === targetPaneId
+        ? {
+          ...pane,
+          ...patch,
+        }
+        : pane
+    ));
+  }
+
+  function setPaneTime({ paneId, time } = {}) {
+    const nextState = normalizeLayoutState({
+      ...state,
+      panes: updatePanesForSync({
+        paneId,
+        syncKey: 'time',
+        patch: { time: normalizePaneTime(time) },
+      }),
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
+  function setPaneDateRange({ paneId, dateRange } = {}) {
+    const nextState = normalizeLayoutState({
+      ...state,
+      panes: updatePanesForSync({
+        paneId,
+        syncKey: 'dateRange',
+        patch: { dateRange: normalizePaneDateRange(dateRange) },
+      }),
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
@@ -212,7 +291,9 @@ export function createLayoutRuntime({
       registerCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, (payload) => setActivePane(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_MODE, (payload) => setMode(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_SYNC, (payload) => setSync(payload)),
-      registerCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, (payload) => setPaneDisplayTimeframe(payload))
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, (payload) => setPaneDisplayTimeframe(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_TIME, (payload) => setPaneTime(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, (payload) => setPaneDateRange(payload))
     );
   }
 

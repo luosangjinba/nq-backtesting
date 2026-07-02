@@ -36,6 +36,9 @@ function updatePaneElement(element, pane, active) {
   element.dataset.paneRole = pane.role || 'secondary';
   element.dataset.activePane = active ? 'true' : 'false';
   element.dataset.displayTimeframe = pane.displayTimeframe == null ? '' : String(pane.displayTimeframe);
+  element.dataset.time = pane.time || '';
+  element.dataset.dateRangeFrom = pane.dateRange?.from || '';
+  element.dataset.dateRangeTo = pane.dateRange?.to || '';
   element.classList.toggle('is-active', active);
   element.setAttribute('aria-label', `${paneTitle(pane)} chart pane`);
   element.setAttribute('aria-pressed', active ? 'true' : 'false');
