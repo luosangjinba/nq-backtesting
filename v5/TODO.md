@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 425 is complete. The chart replay route now separates
-  route shell orchestration from page template markup and floating replay
-  transport drag behavior, keeping future chart-route features from piling into
-  one file while preserving runtime command/event ownership.
-- Next candidate: Step 426 - Settings remaining-deferred cleanup. Reassess
+- Current status: Step 426 is complete. Chart runtime now separates pure state
+  normalization and viewport/range calculations from host mounting, adapter
+  synchronization, command registration, and event subscriptions.
+- Next candidate: Step 427 - Settings remaining-deferred cleanup. Reassess
   FXReplay settings items that still need explicit runtime design before UI:
   scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
   session breaks, templates, and split-pane/pane-specific settings.
@@ -92,6 +91,10 @@
   bridges. Page template modules may compose UI templates, and UI controllers
   may own DOM-only behavior such as floating transport drag, but replay/chart
   mutations must still flow through route callbacks and runtime commands.
+- Refactor decision: chart runtime pure helpers belong outside the runtime
+  shell. State shape/normalization and viewport/range demand calculations can
+  live in helper modules, while `chart-runtime.js` remains the only chart
+  runtime command/event owner and the only runtime that writes chart adapters.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -3218,5 +3221,57 @@ Checks:
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 426 - V5 Chart Runtime State Helpers Split
+
+Status: completed.
+
+Goal: reduce chart runtime coupling by moving pure state normalization and
+viewport/range calculations out of `chart-runtime.js` without changing chart
+runtime command/event ownership.
+
+Problem:
+
+- `chart-runtime.js` mixed state shape construction, payload normalization,
+  viewport demand math, rendered-bar selection, host mounting, adapter sync,
+  command registration, and event subscriptions.
+- Future layout, multi-pane, drawing, and review features would have to touch a
+  large runtime file even when they only need pure chart range helpers.
+
+Implementation:
+
+- [x] Step 426.1: Add `runtime/chart-runtime-state.js` for chart state shape,
+  timestamp/range normalization, bar/crosshair normalization, and host metrics.
+- [x] Step 426.2: Add `runtime/chart-runtime-viewport.js` for prefix demand,
+  viewport demand, rendered bars, go-to, zoom, pan, and manual-anchor range
+  calculations.
+- [x] Step 426.3: Keep `chart-runtime.js` focused on mounted hosts, adapter
+  writes, command registration, event subscription, and state mutation
+  orchestration.
+- [x] Step 426.4: Preserve existing command contracts and chart adapter write
+  ownership.
+- [x] Step 426.5: Reduce `chart-runtime.js` from 1069 lines to 606 lines.
+
+Manual acceptance:
+
+- Chart runtime behavior should be unchanged: bar replacement, viewport follow,
+  manual/native visible ranges, reset view, go-to, zoom/pan, prefix demand, and
+  viewport demand must continue to pass existing smokes.
+- New helper modules must not register commands, subscribe to events, mount DOM
+  hosts, or write chart adapters.
+- `chart-runtime.js` remains the only chart runtime owner.
+
+Checks:
+
+- `node --check v5/src/runtime/chart-runtime.js`
+- `node --check v5/src/runtime/chart-runtime-state.js`
+- `node --check v5/src/runtime/chart-runtime-viewport.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
