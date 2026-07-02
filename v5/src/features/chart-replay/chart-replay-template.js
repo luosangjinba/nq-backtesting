@@ -1,4 +1,4 @@
-import { renderChartSettingsPopover } from './chart-settings-panel.js';
+import { renderChartSettingsPopover } from './chart-settings-template.js';
 import { renderReplayFloatingControls } from './replay-floating-controls.js';
 
 export function renderChartReplayTemplate({ activePaneId }) {

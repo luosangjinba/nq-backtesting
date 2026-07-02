@@ -10,15 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 441 is complete. Chart go-to/reset/jump navigation now
-  lives in `features/chart-replay/chart-replay-navigation.js`;
-  `chart-replay-route.js` delegates Go to popover behavior, Reset View,
-  Jump-to-cursor, wall-clock parsing, and chart navigation command queueing
-  through injected route state and status callbacks.
-- Next candidate: Step 442 - continue modular cleanup with a targeted
-  `chart-settings-panel.js` split, separating Settings draft state helpers,
-  template sections, and event binding without changing presentation runtime
-  ownership.
+- Current status: Step 442 is complete. Settings template markup now lives in
+  `features/chart-replay/chart-settings-template.js`, and Settings draft/clone
+  helpers now live in `features/chart-replay/chart-settings-draft.js`.
+  `chart-settings-panel.js` remains the Settings controller and delegates
+  draft creation/cloning plus static markup to dedicated modules.
+- Next candidate: Step 443 - continue `chart-settings-panel.js` cleanup by
+  splitting Settings event binding/render adapters by section while preserving
+  the draft-only apply/cancel flow and presentation runtime ownership.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -136,6 +135,13 @@
   chart navigation command queueing. `chart-replay-route.js` may inject display
   timezone, formatting, status, and command-in-flight accessors, but it should
   not reintroduce chart navigation DOM/event handlers inline.
+- Refactor decision: chart settings modules should separate static markup,
+  draft state helpers, and controller event binding. `chart-settings-template.js`
+  owns the modal HTML only, `chart-settings-draft.js` owns clone/default draft
+  helpers only, and `chart-settings-panel.js` remains the route-local Settings
+  controller that wires DOM events to draft state and route-provided apply/cancel
+  callbacks. Static markup and draft helpers should not dispatch commands or
+  mutate runtime state directly.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1684,6 +1690,61 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 442 - V5 Chart Settings Template And Draft Helper Split
+
+Status: completed.
+
+Goal: continue Settings modular cleanup by separating static Settings markup
+and draft/clone helpers from the route-local Settings controller.
+
+Problem:
+
+- `chart-settings-panel.js` still mixed large static modal HTML, clone/default
+  draft helpers, draft rendering, event binding, and apply/cancel controller
+  behavior in one file.
+- Future Settings sections would be forced to add more markup and draft helper
+  logic into the same controller file, making later section-level splits more
+  expensive.
+
+Implementation:
+
+- [x] Step 442.1: Define the split boundary as Settings static template and
+  draft helper state, leaving event binding in the controller for now.
+- [x] Step 442.2: Add `features/chart-replay/chart-settings-template.js` with
+  `renderChartSettingsPopover()` and move the modal HTML out of
+  `chart-settings-panel.js`.
+- [x] Step 442.3: Add `features/chart-replay/chart-settings-draft.js` with
+  clone helpers, candle style helpers, settings draft creation, and apply draft
+  cloning.
+- [x] Step 442.4: Keep `chart-settings-panel.js` as the Settings controller
+  that wires DOM events to draft state and route-provided `onApply` /
+  `onCancel` callbacks.
+- [x] Step 442.5: Reduce `chart-settings-panel.js` from 690 lines to 389 lines.
+
+Manual acceptance:
+
+- Opening Settings, switching sections, editing draft controls, canceling, and
+  applying should behave the same as before the split.
+- Settings template code must not dispatch commands or mutate runtime state.
+- Settings draft helpers must clone values only and must not touch DOM,
+  commands, events, replay state, chart adapters, or persistence.
+- Presentation and timezone changes must still apply only through the existing
+  route callbacks and presentation/runtime command path.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node --check v5/src/features/chart-replay/chart-settings-template.js`
+- `node --check v5/src/features/chart-replay/chart-settings-draft.js`
+- `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
