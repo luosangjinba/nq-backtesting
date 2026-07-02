@@ -63,6 +63,16 @@ export const DEFAULT_SCALE_STYLE = Object.freeze({
   textColor: '#22d3ee',
   lineColor: '#334155',
   fontSize: 12,
+  priceScaleVisible: true,
+  timeScaleVisible: true,
+  scaleBordersVisible: true,
+});
+
+export const DEFAULT_WATERMARK_STYLE = Object.freeze({
+  visible: false,
+  text: 'FX Replay',
+  color: '#334155',
+  fontSize: 48,
 });
 
 export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
@@ -85,4 +95,5 @@ export const DEFAULT_CHART_PRESENTATION_SETTINGS = Object.freeze({
   crosshairStyle: DEFAULT_CROSSHAIR_STYLE,
   backgroundStyle: DEFAULT_BACKGROUND_STYLE,
   scaleStyle: DEFAULT_SCALE_STYLE,
+  watermarkStyle: DEFAULT_WATERMARK_STYLE,
 });

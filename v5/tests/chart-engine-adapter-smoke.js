@@ -147,6 +147,9 @@ const lightweightCalls = {
   applyOptions: [],
   seriesApplyOptions: [],
   priceScaleApplyOptions: [],
+  watermarkOptions: [],
+  watermarkApplyOptions: [],
+  watermarkDetached: 0,
   subscribed: null,
   crosshairHandler: null,
   unsubscribed: null,
@@ -154,6 +157,18 @@ const lightweightCalls = {
   removed: 0,
 };
 const fakeLightweightCharts = {
+  createTextWatermark(chart, options) {
+    lightweightCalls.watermarkChart = chart;
+    lightweightCalls.watermarkOptions.push(options);
+    return {
+      applyOptions(optionsPayload) {
+        lightweightCalls.watermarkApplyOptions.push(optionsPayload);
+      },
+      detach() {
+        lightweightCalls.watermarkDetached += 1;
+      },
+    };
+  },
   createChart(host, options) {
     lightweightCalls.created += 1;
     lightweightCalls.host = host;
@@ -252,6 +267,15 @@ lightweight.setPresentation({
     textColor: '#38bdf8',
     lineColor: '#475569',
     fontSize: 14,
+    priceScaleVisible: false,
+    timeScaleVisible: false,
+    scaleBordersVisible: false,
+  },
+  watermarkStyle: {
+    visible: true,
+    text: 'Replay Review',
+    color: '#64748b',
+    fontSize: 64,
   },
 });
 lightweight.setVisibleRange({
@@ -372,10 +396,14 @@ assert.deepEqual(lightweightCalls.options.timeScale, {
   fixLeftEdge: false,
   fixRightEdge: false,
   rightOffset: 3,
+  visible: true,
+  borderVisible: true,
   borderColor: '#334155',
   tickMarkFormatter: lightweightCalls.options.timeScale.tickMarkFormatter,
 });
 assert.deepEqual(lightweightCalls.options.rightPriceScale, {
+  visible: true,
+  borderVisible: true,
   borderColor: '#334155',
 });
 assert.equal(
@@ -441,6 +469,13 @@ assert.equal(lightweightHost.children[0].dataset.backgroundColor, '#020617');
 assert.equal(lightweightHost.children[0].dataset.scaleTextColor, '#38bdf8');
 assert.equal(lightweightHost.children[0].dataset.scaleLineColor, '#475569');
 assert.equal(lightweightHost.children[0].dataset.scaleFontSize, '14');
+assert.equal(lightweightHost.children[0].dataset.priceScaleVisible, 'false');
+assert.equal(lightweightHost.children[0].dataset.timeScaleVisible, 'false');
+assert.equal(lightweightHost.children[0].dataset.scaleBordersVisible, 'false');
+assert.equal(lightweightHost.children[0].dataset.watermarkVisible, 'true');
+assert.equal(lightweightHost.children[0].dataset.watermarkText, 'Replay Review');
+assert.equal(lightweightHost.children[0].dataset.watermarkColor, '#64748b');
+assert.equal(lightweightHost.children[0].dataset.watermarkFontSize, '64');
 assert.deepEqual(
   lightweightCalls.setData[0].map((item) => item.time),
   [
@@ -508,12 +543,33 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     fixLeftEdge: false,
     fixRightEdge: false,
     rightOffset: 4,
+    visible: false,
+    borderVisible: false,
     borderColor: '#475569',
     tickMarkFormatter: lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter,
   },
   rightPriceScale: {
+    visible: false,
+    borderVisible: false,
     borderColor: '#475569',
   },
+});
+assert.deepEqual(lightweightCalls.watermarkOptions[0], {
+  visible: false,
+  horzAlign: 'center',
+  vertAlign: 'center',
+  lines: [],
+});
+assert.deepEqual(lightweightCalls.watermarkApplyOptions.at(-1), {
+  visible: true,
+  horzAlign: 'center',
+  vertAlign: 'center',
+  lines: [{
+    text: 'Replay Review',
+    color: '#64748b',
+    fontSize: 64,
+    fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+  }],
 });
 assert.equal(
   lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter(Date.parse('2026-06-01T09:33:00.000Z') / 1000),
@@ -571,6 +627,7 @@ assert.deepEqual(lightweightCrosshairEvents[1], { active: false });
 lightweight.destroy();
 assert.equal(lightweightCalls.unsubscribed, lightweightCalls.subscribed);
 assert.equal(lightweightCalls.unsubscribedCrosshair, lightweightCalls.crosshairHandler);
+assert.equal(lightweightCalls.watermarkDetached, 1);
 assert.equal(lightweightCalls.removed, 1);
 
 console.log('v5 chart engine adapter smoke passed');

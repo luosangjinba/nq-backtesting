@@ -10,6 +10,7 @@ import {
   DEFAULT_CROSSHAIR_STYLE,
   DEFAULT_GRID_STYLE,
   DEFAULT_SCALE_STYLE,
+  DEFAULT_WATERMARK_STYLE,
   STATUS_TITLE_MODES,
 } from '../contracts/chart-presentation-contracts.js';
 
@@ -69,6 +70,22 @@ function normalizeScaleFontSize(value, fallback = DEFAULT_SCALE_STYLE.fontSize) 
   return normalized;
 }
 
+function normalizeWatermarkFontSize(value, fallback = DEFAULT_WATERMARK_STYLE.fontSize) {
+  const normalized = Number(value ?? fallback);
+  if (!Number.isFinite(normalized) || normalized < 12 || normalized > 96) {
+    throw new Error('chart presentation watermarkStyle.fontSize must be between 12 and 96.');
+  }
+  return normalized;
+}
+
+function normalizeWatermarkText(value, fallback = DEFAULT_WATERMARK_STYLE.text) {
+  const normalized = String(value ?? fallback).trim();
+  if (normalized.length > 80) {
+    throw new Error('chart presentation watermarkStyle.text must be 80 characters or fewer.');
+  }
+  return normalized;
+}
+
 function normalizeCandleStyle(value = {}, base = DEFAULT_CANDLE_STYLE) {
   return {
     body: {
@@ -120,6 +137,18 @@ function normalizeScaleStyle(value = {}, base = DEFAULT_SCALE_STYLE) {
     textColor: normalizeColor(value.textColor, base.textColor, 'scaleStyle.textColor'),
     lineColor: normalizeColor(value.lineColor, base.lineColor, 'scaleStyle.lineColor'),
     fontSize: normalizeScaleFontSize(value.fontSize, base.fontSize),
+    priceScaleVisible: normalizeBoolean(value.priceScaleVisible, base.priceScaleVisible),
+    timeScaleVisible: normalizeBoolean(value.timeScaleVisible, base.timeScaleVisible),
+    scaleBordersVisible: normalizeBoolean(value.scaleBordersVisible, base.scaleBordersVisible),
+  };
+}
+
+function normalizeWatermarkStyle(value = {}, base = DEFAULT_WATERMARK_STYLE) {
+  return {
+    visible: normalizeBoolean(value.visible, base.visible),
+    text: normalizeWatermarkText(value.text, base.text),
+    color: normalizeColor(value.color, base.color, 'watermarkStyle.color'),
+    fontSize: normalizeWatermarkFontSize(value.fontSize, base.fontSize),
   };
 }
 
@@ -145,6 +174,7 @@ export function normalizeChartPresentationSettings(input = {}, base = DEFAULT_CH
     crosshairStyle: normalizeCrosshairStyle(input.crosshairStyle, base.crosshairStyle),
     backgroundStyle: normalizeBackgroundStyle(input.backgroundStyle, base.backgroundStyle),
     scaleStyle: normalizeScaleStyle(input.scaleStyle, base.scaleStyle),
+    watermarkStyle: normalizeWatermarkStyle(input.watermarkStyle, base.watermarkStyle),
   };
 }
 

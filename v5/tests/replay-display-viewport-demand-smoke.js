@@ -153,6 +153,15 @@ assert.deepEqual(context.displayContext, {
     textColor: '#22d3ee',
     lineColor: '#334155',
     fontSize: 12,
+    priceScaleVisible: true,
+    timeScaleVisible: true,
+    scaleBordersVisible: true,
+  },
+  watermarkStyle: {
+    visible: false,
+    text: 'FX Replay',
+    color: '#334155',
+    fontSize: 48,
   },
 });
 assert.equal(context.viewportDemand, null);

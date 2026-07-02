@@ -173,6 +173,18 @@ export function createChartReplayRoute() {
                     <input type="checkbox" data-presentation-toggle="showDayOfWeekLabels">
                     <span>Day of week on labels</span>
                   </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-scale-style-toggle="timeScaleVisible">
+                    <span>Time scale</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-scale-style-toggle="priceScaleVisible">
+                    <span>Price scale</span>
+                  </label>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-scale-style-toggle="scaleBordersVisible">
+                    <span>Scale borders</span>
+                  </label>
                   <h3>Crosshair</h3>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-crosshair-style-toggle="verticalVisible">
@@ -220,6 +232,27 @@ export function createChartReplayRoute() {
                     <span>Background</span>
                     <span class="chart-settings-color-pair">
                       <input type="color" data-background-style-color="color" aria-label="Chart background color">
+                    </span>
+                  </label>
+                  <h3>Watermark</h3>
+                  <label class="chart-settings-check">
+                    <input type="checkbox" data-watermark-style-toggle="visible">
+                    <span>Watermark</span>
+                  </label>
+                  <label class="chart-settings-row">
+                    <span>Text</span>
+                    <input type="text" maxlength="80" data-watermark-style-text="text" aria-label="Watermark text">
+                  </label>
+                  <label class="chart-settings-color-row">
+                    <span>Style</span>
+                    <span class="chart-settings-color-pair chart-settings-scale-pair">
+                      <input type="color" data-watermark-style-color="color" aria-label="Watermark color">
+                      <select data-watermark-style-font-size aria-label="Watermark text size">
+                        <option value="32">32</option>
+                        <option value="48">48</option>
+                        <option value="64">64</option>
+                        <option value="80">80</option>
+                      </select>
                     </span>
                   </label>
                   <h3>Grid</h3>
@@ -414,8 +447,13 @@ export function createChartReplayRoute() {
       const crosshairStyleToggleControls = Array.from(section.querySelectorAll('[data-crosshair-style-toggle]'));
       const crosshairStyleColorControls = Array.from(section.querySelectorAll('[data-crosshair-style-color]'));
       const backgroundStyleColorControls = Array.from(section.querySelectorAll('[data-background-style-color]'));
+      const scaleStyleToggleControls = Array.from(section.querySelectorAll('[data-scale-style-toggle]'));
       const scaleStyleColorControls = Array.from(section.querySelectorAll('[data-scale-style-color]'));
       const scaleStyleFontSizeControls = Array.from(section.querySelectorAll('[data-scale-style-font-size]'));
+      const watermarkStyleToggleControls = Array.from(section.querySelectorAll('[data-watermark-style-toggle]'));
+      const watermarkStyleTextControls = Array.from(section.querySelectorAll('[data-watermark-style-text]'));
+      const watermarkStyleColorControls = Array.from(section.querySelectorAll('[data-watermark-style-color]'));
+      const watermarkStyleFontSizeControls = Array.from(section.querySelectorAll('[data-watermark-style-font-size]'));
       const goToPopover = section.querySelector('[data-chart-go-to-popover]');
       const goToOpenButton = section.querySelector('[data-chart-go-to-open]');
       const goToCancelButtons = Array.from(section.querySelectorAll('[data-chart-go-to-cancel]'));
@@ -469,6 +507,7 @@ export function createChartReplayRoute() {
         crosshairStyle: cloneCrosshairStyle(),
         backgroundStyle: cloneBackgroundStyle(),
         scaleStyle: cloneScaleStyle(),
+        watermarkStyle: cloneWatermarkStyle(),
       };
       let crosshairState = { active: false };
       let lastReplayState = null;
@@ -956,6 +995,10 @@ export function createChartReplayRoute() {
         return { ...style };
       }
 
+      function cloneWatermarkStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.watermarkStyle) {
+        return { ...style };
+      }
+
       function candleStyleValue(style, path) {
         const [group, direction] = String(path || '').split('.');
         return style?.[group]?.[direction] || DEFAULT_CHART_PRESENTATION_SETTINGS.candleStyle[group]?.[direction] || '#000000';
@@ -987,6 +1030,7 @@ export function createChartReplayRoute() {
           crosshairStyle: cloneCrosshairStyle(presentationSettings.crosshairStyle),
           backgroundStyle: cloneBackgroundStyle(presentationSettings.backgroundStyle),
           scaleStyle: cloneScaleStyle(presentationSettings.scaleStyle),
+          watermarkStyle: cloneWatermarkStyle(presentationSettings.watermarkStyle),
         };
       }
 
@@ -1057,6 +1101,9 @@ export function createChartReplayRoute() {
             || DEFAULT_CHART_PRESENTATION_SETTINGS.backgroundStyle[control.dataset.backgroundStyleColor]
             || '#000000';
         });
+        scaleStyleToggleControls.forEach((control) => {
+          control.checked = Boolean(draft.scaleStyle?.[control.dataset.scaleStyleToggle]);
+        });
         scaleStyleColorControls.forEach((control) => {
           control.value = draft.scaleStyle?.[control.dataset.scaleStyleColor]
             || DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle[control.dataset.scaleStyleColor]
@@ -1065,6 +1112,26 @@ export function createChartReplayRoute() {
         scaleStyleFontSizeControls.forEach((control) => {
           if (control.tagName === 'SELECT') {
             control.value = String(draft.scaleStyle?.fontSize || DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle.fontSize);
+          }
+        });
+        watermarkStyleToggleControls.forEach((control) => {
+          control.checked = Boolean(draft.watermarkStyle?.[control.dataset.watermarkStyleToggle]);
+        });
+        watermarkStyleTextControls.forEach((control) => {
+          control.value = draft.watermarkStyle?.[control.dataset.watermarkStyleText]
+            || DEFAULT_CHART_PRESENTATION_SETTINGS.watermarkStyle[control.dataset.watermarkStyleText]
+            || '';
+        });
+        watermarkStyleColorControls.forEach((control) => {
+          control.value = draft.watermarkStyle?.[control.dataset.watermarkStyleColor]
+            || DEFAULT_CHART_PRESENTATION_SETTINGS.watermarkStyle[control.dataset.watermarkStyleColor]
+            || '#000000';
+        });
+        watermarkStyleFontSizeControls.forEach((control) => {
+          if (control.tagName === 'SELECT') {
+            control.value = String(
+              draft.watermarkStyle?.fontSize || DEFAULT_CHART_PRESENTATION_SETTINGS.watermarkStyle.fontSize
+            );
           }
         });
       }
@@ -1101,6 +1168,7 @@ export function createChartReplayRoute() {
           crosshairStyle: presentationSettings.crosshairStyle,
           backgroundStyle: presentationSettings.backgroundStyle,
           scaleStyle: presentationSettings.scaleStyle,
+          watermarkStyle: presentationSettings.watermarkStyle,
         }).catch(() => null);
       }
 
@@ -1399,6 +1467,12 @@ export function createChartReplayRoute() {
         control.addEventListener('input', updateBackgroundStyleColor);
         control.addEventListener('change', updateBackgroundStyleColor);
       });
+      scaleStyleToggleControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft) return;
+          settingsDraft.scaleStyle[control.dataset.scaleStyleToggle] = control.checked;
+        });
+      });
       scaleStyleColorControls.forEach((control) => {
         const updateScaleStyleColor = () => {
           if (!settingsDraft) return;
@@ -1411,6 +1485,34 @@ export function createChartReplayRoute() {
         control.addEventListener('change', () => {
           if (!settingsDraft || control.tagName !== 'SELECT') return;
           settingsDraft.scaleStyle.fontSize = Number(control.value);
+        });
+      });
+      watermarkStyleToggleControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft) return;
+          settingsDraft.watermarkStyle[control.dataset.watermarkStyleToggle] = control.checked;
+        });
+      });
+      watermarkStyleTextControls.forEach((control) => {
+        const updateWatermarkText = () => {
+          if (!settingsDraft) return;
+          settingsDraft.watermarkStyle[control.dataset.watermarkStyleText] = control.value;
+        };
+        control.addEventListener('input', updateWatermarkText);
+        control.addEventListener('change', updateWatermarkText);
+      });
+      watermarkStyleColorControls.forEach((control) => {
+        const updateWatermarkColor = () => {
+          if (!settingsDraft) return;
+          settingsDraft.watermarkStyle[control.dataset.watermarkStyleColor] = control.value;
+        };
+        control.addEventListener('input', updateWatermarkColor);
+        control.addEventListener('change', updateWatermarkColor);
+      });
+      watermarkStyleFontSizeControls.forEach((control) => {
+        control.addEventListener('change', () => {
+          if (!settingsDraft || control.tagName !== 'SELECT') return;
+          settingsDraft.watermarkStyle.fontSize = Number(control.value);
         });
       });
       chartSettingsApplyButton.addEventListener('click', async () => {
@@ -1440,6 +1542,7 @@ export function createChartReplayRoute() {
           crosshairStyle: cloneCrosshairStyle(draft.crosshairStyle),
           backgroundStyle: cloneBackgroundStyle(draft.backgroundStyle),
           scaleStyle: cloneScaleStyle(draft.scaleStyle),
+          watermarkStyle: cloneWatermarkStyle(draft.watermarkStyle),
         });
         await syncChartDisplayTimezone();
         await syncChartPresentationSettings();

@@ -134,6 +134,7 @@ async function main() {
             lightweightMarginTop: document.querySelector('[data-chart-canvas]')?.dataset.lightweightMarginTopPercent || '',
             lightweightRightOffset: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleRightOffset || '',
             candleTitle: Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title || '',
+            loadStatus: document.querySelector('[data-replay-load-status]')?.textContent || '',
           }));
         }
 
@@ -218,6 +219,13 @@ async function main() {
           const beforeApplyScaleTextColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '';
           const beforeApplyScaleLineColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '';
           const beforeApplyScaleFontSize = document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '';
+          const beforeApplyPriceScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '';
+          const beforeApplyTimeScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '';
+          const beforeApplyScaleBordersVisible = document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '';
+          const beforeApplyWatermarkVisible = document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible || '';
+          const beforeApplyWatermarkText = document.querySelector('[data-chart-canvas]')?.dataset.watermarkText || '';
+          const beforeApplyWatermarkColor = document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor || '';
+          const beforeApplyWatermarkFontSize = document.querySelector('[data-chart-canvas]')?.dataset.watermarkFontSize || '';
           gridVerticalToggle.checked = false;
           gridVerticalToggle.dispatchEvent(new Event('change', { bubbles: true }));
           gridHorizontalColor.value = '#1f2937';
@@ -231,6 +239,18 @@ async function main() {
           scaleLineColor.dispatchEvent(new Event('input', { bubbles: true }));
           scaleFontSize.value = '14';
           scaleFontSize.dispatchEvent(new Event('change', { bubbles: true }));
+          const watermarkToggle = document.querySelector('[data-watermark-style-toggle="visible"]');
+          const watermarkText = document.querySelector('[data-watermark-style-text="text"]');
+          const watermarkColor = document.querySelector('[data-watermark-style-color="color"]');
+          const watermarkFontSize = document.querySelector('[data-watermark-style-font-size]');
+          watermarkToggle.checked = true;
+          watermarkToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          watermarkText.value = 'Replay Review';
+          watermarkText.dispatchEvent(new Event('input', { bubbles: true }));
+          watermarkColor.value = '#64748b';
+          watermarkColor.dispatchEvent(new Event('input', { bubbles: true }));
+          watermarkFontSize.value = '64';
+          watermarkFontSize.dispatchEvent(new Event('change', { bubbles: true }));
           document.querySelector('[data-chart-settings-tab="scales"]').click();
           const rightOffsetSelect = document.querySelector('select[data-presentation-right-offset]');
           rightOffsetSelect.value = '16';
@@ -241,6 +261,15 @@ async function main() {
           dateFormatSelect.dispatchEvent(new Event('change', { bubbles: true }));
           dayLabelsToggle.checked = true;
           dayLabelsToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          const priceScaleToggle = document.querySelector('[data-scale-style-toggle="priceScaleVisible"]');
+          const timeScaleToggle = document.querySelector('[data-scale-style-toggle="timeScaleVisible"]');
+          const scaleBordersToggle = document.querySelector('[data-scale-style-toggle="scaleBordersVisible"]');
+          priceScaleToggle.checked = false;
+          priceScaleToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          timeScaleToggle.checked = false;
+          timeScaleToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          scaleBordersToggle.checked = false;
+          scaleBordersToggle.dispatchEvent(new Event('change', { bubbles: true }));
           const crosshairHorizontalToggle = document.querySelector('[data-crosshair-style-toggle="horizontalVisible"]');
           const crosshairLabelBackground = document.querySelector('[data-crosshair-style-color="labelBackgroundColor"]');
           const beforeApplyCrosshairHorizontalVisible = document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible || '';
@@ -259,6 +288,13 @@ async function main() {
           const beforeApplyDraftOnlyScaleTextColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '';
           const beforeApplyDraftOnlyScaleLineColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '';
           const beforeApplyDraftOnlyScaleFontSize = document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '';
+          const beforeApplyDraftOnlyPriceScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '';
+          const beforeApplyDraftOnlyTimeScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '';
+          const beforeApplyDraftOnlyScaleBordersVisible = document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '';
+          const beforeApplyDraftOnlyWatermarkVisible = document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible || '';
+          const beforeApplyDraftOnlyWatermarkText = document.querySelector('[data-chart-canvas]')?.dataset.watermarkText || '';
+          const beforeApplyDraftOnlyWatermarkColor = document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor || '';
+          const beforeApplyDraftOnlyWatermarkFontSize = document.querySelector('[data-chart-canvas]')?.dataset.watermarkFontSize || '';
           const beforeApplyDraftOnlyCrosshairHorizontalVisible = document.querySelector('[data-chart-canvas]')?.dataset.crosshairHorizontalVisible || '';
           const beforeApplyDraftOnlyCrosshairLabelBackground = document.querySelector('[data-chart-canvas]')?.dataset.crosshairLabelBackgroundColor || '';
           document.querySelector('[data-chart-settings-apply]').click();
@@ -282,6 +318,13 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor === '#38bdf8'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor === '#475569'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize === '14'
+              && document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible === 'false'
+              && document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible === 'false'
+              && document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible === 'false'
+              && document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible === 'true'
+              && document.querySelector('[data-chart-canvas]')?.dataset.watermarkText === 'Replay Review'
+              && document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor === '#64748b'
+              && document.querySelector('[data-chart-canvas]')?.dataset.watermarkFontSize === '64'
               && document.querySelector('[data-chart-canvas]')?.dataset.dateFormat === "MMM DD 'YY"
               && document.querySelector('[data-chart-canvas]')?.dataset.showDayOfWeekLabels === 'true'
               && Array.from(document.querySelectorAll('.chart-candle')).at(-1)?.title?.startsWith("Mon Jun 01 '26 9:30 AM")
@@ -317,10 +360,24 @@ async function main() {
             beforeApplyScaleTextColor,
             beforeApplyScaleLineColor,
             beforeApplyScaleFontSize,
+            beforeApplyPriceScaleVisible,
+            beforeApplyTimeScaleVisible,
+            beforeApplyScaleBordersVisible,
+            beforeApplyWatermarkVisible,
+            beforeApplyWatermarkText,
+            beforeApplyWatermarkColor,
+            beforeApplyWatermarkFontSize,
             beforeApplyDraftOnlyBackgroundColor,
             beforeApplyDraftOnlyScaleTextColor,
             beforeApplyDraftOnlyScaleLineColor,
             beforeApplyDraftOnlyScaleFontSize,
+            beforeApplyDraftOnlyPriceScaleVisible,
+            beforeApplyDraftOnlyTimeScaleVisible,
+            beforeApplyDraftOnlyScaleBordersVisible,
+            beforeApplyDraftOnlyWatermarkVisible,
+            beforeApplyDraftOnlyWatermarkText,
+            beforeApplyDraftOnlyWatermarkColor,
+            beforeApplyDraftOnlyWatermarkFontSize,
             beforeApplyCrosshairHorizontalVisible,
             beforeApplyCrosshairLabelBackground,
             beforeApplyDraftOnlyCrosshairHorizontalVisible,
@@ -344,6 +401,13 @@ async function main() {
             scaleTextColorSelected: document.querySelector('[data-scale-style-color="textColor"]')?.value || '',
             scaleLineColorSelected: document.querySelector('[data-scale-style-color="lineColor"]')?.value || '',
             scaleFontSizeSelected: document.querySelector('[data-scale-style-font-size]')?.value || '',
+            priceScaleSelected: document.querySelector('[data-scale-style-toggle="priceScaleVisible"]')?.checked,
+            timeScaleSelected: document.querySelector('[data-scale-style-toggle="timeScaleVisible"]')?.checked,
+            scaleBordersSelected: document.querySelector('[data-scale-style-toggle="scaleBordersVisible"]')?.checked,
+            watermarkSelected: document.querySelector('[data-watermark-style-toggle="visible"]')?.checked,
+            watermarkTextSelected: document.querySelector('[data-watermark-style-text="text"]')?.value || '',
+            watermarkColorSelected: document.querySelector('[data-watermark-style-color="color"]')?.value || '',
+            watermarkFontSizeSelected: document.querySelector('[data-watermark-style-font-size]')?.value || '',
             afterCanvasPaddingTop: document.querySelector('[data-chart-canvas]')?.style.paddingTop || '',
             afterCanvasPaddingBottom: document.querySelector('[data-chart-canvas]')?.style.paddingBottom || '',
             afterCanvasPaddingRight: document.querySelector('[data-chart-canvas]')?.style.paddingRight || '',
@@ -359,6 +423,13 @@ async function main() {
             afterCanvasScaleTextColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '',
             afterCanvasScaleLineColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '',
             afterCanvasScaleFontSize: document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '',
+            afterCanvasPriceScaleVisible: document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '',
+            afterCanvasTimeScaleVisible: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '',
+            afterCanvasScaleBordersVisible: document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '',
+            afterCanvasWatermarkVisible: document.querySelector('[data-chart-canvas]')?.dataset.watermarkVisible || '',
+            afterCanvasWatermarkText: document.querySelector('[data-chart-canvas]')?.dataset.watermarkText || '',
+            afterCanvasWatermarkColor: document.querySelector('[data-chart-canvas]')?.dataset.watermarkColor || '',
+            afterCanvasWatermarkFontSize: document.querySelector('[data-chart-canvas]')?.dataset.watermarkFontSize || '',
             afterCanvasDateFormat: document.querySelector('[data-chart-canvas]')?.dataset.dateFormat || '',
             afterCanvasShowDayOfWeekLabels: document.querySelector('[data-chart-canvas]')?.dataset.showDayOfWeekLabels || '',
             beforeCursor: before.cursorTimestamp,
@@ -404,10 +475,24 @@ async function main() {
     assert.equal(value.beforeApplyScaleTextColor, '#22d3ee');
     assert.equal(value.beforeApplyScaleLineColor, '#334155');
     assert.equal(value.beforeApplyScaleFontSize, '12');
+    assert.equal(value.beforeApplyPriceScaleVisible, 'true');
+    assert.equal(value.beforeApplyTimeScaleVisible, 'true');
+    assert.equal(value.beforeApplyScaleBordersVisible, 'true');
+    assert.equal(value.beforeApplyWatermarkVisible, 'false');
+    assert.equal(value.beforeApplyWatermarkText, 'FX Replay');
+    assert.equal(value.beforeApplyWatermarkColor, '#334155');
+    assert.equal(value.beforeApplyWatermarkFontSize, '48');
     assert.equal(value.beforeApplyDraftOnlyBackgroundColor, '#111827');
     assert.equal(value.beforeApplyDraftOnlyScaleTextColor, '#22d3ee');
     assert.equal(value.beforeApplyDraftOnlyScaleLineColor, '#334155');
     assert.equal(value.beforeApplyDraftOnlyScaleFontSize, '12');
+    assert.equal(value.beforeApplyDraftOnlyPriceScaleVisible, 'true');
+    assert.equal(value.beforeApplyDraftOnlyTimeScaleVisible, 'true');
+    assert.equal(value.beforeApplyDraftOnlyScaleBordersVisible, 'true');
+    assert.equal(value.beforeApplyDraftOnlyWatermarkVisible, 'false');
+    assert.equal(value.beforeApplyDraftOnlyWatermarkText, 'FX Replay');
+    assert.equal(value.beforeApplyDraftOnlyWatermarkColor, '#334155');
+    assert.equal(value.beforeApplyDraftOnlyWatermarkFontSize, '48');
     assert.equal(value.beforeApplyCrosshairHorizontalVisible, 'true');
     assert.equal(value.beforeApplyCrosshairLabelBackground, '#334155');
     assert.equal(value.beforeApplyDraftOnlyCrosshairHorizontalVisible, 'true');
@@ -431,6 +516,13 @@ async function main() {
     assert.equal(value.scaleTextColorSelected, '#38bdf8');
     assert.equal(value.scaleLineColorSelected, '#475569');
     assert.equal(value.scaleFontSizeSelected, '14');
+    assert.equal(value.priceScaleSelected, false);
+    assert.equal(value.timeScaleSelected, false);
+    assert.equal(value.scaleBordersSelected, false);
+    assert.equal(value.watermarkSelected, true);
+    assert.equal(value.watermarkTextSelected, 'Replay Review');
+    assert.equal(value.watermarkColorSelected, '#64748b');
+    assert.equal(value.watermarkFontSizeSelected, '64');
     assert.equal(value.afterCanvasPaddingTop, '');
     assert.equal(value.afterCanvasPaddingBottom, '');
     assert.equal(value.afterCanvasPaddingRight, '');
@@ -446,6 +538,13 @@ async function main() {
     assert.equal(value.afterCanvasScaleTextColor, '#38bdf8');
     assert.equal(value.afterCanvasScaleLineColor, '#475569');
     assert.equal(value.afterCanvasScaleFontSize, '14');
+    assert.equal(value.afterCanvasPriceScaleVisible, 'false');
+    assert.equal(value.afterCanvasTimeScaleVisible, 'false');
+    assert.equal(value.afterCanvasScaleBordersVisible, 'false');
+    assert.equal(value.afterCanvasWatermarkVisible, 'true');
+    assert.equal(value.afterCanvasWatermarkText, 'Replay Review');
+    assert.equal(value.afterCanvasWatermarkColor, '#64748b');
+    assert.equal(value.afterCanvasWatermarkFontSize, '64');
     assert.equal(value.afterCanvasDateFormat, "MMM DD 'YY");
     assert.equal(value.afterCanvasShowDayOfWeekLabels, 'true');
     assert.equal(value.afterCursor, value.beforeCursor);

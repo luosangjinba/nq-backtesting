@@ -18,7 +18,9 @@ The initial presentation settings foundation covers:
 - grid line visibility and colors;
 - crosshair line visibility, line colors, and label background color;
 - chart background color;
-- price/time scale text color, line color, and text size;
+- price/time scale text color, line color, text size, visibility, and border
+  visibility;
+- text watermark visibility, text, color, and size;
 - chart-owned crosshair readout visibility and formatting;
 - shared price, OHLC, change, candle-title, and inspection formatting.
 
@@ -52,24 +54,34 @@ Rules:
   unimplemented until a separate decision proves they can be rendered from
   existing display state without extra bar requests or chart-engine coupling.
 
-### Step 421 Target - Advanced Chart-Engine Presentation
+### Implemented Step 421 - Advanced Chart-Engine Presentation
 
-The following controls require chart-engine/runtime acceptance before
-implementation:
+Step 421 implements the chart-engine-supported subset that can be applied by
+the current adapter without new bar data, replay state, or pane ownership:
 
-- price scale visibility/mode;
-- scale placement;
-- lock price-to-bar ratio;
-- no-overlapping-label behavior;
-- countdown to bar close;
-- watermark;
-- session breaks.
+- price scale visibility;
+- time scale visibility;
+- scale border visibility;
+- text watermark visibility, text, color, and font size.
 
 Rules:
 
 - UI must not call Lightweight chart APIs directly.
 - Chart runtime and chart-engine adapter must remain the only path for applying
   chart options.
+- Watermark must attach through the chart-engine adapter to the Lightweight
+  series primitive API.
+
+Still deferred:
+
+- price-scale mode and scale placement;
+- lock price-to-bar ratio;
+- no-overlapping-label behavior;
+- countdown to bar close;
+- session breaks.
+
+Rules for deferred items:
+
 - Countdown behavior must be derived presentation, not replay state mutation.
 - Session breaks and labels must not request bars from the route UI.
 
@@ -120,8 +132,12 @@ presentation setting changes.
 - `crosshairStyle`: vertical/horizontal crosshair visibility, line colors, and
   label background color, normalized as `#rrggbb`.
 - `backgroundStyle`: chart background color, normalized as `#rrggbb`.
-- `scaleStyle`: price/time scale text color, line color, and font size. Colors
-  normalize to `#rrggbb`; font size is bounded presentation state.
+- `scaleStyle`: price/time scale text color, line color, font size,
+  price-scale visibility, time-scale visibility, and scale border visibility.
+  Colors normalize to `#rrggbb`; font size is bounded presentation state.
+- `watermarkStyle`: text watermark visibility, text, color, and font size.
+  Color normalizes to `#rrggbb`; font size and text length are bounded
+  presentation state.
 
 Defaults should match the current V5 dark replay layout and be conservative:
 OHLC/status change on, 24-hour time, visible crosshair readout, and right-side
@@ -155,6 +171,9 @@ space for replay progression.
 - Background and scale style belong to chart presentation and flow through chart
   display context into the chart-engine adapter. UI must not call Lightweight
   chart APIs directly to mutate layout, time scale, or price scale options.
+- Watermark style belongs to chart presentation and flows through chart display
+  context into the chart-engine adapter. UI must not call Lightweight primitive
+  APIs directly.
 - Settings modal edits remain route-local draft state until `Ok`; cancel, close,
   or backdrop dismiss must not mutate presentation, replay, chart data, or
   bar-data state.
@@ -168,5 +187,7 @@ space for replay progression.
   series/chart options.
 - Adapter smoke verifies background and scale style reach Lightweight
   layout/time-scale/price-scale options.
+- Adapter smoke verifies watermark style reaches the Lightweight text
+  watermark primitive through the chart-engine adapter.
 - Browser smoke verifies settings changes affect visible presentation while
   cursor, display bars, and `/v4/bars` request counts remain unchanged.

@@ -40,6 +40,10 @@ function cloneScaleStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle)
   return { ...style };
 }
 
+function cloneWatermarkStyle(style = DEFAULT_CHART_PRESENTATION_SETTINGS.watermarkStyle) {
+  return { ...style };
+}
+
 function createEmptyState() {
   return {
     bars: [],
@@ -86,6 +90,7 @@ function createEmptyState() {
       crosshairStyle: cloneCrosshairStyle(),
       backgroundStyle: cloneBackgroundStyle(),
       scaleStyle: cloneScaleStyle(),
+      watermarkStyle: cloneWatermarkStyle(),
     },
   };
 }
@@ -921,6 +926,7 @@ export function createChartRuntime() {
     crosshairStyle = state.displayContext.crosshairStyle,
     backgroundStyle = state.displayContext.backgroundStyle,
     scaleStyle = state.displayContext.scaleStyle,
+    watermarkStyle = state.displayContext.watermarkStyle,
   } = {}) {
     state.displayContext = {
       instrument: instrument == null ? null : String(instrument),
@@ -946,6 +952,7 @@ export function createChartRuntime() {
       crosshairStyle: cloneCrosshairStyle(crosshairStyle),
       backgroundStyle: cloneBackgroundStyle(backgroundStyle),
       scaleStyle: cloneScaleStyle(scaleStyle),
+      watermarkStyle: cloneWatermarkStyle(watermarkStyle),
     };
     state.viewportFollow = {
       ...state.viewportFollow,
@@ -979,6 +986,7 @@ export function createChartRuntime() {
       crosshairStyle: payload.crosshairStyle,
       backgroundStyle: payload.backgroundStyle,
       scaleStyle: payload.scaleStyle,
+      watermarkStyle: payload.watermarkStyle,
     });
   }
 

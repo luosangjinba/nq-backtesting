@@ -10,13 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 420 is complete. Time/date label formatting and existing
-  OHLC title display mode are now functional presentation settings with
-  Settings Ok/Cancel draft semantics.
-- Next candidate: Step 421 - Advanced Chart-Engine Settings. Plan and implement
-  only chart-engine-supported price-scale/canvas controls such as scale mode,
-  placement, countdown, watermark, and session breaks while preserving chart
-  runtime/adapter ownership.
+- Current status: Step 421 is complete. Advanced chart-engine presentation
+  settings now cover price/time scale visibility, scale borders, and text
+  watermark through presentation runtime -> chart runtime -> chart-engine
+  adapter ownership.
+- Next candidate: Step 422 - Settings remaining-deferred cleanup. Reassess
+  FXReplay settings items that still need explicit runtime design before UI:
+  scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
+  session breaks, templates, and split-pane/pane-specific settings.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -67,6 +68,10 @@
 - UI decision: date format, day-of-week labels, and status title mode are chart
   presentation settings. They must affect labels and titles only, not canonical
   timestamps, replay cursor, display bars, request ranges, or bar-cache keys.
+- UI decision: price/time scale visibility, scale border visibility, and text
+  watermark are chart-engine presentation settings. They must normalize through
+  presentation runtime state and apply only through chart display context and
+  the chart-engine adapter. UI must not call Lightweight APIs directly.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -2930,5 +2935,64 @@ Checks:
 - `node v5/tests/chart-display-usability-browser-smoke.js`
 - `node v5/tests/chart-price-scale-browser-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 421 - V5 Advanced Chart-Engine Settings
+
+Status: completed.
+
+Goal: implement a bounded FXReplay Settings parity slice for advanced
+chart-engine presentation controls that the current runtime/adapter can own
+without changing replay or bar-data behavior.
+
+Problem:
+
+- Remaining settings contained a mix of straightforward chart options and
+  features that still need separate ownership design.
+- Watermark support existed in the vendored Lightweight Charts build but had to
+  be applied through the chart-engine adapter, not directly from route UI.
+
+Implementation:
+
+- [x] Step 421.1: Add normalized `scaleStyle.priceScaleVisible`,
+  `scaleStyle.timeScaleVisible`, and `scaleStyle.scaleBordersVisible`.
+- [x] Step 421.2: Add normalized `watermarkStyle` with draft-safe visible,
+  text, color, and font-size settings.
+- [x] Step 421.3: Pass the new settings through chart display context without
+  giving route UI direct chart-engine control.
+- [x] Step 421.4: Apply price/time scale visibility, scale border visibility,
+  and text watermark in the Lightweight adapter; fallback canvas exposes the
+  same metadata for smokes.
+- [x] Step 421.5: Add Settings controls under Scales and Canvas while
+  preserving `Ok`/`Cancel` draft semantics.
+- [x] Step 421.6: Update runtime, adapter, browser, and viewport-demand smokes
+  plus presentation docs and session handoff.
+
+Manual acceptance:
+
+- Settings exposes Time scale, Price scale, and Scale borders toggles.
+- Settings exposes Watermark enable/text/color/font-size controls.
+- Editing those controls does not mutate chart presentation until `Ok`.
+- `Ok` updates chart presentation without changing replay cursor, display bars,
+  bar-data requests, request ranges, or active pane identity.
+- Invalid watermark color, font size, or overlong text is rejected by the
+  presentation runtime.
+
+Non-goals:
+
+- No price-scale mode or scale placement implementation.
+- No lock price-to-bar ratio or no-overlap-label implementation.
+- No countdown-to-bar-close implementation.
+- No session-break rendering.
+- No template persistence system.
+- No split-pane or pane-specific settings work.
+
+Checks:
+
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

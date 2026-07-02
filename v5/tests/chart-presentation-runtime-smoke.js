@@ -83,6 +83,15 @@ assert.deepEqual(defaults, {
     textColor: '#22d3ee',
     lineColor: '#334155',
     fontSize: 12,
+    priceScaleVisible: true,
+    timeScaleVisible: true,
+    scaleBordersVisible: true,
+  },
+  watermarkStyle: {
+    visible: false,
+    text: 'FX Replay',
+    color: '#334155',
+    fontSize: 48,
   },
 });
 
@@ -116,6 +125,14 @@ const updated = await dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, {
   scaleStyle: {
     textColor: '#38bdf8',
     fontSize: 14,
+    priceScaleVisible: false,
+    scaleBordersVisible: false,
+  },
+  watermarkStyle: {
+    visible: true,
+    text: 'Replay Review',
+    color: '#64748b',
+    fontSize: 64,
   },
 });
 assert.deepEqual(updated, {
@@ -165,6 +182,15 @@ assert.deepEqual(updated, {
     textColor: '#38bdf8',
     lineColor: '#334155',
     fontSize: 14,
+    priceScaleVisible: false,
+    timeScaleVisible: true,
+    scaleBordersVisible: false,
+  },
+  watermarkStyle: {
+    visible: true,
+    text: 'Replay Review',
+    color: '#64748b',
+    fontSize: 64,
   },
 });
 assert.deepEqual(changedEvent, updated);
@@ -211,6 +237,18 @@ await assert.rejects(
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { scaleStyle: { fontSize: 24 } }),
   /scaleStyle.fontSize must be between 9 and 18/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { watermarkStyle: { color: 'slate' } }),
+  /watermarkStyle.color must be a #rrggbb color/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { watermarkStyle: { fontSize: 100 } }),
+  /watermarkStyle.fontSize must be between 12 and 96/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { watermarkStyle: { text: 'x'.repeat(81) } }),
+  /watermarkStyle.text must be 80 characters or fewer/
 );
 assert.equal(normalizeChartPresentationSettings({ showCrosshairReadout: 0 }).showCrosshairReadout, false);
 

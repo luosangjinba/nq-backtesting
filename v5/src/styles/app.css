@@ -539,7 +539,8 @@ input {
   font-weight: 700;
 }
 
-.chart-settings-row select {
+.chart-settings-row select,
+.chart-settings-row input[type="text"] {
   width: 100%;
   min-height: 42px;
   background: #2b3037;

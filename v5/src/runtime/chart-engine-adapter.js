@@ -108,6 +108,7 @@ function normalizeContext(context = {}) {
   const defaultCrosshairStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.crosshairStyle;
   const defaultBackgroundStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.backgroundStyle;
   const defaultScaleStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle;
+  const defaultWatermarkStyle = DEFAULT_CHART_PRESENTATION_SETTINGS.watermarkStyle;
   return {
     displayTimezone: context.displayTimezone || DEFAULT_DISPLAY_TIMEZONE,
     exchangeTimezone: context.exchangeTimezone || DEFAULT_EXCHANGE_TIMEZONE,
@@ -170,6 +171,23 @@ function normalizeContext(context = {}) {
       textColor: context.scaleStyle?.textColor || defaultScaleStyle.textColor,
       lineColor: context.scaleStyle?.lineColor || defaultScaleStyle.lineColor,
       fontSize: Number(context.scaleStyle?.fontSize ?? defaultScaleStyle.fontSize),
+      priceScaleVisible: context.scaleStyle?.priceScaleVisible == null
+        ? defaultScaleStyle.priceScaleVisible
+        : Boolean(context.scaleStyle.priceScaleVisible),
+      timeScaleVisible: context.scaleStyle?.timeScaleVisible == null
+        ? defaultScaleStyle.timeScaleVisible
+        : Boolean(context.scaleStyle.timeScaleVisible),
+      scaleBordersVisible: context.scaleStyle?.scaleBordersVisible == null
+        ? defaultScaleStyle.scaleBordersVisible
+        : Boolean(context.scaleStyle.scaleBordersVisible),
+    },
+    watermarkStyle: {
+      visible: context.watermarkStyle?.visible == null
+        ? defaultWatermarkStyle.visible
+        : Boolean(context.watermarkStyle.visible),
+      text: context.watermarkStyle?.text == null ? defaultWatermarkStyle.text : String(context.watermarkStyle.text),
+      color: context.watermarkStyle?.color || defaultWatermarkStyle.color,
+      fontSize: Number(context.watermarkStyle?.fontSize ?? defaultWatermarkStyle.fontSize),
     },
   };
 }
@@ -196,6 +214,13 @@ function applyFallbackPresentation(canvas, context) {
   canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
   canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
   canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.dataset.priceScaleVisible = String(context.scaleStyle.priceScaleVisible);
+  canvas.dataset.timeScaleVisible = String(context.scaleStyle.timeScaleVisible);
+  canvas.dataset.scaleBordersVisible = String(context.scaleStyle.scaleBordersVisible);
+  canvas.dataset.watermarkVisible = String(context.watermarkStyle.visible);
+  canvas.dataset.watermarkText = context.watermarkStyle.text;
+  canvas.dataset.watermarkColor = context.watermarkStyle.color;
+  canvas.dataset.watermarkFontSize = String(context.watermarkStyle.fontSize);
   canvas.dataset.dateFormat = context.dateFormat;
   canvas.dataset.showDayOfWeekLabels = String(context.showDayOfWeekLabels);
   canvas.style.backgroundColor = context.backgroundStyle.color;
@@ -260,12 +285,32 @@ function lightweightOptionsForContext(context) {
     timeScale: {
       ...LIGHTWEIGHT_REPLAY_TIMESCALE,
       rightOffset: context.rightOffsetBars,
+      visible: context.scaleStyle.timeScaleVisible,
+      borderVisible: context.scaleStyle.scaleBordersVisible,
       borderColor: context.scaleStyle.lineColor,
       tickMarkFormatter: (time) => formatLightweightTick(time, context),
     },
     rightPriceScale: {
+      visible: context.scaleStyle.priceScaleVisible,
+      borderVisible: context.scaleStyle.scaleBordersVisible,
       borderColor: context.scaleStyle.lineColor,
     },
+  };
+}
+
+function watermarkOptionsForContext(context) {
+  return {
+    visible: context.watermarkStyle.visible,
+    horzAlign: 'center',
+    vertAlign: 'center',
+    lines: context.watermarkStyle.visible && context.watermarkStyle.text
+      ? [{
+        text: context.watermarkStyle.text,
+        color: context.watermarkStyle.color,
+        fontSize: context.watermarkStyle.fontSize,
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+      }]
+      : [],
   };
 }
 
@@ -367,6 +412,13 @@ function applyLightweightMetadata(canvas, context) {
   canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
   canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
   canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.dataset.priceScaleVisible = String(context.scaleStyle.priceScaleVisible);
+  canvas.dataset.timeScaleVisible = String(context.scaleStyle.timeScaleVisible);
+  canvas.dataset.scaleBordersVisible = String(context.scaleStyle.scaleBordersVisible);
+  canvas.dataset.watermarkVisible = String(context.watermarkStyle.visible);
+  canvas.dataset.watermarkText = context.watermarkStyle.text;
+  canvas.dataset.watermarkColor = context.watermarkStyle.color;
+  canvas.dataset.watermarkFontSize = String(context.watermarkStyle.fontSize);
   canvas.dataset.dateFormat = context.dateFormat;
   canvas.dataset.showDayOfWeekLabels = String(context.showDayOfWeekLabels);
 }
@@ -730,6 +782,7 @@ function createFallbackInstance({ documentRef }) {
 function createLightweightInstance({ engine, documentRef }) {
   let chart = null;
   let series = null;
+  let watermark = null;
   let host = null;
   let canvas = null;
   let engineSurface = null;
@@ -797,6 +850,16 @@ function createLightweightInstance({ engine, documentRef }) {
     priceScale.applyOptions({
       scaleMargins: priceScaleMarginsForContext(context),
     });
+  }
+
+  function applyWatermarkOptions(context) {
+    if (!series || typeof engine.createTextWatermark !== 'function') return;
+    const options = watermarkOptionsForContext(context);
+    if (!watermark) {
+      watermark = engine.createTextWatermark(series, options);
+      return;
+    }
+    watermark.applyOptions?.(options);
   }
 
   function markUserInput(event) {
@@ -934,6 +997,7 @@ function createLightweightInstance({ engine, documentRef }) {
       });
       series = createSeries(chart);
       applySeriesPriceScale(displayContext);
+      applyWatermarkOptions(displayContext);
       const timeScale = chart.timeScale?.();
       if (typeof timeScale?.subscribeVisibleTimeRangeChange === 'function') {
         const handler = (range) => {
@@ -1057,6 +1121,7 @@ function createLightweightInstance({ engine, documentRef }) {
       chart?.applyOptions?.(lightweightOptionsForContext(displayContext));
       applySeriesOptions(displayContext);
       applySeriesPriceScale(displayContext);
+      applyWatermarkOptions(displayContext);
     },
     readState() {
       return {
@@ -1075,6 +1140,7 @@ function createLightweightInstance({ engine, documentRef }) {
       unsubscribeCrosshair?.();
       unsubscribeVisibleRange = null;
       unsubscribeCrosshair = null;
+      watermark?.detach?.();
       chart?.remove?.();
       host?.replaceChildren?.();
       if (host) {
@@ -1083,6 +1149,7 @@ function createLightweightInstance({ engine, documentRef }) {
       }
       chart = null;
       series = null;
+      watermark = null;
       host = null;
       canvas = null;
       engineSurface = null;
