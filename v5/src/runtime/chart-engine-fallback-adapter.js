@@ -5,12 +5,14 @@ import {
 import {
   applyFallbackMetadata,
   applyFallbackPresentation,
+} from './chart-engine-presentation.js';
+import {
   createRuntimeCanvas,
   inferVisibleRangeFromBars,
   rangeSpanSeconds,
   renderFallbackBars,
   visibleBarsForRange,
-} from './chart-engine-presentation.js';
+} from './chart-engine-fallback-rendering.js';
 
 export function createFallbackInstance({ documentRef }) {
   let host = null;

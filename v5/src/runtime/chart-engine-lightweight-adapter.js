@@ -9,17 +9,19 @@ import {
   applyFallbackMetadata,
   applyLightweightPresentation,
   crosshairOptionsForContext,
-  createRuntimeCanvas,
   followLogicalRangeForBars,
   gridOptionsForContext,
   lightweightOptionsForContext,
   lightweightSeriesOptionsForContext,
   manualLogicalRangeForVisibleRange,
   priceScaleMarginsForContext,
-  renderHiddenDebugBars,
   visibleRangeWithLogicalWhitespace,
   watermarkOptionsForContext,
 } from './chart-engine-presentation.js';
+import {
+  createRuntimeCanvas,
+  renderHiddenDebugBars,
+} from './chart-engine-fallback-rendering.js';
 
 function createSeries(engine, nextChart, displayContext) {
   const seriesOptions = lightweightSeriesOptionsForContext(displayContext);

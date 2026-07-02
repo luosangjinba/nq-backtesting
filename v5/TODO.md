@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 453 is complete. Chart mounted-host sync and metadata
-  writes are split from `chart-runtime.js` into `chart-runtime-host-sync.js`.
-  `chart-runtime.js` is down to 484 lines and remains the chart command/event,
-  state mutation, mount lifecycle, and adapter ownership entrypoint.
-- Next candidate: Step 454 - shift to `chart-engine-presentation.js`
-  presentation mapping/fallback rendering boundaries unless a product bug takes
-  priority. Chart runtime has now had the highest-risk pure/helper and host-sync
-  seams extracted.
+- Current status: Step 454 is complete. Chart engine fallback DOM rendering is
+  split from `chart-engine-presentation.js` into
+  `chart-engine-fallback-rendering.js`; presentation mapping is down to 378
+  lines and no adapter public API changed.
+- Next candidate: Step 455 - continue chart-engine presentation modularization
+  by splitting dataset metadata writers or Lightweight options mapping, unless
+  a product bug takes priority.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -265,6 +264,14 @@
   and Lightweight engine integration. Adapter implementations may write their
   own engine/DOM surfaces, but callers must continue to use the stable
   `createChartEngineAdapter` API through chart runtime ownership.
+- Refactor decision: chart engine fallback rendering belongs outside generic
+  presentation option mapping. `chart-engine-fallback-rendering.js` owns runtime
+  canvas creation, fallback candle DOM rendering, hidden debug plot rendering,
+  fallback visible-range inference, visible-bar filtering, and fallback range
+  span helpers. `chart-engine-presentation.js` should retain presentation
+  metadata, Lightweight options, series/watermark mapping, scale margins, and
+  logical/visible range projection helpers. Neither module may import runtime
+  commands/events, replay runtime, or bar-data runtime.
 - Refactor decision: Lightweight chart adapter internals should keep lifecycle,
   native input/writeback tracking, and crosshair/readout mapping separate. This
   keeps future reset/zoom/drag, multi-pane sync, order markers, and review
@@ -2395,6 +2402,55 @@ Checks:
 - `node v5/tests/chart-runtime-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 454 - V5 Chart Engine Fallback Rendering Split
+
+Status: completed.
+
+Goal: reduce `chart-engine-presentation.js` ownership pressure by moving DOM
+fallback rendering and fallback range helpers into a dedicated module while
+preserving the chart engine adapter API.
+
+Problem:
+
+- `chart-engine-presentation.js` still mixed Lightweight presentation/options
+  mapping with DOM fallback canvas creation, fallback candle rendering, hidden
+  debug plot rendering, and fallback range helpers.
+- Future Settings, watermark, scale, and pane work should not keep adding DOM
+  fallback rendering details to the presentation option mapping file.
+- The split should avoid touching `createChartEngineAdapter` and avoid changing
+  fallback or Lightweight adapter behavior.
+
+Implementation:
+
+- [x] Step 454.1: Add `src/runtime/chart-engine-fallback-rendering.js`.
+- [x] Step 454.2: Move runtime canvas creation, fallback candle rendering,
+  fallback bar-time formatting, visible-bar filtering, hidden debug plot
+  rendering, fallback visible-range inference, and range span helper into the
+  new module.
+- [x] Step 454.3: Update DOM fallback and Lightweight adapters to import DOM
+  rendering helpers from the new module.
+- [x] Step 454.4: Keep `chart-engine-presentation.js` focused on presentation
+  metadata, Lightweight options, series/watermark mapping, price scale margins,
+  and visible/logical range projection helpers.
+- [x] Step 454.5: Run focused chart-engine and boundary checks.
+
+Manual acceptance:
+
+- `createChartEngineAdapter` public API is unchanged.
+- Fallback adapter still renders bars, empty state, crosshair hit testing, pan,
+  wheel zoom, and visible-range events.
+- Lightweight adapter still renders its hidden debug plot and canvas metadata.
+- New fallback rendering helper does not import runtime commands/events,
+  replay runtime, or bar-data runtime.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 
