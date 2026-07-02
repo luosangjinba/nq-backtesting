@@ -8,6 +8,7 @@ import {
 export const LIGHTWEIGHT_REPLAY_TIMESCALE = Object.freeze({
   barSpacing: 10,
   minBarSpacing: 3,
+  minimumHeight: 24,
   lockVisibleTimeRangeOnResize: true,
   rightBarStaysOnScroll: true,
   shiftVisibleRangeOnNewBar: false,
@@ -111,6 +112,7 @@ export function lightweightOptionsForContext(context) {
     visible: context.scaleStyle.priceScaleVisible,
     borderVisible: context.scaleStyle.scaleBordersVisible,
     borderColor: context.scaleStyle.lineColor,
+    minimumWidth: 64,
   };
   const hiddenPriceScaleOptions = {
     ...priceScaleOptions,
@@ -129,6 +131,7 @@ export function lightweightOptionsForContext(context) {
     localization: {
       priceFormatter: (price) => formatPrice(price),
     },
+    defaultVisiblePriceScaleId: priceScaleSide,
     timeScale: {
       ...LIGHTWEIGHT_REPLAY_TIMESCALE,
       rightOffset: context.rightOffsetBars,

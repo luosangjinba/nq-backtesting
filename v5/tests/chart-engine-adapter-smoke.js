@@ -347,6 +347,10 @@ assert.equal(lightweightHost.dataset.chartResizeWidth, '800');
 assert.equal(lightweightHost.dataset.chartResizeHeight, '600');
 assert.equal(lightweightHost.children[0].dataset.chartResizeWidth, '800');
 assert.equal(lightweightHost.children[0].dataset.chartResizeHeight, '600');
+assert.equal(lightweightCalls.options.autoSize, false);
+assert.equal(lightweightCalls.options.width, 800);
+assert.equal(lightweightCalls.options.height, 600);
+assert.equal(lightweightCalls.options.defaultVisiblePriceScaleId, 'right');
 assert.deepEqual(lightweightCalls.options.handleScroll, {
   mouseWheel: false,
   pressedMouseMove: true,
@@ -423,6 +427,7 @@ assert.deepEqual(lightweightCalls.applyOptions.at(-1).crosshair, {
 assert.deepEqual(lightweightCalls.options.timeScale, {
   barSpacing: 10,
   minBarSpacing: 3,
+  minimumHeight: 24,
   lockVisibleTimeRangeOnResize: true,
   rightBarStaysOnScroll: true,
   shiftVisibleRangeOnNewBar: false,
@@ -438,11 +443,13 @@ assert.deepEqual(lightweightCalls.options.rightPriceScale, {
   visible: true,
   borderVisible: true,
   borderColor: '#334155',
+  minimumWidth: 64,
 });
 assert.deepEqual(lightweightCalls.options.leftPriceScale, {
   visible: false,
   borderVisible: true,
   borderColor: '#334155',
+  minimumWidth: 64,
 });
 assert.equal(
   lightweightCalls.options.timeScale.tickMarkFormatter(Date.parse('2026-06-01T09:33:00.000Z') / 1000),
@@ -482,6 +489,7 @@ assert.deepEqual(lightweightCalls.seriesApplyOptions.at(-1), {
 });
 assert.equal(lightweightHost.children[0].dataset.timeScaleBarSpacing, '10');
 assert.equal(lightweightHost.children[0].dataset.timeScaleMinBarSpacing, '3');
+assert.equal(lightweightHost.children[0].dataset.timeScaleMinimumHeight, '24');
 assert.equal(lightweightHost.children[0].dataset.timeScaleLockOnResize, 'true');
 assert.equal(lightweightHost.children[0].dataset.timeScaleRightBarStaysOnScroll, 'true');
 assert.equal(lightweightHost.children[0].dataset.handleScrollMouseWheel, 'false');
@@ -577,9 +585,11 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
   localization: {
     priceFormatter: lightweightCalls.applyOptions[0].localization.priceFormatter,
   },
+  defaultVisiblePriceScaleId: 'left',
   timeScale: {
     barSpacing: 10,
     minBarSpacing: 3,
+    minimumHeight: 24,
     lockVisibleTimeRangeOnResize: true,
     rightBarStaysOnScroll: true,
     shiftVisibleRangeOnNewBar: false,
@@ -595,11 +605,13 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     visible: false,
     borderVisible: false,
     borderColor: '#475569',
+    minimumWidth: 64,
   },
   leftPriceScale: {
     visible: false,
     borderVisible: false,
     borderColor: '#475569',
+    minimumWidth: 64,
   },
 });
 assert.deepEqual(lightweightCalls.watermarkOptions[0], {

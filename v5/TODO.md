@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 475 is complete. Multi-pane chart hosts now resize the
-  Lightweight chart engine surface explicitly on mount, sync, and reused-host
-  layout changes, so pane-local price/time scale chrome can reflow reliably.
-- Next candidate: Step 476 - design and implement resizable split pane
+- Current status: Step 476 is complete. Multi-pane Lightweight charts now use
+  manual sizing instead of `autoSize`, so chart-runtime resize calls are not
+  ignored by ResizeObserver, and each chart reserves minimum price/time scale
+  space.
+- Next candidate: Step 477 - design and implement resizable split pane
   boundaries. The split state should own pane ratios/min sizes and trigger the
   existing chart runtime resize path instead of writing chart APIs from route
   UI.
@@ -92,6 +93,12 @@
   `data-chart-engine-surface`, not route DOM assumptions. Layout changes and
   future split-pane drags should call the runtime resize path; route UI must not
   call Lightweight APIs directly.
+- Lightweight sizing decision: Step 476 disables `autoSize` for V5 chart
+  adapters and supplies explicit width/height at creation plus manual
+  `chart.resize()` updates. This follows Lightweight Charts API behavior where
+  resize width/height are ignored while `autoSize` is active and ResizeObserver
+  is available. Price scale `minimumWidth` and time scale `minimumHeight` are
+  set by the adapter options so every pane keeps axis chrome space.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

@@ -54,6 +54,7 @@ export function applyFallbackMetadata(canvas, metadata = {}) {
 export function applyLightweightMetadata(canvas, context) {
   canvas.dataset.timeScaleBarSpacing = String(LIGHTWEIGHT_REPLAY_TIMESCALE.barSpacing);
   canvas.dataset.timeScaleMinBarSpacing = String(LIGHTWEIGHT_REPLAY_TIMESCALE.minBarSpacing);
+  canvas.dataset.timeScaleMinimumHeight = String(LIGHTWEIGHT_REPLAY_TIMESCALE.minimumHeight);
   canvas.dataset.timeScaleLockOnResize = String(LIGHTWEIGHT_REPLAY_TIMESCALE.lockVisibleTimeRangeOnResize);
   canvas.dataset.timeScaleRightBarStaysOnScroll = String(LIGHTWEIGHT_REPLAY_TIMESCALE.rightBarStaysOnScroll);
   canvas.dataset.timeScaleShiftOnNewBar = String(LIGHTWEIGHT_REPLAY_TIMESCALE.shiftVisibleRangeOnNewBar);

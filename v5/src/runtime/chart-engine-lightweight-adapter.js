@@ -227,8 +227,11 @@ export function createLightweightInstance({ engine, documentRef }) {
       host.dataset.chartEngine = 'lightweight-charts';
       host.append(canvas);
       const replayOptions = lightweightOptionsForContext(displayContext);
+      const initialSize = readHostSize();
       chart = engine.createChart(engineSurface, {
-        autoSize: true,
+        autoSize: false,
+        width: Math.max(1, initialSize.width),
+        height: Math.max(1, initialSize.height),
         layout: {
           background: { color: '#0d1219' },
           textColor: '#d8dde8',
