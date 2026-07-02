@@ -5,6 +5,7 @@ import { DISPLAY_TIMEZONE_EVENTS } from '../contracts/timezone-contracts.js';
 import { CHART_PRESENTATION_EVENTS } from '../contracts/chart-presentation-contracts.js';
 import { createChartEngineAdapter } from './chart-engine-adapter.js';
 import { buildChartDisplayContext } from './chart-runtime-display-context.js';
+import { createChartRuntimeHostSync } from './chart-runtime-host-sync.js';
 import {
   createEmptyChartState,
   normalizeBars,
@@ -38,48 +39,12 @@ export function createChartRuntime() {
   let rootElement = null;
   let observer = null;
   let emit = () => {};
-  let applyingRuntimeVisibleRange = false;
-  let pendingChartSyncAfterNativeInteraction = false;
-
-  function buildChartMetadata(renderedBars = computeRenderedBars(state)) {
-    return {
-      viewportFollow: state.viewportFollow.enabled ? 'true' : 'false',
-      interactionMode: state.interaction.mode,
-      renderedBarCount: renderedBars.length,
-      fullBarCount: state.bars.length,
-      crosshairActive: state.crosshair.active ? 'true' : 'false',
-      crosshairTime: state.crosshair.time || '',
-      crosshairPrice: state.crosshair.price == null ? '' : state.crosshair.price,
-      nativeInteractionActive: state.nativeInteraction.active ? 'true' : 'false',
-      nativeInteractionType: state.nativeInteraction.type || '',
-    };
-  }
-
-  function syncChartHost(host, { deferDuringNativeInteraction = true } = {}) {
-    const adapter = chartAdapters.get(host);
-    if (!adapter) return;
-    if (deferDuringNativeInteraction && state.nativeInteraction.active) {
-      pendingChartSyncAfterNativeInteraction = true;
-      adapter.setMetadata?.(buildChartMetadata());
-      return;
-    }
-    const renderedBars = computeRenderedBars(state);
-    applyingRuntimeVisibleRange = true;
-    try {
-      adapter.setPresentation(state.displayContext);
-      adapter.setBars(renderedBars, {
-        fullBarCount: state.bars.length,
-        displayContext: state.displayContext,
-        metadata: buildChartMetadata(renderedBars),
-        followViewport: state.interaction.mode === 'follow' && state.viewportFollow.enabled,
-      });
-      if (state.interaction.mode === 'manual') {
-        adapter.setVisibleRange(state.visibleRange);
-      }
-    } finally {
-      applyingRuntimeVisibleRange = false;
-    }
-  }
+  const hostSync = createChartRuntimeHostSync({
+    state,
+    mountedHosts,
+    mountedHostList,
+    chartAdapters,
+  });
 
   function mountHost(host) {
     if (!host || mountedHosts.has(host)) return;
@@ -90,7 +55,7 @@ export function createChartRuntime() {
     adapter.mount(host, {
       displayContext: state.displayContext,
       onVisibleRangeChange: (visibleRange, metadata = {}) => {
-        if (applyingRuntimeVisibleRange) return;
+        if (hostSync.getSyncState().applyingRuntimeVisibleRange) return;
         if (metadata.source === 'lightweight-native') {
           observeNativeVisibleRange(visibleRange);
           return;
@@ -104,7 +69,7 @@ export function createChartRuntime() {
         updateNativeInteraction(interaction);
       },
     });
-    syncChartHost(host);
+    hostSync.syncChartHost(host);
     emit(CHART_EVENTS.READY, { host });
   }
 
@@ -114,50 +79,11 @@ export function createChartRuntime() {
       .forEach((host) => mountHost(host));
   }
 
-  function rerenderMountedHosts(options = {}) {
-    for (const host of mountedHostList) {
-      if (host.isConnected) {
-        syncChartHost(host, options);
-      } else {
-        chartAdapters.get(host)?.destroy();
-        chartAdapters.delete(host);
-        mountedHosts.delete(host);
-        mountedHostList.delete(host);
-      }
-    }
-  }
-
-  function syncVisibleRangeToMountedHosts() {
-    for (const host of mountedHostList) {
-      if (!host.isConnected) continue;
-      const adapter = chartAdapters.get(host);
-      if (state.nativeInteraction.active) {
-        pendingChartSyncAfterNativeInteraction = true;
-        adapter?.setMetadata?.(buildChartMetadata());
-        continue;
-      }
-      applyingRuntimeVisibleRange = true;
-      try {
-        adapter?.setVisibleRange(state.visibleRange);
-      } finally {
-        applyingRuntimeVisibleRange = false;
-      }
-    }
-  }
-
-  function syncMetadataToMountedHosts() {
-    const metadata = buildChartMetadata();
-    for (const host of mountedHostList) {
-      if (!host.isConnected) continue;
-      chartAdapters.get(host)?.setMetadata?.(metadata);
-    }
-  }
-
   function updateBars(nextBars) {
     state.bars = nextBars;
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
     emit(CHART_EVENTS.BARS_CHANGED, { bars: [...state.bars] });
     return { bars: [...state.bars] };
   }
@@ -172,7 +98,7 @@ export function createChartRuntime() {
     state.visibleRange = visibleRange;
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -199,7 +125,7 @@ export function createChartRuntime() {
 
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
 
     if (state.visibleRange && visibleRangeChanged) {
       emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
@@ -264,7 +190,7 @@ export function createChartRuntime() {
         enabled: false,
       }
       : nextViewportFollow;
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
     if (visibleRangeChanged && state.visibleRange) {
       emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
     }
@@ -296,7 +222,7 @@ export function createChartRuntime() {
     };
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -327,7 +253,7 @@ export function createChartRuntime() {
     };
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
-    syncMetadataToMountedHosts();
+    hostSync.syncMetadataToMountedHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -378,7 +304,7 @@ export function createChartRuntime() {
     };
     state.prefixDemand = null;
     state.viewportDemand = null;
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
     return {
       viewportFollow: { ...state.viewportFollow },
       interaction: structuredClone(state.interaction),
@@ -426,17 +352,16 @@ export function createChartRuntime() {
       type: payload.active && payload.type ? String(payload.type) : null,
       source: payload.source ? String(payload.source) : null,
     };
-    syncMetadataToMountedHosts();
-    if (wasActive && !state.nativeInteraction.active && pendingChartSyncAfterNativeInteraction) {
-      pendingChartSyncAfterNativeInteraction = false;
-      rerenderMountedHosts({ deferDuringNativeInteraction: false });
+    hostSync.syncMetadataToMountedHosts();
+    if (wasActive && !state.nativeInteraction.active) {
+      hostSync.flushPendingAfterNativeInteraction();
     }
     if (wasActive && !state.nativeInteraction.active && state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
     }
     return {
       nativeInteraction: structuredClone(state.nativeInteraction),
-      pendingChartSyncAfterNativeInteraction,
+      pendingChartSyncAfterNativeInteraction: hostSync.getSyncState().pendingChartSyncAfterNativeInteraction,
     };
   }
 
@@ -458,7 +383,7 @@ export function createChartRuntime() {
       rightOffsetBars: state.displayContext.rightOffsetBars,
     };
     state.viewportDemand = computeViewportDemand(state);
-    rerenderMountedHosts();
+    hostSync.rerenderMountedHosts();
     return {
       displayContext: structuredClone(state.displayContext),
       viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,

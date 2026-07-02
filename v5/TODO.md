@@ -10,14 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 452 is complete. Chart display-context normalization is
-  split from `chart-runtime.js` into `chart-runtime-display-context.js`, keeping
-  chart runtime as the command/event owner and sole chart adapter writer while
-  moving presentation context merging into a pure helper.
-- Next candidate: Step 453 - continue the runtime/product boundary work by
-  splitting another low-risk `chart-runtime.js` seam such as mounted-host sync
-  metadata, or switch to `chart-engine-presentation.js` if presentation mapping
-  has become the larger near-term risk.
+- Current status: Step 453 is complete. Chart mounted-host sync and metadata
+  writes are split from `chart-runtime.js` into `chart-runtime-host-sync.js`.
+  `chart-runtime.js` is down to 484 lines and remains the chart command/event,
+  state mutation, mount lifecycle, and adapter ownership entrypoint.
+- Next candidate: Step 454 - shift to `chart-engine-presentation.js`
+  presentation mapping/fallback rendering boundaries unless a product bug takes
+  priority. Chart runtime has now had the highest-risk pure/helper and host-sync
+  seams extracted.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -212,6 +212,13 @@
   defensive style cloning. `chart-runtime.js` may call the helper before
   rerendering, but it must remain the command/event owner and the only runtime
   layer that writes chart adapters or series data.
+- Refactor decision: chart mounted-host sync is a chart-runtime internal
+  subsystem, not command orchestration. `chart-runtime-host-sync.js` owns chart
+  metadata construction, mounted host rerenders, stale host cleanup, native
+  interaction deferral, and deferred sync flush after native interaction settle.
+  It may write chart adapters only through state and adapter maps injected by
+  `chart-runtime.js`; it must not register commands, subscribe to events,
+  request bars, own replay semantics, or become a feature-facing API.
 - Refactor decision: replay runtime pure helpers and chart synchronization
   belong outside the runtime shell. `replay-runtime-state.js` owns replay state
   shape, timestamp/timeframe math, display-bar safety filters, prefix retention
@@ -2333,6 +2340,58 @@ Manual acceptance:
 Checks:
 
 - `node v5/tests/chart-runtime-display-context-smoke.js`
+- `node v5/tests/chart-runtime-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-interaction-contracts-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 453 - V5 Chart Runtime Host Sync Boundary Split
+
+Status: completed.
+
+Goal: reduce `chart-runtime.js` ownership pressure by moving mounted-host
+metadata and adapter synchronization into a chart-runtime internal subsystem
+while preserving the chart runtime command/event and adapter ownership boundary.
+
+Problem:
+
+- Step 452 removed display-context normalization from `chart-runtime.js`, but
+  mounted-host sync still mixed metadata construction, adapter writes, stale
+  host cleanup, native interaction deferral, and deferred sync flush into the
+  runtime command shell.
+- Native wheel/drag behavior is sensitive because active interactions must
+  update metadata without triggering `setData`, then flush deferred chart sync
+  after settle.
+- Keeping this logic inline makes future reset/zoom/viewport-demand fixes more
+  likely to re-tangle command state mutation with adapter writeback behavior.
+
+Implementation:
+
+- [x] Step 453.1: Add `src/runtime/chart-runtime-host-sync.js` as an internal
+  chart runtime host-sync controller.
+- [x] Step 453.2: Move chart metadata construction, mounted-host rerender,
+  stale host cleanup, native interaction defer, and deferred flush logic into
+  the controller.
+- [x] Step 453.3: Keep host mount lifecycle, command/event registration, chart
+  state mutation, and adapter map ownership in `chart-runtime.js`.
+- [x] Step 453.4: Remove unused `syncVisibleRangeToMountedHosts` inline code
+  instead of carrying dead sync behavior into the new module.
+- [x] Step 453.5: Run focused chart runtime and boundary smoke coverage.
+
+Manual acceptance:
+
+- `chart-runtime.js` remains the only public chart runtime entrypoint and the
+  only module registering chart commands/events.
+- `chart-runtime-host-sync.js` has no command bus, event bus, replay, bar-data,
+  or UI dependency.
+- Native interaction active states continue to defer `setData` while keeping
+  metadata current.
+- Deferred chart sync still flushes after native interaction settles.
+- Mounted host cleanup still destroys disconnected adapters.
+
+Checks:
+
 - `node v5/tests/chart-runtime-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-interaction-contracts-smoke.js`
