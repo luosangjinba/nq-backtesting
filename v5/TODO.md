@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 423 is complete. Native wheel zoom now keeps the chart
-  in the active interaction window long enough for viewport-demand loads to
-  defer and flush automatically, and settled native interactions re-emit any
-  pending viewport demand so left-side K-line extension does not require a
-  left-click stimulus.
-- Next candidate: Step 424 - Settings remaining-deferred cleanup. Reassess
+- Current status: Step 424 is complete. The chart replay route started bounded
+  modularization by extracting the FXReplay-style Settings template, draft
+  state, section navigation, and apply/cancel bindings into a route-local
+  settings panel module while preserving command/event ownership boundaries.
+- Next candidate: Step 425 - Settings remaining-deferred cleanup. Reassess
   FXReplay settings items that still need explicit runtime design before UI:
   scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
   session breaks, templates, and split-pane/pane-specific settings.
@@ -82,6 +81,12 @@
   loading to be coalesced and flushed after interaction settle, and settle
   should re-emit an existing viewport demand because the replay bridge de-dupes
   by demand key.
+- Refactor decision: chart route modularization should start with stable
+  route-local UI surfaces before runtime internals. Settings can own its modal
+  HTML, draft controls, tab switching, and apply/cancel bindings, but it must
+  continue to mutate app state only through route-provided command callbacks.
+  The route shell remains responsible for runtime orchestration, event
+  subscriptions, and chart/replay command ownership.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -3104,5 +3109,59 @@ Checks:
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 424 - V5 Chart Replay Settings Modularization
+
+Status: completed.
+
+Goal: start route-level modularization before the chart replay surface becomes
+harder to split, while preserving existing behavior and V5 command/event
+ownership boundaries.
+
+Problem:
+
+- `chart-replay-route.js` had grown past 1700 lines and mixed route shell,
+  settings modal template, settings draft state, settings event bindings,
+  replay controls, navigation, and status rendering.
+- Continuing settings work in the same file would make later separation risky:
+  UI control references, draft mutations, and runtime command dispatch would be
+  harder to untangle.
+- A broad runtime refactor would be unnecessary risk while chart/replay
+  interaction fixes are still being stabilized.
+
+Implementation:
+
+- [x] Step 424.1: Define the first modularization boundary as route-local
+  Settings UI, not runtime internals.
+- [x] Step 424.2: Extract the Settings modal HTML into
+  `features/chart-replay/chart-settings-panel.js`.
+- [x] Step 424.3: Move Settings draft creation, clone helpers, section tab
+  switching, control rendering, and apply/cancel event binding into the
+  Settings panel module.
+- [x] Step 424.4: Keep the chart replay route as the owner of command dispatch
+  and runtime state synchronization by passing apply/cancel callbacks into the
+  settings controller.
+- [x] Step 424.5: Preserve existing presentation/timezone behavior and smoke
+  coverage while reducing `chart-replay-route.js` from 1737 to 1082 lines.
+
+Manual acceptance:
+
+- Opening Settings, editing draft values, canceling, and applying should behave
+  the same as before the split.
+- The Settings module must not call chart series APIs or directly control
+  replay/chart runtime internals.
+- Chart presentation and display timezone changes must still flow through
+  existing commands and chart display context synchronization.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
