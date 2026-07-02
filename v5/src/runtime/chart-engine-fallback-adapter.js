@@ -5,7 +5,7 @@ import {
 import {
   applyFallbackMetadata,
   applyFallbackPresentation,
-} from './chart-engine-presentation.js';
+} from './chart-engine-dom-metadata.js';
 import {
   createRuntimeCanvas,
   inferVisibleRangeFromBars,

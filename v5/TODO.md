@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 454 is complete. Chart engine fallback DOM rendering is
-  split from `chart-engine-presentation.js` into
-  `chart-engine-fallback-rendering.js`; presentation mapping is down to 378
-  lines and no adapter public API changed.
-- Next candidate: Step 455 - continue chart-engine presentation modularization
-  by splitting dataset metadata writers or Lightweight options mapping, unless
-  a product bug takes priority.
+- Current status: Step 455 is complete. Chart engine canvas dataset/style
+  writers are split from `chart-engine-presentation.js` into
+  `chart-engine-dom-metadata.js`; presentation mapping is down to 274 lines and
+  no adapter public API changed.
+- Next candidate: Step 456 - either split Lightweight options mapping from
+  `chart-engine-presentation.js` if continuing modularization, or pause
+  refactoring and address the highest-priority chart interaction/product bug.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -272,6 +272,13 @@
   metadata, Lightweight options, series/watermark mapping, scale margins, and
   logical/visible range projection helpers. Neither module may import runtime
   commands/events, replay runtime, or bar-data runtime.
+- Refactor decision: chart engine DOM metadata writers belong outside generic
+  presentation option mapping. `chart-engine-dom-metadata.js` owns fallback
+  canvas dataset/style writes, runtime metadata dataset writes, Lightweight
+  canvas dataset writes, and Lightweight canvas style resets. It may reuse
+  chart-engine presentation constants/helpers for values, but it must not
+  import runtime commands/events, replay runtime, bar-data runtime, or own
+  adapter lifecycle.
 - Refactor decision: Lightweight chart adapter internals should keep lifecycle,
   native input/writeback tracking, and crosshair/readout mapping separate. This
   keeps future reset/zoom/drag, multi-pane sync, order markers, and review
@@ -2445,6 +2452,54 @@ Manual acceptance:
 - Lightweight adapter still renders its hidden debug plot and canvas metadata.
 - New fallback rendering helper does not import runtime commands/events,
   replay runtime, or bar-data runtime.
+
+Checks:
+
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 455 - V5 Chart Engine DOM Metadata Writer Split
+
+Status: completed.
+
+Goal: reduce `chart-engine-presentation.js` ownership pressure by moving canvas
+dataset/style metadata writers into a dedicated module while preserving chart
+engine adapter behavior and public API.
+
+Problem:
+
+- After Step 454, `chart-engine-presentation.js` still mixed Lightweight option
+  mapping with fallback and Lightweight canvas `dataset`/style writes.
+- Dataset writer functions are DOM metadata behavior, not chart option
+  derivation. Keeping them inline would keep future Settings metadata churn in
+  the same file as Lightweight options.
+- The split should preserve existing fallback and Lightweight adapter behavior
+  and should not duplicate Lightweight constants.
+
+Implementation:
+
+- [x] Step 455.1: Add `src/runtime/chart-engine-dom-metadata.js`.
+- [x] Step 455.2: Move `applyFallbackPresentation`,
+  `applyFallbackMetadata`, `applyLightweightMetadata`, and
+  `applyLightweightPresentation` into the new module.
+- [x] Step 455.3: Reuse `chart-engine-presentation.js` constants and
+  `priceScaleMarginsForContext` instead of copying configuration.
+- [x] Step 455.4: Update fallback and Lightweight adapters to import DOM
+  metadata writers from the new module.
+- [x] Step 455.5: Run focused chart-engine and boundary checks.
+
+Manual acceptance:
+
+- `createChartEngineAdapter` public API is unchanged.
+- Existing fallback and Lightweight canvas dataset values remain covered by
+  `chart-engine-adapter-smoke.js`.
+- `chart-engine-presentation.js` keeps Lightweight options, series/watermark
+  mapping, scale margins, and logical/visible range projection helpers.
+- `chart-engine-dom-metadata.js` does not import runtime commands/events,
+  replay runtime, bar-data runtime, or own adapter lifecycle.
 
 Checks:
 

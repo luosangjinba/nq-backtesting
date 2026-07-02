@@ -8,6 +8,8 @@ import { createLightweightInteractionTracker } from './chart-engine-lightweight-
 import {
   applyFallbackMetadata,
   applyLightweightPresentation,
+} from './chart-engine-dom-metadata.js';
+import {
   crosshairOptionsForContext,
   followLogicalRangeForBars,
   gridOptionsForContext,
