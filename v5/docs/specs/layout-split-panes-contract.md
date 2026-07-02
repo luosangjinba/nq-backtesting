@@ -31,6 +31,10 @@ Jump cursor, and chart visible-range events through layout commands.
 Step 468 stores pane-level crosshair metadata, mirrors chart-owned crosshair
 events through layout commands when `sync.crosshair` is enabled, and completes
 the Step 463-468 multi-pane acceptance sequence.
+Step 469 changes the Layout popover mode selector to an FXReplay-style icon
+matrix while preserving the same layout command boundary.
+Steps 470-472 continue the Layout work in layers: explicit variant state,
+variant-driven pane shell layout, then real secondary/tertiary chart hosts.
 
 This is a planning contract, not an implementation step.
 
@@ -153,6 +157,24 @@ Step 468 implementation status:
 - browser acceptance covers layout switching, active pane selection, interval
   sync, time/date-range sync, crosshair sync, and boundary smokes.
 
+Step 469 implementation status:
+
+- the Layout popover uses icon buttons grouped by `1`, `2`, and `3`;
+- icon buttons still dispatch through the existing layout command surface;
+- orientation-specific icons currently map to bounded modes until Step 470
+  models explicit layout variants.
+
+Steps 470-472 planned implementation sequence:
+
+- Step 470 models explicit layout variants:
+  `single.default`, `twice.vertical`, `twice.horizontal`, `triple.vertical`,
+  `triple.horizontal`, `triple.left`, `triple.right`, `triple.top`, and
+  `triple.bottom`;
+- Step 471 applies those variants to the pane shell with CSS/DOM layout while
+  keeping secondary/tertiary panes as placeholders;
+- Step 472 mounts real secondary/tertiary chart hosts through chart runtime and
+  only after the variant state and visual shell are stable.
+
 ## Pane Model
 
 A pane record should be serializable and persistence-ready:
@@ -164,6 +186,13 @@ A pane record should be serializable and persistence-ready:
 - `presentationSettings`: pane-level presentation settings or a reference to a
   shared preset;
 - `viewport`: chart-owned visible range/follow state for that pane;
+
+Root layout state should also carry:
+
+- `mode`: bounded pane-count category, currently `single`, `twice`, or
+  `triple`;
+- `variant`: specific layout geometry, such as `twice.horizontal` or
+  `triple.left`.
 
 Root layout state also contains `sync`:
 
@@ -299,3 +328,16 @@ Deferred beyond Step 468:
   contract;
 - arbitrary grids and drag-resizable pane layouts;
 - saved layout templates and server-backed layout persistence.
+
+Steps 470-472 should proceed next in this order:
+
+1. Step 470 - Layout variant state.
+   Add explicit `variant` state and variant-aware icon dispatch. Keep `mode` as
+   the pane-count category and keep only one real primary chart host.
+2. Step 471 - Variant pane shell layout.
+   Render the visual geometry for each variant through pane shell data
+   attributes and CSS grid. Secondary/tertiary panes remain placeholders.
+3. Step 472 - Real multi-pane chart hosts.
+   Render and mount secondary/tertiary `data-chart-host` elements through
+   chart runtime. Preserve shared replay cursor, no-future reveal, and
+   bar-data runtime ownership.

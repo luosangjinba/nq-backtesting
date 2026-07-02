@@ -10,13 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 469 is complete. The Layout popover now uses an
-  FXReplay-style icon matrix for `single`, `twice`, and `triple` mode selection
-  instead of large text segment buttons, while keeping the existing
-  `layout.setMode` command boundary.
-- Next candidate: Step 470 - decide whether to make secondary/tertiary panes
-  real chart hosts or return to Settings polish, then plan the next bounded
-  product step.
+- Current status: Step 470-472 are planned. Continue Layout work in three
+  bounded steps: model layout variants, apply variant-driven pane shell layout,
+  then make secondary/tertiary panes real chart hosts through chart runtime.
+- Next candidate: Step 470 - add explicit layout variant state and wire Layout
+  icon clicks to variants without changing chart host behavior yet.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -75,6 +73,12 @@
   an FXReplay-style icon matrix. Multiple icon choices can currently map to the
   same bounded mode (`single`, `twice`, or `triple`) until orientation-specific
   layout variants are modeled explicitly in layout state.
+- Layout implementation decision: Steps 470-472 must stay staged. Step 470
+  models `variant` separately from mode so the icon matrix has precise state.
+  Step 471 makes the pane shell render those variants with CSS/DOM layout while
+  secondary/tertiary panes remain placeholders. Step 472 is the first step that
+  should create real secondary/tertiary chart hosts, and it must do so only
+  through chart runtime host mounting and existing replay/bar-data ownership.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3369,6 +3373,161 @@ Checks:
 
 - `node --check v5/src/features/chart-replay/chart-replay-template.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 470 - V5 Layout Variant State
+
+Status: planned.
+
+Goal: model explicit Layout variants so each icon in the FXReplay-style matrix
+has precise runtime state instead of collapsing every icon into only
+`single`, `twice`, or `triple`.
+
+Problem:
+
+- Step 469 made the UI look like a layout matrix, but several icons still map
+  to the same bounded mode.
+- Future pane shell layout needs to distinguish vertical, horizontal, and large
+  pane variants without inferring intent from button labels or CSS classes.
+- This step should not create additional real chart hosts yet; it is a state
+  and command contract step.
+
+Plan:
+
+- [ ] Step 470.1: Add a layout variant contract with supported variants:
+  `single.default`, `twice.vertical`, `twice.horizontal`,
+  `triple.vertical`, `triple.horizontal`, `triple.left`, `triple.right`,
+  `triple.top`, and `triple.bottom`.
+- [ ] Step 470.2: Store `variant` in layout state while keeping `mode` as the
+  pane-count category.
+- [ ] Step 470.3: Update `layout.setMode` or add a bounded variant-aware command
+  so icon clicks can choose a variant and normalize mode/pane count together.
+- [ ] Step 470.4: Update the Layout popover buttons to dispatch specific
+  variants through data attributes while preserving command-bus ownership.
+- [ ] Step 470.5: Add layout runtime smoke coverage for variant normalization,
+  mode derivation, and invalid variant rejection.
+- [ ] Step 470.6: Update route/browser smoke metadata to assert selected
+  variant without changing chart host count.
+
+Manual acceptance:
+
+- Every Layout icon has a stable variant value.
+- Selecting a `twice.*` variant creates two pane records.
+- Selecting a `triple.*` variant creates three pane records.
+- Invalid variants are rejected or normalized by layout runtime, not route UI.
+- Only the primary pane has a real chart host after this step.
+
+Checks:
+
+- `node --check v5/src/contracts/layout-contracts.js`
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-layout.js`
+- `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 471 - V5 Variant Pane Shell Layout
+
+Status: planned.
+
+Goal: make the pane shell render each layout variant with the correct CSS grid
+shape while keeping secondary/tertiary panes as placeholders.
+
+Problem:
+
+- Variant state alone does not make the chart workspace visually match the
+  selected icon.
+- The pane shell must own DOM layout classes/data attributes, but it must not
+  create chart adapters or request bars.
+- This step should prove the layout geometry before adding real chart hosts.
+
+Plan:
+
+- [ ] Step 471.1: Add pane shell data attributes for `layoutVariant`.
+- [ ] Step 471.2: Add CSS grid layouts for the supported variants:
+  single, two vertical, two horizontal, three vertical, three horizontal,
+  large-left, large-right, large-top, and large-bottom.
+- [ ] Step 471.3: Keep stable pane ids and active-pane selection across variant
+  changes.
+- [ ] Step 471.4: Ensure placeholder panes remain visually distinct but do not
+  contain `data-chart-host`.
+- [ ] Step 471.5: Add browser smoke assertions for pane geometry, host count,
+  active-pane metadata, and no route-owned chart data.
+- [ ] Step 471.6: Update docs/session handoff.
+
+Manual acceptance:
+
+- Choosing each icon produces the matching visual pane layout.
+- Secondary/tertiary panes remain placeholders and selectable.
+- Active pane state follows clicks across all variants.
+- Chart host count remains one.
+- Existing interval/time/date-range/crosshair sync metadata still works.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node --check v5/src/styles/app.css`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 472 - V5 Real Multi-Pane Chart Hosts
+
+Status: planned.
+
+Goal: make secondary and tertiary panes mount real chart hosts through chart
+runtime while preserving replay cursor, no-future reveal, and bar-data
+ownership boundaries.
+
+Problem:
+
+- Pane layouts will still be placeholders after Step 471.
+- Real multi-pane charts require chart runtime-owned host adapters per pane,
+  but route UI must not write series or request bars directly.
+- Secondary panes need a display data policy that does not violate session
+  boundaries or duplicate uncontrolled bar loads.
+
+Plan:
+
+- [ ] Step 472.1: Define the initial secondary-pane data policy: shared replay
+  session, same instrument, pane-level display timeframe, no bars beyond the
+  shared replay cursor.
+- [ ] Step 472.2: Render `data-chart-host` in secondary/tertiary panes only
+  when layout state requires those panes.
+- [ ] Step 472.3: Mount each pane host through `chart.mountHost` and let chart
+  runtime own adapter lifecycle.
+- [ ] Step 472.4: Route pane display updates through replay/bar-data/chart
+  commands; route UI must not call chart series APIs or request bars directly.
+- [ ] Step 472.5: Apply existing sync settings to real panes: interval, time,
+  date range, and crosshair.
+- [ ] Step 472.6: Add browser smoke coverage for host count, per-pane adapter
+  mounting, no-future display, sync behavior, and boundary smoke.
+- [ ] Step 472.7: Update docs/session handoff.
+
+Manual acceptance:
+
+- `twice.*` layouts mount two chart hosts through chart runtime.
+- `triple.*` layouts mount three chart hosts through chart runtime.
+- Removing panes destroys or unregisters stale chart adapters through chart
+  runtime lifecycle.
+- No pane reveals bars beyond the shared replay cursor.
+- Bar loading remains owned by bar-data runtime and deduped by existing
+  cache/request keys.
+- Route UI still dispatches commands and subscribes to events only.
+
+Checks:
+
+- `node --check v5/src/runtime/chart-runtime.js`
+- `node --check v5/src/runtime/chart-runtime-host-sync.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node v5/tests/chart-runtime-pane-host-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/replay-initial-browser-smoke.js`
+- `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
