@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 427 is complete. Chart engine adapter now separates
-  context normalization, presentation/options helpers, and the DOM fallback
-  adapter from the Lightweight adapter/factory entry point.
-- Next candidate: Step 428 - Lightweight chart adapter internal split. Separate
-  native interaction/writeback, crosshair/readout mapping, logical-range
-  expansion, and lifecycle wiring without changing the public chart engine
-  adapter contract.
+- Current status: Step 428 is complete. The chart-engine factory is now a small
+  stable entry point, while Lightweight lifecycle, native interaction tracking,
+  and crosshair/readout mapping live in separate adapter-family modules.
+- Next candidate: Step 429 - revisit the remaining settings backlog with the
+  cleaner chart-engine boundaries in place, especially scale placement,
+  lock-price-to-bar behavior, no-overlap labels, countdown/session breaks, and
+  template persistence.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -100,6 +100,10 @@
   and Lightweight engine integration. Adapter implementations may write their
   own engine/DOM surfaces, but callers must continue to use the stable
   `createChartEngineAdapter` API through chart runtime ownership.
+- Refactor decision: Lightweight chart adapter internals should keep lifecycle,
+  native input/writeback tracking, and crosshair/readout mapping separate. This
+  keeps future reset/zoom/drag, multi-pane sync, order markers, and review
+  overlays from accumulating in the factory or a single adapter body.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -809,6 +813,65 @@ Checks:
 - `node --check v5/src/runtime/chart-engine-context.js`
 - `node --check v5/src/runtime/chart-engine-presentation.js`
 - `node --check v5/src/runtime/chart-engine-fallback-adapter.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-fallback-input-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 428 - V5 Lightweight Adapter Internal Split
+
+Status: completed.
+
+Goal: finish the chart-engine adapter boundary split by moving Lightweight
+Charts lifecycle, native input/writeback tracking, and crosshair readout
+mapping into explicit adapter-family modules without changing the public
+factory API.
+
+Problem:
+
+- After Step 427, `chart-engine-adapter.js` still contained the full
+  Lightweight implementation, including mount lifecycle, native interaction
+  timers, visible-range writeback filtering, crosshair throttling, series
+  creation, presentation application, and cleanup.
+- Future fixes around reset/zoom/drag extension, multi-pane sync, order
+  markers, and review overlays would be harder to isolate if native input and
+  crosshair mapping stayed embedded in one adapter function.
+
+Implementation:
+
+- [x] Step 428.1: Move the Lightweight implementation into
+  `runtime/chart-engine-lightweight-adapter.js`.
+- [x] Step 428.2: Add `runtime/chart-engine-lightweight-interaction.js` for
+  native drag/touch/wheel markers, wheel settle timing, and recent-input
+  detection.
+- [x] Step 428.3: Add `runtime/chart-engine-lightweight-crosshair.js` for
+  crosshair event normalization, readout bar lookup, duplicate suppression, and
+  animation-frame batching.
+- [x] Step 428.4: Reduce `runtime/chart-engine-adapter.js` to the stable
+  factory that selects Lightweight or DOM fallback adapters.
+- [x] Step 428.5: Update the chart-engine boundary harness to treat the new
+  Lightweight adapter implementation as part of the adapter family.
+
+Manual acceptance:
+
+- Chart runtime still imports only `createChartEngineAdapter`.
+- DOM fallback behavior remains selected when Lightweight Charts is absent.
+- Lightweight presentation settings, series writes, visible-range writeback,
+  native wheel/drag settle, crosshair readout, reset view, and hidden debug bars
+  continue through existing behavior.
+- New Lightweight helper modules do not register app runtime commands,
+  subscribe to app events, request bars, or own replay cursor state.
+
+Checks:
+
+- `node --check v5/src/runtime/chart-engine-adapter.js`
+- `node --check v5/src/runtime/chart-engine-lightweight-adapter.js`
+- `node --check v5/src/runtime/chart-engine-lightweight-crosshair.js`
+- `node --check v5/src/runtime/chart-engine-lightweight-interaction.js`
 - `node v5/tests/chart-engine-adapter-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
