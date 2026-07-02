@@ -10,13 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 432 is complete. Replay prefix demand and prefix
-  retention now live in `runtime/replay-prefix-controller.js`; the main replay
-  runtime delegates prefix commands and no longer owns prefix anchor de-dupe,
-  sparse merge, or retention release implementation.
-- Next candidate: Step 433 - continue the replay runtime split by extracting
-  display-window loading and display-timeframe projection behind an explicit
-  controller API before adding more Settings contracts.
+- Current status: Step 433 is complete. Replay display-window loading,
+  display-timeframe switching, and cursor display projection now live in
+  `runtime/replay-display-window-controller.js`; the main replay runtime
+  delegates display commands and no longer owns display-window demand de-dupe or
+  sparse backward seek implementation.
+- Next candidate: Step 434 - continue replay runtime modularization by
+  extracting navigation/truncation/reset or playback into explicit controllers,
+  then return to the next Settings contract once replay runtime boundaries are
+  small enough to absorb new behavior cleanly.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -121,6 +123,13 @@
   display merge after retention. `replay-runtime.js` may register the replay
   commands and reset the controller lifecycle, but it should not reintroduce
   prefix implementation bodies.
+- Refactor decision: display-window loading is a replay subsystem, not
+  main-runtime inline logic. `replay-display-window-controller.js` owns
+  display-timeframe switching, viewport-demand display-window loads, duplicate
+  display-window de-dupe, sparse backward seek attempts, display context
+  snapshots, and cursor display projection. `replay-runtime.js` may register
+  display commands and call projection after cursor moves, but it should not
+  reintroduce display-window implementation bodies.
 - Refactor decision: chart engine adapter modules should separate factory,
   context normalization, presentation/options mapping, DOM fallback rendering,
   and Lightweight engine integration. Adapter implementations may write their
@@ -1120,6 +1129,62 @@ Checks:
 - `node v5/tests/prefix-demand-merge-smoke.js`
 - `node v5/tests/prefix-retention-smoke.js`
 - `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/runtime-boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 433 - V5 Replay Display Window Controller Split
+
+Status: completed.
+
+Goal: continue replay runtime modularization by extracting display-window
+loading, display-timeframe switching, and cursor display projection into a
+dedicated controller before adding more replay or Settings behavior.
+
+Problem:
+
+- After Step 432, `replay-runtime.js` still owned viewport-demand
+  display-window loading, duplicate display-window demand tracking,
+  display-timeframe switching, sparse backward seek attempts, display context
+  snapshots, and cursor projection after Next/Previous/Truncate/Reset.
+- Display-window behavior is a long-lived subsystem tied to wheel/drag loading,
+  higher timeframe display, no-future display guards, and future session-break
+  behavior. Keeping it inline would make the runtime hard to extend cleanly.
+
+Implementation:
+
+- [x] Step 433.1: Define the next boundary as display-window loading and
+  display-timeframe projection.
+- [x] Step 433.2: Add `runtime/replay-display-window-controller.js` with
+  injected `getState`/`setState`, `dispatchCommand`, `chartSync`,
+  `ensureInitialSession`, and `emitEvent` APIs.
+- [x] Step 433.3: Move display-window duplicate de-dupe, viewport-demand count
+  normalization, sparse backward seek, display-bar merge, chart context sync,
+  display events, and display context snapshots into the controller.
+- [x] Step 433.4: Keep `replay-runtime.js` as command/event owner by delegating
+  `SET_DISPLAY_TIMEFRAME`, `LOAD_DISPLAY_WINDOW`, `GET_DISPLAY_CONTEXT`, and
+  cursor projection after navigation to the controller.
+- [x] Step 433.5: Update `runtime-boundary-smoke` so display-window
+  implementation bodies cannot drift back into `replay-runtime.js`.
+- [x] Step 433.6: Reduce `replay-runtime.js` from 984 lines to 785 lines.
+
+Manual acceptance:
+
+- Display-window loading still dispatches bar-data runtime window requests.
+- Display-window chart writes still go through `replay-chart-sync` and chart
+  runtime commands.
+- Replay runtime still owns replay command registration, cursor/reveal state,
+  and lifecycle reset.
+- Public replay helper exports remain unchanged.
+
+Checks:
+
+- `node --check v5/src/runtime/replay-runtime.js`
+- `node --check v5/src/runtime/replay-display-window-controller.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/replay-display-window-cache-smoke.js`
+- `node v5/tests/replay-display-sparse-backward-seek-smoke.js`
 - `node v5/tests/runtime-boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`

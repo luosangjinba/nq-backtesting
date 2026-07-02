@@ -11,6 +11,10 @@ const replayPrefixControllerSource = readFileSync(
   resolve(repoRoot, 'v5/src/runtime/replay-prefix-controller.js'),
   'utf8'
 );
+const replayDisplayWindowControllerSource = readFileSync(
+  resolve(repoRoot, 'v5/src/runtime/replay-display-window-controller.js'),
+  'utf8'
+);
 
 assert.ok(
   replayRuntimeSource.includes('createReplayPrefixController('),
@@ -25,6 +29,22 @@ assert.ok(
   replayPrefixControllerSource.includes('async function loadPrefixDemand(')
     && replayPrefixControllerSource.includes('async function applyPrefixRetention('),
   'replay prefix controller must own prefix demand/retention implementations'
+);
+assert.ok(
+  replayRuntimeSource.includes('createReplayDisplayWindowController('),
+  'replay runtime must delegate display-window loading to the display-window controller'
+);
+assert.ok(
+  !replayRuntimeSource.includes('async function loadDisplayWindow(')
+    && !replayRuntimeSource.includes('async function setDisplayTimeframe(')
+    && !replayRuntimeSource.includes('async function projectDisplayForCursor('),
+  'replay runtime must not own display-window implementations'
+);
+assert.ok(
+  replayDisplayWindowControllerSource.includes('async function loadDisplayWindow(')
+    && replayDisplayWindowControllerSource.includes('async function setDisplayTimeframe(')
+    && replayDisplayWindowControllerSource.includes('async function projectDisplayForCursor('),
+  'replay display-window controller must own display-window implementations'
 );
 
 const mutationHelperCalls = [
