@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 474 is complete. Every real layout pane now mirrors the
-  single-pane chart chrome: OHLC/TF overlay, chart toolbar/reset entry, visible
-  price scale, and visible time scale.
-- Next candidate: Step 475 - audit multi-pane behavior in-browser and decide
-  whether to add pane-specific data policies/settings or return to Settings
-  polish.
+- Current status: Step 475 is complete. Multi-pane chart hosts now resize the
+  Lightweight chart engine surface explicitly on mount, sync, and reused-host
+  layout changes, so pane-local price/time scale chrome can reflow reliably.
+- Next candidate: Step 476 - design and implement resizable split pane
+  boundaries. The split state should own pane ratios/min sizes and trigger the
+  existing chart runtime resize path instead of writing chart APIs from route
+  UI.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -86,6 +87,11 @@
 - Multi-pane chrome decision: Step 474 makes dynamically-created panes carry
   the same chart chrome contract as the primary pane. Dynamic toolbar buttons
   use delegated handlers so they are real controls, not inert markup.
+- Multi-pane resize decision: Step 475 makes chart host resize a chart-runtime
+  adapter concern. Lightweight charts must resize against the internal
+  `data-chart-engine-surface`, not route DOM assumptions. Layout changes and
+  future split-pane drags should call the runtime resize path; route UI must not
+  call Lightweight APIs directly.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

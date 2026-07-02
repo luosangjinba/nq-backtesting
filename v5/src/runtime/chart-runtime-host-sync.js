@@ -35,6 +35,7 @@ export function createChartRuntimeHostSync({
     const renderedBars = computeRenderedBars(state);
     applyingRuntimeVisibleRange = true;
     try {
+      adapter.resizeToHost?.();
       adapter.setPresentation(state.displayContext);
       adapter.setBars(renderedBars, {
         fullBarCount: state.bars.length,
@@ -45,6 +46,7 @@ export function createChartRuntimeHostSync({
       if (state.interaction.mode === 'manual') {
         adapter.setVisibleRange(state.visibleRange);
       }
+      adapter.resizeToHost?.();
     } finally {
       applyingRuntimeVisibleRange = false;
     }

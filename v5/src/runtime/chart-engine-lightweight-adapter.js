@@ -111,6 +111,44 @@ export function createLightweightInstance({ engine, documentRef }) {
     renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
   }
 
+  function readHostSize() {
+    const target = engineSurface || host;
+    const box = target?.getBoundingClientRect?.();
+    const width = Math.floor(Number(box?.width || target?.clientWidth || host?.clientWidth || 0));
+    const height = Math.floor(Number(box?.height || target?.clientHeight || host?.clientHeight || 0));
+    return { width, height };
+  }
+
+  function recordResizeMetadata({ width, height }) {
+    if (host?.dataset) {
+      host.dataset.chartResizeWidth = String(width);
+      host.dataset.chartResizeHeight = String(height);
+    }
+    if (canvas?.dataset) {
+      canvas.dataset.chartResizeWidth = String(width);
+      canvas.dataset.chartResizeHeight = String(height);
+    }
+    if (engineSurface?.dataset) {
+      engineSurface.dataset.chartResizeWidth = String(width);
+      engineSurface.dataset.chartResizeHeight = String(height);
+    }
+  }
+
+  function resizeToHost() {
+    const size = readHostSize();
+    recordResizeMetadata(size);
+    if (!chart || size.width <= 0 || size.height <= 0) return false;
+    chart.resize?.(size.width, size.height, true);
+    return true;
+  }
+
+  function queueResizeToHost() {
+    const schedule = typeof globalThis.requestAnimationFrame === 'function'
+      ? globalThis.requestAnimationFrame
+      : (callback) => setTimeout(callback, 0);
+    schedule(() => resizeToHost());
+  }
+
   function recordVisibleLogicalRange(logicalRange) {
     if (!canvas) return;
     canvas.dataset.visibleLogicalRangeFrom = String(logicalRange.from);
@@ -211,7 +249,11 @@ export function createLightweightInstance({ engine, documentRef }) {
       applyWatermarkOptions(displayContext);
       bindVisibleRangeSubscription(options, chart.timeScale?.());
       bindCrosshairSubscription(options);
+      resizeToHost();
+      queueResizeToHost();
     },
+    resizeToHost,
+    requestResizeToHost: queueResizeToHost,
     setBars(nextBars = [], options = {}) {
       bars = [...nextBars];
       fullBarCount = Number(options.fullBarCount ?? bars.length);
@@ -223,6 +265,7 @@ export function createLightweightInstance({ engine, documentRef }) {
       applyCanvasMetadata();
       applySeriesOptions(displayContext);
       applySeriesPriceScale(displayContext);
+      resizeToHost();
       series?.setData(bars.map(toEngineBar));
       if (options.followViewport) {
         const logicalRange = followLogicalRangeForBars(bars, displayContext);
@@ -234,6 +277,7 @@ export function createLightweightInstance({ engine, documentRef }) {
       } else {
         clearVisibleLogicalRange();
       }
+      queueResizeToHost();
     },
     setMetadata(nextMetadata = {}) {
       metadata = { ...metadata, ...nextMetadata };
@@ -266,6 +310,8 @@ export function createLightweightInstance({ engine, documentRef }) {
       applySeriesOptions(displayContext);
       applySeriesPriceScale(displayContext);
       applyWatermarkOptions(displayContext);
+      resizeToHost();
+      queueResizeToHost();
     },
     readState() {
       return {

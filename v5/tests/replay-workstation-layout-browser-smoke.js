@@ -129,6 +129,18 @@ async function main() {
           };
         }
 
+        function elementRect(element) {
+          const box = element?.getBoundingClientRect();
+          return {
+            top: Math.round(box?.top || 0),
+            left: Math.round(box?.left || 0),
+            right: Math.round(box?.right || 0),
+            bottom: Math.round(box?.bottom || 0),
+            width: Math.round(box?.width || 0),
+            height: Math.round(box?.height || 0),
+          };
+        }
+
         async function waitFor(label, predicate, timeoutMs = 8000) {
           const deadline = Date.now() + timeoutMs;
           while (Date.now() < deadline) {
@@ -335,6 +347,24 @@ async function main() {
           const tripleTimeScaleCanvasCount = Array
             .from(document.querySelectorAll('[data-chart-canvas]'))
             .filter((canvas) => canvas.dataset.timeScaleVisible === 'true').length;
+          const tripleResizeMetrics = Array
+            .from(document.querySelectorAll('[data-layout-pane]'))
+            .map((pane) => {
+              const host = pane.querySelector('[data-chart-host]');
+              const canvas = pane.querySelector('[data-chart-canvas]');
+              const surface = pane.querySelector('[data-chart-engine-surface]');
+              return {
+                paneId: pane.dataset.paneId || '',
+                host: elementRect(host),
+                surface: elementRect(surface),
+                resizeWidth: Number(host?.dataset.chartResizeWidth || 0),
+                resizeHeight: Number(host?.dataset.chartResizeHeight || 0),
+                canvasResizeWidth: Number(canvas?.dataset.chartResizeWidth || 0),
+                canvasResizeHeight: Number(canvas?.dataset.chartResizeHeight || 0),
+                surfaceResizeWidth: Number(surface?.dataset.chartResizeWidth || 0),
+                surfaceResizeHeight: Number(surface?.dataset.chartResizeHeight || 0),
+              };
+            });
           document.querySelector('[data-layout-close]')?.click();
           const routeNavigation = document.querySelector('[data-route-navigation]');
           const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
@@ -425,6 +455,7 @@ async function main() {
             tripleToolbarCount,
             triplePriceScaleCanvasCount,
             tripleTimeScaleCanvasCount,
+            tripleResizeMetrics,
             chartNavRect,
             footerRect,
             statusRect,
@@ -535,6 +566,19 @@ async function main() {
     assert.equal(value.tripleToolbarCount, 3);
     assert.equal(value.triplePriceScaleCanvasCount, 3);
     assert.equal(value.tripleTimeScaleCanvasCount, 3);
+    assert.equal(value.tripleResizeMetrics.length, 3);
+    value.tripleResizeMetrics.forEach((metric) => {
+      assert.ok(metric.host.width > 180, `pane ${metric.paneId} host width should be non-zero`);
+      assert.ok(metric.host.height > 180, `pane ${metric.paneId} host height should be non-zero`);
+      assert.ok(metric.surface.width > 180, `pane ${metric.paneId} engine surface width should be non-zero`);
+      assert.ok(metric.surface.height > 180, `pane ${metric.paneId} engine surface height should be non-zero`);
+      assert.equal(metric.resizeWidth, metric.surface.width);
+      assert.equal(metric.resizeHeight, metric.surface.height);
+      assert.equal(metric.canvasResizeWidth, metric.surface.width);
+      assert.equal(metric.canvasResizeHeight, metric.surface.height);
+      assert.equal(metric.surfaceResizeWidth, metric.surface.width);
+      assert.equal(metric.surfaceResizeHeight, metric.surface.height);
+    });
     assert.ok(
       value.triplePrimaryRect.width > value.tripleSecondaryRect.width,
       'triple.left primary pane should be wider than secondary pane'

@@ -76,6 +76,9 @@ export function createChartRuntime() {
     if (mountedHosts.has(host)) {
       mountedHostByPaneId.set(nextPaneId, host);
       hostSync.pruneDisconnectedHosts();
+      const adapter = chartAdapters.get(host);
+      adapter?.resizeToHost?.();
+      adapter?.requestResizeToHost?.();
       return {
         paneId: nextPaneId,
         mounted: true,

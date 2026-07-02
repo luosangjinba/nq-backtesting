@@ -14,6 +14,7 @@ function createElement(tagName) {
     textContent: '',
     isConnected: true,
     clientWidth: 800,
+    clientHeight: 600,
     append(child) {
       this.children.push(child);
     },
@@ -42,6 +43,7 @@ function createElement(tagName) {
       return {
         left: 0,
         width: this.clientWidth,
+        height: this.clientHeight,
       };
     },
   };
@@ -150,6 +152,7 @@ const lightweightCalls = {
   watermarkOptions: [],
   watermarkApplyOptions: [],
   watermarkDetached: 0,
+  resize: [],
   subscribed: null,
   crosshairHandler: null,
   unsubscribed: null,
@@ -195,6 +198,9 @@ const fakeLightweightCharts = {
       },
       applyOptions(optionsPayload) {
         lightweightCalls.applyOptions.push(optionsPayload);
+      },
+      resize(width, height, forceRepaint) {
+        lightweightCalls.resize.push({ width, height, forceRepaint });
       },
       timeScale() {
         return {
@@ -334,7 +340,13 @@ assert.deepEqual(lightweightNativeInteractionEvents.at(-1), {
 assert.equal(lightweight.readState().engineType, 'lightweight-charts');
 assert.equal(lightweight.readState().barCount, 2);
 assert.equal(lightweightCalls.created, 1);
+assert.deepEqual(lightweightCalls.resize[0], { width: 800, height: 600, forceRepaint: true });
+assert.ok(lightweightCalls.resize.length >= 4, 'lightweight chart should resize on mount/data/presentation sync');
 assert.equal(lightweightHost.dataset.chartEngine, 'lightweight-charts');
+assert.equal(lightweightHost.dataset.chartResizeWidth, '800');
+assert.equal(lightweightHost.dataset.chartResizeHeight, '600');
+assert.equal(lightweightHost.children[0].dataset.chartResizeWidth, '800');
+assert.equal(lightweightHost.children[0].dataset.chartResizeHeight, '600');
 assert.deepEqual(lightweightCalls.options.handleScroll, {
   mouseWheel: false,
   pressedMouseMove: true,
