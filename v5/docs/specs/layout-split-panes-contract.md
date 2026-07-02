@@ -18,6 +18,9 @@ symbol, interval, crosshair, time, and date range.
 Step 463 implements the first user-facing Layout command surface. It adds
 layout mode/sync commands, enables the toolbar Layout popover, and updates
 layout state only. It still does not render multiple chart panes.
+Step 464 implements the multi-pane DOM shell. It renders one, two, or three
+pane containers from layout state while keeping a single real primary chart
+host and placeholder secondary/tertiary panes.
 
 This is a planning contract, not an implementation step.
 
@@ -81,6 +84,17 @@ Step 463 implementation status:
   single-instrument;
 - switching layout mode updates route metadata only and still renders one real
   chart host.
+
+Step 464 implementation status:
+
+- the chart route owns a `data-layout-pane-shell` that reflects layout mode,
+  active pane id, and pane count;
+- `single`, `twice`, and `triple` render one, two, or three pane containers;
+- only the `primary` pane contains the real `data-chart-host`;
+- secondary/tertiary panes are placeholders until chart runtime supports
+  pane-id-aware host mounting;
+- pane selection dispatches `layout.setActivePane` and updates active-pane
+  metadata without requesting bars or writing chart series.
 
 ## Pane Model
 
@@ -201,7 +215,7 @@ Steps 463-468 should proceed in this order:
    with Single, Twice, Triple, and the five sync switches. `symbol` is visible
    but disabled while replay sessions are single-instrument. This step updates
    layout state only and must not render extra panes.
-2. Step 464 - Multi-pane DOM shell.
+2. Step 464 - Multi-pane DOM shell. Completed.
    Render one, two, or three pane containers from layout state. Keep one real
    chart host initially, render secondary/tertiary placeholders, and dispatch
    `layout.setActivePane` on pane selection.

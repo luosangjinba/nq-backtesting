@@ -61,48 +61,52 @@ export function renderChartReplayTemplate({ activePaneId }) {
           </div>
         </div>
         ${renderChartSettingsPopover()}
-        <div class="chart-viewport" data-chart-pane-id="${activePaneId}" data-active-pane="true" data-pane-role="primary-chart" aria-label="Active chart pane">
-          <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}" data-active-pane="true">
-            <span>Starting chart...</span>
-          </div>
-          <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
-            <span data-chart-market-status aria-label="Open market status"></span>
-            <span data-chart-ohlc-symbol>NQ</span>
-            <span data-chart-ohlc-timeframe>1m</span>
-            <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
-          </div>
-          <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
-          <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
-            <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
-          </div>
-          ${renderReplayFloatingControls()}
-          <div class="chart-go-to-popover" data-chart-go-to-popover hidden>
-            <div class="chart-go-to-panel" role="dialog" aria-modal="false" aria-label="Go to time">
-              <div class="chart-go-to-header">
-                <strong>Go to</strong>
-                <button type="button" data-chart-go-to-cancel aria-label="Close go to">&times;</button>
+        <div class="chart-pane-shell" data-layout-pane-shell data-layout-mode="single" data-active-pane-id="${activePaneId}" data-pane-count="1">
+          <div class="chart-pane is-active" data-layout-pane data-pane-id="${activePaneId}" data-pane-role="primary" data-has-chart-host="true" data-active-pane="true" role="button" tabindex="0" aria-label="Primary chart pane">
+            <div class="chart-viewport" data-chart-pane-id="${activePaneId}" data-active-pane="true" data-pane-role="primary-chart" aria-label="Active chart pane">
+              <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}" data-active-pane="true">
+                <span>Starting chart...</span>
               </div>
-              <label>
-                Date and time
-                <input type="datetime-local" data-chart-go-to-input>
-              </label>
-              <div class="chart-go-to-actions">
-                <button type="button" data-chart-go-to-cancel>Cancel</button>
-                <button type="button" data-chart-go-to disabled>Go</button>
-                <button type="button" data-chart-jump-cursor-popover disabled>Jump to replay cursor</button>
-                <button type="button" data-replay-reset disabled>Reset replay</button>
+              <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
+                <span data-chart-market-status aria-label="Open market status"></span>
+                <span data-chart-ohlc-symbol>NQ</span>
+                <span data-chart-ohlc-timeframe>1m</span>
+                <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
               </div>
-            </div>
-          </div>
-          <div class="replay-truncate-error-popover" data-replay-truncate-error hidden>
-            <div class="replay-truncate-error-panel" role="dialog" aria-modal="false" aria-label="Replay truncate warning">
-              <div class="replay-truncate-error-header">
-                <strong data-replay-truncate-error-title>Cannot truncate replay</strong>
-                <button type="button" data-replay-truncate-error-close aria-label="Close replay truncate warning">&times;</button>
+              <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
+              <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
+                <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
               </div>
-              <p data-replay-truncate-error-message></p>
-              <div class="replay-truncate-error-actions">
-                <button type="button" data-replay-truncate-error-close>Cancel</button>
+              ${renderReplayFloatingControls()}
+              <div class="chart-go-to-popover" data-chart-go-to-popover hidden>
+                <div class="chart-go-to-panel" role="dialog" aria-modal="false" aria-label="Go to time">
+                  <div class="chart-go-to-header">
+                    <strong>Go to</strong>
+                    <button type="button" data-chart-go-to-cancel aria-label="Close go to">&times;</button>
+                  </div>
+                  <label>
+                    Date and time
+                    <input type="datetime-local" data-chart-go-to-input>
+                  </label>
+                  <div class="chart-go-to-actions">
+                    <button type="button" data-chart-go-to-cancel>Cancel</button>
+                    <button type="button" data-chart-go-to disabled>Go</button>
+                    <button type="button" data-chart-jump-cursor-popover disabled>Jump to replay cursor</button>
+                    <button type="button" data-replay-reset disabled>Reset replay</button>
+                  </div>
+                </div>
+              </div>
+              <div class="replay-truncate-error-popover" data-replay-truncate-error hidden>
+                <div class="replay-truncate-error-panel" role="dialog" aria-modal="false" aria-label="Replay truncate warning">
+                  <div class="replay-truncate-error-header">
+                    <strong data-replay-truncate-error-title>Cannot truncate replay</strong>
+                    <button type="button" data-replay-truncate-error-close aria-label="Close replay truncate warning">&times;</button>
+                  </div>
+                  <p data-replay-truncate-error-message></p>
+                  <div class="replay-truncate-error-actions">
+                    <button type="button" data-replay-truncate-error-close>Cancel</button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -31,6 +31,7 @@ import { createChartReplayNavigationController } from './chart-replay-navigation
 import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createChartReplayTruncateController } from './chart-replay-truncate.js';
 import { createChartReplayLayoutController } from './chart-replay-layout.js';
+import { createChartReplayPaneShellController } from './chart-replay-pane-shell.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
@@ -109,6 +110,7 @@ export function createChartReplayRoute() {
       let truncateController = null;
       let navigationController = null;
       let layoutController = null;
+      let paneShellController = null;
       const chartSettingsController = createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -296,8 +298,17 @@ export function createChartReplayRoute() {
         section.dataset.activePaneCount = String(nextPaneCount);
         section.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
         layoutController?.renderState(layoutState);
+        paneShellController?.renderState(layoutState);
       }
 
+      paneShellController = createChartReplayPaneShellController({
+        root: section,
+        dispatchCommand,
+        onLayoutState: applyLayoutState,
+        setStatusText: (message) => {
+          status.textContent = message;
+        },
+      });
       layoutController = createChartReplayLayoutController({
         root: section,
         dispatchCommand,

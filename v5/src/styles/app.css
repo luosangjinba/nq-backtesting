@@ -263,12 +263,52 @@ input {
   color: #dbeafe;
 }
 
+.chart-pane-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
+  gap: 6px;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  height: clamp(640px, calc(100vh - 148px), 940px);
+  margin-bottom: 0;
+}
+
+.chart-pane-shell[data-layout-mode="twice"] {
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+.chart-pane-shell[data-layout-mode="triple"] {
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+}
+
+.chart-pane {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.chart-pane.is-active {
+  border-color: rgba(56, 189, 248, 0.78);
+  box-shadow: inset 0 0 0 1px rgba(56, 189, 248, 0.2);
+}
+
+.chart-pane:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}
+
 .chart-viewport {
   position: relative;
   width: 100%;
   max-width: 100%;
   min-width: 0;
-  height: clamp(640px, calc(100vh - 148px), 940px);
+  height: 100%;
   margin-bottom: 0;
 }
 
@@ -283,6 +323,26 @@ input {
   background: #0d1219;
   color: #64748b;
   font-size: 13px;
+}
+
+.chart-pane-shell:not([data-pane-count="1"]) .chart-host {
+  min-height: 0;
+}
+
+.chart-pane-placeholder {
+  display: grid;
+  place-items: center;
+  border-color: #28313d;
+  background:
+    linear-gradient(135deg, rgba(20, 184, 166, 0.08), transparent 45%),
+    #0d1219;
+}
+
+.chart-pane-placeholder-content {
+  min-width: 0;
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .chart-viewport[data-truncate-pick-mode="true"] .chart-host {
@@ -597,7 +657,7 @@ input {
     grid-template-columns: 1fr;
   }
 
-  .chart-viewport {
+  .chart-pane-shell {
     height: clamp(460px, calc(100vh - 250px), 680px);
   }
 

@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 463 is complete. The Layout button now opens a compact
-  popover that dispatches layout mode/sync commands and updates route metadata
-  without rendering extra chart panes.
-- Next candidate: Step 464 - render the multi-pane DOM shell from layout state,
-  preserving one real chart host initially and using placeholder chrome for
-  secondary/tertiary panes.
+- Current status: Step 464 is complete. The chart route now renders a
+  layout-driven pane shell for Single/Twice/Triple, keeps one real primary chart
+  host, and uses placeholder panes for secondary/tertiary.
+- Next candidate: Step 465 - make chart runtime host mounting pane-id aware so
+  chart runtime, not route UI, owns future per-pane adapter lifecycle and chart
+  writes.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -46,6 +46,11 @@
   `layout.setMode` and `layout.setSync` update layout runtime state and route
   metadata, the `symbol` switch is visible but UI-disabled, and the chart route
   must still render a single real chart host until the Step 464 DOM pane shell.
+- Layout pane shell decision: Step 464 renders DOM pane containers from layout
+  state and dispatches `layout.setActivePane` when a pane is selected. Only the
+  `primary` pane owns a real `data-chart-host`; secondary/tertiary remain
+  placeholders until chart runtime host mounting becomes pane-id aware in
+  Step 465.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -3039,6 +3044,54 @@ Checks:
 
 - `node --check v5/src/runtime/layout-runtime.js`
 - `node --check v5/src/features/chart-replay/chart-replay-layout.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 464 - V5 Multi-Pane DOM Shell
+
+Status: completed.
+
+Goal: render a layout-driven pane shell for `single`, `twice`, and `triple`
+without introducing additional chart hosts or route-owned chart data.
+
+Problem:
+
+- Step 463 could update layout mode, but the route still had only one pane DOM
+  surface.
+- The next bounded step needs pane containers and active-pane selection before
+  chart runtime gains multi-host lifecycle ownership.
+- The route must not create extra `data-chart-host` nodes, series, bar
+  requests, or replay cursor state.
+
+Plan:
+
+- [x] Step 464.1: Wrap the existing primary chart viewport in a
+  `data-layout-pane-shell` and primary `data-layout-pane`.
+- [x] Step 464.2: Add a route-local pane shell controller that renders panes
+  from layout runtime state.
+- [x] Step 464.3: Render secondary/tertiary placeholder panes for
+  `twice`/`triple` while preserving one real primary chart host.
+- [x] Step 464.4: Dispatch `layout.setActivePane` when a pane is selected by
+  click or keyboard.
+- [x] Step 464.5: Update browser smoke coverage and docs/session handoff.
+
+Manual acceptance:
+
+- Selecting `Twice` renders two pane containers.
+- Selecting `Triple` can render three pane containers.
+- Only the primary pane contains `data-chart-host`.
+- Clicking a secondary placeholder updates active-pane metadata through layout
+  runtime.
+- Replay/chart data loading remains unchanged and still uses the primary chart
+  host.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
 - `node v5/tests/layout-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`

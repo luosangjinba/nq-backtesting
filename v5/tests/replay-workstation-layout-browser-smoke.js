@@ -166,10 +166,6 @@ async function main() {
           const toolbarRect = rect('[data-replay-workstation-toolbar]');
           const headingRect = rect('.chart-route-heading');
           const headingActionsRect = rect('.chart-route-actions');
-          const chartRect = rect('[data-chart-host]');
-          const chartNavRect = rect('[data-chart-toolbar]');
-          const footerRect = rect('[data-replay-footer]');
-          const statusRect = rect('[data-replay-status]');
           const shellTopBarRect = rect('.top-bar');
           const shellTopBarDisplay = getComputedStyle(document.querySelector('.top-bar')).display;
           const workspaceRect = rect('.workspace');
@@ -193,10 +189,25 @@ async function main() {
           const layoutPopoverInitiallyVisible = Boolean(layoutPopover && !layoutPopover.hidden);
           const singleModeInitiallyPressed = singleModeButton?.getAttribute('aria-pressed') || '';
           twiceModeButton?.click();
-          await waitFor('twice layout mode', async () => chartRoute?.dataset.layoutMode === 'twice');
+          await waitFor('twice layout mode', async () => (
+            chartRoute?.dataset.layoutMode === 'twice'
+            && document.querySelectorAll('[data-layout-pane]').length === 2
+          ));
           intervalSyncInput?.click();
           await waitFor('interval sync enabled', async () => intervalSyncInput?.checked === true);
+          const secondaryPane = document.querySelector('[data-layout-pane][data-pane-id="secondary"]');
+          secondaryPane?.click();
+          await waitFor('secondary active pane', async () => chartRoute?.dataset.activePaneId === 'secondary');
           const chartHostCount = document.querySelectorAll('[data-chart-host]').length;
+          const paneShell = document.querySelector('[data-layout-pane-shell]');
+          const primaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
+          const paneCount = document.querySelectorAll('[data-layout-pane]').length;
+          const placeholderPaneCount = document.querySelectorAll('[data-layout-pane][data-has-chart-host="false"]').length;
+          const chartRect = rect('[data-chart-host]');
+          const paneShellRect = rect('[data-layout-pane-shell]');
+          const chartNavRect = rect('[data-chart-toolbar]');
+          const footerRect = rect('[data-replay-footer]');
+          const statusRect = rect('[data-replay-status]');
           const routeNavigation = document.querySelector('[data-route-navigation]');
           const sessionsLink = routeNavigation?.querySelector('[data-route-link="setup"]');
           const toolbarSetupLinkCount = document
@@ -213,6 +224,13 @@ async function main() {
             activePaneCount: chartRoute?.dataset.activePaneCount || '',
             layoutMode: chartRoute?.dataset.layoutMode || '',
             chartHostCount,
+            paneCount,
+            placeholderPaneCount,
+            paneShellMode: paneShell?.dataset.layoutMode || '',
+            paneShellActivePaneId: paneShell?.dataset.activePaneId || '',
+            primaryPaneActive: primaryPane?.dataset.activePane || '',
+            secondaryPaneActive: secondaryPane?.dataset.activePane || '',
+            secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
             layoutPopoverInitiallyVisible,
             layoutPopoverVisible: Boolean(layoutPopover && !layoutPopover.hidden),
             singleModeInitiallyPressed,
@@ -244,13 +262,14 @@ async function main() {
             headingRect,
             headingActionsRect,
             chartRect,
+            paneShellRect,
             chartNavRect,
             footerRect,
             statusRect,
             timeframeControlVisible: timeframeControlRect.width > 0 && timeframeControlRect.height > 0,
             goToVisible: goToRect.width > 0 && goToRect.height > 0,
             settingsVisible: settingsRect.width > 0 && settingsRect.height > 0,
-            footerVisible: footerRect.height > 0 && footerRect.top >= chartRect.bottom,
+            footerVisible: footerRect.height > 0 && footerRect.top >= paneShellRect.bottom,
             statusVisible: statusRect.height > 0,
             chartNavBottomGap: chartRect.bottom - chartNavRect.bottom,
             headingToolbarGap: toolbarRect.top - headingRect.bottom,
@@ -266,10 +285,17 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.panelTitle, 'FX Session Replay');
     assert.equal(value.badgeText, 'Historical Review');
-    assert.equal(value.activePaneId, 'primary');
+    assert.equal(value.activePaneId, 'secondary');
     assert.equal(value.activePaneCount, '2');
     assert.equal(value.layoutMode, 'twice');
     assert.equal(value.chartHostCount, 1);
+    assert.equal(value.paneCount, 2);
+    assert.equal(value.placeholderPaneCount, 1);
+    assert.equal(value.paneShellMode, 'twice');
+    assert.equal(value.paneShellActivePaneId, 'secondary');
+    assert.equal(value.primaryPaneActive, 'false');
+    assert.equal(value.secondaryPaneActive, 'true');
+    assert.equal(value.secondaryPaneHasChartHost, 'false');
     assert.equal(value.layoutPopoverInitiallyVisible, true);
     assert.equal(value.layoutPopoverVisible, true);
     assert.equal(value.singleModeInitiallyPressed, 'true');
@@ -278,10 +304,10 @@ async function main() {
     assert.equal(value.symbolSyncDisabled, true);
     assert.equal(value.intervalSyncChecked, true);
     assert.equal(value.viewportPaneId, 'primary');
-    assert.equal(value.viewportActivePane, 'true');
+    assert.equal(value.viewportActivePane, 'false');
     assert.equal(value.viewportPaneRole, 'primary-chart');
     assert.equal(value.hostPaneId, 'primary');
-    assert.equal(value.hostActivePane, 'true');
+    assert.equal(value.hostActivePane, 'false');
     assert.equal(value.layoutButtonDisabled, false);
     assert.equal(value.layoutButtonAriaDisabled, '');
     assert.equal(value.layoutButtonExpanded, 'true');
@@ -304,7 +330,8 @@ async function main() {
     assert.ok(value.headingActionsRect.height <= 28, `route actions too tall: ${value.headingActionsRect.height}`);
     assert.ok(value.headingToolbarGap <= 10, `heading-to-toolbar gap too large: ${value.headingToolbarGap}`);
     assert.ok(value.toolbarRect.height <= 46, `toolbar too tall: ${value.toolbarRect.height}`);
-    assert.ok(value.chartRect.height >= 640, `chart host too short: ${value.chartRect.height}`);
+    assert.ok(value.paneShellRect.height >= 640, `pane shell too short: ${value.paneShellRect.height}`);
+    assert.ok(value.chartRect.height >= 300, `split chart host too short: ${value.chartRect.height}`);
     assert.equal(value.footerVisible, true);
     assert.equal(value.statusVisible, true);
     assert.ok(value.chartNavBottomGap >= 20, `chart toolbar too close to bottom: ${value.chartNavBottomGap}`);
