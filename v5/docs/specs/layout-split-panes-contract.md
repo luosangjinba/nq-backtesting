@@ -35,6 +35,9 @@ Step 469 changes the Layout popover mode selector to an FXReplay-style icon
 matrix while preserving the same layout command boundary.
 Steps 470-472 continue the Layout work in layers: explicit variant state,
 variant-driven pane shell layout, then real secondary/tertiary chart hosts.
+Step 479 adds resizable split boundaries. Layout runtime stores split ratios,
+pane shell renders responsive grid tracks from those ratios, and split dragging
+clamps adjacent panes so neither side can collapse.
 
 This is a planning contract, not an implementation step.
 
@@ -210,6 +213,17 @@ Step 472 implementation status:
   replay initial no-future behavior, viewport follow behavior, and boundary
   rules.
 
+Step 479 implementation status:
+
+- layout runtime exposes `layout.setSplitRatio`;
+- split state is stored as pane ratios, not pixel widths/heights;
+- adjacent split drags are clamped to a 15/85 wall so each pane remains
+  visible and usable;
+- pane shell renders `fr` grid tracks from layout ratios and only dispatches
+  layout commands;
+- browser smoke verifies stacked split handles, minimum-wall clamping, chart
+  resize metrics, and multi-pane axis/chrome visibility.
+
 ## Pane Model
 
 A pane record should be serializable and persistence-ready:
@@ -228,6 +242,10 @@ Root layout state should also carry:
   `triple`;
 - `variant`: specific layout geometry, such as `twice.horizontal` or
   `triple.left`.
+- `split`: responsive pane split state. The first implementation stores
+  normalized `ratios` by pane id and must not persist fixed pixel dimensions.
+  UI drag gestures update adjacent pane shares through `layout.setSplitRatio`,
+  and the runtime clamps those shares to a minimum wall.
 
 Root layout state also contains `sync`:
 

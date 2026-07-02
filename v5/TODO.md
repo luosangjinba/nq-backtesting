@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 478 is complete. Multi-pane runtime canvases no longer
-  inherit the single-pane fixed minimum height, so horizontal split panes keep
-  their time axes inside the pane instead of clipping them below the host.
-- Next candidate: Step 479 - design and implement resizable split pane
-  boundaries. The split state should own pane ratios/min sizes and trigger the
-  existing chart runtime resize path instead of writing chart APIs from route
-  UI.
+- Current status: Step 479 is complete. Layout split panes now have draggable
+  boundaries backed by layout-runtime split ratios, with a 15/85 minimum wall
+  so a pane cannot be collapsed away.
+- Next candidate: Step 480 - harden split-pane chart synchronization after
+  resize. Verify drag-resized panes keep price/time axes, OHLC overlays,
+  active-pane focus, and future Settings scope stable across all `twice.*` and
+  `triple.*` variants.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -110,6 +110,11 @@
   from responsive grid tracks and future split ratios, not fixed pixel heights.
   Regression coverage must assert stacked panes keep canvas/surface height
   within the host so time axes are not clipped.
+- Split resize decision: Step 479 adds `layout.setSplitRatio`. Layout runtime
+  owns split ratios and clamps adjacent pane shares to a 15/85 wall; the pane
+  shell renders responsive `fr` tracks from those ratios and only dispatches
+  layout commands while chart runtime resize observers keep chart axes/chrome
+  in sync. Split state must not be stored as fixed pixel widths/heights.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

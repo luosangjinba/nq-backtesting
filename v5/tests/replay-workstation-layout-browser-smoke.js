@@ -163,6 +163,54 @@ async function main() {
             });
         }
 
+        function splitHandleMetrics() {
+          return Array
+            .from(document.querySelectorAll('[data-layout-split-handle]'))
+            .map((handle) => ({
+              id: handle.dataset.layoutSplitHandle || '',
+              firstPaneId: handle.dataset.firstPaneId || '',
+              secondPaneId: handle.dataset.secondPaneId || '',
+              orientation: handle.getAttribute('aria-orientation') || '',
+              hidden: Boolean(handle.hidden),
+              rect: elementRect(handle),
+            }));
+        }
+
+        async function dragSplitHandle(id, clientPosition) {
+          const handle = document.querySelector('[data-layout-split-handle="' + id + '"]');
+          if (!handle) throw new Error('Missing split handle ' + id);
+          const box = handle.getBoundingClientRect();
+          const vertical = handle.getAttribute('aria-orientation') === 'vertical';
+          const startX = Math.round(box.left + box.width / 2);
+          const startY = Math.round(box.top + box.height / 2);
+          const pointerId = 479;
+          handle.dispatchEvent(new PointerEvent('pointerdown', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            pointerId,
+            clientX: startX,
+            clientY: startY,
+          }));
+          handle.dispatchEvent(new PointerEvent('pointermove', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            pointerId,
+            clientX: vertical ? clientPosition : startX,
+            clientY: vertical ? startY : clientPosition,
+          }));
+          handle.dispatchEvent(new PointerEvent('pointerup', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            pointerId,
+            clientX: vertical ? clientPosition : startX,
+            clientY: vertical ? startY : clientPosition,
+          }));
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        }
+
         async function waitFor(label, predicate, timeoutMs = 8000) {
           const deadline = Date.now() + timeoutMs;
           while (Date.now() < deadline) {
@@ -239,6 +287,56 @@ async function main() {
             && document.querySelectorAll('[data-layout-pane]').length === 2
           ));
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+          const twiceHorizontalSplitHandles = splitHandleMetrics();
+          const twiceHorizontalShellBeforeDrag = rect('[data-layout-pane-shell]');
+          await dragSplitHandle('primary-secondary-y', twiceHorizontalShellBeforeDrag.top + 4);
+          await waitFor('split ratio minimum wall after upward drag', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const primary = document
+              .querySelector('[data-layout-pane][data-pane-id="primary"]')
+              ?.getBoundingClientRect();
+            const secondary = document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"]')
+              ?.getBoundingClientRect();
+            return layoutState.split?.ratios?.primary >= 0.29
+              && layoutState.split?.ratios?.secondary <= 1.71
+              && primary?.height > twiceHorizontalShellBeforeDrag.height * 0.12
+              && secondary?.height > twiceHorizontalShellBeforeDrag.height * 0.75;
+          });
+          const twiceHorizontalMinWallLayoutState = await commands.dispatchCommand('layout.getState');
+          const twiceHorizontalMinWallPrimaryRect = rect('[data-layout-pane][data-pane-id="primary"]');
+          const twiceHorizontalMinWallSecondaryRect = rect('[data-layout-pane][data-pane-id="secondary"]');
+          await dragSplitHandle(
+            'primary-secondary-y',
+            twiceHorizontalShellBeforeDrag.top + twiceHorizontalShellBeforeDrag.height - 4
+          );
+          await waitFor('split ratio maximum wall after downward drag', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const primary = document
+              .querySelector('[data-layout-pane][data-pane-id="primary"]')
+              ?.getBoundingClientRect();
+            const secondary = document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"]')
+              ?.getBoundingClientRect();
+            return layoutState.split?.ratios?.primary <= 1.71
+              && layoutState.split?.ratios?.secondary >= 0.29
+              && primary?.height > twiceHorizontalShellBeforeDrag.height * 0.75
+              && secondary?.height > twiceHorizontalShellBeforeDrag.height * 0.12;
+          });
+          const twiceHorizontalMaxWallLayoutState = await commands.dispatchCommand('layout.getState');
+          const twiceHorizontalMaxWallPrimaryRect = rect('[data-layout-pane][data-pane-id="primary"]');
+          const twiceHorizontalMaxWallSecondaryRect = rect('[data-layout-pane][data-pane-id="secondary"]');
+          await dragSplitHandle(
+            'primary-secondary-y',
+            twiceHorizontalShellBeforeDrag.top + (twiceHorizontalShellBeforeDrag.height / 2)
+          );
+          await waitFor('split ratio restored near midpoint', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            return layoutState.split?.ratios?.primary > 0.9
+              && layoutState.split?.ratios?.primary < 1.1
+              && layoutState.split?.ratios?.secondary > 0.9
+              && layoutState.split?.ratios?.secondary < 1.1;
+          });
           const twiceHorizontalResizeMetrics = paneResizeMetrics();
           intervalSyncInput?.click();
           await waitFor('interval sync enabled', async () => intervalSyncInput?.checked === true);
@@ -462,6 +560,13 @@ async function main() {
             tripleToolbarCount,
             triplePriceScaleCanvasCount,
             tripleTimeScaleCanvasCount,
+            twiceHorizontalSplitHandles,
+            twiceHorizontalMinWallRatios: twiceHorizontalMinWallLayoutState.split.ratios,
+            twiceHorizontalMaxWallRatios: twiceHorizontalMaxWallLayoutState.split.ratios,
+            twiceHorizontalMinWallPrimaryRect,
+            twiceHorizontalMinWallSecondaryRect,
+            twiceHorizontalMaxWallPrimaryRect,
+            twiceHorizontalMaxWallSecondaryRect,
             twiceHorizontalResizeMetrics,
             tripleResizeMetrics,
             chartNavRect,
@@ -560,6 +665,31 @@ async function main() {
     assert.equal(value.layoutButtonState, 'ready');
     assert.equal(value.layoutButtonMode, 'twice');
     assert.equal(value.layoutButtonVariant, 'twice.horizontal');
+    assert.equal(value.twiceHorizontalSplitHandles.length, 1);
+    assert.equal(value.twiceHorizontalSplitHandles[0].id, 'primary-secondary-y');
+    assert.equal(value.twiceHorizontalSplitHandles[0].orientation, 'horizontal');
+    assert.equal(value.twiceHorizontalSplitHandles[0].hidden, false);
+    assert.ok(value.twiceHorizontalSplitHandles[0].rect.width > 180);
+    assert.ok(value.twiceHorizontalMinWallRatios.primary >= 0.29);
+    assert.ok(value.twiceHorizontalMinWallRatios.secondary <= 1.71);
+    assert.ok(value.twiceHorizontalMaxWallRatios.primary <= 1.71);
+    assert.ok(value.twiceHorizontalMaxWallRatios.secondary >= 0.29);
+    assert.ok(
+      value.twiceHorizontalMinWallPrimaryRect.height > value.paneShellRect.height * 0.12,
+      'upward split drag should keep primary pane above the minimum wall'
+    );
+    assert.ok(
+      value.twiceHorizontalMinWallSecondaryRect.height > value.paneShellRect.height * 0.75,
+      'upward split drag should preserve secondary pane space'
+    );
+    assert.ok(
+      value.twiceHorizontalMaxWallPrimaryRect.height > value.paneShellRect.height * 0.75,
+      'downward split drag should preserve primary pane space'
+    );
+    assert.ok(
+      value.twiceHorizontalMaxWallSecondaryRect.height > value.paneShellRect.height * 0.12,
+      'downward split drag should keep secondary pane above the minimum wall'
+    );
     assert.ok(
       Math.abs(value.primaryPaneRect.left - value.secondaryPaneRect.left) <= 2,
       'twice.horizontal panes should share the same left edge'

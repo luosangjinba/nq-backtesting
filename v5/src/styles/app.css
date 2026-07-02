@@ -266,8 +266,8 @@ input {
 .chart-pane-shell {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: minmax(0, 1fr);
+  grid-template-columns: minmax(0, var(--layout-primary-track, 1fr));
+  grid-template-rows: minmax(0, var(--layout-primary-track, 1fr));
   gap: 6px;
   width: 100%;
   max-width: 100%;
@@ -277,36 +277,51 @@ input {
 }
 
 .chart-pane-shell[data-layout-mode="twice"] {
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-rows:
+    minmax(0, var(--layout-primary-track, 1fr))
+    minmax(0, var(--layout-secondary-track, 1fr));
 }
 
 .chart-pane-shell[data-layout-mode="triple"] {
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-template-rows:
+    minmax(0, var(--layout-primary-track, 1fr))
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
 }
 
 .chart-pane-shell[data-layout-variant="twice.vertical"] {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(0, var(--layout-primary-track, 1fr))
+    minmax(0, var(--layout-secondary-track, 1fr));
   grid-template-rows: minmax(0, 1fr);
   grid-template-areas: "primary secondary";
 }
 
 .chart-pane-shell[data-layout-variant="twice.horizontal"] {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-rows:
+    minmax(0, var(--layout-primary-track, 1fr))
+    minmax(0, var(--layout-secondary-track, 1fr));
   grid-template-areas:
     "primary"
     "secondary";
 }
 
 .chart-pane-shell[data-layout-variant="triple.vertical"] {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(0, var(--layout-primary-track, 1fr))
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
   grid-template-rows: minmax(0, 1fr);
   grid-template-areas: "primary secondary tertiary";
 }
 
 .chart-pane-shell[data-layout-variant="triple.horizontal"] {
   grid-template-columns: minmax(0, 1fr);
-  grid-template-rows: repeat(3, minmax(0, 1fr));
+  grid-template-rows:
+    minmax(0, var(--layout-primary-track, 1fr))
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
   grid-template-areas:
     "primary"
     "secondary"
@@ -314,32 +329,48 @@ input {
 }
 
 .chart-pane-shell[data-layout-variant="triple.left"] {
-  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(0, var(--layout-primary-track, 1.35fr))
+    minmax(0, var(--layout-side-track, 2fr));
+  grid-template-rows:
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
   grid-template-areas:
     "primary secondary"
     "primary tertiary";
 }
 
 .chart-pane-shell[data-layout-variant="triple.right"] {
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-columns:
+    minmax(0, var(--layout-side-track, 2fr))
+    minmax(0, var(--layout-primary-track, 1.35fr));
+  grid-template-rows:
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
   grid-template-areas:
     "secondary primary"
     "tertiary primary";
 }
 
 .chart-pane-shell[data-layout-variant="triple.top"] {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: minmax(0, 1.35fr) minmax(0, 1fr);
+  grid-template-columns:
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
+  grid-template-rows:
+    minmax(0, var(--layout-primary-track, 1.35fr))
+    minmax(0, var(--layout-side-track, 2fr));
   grid-template-areas:
     "primary primary"
     "secondary tertiary";
 }
 
 .chart-pane-shell[data-layout-variant="triple.bottom"] {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1.35fr);
+  grid-template-columns:
+    minmax(0, var(--layout-secondary-track, 1fr))
+    minmax(0, var(--layout-tertiary-track, 1fr));
+  grid-template-rows:
+    minmax(0, var(--layout-side-track, 2fr))
+    minmax(0, var(--layout-primary-track, 1.35fr));
   grid-template-areas:
     "secondary tertiary"
     "primary primary";
@@ -374,6 +405,65 @@ input {
 .chart-pane:focus-visible {
   outline: 2px solid #38bdf8;
   outline-offset: 2px;
+}
+
+.chart-pane-split-handle {
+  position: absolute;
+  z-index: 8;
+  display: none;
+  border: 0;
+  background: transparent;
+  touch-action: none;
+}
+
+.chart-pane-split-handle[aria-orientation="vertical"] {
+  width: 12px;
+  cursor: ew-resize;
+  transform: translateX(-50%);
+}
+
+.chart-pane-split-handle[aria-orientation="horizontal"] {
+  height: 12px;
+  cursor: ns-resize;
+  transform: translateY(-50%);
+}
+
+.chart-pane-split-handle::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  background: rgba(56, 189, 248, 0.38);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.chart-pane-split-handle[aria-orientation="vertical"]::after {
+  top: 0;
+  bottom: 0;
+  left: 5px;
+  width: 2px;
+}
+
+.chart-pane-split-handle[aria-orientation="horizontal"]::after {
+  right: 0;
+  bottom: 5px;
+  left: 0;
+  height: 2px;
+}
+
+.chart-pane-shell:not([data-pane-count="1"]) .chart-pane-split-handle {
+  display: block;
+}
+
+.chart-pane-shell.is-resizing,
+.chart-pane-shell.is-resizing * {
+  user-select: none;
+}
+
+.chart-pane-shell.is-resizing .chart-pane-split-handle::after,
+.chart-pane-split-handle:hover::after,
+.chart-pane-split-handle:focus-visible::after {
+  opacity: 1;
 }
 
 .chart-viewport {

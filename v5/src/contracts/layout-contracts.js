@@ -7,6 +7,7 @@ export const LAYOUT_COMMANDS = Object.freeze({
   SET_PANE_TIME: 'layout.setPaneTime',
   SET_PANE_DATE_RANGE: 'layout.setPaneDateRange',
   SET_PANE_CROSSHAIR: 'layout.setPaneCrosshair',
+  SET_SPLIT_RATIO: 'layout.setSplitRatio',
 });
 
 export const LAYOUT_EVENTS = Object.freeze({
@@ -54,6 +55,13 @@ export const DEFAULT_LAYOUT_STATE = Object.freeze({
   variant: LAYOUT_VARIANTS.SINGLE_DEFAULT,
   activePaneId: DEFAULT_ACTIVE_PANE_ID,
   sync: DEFAULT_LAYOUT_SYNC,
+  split: Object.freeze({
+    ratios: Object.freeze({
+      primary: 1,
+      secondary: 1,
+      tertiary: 1,
+    }),
+  }),
   panes: Object.freeze([
     Object.freeze({
       id: DEFAULT_ACTIVE_PANE_ID,

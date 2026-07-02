@@ -141,3 +141,8 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 472: `session_20260702_step472_v5_real_multi_pane_chart_hosts.md`
 - Step 473: `session_20260702_step473_v5_multi_pane_ohlc_price_scales.md`
 - Step 474: `session_20260702_step474_v5_multi_pane_chart_chrome_parity.md`
+- Step 475: `session_20260702_step475_v5_multi_pane_chart_resize.md`
+- Step 476: `session_20260702_step476_v5_lightweight_manual_sizing.md`
+- Step 477: `session_20260702_step477_v5_lightweight_resize_source.md`
+- Step 478: `session_20260702_step478_v5_multi_pane_canvas_min_height.md`
+- Step 479: `session_20260702_step479_v5_resizable_split_panes.md`

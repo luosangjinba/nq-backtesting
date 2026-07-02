@@ -90,6 +90,32 @@ function normalizeDisplayTimeframe(value) {
   return normalized;
 }
 
+function normalizeRatio(value, fallback = 1) {
+  const number = Number(value);
+  if (!Number.isFinite(number) || number <= 0) return fallback;
+  return Math.min(10, Math.max(0.1, number));
+}
+
+function normalizeSplit(split = {}, panes = []) {
+  const sourceRatios = split?.ratios && typeof split.ratios === 'object'
+    ? split.ratios
+    : DEFAULT_LAYOUT_STATE.split.ratios;
+  return {
+    ratios: Object.fromEntries(panes.map((pane) => [
+      pane.id,
+      normalizeRatio(sourceRatios[pane.id], DEFAULT_LAYOUT_STATE.split.ratios[pane.id] || 1),
+    ])),
+  };
+}
+
+function normalizeSplitRatio(value) {
+  const number = Number(value);
+  if (!Number.isFinite(number)) {
+    throw new Error('layout split ratio must be a finite number.');
+  }
+  return Math.min(85, Math.max(15, number));
+}
+
 function normalizeSync(sync = {}) {
   return {
     symbol: Boolean(sync.symbol ?? DEFAULT_LAYOUT_SYNC.symbol),
@@ -182,6 +208,7 @@ function normalizeLayoutState(input = DEFAULT_LAYOUT_STATE) {
     variant: layout.variant,
     activePaneId,
     sync: normalizeSync(input.sync),
+    split: normalizeSplit(input.split, panes),
     panes,
   };
 }
@@ -359,6 +386,36 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
+  function setSplitRatio({ firstPaneId, secondPaneId, ratio } = {}) {
+    const first = String(firstPaneId || '').trim();
+    const second = String(secondPaneId || '').trim();
+    if (!first || !second || first === second) {
+      throw new Error('layout split ratio requires two distinct pane ids.');
+    }
+    if (!state.panes.some((pane) => pane.id === first) || !state.panes.some((pane) => pane.id === second)) {
+      throw new Error('layout split ratio pane does not exist.');
+    }
+    const firstShare = normalizeSplitRatio(ratio) / 100;
+    const currentRatios = normalizeSplit(state.split, state.panes).ratios;
+    const pairTotal = normalizeRatio(currentRatios[first]) + normalizeRatio(currentRatios[second]);
+    const nextState = normalizeLayoutState({
+      ...state,
+      split: {
+        ratios: {
+          ...currentRatios,
+          [first]: pairTotal * firstShare,
+          [second]: pairTotal * (1 - firstShare),
+        },
+      },
+    });
+    const changed = !sameLayout(nextState, state);
+    state = nextState;
+    if (changed) {
+      emit(LAYOUT_EVENTS.CHANGED, snapshot());
+    }
+    return snapshot();
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
@@ -369,7 +426,8 @@ export function createLayoutRuntime({
       registerCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, (payload) => setPaneDisplayTimeframe(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_PANE_TIME, (payload) => setPaneTime(payload)),
       registerCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, (payload) => setPaneDateRange(payload)),
-      registerCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, (payload) => setPaneCrosshair(payload))
+      registerCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, (payload) => setPaneCrosshair(payload)),
+      registerCommand(LAYOUT_COMMANDS.SET_SPLIT_RATIO, (payload) => setSplitRatio(payload))
     );
   }
 

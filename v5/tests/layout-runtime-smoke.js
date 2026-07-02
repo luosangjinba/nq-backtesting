@@ -33,6 +33,7 @@ assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_TIME), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE), true);
 assert.equal(hasCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR), true);
+assert.equal(hasCommand(LAYOUT_COMMANDS.SET_SPLIT_RATIO), true);
 
 const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
@@ -45,6 +46,11 @@ assert.deepEqual(defaults, {
     crosshair: false,
     time: false,
     dateRange: false,
+  },
+  split: {
+    ratios: {
+      primary: 1,
+    },
   },
   panes: [
     {
@@ -76,6 +82,7 @@ assert.equal(twice.mode, 'twice');
 assert.equal(twice.variant, 'twice.vertical');
 assert.equal(twice.activePaneId, 'primary');
 assert.deepEqual(twice.panes.map((pane) => pane.id), ['primary', 'secondary']);
+assert.deepEqual(twice.split.ratios, { primary: 1, secondary: 1 });
 assert.equal(changedEvent.mode, 'twice');
 assert.equal(changedEvent.variant, 'twice.vertical');
 
@@ -85,6 +92,21 @@ const twiceHorizontal = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
 assert.equal(twiceHorizontal.mode, 'twice');
 assert.equal(twiceHorizontal.variant, 'twice.horizontal');
 assert.deepEqual(twiceHorizontal.panes.map((pane) => pane.id), ['primary', 'secondary']);
+
+const resizedTwice = await dispatchCommand(LAYOUT_COMMANDS.SET_SPLIT_RATIO, {
+  firstPaneId: 'primary',
+  secondPaneId: 'secondary',
+  ratio: 80,
+});
+assert.equal(resizedTwice.split.ratios.primary, 1.6);
+assert.equal(resizedTwice.split.ratios.secondary, 0.3999999999999999);
+const clampedTwice = await dispatchCommand(LAYOUT_COMMANDS.SET_SPLIT_RATIO, {
+  firstPaneId: 'primary',
+  secondPaneId: 'secondary',
+  ratio: 5,
+});
+assert.ok(clampedTwice.split.ratios.primary >= 0.29);
+assert.ok(clampedTwice.split.ratios.secondary <= 1.71);
 
 changedEvent = null;
 const secondaryFiveMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
@@ -225,6 +247,14 @@ await assert.rejects(
   /Unsupported layout sync key/
 );
 await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_SPLIT_RATIO, {
+    firstPaneId: 'primary',
+    secondPaneId: 'missing',
+    ratio: 50,
+  }),
+  /does not exist/
+);
+await assert.rejects(
   () => dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
     paneId: 'secondary',
     displayTimeframe: 0,
@@ -315,6 +345,15 @@ const triple = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.equal(triple.mode, 'triple');
 assert.equal(triple.variant, 'triple.vertical');
 assert.equal(triple.panes.length, 3);
+assert.deepEqual(triple.split.ratios, { primary: 1, secondary: 1, tertiary: 1 });
+const resizedTriple = await dispatchCommand(LAYOUT_COMMANDS.SET_SPLIT_RATIO, {
+  firstPaneId: 'secondary',
+  secondPaneId: 'tertiary',
+  ratio: 75,
+});
+assert.equal(resizedTriple.split.ratios.primary, 1);
+assert.equal(resizedTriple.split.ratios.secondary, 1.5);
+assert.equal(resizedTriple.split.ratios.tertiary, 0.5);
 triplePaneRuntime.stop();
 
 console.log('v5 layout runtime smoke passed');
