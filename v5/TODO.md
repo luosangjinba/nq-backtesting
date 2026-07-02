@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 426 is complete. Chart runtime now separates pure state
-  normalization and viewport/range calculations from host mounting, adapter
-  synchronization, command registration, and event subscriptions.
-- Next candidate: Step 427 - Settings remaining-deferred cleanup. Reassess
-  FXReplay settings items that still need explicit runtime design before UI:
-  scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
-  session breaks, templates, and split-pane/pane-specific settings.
+- Current status: Step 427 is complete. Chart engine adapter now separates
+  context normalization, presentation/options helpers, and the DOM fallback
+  adapter from the Lightweight adapter/factory entry point.
+- Next candidate: Step 428 - Lightweight chart adapter internal split. Separate
+  native interaction/writeback, crosshair/readout mapping, logical-range
+  expansion, and lifecycle wiring without changing the public chart engine
+  adapter contract.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -95,6 +95,11 @@
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
   runtime command/event owner and the only runtime that writes chart adapters.
+- Refactor decision: chart engine adapter modules should separate factory,
+  context normalization, presentation/options mapping, DOM fallback rendering,
+  and Lightweight engine integration. Adapter implementations may write their
+  own engine/DOM surfaces, but callers must continue to use the stable
+  `createChartEngineAdapter` API through chart runtime ownership.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -752,6 +757,64 @@ Checks:
 - `node v5/tests/chart-viewport-follow-smoke.js`
 - `node v5/tests/replay-viewport-follow-smoke.js`
 - `node v5/tests/replay-viewport-follow-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 427 - V5 Chart Engine Adapter Boundary Split
+
+Status: completed.
+
+Goal: continue modularization by giving chart-engine context, presentation
+mapping, and fallback rendering explicit module homes while preserving the
+public `createChartEngineAdapter` factory contract.
+
+Problem:
+
+- `chart-engine-adapter.js` mixed display-context normalization, Lightweight
+  option mapping, fallback DOM rendering/input, logical-range helpers,
+  crosshair metadata, and the Lightweight adapter lifecycle.
+- Future settings, interaction, layout, and review features would make the
+  adapter difficult to split later if all helper surfaces stayed in one file.
+
+Implementation:
+
+- [x] Step 427.1: Add `runtime/chart-engine-context.js` for display-context
+  normalization and bar timestamp conversion helpers.
+- [x] Step 427.2: Add `runtime/chart-engine-presentation.js` for Lightweight
+  options, fallback metadata, logical-range whitespace helpers, and shared
+  render helpers.
+- [x] Step 427.3: Add `runtime/chart-engine-fallback-adapter.js` for the DOM
+  fallback engine implementation and fallback input handling.
+- [x] Step 427.4: Keep `chart-engine-adapter.js` as the stable factory plus the
+  current Lightweight adapter implementation.
+- [x] Step 427.5: Update the chart-engine boundary harness so the new
+  presentation module is treated as part of the chart-engine adapter family.
+- [x] Step 427.6: Reduce `chart-engine-adapter.js` from 786 lines to 427 lines
+  without changing chart runtime call sites.
+
+Manual acceptance:
+
+- Chart runtime still imports and calls `createChartEngineAdapter` only.
+- The DOM fallback adapter remains available when Lightweight Charts is not
+  present.
+- Presentation settings, reset view, native drag/wheel behavior, crosshair
+  readout, and hidden debug bar metadata continue through existing adapter
+  behavior.
+- New helper modules do not register runtime commands, subscribe to app events,
+  request bars, or own replay cursor state.
+
+Checks:
+
+- `node --check v5/src/runtime/chart-engine-adapter.js`
+- `node --check v5/src/runtime/chart-engine-context.js`
+- `node --check v5/src/runtime/chart-engine-presentation.js`
+- `node --check v5/src/runtime/chart-engine-fallback-adapter.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-fallback-input-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-native-interaction-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 
