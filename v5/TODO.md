@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 471 is complete. The pane shell now exposes
-  `data-layout-variant` and renders supported variants with CSS grid while
-  secondary/tertiary panes remain placeholders.
-- Next candidate: Step 472 - make secondary/tertiary panes real chart hosts
-  through chart runtime while preserving replay/bar-data ownership boundaries.
+- Current status: Step 472 is complete. Secondary and tertiary panes now render
+  real `data-chart-host` elements and mount through chart runtime while replay
+  cursor/reveal and bar-data ownership remain unchanged.
+- Next candidate: Step 473 - audit multi-pane behavior in-browser and decide
+  whether to add pane-specific data policies/settings or return to Settings
+  polish.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -3475,7 +3476,7 @@ Checks:
 
 ## Step 472 - V5 Real Multi-Pane Chart Hosts
 
-Status: planned.
+Status: completed.
 
 Goal: make secondary and tertiary panes mount real chart hosts through chart
 runtime while preserving replay cursor, no-future reveal, and bar-data
@@ -3491,20 +3492,20 @@ Problem:
 
 Plan:
 
-- [ ] Step 472.1: Define the initial secondary-pane data policy: shared replay
+- [x] Step 472.1: Define the initial secondary-pane data policy: shared replay
   session, same instrument, pane-level display timeframe, no bars beyond the
   shared replay cursor.
-- [ ] Step 472.2: Render `data-chart-host` in secondary/tertiary panes only
+- [x] Step 472.2: Render `data-chart-host` in secondary/tertiary panes only
   when layout state requires those panes.
-- [ ] Step 472.3: Mount each pane host through `chart.mountHost` and let chart
+- [x] Step 472.3: Mount each pane host through `chart.mountHost` and let chart
   runtime own adapter lifecycle.
-- [ ] Step 472.4: Route pane display updates through replay/bar-data/chart
+- [x] Step 472.4: Route pane display updates through replay/bar-data/chart
   commands; route UI must not call chart series APIs or request bars directly.
-- [ ] Step 472.5: Apply existing sync settings to real panes: interval, time,
+- [x] Step 472.5: Apply existing sync settings to real panes: interval, time,
   date range, and crosshair.
-- [ ] Step 472.6: Add browser smoke coverage for host count, per-pane adapter
+- [x] Step 472.6: Add browser smoke coverage for host count, per-pane adapter
   mounting, no-future display, sync behavior, and boundary smoke.
-- [ ] Step 472.7: Update docs/session handoff.
+- [x] Step 472.7: Update docs/session handoff.
 
 Manual acceptance:
 

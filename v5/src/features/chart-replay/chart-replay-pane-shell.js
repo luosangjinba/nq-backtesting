@@ -14,16 +14,18 @@ function paneTitle(pane = {}) {
   return PANE_TITLES[pane.id] || pane.id || 'Pane';
 }
 
-function createPlaceholderPane(pane) {
+function createChartPane(pane) {
   const element = document.createElement('div');
-  element.className = 'chart-pane chart-pane-placeholder';
+  element.className = 'chart-pane';
   element.dataset.layoutPane = '';
-  element.dataset.hasChartHost = 'false';
+  element.dataset.hasChartHost = 'true';
   element.setAttribute('role', 'button');
   element.tabIndex = 0;
   element.innerHTML = `
-    <div class="chart-pane-placeholder-content">
-      <strong data-layout-pane-title></strong>
+    <div class="chart-viewport chart-viewport-secondary" data-chart-pane-id="" data-active-pane="false" data-pane-role="secondary-chart" aria-label="Chart pane">
+      <div class="chart-host" data-chart-host data-chart-pane-id="" data-active-pane="false">
+        <span data-layout-pane-title></span>
+      </div>
     </div>
   `;
   updatePaneElement(element, pane, false);
@@ -45,6 +47,18 @@ function updatePaneElement(element, pane, active) {
   element.classList.toggle('is-active', active);
   element.setAttribute('aria-label', `${paneTitle(pane)} chart pane`);
   element.setAttribute('aria-pressed', active ? 'true' : 'false');
+  const viewport = element.querySelector('.chart-viewport');
+  if (viewport) {
+    viewport.dataset.chartPaneId = id;
+    viewport.dataset.activePane = active ? 'true' : 'false';
+    viewport.dataset.paneRole = `${pane.role || 'secondary'}-chart`;
+    viewport.setAttribute('aria-label', `${paneTitle(pane)} chart pane`);
+  }
+  const host = element.querySelector('[data-chart-host]');
+  if (host) {
+    host.dataset.chartPaneId = id;
+    host.dataset.activePane = active ? 'true' : 'false';
+  }
   const title = element.querySelector('[data-layout-pane-title]');
   if (title) {
     title.textContent = `${paneTitle(pane)} pane`;
@@ -86,7 +100,7 @@ export function createChartReplayPaneShellController({
       const active = id === activePaneId;
       let paneElement = shell.querySelector(`[data-layout-pane][data-pane-id="${id}"]`);
       if (!paneElement) {
-        paneElement = createPlaceholderPane(pane);
+        paneElement = createChartPane(pane);
         shell.append(paneElement);
       }
       updatePaneElement(paneElement, pane, active);

@@ -50,20 +50,24 @@ export function createChartRuntimeHostSync({
     }
   }
 
-  function rerenderMountedHosts(options = {}) {
+  function pruneDisconnectedHosts() {
     for (const host of mountedHostList) {
-      if (host.isConnected) {
-        syncChartHost(host, options);
-      } else {
-        const paneId = host.dataset?.chartPaneId || '';
-        chartAdapters.get(host)?.destroy();
-        chartAdapters.delete(host);
-        mountedHosts.delete(host);
-        mountedHostList.delete(host);
-        if (paneId && mountedHostByPaneId?.get(paneId) === host) {
-          mountedHostByPaneId.delete(paneId);
-        }
+      if (host.isConnected) continue;
+      const paneId = host.dataset?.chartPaneId || '';
+      chartAdapters.get(host)?.destroy();
+      chartAdapters.delete(host);
+      mountedHosts.delete(host);
+      mountedHostList.delete(host);
+      if (paneId && mountedHostByPaneId?.get(paneId) === host) {
+        mountedHostByPaneId.delete(paneId);
       }
+    }
+  }
+
+  function rerenderMountedHosts(options = {}) {
+    pruneDisconnectedHosts();
+    for (const host of mountedHostList) {
+      syncChartHost(host, options);
     }
   }
 
@@ -91,6 +95,7 @@ export function createChartRuntimeHostSync({
 
   return {
     syncChartHost,
+    pruneDisconnectedHosts,
     rerenderMountedHosts,
     syncMetadataToMountedHosts,
     flushPendingAfterNativeInteraction,

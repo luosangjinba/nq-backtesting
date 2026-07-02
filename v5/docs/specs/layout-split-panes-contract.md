@@ -196,6 +196,20 @@ Step 471 implementation status:
   `data-chart-host`;
 - browser smoke verifies geometry, active-pane metadata, and host count.
 
+Step 472 implementation status:
+
+- secondary/tertiary panes render real `data-chart-host` elements when layout
+  state requires them;
+- route UI passes all pane hosts through `chart.mountHost`;
+- chart runtime owns adapter creation, reuse, replacement, and disconnected
+  host cleanup;
+- mounted pane hosts receive the current chart runtime display state through
+  existing host sync;
+- replay cursor/reveal state and bar-data requests remain outside route UI;
+- browser smoke verifies two hosts for `twice.*`, three hosts for `triple.*`,
+  replay initial no-future behavior, viewport follow behavior, and boundary
+  rules.
+
 ## Pane Model
 
 A pane record should be serializable and persistence-ready:
@@ -358,7 +372,7 @@ Steps 470-472 should proceed next in this order:
 2. Step 471 - Variant pane shell layout. Completed.
    Render the visual geometry for each variant through pane shell data
    attributes and CSS grid. Secondary/tertiary panes remain placeholders.
-3. Step 472 - Real multi-pane chart hosts.
+3. Step 472 - Real multi-pane chart hosts. Completed.
    Render and mount secondary/tertiary `data-chart-host` elements through
    chart runtime. Preserve shared replay cursor, no-future reveal, and
    bar-data runtime ownership.

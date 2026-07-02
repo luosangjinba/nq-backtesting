@@ -139,6 +139,13 @@ assert.equal(primaryHost.children.length, 0);
 assert.equal(replacementPrimaryHost.dataset.chartPaneId, 'primary');
 assert.equal(replacementPrimaryHost.children[0].children[0].dataset.chartBarCount, '2');
 
+secondaryHost.isConnected = false;
+await dispatchCommand(CHART_COMMANDS.MOUNT_HOST, {
+  paneId: 'primary',
+  host: replacementPrimaryHost,
+});
+assert.equal(secondaryHost.children.length, 0);
+
 runtime.stop();
 assert.equal(hasCommand(CHART_COMMANDS.MOUNT_HOST), false);
 

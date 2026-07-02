@@ -75,6 +75,7 @@ export function createChartRuntime() {
     host.dataset.chartPaneId = nextPaneId;
     if (mountedHosts.has(host)) {
       mountedHostByPaneId.set(nextPaneId, host);
+      hostSync.pruneDisconnectedHosts();
       return {
         paneId: nextPaneId,
         mounted: true,

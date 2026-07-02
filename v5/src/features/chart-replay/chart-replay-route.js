@@ -50,7 +50,6 @@ export function createChartReplayRoute() {
       section.dataset.layoutMode = DEFAULT_LAYOUT_STATE.mode;
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
-      const primaryChartHost = section.querySelector('[data-chart-host]');
       let commandInFlight = false;
       let replayLoaded = false;
       let disposed = false;
@@ -299,6 +298,15 @@ export function createChartReplayRoute() {
         return Number(activePane?.displayTimeframe || replayDisplayTimeframe || sessionTimeframe || 1);
       }
 
+      function mountChartHosts() {
+        section.querySelectorAll('[data-chart-host]').forEach((host) => {
+          dispatchCommand(CHART_COMMANDS.MOUNT_HOST, {
+            paneId: host.dataset.chartPaneId || DEFAULT_ACTIVE_PANE_ID,
+            host,
+          }).catch(() => null);
+        });
+      }
+
       function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
         currentLayoutState = layoutState;
         const nextActivePaneId = layoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
@@ -312,6 +320,7 @@ export function createChartReplayRoute() {
         displayTimeframe = activePaneDisplayTimeframe(layoutState);
         layoutController?.renderState(layoutState);
         paneShellController?.renderState(layoutState);
+        mountChartHosts();
         replayControlsController?.renderControls();
         replayControlsController?.setControlsDisabled();
       }
@@ -496,10 +505,7 @@ export function createChartReplayRoute() {
         });
       };
       viewportDemandBridge.start();
-      dispatchCommand(CHART_COMMANDS.MOUNT_HOST, {
-        paneId: activePaneId,
-        host: primaryChartHost,
-      }).catch(() => null);
+      mountChartHosts();
       dispatchCommand(LAYOUT_COMMANDS.GET_STATE)
         .then((layoutState) => {
           if (disposed) return;

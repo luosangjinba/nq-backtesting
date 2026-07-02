@@ -307,7 +307,7 @@ async function main() {
             chartRoute?.dataset.layoutVariant === 'triple.left'
             && document.querySelector('[data-layout-pane-shell]')?.dataset.layoutVariant === 'triple.left'
             && document.querySelectorAll('[data-layout-pane]').length === 3
-            && document.querySelectorAll('[data-chart-host]').length === 1
+            && document.querySelectorAll('[data-chart-host]').length === 3
           ));
           const triplePrimaryRect = rect('[data-layout-pane][data-pane-id="primary"]');
           const tripleSecondaryRect = rect('[data-layout-pane][data-pane-id="secondary"]');
@@ -424,15 +424,15 @@ async function main() {
     assert.equal(value.activePaneCount, '2');
     assert.equal(value.layoutMode, 'twice');
     assert.equal(value.layoutVariant, 'twice.horizontal');
-    assert.equal(value.chartHostCount, 1);
+    assert.equal(value.chartHostCount, 2);
     assert.equal(value.paneCount, 2);
-    assert.equal(value.placeholderPaneCount, 1);
+    assert.equal(value.placeholderPaneCount, 0);
     assert.equal(value.paneShellMode, 'twice');
     assert.equal(value.paneShellVariant, 'twice.horizontal');
     assert.equal(value.paneShellActivePaneIdAfterSecondarySelect, 'secondary');
     assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
     assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
-    assert.equal(value.secondaryPaneHasChartHost, 'false');
+    assert.equal(value.secondaryPaneHasChartHost, 'true');
     assert.equal(value.primaryPaneDisplayTimeframe, '5');
     assert.equal(value.secondaryPaneDisplayTimeframe, '5');
     assert.deepEqual(value.layoutPaneDisplayTimeframes, [5, 5]);
@@ -502,7 +502,7 @@ async function main() {
       value.secondaryPaneRect.top > value.primaryPaneRect.top,
       'twice.horizontal secondary pane should be below primary pane'
     );
-    assert.equal(value.tripleHostCount, 1);
+    assert.equal(value.tripleHostCount, 3);
     assert.ok(
       value.triplePrimaryRect.width > value.tripleSecondaryRect.width,
       'triple.left primary pane should be wider than secondary pane'
