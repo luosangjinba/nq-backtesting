@@ -23,8 +23,9 @@ import {
   cloneScaleStyle,
   cloneWatermarkStyle,
   createChartSettingsController,
-  renderChartSettingsPopover,
 } from './chart-settings-panel.js';
+import { renderChartReplayTemplate } from './chart-replay-template.js';
+import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
 export function createChartReplayRoute() {
@@ -40,141 +41,7 @@ export function createChartReplayRoute() {
       section.dataset.activePaneId = activePaneId;
       section.dataset.activePaneCount = '1';
       section.dataset.layoutMode = 'single';
-      section.innerHTML = `
-        <div class="panel-heading chart-route-heading">
-          <div class="chart-route-title">
-            <div class="eyebrow">Replay workstation</div>
-            <h2>FX Session Replay</h2>
-          </div>
-          <div class="panel-heading-actions chart-route-actions" data-route-navigation aria-label="Route navigation">
-            <button type="button" class="route-back-button" data-route-link="setup" title="Back to sessions">Sessions</button>
-            <span class="runtime-badge">Historical Review</span>
-          </div>
-        </div>
-        <div class="replay-workstation-toolbar" data-replay-workstation-toolbar>
-          <label class="display-timeframe-controls" data-display-timeframe-controls aria-label="Active chart timeframe">
-            <span>TF</span>
-            <select data-display-timeframe-select disabled>
-              <option value="1" data-display-timeframe="1">1m</option>
-              <option value="2" data-display-timeframe="2">2m</option>
-              <option value="3" data-display-timeframe="3">3m</option>
-              <option value="4" data-display-timeframe="4">4m</option>
-              <option value="5" data-display-timeframe="5">5m</option>
-              <option value="10" data-display-timeframe="10">10m</option>
-              <option value="15" data-display-timeframe="15">15m</option>
-              <option value="30" data-display-timeframe="30">30m</option>
-              <option value="60" data-display-timeframe="60">1H</option>
-              <option value="120" data-display-timeframe="120">2H</option>
-              <option value="180" data-display-timeframe="180">3H</option>
-              <option value="240" data-display-timeframe="240">4H</option>
-              <option value="1440" data-display-timeframe="1440">1D</option>
-              <option value="10080" data-display-timeframe="10080">1W</option>
-              <option value="43200" data-display-timeframe="43200">1M</option>
-            </select>
-          </label>
-          <div class="chart-navigation-controls" data-chart-navigation-controls aria-label="Jump to time">
-            <button type="button" data-chart-go-to-open disabled>Go to</button>
-            <button type="button" data-layout-open data-layout-state="deferred" data-layout-mode="single" disabled aria-disabled="true" title="Layout is planned for a later step">Layout</button>
-            <button type="button" data-chart-settings-open title="Chart settings" aria-label="Chart settings">Settings</button>
-          </div>
-        </div>
-        ${renderChartSettingsPopover()}
-        <div class="chart-viewport" data-chart-pane-id="${activePaneId}" data-active-pane="true" data-pane-role="primary-chart" aria-label="Active chart pane">
-          <div class="chart-host" data-chart-host data-chart-pane-id="${activePaneId}" data-active-pane="true">
-            <span>Starting chart...</span>
-          </div>
-          <div class="chart-ohlc-overlay" data-chart-ohlc-overlay hidden>
-            <span data-chart-market-status aria-label="Open market status"></span>
-            <span data-chart-ohlc-symbol>NQ</span>
-            <span data-chart-ohlc-timeframe>1m</span>
-            <span class="chart-ohlc-legend" data-chart-ohlc-legend aria-label="Current bar OHLC"></span>
-          </div>
-          <div class="replay-truncate-pick-line" data-replay-truncate-pick-line hidden></div>
-          <div class="chart-toolbar" data-chart-toolbar aria-label="Chart navigation">
-            <button type="button" data-chart-reset-view title="Reset view" aria-label="Reset view" disabled>&#8634;</button>
-          </div>
-          <div class="replay-floating-controls" data-replay-floating-controls aria-label="Replay controls">
-            <div class="replay-drag-handle" data-replay-drag-handle role="button" tabindex="0" aria-label="Move replay controls">::</div>
-            <button type="button" data-replay-truncate-to-selection title="Replay to selected bar is planned" aria-label="Replay to selected bar" disabled>|&lt;</button>
-            <label class="replay-speed-control" aria-label="Playback speed">
-              <span class="sr-only">Playback speed</span>
-              <input type="range" data-replay-speed min="100" max="1000" step="100" value="500" disabled>
-            </label>
-            <div class="replay-controls" data-replay-controls>
-              <button type="button" data-replay-previous title="Previous bar is planned" aria-label="Previous bar" disabled>&lt;|</button>
-              <button type="button" data-replay-play title="Play replay" aria-label="Play replay" disabled>&#9654;</button>
-              <button type="button" data-replay-pause title="Pause replay" aria-label="Pause replay" disabled hidden>&#10073;&#10073;</button>
-              <button type="button" data-replay-next title="Next bar" aria-label="Next bar" disabled>&gt;|</button>
-            </div>
-            <label class="replay-interval-controls" data-replay-interval-controls aria-label="Replay interval">
-              <span class="sr-only">Replay interval</span>
-              <select data-replay-interval-select disabled title="Replay interval">
-                <option value="1">1m</option>
-                <option value="2">2m</option>
-                <option value="3">3m</option>
-                <option value="4">4m</option>
-                <option value="5">5m</option>
-                <option value="10">10m</option>
-                <option value="15">15m</option>
-                <option value="30">30m</option>
-                <option value="60">1H</option>
-                <option value="120">2H</option>
-                <option value="180">3H</option>
-                <option value="240">4H</option>
-              </select>
-            </label>
-            <label class="replay-sync-control" title="Sync replay interval with active chart interval">
-              <span class="sr-only">Sync active chart interval</span>
-              <input type="checkbox" data-replay-sync-interval disabled>
-            </label>
-          </div>
-          <div class="chart-go-to-popover" data-chart-go-to-popover hidden>
-            <div class="chart-go-to-panel" role="dialog" aria-modal="false" aria-label="Go to time">
-              <div class="chart-go-to-header">
-                <strong>Go to</strong>
-                <button type="button" data-chart-go-to-cancel aria-label="Close go to">&times;</button>
-              </div>
-              <label>
-                Date and time
-                <input type="datetime-local" data-chart-go-to-input>
-              </label>
-              <div class="chart-go-to-actions">
-                <button type="button" data-chart-go-to-cancel>Cancel</button>
-                <button type="button" data-chart-go-to disabled>Go</button>
-                <button type="button" data-chart-jump-cursor-popover disabled>Jump to replay cursor</button>
-                <button type="button" data-replay-reset disabled>Reset replay</button>
-              </div>
-            </div>
-          </div>
-          <div class="replay-truncate-error-popover" data-replay-truncate-error hidden>
-            <div class="replay-truncate-error-panel" role="dialog" aria-modal="false" aria-label="Replay truncate warning">
-              <div class="replay-truncate-error-header">
-                <strong data-replay-truncate-error-title>Cannot truncate replay</strong>
-                <button type="button" data-replay-truncate-error-close aria-label="Close replay truncate warning">&times;</button>
-              </div>
-              <p data-replay-truncate-error-message></p>
-              <div class="replay-truncate-error-actions">
-                <button type="button" data-replay-truncate-error-close>Cancel</button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="replay-footer" data-replay-footer>
-          <div class="session-chip">Session <strong data-session-id-label></strong></div>
-          <div class="replay-status-grid" data-replay-status>
-            <span>Start <strong data-replay-start>--</strong></span>
-            <span>Cursor <strong data-replay-cursor>--</strong></span>
-            <span>End <strong data-replay-end>--</strong></span>
-            <span>Revealed <strong data-replay-revealed-count>0</strong></span>
-            <span>Playback <strong data-replay-playback>Paused</strong></span>
-            <span>State <strong data-replay-state>Idle</strong></span>
-            <span data-status-ohlc-row>OHLC <strong data-status-ohlc>--</strong></span>
-            <span data-status-change-row>Change <strong data-status-change>--</strong></span>
-            <span data-crosshair-row>Inspect <strong data-crosshair-inspection-readout>--</strong></span>
-          </div>
-          <p data-replay-load-status>Waiting for replay session.</p>
-        </div>
-      `;
+      section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
       const sessionIdLabel = section.querySelector('[data-session-id-label]');
       const startLabel = section.querySelector('[data-replay-start]');
@@ -201,8 +68,6 @@ export function createChartReplayRoute() {
       const replayTruncateErrorTitle = section.querySelector('[data-replay-truncate-error-title]');
       const replayTruncateErrorMessage = section.querySelector('[data-replay-truncate-error-message]');
       const replayTruncateErrorCloseButtons = Array.from(section.querySelectorAll('[data-replay-truncate-error-close]'));
-      const replayFloatingControls = section.querySelector('[data-replay-floating-controls]');
-      const replayDragHandle = section.querySelector('[data-replay-drag-handle]');
       const nextButton = section.querySelector('[data-replay-next]');
       const playButton = section.querySelector('[data-replay-play]');
       const pauseButton = section.querySelector('[data-replay-pause]');
@@ -240,8 +105,6 @@ export function createChartReplayRoute() {
       let replayIntervalSync = false;
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
-      let floatingPosition = null;
-      let floatingDragState = null;
       let truncatePickMode = false;
       let presentationSettings = {
         timeFormat: DEFAULT_CHART_PRESENTATION_SETTINGS.timeFormat,
@@ -276,6 +139,7 @@ export function createChartReplayRoute() {
         },
       });
       sessionIdLabel.textContent = sessionId;
+      createReplayFloatingControlsController({ root: section });
       const chartSettingsController = createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -619,92 +483,6 @@ export function createChartReplayRoute() {
       function updateDisplayTimezoneButtons() {
         chartSettingsController.renderCurrent();
       }
-
-      function clampFloatingPosition(position) {
-        const controlsRect = replayFloatingControls.getBoundingClientRect();
-        const edgePadding = 12;
-        const minLeft = edgePadding;
-        const minTop = edgePadding;
-        const maxLeft = Math.max(
-          minLeft,
-          window.innerWidth - controlsRect.width - edgePadding
-        );
-        const maxTop = Math.max(
-          minTop,
-          window.innerHeight - controlsRect.height - edgePadding
-        );
-        return {
-          left: Math.min(Math.max(position.left, minLeft), maxLeft),
-          top: Math.min(Math.max(position.top, minTop), maxTop),
-        };
-      }
-
-      function applyFloatingPosition(position) {
-        const nextPosition = clampFloatingPosition(position);
-        floatingPosition = nextPosition;
-        replayFloatingControls.style.left = `${Math.round(nextPosition.left)}px`;
-        replayFloatingControls.style.top = `${Math.round(nextPosition.top)}px`;
-        replayFloatingControls.style.right = 'auto';
-        replayFloatingControls.style.bottom = 'auto';
-        replayFloatingControls.style.transform = 'none';
-        replayFloatingControls.dataset.dragged = 'true';
-      }
-
-      function getCurrentFloatingPosition() {
-        const controlsRect = replayFloatingControls.getBoundingClientRect();
-        return {
-          left: controlsRect.left,
-          top: controlsRect.top,
-        };
-      }
-
-      function beginFloatingDrag(event) {
-        if (event.button !== 0) return;
-        event.preventDefault();
-        event.stopPropagation();
-        const startPosition = floatingPosition || getCurrentFloatingPosition();
-        floatingDragState = {
-          pointerId: event.pointerId,
-          startX: event.clientX,
-          startY: event.clientY,
-          startLeft: startPosition.left,
-          startTop: startPosition.top,
-        };
-        replayFloatingControls.dataset.dragging = 'true';
-        try {
-          replayDragHandle.setPointerCapture?.(event.pointerId);
-        } catch {
-          // Synthetic pointer events in browser smokes may not have an active pointer capture target.
-        }
-      }
-
-      function moveFloatingDrag(event) {
-        if (!floatingDragState || floatingDragState.pointerId !== event.pointerId) return;
-        event.preventDefault();
-        event.stopPropagation();
-        applyFloatingPosition({
-          left: floatingDragState.startLeft + event.clientX - floatingDragState.startX,
-          top: floatingDragState.startTop + event.clientY - floatingDragState.startY,
-        });
-      }
-
-      function endFloatingDrag(event) {
-        if (!floatingDragState || floatingDragState.pointerId !== event.pointerId) return;
-        event.preventDefault();
-        event.stopPropagation();
-        try {
-          replayDragHandle.releasePointerCapture?.(event.pointerId);
-        } catch {
-          // See pointer capture note in beginFloatingDrag.
-        }
-        floatingDragState = null;
-        delete replayFloatingControls.dataset.dragging;
-      }
-
-      replayDragHandle.addEventListener('pointerdown', beginFloatingDrag);
-      replayDragHandle.addEventListener('pointermove', moveFloatingDrag);
-      replayDragHandle.addEventListener('pointerup', endFloatingDrag);
-      replayDragHandle.addEventListener('pointercancel', endFloatingDrag);
 
       function updatePresentationButtons() {
         chartSettingsController.renderCurrent();

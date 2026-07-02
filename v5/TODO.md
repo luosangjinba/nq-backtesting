@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 424 is complete. The chart replay route started bounded
-  modularization by extracting the FXReplay-style Settings template, draft
-  state, section navigation, and apply/cancel bindings into a route-local
-  settings panel module while preserving command/event ownership boundaries.
-- Next candidate: Step 425 - Settings remaining-deferred cleanup. Reassess
+- Current status: Step 425 is complete. The chart replay route now separates
+  route shell orchestration from page template markup and floating replay
+  transport drag behavior, keeping future chart-route features from piling into
+  one file while preserving runtime command/event ownership.
+- Next candidate: Step 426 - Settings remaining-deferred cleanup. Reassess
   FXReplay settings items that still need explicit runtime design before UI:
   scale placement, lock price-to-bar ratio, no-overlap labels, countdown,
   session breaks, templates, and split-pane/pane-specific settings.
@@ -87,6 +87,11 @@
   continue to mutate app state only through route-provided command callbacks.
   The route shell remains responsible for runtime orchestration, event
   subscriptions, and chart/replay command ownership.
+- Refactor decision: chart replay route modules should separate route
+  orchestration, static template markup, route-local UI controllers, and runtime
+  bridges. Page template modules may compose UI templates, and UI controllers
+  may own DOM-only behavior such as floating transport drag, but replay/chart
+  mutations must still flow through route callbacks and runtime commands.
 - UI decision: avoid exposing both `Cursor` and `Reset` as similar top-level
   chart actions. Step 411 moved the old top-level `Cursor` behavior into the
   Go to surface as `Jump to replay cursor`; it resumes chart viewport follow
@@ -3163,5 +3168,55 @@ Checks:
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 425 - V5 Chart Replay Route Boundary Split
+
+Status: completed.
+
+Goal: continue route-level modularization with a slightly larger but still
+low-risk split so future chart-route functionality has clear homes instead of
+accumulating in `chart-replay-route.js`.
+
+Problem:
+
+- After Step 424, `chart-replay-route.js` was smaller but still mixed static
+  page template markup, floating replay transport drag behavior, status
+  rendering, navigation, replay command wiring, and runtime event subscriptions.
+- Future settings, layout, drawing, order, or review features would become
+  harder to isolate if page template and DOM-only UI interaction kept growing
+  inside the route shell.
+
+Implementation:
+
+- [x] Step 425.1: Extract the chart replay page shell markup into
+  `features/chart-replay/chart-replay-template.js`.
+- [x] Step 425.2: Extract floating replay transport markup into
+  `features/chart-replay/replay-floating-controls.js`.
+- [x] Step 425.3: Move floating transport drag/clamp behavior into
+  `createReplayFloatingControlsController(...)`.
+- [x] Step 425.4: Keep replay commands, chart commands, status refresh, and
+  event subscriptions in `chart-replay-route.js`.
+- [x] Step 425.5: Preserve route DOM data attributes and smoke-test selectors
+  so this remains a no-behavior-change modular split.
+
+Manual acceptance:
+
+- Chart route renders the same workstation shell, toolbar, Settings entry,
+  chart pane, Go to popover, replay controls, and footer status.
+- Floating replay controls can still be dragged and clamped to the viewport.
+- The new template/controller modules do not dispatch replay/chart commands or
+  write chart series.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/src/features/chart-replay/chart-replay-template.js`
+- `node --check v5/src/features/chart-replay/replay-floating-controls.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
