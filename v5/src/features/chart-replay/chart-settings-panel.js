@@ -4,11 +4,10 @@ import {
   cloneCrosshairStyle,
   cloneGridStyle,
   cloneScaleStyle,
-  cloneSettingsDraftForApply,
   cloneWatermarkStyle,
-  createSettingsDraft as createSettingsDraftFromState,
 } from './chart-settings-draft.js';
 import { createChartSettingsBindings } from './chart-settings-bindings.js';
+import { createChartSettingsLifecycle } from './chart-settings-lifecycle.js';
 import { createChartSettingsModalController } from './chart-settings-modal.js';
 
 export {
@@ -28,55 +27,36 @@ export function createChartSettingsController({
   onCancel,
 }) {
   const chartSettingsApplyButton = root.querySelector('[data-chart-settings-apply]');
-  let settingsDraft = null;
+  let settingsLifecycle = null;
   const settingsBindings = createChartSettingsBindings({
     root,
-    getDraft: () => settingsDraft,
+    getDraft: () => settingsLifecycle?.getDraft(),
   });
-
-  function createSettingsDraft() {
-    return createSettingsDraftFromState({
-      displayTimezone: getDisplayTimezone(),
-      presentationSettings: getPresentationSettings(),
-    });
-  }
-
-  function renderSettingsDraft() {
-    const draft = settingsDraft || createSettingsDraft();
-    settingsBindings.render(draft);
-  }
-
-  function prepareOpen() {
-    settingsDraft = createSettingsDraft();
-    renderSettingsDraft();
-  }
-
-  function discardDraft() {
-    settingsDraft = null;
-    renderSettingsDraft();
-    onCancel?.();
-  }
+  settingsLifecycle = createChartSettingsLifecycle({
+    getDisplayTimezone,
+    getPresentationSettings,
+    onApply,
+    onCancel,
+    renderDraft: (draft) => settingsBindings.render(draft),
+  });
 
   const settingsModal = createChartSettingsModalController({
     root,
-    onOpen: prepareOpen,
-    onClose: discardDraft,
+    onOpen: settingsLifecycle.prepareOpen,
+    onClose: settingsLifecycle.discard,
   });
-  settingsBindings.bindDraftEvents({ renderSettingsDraft });
+  settingsBindings.bindDraftEvents({ renderSettingsDraft: settingsLifecycle.renderCurrent });
   chartSettingsApplyButton.addEventListener('click', async () => {
-    if (!settingsDraft) return;
-    const draft = settingsDraft;
-    const applied = await onApply?.(cloneSettingsDraftForApply(draft));
-    if (applied === false) return;
+    const applied = await settingsLifecycle.apply();
+    if (!applied) return;
     settingsModal.hide();
-    settingsDraft = null;
-    renderSettingsDraft();
+    settingsLifecycle.renderCurrent();
   });
 
-  renderSettingsDraft();
+  settingsLifecycle.renderCurrent();
 
   return {
-    renderCurrent: renderSettingsDraft,
+    renderCurrent: settingsLifecycle.renderCurrent,
     close: settingsModal.close,
   };
 }

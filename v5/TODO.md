@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 445 is complete. Settings field adapters are split by
-  section into Symbol, Status, Scales, and Canvas bindings; the root
-  `chart-settings-bindings.js` is now a small adapter composer.
-- Next candidate: Step 446 - move to the next large file with a clear boundary,
-  or continue Settings only if there is a concrete section-level behavior
-  change to isolate.
+- Current status: Step 446 is complete. Settings draft lifecycle and
+  apply/cancel flow now live in `chart-settings-lifecycle.js`; the root
+  `chart-settings-panel.js` is a smaller composition layer for modal, bindings,
+  and lifecycle.
+- Next candidate: Step 447 - continue Settings cleanup only where a clear
+  boundary remains, or move to the next large file with a stronger
+  product/runtime boundary.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -161,6 +162,14 @@
   section adapters only. Section adapters may mutate the active draft object
   but must not dispatch commands, emit events, write chart adapters, or touch
   replay/bar-data state.
+- Refactor decision: chart settings draft lifecycle should live outside the
+  Settings panel composition layer. `chart-settings-lifecycle.js` owns creating
+  the active draft from current route state, exposing that draft to bindings,
+  discarding draft edits, cloning drafts for apply, and clearing successful
+  applies. `chart-settings-panel.js` composes lifecycle, modal, and bindings
+  only. The lifecycle module may call route-provided apply/cancel callbacks but
+  must not dispatch runtime commands directly, emit events, write chart
+  adapters, persist settings, or touch replay/bar-data state.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -1919,6 +1928,64 @@ Checks:
 - `node --check v5/src/features/chart-replay/chart-settings-status-bindings.js`
 - `node --check v5/src/features/chart-replay/chart-settings-scales-bindings.js`
 - `node --check v5/src/features/chart-replay/chart-settings-canvas-bindings.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
+- `node v5/tests/display-timezone-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 446 - V5 Chart Settings Draft Lifecycle Split
+
+Status: completed.
+
+Goal: continue Settings modularization by moving draft lifecycle and
+apply/cancel flow out of `chart-settings-panel.js`.
+
+Problem:
+
+- After Step 445, `chart-settings-panel.js` still owned Settings draft creation,
+  current-draft lookup, cancel discard, apply cloning, successful apply cleanup,
+  modal composition, and field binding composition in one controller.
+- Future Settings apply behavior, validation, templates, or persistence would
+  force unrelated lifecycle code into the panel composition layer.
+
+Implementation:
+
+- [x] Step 446.1: Define the split boundary as Settings draft lifecycle, not
+  runtime mutation or persistence.
+- [x] Step 446.2: Add `chart-settings-lifecycle.js` to own draft creation,
+  current-draft lookup, current rendering, discard/cancel, apply cloning, and
+  successful apply cleanup.
+- [x] Step 446.3: Keep `chart-settings-panel.js` as the composition layer for
+  modal shell, field bindings, and lifecycle wiring.
+- [x] Step 446.4: Preserve apply success ordering: route apply completes,
+  modal hides, then current route state is rendered.
+- [x] Step 446.5: Reduce `chart-settings-panel.js` from 82 lines to 62 lines
+  without changing Settings runtime ownership.
+
+Manual acceptance:
+
+- Opening Settings creates a fresh draft from current display timezone and
+  presentation settings.
+- Cancel, close button, and backdrop dismiss clear the draft, re-render current
+  state, and call the route cancel callback.
+- Apply clones the active draft before passing it to the route apply callback.
+- If route apply returns `false`, the modal remains open and the draft remains
+  editable.
+- If route apply succeeds, the modal hides, focus behavior remains owned by the
+  modal shell, and Settings re-renders from current route state.
+- The lifecycle module must not dispatch runtime commands directly, emit
+  events, write chart adapters, persist settings, or touch replay/bar-data
+  state.
+
+Checks:
+
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node --check v5/src/features/chart-replay/chart-settings-lifecycle.js`
+- `node --check v5/src/features/chart-replay/chart-settings-bindings.js`
+- `node --check v5/src/features/chart-replay/chart-settings-modal.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/display-timezone-browser-smoke.js`
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
