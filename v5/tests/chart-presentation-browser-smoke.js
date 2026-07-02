@@ -266,6 +266,9 @@ async function main() {
           const scaleBordersToggle = document.querySelector('[data-scale-style-toggle="scaleBordersVisible"]');
           priceScaleToggle.checked = false;
           priceScaleToggle.dispatchEvent(new Event('change', { bubbles: true }));
+          const priceScaleSideSelect = document.querySelector('[data-scale-style-side]');
+          priceScaleSideSelect.value = 'left';
+          priceScaleSideSelect.dispatchEvent(new Event('change', { bubbles: true }));
           timeScaleToggle.checked = false;
           timeScaleToggle.dispatchEvent(new Event('change', { bubbles: true }));
           scaleBordersToggle.checked = false;
@@ -288,6 +291,7 @@ async function main() {
           const beforeApplyDraftOnlyScaleTextColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '';
           const beforeApplyDraftOnlyScaleLineColor = document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '';
           const beforeApplyDraftOnlyScaleFontSize = document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '';
+          const beforeApplyDraftOnlyPriceScaleSide = document.querySelector('[data-chart-canvas]')?.dataset.priceScaleSide || '';
           const beforeApplyDraftOnlyPriceScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '';
           const beforeApplyDraftOnlyTimeScaleVisible = document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '';
           const beforeApplyDraftOnlyScaleBordersVisible = document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '';
@@ -318,6 +322,7 @@ async function main() {
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor === '#38bdf8'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor === '#475569'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize === '14'
+              && document.querySelector('[data-chart-canvas]')?.dataset.priceScaleSide === 'left'
               && document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible === 'false'
               && document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible === 'false'
               && document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible === 'false'
@@ -371,6 +376,7 @@ async function main() {
             beforeApplyDraftOnlyScaleTextColor,
             beforeApplyDraftOnlyScaleLineColor,
             beforeApplyDraftOnlyScaleFontSize,
+            beforeApplyDraftOnlyPriceScaleSide,
             beforeApplyDraftOnlyPriceScaleVisible,
             beforeApplyDraftOnlyTimeScaleVisible,
             beforeApplyDraftOnlyScaleBordersVisible,
@@ -401,6 +407,7 @@ async function main() {
             scaleTextColorSelected: document.querySelector('[data-scale-style-color="textColor"]')?.value || '',
             scaleLineColorSelected: document.querySelector('[data-scale-style-color="lineColor"]')?.value || '',
             scaleFontSizeSelected: document.querySelector('[data-scale-style-font-size]')?.value || '',
+            priceScaleSideSelected: document.querySelector('[data-scale-style-side]')?.value || '',
             priceScaleSelected: document.querySelector('[data-scale-style-toggle="priceScaleVisible"]')?.checked,
             timeScaleSelected: document.querySelector('[data-scale-style-toggle="timeScaleVisible"]')?.checked,
             scaleBordersSelected: document.querySelector('[data-scale-style-toggle="scaleBordersVisible"]')?.checked,
@@ -423,6 +430,7 @@ async function main() {
             afterCanvasScaleTextColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleTextColor || '',
             afterCanvasScaleLineColor: document.querySelector('[data-chart-canvas]')?.dataset.scaleLineColor || '',
             afterCanvasScaleFontSize: document.querySelector('[data-chart-canvas]')?.dataset.scaleFontSize || '',
+            afterCanvasPriceScaleSide: document.querySelector('[data-chart-canvas]')?.dataset.priceScaleSide || '',
             afterCanvasPriceScaleVisible: document.querySelector('[data-chart-canvas]')?.dataset.priceScaleVisible || '',
             afterCanvasTimeScaleVisible: document.querySelector('[data-chart-canvas]')?.dataset.timeScaleVisible || '',
             afterCanvasScaleBordersVisible: document.querySelector('[data-chart-canvas]')?.dataset.scaleBordersVisible || '',
@@ -475,6 +483,7 @@ async function main() {
     assert.equal(value.beforeApplyScaleTextColor, '#22d3ee');
     assert.equal(value.beforeApplyScaleLineColor, '#334155');
     assert.equal(value.beforeApplyScaleFontSize, '12');
+    assert.equal(value.beforeApplyDraftOnlyPriceScaleSide, 'right');
     assert.equal(value.beforeApplyPriceScaleVisible, 'true');
     assert.equal(value.beforeApplyTimeScaleVisible, 'true');
     assert.equal(value.beforeApplyScaleBordersVisible, 'true');
@@ -516,6 +525,7 @@ async function main() {
     assert.equal(value.scaleTextColorSelected, '#38bdf8');
     assert.equal(value.scaleLineColorSelected, '#475569');
     assert.equal(value.scaleFontSizeSelected, '14');
+    assert.equal(value.priceScaleSideSelected, 'left');
     assert.equal(value.priceScaleSelected, false);
     assert.equal(value.timeScaleSelected, false);
     assert.equal(value.scaleBordersSelected, false);
@@ -538,6 +548,7 @@ async function main() {
     assert.equal(value.afterCanvasScaleTextColor, '#38bdf8');
     assert.equal(value.afterCanvasScaleLineColor, '#475569');
     assert.equal(value.afterCanvasScaleFontSize, '14');
+    assert.equal(value.afterCanvasPriceScaleSide, 'left');
     assert.equal(value.afterCanvasPriceScaleVisible, 'false');
     assert.equal(value.afterCanvasTimeScaleVisible, 'false');
     assert.equal(value.afterCanvasScaleBordersVisible, 'false');

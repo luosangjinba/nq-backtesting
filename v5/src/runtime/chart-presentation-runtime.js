@@ -11,6 +11,7 @@ import {
   DEFAULT_GRID_STYLE,
   DEFAULT_SCALE_STYLE,
   DEFAULT_WATERMARK_STYLE,
+  PRICE_SCALE_SIDES,
   STATUS_TITLE_MODES,
 } from '../contracts/chart-presentation-contracts.js';
 
@@ -68,6 +69,11 @@ function normalizeScaleFontSize(value, fallback = DEFAULT_SCALE_STYLE.fontSize) 
     throw new Error('chart presentation scaleStyle.fontSize must be between 9 and 18.');
   }
   return normalized;
+}
+
+function normalizePriceScaleSide(value = DEFAULT_SCALE_STYLE.priceScaleSide) {
+  if (Object.values(PRICE_SCALE_SIDES).includes(value)) return value;
+  throw new Error(`Unsupported chart price scale side: ${value}`);
 }
 
 function normalizeWatermarkFontSize(value, fallback = DEFAULT_WATERMARK_STYLE.fontSize) {
@@ -137,6 +143,7 @@ function normalizeScaleStyle(value = {}, base = DEFAULT_SCALE_STYLE) {
     textColor: normalizeColor(value.textColor, base.textColor, 'scaleStyle.textColor'),
     lineColor: normalizeColor(value.lineColor, base.lineColor, 'scaleStyle.lineColor'),
     fontSize: normalizeScaleFontSize(value.fontSize, base.fontSize),
+    priceScaleSide: normalizePriceScaleSide(value.priceScaleSide ?? base.priceScaleSide),
     priceScaleVisible: normalizeBoolean(value.priceScaleVisible, base.priceScaleVisible),
     timeScaleVisible: normalizeBoolean(value.timeScaleVisible, base.timeScaleVisible),
     scaleBordersVisible: normalizeBoolean(value.scaleBordersVisible, base.scaleBordersVisible),

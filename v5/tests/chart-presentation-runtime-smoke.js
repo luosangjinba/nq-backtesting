@@ -83,6 +83,7 @@ assert.deepEqual(defaults, {
     textColor: '#22d3ee',
     lineColor: '#334155',
     fontSize: 12,
+    priceScaleSide: 'right',
     priceScaleVisible: true,
     timeScaleVisible: true,
     scaleBordersVisible: true,
@@ -182,6 +183,7 @@ assert.deepEqual(updated, {
     textColor: '#38bdf8',
     lineColor: '#334155',
     fontSize: 14,
+    priceScaleSide: 'right',
     priceScaleVisible: false,
     timeScaleVisible: true,
     scaleBordersVisible: false,
@@ -237,6 +239,10 @@ await assert.rejects(
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { scaleStyle: { fontSize: 24 } }),
   /scaleStyle.fontSize must be between 9 and 18/
+);
+await assert.rejects(
+  () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { scaleStyle: { priceScaleSide: 'both' } }),
+  /Unsupported chart price scale side/
 );
 await assert.rejects(
   () => dispatchCommand(CHART_PRESENTATION_COMMANDS.SET, { watermarkStyle: { color: 'slate' } }),

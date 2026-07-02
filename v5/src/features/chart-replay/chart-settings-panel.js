@@ -117,6 +117,13 @@ export function renderChartSettingsPopover() {
                     <input type="checkbox" data-scale-style-toggle="priceScaleVisible">
                     <span>Price scale</span>
                   </label>
+                  <label class="chart-settings-row">
+                    <span>Price scale side</span>
+                    <select data-scale-style-side>
+                      <option value="right">Right</option>
+                      <option value="left">Left</option>
+                    </select>
+                  </label>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-scale-style-toggle="scaleBordersVisible">
                     <span>Scale borders</span>
@@ -309,6 +316,7 @@ export function createChartSettingsController({
   const crosshairStyleColorControls = Array.from(root.querySelectorAll('[data-crosshair-style-color]'));
   const backgroundStyleColorControls = Array.from(root.querySelectorAll('[data-background-style-color]'));
   const scaleStyleToggleControls = Array.from(root.querySelectorAll('[data-scale-style-toggle]'));
+  const scaleStyleSideControls = Array.from(root.querySelectorAll('[data-scale-style-side]'));
   const scaleStyleColorControls = Array.from(root.querySelectorAll('[data-scale-style-color]'));
   const scaleStyleFontSizeControls = Array.from(root.querySelectorAll('[data-scale-style-font-size]'));
   const watermarkStyleToggleControls = Array.from(root.querySelectorAll('[data-watermark-style-toggle]'));
@@ -411,6 +419,12 @@ export function createChartSettingsController({
     });
     scaleStyleToggleControls.forEach((control) => {
       control.checked = Boolean(draft.scaleStyle?.[control.dataset.scaleStyleToggle]);
+    });
+    scaleStyleSideControls.forEach((control) => {
+      if (control.tagName === 'SELECT') {
+        control.value = draft.scaleStyle?.priceScaleSide
+          || DEFAULT_CHART_PRESENTATION_SETTINGS.scaleStyle.priceScaleSide;
+      }
     });
     scaleStyleColorControls.forEach((control) => {
       control.value = draft.scaleStyle?.[control.dataset.scaleStyleColor]
@@ -588,6 +602,12 @@ export function createChartSettingsController({
     control.addEventListener('change', () => {
       if (!settingsDraft) return;
       settingsDraft.scaleStyle[control.dataset.scaleStyleToggle] = control.checked;
+    });
+  });
+  scaleStyleSideControls.forEach((control) => {
+    control.addEventListener('change', () => {
+      if (!settingsDraft || control.tagName !== 'SELECT') return;
+      settingsDraft.scaleStyle.priceScaleSide = control.value;
     });
   });
   scaleStyleColorControls.forEach((control) => {

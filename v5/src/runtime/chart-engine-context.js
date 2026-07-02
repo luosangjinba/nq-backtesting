@@ -101,6 +101,7 @@ export function normalizeContext(context = {}) {
       textColor: context.scaleStyle?.textColor || defaultScaleStyle.textColor,
       lineColor: context.scaleStyle?.lineColor || defaultScaleStyle.lineColor,
       fontSize: Number(context.scaleStyle?.fontSize ?? defaultScaleStyle.fontSize),
+      priceScaleSide: context.scaleStyle?.priceScaleSide || defaultScaleStyle.priceScaleSide,
       priceScaleVisible: context.scaleStyle?.priceScaleVisible == null
         ? defaultScaleStyle.priceScaleVisible
         : Boolean(context.scaleStyle.priceScaleVisible),

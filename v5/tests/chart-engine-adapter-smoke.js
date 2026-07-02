@@ -269,6 +269,7 @@ lightweight.setPresentation({
     textColor: '#38bdf8',
     lineColor: '#475569',
     fontSize: 14,
+    priceScaleSide: 'left',
     priceScaleVisible: false,
     timeScaleVisible: false,
     scaleBordersVisible: false,
@@ -425,6 +426,11 @@ assert.deepEqual(lightweightCalls.options.rightPriceScale, {
   borderVisible: true,
   borderColor: '#334155',
 });
+assert.deepEqual(lightweightCalls.options.leftPriceScale, {
+  visible: false,
+  borderVisible: true,
+  borderColor: '#334155',
+});
 assert.equal(
   lightweightCalls.options.timeScale.tickMarkFormatter(Date.parse('2026-06-01T09:33:00.000Z') / 1000),
   '09:33'
@@ -439,6 +445,7 @@ assert.deepEqual(lightweightCalls.seriesOptions, {
     precision: 2,
     minMove: 0.01,
   },
+  priceScaleId: 'right',
   upColor: '#26a69a',
   downColor: '#ef5350',
   borderUpColor: '#26a69a',
@@ -452,6 +459,7 @@ assert.deepEqual(lightweightCalls.seriesApplyOptions.at(-1), {
     precision: 2,
     minMove: 0.01,
   },
+  priceScaleId: 'left',
   upColor: '#22c55e',
   downColor: '#dc2626',
   borderUpColor: '#16a34a',
@@ -488,6 +496,7 @@ assert.equal(lightweightHost.children[0].dataset.backgroundColor, '#020617');
 assert.equal(lightweightHost.children[0].dataset.scaleTextColor, '#38bdf8');
 assert.equal(lightweightHost.children[0].dataset.scaleLineColor, '#475569');
 assert.equal(lightweightHost.children[0].dataset.scaleFontSize, '14');
+assert.equal(lightweightHost.children[0].dataset.priceScaleSide, 'left');
 assert.equal(lightweightHost.children[0].dataset.priceScaleVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.timeScaleVisible, 'false');
 assert.equal(lightweightHost.children[0].dataset.scaleBordersVisible, 'false');
@@ -568,6 +577,11 @@ assert.deepEqual(lightweightCalls.applyOptions[0], {
     tickMarkFormatter: lightweightCalls.applyOptions[0].timeScale.tickMarkFormatter,
   },
   rightPriceScale: {
+    visible: false,
+    borderVisible: false,
+    borderColor: '#475569',
+  },
+  leftPriceScale: {
     visible: false,
     borderVisible: false,
     borderColor: '#475569',

@@ -92,6 +92,7 @@ export function applyFallbackPresentation(canvas, context) {
   canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
   canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
   canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.dataset.priceScaleSide = context.scaleStyle.priceScaleSide;
   canvas.dataset.priceScaleVisible = String(context.scaleStyle.priceScaleVisible);
   canvas.dataset.timeScaleVisible = String(context.scaleStyle.timeScaleVisible);
   canvas.dataset.scaleBordersVisible = String(context.scaleStyle.scaleBordersVisible);
@@ -147,6 +148,16 @@ export function crosshairOptionsForContext(context) {
 }
 
 export function lightweightOptionsForContext(context) {
+  const priceScaleSide = context.scaleStyle.priceScaleSide || 'right';
+  const priceScaleOptions = {
+    visible: context.scaleStyle.priceScaleVisible,
+    borderVisible: context.scaleStyle.scaleBordersVisible,
+    borderColor: context.scaleStyle.lineColor,
+  };
+  const hiddenPriceScaleOptions = {
+    ...priceScaleOptions,
+    visible: false,
+  };
   return {
     handleScroll: { ...LIGHTWEIGHT_REPLAY_SCROLL },
     handleScale: { ...LIGHTWEIGHT_REPLAY_SCALE },
@@ -168,11 +179,8 @@ export function lightweightOptionsForContext(context) {
       borderColor: context.scaleStyle.lineColor,
       tickMarkFormatter: (time) => formatLightweightTick(time, context),
     },
-    rightPriceScale: {
-      visible: context.scaleStyle.priceScaleVisible,
-      borderVisible: context.scaleStyle.scaleBordersVisible,
-      borderColor: context.scaleStyle.lineColor,
-    },
+    leftPriceScale: priceScaleSide === 'left' ? priceScaleOptions : hiddenPriceScaleOptions,
+    rightPriceScale: priceScaleSide === 'right' ? priceScaleOptions : hiddenPriceScaleOptions,
   };
 }
 
@@ -195,6 +203,7 @@ export function watermarkOptionsForContext(context) {
 export function lightweightSeriesOptionsForContext(context) {
   return {
     priceFormat: { ...LIGHTWEIGHT_PRICE_FORMAT },
+    priceScaleId: context.scaleStyle.priceScaleSide === 'left' ? 'left' : 'right',
     upColor: context.candleStyle.body.up,
     downColor: context.candleStyle.body.down,
     borderUpColor: context.candleStyle.border.up,
@@ -290,6 +299,7 @@ export function applyLightweightMetadata(canvas, context) {
   canvas.dataset.scaleTextColor = context.scaleStyle.textColor;
   canvas.dataset.scaleLineColor = context.scaleStyle.lineColor;
   canvas.dataset.scaleFontSize = String(context.scaleStyle.fontSize);
+  canvas.dataset.priceScaleSide = context.scaleStyle.priceScaleSide;
   canvas.dataset.priceScaleVisible = String(context.scaleStyle.priceScaleVisible);
   canvas.dataset.timeScaleVisible = String(context.scaleStyle.timeScaleVisible);
   canvas.dataset.scaleBordersVisible = String(context.scaleStyle.scaleBordersVisible);

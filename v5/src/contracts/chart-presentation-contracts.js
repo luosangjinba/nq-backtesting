@@ -25,6 +25,11 @@ export const STATUS_TITLE_MODES = Object.freeze({
   TIMEFRAME: 'timeframe',
 });
 
+export const PRICE_SCALE_SIDES = Object.freeze({
+  RIGHT: 'right',
+  LEFT: 'left',
+});
+
 export const DEFAULT_CANDLE_STYLE = Object.freeze({
   body: Object.freeze({
     up: '#26a69a',
@@ -63,6 +68,7 @@ export const DEFAULT_SCALE_STYLE = Object.freeze({
   textColor: '#22d3ee',
   lineColor: '#334155',
   fontSize: 12,
+  priceScaleSide: PRICE_SCALE_SIDES.RIGHT,
   priceScaleVisible: true,
   timeScaleVisible: true,
   scaleBordersVisible: true,

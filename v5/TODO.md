@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 428 is complete. The chart-engine factory is now a small
-  stable entry point, while Lightweight lifecycle, native interaction tracking,
-  and crosshair/readout mapping live in separate adapter-family modules.
-- Next candidate: Step 429 - revisit the remaining settings backlog with the
-  cleaner chart-engine boundaries in place, especially scale placement,
-  lock-price-to-bar behavior, no-overlap labels, countdown/session breaks, and
-  template persistence.
+- Current status: Step 429 is complete. Settings now has a documented backlog
+  ownership matrix, and price scale side is a presentation-runtime setting that
+  applies through chart display context and chart-engine adapter options.
+- Next candidate: Step 430 - plan the first high-risk settings contract before
+  UI, likely lock price-to-bar ratio or countdown/session breaks, with explicit
+  owner, command/event surface, adapter behavior, and smoke acceptance.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -71,6 +70,15 @@
   watermark are chart-engine presentation settings. They must normalize through
   presentation runtime state and apply only through chart display context and
   the chart-engine adapter. UI must not call Lightweight APIs directly.
+- UI decision: price scale side is a chart presentation setting. It supports
+  `right` and `left`; hiding the scale remains controlled by
+  `priceScaleVisible`. The route UI edits draft settings only, and the
+  chart-engine adapter maps the side to Lightweight left/right price scale
+  options.
+- Planning decision: Settings work must follow the backlog matrix in
+  `v5/docs/SETTINGS_BACKLOG_MATRIX.md`. Only presentation-runtime rows can be
+  implemented directly from the Settings UI; chart-engine, replay-runtime,
+  persistence, and pane rows need a dedicated contract step first.
 - Bugfix decision: Reset View and Jump-to-cursor resume chart viewport follow.
   They must clear any previous manual/native visible range before rerendering,
   and chart sync must not write stale manual ranges after a follow-mode logical
@@ -878,6 +886,62 @@ Checks:
 - `node v5/tests/chart-runtime-fallback-input-smoke.js`
 - `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/tests/chart-native-interaction-browser-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 429 - V5 Settings Backlog Matrix And Price Scale Side
+
+Status: completed.
+
+Goal: resume Settings work after the adapter modularization by documenting the
+remaining settings ownership matrix and implementing one low-risk presentation
+setting through the existing runtime/adapter path.
+
+Problem:
+
+- Remaining FXReplay-style settings were easy to discuss as a single backlog,
+  but they do not share the same owner. Some are pure presentation settings,
+  while others need chart-engine contracts, replay-runtime contracts, template
+  persistence, or future pane ownership.
+- Without a matrix, future Settings UI work could accidentally mix replay,
+  chart-engine, persistence, and pane concerns into the route.
+- Price scale side is a low-risk presentation setting now that chart-engine
+  presentation options are isolated.
+
+Implementation:
+
+- [x] Step 429.1: Add `docs/SETTINGS_BACKLOG_MATRIX.md` with owner/status rows
+  for implemented, planned, and deferred Settings items.
+- [x] Step 429.2: Add `scaleStyle.priceScaleSide` to chart presentation
+  contracts with `right`/`left` normalization.
+- [x] Step 429.3: Add Settings UI draft controls for price scale side in the
+  Scales section.
+- [x] Step 429.4: Map price scale side through chart display context to
+  Lightweight left/right price scale options and series `priceScaleId`.
+- [x] Step 429.5: Update runtime, adapter, and browser smokes for default right
+  side, applied left side, and invalid side rejection.
+
+Manual acceptance:
+
+- Price scale side changes only after Settings `Ok`; cancel/backdrop close
+  discards the draft.
+- `priceScaleVisible` still controls hidden/visible behavior; side only chooses
+  left or right when visible.
+- Changing side must not mutate replay cursor, display bars, bar requests, or
+  session state.
+- Non-presentation settings remain documented but not implemented until their
+  runtime/adapter contracts are planned.
+
+Checks:
+
+- `node --check v5/src/contracts/chart-presentation-contracts.js`
+- `node --check v5/src/runtime/chart-presentation-runtime.js`
+- `node --check v5/src/runtime/chart-engine-context.js`
+- `node --check v5/src/runtime/chart-engine-presentation.js`
+- `node --check v5/src/features/chart-replay/chart-settings-panel.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-browser-smoke.js`
 - `node v5/scripts/smoke_all.js`
 - `git diff --check`
 

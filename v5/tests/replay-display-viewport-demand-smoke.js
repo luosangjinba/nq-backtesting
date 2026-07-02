@@ -153,6 +153,7 @@ assert.deepEqual(context.displayContext, {
     textColor: '#22d3ee',
     lineColor: '#334155',
     fontSize: 12,
+    priceScaleSide: 'right',
     priceScaleVisible: true,
     timeScaleVisible: true,
     scaleBordersVisible: true,
