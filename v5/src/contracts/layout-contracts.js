@@ -9,14 +9,32 @@ export const LAYOUT_EVENTS = Object.freeze({
 
 export const LAYOUT_MODES = Object.freeze({
   SINGLE: 'single',
-  TWO_PANE: 'two-pane',
+  TWICE: 'twice',
+  TRIPLE: 'triple',
+});
+
+export const LAYOUT_SYNC_KEYS = Object.freeze({
+  SYMBOL: 'symbol',
+  INTERVAL: 'interval',
+  CROSSHAIR: 'crosshair',
+  TIME: 'time',
+  DATE_RANGE: 'dateRange',
 });
 
 export const DEFAULT_ACTIVE_PANE_ID = 'primary';
 
+export const DEFAULT_LAYOUT_SYNC = Object.freeze({
+  symbol: false,
+  interval: false,
+  crosshair: false,
+  time: false,
+  dateRange: false,
+});
+
 export const DEFAULT_LAYOUT_STATE = Object.freeze({
   mode: LAYOUT_MODES.SINGLE,
   activePaneId: DEFAULT_ACTIVE_PANE_ID,
+  sync: DEFAULT_LAYOUT_SYNC,
   panes: Object.freeze([
     Object.freeze({
       id: DEFAULT_ACTIVE_PANE_ID,
@@ -24,11 +42,6 @@ export const DEFAULT_LAYOUT_STATE = Object.freeze({
       instrument: null,
       displayTimeframe: null,
       presentationSettingsId: null,
-      sync: Object.freeze({
-        timeframe: false,
-        viewport: false,
-        crosshair: false,
-      }),
     }),
   ]),
 });

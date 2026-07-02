@@ -163,9 +163,11 @@ Owns:
 Current skeleton:
 
 - starts in `single` mode;
+- recognizes `single`, `twice`, and `triple` modes;
 - exposes one `primary` pane;
 - supports `layout.getState` and `layout.setActivePane`;
 - rejects active pane ids that are not present in layout state.
+- owns root sync toggles for symbol, interval, crosshair, time, and date range.
 
 Does not own:
 

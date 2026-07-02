@@ -32,6 +32,13 @@ const defaults = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
 assert.deepEqual(defaults, {
   mode: 'single',
   activePaneId: 'primary',
+  sync: {
+    symbol: false,
+    interval: false,
+    crosshair: false,
+    time: false,
+    dateRange: false,
+  },
   panes: [
     {
       id: 'primary',
@@ -39,11 +46,6 @@ assert.deepEqual(defaults, {
       instrument: null,
       displayTimeframe: null,
       presentationSettingsId: null,
-      sync: {
-        timeframe: false,
-        viewport: false,
-        crosshair: false,
-      },
     },
   ],
 });
@@ -62,21 +64,25 @@ await assert.rejects(
 assert.throws(
   () => createLayoutRuntime({
     initialState: {
-      mode: 'two-pane',
+      mode: 'twice',
       activePaneId: 'primary',
       panes: [{ id: 'primary' }],
     },
   }),
-  /exactly two panes/
+  /exactly 2 pane/
 );
 
 const twoPaneRuntime = createLayoutRuntime({
   initialState: {
-    mode: 'two-pane',
+    mode: 'twice',
     activePaneId: 'primary',
+    sync: {
+      interval: true,
+      time: true,
+    },
     panes: [
       { id: 'primary', role: 'primary' },
-      { id: 'secondary', role: 'secondary', sync: { timeframe: true } },
+      { id: 'secondary', role: 'secondary' },
     ],
   },
 });
@@ -96,9 +102,29 @@ const secondary = await dispatchCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, {
 });
 assert.equal(secondary.activePaneId, 'secondary');
 assert.equal(secondary.panes.length, 2);
-assert.equal(secondary.panes[1].sync.timeframe, true);
+assert.equal(secondary.sync.interval, true);
+assert.equal(secondary.sync.time, true);
+assert.equal(secondary.sync.symbol, false);
 assert.equal(changedEvent.activePaneId, 'secondary');
 
 twoPaneRuntime.stop();
+
+const triplePaneRuntime = createLayoutRuntime({
+  initialState: {
+    mode: 'triple',
+    activePaneId: 'primary',
+    panes: [
+      { id: 'primary', role: 'primary' },
+      { id: 'secondary', role: 'secondary' },
+      { id: 'tertiary', role: 'tertiary' },
+    ],
+  },
+});
+clearCommandsForTest();
+triplePaneRuntime.start();
+const triple = await dispatchCommand(LAYOUT_COMMANDS.GET_STATE);
+assert.equal(triple.mode, 'triple');
+assert.equal(triple.panes.length, 3);
+triplePaneRuntime.stop();
 
 console.log('v5 layout runtime smoke passed');

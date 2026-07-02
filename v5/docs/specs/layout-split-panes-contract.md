@@ -12,6 +12,9 @@ multi-pane UI or runtime implementation begins.
 Step 461 adds the first layout runtime skeleton: it registers layout commands,
 keeps the default `primary` pane state, supports active-pane selection inside
 known panes, and leaves multi-pane rendering disabled.
+Step 462 formalizes the supported layout modes as `single`, `twice`, and
+`triple`, and adds the five FXReplay-style sync toggles as layout state:
+symbol, interval, crosshair, time, and date range.
 
 This is a planning contract, not an implementation step.
 
@@ -38,13 +41,14 @@ Out of scope:
 The first implementation should be conservative:
 
 - keep the current single pane as `primary`;
-- introduce a layout state that can represent one or two panes;
-- add two-pane support only after the layout contract is reflected in commands
-  and tests;
+- introduce a layout state that can represent `single`, `twice`, or `triple`;
+- keep arbitrary/custom grids out of scope while preserving a mode/pane model
+  that can be extended later;
 - default to independent pane viewport state unless sync is explicitly enabled;
 - default to one replay session shared by all panes.
 
-Do not implement arbitrary grid layouts until the two-pane model is stable.
+Do not implement FXReplay/TradingView-style arbitrary layout grids until the
+bounded three-mode model is stable.
 
 Step 461 implementation status:
 
@@ -53,6 +57,15 @@ Step 461 implementation status:
 - default app layout is single mode with one `primary` pane;
 - chart route reads layout state for route metadata but still renders one pane;
 - Layout button remains disabled/deferred.
+
+Step 462 implementation status:
+
+- layout modes are `single`, `twice`, and `triple`;
+- mode validation requires exactly 1, 2, or 3 panes respectively;
+- sync toggles live on root layout state, not on individual panes;
+- sync toggles default off;
+- `symbol` sync is modeled but should remain disabled in UI while replay
+  sessions are single-instrument.
 
 ## Pane Model
 
@@ -65,7 +78,16 @@ A pane record should be serializable and persistence-ready:
 - `presentationSettings`: pane-level presentation settings or a reference to a
   shared preset;
 - `viewport`: chart-owned visible range/follow state for that pane;
-- `sync`: pane sync flags such as timeframe, crosshair, and viewport.
+
+Root layout state also contains `sync`:
+
+- `symbol`: symbol changes on all panes in the layout. In current V5 replay,
+  this is modeled but disabled in UI because sessions are single-instrument.
+- `interval`: chart display timeframe changes on all panes in the layout.
+- `crosshair`: crosshair position is synchronized across all panes.
+- `time`: when one pane is clicked or navigated to a point in time, all panes
+  display that same point of time.
+- `dateRange`: visible date range changes on all panes in the layout.
 
 The route may know the active pane id for focus and command targeting, but it
 must not become the owner of pane chart data, bar requests, or replay reveal
@@ -108,10 +130,13 @@ Initial defaults:
 
 - replay cursor is shared across panes;
 - no pane can reveal future bars beyond the shared replay cursor;
-- viewport sync is off by default;
+- date range sync is off by default;
 - crosshair sync is off by default;
-- timeframe sync is off by default except for explicit active-chart interval
+- interval sync is off by default except for explicit active-chart interval
   sync between chart display timeframe and replay transport interval;
+- symbol sync is off and UI-disabled while replay sessions are
+  single-instrument;
+- time sync is off by default;
 - Settings target the active pane.
 
 When sync is enabled later:
@@ -144,8 +169,8 @@ The first implementation step after this contract should add focused coverage
 for:
 
 - single-pane route still exposes `primary` as the active pane;
-- layout state can represent one or two panes without rendering extra chart
-  series from route UI;
+- layout state can represent `single`, `twice`, or `triple` without rendering
+  extra chart series from route UI;
 - active-pane timeframe commands target the active pane;
 - Settings opens against active-pane presentation state and remains draft-only;
 - replay cursor/reveal state remains shared and no-future across panes;

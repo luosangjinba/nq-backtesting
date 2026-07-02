@@ -1,6 +1,8 @@
 import { registerCommand } from './commands.js';
 import {
+  DEFAULT_ACTIVE_PANE_ID,
   DEFAULT_LAYOUT_STATE,
+  DEFAULT_LAYOUT_SYNC,
   LAYOUT_COMMANDS,
   LAYOUT_EVENTS,
   LAYOUT_MODES,
@@ -22,40 +24,49 @@ function normalizePane(pane = {}) {
   }
   return {
     id,
-    role: pane.role === 'secondary' ? 'secondary' : 'primary',
+    role: pane.role || 'primary',
     instrument: pane.instrument || null,
     displayTimeframe: pane.displayTimeframe == null ? null : Number(pane.displayTimeframe),
     presentationSettingsId: pane.presentationSettingsId || null,
-    sync: {
-      timeframe: Boolean(pane.sync?.timeframe),
-      viewport: Boolean(pane.sync?.viewport),
-      crosshair: Boolean(pane.sync?.crosshair),
-    },
   };
 }
 
+function normalizeSync(sync = {}) {
+  return {
+    symbol: Boolean(sync.symbol ?? DEFAULT_LAYOUT_SYNC.symbol),
+    interval: Boolean(sync.interval ?? DEFAULT_LAYOUT_SYNC.interval),
+    crosshair: Boolean(sync.crosshair ?? DEFAULT_LAYOUT_SYNC.crosshair),
+    time: Boolean(sync.time ?? DEFAULT_LAYOUT_SYNC.time),
+    dateRange: Boolean(sync.dateRange ?? DEFAULT_LAYOUT_SYNC.dateRange),
+  };
+}
+
+function paneCountForMode(mode) {
+  if (mode === LAYOUT_MODES.TRIPLE) return 3;
+  if (mode === LAYOUT_MODES.TWICE) return 2;
+  return 1;
+}
+
 function normalizeLayoutState(input = DEFAULT_LAYOUT_STATE) {
-  const mode = input.mode === LAYOUT_MODES.TWO_PANE ? LAYOUT_MODES.TWO_PANE : LAYOUT_MODES.SINGLE;
+  const mode = Object.values(LAYOUT_MODES).includes(input.mode)
+    ? input.mode
+    : LAYOUT_MODES.SINGLE;
   const panes = (Array.isArray(input.panes) && input.panes.length
     ? input.panes
     : DEFAULT_LAYOUT_STATE.panes
   ).map(normalizePane);
-  if (panes.length < 1 || panes.length > 2) {
-    throw new Error('layout state must contain one or two panes.');
+  const expectedPaneCount = paneCountForMode(mode);
+  if (panes.length !== expectedPaneCount) {
+    throw new Error(`${mode} layout mode must contain exactly ${expectedPaneCount} pane(s).`);
   }
-  const activePaneId = String(input.activePaneId || panes[0].id).trim();
+  const activePaneId = String(input.activePaneId || DEFAULT_ACTIVE_PANE_ID || panes[0].id).trim();
   if (!panes.some((pane) => pane.id === activePaneId)) {
     throw new Error(`layout active pane "${activePaneId}" does not exist.`);
-  }
-  if (mode === LAYOUT_MODES.SINGLE && panes.length !== 1) {
-    throw new Error('single layout mode must contain exactly one pane.');
-  }
-  if (mode === LAYOUT_MODES.TWO_PANE && panes.length !== 2) {
-    throw new Error('two-pane layout mode must contain exactly two panes.');
   }
   return {
     mode,
     activePaneId,
+    sync: normalizeSync(input.sync),
     panes,
   };
 }

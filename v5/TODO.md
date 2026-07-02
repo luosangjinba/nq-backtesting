@@ -13,9 +13,8 @@
 - Current status: Step 461 is complete. The layout runtime skeleton now exposes
   single-pane `primary` layout state, active-pane commands, and route metadata
   wiring without enabling multi-pane rendering.
-- Next candidate: Step 462 - resume Settings within the Step 460 active-pane
-  scope, or add a two-pane layout state/UI affordance only after defining the
-  chart host mounting path.
+- Next candidate: Step 462 - formalize `single` / `twice` / `triple` layout
+  modes and the five sync toggles before adding the Layout popover UI.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -37,6 +36,11 @@
   `layout.getState`, `layout.setActivePane`, default `single` mode, and one
   `primary` pane. The chart route may render metadata from layout state, but it
   still renders one pane and the Layout button remains deferred.
+- Layout mode decision: Step 462 limits the user-facing layout set to
+  `single`, `twice`, and `triple`, while leaving the state shape extensible.
+  Layout sync toggles are root layout settings: `symbol`, `interval`,
+  `crosshair`, `time`, and `dateRange`. Symbol sync is modeled but should stay
+  disabled in UI while replay sessions remain single-instrument.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -2788,8 +2792,8 @@ Problem:
 Contract summary:
 
 - Current single pane remains `primary`.
-- First implementation should introduce layout state that can represent one or
-  two panes; arbitrary grid layouts remain out of scope.
+- First implementation should introduce layout state that can represent
+  `single`, `twice`, or `triple`; arbitrary grid layouts remain out of scope.
 - Layout runtime owns pane list, active pane id, and sync flags.
 - Chart runtime owns chart host lifecycle, chart series writes, visible ranges,
   and viewport/follow state per pane.
@@ -2799,8 +2803,9 @@ Contract summary:
 - Presentation runtime owns normalized chart presentation settings.
 - Settings open against the active pane and apply to that pane by default; any
   shared/global scope must be explicitly modeled.
-- Viewport, crosshair, and timeframe sync default off unless explicitly enabled
-  by future layout commands.
+- Symbol, interval, crosshair, time, and date-range sync default off unless
+  explicitly enabled by future layout commands. Symbol sync remains UI-disabled
+  while replay sessions are single-instrument.
 
 Implementation:
 
@@ -2876,6 +2881,50 @@ Checks:
 - `node v5/tests/layout-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 462 - V5 Layout Modes And Sync Toggles Contract
+
+Status: completed.
+
+Goal: update layout state to match the intended lightweight multi-pane design:
+`single`, `twice`, `triple`, plus five root-level sync toggles.
+
+Problem:
+
+- Step 461 used an internal `two-pane` model, but the intended user-facing
+  design is a simpler fixed set: single pane, twice, and triple.
+- FXReplay/TradingView expose many layout choices, but V5 should keep only the
+  small set needed for replay review while preserving extensibility.
+- The five sync switches need stable semantics before the Layout popover UI is
+  implemented.
+
+Implementation:
+
+- [x] Step 462.1: Replace `two-pane` mode with `twice` and add `triple`.
+- [x] Step 462.2: Add root layout sync toggles: `symbol`, `interval`,
+  `crosshair`, `time`, and `dateRange`.
+- [x] Step 462.3: Validate mode/pane counts: `single` = 1, `twice` = 2,
+  `triple` = 3.
+- [x] Step 462.4: Update layout runtime smoke coverage for twice/triple and
+  sync defaults.
+- [x] Step 462.5: Update layout contract docs, TODO, and session handoff.
+
+Manual acceptance:
+
+- No Layout popover UI is added yet.
+- Chart route still renders one pane and keeps Layout disabled/deferred.
+- Layout sync switches are modeled as layout state only; they do not directly
+  mutate chart runtime, replay runtime, or bar-data runtime.
+- `symbol` sync is represented in state but remains a future disabled UI
+  control while replay sessions are single-instrument.
+
+Checks:
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/boundary-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
 
