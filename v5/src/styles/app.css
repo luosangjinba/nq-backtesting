@@ -1,6 +1,7 @@
 @import "./chart-settings.css";
 @import "./chart-navigation.css";
 @import "./replay-transport.css";
+@import "./replay-truncate.css";
 
 :root {
   color-scheme: dark;
@@ -357,20 +358,6 @@ input {
   color: #ef5350;
 }
 
-.replay-truncate-pick-line {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  z-index: 3;
-  width: 1px;
-  background: rgba(59, 130, 246, 0.92);
-  pointer-events: none;
-}
-
-.replay-truncate-pick-line[hidden] {
-  display: none;
-}
-
 .chart-toolbar {
   position: absolute;
   top: 14px;
@@ -462,83 +449,6 @@ input {
 .presentation-controls button:disabled {
   cursor: not-allowed;
   opacity: 0.45;
-}
-
-.replay-truncate-error-popover[hidden] {
-  display: none;
-}
-
-.replay-truncate-error-panel {
-  display: grid;
-  gap: 14px;
-  padding: 16px;
-  border: 1px solid #3b4654;
-  border-radius: 8px;
-  background: #242a32;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
-  pointer-events: auto;
-}
-
-.replay-truncate-error-popover {
-  position: absolute;
-  inset: 0;
-  z-index: 30;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  background: rgba(3, 7, 12, 0.24);
-}
-
-.replay-truncate-error-panel {
-  width: min(560px, calc(100vw - 48px));
-}
-
-.replay-truncate-error-header,
-.replay-truncate-error-actions {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.replay-truncate-error-header strong {
-  color: #eef3f8;
-  font-size: 15px;
-}
-
-.replay-truncate-error-header button {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: 6px;
-  background: transparent;
-  color: #dbeafe;
-  font-size: 22px;
-  line-height: 1;
-}
-
-.replay-truncate-error-panel p {
-  margin: 0;
-  color: #cbd5e1;
-  line-height: 1.45;
-}
-
-.replay-truncate-error-actions {
-  justify-content: flex-end;
-}
-
-.replay-truncate-error-actions button {
-  min-width: 64px;
-  min-height: 30px;
-  padding: 0 10px;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  background: #101722;
-  color: #eff6ff;
-  font-weight: 700;
 }
 
 .replay-status-grid {

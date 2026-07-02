@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 449 is complete. Chart navigation controls and Go to
-  popover styles are split from `app.css` into `src/styles/chart-navigation.css`;
-  shared Go to/truncate popover selectors have been separated by owner.
-- Next candidate: Step 450 - continue CSS modularization with another complete
-  route surface such as replay truncate popover or replay status/footer, or
-  pause CSS splitting if a stronger product/runtime boundary is more urgent.
+- Current status: Step 450 is complete. Replay truncate pick guide and error
+  popover styles are split from `app.css` into `src/styles/replay-truncate.css`.
+- Next candidate: Step 451 - continue CSS modularization with another complete
+  route surface such as replay status/footer or chart overlays, or pause CSS
+  splitting if a stronger product/runtime boundary is more urgent.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -186,6 +185,11 @@
   Go to popover, Go to panel, Go to header/actions, navigation inputs, and
   navigation disabled/layout button states. Shared selector groups with replay
   truncate popovers should be separated by owner before further feature work.
+- Refactor decision: replay truncate CSS belongs with the replay truncate UI
+  surface. `src/styles/replay-truncate.css` owns the truncate pick guide line,
+  truncate error popover, truncate error panel, header/actions, copy, buttons,
+  and hidden states. Truncate styles should not be coupled to chart navigation
+  or generic popover selectors.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -2153,6 +2157,53 @@ Checks:
 - `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
 - `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/chart-responsive-visual-browser-smoke.js`
+- `node v5/tests/boundary-smoke.js`
+- `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 450 - V5 Replay Truncate CSS Module Split
+
+Status: completed.
+
+Goal: continue CSS modularization by moving replay truncate pick mode and error
+popover styles out of `app.css`.
+
+Problem:
+
+- After Step 449, replay truncate styles were independently selectable but still
+  lived in the shared stylesheet.
+- Truncate pick mode and error popover belong to the `chart-replay-truncate.js`
+  UI surface and should not be coupled to global chart layout or navigation
+  styling.
+
+Implementation:
+
+- [x] Step 450.1: Define replay truncate CSS ownership as pick guide line,
+  truncate error popover, panel, header/actions, copy, buttons, and hidden
+  states.
+- [x] Step 450.2: Add `src/styles/replay-truncate.css`.
+- [x] Step 450.3: Import `replay-truncate.css` from `src/styles/app.css` while
+  keeping `index.html` pointed at `app.css` only.
+- [x] Step 450.4: Move all `.replay-truncate-*` selectors out of `app.css`.
+- [x] Step 450.5: Reduce `app.css` from 706 lines to 616 lines.
+
+Manual acceptance:
+
+- Truncate pick mode keeps the crosshair cursor and vertical pick guide.
+- Truncate error popover, panel, close/action buttons, and message text keep
+  their previous styling.
+- Chart navigation and Go to popover remain unaffected.
+- `index.html` still loads only `src/styles/app.css`.
+- This step must not change JavaScript behavior, DOM classes, chart commands,
+  replay commands, or runtime ownership.
+
+Checks:
+
+- `node v5/tests/replay-controls-browser-smoke.js`
+- `node v5/tests/replay-floating-controls-browser-smoke.js`
+- `node v5/tests/chart-navigation-toolbar-browser-smoke.js`
+- `node v5/tests/chart-go-to-time-browser-smoke.js`
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
