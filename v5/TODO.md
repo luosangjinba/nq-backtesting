@@ -10,11 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 450 is complete. Replay truncate pick guide and error
-  popover styles are split from `app.css` into `src/styles/replay-truncate.css`.
-- Next candidate: Step 451 - continue CSS modularization with another complete
-  route surface such as replay status/footer or chart overlays, or pause CSS
-  splitting if a stronger product/runtime boundary is more urgent.
+- Current status: Step 451 is complete. The V5 modularization audit confirms
+  CSS feature surfaces are now aligned enough for the current phase; `app.css`
+  is down to 616 lines and focused CSS modules own Settings, replay transport,
+  chart navigation, and replay truncate styling.
+- Next candidate: Step 452 - prefer a runtime/product boundary over more CSS
+  splitting unless a new UI surface forces it. The strongest candidates are
+  `chart-runtime.js` ownership reduction, `chart-engine-presentation.js`
+  presentation mapping split, or a dedicated product bug/interaction step.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -190,6 +193,14 @@
   truncate error popover, truncate error panel, header/actions, copy, buttons,
   and hidden states. Truncate styles should not be coupled to chart navigation
   or generic popover selectors.
+- Refactor decision: pause broad CSS splitting after Step 451 unless a complete
+  UI surface has a clear owner and likely near-term change pressure. Current
+  CSS module owners are aligned enough: `chart-settings.css`,
+  `replay-transport.css`, `chart-navigation.css`, and `replay-truncate.css`
+  own their feature surfaces, while `app.css` retains global shell, setup form,
+  chart shell/overlay, replay status/footer, fallback chart, and responsive
+  layout styles. Next modularization should prefer runtime/product boundaries
+  over moving small isolated selectors for its own sake.
 - Refactor decision: chart runtime pure helpers belong outside the runtime
   shell. State shape/normalization and viewport/range demand calculations can
   live in helper modules, while `chart-runtime.js` remains the only chart
@@ -2207,6 +2218,66 @@ Checks:
 - `node v5/tests/chart-responsive-visual-browser-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/scripts/smoke_all.js`
+- `git diff --check`
+
+## Step 451 - V5 Modularization Audit And Next Boundary Selection
+
+Status: completed.
+
+Goal: pause broad CSS splitting and audit current modularity before choosing the
+next workstream.
+
+Problem:
+
+- Steps 442-450 aggressively split Settings JS and several CSS feature
+  surfaces. Continuing to split small selectors without a stronger boundary
+  would risk churn for limited payoff.
+- The project needs a current size/ownership snapshot so the next step can
+  target the highest-risk boundary instead of continuing mechanical splitting.
+
+Audit:
+
+- CSS line counts:
+  - `src/styles/app.css`: 616 lines.
+  - `src/styles/chart-settings.css`: 250 lines.
+  - `src/styles/replay-transport.css`: 150 lines.
+  - `src/styles/chart-navigation.css`: 114 lines.
+  - `src/styles/replay-truncate.css`: 87 lines.
+- Chart replay route/controller line counts:
+  - `chart-replay-route.js`: 407 lines.
+  - `chart-replay-controls.js`: 218 lines.
+  - `chart-replay-status.js`: 182 lines.
+  - `chart-replay-truncate.js`: 171 lines.
+  - `chart-replay-navigation.js`: 128 lines.
+  - `replay-floating-controls.js`: 136 lines.
+  - Settings modules are split into template, panel, lifecycle, modal, draft,
+    bindings composer, and section bindings.
+- Runtime line count hotspots:
+  - `chart-runtime.js`: 612 lines.
+  - `chart-engine-presentation.js`: 463 lines.
+  - `replay-navigation-controller.js`: 403 lines.
+  - `bar-data-runtime.js`: 324 lines.
+  - `chart-engine-lightweight-adapter.js`: 299 lines.
+
+Implementation:
+
+- [x] Step 451.1: Record CSS module size after Steps 447-450.
+- [x] Step 451.2: Record chart replay route/controller size after JS splits.
+- [x] Step 451.3: Record runtime size hotspots.
+- [x] Step 451.4: Check CSS selector ownership for Settings, transport,
+  navigation, and truncate.
+- [x] Step 451.5: Choose next-step priority as runtime/product boundary first,
+  not more broad CSS splitting.
+
+Manual acceptance:
+
+- No runtime, feature, DOM, or CSS behavior changes are made in this step.
+- TODO and session handoff record the current modularization state clearly.
+- Next candidate is based on measured file size and ownership risk.
+
+Checks:
+
+- `node v5/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
