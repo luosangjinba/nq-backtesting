@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 458 is complete. The remaining range projection helpers
-  were renamed from `chart-engine-presentation.js` to
-  `chart-engine-range-projection.js`, so chart engine option mapping and range
-  projection now have explicit module names.
-- Next candidate: Step 459 - pause broad chart-engine refactoring and pick the
-  next verified product issue from manual replay use, unless a concrete file-size
-  hotspot reappears in the current code audit.
+- Current status: Step 459 is complete. The modularization audit found no
+  immediate need for another chart-engine split; current hotspots are route,
+  runtime orchestration, replay navigation, and the remaining CSS shell.
+- Next candidate: Step 460 - return to product work with a dedicated Layout
+  split panes contract/planning step before implementation, because multi-chart
+  ownership and sync rules must be explicit.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -298,6 +297,12 @@
   projection and logical-whitespace expansion. New chart presentation settings
   should not be added to this module; use chart-engine option or display-context
   modules according to runtime ownership.
+- Refactor decision: pause broad chart-engine splitting after Step 459. The
+  chart-engine modules now have explicit owners: adapter facade, Lightweight
+  adapter, fallback adapter/rendering, Lightweight options, DOM metadata,
+  context normalization, crosshair, native interaction, and range projection.
+  Future chart-engine edits should be driven by a concrete product contract or
+  a measured hotspot, not by generic file-count cleanup.
 - Refactor decision: Lightweight chart adapter internals should keep lifecycle,
   native input/writeback tracking, and crosshair/readout mapping separate. This
   keeps future reset/zoom/drag, multi-pane sync, order markers, and review
@@ -2674,6 +2679,83 @@ Checks:
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js`
 - `node v5/tests/chart-presentation-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
+- `git diff --check`
+
+## Step 459 - V5 Modularization Hotspot Audit
+
+Status: completed.
+
+Goal: pause broad chart-engine refactoring, measure current code hotspots, and
+choose whether the next step should continue refactoring or return to a verified
+product issue.
+
+Problem:
+
+- Steps 452-458 split chart runtime helpers and chart-engine internals into
+  clearer modules, but continued refactoring should be justified by measured
+  ownership risk.
+- V5 should stay modular without turning every step into generic cleanup.
+- The next step should be selected from current code shape and known product
+  risks, not stale pre-split file names.
+
+Audit results:
+
+- Feature chart replay modules: 2400 total JS lines.
+- `chart-replay-route.js`: 407 lines; still the largest route file, but its
+  surrounding status, controls, truncate, navigation, settings, template, and
+  viewport-demand modules are already split.
+- Settings modules: `chart-settings-template.js` is 250 lines, while modal,
+  panel, lifecycle, draft, bindings, and section adapters are all 179 lines or
+  smaller.
+- Runtime modules: 5082 total JS lines. Largest files are
+  `chart-runtime.js` at 484 lines, `replay-navigation-controller.js` at 403
+  lines, `bar-data-runtime.js` at 324 lines, and
+  `chart-engine-lightweight-adapter.js` at 305 lines.
+- Chart-engine modules now have explicit owners:
+  `chart-engine-adapter.js`, `chart-engine-lightweight-adapter.js`,
+  `chart-engine-fallback-adapter.js`, `chart-engine-lightweight-options.js`,
+  `chart-engine-dom-metadata.js`, `chart-engine-fallback-rendering.js`,
+  `chart-engine-lightweight-crosshair.js`,
+  `chart-engine-lightweight-interaction.js`,
+  `chart-engine-range-projection.js`, and `chart-engine-context.js`.
+- CSS modules: 1217 total CSS lines. `app.css` remains 616 lines after earlier
+  settings, transport, navigation, and truncate splits.
+
+Decision:
+
+- Do not continue broad chart-engine splitting immediately.
+- Keep monitoring `chart-runtime.js`, `chart-replay-route.js`,
+  `replay-navigation-controller.js`, and `app.css`, but split them only when a
+  concrete product step exposes a cleaner contract.
+- Return next to product work with a dedicated Layout split panes
+  contract/planning step before implementation.
+
+Implementation:
+
+- [x] Step 459.1: Recount current chart replay feature, runtime, chart-engine,
+  and CSS module sizes.
+- [x] Step 459.2: Confirm Step 458 left no source/test imports of
+  `chart-engine-presentation.js`.
+- [x] Step 459.3: Record the current hotspot list and no-immediate-chart-engine
+  split decision.
+- [x] Step 459.4: Sync chart-engine boundary smoke allowlist with the Step 457
+  Lightweight options module ownership.
+- [x] Step 459.5: Update TODO/session handoff with the next product candidate.
+- [x] Step 459.6: Run boundary and focused smoke checks.
+
+Manual acceptance:
+
+- Current hotspot list uses actual post-Step-458 paths.
+- The next candidate is product-driven, not generic refactoring.
+- No runtime behavior changes are made.
+
+Checks:
+
+- `node v5/tests/boundary-smoke.js`
+- `node v5/tests/chart-engine-boundary-smoke.js`
+- `node v5/tests/chart-engine-adapter-smoke.js`
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js`
+- `node v5/tests/chart-presentation-runtime-smoke.js`
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan
