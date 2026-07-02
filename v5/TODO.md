@@ -10,11 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 461 is complete. The layout runtime skeleton now exposes
-  single-pane `primary` layout state, active-pane commands, and route metadata
-  wiring without enabling multi-pane rendering.
-- Next candidate: Step 462 - formalize `single` / `twice` / `triple` layout
-  modes and the five sync toggles before adding the Layout popover UI.
+- Current status: Step 463-468 planning is complete. The multi-pane sequence is
+  staged from Layout popover state, to DOM pane shell, to chart host mounting,
+  to interval/time/date-range/crosshair sync. No code changes were made for the
+  future implementation steps in this planning pass.
+- Next candidate: Step 463 - implement the Layout popover command surface for
+  Single / Twice / Triple and the five sync switches, without rendering extra
+  chart panes yet.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -2926,6 +2928,72 @@ Checks:
 - `node v5/tests/layout-runtime-smoke.js`
 - `node v5/tests/boundary-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
+## Step 463-468 - V5 Multi-Pane Implementation Plan
+
+Status: completed planning.
+
+Goal: plan the next six bounded multi-pane steps after Step 462 without writing
+implementation code in this planning pass.
+
+Problem:
+
+- V5 should support only `single`, `twice`, and `triple`, not the full
+  FXReplay/TradingView layout grid.
+- The five sync switches have different ownership costs. They must not be wired
+  all at once or through route-local shortcuts.
+- Multi-pane rendering must not regress V5's hard boundaries: chart runtime is
+  the only chart writer, bar-data runtime is the only bar requester, replay
+  runtime owns cursor/reveal state, and route UI dispatches commands only.
+
+Plan:
+
+- Step 463 - Layout popover command surface:
+  - Add `layout.setMode` and `layout.setSync` runtime commands.
+  - Enable the Layout button and open a compact popover with Single, Twice,
+    Triple, and five sync toggles.
+  - Keep `symbol` visible but disabled with a single-instrument note.
+  - Updating mode/sync changes layout state and route metadata only.
+  - Do not render extra chart panes yet.
+- Step 464 - Multi-pane DOM shell:
+  - Render one, two, or three pane containers from layout state.
+  - Preserve one real chart host initially; secondary/tertiary panes render
+    placeholders and active-pane chrome.
+  - Pane click dispatches `layout.setActivePane`.
+  - Route UI must not create chart series or request bars.
+- Step 465 - Chart runtime multi-host mounting contract:
+  - Extend chart runtime host mounting to be pane-id aware.
+  - Chart runtime owns adapter lifecycle per pane.
+  - Route passes pane host elements to chart runtime commands; it does not write
+    chart data.
+  - Keep replay cursor shared and no-future invariant unchanged.
+- Step 466 - Pane display timeframe and Interval sync:
+  - Store pane-level `displayTimeframe` in layout state.
+  - Active pane TF changes update that pane.
+  - If `sync.interval` is enabled, the TF change copies to all panes.
+  - Bar/display loading remains routed through replay/bar-data ownership.
+- Step 467 - Time and Date range sync:
+  - Implement `sync.time` for go-to / jump-to-time alignment across panes.
+  - Implement `sync.dateRange` for visible range mirroring across panes.
+  - Chart runtime owns visible ranges; replay runtime still owns cursor/reveal.
+  - Viewport demand across panes must be deduped by existing request/cache keys.
+- Step 468 - Crosshair sync and multi-pane acceptance:
+  - Implement `sync.crosshair` by mirroring chart-owned hover timestamp across
+    panes through chart events/commands.
+  - Keep high-frequency crosshair events deduped/throttled.
+  - Verify Single/Twice/Triple switching, active-pane selection, interval sync,
+    time/date-range sync, crosshair sync, and no-future replay boundaries.
+
+Deferred:
+
+- `symbol` sync remains modeled but disabled until V5 has a multi-instrument
+  replay/session contract.
+- Arbitrary grids, drag-resizable panes, saved layout templates, and
+  server-backed layout persistence remain out of scope for Steps 463-468.
+
+Checks for this planning pass:
+
 - `git diff --check`
 
 ## Step 375 - V5 Phase 2 Closeout And Phase 3 Entry Plan

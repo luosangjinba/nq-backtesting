@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 462: `session_20260702_step462_v5_layout_modes_sync_toggles.md`
+- Step 463-468: `session_20260702_step463_468_v5_multi_pane_plan.md`
 
 ## Completed Session Index
 
@@ -127,3 +127,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 460: `session_20260702_step460_v5_layout_split_panes_contract.md`
 - Step 461: `session_20260702_step461_v5_layout_runtime_skeleton.md`
 - Step 462: `session_20260702_step462_v5_layout_modes_sync_toggles.md`
+- Step 463-468: `session_20260702_step463_468_v5_multi_pane_plan.md`

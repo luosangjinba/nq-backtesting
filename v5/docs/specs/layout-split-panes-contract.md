@@ -176,3 +176,40 @@ for:
 - replay cursor/reveal state remains shared and no-future across panes;
 - feature modules still pass boundary smoke tests;
 - viewport demand remains routed through replay/bar-data ownership.
+
+## Implementation Roadmap
+
+Steps 463-468 should proceed in this order:
+
+1. Step 463 - Layout popover command surface.
+   Add `layout.setMode` and `layout.setSync`; enable a compact Layout popover
+   with Single, Twice, Triple, and the five sync switches. `symbol` is visible
+   but disabled while replay sessions are single-instrument. This step updates
+   layout state only and must not render extra panes.
+2. Step 464 - Multi-pane DOM shell.
+   Render one, two, or three pane containers from layout state. Keep one real
+   chart host initially, render secondary/tertiary placeholders, and dispatch
+   `layout.setActivePane` on pane selection.
+3. Step 465 - Chart runtime multi-host mounting contract.
+   Make chart host mounting pane-id aware. Chart runtime owns per-pane adapter
+   lifecycle and chart writes; route UI only passes host elements through
+   commands.
+4. Step 466 - Pane display timeframe and Interval sync.
+   Store pane-level display timeframe in layout state. Active pane TF changes
+   update one pane unless `sync.interval` is enabled, in which case the value
+   copies to all panes through layout/runtime commands.
+5. Step 467 - Time and Date range sync.
+   Implement `sync.time` for go-to/jump-time alignment and `sync.dateRange`
+   for visible-range mirroring. Chart runtime owns visible ranges; replay
+   runtime continues to own cursor/reveal.
+6. Step 468 - Crosshair sync and multi-pane acceptance.
+   Implement `sync.crosshair` through chart-owned events/commands with
+   deduping/throttling, then verify Single/Twice/Triple, active pane selection,
+   interval/time/date-range/crosshair sync, and no-future replay boundaries.
+
+Deferred beyond Step 468:
+
+- `symbol` sync activation, because it needs a multi-instrument replay/session
+  contract;
+- arbitrary grids and drag-resizable pane layouts;
+- saved layout templates and server-backed layout persistence.
