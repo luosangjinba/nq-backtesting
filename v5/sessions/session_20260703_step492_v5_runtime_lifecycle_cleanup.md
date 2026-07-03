@@ -14,7 +14,7 @@ infrastructure.
 
 - [x] Step 492a: add lifecycle cleanup contract and update documentation
       indexes.
-- [ ] Step 492b: audit existing runtime/controller/adapter resource creation
+- [x] Step 492b: audit existing runtime/controller/adapter resource creation
       points and record a cleanup backlog.
 - [ ] Step 492c: add a lightweight static lifecycle smoke so future high-risk
       resource additions are visible during review.
@@ -25,6 +25,16 @@ infrastructure.
 - Updated the executable framework with explicit lifecycle ownership rules.
 - Updated V5 docs index, specs index, TODO, and session handoff.
 
+## Step 492b Result
+
+- Added `v5/docs/harness/lifecycle-cleanup-audit.md`.
+- Confirmed current safe cleanup paths for router, command/event bus, chart
+  runtime, Lightweight adapter, fallback adapter, replay playback timer,
+  viewport-demand bridge, and chart route teardown.
+- Recorded cleanup backlog for pane shell controller dispose, replay controls
+  controller dispose, standardized controller dispose shape, pane-local chart
+  display state release, and bar-data cache retention tests.
+
 ## Non-Goals
 
 - No runtime behavior changes in Step 492a.
@@ -33,5 +43,5 @@ infrastructure.
 
 ## Checks
 
-- Pending per substep.
-
+- Step 492a passed: `git diff --check`
+- Step 492b pending.
