@@ -44,6 +44,7 @@ export function createReplayDisplayWindowController({
 
   async function loadDisplayWindow({
     sessionId = getState().sessionId,
+    paneId = 'primary',
     displayTimeframe = getState().displayTimeframe || getState().session?.timeframe,
     anchor = getState().cursorTimestamp,
     direction = 'backward',
@@ -58,12 +59,14 @@ export function createReplayDisplayWindowController({
     }
 
     const sourceState = getState();
+    const targetPaneId = String(paneId || 'primary').trim() || 'primary';
+    const statefulLoad = targetPaneId === 'primary';
     const missingWindow = viewportDemand?.missingWindow || {};
     const normalizedDisplayTimeframe = normalizeTimeframe(
       viewportDemand?.displayTimeframe || displayTimeframe,
       'display timeframe'
     );
-    const metrics = await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS);
+    const metrics = await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS, { paneId: targetPaneId });
     const requestedCount = count ?? missingWindow.suggestedCount;
     const displayCount = Number.isInteger(Number(requestedCount))
       ? Number(requestedCount)
@@ -149,24 +152,38 @@ export function createReplayDisplayWindowController({
 
       const displayBarsChanged = !displayBarsEqual(sourceState.displayBars, displayBars);
       if (displayBarsChanged) {
-        await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp);
-        await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp);
+        await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp, { paneId: targetPaneId });
+        if (statefulLoad) {
+          await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp);
+        }
         await chartSync.syncChartDisplayContext({
+          paneId: targetPaneId,
           displayTimeframe: normalizedDisplayTimeframe,
           bars: displayBars,
         });
       }
 
-      const nextState = setState({
-        ...sourceState,
-        displayTimeframe: normalizedDisplayTimeframe,
-        displayBarsTimeframe: normalizedDisplayTimeframe,
-        displayBars: clone(displayBars),
-        viewportMetrics: clone(metrics),
-        status: 'display-loaded',
-      });
+      const nextState = statefulLoad
+        ? setState({
+          ...sourceState,
+          displayTimeframe: normalizedDisplayTimeframe,
+          displayBarsTimeframe: normalizedDisplayTimeframe,
+          displayBars: clone(displayBars),
+          viewportMetrics: clone(metrics),
+          status: 'display-loaded',
+        })
+        : {
+          ...clone(sourceState),
+          paneId: targetPaneId,
+          displayTimeframe: normalizedDisplayTimeframe,
+          displayBarsTimeframe: normalizedDisplayTimeframe,
+          displayBars: clone(displayBars),
+          viewportMetrics: clone(metrics),
+          status: sourceState.status,
+        };
       const result = {
         ...clone(nextState),
+        paneId: targetPaneId,
         displayWindow: {
           key: window.key,
           instrument: window.instrument,
@@ -214,11 +231,13 @@ export function createReplayDisplayWindowController({
 
   async function setDisplayTimeframe({
     sessionId = getState().sessionId,
+    paneId = 'primary',
     displayTimeframe,
     count,
   } = {}) {
     const sourceState = getState();
     const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
+    const targetPaneId = String(paneId || 'primary').trim() || 'primary';
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
     }
@@ -226,6 +245,16 @@ export function createReplayDisplayWindowController({
       await ensureInitialSession({ sessionId });
     }
     const current = getState();
+    if (targetPaneId !== 'primary') {
+      return loadDisplayWindow({
+        sessionId,
+        paneId: targetPaneId,
+        displayTimeframe: normalizedDisplayTimeframe,
+        anchor: current.cursorTimestamp,
+        direction: 'backward',
+        count,
+      });
+    }
     if (current.displayTimeframe === normalizedDisplayTimeframe && current.status === 'display-loaded') {
       return displayContextSnapshot(current);
     }
@@ -236,6 +265,7 @@ export function createReplayDisplayWindowController({
     emitEvent(replayEvents.DISPLAY_TIMEFRAME_CHANGED, displayContextSnapshot(nextState));
     return loadDisplayWindow({
       sessionId,
+      paneId: targetPaneId,
       displayTimeframe: normalizedDisplayTimeframe,
       anchor: nextState.cursorTimestamp,
       direction: 'backward',

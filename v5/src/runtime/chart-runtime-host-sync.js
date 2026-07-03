@@ -6,45 +6,47 @@ export function createChartRuntimeHostSync({
   mountedHostList,
   mountedHostByPaneId,
   chartAdapters,
+  resolveStateForHost = () => state,
 } = {}) {
   let applyingRuntimeVisibleRange = false;
   let pendingChartSyncAfterNativeInteraction = false;
 
-  function buildChartMetadata(renderedBars = computeRenderedBars(state)) {
+  function buildChartMetadata(renderedBars = computeRenderedBars(state), sourceState = state) {
     return {
-      viewportFollow: state.viewportFollow.enabled ? 'true' : 'false',
-      interactionMode: state.interaction.mode,
+      viewportFollow: sourceState.viewportFollow.enabled ? 'true' : 'false',
+      interactionMode: sourceState.interaction.mode,
       renderedBarCount: renderedBars.length,
-      fullBarCount: state.bars.length,
-      crosshairActive: state.crosshair.active ? 'true' : 'false',
-      crosshairTime: state.crosshair.time || '',
-      crosshairPrice: state.crosshair.price == null ? '' : state.crosshair.price,
-      nativeInteractionActive: state.nativeInteraction.active ? 'true' : 'false',
-      nativeInteractionType: state.nativeInteraction.type || '',
+      fullBarCount: sourceState.bars.length,
+      crosshairActive: sourceState.crosshair.active ? 'true' : 'false',
+      crosshairTime: sourceState.crosshair.time || '',
+      crosshairPrice: sourceState.crosshair.price == null ? '' : sourceState.crosshair.price,
+      nativeInteractionActive: sourceState.nativeInteraction.active ? 'true' : 'false',
+      nativeInteractionType: sourceState.nativeInteraction.type || '',
     };
   }
 
   function syncChartHost(host, { deferDuringNativeInteraction = true } = {}) {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
+    const sourceState = resolveStateForHost(host) || state;
     if (deferDuringNativeInteraction && state.nativeInteraction.active) {
       pendingChartSyncAfterNativeInteraction = true;
-      adapter.setMetadata?.(buildChartMetadata());
+      adapter.setMetadata?.(buildChartMetadata(computeRenderedBars(sourceState), sourceState));
       return;
     }
-    const renderedBars = computeRenderedBars(state);
+    const renderedBars = computeRenderedBars(sourceState);
     applyingRuntimeVisibleRange = true;
     try {
       adapter.resizeToHost?.();
-      adapter.setPresentation(state.displayContext);
+      adapter.setPresentation(sourceState.displayContext);
       adapter.setBars(renderedBars, {
-        fullBarCount: state.bars.length,
-        displayContext: state.displayContext,
-        metadata: buildChartMetadata(renderedBars),
-        followViewport: state.interaction.mode === 'follow' && state.viewportFollow.enabled,
+        fullBarCount: sourceState.bars.length,
+        displayContext: sourceState.displayContext,
+        metadata: buildChartMetadata(renderedBars, sourceState),
+        followViewport: sourceState.interaction.mode === 'follow' && sourceState.viewportFollow.enabled,
       });
-      if (state.interaction.mode === 'manual') {
-        adapter.setVisibleRange(state.visibleRange);
+      if (sourceState.interaction.mode === 'manual') {
+        adapter.setVisibleRange(sourceState.visibleRange);
       }
       adapter.resizeToHost?.();
     } finally {
@@ -74,10 +76,10 @@ export function createChartRuntimeHostSync({
   }
 
   function syncMetadataToMountedHosts() {
-    const metadata = buildChartMetadata();
     for (const host of mountedHostList) {
       if (!host.isConnected) continue;
-      chartAdapters.get(host)?.setMetadata?.(metadata);
+      const sourceState = resolveStateForHost(host) || state;
+      chartAdapters.get(host)?.setMetadata?.(buildChartMetadata(computeRenderedBars(sourceState), sourceState));
     }
   }
 

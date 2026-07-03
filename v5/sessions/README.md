@@ -147,3 +147,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 478: `session_20260702_step478_v5_multi_pane_canvas_min_height.md`
 - Step 479: `session_20260702_step479_v5_resizable_split_panes.md`
 - Step 480: `session_20260702_step480_v5_active_pane_timeframe_control.md`
+- Step 481: `session_20260702_step481_v5_pane_local_timeframe_display.md`

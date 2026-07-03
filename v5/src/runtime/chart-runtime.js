@@ -42,6 +42,7 @@ export function createChartRuntime() {
   const mountedHostList = new Set();
   const mountedHostByPaneId = new Map();
   const chartAdapters = new Map();
+  const paneDisplayStateByPaneId = new Map();
   const unregisterCallbacks = [];
   const state = createEmptyChartState();
   let rootElement = null;
@@ -53,7 +54,20 @@ export function createChartRuntime() {
     mountedHostList,
     mountedHostByPaneId,
     chartAdapters,
+    resolveStateForHost: (host) => stateForPane(host?.dataset?.chartPaneId),
   });
+
+  function stateForPane(paneId = DEFAULT_CHART_PANE_ID) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    if (normalizedPaneId === DEFAULT_CHART_PANE_ID) return state;
+    const paneState = paneDisplayStateByPaneId.get(normalizedPaneId);
+    if (!paneState) return state;
+    return {
+      ...state,
+      bars: paneState.bars || state.bars,
+      displayContext: paneState.displayContext || state.displayContext,
+    };
+  }
 
   function mountHost(host, { paneId } = {}) {
     if (!host) {
@@ -124,13 +138,34 @@ export function createChartRuntime() {
       }));
   }
 
-  function updateBars(nextBars) {
+  function syncPaneHosts(paneId) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const host = mountedHostByPaneId.get(normalizedPaneId);
+    if (host?.isConnected) {
+      hostSync.syncChartHost(host);
+      return;
+    }
+    hostSync.rerenderMountedHosts();
+  }
+
+  function updateBars(nextBars, { paneId } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const paneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
+      paneDisplayStateByPaneId.set(normalizedPaneId, {
+        ...paneState,
+        bars: nextBars,
+      });
+      syncPaneHosts(normalizedPaneId);
+      emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...nextBars] });
+      return { paneId: normalizedPaneId, bars: [...nextBars] };
+    }
     state.bars = nextBars;
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state);
     hostSync.rerenderMountedHosts();
-    emit(CHART_EVENTS.BARS_CHANGED, { bars: [...state.bars] });
-    return { bars: [...state.bars] };
+    emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
+    return { paneId: normalizedPaneId, bars: [...state.bars] };
   }
 
   function connectedHostForPane(paneId = DEFAULT_CHART_PANE_ID) {
@@ -429,6 +464,21 @@ export function createChartRuntime() {
   }
 
   function setDisplayContext(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const paneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
+      const displayContext = buildChartDisplayContext(payload, paneState.displayContext || state.displayContext);
+      paneDisplayStateByPaneId.set(normalizedPaneId, {
+        ...paneState,
+        displayContext,
+      });
+      syncPaneHosts(normalizedPaneId);
+      return {
+        paneId: normalizedPaneId,
+        displayContext: structuredClone(displayContext),
+        viewportDemand: null,
+      };
+    }
     state.displayContext = buildChartDisplayContext(payload, state.displayContext);
     state.viewportFollow = {
       ...state.viewportFollow,
@@ -437,6 +487,7 @@ export function createChartRuntime() {
     state.viewportDemand = computeViewportDemand(state);
     hostSync.rerenderMountedHosts();
     return {
+      paneId: normalizedPaneId,
       displayContext: structuredClone(state.displayContext),
       viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
     };
@@ -478,7 +529,7 @@ export function createChartRuntime() {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
       registerCommand(CHART_COMMANDS.MOUNT_HOST, (payload = {}) => mountHost(payload.host, payload)),
-      registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars } = {}) => updateBars(normalizeBars(bars))),
+      registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars, paneId } = {}) => updateBars(normalizeBars(bars), { paneId })),
       registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars } = {}) => updateBars([
         ...state.bars,
         ...normalizeBars(bars),

@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 480 is complete. The toolbar keeps one shared TF
-  dropdown, and browser acceptance now verifies it reads from and writes to the
-  active pane's `displayTimeframe`; `Interval` sync remains the only path that
-  copies TF to every pane.
-- Next candidate: Step 481 - harden split-pane chart synchronization after
+- Current status: Step 481 is complete. Chart runtime now supports pane-local
+  bars/display context so a right-side pane TF change can reload that pane
+  without rewriting the left pane or global replay display timeframe.
+- Next candidate: Step 482 - harden split-pane chart synchronization after
   resize. Verify drag-resized panes keep price/time axes, OHLC overlays,
   active-pane focus, and future Settings scope stable across all `twice.*` and
   `triple.*` variants.
@@ -121,6 +120,11 @@
   only that pane when `sync.interval` is off, and copies to all panes only when
   `sync.interval` is on. Do not add per-pane TF dropdowns unless a later UX
   contract explicitly changes this model.
+- Pane-local chart display decision: Step 481 extends chart/replay sync with
+  optional `paneId` display writes. Primary remains the global replay display
+  pane; secondary/tertiary TF changes load through replay runtime and write
+  only the target chart host. Layout state owns pane TF, replay runtime owns bar
+  loading/no-future filtering, and chart runtime remains the only chart writer.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

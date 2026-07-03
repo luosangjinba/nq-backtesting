@@ -211,6 +211,39 @@ async function main() {
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         }
 
+        async function clickPaneCenter(paneId) {
+          const pane = document.querySelector('[data-layout-pane][data-pane-id="' + paneId + '"]');
+          if (!pane) throw new Error('Missing pane ' + paneId);
+          const box = pane.getBoundingClientRect();
+          const clientX = Math.round(box.left + box.width / 2);
+          const clientY = Math.round(box.top + box.height / 2);
+          const target = document.elementFromPoint(clientX, clientY) || pane;
+          target.dispatchEvent(new PointerEvent('pointerdown', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            pointerId: 480,
+            clientX,
+            clientY,
+          }));
+          target.dispatchEvent(new PointerEvent('pointerup', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            pointerId: 480,
+            clientX,
+            clientY,
+          }));
+          target.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX,
+            clientY,
+          }));
+          await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        }
+
         async function waitFor(label, predicate, timeoutMs = 8000) {
           const deadline = Date.now() + timeoutMs;
           while (Date.now() < deadline) {
@@ -266,6 +299,7 @@ async function main() {
           await new Promise((resolve) => setTimeout(resolve, 50));
           const layoutPopover = document.querySelector('[data-layout-popover]');
           const singleModeButton = document.querySelector('[data-layout-mode-option="single"]');
+          const twiceVerticalModeButton = document.querySelector('[data-layout-variant-option="twice.vertical"]');
           const twiceModeButton = document.querySelector('[data-layout-variant-option="twice.horizontal"]');
           const tripleLeftModeButton = document.querySelector('[data-layout-variant-option="triple.left"]');
           const tripleModeButton = document.querySelector('[data-layout-mode-option="triple"]');
@@ -280,6 +314,42 @@ async function main() {
           const dateRangeSyncInput = document.querySelector('[data-layout-sync="dateRange"]');
           const layoutPopoverInitiallyVisible = Boolean(layoutPopover && !layoutPopover.hidden);
           const singleModeInitiallyPressed = singleModeButton?.getAttribute('aria-pressed') || '';
+          twiceVerticalModeButton?.click();
+          await waitFor('twice vertical layout mode', async () => (
+            chartRoute?.dataset.layoutMode === 'twice'
+            && chartRoute?.dataset.layoutVariant === 'twice.vertical'
+            && document.querySelectorAll('[data-layout-pane]').length === 2
+          ));
+          await clickPaneCenter('secondary');
+          await waitFor('secondary active pane in vertical layout', async () => (
+            chartRoute?.dataset.activePaneId === 'secondary'
+            && document.querySelector('[data-display-timeframe-select]')?.value === '1'
+          ));
+          const verticalDisplayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          verticalDisplayTimeframeSelect.value = '5';
+          verticalDisplayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('right vertical pane display timeframe updated independently', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
+            const primaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]');
+            const secondaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]');
+            return layoutState.variant === 'twice.vertical'
+              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe == null
+              && layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 5
+              && displayContext.displayTimeframe === 1
+              && Number(primaryCanvas?.dataset.renderedBarCount || 0) > Number(secondaryCanvas?.dataset.renderedBarCount || 0)
+              && document.querySelector('[data-display-timeframe-select]')?.value === '5';
+          });
+          const verticalIndependentLayoutState = await commands.dispatchCommand('layout.getState');
+          const verticalIndependentDisplayContext = await commands.dispatchCommand('replay.getDisplayContext');
+          const verticalPrimaryRenderedBarCount = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]')
+            ?.dataset.renderedBarCount || 0);
+          const verticalSecondaryRenderedBarCount = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+            ?.dataset.renderedBarCount || 0);
           twiceModeButton?.click();
           await waitFor('twice layout mode', async () => (
             chartRoute?.dataset.layoutMode === 'twice'
@@ -524,6 +594,10 @@ async function main() {
             secondaryPaneActive: secondaryPane?.dataset.activePane || '',
             secondaryPaneActiveAfterSecondarySelect,
             secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
+            verticalIndependentPaneDisplayTimeframes: verticalIndependentLayoutState.panes.map((pane) => pane.displayTimeframe),
+            verticalReplayDisplayTimeframeAfterSecondaryChange: verticalIndependentDisplayContext.displayTimeframe,
+            verticalPrimaryRenderedBarCount,
+            verticalSecondaryRenderedBarCount,
             primaryPaneDisplayTimeframe: primaryPane?.dataset.displayTimeframe || '',
             secondaryPaneDisplayTimeframe: secondaryPane?.dataset.displayTimeframe || '',
             independentPaneDisplayTimeframes: layoutStateAfterIndependentTimeframe.panes.map((pane) => pane.displayTimeframe),
@@ -633,6 +707,12 @@ async function main() {
     assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
     assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
     assert.equal(value.secondaryPaneHasChartHost, 'true');
+    assert.deepEqual(value.verticalIndependentPaneDisplayTimeframes, [null, 5]);
+    assert.equal(value.verticalReplayDisplayTimeframeAfterSecondaryChange, 1);
+    assert.ok(
+      value.verticalPrimaryRenderedBarCount > value.verticalSecondaryRenderedBarCount,
+      'right vertical pane TF change should not rewrite the left pane bars'
+    );
     assert.deepEqual(value.independentPaneDisplayTimeframes, [null, 5]);
     assert.equal(value.replayDisplayTimeframeAfterIndependentPaneChange, 1);
     assert.equal(value.primarySelectValueAfterFocus, '1');

@@ -333,24 +333,28 @@ export function createChartReplayRoute() {
           displayTimeframe: nextDisplayTimeframe,
         });
         applyLayoutState(layoutState);
-        const shouldReloadPrimary = paneId === DEFAULT_ACTIVE_PANE_ID || layoutState.sync?.interval;
-        if (!shouldReloadPrimary) {
-          return {
-            paneId,
-            displayTimeframe: Number(nextDisplayTimeframe),
-            replayReloaded: false,
-          };
+        const targetPaneIds = layoutState.sync?.interval
+          ? layoutState.panes.map((pane) => pane.id || DEFAULT_ACTIVE_PANE_ID)
+          : [paneId];
+        let state = null;
+        for (const targetPaneId of targetPaneIds) {
+          const nextState = await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+            sessionId: params.sessionId || '',
+            paneId: targetPaneId,
+            displayTimeframe: nextDisplayTimeframe,
+          });
+          if (targetPaneId === DEFAULT_ACTIVE_PANE_ID || !state) {
+            state = nextState;
+          }
         }
-        const state = await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-          sessionId: params.sessionId || '',
-          paneId: DEFAULT_ACTIVE_PANE_ID,
-          displayTimeframe: nextDisplayTimeframe,
-        });
-        replayDisplayTimeframe = Number(state.displayTimeframe || nextDisplayTimeframe);
+        if (targetPaneIds.includes(DEFAULT_ACTIVE_PANE_ID)) {
+          replayDisplayTimeframe = Number(state?.displayTimeframe || nextDisplayTimeframe);
+        }
         displayTimeframe = activePaneDisplayTimeframe(layoutState);
         return {
-          ...state,
+          ...(state || {}),
           paneId,
+          displayTimeframe: Number(nextDisplayTimeframe),
           replayReloaded: true,
         };
       }

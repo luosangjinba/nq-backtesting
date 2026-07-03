@@ -41,6 +41,9 @@ clamps adjacent panes so neither side can collapse.
 Step 480 hardens active-pane TF semantics. The toolbar keeps one shared TF
 dropdown, and its value follows the focused pane instead of adding one TF
 control per pane.
+Step 481 makes active-pane TF changes pane-local at the chart display layer:
+secondary and tertiary panes can load a different TF without rewriting primary
+or the global replay display context.
 
 This is a planning contract, not an implementation step.
 
@@ -236,6 +239,16 @@ Step 480 implementation status:
 - changing the dropdown updates all panes when `sync.interval` is on;
 - browser smoke verifies the shared-control behavior without adding per-pane
   TF dropdowns.
+
+Step 481 implementation status:
+
+- chart runtime accepts optional `paneId` for bars and display context writes;
+- chart host sync resolves pane-local bars/display context per mounted host;
+- replay display loading can render a non-primary pane without mutating global
+  replay display state;
+- active-pane TF changes reload the target pane through replay runtime;
+- browser smoke verifies a right-side `twice.vertical` pane can change TF while
+  the left pane and global replay display TF stay unchanged.
 
 ## Pane Model
 

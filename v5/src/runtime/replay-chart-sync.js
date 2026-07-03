@@ -10,7 +10,7 @@ export function createReplayChartSync({
     }
   }
 
-  async function syncChartDisplayContext({ displayTimeframe, bars }) {
+  async function syncChartDisplayContext({ displayTimeframe, bars, paneId }) {
     if (!hasCommand(chartCommands.SET_DISPLAY_CONTEXT)) return;
     const state = getState();
     const timestamps = (bars || [])
@@ -18,6 +18,7 @@ export function createReplayChartSync({
       .filter(Number.isFinite)
       .sort((left, right) => left - right);
     await dispatchCommand(chartCommands.SET_DISPLAY_CONTEXT, {
+      paneId,
       instrument: state.session?.instrument || null,
       displayTimeframe,
       loadedCoverage: timestamps.length
@@ -43,10 +44,12 @@ export function createReplayChartSync({
   async function renderDisplayBars(
     displayBars,
     cursorTimestamp,
-    { resumeViewportFollow = false } = {}
+    { resumeViewportFollow = false, paneId } = {}
   ) {
-    await dispatchCommand(chartCommands.REPLACE_BARS, { bars: displayBars });
-    await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow });
+    await dispatchCommand(chartCommands.REPLACE_BARS, { paneId, bars: displayBars });
+    if (!paneId || paneId === 'primary') {
+      await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow });
+    }
   }
 
   return {
