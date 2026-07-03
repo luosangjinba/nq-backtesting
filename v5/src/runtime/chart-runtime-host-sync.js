@@ -136,6 +136,21 @@ export function createChartRuntimeHostSync({
     }
   }
 
+  function resetPriceScaleForHost(host) {
+    if (!host?.isConnected) return;
+    chartAdapters.get(host)?.resetPriceScale?.();
+  }
+
+  function resetPriceScales({ paneId } = {}) {
+    if (paneId) {
+      resetPriceScaleForHost(mountedHostByPaneId?.get(paneId));
+      return;
+    }
+    for (const host of mountedHostList) {
+      resetPriceScaleForHost(host);
+    }
+  }
+
   function flushPendingAfterNativeInteraction() {
     if (!pendingChartSyncAfterNativeInteraction) return false;
     pendingChartSyncAfterNativeInteraction = false;
@@ -156,6 +171,7 @@ export function createChartRuntimeHostSync({
     pruneDisconnectedHosts,
     rerenderMountedHosts,
     syncMetadataToMountedHosts,
+    resetPriceScales,
     flushPendingAfterNativeInteraction,
     getSyncState,
   };

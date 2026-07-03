@@ -103,6 +103,7 @@ const engineCalls = {
   update: [],
   setVisibleRange: [],
   setVisibleLogicalRange: [],
+  priceScaleApplyOptions: [],
   visibleRangeHandler: null,
   crosshairHandler: null,
   removed: 0,
@@ -119,6 +120,13 @@ globalThis.LightweightCharts = {
           },
           update(data) {
             engineCalls.update.push(data);
+          },
+          priceScale() {
+            return {
+              applyOptions(optionsPayload) {
+                engineCalls.priceScaleApplyOptions.push(optionsPayload);
+              },
+            };
           },
         };
       },
@@ -348,6 +356,7 @@ assert.equal(directResumed.interaction.mode, 'follow');
 assert.equal(directResumed.visibleRange, null);
 assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
 assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeBeforeDirectResume);
+assert.equal(engineCalls.priceScaleApplyOptions.at(-1).autoScale, true);
 const directResumeState = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
 assert.equal(directResumeState.visibleRange, null);
 assert.equal(host.children[0].dataset.interactionMode, 'follow');

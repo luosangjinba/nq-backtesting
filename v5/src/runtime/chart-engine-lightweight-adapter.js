@@ -84,6 +84,15 @@ export function createLightweightInstance({ engine, documentRef }) {
     });
   }
 
+  function resetSeriesPriceScale(context) {
+    const priceScale = series?.priceScale?.();
+    if (typeof priceScale?.applyOptions !== 'function') return;
+    priceScale.applyOptions({
+      autoScale: true,
+      scaleMargins: priceScaleMarginsForContext(context),
+    });
+  }
+
   function applyWatermarkOptions(context) {
     if (!series || typeof engine.createTextWatermark !== 'function') return;
     const options = watermarkOptionsForContext(context);
@@ -257,6 +266,11 @@ export function createLightweightInstance({ engine, documentRef }) {
     },
     resizeToHost,
     requestResizeToHost: queueResizeToHost,
+    resetPriceScale() {
+      resetSeriesPriceScale(displayContext);
+      resizeToHost();
+      queueResizeToHost();
+    },
     setBars(nextBars = [], options = {}) {
       bars = [...nextBars];
       fullBarCount = Number(options.fullBarCount ?? bars.length);

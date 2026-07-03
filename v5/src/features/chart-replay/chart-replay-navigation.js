@@ -112,8 +112,10 @@ export function createChartReplayNavigationController({
   root.addEventListener('click', (event) => {
     const resetViewButton = event.target.closest('[data-chart-reset-view]');
     if (!resetViewButton || !root.contains(resetViewButton)) return;
+    const paneElement = resetViewButton.closest('[data-chart-pane-id]');
+    const paneId = paneElement?.dataset?.chartPaneId || undefined;
     runChartNavigation(
-      () => dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW),
+      () => dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, { paneId }),
       () => 'Following cursor.'
     );
   });

@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 486 is complete. Multi-pane display timeframe state is
-  now initialized per non-primary pane, so the shared TF dropdown follows the
-  active pane and Interval sync off no longer lets primary/global TF changes
-  visually rewrite secondary panes.
-- Next candidate: Step 487 - profile remaining manual/auto playback latency in
+- Current status: Step 487 is complete. Chart reset view now restores both the
+  time axis follow state and the Lightweight price scale auto-scale, with
+  reset commands scoped to the pane whose reset button was clicked.
+- Next candidate: Step 488 - profile remaining manual/auto playback latency in
   real browser with single pane and split panes, separating command queue time,
   bar cache hits, chart append/update counts, and resize/follow range work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -158,6 +157,12 @@
   existing layout runtime fan-out still copies TF to every pane. Chart runtime
   metadata now exposes each pane's effective `displayTimeframe` for acceptance
   checks.
+- Reset view decision: Step 487 treats reset view as both time and price
+  recovery. `chart.resumeViewportFollow` accepts an optional `paneId`, restores
+  that pane's follow interaction, and asks the chart adapter to reset the
+  price scale. The Lightweight adapter reapplies `autoScale: true` plus the
+  current scale margins so candles return to the visible price range as well as
+  the latest replay time.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

@@ -573,7 +573,34 @@ export function createChartRuntime() {
     return setManualVisibleRange(visibleRange);
   }
 
-  function resumeViewportFollow() {
+  function resumeViewportFollow(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const sourceState = stateForPane(normalizedPaneId);
+      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
+        visibleRange: null,
+        interaction: {
+          mode: 'follow',
+          manualVisibleRange: null,
+        },
+        viewportFollow: {
+          ...sourceState.viewportFollow,
+          enabled: true,
+        },
+        prefixDemand: null,
+        viewportDemand: null,
+      });
+      syncPaneHosts(normalizedPaneId);
+      hostSync.resetPriceScales({ paneId: normalizedPaneId });
+      return {
+        paneId: normalizedPaneId,
+        viewportFollow: { ...nextPaneState.viewportFollow },
+        interaction: structuredClone(nextPaneState.interaction),
+        visibleRange: null,
+        renderedBars: computeRenderedBars(nextPaneState),
+        fullBarCount: nextPaneState.bars.length,
+      };
+    }
     state.visibleRange = null;
     state.interaction = {
       mode: 'follow',
@@ -586,7 +613,9 @@ export function createChartRuntime() {
     state.prefixDemand = null;
     state.viewportDemand = null;
     hostSync.rerenderMountedHosts();
+    hostSync.resetPriceScales({ paneId: DEFAULT_CHART_PANE_ID });
     return {
+      paneId: normalizedPaneId,
       viewportFollow: { ...state.viewportFollow },
       interaction: structuredClone(state.interaction),
       visibleRange: null,
@@ -738,7 +767,7 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.GO_TO_TIME, (payload) => goToTime(payload)),
       registerCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, (payload) => zoomVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, (payload) => panVisibleRange(payload)),
-      registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, () => resumeViewportFollow()),
+      registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, (payload = {}) => resumeViewportFollow(payload)),
       registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
       registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),
       registerCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE, () => getCrosshairState()),
