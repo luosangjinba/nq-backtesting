@@ -91,10 +91,6 @@ export function createReplayNavigationController({
     }
 
     const revealedCount = sourceState.revealedCount + nextBars.length;
-    const persisted = await persistReplayCursor({
-      cursorTimestamp: nextBar.time,
-      revealedCount,
-    });
     const normalizedDisplayTimeframe = normalizeTimeframe(
       sourceState.displayTimeframe || sourceState.session.timeframe,
       'display timeframe'
@@ -116,7 +112,6 @@ export function createReplayNavigationController({
 
     let nextState = setState({
       ...sourceState,
-      persistedCursor: clone(persisted.cursor),
       cursorTimestamp: nextBar.time,
       revealedCount,
       displayBarsTimeframe: normalizedDisplayTimeframe,
@@ -132,6 +127,14 @@ export function createReplayNavigationController({
       });
       nextState = getState();
     }
+    const persisted = await persistReplayCursor({
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
+    nextState = setState({
+      ...getState(),
+      persistedCursor: clone(persisted.cursor),
+    });
     const result = {
       ...clone(nextState),
       advanced: true,

@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 483 is complete. Manual and auto replay advancement now
-  use a bounded forward reveal window, bar-data overlap cache reuse, batched
-  `stepCount` replay advancement, and rapid Next-click coalescing so fast
-  clicks are not serialized into one API/load/render cycle per bar.
-- Next candidate: Step 484 - continue live/browser performance hardening for
+- Current status: Step 484 is complete. Single-click Next now updates in-memory
+  replay state and chart display before cursor persistence resolves, so K-line
+  reveal is not blocked by storage/session writes.
+- Next candidate: Step 485 - continue live/browser performance hardening for
   split-pane resize and pane-local playback. Capture setData/resize counts
   during multi-pane auto playback before adding more layout behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -137,6 +136,11 @@
   persistence once and rendering the final display state once. The chart replay
   controls coalesce rapid Next clicks into one `stepCount` command instead of
   queuing one full replay command per click.
+- Replay latency decision: Step 484 makes chart reveal precede cursor
+  persistence on `Next`. Replay runtime may update in-memory cursor/display
+  state and write chart bars before `session.updateCursor` resolves, then patch
+  `persistedCursor` into state after persistence completes. This keeps no-future
+  display semantics while removing storage latency from visible K-line reveal.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

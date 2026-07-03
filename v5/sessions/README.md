@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 483: `session_20260702_step483_v5_fast_replay_next.md`
+- Step 484: `session_20260702_step484_v5_next_reveal_before_persist.md`
 
 ## Completed Session Index
 
@@ -150,3 +150,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 481: `session_20260702_step481_v5_pane_local_timeframe_display.md`
 - Step 482: `session_20260702_step482_v5_pane_local_viewport_demand_playback.md`
 - Step 483: `session_20260702_step483_v5_fast_replay_next.md`
+- Step 484: `session_20260702_step484_v5_next_reveal_before_persist.md`

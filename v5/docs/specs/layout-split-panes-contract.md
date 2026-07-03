@@ -52,6 +52,10 @@ Step 483 hardens the shared replay advancement path used by single-pane and
 multi-pane layouts. Forward bars may be cached only in bar-data runtime, rapid
 Next clicks are coalesced into a single `stepCount`, and replay runtime renders
 only the final display state for a multi-step advance.
+Step 484 removes storage latency from the visible Next-bar reveal. Replay
+runtime writes the in-memory cursor/display state and chart bars before waiting
+for cursor persistence, then patches `persistedCursor` after persistence
+resolves.
 
 This is a planning contract, not an implementation step.
 
@@ -251,6 +255,16 @@ Step 483 implementation status:
 - chart replay controls coalesce rapid Next clicks into one batched command;
 - browser regression verifies ten rapid Next clicks advance ten bars without
   issuing additional forward bars requests after initial load.
+
+Step 484 implementation status:
+
+- replay `next` updates cursor/display state and chart output before awaiting
+  `session.updateCursor`;
+- replay `next` updates `persistedCursor` after persistence resolves;
+- regression coverage delays cursor persistence and verifies chart bars are
+  already updated while persistence is still pending;
+- no-future display rules remain unchanged because the in-memory cursor moves
+  before newly revealed bars are written to chart/display state.
 
 Step 479 implementation status:
 
