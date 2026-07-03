@@ -19,6 +19,9 @@ Read this index before working on V5.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.
+- `v5/docs/specs/workstation-decision-backlog.md`: consolidated recent
+  decisions that should guide future chart/workstation plans before writing
+  implementation code.
 - `v5/docs/specs/open-source-local-deployment.md`: current product direction:
   open-source/local-first deployment instead of SaaS-first infrastructure.
 - `v5/TODO.md`: current step plan and manual acceptance standards.

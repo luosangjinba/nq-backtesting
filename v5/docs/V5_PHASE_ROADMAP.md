@@ -12,11 +12,19 @@ Every new V5 step must declare:
 - the specific phase gate it advances;
 - the non-goals it will not solve;
 - the smoke/browser checks that prove it did not violate runtime boundaries.
+- the documented decision/spec it implements or protects when the work touches
+  chart, replay, layout, Settings, or workstation UI.
 
 If a useful idea is outside the current phase, record it under the target phase
 instead of implementing it immediately. Do not add a feature because it is
 visible in FXReplay unless it closes a current phase gate or is explicitly
 promoted by updating this roadmap.
+
+Before new chart/workstation implementation work, check
+`docs/specs/workstation-decision-backlog.md`, Lightweight Charts documentation,
+and the awesome-tradingview ecosystem references. Prefer a tested existing API,
+plugin, or pattern when it fits V5 ownership boundaries; document why V5 needs
+custom behavior when it does not.
 
 Product direction: V5 is now open-source/local-first, not SaaS-first. The target
 deployment is a local desktop, LAN machine, VPS, or terminal server. New work
@@ -202,10 +210,11 @@ Entry checklist:
   visible-range drag/zoom.
 - Completed: drag/zoom contracts decide how manual movement pauses replay
   auto-follow.
-- Current next: use the Step 460 split-pane contract for any Layout
-  implementation. The current single pane already exposes visible TF controls
-  and stable active pane semantics; multi-chart ownership must extend that
-  command path rather than bypassing it.
+- Current next: use `docs/specs/workstation-decision-backlog.md` plus the
+  detailed owning spec before planning new Layout, Settings, replay transport,
+  or chart-engine work. The current single pane already exposes visible TF
+  controls and stable active pane semantics; multi-chart ownership must extend
+  that command path rather than bypassing it.
 - Chart runtime still owns visible range observation and chart rendering.
 - Replay runtime still owns cursor, reveal state, and no-future display
   invariants.

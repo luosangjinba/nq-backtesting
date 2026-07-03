@@ -59,6 +59,11 @@ resolves.
 
 This is a planning contract, not an implementation step.
 
+Step 491 adds `workstation-decision-backlog.md` as the routing spec for recent
+multi-pane decisions before later implementation plans. This file remains the
+detailed owner for split-pane layout, active-pane, sync, pane-local viewport,
+and resize behavior.
+
 In scope:
 
 - pane identity and active-pane semantics;

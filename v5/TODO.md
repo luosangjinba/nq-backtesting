@@ -10,13 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 490 is in progress. V5 product direction is being
-  updated from SaaS-ready-first to open-source/local-first deployment while
-  preserving runtime ownership boundaries and local workspace/profile
-  durability.
-- Next candidate: Step 491 - continue tokenized UI polish into Settings modal
-  controls and shared form primitives after the chart workstation shell proves
-  the token/component-state approach.
+- Current status: Step 491 completed. Recent conversation decisions are
+  consolidated into `v5/docs/specs/workstation-decision-backlog.md` so future
+  implementation steps can start from stable rules instead of chat memory.
+- Next candidate: Step 492 - choose the next implementation slice from
+  `workstation-decision-backlog.md` after checking Lightweight Charts and
+  awesome-tradingview references. Likely candidates are Settings token/form
+  primitives, remaining multi-pane acceptance hardening, or local-first
+  packaging documentation.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -188,6 +189,12 @@
   ownership and repository/runtime boundaries, but stop using public auth,
   billing, entitlement, hosted market-data metering, or production
   multi-tenancy as roadmap priorities.
+- Planning consolidation decision: Step 491 adds
+  `v5/docs/specs/workstation-decision-backlog.md` as the routing spec for recent
+  conversation decisions. Future chart/workstation plans should name the
+  relevant backlog decision, the detailed owning spec, whether Lightweight
+  Charts / awesome-tradingview references were checked, the owning runtime
+  boundary, and the smoke/browser check that proves the rule still holds.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

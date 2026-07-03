@@ -194,9 +194,10 @@ Current and future checks should include:
 
 ## Next Implementation Slice
 
-The next UI implementation step should add the token layer first, then migrate
-one bounded surface such as chart toolbar plus Layout popover. Broader Settings
-or chart-pane visual updates should follow after token usage is proven.
+The next UI implementation step should choose from the consolidated decisions
+in `workstation-decision-backlog.md`, then use this visual-system spec for
+surface-level rules. Broader Settings or chart-pane visual updates should follow
+the token/component-state model already proven in Step 489.
 
 Step 489 implementation status:
 

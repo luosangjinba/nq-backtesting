@@ -76,6 +76,10 @@ that future work must follow this file order.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
+- `workstation-decision-backlog.md`: consolidated routing spec for recent
+  workstation decisions that span chart engine behavior, multi-pane layout,
+  replay performance, Settings, visual polish, V4 comparison, and local-first
+  direction.
 - `open-source-local-deployment.md`: cross-phase product direction that V5 is
   now an open-source/local-first replay workstation for desktop, LAN, VPS, or
   terminal-server deployment.
@@ -147,4 +151,6 @@ that future work must follow this file order.
   `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
 - Step 490: `open-source-local-deployment.md`,
   `saas-readiness-strategy.md`, `product-review-loop.md`
+- Step 491: `workstation-decision-backlog.md`,
+  `layout-split-panes-contract.md`, `workstation-visual-system.md`
 - Cross-phase: `open-source-local-deployment.md`
