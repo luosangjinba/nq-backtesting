@@ -44,6 +44,8 @@ export function createChartReplayControlsController({
   const jumpCursorButton = root.querySelector('[data-chart-jump-cursor]');
   const jumpCursorPopoverButton = root.querySelector('[data-chart-jump-cursor-popover]');
   let replayCommandQueue = Promise.resolve();
+  let pendingNextStepCount = 0;
+  let pendingNextTimer = null;
 
   function replayStepCount() {
     const base = Number(getSessionTimeframe() || 1);
@@ -106,10 +108,10 @@ export function createChartReplayControlsController({
     return result;
   }
 
-  nextButton.addEventListener('click', async () => {
+  async function runNext(stepCount) {
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
       sessionId: getSessionId(),
-      stepCount: replayStepCount(),
+      stepCount,
     }));
     if (!state) return;
     setTerminalReason(state.advanced ? '' : state.reason || 'stopped');
@@ -117,6 +119,20 @@ export function createChartReplayControlsController({
       ? `Loaded ${state.displayBars.length} bars.`
       : `Replay stopped: ${state.reason || 'no next bar'}.`);
     await refreshReplayStatus();
+  }
+
+  function flushPendingNext() {
+    pendingNextTimer = null;
+    const stepCount = pendingNextStepCount;
+    pendingNextStepCount = 0;
+    if (stepCount <= 0) return;
+    runNext(stepCount);
+  }
+
+  nextButton.addEventListener('click', () => {
+    pendingNextStepCount += replayStepCount();
+    if (pendingNextTimer !== null) return;
+    pendingNextTimer = setTimeout(flushPendingNext, 0);
   });
 
   replayPreviousButton.addEventListener('click', async () => {

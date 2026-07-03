@@ -21,6 +21,17 @@ function bar(value, open) {
   };
 }
 
+function makeBarsFromWindow(window, firstOpen = 100) {
+  const startTimestamp = timestamp(`${window.start}:00.000Z`.replace(' ', 'T'));
+  return Array.from({ length: window.estimatedBars }, (_, index) => ({
+    timestamp: startTimestamp + (index * Number(window.timeframe) * 60),
+    open: firstOpen + index,
+    high: firstOpen + index + 1,
+    low: firstOpen + index - 1,
+    close: firstOpen + index + 0.5,
+  }));
+}
+
 const originalSetInterval = globalThis.setInterval;
 const originalClearInterval = globalThis.clearInterval;
 const timers = new Map();
@@ -43,12 +54,7 @@ let chartBars = [];
 const barDataRuntime = createBarDataRuntime({
   fetchBars: async (window) => {
     if (window.direction === 'forward') {
-      if (window.anchor === '2026-06-01T09:30:00.000Z') {
-        return { bars: [bar('2026-06-01T09:30:00.000Z', 100), bar('2026-06-01T09:31:00.000Z', 101)] };
-      }
-      if (window.anchor === '2026-06-01T09:31:00.000Z') {
-        return { bars: [bar('2026-06-01T09:31:00.000Z', 101), bar('2026-06-01T09:32:00.000Z', 102)] };
-      }
+      return { bars: makeBarsFromWindow(window, 100) };
     }
     return {
       bars: [

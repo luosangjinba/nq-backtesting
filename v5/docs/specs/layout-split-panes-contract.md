@@ -48,6 +48,10 @@ Step 482 hardens pane-local viewport demand after those TF changes: drag/zoom
 events on a secondary pane keep their pane id through chart runtime and replay
 display loading, and primary playback updates do not rewrite panes with
 pane-local display state.
+Step 483 hardens the shared replay advancement path used by single-pane and
+multi-pane layouts. Forward bars may be cached only in bar-data runtime, rapid
+Next clicks are coalesced into a single `stepCount`, and replay runtime renders
+only the final display state for a multi-step advance.
 
 This is a planning contract, not an implementation step.
 
@@ -235,6 +239,18 @@ Step 482 implementation status:
 - primary/global replay bar replacement syncs only primary and non-overridden
   panes, so a pane-local secondary/tertiary chart is not rewritten on every
   playback step.
+
+Step 483 implementation status:
+
+- initial start-bar resolution requests a bounded forward reveal window instead
+  of only two bars, caching future source bars in bar-data runtime only;
+- bar-data runtime can satisfy a planned window from a larger cached same
+  instrument/timeframe window by slicing cached bars;
+- replay `next` batches `stepCount > 1` into one cursor persistence update and
+  one chart render at the final cursor;
+- chart replay controls coalesce rapid Next clicks into one batched command;
+- browser regression verifies ten rapid Next clicks advance ten bars without
+  issuing additional forward bars requests after initial load.
 
 Step 479 implementation status:
 

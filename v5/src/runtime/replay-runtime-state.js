@@ -1,5 +1,6 @@
 export const DEFAULT_PREFIX_BARS = 119;
 export const MAX_PREFIX_BARS = 499;
+export const DEFAULT_FORWARD_REVEAL_WINDOW_BARS = 120;
 export const PREFIX_RETENTION_VISIBLE_SPANS = 2;
 export const MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS = 6;
 
@@ -77,6 +78,19 @@ export function normalizeStepCount(value = 1) {
 
 export function timeframeSeconds(timeframe) {
   return normalizeTimeframe(timeframe) * 60;
+}
+
+export function computeForwardRevealWindowCount({
+  cursorTimestamp,
+  sessionEnd,
+  timeframe,
+  maxCount = DEFAULT_FORWARD_REVEAL_WINDOW_BARS,
+} = {}) {
+  const cursor = timestampSeconds(cursorTimestamp);
+  const end = timestampSeconds(sessionEnd);
+  const remainingBars = Math.floor((end - cursor) / timeframeSeconds(timeframe)) + 1;
+  const normalizedMaxCount = Math.max(1, Math.floor(Number(maxCount) || DEFAULT_FORWARD_REVEAL_WINDOW_BARS));
+  return Math.max(1, Math.min(normalizedMaxCount, remainingBars));
 }
 
 export function isoFromTimestamp(timestampValue) {

@@ -6,6 +6,7 @@ import {
   MAX_PREFIX_BARS,
   assertNoDisplayBarsAfter,
   cloneReplayValue as clone,
+  computeForwardRevealWindowCount,
   computePrefixBarCount,
   selectStartBar,
   timestampSeconds,
@@ -50,7 +51,11 @@ export function createReplayBootstrapController({
       timeframe: session.timeframe,
       anchor: session.sessionStart,
       direction: 'forward',
-      count: 2,
+      count: computeForwardRevealWindowCount({
+        cursorTimestamp: session.sessionStart,
+        sessionEnd: session.sessionEnd,
+        timeframe: session.timeframe,
+      }),
     });
     if (loadSequence && loadSequence !== initialLoadSequence) {
       throw new Error('Stale replay initial load ignored.');

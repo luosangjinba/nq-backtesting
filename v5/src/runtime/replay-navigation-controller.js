@@ -5,15 +5,32 @@ import {
   assertNoFutureDisplayBars,
   canRevealBar,
   cloneReplayValue as clone,
+  computeForwardRevealWindowCount,
   filterDisplayBarsForCursor,
   isoFromTimestamp,
   isAtOrAfterSessionEnd,
   normalizeStepCount,
   normalizeTimeframe,
-  selectNextBar,
   timeframeSeconds,
   timestampSeconds,
 } from './replay-runtime-state.js';
+
+function forwardRevealWindowCount(sourceState) {
+  return computeForwardRevealWindowCount({
+    cursorTimestamp: sourceState.cursorTimestamp,
+    sessionEnd: sourceState.session.sessionEnd,
+    timeframe: sourceState.replayTimeframe || sourceState.session.timeframe,
+  });
+}
+
+function selectNextBars(bars = [], cursorTimestamp, sessionEnd, count = 1) {
+  const cursor = timestampSeconds(cursorTimestamp);
+  return bars
+    .filter((bar) => Number(bar?.timestamp) > cursor)
+    .filter((bar) => canRevealBar(bar, sessionEnd))
+    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp))
+    .slice(0, count);
+}
 
 export function createReplayNavigationController({
   getState,
@@ -35,14 +52,6 @@ export function createReplayNavigationController({
       throw new Error('replay sessionId is required.');
     }
     const normalizedStepCount = normalizeStepCount(stepCount);
-    if (normalizedStepCount > 1) {
-      let result = null;
-      for (let index = 0; index < normalizedStepCount; index += 1) {
-        result = await next({ sessionId, stepCount: 1 });
-        if (!result.advanced) return result;
-      }
-      return result;
-    }
     if (getState().sessionId !== sessionId || getState().status === 'idle') {
       await ensureInitialSession({ sessionId });
     }
@@ -64,10 +73,16 @@ export function createReplayNavigationController({
       timeframe: sourceState.session.timeframe,
       anchor: sourceState.cursorTimestamp,
       direction: 'forward',
-      count: 2,
+      count: forwardRevealWindowCount(sourceState),
     });
-    const nextBar = selectNextBar(window.bars, sourceState.cursorTimestamp);
-    if (!nextBar || !canRevealBar(nextBar, sourceState.session.sessionEnd)) {
+    const nextBars = selectNextBars(
+      window.bars,
+      sourceState.cursorTimestamp,
+      sourceState.session.sessionEnd,
+      normalizedStepCount
+    );
+    const nextBar = nextBars[nextBars.length - 1];
+    if (!nextBar) {
       return {
         ...clone(sourceState),
         advanced: false,
@@ -75,7 +90,7 @@ export function createReplayNavigationController({
       };
     }
 
-    const revealedCount = sourceState.revealedCount + 1;
+    const revealedCount = sourceState.revealedCount + nextBars.length;
     const persisted = await persistReplayCursor({
       cursorTimestamp: nextBar.time,
       revealedCount,
@@ -91,7 +106,7 @@ export function createReplayNavigationController({
     const displayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
       ? [
         ...sourceState.displayBars,
-        nextBar,
+        ...nextBars,
       ]
       : sourceState.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
@@ -121,6 +136,7 @@ export function createReplayNavigationController({
       ...clone(nextState),
       advanced: true,
       revealedBar: clone(nextBar),
+      revealedBars: clone(nextBars),
     };
     emitEvent(replayEvents.NEXT, result);
     return result;

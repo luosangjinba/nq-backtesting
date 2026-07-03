@@ -101,6 +101,32 @@ function estimateBarCount(startMs, endMs, timeframe) {
   return Math.floor((endMs - startMs) / (timeframe * TIMEFRAME_TO_MS)) + 1;
 }
 
+function windowBoundsMs(window) {
+  return {
+    startMs: parseTime(window.start, 'start'),
+    endMs: parseTime(window.end, 'end'),
+  };
+}
+
+function coversWindow(record, planned) {
+  if (!record || !planned) return false;
+  if (record.instrument !== planned.instrument || Number(record.timeframe) !== Number(planned.timeframe)) {
+    return false;
+  }
+  const recordBounds = windowBoundsMs(record);
+  const plannedBounds = windowBoundsMs(planned);
+  return recordBounds.startMs <= plannedBounds.startMs && recordBounds.endMs >= plannedBounds.endMs;
+}
+
+function sliceBarsForWindow(bars = [], planned) {
+  const { startMs, endMs } = windowBoundsMs(planned);
+  const startTimestamp = Math.floor(startMs / 1000);
+  const endTimestamp = Math.floor(endMs / 1000);
+  return bars
+    .filter((bar) => Number(bar?.timestamp) >= startTimestamp && Number(bar?.timestamp) <= endTimestamp)
+    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
+}
+
 export function planBoundedBarWindow(payload = {}, options = {}) {
   const maxBarsPerWindow = Number(options.maxBarsPerWindow || DEFAULT_MAX_BARS_PER_WINDOW);
   const instrument = normalizeInstrument(payload.instrument);
@@ -203,10 +229,30 @@ export function createBarDataRuntime({
     };
   }
 
+  function cloneCoveredRecord(record, planned) {
+    return {
+      ...planned,
+      key: makeWindowKey(planned),
+      bars: sliceBarsForWindow(record.bars, planned),
+      requestedRange: record.requestedRange || null,
+      cached: true,
+      coveredByKey: record.key,
+      releaseDeferred: false,
+      releaseRequestedSequence: null,
+      lastAccessedSequence: record.lastAccessedSequence || 0,
+    };
+  }
+
+  function findCoveringRecord(planned) {
+    return [...windows.values()].find((record) => coversWindow(record, planned)) || null;
+  }
+
   function getWindow(payload = {}) {
     const planned = normalizeBarWindow(payload, { maxBarsPerWindow });
     const cached = windows.get(makeWindowKey(planned));
-    return cached ? cloneRecord(touch(cached)) : null;
+    if (cached) return cloneRecord(touch(cached));
+    const covered = findCoveringRecord(planned);
+    return covered ? cloneCoveredRecord(touch(covered), planned) : null;
   }
 
   async function loadWindow(payload = {}) {
@@ -215,6 +261,10 @@ export function createBarDataRuntime({
     const cached = windows.get(key);
     if (cached) {
       return cloneRecord(touch(cached), { cached: true });
+    }
+    const covered = findCoveringRecord(planned);
+    if (covered) {
+      return cloneCoveredRecord(touch(covered), planned);
     }
 
     const response = await fetchBars(planned);

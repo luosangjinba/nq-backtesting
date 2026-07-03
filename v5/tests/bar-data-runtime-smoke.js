@@ -86,6 +86,18 @@ const cached = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, planned);
 assert.equal(requests.length, 1);
 assert.equal(cached.cached, true);
 
+const covered = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
+  instrument: 'NQ',
+  timeframe: 1,
+  anchor: '2026-06-01T09:31:00.000Z',
+  direction: 'forward',
+  count: 2,
+});
+assert.equal(requests.length, 1);
+assert.equal(covered.cached, true);
+assert.equal(covered.coveredByKey, loaded.key);
+assert.deepEqual(covered.bars.map((bar) => bar.timestamp), [1780306260, 1780306320]);
+
 const fetched = await dispatchCommand(BAR_DATA_COMMANDS.GET_WINDOW, planned);
 assert.equal(fetched.key, loaded.key);
 

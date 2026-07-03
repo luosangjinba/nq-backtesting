@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 482 is complete. Pane-local chart state now carries
-  visible range, interaction, and viewport demand with `paneId`, so a secondary
-  pane TF change followed by drag/zoom keeps left-extension loading targeted to
-  that pane. Primary replay updates also skip pane-local chart hosts to reduce
-  playback stutter in split layouts.
-- Next candidate: Step 483 - run a live/browser performance pass for multi-pane
-  playback and split resize. Capture setData/resize counts during manual and
-  auto playback, then harden only the hot path that remains visible in browser.
+- Current status: Step 483 is complete. Manual and auto replay advancement now
+  use a bounded forward reveal window, bar-data overlap cache reuse, batched
+  `stepCount` replay advancement, and rapid Next-click coalescing so fast
+  clicks are not serialized into one API/load/render cycle per bar.
+- Next candidate: Step 484 - continue live/browser performance hardening for
+  split-pane resize and pane-local playback. Capture setData/resize counts
+  during multi-pane auto playback before adding more layout behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -132,6 +131,12 @@
   `paneId`, and the replay viewport-demand bridge must pass that `paneId` into
   display-window loading. Primary replay bar replacement must not rewrite
   mounted panes that already have pane-local display state.
+- Replay speed decision: Step 483 keeps future bars out of chart/display state
+  while allowing bar-data runtime to cache a bounded forward reveal window.
+  Replay `Next` can advance multiple bars in one command by updating cursor
+  persistence once and rendering the final display state once. The chart replay
+  controls coalesce rapid Next clicks into one `stepCount` command instead of
+  queuing one full replay command per click.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
