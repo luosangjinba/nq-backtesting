@@ -141,4 +141,6 @@ that future work must follow this file order.
 - Step 461: `layout-split-panes-contract.md`
 - Step 488: `workstation-visual-system.md`,
   `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
+- Step 489: `workstation-visual-system.md`,
+  `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
 - Cross-phase: `saas-readiness-strategy.md`

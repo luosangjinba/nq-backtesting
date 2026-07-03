@@ -9,14 +9,20 @@
 
 .chart-navigation-controls button {
   min-width: 44px;
-  min-height: 28px;
+  min-height: var(--v5-control-height-sm);
   padding: 0 9px;
-  border: 1px solid #2d3745;
-  border-radius: 6px;
-  background: #101722;
-  color: #dbeafe;
+  border: 1px solid var(--v5-border-default);
+  border-radius: var(--v5-radius-md);
+  background: var(--v5-surface-control);
+  color: var(--v5-text-secondary);
   font-size: 12px;
   font-weight: 700;
+}
+
+.chart-navigation-controls button:not(:disabled):hover {
+  border-color: var(--v5-border-hover);
+  background: var(--v5-surface-control-hover);
+  color: var(--v5-text-primary);
 }
 
 .chart-navigation-controls button:disabled,
@@ -39,7 +45,7 @@
 .chart-go-to-popover {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: var(--v5-z-popover);
   display: grid;
   place-items: center;
   padding: 24px;
@@ -49,7 +55,7 @@
 .chart-layout-popover {
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: var(--v5-z-popover);
   display: flex;
   justify-content: flex-end;
   align-items: flex-start;
@@ -66,10 +72,10 @@
   display: grid;
   gap: 12px;
   padding: 14px;
-  border: 1px solid #3b4654;
-  border-radius: 8px;
-  background: #242a32;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+  border: 1px solid var(--v5-border-strong);
+  border-radius: var(--v5-radius-lg);
+  background: var(--v5-surface-panel-raised);
+  box-shadow: var(--v5-shadow-popover);
   pointer-events: auto;
 }
 
@@ -81,20 +87,20 @@
 }
 
 .chart-layout-header strong {
-  color: #eef3f8;
+  color: var(--v5-text-primary);
   font-size: 15px;
 }
 
 .chart-layout-header button {
-  width: 28px;
-  height: 28px;
+  width: var(--v5-control-height-sm);
+  height: var(--v5-control-height-sm);
   display: grid;
   place-items: center;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--v5-radius-md);
   background: transparent;
-  color: #dbeafe;
+  color: var(--v5-text-secondary);
   font-size: 22px;
   line-height: 1;
 }
@@ -113,7 +119,7 @@
 }
 
 .chart-layout-mode-count {
-  color: #9ca3af;
+  color: var(--v5-text-muted);
   font-size: 12px;
   line-height: 1;
 }
@@ -127,13 +133,19 @@
   border: 1px solid transparent;
   border-radius: 4px;
   background: transparent;
-  color: #d1d5db;
+  color: var(--v5-text-secondary);
 }
 
 .chart-layout-modes button[aria-pressed="true"] {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.14);
-  color: #e0f2fe;
+  border-color: var(--v5-border-focus);
+  background: var(--v5-accent-soft);
+  color: var(--v5-text-primary);
+}
+
+.chart-layout-modes button:not(:disabled):hover {
+  border-color: var(--v5-border-hover);
+  background: rgba(125, 211, 252, 0.08);
+  color: var(--v5-text-primary);
 }
 
 .chart-layout-icon {
@@ -213,11 +225,11 @@
 }
 
 .chart-layout-sync label {
-  min-height: 28px;
+  min-height: var(--v5-control-height-sm);
   display: flex;
   align-items: center;
   gap: 8px;
-  color: #dbeafe;
+  color: var(--v5-text-secondary);
   font-size: 12px;
 }
 
@@ -234,10 +246,10 @@
   display: grid;
   gap: 14px;
   padding: 16px;
-  border: 1px solid #3b4654;
-  border-radius: 8px;
-  background: #242a32;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+  border: 1px solid var(--v5-border-strong);
+  border-radius: var(--v5-radius-lg);
+  background: var(--v5-surface-panel-raised);
+  box-shadow: var(--v5-shadow-popover);
   pointer-events: auto;
 }
 
@@ -250,20 +262,20 @@
 }
 
 .chart-go-to-header strong {
-  color: #eef3f8;
+  color: var(--v5-text-primary);
   font-size: 15px;
 }
 
 .chart-go-to-header button {
-  width: 28px;
-  height: 28px;
+  width: var(--v5-control-height-sm);
+  height: var(--v5-control-height-sm);
   display: grid;
   place-items: center;
   padding: 0;
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: var(--v5-radius-md);
   background: transparent;
-  color: #dbeafe;
+  color: var(--v5-text-secondary);
   font-size: 22px;
   line-height: 1;
 }
@@ -276,11 +288,19 @@
   min-width: 64px;
   min-height: 30px;
   padding: 0 10px;
-  border: 1px solid #475569;
-  border-radius: 6px;
-  background: #101722;
-  color: #eff6ff;
+  border: 1px solid var(--v5-border-strong);
+  border-radius: var(--v5-radius-md);
+  background: var(--v5-surface-control);
+  color: var(--v5-text-primary);
   font-weight: 700;
+}
+
+.chart-go-to-actions button:not(:disabled):hover,
+.chart-go-to-header button:not(:disabled):hover,
+.chart-layout-header button:not(:disabled):hover {
+  border-color: var(--v5-border-hover);
+  background: var(--v5-surface-control-hover);
+  color: var(--v5-text-primary);
 }
 
 .chart-go-to-actions button:disabled {

@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 488 is complete. V5 now has a workstation visual system
-  spec that turns the FXReplay-like UI direction into enforceable token,
-  component-state, active-pane, Settings, Layout, replay transport, and
-  screenshot/browser quality gates.
-- Next candidate: Step 489 - implement the first UI token pass for the chart
-  workstation shell, toolbar, Layout popover, and floating transport without
+- Current status: Step 489 is complete. V5 now has the first workstation UI
+  token pass applied to the chart shell, route toolbar, Layout/Go-to popovers,
+  active-pane chrome, footer status, and floating replay transport without
   changing replay, chart, bar-data, or layout runtime ownership.
+- Next candidate: Step 490 - continue tokenized UI polish into Settings modal
+  controls and shared form primitives after the chart workstation shell proves
+  the token/component-state approach.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -174,6 +174,13 @@
   composable variants, and accessible primitive behavior; do not install it as
   a V5 dependency unless a later framework decision explicitly moves V5 to a
   React/Tailwind stack.
+- Workstation token decision: Step 489 adds the first native CSS token layer
+  for V5 workstation surfaces, text, borders, focus rings, accents, compact
+  control heights, shadows, radius, and z-index layers. Chart shell, toolbar,
+  Layout/Go-to popovers, active-pane chrome, footer chips, and floating replay
+  transport should consume those tokens before introducing new hard-coded
+  surface/state styling. This is a CSS/component-state pass only; runtime
+  command ownership remains unchanged.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

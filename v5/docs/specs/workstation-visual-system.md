@@ -197,3 +197,16 @@ Current and future checks should include:
 The next UI implementation step should add the token layer first, then migrate
 one bounded surface such as chart toolbar plus Layout popover. Broader Settings
 or chart-pane visual updates should follow after token usage is proven.
+
+Step 489 implementation status:
+
+- V5 has a first native CSS token layer in `src/styles/app.css` covering
+  workstation surfaces, borders, text roles, focus rings, accents, control
+  heights, radius, shadows, and z-index layers.
+- The chart workstation shell, route toolbar, active-pane chrome, chart toolbar,
+  Layout popover, Go-to popover, footer status chips, and floating replay
+  transport consume those tokens for common surface/state styling.
+- The token pass is CSS-only. It does not change replay, chart, bar-data,
+  layout runtime, or command dispatch ownership.
+- Settings modal internals and broader form primitives remain the next likely
+  tokenization surface.
