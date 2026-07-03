@@ -10,15 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 492 completed. V5 now has a lifecycle cleanup contract,
-  resource audit, and static smoke so future pane, chart, replay, Settings, and
-  controller work does not rely on garbage collection while stale references
-  remain reachable.
-- Next candidate: Step 493 - choose the next implementation slice from
-  `workstation-decision-backlog.md` after checking Lightweight Charts and
-  awesome-tradingview references. Likely candidates are Settings token/form
-  primitives, remaining multi-pane acceptance hardening, or local-first
-  packaging documentation.
+- Current status: Step 493 completed. Pane shell and replay controls controllers
+  now expose `dispose()`, chart route teardown calls them, pending replay Next
+  timers are cleared, and split-pane shell listeners/window resize/animation
+  frame state are released.
+- Next candidate: Step 494 - continue lifecycle cleanup backlog with
+  standardized no-op controller dispose shape or pane-local chart state release
+  when panes disappear from layout.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -203,6 +201,12 @@
   controller, or cache must also own a reachable cleanup path. Step 492 also
   records a cleanup audit and adds `v5/tests/lifecycle-cleanup-static-smoke.js`
   as a lightweight guard for current safe paths and known backlog items.
+- Lifecycle implementation decision: Step 493 fixes the first two high-priority
+  cleanup backlog items. Pane shell and replay controls controllers expose
+  `dispose()` and chart route teardown calls those disposers before clearing
+  timers/subscriptions. Pending replay Next batching is cancelled on dispose,
+  and pane split resize listeners/window resize/animation frame state are
+  released during route teardown.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

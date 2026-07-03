@@ -47,6 +47,13 @@ export function createChartReplayControlsController({
   let pendingNextStepCount = 0;
   let pendingNextTimer = null;
   let nextBatchRunning = false;
+  let disposed = false;
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function replayStepCount() {
     const base = Number(getSessionTimeframe() || 1);
@@ -58,6 +65,7 @@ export function createChartReplayControlsController({
   }
 
   function renderControls() {
+    if (disposed) return;
     displayTimeframeSelect.value = getDisplayTimeframe() ? String(getDisplayTimeframe()) : '1';
     replayIntervalSelect.value = getReplayIntervalTimeframe() ? String(getReplayIntervalTimeframe()) : '1';
     replaySyncIntervalInput.checked = getReplayIntervalSync();
@@ -65,6 +73,7 @@ export function createChartReplayControlsController({
   }
 
   function setControlsDisabled(disabled = false) {
+    if (disposed) return;
     const unavailable = disabled || !getReplayLoaded() || !getSessionId();
     const playbackPlaying = getPlaybackPlaying();
     nextButton.disabled = unavailable;
@@ -93,11 +102,14 @@ export function createChartReplayControlsController({
   }
 
   async function runReplayCommand(action) {
+    if (disposed) return null;
     if (!getSessionId()) return null;
     const runQueued = async () => {
+      if (disposed) return null;
       if (getCommandInFlight()) return null;
       setCommandInFlight(true);
       try {
+        if (disposed) return null;
         return await action();
       } finally {
         setCommandInFlight(false);
@@ -110,10 +122,12 @@ export function createChartReplayControlsController({
   }
 
   async function runNext(stepCount, { refreshStatus = true } = {}) {
+    if (disposed) return;
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
       sessionId: getSessionId(),
       stepCount,
     }));
+    if (disposed) return;
     if (!state) return;
     setTerminalReason(state.advanced ? '' : state.reason || 'stopped');
     setStatusText(state.advanced
@@ -126,11 +140,13 @@ export function createChartReplayControlsController({
 
   async function flushPendingNext() {
     pendingNextTimer = null;
+    if (disposed) return;
     if (nextBatchRunning) return;
     nextBatchRunning = true;
     let shouldRefresh = false;
     try {
       while (pendingNextStepCount > 0) {
+        if (disposed) return;
         const stepCount = pendingNextStepCount;
         pendingNextStepCount = 0;
         await runNext(stepCount, { refreshStatus: false });
@@ -138,6 +154,7 @@ export function createChartReplayControlsController({
       }
     } finally {
       nextBatchRunning = false;
+      if (disposed) return;
       if (shouldRefresh) {
         await refreshReplayStatus();
       }
@@ -148,94 +165,101 @@ export function createChartReplayControlsController({
   }
 
   function schedulePendingNext() {
+    if (disposed) return;
     if (nextBatchRunning || pendingNextTimer !== null) return;
     pendingNextTimer = setTimeout(flushPendingNext, 0);
   }
 
   function queueNextStep() {
+    if (disposed) return;
     const stepCount = pendingNextStepCount;
     if (stepCount <= 0) return;
     schedulePendingNext();
   }
 
-  nextButton.addEventListener('click', () => {
+  function handleNextClick() {
     pendingNextStepCount += replayStepCount();
     queueNextStep();
-  });
+  }
 
-  replayPreviousButton.addEventListener('click', async () => {
+  async function handlePreviousClick() {
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PREVIOUS, {
       sessionId: getSessionId(),
       stepCount: replayStepCount(),
     }));
+    if (disposed) return;
     if (!state) return;
     setTerminalReason(state.rewound ? '' : state.reason || 'stopped');
     setStatusText(state.rewound
       ? `Rewound to ${formatReplayTimestamp(state.cursorTimestamp)}.`
       : `Replay stopped: ${state.reason || 'no previous bar'}.`);
     await refreshReplayStatus();
-  });
+  }
 
-  playButton.addEventListener('click', async () => {
+  async function handlePlayClick() {
     const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PLAY, {
       sessionId: getSessionId(),
       intervalMs: getPlaybackIntervalMs(),
       stepCount: replayStepCount(),
     }));
+    if (disposed) return;
     if (!playback) return;
     setPlaybackPlaying(Boolean(playback.playing));
     setTerminalReason('');
     setStatusText(playback.playing ? 'Playing replay.' : 'Replay paused.');
     await refreshReplayStatus();
-  });
+  }
 
-  pauseButton.addEventListener('click', async () => {
+  async function handlePauseClick() {
     const playback = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PAUSE));
+    if (disposed) return;
     if (!playback) return;
     setPlaybackPlaying(Boolean(playback.playing));
     setStatusText(playback.playing ? 'Playing replay.' : 'Replay paused.');
     await refreshReplayStatus();
-  });
+  }
 
-  resetButton.addEventListener('click', async () => {
+  async function handleResetClick() {
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.RESET, {
       sessionId: getSessionId(),
     }));
+    if (disposed) return;
     if (!state) return;
     setTerminalReason('');
     setStatusText(`Loaded ${state.displayBars.length} bars.`);
     await refreshReplayStatus();
-  });
+  }
 
-  replaySpeedInput.addEventListener('input', () => {
+  function handleSpeedInput() {
     const nextInterval = Number(replaySpeedInput.value);
     if (!Number.isFinite(nextInterval) || nextInterval <= 0) return;
     setPlaybackIntervalMs(nextInterval);
-  });
+  }
 
-  replayIntervalSelect.addEventListener('change', () => {
+  function handleReplayIntervalChange() {
     const nextReplayInterval = Number(replayIntervalSelect.value);
     if (!Number.isFinite(nextReplayInterval) || nextReplayInterval <= 0) return;
     setReplayIntervalSync(false);
     setReplayIntervalTimeframe(nextReplayInterval);
     renderControls();
-  });
+  }
 
-  replaySyncIntervalInput.addEventListener('change', () => {
+  function handleReplaySyncIntervalChange() {
     setReplayIntervalSync(replaySyncIntervalInput.checked);
     if (getReplayIntervalSync()) {
       setReplayIntervalTimeframe(Number(getDisplayTimeframe() || getSessionTimeframe() || 1));
     }
     renderControls();
-  });
+  }
 
-  displayTimeframeSelect.addEventListener('change', async () => {
+  async function handleDisplayTimeframeChange() {
     const nextDisplayTimeframe = Number(displayTimeframeSelect.value);
     if (!nextDisplayTimeframe || nextDisplayTimeframe === getDisplayTimeframe()) return;
     const selectedOption = displayTimeframeSelect.selectedOptions[0];
     const state = await runReplayCommand(() => setActivePaneDisplayTimeframe({
       displayTimeframe: nextDisplayTimeframe,
     }));
+    if (disposed) return;
     if (!state) return;
     setDisplayTimeframe(Number(state.displayTimeframe || nextDisplayTimeframe));
     if (getReplayIntervalSync()) {
@@ -246,9 +270,34 @@ export function createChartReplayControlsController({
       : `Updated ${state.paneId || 'active pane'} timeframe to ${selectedOption?.textContent || ''}.`);
     renderControls();
     await refreshReplayStatus();
-  });
+  }
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+    if (pendingNextTimer !== null) {
+      clearTimeout(pendingNextTimer);
+      pendingNextTimer = null;
+    }
+    pendingNextStepCount = 0;
+    nextBatchRunning = false;
+  }
+
+  addListener(nextButton, 'click', handleNextClick);
+  addListener(replayPreviousButton, 'click', handlePreviousClick);
+  addListener(playButton, 'click', handlePlayClick);
+  addListener(pauseButton, 'click', handlePauseClick);
+  addListener(resetButton, 'click', handleResetClick);
+  addListener(replaySpeedInput, 'input', handleSpeedInput);
+  addListener(replayIntervalSelect, 'change', handleReplayIntervalChange);
+  addListener(replaySyncIntervalInput, 'change', handleReplaySyncIntervalChange);
+  addListener(displayTimeframeSelect, 'change', handleDisplayTimeframeChange);
 
   return {
+    dispose,
     getCommandInFlight,
     getTerminalReason,
     renderControls,

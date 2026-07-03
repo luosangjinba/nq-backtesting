@@ -96,54 +96,42 @@ Step 492b audited high-risk V5 resource creation paths:
 - `dispose` unsubscribes route event subscriptions.
 - `dispose` dispatches replay pause so playback interval cleanup is reachable.
 
-## Cleanup Backlog
+## Step 493 Resolved Items
 
-### 1. Pane Shell Controller Needs Dispose
+### Pane Shell Controller Dispose
 
 `v5/src/features/chart-replay/chart-replay-pane-shell.js`
 
-Risk:
+Step 493 result:
 
-- Adds delegated listeners to the pane shell.
-- Adds `window.resize` listener.
-- Schedules handle positioning with `requestAnimationFrame`.
-- Holds drag state and active pane state in closure.
-- Currently returns only `renderState`, so route dispose cannot call pane-shell
-  cleanup directly.
+- `createChartReplayPaneShellController` returns `dispose()`.
+- `dispose()` removes delegated shell listeners.
+- `dispose()` removes `window.resize`.
+- `dispose()` cancels pending animation frame when available.
+- `dispose()` clears split drag state and resize visual state.
+- Chart route teardown calls `paneShellController.dispose?.()`.
 
-Required follow-up:
-
-- Return `dispose()` from `createChartReplayPaneShellController`.
-- Remove shell listeners or use tracked cleanup helpers.
-- Remove `window.resize` listener.
-- Cancel any pending animation frame if the environment supports
-  `cancelAnimationFrame`.
-- Clear drag state.
-- Call `paneShellController.dispose?.()` from chart route `dispose`.
-
-### 2. Replay Controls Controller Needs Dispose
+### Replay Controls Controller Dispose
 
 `v5/src/features/chart-replay/chart-replay-controls.js`
 
+Step 493 result:
+
+- `createChartReplayControlsController` returns `dispose()`.
+- `dispose()` removes control listeners.
+- `dispose()` clears `pendingNextTimer`.
+- `dispose()` zeros pending Next step count and marks the controller disposed.
+- Async command/timer continuations check disposed state before mutating route
+  UI.
+- Chart route teardown calls `replayControlsController.dispose?.()`.
+
+## Remaining Cleanup Backlog
+
+### 1. Other Route Controllers Should Standardize Dispose
+
 Risk:
 
-- Adds listeners to replay controls.
-- Owns `pendingNextTimer`, `pendingNextStepCount`, and `nextBatchRunning`.
-- Async queue may finish after route disposal.
-- Currently returns control methods but no `dispose`.
-
-Required follow-up:
-
-- Return `dispose()` from `createChartReplayControlsController`.
-- Clear `pendingNextTimer`.
-- Zero pending step count.
-- Mark controller disposed so delayed flushes and async command completions
-  stop mutating removed route DOM.
-- Call `replayControlsController.dispose?.()` from chart route `dispose`.
-
-### 3. Other Route Controllers Should Standardize Dispose
-
-Current route controllers rely mostly on DOM removal and route closure
+Other route controllers rely mostly on DOM removal and route closure
 unreachability. That is acceptable only when there are no timers, global
 listeners, observers, or bus subscriptions.
 
@@ -162,7 +150,7 @@ Initial candidates:
 - `chart-settings-modal.js`
 - `chart-settings-panel.js`
 
-### 4. Chart Runtime Should Release Pane-Local Display State For Removed Panes
+### 2. Chart Runtime Should Release Pane-Local Display State For Removed Panes
 
 `v5/src/runtime/chart-runtime.js`
 
@@ -179,7 +167,7 @@ Required follow-up:
   chart state for pane ids no longer present.
 - Keep primary/global replay state intact.
 
-### 5. Bar Data Cache Retention Needs A Lifecycle Test Gate
+### 3. Bar Data Cache Retention Needs A Lifecycle Test Gate
 
 `v5/src/runtime/bar-data-runtime.js`
 
@@ -197,10 +185,9 @@ Required follow-up:
 
 Recommended implementation order:
 
-1. Add controller dispose for pane shell and replay controls.
-2. Call controller disposers from chart route `dispose`.
-3. Add a route teardown smoke that switches away from chart route and verifies
-   no pending controller timer/window listener can mutate removed DOM.
-4. Add pane-local chart state release when panes disappear from layout.
-5. Add/extend bar-data cache retention checks for multi-pane workloads.
-
+1. Standardize route controller `dispose()` shape for controllers that currently
+   rely on DOM removal only.
+2. Add a browser route teardown smoke that switches away from chart route and
+   verifies no pending controller timer/window listener can mutate removed DOM.
+3. Add pane-local chart state release when panes disappear from layout.
+4. Add/extend bar-data cache retention checks for multi-pane workloads.

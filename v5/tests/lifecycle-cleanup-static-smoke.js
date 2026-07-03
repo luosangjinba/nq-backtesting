@@ -67,29 +67,55 @@ assertIncludes(chartRoute, 'clearTimeout(initialLoadTimer)', 'chart replay route
 assertIncludes(chartRoute, 'unsubscribeCallbacks.pop()()', 'chart replay route dispose must unsubscribe route events');
 assertIncludes(chartRoute, 'dispatchCommand(REPLAY_COMMANDS.PAUSE)', 'chart replay route dispose must pause replay playback');
 
-const knownBacklogFiles = [
-  'v5/src/features/chart-replay/chart-replay-pane-shell.js',
-  'v5/src/features/chart-replay/chart-replay-controls.js',
-];
-
-for (const relativePath of knownBacklogFiles) {
-  assertIncludes(
-    lifecycleAudit,
-    relativePath,
-    `${relativePath} has lifecycle risk and must stay documented until fixed`
-  );
-}
-
 assertIncludes(
   paneShell,
-  "window.addEventListener('resize'",
-  'pane shell currently owns window resize listener and must remain audited until disposed'
+  'function dispose()',
+  'pane shell controller must expose dispose'
+);
+assertIncludes(
+  paneShell,
+  "addListener(window, 'resize', scheduleHandlePosition)",
+  'pane shell window resize listener must be tracked for cleanup'
+);
+assertIncludes(
+  paneShell,
+  'cleanupCallbacks.pop()()',
+  'pane shell dispose must run tracked listener cleanup callbacks'
+);
+assertIncludes(
+  paneShell,
+  'cancelAnimationFrame(handleFrame)',
+  'pane shell dispose must cancel pending animation frame'
 );
 assertIncludes(
   replayControls,
-  'pendingNextTimer',
-  'replay controls currently own pending next timer and must remain audited until disposed'
+  'function dispose()',
+  'replay controls controller must expose dispose'
+);
+assertIncludes(
+  replayControls,
+  'clearTimeout(pendingNextTimer)',
+  'replay controls dispose must clear pending next timer'
+);
+assertIncludes(
+  replayControls,
+  'cleanupCallbacks.pop()()',
+  'replay controls dispose must run tracked listener cleanup callbacks'
+);
+assertIncludes(
+  chartRoute,
+  'paneShellController?.dispose?.()',
+  'chart route dispose must dispose pane shell controller'
+);
+assertIncludes(
+  chartRoute,
+  'replayControlsController?.dispose?.()',
+  'chart route dispose must dispose replay controls controller'
+);
+assertIncludes(
+  lifecycleAudit,
+  'Step 493 Resolved Items',
+  'lifecycle audit must document Step 493 resolved cleanup items'
 );
 
 console.log('v5 lifecycle cleanup static smoke passed');
-

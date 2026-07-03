@@ -140,6 +140,13 @@ export function createChartReplayPaneShellController({
   let currentActivePaneId = DEFAULT_ACTIVE_PANE_ID;
   let dragState = null;
   let handleFrame = null;
+  let disposed = false;
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function applySplitTracks(layoutState = DEFAULT_LAYOUT_STATE) {
     const ratios = layoutState.split?.ratios || DEFAULT_LAYOUT_STATE.split.ratios;
@@ -213,14 +220,17 @@ export function createChartReplayPaneShellController({
   }
 
   function scheduleHandlePosition() {
+    if (disposed) return;
     if (handleFrame !== null) return;
     handleFrame = requestAnimationFrame(() => {
       handleFrame = null;
+      if (disposed) return;
       positionSplitHandles();
     });
   }
 
   function renderState(layoutState = DEFAULT_LAYOUT_STATE) {
+    if (disposed) return;
     const panes = Array.isArray(layoutState.panes) && layoutState.panes.length
       ? layoutState.panes
       : DEFAULT_LAYOUT_STATE.panes;
@@ -259,32 +269,36 @@ export function createChartReplayPaneShellController({
   }
 
   async function selectPane(paneId) {
+    if (disposed) return;
     if (!paneId || paneId === currentActivePaneId) return;
     try {
       const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, { paneId });
+      if (disposed) return;
       onLayoutState(layoutState);
       renderState(layoutState);
     } catch (error) {
+      if (disposed) return;
       setStatusText(error?.message || String(error));
     }
   }
 
-  shell.addEventListener('click', (event) => {
+  function handleClick(event) {
     if (event.target.closest('[data-layout-split-handle]')) return;
     const paneElement = event.target.closest('[data-layout-pane]');
     if (!paneElement || !shell.contains(paneElement)) return;
     selectPane(paneElement.dataset.paneId);
-  });
-  shell.addEventListener('keydown', (event) => {
+  }
+
+  function handleKeydown(event) {
     if (event.target.closest('[data-layout-split-handle]')) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
     const paneElement = event.target.closest('[data-layout-pane]');
     if (!paneElement || !shell.contains(paneElement)) return;
     event.preventDefault();
     selectPane(paneElement.dataset.paneId);
-  });
+  }
 
-  shell.addEventListener('pointerdown', (event) => {
+  function handlePointerDown(event) {
     const handle = event.target.closest('[data-layout-split-handle]');
     if (!handle || !shell.contains(handle) || event.button !== 0) return;
     const first = shell.querySelector(`[data-layout-pane][data-pane-id="${handle.dataset.firstPaneId}"]`);
@@ -316,9 +330,9 @@ export function createChartReplayPaneShellController({
     }
     event.stopPropagation();
     event.preventDefault();
-  });
+  }
 
-  shell.addEventListener('pointermove', async (event) => {
+  async function handlePointerMove(event) {
     if (!dragState || event.pointerId !== dragState.pointerId) return;
     const position = dragState.vertical ? event.clientX : event.clientY;
     const ratio = ((position - dragState.start) / dragState.span) * 100;
@@ -328,13 +342,15 @@ export function createChartReplayPaneShellController({
         secondPaneId: dragState.secondPaneId,
         ratio,
       });
+      if (disposed) return;
       onLayoutState(layoutState);
     } catch (error) {
+      if (disposed) return;
       setStatusText(error?.message || String(error));
     }
     event.stopPropagation();
     event.preventDefault();
-  });
+  }
 
   function stopSplitDrag(event) {
     if (!dragState || event.pointerId !== dragState.pointerId) return;
@@ -350,11 +366,30 @@ export function createChartReplayPaneShellController({
     event.preventDefault();
   }
 
-  shell.addEventListener('pointerup', stopSplitDrag);
-  shell.addEventListener('pointercancel', stopSplitDrag);
-  window.addEventListener('resize', scheduleHandlePosition);
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+    if (handleFrame !== null && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(handleFrame);
+    }
+    handleFrame = null;
+    dragState = null;
+    shell.classList.remove('is-resizing');
+  }
+
+  addListener(shell, 'click', handleClick);
+  addListener(shell, 'keydown', handleKeydown);
+  addListener(shell, 'pointerdown', handlePointerDown);
+  addListener(shell, 'pointermove', handlePointerMove);
+  addListener(shell, 'pointerup', stopSplitDrag);
+  addListener(shell, 'pointercancel', stopSplitDrag);
+  addListener(window, 'resize', scheduleHandlePosition);
 
   return {
+    dispose,
     renderState,
   };
 }

@@ -556,6 +556,8 @@ export function createChartReplayRoute() {
       });
       section.dispose = () => {
         disposed = true;
+        paneShellController?.dispose?.();
+        replayControlsController?.dispose?.();
         if (initialLoadTimer !== null) {
           clearTimeout(initialLoadTimer);
           initialLoadTimer = null;
