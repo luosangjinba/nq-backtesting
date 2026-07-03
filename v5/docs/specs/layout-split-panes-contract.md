@@ -38,6 +38,9 @@ variant-driven pane shell layout, then real secondary/tertiary chart hosts.
 Step 479 adds resizable split boundaries. Layout runtime stores split ratios,
 pane shell renders responsive grid tracks from those ratios, and split dragging
 clamps adjacent panes so neither side can collapse.
+Step 480 hardens active-pane TF semantics. The toolbar keeps one shared TF
+dropdown, and its value follows the focused pane instead of adding one TF
+control per pane.
 
 This is a planning contract, not an implementation step.
 
@@ -223,6 +226,16 @@ Step 479 implementation status:
   layout commands;
 - browser smoke verifies stacked split handles, minimum-wall clamping, chart
   resize metrics, and multi-pane axis/chrome visibility.
+
+Step 480 implementation status:
+
+- the toolbar keeps a single `data-display-timeframe-select`;
+- selecting a pane updates the dropdown to that pane's `displayTimeframe`;
+- changing the dropdown updates only the active pane when `sync.interval` is
+  off;
+- changing the dropdown updates all panes when `sync.interval` is on;
+- browser smoke verifies the shared-control behavior without adding per-pane
+  TF dropdowns.
 
 ## Pane Model
 

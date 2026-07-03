@@ -338,8 +338,6 @@ async function main() {
               && layoutState.split?.ratios?.secondary < 1.1;
           });
           const twiceHorizontalResizeMetrics = paneResizeMetrics();
-          intervalSyncInput?.click();
-          await waitFor('interval sync enabled', async () => intervalSyncInput?.checked === true);
           const secondaryPane = document.querySelector('[data-layout-pane][data-pane-id="secondary"]');
           secondaryPane?.click();
           await waitFor('secondary active pane', async () => chartRoute?.dataset.activePaneId === 'secondary');
@@ -350,16 +348,27 @@ async function main() {
           const displayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
           displayTimeframeSelect.value = '5';
           displayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          await waitFor('synced secondary display timeframe', async () => {
+          await waitFor('secondary display timeframe updated independently', async () => {
             const layoutState = await commands.dispatchCommand('layout.getState');
-            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
             return layoutState.panes.length === 2
-              && layoutState.panes.every((pane) => pane.displayTimeframe === 5)
-              && displayContext.displayTimeframe === 5
+              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe == null
+              && layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 5
               && document.querySelector('[data-display-timeframe-select]')?.value === '5';
           });
-          const layoutStateAfterTimeframe = await commands.dispatchCommand('layout.getState');
-          const replayDisplayContextAfterTimeframe = await commands.dispatchCommand('replay.getDisplayContext');
+          const layoutStateAfterIndependentTimeframe = await commands.dispatchCommand('layout.getState');
+          const replayDisplayContextAfterIndependentTimeframe = await commands.dispatchCommand('replay.getDisplayContext');
+          document.querySelector('[data-layout-pane][data-pane-id="primary"]')?.click();
+          await waitFor('primary active pane timeframe reflected in shared select', async () => (
+            chartRoute?.dataset.activePaneId === 'primary'
+            && document.querySelector('[data-display-timeframe-select]')?.value === '1'
+          ));
+          const primarySelectValueAfterFocus = document.querySelector('[data-display-timeframe-select]')?.value || '';
+          secondaryPane?.click();
+          await waitFor('secondary active pane timeframe reflected in shared select', async () => (
+            chartRoute?.dataset.activePaneId === 'secondary'
+            && document.querySelector('[data-display-timeframe-select]')?.value === '5'
+          ));
+          const secondarySelectValueAfterFocus = document.querySelector('[data-display-timeframe-select]')?.value || '';
           timeSyncInput?.click();
           dateRangeSyncInput?.click();
           crosshairSyncInput?.click();
@@ -369,6 +378,20 @@ async function main() {
               && layoutState.sync.dateRange === true
               && layoutState.sync.crosshair === true;
           });
+          intervalSyncInput?.click();
+          await waitFor('interval sync enabled', async () => intervalSyncInput?.checked === true);
+          displayTimeframeSelect.value = '10';
+          displayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('synced secondary display timeframe', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const displayContext = await commands.dispatchCommand('replay.getDisplayContext');
+            return layoutState.panes.length === 2
+              && layoutState.panes.every((pane) => pane.displayTimeframe === 10)
+              && displayContext.displayTimeframe === 10
+              && document.querySelector('[data-display-timeframe-select]')?.value === '10';
+          });
+          const layoutStateAfterTimeframe = await commands.dispatchCommand('layout.getState');
+          const replayDisplayContextAfterTimeframe = await commands.dispatchCommand('replay.getDisplayContext');
           document.querySelector('[data-layout-close]')?.click();
           document.querySelector('[data-chart-go-to-open]')?.click();
           await waitFor('go-to popover open for sync time', async () =>
@@ -469,6 +492,7 @@ async function main() {
           const tripleTimeScaleCanvasCount = Array
             .from(document.querySelectorAll('[data-chart-canvas]'))
             .filter((canvas) => canvas.dataset.timeScaleVisible === 'true').length;
+          const displayTimeframeSelectCount = document.querySelectorAll('[data-display-timeframe-select]').length;
           const tripleResizeMetrics = paneResizeMetrics();
           document.querySelector('[data-layout-close]')?.click();
           const routeNavigation = document.querySelector('[data-route-navigation]');
@@ -502,6 +526,10 @@ async function main() {
             secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
             primaryPaneDisplayTimeframe: primaryPane?.dataset.displayTimeframe || '',
             secondaryPaneDisplayTimeframe: secondaryPane?.dataset.displayTimeframe || '',
+            independentPaneDisplayTimeframes: layoutStateAfterIndependentTimeframe.panes.map((pane) => pane.displayTimeframe),
+            replayDisplayTimeframeAfterIndependentPaneChange: replayDisplayContextAfterIndependentTimeframe.displayTimeframe,
+            primarySelectValueAfterFocus,
+            secondarySelectValueAfterFocus,
             layoutPaneDisplayTimeframes: layoutStateAfterTimeframe.panes.map((pane) => pane.displayTimeframe),
             layoutPaneTimes: layoutStateAfterTimeDateSync.panes.map((pane) => pane.time),
             layoutPaneDateRanges: layoutStateAfterTimeDateSync.panes.map((pane) => pane.dateRange),
@@ -512,6 +540,7 @@ async function main() {
             crosshairSyncChecked: Boolean(crosshairSyncInput?.checked),
             replayDisplayTimeframe: replayDisplayContextAfterTimeframe.displayTimeframe,
             displayTimeframeSelectValue: displayTimeframeSelect?.value || '',
+            displayTimeframeSelectCount,
             layoutPopoverInitiallyVisible,
             layoutPopoverVisible: Boolean(layoutPopover && !layoutPopover.hidden),
             singleModeInitiallyPressed,
@@ -604,9 +633,13 @@ async function main() {
     assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
     assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
     assert.equal(value.secondaryPaneHasChartHost, 'true');
-    assert.equal(value.primaryPaneDisplayTimeframe, '5');
-    assert.equal(value.secondaryPaneDisplayTimeframe, '5');
-    assert.deepEqual(value.layoutPaneDisplayTimeframes, [5, 5]);
+    assert.deepEqual(value.independentPaneDisplayTimeframes, [null, 5]);
+    assert.equal(value.replayDisplayTimeframeAfterIndependentPaneChange, 1);
+    assert.equal(value.primarySelectValueAfterFocus, '1');
+    assert.equal(value.secondarySelectValueAfterFocus, '5');
+    assert.equal(value.primaryPaneDisplayTimeframe, '10');
+    assert.equal(value.secondaryPaneDisplayTimeframe, '10');
+    assert.deepEqual(value.layoutPaneDisplayTimeframes, [10, 10]);
     assert.equal(value.timeSyncChecked, true);
     assert.equal(value.dateRangeSyncChecked, true);
     assert.equal(value.crosshairSyncChecked, true);
@@ -631,8 +664,9 @@ async function main() {
         point: { x: 120, y: 140 },
       },
     ]);
-    assert.equal(value.replayDisplayTimeframe, 5);
-    assert.equal(value.displayTimeframeSelectValue, '5');
+    assert.equal(value.replayDisplayTimeframe, 10);
+    assert.equal(value.displayTimeframeSelectValue, '10');
+    assert.equal(value.displayTimeframeSelectCount, 1);
     assert.equal(value.layoutPopoverInitiallyVisible, true);
     assert.equal(value.layoutPopoverVisible, false);
     assert.equal(value.singleModeInitiallyPressed, 'true');

@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 479 is complete. Layout split panes now have draggable
-  boundaries backed by layout-runtime split ratios, with a 15/85 minimum wall
-  so a pane cannot be collapsed away.
-- Next candidate: Step 480 - harden split-pane chart synchronization after
+- Current status: Step 480 is complete. The toolbar keeps one shared TF
+  dropdown, and browser acceptance now verifies it reads from and writes to the
+  active pane's `displayTimeframe`; `Interval` sync remains the only path that
+  copies TF to every pane.
+- Next candidate: Step 481 - harden split-pane chart synchronization after
   resize. Verify drag-resized panes keep price/time axes, OHLC overlays,
   active-pane focus, and future Settings scope stable across all `twice.*` and
   `triple.*` variants.
@@ -115,6 +116,11 @@
   shell renders responsive `fr` tracks from those ratios and only dispatches
   layout commands while chart runtime resize observers keep chart axes/chrome
   in sync. Split state must not be stored as fixed pixel widths/heights.
+- Active-pane TF decision: Step 480 keeps only one toolbar TF dropdown for all
+  panes. The dropdown displays the active pane's `displayTimeframe`, changes
+  only that pane when `sync.interval` is off, and copies to all panes only when
+  `sync.interval` is on. Do not add per-pane TF dropdowns unless a later UX
+  contract explicitly changes this model.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
