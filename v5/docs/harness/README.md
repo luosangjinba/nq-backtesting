@@ -23,6 +23,9 @@ Lifecycle/resource audit:
 - `lifecycle-cleanup-audit.md`: Step 492 audit of listeners, subscriptions,
   observers, timers, chart adapters, pane hosts, and caches that require
   explicit cleanup ownership.
+- `node v5/tests/lifecycle-cleanup-static-smoke.js`: static smoke for the
+  current lifecycle cleanup contract, known safe cleanup paths, and documented
+  cleanup backlog items.
 
 Run `node v5/scripts/smoke_all.js` before committing V5 behavior changes unless
 the step explicitly documents a narrower verification reason.

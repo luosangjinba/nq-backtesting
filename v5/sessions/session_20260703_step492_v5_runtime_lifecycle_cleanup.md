@@ -2,7 +2,7 @@
 
 Date: 2026-07-03
 
-Status: in progress
+Status: completed
 
 ## Goal
 
@@ -16,7 +16,7 @@ infrastructure.
       indexes.
 - [x] Step 492b: audit existing runtime/controller/adapter resource creation
       points and record a cleanup backlog.
-- [ ] Step 492c: add a lightweight static lifecycle smoke so future high-risk
+- [x] Step 492c: add a lightweight static lifecycle smoke so future high-risk
       resource additions are visible during review.
 
 ## Step 492a Result
@@ -35,6 +35,13 @@ infrastructure.
   controller dispose, standardized controller dispose shape, pane-local chart
   display state release, and bar-data cache retention tests.
 
+## Step 492c Result
+
+- Added `v5/tests/lifecycle-cleanup-static-smoke.js`.
+- The smoke verifies the lifecycle contract exists, key cleanup paths remain
+  present, and known controller cleanup risks stay documented until fixed.
+- Added the smoke to `v5/docs/harness/README.md`.
+
 ## Non-Goals
 
 - No runtime behavior changes in Step 492a.
@@ -44,4 +51,6 @@ infrastructure.
 ## Checks
 
 - Step 492a passed: `git diff --check`
-- Step 492b pending.
+- Step 492b passed: `git diff --check`
+- Step 492c passed: `node v5/tests/lifecycle-cleanup-static-smoke.js`
+- Step 492c passed: `git diff --check`

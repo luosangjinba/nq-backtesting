@@ -10,9 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 492 in progress. V5 is defining lifecycle and cleanup
-  ownership so future pane, chart, replay, Settings, and controller work does
-  not rely on garbage collection while stale references remain reachable.
+- Current status: Step 492 completed. V5 now has a lifecycle cleanup contract,
+  resource audit, and static smoke so future pane, chart, replay, Settings, and
+  controller work does not rely on garbage collection while stale references
+  remain reachable.
 - Next candidate: Step 493 - choose the next implementation slice from
   `workstation-decision-backlog.md` after checking Lightweight Charts and
   awesome-tradingview references. Likely candidates are Settings token/form
@@ -199,7 +200,9 @@
   `v5/docs/specs/runtime-lifecycle-cleanup.md`. V5 relies on browser
   garbage collection for unreachable objects, but every module that creates a
   listener, subscription, observer, timer, chart adapter, host reference,
-  controller, or cache must also own a reachable cleanup path.
+  controller, or cache must also own a reachable cleanup path. Step 492 also
+  records a cleanup audit and adds `v5/tests/lifecycle-cleanup-static-smoke.js`
+  as a lightweight guard for current safe paths and known backlog items.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
