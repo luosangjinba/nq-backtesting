@@ -16,6 +16,9 @@ Read this index before working on V5.
   state contract and UI ownership rules.
 - `v5/docs/specs/layout-split-panes-contract.md`: split-pane ownership,
   active-pane, Settings scope, and sync contract before multi-pane UI work.
+- `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
+  system for FXReplay-like workstation polish without bypassing runtime
+  boundaries.
 - `v5/TODO.md`: current step plan and manual acceptance standards.
 - `v5/sessions/README.md`: session handoff ordering and targeted lookup rules.
 - `v5/docs/specs/README.md`: stable spec index and step source map.

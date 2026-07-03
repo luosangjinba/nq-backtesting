@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 484: `session_20260702_step484_v5_next_reveal_before_persist.md`
+- Step 488: `session_20260703_step488_v5_workstation_visual_system.md`
 
 ## Completed Session Index
 
@@ -154,3 +154,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 485: `session_20260702_step485_v5_replay_incremental_append.md`
 - Step 486: `session_20260703_step486_v5_multi_pane_tf_independence.md`
 - Step 487: `session_20260703_step487_v5_reset_view_price_autoscale.md`
+- Step 488: `session_20260703_step488_v5_workstation_visual_system.md`

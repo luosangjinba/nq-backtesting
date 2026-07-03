@@ -73,6 +73,9 @@ that future work must follow this file order.
 - `layout-split-panes-contract.md`: Phase 3 rules for future split panes,
   active-pane ownership, Settings scope, sync defaults, and forbidden runtime
   coupling before multi-pane UI implementation.
+- `workstation-visual-system.md`: Phase 3 visual and interaction system for
+  compact FXReplay-like workstation polish, tokenized styling, component states,
+  active-pane controls, and screenshot/browser quality gates.
 - `saas-readiness-strategy.md`: cross-phase rule that V5 stays SaaS-ready
   through ownership, repositories, and canonical replay time, while deferring
   auth, billing, and server-backed multi-tenancy until the training loop is
@@ -136,4 +139,6 @@ that future work must follow this file order.
 - Step 460: `layout-split-panes-contract.md`,
   `chart-interaction-contracts.md`, `chart-presentation-settings.md`
 - Step 461: `layout-split-panes-contract.md`
+- Step 488: `workstation-visual-system.md`,
+  `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
 - Cross-phase: `saas-readiness-strategy.md`

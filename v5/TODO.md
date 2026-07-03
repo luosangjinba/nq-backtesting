@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 487 is complete. Chart reset view now restores both the
-  time axis follow state and the Lightweight price scale auto-scale, with
-  reset commands scoped to the pane whose reset button was clicked.
-- Next candidate: Step 488 - profile remaining manual/auto playback latency in
-  real browser with single pane and split panes, separating command queue time,
-  bar cache hits, chart append/update counts, and resize/follow range work.
+- Current status: Step 488 is complete. V5 now has a workstation visual system
+  spec that turns the FXReplay-like UI direction into enforceable token,
+  component-state, active-pane, Settings, Layout, replay transport, and
+  screenshot/browser quality gates.
+- Next candidate: Step 489 - implement the first UI token pass for the chart
+  workstation shell, toolbar, Layout popover, and floating transport without
+  changing replay, chart, bar-data, or layout runtime ownership.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -163,6 +164,16 @@
   price scale. The Lightweight adapter reapplies `autoScale: true` plus the
   current scale margins so candles return to the visible price range as well as
   the latest replay time.
+- Visual system decision: Step 488 treats UI polish as an engineering system,
+  not an ad hoc style pass. FXReplay-like workstation polish should flow through
+  documented tokens, component states, active-pane semantics, Settings draft
+  rules, Layout popover rules, and screenshot/browser gates. External design
+  tools such as `ui-ux-pro-max` may inform review, but production changes must
+  be translated into V5 specs, CSS tokens, ownership checks, and smokes. The
+  shadcn/ui lesson for V5 is open-code component engineering, semantic tokens,
+  composable variants, and accessible primitive behavior; do not install it as
+  a V5 dependency unless a later framework decision explicitly moves V5 to a
+  React/Tailwind stack.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
