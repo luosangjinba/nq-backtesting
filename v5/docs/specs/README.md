@@ -58,6 +58,8 @@ that future work must follow this file order.
   bounded restore, read-only progress, and reset/restart.
 - `runtime-boundary-contracts.md`: stable rules for pure command/event
   contracts, event notification boundaries, and router root-scoped lifecycle.
+- `runtime-lifecycle-cleanup.md`: lifecycle and cleanup ownership rules for
+  listeners, subscriptions, observers, timers, adapters, pane hosts, and caches.
 - `chart-display-timezone.md`: stable rules for canonical/request/display time,
   display timezone preferences, and label-only timezone changes.
 - `chart-presentation-settings.md`: stable rules for chart display preferences
@@ -153,4 +155,6 @@ that future work must follow this file order.
   `saas-readiness-strategy.md`, `product-review-loop.md`
 - Step 491: `workstation-decision-backlog.md`,
   `layout-split-panes-contract.md`, `workstation-visual-system.md`
+- Step 492: `runtime-lifecycle-cleanup.md`,
+  `runtime-boundary-contracts.md`, `chart-engine-adapter.md`
 - Cross-phase: `open-source-local-deployment.md`

@@ -59,6 +59,20 @@ ownership rules. Build custom chart behavior only after the existing option is
 validated as insufficient, too coupled, or incompatible with the runtime
 boundaries.
 
+### Lifecycle And Cleanup Ownership
+
+V5 runs on garbage-collected JavaScript, but V5 still requires explicit
+lifecycle ownership for resources that keep references alive.
+
+Any module that creates a listener, subscription, observer, timer, chart
+adapter, host reference, controller, or cache entry must also own the matching
+cleanup path. Cleanup may be a `destroy`, `dispose`, `unsubscribe`,
+`disconnect`, `clear`, or returned cleanup function, but it must be reachable
+from the route/runtime teardown path that owns the resource.
+
+When a feature adds resource creation, its plan must identify the owner and the
+cleanup point before implementation.
+
 ## 4. Runtime Ownership
 
 ### App Shell
@@ -107,6 +121,7 @@ Owns:
 - replace/append/clear bars;
 - viewport metrics;
 - visual replay cursor markers.
+- chart host cleanup and adapter destruction for mounted panes.
 
 Forbidden:
 
@@ -123,6 +138,7 @@ Owns:
 - loaded window cache;
 - sparse chunk merge;
 - retention/release policy.
+- cache release when data is no longer retained by the active session or pane.
 
 Forbidden:
 
@@ -142,6 +158,7 @@ Owns:
 - revealed forward windows;
 - Next/Play/Pause;
 - no-future-bars invariant.
+- playback timer cleanup.
 
 Forbidden:
 
