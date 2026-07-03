@@ -46,6 +46,7 @@ export function createChartReplayControlsController({
   let replayCommandQueue = Promise.resolve();
   let pendingNextStepCount = 0;
   let pendingNextTimer = null;
+  let nextBatchRunning = false;
 
   function replayStepCount() {
     const base = Number(getSessionTimeframe() || 1);
@@ -108,7 +109,7 @@ export function createChartReplayControlsController({
     return result;
   }
 
-  async function runNext(stepCount) {
+  async function runNext(stepCount, { refreshStatus = true } = {}) {
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
       sessionId: getSessionId(),
       stepCount,
@@ -118,21 +119,48 @@ export function createChartReplayControlsController({
     setStatusText(state.advanced
       ? `Loaded ${state.displayBars.length} bars.`
       : `Replay stopped: ${state.reason || 'no next bar'}.`);
-    await refreshReplayStatus();
+    if (refreshStatus) {
+      await refreshReplayStatus();
+    }
   }
 
-  function flushPendingNext() {
+  async function flushPendingNext() {
     pendingNextTimer = null;
+    if (nextBatchRunning) return;
+    nextBatchRunning = true;
+    let shouldRefresh = false;
+    try {
+      while (pendingNextStepCount > 0) {
+        const stepCount = pendingNextStepCount;
+        pendingNextStepCount = 0;
+        await runNext(stepCount, { refreshStatus: false });
+        shouldRefresh = true;
+      }
+    } finally {
+      nextBatchRunning = false;
+      if (shouldRefresh) {
+        await refreshReplayStatus();
+      }
+      if (pendingNextStepCount > 0 && pendingNextTimer === null) {
+        pendingNextTimer = setTimeout(flushPendingNext, 0);
+      }
+    }
+  }
+
+  function schedulePendingNext() {
+    if (nextBatchRunning || pendingNextTimer !== null) return;
+    pendingNextTimer = setTimeout(flushPendingNext, 0);
+  }
+
+  function queueNextStep() {
     const stepCount = pendingNextStepCount;
-    pendingNextStepCount = 0;
     if (stepCount <= 0) return;
-    runNext(stepCount);
+    schedulePendingNext();
   }
 
   nextButton.addEventListener('click', () => {
     pendingNextStepCount += replayStepCount();
-    if (pendingNextTimer !== null) return;
-    pendingNextTimer = setTimeout(flushPendingNext, 0);
+    queueNextStep();
   });
 
   replayPreviousButton.addEventListener('click', async () => {

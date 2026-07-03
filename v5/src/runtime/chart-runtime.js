@@ -37,6 +37,21 @@ function normalizePaneId(value) {
   return paneId || DEFAULT_CHART_PANE_ID;
 }
 
+function cloneChartStateSnapshot(sourceState) {
+  return {
+    ...sourceState,
+    bars: [...(sourceState.bars || [])],
+    visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
+    prefixDemand: sourceState.prefixDemand ? { ...sourceState.prefixDemand } : null,
+    viewportDemand: sourceState.viewportDemand ? structuredClone(sourceState.viewportDemand) : null,
+    viewportFollow: { ...(sourceState.viewportFollow || {}) },
+    interaction: structuredClone(sourceState.interaction || {}),
+    nativeInteraction: structuredClone(sourceState.nativeInteraction || {}),
+    crosshair: structuredClone(sourceState.crosshair || {}),
+    displayContext: structuredClone(sourceState.displayContext || {}),
+  };
+}
+
 export function createChartRuntime() {
   const mountedHosts = new Set();
   const mountedHostList = new Set();
@@ -180,6 +195,27 @@ export function createChartRuntime() {
     }
   }
 
+  function syncPaneHostsAppended(paneId, previousPaneState, nextPaneState) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const host = mountedHostByPaneId.get(normalizedPaneId);
+    if (host?.isConnected) {
+      hostSync.syncChartHostAppend(host, previousPaneState, nextPaneState);
+      return;
+    }
+    hostSync.rerenderMountedHosts();
+  }
+
+  function syncGlobalDisplayHostsAppended(previousState, nextState) {
+    hostSync.pruneDisconnectedHosts();
+    for (const host of mountedHostList) {
+      if (!host.isConnected) continue;
+      const paneId = normalizePaneId(host.dataset?.chartPaneId);
+      if (paneId === DEFAULT_CHART_PANE_ID || !paneHasDisplayOverride(paneId)) {
+        hostSync.syncChartHostAppend(host, previousState, nextState);
+      }
+    }
+  }
+
   function updateBars(nextBars, { paneId } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
     if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
@@ -196,6 +232,55 @@ export function createChartRuntime() {
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
     syncGlobalDisplayHosts();
+    emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
+    return { paneId: normalizedPaneId, bars: [...state.bars] };
+  }
+
+  function appendBars(nextBars, { paneId, viewportFollow } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const normalizedBars = normalizeBars(nextBars);
+    if (!normalizedBars.length) {
+      return {
+        paneId: normalizedPaneId,
+        bars: [...stateForPane(normalizedPaneId).bars],
+      };
+    }
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const previousPaneState = cloneChartStateSnapshot(stateForPane(normalizedPaneId));
+      if (viewportFollow) {
+        updatePaneDisplayState(normalizedPaneId, {
+          viewportFollow: normalizeViewportFollow(viewportFollow, previousPaneState),
+        });
+      }
+      const paneState = updatePaneDisplayState(normalizedPaneId, {
+        bars: [
+          ...previousPaneState.bars,
+          ...normalizedBars,
+        ],
+      });
+      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
+        prefixDemand: computePrefixDemand(paneState),
+        viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
+      });
+      syncPaneHostsAppended(
+        normalizedPaneId,
+        previousPaneState,
+        cloneChartStateSnapshot(nextPaneState)
+      );
+      emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...nextPaneState.bars] });
+      return { paneId: normalizedPaneId, bars: [...nextPaneState.bars] };
+    }
+    const previousState = cloneChartStateSnapshot(state);
+    if (viewportFollow) {
+      applyViewportFollowState(viewportFollow, { sync: false });
+    }
+    state.bars = [
+      ...state.bars,
+      ...normalizedBars,
+    ];
+    state.prefixDemand = computePrefixDemand(state);
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    syncGlobalDisplayHostsAppended(previousState, cloneChartStateSnapshot(state));
     emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
     return { paneId: normalizedPaneId, bars: [...state.bars] };
   }
@@ -280,7 +365,7 @@ export function createChartRuntime() {
     };
   }
 
-  function setViewportFollow(payload = {}) {
+  function applyViewportFollowState(payload = {}, { sync = true } = {}) {
     const nextViewportFollow = normalizeViewportFollow(payload, state);
     let visibleRangeChanged = false;
     if (payload.resume) {
@@ -309,6 +394,9 @@ export function createChartRuntime() {
         enabled: false,
       }
       : nextViewportFollow;
+    if (!sync) {
+      return { visibleRangeChanged };
+    }
     syncGlobalDisplayHosts();
     if (visibleRangeChanged && state.visibleRange) {
       emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
@@ -326,6 +414,10 @@ export function createChartRuntime() {
       renderedBars: computeRenderedBars(state),
       fullBarCount: state.bars.length,
     };
+  }
+
+  function setViewportFollow(payload = {}) {
+    return applyViewportFollowState(payload);
   }
 
   function setManualVisibleRange(payload = {}, { paneId } = {}) {
@@ -631,10 +723,10 @@ export function createChartRuntime() {
     unregisterCallbacks.push(
       registerCommand(CHART_COMMANDS.MOUNT_HOST, (payload = {}) => mountHost(payload.host, payload)),
       registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars, paneId } = {}) => updateBars(normalizeBars(bars), { paneId })),
-      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars } = {}) => updateBars([
-        ...state.bars,
-        ...normalizeBars(bars),
-      ])),
+      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars, paneId, viewportFollow } = {}) => appendBars(bars, {
+        paneId,
+        viewportFollow,
+      })),
       registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, (payload) => getViewportMetrics(payload)),
       registerCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, (payload) => setRightEdgeLimit(payload)),

@@ -52,7 +52,35 @@ export function createReplayChartSync({
     }
   }
 
+  async function appendDisplayBars(
+    appendedBars,
+    cursorTimestamp,
+    { paneId, fullDisplayBars = appendedBars } = {}
+  ) {
+    if (!hasCommand(chartCommands.APPEND_BARS)) {
+      return renderDisplayBars(fullDisplayBars, cursorTimestamp, { paneId });
+    }
+    if (!paneId || paneId === 'primary') {
+      const state = getState();
+      const metrics = hasCommand(chartCommands.GET_VIEWPORT_METRICS)
+        ? await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS).catch(() => null)
+        : null;
+      await dispatchCommand(chartCommands.APPEND_BARS, {
+        paneId,
+        bars: appendedBars,
+        viewportFollow: {
+          enabled: true,
+          cursorTimestamp,
+          estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
+        },
+      });
+      return;
+    }
+    await dispatchCommand(chartCommands.APPEND_BARS, { paneId, bars: appendedBars });
+  }
+
   return {
+    appendDisplayBars,
     renderDisplayBars,
     syncChartDisplayContext,
     syncChartRightEdgeLimit,

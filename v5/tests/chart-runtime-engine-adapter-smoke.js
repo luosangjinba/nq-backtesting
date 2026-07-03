@@ -100,6 +100,7 @@ globalThis.MutationObserver = class {
 const engineCalls = {
   created: 0,
   setData: [],
+  update: [],
   setVisibleRange: [],
   setVisibleLogicalRange: [],
   visibleRangeHandler: null,
@@ -115,6 +116,9 @@ globalThis.LightweightCharts = {
         return {
           setData(data) {
             engineCalls.setData.push(data);
+          },
+          update(data) {
+            engineCalls.update.push(data);
           },
         };
       },
@@ -349,9 +353,26 @@ assert.equal(directResumeState.visibleRange, null);
 assert.equal(host.children[0].dataset.interactionMode, 'follow');
 assert.equal(host.children[0].dataset.viewportFollow, 'true');
 
-host.isConnected = false;
+await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
+  enabled: true,
+  cursorTimestamp: '2026-06-01T09:33:00.000Z',
+  estimatedVisibleBars: 24,
+});
+const setDataBeforeAppend = engineCalls.setData.length;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [bar(34, 104)],
+  viewportFollow: {
+    enabled: true,
+    cursorTimestamp: '2026-06-01T09:34:00.000Z',
+    estimatedVisibleBars: 24,
+  },
+});
+assert.equal(engineCalls.setData.length, setDataBeforeAppend);
+assert.equal(engineCalls.update.at(-1).time, Date.parse('2026-06-01T09:34:00.000Z') / 1000);
+
+host.isConnected = false;
+await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
+  bars: [bar(35, 105)],
 });
 assert.equal(engineCalls.removed, 1);
 assert.equal(host.children.length, 0);
@@ -361,13 +382,7 @@ mutationCallback();
 assert.equal(engineCalls.created, 2);
 assert.equal(host.dataset.chartEngine, 'lightweight-charts');
 assert.equal(host.children[0].dataset.chartCanvas, 'true');
-assert.deepEqual(
-  engineCalls.setData.at(-1).map((item) => item.time),
-  [
-    Date.parse('2026-06-01T09:32:00.000Z') / 1000,
-    Date.parse('2026-06-01T09:33:00.000Z') / 1000,
-  ]
-);
+assert.ok(engineCalls.setData.at(-1).some((item) => item.time === Date.parse('2026-06-01T09:34:00.000Z') / 1000));
 
 runtime.stop();
 unsubscribeViewportDemand();

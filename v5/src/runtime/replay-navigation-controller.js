@@ -107,7 +107,11 @@ export function createReplayNavigationController({
       : sourceState.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       await chartSync.syncChartRightEdgeLimit(nextBar.time);
-      await chartSync.renderDisplayBars(displayBars, nextBar.time);
+      if (typeof chartSync.appendDisplayBars === 'function') {
+        await chartSync.appendDisplayBars(nextBars, nextBar.time, { fullDisplayBars: displayBars });
+      } else {
+        await chartSync.renderDisplayBars(displayBars, nextBar.time);
+      }
     }
 
     let nextState = setState({

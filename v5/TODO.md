@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 484 is complete. Single-click Next now updates in-memory
-  replay state and chart display before cursor persistence resolves, so K-line
-  reveal is not blocked by storage/session writes.
-- Next candidate: Step 485 - continue live/browser performance hardening for
-  split-pane resize and pane-local playback. Capture setData/resize counts
-  during multi-pane auto playback before adding more layout behavior.
+- Current status: Step 485 is complete. Same-timeframe replay `Next` now uses a
+  chart-runtime owned append path so rapid manual Next can update the
+  Lightweight series with `series.update()` when the rendered window is a pure
+  append.
+- Next candidate: Step 486 - profile remaining manual/auto playback latency in
+  real browser with single pane and split panes, separating command queue time,
+  bar cache hits, chart append/update counts, and resize/follow range work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -141,6 +142,14 @@
   state and write chart bars before `session.updateCursor` resolves, then patch
   `persistedCursor` into state after persistence completes. This keeps no-future
   display semantics while removing storage latency from visible K-line reveal.
+- Replay append decision: Step 485 follows the V4 performance lesson without
+  copying V4 ownership. V4 stepped by mutating cursor state and appending the
+  next chart bar directly. V5 must keep UI out of chart writes, so replay
+  runtime dispatches `chart.appendBars` only for same-timeframe `Next`; chart
+  runtime owns pane-aware state append, viewport-follow cursor update, and
+  adapter writes. The Lightweight adapter uses `series.update()` only when the
+  rendered bars form a pure append; if viewport follow/manual range would crop
+  or reorder the rendered window, chart runtime safely falls back to `setData`.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

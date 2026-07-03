@@ -54,6 +54,58 @@ export function createChartRuntimeHostSync({
     }
   }
 
+  function barsEqual(left, right) {
+    return left?.time === right?.time
+      && left?.open === right?.open
+      && left?.high === right?.high
+      && left?.low === right?.low
+      && left?.close === right?.close;
+  }
+
+  function splitRenderedAppend(previousRenderedBars = [], nextRenderedBars = []) {
+    if (nextRenderedBars.length < previousRenderedBars.length) return null;
+    for (let index = 0; index < previousRenderedBars.length; index += 1) {
+      if (!barsEqual(previousRenderedBars[index], nextRenderedBars[index])) {
+        return null;
+      }
+    }
+    return nextRenderedBars.slice(previousRenderedBars.length);
+  }
+
+  function syncChartHostAppend(host, previousSourceState, nextSourceState, { deferDuringNativeInteraction = true } = {}) {
+    const adapter = chartAdapters.get(host);
+    if (!adapter) return;
+    if (typeof adapter.appendBars !== 'function') {
+      syncChartHost(host, { deferDuringNativeInteraction });
+      return;
+    }
+    if (deferDuringNativeInteraction && state.nativeInteraction.active) {
+      pendingChartSyncAfterNativeInteraction = true;
+      adapter.setMetadata?.(buildChartMetadata(computeRenderedBars(nextSourceState), nextSourceState));
+      return;
+    }
+    const previousRenderedBars = computeRenderedBars(previousSourceState);
+    const nextRenderedBars = computeRenderedBars(nextSourceState);
+    const appendedBars = splitRenderedAppend(previousRenderedBars, nextRenderedBars);
+    if (!appendedBars || !appendedBars.length) {
+      syncChartHost(host, { deferDuringNativeInteraction });
+      return;
+    }
+    applyingRuntimeVisibleRange = true;
+    try {
+      adapter.resizeToHost?.();
+      adapter.appendBars(appendedBars, {
+        fullBarCount: nextSourceState.bars.length,
+        displayContext: nextSourceState.displayContext,
+        metadata: buildChartMetadata(nextRenderedBars, nextSourceState),
+        followViewport: nextSourceState.interaction.mode === 'follow' && nextSourceState.viewportFollow.enabled,
+      });
+      adapter.resizeToHost?.();
+    } finally {
+      applyingRuntimeVisibleRange = false;
+    }
+  }
+
   function pruneDisconnectedHosts() {
     for (const host of mountedHostList) {
       if (host.isConnected) continue;
@@ -99,6 +151,7 @@ export function createChartRuntimeHostSync({
 
   return {
     syncChartHost,
+    syncChartHostAppend,
     pruneDisconnectedHosts,
     rerenderMountedHosts,
     syncMetadataToMountedHosts,

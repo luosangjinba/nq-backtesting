@@ -282,6 +282,36 @@ export function createLightweightInstance({ engine, documentRef }) {
       }
       queueResizeToHost();
     },
+    appendBars(nextBars = [], options = {}) {
+      const appendedBars = [...nextBars];
+      if (!appendedBars.length) {
+        return;
+      }
+      bars = [
+        ...bars,
+        ...appendedBars,
+      ];
+      fullBarCount = Number(options.fullBarCount ?? fullBarCount + appendedBars.length);
+      if (options.displayContext) {
+        displayContext = normalizeContext(options.displayContext);
+      }
+      metadata = options.metadata ? { ...options.metadata } : metadata;
+      applyHostMetadata(metadata);
+      applyCanvasMetadata();
+      applySeriesOptions(displayContext);
+      applySeriesPriceScale(displayContext);
+      resizeToHost();
+      appendedBars.forEach((bar) => series?.update?.(toEngineBar(bar)));
+      if (options.followViewport) {
+        const logicalRange = followLogicalRangeForBars(bars, displayContext);
+        if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
+          suppressRuntimeVisibleRangeEcho = true;
+          chart.timeScale().setVisibleLogicalRange(logicalRange);
+          recordVisibleLogicalRange(logicalRange);
+        }
+      }
+      queueResizeToHost();
+    },
     setMetadata(nextMetadata = {}) {
       metadata = { ...metadata, ...nextMetadata };
       applyHostMetadata(metadata);

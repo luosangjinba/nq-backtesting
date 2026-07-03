@@ -36,6 +36,8 @@ clearCommandsForTest();
 clearEventsForTest();
 
 let chartBars = [];
+let replaceChartCalls = 0;
+let appendChartCalls = 0;
 const barRequests = [];
 const barDataRuntime = createBarDataRuntime({
   fetchBars: async (window) => {
@@ -64,8 +66,17 @@ const unregisterMetrics = registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, (
   mounted: true,
 }));
 const unregisterReplace = registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars } = {}) => {
+  replaceChartCalls += 1;
   chartBars = bars;
   return { bars };
+});
+const unregisterAppend = registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars } = {}) => {
+  appendChartCalls += 1;
+  chartBars = [
+    ...chartBars,
+    ...bars,
+  ];
+  return { bars: chartBars };
 });
 replayRuntime.start();
 
@@ -88,6 +99,7 @@ assert.deepEqual(initialState.countdown, {
   label: '1:00',
 });
 const forwardRequestsAfterInitial = barRequests.filter((request) => request.direction === 'forward').length;
+const replaceChartCallsAfterInitial = replaceChartCalls;
 
 const firstNext = await dispatchCommand(REPLAY_COMMANDS.NEXT, {
   sessionId: created.session.id,
@@ -98,6 +110,8 @@ assert.equal(firstNext.revealedBar.timestamp, timestamp('2026-06-01T09:32:00.000
 assert.equal(firstNext.displayBars.length, initial.displayBars.length + 2);
 assert.equal(firstNext.cursorTimestamp, '2026-06-01T09:32:00.000Z');
 assert.equal(chartBars.length, firstNext.displayBars.length);
+assert.equal(replaceChartCalls, replaceChartCallsAfterInitial);
+assert.equal(appendChartCalls, 1);
 assert.deepEqual(
   firstNext.displayBars.slice(initial.displayBars.length).map((item) => item.timestamp),
   [timestamp('2026-06-01T09:31:00.000Z'), timestamp('2026-06-01T09:32:00.000Z')]
@@ -130,6 +144,7 @@ assert.equal(
 
 replayRuntime.stop();
 unregisterReplace();
+unregisterAppend();
 unregisterMetrics();
 sessionRuntime.stop();
 barDataRuntime.stop();
