@@ -17,6 +17,12 @@ export function createChartSettingsCanvasBindings({
   const watermarkStyleTextControls = Array.from(root.querySelectorAll('[data-watermark-style-text]'));
   const watermarkStyleColorControls = Array.from(root.querySelectorAll('[data-watermark-style-color]'));
   const watermarkStyleFontSizeControls = Array.from(root.querySelectorAll('[data-watermark-style-font-size]'));
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function render(draft) {
     presentationMarginControls.forEach((control) => {
@@ -76,7 +82,7 @@ export function createChartSettingsCanvasBindings({
 
   function bindDraftEvents({ renderSettingsDraft }) {
     presentationMarginControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.type !== 'checkbox') return;
         draft.compactMargins = control.checked;
@@ -84,10 +90,11 @@ export function createChartSettingsCanvasBindings({
           ? { topPercent: 6, bottomPercent: 6 }
           : { topPercent: 10, bottomPercent: 8 };
         renderSettingsDraft();
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     presentationMarginValueControls.forEach((control) => {
-      control.addEventListener('input', () => {
+      const handleInput = () => {
         const draft = getDraft();
         if (!draft || control.type !== 'number') return;
         const key = control.dataset.presentationMarginValue;
@@ -95,7 +102,8 @@ export function createChartSettingsCanvasBindings({
         draft.compactMargins = draft.margins.topPercent === 6
           && draft.margins.bottomPercent === 6;
         renderSettingsDraft();
-      });
+      };
+      addListener(control, 'input', handleInput);
     });
     backgroundStyleColorControls.forEach((control) => {
       const updateBackgroundStyleColor = () => {
@@ -103,15 +111,16 @@ export function createChartSettingsCanvasBindings({
         if (!draft) return;
         draft.backgroundStyle[control.dataset.backgroundStyleColor] = control.value;
       };
-      control.addEventListener('input', updateBackgroundStyleColor);
-      control.addEventListener('change', updateBackgroundStyleColor);
+      addListener(control, 'input', updateBackgroundStyleColor);
+      addListener(control, 'change', updateBackgroundStyleColor);
     });
     gridStyleToggleControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft) return;
         draft.gridStyle[control.dataset.gridStyleToggle] = control.checked;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     gridStyleColorControls.forEach((control) => {
       const updateGridStyleColor = () => {
@@ -119,8 +128,8 @@ export function createChartSettingsCanvasBindings({
         if (!draft) return;
         draft.gridStyle[control.dataset.gridStyleColor] = control.value;
       };
-      control.addEventListener('input', updateGridStyleColor);
-      control.addEventListener('change', updateGridStyleColor);
+      addListener(control, 'input', updateGridStyleColor);
+      addListener(control, 'change', updateGridStyleColor);
     });
     scaleStyleColorControls.forEach((control) => {
       const updateScaleStyleColor = () => {
@@ -128,22 +137,24 @@ export function createChartSettingsCanvasBindings({
         if (!draft) return;
         draft.scaleStyle[control.dataset.scaleStyleColor] = control.value;
       };
-      control.addEventListener('input', updateScaleStyleColor);
-      control.addEventListener('change', updateScaleStyleColor);
+      addListener(control, 'input', updateScaleStyleColor);
+      addListener(control, 'change', updateScaleStyleColor);
     });
     scaleStyleFontSizeControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.scaleStyle.fontSize = Number(control.value);
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     watermarkStyleToggleControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft) return;
         draft.watermarkStyle[control.dataset.watermarkStyleToggle] = control.checked;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     watermarkStyleTextControls.forEach((control) => {
       const updateWatermarkText = () => {
@@ -151,8 +162,8 @@ export function createChartSettingsCanvasBindings({
         if (!draft) return;
         draft.watermarkStyle[control.dataset.watermarkStyleText] = control.value;
       };
-      control.addEventListener('input', updateWatermarkText);
-      control.addEventListener('change', updateWatermarkText);
+      addListener(control, 'input', updateWatermarkText);
+      addListener(control, 'change', updateWatermarkText);
     });
     watermarkStyleColorControls.forEach((control) => {
       const updateWatermarkColor = () => {
@@ -160,20 +171,28 @@ export function createChartSettingsCanvasBindings({
         if (!draft) return;
         draft.watermarkStyle[control.dataset.watermarkStyleColor] = control.value;
       };
-      control.addEventListener('input', updateWatermarkColor);
-      control.addEventListener('change', updateWatermarkColor);
+      addListener(control, 'input', updateWatermarkColor);
+      addListener(control, 'change', updateWatermarkColor);
     });
     watermarkStyleFontSizeControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.watermarkStyle.fontSize = Number(control.value);
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
+  }
+
+  function dispose() {
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
   }
 
   return {
     bindDraftEvents,
+    dispose,
     render,
   };
 }

@@ -24,8 +24,15 @@ export function createChartSettingsBindings({
     });
   }
 
+  function dispose() {
+    adapters.forEach((adapter) => {
+      adapter.dispose?.();
+    });
+  }
+
   return {
     bindDraftEvents,
+    dispose,
     render,
   };
 }

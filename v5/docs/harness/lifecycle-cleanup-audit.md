@@ -125,32 +125,31 @@ Step 493 result:
   UI.
 - Chart route teardown calls `replayControlsController.dispose?.()`.
 
+## Step 494 Resolved Items
+
+### Chart Route Controller Dispose Shape
+
+Step 494 standardizes the remaining route controller cleanup shape:
+
+- `chart-replay-layout.js` exposes `dispose()` and tracks Layout popover,
+  mode, and sync listeners.
+- `chart-replay-navigation.js` exposes `dispose()` and tracks Go-to,
+  reset-view, and jump-cursor listeners.
+- `chart-replay-truncate.js` exposes `dispose()` and tracks truncate pick
+  listeners, error popover listeners, and Escape key handling.
+- `replay-floating-controls.js` exposes `dispose()` and tracks floating
+  transport pointer listeners.
+- `chart-settings-modal.js` exposes `dispose()` and tracks Settings modal,
+  cancel, backdrop, and tab listeners.
+- Settings field binding adapters expose `dispose()` for draft field listeners.
+- `chart-settings-panel.js` exposes `dispose()` and releases Settings modal,
+  apply button, and field bindings.
+- `chart-replay-route.js` owns a `controllerDisposers` stack and drains it
+  during route teardown before timers/subscriptions are cleared.
+
 ## Remaining Cleanup Backlog
 
-### 1. Other Route Controllers Should Standardize Dispose
-
-Risk:
-
-Other route controllers rely mostly on DOM removal and route closure
-unreachability. That is acceptable only when there are no timers, global
-listeners, observers, or bus subscriptions.
-
-Required follow-up:
-
-- Make controller return shape consistent: every route controller may expose
-  `dispose`, even if it is a no-op today.
-- Prioritize controllers that add root/document/window listeners or timers.
-
-Initial candidates:
-
-- `chart-replay-layout.js`
-- `chart-replay-navigation.js`
-- `chart-replay-truncate.js`
-- `replay-floating-controls.js`
-- `chart-settings-modal.js`
-- `chart-settings-panel.js`
-
-### 2. Chart Runtime Should Release Pane-Local Display State For Removed Panes
+### 1. Chart Runtime Should Release Pane-Local Display State For Removed Panes
 
 `v5/src/runtime/chart-runtime.js`
 
@@ -167,7 +166,7 @@ Required follow-up:
   chart state for pane ids no longer present.
 - Keep primary/global replay state intact.
 
-### 3. Bar Data Cache Retention Needs A Lifecycle Test Gate
+### 2. Bar Data Cache Retention Needs A Lifecycle Test Gate
 
 `v5/src/runtime/bar-data-runtime.js`
 
@@ -185,9 +184,7 @@ Required follow-up:
 
 Recommended implementation order:
 
-1. Standardize route controller `dispose()` shape for controllers that currently
-   rely on DOM removal only.
-2. Add a browser route teardown smoke that switches away from chart route and
+1. Add a browser route teardown smoke that switches away from chart route and
    verifies no pending controller timer/window listener can mutate removed DOM.
-3. Add pane-local chart state release when panes disappear from layout.
-4. Add/extend bar-data cache retention checks for multi-pane workloads.
+2. Add pane-local chart state release when panes disappear from layout.
+3. Add/extend bar-data cache retention checks for multi-pane workloads.

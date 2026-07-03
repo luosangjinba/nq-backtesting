@@ -10,6 +10,12 @@ export function createChartSettingsSymbolBindings({
   const displayTimezoneControls = Array.from(root.querySelectorAll('[data-display-timezone]'));
   const presentationTimeFormatControls = Array.from(root.querySelectorAll('[data-presentation-time-format]'));
   const candleStyleControls = Array.from(root.querySelectorAll('[data-candle-style]'));
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function render(draft) {
     displayTimezoneControls.forEach((control) => {
@@ -29,18 +35,20 @@ export function createChartSettingsSymbolBindings({
 
   function bindDraftEvents() {
     displayTimezoneControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.displayTimezone = control.value;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     presentationTimeFormatControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.timeFormat = control.value;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     candleStyleControls.forEach((control) => {
       const updateCandleStyle = () => {
@@ -48,13 +56,20 @@ export function createChartSettingsSymbolBindings({
         if (!draft) return;
         setCandleStyleValue(draft.candleStyle, control.dataset.candleStyle, control.value);
       };
-      control.addEventListener('input', updateCandleStyle);
-      control.addEventListener('change', updateCandleStyle);
+      addListener(control, 'input', updateCandleStyle);
+      addListener(control, 'change', updateCandleStyle);
     });
+  }
+
+  function dispose() {
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
   }
 
   return {
     bindDraftEvents,
+    dispose,
     render,
   };
 }

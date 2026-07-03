@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 493 completed. Pane shell and replay controls controllers
-  now expose `dispose()`, chart route teardown calls them, pending replay Next
-  timers are cleared, and split-pane shell listeners/window resize/animation
-  frame state are released.
-- Next candidate: Step 494 - continue lifecycle cleanup backlog with
-  standardized no-op controller dispose shape or pane-local chart state release
-  when panes disappear from layout.
+- Current status: Step 494 completed. Remaining chart route controllers now
+  expose `dispose()` shape, Settings field bindings release their listeners,
+  and chart route teardown drains a controller disposer stack before clearing
+  timers/subscriptions.
+- Next candidate: Step 495 - continue lifecycle cleanup backlog with pane-local
+  chart state release when panes disappear from layout, or add a browser route
+  teardown smoke for controller cleanup behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -207,6 +207,11 @@
   timers/subscriptions. Pending replay Next batching is cancelled on dispose,
   and pane split resize listeners/window resize/animation frame state are
   released during route teardown.
+- Lifecycle implementation decision: Step 494 standardizes chart route
+  controller disposal. Layout, navigation, truncate, floating controls,
+  Settings modal, Settings field bindings, and Settings panel controllers
+  expose `dispose()`, and chart route teardown drains a controller disposer
+  stack before clearing timers/subscriptions.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

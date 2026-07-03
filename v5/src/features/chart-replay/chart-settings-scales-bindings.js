@@ -12,6 +12,12 @@ export function createChartSettingsScalesBindings({
   const scaleStyleSideControls = Array.from(root.querySelectorAll('[data-scale-style-side]'));
   const crosshairStyleToggleControls = Array.from(root.querySelectorAll('[data-crosshair-style-toggle]'));
   const crosshairStyleColorControls = Array.from(root.querySelectorAll('[data-crosshair-style-color]'));
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function render(draft) {
     presentationDateFormatControls.forEach((control) => {
@@ -45,39 +51,44 @@ export function createChartSettingsScalesBindings({
 
   function bindDraftEvents() {
     presentationDateFormatControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.dateFormat = control.value;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     presentationRightOffsetControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.rightOffsetBars = Number(control.value);
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     scaleStyleToggleControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft) return;
         draft.scaleStyle[control.dataset.scaleStyleToggle] = control.checked;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     scaleStyleSideControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft || control.tagName !== 'SELECT') return;
         draft.scaleStyle.priceScaleSide = control.value;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     crosshairStyleToggleControls.forEach((control) => {
-      control.addEventListener('change', () => {
+      const handleChange = () => {
         const draft = getDraft();
         if (!draft) return;
         draft.crosshairStyle[control.dataset.crosshairStyleToggle] = control.checked;
-      });
+      };
+      addListener(control, 'change', handleChange);
     });
     crosshairStyleColorControls.forEach((control) => {
       const updateCrosshairStyleColor = () => {
@@ -85,13 +96,20 @@ export function createChartSettingsScalesBindings({
         if (!draft) return;
         draft.crosshairStyle[control.dataset.crosshairStyleColor] = control.value;
       };
-      control.addEventListener('input', updateCrosshairStyleColor);
-      control.addEventListener('change', updateCrosshairStyleColor);
+      addListener(control, 'input', updateCrosshairStyleColor);
+      addListener(control, 'change', updateCrosshairStyleColor);
     });
+  }
+
+  function dispose() {
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
   }
 
   return {
     bindDraftEvents,
+    dispose,
     render,
   };
 }

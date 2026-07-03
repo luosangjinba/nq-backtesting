@@ -91,6 +91,13 @@ export function createChartReplayRoute() {
         watermarkStyle: cloneWatermarkStyle(),
       };
       const unsubscribeCallbacks = [];
+      const controllerDisposers = [];
+      function trackController(controller) {
+        if (controller && typeof controller.dispose === 'function') {
+          controllerDisposers.push(() => controller.dispose());
+        }
+        return controller;
+      }
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
         onLoaded: (state) => {
@@ -109,13 +116,13 @@ export function createChartReplayRoute() {
         getDisplayTimeframe: () => displayTimeframe,
       });
       statusController.setSessionId(sessionId);
-      createReplayFloatingControlsController({ root: section });
+      trackController(createReplayFloatingControlsController({ root: section }));
       let replayControlsController = null;
       let truncateController = null;
       let navigationController = null;
       let layoutController = null;
       let paneShellController = null;
-      const chartSettingsController = createChartSettingsController({
+      const chartSettingsController = trackController(createChartSettingsController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
         getPresentationSettings: () => presentationSettings,
@@ -157,8 +164,8 @@ export function createChartReplayRoute() {
           updatePresentationButtons();
           await refreshReplayStatus();
         },
-      });
-      replayControlsController = createChartReplayControlsController({
+      }));
+      replayControlsController = trackController(createChartReplayControlsController({
         root: section,
         dispatchCommand,
         getSessionId: () => params.sessionId || '',
@@ -201,8 +208,8 @@ export function createChartReplayRoute() {
         setCommandInFlight: (value) => {
           commandInFlight = Boolean(value);
         },
-      });
-      navigationController = createChartReplayNavigationController({
+      }));
+      navigationController = trackController(createChartReplayNavigationController({
         root: section,
         dispatchCommand,
         getDisplayTimezone: () => displayTimezone,
@@ -217,8 +224,8 @@ export function createChartReplayRoute() {
           status.textContent = message;
         },
         syncLayoutTime,
-      });
-      truncateController = createChartReplayTruncateController({
+      }));
+      truncateController = trackController(createChartReplayTruncateController({
         root: section,
         dispatchCommand,
         getSessionId: () => params.sessionId || '',
@@ -235,7 +242,7 @@ export function createChartReplayRoute() {
         setStatusText: (message) => {
           status.textContent = message;
         },
-      });
+      }));
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
@@ -453,22 +460,22 @@ export function createChartReplayRoute() {
         return layoutState;
       }
 
-      paneShellController = createChartReplayPaneShellController({
+      paneShellController = trackController(createChartReplayPaneShellController({
         root: section,
         dispatchCommand,
         onLayoutState: applyLayoutState,
         setStatusText: (message) => {
           status.textContent = message;
         },
-      });
-      layoutController = createChartReplayLayoutController({
+      }));
+      layoutController = trackController(createChartReplayLayoutController({
         root: section,
         dispatchCommand,
         onLayoutState: applyLayoutState,
         setStatusText: (message) => {
           status.textContent = message;
         },
-      });
+      }));
 
       async function syncChartDisplayTimezone() {
         await dispatchCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, {
@@ -556,8 +563,9 @@ export function createChartReplayRoute() {
       });
       section.dispose = () => {
         disposed = true;
-        paneShellController?.dispose?.();
-        replayControlsController?.dispose?.();
+        while (controllerDisposers.length) {
+          controllerDisposers.pop()();
+        }
         if (initialLoadTimer !== null) {
           clearTimeout(initialLoadTimer);
           initialLoadTimer = null;

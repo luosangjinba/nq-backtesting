@@ -8,8 +8,16 @@ export function createChartSettingsModalController({
   const cancelButtons = Array.from(root.querySelectorAll('[data-chart-settings-cancel]'));
   const tabButtons = Array.from(root.querySelectorAll('[data-chart-settings-tab]'));
   const sections = Array.from(root.querySelectorAll('[data-chart-settings-section]'));
+  let disposed = false;
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function showSection(sectionId) {
+    if (disposed) return;
     tabButtons.forEach((button) => {
       button.setAttribute('aria-current', button.dataset.chartSettingsTab === sectionId ? 'true' : 'false');
     });
@@ -19,43 +27,59 @@ export function createChartSettingsModalController({
   }
 
   function show() {
+    if (disposed) return;
     showSection('symbol');
     popover.hidden = false;
     cancelButtons[0]?.focus();
   }
 
   function hide() {
+    if (disposed) return;
     popover.hidden = true;
     openButton.focus();
   }
 
   function open() {
+    if (disposed) return;
     onOpen?.();
     show();
   }
 
   function close() {
+    if (disposed) return;
     hide();
     onClose?.();
   }
 
-  openButton.addEventListener('click', open);
+  addListener(openButton, 'click', open);
   cancelButtons.forEach((button) => {
-    button.addEventListener('click', close);
+    addListener(button, 'click', close);
   });
-  popover.addEventListener('click', (event) => {
+  function handlePopoverClick(event) {
     if (event.target === popover) {
       close();
     }
-  });
+  }
+  addListener(popover, 'click', handlePopoverClick);
   tabButtons.forEach((button) => {
-    button.addEventListener('click', () => {
+    const handleTabClick = () => {
       showSection(button.dataset.chartSettingsTab || 'symbol');
-    });
+    };
+    addListener(button, 'click', handleTabClick);
   });
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+    popover.hidden = true;
+  }
 
   return {
     close,
+    dispose,
     hide,
     open,
   };

@@ -21,8 +21,16 @@ export function createChartReplayNavigationController({
   const goToButton = root.querySelector('[data-chart-go-to]');
   const jumpCursorButton = root.querySelector('[data-chart-jump-cursor]');
   const jumpCursorPopoverButton = root.querySelector('[data-chart-jump-cursor-popover]');
+  let disposed = false;
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function openGoToPopover() {
+    if (disposed) return;
     if (goToOpenButton.disabled) return;
     goToPopover.hidden = false;
     goToInput.focus();
@@ -30,21 +38,25 @@ export function createChartReplayNavigationController({
   }
 
   function closeGoToPopover() {
+    if (disposed) return;
     goToPopover.hidden = true;
     setControlsDisabled();
   }
 
   async function runChartNavigation(action, statusText) {
+    if (disposed) return null;
     if (getCommandInFlight()) return null;
     setCommandInFlight(true);
     setControlsDisabled(true);
     try {
       const result = await action();
+      if (disposed) return null;
       if (statusText) {
         setStatusText(statusText(result));
       }
       return result;
     } catch (error) {
+      if (disposed) return null;
       setStatusText(error?.message || String(error));
       return null;
     } finally {
@@ -54,11 +66,13 @@ export function createChartReplayNavigationController({
   }
 
   async function goToTime() {
+    if (disposed) return;
     if (!goToInput.value || getCommandInFlight()) return;
     setCommandInFlight(true);
     setControlsDisabled(true);
     try {
       const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null);
+      if (disposed) return;
       const targetTimestamp = displayWallClockToCanonicalTimestamp(goToInput.value, {
         displayTimezone: getDisplayTimezone(),
         exchangeTimezone: getExchangeTimezone(),
@@ -67,6 +81,7 @@ export function createChartReplayNavigationController({
         targetTimestamp,
         estimatedVisibleBars: metrics?.estimatedVisibleBars || null,
       });
+      if (disposed) return;
       const visibleTo = result.visibleRange?.to
         ? new Date(result.visibleRange.to * 1000).toISOString()
         : targetTimestamp;
@@ -78,6 +93,7 @@ export function createChartReplayNavigationController({
       await syncLayoutTime(targetTimestamp);
       closeGoToPopover();
     } catch (error) {
+      if (disposed) return;
       setStatusText(error?.message || String(error));
     } finally {
       setCommandInFlight(false);
@@ -86,15 +102,18 @@ export function createChartReplayNavigationController({
   }
 
   async function jumpToCursor() {
+    if (disposed) return;
     if (getCommandInFlight()) return;
     setCommandInFlight(true);
     setControlsDisabled(true);
     try {
       await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
       const state = await dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null);
+      if (disposed) return;
       await syncLayoutTime(state?.cursorTimestamp);
       setStatusText(`Following cursor ${formatReplayTimestamp(state?.cursorTimestamp)}.`);
     } catch (error) {
+      if (disposed) return;
       setStatusText(error?.message || String(error));
     } finally {
       setCommandInFlight(false);
@@ -102,14 +121,14 @@ export function createChartReplayNavigationController({
     }
   }
 
-  goToOpenButton.addEventListener('click', openGoToPopover);
+  addListener(goToOpenButton, 'click', openGoToPopover);
   goToCancelButtons.forEach((button) => {
-    button.addEventListener('click', closeGoToPopover);
+    addListener(button, 'click', closeGoToPopover);
   });
-  goToInput.addEventListener('input', () => {
+  function handleGoToInput() {
     setControlsDisabled();
-  });
-  root.addEventListener('click', (event) => {
+  }
+  function handleRootClick(event) {
     const resetViewButton = event.target.closest('[data-chart-reset-view]');
     if (!resetViewButton || !root.contains(resetViewButton)) return;
     const paneElement = resetViewButton.closest('[data-chart-pane-id]');
@@ -118,15 +137,27 @@ export function createChartReplayNavigationController({
       () => dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, { paneId }),
       () => 'Following cursor.'
     );
-  });
-  goToButton.addEventListener('click', goToTime);
-  jumpCursorButton?.addEventListener('click', jumpToCursor);
-  jumpCursorPopoverButton.addEventListener('click', async () => {
+  }
+  async function handleJumpCursorPopoverClick() {
     await jumpToCursor();
     closeGoToPopover();
-  });
+  }
+  addListener(goToInput, 'input', handleGoToInput);
+  addListener(root, 'click', handleRootClick);
+  addListener(goToButton, 'click', goToTime);
+  addListener(jumpCursorButton, 'click', jumpToCursor);
+  addListener(jumpCursorPopoverButton, 'click', handleJumpCursorPopoverClick);
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+  }
 
   return {
+    dispose,
     getGoToInputValue: () => goToInput.value,
     closeGoToPopover,
     runChartNavigation,

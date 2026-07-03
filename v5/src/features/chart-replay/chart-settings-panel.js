@@ -28,6 +28,12 @@ export function createChartSettingsController({
 }) {
   const chartSettingsApplyButton = root.querySelector('[data-chart-settings-apply]');
   let settingsLifecycle = null;
+  let disposed = false;
+  const cleanupCallbacks = [];
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
   const settingsBindings = createChartSettingsBindings({
     root,
     getDraft: () => settingsLifecycle?.getDraft(),
@@ -46,16 +52,30 @@ export function createChartSettingsController({
     onClose: settingsLifecycle.discard,
   });
   settingsBindings.bindDraftEvents({ renderSettingsDraft: settingsLifecycle.renderCurrent });
-  chartSettingsApplyButton.addEventListener('click', async () => {
+  async function handleApplyClick() {
+    if (disposed) return;
     const applied = await settingsLifecycle.apply();
+    if (disposed) return;
     if (!applied) return;
     settingsModal.hide();
     settingsLifecycle.renderCurrent();
-  });
+  }
+  addListener(chartSettingsApplyButton, 'click', handleApplyClick);
 
   settingsLifecycle.renderCurrent();
 
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+    settingsBindings.dispose?.();
+    settingsModal.dispose?.();
+  }
+
   return {
+    dispose,
     renderCurrent: settingsLifecycle.renderCurrent,
     close: settingsModal.close,
   };

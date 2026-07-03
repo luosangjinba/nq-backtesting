@@ -22,6 +22,13 @@ const replayPlayback = read('v5/src/runtime/replay-playback-controller.js');
 const chartRoute = read('v5/src/features/chart-replay/chart-replay-route.js');
 const paneShell = read('v5/src/features/chart-replay/chart-replay-pane-shell.js');
 const replayControls = read('v5/src/features/chart-replay/chart-replay-controls.js');
+const layoutController = read('v5/src/features/chart-replay/chart-replay-layout.js');
+const navigationController = read('v5/src/features/chart-replay/chart-replay-navigation.js');
+const truncateController = read('v5/src/features/chart-replay/chart-replay-truncate.js');
+const floatingControls = read('v5/src/features/chart-replay/replay-floating-controls.js');
+const settingsModal = read('v5/src/features/chart-replay/chart-settings-modal.js');
+const settingsPanel = read('v5/src/features/chart-replay/chart-settings-panel.js');
+const settingsBindings = read('v5/src/features/chart-replay/chart-settings-bindings.js');
 
 assertIncludes(
   lifecycleSpec,
@@ -104,18 +111,37 @@ assertIncludes(
 );
 assertIncludes(
   chartRoute,
-  'paneShellController?.dispose?.()',
-  'chart route dispose must dispose pane shell controller'
+  'const controllerDisposers = []',
+  'chart route must own a controller disposer stack'
 );
 assertIncludes(
   chartRoute,
-  'replayControlsController?.dispose?.()',
-  'chart route dispose must dispose replay controls controller'
+  'controllerDisposers.pop()()',
+  'chart route dispose must drain controller disposer stack'
 );
 assertIncludes(
   lifecycleAudit,
   'Step 493 Resolved Items',
   'lifecycle audit must document Step 493 resolved cleanup items'
 );
+assertIncludes(
+  lifecycleAudit,
+  'Step 494 Resolved Items',
+  'lifecycle audit must document Step 494 resolved cleanup items'
+);
+
+const controllerSources = [
+  ['layout controller', layoutController],
+  ['navigation controller', navigationController],
+  ['truncate controller', truncateController],
+  ['floating controls', floatingControls],
+  ['settings modal', settingsModal],
+  ['settings panel', settingsPanel],
+  ['settings bindings', settingsBindings],
+];
+
+for (const [label, source] of controllerSources) {
+  assertIncludes(source, 'dispose', `${label} must expose a dispose path`);
+}
 
 console.log('v5 lifecycle cleanup static smoke passed');

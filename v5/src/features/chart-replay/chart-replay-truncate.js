@@ -36,18 +36,28 @@ export function createChartReplayTruncateController({
   const errorCloseButtons = Array.from(root.querySelectorAll('[data-replay-truncate-error-close]'));
   const truncateButton = root.querySelector('[data-replay-truncate-to-selection]');
   let truncatePickMode = false;
+  let disposed = false;
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function closeError() {
+    if (disposed) return;
     errorPopover.hidden = true;
   }
 
   function showError(title, message) {
+    if (disposed) return;
     errorTitle.textContent = title;
     errorMessage.textContent = message;
     errorPopover.hidden = false;
   }
 
   function setPickMode(enabled) {
+    if (disposed) return;
     truncatePickMode = Boolean(enabled) && getReplayLoaded() && Boolean(getSessionId());
     chartViewport.dataset.truncatePickMode = truncatePickMode ? 'true' : 'false';
     pickLine.hidden = !truncatePickMode;
@@ -59,6 +69,7 @@ export function createChartReplayTruncateController({
   }
 
   function updatePickGuide(event) {
+    if (disposed) return;
     if (!truncatePickMode) return;
     const hostRect = chartHost.getBoundingClientRect();
     if (!hostRect.width) return;
@@ -69,6 +80,7 @@ export function createChartReplayTruncateController({
   }
 
   async function timestampFromChartPointer(event) {
+    if (disposed) return null;
     const rendered = await dispatchCommand(CHART_COMMANDS.GET_RENDERED_BARS).catch(() => null);
     const bars = Array.isArray(rendered?.renderedBars) ? rendered.renderedBars : [];
     if (!bars.length) return null;
@@ -113,11 +125,13 @@ export function createChartReplayTruncateController({
   }
 
   async function pickTimestamp(event) {
+    if (disposed) return;
     if (!truncatePickMode) return;
     event.preventDefault();
     event.stopPropagation();
     updatePickGuide(event);
     const selectedTimestamp = await timestampFromChartPointer(event);
+    if (disposed) return;
     const validation = validateTimestamp(selectedTimestamp);
     if (!validation.ok) {
       setPickMode(false);
@@ -129,6 +143,7 @@ export function createChartReplayTruncateController({
       sessionId: getSessionId(),
       timestamp: selectedTimestamp,
     }));
+    if (disposed) return;
     if (!state) return;
     setTerminalReason(state.truncated ? '' : state.reason || 'stopped');
     setStatusText(state.truncated
@@ -137,33 +152,49 @@ export function createChartReplayTruncateController({
     await refreshReplayStatus();
   }
 
-  truncateButton.addEventListener('click', () => {
+  function handleTruncateClick() {
     if (truncateButton.disabled) return;
     closeError();
     setPickMode(!truncatePickMode);
     setStatusText(truncatePickMode
       ? 'Select a replay bar to truncate future bars.'
       : 'Replay truncate selection canceled.');
-  });
+  }
 
-  chartHost.addEventListener('pointermove', updatePickGuide);
-  chartHost.addEventListener('click', pickTimestamp);
+  addListener(truncateButton, 'click', handleTruncateClick);
+  addListener(chartHost, 'pointermove', updatePickGuide);
+  addListener(chartHost, 'click', pickTimestamp);
   errorCloseButtons.forEach((button) => {
-    button.addEventListener('click', closeError);
+    addListener(button, 'click', closeError);
   });
-  errorPopover.addEventListener('click', (event) => {
+  function handleErrorPopoverClick(event) {
     if (event.target === errorPopover) {
       closeError();
     }
-  });
-  root.addEventListener('keydown', (event) => {
+  }
+  function handleRootKeydown(event) {
     if (event.key === 'Escape' && truncatePickMode) {
       setPickMode(false);
       setStatusText('Replay truncate selection canceled.');
     }
-  });
+  }
+  addListener(errorPopover, 'click', handleErrorPopoverClick);
+  addListener(root, 'keydown', handleRootKeydown);
+
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+    truncatePickMode = false;
+    pickLine.hidden = true;
+    pickLine.style.left = '';
+    chartViewport.dataset.truncatePickMode = 'false';
+  }
 
   return {
+    dispose,
     isPickMode: () => truncatePickMode,
     setPickMode,
     closeError,

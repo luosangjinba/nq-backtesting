@@ -43,6 +43,13 @@ export function createReplayFloatingControlsController({ root }) {
   const replayDragHandle = root.querySelector('[data-replay-drag-handle]');
   let floatingPosition = null;
   let floatingDragState = null;
+  let disposed = false;
+  const cleanupCallbacks = [];
+
+  function addListener(target, type, handler, options) {
+    target?.addEventListener?.(type, handler, options);
+    cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options));
+  }
 
   function clampFloatingPosition(position) {
     const controlsRect = replayFloatingControls.getBoundingClientRect();
@@ -64,6 +71,7 @@ export function createReplayFloatingControlsController({ root }) {
   }
 
   function applyFloatingPosition(position) {
+    if (disposed) return;
     const nextPosition = clampFloatingPosition(position);
     floatingPosition = nextPosition;
     replayFloatingControls.style.left = `${Math.round(nextPosition.left)}px`;
@@ -83,6 +91,7 @@ export function createReplayFloatingControlsController({ root }) {
   }
 
   function beginFloatingDrag(event) {
+    if (disposed) return;
     if (event.button !== 0) return;
     event.preventDefault();
     event.stopPropagation();
@@ -103,6 +112,7 @@ export function createReplayFloatingControlsController({ root }) {
   }
 
   function moveFloatingDrag(event) {
+    if (disposed) return;
     if (!floatingDragState || floatingDragState.pointerId !== event.pointerId) return;
     event.preventDefault();
     event.stopPropagation();
@@ -113,6 +123,7 @@ export function createReplayFloatingControlsController({ root }) {
   }
 
   function endFloatingDrag(event) {
+    if (disposed) return;
     if (!floatingDragState || floatingDragState.pointerId !== event.pointerId) return;
     event.preventDefault();
     event.stopPropagation();
@@ -125,12 +136,23 @@ export function createReplayFloatingControlsController({ root }) {
     delete replayFloatingControls.dataset.dragging;
   }
 
-  replayDragHandle.addEventListener('pointerdown', beginFloatingDrag);
-  replayDragHandle.addEventListener('pointermove', moveFloatingDrag);
-  replayDragHandle.addEventListener('pointerup', endFloatingDrag);
-  replayDragHandle.addEventListener('pointercancel', endFloatingDrag);
+  function dispose() {
+    if (disposed) return;
+    disposed = true;
+    while (cleanupCallbacks.length) {
+      cleanupCallbacks.pop()();
+    }
+    floatingDragState = null;
+    delete replayFloatingControls.dataset.dragging;
+  }
+
+  addListener(replayDragHandle, 'pointerdown', beginFloatingDrag);
+  addListener(replayDragHandle, 'pointermove', moveFloatingDrag);
+  addListener(replayDragHandle, 'pointerup', endFloatingDrag);
+  addListener(replayDragHandle, 'pointercancel', endFloatingDrag);
 
   return {
     applyPosition: applyFloatingPosition,
+    dispose,
   };
 }
