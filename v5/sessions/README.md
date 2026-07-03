@@ -151,3 +151,5 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 482: `session_20260702_step482_v5_pane_local_viewport_demand_playback.md`
 - Step 483: `session_20260702_step483_v5_fast_replay_next.md`
 - Step 484: `session_20260702_step484_v5_next_reveal_before_persist.md`
+- Step 485: `session_20260702_step485_v5_replay_incremental_append.md`
+- Step 486: `session_20260703_step486_v5_multi_pane_tf_independence.md`

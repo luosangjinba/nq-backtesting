@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 485 is complete. Same-timeframe replay `Next` now uses a
-  chart-runtime owned append path so rapid manual Next can update the
-  Lightweight series with `series.update()` when the rendered window is a pure
-  append.
-- Next candidate: Step 486 - profile remaining manual/auto playback latency in
+- Current status: Step 486 is complete. Multi-pane display timeframe state is
+  now initialized per non-primary pane, so the shared TF dropdown follows the
+  active pane and Interval sync off no longer lets primary/global TF changes
+  visually rewrite secondary panes.
+- Next candidate: Step 487 - profile remaining manual/auto playback latency in
   real browser with single pane and split panes, separating command queue time,
   bar cache hits, chart append/update counts, and resize/follow range work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -150,6 +150,14 @@
   adapter writes. The Lightweight adapter uses `series.update()` only when the
   rendered bars form a pure append; if viewport follow/manual range would crop
   or reorder the rendered window, chart runtime safely falls back to `setData`.
+- Multi-pane TF independence decision: Step 486 initializes each non-primary
+  pane with an explicit pane-local display timeframe and replay display window
+  when the pane appears. Null pane TFs can no longer fall back to the global
+  replay display timeframe after primary changes. With `sync.interval` off,
+  active-pane TF changes update and reload only that pane; with sync on, the
+  existing layout runtime fan-out still copies TF to every pane. Chart runtime
+  metadata now exposes each pane's effective `displayTimeframe` for acceptance
+  checks.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

@@ -66,6 +66,8 @@ export function createChartReplayRoute() {
       let replayIntervalTimeframe = null;
       let replayIntervalSync = false;
       let currentLayoutState = DEFAULT_LAYOUT_STATE;
+      const paneDisplayLoadKeys = new Set();
+      const paneDisplayInitializationInFlight = new Set();
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
       let presentationSettings = {
@@ -307,6 +309,59 @@ export function createChartReplayRoute() {
         });
       }
 
+      function paneInitialDisplayTimeframe(pane = {}) {
+        return Number(
+          pane.displayTimeframe
+          || replayDisplayTimeframe
+          || sessionTimeframe
+          || displayTimeframe
+          || 1
+        );
+      }
+
+      async function ensurePaneLocalDisplay(pane) {
+        const paneId = String(pane?.id || '').trim();
+        if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !params.sessionId || !replayLoaded || disposed) return;
+        const nextDisplayTimeframe = paneInitialDisplayTimeframe(pane);
+        if (!Number.isFinite(nextDisplayTimeframe) || nextDisplayTimeframe <= 0) return;
+        const loadKey = `${paneId}:${nextDisplayTimeframe}`;
+        if (paneDisplayLoadKeys.has(loadKey) || paneDisplayInitializationInFlight.has(loadKey)) return;
+        paneDisplayInitializationInFlight.add(loadKey);
+        try {
+          if (pane.displayTimeframe == null) {
+            const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+              paneId,
+              displayTimeframe: nextDisplayTimeframe,
+            });
+            if (!disposed) {
+              currentLayoutState = layoutState;
+              applyLayoutState(layoutState);
+            }
+          }
+          await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+            sessionId: params.sessionId,
+            paneId,
+            displayTimeframe: nextDisplayTimeframe,
+          });
+          paneDisplayLoadKeys.add(loadKey);
+        } catch (error) {
+          if (!disposed) {
+            status.textContent = error?.message || String(error);
+          }
+        } finally {
+          paneDisplayInitializationInFlight.delete(loadKey);
+        }
+      }
+
+      function ensureNonPrimaryPaneDisplays(layoutState = currentLayoutState) {
+        if (!replayLoaded || disposed || !Array.isArray(layoutState.panes)) return;
+        layoutState.panes
+          .filter((pane) => pane.id && pane.id !== DEFAULT_ACTIVE_PANE_ID)
+          .forEach((pane) => {
+            ensurePaneLocalDisplay(pane);
+          });
+      }
+
       function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
         currentLayoutState = layoutState;
         const nextActivePaneId = layoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
@@ -321,6 +376,7 @@ export function createChartReplayRoute() {
         layoutController?.renderState(layoutState);
         paneShellController?.renderState(layoutState);
         mountChartHosts();
+        ensureNonPrimaryPaneDisplays(layoutState);
         statusController.refreshChartOhlcOverlay();
         replayControlsController?.renderControls();
         replayControlsController?.setControlsDisabled();
@@ -350,6 +406,11 @@ export function createChartReplayRoute() {
         if (targetPaneIds.includes(DEFAULT_ACTIVE_PANE_ID)) {
           replayDisplayTimeframe = Number(state?.displayTimeframe || nextDisplayTimeframe);
         }
+        targetPaneIds
+          .filter((targetPaneId) => targetPaneId !== DEFAULT_ACTIVE_PANE_ID)
+          .forEach((targetPaneId) => {
+            paneDisplayLoadKeys.add(`${targetPaneId}:${Number(nextDisplayTimeframe)}`);
+          });
         displayTimeframe = activePaneDisplayTimeframe(layoutState);
         return {
           ...(state || {}),
@@ -538,6 +599,7 @@ export function createChartReplayRoute() {
             replayLoaded = true;
             status.textContent = `Loaded ${state.displayBars.length} bars.`;
             await refreshReplayStatus();
+            ensureNonPrimaryPaneDisplays();
           } catch (error) {
             if (disposed && error?.message === 'Stale replay initial load ignored.') return;
             if (disposed) return;

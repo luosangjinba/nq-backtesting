@@ -320,6 +320,51 @@ async function main() {
             && chartRoute?.dataset.layoutVariant === 'twice.vertical'
             && document.querySelectorAll('[data-layout-pane]').length === 2
           ));
+          await waitFor('secondary pane initialized with independent timeframe', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const secondaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]');
+            return layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 1
+              && secondaryCanvas?.dataset.displayTimeframe === '1';
+          });
+          const verticalPrimaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
+          verticalPrimaryPane?.click();
+          await waitFor('primary active pane before independent primary TF change', async () => (
+            chartRoute?.dataset.activePaneId === 'primary'
+            && document.querySelector('[data-display-timeframe-select]')?.value === '1'
+          ));
+          const primaryDisplayTimeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          primaryDisplayTimeframeSelect.value = '5';
+          primaryDisplayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('primary TF change leaves secondary pane independent when interval sync is off', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const primaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]');
+            const secondaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]');
+            return intervalSyncInput?.checked === false
+              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe === 5
+              && layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 1
+              && primaryCanvas?.dataset.displayTimeframe === '5'
+              && secondaryCanvas?.dataset.displayTimeframe === '1';
+          });
+          const verticalPrimaryIndependentLayoutState = await commands.dispatchCommand('layout.getState');
+          const verticalPrimaryIndependentPrimaryDisplayTimeframe = document
+            .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]')
+            ?.dataset.displayTimeframe || '';
+          const verticalPrimaryIndependentSecondaryDisplayTimeframe = document
+            .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+            ?.dataset.displayTimeframe || '';
+          primaryDisplayTimeframeSelect.value = '1';
+          primaryDisplayTimeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('primary TF reset before secondary pane checks', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const primaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]');
+            return layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe === 1
+              && primaryCanvas?.dataset.displayTimeframe === '1'
+              && document.querySelector('[data-display-timeframe-select]')?.value === '1';
+          });
           await clickPaneCenter('secondary');
           await waitFor('secondary active pane in vertical layout', async () => (
             chartRoute?.dataset.activePaneId === 'secondary'
@@ -336,10 +381,11 @@ async function main() {
             const secondaryCanvas = document
               .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]');
             return layoutState.variant === 'twice.vertical'
-              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe == null
+              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe === 1
               && layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 5
               && displayContext.displayTimeframe === 1
-              && Number(primaryCanvas?.dataset.renderedBarCount || 0) > Number(secondaryCanvas?.dataset.renderedBarCount || 0)
+              && primaryCanvas?.dataset.displayTimeframe === '1'
+              && secondaryCanvas?.dataset.displayTimeframe === '5'
               && document.querySelector('[data-display-timeframe-select]')?.value === '5';
           });
           const verticalIndependentLayoutState = await commands.dispatchCommand('layout.getState');
@@ -421,7 +467,7 @@ async function main() {
           await waitFor('secondary display timeframe updated independently', async () => {
             const layoutState = await commands.dispatchCommand('layout.getState');
             return layoutState.panes.length === 2
-              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe == null
+              && layoutState.panes.find((pane) => pane.id === 'primary')?.displayTimeframe === 1
               && layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 5
               && document.querySelector('[data-display-timeframe-select]')?.value === '5';
           });
@@ -594,6 +640,9 @@ async function main() {
             secondaryPaneActive: secondaryPane?.dataset.activePane || '',
             secondaryPaneActiveAfterSecondarySelect,
             secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
+            verticalPrimaryIndependentPaneDisplayTimeframes: verticalPrimaryIndependentLayoutState.panes.map((pane) => pane.displayTimeframe),
+            verticalPrimaryIndependentPrimaryDisplayTimeframe,
+            verticalPrimaryIndependentSecondaryDisplayTimeframe,
             verticalIndependentPaneDisplayTimeframes: verticalIndependentLayoutState.panes.map((pane) => pane.displayTimeframe),
             verticalReplayDisplayTimeframeAfterSecondaryChange: verticalIndependentDisplayContext.displayTimeframe,
             verticalPrimaryRenderedBarCount,
@@ -707,13 +756,12 @@ async function main() {
     assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
     assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
     assert.equal(value.secondaryPaneHasChartHost, 'true');
-    assert.deepEqual(value.verticalIndependentPaneDisplayTimeframes, [null, 5]);
+    assert.deepEqual(value.verticalPrimaryIndependentPaneDisplayTimeframes, [5, 1]);
+    assert.equal(value.verticalPrimaryIndependentPrimaryDisplayTimeframe, '5');
+    assert.equal(value.verticalPrimaryIndependentSecondaryDisplayTimeframe, '1');
+    assert.deepEqual(value.verticalIndependentPaneDisplayTimeframes, [1, 5]);
     assert.equal(value.verticalReplayDisplayTimeframeAfterSecondaryChange, 1);
-    assert.ok(
-      value.verticalPrimaryRenderedBarCount > value.verticalSecondaryRenderedBarCount,
-      'right vertical pane TF change should not rewrite the left pane bars'
-    );
-    assert.deepEqual(value.independentPaneDisplayTimeframes, [null, 5]);
+    assert.deepEqual(value.independentPaneDisplayTimeframes, [1, 5]);
     assert.equal(value.replayDisplayTimeframeAfterIndependentPaneChange, 1);
     assert.equal(value.primarySelectValueAfterFocus, '1');
     assert.equal(value.secondarySelectValueAfterFocus, '5');

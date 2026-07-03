@@ -17,6 +17,7 @@ export function createChartRuntimeHostSync({
       interactionMode: sourceState.interaction.mode,
       renderedBarCount: renderedBars.length,
       fullBarCount: sourceState.bars.length,
+      displayTimeframe: sourceState.displayContext.displayTimeframe || '',
       crosshairActive: sourceState.crosshair.active ? 'true' : 'false',
       crosshairTime: sourceState.crosshair.time || '',
       crosshairPrice: sourceState.crosshair.price == null ? '' : sourceState.crosshair.price,
