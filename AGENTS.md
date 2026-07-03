@@ -64,6 +64,12 @@ frontend ownership model.
 ## Development Workflow
 
 - Inspect existing code before editing.
+- Before planning or implementing chart/workstation features, check
+  Lightweight Charts documentation and the awesome-tradingview ecosystem
+  references for existing capabilities, plugins, examples, or proven patterns.
+  Test a suitable existing approach first when it fits V5 ownership rules; only
+  build custom code when the existing option is inadequate or conflicts with V5
+  architecture.
 - Keep each step bounded.
 - Add harnesses for new critical invariants.
 - Run relevant smoke tests and `git diff --check` before commit.

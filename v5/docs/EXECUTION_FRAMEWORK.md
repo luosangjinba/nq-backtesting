@@ -48,6 +48,17 @@ Hard rules:
 
 These rules are architecture constraints, not style preferences.
 
+### Reference-First Chart Development
+
+Before planning or implementing chart/workstation features, V5 should check the
+current Lightweight Charts documentation and the awesome-tradingview ecosystem
+references for existing APIs, plugins, examples, or proven interaction patterns.
+
+Use an existing capability when it can be tested cleanly and does not violate V5
+ownership rules. Build custom chart behavior only after the existing option is
+validated as insufficient, too coupled, or incompatible with the runtime
+boundaries.
+
 ## 4. Runtime Ownership
 
 ### App Shell
