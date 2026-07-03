@@ -44,6 +44,10 @@ control per pane.
 Step 481 makes active-pane TF changes pane-local at the chart display layer:
 secondary and tertiary panes can load a different TF without rewriting primary
 or the global replay display context.
+Step 482 hardens pane-local viewport demand after those TF changes: drag/zoom
+events on a secondary pane keep their pane id through chart runtime and replay
+display loading, and primary playback updates do not rewrite panes with
+pane-local display state.
 
 This is a planning contract, not an implementation step.
 
@@ -218,6 +222,19 @@ Step 472 implementation status:
 - browser smoke verifies two hosts for `twice.*`, three hosts for `triple.*`,
   replay initial no-future behavior, viewport follow behavior, and boundary
   rules.
+
+Step 482 implementation status:
+
+- chart runtime stores pane-local visible range, viewport follow, interaction,
+  prefix demand, and viewport demand alongside pane-local bars/display context;
+- native Lightweight drag/zoom callbacks carry the mounted pane id into manual
+  visible-range handling;
+- pane-local viewport demand includes `paneId`;
+- replay viewport-demand wiring de-dupes by pane id and passes `paneId` to
+  `replay.loadDisplayWindow`;
+- primary/global replay bar replacement syncs only primary and non-overridden
+  panes, so a pane-local secondary/tertiary chart is not rewritten on every
+  playback step.
 
 Step 479 implementation status:
 

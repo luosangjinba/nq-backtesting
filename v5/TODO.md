@@ -10,13 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 481 is complete. Chart runtime now supports pane-local
-  bars/display context so a right-side pane TF change can reload that pane
-  without rewriting the left pane or global replay display timeframe.
-- Next candidate: Step 482 - harden split-pane chart synchronization after
-  resize. Verify drag-resized panes keep price/time axes, OHLC overlays,
-  active-pane focus, and future Settings scope stable across all `twice.*` and
-  `triple.*` variants.
+- Current status: Step 482 is complete. Pane-local chart state now carries
+  visible range, interaction, and viewport demand with `paneId`, so a secondary
+  pane TF change followed by drag/zoom keeps left-extension loading targeted to
+  that pane. Primary replay updates also skip pane-local chart hosts to reduce
+  playback stutter in split layouts.
+- Next candidate: Step 483 - run a live/browser performance pass for multi-pane
+  playback and split resize. Capture setData/resize counts during manual and
+  auto playback, then harden only the hot path that remains visible in browser.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -125,6 +126,12 @@
   pane; secondary/tertiary TF changes load through replay runtime and write
   only the target chart host. Layout state owns pane TF, replay runtime owns bar
   loading/no-future filtering, and chart runtime remains the only chart writer.
+- Pane-local viewport decision: Step 482 extends pane-local chart state beyond
+  bars/display context to include visible range, viewport follow, interaction,
+  prefix demand, and viewport demand. Any pane-local demand must include
+  `paneId`, and the replay viewport-demand bridge must pass that `paneId` into
+  display-window loading. Primary replay bar replacement must not rewrite
+  mounted panes that already have pane-local display state.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

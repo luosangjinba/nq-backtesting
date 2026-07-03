@@ -51,6 +51,7 @@ await new Promise((resolve) => setTimeout(resolve, 0));
 assert.equal(replayLoads.length, 1);
 assert.deepEqual(replayLoads[0], {
   sessionId: 'viewport-demand-session',
+  paneId: 'primary',
   viewportDemand,
 });
 
@@ -107,6 +108,7 @@ assert.equal(
 );
 assert.deepEqual(replayLoads[1], {
   sessionId: 'viewport-demand-session',
+  paneId: 'primary',
   viewportDemand: jitteredDemand,
 });
 replayResolvers.shift()();

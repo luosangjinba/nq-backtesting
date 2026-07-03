@@ -65,8 +65,29 @@ export function createChartRuntime() {
     return {
       ...state,
       bars: paneState.bars || state.bars,
+      visibleRange: paneState.visibleRange || state.visibleRange,
+      prefixDemand: paneState.prefixDemand || null,
+      viewportDemand: paneState.viewportDemand || null,
+      viewportFollow: paneState.viewportFollow || state.viewportFollow,
+      interaction: paneState.interaction || state.interaction,
       displayContext: paneState.displayContext || state.displayContext,
     };
+  }
+
+  function paneHasDisplayOverride(paneId = DEFAULT_CHART_PANE_ID) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    return normalizedPaneId !== DEFAULT_CHART_PANE_ID && paneDisplayStateByPaneId.has(normalizedPaneId);
+  }
+
+  function updatePaneDisplayState(paneId, patch = {}) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const currentPaneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
+    const nextPaneState = {
+      ...currentPaneState,
+      ...patch,
+    };
+    paneDisplayStateByPaneId.set(normalizedPaneId, nextPaneState);
+    return stateForPane(normalizedPaneId);
   }
 
   function mountHost(host, { paneId } = {}) {
@@ -109,10 +130,10 @@ export function createChartRuntime() {
       onVisibleRangeChange: (visibleRange, metadata = {}) => {
         if (hostSync.getSyncState().applyingRuntimeVisibleRange) return;
         if (metadata.source === 'lightweight-native') {
-          observeNativeVisibleRange(visibleRange);
+          observeNativeVisibleRange(visibleRange, { paneId: nextPaneId });
           return;
         }
-        setManualVisibleRange(visibleRange);
+        setManualVisibleRange(visibleRange, { paneId: nextPaneId });
       },
       onCrosshairChange: (crosshair) => {
         updateCrosshair(crosshair);
@@ -148,13 +169,24 @@ export function createChartRuntime() {
     hostSync.rerenderMountedHosts();
   }
 
+  function syncGlobalDisplayHosts() {
+    hostSync.pruneDisconnectedHosts();
+    for (const host of mountedHostList) {
+      if (!host.isConnected) continue;
+      const paneId = normalizePaneId(host.dataset?.chartPaneId);
+      if (paneId === DEFAULT_CHART_PANE_ID || !paneHasDisplayOverride(paneId)) {
+        hostSync.syncChartHost(host);
+      }
+    }
+  }
+
   function updateBars(nextBars, { paneId } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
     if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const paneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
-      paneDisplayStateByPaneId.set(normalizedPaneId, {
-        ...paneState,
-        bars: nextBars,
+      const paneState = updatePaneDisplayState(normalizedPaneId, { bars: nextBars });
+      updatePaneDisplayState(normalizedPaneId, {
+        prefixDemand: computePrefixDemand(paneState),
+        viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
       });
       syncPaneHosts(normalizedPaneId);
       emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...nextBars] });
@@ -162,8 +194,8 @@ export function createChartRuntime() {
     }
     state.bars = nextBars;
     state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state);
-    hostSync.rerenderMountedHosts();
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    syncGlobalDisplayHosts();
     emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
     return { paneId: normalizedPaneId, bars: [...state.bars] };
   }
@@ -184,8 +216,8 @@ export function createChartRuntime() {
     const visibleRange = clampVisibleRange(normalizeRange(range), state.rightEdgeLimit);
     state.visibleRange = visibleRange;
     state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state);
-    hostSync.rerenderMountedHosts();
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    syncGlobalDisplayHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -211,8 +243,8 @@ export function createChartRuntime() {
     }
 
     state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state);
-    hostSync.rerenderMountedHosts();
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    syncGlobalDisplayHosts();
 
     if (state.visibleRange && visibleRangeChanged) {
       emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
@@ -268,7 +300,7 @@ export function createChartRuntime() {
           manualVisibleRange: { ...manualAnchorRange },
         };
         state.prefixDemand = computePrefixDemand(state);
-        state.viewportDemand = computeViewportDemand(state);
+        state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
       }
     }
     state.viewportFollow = state.interaction.mode === 'manual' && !payload.resume
@@ -277,7 +309,7 @@ export function createChartRuntime() {
         enabled: false,
       }
       : nextViewportFollow;
-    hostSync.rerenderMountedHosts();
+    syncGlobalDisplayHosts();
     if (visibleRangeChanged && state.visibleRange) {
       emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
     }
@@ -296,8 +328,40 @@ export function createChartRuntime() {
     };
   }
 
-  function setManualVisibleRange(payload = {}) {
+  function setManualVisibleRange(payload = {}, { paneId } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId);
     const visibleRange = normalizeRange(payload);
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const sourceState = stateForPane(normalizedPaneId);
+      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
+        visibleRange,
+        interaction: {
+          mode: 'manual',
+          manualVisibleRange: { ...visibleRange },
+        },
+        viewportFollow: {
+          ...sourceState.viewportFollow,
+          enabled: false,
+        },
+      });
+      const prefixDemand = computePrefixDemand(nextPaneState);
+      const viewportDemand = computeViewportDemand(nextPaneState, { paneId: normalizedPaneId });
+      updatePaneDisplayState(normalizedPaneId, { prefixDemand, viewportDemand });
+      syncPaneHosts(normalizedPaneId);
+      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { paneId: normalizedPaneId, visibleRange: { ...visibleRange } });
+      if (viewportDemand) {
+        emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(viewportDemand) });
+      }
+      return {
+        paneId: normalizedPaneId,
+        visibleRange: { ...visibleRange },
+        viewportFollow: { ...nextPaneState.viewportFollow },
+        interaction: structuredClone(nextPaneState.interaction),
+        renderedBars: computeRenderedBars(nextPaneState),
+        viewportDemand: viewportDemand ? structuredClone(viewportDemand) : null,
+        prefixDemand: prefixDemand ? { ...prefixDemand } : null,
+      };
+    }
     state.visibleRange = visibleRange;
     state.interaction = {
       mode: 'manual',
@@ -308,7 +372,7 @@ export function createChartRuntime() {
       enabled: false,
     };
     state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state);
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
     hostSync.rerenderMountedHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
@@ -327,8 +391,46 @@ export function createChartRuntime() {
     };
   }
 
-  function observeNativeVisibleRange(payload = {}) {
+  function observeNativeVisibleRange(payload = {}, { paneId } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId);
     const visibleRange = normalizeRange(payload);
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const sourceState = stateForPane(normalizedPaneId);
+      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
+        visibleRange,
+        interaction: {
+          mode: 'manual',
+          manualVisibleRange: { ...visibleRange },
+        },
+        viewportFollow: {
+          ...sourceState.viewportFollow,
+          enabled: false,
+        },
+      });
+      const prefixDemand = computePrefixDemand(nextPaneState);
+      const viewportDemand = computeViewportDemand(nextPaneState, { paneId: normalizedPaneId });
+      updatePaneDisplayState(normalizedPaneId, { prefixDemand, viewportDemand });
+      chartAdapters.get(mountedHostByPaneId.get(normalizedPaneId))?.setMetadata?.({
+        viewportFollow: 'false',
+        interactionMode: 'manual',
+        renderedBarCount: computeRenderedBars(nextPaneState).length,
+        fullBarCount: nextPaneState.bars.length,
+      });
+      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { paneId: normalizedPaneId, visibleRange: { ...visibleRange } });
+      if (viewportDemand) {
+        emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(viewportDemand) });
+      }
+      return {
+        paneId: normalizedPaneId,
+        visibleRange: { ...visibleRange },
+        viewportFollow: { ...nextPaneState.viewportFollow },
+        interaction: structuredClone(nextPaneState.interaction),
+        renderedBars: computeRenderedBars(nextPaneState),
+        viewportDemand: viewportDemand ? structuredClone(viewportDemand) : null,
+        prefixDemand: prefixDemand ? { ...prefixDemand } : null,
+        clamped: false,
+      };
+    }
     state.visibleRange = visibleRange;
     state.interaction = {
       mode: 'manual',
@@ -339,7 +441,7 @@ export function createChartRuntime() {
       enabled: false,
     };
     state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state);
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
     hostSync.syncMetadataToMountedHosts();
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
@@ -466,11 +568,10 @@ export function createChartRuntime() {
   function setDisplayContext(payload = {}) {
     const normalizedPaneId = normalizePaneId(payload.paneId);
     if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const paneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
-      const displayContext = buildChartDisplayContext(payload, paneState.displayContext || state.displayContext);
-      paneDisplayStateByPaneId.set(normalizedPaneId, {
-        ...paneState,
-        displayContext,
+      const displayContext = buildChartDisplayContext(payload, stateForPane(normalizedPaneId).displayContext);
+      const paneState = updatePaneDisplayState(normalizedPaneId, { displayContext });
+      updatePaneDisplayState(normalizedPaneId, {
+        viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
       });
       syncPaneHosts(normalizedPaneId);
       return {
@@ -484,8 +585,8 @@ export function createChartRuntime() {
       ...state.viewportFollow,
       rightOffsetBars: state.displayContext.rightOffsetBars,
     };
-    state.viewportDemand = computeViewportDemand(state);
-    hostSync.rerenderMountedHosts();
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    syncGlobalDisplayHosts();
     return {
       paneId: normalizedPaneId,
       displayContext: structuredClone(state.displayContext),
@@ -518,7 +619,7 @@ export function createChartRuntime() {
   }
 
   function getViewportDemand() {
-    state.viewportDemand = computeViewportDemand(state);
+    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
     return {
       viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
     };
@@ -541,7 +642,7 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
       registerCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, (payload) => setViewportFollow(payload)),
-      registerCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, (payload) => setManualVisibleRange(payload)),
+      registerCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, (payload = {}) => setManualVisibleRange(payload, { paneId: payload.paneId })),
       registerCommand(CHART_COMMANDS.GO_TO_TIME, (payload) => goToTime(payload)),
       registerCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, (payload) => zoomVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, (payload) => panVisibleRange(payload)),

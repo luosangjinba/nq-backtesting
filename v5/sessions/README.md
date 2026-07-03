@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 474: `session_20260702_step474_v5_multi_pane_chart_chrome_parity.md`
+- Step 482: `session_20260702_step482_v5_pane_local_viewport_demand_playback.md`
 
 ## Completed Session Index
 
@@ -148,3 +148,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 479: `session_20260702_step479_v5_resizable_split_panes.md`
 - Step 480: `session_20260702_step480_v5_active_pane_timeframe_control.md`
 - Step 481: `session_20260702_step481_v5_pane_local_timeframe_display.md`
+- Step 482: `session_20260702_step482_v5_pane_local_viewport_demand_playback.md`

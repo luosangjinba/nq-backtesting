@@ -171,7 +171,7 @@ export function derivePanRange(state, payload = {}) {
   }, state.rightEdgeLimit);
 }
 
-export function computeViewportDemand(state) {
+export function computeViewportDemand(state, { paneId } = {}) {
   if (!state.visibleRange || !state.bars.length || !state.displayContext.displayTimeframe) {
     return null;
   }
@@ -191,6 +191,7 @@ export function computeViewportDemand(state) {
   );
 
   return {
+    paneId,
     instrument: state.displayContext.instrument,
     displayTimeframe: state.displayContext.displayTimeframe,
     direction: 'backward',

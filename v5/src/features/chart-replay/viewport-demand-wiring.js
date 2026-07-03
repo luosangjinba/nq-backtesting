@@ -8,6 +8,7 @@ function demandKey(sessionId, viewportDemand = {}) {
   const suggestedCount = Math.max(1, Math.ceil(Number(missingWindow.suggestedCount || 1)));
   return [
     sessionId,
+    viewportDemand.paneId || 'primary',
     viewportDemand.instrument || '',
     viewportDemand.displayTimeframe || '',
     viewportDemand.direction || '',
@@ -60,8 +61,9 @@ export function createReplayViewportDemandBridge({
 
     dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, {
       sessionId,
+      paneId: viewportDemand.paneId || 'primary',
       viewportDemand,
-      })
+    })
       .then((result) => {
         completedDemandKeys.set(key, Date.now() + Math.max(0, Number(completedTtlMs || 0)));
         onLoaded(result);
