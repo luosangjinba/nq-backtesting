@@ -147,26 +147,28 @@ Step 494 standardizes the remaining route controller cleanup shape:
 - `chart-replay-route.js` owns a `controllerDisposers` stack and drains it
   during route teardown before timers/subscriptions are cleared.
 
-## Remaining Cleanup Backlog
+## Step 495 Resolved Items
 
-### 1. Chart Runtime Should Release Pane-Local Display State For Removed Panes
+### Pane-Local Chart State Release
 
 `v5/src/runtime/chart-runtime.js`
 
-Risk:
+Step 495 result:
 
-- `paneDisplayStateByPaneId` can retain pane-local bars/ranges for panes that
-  are no longer in the current layout.
-- Host pruning removes disconnected hosts/adapters, but pane display state
-  release is not yet explicitly tied to layout pane removal.
+- `chart.releasePanes` is the chart-runtime-owned release command for layout
+  pane removal.
+- `chart-replay-route.js` dispatches `chart.releasePanes` with the current
+  layout pane ids after layout rendering and host mounting.
+- Chart runtime clears pane-local display state for non-primary pane ids no
+  longer present in layout state.
+- Chart runtime destroys non-retained pane adapters and removes stale pane host
+  map entries.
+- `chart-runtime.stop()` clears all pane-local display state, in addition to
+  disconnecting observers and destroying adapters.
 
-Required follow-up:
+## Remaining Cleanup Backlog
 
-- Add a chart-runtime command or layout-change bridge that clears pane-local
-  chart state for pane ids no longer present.
-- Keep primary/global replay state intact.
-
-### 2. Bar Data Cache Retention Needs A Lifecycle Test Gate
+### 1. Bar Data Cache Retention Needs A Lifecycle Test Gate
 
 `v5/src/runtime/bar-data-runtime.js`
 
@@ -186,5 +188,4 @@ Recommended implementation order:
 
 1. Add a browser route teardown smoke that switches away from chart route and
    verifies no pending controller timer/window listener can mutate removed DOM.
-2. Add pane-local chart state release when panes disappear from layout.
-3. Add/extend bar-data cache retention checks for multi-pane workloads.
+2. Add/extend bar-data cache retention checks for multi-pane workloads.

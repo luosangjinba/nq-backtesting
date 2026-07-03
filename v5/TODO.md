@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 494 completed. Remaining chart route controllers now
-  expose `dispose()` shape, Settings field bindings release their listeners,
-  and chart route teardown drains a controller disposer stack before clearing
-  timers/subscriptions.
-- Next candidate: Step 495 - continue lifecycle cleanup backlog with pane-local
-  chart state release when panes disappear from layout, or add a browser route
+- Current status: Step 495 completed. Chart runtime now exposes
+  `chart.releasePanes`; chart route dispatches the current layout pane ids after
+  layout render; removed non-primary panes release pane-local display state,
+  stale pane hosts, and chart adapters while preserving primary/global replay
+  state.
+- Next candidate: Step 496 - continue lifecycle cleanup backlog with bar-data
+  cache retention checks for multi-pane workloads, or add a browser route
   teardown smoke for controller cleanup behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
@@ -212,6 +213,11 @@
   Settings modal, Settings field bindings, and Settings panel controllers
   expose `dispose()`, and chart route teardown drains a controller disposer
   stack before clearing timers/subscriptions.
+- Lifecycle implementation decision: Step 495 ties layout pane removal to chart
+  runtime cleanup. Route UI only dispatches the current pane ids; chart runtime
+  owns `chart.releasePanes`, deletes stale pane-local display state, destroys
+  removed pane adapters/host refs, and clears pane-local state during runtime
+  stop.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

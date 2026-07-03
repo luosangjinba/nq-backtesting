@@ -14,6 +14,7 @@ function assertIncludes(source, expected, message) {
 
 const lifecycleSpec = read('v5/docs/specs/runtime-lifecycle-cleanup.md');
 const lifecycleAudit = read('v5/docs/harness/lifecycle-cleanup-audit.md');
+const chartContracts = read('v5/src/contracts/chart-contracts.js');
 const chartRuntime = read('v5/src/runtime/chart-runtime.js');
 const lightweightAdapter = read('v5/src/runtime/chart-engine-lightweight-adapter.js');
 const fallbackAdapter = read('v5/src/runtime/chart-engine-fallback-adapter.js');
@@ -50,6 +51,23 @@ assertIncludes(chartRuntime, 'function stop()', 'chart runtime must expose stop 
 assertIncludes(chartRuntime, 'observer?.disconnect()', 'chart runtime stop must disconnect MutationObserver');
 assertIncludes(chartRuntime, 'unregisterCallbacks.pop()()', 'chart runtime stop must unregister commands/events');
 assertIncludes(chartRuntime, 'adapter.destroy()', 'chart runtime stop must destroy adapters');
+assertIncludes(chartContracts, 'RELEASE_PANES', 'chart contracts must expose pane release command');
+assertIncludes(chartRuntime, 'function releasePanes', 'chart runtime must expose pane-local release logic');
+assertIncludes(
+  chartRuntime,
+  'registerCommand(CHART_COMMANDS.RELEASE_PANES',
+  'chart runtime must register pane release command'
+);
+assertIncludes(
+  chartRuntime,
+  'paneDisplayStateByPaneId.clear()',
+  'chart runtime stop must clear pane-local display state'
+);
+assertIncludes(
+  chartRoute,
+  'releaseRemovedChartPanes(layoutState)',
+  'chart replay route must notify chart runtime when layout panes change'
+);
 
 assertIncludes(lightweightAdapter, 'destroy() {', 'Lightweight adapter must expose destroy');
 assertIncludes(lightweightAdapter, 'unsubscribeVisibleRange?.()', 'Lightweight adapter must unsubscribe visible range');
@@ -128,6 +146,11 @@ assertIncludes(
   lifecycleAudit,
   'Step 494 Resolved Items',
   'lifecycle audit must document Step 494 resolved cleanup items'
+);
+assertIncludes(
+  lifecycleAudit,
+  'Step 495 Resolved Items',
+  'lifecycle audit must document Step 495 resolved cleanup items'
 );
 
 const controllerSources = [

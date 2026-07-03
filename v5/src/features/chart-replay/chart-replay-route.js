@@ -316,6 +316,13 @@ export function createChartReplayRoute() {
         });
       }
 
+      function releaseRemovedChartPanes(layoutState = currentLayoutState) {
+        const paneIds = Array.isArray(layoutState.panes)
+          ? layoutState.panes.map((pane) => pane.id || DEFAULT_ACTIVE_PANE_ID)
+          : [DEFAULT_ACTIVE_PANE_ID];
+        dispatchCommand(CHART_COMMANDS.RELEASE_PANES, { paneIds }).catch(() => null);
+      }
+
       function paneInitialDisplayTimeframe(pane = {}) {
         return Number(
           pane.displayTimeframe
@@ -383,6 +390,7 @@ export function createChartReplayRoute() {
         layoutController?.renderState(layoutState);
         paneShellController?.renderState(layoutState);
         mountChartHosts();
+        releaseRemovedChartPanes(layoutState);
         ensureNonPrimaryPaneDisplays(layoutState);
         statusController.refreshChartOhlcOverlay();
         replayControlsController?.renderControls();

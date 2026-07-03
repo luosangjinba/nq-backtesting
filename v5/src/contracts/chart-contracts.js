@@ -1,5 +1,6 @@
 export const CHART_COMMANDS = Object.freeze({
   MOUNT_HOST: 'chart.mountHost',
+  RELEASE_PANES: 'chart.releasePanes',
   REPLACE_BARS: 'chart.replaceBars',
   APPEND_BARS: 'chart.appendBars',
   CLEAR_BARS: 'chart.clearBars',

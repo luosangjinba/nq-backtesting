@@ -76,6 +76,7 @@ globalThis.LightweightCharts = {
     const chartRecord = {
       setDataCalls: [],
       visibleRangeHandler: null,
+      removed: false,
     };
     charts.push(chartRecord);
     return {
@@ -99,7 +100,9 @@ globalThis.LightweightCharts = {
       },
       subscribeCrosshairMove() {},
       unsubscribeCrosshairMove() {},
-      remove() {},
+      remove() {
+        chartRecord.removed = true;
+      },
     };
   },
 };
@@ -171,6 +174,23 @@ assert.equal(
   charts[1].setDataCalls.length,
   secondarySetDataCountAfterManualRange,
   'primary replay updates should not rewrite a pane-local secondary chart'
+);
+
+const paneRelease = await dispatchCommand(CHART_COMMANDS.RELEASE_PANES, {
+  paneIds: ['primary'],
+});
+assert.deepEqual(paneRelease.releasedPaneIds, ['secondary']);
+assert.deepEqual(paneRelease.releasedHostPaneIds, ['secondary']);
+assert.equal(charts[1].removed, true, 'released pane chart adapter should be destroyed');
+
+await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, {
+  paneId: 'primary',
+  bars: [bar(30, 120), bar(31, 121), bar(32, 122), bar(33, 123), bar(34, 124)],
+});
+assert.equal(
+  charts[1].setDataCalls.length,
+  secondarySetDataCountAfterManualRange,
+  'released pane chart should not receive later primary chart writes'
 );
 
 runtime.stop();

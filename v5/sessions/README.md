@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 494: `session_20260703_step494_v5_controller_dispose_standardization.md`
+- Step 495: `session_20260703_step495_v5_pane_local_chart_state_release.md`
 
 ## Completed Session Index
 
@@ -161,3 +161,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 492: `session_20260703_step492_v5_runtime_lifecycle_cleanup.md`
 - Step 493: `session_20260703_step493_v5_controller_cleanup_dispose.md`
 - Step 494: `session_20260703_step494_v5_controller_dispose_standardization.md`
+- Step 495: `session_20260703_step495_v5_pane_local_chart_state_release.md`

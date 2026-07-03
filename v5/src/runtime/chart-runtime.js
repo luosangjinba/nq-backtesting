@@ -166,6 +166,59 @@ export function createChartRuntime() {
     };
   }
 
+  function retainedPaneIdSet(values = []) {
+    const retainedPaneIds = new Set([DEFAULT_CHART_PANE_ID]);
+    if (!Array.isArray(values)) return retainedPaneIds;
+    values.forEach((value) => {
+      retainedPaneIds.add(normalizePaneId(value));
+    });
+    return retainedPaneIds;
+  }
+
+  function destroyMountedHost(host, paneId = host?.dataset?.chartPaneId) {
+    if (!host) return false;
+    const normalizedPaneId = normalizePaneId(paneId);
+    chartAdapters.get(host)?.destroy();
+    chartAdapters.delete(host);
+    mountedHosts.delete(host);
+    mountedHostList.delete(host);
+    if (mountedHostByPaneId.get(normalizedPaneId) === host) {
+      mountedHostByPaneId.delete(normalizedPaneId);
+    }
+    if (host.dataset) {
+      delete host.dataset.chartRuntimeMounted;
+    }
+    return true;
+  }
+
+  function releasePanes({ paneIds } = {}) {
+    const retainedPaneIds = retainedPaneIdSet(paneIds);
+    const releasedPaneIds = [];
+    const releasedHostPaneIds = [];
+
+    for (const paneId of paneDisplayStateByPaneId.keys()) {
+      const normalizedPaneId = normalizePaneId(paneId);
+      if (normalizedPaneId === DEFAULT_CHART_PANE_ID || retainedPaneIds.has(normalizedPaneId)) continue;
+      paneDisplayStateByPaneId.delete(normalizedPaneId);
+      releasedPaneIds.push(normalizedPaneId);
+    }
+
+    for (const [paneId, host] of mountedHostByPaneId) {
+      const normalizedPaneId = normalizePaneId(paneId);
+      if (normalizedPaneId === DEFAULT_CHART_PANE_ID || retainedPaneIds.has(normalizedPaneId)) continue;
+      if (destroyMountedHost(host, normalizedPaneId)) {
+        releasedHostPaneIds.push(normalizedPaneId);
+      }
+    }
+
+    hostSync.pruneDisconnectedHosts();
+    return {
+      retainedPaneIds: [...retainedPaneIds],
+      releasedPaneIds,
+      releasedHostPaneIds,
+    };
+  }
+
   function mountAvailableHosts() {
     rootElement
       ?.querySelectorAll('[data-chart-host]')
@@ -751,6 +804,7 @@ export function createChartRuntime() {
     emit = emitEvent || emit;
     unregisterCallbacks.push(
       registerCommand(CHART_COMMANDS.MOUNT_HOST, (payload = {}) => mountHost(payload.host, payload)),
+      registerCommand(CHART_COMMANDS.RELEASE_PANES, (payload = {}) => releasePanes(payload)),
       registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars, paneId } = {}) => updateBars(normalizeBars(bars), { paneId })),
       registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars, paneId, viewportFollow } = {}) => appendBars(bars, {
         paneId,
@@ -799,6 +853,7 @@ export function createChartRuntime() {
     mountedHosts.clear();
     mountedHostList.clear();
     mountedHostByPaneId.clear();
+    paneDisplayStateByPaneId.clear();
     observer = null;
     rootElement = null;
   }

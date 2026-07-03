@@ -104,6 +104,8 @@ Future lifecycle-sensitive steps should include at least one relevant check:
 
 - route teardown leaves no duplicate route/controller subscriptions;
 - switching layout mode does not leave disconnected pane hosts in chart runtime;
+- layout pane removal releases pane-local chart display state through chart
+  runtime, while preserving primary/global replay state;
 - replacing a chart host destroys or detaches the previous adapter;
 - switching sessions clears or scopes replay display/cache state correctly;
 - replay pause/teardown clears playback timers;
@@ -118,4 +120,3 @@ Future lifecycle-sensitive steps should include at least one relevant check:
   semantics.
 - `chart-engine-adapter.md` defines chart adapter isolation.
 - `workstation-decision-backlog.md` routes future chart/workstation planning.
-
