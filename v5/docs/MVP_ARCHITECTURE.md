@@ -54,16 +54,17 @@ The MVP does not include:
 
 ## User And Data Ownership
 
-V5 is multi-user by model from day one.
+V5 is now open-source/local-first by product direction.
 
-The first implementation can use a `default_user`, but user-owned records must
-already be scoped correctly.
+The first implementation can keep a `default_user`, but the practical model is
+a local profile/workspace ownership path rather than a public SaaS account
+system.
 
-V5 is SaaS-ready, not SaaS-heavy, during the replay workstation MVP. This means
-domain records and repositories must be shaped so they can move to a server
-later, but public auth, billing, entitlement, and production multi-tenancy are
-not part of the current MVP. Those systems should wait until replay, chart
-interaction, orders, and journal workflows prove a repeatable training loop.
+V5 should be deployable on a desktop, LAN machine, VPS, or terminal server.
+Public auth, billing, entitlement, hosted market-data metering, and production
+multi-tenancy are not roadmap priorities. Domain records and repositories still
+need clean ownership paths so local workspaces can be backed up, restored,
+imported/exported, and optionally moved between deployments.
 
 Minimum entities:
 
@@ -105,12 +106,13 @@ Minimum entities:
   - `annotations`
   - `preferences`
 
-Rule: every user-owned record must contain `user_id` directly or belong to a
-record that contains `user_id`.
+Rule: every durable record must contain a profile/workspace ownership path
+directly or belong to a parent record that has one.
 
-Rule: feature modules must not couple directly to `localStorage` or future
-server APIs. They use commands/events and runtime/repository contracts so the
-storage backend can change without rewriting feature ownership.
+Rule: feature modules must not couple directly to `localStorage`, local files,
+or future optional server APIs. They use commands/events and
+runtime/repository contracts so the storage backend can change without
+rewriting feature ownership.
 
 ## Runtime Boundaries
 

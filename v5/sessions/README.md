@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 489: `session_20260703_step489_v5_workstation_ui_token_pass.md`
+- Step 490: `session_20260703_step490_v5_open_source_local_direction.md`
 
 ## Completed Session Index
 
@@ -156,3 +156,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 487: `session_20260703_step487_v5_reset_view_price_autoscale.md`
 - Step 488: `session_20260703_step488_v5_workstation_visual_system.md`
 - Step 489: `session_20260703_step489_v5_workstation_ui_token_pass.md`
+- Step 490: `session_20260703_step490_v5_open_source_local_direction.md`

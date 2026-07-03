@@ -19,6 +19,8 @@ Read this index before working on V5.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.
+- `v5/docs/specs/open-source-local-deployment.md`: current product direction:
+  open-source/local-first deployment instead of SaaS-first infrastructure.
 - `v5/TODO.md`: current step plan and manual acceptance standards.
 - `v5/sessions/README.md`: session handoff ordering and targeted lookup rules.
 - `v5/docs/specs/README.md`: stable spec index and step source map.

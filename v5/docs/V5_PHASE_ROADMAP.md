@@ -18,10 +18,11 @@ instead of implementing it immediately. Do not add a feature because it is
 visible in FXReplay unless it closes a current phase gate or is explicitly
 promoted by updating this roadmap.
 
-SaaS direction: V5 should stay SaaS-ready without becoming SaaS-heavy too early.
-Until the replay training loop is validated, new work should preserve
-user/workspace ownership and server-replaceable storage boundaries, but defer
-public auth, billing, production multi-tenancy, and entitlement systems.
+Product direction: V5 is now open-source/local-first, not SaaS-first. The target
+deployment is a local desktop, LAN machine, VPS, or terminal server. New work
+should preserve clean workspace/profile ownership, repository boundaries, and
+canonical chart/replay time, but public auth, billing, hosted entitlement, and
+production multi-tenancy are no longer roadmap priorities.
 
 Product north star: V5 serves two core review workflows:
 
@@ -211,9 +212,10 @@ Entry checklist:
 - Bar data runtime remains the only source of `/v4/bars` requests.
 - Toolbar polish, order/journal overlays, rich drawings, and full settings
   templates must wait until their target phases unless this roadmap is updated.
-- SaaS infrastructure is not Phase 3 work. Interaction state should be designed
-  so it can later be persisted, but public auth, billing, and server persistence
-  remain out of scope.
+- Deployment infrastructure is not Phase 3 work. Interaction state should be
+  designed so it can later be persisted locally, backed up, restored, and run on
+  a terminal server, but packaging and persistence remain out of scope for the
+  current interaction gate.
 
 ## Phase 4 - Trading And Journal MVP
 
@@ -236,15 +238,16 @@ Gate:
 
 - Orders and journal entries are tied to canonical replay time and remain stable
   under timezone, timeframe, and viewport changes.
-- Orders and journal entries have explicit user/workspace/session ownership so
-  they can move from local persistence to server persistence later.
+- Orders and journal entries have explicit profile/workspace/session ownership
+  so they can be backed up, restored, imported/exported, and optionally moved
+  between local deployments later.
 - Actual orders/fills and replay decisions can coexist on the same chart context
   without creating a second chart ownership path.
 - Live Execution Review separates process quality from PnL outcome so a winning
   trade can still be marked as an execution error and a losing trade can still be
   marked as correct execution.
-- This phase validates the SaaS product thesis: Historical Replay Review plus
-  Live Execution Review training history, not replay alone.
+- This phase validates the open-source workstation thesis: Historical Replay
+  Review plus Live Execution Review training history, not replay alone.
 
 ## Phase 5 - Review And Annotation Tools
 
@@ -276,34 +279,36 @@ Gate:
 - Dashboards can drill from aggregate visualizations back to source chart
   moments, orders/fills, notes, evidence, and tags.
 
-## Phase 6 - Persistence, Templates, And Multi-user Maturity
+## Phase 6 - Local Persistence, Templates, And Deployment Maturity
 
 Status: pending earlier gates.
 
-Goal: turn the MVP into a durable multi-user workspace.
+Goal: turn the MVP into a durable open-source local/terminal-server workspace.
 
 Planned:
 
-- server-backed workspace/session/order/journal persistence;
-- auth and account identity;
-- subscription and billing experiments only after the training loop has proven
-  repeated value;
-- market data entitlement, usage limits, and hosted cost controls;
+- local workspace/session/order/journal persistence;
+- local profile/workspace identity without public account requirements;
+- backup and restore;
+- Docker/Compose or equivalent terminal-server deployment;
+- reverse-proxy friendly configuration;
 - persisted user/workspace chart settings;
 - chart presentation templates;
 - layout persistence;
 - import/export;
 - AI-assisted review analysis over structured artifacts, evidence, tags, and
   statistics;
-- server-backed multi-user boundaries;
-- collaboration-ready data model hardening.
+- open-source contribution and extension documentation;
+- optional remote/collaboration hardening only after local deployment quality is
+  stable.
 
 Gate:
 
-- A user can leave and return to a workspace with replay, chart presentation,
-  journal, orders, and layouts restored through explicit storage contracts.
-- Hosted SaaS concerns are introduced behind existing repositories/runtimes
-  without feature modules directly reading server APIs or persistence.
+- A user can leave and return to a local workspace with replay, chart
+  presentation, journal, orders, and layouts restored through explicit storage
+  contracts.
+- A user can deploy the app on a local machine or terminal server with clear
+  configuration, backup, restore, and upgrade instructions.
 - AI assistance, if introduced, cites or references the underlying review
   artifacts it used and does not become an ungrounded generic chat surface.
 
@@ -319,6 +324,6 @@ Before starting a new V5 step:
 
 Current active phase: Phase 3.
 
-Current recommended next step: implement the smallest layout state skeleton that
-preserves the Step 460 split-pane contract, or return to Settings work only
-within the active-pane scope defined by that contract.
+Current recommended next step: continue Phase 3 chart/workstation quality work,
+or add a bounded local-deployment planning step only when it directly improves
+open-source usability without weakening runtime ownership.

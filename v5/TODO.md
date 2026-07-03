@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 489 is complete. V5 now has the first workstation UI
-  token pass applied to the chart shell, route toolbar, Layout/Go-to popovers,
-  active-pane chrome, footer status, and floating replay transport without
-  changing replay, chart, bar-data, or layout runtime ownership.
-- Next candidate: Step 490 - continue tokenized UI polish into Settings modal
+- Current status: Step 490 is in progress. V5 product direction is being
+  updated from SaaS-ready-first to open-source/local-first deployment while
+  preserving runtime ownership boundaries and local workspace/profile
+  durability.
+- Next candidate: Step 491 - continue tokenized UI polish into Settings modal
   controls and shared form primitives after the chart workstation shell proves
   the token/component-state approach.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -181,6 +181,13 @@
   transport should consume those tokens before introducing new hard-coded
   surface/state styling. This is a CSS/component-state pass only; runtime
   command ownership remains unchanged.
+- Product direction decision: Step 490 changes V5 from SaaS-ready-first to
+  open-source/local-first. The target is a credible local/terminal-server FX
+  Replay workstation with clean install, configuration, backup/restore,
+  import/export, and extension/plugin paths. Keep profile/workspace/session
+  ownership and repository/runtime boundaries, but stop using public auth,
+  billing, entitlement, hosted market-data metering, or production
+  multi-tenancy as roadmap priorities.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
@@ -522,12 +529,34 @@
   visualization. They should expose metrics, distributions, timelines, and
   drilldowns back to the underlying review artifacts.
 
-## Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
+## Cross-Phase Rule - Open-Source Local-First
+
+Goal: make V5 a credible open-source replay workstation deployable on a local
+desktop, LAN machine, VPS, or terminal server without SaaS account, billing, or
+hosted multi-tenant infrastructure.
+
+- [x] Add open-source local deployment strategy to specs and phase docs.
+
+Manual acceptance:
+
+- New durable models keep profile/workspace/session ownership paths.
+- Feature modules use commands/events and repositories/runtimes, not direct
+  persistence access.
+- Phase 3 remains chart interaction/workstation quality work.
+- Phase 4 validates replay + order + journal training value.
+- Phase 6 becomes local persistence, backup/restore, import/export, deployment,
+  and open-source contribution maturity.
+
+## Historical Cross-Phase Rule - SaaS-Ready, Not SaaS-Heavy
 
 Goal: preserve the option to become a hosted SaaS without slowing the current
 replay workstation MVP with premature auth, billing, or server infrastructure.
 
 - [x] Add SaaS readiness strategy to specs and phase docs.
+- [x] Superseded by Step 490 open-source/local-first direction.
+
+Historical note: the acceptance items below document the old direction and are
+not current roadmap priorities.
 
 Manual acceptance:
 

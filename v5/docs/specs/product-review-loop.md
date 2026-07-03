@@ -12,8 +12,8 @@ Historical Replay Review and Live Execution Review are V5's core work. They are
 not optional later features.
 
 Chart rendering, replay controls, order models, journal entries, annotations,
-screenshots, tags, statistics, import/export, workspace sync, and SaaS packaging
-are infrastructure around these two workflows.
+screenshots, tags, statistics, import/export, workspace backup/restore, and
+local deployment packaging are infrastructure around these two workflows.
 
 Review is not the final product outcome. The heavy work after review is turning
 review artifacts into statistics, analysis, and better decisions. V5 should help
@@ -167,9 +167,9 @@ exactly the kind of cost V4 exposed.
 - Analytics dashboards and visual demos should make review data visible through
   summaries, charts, distributions, timelines, and drilldowns, with links back
   to the source artifacts they summarize.
-- SaaS features should preserve user/workspace/session ownership, but public
-  auth, billing, and entitlements must not displace the review loop before the
-  training workflow is validated.
+- Open-source/local deployment features should preserve profile/workspace/session
+  ownership, backup/restore, and import/export, but deployment packaging must
+  not displace the review loop before the training workflow is validated.
 
 ## V4 Lesson
 
@@ -187,8 +187,7 @@ V4 also shows what V5 must avoid:
 - review objects that grow separately and need expensive later unification;
 - separate chart surfaces for historical replay and execution review when both
   should share the same chart context;
-- local-only persistence assumptions for objects that become core research
-  records;
+- ad hoc persistence assumptions for objects that become core research records;
 - journal/order models that start as quick UI features before process-quality
   semantics are explicit.
 
@@ -221,8 +220,9 @@ Phase 5:
 
 Phase 6:
 
-- SaaS packaging should monetize and persist the review loop, not redefine the
-  product around account management or dashboards.
+- local deployment packaging, backup/restore, and import/export should persist
+  the review loop, not redefine the product around generic account management
+  or dashboards.
 - AI assistance may be introduced after structured artifacts, evidence, tags,
   and statistics exist; it should explain, summarize, classify, and suggest
   practice focus from the user's review data instead of replacing the review
@@ -243,8 +243,8 @@ Phase 6:
   orders, notes, tags, or evidence that produced them.
 - Copying FXReplay surface features without checking whether they support
   Historical Replay Review or Live Execution Review.
-- Prioritizing SaaS infrastructure before replay plus execution review proves a
-  useful training loop.
+- Prioritizing deployment packaging or account infrastructure before replay plus
+  execution review proves a useful training loop.
 
 ## Verification
 

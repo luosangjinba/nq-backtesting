@@ -13,8 +13,11 @@ without carrying forward V4's frontend control-flow debt.
   - enter a chart page whose latest visible replay bar is the session start;
   - load only visible prefix context plus the start bar;
   - reveal future bars only through Next/Play.
-- Make multi-user ownership a first-class model from day one, while the first
-  MVP may run with a single default user.
+- Keep local profile/workspace ownership clear from day one, while the first
+  MVP may run with a single default profile.
+- Build toward a credible open-source, local-first replay workstation that can
+  run on a desktop, LAN machine, VPS, or terminal server without SaaS account,
+  billing, or hosted multi-tenant infrastructure.
 - Keep the main framework stable and keep features modular.
 
 ## Architecture Rule
@@ -29,4 +32,3 @@ Features do not own core runtime state.
 
 See [MVP_ARCHITECTURE.md](docs/MVP_ARCHITECTURE.md) for the full boundary
 rules and the Step 357 implementation plan.
-

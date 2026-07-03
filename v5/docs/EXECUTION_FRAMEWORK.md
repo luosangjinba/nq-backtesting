@@ -202,18 +202,19 @@ Forbidden:
 - mutate replay runtime directly;
 - control another feature directly.
 
-## 5. Multi-User Baseline
+## 5. Local-First Ownership Baseline
 
-V5 is multi-user by model from day one.
+V5 is open-source/local-first by product direction.
 
-The first MVP may use a default user, but all user-owned records must already be
-scoped to `user_id` or to a parent record that has `user_id`.
+The first MVP may keep a default user/profile, but durable records should be
+scoped to a local profile/workspace/session ownership path instead of a public
+SaaS account requirement.
 
-The implementation strategy is SaaS-ready, not SaaS-heavy. Keep ownership,
-repositories, canonical replay time, and bounded data loading compatible with a
-future hosted product, but do not introduce public auth, billing, entitlement,
-or production multi-tenancy before the replay + order + journal training loop is
-validated.
+The implementation strategy is local-deployment ready, not SaaS-ready-first.
+Keep ownership, repositories, canonical replay time, and bounded data loading
+compatible with backup/restore, import/export, and terminal-server deployment,
+but do not introduce public auth, billing, entitlement, or hosted
+multi-tenancy as roadmap work.
 
 Minimum model:
 
@@ -230,11 +231,12 @@ Future model:
 - `annotations`
 - `preferences`
 
-Rule: no user-owned global singleton state.
+Rule: no durable global singleton state for records that belong to a local
+profile/workspace/session.
 
 Rule: no feature module directly owns persistence. Local storage is an
-implementation detail behind repositories/runtimes until server persistence is
-introduced.
+implementation detail behind repositories/runtimes until local database/file
+storage, backup/restore, or optional remote storage is introduced.
 
 ## 6. Documentation System
 

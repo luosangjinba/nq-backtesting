@@ -1,5 +1,13 @@
 # SaaS Readiness Strategy
 
+Status: historical, superseded by Step 490.
+
+Step 490 changes V5's product direction to open-source/local-first deployment.
+Keep the useful boundary lessons from this document, such as repository/runtime
+storage boundaries and stable ownership paths, but do not use this spec to
+prioritize public auth, billing, hosted entitlement, or production
+multi-tenancy. See `open-source-local-deployment.md`.
+
 Phase: cross-phase product architecture.
 
 Phase gate: V5 remains compatible with a future SaaS product without slowing the

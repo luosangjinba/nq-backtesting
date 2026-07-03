@@ -76,10 +76,12 @@ that future work must follow this file order.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
-- `saas-readiness-strategy.md`: cross-phase rule that V5 stays SaaS-ready
-  through ownership, repositories, and canonical replay time, while deferring
-  auth, billing, and server-backed multi-tenancy until the training loop is
-  validated.
+- `open-source-local-deployment.md`: cross-phase product direction that V5 is
+  now an open-source/local-first replay workstation for desktop, LAN, VPS, or
+  terminal-server deployment.
+- `saas-readiness-strategy.md`: historical strategy superseded by Step 490.
+  Keep its useful repository/runtime boundary lessons, but do not use it to
+  prioritize auth, billing, hosted entitlement, or production multi-tenancy.
 
 ## Step Source Map
 
@@ -143,4 +145,6 @@ that future work must follow this file order.
   `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
 - Step 489: `workstation-visual-system.md`,
   `chart-interaction-contracts.md`, `fx-replay-controls-ui.md`
-- Cross-phase: `saas-readiness-strategy.md`
+- Step 490: `open-source-local-deployment.md`,
+  `saas-readiness-strategy.md`, `product-review-loop.md`
+- Cross-phase: `open-source-local-deployment.md`
