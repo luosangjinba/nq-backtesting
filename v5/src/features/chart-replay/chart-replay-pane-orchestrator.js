@@ -112,8 +112,8 @@ export function createChartReplayPaneOrchestrator({
     return paneDisplayCoordinator.ensurePaneDisplay(pane);
   }
 
-  function ensureNonPrimaryPaneDisplays(layoutState = currentLayoutState) {
-    return paneDisplayCoordinator.ensureNonPrimaryPaneDisplays(layoutState);
+  function ensurePaneDisplays(layoutState = currentLayoutState) {
+    return paneDisplayCoordinator.ensurePaneDisplays(layoutState);
   }
 
   function syncPanesForReplayEvent(eventName, payload = {}) {
@@ -139,7 +139,7 @@ export function createChartReplayPaneOrchestrator({
     renderPaneShellState?.(currentLayoutState);
     mountChartHosts();
     releaseRemovedChartPanes(currentLayoutState);
-    ensureNonPrimaryPaneDisplays(currentLayoutState);
+    ensurePaneDisplays(currentLayoutState);
     refreshChartOhlcOverlay?.();
     renderReplayControls?.();
     setReplayControlsDisabled?.();
@@ -166,6 +166,9 @@ export function createChartReplayPaneOrchestrator({
         displayTimeframe: nextDisplayTimeframe,
         resumeViewportFollow: true,
       });
+      await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, {
+        paneId: targetPaneId,
+      });
       if (targetPaneId === DEFAULT_ACTIVE_PANE_ID || !state) {
         state = nextState;
       }
@@ -173,11 +176,9 @@ export function createChartReplayPaneOrchestrator({
     if (targetPaneIds.includes(DEFAULT_ACTIVE_PANE_ID)) {
       setReplayDisplayTimeframe?.(Number(state?.displayTimeframe || nextDisplayTimeframe));
     }
-    targetPaneIds
-      .filter((targetPaneId) => targetPaneId !== DEFAULT_ACTIVE_PANE_ID)
-      .forEach((targetPaneId) => {
-        paneDisplayCoordinator.markPaneDisplayReady(targetPaneId, Number(nextDisplayTimeframe));
-      });
+    targetPaneIds.forEach((targetPaneId) => {
+      paneDisplayCoordinator.markPaneDisplayReady(targetPaneId, Number(nextDisplayTimeframe));
+    });
     onDisplayTimeframeChange?.(activeDisplayTimeframe(layoutState));
     return {
       ...(state || {}),
@@ -195,7 +196,7 @@ export function createChartReplayPaneOrchestrator({
   return {
     activeDisplayTimeframe,
     applyLayoutState,
-    ensureNonPrimaryPaneDisplays,
+    ensurePaneDisplays,
     getActivePaneId,
     getLayoutState: () => currentLayoutState,
     mountChartHosts,

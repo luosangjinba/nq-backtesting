@@ -67,7 +67,6 @@ export function createReplayDisplayWindowController({
 
     const sourceState = getState();
     const targetPaneId = normalizeReplayPaneId(paneId);
-    const statefulLoad = targetPaneId === 'primary';
     const missingWindow = viewportDemand?.missingWindow || {};
     const normalizedDisplayTimeframe = normalizeTimeframe(
       viewportDemand?.displayTimeframe || displayTimeframe,
@@ -116,7 +115,6 @@ export function createReplayDisplayWindowController({
         currentEarliestTimestamp,
         shouldMergeDisplayBars,
       } = await resolvePaneDisplayWindowBase({
-        sourceState,
         targetPaneId,
         normalizedDisplayTimeframe,
         dispatchCommand,
@@ -183,19 +181,6 @@ export function createReplayDisplayWindowController({
         nextAnchor = previousWindowAnchor(window, normalizedDisplayTimeframe);
       }
 
-      if (
-        viewportDemand
-        && statefulLoad
-        && Number(getState().displayTimeframe || 0) !== normalizedDisplayTimeframe
-      ) {
-        return {
-          ...clone(getState()),
-          paneId: targetPaneId,
-          loaded: false,
-          reason: 'stale-display-window-demand',
-        };
-      }
-
       const displayBarsChanged = !displayBarsEqual(baseDisplayBars, displayBars);
       if (displayBarsChanged) {
         if (resumeViewportFollow && chartCommands.RESUME_VIEWPORT_FOLLOW) {
@@ -204,6 +189,7 @@ export function createReplayDisplayWindowController({
         const rendered = await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp, {
           paneId: targetPaneId,
           expectedDisplayRevision,
+          resumeViewportFollow,
           syncViewportFollow: !viewportDemand,
         });
         if (rendered?.staleWrite) {
@@ -214,9 +200,7 @@ export function createReplayDisplayWindowController({
             reason: 'stale-display-bars',
           };
         }
-        if (statefulLoad) {
-          await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp);
-        }
+        await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp, { paneId: targetPaneId });
         const syncedContext = await chartSync.syncChartDisplayContext({
           paneId: targetPaneId,
           displayTimeframe: normalizedDisplayTimeframe,
@@ -242,25 +226,32 @@ export function createReplayDisplayWindowController({
             to: Number(viewportDemand.visibleTo),
           });
         }
+      } else if (resumeViewportFollow && chartCommands.RESUME_VIEWPORT_FOLLOW) {
+        await dispatchCommand(chartCommands.RESUME_VIEWPORT_FOLLOW, { paneId: targetPaneId });
+        await chartSync.syncChartViewportFollow(sourceState.cursorTimestamp, {
+          paneId: targetPaneId,
+          resume: true,
+        });
       }
 
-      const nextState = statefulLoad
+      const currentState = getState();
+      const nextState = targetPaneId === normalizeReplayPaneId()
         ? setState({
-          ...sourceState,
+          ...currentState,
           displayTimeframe: normalizedDisplayTimeframe,
           displayBarsTimeframe: normalizedDisplayTimeframe,
           displayBars: clone(displayBars),
           viewportMetrics: clone(metrics),
-          status: 'display-loaded',
+          status: currentState.status,
         })
         : {
-          ...clone(sourceState),
+          ...clone(currentState),
           paneId: targetPaneId,
           displayTimeframe: normalizedDisplayTimeframe,
           displayBarsTimeframe: normalizedDisplayTimeframe,
           displayBars: clone(displayBars),
           viewportMetrics: clone(metrics),
-          status: sourceState.status,
+          status: currentState.status,
         };
       const result = {
         ...clone(nextState),
@@ -322,7 +313,7 @@ export function createReplayDisplayWindowController({
   } = {}) {
     const sourceState = getState();
     const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
-    const targetPaneId = String(paneId || 'primary').trim() || 'primary';
+    const targetPaneId = normalizeReplayPaneId(paneId);
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
     }
@@ -330,25 +321,15 @@ export function createReplayDisplayWindowController({
       await ensureInitialSession({ sessionId });
     }
     const current = getState();
-    if (targetPaneId !== 'primary') {
-      return loadDisplayWindow({
-        sessionId,
-        paneId: targetPaneId,
+    const defaultReplayPaneId = normalizeReplayPaneId();
+    let nextState = current;
+    if (targetPaneId === defaultReplayPaneId) {
+      nextState = setState({
+        ...current,
         displayTimeframe: normalizedDisplayTimeframe,
-        anchor: current.cursorTimestamp,
-        direction: 'backward',
-        count,
-        resumeViewportFollow,
       });
+      emitEvent(replayEvents.DISPLAY_TIMEFRAME_CHANGED, displayContextSnapshot(nextState));
     }
-    if (current.displayTimeframe === normalizedDisplayTimeframe && current.status === 'display-loaded') {
-      return displayContextSnapshot(current);
-    }
-    const nextState = setState({
-      ...current,
-      displayTimeframe: normalizedDisplayTimeframe,
-    });
-    emitEvent(replayEvents.DISPLAY_TIMEFRAME_CHANGED, displayContextSnapshot(nextState));
     return loadDisplayWindow({
       sessionId,
       paneId: targetPaneId,

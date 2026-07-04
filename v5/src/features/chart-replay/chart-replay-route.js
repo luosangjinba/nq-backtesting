@@ -370,8 +370,8 @@ export function createChartReplayRoute() {
         return paneOrchestrator.activeDisplayTimeframe(layoutState);
       }
 
-      function ensureNonPrimaryPaneDisplays(layoutState = currentLayoutState) {
-        return paneOrchestrator.ensureNonPrimaryPaneDisplays(layoutState);
+      function ensurePaneDisplays(layoutState = currentLayoutState) {
+        return paneOrchestrator.ensurePaneDisplays(layoutState);
       }
 
       function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
@@ -526,7 +526,7 @@ export function createChartReplayRoute() {
             replayLoaded = true;
             status.textContent = `Loaded ${state.displayBars.length} bars.`;
             await refreshReplayStatus();
-            ensureNonPrimaryPaneDisplays();
+            ensurePaneDisplays();
           } catch (error) {
             if (disposed && error?.message === 'Stale replay initial load ignored.') return;
             if (disposed) return;

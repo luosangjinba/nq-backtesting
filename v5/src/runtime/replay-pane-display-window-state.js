@@ -31,30 +31,21 @@ export function displayWindowDemandKey({
 }
 
 export async function resolvePaneDisplayWindowBase({
-  sourceState,
   targetPaneId = DEFAULT_REPLAY_PANE_ID,
   normalizedDisplayTimeframe,
   dispatchCommand,
   chartCommands = CHART_COMMANDS,
 } = {}) {
   const normalizedPaneId = normalizeReplayPaneId(targetPaneId);
-  const statefulLoad = normalizedPaneId === DEFAULT_REPLAY_PANE_ID;
-  const paneDisplayState = statefulLoad
-    ? null
-    : await dispatchCommand(chartCommands.GET_RENDERED_BARS, { paneId: normalizedPaneId }).catch(() => null);
-  const baseDisplayBars = statefulLoad
-    ? sourceState.displayBars
-    : (Array.isArray(paneDisplayState?.bars) ? paneDisplayState.bars : []);
-  const baseDisplayBarsTimeframe = statefulLoad
-    ? sourceState.displayBarsTimeframe
-    : paneDisplayState?.displayContext?.displayTimeframe;
+  const paneDisplayState = await dispatchCommand(
+    chartCommands.GET_RENDERED_BARS,
+    { paneId: normalizedPaneId }
+  ).catch(() => null);
+  const baseDisplayBars = Array.isArray(paneDisplayState?.bars) ? paneDisplayState.bars : [];
+  const baseDisplayBarsTimeframe = paneDisplayState?.displayContext?.displayTimeframe;
   const baseDisplayRevision = paneDisplayState?.displayContext?.displayRevision;
-  const shouldMergeDisplayBars = statefulLoad
-    ? baseDisplayBarsTimeframe === normalizedDisplayTimeframe
-    : (
-      baseDisplayBars.length > 0
-      && Number(baseDisplayBarsTimeframe || normalizedDisplayTimeframe) === normalizedDisplayTimeframe
-    );
+  const shouldMergeDisplayBars = baseDisplayBars.length > 0
+    && Number(baseDisplayBarsTimeframe || normalizedDisplayTimeframe) === normalizedDisplayTimeframe;
   return {
     paneDisplayState,
     baseDisplayBars,
@@ -62,7 +53,6 @@ export async function resolvePaneDisplayWindowBase({
     currentEarliestTimestamp: earliestBarTimestamp(baseDisplayBars),
     baseDisplayRevision,
     shouldMergeDisplayBars,
-    statefulLoad,
     targetPaneId: normalizedPaneId,
   };
 }

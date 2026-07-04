@@ -23,7 +23,9 @@ const fallbackAdapter = read('v5/src/runtime/chart-engine-fallback-adapter.js');
 const viewportBridge = read('v5/src/features/chart-replay/viewport-demand-wiring.js');
 const replayPlayback = read('v5/src/runtime/replay-playback-controller.js');
 const chartRoute = read('v5/src/features/chart-replay/chart-replay-route.js');
+const paneOrchestrator = read('v5/src/features/chart-replay/chart-replay-pane-orchestrator.js');
 const paneShell = read('v5/src/features/chart-replay/chart-replay-pane-shell.js');
+const splitResizeController = read('v5/src/features/chart-replay/chart-replay-split-resize-controller.js');
 const replayControls = read('v5/src/features/chart-replay/chart-replay-controls.js');
 const layoutController = read('v5/src/features/chart-replay/chart-replay-layout.js');
 const navigationController = read('v5/src/features/chart-replay/chart-replay-navigation.js');
@@ -62,13 +64,13 @@ assertIncludes(
 );
 assertIncludes(
   chartRuntime,
-  'paneDisplayStateByPaneId.clear()',
-  'chart runtime stop must clear pane-local display state'
+  'paneStore.clear()',
+  'chart runtime stop must clear pane display state store'
 );
 assertIncludes(
-  chartRoute,
-  'releaseRemovedChartPanes(layoutState)',
-  'chart replay route must notify chart runtime when layout panes change'
+  paneOrchestrator,
+  'function releaseRemovedChartPanes',
+  'chart replay pane orchestrator must notify chart runtime when layout panes change'
 );
 assertIncludes(
   barDataContracts,
@@ -121,8 +123,8 @@ assertIncludes(
 );
 assertIncludes(
   paneShell,
-  "addListener(window, 'resize', scheduleHandlePosition)",
-  'pane shell window resize listener must be tracked for cleanup'
+  'cleanupCallbacks.push(() => target?.removeEventListener?.(type, handler, options))',
+  'pane shell listeners must be tracked for cleanup'
 );
 assertIncludes(
   paneShell,
@@ -131,8 +133,13 @@ assertIncludes(
 );
 assertIncludes(
   paneShell,
+  'splitResizeController.dispose()',
+  'pane shell dispose must dispose split resize controller'
+);
+assertIncludes(
+  splitResizeController,
   'cancelAnimationFrame(handleFrame)',
-  'pane shell dispose must cancel pending animation frame'
+  'split resize controller dispose must cancel pending animation frame'
 );
 assertIncludes(
   replayControls,

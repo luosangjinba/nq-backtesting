@@ -43,7 +43,7 @@ export function createChartReplayPaneDisplayCoordinator({
   function paneInitialDisplayTimeframe(pane = {}) {
     const paneId = pane.id || DEFAULT_ACTIVE_PANE_ID;
     if (pane.displayTimeframe) return Number(pane.displayTimeframe);
-    if (paneId === DEFAULT_ACTIVE_PANE_ID) {
+    if (paneId === (DEFAULT_ACTIVE_PANE_ID)) {
       return Number(
         getReplayDisplayTimeframe?.()
         || getSessionTimeframe?.()
@@ -93,7 +93,7 @@ export function createChartReplayPaneDisplayCoordinator({
   async function ensurePaneDisplay(pane = {}) {
     const paneId = normalizePaneId(pane.id);
     const sessionId = getSessionId?.() || '';
-    if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !sessionId || !getReplayLoaded?.() || disposed()) return null;
+    if (!paneId || !sessionId || !getReplayLoaded?.() || disposed()) return null;
     const nextDisplayTimeframe = paneInitialDisplayTimeframe(pane);
     if (!Number.isFinite(nextDisplayTimeframe) || nextDisplayTimeframe <= 0) return null;
     const loadKey = displayLoadKey(paneId, nextDisplayTimeframe);
@@ -142,10 +142,10 @@ export function createChartReplayPaneDisplayCoordinator({
     return initialization;
   }
 
-  function ensureNonPrimaryPaneDisplays(layoutState = {}) {
+  function ensurePaneDisplays(layoutState = {}) {
     if (!getReplayLoaded?.() || disposed() || !Array.isArray(layoutState.panes)) return [];
     return layoutState.panes
-      .filter((pane) => pane.id && pane.id !== DEFAULT_ACTIVE_PANE_ID)
+      .filter((pane) => pane.id)
       .map((pane) => ensurePaneDisplay(pane));
   }
 
@@ -158,7 +158,7 @@ export function createChartReplayPaneDisplayCoordinator({
   return {
     clear,
     dispose: clear,
-    ensureNonPrimaryPaneDisplays,
+    ensurePaneDisplays,
     ensurePaneDisplay,
     getPaneDisplayState,
     markPaneDisplayReady,

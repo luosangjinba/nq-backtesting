@@ -1,7 +1,4 @@
 import {
-  DEFAULT_ACTIVE_PANE_ID,
-} from '../../contracts/layout-contracts.js';
-import {
   REPLAY_COMMANDS,
   REPLAY_EVENTS,
 } from '../../contracts/replay-contracts.js';
@@ -40,16 +37,13 @@ export function createReplayPaneProjection({
 
   function projectionPanes(layoutState = {}) {
     if (!Array.isArray(layoutState.panes)) return [];
-    return layoutState.panes.filter((pane) => {
-      const paneId = normalizePaneId(pane.id);
-      return paneId && paneId !== DEFAULT_ACTIVE_PANE_ID;
-    });
+    return layoutState.panes.filter((pane) => normalizePaneId(pane.id));
   }
 
   async function projectPaneForReplayNext(pane, payload = {}) {
     const paneId = normalizePaneId(pane?.id);
     const sessionId = getSessionId?.() || '';
-    if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !sessionId || disposed()) return null;
+    if (!paneId || !sessionId || disposed()) return null;
 
     const paneTimeframe = Number(paneInitialDisplayTimeframe?.(pane));
     if (!Number.isFinite(paneTimeframe) || paneTimeframe <= 0) return null;

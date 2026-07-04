@@ -139,6 +139,12 @@ async function main() {
           };
         }
 
+        function timestampSeconds(value) {
+          if (typeof value === 'number') return value;
+          const parsed = Date.parse(String(value || ''));
+          return Number.isFinite(parsed) ? Math.floor(parsed / 1000) : 0;
+        }
+
         async function waitFor(label, predicate, timeoutMs = 10000) {
           const deadline = performance.now() + timeoutMs;
           while (performance.now() < deadline) {
@@ -240,7 +246,7 @@ async function main() {
 
           const beforeReplay = await commands.dispatchCommand('replay.getState');
           const before = {
-            cursorTimestamp: Number(beforeReplay.cursorTimestamp || 0),
+            cursorTimestamp: timestampSeconds(beforeReplay.cursorTimestamp),
             primary: paneState('primary'),
             secondary: paneState('secondary'),
             tertiary: paneState('tertiary'),
@@ -248,7 +254,7 @@ async function main() {
           await commands.dispatchCommand('replay.next', { sessionId: created.session.id });
           const afterReplay = await waitFor('replay cursor advanced after tf change', async () => {
             const state = await commands.dispatchCommand('replay.getState');
-            return Number(state.cursorTimestamp || 0) > before.cursorTimestamp ? state : null;
+            return timestampSeconds(state.cursorTimestamp) > before.cursorTimestamp ? state : null;
           });
           await waitFor('all panes remain responsive after next', async () => (
             paneState('primary').displayTimeframe === '60'
@@ -257,14 +263,14 @@ async function main() {
             && paneState('secondary').renderedBarCount > 0
             && paneState('tertiary').displayTimeframe === '1'
             && paneState('tertiary').renderedBarCount > 0
-            && paneState('secondary').viewportCursorTimestamp >= Number(afterReplay.cursorTimestamp || 0)
-            && paneState('tertiary').viewportCursorTimestamp >= Number(afterReplay.cursorTimestamp || 0)
+            && paneState('secondary').viewportCursorTimestamp >= timestampSeconds(afterReplay.cursorTimestamp)
+            && paneState('tertiary').viewportCursorTimestamp >= timestampSeconds(afterReplay.cursorTimestamp)
           ), 12000);
 
           return JSON.stringify({
             error: '',
             before,
-            afterReplayCursor: Number(afterReplay.cursorTimestamp || 0),
+            afterReplayCursor: timestampSeconds(afterReplay.cursorTimestamp),
             after: {
               primary: paneState('primary'),
               secondary: paneState('secondary'),

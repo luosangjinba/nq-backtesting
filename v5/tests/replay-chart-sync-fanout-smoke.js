@@ -47,17 +47,6 @@ const result = await sync.appendRevealedBarsToPanes({
   cursorTimestamp: '2026-06-01T09:31:00.000Z',
   replayTimeframe: 1,
   displayTimeframeFallback: 1,
-  primaryFullDisplayBars: [
-    {
-      time: '2026-06-01T09:30:00.000Z',
-      timestamp: 1780306200,
-      open: 99,
-      high: 100,
-      low: 98,
-      close: 99.5,
-    },
-    ...revealedBars,
-  ],
 });
 
 assert.deepEqual(result.appended, [

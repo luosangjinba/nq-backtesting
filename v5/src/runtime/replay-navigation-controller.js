@@ -152,30 +152,29 @@ export function createReplayNavigationController({
       : sourceState.displayBars;
     markReplayTrace('replay.next.displayBuild.end', { displayCount: displayBars.length });
     let paneFanout = null;
-    if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
-      markReplayTrace('replay.next.chartAppend.start', {
-        appendedCount: nextBars.length,
+    markReplayTrace('replay.next.chartAppend.start', {
+      appendedCount: nextBars.length,
+      cursorTimestamp: nextBar.time,
+    });
+    markReplayTrace('replay.next.appendDisplay.start', {
+      appendedCount: nextBars.length,
+      displayCount: displayBars.length,
+    });
+    if (typeof chartSync.appendRevealedBarsToPanes === 'function') {
+      const layoutState = await Promise.resolve(getLayoutState?.() || null).catch(() => null);
+      paneFanout = await chartSync.appendRevealedBarsToPanes({
+        panes: layoutState?.panes || [{ id: 'primary', displayTimeframe: normalizedDisplayTimeframe }],
+        revealedBars: nextBars,
         cursorTimestamp: nextBar.time,
+        replayTimeframe: normalizedReplayTimeframe,
+        displayTimeframeFallback: normalizedReplayTimeframe,
+        rightEdgeLimit: nextBar.time,
       });
-      markReplayTrace('replay.next.appendDisplay.start', {
-        appendedCount: nextBars.length,
-        displayCount: displayBars.length,
-      });
-      if (typeof chartSync.appendRevealedBarsToPanes === 'function') {
-        const layoutState = await Promise.resolve(getLayoutState?.() || null).catch(() => null);
-        paneFanout = await chartSync.appendRevealedBarsToPanes({
-          panes: layoutState?.panes || [{ id: 'primary', displayTimeframe: normalizedDisplayTimeframe }],
-          revealedBars: nextBars,
-          cursorTimestamp: nextBar.time,
-          replayTimeframe: normalizedReplayTimeframe,
-          displayTimeframeFallback: normalizedDisplayTimeframe,
-          primaryFullDisplayBars: displayBars,
-          rightEdgeLimit: nextBar.time,
-        });
-      } else if (typeof chartSync.appendDisplayBars === 'function') {
+    } else if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      if (typeof chartSync.appendDisplayBars === 'function') {
         await chartSync.appendDisplayBars(nextBars, nextBar.time, {
           paneId: 'primary',
-          fullDisplayBars: displayBars,
+          fullDisplayBars: nextBars,
           rightEdgeLimit: nextBar.time,
         });
       } else {
@@ -184,15 +183,15 @@ export function createReplayNavigationController({
         markReplayTrace('replay.next.rightEdge.end', { cursorTimestamp: nextBar.time });
         await chartSync.renderDisplayBars(displayBars, nextBar.time);
       }
-      markReplayTrace('replay.next.appendDisplay.end', {
-        appendedCount: nextBars.length,
-        displayCount: displayBars.length,
-      });
-      markReplayTrace('replay.next.chartAppend.end', {
-        appendedCount: nextBars.length,
-        cursorTimestamp: nextBar.time,
-      });
     }
+    markReplayTrace('replay.next.appendDisplay.end', {
+      appendedCount: nextBars.length,
+      displayCount: displayBars.length,
+    });
+    markReplayTrace('replay.next.chartAppend.end', {
+      appendedCount: nextBars.length,
+      cursorTimestamp: nextBar.time,
+    });
 
     markReplayTrace('replay.next.stateWrite.start', {
       cursorTimestamp: nextBar.time,

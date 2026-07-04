@@ -1,7 +1,9 @@
 import { markReplayTrace } from './replay-trace.js';
 
+const DEFAULT_REPLAY_CHART_PANE_ID = 'primary';
+
 function normalizePaneId(paneId) {
-  return String(paneId || 'primary').trim() || 'primary';
+  return String(paneId ?? DEFAULT_REPLAY_CHART_PANE_ID).trim() || DEFAULT_REPLAY_CHART_PANE_ID;
 }
 
 function normalizeTimeframe(value, fallback = 1) {
@@ -12,7 +14,7 @@ function normalizeTimeframe(value, fallback = 1) {
 function uniquePaneSnapshots(panes = []) {
   const source = Array.isArray(panes) && panes.length
     ? panes
-    : [{ id: 'primary' }];
+    : [{ id: DEFAULT_REPLAY_CHART_PANE_ID }];
   const seen = new Set();
   const snapshots = [];
   source.forEach((pane) => {
@@ -21,8 +23,8 @@ function uniquePaneSnapshots(panes = []) {
     seen.add(paneId);
     snapshots.push({ ...pane, id: paneId });
   });
-  if (!seen.has('primary')) {
-    snapshots.unshift({ id: 'primary' });
+  if (!seen.has(DEFAULT_REPLAY_CHART_PANE_ID)) {
+    snapshots.unshift({ id: DEFAULT_REPLAY_CHART_PANE_ID });
   }
   return snapshots;
 }
@@ -33,11 +35,15 @@ export function createReplayChartSync({
   hasCommand,
   chartCommands,
 }) {
-  async function syncChartRightEdgeLimit(rightEdge) {
+  async function syncChartRightEdgeLimit(rightEdge, { paneId } = {}) {
     if (hasCommand(chartCommands.SET_RIGHT_EDGE_LIMIT)) {
-      markReplayTrace('chartSync.rightEdge.start', { rightEdge });
-      await dispatchCommand(chartCommands.SET_RIGHT_EDGE_LIMIT, { rightEdge });
-      markReplayTrace('chartSync.rightEdge.end', { rightEdge });
+      const normalizedPaneId = paneId == null ? null : normalizePaneId(paneId);
+      markReplayTrace('chartSync.rightEdge.start', { paneId: normalizedPaneId || 'all', rightEdge });
+      await dispatchCommand(chartCommands.SET_RIGHT_EDGE_LIMIT, {
+        paneId: normalizedPaneId || undefined,
+        rightEdge,
+      });
+      markReplayTrace('chartSync.rightEdge.end', { paneId: normalizedPaneId || 'all', rightEdge });
     }
   }
 
@@ -55,7 +61,7 @@ export function createReplayChartSync({
       .filter(Number.isFinite)
       .sort((left, right) => left - right);
     return dispatchCommand(chartCommands.SET_DISPLAY_CONTEXT, {
-      paneId,
+      paneId: normalizePaneId(paneId),
       instrument: state.session?.instrument || null,
       displayTimeframe,
       expectedDisplayRevision,
@@ -70,7 +76,7 @@ export function createReplayChartSync({
     if (!hasCommand(chartCommands.SET_DISPLAY_CONTEXT)) return null;
     const state = getState();
     return dispatchCommand(chartCommands.SET_DISPLAY_CONTEXT, {
-      paneId,
+      paneId: normalizePaneId(paneId),
       instrument: state.session?.instrument || null,
       displayTimeframe,
       expectedDisplayRevision,
@@ -81,7 +87,7 @@ export function createReplayChartSync({
   async function syncChartViewportFollow(cursorTimestamp, { resume = false, paneId } = {}) {
     if (!hasCommand(chartCommands.SET_VIEWPORT_FOLLOW)) return null;
     return dispatchCommand(chartCommands.SET_VIEWPORT_FOLLOW, {
-      paneId,
+      paneId: normalizePaneId(paneId),
       enabled: true,
       resume,
       cursorTimestamp,
@@ -98,13 +104,14 @@ export function createReplayChartSync({
       syncViewportFollow = true,
     } = {}
   ) {
+    const normalizedPaneId = normalizePaneId(paneId);
     const result = await dispatchCommand(chartCommands.REPLACE_BARS, {
-      paneId,
+      paneId: normalizedPaneId,
       bars: displayBars,
       expectedDisplayRevision,
     });
     if (syncViewportFollow) {
-      await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow, paneId });
+      await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow, paneId: normalizedPaneId });
     }
     return result;
   }
@@ -114,74 +121,49 @@ export function createReplayChartSync({
     cursorTimestamp,
     { paneId, fullDisplayBars = appendedBars, rightEdgeLimit } = {}
   ) {
+    const normalizedPaneId = normalizePaneId(paneId);
     markReplayTrace('chartSync.append.start', {
-      paneId: paneId || 'primary',
+      paneId: normalizedPaneId,
       appendedCount: appendedBars.length,
       cursorTimestamp,
     });
     if (!hasCommand(chartCommands.APPEND_BARS)) {
-      if (!paneId || paneId === 'primary') {
-        await syncChartRightEdgeLimit(rightEdgeLimit || cursorTimestamp);
-      }
-      const rendered = await renderDisplayBars(fullDisplayBars, cursorTimestamp, { paneId });
+      await syncChartRightEdgeLimit(rightEdgeLimit || cursorTimestamp, { paneId: normalizedPaneId });
+      const rendered = await renderDisplayBars(fullDisplayBars, cursorTimestamp, { paneId: normalizedPaneId });
       markReplayTrace('chartSync.append.end', {
-        paneId: paneId || 'primary',
+        paneId: normalizedPaneId,
         mode: 'replace',
         cursorTimestamp,
       });
       return rendered;
     }
-    if (!paneId || paneId === 'primary') {
-      markReplayTrace('chartSync.append.metrics.start', { paneId: paneId || 'primary' });
-      const metrics = hasCommand(chartCommands.GET_VIEWPORT_METRICS)
-        ? await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS).catch(() => null)
-        : null;
-      markReplayTrace('chartSync.append.metrics.end', {
-        paneId: paneId || 'primary',
-        estimatedVisibleBars: metrics?.estimatedVisibleBars || '',
-      });
-      markReplayTrace('chartSync.append.command.start', {
-        paneId: paneId || 'primary',
-        appendedCount: appendedBars.length,
-      });
-      await dispatchCommand(chartCommands.APPEND_BARS, {
-        paneId,
-        bars: appendedBars,
-        rightEdgeLimit: rightEdgeLimit || cursorTimestamp,
-        viewportFollow: {
-          enabled: true,
-          cursorTimestamp,
-        },
-      });
-      markReplayTrace('chartSync.append.command.end', {
-        paneId: paneId || 'primary',
-        appendedCount: appendedBars.length,
-      });
-      markReplayTrace('chartSync.append.end', {
-        paneId: paneId || 'primary',
-        mode: 'append',
-        cursorTimestamp,
-      });
-      return;
-    }
+    markReplayTrace('chartSync.append.metrics.start', { paneId: normalizedPaneId });
+    const metrics = hasCommand(chartCommands.GET_VIEWPORT_METRICS)
+      ? await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS, { paneId: normalizedPaneId }).catch(() => null)
+      : null;
+    markReplayTrace('chartSync.append.metrics.end', {
+      paneId: normalizedPaneId,
+      estimatedVisibleBars: metrics?.estimatedVisibleBars || '',
+    });
     markReplayTrace('chartSync.append.command.start', {
-      paneId,
+      paneId: normalizedPaneId,
       appendedCount: appendedBars.length,
     });
     await dispatchCommand(chartCommands.APPEND_BARS, {
-      paneId,
+      paneId: normalizedPaneId,
       bars: appendedBars,
+      rightEdgeLimit: rightEdgeLimit || cursorTimestamp,
       viewportFollow: {
         enabled: true,
         cursorTimestamp,
       },
     });
     markReplayTrace('chartSync.append.command.end', {
-      paneId,
+      paneId: normalizedPaneId,
       appendedCount: appendedBars.length,
     });
     markReplayTrace('chartSync.append.end', {
-      paneId,
+      paneId: normalizedPaneId,
       mode: 'append',
       cursorTimestamp,
     });
@@ -193,7 +175,6 @@ export function createReplayChartSync({
     cursorTimestamp,
     replayTimeframe,
     displayTimeframeFallback,
-    primaryFullDisplayBars,
     rightEdgeLimit,
   } = {}) {
     const normalizedReplayTimeframe = normalizeTimeframe(replayTimeframe, displayTimeframeFallback || 1);
@@ -226,9 +207,7 @@ export function createReplayChartSync({
       markReplayTrace('chartSync.fanout.append.start', { paneId, appendedCount: revealedBars.length });
       await appendDisplayBars(revealedBars, cursorTimestamp, {
         paneId,
-        fullDisplayBars: paneId === 'primary'
-          ? primaryFullDisplayBars || revealedBars
-          : revealedBars,
+        fullDisplayBars: revealedBars,
         rightEdgeLimit: rightEdgeLimit || cursorTimestamp,
       });
       appended.push({ paneId, displayTimeframe: paneTimeframe, appendedCount: revealedBars.length });
