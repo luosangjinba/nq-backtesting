@@ -67,8 +67,6 @@ export function createChartReplayRoute() {
       let replayIntervalTimeframe = null;
       let replayIntervalSync = false;
       let currentLayoutState = DEFAULT_LAYOUT_STATE;
-      const paneDisplayLoadKeys = new Set();
-      const paneDisplayInitializationInFlight = new Set();
       let displayTimezone = 'Exchange';
       let exchangeTimezone = 'America/New_York';
       let presentationSettings = {
@@ -110,10 +108,31 @@ export function createChartReplayRoute() {
         },
       });
       const paneOrchestrator = trackController(createChartReplayPaneOrchestrator({
+        root: section,
+        dispatchCommand,
         getLayoutState: () => currentLayoutState,
+        onLayoutStateChange: (layoutState) => {
+          currentLayoutState = layoutState;
+        },
+        onDisplayTimeframeChange: (value) => {
+          displayTimeframe = Number(value || 0);
+        },
+        setReplayDisplayTimeframe: (value) => {
+          replayDisplayTimeframe = Number(value || 0);
+        },
         getReplayDisplayTimeframe: () => replayDisplayTimeframe,
         getSessionTimeframe: () => sessionTimeframe,
         getDisplayTimeframeFallback: () => displayTimeframe,
+        getSessionId: () => params.sessionId || '',
+        getReplayLoaded: () => replayLoaded,
+        setStatusText: (message) => {
+          status.textContent = message;
+        },
+        renderLayoutState: (layoutState) => layoutController?.renderState(layoutState),
+        renderPaneShellState: (layoutState) => paneShellController?.renderState(layoutState),
+        refreshChartOhlcOverlay: () => statusController.refreshChartOhlcOverlay(),
+        renderReplayControls: () => replayControlsController?.renderControls(),
+        setReplayControlsDisabled: () => replayControlsController?.setControlsDisabled(),
       }));
       const statusController = createChartReplayStatusController({
         root: section,
@@ -195,7 +214,7 @@ export function createChartReplayRoute() {
         setDisplayTimeframe: (value) => {
           displayTimeframe = Number(value || 0);
         },
-        setActivePaneDisplayTimeframe,
+        setActivePaneDisplayTimeframe: (payload) => paneOrchestrator.setActivePaneDisplayTimeframe(payload),
         getReplayIntervalTimeframe: () => replayIntervalTimeframe,
         setReplayIntervalTimeframe: (value) => {
           replayIntervalTimeframe = Number(value || 0);
@@ -231,7 +250,7 @@ export function createChartReplayRoute() {
           status.textContent = message;
         },
         syncLayoutTime,
-        getActivePaneId: () => currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+        getActivePaneId: () => paneOrchestrator.getActivePaneId(),
       }));
       truncateController = trackController(createChartReplayTruncateController({
         root: section,
@@ -314,138 +333,18 @@ export function createChartReplayRoute() {
         return paneOrchestrator.activeDisplayTimeframe(layoutState);
       }
 
-      function mountChartHosts() {
-        section.querySelectorAll('[data-chart-host]').forEach((host) => {
-          dispatchCommand(CHART_COMMANDS.MOUNT_HOST, {
-            paneId: host.dataset.chartPaneId || DEFAULT_ACTIVE_PANE_ID,
-            host,
-          }).catch(() => null);
-        });
-      }
-
-      function releaseRemovedChartPanes(layoutState = currentLayoutState) {
-        const paneIds = Array.isArray(layoutState.panes)
-          ? layoutState.panes.map((pane) => pane.id || DEFAULT_ACTIVE_PANE_ID)
-          : [DEFAULT_ACTIVE_PANE_ID];
-        dispatchCommand(CHART_COMMANDS.RELEASE_PANES, { paneIds }).catch(() => null);
-      }
-
-      function paneInitialDisplayTimeframe(pane = {}) {
-        return Number(
-          pane.displayTimeframe
-          || replayDisplayTimeframe
-          || sessionTimeframe
-          || displayTimeframe
-          || 1
-        );
-      }
-
-      async function ensurePaneLocalDisplay(pane) {
-        const paneId = String(pane?.id || '').trim();
-        if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !params.sessionId || !replayLoaded || disposed) return;
-        const nextDisplayTimeframe = paneInitialDisplayTimeframe(pane);
-        if (!Number.isFinite(nextDisplayTimeframe) || nextDisplayTimeframe <= 0) return;
-        const loadKey = `${paneId}:${nextDisplayTimeframe}`;
-        if (paneDisplayLoadKeys.has(loadKey) || paneDisplayInitializationInFlight.has(loadKey)) return;
-        paneDisplayInitializationInFlight.add(loadKey);
-        try {
-          if (pane.displayTimeframe == null) {
-            const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
-              paneId,
-              displayTimeframe: nextDisplayTimeframe,
-            });
-            if (!disposed) {
-              currentLayoutState = layoutState;
-              applyLayoutState(layoutState);
-            }
-          }
-          await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-            sessionId: params.sessionId,
-            paneId,
-            displayTimeframe: nextDisplayTimeframe,
-          });
-          paneDisplayLoadKeys.add(loadKey);
-        } catch (error) {
-          if (!disposed) {
-            status.textContent = error?.message || String(error);
-          }
-        } finally {
-          paneDisplayInitializationInFlight.delete(loadKey);
-        }
-      }
-
       function ensureNonPrimaryPaneDisplays(layoutState = currentLayoutState) {
-        if (!replayLoaded || disposed || !Array.isArray(layoutState.panes)) return;
-        layoutState.panes
-          .filter((pane) => pane.id && pane.id !== DEFAULT_ACTIVE_PANE_ID)
-          .forEach((pane) => {
-            ensurePaneLocalDisplay(pane);
-          });
+        return paneOrchestrator.ensureNonPrimaryPaneDisplays(layoutState);
       }
 
       function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
-        currentLayoutState = layoutState;
-        const nextActivePaneId = layoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
-        const nextPaneCount = Array.isArray(layoutState.panes)
-          ? layoutState.panes.length
-          : DEFAULT_LAYOUT_STATE.panes.length;
-        section.dataset.activePaneId = nextActivePaneId;
-        section.dataset.activePaneCount = String(nextPaneCount);
-        section.dataset.layoutMode = layoutState.mode || DEFAULT_LAYOUT_STATE.mode;
-        section.dataset.layoutVariant = layoutState.variant || DEFAULT_LAYOUT_STATE.variant;
-        displayTimeframe = activePaneDisplayTimeframe(layoutState);
-        layoutController?.renderState(layoutState);
-        paneShellController?.renderState(layoutState);
-        mountChartHosts();
-        releaseRemovedChartPanes(layoutState);
-        ensureNonPrimaryPaneDisplays(layoutState);
-        statusController.refreshChartOhlcOverlay();
-        replayControlsController?.renderControls();
-        replayControlsController?.setControlsDisabled();
-      }
-
-      async function setActivePaneDisplayTimeframe({ displayTimeframe: nextDisplayTimeframe } = {}) {
-        const paneId = currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID;
-        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
-          paneId,
-          displayTimeframe: nextDisplayTimeframe,
-        });
-        applyLayoutState(layoutState);
-        const targetPaneIds = layoutState.sync?.interval
-          ? layoutState.panes.map((pane) => pane.id || DEFAULT_ACTIVE_PANE_ID)
-          : [paneId];
-        let state = null;
-        for (const targetPaneId of targetPaneIds) {
-          const nextState = await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-            sessionId: params.sessionId || '',
-            paneId: targetPaneId,
-            displayTimeframe: nextDisplayTimeframe,
-          });
-          if (targetPaneId === DEFAULT_ACTIVE_PANE_ID || !state) {
-            state = nextState;
-          }
-        }
-        if (targetPaneIds.includes(DEFAULT_ACTIVE_PANE_ID)) {
-          replayDisplayTimeframe = Number(state?.displayTimeframe || nextDisplayTimeframe);
-        }
-        targetPaneIds
-          .filter((targetPaneId) => targetPaneId !== DEFAULT_ACTIVE_PANE_ID)
-          .forEach((targetPaneId) => {
-            paneDisplayLoadKeys.add(`${targetPaneId}:${Number(nextDisplayTimeframe)}`);
-          });
-        displayTimeframe = activePaneDisplayTimeframe(layoutState);
-        return {
-          ...(state || {}),
-          paneId,
-          displayTimeframe: Number(nextDisplayTimeframe),
-          replayReloaded: true,
-        };
+        return paneOrchestrator.applyLayoutState(layoutState);
       }
 
       async function syncLayoutTime(time) {
         if (!time) return null;
         const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
-          paneId: currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+          paneId: paneOrchestrator.getActivePaneId(),
           time,
         });
         applyLayoutState(layoutState);
@@ -458,7 +357,7 @@ export function createChartReplayRoute() {
         const to = visibleRange.to == null ? null : new Date(Number(visibleRange.to) * 1000).toISOString();
         if (!from || !to) return null;
         const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, {
-          paneId: currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+          paneId: paneOrchestrator.getActivePaneId(),
           dateRange: { from, to },
         });
         applyLayoutState(layoutState);
@@ -468,7 +367,7 @@ export function createChartReplayRoute() {
       async function syncLayoutCrosshair(crosshair) {
         if (!currentLayoutState.sync?.crosshair) return null;
         const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, {
-          paneId: currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
+          paneId: paneOrchestrator.getActivePaneId(),
           crosshair: crosshair || { active: false },
         });
         applyLayoutState(layoutState);
@@ -596,7 +495,7 @@ export function createChartReplayRoute() {
         });
       };
       viewportDemandBridge.start();
-      mountChartHosts();
+      paneOrchestrator.applyLayoutState(currentLayoutState);
       dispatchCommand(LAYOUT_COMMANDS.GET_STATE)
         .then((layoutState) => {
           if (disposed) return;
