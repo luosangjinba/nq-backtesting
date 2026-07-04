@@ -332,10 +332,27 @@ Implementation expectations:
 
 - add a browser/performance smoke that rapid `Next` clicks do not drain through
   a slow visible queue;
-- measure time from click batch to final rendered cursor;
-- assert no unnecessary `setData()` fan-out to panes whose visible data can be
-  updated by append/update;
+- measure time from click batch to final rendered cursor in a multi-pane
+  same-timeframe layout;
+- assert both primary and non-primary same-timeframe panes advance by the click
+  batch size;
+- assert same-timeframe non-primary panes use append projection instead of
+  display-window reload during rapid `Next`;
+- assert no forward bar fetch is needed after initial preload/cache setup;
 - keep the gate deterministic enough for local CI-style runs.
+
+Acceptance:
+
+- the new smoke creates a real session, opens a multi-pane layout, waits for all
+  panes to render, clicks `Next` rapidly, and waits for the final replay cursor
+  instead of sleeping for a fixed delay;
+- the final cursor, reveal count, and every same-timeframe pane rendered count
+  reflect the click batch;
+- command instrumentation confirms `chart.appendBars` is used for non-primary
+  same-timeframe projection and `replay.loadDisplayWindow` is not used for that
+  projection path;
+- the elapsed threshold stays loose enough for local browser variance but tight
+  enough to catch a visible half-second-per-bar queue.
 
 ## Required Verification For Rebuild Steps
 
