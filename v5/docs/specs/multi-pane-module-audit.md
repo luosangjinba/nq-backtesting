@@ -412,6 +412,8 @@ Step 506 result:
 
 ### Step 507 - Extract Replay Pane Display Merge Helper
 
+Status: in progress.
+
 Goal: isolate non-primary display-window merge rules from primary replay
 display-window loading.
 

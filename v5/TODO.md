@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 506 completed. `chart-runtime-pane-state.js` now owns
-  pure pane id normalization, pane state projection, pane display-state
-  patching, retained pane ids, and chart-state snapshot cloning.
-- Next candidate: Step 507 will isolate replay non-primary display-window merge
-  helpers.
+- Current status: Step 507 in progress. The implementation plan is to isolate
+  replay non-primary display-window snapshot/base/merge helpers without moving
+  bar requests, chart writes, replay state mutation, or replay event emission
+  out of `replay-display-window-controller.js`.
+- Next candidate: Complete Step 507, then reassess the multi-pane module audit
+  before adding more multi-pane behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
