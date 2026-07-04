@@ -137,6 +137,49 @@ async function main() {
           };
         }
 
+        function observeCursorMetadata(expectedCursorTimestamp, timeoutMs = 1800) {
+          const canvas = document.querySelector('[data-chart-canvas]');
+          if (!canvas) {
+            return Promise.resolve({
+              observed: false,
+              observedAt: null,
+              reason: 'missing-canvas',
+            });
+          }
+          if (Number(canvas.dataset.viewportCursorTimestamp || 0) === expectedCursorTimestamp) {
+            return Promise.resolve({
+              observed: true,
+              observedAt: performance.now(),
+              reason: 'already-visible',
+            });
+          }
+          return new Promise((resolve) => {
+            const deadlineTimer = setTimeout(() => {
+              observer.disconnect();
+              resolve({
+                observed: false,
+                observedAt: null,
+                reason: 'timeout',
+              });
+            }, timeoutMs);
+            const observer = new MutationObserver(() => {
+              if (Number(canvas.dataset.viewportCursorTimestamp || 0) !== expectedCursorTimestamp) return;
+              const observedAt = performance.now();
+              clearTimeout(deadlineTimer);
+              observer.disconnect();
+              resolve({
+                observed: true,
+                observedAt,
+                reason: 'mutation',
+              });
+            });
+            observer.observe(canvas, {
+              attributes: true,
+              attributeFilter: ['data-viewport-cursor-timestamp'],
+            });
+          });
+        }
+
         async function waitFor(label, predicate, timeoutMs = 5000) {
           const deadline = performance.now() + timeoutMs;
           while (performance.now() < deadline) {
@@ -204,12 +247,14 @@ async function main() {
           const clickCount = 20;
           const expectedCursorTimestamp = Date.parse('2026-06-01T09:50:00.000Z') / 1000;
           const forwardRequestsAfterInitial = window.__v5ForwardBarRequests;
+          const observedCursorPromise = observeCursorMetadata(expectedCursorTimestamp);
           let finalClickAt = performance.now();
           const nextButton = document.querySelector('[data-replay-next]');
           for (let index = 0; index < clickCount; index += 1) {
             nextButton.click();
             finalClickAt = performance.now();
           }
+          const observedCursor = await observedCursorPromise;
           await waitFor('latest cursor visible', async () =>
             canvasMetrics().viewportCursorTimestamp === expectedCursorTimestamp
           , 1800);
@@ -225,6 +270,17 @@ async function main() {
             clickCount,
             finalClickToVisibleMs: visibleAt - finalClickAt,
             finalClickToAnimationFrameMs: frameAt - finalClickAt,
+            observerDetected: Boolean(observedCursor.observed),
+            observerReason: observedCursor.reason,
+            finalClickToObservedVisibleMs: observedCursor.observedAt == null
+              ? null
+              : observedCursor.observedAt - finalClickAt,
+            observerToPollingVisibleMs: observedCursor.observedAt == null
+              ? null
+              : visibleAt - observedCursor.observedAt,
+            observerToAnimationFrameMs: observedCursor.observedAt == null
+              ? null
+              : frameAt - observedCursor.observedAt,
             firstClickToVisibleMs: firstClick ? visibleAt - firstClick.t : null,
             finalClickToFlushStartMs: sinceLastClick('controls.next.flush.start'),
             finalClickToCommandStartMs: sinceLastClick('controls.next.command.start'),
@@ -262,9 +318,15 @@ async function main() {
             replayEndToVisibleMs: sinceLastClick('replay.next.end') == null
               ? null
               : (visibleAt - (lastMark('replay.next.end')?.t || visibleAt)),
+            replayEndToObservedVisibleMs: observedCursor.observedAt == null || lastMark('replay.next.end') == null
+              ? null
+              : (observedCursor.observedAt - lastMark('replay.next.end').t),
             lightweightMetadataToVisibleMs: sinceLastClick('lightweight.append.metadata') == null
               ? null
               : (visibleAt - (lastMark('lightweight.append.metadata')?.t || visibleAt)),
+            lightweightMetadataToObservedVisibleMs: observedCursor.observedAt == null || lastMark('lightweight.append.metadata') == null
+              ? null
+              : (observedCursor.observedAt - lastMark('lightweight.append.metadata').t),
             lightweightAppendMs: span('lightweight.append.start', 'lightweight.append.end'),
             lightweightSeriesUpdateMs: span('lightweight.append.start', 'lightweight.append.seriesUpdated'),
             fallbackAppendMs: span('fallback.append.start', 'fallback.append.end'),
@@ -290,6 +352,9 @@ async function main() {
     assert.equal(value.forwardRequestDelta, 0);
     assert.equal(value.metadataCursorTimestamp, Date.parse('2026-06-01T09:50:00.000Z') / 1000);
     assert.ok(value.finalClickToVisibleMs < 1000, `latest cursor should become visible: ${JSON.stringify(value)}`);
+    assert.equal(value.observerDetected, true, `cursor metadata observer should detect visibility: ${JSON.stringify(value)}`);
+    assert.equal(typeof value.finalClickToObservedVisibleMs, 'number');
+    assert.equal(typeof value.observerToPollingVisibleMs, 'number');
     assert.equal(typeof value.finalClickToFlushStartMs, 'number');
     assert.equal(typeof value.finalClickToCommandStartMs, 'number');
     assert.equal(typeof value.finalClickToReplayStartMs, 'number');
@@ -299,6 +364,10 @@ async function main() {
     console.log(JSON.stringify({
       finalClickToVisibleMs: value.finalClickToVisibleMs,
       finalClickToAnimationFrameMs: value.finalClickToAnimationFrameMs,
+      finalClickToObservedVisibleMs: value.finalClickToObservedVisibleMs,
+      observerReason: value.observerReason,
+      observerToPollingVisibleMs: value.observerToPollingVisibleMs,
+      observerToAnimationFrameMs: value.observerToAnimationFrameMs,
       finalClickToFlushStartMs: value.finalClickToFlushStartMs,
       finalClickToCommandStartMs: value.finalClickToCommandStartMs,
       finalClickToReplayStartMs: value.finalClickToReplayStartMs,
@@ -330,7 +399,9 @@ async function main() {
       replayEmitMs: value.replayEmitMs,
       replayPersistEnqueueMs: value.replayPersistEnqueueMs,
       replayEndToVisibleMs: value.replayEndToVisibleMs,
+      replayEndToObservedVisibleMs: value.replayEndToObservedVisibleMs,
       lightweightMetadataToVisibleMs: value.lightweightMetadataToVisibleMs,
+      lightweightMetadataToObservedVisibleMs: value.lightweightMetadataToObservedVisibleMs,
       lightweightAppendMs: value.lightweightAppendMs,
       lightweightSeriesUpdateMs: value.lightweightSeriesUpdateMs,
       fallbackAppendMs: value.fallbackAppendMs,

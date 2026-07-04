@@ -72,7 +72,10 @@ production visibility delay or a browser-smoke measurement artifact.
 
 ## Status
 
-- Step 521.1: in progress.
+- Step 521.1: completed. Planned the visibility measurement step and recorded
+  the no-production-change-until-proven boundary.
+- Step 521.2: completed. Added `MutationObserver` visibility timing to the
+  latest-intent trace smoke while keeping polling/rAF comparison metrics.
 
 ## Baseline From Step 520
 
@@ -87,3 +90,22 @@ production visibility delay or a browser-smoke measurement artifact.
 Interpretation: the remaining gap is after the chart adapter has already
 applied metadata. Step 521 should prove whether the DOM mutation is visible
 earlier than the polling loop records.
+
+## Observer Trace
+
+- `node --check v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- Trace sample:
+  - final-click-to-observed-visible: about 12ms.
+  - observer reason: `mutation`.
+  - observer-to-polling-visible: about 3ms.
+  - observer-to-animation-frame: about 126ms.
+  - final-click-to-replay-start: about 0.5ms.
+  - replay next: about 14ms.
+  - chart runtime append: about 10ms.
+  - Lightweight metadata to observed visible: about 7ms.
+
+Interpretation: production metadata visibility is already fast. The remaining
+large number was a measurement artifact from using later rAF/polling timing as
+the primary latest-intent metric. Step 521.3 should make observer detection the
+primary trace metric and keep polling/rAF as secondary diagnostics.
