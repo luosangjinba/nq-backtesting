@@ -5,6 +5,44 @@ export function normalizePaneId(value) {
   return paneId || DEFAULT_CHART_PANE_ID;
 }
 
+function cloneDisplayContext(context = {}) {
+  return structuredClone(context || {});
+}
+
+function defaultPaneState(primaryState = {}) {
+  return {
+    bars: [],
+    visibleRange: null,
+    prefixDemand: null,
+    viewportDemand: null,
+    viewportFollow: {
+      enabled: false,
+      cursorTimestamp: null,
+      estimatedVisibleBars: null,
+      rightOffsetBars: primaryState.displayContext?.rightOffsetBars
+        ?? primaryState.viewportFollow?.rightOffsetBars
+        ?? null,
+    },
+    interaction: {
+      mode: 'follow',
+      manualVisibleRange: null,
+    },
+    nativeInteraction: structuredClone(primaryState.nativeInteraction || {
+      active: false,
+      type: null,
+      source: null,
+    }),
+    crosshair: structuredClone(primaryState.crosshair || {
+      active: false,
+      time: null,
+      price: null,
+      bar: null,
+      point: null,
+    }),
+    displayContext: cloneDisplayContext(primaryState.displayContext),
+  };
+}
+
 export function cloneChartStateSnapshot(sourceState) {
   return {
     ...sourceState,
@@ -28,16 +66,20 @@ export function stateForPane({
   const normalizedPaneId = normalizePaneId(paneId);
   if (normalizedPaneId === DEFAULT_CHART_PANE_ID) return primaryState;
   const paneState = paneDisplayStateByPaneId?.get(normalizedPaneId);
-  if (!paneState) return primaryState;
+  const defaults = defaultPaneState(primaryState);
+  if (!paneState) return defaults;
   return {
-    ...primaryState,
-    bars: paneState.bars || primaryState.bars,
-    visibleRange: paneState.visibleRange || primaryState.visibleRange,
-    prefixDemand: paneState.prefixDemand || null,
-    viewportDemand: paneState.viewportDemand || null,
-    viewportFollow: paneState.viewportFollow || primaryState.viewportFollow,
-    interaction: paneState.interaction || primaryState.interaction,
-    displayContext: paneState.displayContext || primaryState.displayContext,
+    ...defaults,
+    ...paneState,
+    bars: Array.isArray(paneState.bars) ? paneState.bars : defaults.bars,
+    visibleRange: paneState.visibleRange || defaults.visibleRange,
+    prefixDemand: paneState.prefixDemand || defaults.prefixDemand,
+    viewportDemand: paneState.viewportDemand || defaults.viewportDemand,
+    viewportFollow: paneState.viewportFollow || defaults.viewportFollow,
+    interaction: paneState.interaction || defaults.interaction,
+    nativeInteraction: paneState.nativeInteraction || defaults.nativeInteraction,
+    crosshair: paneState.crosshair || defaults.crosshair,
+    displayContext: paneState.displayContext || defaults.displayContext,
   };
 }
 

@@ -112,7 +112,7 @@ export function createChartRuntime() {
     const adapter = createChartEngineAdapter();
     chartAdapters.set(host, adapter);
     adapter.mount(host, {
-      displayContext: state.displayContext,
+      displayContext: stateForPane(nextPaneId).displayContext,
       onVisibleRangeChange: (visibleRange, metadata = {}) => {
         if (hostSync.getSyncState().applyingRuntimeVisibleRange) return;
         if (metadata.source === 'lightweight-native') {
@@ -194,10 +194,6 @@ export function createChartRuntime() {
     const host = mountedHostByPaneId.get(normalizedPaneId);
     if (host?.isConnected) {
       hostSync.syncChartHost(host);
-      return;
-    }
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      syncPaneHosts(DEFAULT_CHART_PANE_ID);
     }
   }
 
@@ -217,10 +213,6 @@ export function createChartRuntime() {
     const host = mountedHostByPaneId.get(normalizedPaneId);
     if (host?.isConnected) {
       hostSync.syncChartHostAppend(host, previousPaneState, nextPaneState);
-      return;
-    }
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      syncPaneHosts(DEFAULT_CHART_PANE_ID);
     }
   }
 
