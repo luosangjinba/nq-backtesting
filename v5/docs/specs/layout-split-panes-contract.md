@@ -63,6 +63,18 @@ state when `paneId` is supplied. Interactive controls and popovers embedded in
 pane DOM must not bubble into pane selection and accidentally reselect another
 pane.
 
+Step 511 changes the implementation direction for multi-pane work. The bounded
+layout contract still stands, but future work must not keep extending the
+current route/orchestrator catch-up model. Multi-pane behavior must be rebuilt
+around:
+
+- a layout-runtime active-pane policy table for every supported variant;
+- pane shell and chart runtime host lifecycle separation;
+- a pane display coordinator that initializes every mounted pane through a
+  deterministic lifecycle transaction;
+- replay-pane projection that advances the shared replay cursor once and then
+  updates/project all panes for that cursor through runtime commands.
+
 This is a planning contract, not an implementation step.
 
 Step 491 adds `workstation-decision-backlog.md` as the routing spec for recent
