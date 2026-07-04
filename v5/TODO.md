@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 519 completed. Replay `Next` input batching now uses a
-  microtask-backed initial flush, so a same-turn rapid click burst still
-  coalesces into one `stepCount` command while final-click-to-replay-start drops
-  to about 1ms instead of waiting for a timer-backed flush.
+- Current status: Step 520 in progress. Step 519 removed the input/timer gap;
+  final-click-to-replay-start is now about 1ms, but final-click-to-visible is
+  still about 240ms. Step 520 targets the remaining visible update delay inside
+  the coalesced replay command path.
 - Current status: Step 517 completed. The replay `Next` visible path no longer
   waits for cursor persistence, and replay gates assert the visible cursor
   directly with `viewportCursorTimestamp`.
@@ -21,11 +21,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 520 should continue latest-intent performance
-  inside the coalesced replay command. Step 519 removed avoidable input/timer
-  delay, but final-click-to-visible is still about 240ms in the trace, with most
-  remaining time inside the replay `Next` visible update path rather than
-  browser input scheduling.
+- Next recommended step: Complete Step 520 by adding replay-command phase trace
+  around right-edge sync, chart append metadata visibility, replay state/event,
+  and controls refresh; then apply the smallest optimization justified by the
+  trace while preserving replay/chart/bar-data ownership.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
