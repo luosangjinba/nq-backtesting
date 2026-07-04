@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 503 in progress. The implementation plan is to extract
-  `chart-replay-pane-orchestrator.js` in bounded commits: document the split,
-  add the module seam, move pane host/display/TF orchestration, then run the
-  multi-pane regression gates.
-- Next candidate: Complete Step 503, then continue Step 504 with
-  `chart-replay-layout-sync-controller.js` for time/date-range/crosshair sync
-  effects.
+- Current status: Step 503 completed. `chart-replay-pane-orchestrator.js` now
+  owns route-level pane host/display/TF orchestration, while
+  `chart-replay-route.js` keeps page construction, controller wiring, top-level
+  event subscriptions, and teardown.
+- Next candidate: Step 504 - extract `chart-replay-layout-sync-controller.js`
+  for time/date-range/crosshair sync effects.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -271,6 +270,12 @@
   viewport demand, reset view, split minimum wall, and module-boundary
   ownership, then marks current implementation status and smoke coverage. The
   owning audit is `v5/docs/specs/multi-pane-behavior-contract-audit.md`.
+- Multi-pane orchestrator decision: Step 503 extracts
+  `chart-replay-pane-orchestrator.js`. The orchestrator owns active display
+  timeframe derivation, chart host mount/release dispatch, non-primary pane
+  display initialization, active-pane TF changes, and interval-sync display
+  reload fan-out. Route-level layout sync remains in `chart-replay-route.js`
+  until Step 504.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

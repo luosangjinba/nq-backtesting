@@ -229,6 +229,8 @@ The Step 503-507 module split must preserve this contract while moving code.
 
 ### Step 503 - Extract `chart-replay-pane-orchestrator.js`
 
+Status: completed.
+
 Goal: remove pane orchestration from `chart-replay-route.js` without changing
 runtime ownership or behavior.
 
@@ -266,6 +268,15 @@ Acceptance:
 - `chart-replay-route.js` loses the pane orchestration block;
 - active-pane TF and fresh two-pane TF isolation remain covered by browser
   smoke.
+
+Step 503 result:
+
+- added `v5/src/features/chart-replay/chart-replay-pane-orchestrator.js`;
+- reduced `chart-replay-route.js` from 636 lines at audit time to 541 lines;
+- moved active-pane display timeframe derivation, chart host mount/release,
+  non-primary pane display initialization, and active-pane TF fan-out out of the
+  route;
+- left time/date-range/crosshair layout sync in the route for Step 504.
 
 ### Step 504 - Extract `chart-replay-layout-sync-controller.js`
 

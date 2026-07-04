@@ -90,4 +90,39 @@ Verification:
 
 ## Status
 
-In progress.
+Completed.
+
+## Result
+
+Added:
+
+- `v5/src/features/chart-replay/chart-replay-pane-orchestrator.js`
+
+Changed:
+
+- `chart-replay-route.js` delegates pane layout application, active display
+  timeframe derivation, chart host mount/release, non-primary display
+  initialization, and active-pane TF changes to the orchestrator.
+- Route still owns page construction, controller wiring, top-level event
+  subscriptions, display timezone/presentation sync, layout sync effects, and
+  teardown.
+- Route line count moved from 636 lines at audit time to 541 lines after Step
+  503.
+
+## Verification Result
+
+Passed:
+
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-runtime-pane-local-viewport-smoke.js`
+- `git diff --check`
+
+Node emitted the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM test
+files; tests still passed.
+
+## Next
+
+Step 504 should extract `chart-replay-layout-sync-controller.js` for route-level
+time, date-range, crosshair, and chart visible-range sync effects.
