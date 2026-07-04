@@ -126,7 +126,18 @@ assert.equal(stateWhilePersisting.persistedCursor.cursorTimestamp, null);
 resolvePersist();
 const next = await nextPromise;
 assert.equal(next.advanced, true);
-assert.equal(next.persistedCursor.cursorTimestamp, '2026-06-01T09:31:00.000Z');
+assert.equal(next.cursorTimestamp, '2026-06-01T09:31:00.000Z');
+assert.equal(next.persistedCursor.cursorTimestamp, null);
+
+for (let index = 0; index < 20; index += 1) {
+  const persistedState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+  if (persistedState.persistedCursor.cursorTimestamp === '2026-06-01T09:31:00.000Z') {
+    break;
+  }
+  await new Promise((resolve) => setTimeout(resolve, 0));
+}
+const stateAfterPersist = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+assert.equal(stateAfterPersist.persistedCursor.cursorTimestamp, '2026-06-01T09:31:00.000Z');
 
 replayRuntime.stop();
 unregisterDisplayContext();

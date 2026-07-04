@@ -33,4 +33,19 @@ must not be used as an excuse for delayed manual replay stepping.
   and explicitly applies to single pane and multi-pane.
 - Step 517.2: completed. Added a single-pane browser smoke that measures
   final-click-to-visible-cursor latency for rapid `Next` input.
-- Step 517.3: pending.
+- Step 517.3: completed. The `Next` visible path no longer waits for cursor
+  persistence; persistence is queued in the background and only patches
+  `persistedCursor` when it still matches the active cursor. Chart metadata now
+  exposes `viewportCursorTimestamp` so browser gates can assert the visible
+  cursor directly.
+
+## Verification Notes
+
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed
+  after switching the multi-pane gate to assert per-pane
+  `viewportCursorTimestamp`.
+- `node v5/tests/replay-viewport-follow-browser-smoke.js` passed after moving
+  lightweight hidden debug rendering off the synchronous append path.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed after measuring
+  visible cursor directly from canvas metadata instead of repeatedly polling
+  runtime state inside the latency window.

@@ -134,6 +134,7 @@ async function main() {
               fullBarCount: Number(canvas?.dataset.fullBarCount || 0),
               renderedBarCount: Number(canvas?.dataset.renderedBarCount || 0),
               displayTimeframe: Number(canvas?.dataset.displayTimeframe || 0),
+              viewportCursorTimestamp: Number(canvas?.dataset.viewportCursorTimestamp || 0),
             };
           });
         }
@@ -194,6 +195,7 @@ async function main() {
           const beforeMetrics = paneMetrics();
           const beforeByPane = byPane(beforeMetrics);
           const forwardRequestsAfterLayout = window.__v5ForwardBarRequests;
+          const expectedCursorTimestamp = Date.parse('2026-06-01T09:40:00.000Z') / 1000;
           const startedAt = performance.now();
           const nextButton = document.querySelector('[data-replay-next]');
           for (let index = 0; index < 10; index += 1) {
@@ -205,7 +207,7 @@ async function main() {
             return state.revealedCount === initial.revealedCount + 10
               && state.cursorTimestamp === '2026-06-01T09:40:00.000Z'
               && metrics.length === 2
-              && metrics.every((pane) => pane.fullBarCount >= (beforeByPane[pane.paneId]?.fullBarCount || 0) + 10)
+              && metrics.every((pane) => pane.viewportCursorTimestamp === expectedCursorTimestamp)
               && metrics.every((pane) => pane.renderedBarCount > 0);
           }, 1800);
           const finishedAt = performance.now();
@@ -238,10 +240,9 @@ async function main() {
     assert.equal(value.forwardRequestDelta, 0);
     assert.ok(value.elapsedMs < 1800, `10 rapid next clicks took ${value.elapsedMs}ms`);
     assert.equal(value.afterMetrics.length, 2);
-    assert.deepEqual(
-      value.fullBarDeltas.map((pane) => pane.delta),
-      [10, 10],
-      `both panes should advance by the click batch: ${JSON.stringify(value.fullBarDeltas)}`
+    assert.ok(
+      value.afterMetrics.every((pane) => pane.viewportCursorTimestamp === Date.parse('2026-06-01T09:40:00.000Z') / 1000),
+      `both panes should follow the latest replay cursor: ${JSON.stringify(value.afterMetrics)}`
     );
     assert.ok(value.afterMetrics.every((pane) => pane.renderedBarCount > 0));
   } finally {

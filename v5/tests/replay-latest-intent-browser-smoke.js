@@ -129,6 +129,7 @@ async function main() {
             fullBarCount: Number(canvas?.dataset.fullBarCount || 0),
             renderedBarCount: Number(canvas?.dataset.renderedBarCount || 0),
             displayTimeframe: Number(canvas?.dataset.displayTimeframe || 0),
+            viewportCursorTimestamp: Number(canvas?.dataset.viewportCursorTimestamp || 0),
           };
         }
 
@@ -172,6 +173,7 @@ async function main() {
           const initial = await commands.dispatchCommand('replay.getState');
           const beforeMetrics = canvasMetrics();
           const forwardRequestsAfterInitial = window.__v5ForwardBarRequests;
+          const expectedCursorTimestamp = Date.parse('2026-06-01T09:50:00.000Z') / 1000;
           let finalClickAt = performance.now();
           const nextButton = document.querySelector('[data-replay-next]');
           for (let index = 0; index < clickCount; index += 1) {
@@ -179,10 +181,8 @@ async function main() {
             finalClickAt = performance.now();
           }
           await waitFor('latest next intent visible', async () => {
-            const state = await commands.dispatchCommand('replay.getState');
             const metrics = canvasMetrics();
-            return state.revealedCount === initial.revealedCount + clickCount
-              && state.cursorTimestamp === '2026-06-01T09:50:00.000Z'
+            return metrics.viewportCursorTimestamp === expectedCursorTimestamp
               && metrics.fullBarCount >= beforeMetrics.fullBarCount + clickCount
               && metrics.renderedBarCount > 0;
           }, 1800);
@@ -199,6 +199,7 @@ async function main() {
             cursorTimestamp: finalState.cursorTimestamp,
             fullBarDelta: afterMetrics.fullBarCount - beforeMetrics.fullBarCount,
             renderedBarCount: afterMetrics.renderedBarCount,
+            viewportCursorTimestamp: afterMetrics.viewportCursorTimestamp,
             forwardRequestDelta: window.__v5ForwardBarRequests - forwardRequestsAfterInitial,
           });
         } catch (error) {
@@ -212,6 +213,7 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.revealedCount, 20);
     assert.equal(value.cursorTimestamp, '2026-06-01T09:50:00.000Z');
+    assert.equal(value.viewportCursorTimestamp, Date.parse('2026-06-01T09:50:00.000Z') / 1000);
     assert.equal(value.forwardRequestDelta, 0);
     assert.equal(value.fullBarDelta, 20);
     assert.ok(value.renderedBarCount > 0);

@@ -18,7 +18,9 @@
   contract. It applies to single pane first and multi-pane second. The product
   target is about 100ms from latest `Next` intent to expected candle visible;
   V4 already achieves this feel, so V5 failing it is a V5 implementation
-  defect.
+  defect. The `Next` visible path must not wait for cursor persistence, and
+  chart gates should assert the visible cursor directly with
+  `viewportCursorTimestamp`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

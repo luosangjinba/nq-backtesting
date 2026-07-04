@@ -47,6 +47,33 @@ export function createReplayNavigationController({
   barDataCommands = BAR_DATA_COMMANDS,
   replayEvents = REPLAY_EVENTS,
 }) {
+  let cursorPersistenceQueue = Promise.resolve();
+
+  function enqueueCursorPersistence({ sessionId, cursorTimestamp, revealedCount }) {
+    cursorPersistenceQueue = cursorPersistenceQueue
+      .catch(() => null)
+      .then(async () => {
+        const persisted = await persistReplayCursor({
+          cursorTimestamp,
+          revealedCount,
+        });
+        const currentState = getState();
+        if (
+          currentState.sessionId !== sessionId
+          || currentState.cursorTimestamp !== cursorTimestamp
+          || currentState.revealedCount !== revealedCount
+        ) {
+          return;
+        }
+        setState({
+          ...currentState,
+          persistedCursor: clone(persisted.cursor),
+        });
+      })
+      .catch(() => null);
+    return cursorPersistenceQueue;
+  }
+
   async function next({ sessionId = getState().sessionId, stepCount = 1 } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -133,14 +160,6 @@ export function createReplayNavigationController({
       });
       nextState = getState();
     }
-    const persisted = await persistReplayCursor({
-      cursorTimestamp: nextBar.time,
-      revealedCount,
-    });
-    nextState = setState({
-      ...getState(),
-      persistedCursor: clone(persisted.cursor),
-    });
     const result = {
       ...clone(nextState),
       advanced: true,
@@ -148,6 +167,11 @@ export function createReplayNavigationController({
       revealedBars: clone(nextBars),
     };
     emitEvent(replayEvents.NEXT, result);
+    enqueueCursorPersistence({
+      sessionId,
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
     return result;
   }
 

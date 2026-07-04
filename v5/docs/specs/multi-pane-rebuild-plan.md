@@ -408,6 +408,16 @@ Implementation expectations:
 - keep the contract pane-count scalable: adding more panes should add bounded
   projection work, not linear user-visible candle-by-candle delay.
 
+Implementation notes:
+
+- `Next` must update chart-visible state and emit replay projection events before
+  cursor persistence resolves. Cursor persistence may run in a background
+  ordered queue, but it must not block the visible candle path.
+- Browser gates should assert the latest visible cursor directly from chart
+  metadata (`viewportCursorTimestamp`) instead of inferring visibility from
+  total bar counts. Some panes may already hold a forward window in memory, so
+  bar-count deltas are not a reliable visible-cursor contract.
+
 Acceptance:
 
 - single-pane and multi-pane gates both pass;

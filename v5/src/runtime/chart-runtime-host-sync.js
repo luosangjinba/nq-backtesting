@@ -14,6 +14,7 @@ export function createChartRuntimeHostSync({
   function buildChartMetadata(renderedBars = computeRenderedBars(state), sourceState = state) {
     return {
       viewportFollow: sourceState.viewportFollow.enabled ? 'true' : 'false',
+      viewportCursorTimestamp: sourceState.viewportFollow.cursorTimestamp || '',
       interactionMode: sourceState.interaction.mode,
       renderedBarCount: renderedBars.length,
       fullBarCount: sourceState.bars.length,

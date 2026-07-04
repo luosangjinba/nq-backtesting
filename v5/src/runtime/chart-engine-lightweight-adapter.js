@@ -54,6 +54,7 @@ export function createLightweightInstance({ engine, documentRef }) {
   let unsubscribeVisibleRange = null;
   let unsubscribeCrosshair = null;
   let suppressRuntimeVisibleRangeEcho = false;
+  let debugRenderQueued = false;
 
   const crosshairBridge = createLightweightCrosshairBridge({
     getBars: () => bars,
@@ -111,13 +112,28 @@ export function createLightweightInstance({ engine, documentRef }) {
     });
   }
 
-  function applyCanvasMetadata() {
+  function applyCanvasMetadata({ renderDebug = true } = {}) {
     if (!canvas) return;
     applyLightweightPresentation(canvas, displayContext);
     applyFallbackMetadata(canvas, metadata);
     canvas.dataset.renderedBarCount = String(bars.length);
     canvas.dataset.fullBarCount = String(fullBarCount);
-    renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
+    if (renderDebug) {
+      renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
+    }
+  }
+
+  function queueDebugRender() {
+    if (debugRenderQueued) return;
+    debugRenderQueued = true;
+    const schedule = typeof globalThis.requestAnimationFrame === 'function'
+      ? globalThis.requestAnimationFrame
+      : (callback) => setTimeout(callback, 0);
+    schedule(() => {
+      debugRenderQueued = false;
+      if (!debugPlot || !canvas) return;
+      renderHiddenDebugBars(documentRef, debugPlot, bars, displayContext, fullBarCount);
+    });
   }
 
   function readHostSize() {
@@ -311,10 +327,7 @@ export function createLightweightInstance({ engine, documentRef }) {
       }
       metadata = options.metadata ? { ...options.metadata } : metadata;
       applyHostMetadata(metadata);
-      applyCanvasMetadata();
-      applySeriesOptions(displayContext);
-      applySeriesPriceScale(displayContext);
-      resizeToHost();
+      applyCanvasMetadata({ renderDebug: false });
       appendedBars.forEach((bar) => series?.update?.(toEngineBar(bar)));
       if (options.followViewport) {
         const logicalRange = followLogicalRangeForBars(bars, displayContext);
@@ -324,6 +337,7 @@ export function createLightweightInstance({ engine, documentRef }) {
           recordVisibleLogicalRange(logicalRange);
         }
       }
+      queueDebugRender();
       queueResizeToHost();
     },
     setMetadata(nextMetadata = {}) {
