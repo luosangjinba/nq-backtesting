@@ -138,6 +138,7 @@ export function createChartReplayPaneShellController({
   const chartViewport = root.querySelector('.chart-viewport');
   const chartHost = root.querySelector('[data-chart-host]');
   let currentActivePaneId = DEFAULT_ACTIVE_PANE_ID;
+  let currentLayoutState = DEFAULT_LAYOUT_STATE;
   let dragState = null;
   let handleFrame = null;
   let disposed = false;
@@ -231,6 +232,7 @@ export function createChartReplayPaneShellController({
 
   function renderState(layoutState = DEFAULT_LAYOUT_STATE) {
     if (disposed) return;
+    currentLayoutState = layoutState;
     const panes = Array.isArray(layoutState.panes) && layoutState.panes.length
       ? layoutState.panes
       : DEFAULT_LAYOUT_STATE.panes;
@@ -271,6 +273,15 @@ export function createChartReplayPaneShellController({
   async function selectPane(paneId) {
     if (disposed) return;
     if (!paneId || paneId === currentActivePaneId) return;
+    const panes = Array.isArray(currentLayoutState.panes) ? currentLayoutState.panes : [];
+    if (panes.some((pane) => pane.id === paneId)) {
+      const optimisticState = {
+        ...currentLayoutState,
+        activePaneId: paneId,
+      };
+      onLayoutState(optimisticState);
+      renderState(optimisticState);
+    }
     try {
       const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, { paneId });
       if (disposed) return;

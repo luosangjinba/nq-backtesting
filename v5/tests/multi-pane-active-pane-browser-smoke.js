@@ -172,6 +172,22 @@ async function main() {
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         }
 
+        function clickPaneCenterNow(paneId) {
+          const pane = document.querySelector('[data-layout-pane][data-pane-id="' + paneId + '"]');
+          if (!pane) throw new Error('Missing pane ' + paneId);
+          const box = pane.getBoundingClientRect();
+          const clientX = Math.round(box.left + box.width / 2);
+          const clientY = Math.round(box.top + box.height / 2);
+          const target = document.elementFromPoint(clientX, clientY) || pane;
+          target.dispatchEvent(new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            button: 0,
+            clientX,
+            clientY,
+          }));
+        }
+
         try {
           const commands = await import('/v5/src/runtime/commands.js');
           window.__v5CommandsForSmoke = commands;
@@ -197,21 +213,16 @@ async function main() {
             document.querySelector('[data-layout-popover]')?.hidden === false
           );
           document.querySelector('[data-layout-variant-option="twice.vertical"]')?.click();
-          await waitFor('twice vertical hosts ready', async () => (
+          await waitFor('twice vertical hosts present before secondary display init', async () => (
             document.querySelector('[data-route="chart"]')?.dataset.layoutVariant === 'twice.vertical'
             && document.querySelectorAll('[data-chart-host]').length === 2
-            && canvasFor('secondary')?.dataset.displayTimeframe === '1'
           ));
 
-          await clickPaneCenter('secondary');
-          await waitFor('secondary active', async () => (
-            document.querySelector('[data-route="chart"]')?.dataset.activePaneId === 'secondary'
-            && document.querySelector('[data-display-timeframe-select]')?.value === '1'
-          ));
+          clickPaneCenterNow('secondary');
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
           timeframeSelect.value = '5';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          await waitFor('secondary timeframe independent', async () => {
+          await waitFor('secondary immediate timeframe independent', async () => {
             const layoutState = await commands.dispatchCommand('layout.getState');
             return effectivePaneTimeframes(layoutState)[0] === 1
               && effectivePaneTimeframes(layoutState)[1] === 5

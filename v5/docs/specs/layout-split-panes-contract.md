@@ -507,3 +507,17 @@ Step 500 implementation status:
   pane switched to `5m` can load older left-side bars from a manual visible
   range without mouseup/click stimulation, while primary pane bar count and
   timeframe remain unchanged.
+
+Step 501 implementation status:
+
+- Completed. Pane shell now applies an optimistic active-pane snapshot before
+  awaiting `layout.setActivePane`, then reconciles with the official layout
+  runtime state.
+- Shared controls such as the single TF dropdown must follow the user's latest
+  pane-selection intent immediately, because they target the active pane and
+  users can click a pane then change TF faster than the async command round
+  trip.
+- `v5/tests/multi-pane-active-pane-browser-smoke.js` now covers the no-wait
+  race: create two panes, do not change the initial primary TF, click
+  secondary, immediately change the shared TF dropdown, and verify primary
+  remains `1m` while secondary becomes `5m`.

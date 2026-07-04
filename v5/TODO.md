@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 500 completed. Pane-local viewport demand after an
-  active-pane TF change is now covered by a browser smoke: a secondary pane can
-  switch to `5m`, request older left-side bars from its own manual visible
-  range without a mouseup/click stimulus, merge the result with its existing
-  pane-local display bars, and leave the primary pane unchanged.
-- Next candidate: Step 501 - polish split-pane resize/active-pane UX details
+- Current status: Step 501 completed. Active-pane selection now updates route
+  controls optimistically before the async `layout.setActivePane` command
+  resolves, so users can click another pane and immediately change the shared
+  TF dropdown without accidentally targeting the previous pane. Browser
+  coverage now includes this no-wait active-pane TF race.
+- Next candidate: Step 502 - polish split-pane resize/active-pane UX details
   and add a browser acceptance gate for resize handles/minimum pane walls, then
   decide whether to continue multi-pane polish or return to remaining Settings
   controls.
@@ -250,6 +250,12 @@
   comparing or replacing the global primary replay display state. Browser
   coverage proves secondary `5m` viewport demand loads older bars without
   mouseup/click stimulation and without changing the primary pane.
+- Active-pane selection decision: Step 501 treats pane selection as a UI intent
+  that must update shared active-pane controls immediately. Pane shell applies
+  an optimistic active-pane layout snapshot before awaiting the runtime command,
+  then reconciles with the official layout state. This prevents the shared TF
+  dropdown from targeting the previous pane when a user clicks another pane and
+  changes TF immediately.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

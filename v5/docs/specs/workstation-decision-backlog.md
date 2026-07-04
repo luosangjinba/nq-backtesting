@@ -185,6 +185,28 @@ Related docs:
 - `fx-replay-viewport-follow.md`
 - `chart-interaction-contracts.md`
 
+## Active-Pane Control Intent Decision
+
+Shared toolbar controls target the active pane, so active-pane intent must be
+visible to those controls immediately.
+
+Rules:
+
+- Pane selection remains owned by layout runtime, but route UI may apply an
+  optimistic active-pane snapshot for controls while the runtime command is in
+  flight.
+- The optimistic state must be derived from the current layout state and must
+  be reconciled with the official `layout.setActivePane` result.
+- Shared controls such as TF, Go to, Jump cursor, and Reset must read the
+  latest active-pane intent, not a stale previous pane, during fast user
+  interactions.
+- Feature UI must not use optimistic pane selection to write chart series,
+  request bars directly, or bypass layout runtime persistence.
+
+Related docs:
+
+- `layout-split-panes-contract.md`
+
 ## Settings And Visual System Decisions
 
 V5 should feel like a professional FXReplay-like workstation, but the UI system
