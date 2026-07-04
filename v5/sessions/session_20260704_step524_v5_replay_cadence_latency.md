@@ -76,6 +76,8 @@ then click again within a short human cadence window.
 - Step 524.1: completed. Planned the cadence-latency measurement and boundary.
 - Step 524.2: completed. Added the single-pane cadence browser smoke.
 - Step 524.3: completed. Ran the cadence smoke and recorded findings.
+- Step 524.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
 
 ## Cadence Smoke Findings
 
@@ -104,7 +106,21 @@ cadence shape, but the current single-pane replay path is well under the
 next click -> next candle visible`. No runtime change is justified by this
 measurement.
 
+## Final Verification
+
+- `node v5/tests/replay-cadence-latency-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `git diff --check` passed.
+- Final cadence sample:
+  - average: about 5.2ms.
+  - p95: about 10.6ms.
+  - max: about 10.6ms.
+  - every step observed through cursor metadata mutation.
+  - forward request delta after initial load: 0.
+
 ## Next
 
-Implement the single-pane cadence browser smoke, then decide from measured data
-whether a multi-pane cadence audit is useful as a later optional step.
+Move back to replay workstation usability or product gaps. Multi-pane cadence
+or pane update-order audits can stay optional unless manual testing exposes a
+user-visible regression.

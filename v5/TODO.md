@@ -10,10 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 524 active. Measuring the replay `Next` cadence that was
-  not covered by burst latest-intent tests: click once, observe the next candle,
-  wait a short human cadence interval, then click again and measure the next
-  visible candle.
+- Current status: Step 524 completed. The new replay cadence smoke covers
+  `click -> candle visible -> 50ms gap -> next click -> next candle visible`.
+  Single-pane cadence passed with all 12 observed steps below the 120ms
+  automation ceiling, sampled max/p95 around 10.6-15.3ms, and no forward fetch
+  during the cadence path.
 - Current status: Step 523 completed. Multi-pane latest-intent audit shows the
   all-pane observer number is real but conservative: primary reached the target
   cursor around 184-197ms and secondary/all-pane around 206-232ms in sampled
@@ -26,9 +27,9 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Finish Step 524 cadence-latency measurement. If the
-  single-pane cadence gate passes, move back to replay workstation usability or
-  product gaps; a multi-pane cadence audit can remain optional.
+- Next recommended step: Move back to replay workstation usability or product
+  gaps. Multi-pane cadence or pane update-order audits can stay optional unless
+  manual testing exposes a user-visible regression.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
