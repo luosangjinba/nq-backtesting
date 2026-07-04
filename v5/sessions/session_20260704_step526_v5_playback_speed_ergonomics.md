@@ -69,7 +69,9 @@ without changing replay runtime ownership.
 
 ## Status
 
-- Step 526.1: active. Planning playback speed ergonomics and boundaries.
+- Step 526.1: completed. Planned playback speed ergonomics and boundaries.
+- Step 526.2: completed. Added speed presets, active preset rendering, and
+  `[` / `]` speed keyboard nudges through the existing controls controller.
 
 ## Next
 

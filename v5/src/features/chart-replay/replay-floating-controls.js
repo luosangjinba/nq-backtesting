@@ -5,8 +5,14 @@ export function renderReplayFloatingControls() {
             <button type="button" data-replay-truncate-to-selection title="Replay to selected bar is planned" aria-label="Replay to selected bar" disabled>|&lt;</button>
             <label class="replay-speed-control" aria-label="Playback speed">
               <span class="sr-only">Playback speed</span>
-              <input type="range" data-replay-speed min="100" max="1000" step="100" value="500" disabled>
+              <input type="range" data-replay-speed min="100" max="1000" step="25" value="500" disabled>
             </label>
+            <div class="replay-speed-presets" data-replay-speed-presets aria-label="Playback speed presets">
+              <button type="button" data-replay-speed-preset="1000" aria-label="Set playback speed to 0.5x" disabled>0.5x</button>
+              <button type="button" data-replay-speed-preset="500" aria-label="Set playback speed to 1x" disabled>1x</button>
+              <button type="button" data-replay-speed-preset="250" aria-label="Set playback speed to 2x" disabled>2x</button>
+              <button type="button" data-replay-speed-preset="125" aria-label="Set playback speed to 4x" disabled>4x</button>
+            </div>
             <div class="replay-controls" data-replay-controls>
               <button type="button" data-replay-previous title="Previous bar is planned" aria-label="Previous bar" disabled>&lt;|</button>
               <button type="button" data-replay-play title="Play replay" aria-label="Play replay" disabled>&#9654;</button>

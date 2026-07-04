@@ -63,7 +63,8 @@
 
 .replay-controls,
 .display-timeframe-controls,
-.replay-interval-controls {
+.replay-interval-controls,
+.replay-speed-presets {
   min-width: 0;
   display: flex;
   align-items: center;
@@ -104,6 +105,40 @@
   accent-color: var(--v5-accent-strong);
 }
 
+.replay-speed-presets {
+  overflow: hidden;
+  gap: 0;
+  border: 1px solid rgba(71, 85, 105, 0.56);
+  border-radius: var(--v5-radius-md);
+  background: var(--v5-surface-control);
+}
+
+.replay-speed-presets button {
+  min-width: 34px;
+  min-height: 28px;
+  padding: 0 6px;
+  border: 0;
+  border-right: 1px solid rgba(71, 85, 105, 0.46);
+  background: transparent;
+  color: var(--v5-text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.replay-speed-presets button:last-child {
+  border-right: 0;
+}
+
+.replay-speed-presets button[aria-pressed="true"] {
+  background: var(--v5-accent-strong);
+  color: var(--v5-text-primary);
+}
+
+.replay-speed-presets button:not(:disabled):hover {
+  background: var(--v5-surface-control-hover);
+  color: var(--v5-text-primary);
+}
+
 .display-timeframe-controls select {
   min-width: 68px;
   min-height: 30px;
@@ -142,6 +177,7 @@
 .replay-controls button:disabled,
 .replay-floating-controls > button:disabled,
 .replay-speed-control input:disabled,
+.replay-speed-presets button:disabled,
 .replay-interval-controls select:disabled,
 .replay-sync-control input:disabled,
 .display-timeframe-controls select:disabled {

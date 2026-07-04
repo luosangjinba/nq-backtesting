@@ -1,6 +1,8 @@
 import { REPLAY_COMMANDS } from '../../contracts/replay-contracts.js';
 import { markReplayTrace } from '../../runtime/replay-trace.js';
 
+const PLAYBACK_SPEED_PRESETS = [1000, 500, 250, 125];
+
 export function createChartReplayControlsController({
   root,
   dispatchCommand,
@@ -36,6 +38,7 @@ export function createChartReplayControlsController({
   const replayTruncateButton = root.querySelector('[data-replay-truncate-to-selection]');
   const replayPreviousButton = root.querySelector('[data-replay-previous]');
   const replaySpeedInput = root.querySelector('[data-replay-speed]');
+  const replaySpeedPresetButtons = Array.from(root.querySelectorAll('[data-replay-speed-preset]'));
   const replayIntervalSelect = root.querySelector('[data-replay-interval-select]');
   const replaySyncIntervalInput = root.querySelector('[data-replay-sync-interval]');
   const displayTimeframeSelect = root.querySelector('[data-display-timeframe-select]');
@@ -69,10 +72,15 @@ export function createChartReplayControlsController({
 
   function renderControls() {
     if (disposed) return;
+    const playbackInterval = getPlaybackIntervalMs();
     displayTimeframeSelect.value = getDisplayTimeframe() ? String(getDisplayTimeframe()) : '1';
     replayIntervalSelect.value = getReplayIntervalTimeframe() ? String(getReplayIntervalTimeframe()) : '1';
     replaySyncIntervalInput.checked = getReplayIntervalSync();
-    replaySpeedInput.value = String(getPlaybackIntervalMs());
+    replaySpeedInput.value = String(playbackInterval);
+    replaySpeedPresetButtons.forEach((button) => {
+      const selected = Number(button.dataset.replaySpeedPreset || 0) === Number(playbackInterval);
+      button.setAttribute('aria-pressed', selected ? 'true' : 'false');
+    });
   }
 
   function setControlsDisabled(disabled = false) {
@@ -87,6 +95,9 @@ export function createChartReplayControlsController({
     replayTruncateButton.setAttribute('aria-pressed', getTruncatePickMode() ? 'true' : 'false');
     replayPreviousButton.disabled = unavailable || getRevealedCount() <= 0;
     replaySpeedInput.disabled = unavailable;
+    replaySpeedPresetButtons.forEach((button) => {
+      button.disabled = unavailable;
+    });
     replayIntervalSelect.disabled = unavailable;
     replaySyncIntervalInput.disabled = unavailable;
     goToInput.disabled = unavailable;
@@ -202,6 +213,36 @@ export function createChartReplayControlsController({
     queueNextStep();
   }
 
+  function setPlaybackSpeedInterval(intervalMs) {
+    const nextInterval = Number(intervalMs);
+    if (!Number.isFinite(nextInterval) || nextInterval <= 0) return false;
+    setPlaybackIntervalMs(nextInterval);
+    renderControls();
+    return true;
+  }
+
+  function nearestPlaybackSpeedPresetIndex(intervalMs) {
+    const current = Number(intervalMs);
+    let nearestIndex = 0;
+    let nearestDistance = Number.POSITIVE_INFINITY;
+    PLAYBACK_SPEED_PRESETS.forEach((preset, index) => {
+      const distance = Math.abs(preset - current);
+      if (distance < nearestDistance) {
+        nearestDistance = distance;
+        nearestIndex = index;
+      }
+    });
+    return nearestIndex;
+  }
+
+  function adjustPlaybackSpeedPreset(direction) {
+    const currentIndex = nearestPlaybackSpeedPresetIndex(getPlaybackIntervalMs());
+    const nextIndex = direction === 'faster'
+      ? Math.min(currentIndex + 1, PLAYBACK_SPEED_PRESETS.length - 1)
+      : Math.max(currentIndex - 1, 0);
+    return setPlaybackSpeedInterval(PLAYBACK_SPEED_PRESETS[nextIndex]);
+  }
+
   function isEditableShortcutTarget(target) {
     if (!target || typeof target.closest !== 'function') return false;
     if (target.closest('input, select, textarea, button, a[href]')) return true;
@@ -257,6 +298,16 @@ export function createChartReplayControlsController({
       if (!playButton.disabled) {
         void handlePlayClick();
       }
+      return;
+    }
+    if (event.key === '[') {
+      event.preventDefault();
+      adjustPlaybackSpeedPreset('slower');
+      return;
+    }
+    if (event.key === ']') {
+      event.preventDefault();
+      adjustPlaybackSpeedPreset('faster');
     }
   }
 
@@ -309,9 +360,11 @@ export function createChartReplayControlsController({
   }
 
   function handleSpeedInput() {
-    const nextInterval = Number(replaySpeedInput.value);
-    if (!Number.isFinite(nextInterval) || nextInterval <= 0) return;
-    setPlaybackIntervalMs(nextInterval);
+    setPlaybackSpeedInterval(replaySpeedInput.value);
+  }
+
+  function handleSpeedPresetClick(event) {
+    setPlaybackSpeedInterval(event.currentTarget?.dataset?.replaySpeedPreset);
   }
 
   function handleReplayIntervalChange() {
@@ -371,6 +424,9 @@ export function createChartReplayControlsController({
   addListener(pauseButton, 'click', handlePauseClick);
   addListener(resetButton, 'click', handleResetClick);
   addListener(replaySpeedInput, 'input', handleSpeedInput);
+  replaySpeedPresetButtons.forEach((button) => {
+    addListener(button, 'click', handleSpeedPresetClick);
+  });
   addListener(replayIntervalSelect, 'change', handleReplayIntervalChange);
   addListener(replaySyncIntervalInput, 'change', handleReplaySyncIntervalChange);
   addListener(displayTimeframeSelect, 'change', handleDisplayTimeframeChange);
