@@ -72,6 +72,9 @@ without changing replay runtime ownership.
 - Step 526.1: completed. Planned playback speed ergonomics and boundaries.
 - Step 526.2: completed. Added speed presets, active preset rendering, and
   `[` / `]` speed keyboard nudges through the existing controls controller.
+- Step 526.3: completed. Added browser smoke coverage for playback speed
+  presets, playback interval handoff, keyboard speed nudges, and focus
+  protection.
 
 ## Next
 
