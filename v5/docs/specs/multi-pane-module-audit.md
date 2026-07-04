@@ -17,6 +17,15 @@ clear coordination boundary.
 The current risk is high enough that the next multi-pane work should be
 refactoring/contract cleanup before adding new behavior.
 
+Step 511 supersedes the earlier "continue refactoring while preserving current
+behavior" stance. Manual testing after Steps 508-510 still found structural
+multi-pane failures: triple layouts can open with a missing chart pane, reset
+view does not reliably recover that pane, triple initial active-pane rules are
+incomplete, and replay `Next` / playback still feels like panes advance through
+catch-up work instead of one coordinated replay projection. The current
+multi-pane path should therefore be treated as a rebuild target, not a surface
+for more local behavior patches.
+
 ## Current Hotspots
 
 Line counts at audit time:

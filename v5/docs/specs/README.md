@@ -81,6 +81,9 @@ that future work must follow this file order.
 - `multi-pane-module-audit.md`: Phase 3 audit of current multi-pane ownership
   debt, hotspots, proposed module boundaries, and the recommended refactor
   order before adding more multi-pane behavior.
+- `multi-pane-rebuild-plan.md`: Step 511 decision to stop incremental
+  multi-pane patching and rebuild around explicit pane lifecycle phases,
+  active-pane rules, and coordinated replay projection.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
@@ -167,4 +170,6 @@ that future work must follow this file order.
   `layout-split-panes-contract.md`, `workstation-decision-backlog.md`
 - Step 503-507: `multi-pane-module-audit.md`,
   `layout-split-panes-contract.md`, `runtime-boundary-contracts.md`
+- Step 511: `multi-pane-rebuild-plan.md`, `multi-pane-module-audit.md`,
+  `layout-split-panes-contract.md`
 - Cross-phase: `open-source-local-deployment.md`
