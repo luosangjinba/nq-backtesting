@@ -163,7 +163,7 @@ async function main() {
     assert.equal(value.requests.every((request) => request.tf === '1'), true);
     assert.equal(value.requests.some((request) =>
       request.start === '2025-06-02 10:00' && request.end === '2025-06-02 10:30'
-    ), false, 'initial replay must not request the full session range');
+    ), false, `initial replay must not request the full session range: ${JSON.stringify(value.requests)}`);
     assert.match(value.statusText, /^Loaded \d+ bars\.$/);
   } finally {
     client?.close();

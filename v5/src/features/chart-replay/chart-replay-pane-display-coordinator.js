@@ -100,6 +100,12 @@ export function createChartReplayPaneDisplayCoordinator({
     if (loadedKeys.has(loadKey)) {
       return getPaneDisplayState(paneId);
     }
+    if (
+      paneId === (DEFAULT_ACTIVE_PANE_ID)
+      && Number(nextDisplayTimeframe) === Number(getReplayDisplayTimeframe?.() || getSessionTimeframe?.() || 1)
+    ) {
+      return markPaneDisplayReady(paneId, nextDisplayTimeframe);
+    }
     if (initializationPromises.has(loadKey)) {
       return initializationPromises.get(loadKey);
     }
