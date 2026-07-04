@@ -77,8 +77,34 @@ re-entry and page reloads.
 - Step 527.3: completed. Added browser smoke coverage for speed persistence,
   floating position persistence, route re-entry restore, playback interval
   handoff, and viewport clamping.
+- Step 527.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
+
+## Implementation Notes
+
+- Added `replay-transport-preferences.js` as the focused adapter for transport
+  UI preference persistence.
+- Preferences are stored under `v5.replayTransportPreferences`.
+- Playback speed persistence stays in the feature UI layer: controls call
+  `setPlaybackIntervalMs`, then save the interval preference. Replay runtime
+  still receives speed only through `REPLAY_COMMANDS.PLAY`.
+- Floating position persistence stays in `replay-floating-controls.js`.
+  Dragging updates DOM continuously, but preference storage is written only
+  when drag ends.
+- Restored floating positions are applied on the next animation frame and
+  clamped to the current viewport.
+
+## Final Verification
+
+- `node v5/tests/replay-transport-persistence-browser-smoke.js` passed.
+- `node v5/tests/replay-speed-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-floating-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-keyboard-controls-browser-smoke.js` passed.
+- `node v5/tests/chart-replay-fast-next-controls-smoke.js` passed during
+  implementation validation.
+- `git diff --check` passed.
 
 ## Next
 
-Implement the replay transport preferences adapter and wire it into the
-existing route/control controllers.
+Move to an audit of remaining FXReplay parity gaps or the next replay
+workstation usability gap.
