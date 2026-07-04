@@ -44,6 +44,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 522: `session_20260704_step522_v5_latest_intent_thresholds.md`
 - Step 523: `session_20260704_step523_v5_multi_pane_latency_audit.md`
 - Step 524: `session_20260704_step524_v5_replay_cadence_latency.md`
+- Step 525: `session_20260704_step525_v5_keyboard_replay_controls.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index
