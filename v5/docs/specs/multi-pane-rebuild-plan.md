@@ -426,6 +426,54 @@ Acceptance:
 - docs and handoff state clearly that V4 already achieves the expected user
   feel, so V5 missing it is a V5 implementation defect.
 
+### Step 518 - Replay Latest-Intent Trace And Bottleneck Isolation
+
+Goal: explain and reduce the remaining manual `Next` delay by measuring the
+actual single-pane and multi-pane visible path before applying more behavior
+patches.
+
+Problem statement: manual testing still reports perceptible delay on 1m replay
+bars after Step 517. This means the persistence split was necessary but not
+sufficient. Step 518 must identify whether the remaining delay comes from
+control batching, replay command execution, bar-data cache/window lookup, chart
+append/follow work, pane projection, status refresh, or browser paint/test
+observation.
+
+Trace contract:
+
+- capture timestamps for the latest user intent, controls flush start/end,
+  replay `NEXT` start/end, bar-data forward-window start/end/cache status,
+  chart append start/end, replay event emission, pane projection start/end,
+  canvas metadata cursor update, and first animation-frame observation after
+  metadata update;
+- record single-pane and same-timeframe two-pane paths separately;
+- use the final rapid `Next` click as the input timestamp, because product feel
+  is latest-intent-to-visible-candle, not total queued work elapsed;
+- keep the trace harness diagnostic-first. It may run with looser thresholds
+  while the exact bottleneck is being isolated, but it must fail if the expected
+  final cursor never becomes visible.
+
+Implementation expectations:
+
+- add trace hooks without violating runtime ownership. UI may mark input timing;
+  replay runtime may mark replay phases; chart runtime/adapter may mark visible
+  chart phases; no feature should directly mutate another runtime;
+- make trace collection opt-in for tests/debug so normal runtime code is not
+  coupled to diagnostics;
+- after the bottleneck is identified, make one bounded optimization only if the
+  trace clearly justifies it;
+- update the handoff with measured phase timings and the next performance
+  target.
+
+Acceptance:
+
+- a browser trace smoke reports structured phase timings for single-pane rapid
+  `Next`;
+- the trace smoke proves the final expected cursor is visible;
+- Step 518 documentation records the measured bottleneck and whether a fix was
+  applied;
+- relevant replay smoke tests and `git diff --check` pass before each commit.
+
 ## Required Verification For Rebuild Steps
 
 For Steps 512-517, the default verification set is:
