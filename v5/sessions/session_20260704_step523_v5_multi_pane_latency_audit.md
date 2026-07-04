@@ -75,6 +75,8 @@ and manual user perception before doing more runtime optimization.
   all-pane, polling, and rAF latest-intent timings.
 - Step 523.3: completed. Documented audit findings and decision: keep the
   300ms guard, do not force runtime optimization based on headless timing alone.
+- Step 523.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
 
 ## Baseline From Step 522
 
@@ -123,3 +125,24 @@ above the single-pane latest-intent gate.
 
 Decision: do not continue multi-pane latency as a must-fix performance track
 unless manual testing or future gates show a perceptible regression.
+
+## Final Verification
+
+- `node v5/tests/multi-pane-latest-intent-audit-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `git diff --check` passed.
+- Final audit sample:
+  - primary pane observer latency: about 184ms.
+  - secondary pane observer latency: about 206ms.
+  - all-pane observer latency: about 206ms.
+  - polling visible latency: about 212ms.
+  - rAF latency: about 354ms.
+
+## Next
+
+Move to the next replay workstation usability or product gap. Multi-pane latest
+intent now has a regression guard and audit data; further runtime optimization
+should be optional, targeted, and driven by either user-visible regression or a
+specific product requirement.
