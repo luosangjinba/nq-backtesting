@@ -215,7 +215,7 @@ export function createChartReplayControlsController({
       '[data-layout-popover]',
       '[data-replay-truncate-error]',
       '[role="dialog"]',
-    ].join(','))).some((element) => !element.hidden);
+    ].join(','))).some((element) => !element.hidden && !element.closest('[hidden]'));
   }
 
   function shouldIgnoreReplayShortcut(event) {

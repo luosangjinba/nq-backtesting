@@ -72,6 +72,8 @@ boundaries.
 - Step 525.1: completed. Planned keyboard replay control contract and boundary.
 - Step 525.2: completed. Implemented keyboard shortcuts in the replay controls
   controller using existing replay button handlers and controller cleanup.
+- Step 525.3: completed. Added browser smoke coverage for keyboard replay
+  controls and corrected hidden-dialog shortcut blocking.
 
 ## Next
 
