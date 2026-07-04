@@ -8,7 +8,6 @@ import {
   cloneReplayValue as clone,
   computePrefixBarCount,
   displayBarsEqual,
-  earliestBarTimestamp,
   filterDisplayBarsForCursor,
   isoFromTimestamp,
   mergeDisplayBarsForCursor,
@@ -16,6 +15,12 @@ import {
   previousWindowAnchor,
   shouldSeekEarlierDisplayWindow,
 } from './replay-runtime-state.js';
+import {
+  displayWindowDemandKey,
+  normalizeReplayPaneId,
+  resolvePaneDisplayWindowBase,
+  summarizeDisplayWindowAttempt,
+} from './replay-pane-display-window-state.js';
 
 export function createReplayDisplayWindowController({
   getState,
@@ -59,7 +64,7 @@ export function createReplayDisplayWindowController({
     }
 
     const sourceState = getState();
-    const targetPaneId = String(paneId || 'primary').trim() || 'primary';
+    const targetPaneId = normalizeReplayPaneId(paneId);
     const statefulLoad = targetPaneId === 'primary';
     const missingWindow = viewportDemand?.missingWindow || {};
     const normalizedDisplayTimeframe = normalizeTimeframe(
@@ -75,15 +80,15 @@ export function createReplayDisplayWindowController({
     const normalizedAnchor = missingWindow.anchor
       || isoFromTimestamp(alignTimestampToTimeframe(anchor, normalizedDisplayTimeframe));
     const normalizedDirection = missingWindow.direction || viewportDemand?.direction || direction;
-    const demandKey = [
+    const demandKey = displayWindowDemandKey({
       sessionId,
-      sourceState.session.instrument,
-      targetPaneId,
-      normalizedDisplayTimeframe,
-      normalizedAnchor,
-      normalizedDirection,
-      normalizedCount,
-    ].join('|');
+      instrument: sourceState.session.instrument,
+      paneId: targetPaneId,
+      displayTimeframe: normalizedDisplayTimeframe,
+      anchor: normalizedAnchor,
+      direction: normalizedDirection,
+      count: normalizedCount,
+    });
     if (loadingDisplayWindowKeys.has(demandKey)) {
       return {
         ...clone(sourceState),
@@ -99,22 +104,17 @@ export function createReplayDisplayWindowController({
         displayTimeframe: normalizedDisplayTimeframe,
         replayTimeframe: sourceState.replayTimeframe || sourceState.session.timeframe,
       };
-      const paneDisplayState = statefulLoad
-        ? null
-        : await dispatchCommand(chartCommands.GET_RENDERED_BARS, { paneId: targetPaneId }).catch(() => null);
-      const baseDisplayBars = statefulLoad
-        ? sourceState.displayBars
-        : (Array.isArray(paneDisplayState?.bars) ? paneDisplayState.bars : []);
-      const baseDisplayBarsTimeframe = statefulLoad
-        ? sourceState.displayBarsTimeframe
-        : paneDisplayState?.displayContext?.displayTimeframe;
-      const shouldMergeDisplayBars = statefulLoad
-        ? baseDisplayBarsTimeframe === normalizedDisplayTimeframe
-        : (
-          baseDisplayBars.length > 0
-          && Number(baseDisplayBarsTimeframe || normalizedDisplayTimeframe) === normalizedDisplayTimeframe
-        );
-      const currentEarliestTimestamp = earliestBarTimestamp(baseDisplayBars);
+      const {
+        baseDisplayBars,
+        currentEarliestTimestamp,
+        shouldMergeDisplayBars,
+      } = await resolvePaneDisplayWindowBase({
+        sourceState,
+        targetPaneId,
+        normalizedDisplayTimeframe,
+        dispatchCommand,
+        chartCommands,
+      });
       const displayWindowAttempts = [];
       let nextAnchor = normalizedAnchor;
       let window = null;
@@ -141,17 +141,7 @@ export function createReplayDisplayWindowController({
         displayBars = shouldMergeDisplayBars
           ? mergeDisplayBarsForCursor(baseDisplayBars, accumulatedWindowDisplayBars, displayContext)
           : accumulatedWindowDisplayBars;
-        const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
-        displayWindowAttempts.push({
-          key: window.key,
-          start: window.start,
-          end: window.end,
-          anchor: window.anchor,
-          cached: Boolean(window.cached),
-          barCount: window.bars.length,
-          displayBarCount: windowDisplayBars.length,
-          earliestTimestamp: Number.isFinite(nextEarliestTimestamp) ? nextEarliestTimestamp : null,
-        });
+        displayWindowAttempts.push(summarizeDisplayWindowAttempt({ window, windowDisplayBars }));
 
         if (!shouldSeekEarlierDisplayWindow({
           direction: normalizedDirection,
