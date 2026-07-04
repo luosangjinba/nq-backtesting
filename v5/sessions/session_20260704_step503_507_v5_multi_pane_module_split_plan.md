@@ -27,6 +27,8 @@ The owning spec/audit is:
 
 ### Step 503 - Pane Orchestrator
 
+Status: completed.
+
 Extract `chart-replay-pane-orchestrator.js` from `chart-replay-route.js`.
 
 Scope:
@@ -40,6 +42,8 @@ The route should remain responsible for page construction, event subscriptions,
 controller wiring, and teardown.
 
 ### Step 504 - Layout Sync Controller
+
+Status: completed.
 
 Extract `chart-replay-layout-sync-controller.js`.
 
@@ -55,6 +59,8 @@ load bars, or mutate replay cursor state.
 
 ### Step 505 - Pane DOM And Split Resize
 
+Status: completed.
+
 Split `chart-replay-pane-shell.js` into DOM helpers and resize behavior.
 
 Create:
@@ -66,6 +72,8 @@ The pane shell should keep lifecycle, render orchestration, active-pane
 selection, and optimistic active-pane intent.
 
 ### Step 506 - Chart Runtime Pane State
+
+Status: completed.
 
 Extract `chart-runtime-pane-state.js` from `chart-runtime.js`.
 
@@ -80,6 +88,8 @@ Scope:
 Chart runtime remains the only chart writer and keeps command/event ownership.
 
 ### Step 507 - Replay Pane Display Merge Helper
+
+Status: completed.
 
 Extract non-primary pane display-window merge rules from
 `replay-display-window-controller.js`.
@@ -122,8 +132,19 @@ For Step 506, also run:
 - Do not let chart runtime decide replay cursor or reveal state.
 - Do not add per-pane toolbar controls as a workaround for active-pane state.
 
-## Next
+## Result
 
-Start with Step 503. It has the best risk/reward ratio because route-level pane
-orchestration is currently the largest source of multi-pane ownership
-confusion.
+Steps 503-507 completed the planned module split:
+
+- route-level pane orchestration moved to
+  `chart-replay-pane-orchestrator.js`;
+- route-level layout sync effects moved to
+  `chart-replay-layout-sync-controller.js`;
+- pane DOM helpers and split resize behavior moved out of
+  `chart-replay-pane-shell.js`;
+- chart runtime pane-state helpers moved to `chart-runtime-pane-state.js`;
+- replay pane display-window base/merge helpers moved to
+  `replay-pane-display-window-state.js`.
+
+Next work should reassess remaining multi-pane behavior gaps against
+`multi-pane-behavior-contract-audit.md` before adding features.

@@ -81,4 +81,37 @@ Verification:
 
 ## Status
 
-In progress.
+Completed.
+
+## Result
+
+- Added `v5/src/runtime/replay-pane-display-window-state.js`.
+- Moved helper responsibilities out of
+  `replay-display-window-controller.js`:
+  - replay pane id normalization;
+  - display-window demand key construction including pane id;
+  - target-pane snapshot reads through `chart.getRenderedBars`;
+  - base display bars/timeframe resolution;
+  - merge eligibility;
+  - display-window attempt summaries.
+- Kept `replay-display-window-controller.js` as the owner of:
+  - bar-data `LOAD_WINDOW` requests;
+  - chart sync writes through `chartSync`;
+  - replay state updates;
+  - replay display events.
+
+## Commits
+
+- `0ef8d5a docs(v5): plan replay pane display helper split`
+- `8403995 refactor(v5): extract replay pane display helper`
+- `8beb3d3 docs(v5): record replay pane display gate`
+
+## Verification
+
+- `node --check v5/src/runtime/replay-display-window-controller.js`
+- `node --check v5/src/runtime/replay-pane-display-window-state.js`
+- `node v5/tests/replay-display-viewport-demand-smoke.js`
+- `node v5/tests/replay-display-timeframe-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`

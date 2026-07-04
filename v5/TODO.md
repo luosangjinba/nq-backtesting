@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 507 in progress. The implementation plan is to isolate
-  replay non-primary display-window snapshot/base/merge helpers without moving
-  bar requests, chart writes, replay state mutation, or replay event emission
-  out of `replay-display-window-controller.js`.
-- Next candidate: Complete Step 507, then reassess the multi-pane module audit
-  before adding more multi-pane behavior.
+- Current status: Step 507 completed. `replay-pane-display-window-state.js`
+  now owns replay pane id normalization, display-window demand keys, pane
+  snapshot/base resolution, merge eligibility, and attempt summaries.
+- Next candidate: Reassess the multi-pane module audit and behavior gaps before
+  adding more multi-pane behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -293,6 +292,12 @@
   still owns chart command registration, event emission, host lifecycle, host
   sync, and adapter writes; the helper receives primary state and the
   pane-display-state map instead of owning runtime state.
+- Multi-pane replay display decision: Step 507 extracts
+  `replay-pane-display-window-state.js` for display-window demand keys,
+  target-pane chart snapshot reads through `chart.getRenderedBars`, base
+  display bars/timeframe resolution, merge eligibility, and attempt summaries.
+  `replay-display-window-controller.js` still owns bar-data window requests,
+  chart sync calls, replay state updates, and replay display events.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

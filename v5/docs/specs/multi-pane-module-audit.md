@@ -412,7 +412,7 @@ Step 506 result:
 
 ### Step 507 - Extract Replay Pane Display Merge Helper
 
-Status: in progress.
+Status: completed.
 
 Goal: isolate non-primary display-window merge rules from primary replay
 display-window loading.
@@ -438,6 +438,18 @@ Acceptance:
 - non-primary viewport demand still merges with existing pane bars;
 - route UI still does not read chart snapshots or request bars;
 - primary display-window behavior unchanged.
+
+Step 507 result:
+
+- added `v5/src/runtime/replay-pane-display-window-state.js`;
+- moved replay pane id normalization, display-window demand key construction,
+  target-pane rendered-bars snapshot reads, base display bars/timeframe
+  resolution, merge eligibility, and display-window attempt summaries out of
+  `replay-display-window-controller.js`;
+- kept bar-data `LOAD_WINDOW` requests, chart sync writes, replay state
+  updates, and replay display events in `replay-display-window-controller.js`;
+- preserved the documented command boundary where non-primary pane merge logic
+  reads target-pane snapshots through `chart.getRenderedBars({ paneId })`.
 
 ## Acceptance Criteria
 
