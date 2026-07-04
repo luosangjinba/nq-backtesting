@@ -13,6 +13,7 @@ import {
   renderFallbackBars,
   visibleBarsForRange,
 } from './chart-engine-fallback-rendering.js';
+import { markReplayTrace } from './replay-trace.js';
 
 export function createFallbackInstance({ documentRef }) {
   let host = null;
@@ -181,6 +182,7 @@ export function createFallbackInstance({ documentRef }) {
       render();
     },
     setBars(nextBars = [], options = {}) {
+      markReplayTrace('fallback.setBars.start', { barCount: nextBars.length });
       bars = [...nextBars];
       fullBarCount = Number(options.fullBarCount ?? bars.length);
       if (options.displayContext) {
@@ -188,6 +190,7 @@ export function createFallbackInstance({ documentRef }) {
       }
       metadata = options.metadata ? { ...options.metadata } : metadata;
       render();
+      markReplayTrace('fallback.setBars.end', { barCount: bars.length, fullBarCount });
     },
     setMetadata(nextMetadata = {}) {
       metadata = { ...metadata, ...nextMetadata };
@@ -201,6 +204,21 @@ export function createFallbackInstance({ documentRef }) {
     setPresentation(context = {}) {
       displayContext = normalizeContext(context);
       render();
+    },
+    appendBars(nextBars = [], options = {}) {
+      markReplayTrace('fallback.append.start', { appendedCount: nextBars.length });
+      const appendedBars = [...nextBars];
+      bars = [
+        ...bars,
+        ...appendedBars,
+      ];
+      fullBarCount = Number(options.fullBarCount ?? bars.length);
+      if (options.displayContext) {
+        displayContext = normalizeContext(options.displayContext);
+      }
+      metadata = options.metadata ? { ...options.metadata } : metadata;
+      render();
+      markReplayTrace('fallback.append.end', { appendedCount: appendedBars.length, fullBarCount });
     },
     readState() {
       return {

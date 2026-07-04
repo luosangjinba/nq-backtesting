@@ -1,4 +1,5 @@
 import { computeRenderedBars } from './chart-runtime-viewport.js';
+import { markReplayTrace } from './replay-trace.js';
 
 export function createChartRuntimeHostSync({
   state,
@@ -77,35 +78,54 @@ export function createChartRuntimeHostSync({
   function syncChartHostAppend(host, previousSourceState, nextSourceState, { deferDuringNativeInteraction = true } = {}) {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
+    const paneId = host.dataset?.chartPaneId || '';
+    markReplayTrace('chartHostSync.append.start', { paneId });
     if (typeof adapter.appendBars !== 'function') {
       syncChartHost(host, { deferDuringNativeInteraction });
+      markReplayTrace('chartHostSync.append.end', { paneId, mode: 'replace' });
       return;
     }
     if (deferDuringNativeInteraction && state.nativeInteraction.active) {
       pendingChartSyncAfterNativeInteraction = true;
       adapter.setMetadata?.(buildChartMetadata(computeRenderedBars(nextSourceState), nextSourceState));
+      markReplayTrace('chartHostSync.append.end', { paneId, mode: 'deferred' });
       return;
     }
+    markReplayTrace('chartHostSync.append.compute.start', { paneId });
     const previousRenderedBars = computeRenderedBars(previousSourceState);
     const nextRenderedBars = computeRenderedBars(nextSourceState);
     const appendedBars = splitRenderedAppend(previousRenderedBars, nextRenderedBars);
+    markReplayTrace('chartHostSync.append.compute.end', {
+      paneId,
+      previousRenderedCount: previousRenderedBars.length,
+      nextRenderedCount: nextRenderedBars.length,
+      appendedCount: appendedBars?.length || 0,
+    });
     if (!appendedBars || !appendedBars.length) {
       syncChartHost(host, { deferDuringNativeInteraction });
+      markReplayTrace('chartHostSync.append.end', { paneId, mode: 'fallback-replace' });
       return;
     }
     applyingRuntimeVisibleRange = true;
     try {
+      markReplayTrace('chartHostSync.append.resizeBefore.start', { paneId });
       adapter.resizeToHost?.();
+      markReplayTrace('chartHostSync.append.resizeBefore.end', { paneId });
+      markReplayTrace('chartHostSync.append.adapter.start', { paneId });
       adapter.appendBars(appendedBars, {
         fullBarCount: nextSourceState.bars.length,
         displayContext: nextSourceState.displayContext,
         metadata: buildChartMetadata(nextRenderedBars, nextSourceState),
         followViewport: nextSourceState.interaction.mode === 'follow' && nextSourceState.viewportFollow.enabled,
       });
+      markReplayTrace('chartHostSync.append.adapter.end', { paneId });
+      markReplayTrace('chartHostSync.append.resizeAfter.start', { paneId });
       adapter.resizeToHost?.();
+      markReplayTrace('chartHostSync.append.resizeAfter.end', { paneId });
     } finally {
       applyingRuntimeVisibleRange = false;
     }
+    markReplayTrace('chartHostSync.append.end', { paneId, mode: 'append' });
   }
 
   function pruneDisconnectedHosts() {

@@ -27,6 +27,9 @@ then apply only a bounded optimization that the trace justifies.
 - Step 518.1: completed. The trace contract and handoff are documented.
 - Step 518.2: completed. Added opt-in trace marks and a single-pane browser
   trace smoke.
+- Step 518.3: completed. Added deeper chart-runtime and host-sync trace marks
+  around append state update, rendered-bar computation, adapter append, resize,
+  and fallback rendering.
 
 ## Initial Trace
 
@@ -45,3 +48,21 @@ Interpretation: the remaining delay is not forward data fetching. The dominant
 measured segment is the chart append/follow path. Step 518.3 should add deeper
 chart-runtime/adapter timing around append host sync, Lightweight update, resize,
 and visible-range follow before choosing an optimization.
+
+Second trace sample after adding chart-runtime details:
+
+- final-click-to-visible: about 298ms.
+- replay chart append: about 172ms.
+- chart sync append: about 90ms.
+- chart runtime append: about 88ms.
+- chart runtime state update: about 0.1ms.
+- chart runtime host sync: about 88ms.
+- chart host rendered compute: about 0.2ms.
+- adapter append / Lightweight append: not entered.
+
+Interpretation: the visible window slides during replay follow, so the old
+prefix-only append detector treats the update as non-append and falls back to a
+full host sync / replacement path. The next optimization should support a
+sliding-window tail append so the engine can call incremental series updates
+when the right edge advances, even when old left-side rendered bars leave the
+visible window.

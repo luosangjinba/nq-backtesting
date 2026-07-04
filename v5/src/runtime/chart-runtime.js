@@ -35,6 +35,7 @@ import {
   derivePanRange,
   deriveZoomRange,
 } from './chart-runtime-viewport.js';
+import { markReplayTrace } from './replay-trace.js';
 
 export { CHART_COMMANDS, CHART_EVENTS };
 
@@ -257,7 +258,16 @@ export function createChartRuntime() {
   function appendBars(nextBars, { paneId, viewportFollow } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
     const normalizedBars = normalizeBars(nextBars);
+    markReplayTrace('chartRuntime.append.start', {
+      paneId: normalizedPaneId,
+      appendedCount: normalizedBars.length,
+      viewportFollow: Boolean(viewportFollow),
+    });
     if (!normalizedBars.length) {
+      markReplayTrace('chartRuntime.append.end', {
+        paneId: normalizedPaneId,
+        appendedCount: 0,
+      });
       return {
         paneId: normalizedPaneId,
         bars: [...stateForPane(normalizedPaneId).bars],
@@ -265,6 +275,7 @@ export function createChartRuntime() {
     }
     if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
       const previousPaneState = cloneChartStateSnapshot(stateForPane(normalizedPaneId));
+      markReplayTrace('chartRuntime.append.state.start', { paneId: normalizedPaneId });
       if (viewportFollow) {
         updatePaneDisplayState(normalizedPaneId, {
           viewportFollow: normalizeViewportFollow(viewportFollow, previousPaneState),
@@ -280,15 +291,26 @@ export function createChartRuntime() {
         prefixDemand: computePrefixDemand(paneState),
         viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
       });
+      markReplayTrace('chartRuntime.append.state.end', {
+        paneId: normalizedPaneId,
+        fullBarCount: nextPaneState.bars.length,
+      });
+      markReplayTrace('chartRuntime.append.hostSync.start', { paneId: normalizedPaneId });
       syncPaneHostsAppended(
         normalizedPaneId,
         previousPaneState,
         cloneChartStateSnapshot(nextPaneState)
       );
+      markReplayTrace('chartRuntime.append.hostSync.end', { paneId: normalizedPaneId });
       emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...nextPaneState.bars] });
+      markReplayTrace('chartRuntime.append.end', {
+        paneId: normalizedPaneId,
+        fullBarCount: nextPaneState.bars.length,
+      });
       return { paneId: normalizedPaneId, bars: [...nextPaneState.bars] };
     }
     const previousState = cloneChartStateSnapshot(state);
+    markReplayTrace('chartRuntime.append.state.start', { paneId: normalizedPaneId });
     if (viewportFollow) {
       applyViewportFollowState(viewportFollow, { sync: false });
     }
@@ -298,8 +320,18 @@ export function createChartRuntime() {
     ];
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    markReplayTrace('chartRuntime.append.state.end', {
+      paneId: normalizedPaneId,
+      fullBarCount: state.bars.length,
+    });
+    markReplayTrace('chartRuntime.append.hostSync.start', { paneId: normalizedPaneId });
     syncGlobalDisplayHostsAppended(previousState, cloneChartStateSnapshot(state));
+    markReplayTrace('chartRuntime.append.hostSync.end', { paneId: normalizedPaneId });
     emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
+    markReplayTrace('chartRuntime.append.end', {
+      paneId: normalizedPaneId,
+      fullBarCount: state.bars.length,
+    });
     return { paneId: normalizedPaneId, bars: [...state.bars] };
   }
 
