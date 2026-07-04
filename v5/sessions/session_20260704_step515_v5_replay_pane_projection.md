@@ -30,6 +30,31 @@ commands for visible non-primary panes.
 
 - Step 515.1: completed. The rebuild plan now defines the projection command
   boundary and acceptance checks.
-- Step 515.2: in progress. A projection helper and pure smoke are being added
-  before production integration.
-- Step 515.3: pending.
+- Step 515.2: completed. Added `chart-replay-pane-projection.js` and a pure
+  smoke covering same-timeframe append, independent-timeframe display-window
+  load, primary/no-advance skip behavior, and pane display initialization before
+  projection.
+- Step 515.3: completed. `chart-replay-pane-orchestrator.js` now delegates
+  replay `Next` fan-out to the projection helper instead of owning a local
+  per-pane catch-up function.
+
+## Verification
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-orchestrator.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-projection.js`
+- `node v5/tests/chart-replay-pane-projection-smoke.js`
+- `node v5/tests/chart-replay-pane-display-coordinator-smoke.js`
+- `node v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/replay-fast-next-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+
+All listed checks passed. Node emitted the repository's existing ES module
+package warning for browser/test files.
+
+## Next
+
+Step 516 should turn replay responsiveness into a performance gate. The target
+is measurable rapid-Next latency and protection against unnecessary multi-pane
+full-data fan-out.

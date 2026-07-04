@@ -34,6 +34,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 512: `session_20260704_step512_v5_multi_pane_contract_smokes.md`
 - Step 513: `session_20260704_step513_v5_layout_active_pane_policy.md`
 - Step 514: `session_20260704_step514_v5_pane_display_coordinator.md`
+- Step 515: `session_20260704_step515_v5_replay_pane_projection.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index

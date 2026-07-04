@@ -13,6 +13,9 @@ import {
 import {
   createChartReplayPaneDisplayCoordinator,
 } from './chart-replay-pane-display-coordinator.js';
+import {
+  createReplayPaneProjection,
+} from './chart-replay-pane-projection.js';
 
 export function createChartReplayPaneOrchestrator({
   root,
@@ -45,6 +48,17 @@ export function createChartReplayPaneOrchestrator({
     onLayoutState: (layoutState) => applyLayoutState(layoutState),
     setStatusText,
     isDisposed: () => disposed,
+  });
+  const replayPaneProjection = createReplayPaneProjection({
+    dispatchCommand,
+    ensurePaneDisplay: (pane) => ensurePaneLocalDisplay(pane),
+    paneInitialDisplayTimeframe: (pane) => paneInitialDisplayTimeframe(pane),
+    getSessionId,
+    getSessionTimeframe,
+    getDisplayTimeframeFallback,
+    getReplayLoaded,
+    isDisposed: () => disposed,
+    setStatusText,
   });
 
   function layoutSnapshot(layoutState) {
@@ -95,57 +109,8 @@ export function createChartReplayPaneOrchestrator({
     return paneDisplayCoordinator.ensureNonPrimaryPaneDisplays(layoutState);
   }
 
-  async function syncPaneForReplayNext(pane, payload = {}) {
-    const paneId = String(pane?.id || '').trim();
-    const sessionId = getSessionId?.() || '';
-    if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !sessionId || disposed) return;
-    const paneTimeframe = paneInitialDisplayTimeframe(pane);
-    const replayTimeframe = Number(
-      payload.replayTimeframe
-      || getSessionTimeframe?.()
-      || getDisplayTimeframeFallback?.()
-      || 1
-    );
-    if (!Number.isFinite(paneTimeframe) || paneTimeframe <= 0) return;
-    const cursorTimestamp = payload.cursorTimestamp || payload.revealedBar?.time || payload.revealedBar?.timestamp;
-    await ensurePaneLocalDisplay(pane);
-    if (disposed) return;
-    if (Number(paneTimeframe) === Number(replayTimeframe) && Array.isArray(payload.revealedBars)) {
-      const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, { paneId }).catch(() => null);
-      await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
-        paneId,
-        bars: payload.revealedBars,
-        viewportFollow: {
-          enabled: true,
-          cursorTimestamp,
-          estimatedVisibleBars: metrics?.estimatedVisibleBars,
-        },
-      });
-      return;
-    }
-    if (cursorTimestamp) {
-      await dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, {
-        sessionId,
-        paneId,
-        displayTimeframe: paneTimeframe,
-        anchor: cursorTimestamp,
-        direction: 'backward',
-      });
-    }
-  }
-
   function syncPanesForReplayEvent(eventName, payload = {}) {
-    if (!getReplayLoaded?.() || disposed || !Array.isArray(currentLayoutState.panes)) return;
-    if (eventName !== REPLAY_EVENTS.NEXT || !payload.advanced) return;
-    currentLayoutState.panes
-      .filter((pane) => pane.id && pane.id !== DEFAULT_ACTIVE_PANE_ID)
-      .forEach((pane) => {
-        syncPaneForReplayNext(pane, payload).catch((error) => {
-          if (!disposed) {
-            setStatusText?.(error?.message || String(error));
-          }
-        });
-      });
+    return replayPaneProjection.projectReplayEvent(eventName, payload, currentLayoutState);
   }
 
   function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {

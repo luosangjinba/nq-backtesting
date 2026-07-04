@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 514 completed. Pane display initialization now routes
-  through a dedicated coordinator with explicit display lifecycle states and a
-  pure smoke for skip/dedupe/ready/error behavior. The chart replay
-  orchestrator no longer owns pane display initialization Set/Map state.
-- Next candidate: Step 515 should rebuild replay pane projection so one replay
-  `Next` / playback tick advances the shared cursor once and projects the result
-  to every visible pane in one coordinated step instead of primary-first
-  catch-up behavior.
+- Current status: Step 515 completed. Replay `Next` fan-out now routes through
+  a dedicated replay pane projection helper with pure smoke coverage for
+  same-timeframe append, independent-timeframe display-window loading, skip
+  behavior, and pane display initialization before projection.
+- Next candidate: Step 516 should add a multi-pane performance gate that checks
+  rapid `Next` clicks do not drain through a slow visible queue and that panes
+  avoid unnecessary full `setData()` fan-out when append/update is sufficient.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
