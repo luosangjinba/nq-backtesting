@@ -76,7 +76,11 @@ than a single rendering bug.
   explicit `applyIntervalSync`; the chart replay pane orchestrator does so only
   on the shared active-pane TF control path when interval sync is currently
   enabled.
-- Step 531.4-531.6: pending.
+- Step 531.4: completed. Non-primary panes no longer fall back to the primary
+  replay display timeframe when their pane TF is unset. Primary may still use
+  replay display context as its fallback; secondary/tertiary default to the
+  session timeframe unless their layout pane record explicitly says otherwise.
+- Step 531.5-531.6: pending.
 
 ## Step 531.2 Verification
 
@@ -95,8 +99,19 @@ than a single rendering bug.
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
 
+## Step 531.4 Verification
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-display-coordinator.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-orchestrator.js`
+- `node --check v5/src/features/chart-replay/chart-replay-route.js`
+- `node --check v5/tests/chart-replay-pane-display-coordinator-smoke.js`
+- `node v5/tests/chart-replay-pane-display-coordinator-smoke.js`
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 531.4 next: reduce route/global display-timeframe fallback
-leakage so shared controls and display loaders resolve TF from the active or
-target pane first.
+Implement Step 531.5 next: add a three-pane isolation regression for active
+`1H` pane interaction while the other panes retain their own display timeframe.

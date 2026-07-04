@@ -65,7 +65,7 @@ function createCoordinatorHarness({
   const { commands, coordinator, layoutStates } = createCoordinatorHarness();
   const result = await coordinator.ensurePaneDisplay({ id: 'secondary', displayTimeframe: null });
   assert.equal(result.state, PANE_DISPLAY_STATES.READY);
-  assert.equal(result.displayTimeframe, 5);
+  assert.equal(result.displayTimeframe, 1);
   assert.deepEqual(
     commands.map((entry) => entry.command),
     [
@@ -75,8 +75,22 @@ function createCoordinatorHarness({
   );
   assert.equal(layoutStates.length, 1, 'layout update should be applied once when pane TF was null');
 
-  await coordinator.ensurePaneDisplay({ id: 'secondary', displayTimeframe: 5 });
+  await coordinator.ensurePaneDisplay({ id: 'secondary', displayTimeframe: 1 });
   assert.equal(commands.length, 2, 'loaded pane/timeframe should dedupe future initialization');
+}
+
+{
+  const { coordinator } = createCoordinatorHarness();
+  assert.equal(
+    coordinator.paneInitialDisplayTimeframe({ id: 'primary', displayTimeframe: null }),
+    5,
+    'primary may fall back to replay display timeframe'
+  );
+  assert.equal(
+    coordinator.paneInitialDisplayTimeframe({ id: 'secondary', displayTimeframe: null }),
+    1,
+    'non-primary panes should default to the session timeframe, not primary replay display'
+  );
 }
 
 {

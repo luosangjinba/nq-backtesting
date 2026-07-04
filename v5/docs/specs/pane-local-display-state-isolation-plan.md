@@ -86,6 +86,9 @@ path.
      read active layout pane TF and pane display loaders read target pane TF.
    - Keep replay runtime primary display context separate from non-primary
      pane display context.
+   - Completed: primary may fall back to replay display context, while
+     non-primary panes default to session timeframe unless their pane record
+     explicitly stores a TF.
    - Commit boundary tightening.
 
 5. Step 531.5 - Add three-pane isolation regression.

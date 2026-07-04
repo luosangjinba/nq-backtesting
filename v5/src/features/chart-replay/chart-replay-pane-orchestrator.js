@@ -72,10 +72,18 @@ export function createChartReplayPaneOrchestrator({
   function activeDisplayTimeframe(layoutState) {
     const snapshot = layoutSnapshot(layoutState);
     const activePane = snapshot.panes?.find((pane) => pane.id === getActivePaneId(snapshot));
+    const activePaneId = activePane?.id || getActivePaneId(snapshot);
+    if (activePane?.displayTimeframe) return Number(activePane.displayTimeframe);
+    if (activePaneId === DEFAULT_ACTIVE_PANE_ID) {
+      return Number(
+        getReplayDisplayTimeframe?.()
+        || getSessionTimeframe?.()
+        || getDisplayTimeframeFallback?.()
+        || 1
+      );
+    }
     return Number(
-      activePane?.displayTimeframe
-      || getReplayDisplayTimeframe?.()
-      || getSessionTimeframe?.()
+      getSessionTimeframe?.()
       || getDisplayTimeframeFallback?.()
       || 1
     );

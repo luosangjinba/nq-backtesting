@@ -41,10 +41,18 @@ export function createChartReplayPaneDisplayCoordinator({
   }
 
   function paneInitialDisplayTimeframe(pane = {}) {
+    const paneId = pane.id || DEFAULT_ACTIVE_PANE_ID;
+    if (pane.displayTimeframe) return Number(pane.displayTimeframe);
+    if (paneId === DEFAULT_ACTIVE_PANE_ID) {
+      return Number(
+        getReplayDisplayTimeframe?.()
+        || getSessionTimeframe?.()
+        || getDisplayTimeframeFallback?.()
+        || 1
+      );
+    }
     return Number(
-      pane.displayTimeframe
-      || getReplayDisplayTimeframe?.()
-      || getSessionTimeframe?.()
+      getSessionTimeframe?.()
       || getDisplayTimeframeFallback?.()
       || 1
     );

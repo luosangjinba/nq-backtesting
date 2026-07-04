@@ -108,13 +108,11 @@ export function createChartReplayRoute() {
         const pane = currentLayoutState?.panes?.find((entry) => (
           (entry.id || DEFAULT_ACTIVE_PANE_ID) === (paneId || DEFAULT_ACTIVE_PANE_ID)
         ));
-        return Number(
-          pane?.displayTimeframe
-          || replayDisplayTimeframe
-          || sessionTimeframe
-          || displayTimeframe
-          || 1
-        );
+        if (pane?.displayTimeframe) return Number(pane.displayTimeframe);
+        if ((paneId || DEFAULT_ACTIVE_PANE_ID) === DEFAULT_ACTIVE_PANE_ID) {
+          return Number(replayDisplayTimeframe || sessionTimeframe || displayTimeframe || 1);
+        }
+        return Number(sessionTimeframe || displayTimeframe || 1);
       }
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
