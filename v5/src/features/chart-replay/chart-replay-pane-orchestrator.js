@@ -84,7 +84,6 @@ export function createChartReplayPaneOrchestrator({
     }
     return Number(
       getSessionTimeframe?.()
-      || getDisplayTimeframeFallback?.()
       || 1
     );
   }

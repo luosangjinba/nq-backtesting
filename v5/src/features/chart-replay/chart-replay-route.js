@@ -112,7 +112,7 @@ export function createChartReplayRoute() {
         if ((paneId || DEFAULT_ACTIVE_PANE_ID) === DEFAULT_ACTIVE_PANE_ID) {
           return Number(replayDisplayTimeframe || sessionTimeframe || displayTimeframe || 1);
         }
-        return Number(sessionTimeframe || displayTimeframe || 1);
+        return Number(sessionTimeframe || 1);
       }
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',

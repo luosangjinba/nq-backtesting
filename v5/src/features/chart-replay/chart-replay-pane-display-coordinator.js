@@ -53,7 +53,6 @@ export function createChartReplayPaneDisplayCoordinator({
     }
     return Number(
       getSessionTimeframe?.()
-      || getDisplayTimeframeFallback?.()
       || 1
     );
   }
