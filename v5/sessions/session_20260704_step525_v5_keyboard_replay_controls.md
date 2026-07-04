@@ -69,7 +69,9 @@ boundaries.
 
 ## Status
 
-- Step 525.1: active. Planning keyboard replay control contract and boundary.
+- Step 525.1: completed. Planned keyboard replay control contract and boundary.
+- Step 525.2: completed. Implemented keyboard shortcuts in the replay controls
+  controller using existing replay button handlers and controller cleanup.
 
 ## Next
 

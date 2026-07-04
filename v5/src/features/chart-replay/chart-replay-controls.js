@@ -44,6 +44,7 @@ export function createChartReplayControlsController({
   const goToButton = root.querySelector('[data-chart-go-to]');
   const jumpCursorButton = root.querySelector('[data-chart-jump-cursor]');
   const jumpCursorPopoverButton = root.querySelector('[data-chart-jump-cursor-popover]');
+  const ownerDocument = root.ownerDocument || globalThis.document || null;
   let replayCommandQueue = Promise.resolve();
   let pendingNextStepCount = 0;
   let pendingNextTimer = null;
@@ -201,6 +202,64 @@ export function createChartReplayControlsController({
     queueNextStep();
   }
 
+  function isEditableShortcutTarget(target) {
+    if (!target || typeof target.closest !== 'function') return false;
+    if (target.closest('input, select, textarea, button, a[href]')) return true;
+    return Boolean(target.closest('[contenteditable=""], [contenteditable="true"]'));
+  }
+
+  function hasOpenBlockingPopover() {
+    return Array.from(root.querySelectorAll([
+      '[data-chart-go-to-popover]',
+      '[data-chart-settings-popover]',
+      '[data-layout-popover]',
+      '[data-replay-truncate-error]',
+      '[role="dialog"]',
+    ].join(','))).some((element) => !element.hidden);
+  }
+
+  function shouldIgnoreReplayShortcut(event) {
+    return disposed
+      || event.defaultPrevented
+      || event.repeat
+      || event.altKey
+      || event.ctrlKey
+      || event.metaKey
+      || event.shiftKey
+      || !getReplayLoaded()
+      || !getSessionId()
+      || isEditableShortcutTarget(event.target)
+      || hasOpenBlockingPopover();
+  }
+
+  function handleKeyboardShortcut(event) {
+    if (shouldIgnoreReplayShortcut(event)) return;
+    if (event.key === 'ArrowRight') {
+      if (nextButton.disabled) return;
+      event.preventDefault();
+      handleNextClick();
+      return;
+    }
+    if (event.key === 'ArrowLeft') {
+      if (replayPreviousButton.disabled) return;
+      event.preventDefault();
+      void handlePreviousClick();
+      return;
+    }
+    if (event.key === ' ' || event.key === 'Spacebar') {
+      event.preventDefault();
+      if (getPlaybackPlaying()) {
+        if (!pauseButton.disabled) {
+          void handlePauseClick();
+        }
+        return;
+      }
+      if (!playButton.disabled) {
+        void handlePlayClick();
+      }
+    }
+  }
+
   async function handlePreviousClick() {
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.PREVIOUS, {
       sessionId: getSessionId(),
@@ -315,6 +374,7 @@ export function createChartReplayControlsController({
   addListener(replayIntervalSelect, 'change', handleReplayIntervalChange);
   addListener(replaySyncIntervalInput, 'change', handleReplaySyncIntervalChange);
   addListener(displayTimeframeSelect, 'change', handleDisplayTimeframeChange);
+  addListener(ownerDocument, 'keydown', handleKeyboardShortcut);
 
   return {
     dispose,
