@@ -356,4 +356,31 @@ assert.equal(resizedTriple.split.ratios.secondary, 1.5);
 assert.equal(resizedTriple.split.ratios.tertiary, 0.5);
 triplePaneRuntime.stop();
 
+const variantActivePaneExpectations = [
+  ['twice.vertical', 'twice', 'secondary'],
+  ['twice.horizontal', 'twice', 'primary'],
+  ['triple.vertical', 'triple', 'tertiary'],
+  ['triple.horizontal', 'triple', 'primary'],
+  ['triple.left', 'triple', 'secondary'],
+  ['triple.right', 'triple', 'primary'],
+  ['triple.top', 'triple', 'primary'],
+  ['triple.bottom', 'triple', 'secondary'],
+];
+
+for (const [variant, mode, expectedActivePaneId] of variantActivePaneExpectations) {
+  clearCommandsForTest();
+  const variantRuntime = createLayoutRuntime();
+  variantRuntime.start();
+  const nextLayout = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
+    mode,
+    variant,
+  });
+  assert.equal(
+    nextLayout.activePaneId,
+    expectedActivePaneId,
+    `${variant} should choose ${expectedActivePaneId} when expanding from single pane`
+  );
+  variantRuntime.stop();
+}
+
 console.log('v5 layout runtime smoke passed');

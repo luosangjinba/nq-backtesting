@@ -36,6 +36,9 @@ Out of scope:
 - Extend `layout-runtime-smoke.js` to assert expected active pane for each
   supported variant when expanding from `single.default`.
 
+Status: completed. The new unit coverage currently fails as intended on
+`triple.vertical`, which still chooses `primary` instead of `tertiary`.
+
 ### Step 513.3 - Implementation
 
 - Replace fallback-only `preferredActivePaneForVariant()` with a tested policy
