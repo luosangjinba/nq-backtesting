@@ -79,6 +79,8 @@ latency, keyboard, speed, and transport persistence work.
   chart ecosystem reference checks.
 - Step 528.2: completed. Added `fxreplay-parity-gap-audit.md` with a current
   coverage/open-gap matrix and V5 boundary rules for future parity work.
+- Step 528.3: completed. Ranked the remaining near-term parity gaps and
+  recommended a Settings parity checklist as the Step 529 starting point.
 
 ## Next
 

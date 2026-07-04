@@ -88,3 +88,58 @@ optimization. The remaining gaps are mostly product/workflow gaps:
 
 The next step should pick one bounded item from these gaps and add acceptance
 coverage before implementation.
+
+## Ranked Near-Term Backlog
+
+1. Settings parity checklist and high-frequency settings gap selection.
+   - Why: settings are user-visible, already modularized, and likely contain
+     the next practical FXReplay parity deltas after transport polish.
+   - Boundary: chart settings controller, chart presentation runtime, chart
+     runtime/adapter for engine-owned presentation settings.
+   - Suggested Step 529 shape: audit FXReplay-like settings groups against the
+     current V5 settings modal, document missing controls, then implement only
+     one bounded high-frequency setting if the owner boundary is already clear.
+   - Verification: settings polish/presentation browser smokes plus one new
+     settings parity smoke if a gap is implemented.
+
+2. Multi-pane physical interaction audit.
+   - Why: command-driven multi-pane behavior and manual feel are acceptable,
+     but secondary-pane wheel/drag/axis interaction coverage is less direct.
+   - Boundary: chart runtime per-pane interaction state, pane shell, layout
+     runtime active-pane state.
+   - Suggested shape: audit/smoke only unless it reveals a real regression.
+   - Verification: targeted browser smoke for wheel/drag on secondary panes.
+
+3. Visual parity screenshot checklist.
+   - Why: V5 has tokenized workstation polish, but no current explicit
+     FXReplay comparison checklist.
+   - Boundary: CSS modules and feature templates only unless behavior gaps are
+     found.
+   - Suggested shape: screenshot/checklist audit before visual changes.
+   - Verification: existing layout/polish browser smokes plus screenshots.
+
+4. Drawing tools and annotations.
+   - Why: likely important for deeper FXReplay parity, but larger than a quick
+     polish task and may require Lightweight Charts primitives.
+   - Boundary: future drawing feature controller, chart runtime/adapter plugin
+     boundary, persistence model.
+   - Suggested shape: design contract first; no implementation until ownership
+     and persistence are specified.
+
+5. Trade/order markers and review overlays.
+   - Why: important for Historical Replay Review, but domain model and review
+     workflow are not yet active in V5.
+   - Boundary: future review/order domain, chart runtime/adapter marker or
+     primitive path.
+   - Suggested shape: defer until review workflow is selected.
+
+6. Local-first import/export/backup.
+   - Why: important product direction, but broader than FXReplay UI parity.
+   - Boundary: session repository/storage/deployment docs.
+   - Suggested shape: pick when moving from replay workstation polish to
+     local-first product packaging.
+
+Recommendation: Step 529 should start with the settings parity checklist. It is
+the highest-value bounded continuation because it can reuse existing settings
+modules, avoids speculative chart plugins, and is directly visible in daily
+replay use.

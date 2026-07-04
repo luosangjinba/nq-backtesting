@@ -42,10 +42,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Finish Step 528 FXReplay parity gap audit and use it
-  to choose the next bounded replay workstation feature. Multi-pane cadence or
-  pane update-order audits can stay optional unless manual testing exposes a
-  user-visible regression.
+- Next recommended step: Step 529 should start with a Settings parity checklist
+  and choose at most one bounded high-frequency settings gap to implement if
+  the owner boundary is already clear. Multi-pane physical interaction audit is
+  the fallback if manual testing exposes a pane-specific regression.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
