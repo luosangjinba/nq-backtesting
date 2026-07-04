@@ -10,13 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 496 completed. Bar-data runtime now tracks optional
-  session/pane cache scopes, exposes `barData.releaseScope`, preserves shared
-  instrument/timeframe/range cache reuse, defers final-scope deletion by
-  default, and relies on `barData.pruneCache` for bounded capacity cleanup.
-- Next candidate: Step 497 - add a browser route teardown smoke that switches
-  away from chart route and verifies stale controller timers/listeners cannot
-  mutate removed DOM.
+- Current status: Step 497 completed. A browser route teardown smoke now enters
+  a real chart route, opens Layout/Settings UI, queues replay Next work, switches
+  back to setup, then proves detached chart-route controls/listeners cannot
+  mutate layout, replay, playback, or the active route.
+- Next candidate: Step 498 - resume product/UI work from the workstation
+  backlog now that the lifecycle cleanup backlog is closed, with Settings polish
+  or multi-pane UX acceptance as likely candidates.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -222,6 +222,11 @@
   stay instrument/timeframe/range scoped for reuse, `barData.releaseScope`
   removes session/pane references without UI touching caches directly, and
   unreferenced windows are deferred until `barData.pruneCache` removes them.
+- Lifecycle implementation decision: Step 497 closes the current lifecycle
+  cleanup backlog with a browser behavior gate. Detached chart-route controls,
+  pending Next batching, split-pane pointer handling, Settings/Layout listeners,
+  and window resize callbacks must be inert after route teardown; stale events
+  must not mutate layout/replay/playback state or revive chart route DOM.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

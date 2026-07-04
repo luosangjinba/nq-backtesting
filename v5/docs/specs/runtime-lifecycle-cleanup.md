@@ -103,6 +103,8 @@ When a route, pane, session, controller, or adapter is replaced or destroyed:
 Future lifecycle-sensitive steps should include at least one relevant check:
 
 - route teardown leaves no duplicate route/controller subscriptions;
+- route teardown leaves detached chart-route controls inert when clicked,
+  dragged, or resized after navigation;
 - switching layout mode does not leave disconnected pane hosts in chart runtime;
 - layout pane removal releases pane-local chart display state through chart
   runtime, while preserving primary/global replay state;

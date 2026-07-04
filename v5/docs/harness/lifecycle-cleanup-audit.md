@@ -189,26 +189,42 @@ Step 496 result:
 - `barData.getCacheSummary` exposes `cacheScopes` and `releaseDeferred` for
   lifecycle smoke assertions.
 
-## Remaining Cleanup Backlog
+## Step 497 Resolved Items
 
-### 1. Browser Route Teardown Needs A Lifecycle Behavior Smoke
+### Browser Route Teardown Behavior
 
 `v5/src/features/chart-replay/chart-replay-route.js`
 
+Step 497 result:
+
+- `v5/tests/route-teardown-browser-smoke.js` enters a real chart route in
+  headless Chrome, opens Layout and Settings route-local UI, creates a split
+  pane handle, queues rapid Next clicks, and then navigates back to setup.
+- After route teardown, the smoke dispatches click, change, pointer drag, and
+  window resize events against detached stale chart-route elements.
+- The smoke asserts stale Layout listeners cannot mutate global layout state.
+- The smoke asserts stale Next/Play listeners and pending Next batching cannot
+  mutate replay cursor/display state or restart playback.
+- The smoke asserts no uncaught browser errors are produced and the active route
+  remains setup.
+
+## Remaining Cleanup Backlog
+
+### 1. No Open Lifecycle Cleanup Items
+
 Risk:
 
-- Static checks prove disposal paths exist, but a browser smoke should still
-  verify route switching cannot leave a pending controller timer/window listener
-  mutating removed DOM.
+- Future route/runtime work can still introduce listeners, observers, timers,
+  adapters, host refs, or caches without adding cleanup coverage.
 
 Required follow-up:
 
-- Add a browser route teardown smoke that enters chart route, creates controller
-  state, switches routes, and verifies stale listeners/timers are inert.
+- Keep this audit current whenever new resource ownership is introduced.
+- Add targeted cleanup tests in the same step that introduces a new long-lived
+  resource.
 
 ## Step 493+ Priority
 
 Recommended implementation order:
 
-1. Add a browser route teardown smoke that switches away from chart route and
-   verifies no pending controller timer/window listener can mutate removed DOM.
+1. Maintain lifecycle checks as new route/runtime resources are introduced.

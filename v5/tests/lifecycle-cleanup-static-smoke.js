@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const repoRoot = resolve(import.meta.dirname, '..', '..');
@@ -178,6 +178,16 @@ assertIncludes(
   lifecycleAudit,
   'Step 496 Resolved Items',
   'lifecycle audit must document Step 496 resolved cleanup items'
+);
+assertIncludes(
+  lifecycleAudit,
+  'Step 497 Resolved Items',
+  'lifecycle audit must document Step 497 resolved cleanup items'
+);
+assert.equal(
+  existsSync(resolve(repoRoot, 'v5/tests/route-teardown-browser-smoke.js')),
+  true,
+  'route teardown browser smoke must exist'
 );
 
 const controllerSources = [
