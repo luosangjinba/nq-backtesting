@@ -20,6 +20,7 @@ export function createChartRuntimeHostSync({
       renderedBarCount: renderedBars.length,
       fullBarCount: sourceState.bars.length,
       displayTimeframe: sourceState.displayContext.displayTimeframe || '',
+      displayRevision: sourceState.displayContext.displayRevision || '',
       crosshairActive: sourceState.crosshair.active ? 'true' : 'false',
       crosshairTime: sourceState.crosshair.time || '',
       crosshairPrice: sourceState.crosshair.price == null ? '' : sourceState.crosshair.price,

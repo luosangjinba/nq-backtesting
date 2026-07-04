@@ -41,20 +41,40 @@ export function createReplayChartSync({
     }
   }
 
-  async function syncChartDisplayContext({ displayTimeframe, bars, paneId }) {
+  async function syncChartDisplayContext({
+    displayTimeframe,
+    bars,
+    paneId,
+    expectedDisplayRevision,
+    bumpDisplayRevision = false,
+  }) {
     if (!hasCommand(chartCommands.SET_DISPLAY_CONTEXT)) return;
     const state = getState();
     const timestamps = (bars || [])
       .map((bar) => Number(bar?.timestamp))
       .filter(Number.isFinite)
       .sort((left, right) => left - right);
-    await dispatchCommand(chartCommands.SET_DISPLAY_CONTEXT, {
+    return dispatchCommand(chartCommands.SET_DISPLAY_CONTEXT, {
       paneId,
       instrument: state.session?.instrument || null,
       displayTimeframe,
+      expectedDisplayRevision,
+      bumpDisplayRevision,
       loadedCoverage: timestamps.length
         ? { from: timestamps[0], to: timestamps[timestamps.length - 1] }
         : null,
+    });
+  }
+
+  async function beginPaneDisplayLoad({ paneId, displayTimeframe, expectedDisplayRevision } = {}) {
+    if (!hasCommand(chartCommands.SET_DISPLAY_CONTEXT)) return null;
+    const state = getState();
+    return dispatchCommand(chartCommands.SET_DISPLAY_CONTEXT, {
+      paneId,
+      instrument: state.session?.instrument || null,
+      displayTimeframe,
+      expectedDisplayRevision,
+      bumpDisplayRevision: true,
     });
   }
 
@@ -70,12 +90,22 @@ export function createReplayChartSync({
   async function renderDisplayBars(
     displayBars,
     cursorTimestamp,
-    { resumeViewportFollow = false, paneId } = {}
+    {
+      resumeViewportFollow = false,
+      paneId,
+      expectedDisplayRevision,
+      syncViewportFollow = true,
+    } = {}
   ) {
-    await dispatchCommand(chartCommands.REPLACE_BARS, { paneId, bars: displayBars });
-    if (!paneId || paneId === 'primary') {
+    const result = await dispatchCommand(chartCommands.REPLACE_BARS, {
+      paneId,
+      bars: displayBars,
+      expectedDisplayRevision,
+    });
+    if (syncViewportFollow && (!paneId || paneId === 'primary')) {
       await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow });
     }
+    return result;
   }
 
   async function appendDisplayBars(
@@ -216,6 +246,7 @@ export function createReplayChartSync({
     appendDisplayBars,
     renderDisplayBars,
     syncChartDisplayContext,
+    beginPaneDisplayLoad,
     syncChartRightEdgeLimit,
     syncChartViewportFollow,
   };

@@ -194,6 +194,7 @@ export function computeViewportDemand(state, { paneId } = {}) {
     paneId,
     instrument: state.displayContext.instrument,
     displayTimeframe: state.displayContext.displayTimeframe,
+    displayRevision: state.displayContext.displayRevision || 0,
     direction: 'backward',
     visibleFrom: state.visibleRange.from,
     visibleTo: state.visibleRange.to,

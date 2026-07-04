@@ -48,6 +48,7 @@ export async function resolvePaneDisplayWindowBase({
   const baseDisplayBarsTimeframe = statefulLoad
     ? sourceState.displayBarsTimeframe
     : paneDisplayState?.displayContext?.displayTimeframe;
+  const baseDisplayRevision = paneDisplayState?.displayContext?.displayRevision;
   const shouldMergeDisplayBars = statefulLoad
     ? baseDisplayBarsTimeframe === normalizedDisplayTimeframe
     : (
@@ -59,6 +60,7 @@ export async function resolvePaneDisplayWindowBase({
     baseDisplayBars,
     baseDisplayBarsTimeframe,
     currentEarliestTimestamp: earliestBarTimestamp(baseDisplayBars),
+    baseDisplayRevision,
     shouldMergeDisplayBars,
     statefulLoad,
     targetPaneId: normalizedPaneId,

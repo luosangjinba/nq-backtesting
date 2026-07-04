@@ -81,6 +81,7 @@ export function createEmptyChartState() {
       backgroundStyle: cloneBackgroundStyle(),
       scaleStyle: cloneScaleStyle(),
       watermarkStyle: cloneWatermarkStyle(),
+      displayRevision: 0,
     },
   };
 }

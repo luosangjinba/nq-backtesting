@@ -35,6 +35,7 @@ export function buildChartDisplayContext(payload = {}, currentContext = {}) {
     backgroundStyle = currentContext.backgroundStyle,
     scaleStyle = currentContext.scaleStyle,
     watermarkStyle = currentContext.watermarkStyle,
+    displayRevision = currentContext.displayRevision,
   } = payload || {};
 
   return {
@@ -62,5 +63,6 @@ export function buildChartDisplayContext(payload = {}, currentContext = {}) {
     backgroundStyle: cloneBackgroundStyle(backgroundStyle),
     scaleStyle: cloneScaleStyle(scaleStyle),
     watermarkStyle: cloneWatermarkStyle(watermarkStyle),
+    displayRevision: Math.max(0, Math.floor(Number(displayRevision || 0))),
   };
 }

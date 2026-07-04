@@ -112,6 +112,7 @@ export function createReplayDisplayWindowController({
       };
       const {
         baseDisplayBars,
+        baseDisplayRevision,
         currentEarliestTimestamp,
         shouldMergeDisplayBars,
       } = await resolvePaneDisplayWindowBase({
@@ -121,6 +122,22 @@ export function createReplayDisplayWindowController({
         dispatchCommand,
         chartCommands,
       });
+      const displayLoadContext = await chartSync.beginPaneDisplayLoad?.({
+        paneId: targetPaneId,
+        displayTimeframe: normalizedDisplayTimeframe,
+        expectedDisplayRevision: baseDisplayRevision,
+      });
+      const expectedDisplayRevision = displayLoadContext?.staleWrite
+        ? null
+        : displayLoadContext?.displayContext?.displayRevision;
+      if (displayLoadContext?.staleWrite) {
+        return {
+          ...clone(getState()),
+          paneId: targetPaneId,
+          loaded: false,
+          reason: 'stale-display-context',
+        };
+      }
       const displayWindowAttempts = [];
       let nextAnchor = normalizedAnchor;
       let window = null;
@@ -184,15 +201,47 @@ export function createReplayDisplayWindowController({
         if (resumeViewportFollow && chartCommands.RESUME_VIEWPORT_FOLLOW) {
           await dispatchCommand(chartCommands.RESUME_VIEWPORT_FOLLOW, { paneId: targetPaneId });
         }
-        await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp, { paneId: targetPaneId });
+        const rendered = await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp, {
+          paneId: targetPaneId,
+          expectedDisplayRevision,
+          syncViewportFollow: !viewportDemand,
+        });
+        if (rendered?.staleWrite) {
+          return {
+            ...clone(getState()),
+            paneId: targetPaneId,
+            loaded: false,
+            reason: 'stale-display-bars',
+          };
+        }
         if (statefulLoad) {
           await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp);
         }
-        await chartSync.syncChartDisplayContext({
+        const syncedContext = await chartSync.syncChartDisplayContext({
           paneId: targetPaneId,
           displayTimeframe: normalizedDisplayTimeframe,
           bars: displayBars,
+          expectedDisplayRevision,
         });
+        if (syncedContext?.staleWrite) {
+          return {
+            ...clone(getState()),
+            paneId: targetPaneId,
+            loaded: false,
+            reason: 'stale-display-context',
+          };
+        }
+        if (
+          viewportDemand
+          && Number.isFinite(Number(viewportDemand.visibleFrom))
+          && Number.isFinite(Number(viewportDemand.visibleTo))
+        ) {
+          await dispatchCommand(chartCommands.SET_MANUAL_VISIBLE_RANGE, {
+            paneId: targetPaneId,
+            from: Number(viewportDemand.visibleFrom),
+            to: Number(viewportDemand.visibleTo),
+          });
+        }
       }
 
       const nextState = statefulLoad

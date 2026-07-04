@@ -39,7 +39,10 @@ function defaultPaneState(primaryState = {}) {
       bar: null,
       point: null,
     }),
-    displayContext: cloneDisplayContext(primaryState.displayContext),
+    displayContext: {
+      ...cloneDisplayContext(primaryState.displayContext),
+      displayRevision: 0,
+    },
   };
 }
 

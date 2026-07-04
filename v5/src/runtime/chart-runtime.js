@@ -227,8 +227,30 @@ export function createChartRuntime() {
     }
   }
 
-  function updateBars(nextBars, { paneId } = {}) {
+  function expectedDisplayRevisionMatches(sourceState, expectedDisplayRevision) {
+    if (expectedDisplayRevision == null) return true;
+    const expected = Math.floor(Number(expectedDisplayRevision));
+    if (!Number.isFinite(expected)) return true;
+    const current = Math.floor(Number(sourceState.displayContext?.displayRevision || 0));
+    return current === expected;
+  }
+
+  function stalePaneWriteResult(normalizedPaneId, sourceState, expectedDisplayRevision) {
+    return {
+      paneId: normalizedPaneId,
+      staleWrite: true,
+      expectedDisplayRevision: Number(expectedDisplayRevision),
+      displayRevision: Number(sourceState.displayContext?.displayRevision || 0),
+      bars: [...(sourceState.bars || [])],
+    };
+  }
+
+  function updateBars(nextBars, { paneId, expectedDisplayRevision } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
+    const sourceState = stateForPane(normalizedPaneId);
+    if (!expectedDisplayRevisionMatches(sourceState, expectedDisplayRevision)) {
+      return stalePaneWriteResult(normalizedPaneId, sourceState, expectedDisplayRevision);
+    }
     if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
       const paneState = updatePaneDisplayState(normalizedPaneId, { bars: nextBars });
       updatePaneDisplayState(normalizedPaneId, {
@@ -247,8 +269,12 @@ export function createChartRuntime() {
     return { paneId: normalizedPaneId, bars: [...state.bars] };
   }
 
-  function appendBars(nextBars, { paneId, viewportFollow, rightEdgeLimit } = {}) {
+  function appendBars(nextBars, { paneId, viewportFollow, rightEdgeLimit, expectedDisplayRevision } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
+    const sourceState = stateForPane(normalizedPaneId);
+    if (!expectedDisplayRevisionMatches(sourceState, expectedDisplayRevision)) {
+      return stalePaneWriteResult(normalizedPaneId, sourceState, expectedDisplayRevision);
+    }
     const normalizedBars = normalizeBars(nextBars);
     const normalizedRightEdgeLimit = rightEdgeLimit == null
       ? null
@@ -762,7 +788,30 @@ export function createChartRuntime() {
   function setDisplayContext(payload = {}) {
     const normalizedPaneId = normalizePaneId(payload.paneId);
     if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const displayContext = buildChartDisplayContext(payload, stateForPane(normalizedPaneId).displayContext);
+      const sourceState = stateForPane(normalizedPaneId);
+      if (!expectedDisplayRevisionMatches(sourceState, payload.expectedDisplayRevision)) {
+        return {
+          paneId: normalizedPaneId,
+          staleWrite: true,
+          displayContext: structuredClone(sourceState.displayContext),
+        };
+      }
+      const currentContext = sourceState.displayContext;
+      const nextRevision = payload.bumpDisplayRevision
+        || (
+          payload.displayTimeframe != null
+          && Number(payload.displayTimeframe) !== Number(currentContext.displayTimeframe || 0)
+        )
+        || (
+          payload.instrument != null
+          && String(payload.instrument) !== String(currentContext.instrument || '')
+        )
+        ? Math.max(0, Number(currentContext.displayRevision || 0)) + 1
+        : Math.max(0, Number(currentContext.displayRevision || 0));
+      const displayContext = buildChartDisplayContext({
+        ...payload,
+        displayRevision: nextRevision,
+      }, currentContext);
       const paneState = updatePaneDisplayState(normalizedPaneId, { displayContext });
       updatePaneDisplayState(normalizedPaneId, {
         viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
@@ -774,7 +823,28 @@ export function createChartRuntime() {
         viewportDemand: null,
       };
     }
-    state.displayContext = buildChartDisplayContext(payload, state.displayContext);
+    if (!expectedDisplayRevisionMatches(state, payload.expectedDisplayRevision)) {
+      return {
+        paneId: normalizedPaneId,
+        staleWrite: true,
+        displayContext: structuredClone(state.displayContext),
+      };
+    }
+    const nextRevision = payload.bumpDisplayRevision
+      || (
+        payload.displayTimeframe != null
+        && Number(payload.displayTimeframe) !== Number(state.displayContext.displayTimeframe || 0)
+      )
+      || (
+        payload.instrument != null
+        && String(payload.instrument) !== String(state.displayContext.instrument || '')
+      )
+      ? Math.max(0, Number(state.displayContext.displayRevision || 0)) + 1
+      : Math.max(0, Number(state.displayContext.displayRevision || 0));
+    state.displayContext = buildChartDisplayContext({
+      ...payload,
+      displayRevision: nextRevision,
+    }, state.displayContext);
     state.viewportFollow = {
       ...state.viewportFollow,
       rightOffsetBars: state.displayContext.rightOffsetBars,
@@ -825,11 +895,15 @@ export function createChartRuntime() {
     unregisterCallbacks.push(
       registerCommand(CHART_COMMANDS.MOUNT_HOST, (payload = {}) => mountHost(payload.host, payload)),
       registerCommand(CHART_COMMANDS.RELEASE_PANES, (payload = {}) => releasePanes(payload)),
-      registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars, paneId } = {}) => updateBars(normalizeBars(bars), { paneId })),
-      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars, paneId, viewportFollow, rightEdgeLimit } = {}) => appendBars(bars, {
+      registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars, paneId, expectedDisplayRevision } = {}) => updateBars(normalizeBars(bars), {
+        paneId,
+        expectedDisplayRevision,
+      })),
+      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars, paneId, viewportFollow, rightEdgeLimit, expectedDisplayRevision } = {}) => appendBars(bars, {
         paneId,
         viewportFollow,
         rightEdgeLimit,
+        expectedDisplayRevision,
       })),
       registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, (payload) => getViewportMetrics(payload)),
