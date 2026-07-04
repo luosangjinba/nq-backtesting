@@ -71,6 +71,8 @@ export function createReplayNavigationController({
     const window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
       instrument: sourceState.session.instrument,
       timeframe: sourceState.session.timeframe,
+      sessionId,
+      paneId: 'primary',
       anchor: sourceState.cursorTimestamp,
       direction: 'forward',
       count: forwardRevealWindowCount(sourceState),

@@ -49,6 +49,8 @@ export function createReplayBootstrapController({
     const window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
       instrument: session.instrument,
       timeframe: session.timeframe,
+      sessionId,
+      paneId: 'primary',
       anchor: session.sessionStart,
       direction: 'forward',
       count: computeForwardRevealWindowCount({
@@ -107,6 +109,8 @@ export function createReplayBootstrapController({
       const window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
         instrument: current.session.instrument,
         timeframe: current.session.timeframe,
+        sessionId,
+        paneId: 'primary',
         anchor,
         direction: 'forward',
         count,
@@ -142,6 +146,8 @@ export function createReplayBootstrapController({
     const window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
       instrument: state.session.instrument,
       timeframe: state.session.timeframe,
+      sessionId,
+      paneId: 'primary',
       anchor: state.startBar.time,
       direction: 'backward',
       count: prefixCount + 1,

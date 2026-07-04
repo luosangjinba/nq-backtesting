@@ -108,6 +108,8 @@ Future lifecycle-sensitive steps should include at least one relevant check:
   runtime, while preserving primary/global replay state;
 - replacing a chart host destroys or detaches the previous adapter;
 - switching sessions clears or scopes replay display/cache state correctly;
+- bar-data cache entries expose session/pane scope summaries and can be
+  released by scope before capacity pruning;
 - replay pause/teardown clears playback timers;
 - modal/popover close destroys route-local listeners or draft subscriptions;
 - static audit of high-risk resource creation patterns is updated when new

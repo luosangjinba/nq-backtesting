@@ -127,6 +127,10 @@ Recommended release policy:
 
 - retain recently visible windows;
 - retain windows within a configurable distance from current viewport;
+- track optional session/pane scopes separately from cache keys so multi-pane
+  reuse can survive one pane being removed;
+- release session/pane scopes explicitly and defer deleting the final unscoped
+  window until capacity pruning;
 - release only when a capacity or distance threshold is exceeded;
 - expose release decisions in runtime/cache summary for smoke tests.
 

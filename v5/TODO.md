@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 495 completed. Chart runtime now exposes
-  `chart.releasePanes`; chart route dispatches the current layout pane ids after
-  layout render; removed non-primary panes release pane-local display state,
-  stale pane hosts, and chart adapters while preserving primary/global replay
-  state.
-- Next candidate: Step 496 - continue lifecycle cleanup backlog with bar-data
-  cache retention checks for multi-pane workloads, or add a browser route
-  teardown smoke for controller cleanup behavior.
+- Current status: Step 496 completed. Bar-data runtime now tracks optional
+  session/pane cache scopes, exposes `barData.releaseScope`, preserves shared
+  instrument/timeframe/range cache reuse, defers final-scope deletion by
+  default, and relies on `barData.pruneCache` for bounded capacity cleanup.
+- Next candidate: Step 497 - add a browser route teardown smoke that switches
+  away from chart route and verifies stale controller timers/listeners cannot
+  mutate removed DOM.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -218,6 +217,11 @@
   owns `chart.releasePanes`, deletes stale pane-local display state, destroys
   removed pane adapters/host refs, and clears pane-local state during runtime
   stop.
+- Lifecycle implementation decision: Step 496 gives bar-data runtime a scoped
+  cache release gate. Replay requests pass session/pane metadata, cache keys
+  stay instrument/timeframe/range scoped for reuse, `barData.releaseScope`
+  removes session/pane references without UI touching caches directly, and
+  unreferenced windows are deferred until `barData.pruneCache` removes them.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

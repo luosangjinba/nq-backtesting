@@ -61,6 +61,8 @@ export function createReplayPrefixController({
       const window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
         instrument: state.session.instrument,
         timeframe: state.session.timeframe,
+        sessionId: state.sessionId,
+        paneId: 'primary',
         anchor,
         direction: 'backward',
         count,

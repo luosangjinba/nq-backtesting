@@ -111,6 +111,8 @@ export function createReplayDisplayWindowController({
         window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
           instrument: sourceState.session.instrument,
           timeframe: normalizedDisplayTimeframe,
+          sessionId,
+          paneId: targetPaneId,
           anchor: nextAnchor,
           direction: normalizedDirection,
           count: normalizedCount,

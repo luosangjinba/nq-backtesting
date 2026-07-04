@@ -3,6 +3,7 @@ export const BAR_DATA_COMMANDS = Object.freeze({
   LOAD_WINDOW: 'barData.loadWindow',
   GET_WINDOW: 'barData.getWindow',
   RELEASE_WINDOW: 'barData.releaseWindow',
+  RELEASE_SCOPE: 'barData.releaseScope',
   PRUNE_CACHE: 'barData.pruneCache',
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
 });

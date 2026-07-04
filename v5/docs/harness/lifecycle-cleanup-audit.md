@@ -166,21 +166,45 @@ Step 495 result:
 - `chart-runtime.stop()` clears all pane-local display state, in addition to
   disconnecting observers and destroying adapters.
 
-## Remaining Cleanup Backlog
+## Step 496 Resolved Items
 
-### 1. Bar Data Cache Retention Needs A Lifecycle Test Gate
+### Bar Data Cache Scope Retention
 
 `v5/src/runtime/bar-data-runtime.js`
 
+Step 496 result:
+
+- `barData.releaseScope` is the bar-data-runtime-owned release command for
+  session/pane cache scope removal.
+- Bar-data cache keys remain instrument/timeframe/range based so cross-pane
+  reuse is preserved.
+- Cached windows now track optional `sessionId` / `paneId` scope metadata from
+  replay runtime requests.
+- Releasing one pane scope keeps a shared cached window when another scope still
+  references it.
+- Releasing the final scope marks the window deferred by default, preserving the
+  delayed release behavior required for smooth pan-back.
+- `barData.pruneCache` is the capacity gate that removes deferred or least
+  recently used windows.
+- `barData.getCacheSummary` exposes `cacheScopes` and `releaseDeferred` for
+  lifecycle smoke assertions.
+
+## Remaining Cleanup Backlog
+
+### 1. Browser Route Teardown Needs A Lifecycle Behavior Smoke
+
+`v5/src/features/chart-replay/chart-replay-route.js`
+
 Risk:
 
-- Bar-data runtime owns cache/retention policy, but lifecycle checks should
-  assert cache release remains bounded as multi-pane display windows grow.
+- Static checks prove disposal paths exist, but a browser smoke should still
+  verify route switching cannot leave a pending controller timer/window listener
+  mutating removed DOM.
 
 Required follow-up:
 
-- Add or extend smoke coverage around release/retention after session or pane
-  changes.
+- Add a browser route teardown smoke that enters chart route, creates controller
+  state, switches routes, and verifies stale listeners/timers are inert.
 
 ## Step 493+ Priority
 
@@ -188,4 +212,3 @@ Recommended implementation order:
 
 1. Add a browser route teardown smoke that switches away from chart route and
    verifies no pending controller timer/window listener can mutate removed DOM.
-2. Add/extend bar-data cache retention checks for multi-pane workloads.

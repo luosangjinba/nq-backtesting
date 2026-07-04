@@ -15,7 +15,9 @@ function assertIncludes(source, expected, message) {
 const lifecycleSpec = read('v5/docs/specs/runtime-lifecycle-cleanup.md');
 const lifecycleAudit = read('v5/docs/harness/lifecycle-cleanup-audit.md');
 const chartContracts = read('v5/src/contracts/chart-contracts.js');
+const barDataContracts = read('v5/src/contracts/bar-data-contracts.js');
 const chartRuntime = read('v5/src/runtime/chart-runtime.js');
+const barDataRuntime = read('v5/src/runtime/bar-data-runtime.js');
 const lightweightAdapter = read('v5/src/runtime/chart-engine-lightweight-adapter.js');
 const fallbackAdapter = read('v5/src/runtime/chart-engine-fallback-adapter.js');
 const viewportBridge = read('v5/src/features/chart-replay/viewport-demand-wiring.js');
@@ -67,6 +69,26 @@ assertIncludes(
   chartRoute,
   'releaseRemovedChartPanes(layoutState)',
   'chart replay route must notify chart runtime when layout panes change'
+);
+assertIncludes(
+  barDataContracts,
+  'RELEASE_SCOPE',
+  'bar data contracts must expose scope release command'
+);
+assertIncludes(
+  barDataRuntime,
+  'function releaseScope',
+  'bar data runtime must expose scoped cache release logic'
+);
+assertIncludes(
+  barDataRuntime,
+  'registerCommand(BAR_DATA_COMMANDS.RELEASE_SCOPE',
+  'bar data runtime must register scoped cache release command'
+);
+assertIncludes(
+  barDataRuntime,
+  'windows.clear()',
+  'bar data runtime stop must clear cached windows'
 );
 
 assertIncludes(lightweightAdapter, 'destroy() {', 'Lightweight adapter must expose destroy');
@@ -151,6 +173,11 @@ assertIncludes(
   lifecycleAudit,
   'Step 495 Resolved Items',
   'lifecycle audit must document Step 495 resolved cleanup items'
+);
+assertIncludes(
+  lifecycleAudit,
+  'Step 496 Resolved Items',
+  'lifecycle audit must document Step 496 resolved cleanup items'
 );
 
 const controllerSources = [

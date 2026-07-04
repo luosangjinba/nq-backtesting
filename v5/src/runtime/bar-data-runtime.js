@@ -97,6 +97,17 @@ function makeWindowKey(window) {
   ].join('|');
 }
 
+function normalizeScope(payload = {}) {
+  const sessionId = String(payload.sessionId || '').trim();
+  const paneId = String(payload.paneId || '').trim();
+  if (!sessionId && !paneId) return null;
+  return {
+    sessionId,
+    paneId,
+    key: `${sessionId || '*'}|${paneId || '*'}`,
+  };
+}
+
 function estimateBarCount(startMs, endMs, timeframe) {
   return Math.floor((endMs - startMs) / (timeframe * TIMEFRAME_TO_MS)) + 1;
 }
@@ -221,12 +232,36 @@ export function createBarDataRuntime({
     return record;
   }
 
+  function scopeList(record) {
+    return [...(record.scopes || new Map()).values()]
+      .map((scope) => ({
+        sessionId: scope.sessionId,
+        paneId: scope.paneId,
+      }))
+      .sort((left, right) => `${left.sessionId}|${left.paneId}`.localeCompare(`${right.sessionId}|${right.paneId}`));
+  }
+
+  function attachScope(record, payload = {}) {
+    const scope = normalizeScope(payload);
+    if (!scope) return record;
+    if (!(record.scopes instanceof Map)) {
+      record.scopes = new Map();
+    }
+    record.scopes.set(scope.key, scope);
+    record.releaseDeferred = false;
+    record.releaseRequestedSequence = null;
+    return record;
+  }
+
   function cloneRecord(record, extras = {}) {
-    return {
+    const cloned = {
       ...record,
       ...extras,
-      bars: [...record.bars],
+      cacheScopes: scopeList(record),
+      bars: [...(extras.bars || record.bars)],
     };
+    delete cloned.scopes;
+    return cloned;
   }
 
   function cloneCoveredRecord(record, planned) {
@@ -237,6 +272,7 @@ export function createBarDataRuntime({
       requestedRange: record.requestedRange || null,
       cached: true,
       coveredByKey: record.key,
+      cacheScopes: scopeList(record),
       releaseDeferred: false,
       releaseRequestedSequence: null,
       lastAccessedSequence: record.lastAccessedSequence || 0,
@@ -250,9 +286,9 @@ export function createBarDataRuntime({
   function getWindow(payload = {}) {
     const planned = normalizeBarWindow(payload, { maxBarsPerWindow });
     const cached = windows.get(makeWindowKey(planned));
-    if (cached) return cloneRecord(touch(cached));
+    if (cached) return cloneRecord(touch(attachScope(cached, payload)));
     const covered = findCoveringRecord(planned);
-    return covered ? cloneCoveredRecord(touch(covered), planned) : null;
+    return covered ? cloneCoveredRecord(touch(attachScope(covered, payload)), planned) : null;
   }
 
   async function loadWindow(payload = {}) {
@@ -260,11 +296,11 @@ export function createBarDataRuntime({
     const key = makeWindowKey(planned);
     const cached = windows.get(key);
     if (cached) {
-      return cloneRecord(touch(cached), { cached: true });
+      return cloneRecord(touch(attachScope(cached, payload)), { cached: true });
     }
     const covered = findCoveringRecord(planned);
     if (covered) {
-      return cloneCoveredRecord(touch(covered), planned);
+      return cloneCoveredRecord(touch(attachScope(covered, payload)), planned);
     }
 
     const response = await fetchBars(planned);
@@ -278,10 +314,12 @@ export function createBarDataRuntime({
       releaseDeferred: false,
       releaseRequestedSequence: null,
       lastAccessedSequence: 0,
+      scopes: new Map(),
     };
+    attachScope(record, payload);
     windows.set(key, touch(record));
-    emit(BAR_DATA_EVENTS.WINDOW_LOADED, { ...record, bars: [...record.bars] });
-    return { ...record, bars: [...record.bars] };
+    emit(BAR_DATA_EVENTS.WINDOW_LOADED, cloneRecord(record));
+    return cloneRecord(record);
   }
 
   function releaseWindow(payload = {}) {
@@ -296,9 +334,68 @@ export function createBarDataRuntime({
     }
     const released = windows.delete(key);
     if (released) {
-      emit(BAR_DATA_EVENTS.WINDOW_RELEASED, { key, window: planned });
+      emit(BAR_DATA_EVENTS.WINDOW_RELEASED, {
+        key,
+        window: cached ? cloneRecord(cached, { bars: [] }) : planned,
+      });
     }
     return { key, released };
+  }
+
+  function releaseScope(payload = {}) {
+    const targetScope = normalizeScope(payload);
+    if (!targetScope) {
+      throw new Error('bar data release scope requires sessionId or paneId.');
+    }
+    const defer = payload.defer !== false;
+    const released = [];
+    const deferred = [];
+    const retained = [];
+
+    for (const [key, record] of windows.entries()) {
+      if (!(record.scopes instanceof Map)) continue;
+      const matchedScopes = [...record.scopes.entries()]
+        .filter(([, scope]) => {
+          const sessionMatches = !targetScope.sessionId || scope.sessionId === targetScope.sessionId;
+          const paneMatches = !targetScope.paneId || scope.paneId === targetScope.paneId;
+          return sessionMatches && paneMatches;
+        });
+      if (!matchedScopes.length) continue;
+      matchedScopes.forEach(([scopeKey]) => record.scopes.delete(scopeKey));
+      if (record.scopes.size > 0) {
+        retained.push({ key, cacheScopes: scopeList(record) });
+        continue;
+      }
+      if (defer) {
+        record.releaseDeferred = true;
+        record.releaseRequestedSequence = ++accessSequence;
+        deferred.push({ key, window: cloneRecord(record, { bars: [] }) });
+        emit(BAR_DATA_EVENTS.WINDOW_RELEASE_DEFERRED, {
+          key,
+          window: cloneRecord(record, { bars: [] }),
+          scope: targetScope,
+        });
+        continue;
+      }
+      windows.delete(key);
+      released.push({ key, window: cloneRecord(record, { bars: [] }) });
+      emit(BAR_DATA_EVENTS.WINDOW_RELEASED, {
+        key,
+        window: cloneRecord(record, { bars: [] }),
+        scope: targetScope,
+      });
+    }
+
+    return {
+      scope: {
+        sessionId: targetScope.sessionId,
+        paneId: targetScope.paneId,
+      },
+      released,
+      deferred,
+      retained,
+      retainedWindowCount: windows.size,
+    };
   }
 
   function pruneCache({ maxWindows = windows.size, includeDeferred = true } = {}) {
@@ -321,7 +418,10 @@ export function createBarDataRuntime({
       if (windows.size <= normalizedMaxWindows && !(includeDeferred && record.releaseDeferred)) break;
       windows.delete(key);
       released.push({ key, window: { ...record, bars: undefined } });
-      emit(BAR_DATA_EVENTS.WINDOW_RELEASED, { key, window: record });
+      emit(BAR_DATA_EVENTS.WINDOW_RELEASED, {
+        key,
+        window: cloneRecord(record, { bars: [] }),
+      });
     }
 
     return {
@@ -343,6 +443,7 @@ export function createBarDataRuntime({
         barCount: window.bars.length,
         releaseDeferred: Boolean(window.releaseDeferred),
         lastAccessedSequence: window.lastAccessedSequence || 0,
+        cacheScopes: scopeList(window),
       })),
     };
   }
@@ -354,6 +455,7 @@ export function createBarDataRuntime({
       registerCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, (payload) => loadWindow(payload)),
       registerCommand(BAR_DATA_COMMANDS.GET_WINDOW, (payload) => getWindow(payload)),
       registerCommand(BAR_DATA_COMMANDS.RELEASE_WINDOW, (payload) => releaseWindow(payload)),
+      registerCommand(BAR_DATA_COMMANDS.RELEASE_SCOPE, (payload) => releaseScope(payload)),
       registerCommand(BAR_DATA_COMMANDS.PRUNE_CACHE, (payload) => pruneCache(payload)),
       registerCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY, () => getCacheSummary())
     );
