@@ -102,6 +102,9 @@ that future work must follow this file order.
 - `pane-display-state-store-rebuild-plan.md`: Step 534 plan to delete the
   remaining primary/non-primary display-state architecture and rebuild chart
   and replay display paths around one pane state store.
+- `v5-v6-rewrite-decision-audit.md`: Step 535 decision audit for whether V5
+  can continue after the pane-state rebuild or whether multi-pane/replay debt
+  justifies opening a V6 rewrite.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.

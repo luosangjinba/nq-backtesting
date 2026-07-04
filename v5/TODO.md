@@ -10,6 +10,13 @@
 
 ## Current / Next
 
+- Current status: Step 535 active. Decide whether V5 should continue after the
+  Step 534 pane-state rebuild or whether the remaining multi-pane/replay debt
+  warrants opening V6. See `v5/docs/specs/v5-v6-rewrite-decision-audit.md` and
+  `v5/sessions/session_20260704_step535_v5_v6_rewrite_decision_audit.md`.
+- Current direction: run a static architecture-debt audit over multi-pane and
+  replay ownership paths, classify remaining `primary` usage, and record a
+  V5/V6 recommendation before any further multi-pane bug work.
 - Current status: Step 534 completed. The remaining multi-pane "each pane plays
   separately" class was treated as an architecture defect, not a patch queue.
   V5 now uses one chart pane state store for every pane, replay display-window
