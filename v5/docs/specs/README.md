@@ -105,6 +105,9 @@ that future work must follow this file order.
 - `v5-v6-rewrite-decision-audit.md`: Step 535 decision audit for whether V5
   can continue after the pane-state rebuild or whether multi-pane/replay debt
   justifies opening a V6 rewrite.
+- `v5-cleanup-after-rewrite-decision.md`: Step 536 cleanup plan for retiring
+  the remaining default-pane, route timeframe mirror, and stale test wording
+  debt found by the V5/V6 audit.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.

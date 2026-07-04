@@ -55,6 +55,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 533: `session_20260704_step533_v5_pane_display_state_unification.md`
 - Step 534: `session_20260704_step534_v5_pane_display_state_store_rebuild.md`
 - Step 535: `session_20260704_step535_v5_v6_rewrite_decision_audit.md`
+- Step 536: `session_20260704_step536_v5_cleanup_after_rewrite_decision.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index

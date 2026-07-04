@@ -10,6 +10,14 @@
 
 ## Current / Next
 
+- Current status: Step 536 active. Execute the cleanup required by Step 535 so
+  V5 can continue without V6 and without mandatory multi-pane/replay cleanup
+  debt. See `v5/docs/specs/v5-cleanup-after-rewrite-decision.md` and
+  `v5/sessions/session_20260704_step536_v5_cleanup_after_rewrite_decision.md`.
+- Current direction: remove default replay pane hardcoding, remove route-level
+  `replayDisplayTimeframe` mirroring, update stale primary/non-primary test
+  wording, and make `v5-v6-rewrite-decision-audit.js` recommend
+  `continue-v5`.
 - Current status: Step 535 completed. Static architecture audit found no V6
   blocker after the Step 534 pane-state rebuild. Continue V5, but keep cleanup
   mandatory. See `v5/docs/specs/v5-v6-rewrite-decision-audit.md` and
