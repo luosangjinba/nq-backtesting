@@ -84,6 +84,9 @@ that future work must follow this file order.
 - `multi-pane-rebuild-plan.md`: Step 511 decision to stop incremental
   multi-pane patching and rebuild around explicit pane lifecycle phases,
   active-pane rules, and coordinated replay projection.
+- `replay-pane-fanout-plan.md`: Step 529 plan to replace same-timeframe replay
+  pane updates from primary-first `NEXT` event catch-up with one coordinated
+  reveal-batch fan-out before replay notification.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
@@ -177,4 +180,6 @@ that future work must follow this file order.
   `layout-split-panes-contract.md`
 - Step 528: `fxreplay-parity-gap-audit.md`,
   `workstation-decision-backlog.md`
+- Step 529: `replay-pane-fanout-plan.md`, `multi-pane-rebuild-plan.md`,
+  `layout-split-panes-contract.md`
 - Cross-phase: `open-source-local-deployment.md`

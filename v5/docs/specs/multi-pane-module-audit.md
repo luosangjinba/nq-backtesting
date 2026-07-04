@@ -26,6 +26,12 @@ catch-up work instead of one coordinated replay projection. The current
 multi-pane path should therefore be treated as a rebuild target, not a surface
 for more local behavior patches.
 
+Step 529 selects the next bounded piece of that rebuild: same-timeframe replay
+pane updates should be distributed from one shared reveal batch before replay
+`NEXT` notification. The existing route-level replay pane projection may remain
+for different-timeframe display-window projection, but it should no longer be
+the normal path for same-timeframe K-line append.
+
 ## Current Hotspots
 
 Line counts at audit time:

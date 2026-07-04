@@ -77,6 +77,13 @@ around:
 
 This is a planning contract, not an implementation step.
 
+Step 529 narrows the next implementation target from the broader rebuild plan:
+same-timeframe replay panes should advance from one coordinated reveal-batch
+fan-out before `REPLAY_EVENTS.NEXT` notification, instead of primary append
+first and secondary/tertiary append through event catch-up. Different-timeframe
+panes must still project their own display windows anchored to the shared
+cursor.
+
 Step 491 adds `workstation-decision-backlog.md` as the routing spec for recent
 multi-pane decisions before later implementation plans. This file remains the
 detailed owner for split-pane layout, active-pane, sync, pane-local viewport,

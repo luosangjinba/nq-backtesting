@@ -10,6 +10,17 @@
 
 ## Current / Next
 
+- Current status: Step 529 planned. The next multi-pane / replay stabilization
+  step is to replace same-timeframe replay pane updates from the current
+  primary-first plus `REPLAY_EVENTS.NEXT` catch-up projection with a
+  coordinated replay pane fan-out path. See
+  `v5/docs/specs/replay-pane-fanout-plan.md` and
+  `v5/sessions/session_20260704_step529_v5_replay_pane_fanout_plan.md`.
+- Current direction: implement Step 529 before returning to Settings parity.
+  The working hypothesis is that some pane TF / pane movement display bugs may
+  come from the existing event-catch-up distribution path. If they remain after
+  Step 529, continue diagnosis in pane-local viewport state, display-window
+  loading, and layout sync.
 - Current status: Replay right-edge wall bugfix completed. Follow mode now
   anchors the latest replay candle at a fixed `rightOffsetBars` distance from
   the canvas right edge in both single-pane and multi-pane replay, while new
@@ -17,12 +28,12 @@
   margin. The fix keeps DOM-derived visible capacity out of replay runtime
   state so rapid-next append performance stays on the incremental path.
 - Current direction: prioritize manually observed multi-pane / replay bugs
-  before returning to the Step 529 Settings parity candidate.
+  before returning to the Settings parity candidate from Step 528.
 - Current status: Step 528 completed. `fxreplay-parity-gap-audit.md` now
   records current FXReplay parity coverage, remaining workflow gaps, boundary
-  rules, and a ranked near-term backlog. The recommended Step 529 starting
-  point is a Settings parity checklist with at most one bounded high-frequency
-  settings implementation if ownership is clear.
+  rules, and a ranked near-term backlog. Its original Settings parity
+  recommendation is now superseded by the Step 529 replay pane fan-out plan
+  until the multi-pane / replay bug queue is quiet.
 - Current status: Step 527 completed. Replay transport UI preferences now
   persist floating control position and playback speed across chart route
   re-entry and page reloads, with restored positions clamped to the current
@@ -52,10 +63,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: continue the multi-pane / replay bugfix queue from
-  manual testing. After the bug queue is quiet, Step 529 should start with a
-  Settings parity checklist and choose at most one bounded high-frequency
-  settings gap to implement if the owner boundary is already clear.
+- Next recommended step: Step 529.2 should add ordering/contract coverage for
+  replay pane fan-out before runtime behavior changes. After the multi-pane /
+  replay bug queue is quiet, return to the Settings parity checklist candidate
+  from Step 528.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

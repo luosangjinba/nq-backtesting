@@ -139,7 +139,8 @@ coverage before implementation.
    - Suggested shape: pick when moving from replay workstation polish to
      local-first product packaging.
 
-Recommendation: Step 529 should start with the settings parity checklist. It is
-the highest-value bounded continuation because it can reuse existing settings
-modules, avoids speculative chart plugins, and is directly visible in daily
-replay use.
+Superseding note on 2026-07-04: manual testing later exposed multi-pane replay
+display instability around pane timeframe changes and pane-local chart
+movement. Step 529 is therefore redirected to the replay pane fan-out plan in
+`replay-pane-fanout-plan.md`. The settings parity checklist remains the next
+candidate after the multi-pane / replay bug queue is quiet.

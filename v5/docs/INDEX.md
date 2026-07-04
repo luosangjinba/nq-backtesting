@@ -21,6 +21,9 @@ Read this index before working on V5.
   viewport demand, reset view, split resize walls, and test coverage.
 - `v5/docs/specs/multi-pane-module-audit.md`: current multi-pane module audit,
   ownership debt, proposed split boundaries, and refactor order.
+- `v5/docs/specs/replay-pane-fanout-plan.md`: current Step 529 plan for
+  replacing same-timeframe replay pane event catch-up with coordinated
+  reveal-batch fan-out.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.
