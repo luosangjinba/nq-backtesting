@@ -47,6 +47,23 @@ Status: completed. The new unit coverage currently fails as intended on
   previous active pane still exists.
 - Run the Step 512 browser contract smoke and related layout/multi-pane smokes.
 
+Status: completed. `layout-runtime.js` now uses an explicit
+variant-to-initial-active-pane policy table. Step 512's contract smoke now
+passes.
+
+## Verification
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/tests/layout-runtime-smoke.js`
+- `node --check v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/replay-fast-next-browser-smoke.js`
+- `git diff --check`
+
 ## Status
 
-In progress.
+Completed.

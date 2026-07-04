@@ -10,15 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 512 completed. The new
-  `multi-pane-rebuild-contract-browser-smoke.js` is the strict executable
-  rebuild contract for twice/triple variants, initial active pane, every-pane
-  rendered bars, reset recovery, and immediate replay `Next`. It currently
-  fails as intended on triple initial active-pane policy only.
-- Next candidate: Step 513 should implement the layout-runtime variant
-  active-pane policy table so `triple.vertical`, `triple.left`, and
-  `triple.bottom` expand from single pane to the requested right-side/upper-side
-  active pane.
+- Current status: Step 513 completed. Layout runtime now uses an explicit
+  variant-to-initial-active-pane policy table, and the Step 512 multi-pane
+  rebuild contract smoke passes for all twice/triple variants.
+- Next candidate: Step 514 should introduce the pane display coordinator and
+  move pane initialization toward deterministic shared pane lifecycle states
+  instead of opportunistic non-primary catch-up work.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -329,6 +326,12 @@
   active-pane policy: `triple.vertical` should start on `tertiary`,
   `triple.left` should start on `secondary`, and `triple.bottom` should start
   on `secondary`.
+- Layout active-pane policy decision: Step 513 moves initial active-pane choice
+  into an explicit layout-runtime variant policy table. Expanding from single
+  pane now chooses `secondary` for `twice.vertical`, `tertiary` for
+  `triple.vertical`, `secondary` for `triple.left`, `secondary` for
+  `triple.bottom`, and `primary` for the remaining supported variants unless
+  the previous active pane should be preserved.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

@@ -186,12 +186,22 @@ function panesForMode(mode, currentPanes = []) {
   return Array.from({ length: count }, (_, index) => defaultPaneForIndex(index, currentPanes[index]));
 }
 
+const INITIAL_ACTIVE_PANE_BY_VARIANT = Object.freeze({
+  [LAYOUT_VARIANTS.SINGLE_DEFAULT]: DEFAULT_ACTIVE_PANE_ID,
+  [LAYOUT_VARIANTS.TWICE_VERTICAL]: 'secondary',
+  [LAYOUT_VARIANTS.TWICE_HORIZONTAL]: DEFAULT_ACTIVE_PANE_ID,
+  [LAYOUT_VARIANTS.TRIPLE_VERTICAL]: 'tertiary',
+  [LAYOUT_VARIANTS.TRIPLE_HORIZONTAL]: DEFAULT_ACTIVE_PANE_ID,
+  [LAYOUT_VARIANTS.TRIPLE_LEFT]: 'secondary',
+  [LAYOUT_VARIANTS.TRIPLE_RIGHT]: DEFAULT_ACTIVE_PANE_ID,
+  [LAYOUT_VARIANTS.TRIPLE_TOP]: DEFAULT_ACTIVE_PANE_ID,
+  [LAYOUT_VARIANTS.TRIPLE_BOTTOM]: 'secondary',
+});
+
 function preferredActivePaneForVariant(variant, panes = []) {
-  if (variant === LAYOUT_VARIANTS.TWICE_VERTICAL) {
-    return panes.find((pane) => pane.id === 'secondary')?.id || panes.at(-1)?.id || DEFAULT_ACTIVE_PANE_ID;
-  }
-  if (variant === LAYOUT_VARIANTS.TWICE_HORIZONTAL) {
-    return panes.find((pane) => pane.id === DEFAULT_ACTIVE_PANE_ID)?.id || panes[0]?.id || DEFAULT_ACTIVE_PANE_ID;
+  const preferredPaneId = INITIAL_ACTIVE_PANE_BY_VARIANT[variant] || DEFAULT_ACTIVE_PANE_ID;
+  if (panes.some((pane) => pane.id === preferredPaneId)) {
+    return preferredPaneId;
   }
   return panes.some((pane) => pane.id === DEFAULT_ACTIVE_PANE_ID)
     ? DEFAULT_ACTIVE_PANE_ID
