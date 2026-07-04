@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 503 completed. `chart-replay-pane-orchestrator.js` now
-  owns route-level pane host/display/TF orchestration, while
-  `chart-replay-route.js` keeps page construction, controller wiring, top-level
-  event subscriptions, and teardown.
-- Next candidate: Step 504 - extract `chart-replay-layout-sync-controller.js`
-  for time/date-range/crosshair sync effects.
+- Current status: Step 504 in progress. The implementation plan is to extract
+  `chart-replay-layout-sync-controller.js` in bounded commits: document the
+  split, add the controller seam, move time/date-range/crosshair sync effects,
+  then run the multi-pane layout regression gates.
+- Next candidate: Complete Step 504, then continue Step 505 with pane shell DOM
+  and split-resize controller extraction.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
