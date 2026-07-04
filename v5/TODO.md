@@ -10,17 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 529 planned. The next multi-pane / replay stabilization
-  step is to replace same-timeframe replay pane updates from the current
-  primary-first plus `REPLAY_EVENTS.NEXT` catch-up projection with a
-  coordinated replay pane fan-out path. See
-  `v5/docs/specs/replay-pane-fanout-plan.md` and
-  `v5/sessions/session_20260704_step529_v5_replay_pane_fanout_plan.md`.
-- Current direction: implement Step 529 before returning to Settings parity.
-  The working hypothesis is that some pane TF / pane movement display bugs may
-  come from the existing event-catch-up distribution path. If they remain after
-  Step 529, continue diagnosis in pane-local viewport state, display-window
-  loading, and layout sync.
+- Current status: Step 529 completed. Same-timeframe replay panes now advance
+  from one coordinated reveal-batch fan-out before `REPLAY_EVENTS.NEXT`
+  notification. The old secondary same-timeframe event catch-up append path was
+  removed; projection now keeps different-timeframe display-window projection.
+- Current direction: manually retest the reported multi-pane display bugs:
+  active-pane TF changes and pane-local candle movement/panning. If any
+  missing/garbled display issue remains, continue diagnosis in pane-local
+  viewport state, display-window loading, and layout sync with the replay
+  distribution race removed.
 - Current status: Replay right-edge wall bugfix completed. Follow mode now
   anchors the latest replay candle at a fixed `rightOffsetBars` distance from
   the canvas right edge in both single-pane and multi-pane replay, while new
@@ -63,10 +61,9 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 529.2 should add ordering/contract coverage for
-  replay pane fan-out before runtime behavior changes. After the multi-pane /
-  replay bug queue is quiet, return to the Settings parity checklist candidate
-  from Step 528.
+- Next recommended step: manually test Step 529 against the known multi-pane
+  display bug scenarios. If the bug queue is quiet, return to the Settings
+  parity checklist candidate from Step 528.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

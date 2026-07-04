@@ -136,10 +136,28 @@ bars.
   same-timeframe `chart.appendBars`; it now reports `fanout-already-applied`
   or `same-timeframe-fanout-required` and keeps only different-timeframe
   display-window projection as its mutation responsibility.
-- Step 529.6: pending regression and closeout.
+- Step 529.6: completed. Ran regression coverage, updated TODO/spec closeout,
+  and recorded manual retest guidance.
 
 ## Next
 
-Implement Step 529.6 next: run the full regression set, update TODO/spec
-closeout, and record manual retest guidance for remaining pane TF / pan display
-bugs.
+Manually retest the known multi-pane display bug scenarios: changing an active
+pane's TF, moving/panning a pane's candles, then replaying forward. If display
+loss or disorder remains, continue in pane-local viewport state,
+display-window loading, and layout sync.
+
+## Final Verification
+
+- `node v5/tests/replay-chart-sync-fanout-smoke.js` passed.
+- `node v5/tests/chart-replay-pane-projection-smoke.js` passed.
+- `node v5/tests/chart-follow-logical-range-smoke.js` passed.
+- `node --check v5/src/runtime/replay-navigation-controller.js` passed.
+- `node --check v5/src/runtime/replay-chart-sync.js` passed.
+- `node v5/tests/replay-pane-fanout-ordering-browser-smoke.js` passed.
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/replay-cadence-latency-browser-smoke.js` passed. Final
+  sample p95/max was about 11.3ms.
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js` passed.
+- `git diff --check` passed.

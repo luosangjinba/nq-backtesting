@@ -144,3 +144,36 @@ Step 529 is complete only when:
 - replay cadence and multi-pane rapid-next gates remain acceptable;
 - the old secondary same-timeframe catch-up path is either removed or reduced
   to a defensive fallback with explicit trace coverage.
+
+## Step 529 Result
+
+Completed on 2026-07-04.
+
+- `replay-navigation-controller` now routes same-timeframe replay `Next`
+  display writes through `appendRevealedBarsToPanes` before
+  `REPLAY_EVENTS.NEXT` notification.
+- `replay-chart-sync` owns the coordinated reveal-batch fan-out boundary. It
+  appends same-timeframe panes with the same `revealedBars` and returns
+  different-timeframe panes for display-window projection.
+- `chart-replay-pane-projection` no longer dispatches same-timeframe
+  `chart.appendBars`; it keeps different-timeframe display-window projection.
+- `replay-pane-fanout-ordering-browser-smoke.js` asserts primary and secondary
+  append before replay `NEXT` notification.
+
+Final verification:
+
+- `node v5/tests/replay-chart-sync-fanout-smoke.js`
+- `node v5/tests/chart-replay-pane-projection-smoke.js`
+- `node v5/tests/chart-follow-logical-range-smoke.js`
+- `node v5/tests/replay-pane-fanout-ordering-browser-smoke.js`
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js`
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js`
+- `node v5/tests/replay-cadence-latency-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `git diff --check`
+
+Manual follow-up: retest the previously observed pane TF change and pane-local
+movement display bugs. If they remain, the next likely root-cause areas are
+pane-local viewport state, display-window loading, and layout sync rather than
+same-timeframe replay distribution.
