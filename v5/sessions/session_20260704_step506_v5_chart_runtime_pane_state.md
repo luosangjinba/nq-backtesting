@@ -79,4 +79,39 @@ Verification:
 
 ## Status
 
-In progress.
+Completed.
+
+## Result
+
+- Added `v5/src/runtime/chart-runtime-pane-state.js`.
+- Moved pure pane-state helpers out of `chart-runtime.js`:
+  - `DEFAULT_CHART_PANE_ID`;
+  - `normalizePaneId`;
+  - `cloneChartStateSnapshot`;
+  - `stateForPane`;
+  - `updatePaneDisplayState`;
+  - `retainedPaneIdSet`.
+- Kept chart runtime as the owner of:
+  - command registration;
+  - event emission;
+  - host lifecycle;
+  - host sync;
+  - adapter writes.
+- `chart-runtime.js` uses thin local wrappers to pass its primary state and
+  pane display-state map into the pure helper.
+
+## Commits
+
+- `f6f968a docs(v5): plan chart runtime pane state split`
+- `593d5c8 refactor(v5): extract chart runtime pane state helpers`
+- `d487261 docs(v5): record chart runtime pane state gate`
+
+## Verification
+
+- `node --check v5/src/runtime/chart-runtime.js`
+- `node --check v5/src/runtime/chart-runtime-pane-state.js`
+- `node v5/tests/chart-runtime-pane-local-viewport-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+- `node v5/tests/replay-fast-next-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `git diff --check`

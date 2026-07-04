@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 506 in progress. The implementation plan is to split
-  pure pane-state helpers out of `chart-runtime.js` without moving chart
-  command registration, event emission, host lifecycle, or adapter writes.
-- Next candidate: Complete Step 506, then Step 507 will isolate replay
-  non-primary display-window merge helpers.
+- Current status: Step 506 completed. `chart-runtime-pane-state.js` now owns
+  pure pane id normalization, pane state projection, pane display-state
+  patching, retained pane ids, and chart-state snapshot cloning.
+- Next candidate: Step 507 will isolate replay non-primary display-window merge
+  helpers.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -287,6 +287,11 @@
   `chart-replay-pane-dom.js` owns static pane/split-handle DOM helpers; and
   `chart-replay-split-resize-controller.js` owns handle positioning, pointer
   drag state, `layout.setSplitRatio` dispatch, and resize cleanup.
+- Multi-pane chart-runtime pane-state decision: Step 506 extracts
+  `chart-runtime-pane-state.js` for pure pane-state helpers. `chart-runtime.js`
+  still owns chart command registration, event emission, host lifecycle, host
+  sync, and adapter writes; the helper receives primary state and the
+  pane-display-state map instead of owning runtime state.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

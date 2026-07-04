@@ -370,7 +370,7 @@ Step 505 result:
 
 ### Step 506 - Split `chart-runtime-pane-state.js`
 
-Status: in progress.
+Status: completed.
 
 Goal: remove pane-state branching helpers from `chart-runtime.js` while keeping
 chart runtime as the only chart writer.
@@ -398,6 +398,17 @@ Acceptance:
 - pane-local bars/visible range/viewport demand still pass browser smoke;
 - chart runtime file becomes easier to reason about without hiding chart writes
   in helper modules.
+
+Step 506 result:
+
+- added `v5/src/runtime/chart-runtime-pane-state.js`;
+- moved pane id normalization, chart state snapshot cloning, retained pane id
+  sets, pane-state projection, and pane display-state patching out of
+  `chart-runtime.js`;
+- kept chart command registration, event emission, host lifecycle, host sync,
+  and adapter writes in `chart-runtime.js`;
+- kept helper functions pure by passing `primaryState` and
+  `paneDisplayStateByPaneId` in from chart runtime.
 
 ### Step 507 - Extract Replay Pane Display Merge Helper
 
