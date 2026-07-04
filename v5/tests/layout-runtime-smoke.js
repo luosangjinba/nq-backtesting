@@ -129,7 +129,14 @@ const syncedTenMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_T
   paneId: 'secondary',
   displayTimeframe: 10,
 });
-assert.deepEqual(syncedTenMinute.panes.map((pane) => pane.displayTimeframe), [10, 10]);
+assert.deepEqual(syncedTenMinute.panes.map((pane) => pane.displayTimeframe), [null, 10]);
+
+const explicitSyncedFifteenMinute = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+  paneId: 'secondary',
+  displayTimeframe: 15,
+  applyIntervalSync: true,
+});
+assert.deepEqual(explicitSyncedFifteenMinute.panes.map((pane) => pane.displayTimeframe), [15, 15]);
 
 const secondaryTime = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
   paneId: 'secondary',

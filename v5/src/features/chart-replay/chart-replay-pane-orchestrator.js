@@ -141,12 +141,14 @@ export function createChartReplayPaneOrchestrator({
 
   async function setActivePaneDisplayTimeframe({ displayTimeframe: nextDisplayTimeframe } = {}) {
     const paneId = getActivePaneId();
+    const applyIntervalSync = Boolean(layoutSnapshot().sync?.interval);
     const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
       paneId,
       displayTimeframe: nextDisplayTimeframe,
+      applyIntervalSync,
     });
     applyLayoutState(layoutState);
-    const targetPaneIds = layoutState.sync?.interval
+    const targetPaneIds = applyIntervalSync
       ? layoutState.panes.map((pane) => pane.id || DEFAULT_ACTIVE_PANE_ID)
       : [paneId];
     let state = null;

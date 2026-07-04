@@ -325,7 +325,7 @@ export function createLayoutRuntime({
     return snapshot();
   }
 
-  function setPaneDisplayTimeframe({ paneId, displayTimeframe } = {}) {
+  function setPaneDisplayTimeframe({ paneId, displayTimeframe, applyIntervalSync = false } = {}) {
     const targetPaneId = String(paneId || state.activePaneId || DEFAULT_ACTIVE_PANE_ID).trim();
     if (!targetPaneId) {
       throw new Error('layout pane id must be a non-empty string.');
@@ -334,10 +334,11 @@ export function createLayoutRuntime({
       throw new Error(`layout pane "${targetPaneId}" does not exist.`);
     }
     const normalizedDisplayTimeframe = normalizeDisplayTimeframe(displayTimeframe);
+    const shouldApplyIntervalSync = Boolean(applyIntervalSync);
     const nextState = normalizeLayoutState({
       ...state,
       panes: state.panes.map((pane) => (
-        state.sync.interval || pane.id === targetPaneId
+        shouldApplyIntervalSync || pane.id === targetPaneId
           ? {
             ...pane,
             displayTimeframe: normalizedDisplayTimeframe,

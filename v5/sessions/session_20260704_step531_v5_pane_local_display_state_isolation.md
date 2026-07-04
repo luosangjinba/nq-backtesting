@@ -71,7 +71,12 @@ than a single rendering bug.
   covers two panes with interval sync off: primary/left active switches to
   `1H`, wheel zooms the primary pane, and secondary/right remains `1m` in both
   layout state and chart canvas metadata.
-- Step 531.3-531.6: pending.
+- Step 531.3: completed. `layout.setPaneDisplayTimeframe` no longer applies
+  interval fan-out implicitly from stored layout sync state. Callers must pass
+  explicit `applyIntervalSync`; the chart replay pane orchestrator does so only
+  on the shared active-pane TF control path when interval sync is currently
+  enabled.
+- Step 531.4-531.6: pending.
 
 ## Step 531.2 Verification
 
@@ -79,8 +84,19 @@ than a single rendering bug.
 - `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
 - `git diff --check`
 
+## Step 531.3 Verification
+
+- `node --check v5/src/runtime/layout-runtime.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-orchestrator.js`
+- `node --check v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 531.3 next: audit the interval-sync mutation path and make
-all-pane TF fan-out require explicit sync intent, then add focused coverage for
-that contract.
+Implement Step 531.4 next: reduce route/global display-timeframe fallback
+leakage so shared controls and display loaders resolve TF from the active or
+target pane first.

@@ -76,6 +76,9 @@ path.
    - Audit `layout.setPaneDisplayTimeframe` callers.
    - Ensure all-pane TF mutation is only possible through explicit interval
      sync intent, not through stale `sync.interval` or shared-control fallback.
+   - Completed: layout runtime now requires explicit `applyIntervalSync` for
+     all-pane TF fan-out; the shared active-pane TF control supplies that
+     intent when interval sync is currently enabled.
    - Commit the layout/control fix.
 
 4. Step 531.4 - Make active-pane TF fallback pane-local.
