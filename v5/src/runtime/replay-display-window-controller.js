@@ -232,6 +232,9 @@ export function createReplayDisplayWindowController({
           paneId: targetPaneId,
           resume: true,
         });
+      } else if (!viewportDemand) {
+        await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp, { paneId: targetPaneId });
+        await chartSync.syncChartViewportFollow(sourceState.cursorTimestamp, { paneId: targetPaneId });
       }
 
       const currentState = getState();
@@ -284,6 +287,7 @@ export function createReplayDisplayWindowController({
 
   async function projectDisplayForCursor({
     sessionId = getState().sessionId,
+    paneId = 'primary',
     displayTimeframe = getState().displayTimeframe || getState().session?.timeframe,
     cursorTimestamp = getState().cursorTimestamp,
   } = {}) {
@@ -298,6 +302,7 @@ export function createReplayDisplayWindowController({
     }
     return loadDisplayWindow({
       sessionId,
+      paneId,
       displayTimeframe: normalizedDisplayTimeframe,
       anchor: isoFromTimestamp(alignTimestampToTimeframe(cursorTimestamp, normalizedDisplayTimeframe)),
       direction: 'backward',

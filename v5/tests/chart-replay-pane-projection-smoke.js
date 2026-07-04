@@ -57,8 +57,11 @@ const replayPayload = {
       ],
     }
   ));
-  assert.deepEqual(ensuredPanes, ['secondary']);
-  assert.deepEqual(results, [{ paneId: 'secondary', action: 'same-timeframe-fanout-required', displayTimeframe: 1 }]);
+  assert.deepEqual(ensuredPanes, ['primary', 'secondary']);
+  assert.deepEqual(results, [
+    { paneId: 'primary', action: 'same-timeframe-fanout-required', displayTimeframe: 1 },
+    { paneId: 'secondary', action: 'same-timeframe-fanout-required', displayTimeframe: 1 },
+  ]);
   assert.deepEqual(commands, []);
 }
 
@@ -74,8 +77,11 @@ const replayPayload = {
       ],
     }
   ));
-  assert.deepEqual(ensuredPanes, ['secondary']);
-  assert.deepEqual(results, [{ paneId: 'secondary', action: 'fanout-already-applied', displayTimeframe: 1 }]);
+  assert.deepEqual(ensuredPanes, ['primary', 'secondary']);
+  assert.deepEqual(results, [
+    { paneId: 'primary', action: 'fanout-already-applied', displayTimeframe: 1 },
+    { paneId: 'secondary', action: 'fanout-already-applied', displayTimeframe: 1 },
+  ]);
   assert.deepEqual(commands, []);
 }
 
@@ -91,10 +97,38 @@ const replayPayload = {
       ],
     }
   ));
-  assert.deepEqual(results, [{ paneId: 'secondary', action: 'load-display-window', displayTimeframe: 5 }]);
+  assert.deepEqual(results, [
+    { paneId: 'primary', action: 'same-timeframe-fanout-required', displayTimeframe: 1 },
+    { paneId: 'secondary', action: 'load-display-window', displayTimeframe: 5 },
+  ]);
   assert.deepEqual(commands.map((entry) => entry.command), [REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW]);
   assert.equal(commands[0].payload.anchor, replayPayload.cursorTimestamp);
   assert.equal(commands[0].payload.direction, 'backward');
+}
+
+{
+  const { commands, projection } = createProjectionHarness();
+  const results = await Promise.all(projection.projectReplayEvent(
+    REPLAY_EVENTS.NEXT,
+    {
+      ...replayPayload,
+      paneFanoutProjected: true,
+      paneFanout: {
+        projected: [{ paneId: 'secondary', displayTimeframe: 5 }],
+      },
+    },
+    {
+      panes: [
+        { id: 'primary', displayTimeframe: 1 },
+        { id: 'secondary', displayTimeframe: 5 },
+      ],
+    }
+  ));
+  assert.deepEqual(results, [
+    { paneId: 'primary', action: 'same-timeframe-fanout-required', displayTimeframe: 1 },
+    { paneId: 'secondary', action: 'projection-already-applied', displayTimeframe: 5 },
+  ]);
+  assert.deepEqual(commands, []);
 }
 
 {

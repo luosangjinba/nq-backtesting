@@ -79,6 +79,33 @@ export function createReplayNavigationController({
     return cursorPersistenceQueue;
   }
 
+  async function projectDifferentTimeframePanes({
+    sessionId,
+    projectedPanes = [],
+    cursorTimestamp,
+  } = {}) {
+    if (!projectedPanes.length || typeof displayWindowController?.projectDisplayForCursor !== 'function') {
+      return [];
+    }
+    markReplayTrace('replay.next.projectedPanes.start', {
+      projectedCount: projectedPanes.length,
+      cursorTimestamp,
+    });
+    const results = await Promise.all(projectedPanes.map((pane) => (
+      displayWindowController.projectDisplayForCursor({
+        sessionId,
+        paneId: pane.paneId,
+        displayTimeframe: pane.displayTimeframe,
+        cursorTimestamp,
+      })
+    )));
+    markReplayTrace('replay.next.projectedPanes.end', {
+      projectedCount: projectedPanes.length,
+      cursorTimestamp,
+    });
+    return results;
+  }
+
   async function next({ sessionId = getState().sessionId, stepCount = 1 } = {}) {
     markReplayTrace('replay.next.start', { sessionId, stepCount });
     if (!sessionId) {
@@ -218,13 +245,22 @@ export function createReplayNavigationController({
       cursorTimestamp: nextBar.time,
       revealedCount,
     });
-    if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
+    const projectedPanes = Array.isArray(paneFanout?.projected) ? paneFanout.projected : [];
+    const projectedResults = await projectDifferentTimeframePanes({
+      sessionId,
+      projectedPanes,
+      cursorTimestamp: nextBar.time,
+    });
+    if (!projectedPanes.length && normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
       await chartSync.syncChartRightEdgeLimit(nextBar.time);
       await displayWindowController.projectDisplayForCursor({
         sessionId,
+        paneId: DEFAULT_REPLAY_PANE_ID,
         displayTimeframe: normalizedDisplayTimeframe,
         cursorTimestamp: nextBar.time,
       });
+      nextState = getState();
+    } else if (projectedResults.length) {
       nextState = getState();
     }
     const result = {
@@ -234,6 +270,7 @@ export function createReplayNavigationController({
       revealedBars: clone(nextBars),
       paneFanout: paneFanout ? clone(paneFanout) : null,
       paneFanoutApplied: Boolean(paneFanout),
+      paneFanoutProjected: Boolean(projectedResults.length),
     };
     markReplayTrace('replay.next.emit.start', {
       cursorTimestamp: nextBar.time,

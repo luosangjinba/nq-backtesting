@@ -11,6 +11,14 @@ function replayCursorTimestamp(payload = {}) {
   return payload.cursorTimestamp || payload.revealedBar?.time || payload.revealedBar?.timestamp || null;
 }
 
+function projectionAlreadyApplied(paneId, paneTimeframe, payload = {}) {
+  if (!payload.paneFanoutProjected || !Array.isArray(payload.paneFanout?.projected)) return false;
+  return payload.paneFanout.projected.some((pane) => (
+    normalizePaneId(pane?.paneId) === paneId
+    && Number(pane?.displayTimeframe) === Number(paneTimeframe)
+  ));
+}
+
 export function createReplayPaneProjection({
   dispatchCommand,
   ensurePaneDisplay,
@@ -56,6 +64,14 @@ export function createReplayPaneProjection({
       return {
         paneId,
         action: payload.paneFanoutApplied ? 'fanout-already-applied' : 'same-timeframe-fanout-required',
+        displayTimeframe: paneTimeframe,
+      };
+    }
+
+    if (projectionAlreadyApplied(paneId, paneTimeframe, payload)) {
+      return {
+        paneId,
+        action: 'projection-already-applied',
         displayTimeframe: paneTimeframe,
       };
     }
