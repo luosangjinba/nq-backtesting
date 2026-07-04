@@ -10,14 +10,16 @@
 
 ## Current / Next
 
-- Current status: Step 530 in progress. Step 530.3 fixed explicit active-pane
-  TF switching after manual/active-pane interactions, and Step 530.4 hardened
-  higher-timeframe display-window seeking when no-future filtering empties the
-  first request window. See
+- Current status: Step 530 completed. The active-pane `1H` blank-pane bug after
+  manual/active-pane interactions is fixed: explicit pane TF changes resume the
+  target pane before replacing bars, stale lower-timeframe viewport-demand
+  loads are guarded, and higher-timeframe display-window seeking handles
+  no-future empty first windows. See
   `v5/docs/specs/pane-local-timeframe-follow-plan.md` and
   `v5/sessions/session_20260704_step530_v5_pane_local_timeframe_follow.md`.
-- Current direction: run the Step 530.5 regression/closeout gates and mark the
-  multi-pane active-pane `1H` blank-pane fix complete if they pass.
+- Current direction: manually retest the reported two-pane active-pane `1H`
+  scenario in the running app. If the multi-pane display bug queue is quiet,
+  return to the Settings parity checklist candidate from Step 528.
 - Current status: Step 529 completed. Same-timeframe replay panes now advance
   from one coordinated reveal-batch fan-out before `REPLAY_EVENTS.NEXT`
   notification. The old secondary same-timeframe event catch-up append path was
@@ -69,9 +71,9 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 530.5 should close the pane-local timeframe follow
-  fix after regression gates. If the multi-pane display bug queue is quiet after
-  Step 530, return to the Settings parity checklist candidate from Step 528.
+- Next recommended step: manual Step 530 verification in the live app; if no
+  new multi-pane replay/display bug appears, return to the Settings parity
+  checklist candidate from Step 528.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

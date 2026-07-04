@@ -80,7 +80,8 @@ pane-local timeframe and viewport/follow path.
   are filtered out by no-future semantics. A small null-layout guard was also
   added to replay `Next` fan-out so pure runtime tests without layout runtime
   can still exercise replay navigation.
-- Step 530.5: pending.
+- Step 530.5: completed. Regression/closeout gates passed and Step 530 is
+  closed.
 
 ## Step 530.3 Verification
 
@@ -104,7 +105,18 @@ pane-local timeframe and viewport/follow path.
 - `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
 - `git diff --check`
 
+## Step 530.5 Verification
+
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-pane-fanout-ordering-browser-smoke.js`
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 530.5 next: run the planned regression/closeout gates and update
-TODO/spec/session with the final Step 530 result.
+Step 530 is complete. Manually retest the reported two-pane active-pane `1H`
+case in the running app; if the multi-pane display bug queue is quiet, return to
+the Settings parity candidate from Step 528.

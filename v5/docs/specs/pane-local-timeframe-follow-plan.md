@@ -2,7 +2,7 @@
 
 Phase: Phase 3 - Real Chart Interaction / Multi-pane replay stabilization.
 
-Step: 530 planned.
+Step: 530 completed.
 
 ## Trigger
 
@@ -91,6 +91,7 @@ closed higher-timeframe candle, without violating no-future replay semantics.
      `node v5/tests/replay-right-edge-follow-browser-smoke.js`
      `git diff --check`
    - Update TODO/session/spec with the result.
+   - Completed: regression gates passed and Step 530 is closed.
    - Commit closeout docs.
 
 ## Non-Goals
