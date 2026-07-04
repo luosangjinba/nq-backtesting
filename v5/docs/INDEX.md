@@ -24,6 +24,8 @@ Read this index before working on V5.
 - `v5/docs/specs/replay-pane-fanout-plan.md`: current Step 529 plan for
   replacing same-timeframe replay pane event catch-up with coordinated
   reveal-batch fan-out.
+- `v5/docs/specs/pane-local-timeframe-follow-plan.md`: current Step 530 plan
+  for fixing pane-local TF changes that can leave a pane blank until reset.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.

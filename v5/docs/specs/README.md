@@ -87,6 +87,9 @@ that future work must follow this file order.
 - `replay-pane-fanout-plan.md`: Step 529 plan to replace same-timeframe replay
   pane updates from primary-first `NEXT` event catch-up with one coordinated
   reveal-batch fan-out before replay notification.
+- `pane-local-timeframe-follow-plan.md`: Step 530 plan to fix pane-local
+  timeframe changes that can leave a pane blank by restoring explicit TF
+  changes to follow mode and hardening higher-timeframe display-window loading.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
@@ -182,4 +185,6 @@ that future work must follow this file order.
   `workstation-decision-backlog.md`
 - Step 529: `replay-pane-fanout-plan.md`, `multi-pane-rebuild-plan.md`,
   `layout-split-panes-contract.md`
+- Step 530: `pane-local-timeframe-follow-plan.md`,
+  `layout-split-panes-contract.md`, `chart-interaction-contracts.md`
 - Cross-phase: `open-source-local-deployment.md`
