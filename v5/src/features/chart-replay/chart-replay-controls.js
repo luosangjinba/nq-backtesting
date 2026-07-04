@@ -28,6 +28,7 @@ export function createChartReplayControlsController({
   formatReplayTimestamp,
   refreshReplayStatus,
   setStatusText,
+  onPlaybackIntervalChange,
   getCommandInFlight = () => false,
   setCommandInFlight = () => {},
 }) {
@@ -217,6 +218,7 @@ export function createChartReplayControlsController({
     const nextInterval = Number(intervalMs);
     if (!Number.isFinite(nextInterval) || nextInterval <= 0) return false;
     setPlaybackIntervalMs(nextInterval);
+    onPlaybackIntervalChange?.(nextInterval);
     renderControls();
     return true;
   }

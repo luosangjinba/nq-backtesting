@@ -35,6 +35,11 @@ import { createChartReplayLayoutSyncController } from './chart-replay-layout-syn
 import { createChartReplayPaneShellController } from './chart-replay-pane-shell.js';
 import { createChartReplayPaneOrchestrator } from './chart-replay-pane-orchestrator.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
+import {
+  loadReplayTransportPreferences,
+  saveReplayFloatingPosition,
+  saveReplayPlaybackInterval,
+} from './replay-transport-preferences.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
 export function createChartReplayRoute() {
@@ -52,12 +57,13 @@ export function createChartReplayRoute() {
       section.dataset.layoutMode = DEFAULT_LAYOUT_STATE.mode;
       section.innerHTML = renderChartReplayTemplate({ activePaneId });
       const status = section.querySelector('[data-replay-load-status]');
+      const transportPreferences = loadReplayTransportPreferences();
       let commandInFlight = false;
       let replayLoaded = false;
       let disposed = false;
       let initialLoadTimer = null;
       let playbackPlaying = false;
-      let playbackIntervalMs = 500;
+      let playbackIntervalMs = transportPreferences.playbackIntervalMs;
       let terminalReason = '';
       let revealedCount = 0;
       let startTimestamp = null;
@@ -143,7 +149,13 @@ export function createChartReplayRoute() {
         getDisplayTimeframe: () => displayTimeframe,
       });
       statusController.setSessionId(sessionId);
-      trackController(createReplayFloatingControlsController({ root: section }));
+      trackController(createReplayFloatingControlsController({
+        root: section,
+        initialPosition: transportPreferences.floatingPosition,
+        onPositionChange: (position) => {
+          saveReplayFloatingPosition(position);
+        },
+      }));
       let replayControlsController = null;
       let truncateController = null;
       let navigationController = null;
@@ -205,6 +217,9 @@ export function createChartReplayRoute() {
         getPlaybackIntervalMs: () => playbackIntervalMs,
         setPlaybackIntervalMs: (value) => {
           playbackIntervalMs = Number(value);
+        },
+        onPlaybackIntervalChange: (value) => {
+          saveReplayPlaybackInterval(value);
         },
         getTerminalReason: () => terminalReason,
         setTerminalReason: (value) => {

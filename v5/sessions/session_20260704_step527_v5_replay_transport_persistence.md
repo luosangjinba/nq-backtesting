@@ -69,8 +69,11 @@ re-entry and page reloads.
 
 ## Status
 
-- Step 527.1: active. Planning replay transport preference persistence and
+- Step 527.1: completed. Planned replay transport preference persistence and
   boundaries.
+- Step 527.2: completed. Added a replay transport preferences adapter and wired
+  playback speed plus floating position persistence through existing UI
+  controllers.
 
 ## Next
 

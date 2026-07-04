@@ -44,11 +44,16 @@ export function renderReplayFloatingControls() {
   `;
 }
 
-export function createReplayFloatingControlsController({ root }) {
+export function createReplayFloatingControlsController({
+  root,
+  initialPosition = null,
+  onPositionChange,
+}) {
   const replayFloatingControls = root.querySelector('[data-replay-floating-controls]');
   const replayDragHandle = root.querySelector('[data-replay-drag-handle]');
   let floatingPosition = null;
   let floatingDragState = null;
+  let restoreFrame = null;
   let disposed = false;
   const cleanupCallbacks = [];
 
@@ -76,7 +81,7 @@ export function createReplayFloatingControlsController({ root }) {
     };
   }
 
-  function applyFloatingPosition(position) {
+  function applyFloatingPosition(position, { persist = false } = {}) {
     if (disposed) return;
     const nextPosition = clampFloatingPosition(position);
     floatingPosition = nextPosition;
@@ -86,6 +91,9 @@ export function createReplayFloatingControlsController({ root }) {
     replayFloatingControls.style.bottom = 'auto';
     replayFloatingControls.style.transform = 'none';
     replayFloatingControls.dataset.dragged = 'true';
+    if (persist) {
+      onPositionChange?.({ ...nextPosition });
+    }
   }
 
   function getCurrentFloatingPosition() {
@@ -140,6 +148,9 @@ export function createReplayFloatingControlsController({ root }) {
     }
     floatingDragState = null;
     delete replayFloatingControls.dataset.dragging;
+    if (floatingPosition) {
+      onPositionChange?.({ ...floatingPosition });
+    }
   }
 
   function dispose() {
@@ -148,8 +159,19 @@ export function createReplayFloatingControlsController({ root }) {
     while (cleanupCallbacks.length) {
       cleanupCallbacks.pop()();
     }
+    if (restoreFrame !== null) {
+      cancelAnimationFrame(restoreFrame);
+      restoreFrame = null;
+    }
     floatingDragState = null;
     delete replayFloatingControls.dataset.dragging;
+  }
+
+  if (initialPosition) {
+    restoreFrame = requestAnimationFrame(() => {
+      restoreFrame = null;
+      applyFloatingPosition(initialPosition);
+    });
   }
 
   addListener(replayDragHandle, 'pointerdown', beginFloatingDrag);
