@@ -155,16 +155,19 @@ export function createReplayNavigationController({
         appendedCount: nextBars.length,
         cursorTimestamp: nextBar.time,
       });
-      markReplayTrace('replay.next.rightEdge.start', { cursorTimestamp: nextBar.time });
-      await chartSync.syncChartRightEdgeLimit(nextBar.time);
-      markReplayTrace('replay.next.rightEdge.end', { cursorTimestamp: nextBar.time });
       markReplayTrace('replay.next.appendDisplay.start', {
         appendedCount: nextBars.length,
         displayCount: displayBars.length,
       });
       if (typeof chartSync.appendDisplayBars === 'function') {
-        await chartSync.appendDisplayBars(nextBars, nextBar.time, { fullDisplayBars: displayBars });
+        await chartSync.appendDisplayBars(nextBars, nextBar.time, {
+          fullDisplayBars: displayBars,
+          rightEdgeLimit: nextBar.time,
+        });
       } else {
+        markReplayTrace('replay.next.rightEdge.start', { cursorTimestamp: nextBar.time });
+        await chartSync.syncChartRightEdgeLimit(nextBar.time);
+        markReplayTrace('replay.next.rightEdge.end', { cursorTimestamp: nextBar.time });
         await chartSync.renderDisplayBars(displayBars, nextBar.time);
       }
       markReplayTrace('replay.next.appendDisplay.end', {

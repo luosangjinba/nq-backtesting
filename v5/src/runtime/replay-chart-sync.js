@@ -59,7 +59,7 @@ export function createReplayChartSync({
   async function appendDisplayBars(
     appendedBars,
     cursorTimestamp,
-    { paneId, fullDisplayBars = appendedBars } = {}
+    { paneId, fullDisplayBars = appendedBars, rightEdgeLimit } = {}
   ) {
     markReplayTrace('chartSync.append.start', {
       paneId: paneId || 'primary',
@@ -67,6 +67,9 @@ export function createReplayChartSync({
       cursorTimestamp,
     });
     if (!hasCommand(chartCommands.APPEND_BARS)) {
+      if (!paneId || paneId === 'primary') {
+        await syncChartRightEdgeLimit(rightEdgeLimit || cursorTimestamp);
+      }
       const rendered = await renderDisplayBars(fullDisplayBars, cursorTimestamp, { paneId });
       markReplayTrace('chartSync.append.end', {
         paneId: paneId || 'primary',
@@ -92,6 +95,7 @@ export function createReplayChartSync({
       await dispatchCommand(chartCommands.APPEND_BARS, {
         paneId,
         bars: appendedBars,
+        rightEdgeLimit: rightEdgeLimit || cursorTimestamp,
         viewportFollow: {
           enabled: true,
           cursorTimestamp,

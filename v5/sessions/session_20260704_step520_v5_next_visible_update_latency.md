@@ -90,6 +90,9 @@ cursor becoming visible in chart metadata.
   selection, display build, right-edge sync, append display, chart append
   command, Lightweight metadata application, replay state write, event emit,
   and persistence enqueue.
+- Step 520.3: completed. Moved same-timeframe replay `Next` right-edge limit
+  updates into `chart.appendBars`, avoiding the separate pre-append
+  `chart.setRightEdgeLimit` host sync.
 
 ## Baseline From Step 519
 
@@ -130,3 +133,32 @@ a chart host sync before the append path. Step 520.3 should move the right-edge
 limit update into chart-runtime append state so replay can preserve the
 no-future boundary without forcing a separate full host sync immediately before
 the incremental append.
+
+## Right-Edge Append Optimization
+
+- Same-timeframe replay `Next` now passes `rightEdgeLimit` with the
+  `chart.appendBars` command instead of first dispatching
+  `chart.setRightEdgeLimit`.
+- Chart runtime applies that right-edge limit during append state mutation, then
+  performs the existing incremental host append sync once.
+- Fallback behavior is preserved: if `chart.appendBars` is unavailable,
+  `replay-chart-sync` still syncs the right-edge limit before replacing bars.
+- Focused verification:
+  - `node --check v5/src/runtime/replay-navigation-controller.js` passed.
+  - `node --check v5/src/runtime/replay-chart-sync.js` passed.
+  - `node --check v5/src/runtime/chart-runtime.js` passed.
+  - `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+  - `node v5/tests/chart-runtime-smoke.js` passed.
+  - `node v5/tests/replay-right-pan-smoke.js` passed.
+  - `node v5/tests/chart-runtime-engine-adapter-smoke.js` passed.
+- Post-fix trace sample:
+  - final-click-to-visible: about 152ms.
+  - replay next: about 20ms.
+  - right-edge sync: removed from append path.
+  - append display: about 14ms.
+  - chart runtime append: about 12ms.
+  - Lightweight append: about 5ms.
+
+Interpretation: Step 520 removed the measured right-edge host-sync cost. The
+remaining gap is now largely after replay command completion / metadata apply
+and should be treated separately from replay command runtime cost.

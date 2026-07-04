@@ -255,13 +255,17 @@ export function createChartRuntime() {
     return { paneId: normalizedPaneId, bars: [...state.bars] };
   }
 
-  function appendBars(nextBars, { paneId, viewportFollow } = {}) {
+  function appendBars(nextBars, { paneId, viewportFollow, rightEdgeLimit } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
     const normalizedBars = normalizeBars(nextBars);
+    const normalizedRightEdgeLimit = rightEdgeLimit == null
+      ? null
+      : timestampSeconds(rightEdgeLimit, 'chart right edge limit');
     markReplayTrace('chartRuntime.append.start', {
       paneId: normalizedPaneId,
       appendedCount: normalizedBars.length,
       viewportFollow: Boolean(viewportFollow),
+      rightEdgeLimit: normalizedRightEdgeLimit ?? '',
     });
     if (!normalizedBars.length) {
       markReplayTrace('chartRuntime.append.end', {
@@ -311,6 +315,12 @@ export function createChartRuntime() {
     }
     const previousState = cloneChartStateSnapshot(state);
     markReplayTrace('chartRuntime.append.state.start', { paneId: normalizedPaneId });
+    if (Number.isFinite(normalizedRightEdgeLimit)) {
+      state.rightEdgeLimit = normalizedRightEdgeLimit;
+      if (state.visibleRange && state.interaction.mode !== 'manual') {
+        state.visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
+      }
+    }
     if (viewportFollow) {
       applyViewportFollowState(viewportFollow, { sync: false });
     }
@@ -824,9 +834,10 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.MOUNT_HOST, (payload = {}) => mountHost(payload.host, payload)),
       registerCommand(CHART_COMMANDS.RELEASE_PANES, (payload = {}) => releasePanes(payload)),
       registerCommand(CHART_COMMANDS.REPLACE_BARS, ({ bars, paneId } = {}) => updateBars(normalizeBars(bars), { paneId })),
-      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars, paneId, viewportFollow } = {}) => appendBars(bars, {
+      registerCommand(CHART_COMMANDS.APPEND_BARS, ({ bars, paneId, viewportFollow, rightEdgeLimit } = {}) => appendBars(bars, {
         paneId,
         viewportFollow,
+        rightEdgeLimit,
       })),
       registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, (payload) => getViewportMetrics(payload)),
