@@ -31,6 +31,7 @@ import { createChartReplayNavigationController } from './chart-replay-navigation
 import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createChartReplayTruncateController } from './chart-replay-truncate.js';
 import { createChartReplayLayoutController } from './chart-replay-layout.js';
+import { createChartReplayLayoutSyncController } from './chart-replay-layout-sync-controller.js';
 import { createChartReplayPaneShellController } from './chart-replay-pane-shell.js';
 import { createChartReplayPaneOrchestrator } from './chart-replay-pane-orchestrator.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
@@ -147,6 +148,7 @@ export function createChartReplayRoute() {
       let truncateController = null;
       let navigationController = null;
       let layoutController = null;
+      let layoutSyncController = null;
       let paneShellController = null;
       const chartSettingsController = trackController(createChartSettingsController({
         root: section,
@@ -235,6 +237,19 @@ export function createChartReplayRoute() {
           commandInFlight = Boolean(value);
         },
       }));
+      layoutSyncController = trackController(createChartReplayLayoutSyncController({
+        syncTime: (time) => syncLayoutTime(time),
+        syncDateRange: (visibleRange) => syncLayoutDateRange(visibleRange),
+        syncCrosshair: (crosshair) => syncLayoutCrosshair(crosshair),
+        onCrosshairChanged: (payload) => {
+          statusController.setCrosshairState(payload.crosshair || { active: false });
+          replayControlsController.setControlsDisabled();
+          return syncLayoutCrosshair(payload.crosshair).catch(() => null);
+        },
+        onVisibleRangeChanged: (payload) => (
+          syncLayoutDateRange(payload.visibleRange).finally(() => refreshReplayStatus())
+        ),
+      }));
       navigationController = trackController(createChartReplayNavigationController({
         root: section,
         dispatchCommand,
@@ -249,7 +264,7 @@ export function createChartReplayRoute() {
         setStatusText: (message) => {
           status.textContent = message;
         },
-        syncLayoutTime,
+        syncLayoutTime: (time) => layoutSyncController.syncTime(time),
         getActivePaneId: () => paneOrchestrator.getActivePaneId(),
       }));
       truncateController = trackController(createChartReplayTruncateController({
@@ -440,13 +455,11 @@ export function createChartReplayRoute() {
             return;
           }
           if (eventName === CHART_EVENTS.CROSSHAIR_CHANGED) {
-            statusController.setCrosshairState(payload.crosshair || { active: false });
-            replayControlsController.setControlsDisabled();
-            syncLayoutCrosshair(payload.crosshair).catch(() => null);
+            layoutSyncController.handleCrosshairChanged(payload);
             return;
           }
           if (eventName === CHART_EVENTS.VISIBLE_RANGE_CHANGED) {
-            syncLayoutDateRange(payload.visibleRange).finally(() => refreshReplayStatus());
+            layoutSyncController.handleVisibleRangeChanged(payload);
             return;
           }
           if (eventName === CHART_PRESENTATION_EVENTS.CHANGED) {
