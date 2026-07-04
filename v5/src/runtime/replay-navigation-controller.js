@@ -162,7 +162,7 @@ export function createReplayNavigationController({
         displayCount: displayBars.length,
       });
       if (typeof chartSync.appendRevealedBarsToPanes === 'function') {
-        const layoutState = await getLayoutState?.().catch(() => null);
+        const layoutState = await Promise.resolve(getLayoutState?.() || null).catch(() => null);
         paneFanout = await chartSync.appendRevealedBarsToPanes({
           panes: layoutState?.panes || [{ id: 'primary', displayTimeframe: normalizedDisplayTimeframe }],
           revealedBars: nextBars,

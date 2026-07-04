@@ -75,7 +75,12 @@ pane-local timeframe and viewport/follow path.
   bridge also drops pending demands whose timeframe no longer matches the
   current pane layout, and primary stale viewport-demand loads no longer commit
   after the replay state has moved to a different target timeframe.
-- Step 530.4-530.5: pending.
+- Step 530.4: completed. Higher-timeframe backward display-window loads now
+  keep seeking earlier when a bounded request window contains only bars that
+  are filtered out by no-future semantics. A small null-layout guard was also
+  added to replay `Next` fan-out so pure runtime tests without layout runtime
+  can still exercise replay navigation.
+- Step 530.5: pending.
 
 ## Step 530.3 Verification
 
@@ -88,8 +93,18 @@ pane-local timeframe and viewport/follow path.
 - `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
 - `git diff --check`
 
+## Step 530.4 Verification
+
+- `node --check v5/src/runtime/replay-runtime-state.js`
+- `node --check v5/src/runtime/replay-display-window-controller.js`
+- `node --check v5/src/runtime/replay-navigation-controller.js`
+- `node --check v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-progression-smoke.js`
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 530.4 next: audit the higher-timeframe display-window seek path
-for no-future filtering edge cases and add the smallest focused regression if a
-gap remains.
+Implement Step 530.5 next: run the planned regression/closeout gates and update
+TODO/spec/session with the final Step 530 result.

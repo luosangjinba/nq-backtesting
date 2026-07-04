@@ -10,6 +10,9 @@ import {
 } from '../src/runtime/replay-runtime.js';
 import { SESSION_COMMANDS, createSessionRuntime } from '../src/runtime/session-runtime.js';
 import { createSessionRepository } from '../src/session/session-repository.js';
+import {
+  shouldSeekEarlierDisplayWindow,
+} from '../src/runtime/replay-runtime-state.js';
 
 function timestamp(value) {
   return Date.parse(value) / 1000;
@@ -43,11 +46,23 @@ assert.equal(
   true,
   'completed higher-timeframe bar may be visible'
 );
+assert.equal(
+  shouldSeekEarlierDisplayWindow({
+    direction: 'backward',
+    attempt: 0,
+    displayTimeframe: 5,
+    replayTimeframe: 1,
+    windowDisplayBars: [],
+  }),
+  true,
+  'empty higher-timeframe window should seek earlier while bounded'
+);
 
 clearCommandsForTest();
 clearEventsForTest();
 
 let chartBars = [];
+const fiveMinuteRequests = [];
 const startTimestamp = timestamp('2026-06-01T09:30:00.000Z');
 const barDataRuntime = createBarDataRuntime({
   fetchBars: async (window) => {
@@ -68,12 +83,20 @@ const barDataRuntime = createBarDataRuntime({
       };
     }
     if (window.timeframe === 5) {
+      fiveMinuteRequests.push(window.anchor);
+      if (window.anchor === '2026-06-01T09:30:00.000Z') {
+        return {
+          bars: [
+            bar('2026-06-01T09:30:00.000Z', 83),
+          ],
+        };
+      }
       return {
         bars: [
+          bar('2026-06-01T09:10:00.000Z', 79),
           bar('2026-06-01T09:15:00.000Z', 80),
           bar('2026-06-01T09:20:00.000Z', 81),
           bar('2026-06-01T09:25:00.000Z', 82),
-          bar('2026-06-01T09:30:00.000Z', 83),
         ],
       };
     }
@@ -132,10 +155,19 @@ assert.equal(display5m.cursorTimestamp, '2026-06-01T09:31:00.000Z');
 assert.deepEqual(
   display5m.displayBars.map((entry) => entry.timestamp),
   [
+    timestamp('2026-06-01T09:10:00.000Z'),
     timestamp('2026-06-01T09:15:00.000Z'),
     timestamp('2026-06-01T09:20:00.000Z'),
     timestamp('2026-06-01T09:25:00.000Z'),
   ]
+);
+assert.deepEqual(
+  fiveMinuteRequests,
+  [
+    '2026-06-01T09:30:00.000Z',
+    '2026-06-01T09:10:00.000Z',
+  ],
+  'higher timeframe load should seek earlier after an unfinished-only window'
 );
 assert.equal(
   display5m.displayBars.some((entry) => entry.timestamp === startTimestamp),

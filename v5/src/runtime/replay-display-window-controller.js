@@ -148,6 +148,7 @@ export function createReplayDisplayWindowController({
           direction: normalizedDirection,
           attempt,
           displayTimeframe: normalizedDisplayTimeframe,
+          replayTimeframe: sourceState.replayTimeframe || sourceState.session.timeframe,
           missingWindow,
           currentEarliestTimestamp,
           window,

@@ -11,14 +11,13 @@
 ## Current / Next
 
 - Current status: Step 530 in progress. Step 530.3 fixed explicit active-pane
-  TF switching after manual/active-pane interactions: changing an active pane
-  to `1H` now resumes that pane's follow state before replacing bars, and stale
-  lower-timeframe viewport-demand loads are guarded. See
+  TF switching after manual/active-pane interactions, and Step 530.4 hardened
+  higher-timeframe display-window seeking when no-future filtering empties the
+  first request window. See
   `v5/docs/specs/pane-local-timeframe-follow-plan.md` and
   `v5/sessions/session_20260704_step530_v5_pane_local_timeframe_follow.md`.
-- Current direction: complete Step 530.4 by auditing the higher-timeframe
-  display-window seek path for no-future filtering gaps, then run the Step
-  530.5 regression/closeout gates.
+- Current direction: run the Step 530.5 regression/closeout gates and mark the
+  multi-pane active-pane `1H` blank-pane fix complete if they pass.
 - Current status: Step 529 completed. Same-timeframe replay panes now advance
   from one coordinated reveal-batch fan-out before `REPLAY_EVENTS.NEXT`
   notification. The old secondary same-timeframe event catch-up append path was
@@ -70,9 +69,8 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 530.4 should confirm higher-timeframe
-  display-window loading seeks far enough backward when the current higher-TF
-  candle is not yet closed. If the multi-pane display bug queue is quiet after
+- Next recommended step: Step 530.5 should close the pane-local timeframe follow
+  fix after regression gates. If the multi-pane display bug queue is quiet after
   Step 530, return to the Settings parity checklist candidate from Step 528.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay

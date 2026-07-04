@@ -174,6 +174,7 @@ export function shouldSeekEarlierDisplayWindow({
   direction,
   attempt,
   displayTimeframe,
+  replayTimeframe,
   missingWindow,
   currentEarliestTimestamp,
   window,
@@ -181,6 +182,14 @@ export function shouldSeekEarlierDisplayWindow({
 } = {}) {
   if (direction !== 'backward') return false;
   if (attempt >= MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS - 1) return false;
+  if (
+    normalizeTimeframe(displayTimeframe, 'display timeframe')
+      > normalizeTimeframe(replayTimeframe || displayTimeframe, 'replay timeframe')
+    && Array.isArray(windowDisplayBars)
+    && windowDisplayBars.length === 0
+  ) {
+    return true;
+  }
   if (!Number.isFinite(currentEarliestTimestamp)) return false;
   const requestedFrom = Number(missingWindow?.from);
   if (!Number.isFinite(requestedFrom)) return false;

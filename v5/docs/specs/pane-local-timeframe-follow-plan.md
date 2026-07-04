@@ -79,6 +79,8 @@ closed higher-timeframe candle, without violating no-future replay semantics.
      current candle is not closed, seek earlier windows until at least one
      allowed display bar is found or the bounded attempt limit is reached.
    - Preserve no-future-bars semantics.
+   - Completed: higher-timeframe backward loads now continue bounded seeking
+     when the current request window filters to zero displayable bars.
    - Commit the loading fix.
 
 5. Step 530.5 - Regression and closeout.
