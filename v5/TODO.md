@@ -10,15 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 532 planned. The next multi-pane bugfix targets
-  pane-local initial coverage: explicit TF changes and pane initialization
-  should load enough historical bars to cover the target pane's visible width
+- Current status: Step 532 completed. Pane-local initial coverage now continues
+  bounded backward display-window seeking until the target pane has enough
+  visible historical bars after explicit TF changes or pane initialization,
   without requiring an immediate left drag. See
   `v5/docs/specs/pane-local-initial-coverage-plan.md` and
   `v5/sessions/session_20260704_step532_v5_pane_local_initial_coverage.md`.
-- Current direction: add a two-pane initial coverage smoke, then harden
-  replay display-window loading so target pane viewport metrics drive bounded
-  initial coverage while preserving no-future filtering.
+- Current direction: manually retest two-pane and three-pane `1H` switching in
+  the live app. If the multi-pane display/replay bug queue is quiet, return to
+  the Settings parity checklist candidate from Step 528.
 - Current status: Step 531 completed. Pane-local display-state isolation was
   tightened: active-pane TF changes and wheel interactions no longer mutate
   other panes when interval sync is off, layout TF fan-out now requires explicit
@@ -90,8 +90,9 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 532.2 should capture the active-left `1H`
-  under-covered initial render before any manual left drag.
+- Next recommended step: manual Step 532 verification in the live app; if the
+  multi-pane bug queue is quiet, return to the Settings parity checklist
+  candidate from Step 528.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

@@ -2,7 +2,7 @@
 
 Phase: Phase 3 - Real Chart Interaction / Multi-pane replay stabilization.
 
-Step: 532 planned.
+Step: 532 completed.
 
 ## Trigger
 
@@ -89,6 +89,8 @@ piece is initial coverage, not left-extension itself.
      `node v5/tests/replay-right-edge-follow-browser-smoke.js`
      `git diff --check`
    - Update TODO/spec/session with final results.
+   - Completed: planned coverage, pane isolation, viewport-demand, no-future,
+     and right-edge follow gates passed.
    - Commit closeout docs.
 
 ## Non-Goals

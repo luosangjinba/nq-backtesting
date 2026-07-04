@@ -66,7 +66,8 @@ then extends and fills the canvas, which points to an initial coverage gap.
   `v5/tests/triple-pane-initial-coverage-browser-smoke.js`. It verifies
   primary `1H` initial coverage reaches target in a triple layout while
   secondary remains `5m` and tertiary remains `1m`.
-- Step 532.6: pending.
+- Step 532.6: completed. Regression/closeout gates passed and Step 532 is
+  closed.
 
 ## Step 532.2 Verification
 
@@ -99,7 +100,20 @@ then extends and fills the canvas, which points to an initial coverage gap.
 - `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
 - `git diff --check`
 
+## Step 532.6 Verification
+
+- `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/triple-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 532.6 next: run the planned regression/closeout gates and update
-TODO/spec/session with the final Step 532 result.
+Step 532 is complete. Manually retest the active-pane `1H` two-pane and
+three-pane cases in the running app; if the multi-pane queue is quiet, return
+to the Settings parity candidate from Step 528.
