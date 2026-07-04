@@ -75,8 +75,10 @@ latency, keyboard, speed, and transport persistence work.
 
 ## Status
 
-- Step 528.1: active. Planning the FXReplay parity gap audit and recording
+- Step 528.1: completed. Planned the FXReplay parity gap audit and recorded
   chart ecosystem reference checks.
+- Step 528.2: completed. Added `fxreplay-parity-gap-audit.md` with a current
+  coverage/open-gap matrix and V5 boundary rules for future parity work.
 
 ## Next
 

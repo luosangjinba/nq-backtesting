@@ -91,6 +91,9 @@ that future work must follow this file order.
   workstation decisions that span chart engine behavior, multi-pane layout,
   replay performance, Settings, visual polish, V4 comparison, and local-first
   direction.
+- `fxreplay-parity-gap-audit.md`: Step 528 audit of current FXReplay parity
+  coverage and remaining replay workstation workflow gaps after the transport
+  latency, keyboard, speed, and persistence steps.
 - `open-source-local-deployment.md`: cross-phase product direction that V5 is
   now an open-source/local-first replay workstation for desktop, LAN, VPS, or
   terminal-server deployment.
@@ -172,4 +175,6 @@ that future work must follow this file order.
   `layout-split-panes-contract.md`, `runtime-boundary-contracts.md`
 - Step 511: `multi-pane-rebuild-plan.md`, `multi-pane-module-audit.md`,
   `layout-split-panes-contract.md`
+- Step 528: `fxreplay-parity-gap-audit.md`,
+  `workstation-decision-backlog.md`
 - Cross-phase: `open-source-local-deployment.md`

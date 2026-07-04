@@ -27,6 +27,8 @@ Read this index before working on V5.
 - `v5/docs/specs/workstation-decision-backlog.md`: consolidated recent
   decisions that should guide future chart/workstation plans before writing
   implementation code.
+- `v5/docs/specs/fxreplay-parity-gap-audit.md`: current FXReplay parity
+  coverage and remaining replay workstation workflow gaps.
 - `v5/docs/specs/runtime-lifecycle-cleanup.md`: lifecycle and cleanup
   ownership rules for listeners, subscriptions, observers, timers, adapters,
   pane hosts, and caches.
