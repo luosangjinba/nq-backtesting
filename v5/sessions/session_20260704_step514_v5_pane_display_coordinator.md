@@ -25,6 +25,8 @@ owner before replay projection is rebuilt.
 
 ## Status
 
-- Step 514.1: in progress.
-- Step 514.2: pending.
+- Step 514.1: completed. The rebuild plan now defines coordinator lifecycle,
+  command boundaries, and acceptance checks.
+- Step 514.2: in progress. The coordinator module and pure lifecycle smoke are
+  being added before production integration.
 - Step 514.3: pending.
