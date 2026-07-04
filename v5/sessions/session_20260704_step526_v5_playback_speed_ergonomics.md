@@ -75,8 +75,36 @@ without changing replay runtime ownership.
 - Step 526.3: completed. Added browser smoke coverage for playback speed
   presets, playback interval handoff, keyboard speed nudges, and focus
   protection.
+- Step 526.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
+
+## Implementation Notes
+
+- Transport presets live in `replay-floating-controls.js` and are styled by
+  `replay-transport.css`.
+- Control ownership remains in `chart-replay-controls.js`.
+- Presets set only the route-owned playback interval through
+  `setPlaybackIntervalMs`; replay runtime receives the value only when
+  `REPLAY_COMMANDS.PLAY` is dispatched.
+- The active preset is rendered with `aria-pressed`.
+- `[` slows playback and `]` speeds playback along the preset ladder:
+  `1000ms`, `500ms`, `250ms`, `125ms`.
+- Speed keyboard shortcuts reuse the Step 525 shortcut guard for modified,
+  repeated, editable/form-target, and popover/modal states.
+
+## Final Verification
+
+- `node v5/tests/replay-speed-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-keyboard-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-cadence-latency-browser-smoke.js` passed.
+- `node v5/tests/replay-floating-controls-browser-smoke.js` passed during
+  implementation validation.
+- `node v5/tests/chart-replay-fast-next-controls-smoke.js` passed during
+  implementation validation.
+- `git diff --check` passed.
 
 ## Next
 
-Implement speed presets and keyboard speed nudges in the existing replay
-transport/control modules.
+Move to replay control persistence/polish or an audit of remaining FXReplay
+parity gaps.
