@@ -133,6 +133,49 @@ async function main() {
           };
         }
 
+        function observeCursorMetadata(expectedCursorTimestamp, timeoutMs = 1800) {
+          const canvas = document.querySelector('[data-chart-canvas]');
+          if (!canvas) {
+            return Promise.resolve({
+              observed: false,
+              observedAt: null,
+              reason: 'missing-canvas',
+            });
+          }
+          if (Number(canvas.dataset.viewportCursorTimestamp || 0) === expectedCursorTimestamp) {
+            return Promise.resolve({
+              observed: true,
+              observedAt: performance.now(),
+              reason: 'already-visible',
+            });
+          }
+          return new Promise((resolve) => {
+            const deadlineTimer = setTimeout(() => {
+              observer.disconnect();
+              resolve({
+                observed: false,
+                observedAt: null,
+                reason: 'timeout',
+              });
+            }, timeoutMs);
+            const observer = new MutationObserver(() => {
+              if (Number(canvas.dataset.viewportCursorTimestamp || 0) !== expectedCursorTimestamp) return;
+              const observedAt = performance.now();
+              clearTimeout(deadlineTimer);
+              observer.disconnect();
+              resolve({
+                observed: true,
+                observedAt,
+                reason: 'mutation',
+              });
+            });
+            observer.observe(canvas, {
+              attributes: true,
+              attributeFilter: ['data-viewport-cursor-timestamp'],
+            });
+          });
+        }
+
         async function waitFor(label, predicate, timeoutMs = 5000) {
           const deadline = performance.now() + timeoutMs;
           while (performance.now() < deadline) {
@@ -174,12 +217,14 @@ async function main() {
           const beforeMetrics = canvasMetrics();
           const forwardRequestsAfterInitial = window.__v5ForwardBarRequests;
           const expectedCursorTimestamp = Date.parse('2026-06-01T09:50:00.000Z') / 1000;
+          const observedCursorPromise = observeCursorMetadata(expectedCursorTimestamp);
           let finalClickAt = performance.now();
           const nextButton = document.querySelector('[data-replay-next]');
           for (let index = 0; index < clickCount; index += 1) {
             nextButton.click();
             finalClickAt = performance.now();
           }
+          const observedCursor = await observedCursorPromise;
           await waitFor('latest next intent visible', async () => {
             const metrics = canvasMetrics();
             return metrics.viewportCursorTimestamp === expectedCursorTimestamp
@@ -192,7 +237,12 @@ async function main() {
           return JSON.stringify({
             error: '',
             clickCount,
-            latestIntentLatencyMs: visibleAt - finalClickAt,
+            latestIntentLatencyMs: observedCursor.observedAt == null
+              ? visibleAt - finalClickAt
+              : observedCursor.observedAt - finalClickAt,
+            latestIntentPollingLatencyMs: visibleAt - finalClickAt,
+            observerDetected: Boolean(observedCursor.observed),
+            observerReason: observedCursor.reason,
             productTargetMs: 100,
             automationThresholdMs: 350,
             revealedCount: finalState.revealedCount,
@@ -216,6 +266,7 @@ async function main() {
     assert.equal(value.viewportCursorTimestamp, Date.parse('2026-06-01T09:50:00.000Z') / 1000);
     assert.equal(value.forwardRequestDelta, 0);
     assert.equal(value.fullBarDelta, 20);
+    assert.equal(value.observerDetected, true, `cursor metadata observer should detect visibility: ${JSON.stringify(value)}`);
     assert.ok(value.renderedBarCount > 0);
     assert.ok(
       value.latestIntentLatencyMs < value.automationThresholdMs,

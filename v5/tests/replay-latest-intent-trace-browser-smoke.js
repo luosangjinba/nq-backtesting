@@ -268,7 +268,10 @@ async function main() {
           return JSON.stringify({
             error: '',
             clickCount,
-            finalClickToVisibleMs: visibleAt - finalClickAt,
+            finalClickToVisibleMs: observedCursor.observedAt == null
+              ? visibleAt - finalClickAt
+              : observedCursor.observedAt - finalClickAt,
+            finalClickToPollingVisibleMs: visibleAt - finalClickAt,
             finalClickToAnimationFrameMs: frameAt - finalClickAt,
             observerDetected: Boolean(observedCursor.observed),
             observerReason: observedCursor.reason,
@@ -363,6 +366,7 @@ async function main() {
     assert.ok(value.markCount > 0);
     console.log(JSON.stringify({
       finalClickToVisibleMs: value.finalClickToVisibleMs,
+      finalClickToPollingVisibleMs: value.finalClickToPollingVisibleMs,
       finalClickToAnimationFrameMs: value.finalClickToAnimationFrameMs,
       finalClickToObservedVisibleMs: value.finalClickToObservedVisibleMs,
       observerReason: value.observerReason,

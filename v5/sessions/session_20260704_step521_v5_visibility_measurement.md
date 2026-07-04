@@ -76,6 +76,9 @@ production visibility delay or a browser-smoke measurement artifact.
   the no-production-change-until-proven boundary.
 - Step 521.2: completed. Added `MutationObserver` visibility timing to the
   latest-intent trace smoke while keeping polling/rAF comparison metrics.
+- Step 521.3: completed. Switched latest-intent browser visibility metrics to
+  observer-based cursor metadata detection, with polling/rAF retained as
+  diagnostics.
 
 ## Baseline From Step 520
 
@@ -109,3 +112,30 @@ Interpretation: production metadata visibility is already fast. The remaining
 large number was a measurement artifact from using later rAF/polling timing as
 the primary latest-intent metric. Step 521.3 should make observer detection the
 primary trace metric and keep polling/rAF as secondary diagnostics.
+
+## Visibility Metric Fix
+
+- `replay-latest-intent-trace-browser-smoke.js` now treats observer detection
+  of `data-viewport-cursor-timestamp` as the primary `finalClickToVisibleMs`.
+- `replay-latest-intent-browser-smoke.js` uses the same observer-based metric
+  for `latestIntentLatencyMs`.
+- Polling and rAF timings remain in trace output as diagnostics, not the primary
+  product latency metric.
+- Verification:
+  - `node --check v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+  - `node --check v5/tests/replay-latest-intent-browser-smoke.js` passed.
+  - `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+  - `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- Trace sample:
+  - final-click-to-visible: about 14.5ms.
+  - final-click-to-polling-visible: about 16.7ms.
+  - final-click-to-animation-frame: about 124ms.
+  - final-click-to-replay-start: about 0.7ms.
+  - replay next: about 16ms.
+  - chart runtime append: about 13ms.
+  - Lightweight append: about 5ms.
+
+Interpretation: Step 521 does not need a production runtime change. The
+remaining large rAF number is a presentation-frame diagnostic, while the DOM
+metadata used by replay latest-intent gates is visible well inside the product
+target.
