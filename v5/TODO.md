@@ -10,12 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 510 completed. Pane-local replay follow now advances the
-  non-primary pane viewport-follow cursor when appending same-timeframe replay
-  bars, and layout smoke coverage verifies visible rendered bars instead of
-  only backing bar counts.
-- Next candidate: Reassess remaining multi-pane behavior gaps before adding
-  more multi-pane behavior.
+- Current status: Step 511 completed. Multi-pane work is now a rebuild track,
+  not an incremental patch track. The rebuild plan freezes the observed
+  triple-pane missing-render, incomplete initial active-pane policy, reset
+  recovery, and replay catch-up/performance failures, then defines the target
+  pane lifecycle and replay projection boundaries.
+- Next candidate: Step 512 should add failing/guarding browser smokes for
+  multi-pane rebuild behavior before production rewrites: all twice/triple
+  variants, initial active pane, every-pane rendered bars, reset recovery, and
+  immediate replay `Next` across same-timeframe panes.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -314,6 +317,12 @@
   appends must pass pane-local viewport-follow metadata with the replay cursor,
   and regression coverage must assert `renderedBarCount` / `chart.getRenderedBars`
   has visible bars after the immediate two-pane `Next` path.
+- Multi-pane rebuild decision: Step 511 stops incremental behavior patching on
+  the current multi-pane orchestration path. Future work must follow
+  `multi-pane-rebuild-plan.md`: add failing contract smokes first, move
+  initial active-pane choice into a layout-runtime policy table, introduce a
+  deterministic pane display coordinator, replace primary-first catch-up replay
+  with coordinated pane projection, and add a replay performance gate.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

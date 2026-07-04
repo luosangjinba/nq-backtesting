@@ -30,6 +30,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 508: `session_20260704_step508_v5_multi_pane_default_active_and_replay_follow.md`
 - Step 509: `session_20260704_step509_v5_pane_replay_follow_initialization_race.md`
 - Step 510: `session_20260704_step510_v5_pane_replay_follow_visible_range.md`
+- Step 511: `session_20260704_step511_v5_multi_pane_rebuild_plan.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index

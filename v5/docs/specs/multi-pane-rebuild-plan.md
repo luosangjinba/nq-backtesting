@@ -191,3 +191,93 @@ move toward:
 
 Any new multi-pane bug fix must either add a failing regression gate first or
 be part of the rebuild sequence described below.
+
+## Execution Sequence
+
+### Step 512 - Failing Contract Smokes
+
+Goal: capture the current broken user paths before production rewrites.
+
+Add browser coverage for:
+
+- every `twice.*` and `triple.*` variant opens with the expected initial active
+  pane;
+- every mounted pane has visible rendered bars after initial layout expansion;
+- reset view recovers every visible pane;
+- immediate `Next` after layout expansion advances every same-timeframe pane;
+- no pane reports `fullBarCount > 0` with `renderedBarCount === 0` after
+  initialization or replay next.
+
+No production behavior changes should be included in Step 512 unless required
+to make the test harness itself deterministic.
+
+### Step 513 - Layout Active-Pane Policy Table
+
+Goal: move initial active-pane choice into explicit layout-runtime helpers.
+
+Implementation expectations:
+
+- add a tested variant-to-active-pane policy helper;
+- apply the helper only when expanding from single pane or when the previous
+  active pane no longer exists;
+- update docs if a variant's visual geometry changes.
+
+### Step 514 - Pane Lifecycle Coordinator
+
+Goal: replace opportunistic pane initialization with deterministic pane
+readiness.
+
+Implementation expectations:
+
+- add a pane display coordinator module;
+- model pane lifecycle states such as `host-mounted`, `display-loading`,
+  `display-ready`, and `display-error`;
+- initialize all mounted panes from one layout snapshot;
+- prevent shared controls from assuming a pane is ready before its chart state
+  is ready;
+- keep route UI out of bars and chart writes.
+
+### Step 515 - Replay Pane Projection
+
+Goal: stop primary-first replay catch-up behavior.
+
+Implementation expectations:
+
+- replay cursor advances once per `Next` / playback tick;
+- same-timeframe panes append revealed bars in one coordinated projection;
+- independent-timeframe panes load/project windows for the same cursor;
+- chart runtime receives pane-targeted commands only;
+- rapid `Next` coalescing remains intact.
+
+### Step 516 - Multi-Pane Performance Gate
+
+Goal: make replay movement feel immediate enough to compare favorably with V4
+and approach FXReplay/TradingView expectations.
+
+Implementation expectations:
+
+- add a browser/performance smoke that rapid `Next` clicks do not drain through
+  a slow visible queue;
+- measure time from click batch to final rendered cursor;
+- assert no unnecessary `setData()` fan-out to panes whose visible data can be
+  updated by append/update;
+- keep the gate deterministic enough for local CI-style runs.
+
+## Required Verification For Rebuild Steps
+
+For Steps 512-516, the default verification set is:
+
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-fast-next-browser-smoke.js`
+- `git diff --check`
+
+When chart runtime, adapter resize, reset view, or physical interaction code is
+touched, also run:
+
+- `node v5/tests/chart-interaction-browser-smoke.js`
+- `node v5/tests/chart-price-scale-browser-smoke.js`
+
+When new Step 512/516 smokes exist, they become required for every later
+multi-pane rebuild step.
