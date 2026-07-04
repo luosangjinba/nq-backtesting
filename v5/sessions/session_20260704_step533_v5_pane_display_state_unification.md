@@ -58,3 +58,51 @@ Manual testing after Step 532 still shows this class of bug:
 - Chart runtime remains the only chart writer.
 - Replay runtime remains the cursor/no-future owner.
 - Bar-data runtime remains the only requester/cache owner.
+
+## Result
+
+Completed on 2026-07-04.
+
+Commits:
+
+- `3154d92 docs(v5): plan pane display state unification`
+- `8e9b8d9 test(v5): capture continuous pane interaction isolation`
+- `b4ecfaa fix(v5): isolate pane display state defaults`
+- `7ac5c87 fix(v5): guard stale pane display writes`
+- `65bd708 fix(v5): keep inactive pane timeframe fallback local`
+- `a639eb9 fix(v5): set pane-local follow cursor on display load`
+
+Implementation summary:
+
+- Added a continuous two-pane browser smoke for repeated left-pane `1H`
+  wheel/manual-left-demand/right-pane reset/active-pane changes.
+- Changed non-primary chart pane state defaults so missing/partial pane records
+  no longer inherit primary live bars, manual ranges, interaction mode, or
+  viewport-follow state.
+- Added display revisions to chart display context and guarded stale
+  `replaceBars` / `appendBars` / display-context writes.
+- Restored viewport-demand manual visible ranges after loading more history so
+  left extension does not silently flip the pane back to follow.
+- Removed inactive-pane fallback to the route active-pane display timeframe.
+- Added pane-local `chart.setViewportFollow` support so non-primary display
+  loads carry their own replay cursor/right-edge metadata.
+
+Verification:
+
+- `node v5/tests/multi-pane-continuous-interaction-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/triple-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-pane-fanout-ordering-browser-smoke.js`
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/chart-runtime-pane-local-viewport-smoke.js`
+- `git diff --check`
+
+Manual follow-up:
+
+- Retest the exact live-app sequence from the screenshots with two and three
+  panes: left pane active at `1H`, right pane at `1m`, repeated drag/wheel,
+  reset, and active-pane switching.

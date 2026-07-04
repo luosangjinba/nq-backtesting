@@ -2,7 +2,7 @@
 
 Phase: Phase 3 - Real Chart Interaction / Multi-pane replay stabilization.
 
-Step: 533 planned.
+Step: 533 completed.
 
 ## Trigger
 
@@ -132,3 +132,40 @@ Step 533 is complete only when:
 - the reported continuous left `1H` / right `1m` interaction class is covered;
 - existing fan-out, viewport-demand, initial coverage, no-future, and right-edge
   follow gates still pass.
+
+## Step 533 Result
+
+Completed on 2026-07-04.
+
+- Added `multi-pane-continuous-interaction-isolation-browser-smoke.js` to cover
+  the reported left `1H` / right `1m` repeated wheel/left-demand/reset class.
+- Non-primary chart state no longer borrows primary live bars, visible range,
+  interaction, or viewport-follow state when a pane record is missing or
+  partial.
+- Chart display contexts now carry `displayRevision`; display-window loads bump
+  and validate the target pane revision before writing bars/context.
+- Viewport-demand display loads restore the demanded manual visible range after
+  loading more history.
+- Inactive/non-primary pane TF fallback no longer reads the route active-pane
+  display timeframe.
+- Pane-local display loads now set pane-local viewport-follow cursor metadata,
+  so secondary/tertiary panes do not rely on primary metadata for replay
+  follow/right-edge gates.
+
+Final verification:
+
+- `node v5/tests/multi-pane-continuous-interaction-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/triple-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-pane-fanout-ordering-browser-smoke.js`
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/chart-runtime-pane-local-viewport-smoke.js`
+- `git diff --check`
+
+Note: one parallel run of the browser group produced a transient
+`replay-pane-fanout-ordering` initial-load wait timeout under concurrent Chrome
+load; the same smoke passed when rerun directly.
