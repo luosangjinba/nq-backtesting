@@ -117,9 +117,15 @@ bars.
 
 - Step 529.1: completed for planning scope. The spec, TODO, session handoff,
   and related index documents now point to the replay pane fan-out direction.
-- Step 529.2-529.6: pending implementation.
+- Step 529.2: completed. Added
+  `v5/tests/replay-pane-fanout-ordering-browser-smoke.js`, which captures the
+  current same-timeframe multi-pane ordering baseline: primary append occurs
+  before `REPLAY_EVENTS.NEXT`, while secondary append currently occurs after
+  `NEXT` through the event catch-up projection.
+- Step 529.3-529.6: pending implementation.
 
 ## Next
 
-Implement Step 529.2 first: add ordering/contract coverage for replay pane
-fan-out before changing behavior.
+Implement Step 529.3 next: introduce a pane-aware fan-out API in replay/chart
+sync, then later flip the ordering smoke from current-baseline expectations to
+the target fan-out contract.
