@@ -73,6 +73,8 @@ and manual user perception before doing more runtime optimization.
 - Step 523.2: completed. Added
   `multi-pane-latest-intent-audit-browser-smoke.js` to measure per-pane,
   all-pane, polling, and rAF latest-intent timings.
+- Step 523.3: completed. Documented audit findings and decision: keep the
+  300ms guard, do not force runtime optimization based on headless timing alone.
 
 ## Baseline From Step 522
 
@@ -102,3 +104,22 @@ decomposition, not immediate optimization.
 Interpretation: the all-pane number is not a pure measurement artifact. It is
 dominated by the secondary pane, while the primary pane is faster but still far
 above the single-pane latest-intent gate.
+
+## Findings
+
+- The manual UX signal and headless audit are not contradictory:
+  - manual testing says multi-pane feels comparable to FXReplay;
+  - headless observer timing says multi-pane all-pane metadata catches up around
+    232ms in the sampled run.
+- The strict all-pane metric waits for both pane metadata updates. That is more
+  conservative than user perception, especially when the primary pane responds
+  first and the secondary pane trails.
+- The existing 300ms multi-pane guard is appropriate as a regression guard
+  because it protects current behavior without forcing optimization work that
+  the user cannot perceive.
+- A future optimization is optional rather than required. If opened, it should
+  audit pane update ordering and secondary pane projection cost before changing
+  runtime behavior.
+
+Decision: do not continue multi-pane latency as a must-fix performance track
+unless manual testing or future gates show a perceptible regression.
