@@ -37,6 +37,8 @@ are no longer the dominant bottlenecks.
 - Step 519.3: completed. Replaced timer-backed initial `Next` flush scheduling
   with microtask scheduling so a rapid click burst still coalesces, but the
   flush starts without a timer delay.
+- Step 519.4: completed. Ran the focused latency/control regression set and
+  closed the TODO/session handoff.
 
 ## Baseline
 
@@ -109,3 +111,26 @@ click.
   - schedule-to-flush-start: about 1ms.
   - controls flush: about 106ms.
   - replay next: about 93ms.
+
+## Final Verification
+
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/route-teardown-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- Final trace sample:
+  - final-click-to-visible: about 241ms.
+  - final-click-to-flush-start: about 0.1ms.
+  - final-click-to-command-start: about 0.2ms.
+  - final-click-to-replay-start: about 0.7ms.
+  - schedule-to-flush-start: about 1ms.
+  - controls flush: about 112ms.
+  - replay next: about 93ms.
+  - chart runtime host sync: about 12ms.
+
+## Next
+
+Step 520 should target the remaining time inside the coalesced replay command.
+Step 519 removed the input/timer gap, but the product target is still not fully
+met because final-click-to-visible remains around 240ms in the trace.
