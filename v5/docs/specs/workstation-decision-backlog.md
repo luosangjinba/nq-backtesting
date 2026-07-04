@@ -89,6 +89,8 @@ Rules:
   the target value is pane-local.
 - The TF dropdown is shared by all panes. It displays the active pane's
   timeframe and changes only the active pane unless `sync.interval` is enabled.
+- Shared chart navigation controls such as Go to and Jump cursor also target
+  the active pane when the action is pane-local.
 - Pane TFs are independent by default. They synchronize only when
   `sync.interval` is enabled.
 - The five sync toggles are `symbol`, `interval`, `crosshair`, `time`, and
@@ -98,6 +100,8 @@ Rules:
 - Every real chart pane should expose equivalent chart chrome when enabled:
   OHLC overlay, TF label, price axis, time axis, reset view, active-pane border,
   and crosshair behavior.
+- Interactive controls and popovers inside pane DOM must not bubble into pane
+  selection and accidentally change the active pane.
 - Split resizing is ratio-based. Layout state stores responsive ratios, not
   fixed pixel widths or heights.
 - Split resize must clamp panes to a minimum wall so panes cannot disappear.
@@ -210,4 +214,3 @@ Future plans should include:
 - Implementing arbitrary chart grids.
 - Adding public account or billing infrastructure.
 - Adding direct UI calls to Lightweight APIs.
-

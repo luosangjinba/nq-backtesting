@@ -607,23 +607,34 @@ export function createChartRuntime() {
   }
 
   function goToTime(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    const sourceState = stateForPane(normalizedPaneId);
     const goTo = normalizeGoToPayload(payload);
-    const visibleRange = deriveGoToRange(state, goTo);
-    const result = setManualVisibleRange(visibleRange);
+    const visibleRange = deriveGoToRange(sourceState, goTo);
+    const result = setManualVisibleRange(visibleRange, { paneId: normalizedPaneId });
     return {
       ...result,
+      paneId: normalizedPaneId,
       targetTimestamp: goTo.targetTimestamp,
     };
   }
 
   function zoomVisibleRange(payload = {}) {
-    const visibleRange = deriveZoomRange(state, payload);
-    return setManualVisibleRange(visibleRange);
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    const visibleRange = deriveZoomRange(stateForPane(normalizedPaneId), payload);
+    return {
+      ...setManualVisibleRange(visibleRange, { paneId: normalizedPaneId }),
+      paneId: normalizedPaneId,
+    };
   }
 
   function panVisibleRange(payload = {}) {
-    const visibleRange = derivePanRange(state, payload);
-    return setManualVisibleRange(visibleRange);
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    const visibleRange = derivePanRange(stateForPane(normalizedPaneId), payload);
+    return {
+      ...setManualVisibleRange(visibleRange, { paneId: normalizedPaneId }),
+      paneId: normalizedPaneId,
+    };
   }
 
   function resumeViewportFollow(payload = {}) {

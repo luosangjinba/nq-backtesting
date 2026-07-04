@@ -282,8 +282,15 @@ export function createChartReplayPaneShellController({
     }
   }
 
+  function isPaneControlEvent(event) {
+    return Boolean(event.target.closest(
+      'button, input, select, textarea, a, [role="dialog"], [data-chart-go-to-popover], [data-layout-popover], [data-chart-settings-popover]'
+    ));
+  }
+
   function handleClick(event) {
     if (event.target.closest('[data-layout-split-handle]')) return;
+    if (isPaneControlEvent(event)) return;
     const paneElement = event.target.closest('[data-layout-pane]');
     if (!paneElement || !shell.contains(paneElement)) return;
     selectPane(paneElement.dataset.paneId);
@@ -291,6 +298,7 @@ export function createChartReplayPaneShellController({
 
   function handleKeydown(event) {
     if (event.target.closest('[data-layout-split-handle]')) return;
+    if (isPaneControlEvent(event)) return;
     if (event.key !== 'Enter' && event.key !== ' ') return;
     const paneElement = event.target.closest('[data-layout-pane]');
     if (!paneElement || !shell.contains(paneElement)) return;

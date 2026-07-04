@@ -13,6 +13,7 @@ export function createChartReplayNavigationController({
   setControlsDisabled,
   setStatusText,
   syncLayoutTime = () => {},
+  getActivePaneId = () => undefined,
 }) {
   const goToPopover = root.querySelector('[data-chart-go-to-popover]');
   const goToOpenButton = root.querySelector('[data-chart-go-to-open]');
@@ -71,13 +72,15 @@ export function createChartReplayNavigationController({
     setCommandInFlight(true);
     setControlsDisabled(true);
     try {
-      const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS).catch(() => null);
+      const paneId = getActivePaneId();
+      const metrics = await dispatchCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, { paneId }).catch(() => null);
       if (disposed) return;
       const targetTimestamp = displayWallClockToCanonicalTimestamp(goToInput.value, {
         displayTimezone: getDisplayTimezone(),
         exchangeTimezone: getExchangeTimezone(),
       });
       const result = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
+        paneId,
         targetTimestamp,
         estimatedVisibleBars: metrics?.estimatedVisibleBars || null,
       });
@@ -107,7 +110,9 @@ export function createChartReplayNavigationController({
     setCommandInFlight(true);
     setControlsDisabled(true);
     try {
-      await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
+      await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, {
+        paneId: getActivePaneId(),
+      });
       const state = await dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null);
       if (disposed) return;
       await syncLayoutTime(state?.cursorTimestamp);
@@ -145,7 +150,9 @@ export function createChartReplayNavigationController({
   addListener(goToInput, 'input', handleGoToInput);
   addListener(root, 'click', handleRootClick);
   addListener(goToButton, 'click', goToTime);
-  addListener(jumpCursorButton, 'click', jumpToCursor);
+  if (jumpCursorButton) {
+    addListener(jumpCursorButton, 'click', jumpToCursor);
+  }
   addListener(jumpCursorPopoverButton, 'click', handleJumpCursorPopoverClick);
 
   function dispose() {

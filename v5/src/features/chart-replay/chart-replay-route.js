@@ -224,6 +224,7 @@ export function createChartReplayRoute() {
           status.textContent = message;
         },
         syncLayoutTime,
+        getActivePaneId: () => currentLayoutState.activePaneId || DEFAULT_ACTIVE_PANE_ID,
       }));
       truncateController = trackController(createChartReplayTruncateController({
         root: section,

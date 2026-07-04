@@ -817,10 +817,10 @@ async function main() {
     assert.equal(value.symbolSyncDisabled, true);
     assert.equal(value.intervalSyncChecked, true);
     assert.equal(value.viewportPaneId, 'primary');
-    assert.equal(value.viewportActivePane, 'true');
+    assert.equal(value.viewportActivePane, 'false');
     assert.equal(value.viewportPaneRole, 'primary-chart');
     assert.equal(value.hostPaneId, 'primary');
-    assert.equal(value.hostActivePane, 'true');
+    assert.equal(value.hostActivePane, 'false');
     assert.equal(value.layoutButtonDisabled, false);
     assert.equal(value.layoutButtonAriaDisabled, '');
     assert.equal(value.layoutButtonExpanded, 'false');

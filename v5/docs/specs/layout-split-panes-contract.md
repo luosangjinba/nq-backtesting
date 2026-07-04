@@ -56,6 +56,12 @@ Step 484 removes storage latency from the visible Next-bar reveal. Replay
 runtime writes the in-memory cursor/display state and chart bars before waiting
 for cursor persistence, then patches `persistedCursor` after persistence
 resolves.
+Step 499 hardens multi-pane active-pane acceptance. Shared route controls that
+act on pane-local chart navigation must pass the active pane id, and chart
+runtime navigation commands must derive visible ranges from the target pane
+state when `paneId` is supplied. Interactive controls and popovers embedded in
+pane DOM must not bubble into pane selection and accidentally reselect another
+pane.
 
 This is a planning contract, not an implementation step.
 
@@ -301,6 +307,19 @@ Step 481 implementation status:
 - active-pane TF changes reload the target pane through replay runtime;
 - browser smoke verifies a right-side `twice.vertical` pane can change TF while
   the left pane and global replay display TF stay unchanged.
+
+Step 499 implementation status:
+
+- chart runtime `goToTime`, `zoomVisibleRange`, and `panVisibleRange` derive
+  visible ranges from target pane state when `paneId` is supplied;
+- route-level Go to and Jump cursor pass the current active pane id instead of
+  implicitly targeting `primary`;
+- pane-local reset continues to use the target pane id from the clicked pane;
+- pane shell selection ignores interactive controls/popovers so controls hosted
+  under the primary pane cannot accidentally reselect `primary`;
+- `v5/tests/multi-pane-active-pane-browser-smoke.js` verifies active-pane TF
+  independence, active-pane Go to, pane-local reset, and active-pane Jump
+  cursor behavior.
 
 ## Pane Model
 

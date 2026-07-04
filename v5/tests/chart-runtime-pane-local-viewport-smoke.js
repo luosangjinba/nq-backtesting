@@ -166,13 +166,41 @@ assert.equal(viewportDemandEvents.at(-1).viewportDemand.displayTimeframe, 5);
 assert.equal(viewportDemandEvents.at(-1).viewportDemand.missingWindow.anchor, '2026-06-01T09:30:00.000Z');
 const secondarySetDataCountAfterManualRange = charts[1].setDataCalls.length;
 
+const primaryGoTo = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
+  paneId: 'primary',
+  targetTimestamp: '2026-06-01T09:32:00.000Z',
+  estimatedVisibleBars: 4,
+});
+assert.equal(primaryGoTo.paneId, 'primary');
+assert.equal(primaryGoTo.interaction.mode, 'manual');
+
+const secondaryGoTo = await dispatchCommand(CHART_COMMANDS.GO_TO_TIME, {
+  paneId: 'secondary',
+  targetTimestamp: '2026-06-01T09:35:00.000Z',
+  estimatedVisibleBars: 4,
+});
+assert.equal(secondaryGoTo.paneId, 'secondary');
+assert.equal(secondaryGoTo.interaction.mode, 'manual');
+assert.notDeepEqual(
+  secondaryGoTo.renderedBars,
+  primaryGoTo.renderedBars,
+  'pane-local go-to should derive rendered bars from the target pane state'
+);
+
+const secondaryResumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, {
+  paneId: 'secondary',
+});
+assert.equal(secondaryResumed.paneId, 'secondary');
+assert.equal(secondaryResumed.interaction.mode, 'follow');
+const secondarySetDataCountAfterPaneLocalNavigation = charts[1].setDataCalls.length;
+
 await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, {
   paneId: 'primary',
   bars: [bar(30, 110), bar(31, 111), bar(32, 112), bar(33, 113), bar(34, 114)],
 });
 assert.equal(
   charts[1].setDataCalls.length,
-  secondarySetDataCountAfterManualRange,
+  secondarySetDataCountAfterPaneLocalNavigation,
   'primary replay updates should not rewrite a pane-local secondary chart'
 );
 
@@ -189,7 +217,7 @@ await dispatchCommand(CHART_COMMANDS.REPLACE_BARS, {
 });
 assert.equal(
   charts[1].setDataCalls.length,
-  secondarySetDataCountAfterManualRange,
+  secondarySetDataCountAfterPaneLocalNavigation,
   'released pane chart should not receive later primary chart writes'
 );
 

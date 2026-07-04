@@ -10,12 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 498 completed. Settings modal internals now consume V5
-  workstation tokens, expose tab/tabpanel ARIA semantics, support Escape and
-  arrow-key tab navigation, and retain draft-only behavior until `Ok`.
-- Next candidate: Step 499 - continue product/UI work with multi-pane UX
-  acceptance, focusing on layout variants, active-pane signaling, reset view,
-  axis/OHLC parity, and resize behavior across panes.
+- Current status: Step 499 completed. Multi-pane active-pane acceptance is now
+  covered by a dedicated browser smoke: the shared TF control, Go to, Jump
+  cursor, and pane reset target the active/target pane without changing other
+  panes or accidentally reselecting `primary` through popover/control bubbling.
+- Next candidate: Step 500 - continue multi-pane hardening with viewport-demand
+  and left-extension acceptance after pane-local TF changes, then decide whether
+  to polish pane resize handles or move back to remaining Settings controls.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -232,6 +233,14 @@
   Escape-to-cancel, arrow-key tab navigation, tighter grouped rows, and a
   Settings polish browser smoke that proves draft edits remain unapplied until
   `Ok`.
+- Multi-pane acceptance decision: Step 499 makes shared chart navigation
+  active-pane aware. `chart.goToTime`, `chart.zoomVisibleRange`, and
+  `chart.panVisibleRange` derive ranges from the target pane state when a
+  `paneId` is supplied; Go to and Jump cursor pass the active pane id from the
+  chart route. Pane shell selection ignores interactive controls and popovers so
+  clicking controls hosted under the primary pane cannot accidentally reselect
+  `primary`. Browser coverage now proves active-pane TF independence, active
+  pane Go to, pane-local reset, and active-pane Jump cursor behavior.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

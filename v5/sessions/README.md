@@ -17,7 +17,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 
 ## Current Handoff
 
-- Step 498: `session_20260703_step498_v5_settings_polish.md`
+- Step 499: `session_20260703_step499_v5_multi_pane_active_pane_acceptance.md`
 
 ## Completed Session Index
 
@@ -165,3 +165,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 496: `session_20260703_step496_v5_bar_data_cache_retention_gate.md`
 - Step 497: `session_20260703_step497_v5_route_teardown_behavior_smoke.md`
 - Step 498: `session_20260703_step498_v5_settings_polish.md`
+- Step 499: `session_20260703_step499_v5_multi_pane_active_pane_acceptance.md`
