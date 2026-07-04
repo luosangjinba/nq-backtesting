@@ -33,6 +33,7 @@ then apply only a bounded optimization that the trace justifies.
 - Step 518.4: completed. Added sliding-window tail append support so replay
   follow can use incremental adapter append when the rendered window shifts
   left and new bars enter on the right.
+- Step 518.5: completed. Re-ran relevant gates and recorded remaining risk.
 
 ## Initial Trace
 
@@ -93,3 +94,17 @@ Verification:
 - `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
 - `node v5/tests/replay-viewport-follow-browser-smoke.js` passed.
 - `node v5/tests/chart-runtime-engine-adapter-smoke.js` passed.
+
+Test note: running multiple headless browser smokes in parallel can inflate
+latest-intent latency above the current browser threshold even though the chart
+append path remains incremental. Use sequential browser runs for latency gates
+until the next step separates control/event-loop delay from browser resource
+contention.
+
+## Next Recommended Step
+
+Step 519 should target controls/input batching. The chart replacement bottleneck
+is removed, but user testing still reports perceptible delay versus FXReplay.
+The next trace target is the gap between the final button click and
+`controls.next.flush.start` / `replay.next.start`, plus whether rapid clicks
+should update a latest desired cursor without waiting for a timer-backed flush.

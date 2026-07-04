@@ -17,14 +17,14 @@
 - Current status: Step 517 completed. The replay `Next` visible path no longer
   waits for cursor persistence, and replay gates assert the visible cursor
   directly with `viewportCursorTimestamp`.
-- Current step: Step 518 traces the remaining perceived replay `Next` delay.
-  It must measure the latest-intent-to-visible-candle path by phase before
-  applying more patches, then record the measured bottleneck and any bounded
-  optimization. Initial trace shows data loading is not the bottleneck; chart
-  append/follow is the dominant measured segment. Deeper trace shows the chart
-  host fell back to replacement because replay follow slides the rendered
-  window. Step 518 now supports sliding-window tail append; remaining delay is
-  likely in controls batching / browser event scheduling / command dispatch.
+- Current status: Step 518 completed. Trace showed data loading was not the
+  bottleneck; chart host sync fell back to replacement because replay follow
+  slides the rendered window. V5 now supports sliding-window tail append and
+  enters incremental `lightweight.append` / `series.update`.
+- Next recommended step: Step 519 should target controls/input batching and the
+  gap between the final `Next` click and replay command start. User testing
+  still reports perceptible delay versus FXReplay, so the product target remains
+  unmet even though the chart replacement bottleneck is fixed.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
