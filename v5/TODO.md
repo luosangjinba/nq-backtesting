@@ -20,7 +20,8 @@
 - Current step: Step 518 traces the remaining perceived replay `Next` delay.
   It must measure the latest-intent-to-visible-candle path by phase before
   applying more patches, then record the measured bottleneck and any bounded
-  optimization.
+  optimization. Initial trace shows data loading is not the bottleneck; chart
+  append/follow is the dominant measured segment.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

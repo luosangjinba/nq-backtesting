@@ -1,3 +1,5 @@
+import { markReplayTrace } from './replay-trace.js';
+
 export function createReplayChartSync({
   getState,
   dispatchCommand,
@@ -57,8 +59,19 @@ export function createReplayChartSync({
     cursorTimestamp,
     { paneId, fullDisplayBars = appendedBars } = {}
   ) {
+    markReplayTrace('chartSync.append.start', {
+      paneId: paneId || 'primary',
+      appendedCount: appendedBars.length,
+      cursorTimestamp,
+    });
     if (!hasCommand(chartCommands.APPEND_BARS)) {
-      return renderDisplayBars(fullDisplayBars, cursorTimestamp, { paneId });
+      const rendered = await renderDisplayBars(fullDisplayBars, cursorTimestamp, { paneId });
+      markReplayTrace('chartSync.append.end', {
+        paneId: paneId || 'primary',
+        mode: 'replace',
+        cursorTimestamp,
+      });
+      return rendered;
     }
     if (!paneId || paneId === 'primary') {
       const state = getState();
@@ -74,9 +87,19 @@ export function createReplayChartSync({
           estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
         },
       });
+      markReplayTrace('chartSync.append.end', {
+        paneId: paneId || 'primary',
+        mode: 'append',
+        cursorTimestamp,
+      });
       return;
     }
     await dispatchCommand(chartCommands.APPEND_BARS, { paneId, bars: appendedBars });
+    markReplayTrace('chartSync.append.end', {
+      paneId,
+      mode: 'append',
+      cursorTimestamp,
+    });
   }
 
   return {

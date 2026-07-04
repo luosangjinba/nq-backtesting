@@ -26,6 +26,7 @@ import {
   createRuntimeCanvas,
   renderHiddenDebugBars,
 } from './chart-engine-fallback-rendering.js';
+import { markReplayTrace } from './replay-trace.js';
 
 function createSeries(engine, nextChart, displayContext) {
   const seriesOptions = lightweightSeriesOptionsForContext(displayContext);
@@ -313,6 +314,10 @@ export function createLightweightInstance({ engine, documentRef }) {
       queueResizeToHost();
     },
     appendBars(nextBars = [], options = {}) {
+      markReplayTrace('lightweight.append.start', {
+        appendedCount: nextBars.length,
+        fullBarCount: options.fullBarCount ?? '',
+      });
       const appendedBars = [...nextBars];
       if (!appendedBars.length) {
         return;
@@ -328,7 +333,13 @@ export function createLightweightInstance({ engine, documentRef }) {
       metadata = options.metadata ? { ...options.metadata } : metadata;
       applyHostMetadata(metadata);
       applyCanvasMetadata({ renderDebug: false });
+      markReplayTrace('lightweight.append.metadata', {
+        cursorTimestamp: metadata.viewportCursorTimestamp || '',
+        renderedBarCount: bars.length,
+        fullBarCount,
+      });
       appendedBars.forEach((bar) => series?.update?.(toEngineBar(bar)));
+      markReplayTrace('lightweight.append.seriesUpdated', { appendedCount: appendedBars.length });
       if (options.followViewport) {
         const logicalRange = followLogicalRangeForBars(bars, displayContext);
         if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
@@ -337,6 +348,11 @@ export function createLightweightInstance({ engine, documentRef }) {
           recordVisibleLogicalRange(logicalRange);
         }
       }
+      markReplayTrace('lightweight.append.end', {
+        cursorTimestamp: metadata.viewportCursorTimestamp || '',
+        renderedBarCount: bars.length,
+        fullBarCount,
+      });
       queueDebugRender();
       queueResizeToHost();
     },

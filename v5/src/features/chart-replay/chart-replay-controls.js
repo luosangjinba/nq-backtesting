@@ -1,4 +1,5 @@
 import { REPLAY_COMMANDS } from '../../contracts/replay-contracts.js';
+import { markReplayTrace } from '../../runtime/replay-trace.js';
 
 export function createChartReplayControlsController({
   root,
@@ -123,10 +124,16 @@ export function createChartReplayControlsController({
 
   async function runNext(stepCount, { refreshStatus = true } = {}) {
     if (disposed) return;
+    markReplayTrace('controls.next.command.start', { stepCount });
     const state = await runReplayCommand(() => dispatchCommand(REPLAY_COMMANDS.NEXT, {
       sessionId: getSessionId(),
       stepCount,
     }));
+    markReplayTrace('controls.next.command.end', {
+      stepCount,
+      advanced: Boolean(state?.advanced),
+      cursorTimestamp: state?.cursorTimestamp || '',
+    });
     if (disposed) return;
     if (!state) return;
     setTerminalReason(state.advanced ? '' : state.reason || 'stopped');
@@ -143,6 +150,7 @@ export function createChartReplayControlsController({
     if (disposed) return;
     if (nextBatchRunning) return;
     nextBatchRunning = true;
+    markReplayTrace('controls.next.flush.start', { pendingNextStepCount });
     let shouldRefresh = false;
     try {
       while (pendingNextStepCount > 0) {
@@ -156,11 +164,14 @@ export function createChartReplayControlsController({
       nextBatchRunning = false;
       if (disposed) return;
       if (shouldRefresh) {
+        markReplayTrace('controls.next.refresh.start');
         await refreshReplayStatus();
+        markReplayTrace('controls.next.refresh.end');
       }
       if (pendingNextStepCount > 0 && pendingNextTimer === null) {
         pendingNextTimer = setTimeout(flushPendingNext, 0);
       }
+      markReplayTrace('controls.next.flush.end', { pendingNextStepCount });
     }
   }
 
@@ -178,6 +189,7 @@ export function createChartReplayControlsController({
   }
 
   function handleNextClick() {
+    markReplayTrace('controls.next.click', { replayStepCount: replayStepCount() });
     pendingNextStepCount += replayStepCount();
     queueNextStep();
   }

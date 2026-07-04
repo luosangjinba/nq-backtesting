@@ -24,4 +24,24 @@ then apply only a bounded optimization that the trace justifies.
 
 ## Status
 
-- Step 518.1: in progress.
+- Step 518.1: completed. The trace contract and handoff are documented.
+- Step 518.2: completed. Added opt-in trace marks and a single-pane browser
+  trace smoke.
+
+## Initial Trace
+
+First trace sample for 20 rapid `Next` clicks on single-pane 1m replay:
+
+- final-click-to-visible: about 290ms.
+- final-click-to-animation-frame: about 304ms.
+- controls flush: about 191ms.
+- replay command: about 185ms.
+- replay next: about 178ms.
+- bar-data load window: about 0.1ms.
+- replay chart append: about 175ms.
+- chart sync append: about 96ms.
+
+Interpretation: the remaining delay is not forward data fetching. The dominant
+measured segment is the chart append/follow path. Step 518.3 should add deeper
+chart-runtime/adapter timing around append host sync, Lightweight update, resize,
+and visible-range follow before choosing an optimization.

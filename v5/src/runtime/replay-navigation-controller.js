@@ -14,6 +14,7 @@ import {
   timeframeSeconds,
   timestampSeconds,
 } from './replay-runtime-state.js';
+import { markReplayTrace } from './replay-trace.js';
 
 function forwardRevealWindowCount(sourceState) {
   return computeForwardRevealWindowCount({
@@ -75,6 +76,7 @@ export function createReplayNavigationController({
   }
 
   async function next({ sessionId = getState().sessionId, stepCount = 1 } = {}) {
+    markReplayTrace('replay.next.start', { sessionId, stepCount });
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
     }
@@ -95,6 +97,10 @@ export function createReplayNavigationController({
       };
     }
 
+    markReplayTrace('replay.next.loadWindow.start', {
+      cursorTimestamp: sourceState.cursorTimestamp,
+      count: forwardRevealWindowCount(sourceState),
+    });
     const window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
       instrument: sourceState.session.instrument,
       timeframe: sourceState.session.timeframe,
@@ -104,6 +110,7 @@ export function createReplayNavigationController({
       direction: 'forward',
       count: forwardRevealWindowCount(sourceState),
     });
+    markReplayTrace('replay.next.loadWindow.end', { barCount: window.bars?.length || 0 });
     const nextBars = selectNextBars(
       window.bars,
       sourceState.cursorTimestamp,
@@ -135,12 +142,20 @@ export function createReplayNavigationController({
       ]
       : sourceState.displayBars;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
+      markReplayTrace('replay.next.chartAppend.start', {
+        appendedCount: nextBars.length,
+        cursorTimestamp: nextBar.time,
+      });
       await chartSync.syncChartRightEdgeLimit(nextBar.time);
       if (typeof chartSync.appendDisplayBars === 'function') {
         await chartSync.appendDisplayBars(nextBars, nextBar.time, { fullDisplayBars: displayBars });
       } else {
         await chartSync.renderDisplayBars(displayBars, nextBar.time);
       }
+      markReplayTrace('replay.next.chartAppend.end', {
+        appendedCount: nextBars.length,
+        cursorTimestamp: nextBar.time,
+      });
     }
 
     let nextState = setState({
@@ -150,6 +165,10 @@ export function createReplayNavigationController({
       displayBarsTimeframe: normalizedDisplayTimeframe,
       displayBars: clone(displayBars),
       status: 'replay-ready',
+    });
+    markReplayTrace('replay.next.state.visible', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
     });
     if (normalizedDisplayTimeframe !== normalizedReplayTimeframe) {
       await chartSync.syncChartRightEdgeLimit(nextBar.time);
@@ -167,8 +186,16 @@ export function createReplayNavigationController({
       revealedBars: clone(nextBars),
     };
     emitEvent(replayEvents.NEXT, result);
+    markReplayTrace('replay.next.event.emitted', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
     enqueueCursorPersistence({
       sessionId,
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
+    markReplayTrace('replay.next.end', {
       cursorTimestamp: nextBar.time,
       revealedCount,
     });
