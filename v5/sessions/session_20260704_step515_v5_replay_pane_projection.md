@@ -28,6 +28,8 @@ commands for visible non-primary panes.
 
 ## Status
 
-- Step 515.1: in progress.
-- Step 515.2: pending.
+- Step 515.1: completed. The rebuild plan now defines the projection command
+  boundary and acceptance checks.
+- Step 515.2: in progress. A projection helper and pure smoke are being added
+  before production integration.
 - Step 515.3: pending.
