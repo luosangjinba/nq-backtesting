@@ -96,6 +96,8 @@ path.
      `1m`, and a third remains independently initialized.
    - Trigger wheel/viewport interaction on the active `1H` pane and assert the
      other panes' TF metadata is unchanged.
+   - Completed: triple-pane browser coverage now keeps secondary at `5m` and
+     tertiary at `1m` after primary `1H` wheel interaction.
    - Commit the regression harness and any minimal fix needed.
 
 6. Step 531.6 - Regression and closeout.

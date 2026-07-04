@@ -80,7 +80,12 @@ than a single rendering bug.
   replay display timeframe when their pane TF is unset. Primary may still use
   replay display context as its fallback; secondary/tertiary default to the
   session timeframe unless their layout pane record explicitly says otherwise.
-- Step 531.5-531.6: pending.
+- Step 531.5: completed. Added
+  `v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`. It covers a
+  triple layout with secondary explicitly set to `5m`, primary set to `1H`,
+  and primary wheel interaction; secondary remains `5m` and tertiary remains
+  `1m`.
+- Step 531.6: pending.
 
 ## Step 531.2 Verification
 
@@ -111,7 +116,13 @@ than a single rendering bug.
 - `node v5/tests/multi-pane-active-pane-browser-smoke.js`
 - `git diff --check`
 
+## Step 531.5 Verification
+
+- `node --check v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 531.5 next: add a three-pane isolation regression for active
-`1H` pane interaction while the other panes retain their own display timeframe.
+Implement Step 531.6 next: run the planned regression/closeout gates and update
+TODO/spec/session with the final result.
