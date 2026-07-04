@@ -23,7 +23,6 @@ function displayLoadKey(paneId, displayTimeframe) {
 
 export function createChartReplayPaneDisplayCoordinator({
   dispatchCommand,
-  getReplayDisplayTimeframe,
   getSessionTimeframe,
   getDisplayTimeframeFallback,
   getSessionId,
@@ -45,8 +44,7 @@ export function createChartReplayPaneDisplayCoordinator({
     if (pane.displayTimeframe) return Number(pane.displayTimeframe);
     if (paneId === (DEFAULT_ACTIVE_PANE_ID)) {
       return Number(
-        getReplayDisplayTimeframe?.()
-        || getSessionTimeframe?.()
+        getSessionTimeframe?.()
         || getDisplayTimeframeFallback?.()
         || 1
       );
@@ -102,7 +100,7 @@ export function createChartReplayPaneDisplayCoordinator({
     }
     if (
       paneId === (DEFAULT_ACTIVE_PANE_ID)
-      && Number(nextDisplayTimeframe) === Number(getReplayDisplayTimeframe?.() || getSessionTimeframe?.() || 1)
+      && Number(nextDisplayTimeframe) === Number(getSessionTimeframe?.() || getDisplayTimeframeFallback?.() || 1)
     ) {
       return markPaneDisplayReady(paneId, nextDisplayTimeframe);
     }

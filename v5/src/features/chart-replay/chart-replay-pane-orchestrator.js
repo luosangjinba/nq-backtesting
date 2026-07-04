@@ -23,8 +23,6 @@ export function createChartReplayPaneOrchestrator({
   getLayoutState,
   onLayoutStateChange,
   onDisplayTimeframeChange,
-  setReplayDisplayTimeframe,
-  getReplayDisplayTimeframe,
   getSessionTimeframe,
   getDisplayTimeframeFallback,
   getSessionId,
@@ -40,7 +38,6 @@ export function createChartReplayPaneOrchestrator({
   let currentLayoutState = getLayoutState?.() || DEFAULT_LAYOUT_STATE;
   const paneDisplayCoordinator = createChartReplayPaneDisplayCoordinator({
     dispatchCommand,
-    getReplayDisplayTimeframe,
     getSessionTimeframe,
     getDisplayTimeframeFallback,
     getSessionId,
@@ -76,8 +73,7 @@ export function createChartReplayPaneOrchestrator({
     if (activePane?.displayTimeframe) return Number(activePane.displayTimeframe);
     if (activePaneId === DEFAULT_ACTIVE_PANE_ID) {
       return Number(
-        getReplayDisplayTimeframe?.()
-        || getSessionTimeframe?.()
+        getSessionTimeframe?.()
         || getDisplayTimeframeFallback?.()
         || 1
       );
@@ -172,9 +168,6 @@ export function createChartReplayPaneOrchestrator({
       if (targetPaneId === DEFAULT_ACTIVE_PANE_ID || !state) {
         state = nextState;
       }
-    }
-    if (targetPaneIds.includes(DEFAULT_ACTIVE_PANE_ID)) {
-      setReplayDisplayTimeframe?.(Number(state?.displayTimeframe || nextDisplayTimeframe));
     }
     targetPaneIds.forEach((targetPaneId) => {
       paneDisplayCoordinator.markPaneDisplayReady(targetPaneId, Number(nextDisplayTimeframe));

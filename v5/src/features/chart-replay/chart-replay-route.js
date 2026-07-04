@@ -70,7 +70,6 @@ export function createChartReplayRoute() {
       let cursorTimestamp = null;
       let sessionTimeframe = null;
       let displayTimeframe = null;
-      let replayDisplayTimeframe = null;
       let replayIntervalTimeframe = null;
       let replayIntervalSync = false;
       let currentLayoutState = DEFAULT_LAYOUT_STATE;
@@ -110,7 +109,7 @@ export function createChartReplayRoute() {
         ));
         if (pane?.displayTimeframe) return Number(pane.displayTimeframe);
         if ((paneId || DEFAULT_ACTIVE_PANE_ID) === DEFAULT_ACTIVE_PANE_ID) {
-          return Number(replayDisplayTimeframe || sessionTimeframe || displayTimeframe || 1);
+          return Number(sessionTimeframe || displayTimeframe || 1);
         }
         return Number(sessionTimeframe || 1);
       }
@@ -135,10 +134,6 @@ export function createChartReplayRoute() {
         onDisplayTimeframeChange: (value) => {
           displayTimeframe = Number(value || 0);
         },
-        setReplayDisplayTimeframe: (value) => {
-          replayDisplayTimeframe = Number(value || 0);
-        },
-        getReplayDisplayTimeframe: () => replayDisplayTimeframe,
         getSessionTimeframe: () => sessionTimeframe,
         getDisplayTimeframeFallback: () => displayTimeframe,
         getSessionId: () => params.sessionId || '',
@@ -310,17 +305,12 @@ export function createChartReplayRoute() {
 
       async function refreshReplayStatus() {
         if (!section.isConnected && section.parentElement === null) return;
-        const [state, playback, displayContext, timezoneContext, presentationContext] = await Promise.all([
+        const [state, playback, timezoneContext, presentationContext] = await Promise.all([
           dispatchCommand(REPLAY_COMMANDS.GET_STATE).catch(() => null),
           dispatchCommand(REPLAY_COMMANDS.GET_PLAYBACK_STATE).catch(() => null),
-          dispatchCommand(REPLAY_COMMANDS.GET_DISPLAY_CONTEXT).catch(() => null),
           dispatchCommand(DISPLAY_TIMEZONE_COMMANDS.GET).catch(() => null),
           dispatchCommand(CHART_PRESENTATION_COMMANDS.GET).catch(() => null),
         ]);
-        replayDisplayTimeframe = Number(displayContext?.displayTimeframe
-          || state?.displayTimeframe
-          || state?.session?.timeframe
-          || 0);
         displayTimeframe = activePaneDisplayTimeframe();
         sessionTimeframe = Number(state?.session?.timeframe || sessionTimeframe || 1);
         if (replayIntervalSync) {
