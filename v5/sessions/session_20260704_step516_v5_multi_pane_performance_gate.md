@@ -53,6 +53,11 @@ Node emitted the repository's existing ES module package warning for test files.
 
 ## Next
 
-Step 517 should decide whether the next rebuild slice is lower-level
-instrumentation for chart append/setData behavior or another production cleanup
-behind the new Step 516 performance gate.
+Step 517 should raise this from a 10-click regression gate to a latest-intent
+rendering contract. Manual replay stepping must not visually drain a backlog
+one candle at a time. If the user clicks `Next` faster than individual commands
+finish, controls/runtime should coalesce to the newest intended reveal count and
+render the final chart state with effectively zero perceptible delay. Human
+click rate is roughly capped around 10 clicks/second, so the product target is
+about 100ms latest-intent-to-visible-candle latency. V4 already has this feel,
+so V5 failing it should be treated as a V5 implementation defect.

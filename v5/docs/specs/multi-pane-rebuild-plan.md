@@ -328,10 +328,20 @@ Acceptance:
 Goal: make replay movement feel immediate enough to compare favorably with V4
 and approach FXReplay/TradingView expectations.
 
+Non-negotiable UX target: replay manual stepping must render the user's latest
+intended cursor with effectively zero perceptible queue delay. If a user clicks
+`Next` faster than the app can process individual DOM events, V5 should
+coalesce to the newest intended reveal count and render that final chart state
+as soon as possible. Human mouse repeat rate is roughly capped around 10 clicks
+per second, so the product target is about 100ms from the latest `Next` intent
+to the expected candle being visible. It must not visually drain a backlog one
+candle at a time. The Step 516 smoke is only the first regression gate for this
+contract; it is not the final performance standard.
+
 Implementation expectations:
 
-- add a browser/performance smoke that rapid `Next` clicks do not drain through
-  a slow visible queue;
+- add browser/performance smokes proving rapid `Next` input does not drain
+  through a slow visible queue;
 - measure time from click batch to final rendered cursor in a multi-pane
   same-timeframe layout;
 - assert both primary and non-primary same-timeframe panes advance by the click
@@ -353,6 +363,13 @@ Acceptance:
   projection path;
 - the elapsed threshold stays loose enough for local browser variance but tight
   enough to catch a visible half-second-per-bar queue.
+
+Follow-up gates should increase input pressure beyond the initial 10-click
+sample and should measure latest-intent latency directly. Browser automation
+thresholds may allow headless/CI variance, but the product target remains
+approximately 100ms. If V5 fails that standard while V4 and FXReplay feel
+instant on the same machine, treat it as a V5 implementation bug, not an
+acceptable tradeoff.
 
 ## Required Verification For Rebuild Steps
 
