@@ -292,10 +292,36 @@ Goal: stop primary-first replay catch-up behavior.
 Implementation expectations:
 
 - replay cursor advances once per `Next` / playback tick;
-- same-timeframe panes append revealed bars in one coordinated projection;
-- independent-timeframe panes load/project windows for the same cursor;
+- build one pane projection plan from each advanced `replay:next` event and the
+  current layout snapshot;
+- same-timeframe panes append revealed bars with pane-local viewport follow in
+  the same projection pass;
+- independent-timeframe panes load/project windows for the same cursor
+  timestamp;
 - chart runtime receives pane-targeted commands only;
 - rapid `Next` coalescing remains intact.
+
+Projection boundary:
+
+- allowed inputs: replay event payload, layout snapshot, pane display
+  coordinator, route session getters, and command bus;
+- same-timeframe command path: `chart.getViewportMetrics` followed by
+  `chart.appendBars` for the target pane;
+- independent-timeframe command path: `replay.loadDisplayWindow` for the target
+  pane;
+- forbidden actions: route-owned series writes, route-owned bar-data requests,
+  replay cursor mutation, primary-pane fallback for panes with explicit display
+  timeframes, and queued per-pane visual catch-up after the logical replay tick
+  has completed.
+
+Acceptance:
+
+- a pure projection smoke covers same-timeframe append, independent-timeframe
+  display-window load, primary-pane skip, no-advanced-event skip, and per-pane
+  display initialization before projection;
+- the Step 512 rebuild contract smoke still passes;
+- rapid `Next` coalescing smoke still passes, proving Step 515 does not
+  reintroduce a slow visible queue.
 
 ### Step 516 - Multi-Pane Performance Gate
 
