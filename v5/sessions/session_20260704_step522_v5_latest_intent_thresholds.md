@@ -65,7 +65,10 @@ gates by tightening single-pane and multi-pane rapid `Next` thresholds.
 
 ## Status
 
-- Step 522.1: in progress.
+- Step 522.1: completed. Planned latest-intent threshold tightening and
+  recorded current loose thresholds.
+- Step 522.2: completed. Tightened single-pane latest-intent gates to a 120ms
+  observer-based threshold.
 
 ## Baseline From Step 521
 
@@ -77,3 +80,20 @@ gates by tightening single-pane and multi-pane rapid `Next` thresholds.
 Interpretation: the performance is now fast enough, but the tests would not
 catch a regression until latency is much worse than the product target. Step 522
 should make that protection explicit.
+
+## Single-Pane Thresholds
+
+- `replay-latest-intent-trace-browser-smoke.js` now asserts
+  `finalClickToVisibleMs < 120` using the observer-based metric.
+- `replay-latest-intent-browser-smoke.js` now sets
+  `automationThresholdMs = 120` for observer-based latest-intent latency.
+- Verification:
+  - `node --check v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+  - `node --check v5/tests/replay-latest-intent-browser-smoke.js` passed.
+  - `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed with
+    observer latency about 14ms.
+  - `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+
+The threshold is intentionally a little above the 100ms product target to allow
+headless variance while still catching regressions long before the previous
+350ms/1000ms gates.

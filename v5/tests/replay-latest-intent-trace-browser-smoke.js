@@ -13,6 +13,7 @@ import {
 const CHROME_BIN = process.env.CHROME_BIN || 'google-chrome';
 const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9403);
 const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || `/tmp/v5-replay-latest-intent-trace-${process.pid}`;
+const LATEST_INTENT_OBSERVER_THRESHOLD_MS = 120;
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -354,10 +355,13 @@ async function main() {
     assert.equal(value.cursorTimestamp, '2026-06-01T09:50:00.000Z');
     assert.equal(value.forwardRequestDelta, 0);
     assert.equal(value.metadataCursorTimestamp, Date.parse('2026-06-01T09:50:00.000Z') / 1000);
-    assert.ok(value.finalClickToVisibleMs < 1000, `latest cursor should become visible: ${JSON.stringify(value)}`);
     assert.equal(value.observerDetected, true, `cursor metadata observer should detect visibility: ${JSON.stringify(value)}`);
     assert.equal(typeof value.finalClickToObservedVisibleMs, 'number');
     assert.equal(typeof value.observerToPollingVisibleMs, 'number');
+    assert.ok(
+      value.finalClickToVisibleMs < LATEST_INTENT_OBSERVER_THRESHOLD_MS,
+      `observer latest intent latency ${value.finalClickToVisibleMs}ms exceeded ${LATEST_INTENT_OBSERVER_THRESHOLD_MS}ms: ${JSON.stringify(value)}`
+    );
     assert.equal(typeof value.finalClickToFlushStartMs, 'number');
     assert.equal(typeof value.finalClickToCommandStartMs, 'number');
     assert.equal(typeof value.finalClickToReplayStartMs, 'number');
