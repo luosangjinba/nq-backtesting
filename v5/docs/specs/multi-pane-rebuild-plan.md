@@ -236,6 +236,12 @@ Implementation expectations:
   active pane no longer exists;
 - update docs if a variant's visual geometry changes.
 
+Step 513 must stay inside layout runtime ownership. It should not mount panes,
+load display windows, write chart series, change replay cursor semantics, or
+special-case DOM order in the route. The browser smoke from Step 512 is the
+end-to-end guard, but the production fix belongs in the layout active-pane
+policy table.
+
 ### Step 514 - Pane Lifecycle Coordinator
 
 Goal: replace opportunistic pane initialization with deterministic pane
