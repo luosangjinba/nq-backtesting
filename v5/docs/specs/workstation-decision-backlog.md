@@ -207,6 +207,28 @@ Related docs:
 
 - `layout-split-panes-contract.md`
 
+## Multi-Pane Display Isolation Decision
+
+Mounted panes must not be implicitly rewritten by unrelated primary display
+changes.
+
+Rules:
+
+- Primary replay display writes target the primary chart host only.
+- Non-primary chart hosts are updated by pane-local replay display loads or
+  explicitly pane-targeted chart commands.
+- Route UI must not compensate for isolation by writing chart series or
+  requesting bars directly.
+- Per-pane chrome, including OHLC timeframe labels, must read pane-local
+  metadata before falling back to active/global replay state.
+- A newly mounted non-primary pane may initially show the current chart state,
+  but subsequent primary TF/range/reset changes must not continue to rewrite it.
+
+Related docs:
+
+- `layout-split-panes-contract.md`
+- `chart-interaction-contracts.md`
+
 ## Settings And Visual System Decisions
 
 V5 should feel like a professional FXReplay-like workstation, but the UI system

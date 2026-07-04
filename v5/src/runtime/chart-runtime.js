@@ -89,11 +89,6 @@ export function createChartRuntime() {
     };
   }
 
-  function paneHasDisplayOverride(paneId = DEFAULT_CHART_PANE_ID) {
-    const normalizedPaneId = normalizePaneId(paneId);
-    return normalizedPaneId !== DEFAULT_CHART_PANE_ID && paneDisplayStateByPaneId.has(normalizedPaneId);
-  }
-
   function updatePaneDisplayState(paneId, patch = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
     const currentPaneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
@@ -234,7 +229,9 @@ export function createChartRuntime() {
       hostSync.syncChartHost(host);
       return;
     }
-    hostSync.rerenderMountedHosts();
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      syncPaneHosts(DEFAULT_CHART_PANE_ID);
+    }
   }
 
   function syncGlobalDisplayHosts() {
@@ -242,7 +239,7 @@ export function createChartRuntime() {
     for (const host of mountedHostList) {
       if (!host.isConnected) continue;
       const paneId = normalizePaneId(host.dataset?.chartPaneId);
-      if (paneId === DEFAULT_CHART_PANE_ID || !paneHasDisplayOverride(paneId)) {
+      if (paneId === DEFAULT_CHART_PANE_ID) {
         hostSync.syncChartHost(host);
       }
     }
@@ -255,7 +252,9 @@ export function createChartRuntime() {
       hostSync.syncChartHostAppend(host, previousPaneState, nextPaneState);
       return;
     }
-    hostSync.rerenderMountedHosts();
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      syncPaneHosts(DEFAULT_CHART_PANE_ID);
+    }
   }
 
   function syncGlobalDisplayHostsAppended(previousState, nextState) {
@@ -263,7 +262,7 @@ export function createChartRuntime() {
     for (const host of mountedHostList) {
       if (!host.isConnected) continue;
       const paneId = normalizePaneId(host.dataset?.chartPaneId);
-      if (paneId === DEFAULT_CHART_PANE_ID || !paneHasDisplayOverride(paneId)) {
+      if (paneId === DEFAULT_CHART_PANE_ID) {
         hostSync.syncChartHostAppend(host, previousState, nextState);
       }
     }
@@ -518,7 +517,7 @@ export function createChartRuntime() {
     };
     state.prefixDemand = computePrefixDemand(state);
     state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    hostSync.rerenderMountedHosts();
+    syncPaneHosts(DEFAULT_CHART_PANE_ID);
     emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
     if (state.viewportDemand) {
       emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
@@ -676,7 +675,7 @@ export function createChartRuntime() {
     };
     state.prefixDemand = null;
     state.viewportDemand = null;
-    hostSync.rerenderMountedHosts();
+    syncPaneHosts(DEFAULT_CHART_PANE_ID);
     hostSync.resetPriceScales({ paneId: DEFAULT_CHART_PANE_ID });
     return {
       paneId: normalizedPaneId,

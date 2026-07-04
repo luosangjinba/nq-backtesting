@@ -218,16 +218,38 @@ async function main() {
             && document.querySelectorAll('[data-chart-host]').length === 2
           ));
 
-          clickPaneCenterNow('secondary');
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          timeframeSelect.value = '60';
+          timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+          await waitFor('primary timeframe does not leak to secondary', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            return effectivePaneTimeframes(layoutState)[0] === 60
+              && effectivePaneTimeframes(layoutState)[1] === 1
+              && canvasFor('primary')?.dataset.displayTimeframe === '60'
+              && canvasFor('secondary')?.dataset.displayTimeframe === '1'
+              && document
+                .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-ohlc-timeframe]')
+                ?.textContent === '1H'
+              && document
+                .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-ohlc-timeframe]')
+                ?.textContent === '1m';
+          });
+
+          clickPaneCenterNow('secondary');
           timeframeSelect.value = '5';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           await waitFor('secondary immediate timeframe independent', async () => {
             const layoutState = await commands.dispatchCommand('layout.getState');
-            return effectivePaneTimeframes(layoutState)[0] === 1
+            return effectivePaneTimeframes(layoutState)[0] === 60
               && effectivePaneTimeframes(layoutState)[1] === 5
-              && canvasFor('primary')?.dataset.displayTimeframe === '1'
+              && canvasFor('primary')?.dataset.displayTimeframe === '60'
               && canvasFor('secondary')?.dataset.displayTimeframe === '5'
+              && document
+                .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-ohlc-timeframe]')
+                ?.textContent === '1H'
+              && document
+                .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-ohlc-timeframe]')
+                ?.textContent === '5m'
               && document.querySelector('[data-display-timeframe-select]')?.value === '5';
           });
 
@@ -246,8 +268,8 @@ async function main() {
 
           await commands.dispatchCommand('chart.setManualVisibleRange', {
             paneId: 'primary',
-            from: '2026-06-01T09:20:00.000Z',
-            to: '2026-06-01T09:35:00.000Z',
+            from: '2026-06-01T06:00:00.000Z',
+            to: '2026-06-01T10:00:00.000Z',
           });
           await waitFor('primary set manual before secondary reset', async () => (
             canvasFor('primary')?.dataset.interactionMode === 'manual'
@@ -309,8 +331,8 @@ async function main() {
     assert.equal(value.error, '', value.error || 'browser smoke failed');
     assert.equal(value.activePaneId, 'secondary', JSON.stringify(value.checkpoints));
     assert.equal(value.selectValue, '5');
-    assert.deepEqual(value.paneDisplayTimeframes, [1, 5]);
-    assert.equal(value.primaryTf, '1');
+    assert.deepEqual(value.paneDisplayTimeframes, [60, 5]);
+    assert.equal(value.primaryTf, '60');
     assert.equal(value.secondaryTf, '5');
     assert.equal(value.primaryInteraction, 'manual');
     assert.equal(value.secondaryInteraction, 'follow');

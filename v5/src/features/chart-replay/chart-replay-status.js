@@ -87,6 +87,13 @@ export function createChartReplayStatusController({
     const hoverBar = crosshairState?.active && crosshairState?.bar ? crosshairState.bar : null;
     const displayBar = hoverBar || latest;
     root.querySelectorAll('[data-chart-ohlc-overlay]').forEach((overlay) => {
+      const pane = overlay.closest('[data-layout-pane]');
+      const canvas = pane?.querySelector('[data-chart-canvas]');
+      const paneDisplayTimeframe = Number(
+        canvas?.dataset.displayTimeframe
+        || pane?.dataset.displayTimeframe
+        || 0
+      );
       const marketStatus = overlay.querySelector('[data-chart-market-status]');
       const symbol = overlay.querySelector('[data-chart-ohlc-symbol]');
       const timeframe = overlay.querySelector('[data-chart-ohlc-timeframe]');
@@ -104,7 +111,7 @@ export function createChartReplayStatusController({
         timeframe.hidden = !settings.showStatusTitle
           || settings.statusTitleMode === STATUS_TITLE_MODES.SYMBOL;
         timeframe.textContent = formatTimeframeLabel(
-          getDisplayTimeframe() || state?.displayTimeframe || state?.session?.timeframe || 1
+          paneDisplayTimeframe || getDisplayTimeframe() || state?.displayTimeframe || state?.session?.timeframe || 1
         );
       }
       if (legend) {

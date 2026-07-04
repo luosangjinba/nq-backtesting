@@ -10,12 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 501 completed. Active-pane selection now updates route
-  controls optimistically before the async `layout.setActivePane` command
-  resolves, so users can click another pane and immediately change the shared
-  TF dropdown without accidentally targeting the previous pane. Browser
-  coverage now includes this no-wait active-pane TF race.
-- Next candidate: Step 502 - polish split-pane resize/active-pane UX details
+- Current status: Step 502 completed. Multi-pane TF isolation now covers the
+  fresh two-pane path: changing the initial active primary pane TF no longer
+  leaks into a newly mounted secondary pane, primary visible-range/reset sync no
+  longer rerenders non-primary panes, and OHLC overlay TF labels read each
+  pane's own display timeframe instead of the active pane's TF.
+- Next candidate: Step 503 - polish split-pane resize/active-pane UX details
   and add a browser acceptance gate for resize handles/minimum pane walls, then
   decide whether to continue multi-pane polish or return to remaining Settings
   controls.
@@ -256,6 +256,11 @@
   then reconciles with the official layout state. This prevents the shared TF
   dropdown from targeting the previous pane when a user clicks another pane and
   changes TF immediately.
+- Multi-pane isolation decision: Step 502 stops global primary chart sync from
+  rewriting non-primary chart hosts after they are mounted. Primary
+  replace/append/range/reset paths now target the primary host only; pane-local
+  loads remain responsible for secondary/tertiary data. OHLC overlay timeframe
+  labels are pane-local DOM/canvas metadata, not active-pane global state.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

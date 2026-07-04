@@ -521,3 +521,17 @@ Step 501 implementation status:
   race: create two panes, do not change the initial primary TF, click
   secondary, immediately change the shared TF dropdown, and verify primary
   remains `1m` while secondary becomes `5m`.
+
+Step 502 implementation status:
+
+- Completed. Once non-primary chart hosts are mounted, global primary display
+  sync no longer refreshes those hosts. Primary replace/append/manual-range and
+  reset/follow paths are primary-host scoped; secondary/tertiary panes are
+  updated only by pane-local display loads or pane-targeted chart commands.
+- OHLC overlay timeframe labels are pane-local. The label uses the pane/canvas
+  `displayTimeframe` metadata before falling back to active/global replay
+  timeframe state.
+- `v5/tests/multi-pane-active-pane-browser-smoke.js` now covers this sequence:
+  switch from single to two panes, change the initial active primary pane to
+  `1H`, verify the secondary pane remains `1m`, then switch secondary to `5m`
+  and verify each pane's overlay label remains correct.
