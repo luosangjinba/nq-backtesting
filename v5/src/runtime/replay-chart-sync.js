@@ -8,7 +8,9 @@ export function createReplayChartSync({
 }) {
   async function syncChartRightEdgeLimit(rightEdge) {
     if (hasCommand(chartCommands.SET_RIGHT_EDGE_LIMIT)) {
+      markReplayTrace('chartSync.rightEdge.start', { rightEdge });
       await dispatchCommand(chartCommands.SET_RIGHT_EDGE_LIMIT, { rightEdge });
+      markReplayTrace('chartSync.rightEdge.end', { rightEdge });
     }
   }
 
@@ -75,9 +77,18 @@ export function createReplayChartSync({
     }
     if (!paneId || paneId === 'primary') {
       const state = getState();
+      markReplayTrace('chartSync.append.metrics.start', { paneId: paneId || 'primary' });
       const metrics = hasCommand(chartCommands.GET_VIEWPORT_METRICS)
         ? await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS).catch(() => null)
         : null;
+      markReplayTrace('chartSync.append.metrics.end', {
+        paneId: paneId || 'primary',
+        estimatedVisibleBars: metrics?.estimatedVisibleBars || '',
+      });
+      markReplayTrace('chartSync.append.command.start', {
+        paneId: paneId || 'primary',
+        appendedCount: appendedBars.length,
+      });
       await dispatchCommand(chartCommands.APPEND_BARS, {
         paneId,
         bars: appendedBars,
@@ -87,6 +98,10 @@ export function createReplayChartSync({
           estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
         },
       });
+      markReplayTrace('chartSync.append.command.end', {
+        paneId: paneId || 'primary',
+        appendedCount: appendedBars.length,
+      });
       markReplayTrace('chartSync.append.end', {
         paneId: paneId || 'primary',
         mode: 'append',
@@ -94,7 +109,15 @@ export function createReplayChartSync({
       });
       return;
     }
+    markReplayTrace('chartSync.append.command.start', {
+      paneId,
+      appendedCount: appendedBars.length,
+    });
     await dispatchCommand(chartCommands.APPEND_BARS, { paneId, bars: appendedBars });
+    markReplayTrace('chartSync.append.command.end', {
+      paneId,
+      appendedCount: appendedBars.length,
+    });
     markReplayTrace('chartSync.append.end', {
       paneId,
       mode: 'append',

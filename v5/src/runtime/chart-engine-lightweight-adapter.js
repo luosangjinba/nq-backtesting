@@ -334,8 +334,14 @@ export function createLightweightInstance({ engine, documentRef }) {
         displayContext = normalizeContext(options.displayContext);
       }
       metadata = options.metadata ? { ...options.metadata } : metadata;
+      markReplayTrace('lightweight.append.metadataApply.start', {
+        cursorTimestamp: metadata.viewportCursorTimestamp || '',
+      });
       applyHostMetadata(metadata);
       applyCanvasMetadata({ renderDebug: false });
+      markReplayTrace('lightweight.append.metadataApply.end', {
+        cursorTimestamp: metadata.viewportCursorTimestamp || '',
+      });
       markReplayTrace('lightweight.append.metadata', {
         cursorTimestamp: metadata.viewportCursorTimestamp || '',
         renderedBarCount: bars.length,

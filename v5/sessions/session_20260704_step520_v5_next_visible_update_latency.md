@@ -84,7 +84,12 @@ cursor becoming visible in chart metadata.
 
 ## Status
 
-- Step 520.1: in progress.
+- Step 520.1: completed. Planned the visible-update latency step and recorded
+  ownership boundaries.
+- Step 520.2: completed. Added replay-command phase trace around next-bar
+  selection, display build, right-edge sync, append display, chart append
+  command, Lightweight metadata application, replay state write, event emit,
+  and persistence enqueue.
 
 ## Baseline From Step 519
 
@@ -99,3 +104,29 @@ cursor becoming visible in chart metadata.
 Interpretation: input scheduling is no longer the bottleneck. Step 520 needs
 to explain the remaining visible latency inside or immediately after the
 coalesced replay command.
+
+## Phase Trace
+
+- `node --check v5/src/runtime/replay-navigation-controller.js` passed.
+- `node --check v5/src/runtime/replay-chart-sync.js` passed.
+- `node --check v5/src/runtime/chart-engine-lightweight-adapter.js` passed.
+- `node --check v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- Trace sample:
+  - final-click-to-visible: about 284ms.
+  - final-click-to-replay-start: about 1ms.
+  - replay next: about 101ms.
+  - right-edge sync: about 84ms.
+  - append display: about 14ms.
+  - chart runtime append: about 13ms.
+  - Lightweight append: about 3ms.
+  - replay state write: about 0.3ms.
+  - replay emit: about 1.2ms.
+  - replay end to visible detection: about 182ms.
+
+Interpretation: the first production optimization target is the pre-append
+right-edge sync. It currently dispatches `SET_RIGHT_EDGE_LIMIT`, which performs
+a chart host sync before the append path. Step 520.3 should move the right-edge
+limit update into chart-runtime append state so replay can preserve the
+no-future boundary without forcing a separate full host sync immediately before
+the incremental append.

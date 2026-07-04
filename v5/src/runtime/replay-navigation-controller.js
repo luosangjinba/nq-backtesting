@@ -111,12 +111,14 @@ export function createReplayNavigationController({
       count: forwardRevealWindowCount(sourceState),
     });
     markReplayTrace('replay.next.loadWindow.end', { barCount: window.bars?.length || 0 });
+    markReplayTrace('replay.next.selectBars.start', { normalizedStepCount });
     const nextBars = selectNextBars(
       window.bars,
       sourceState.cursorTimestamp,
       sourceState.session.sessionEnd,
       normalizedStepCount
     );
+    markReplayTrace('replay.next.selectBars.end', { selectedCount: nextBars.length });
     const nextBar = nextBars[nextBars.length - 1];
     if (!nextBar) {
       return {
@@ -135,29 +137,51 @@ export function createReplayNavigationController({
       sourceState.replayTimeframe || sourceState.session.timeframe,
       'replay timeframe'
     );
+    markReplayTrace('replay.next.displayBuild.start', {
+      displayTimeframe: normalizedDisplayTimeframe,
+      replayTimeframe: normalizedReplayTimeframe,
+      currentDisplayCount: sourceState.displayBars.length,
+      nextBarCount: nextBars.length,
+    });
     const displayBars = normalizedDisplayTimeframe === normalizedReplayTimeframe
       ? [
         ...sourceState.displayBars,
         ...nextBars,
       ]
       : sourceState.displayBars;
+    markReplayTrace('replay.next.displayBuild.end', { displayCount: displayBars.length });
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       markReplayTrace('replay.next.chartAppend.start', {
         appendedCount: nextBars.length,
         cursorTimestamp: nextBar.time,
       });
+      markReplayTrace('replay.next.rightEdge.start', { cursorTimestamp: nextBar.time });
       await chartSync.syncChartRightEdgeLimit(nextBar.time);
+      markReplayTrace('replay.next.rightEdge.end', { cursorTimestamp: nextBar.time });
+      markReplayTrace('replay.next.appendDisplay.start', {
+        appendedCount: nextBars.length,
+        displayCount: displayBars.length,
+      });
       if (typeof chartSync.appendDisplayBars === 'function') {
         await chartSync.appendDisplayBars(nextBars, nextBar.time, { fullDisplayBars: displayBars });
       } else {
         await chartSync.renderDisplayBars(displayBars, nextBar.time);
       }
+      markReplayTrace('replay.next.appendDisplay.end', {
+        appendedCount: nextBars.length,
+        displayCount: displayBars.length,
+      });
       markReplayTrace('replay.next.chartAppend.end', {
         appendedCount: nextBars.length,
         cursorTimestamp: nextBar.time,
       });
     }
 
+    markReplayTrace('replay.next.stateWrite.start', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+      displayCount: displayBars.length,
+    });
     let nextState = setState({
       ...sourceState,
       cursorTimestamp: nextBar.time,
@@ -165,6 +189,11 @@ export function createReplayNavigationController({
       displayBarsTimeframe: normalizedDisplayTimeframe,
       displayBars: clone(displayBars),
       status: 'replay-ready',
+    });
+    markReplayTrace('replay.next.stateWrite.end', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+      displayCount: nextState.displayBars.length,
     });
     markReplayTrace('replay.next.state.visible', {
       cursorTimestamp: nextBar.time,
@@ -185,13 +214,29 @@ export function createReplayNavigationController({
       revealedBar: clone(nextBar),
       revealedBars: clone(nextBars),
     };
+    markReplayTrace('replay.next.emit.start', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
     emitEvent(replayEvents.NEXT, result);
+    markReplayTrace('replay.next.emit.end', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
     markReplayTrace('replay.next.event.emitted', {
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
+    markReplayTrace('replay.next.persist.enqueue.start', {
       cursorTimestamp: nextBar.time,
       revealedCount,
     });
     enqueueCursorPersistence({
       sessionId,
+      cursorTimestamp: nextBar.time,
+      revealedCount,
+    });
+    markReplayTrace('replay.next.persist.enqueue.end', {
       cursorTimestamp: nextBar.time,
       revealedCount,
     });
