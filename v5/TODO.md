@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 508 completed. Two-pane vertical layouts now default the
-  initial active pane to the right/secondary pane, and replay `Next` makes
-  same-timeframe non-primary panes follow by dispatching pane-local chart append
-  commands through the pane orchestrator.
+- Current status: Step 509 completed. Pane-local replay follow now waits for
+  non-primary pane display initialization to finish before appending revealed
+  bars or loading an independent display window, preventing the right pane from
+  blanking when `Next` is clicked immediately after opening a two-pane layout.
 - Next candidate: Reassess remaining multi-pane behavior gaps before adding
   more multi-pane behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -305,6 +305,10 @@
   `primary` pane active when expanding from single pane. Replay `Next` is a
   shared replay cursor action by default; non-primary panes follow through
   pane-local chart/replay commands owned by the pane orchestrator.
+- Multi-pane race fix decision: Step 509 makes pane replay follow wait for
+  pane-local display initialization promises. Opening a new pane and
+  immediately clicking replay `Next` must not let append/follow writes race the
+  initial pane display load and blank the newly active pane.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

@@ -34,6 +34,7 @@ export function createChartReplayPaneOrchestrator({
   let currentLayoutState = getLayoutState?.() || DEFAULT_LAYOUT_STATE;
   const paneDisplayLoadKeys = new Set();
   const paneDisplayInitializationInFlight = new Set();
+  const paneDisplayInitializationPromises = new Map();
 
   function layoutSnapshot(layoutState) {
     return layoutState || currentLayoutState || getLayoutState?.() || DEFAULT_LAYOUT_STATE;
@@ -88,31 +89,39 @@ export function createChartReplayPaneOrchestrator({
     const nextDisplayTimeframe = paneInitialDisplayTimeframe(pane);
     if (!Number.isFinite(nextDisplayTimeframe) || nextDisplayTimeframe <= 0) return;
     const loadKey = `${paneId}:${nextDisplayTimeframe}`;
-    if (paneDisplayLoadKeys.has(loadKey) || paneDisplayInitializationInFlight.has(loadKey)) return;
-    paneDisplayInitializationInFlight.add(loadKey);
-    try {
-      if (pane.displayTimeframe == null) {
-        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+    if (paneDisplayLoadKeys.has(loadKey)) return;
+    if (paneDisplayInitializationPromises.has(loadKey)) {
+      return paneDisplayInitializationPromises.get(loadKey);
+    }
+    const initialization = (async () => {
+      paneDisplayInitializationInFlight.add(loadKey);
+      try {
+        if (pane.displayTimeframe == null) {
+          const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
+            paneId,
+            displayTimeframe: nextDisplayTimeframe,
+          });
+          if (!disposed) {
+            applyLayoutState(layoutState);
+          }
+        }
+        await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+          sessionId,
           paneId,
           displayTimeframe: nextDisplayTimeframe,
         });
+        paneDisplayLoadKeys.add(loadKey);
+      } catch (error) {
         if (!disposed) {
-          applyLayoutState(layoutState);
+          setStatusText?.(error?.message || String(error));
         }
+      } finally {
+        paneDisplayInitializationInFlight.delete(loadKey);
+        paneDisplayInitializationPromises.delete(loadKey);
       }
-      await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-        sessionId,
-        paneId,
-        displayTimeframe: nextDisplayTimeframe,
-      });
-      paneDisplayLoadKeys.add(loadKey);
-    } catch (error) {
-      if (!disposed) {
-        setStatusText?.(error?.message || String(error));
-      }
-    } finally {
-      paneDisplayInitializationInFlight.delete(loadKey);
-    }
+    })();
+    paneDisplayInitializationPromises.set(loadKey, initialization);
+    return initialization;
   }
 
   function ensureNonPrimaryPaneDisplays(layoutState = currentLayoutState) {
@@ -137,6 +146,8 @@ export function createChartReplayPaneOrchestrator({
     );
     if (!Number.isFinite(paneTimeframe) || paneTimeframe <= 0) return;
     const cursorTimestamp = payload.cursorTimestamp || payload.revealedBar?.time || payload.revealedBar?.timestamp;
+    await ensurePaneLocalDisplay(pane);
+    if (disposed) return;
     if (Number(paneTimeframe) === Number(replayTimeframe) && Array.isArray(payload.revealedBars)) {
       await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
         paneId,
@@ -237,6 +248,7 @@ export function createChartReplayPaneOrchestrator({
     disposed = true;
     paneDisplayLoadKeys.clear();
     paneDisplayInitializationInFlight.clear();
+    paneDisplayInitializationPromises.clear();
   }
 
   return {

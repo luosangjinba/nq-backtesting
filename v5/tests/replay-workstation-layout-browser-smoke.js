@@ -320,13 +320,6 @@ async function main() {
             && chartRoute?.dataset.layoutVariant === 'twice.vertical'
             && document.querySelectorAll('[data-layout-pane]').length === 2
           ));
-          await waitFor('secondary pane initialized with independent timeframe', async () => {
-            const layoutState = await commands.dispatchCommand('layout.getState');
-            const secondaryCanvas = document
-              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]');
-            return layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 1
-              && secondaryCanvas?.dataset.displayTimeframe === '1';
-          });
           await waitFor('twice vertical defaults to right active pane', async () => (
             chartRoute?.dataset.activePaneId === 'secondary'
             && document.querySelector('[data-layout-pane-shell]')?.dataset.activePaneId === 'secondary'
@@ -356,6 +349,14 @@ async function main() {
           const syncedNextSecondaryAfter = Number(document
             .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
             ?.dataset.fullBarCount || 0);
+          await waitFor('secondary pane initialized with independent timeframe', async () => {
+            const layoutState = await commands.dispatchCommand('layout.getState');
+            const secondaryCanvas = document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]');
+            return layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 1
+              && secondaryCanvas?.dataset.displayTimeframe === '1'
+              && Number(secondaryCanvas?.dataset.fullBarCount || 0) > 0;
+          });
           const verticalPrimaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
           verticalPrimaryPane?.click();
           await waitFor('primary active pane before independent primary TF change', async () => (
