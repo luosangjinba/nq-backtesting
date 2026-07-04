@@ -178,6 +178,7 @@ export function createChartReplayControlsController({
   function schedulePendingNext() {
     if (disposed) return;
     if (nextBatchRunning || pendingNextTimer !== null) return;
+    markReplayTrace('controls.next.schedule.timer', { pendingNextStepCount });
     pendingNextTimer = setTimeout(flushPendingNext, 0);
   }
 
@@ -185,6 +186,7 @@ export function createChartReplayControlsController({
     if (disposed) return;
     const stepCount = pendingNextStepCount;
     if (stepCount <= 0) return;
+    markReplayTrace('controls.next.queue', { pendingNextStepCount: stepCount });
     schedulePendingNext();
   }
 

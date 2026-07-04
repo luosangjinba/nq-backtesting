@@ -31,6 +31,9 @@ are no longer the dominant bottlenecks.
 ## Status
 
 - Step 519.1: completed. Baseline smokes were run sequentially after reboot.
+- Step 519.2: completed. Added input-batching trace marks for queue/schedule
+  and extended the trace smoke to report final-click-to-flush,
+  final-click-to-command, and final-click-to-replay-start timing.
 
 ## Baseline
 
@@ -55,6 +58,25 @@ command start.
 
 ## Next
 
-Add input-batching trace marks and assertions around
-`chart-replay-controls.js`, then use the measurements to remove avoidable timer
-delay from the first rapid `Next` intent.
+Use the input trace to remove avoidable timer delay from the first rapid `Next`
+intent while preserving pending-click coalescing and route teardown cleanup.
+
+## Input Trace
+
+- `node --check v5/src/features/chart-replay/chart-replay-controls.js` passed.
+- `node --check v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- Trace sample:
+  - final-click-to-visible: about 315ms.
+  - final-click-to-flush-start: about 20ms.
+  - final-click-to-command-start: about 20ms.
+  - final-click-to-replay-start: about 20ms.
+  - queue-to-flush-start: about 20ms.
+  - controls flush: about 121ms.
+  - replay next: about 102ms.
+  - chart runtime host sync: about 9ms.
+
+Interpretation: the timer delay is measurable, but the larger remaining segment
+is still the single coalesced command doing the visible replay update. The next
+change should remove the first-click timer wait without adding one command per
+click.

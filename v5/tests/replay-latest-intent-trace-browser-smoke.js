@@ -164,6 +164,12 @@ async function main() {
           return start && end ? end.t - start.t : null;
         }
 
+        function sinceLastClick(label) {
+          const click = lastMark('controls.next.click');
+          const mark = lastMark(label);
+          return click && mark ? mark.t - click.t : null;
+        }
+
         try {
           const commands = await import('/v5/src/runtime/commands.js');
           const created = await commands.dispatchCommand('session.create', {
@@ -211,6 +217,11 @@ async function main() {
             finalClickToVisibleMs: visibleAt - finalClickAt,
             finalClickToAnimationFrameMs: frameAt - finalClickAt,
             firstClickToVisibleMs: firstClick ? visibleAt - firstClick.t : null,
+            finalClickToFlushStartMs: sinceLastClick('controls.next.flush.start'),
+            finalClickToCommandStartMs: sinceLastClick('controls.next.command.start'),
+            finalClickToReplayStartMs: sinceLastClick('replay.next.start'),
+            queueToFlushStartMs: span('controls.next.queue', 'controls.next.flush.start'),
+            scheduleToFlushStartMs: span('controls.next.schedule.timer', 'controls.next.flush.start'),
             controlFlushMs: span('controls.next.flush.start', 'controls.next.flush.end'),
             commandMs: span('controls.next.command.start', 'controls.next.command.end'),
             replayNextMs: span('replay.next.start', 'replay.next.end'),
@@ -250,10 +261,20 @@ async function main() {
     assert.equal(value.forwardRequestDelta, 0);
     assert.equal(value.metadataCursorTimestamp, Date.parse('2026-06-01T09:50:00.000Z') / 1000);
     assert.ok(value.finalClickToVisibleMs < 1000, `latest cursor should become visible: ${JSON.stringify(value)}`);
+    assert.equal(typeof value.finalClickToFlushStartMs, 'number');
+    assert.equal(typeof value.finalClickToCommandStartMs, 'number');
+    assert.equal(typeof value.finalClickToReplayStartMs, 'number');
+    assert.equal(typeof value.queueToFlushStartMs, 'number');
+    assert.equal(typeof value.scheduleToFlushStartMs, 'number');
     assert.ok(value.markCount > 0);
     console.log(JSON.stringify({
       finalClickToVisibleMs: value.finalClickToVisibleMs,
       finalClickToAnimationFrameMs: value.finalClickToAnimationFrameMs,
+      finalClickToFlushStartMs: value.finalClickToFlushStartMs,
+      finalClickToCommandStartMs: value.finalClickToCommandStartMs,
+      finalClickToReplayStartMs: value.finalClickToReplayStartMs,
+      queueToFlushStartMs: value.queueToFlushStartMs,
+      scheduleToFlushStartMs: value.scheduleToFlushStartMs,
       controlFlushMs: value.controlFlushMs,
       commandMs: value.commandMs,
       replayNextMs: value.replayNextMs,
