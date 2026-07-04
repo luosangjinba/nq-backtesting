@@ -74,6 +74,9 @@ re-entry and page reloads.
 - Step 527.2: completed. Added a replay transport preferences adapter and wired
   playback speed plus floating position persistence through existing UI
   controllers.
+- Step 527.3: completed. Added browser smoke coverage for speed persistence,
+  floating position persistence, route re-entry restore, playback interval
+  handoff, and viewport clamping.
 
 ## Next
 
