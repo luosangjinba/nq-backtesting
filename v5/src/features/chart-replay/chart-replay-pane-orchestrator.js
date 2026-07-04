@@ -8,6 +8,7 @@ import {
 } from '../../contracts/layout-contracts.js';
 import {
   REPLAY_COMMANDS,
+  REPLAY_EVENTS,
 } from '../../contracts/replay-contracts.js';
 
 export function createChartReplayPaneOrchestrator({
@@ -123,6 +124,51 @@ export function createChartReplayPaneOrchestrator({
       });
   }
 
+  async function syncPaneForReplayNext(pane, payload = {}) {
+    const paneId = String(pane?.id || '').trim();
+    const sessionId = getSessionId?.() || '';
+    if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !sessionId || disposed) return;
+    const paneTimeframe = paneInitialDisplayTimeframe(pane);
+    const replayTimeframe = Number(
+      payload.replayTimeframe
+      || getSessionTimeframe?.()
+      || getDisplayTimeframeFallback?.()
+      || 1
+    );
+    if (!Number.isFinite(paneTimeframe) || paneTimeframe <= 0) return;
+    const cursorTimestamp = payload.cursorTimestamp || payload.revealedBar?.time || payload.revealedBar?.timestamp;
+    if (Number(paneTimeframe) === Number(replayTimeframe) && Array.isArray(payload.revealedBars)) {
+      await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
+        paneId,
+        bars: payload.revealedBars,
+      });
+      return;
+    }
+    if (cursorTimestamp) {
+      await dispatchCommand(REPLAY_COMMANDS.LOAD_DISPLAY_WINDOW, {
+        sessionId,
+        paneId,
+        displayTimeframe: paneTimeframe,
+        anchor: cursorTimestamp,
+        direction: 'backward',
+      });
+    }
+  }
+
+  function syncPanesForReplayEvent(eventName, payload = {}) {
+    if (!getReplayLoaded?.() || disposed || !Array.isArray(currentLayoutState.panes)) return;
+    if (eventName !== REPLAY_EVENTS.NEXT || !payload.advanced) return;
+    currentLayoutState.panes
+      .filter((pane) => pane.id && pane.id !== DEFAULT_ACTIVE_PANE_ID)
+      .forEach((pane) => {
+        syncPaneForReplayNext(pane, payload).catch((error) => {
+          if (!disposed) {
+            setStatusText?.(error?.message || String(error));
+          }
+        });
+      });
+  }
+
   function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
     if (disposed) return currentLayoutState;
     currentLayoutState = layoutState || DEFAULT_LAYOUT_STATE;
@@ -201,6 +247,7 @@ export function createChartReplayPaneOrchestrator({
     getLayoutState: () => currentLayoutState,
     mountChartHosts,
     setActivePaneDisplayTimeframe,
+    syncPanesForReplayEvent,
     dispose,
     get disposed() {
       return disposed;

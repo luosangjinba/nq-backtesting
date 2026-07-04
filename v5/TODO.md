@@ -10,11 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 507 completed. `replay-pane-display-window-state.js`
-  now owns replay pane id normalization, display-window demand keys, pane
-  snapshot/base resolution, merge eligibility, and attempt summaries.
-- Next candidate: Reassess the multi-pane module audit and behavior gaps before
-  adding more multi-pane behavior.
+- Current status: Step 508 completed. Two-pane vertical layouts now default the
+  initial active pane to the right/secondary pane, and replay `Next` makes
+  same-timeframe non-primary panes follow by dispatching pane-local chart append
+  commands through the pane orchestrator.
+- Next candidate: Reassess remaining multi-pane behavior gaps before adding
+  more multi-pane behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -298,6 +299,12 @@
   display bars/timeframe resolution, merge eligibility, and attempt summaries.
   `replay-display-window-controller.js` still owns bar-data window requests,
   chart sync calls, replay state updates, and replay display events.
+- Multi-pane behavior decision: Step 508 makes the initial active pane match
+  the visible split direction: `twice.vertical` starts with the right
+  `secondary` pane active, while `twice.horizontal` starts with the upper
+  `primary` pane active when expanding from single pane. Replay `Next` is a
+  shared replay cursor action by default; non-primary panes follow through
+  pane-local chart/replay commands owned by the pane orchestrator.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

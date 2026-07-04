@@ -217,8 +217,16 @@ async function main() {
             document.querySelector('[data-route="chart"]')?.dataset.layoutVariant === 'twice.vertical'
             && document.querySelectorAll('[data-chart-host]').length === 2
           ));
+          await waitFor('twice vertical defaults to secondary active pane', async () => (
+            document.querySelector('[data-route="chart"]')?.dataset.activePaneId === 'secondary'
+          ));
 
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
+          clickPaneCenterNow('primary');
+          await waitFor('primary active pane before primary timeframe change', async () => (
+            document.querySelector('[data-route="chart"]')?.dataset.activePaneId === 'primary'
+            && timeframeSelect?.value === '1'
+          ));
           timeframeSelect.value = '60';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
           await waitFor('primary timeframe does not leak to secondary', async () => {

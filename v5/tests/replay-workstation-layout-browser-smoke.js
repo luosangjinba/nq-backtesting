@@ -327,6 +327,35 @@ async function main() {
             return layoutState.panes.find((pane) => pane.id === 'secondary')?.displayTimeframe === 1
               && secondaryCanvas?.dataset.displayTimeframe === '1';
           });
+          await waitFor('twice vertical defaults to right active pane', async () => (
+            chartRoute?.dataset.activePaneId === 'secondary'
+            && document.querySelector('[data-layout-pane-shell]')?.dataset.activePaneId === 'secondary'
+          ));
+          const defaultVerticalActivePaneId = chartRoute?.dataset.activePaneId || '';
+          const defaultVerticalPaneShellActivePaneId = document.querySelector('[data-layout-pane-shell]')?.dataset.activePaneId || '';
+          const syncedNextPrimaryBefore = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]')
+            ?.dataset.fullBarCount || 0);
+          const syncedNextSecondaryBefore = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+            ?.dataset.fullBarCount || 0);
+          document.querySelector('[data-replay-next]')?.click();
+          await waitFor('default panes both advance on replay next', async () => {
+            const primaryCount = Number(document
+              .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]')
+              ?.dataset.fullBarCount || 0);
+            const secondaryCount = Number(document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+              ?.dataset.fullBarCount || 0);
+            return primaryCount > syncedNextPrimaryBefore
+              && secondaryCount > syncedNextSecondaryBefore;
+          });
+          const syncedNextPrimaryAfter = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]')
+            ?.dataset.fullBarCount || 0);
+          const syncedNextSecondaryAfter = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+            ?.dataset.fullBarCount || 0);
           const verticalPrimaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
           verticalPrimaryPane?.click();
           await waitFor('primary active pane before independent primary TF change', async () => (
@@ -640,6 +669,12 @@ async function main() {
             secondaryPaneActive: secondaryPane?.dataset.activePane || '',
             secondaryPaneActiveAfterSecondarySelect,
             secondaryPaneHasChartHost: secondaryPane?.dataset.hasChartHost || '',
+            defaultVerticalActivePaneId,
+            defaultVerticalPaneShellActivePaneId,
+            syncedNextPrimaryBefore,
+            syncedNextPrimaryAfter,
+            syncedNextSecondaryBefore,
+            syncedNextSecondaryAfter,
             verticalPrimaryIndependentPaneDisplayTimeframes: verticalPrimaryIndependentLayoutState.panes.map((pane) => pane.displayTimeframe),
             verticalPrimaryIndependentPrimaryDisplayTimeframe,
             verticalPrimaryIndependentSecondaryDisplayTimeframe,
@@ -756,6 +791,16 @@ async function main() {
     assert.equal(value.primaryPaneActiveAfterSecondarySelect, 'false');
     assert.equal(value.secondaryPaneActiveAfterSecondarySelect, 'true');
     assert.equal(value.secondaryPaneHasChartHost, 'true');
+    assert.equal(value.defaultVerticalActivePaneId, 'secondary');
+    assert.equal(value.defaultVerticalPaneShellActivePaneId, 'secondary');
+    assert.ok(
+      value.syncedNextPrimaryAfter > value.syncedNextPrimaryBefore,
+      'primary pane should advance on replay next'
+    );
+    assert.ok(
+      value.syncedNextSecondaryAfter > value.syncedNextSecondaryBefore,
+      'secondary pane should advance on replay next by default'
+    );
     assert.deepEqual(value.verticalPrimaryIndependentPaneDisplayTimeframes, [5, 1]);
     assert.equal(value.verticalPrimaryIndependentPrimaryDisplayTimeframe, '5');
     assert.equal(value.verticalPrimaryIndependentSecondaryDisplayTimeframe, '1');

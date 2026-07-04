@@ -186,6 +186,28 @@ function panesForMode(mode, currentPanes = []) {
   return Array.from({ length: count }, (_, index) => defaultPaneForIndex(index, currentPanes[index]));
 }
 
+function preferredActivePaneForVariant(variant, panes = []) {
+  if (variant === LAYOUT_VARIANTS.TWICE_VERTICAL) {
+    return panes.find((pane) => pane.id === 'secondary')?.id || panes.at(-1)?.id || DEFAULT_ACTIVE_PANE_ID;
+  }
+  if (variant === LAYOUT_VARIANTS.TWICE_HORIZONTAL) {
+    return panes.find((pane) => pane.id === DEFAULT_ACTIVE_PANE_ID)?.id || panes[0]?.id || DEFAULT_ACTIVE_PANE_ID;
+  }
+  return panes.some((pane) => pane.id === DEFAULT_ACTIVE_PANE_ID)
+    ? DEFAULT_ACTIVE_PANE_ID
+    : panes[0]?.id || DEFAULT_ACTIVE_PANE_ID;
+}
+
+function nextActivePaneForModeChange({ previousPaneCount, previousActivePaneId, variant, panes }) {
+  if (previousPaneCount === 1 && panes.length > 1) {
+    return preferredActivePaneForVariant(variant, panes);
+  }
+  if (panes.some((pane) => pane.id === previousActivePaneId)) {
+    return previousActivePaneId;
+  }
+  return DEFAULT_ACTIVE_PANE_ID;
+}
+
 function normalizeLayoutState(input = DEFAULT_LAYOUT_STATE) {
   const layout = normalizeLayoutVariant({
     mode: input.mode || DEFAULT_LAYOUT_STATE.mode,
@@ -251,10 +273,14 @@ export function createLayoutRuntime({
   function setMode({ mode, variant } = {}) {
     const layout = normalizeLayoutVariant({ mode, variant });
     const nextMode = layout.mode;
+    const previousPaneCount = state.panes.length;
     const panes = panesForMode(nextMode, state.panes);
-    const activePaneId = panes.some((pane) => pane.id === state.activePaneId)
-      ? state.activePaneId
-      : DEFAULT_ACTIVE_PANE_ID;
+    const activePaneId = nextActivePaneForModeChange({
+      previousPaneCount,
+      previousActivePaneId: state.activePaneId,
+      variant: layout.variant,
+      panes,
+    });
     const nextState = normalizeLayoutState({
       ...state,
       mode: nextMode,

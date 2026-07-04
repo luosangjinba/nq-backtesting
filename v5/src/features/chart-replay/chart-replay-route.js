@@ -447,6 +447,7 @@ export function createChartReplayRoute() {
               .finally(() => refreshReplayStatus());
             return;
           }
+          paneOrchestrator.syncPanesForReplayEvent(eventName, payload);
           refreshReplayStatus();
         });
         unsubscribeCallbacks.push(unsubscribe);

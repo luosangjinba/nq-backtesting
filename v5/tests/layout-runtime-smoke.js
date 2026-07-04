@@ -80,7 +80,7 @@ await assert.rejects(
 const twice = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'twice' });
 assert.equal(twice.mode, 'twice');
 assert.equal(twice.variant, 'twice.vertical');
-assert.equal(twice.activePaneId, 'primary');
+assert.equal(twice.activePaneId, 'secondary');
 assert.deepEqual(twice.panes.map((pane) => pane.id), ['primary', 'secondary']);
 assert.deepEqual(twice.split.ratios, { primary: 1, secondary: 1 });
 assert.equal(changedEvent.mode, 'twice');
