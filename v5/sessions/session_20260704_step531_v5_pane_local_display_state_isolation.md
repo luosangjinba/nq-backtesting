@@ -85,7 +85,8 @@ than a single rendering bug.
   triple layout with secondary explicitly set to `5m`, primary set to `1H`,
   and primary wheel interaction; secondary remains `5m` and tertiary remains
   `1m`.
-- Step 531.6: pending.
+- Step 531.6: completed. Regression/closeout gates passed and Step 531 is
+  closed.
 
 ## Step 531.2 Verification
 
@@ -122,7 +123,22 @@ than a single rendering bug.
 - `node v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
 - `git diff --check`
 
+## Step 531.6 Verification
+
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/triple-pane-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/replay-pane-fanout-ordering-browser-smoke.js`
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js`
+- `node v5/tests/layout-runtime-smoke.js`
+- `node v5/tests/chart-replay-pane-display-coordinator-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 531.6 next: run the planned regression/closeout gates and update
-TODO/spec/session with the final result.
+Step 531 is complete. Manually retest the reported two-pane and three-pane
+display/replay cases in the running app; if the multi-pane queue is quiet,
+return to the Settings parity candidate from Step 528.

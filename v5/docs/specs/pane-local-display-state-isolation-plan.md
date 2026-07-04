@@ -2,7 +2,7 @@
 
 Phase: Phase 3 - Real Chart Interaction / Multi-pane replay stabilization.
 
-Step: 531 planned.
+Step: 531 completed.
 
 ## Trigger
 
@@ -110,6 +110,8 @@ path.
      `node v5/tests/replay-right-edge-follow-browser-smoke.js`
      `git diff --check`
    - Update TODO/spec/session with the final result.
+   - Completed: planned two-pane, three-pane, multi-pane, replay fanout, and
+     right-edge follow gates passed.
    - Commit closeout docs.
 
 ## Non-Goals
