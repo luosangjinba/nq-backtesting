@@ -63,8 +63,15 @@ pane-local timeframe and viewport/follow path.
 
 - Step 530.1: completed. Planning docs, TODO, session handoff, and indexes now
   point to pane-local timeframe/follow stabilization.
-- Step 530.2-530.5: pending.
+- Step 530.2: completed. Added
+  `v5/tests/multi-pane-timeframe-follow-browser-smoke.js` as a current-bug
+  baseline: after forcing primary into manual range and switching the active
+  pane to `1H`, a 1H request is made but the pane remains `displayTimeframe=1`,
+  `interactionMode=manual`, and `renderedBarCount=0`.
+- Step 530.3-530.5: pending.
 
 ## Next
 
-Complete Step 530.1 docs, then add the reproducing browser smoke.
+Implement Step 530.3 next: make explicit pane TF changes resume the target
+pane's follow state, then flip the new smoke from bug-baseline to target
+behavior.
