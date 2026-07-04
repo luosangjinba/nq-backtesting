@@ -1,5 +1,32 @@
 import { markReplayTrace } from './replay-trace.js';
 
+function normalizePaneId(paneId) {
+  return String(paneId || 'primary').trim() || 'primary';
+}
+
+function normalizeTimeframe(value, fallback = 1) {
+  const parsed = Number(value ?? fallback);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : Number(fallback || 1);
+}
+
+function uniquePaneSnapshots(panes = []) {
+  const source = Array.isArray(panes) && panes.length
+    ? panes
+    : [{ id: 'primary' }];
+  const seen = new Set();
+  const snapshots = [];
+  source.forEach((pane) => {
+    const paneId = normalizePaneId(pane?.id);
+    if (seen.has(paneId)) return;
+    seen.add(paneId);
+    snapshots.push({ ...pane, id: paneId });
+  });
+  if (!seen.has('primary')) {
+    snapshots.unshift({ id: 'primary' });
+  }
+  return snapshots;
+}
+
 export function createReplayChartSync({
   getState,
   dispatchCommand,
@@ -110,7 +137,14 @@ export function createReplayChartSync({
       paneId,
       appendedCount: appendedBars.length,
     });
-    await dispatchCommand(chartCommands.APPEND_BARS, { paneId, bars: appendedBars });
+    await dispatchCommand(chartCommands.APPEND_BARS, {
+      paneId,
+      bars: appendedBars,
+      viewportFollow: {
+        enabled: true,
+        cursorTimestamp,
+      },
+    });
     markReplayTrace('chartSync.append.command.end', {
       paneId,
       appendedCount: appendedBars.length,
@@ -122,7 +156,63 @@ export function createReplayChartSync({
     });
   }
 
+  async function appendRevealedBarsToPanes({
+    panes = [],
+    revealedBars = [],
+    cursorTimestamp,
+    replayTimeframe,
+    displayTimeframeFallback,
+    primaryFullDisplayBars,
+    rightEdgeLimit,
+  } = {}) {
+    const normalizedReplayTimeframe = normalizeTimeframe(replayTimeframe, displayTimeframeFallback || 1);
+    const appended = [];
+    const projected = [];
+    const skipped = [];
+    const paneSnapshots = uniquePaneSnapshots(panes);
+    markReplayTrace('chartSync.fanout.start', {
+      paneCount: paneSnapshots.length,
+      revealedCount: revealedBars.length,
+      cursorTimestamp,
+      replayTimeframe: normalizedReplayTimeframe,
+    });
+    for (const pane of paneSnapshots) {
+      const paneId = normalizePaneId(pane.id);
+      const paneTimeframe = normalizeTimeframe(
+        pane.displayTimeframe,
+        displayTimeframeFallback || normalizedReplayTimeframe
+      );
+      if (paneTimeframe !== normalizedReplayTimeframe) {
+        projected.push({ paneId, displayTimeframe: paneTimeframe });
+        markReplayTrace('chartSync.fanout.project', { paneId, displayTimeframe: paneTimeframe });
+        continue;
+      }
+      if (!revealedBars.length) {
+        skipped.push({ paneId, reason: 'empty-revealed-bars' });
+        markReplayTrace('chartSync.fanout.skip', { paneId, reason: 'empty-revealed-bars' });
+        continue;
+      }
+      markReplayTrace('chartSync.fanout.append.start', { paneId, appendedCount: revealedBars.length });
+      await appendDisplayBars(revealedBars, cursorTimestamp, {
+        paneId,
+        fullDisplayBars: paneId === 'primary'
+          ? primaryFullDisplayBars || revealedBars
+          : revealedBars,
+        rightEdgeLimit: rightEdgeLimit || cursorTimestamp,
+      });
+      appended.push({ paneId, displayTimeframe: paneTimeframe, appendedCount: revealedBars.length });
+      markReplayTrace('chartSync.fanout.append.end', { paneId, appendedCount: revealedBars.length });
+    }
+    markReplayTrace('chartSync.fanout.end', {
+      appendedCount: appended.length,
+      projectedCount: projected.length,
+      skippedCount: skipped.length,
+    });
+    return { appended, projected, skipped };
+  }
+
   return {
+    appendRevealedBarsToPanes,
     appendDisplayBars,
     renderDisplayBars,
     syncChartDisplayContext,

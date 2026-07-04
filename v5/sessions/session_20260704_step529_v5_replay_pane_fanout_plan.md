@@ -122,10 +122,15 @@ bars.
   current same-timeframe multi-pane ordering baseline: primary append occurs
   before `REPLAY_EVENTS.NEXT`, while secondary append currently occurs after
   `NEXT` through the event catch-up projection.
-- Step 529.3-529.6: pending implementation.
+- Step 529.3: completed. Added `appendRevealedBarsToPanes` to
+  `replay-chart-sync` and `v5/tests/replay-chart-sync-fanout-smoke.js`.
+  The boundary appends same-timeframe panes from one reveal batch and returns
+  different-timeframe panes for display-window projection instead of appending
+  raw replay-timeframe bars.
+- Step 529.4-529.6: pending implementation.
 
 ## Next
 
-Implement Step 529.3 next: introduce a pane-aware fan-out API in replay/chart
-sync, then later flip the ordering smoke from current-baseline expectations to
-the target fan-out contract.
+Implement Step 529.4 next: route replay `Next` same-timeframe chart writes
+through `appendRevealedBarsToPanes`, then flip the ordering smoke toward the
+target fan-out contract.
