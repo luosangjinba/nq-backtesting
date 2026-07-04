@@ -238,17 +238,13 @@ export function createChartReplayRoute() {
         },
       }));
       layoutSyncController = trackController(createChartReplayLayoutSyncController({
-        syncTime: (time) => syncLayoutTime(time),
-        syncDateRange: (visibleRange) => syncLayoutDateRange(visibleRange),
-        syncCrosshair: (crosshair) => syncLayoutCrosshair(crosshair),
-        onCrosshairChanged: (payload) => {
-          statusController.setCrosshairState(payload.crosshair || { active: false });
-          replayControlsController.setControlsDisabled();
-          return syncLayoutCrosshair(payload.crosshair).catch(() => null);
-        },
-        onVisibleRangeChanged: (payload) => (
-          syncLayoutDateRange(payload.visibleRange).finally(() => refreshReplayStatus())
-        ),
+        dispatchCommand,
+        getLayoutState: () => currentLayoutState,
+        getActivePaneId: () => paneOrchestrator.getActivePaneId(),
+        applyLayoutState,
+        refreshReplayStatus,
+        setCrosshairState: (crosshair) => statusController.setCrosshairState(crosshair),
+        setControlsDisabled: () => replayControlsController.setControlsDisabled(),
       }));
       navigationController = trackController(createChartReplayNavigationController({
         root: section,
@@ -354,39 +350,6 @@ export function createChartReplayRoute() {
 
       function applyLayoutState(layoutState = DEFAULT_LAYOUT_STATE) {
         return paneOrchestrator.applyLayoutState(layoutState);
-      }
-
-      async function syncLayoutTime(time) {
-        if (!time) return null;
-        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_TIME, {
-          paneId: paneOrchestrator.getActivePaneId(),
-          time,
-        });
-        applyLayoutState(layoutState);
-        return layoutState;
-      }
-
-      async function syncLayoutDateRange(visibleRange) {
-        if (!visibleRange || !currentLayoutState.sync?.dateRange) return null;
-        const from = visibleRange.from == null ? null : new Date(Number(visibleRange.from) * 1000).toISOString();
-        const to = visibleRange.to == null ? null : new Date(Number(visibleRange.to) * 1000).toISOString();
-        if (!from || !to) return null;
-        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DATE_RANGE, {
-          paneId: paneOrchestrator.getActivePaneId(),
-          dateRange: { from, to },
-        });
-        applyLayoutState(layoutState);
-        return layoutState;
-      }
-
-      async function syncLayoutCrosshair(crosshair) {
-        if (!currentLayoutState.sync?.crosshair) return null;
-        const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_CROSSHAIR, {
-          paneId: paneOrchestrator.getActivePaneId(),
-          crosshair: crosshair || { active: false },
-        });
-        applyLayoutState(layoutState);
-        return layoutState;
       }
 
       paneShellController = trackController(createChartReplayPaneShellController({
