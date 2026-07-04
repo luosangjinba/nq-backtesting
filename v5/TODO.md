@@ -10,6 +10,10 @@
 
 ## Current / Next
 
+- Current status: Step 526 active. Improving playback speed ergonomics with
+  transport preset buttons and `[` / `]` speed nudges while keeping replay
+  runtime playback speed as the existing `intervalMs` value passed through
+  `REPLAY_COMMANDS.PLAY`.
 - Current status: Step 525 completed. Keyboard replay controls now flow through
   the chart replay controls controller: `ArrowRight` advances, `ArrowLeft`
   rewinds, and `Space` toggles play/pause. Shortcuts ignore modified/repeated
@@ -31,11 +35,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Move to the next replay workstation usability gap.
-  Good candidates are replay control persistence/polish, playback speed
-  ergonomics, or an audit of remaining FXReplay parity gaps. Multi-pane
-  cadence or pane update-order audits can stay optional unless manual testing
-  exposes a user-visible regression.
+- Next recommended step: Finish Step 526 playback speed ergonomics, then move
+  to replay control persistence/polish or an audit of remaining FXReplay parity
+  gaps. Multi-pane cadence or pane update-order audits can stay optional unless
+  manual testing exposes a user-visible regression.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
