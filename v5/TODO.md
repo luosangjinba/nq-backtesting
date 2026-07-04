@@ -10,6 +10,14 @@
 
 ## Current / Next
 
+- Current status: Replay right-edge wall bugfix completed. Follow mode now
+  anchors the latest replay candle at a fixed `rightOffsetBars` distance from
+  the canvas right edge in both single-pane and multi-pane replay, while new
+  candles push the visible range left instead of drifting into the right
+  margin. The fix keeps DOM-derived visible capacity out of replay runtime
+  state so rapid-next append performance stays on the incremental path.
+- Current direction: prioritize manually observed multi-pane / replay bugs
+  before returning to the Step 529 Settings parity candidate.
 - Current status: Step 528 completed. `fxreplay-parity-gap-audit.md` now
   records current FXReplay parity coverage, remaining workflow gaps, boundary
   rules, and a ranked near-term backlog. The recommended Step 529 starting
@@ -44,10 +52,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 529 should start with a Settings parity checklist
-  and choose at most one bounded high-frequency settings gap to implement if
-  the owner boundary is already clear. Multi-pane physical interaction audit is
-  the fallback if manual testing exposes a pane-specific regression.
+- Next recommended step: continue the multi-pane / replay bugfix queue from
+  manual testing. After the bug queue is quiet, Step 529 should start with a
+  Settings parity checklist and choose at most one bounded high-frequency
+  settings gap to implement if the owner boundary is already clear.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

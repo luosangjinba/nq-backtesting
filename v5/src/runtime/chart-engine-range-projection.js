@@ -1,8 +1,16 @@
 import { timestampSeconds } from './chart-engine-context.js';
 
-export function followLogicalRangeForBars(bars, context) {
+export function followLogicalRangeForBars(bars, context, options = {}) {
   if (!bars.length) return null;
   const rightOffset = Math.max(0, Number(context.rightOffsetBars || 0));
+  const estimatedVisibleBars = Math.floor(Number(options.estimatedVisibleBars || 0));
+  if (estimatedVisibleBars > 1) {
+    const to = Math.max(0, bars.length - 1 + rightOffset);
+    return {
+      from: to - Math.max(0, estimatedVisibleBars - 1),
+      to,
+    };
+  }
   return {
     from: 0,
     to: Math.max(0, bars.length - 1 + rightOffset),

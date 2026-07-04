@@ -33,15 +33,10 @@ export function createReplayChartSync({
 
   async function syncChartViewportFollow(cursorTimestamp, { resume = false } = {}) {
     if (!hasCommand(chartCommands.SET_VIEWPORT_FOLLOW)) return null;
-    const state = getState();
-    const metrics = hasCommand(chartCommands.GET_VIEWPORT_METRICS)
-      ? await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS).catch(() => null)
-      : null;
     return dispatchCommand(chartCommands.SET_VIEWPORT_FOLLOW, {
       enabled: true,
       resume,
       cursorTimestamp,
-      estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
     });
   }
 
@@ -79,7 +74,6 @@ export function createReplayChartSync({
       return rendered;
     }
     if (!paneId || paneId === 'primary') {
-      const state = getState();
       markReplayTrace('chartSync.append.metrics.start', { paneId: paneId || 'primary' });
       const metrics = hasCommand(chartCommands.GET_VIEWPORT_METRICS)
         ? await dispatchCommand(chartCommands.GET_VIEWPORT_METRICS).catch(() => null)
@@ -99,7 +93,6 @@ export function createReplayChartSync({
         viewportFollow: {
           enabled: true,
           cursorTimestamp,
-          estimatedVisibleBars: metrics?.estimatedVisibleBars || state.viewportMetrics?.estimatedVisibleBars || null,
         },
       });
       markReplayTrace('chartSync.append.command.end', {

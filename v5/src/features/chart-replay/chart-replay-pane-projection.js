@@ -62,14 +62,12 @@ export function createReplayPaneProjection({
     if (disposed()) return null;
 
     if (Number(paneTimeframe) === Number(replayTimeframe(payload)) && Array.isArray(payload.revealedBars)) {
-      const metrics = await dispatchCommand?.(CHART_COMMANDS.GET_VIEWPORT_METRICS, { paneId }).catch(() => null);
       await dispatchCommand?.(CHART_COMMANDS.APPEND_BARS, {
         paneId,
         bars: payload.revealedBars,
         viewportFollow: {
           enabled: true,
           cursorTimestamp,
-          estimatedVisibleBars: metrics?.estimatedVisibleBars,
         },
       });
       return {

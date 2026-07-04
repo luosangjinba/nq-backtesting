@@ -56,6 +56,8 @@ export function createLightweightInstance({ engine, documentRef }) {
   let unsubscribeCrosshair = null;
   let suppressRuntimeVisibleRangeEcho = false;
   let debugRenderQueued = false;
+  let followLogicalRangeQueued = false;
+  let pendingFollowLogicalRange = null;
 
   const crosshairBridge = createLightweightCrosshairBridge({
     getBars: () => bars,
@@ -181,8 +183,32 @@ export function createLightweightInstance({ engine, documentRef }) {
     canvas.dataset.visibleLogicalRangeTo = String(logicalRange.to);
   }
 
+  function applyFollowLogicalRange(logicalRange) {
+    if (!logicalRange || typeof chart?.timeScale?.().setVisibleLogicalRange !== 'function') return;
+    suppressRuntimeVisibleRangeEcho = true;
+    chart.timeScale().setVisibleLogicalRange(logicalRange);
+    recordVisibleLogicalRange(logicalRange);
+  }
+
+  function queueFollowLogicalRange(logicalRange) {
+    if (!logicalRange) return;
+    pendingFollowLogicalRange = logicalRange;
+    if (followLogicalRangeQueued) return;
+    followLogicalRangeQueued = true;
+    const schedule = typeof globalThis.requestAnimationFrame === 'function'
+      ? globalThis.requestAnimationFrame
+      : (callback) => setTimeout(callback, 0);
+    schedule(() => {
+      followLogicalRangeQueued = false;
+      const nextRange = pendingFollowLogicalRange;
+      pendingFollowLogicalRange = null;
+      applyFollowLogicalRange(nextRange);
+    });
+  }
+
   function clearVisibleLogicalRange() {
     if (!canvas) return;
+    pendingFollowLogicalRange = null;
     delete canvas.dataset.visibleLogicalRangeFrom;
     delete canvas.dataset.visibleLogicalRangeTo;
   }
@@ -302,12 +328,8 @@ export function createLightweightInstance({ engine, documentRef }) {
       resizeToHost();
       series?.setData(bars.map(toEngineBar));
       if (options.followViewport) {
-        const logicalRange = followLogicalRangeForBars(bars, displayContext);
-        if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
-          suppressRuntimeVisibleRangeEcho = true;
-          chart.timeScale().setVisibleLogicalRange(logicalRange);
-          recordVisibleLogicalRange(logicalRange);
-        }
+        const logicalRange = followLogicalRangeForBars(bars, displayContext, options.followViewport);
+        applyFollowLogicalRange(logicalRange);
       } else {
         clearVisibleLogicalRange();
       }
@@ -350,12 +372,8 @@ export function createLightweightInstance({ engine, documentRef }) {
       appendedBars.forEach((bar) => series?.update?.(toEngineBar(bar)));
       markReplayTrace('lightweight.append.seriesUpdated', { appendedCount: appendedBars.length });
       if (options.followViewport) {
-        const logicalRange = followLogicalRangeForBars(bars, displayContext);
-        if (logicalRange && typeof chart?.timeScale?.().setVisibleLogicalRange === 'function') {
-          suppressRuntimeVisibleRangeEcho = true;
-          chart.timeScale().setVisibleLogicalRange(logicalRange);
-          recordVisibleLogicalRange(logicalRange);
-        }
+        const logicalRange = followLogicalRangeForBars(bars, displayContext, options.followViewport);
+        queueFollowLogicalRange(logicalRange);
       }
       markReplayTrace('lightweight.append.end', {
         cursorTimestamp: metadata.viewportCursorTimestamp || '',
@@ -426,6 +444,8 @@ export function createLightweightInstance({ engine, documentRef }) {
       chart = null;
       series = null;
       watermark = null;
+      followLogicalRangeQueued = false;
+      pendingFollowLogicalRange = null;
       host = null;
       canvas = null;
       engineSurface = null;

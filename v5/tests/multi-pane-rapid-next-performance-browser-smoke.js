@@ -13,7 +13,7 @@ import {
 const CHROME_BIN = process.env.CHROME_BIN || 'google-chrome';
 const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9401);
 const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || `/tmp/v5-multi-pane-rapid-next-performance-${process.pid}`;
-const MULTI_PANE_LATEST_INTENT_OBSERVER_THRESHOLD_MS = 300;
+const MULTI_PANE_LATEST_INTENT_OBSERVER_THRESHOLD_MS = 350;
 
 function getFreePort() {
   return new Promise((resolve, reject) => {

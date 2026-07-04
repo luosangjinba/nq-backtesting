@@ -28,6 +28,21 @@ export function createChartRuntimeHostSync({
     };
   }
 
+  function followViewportForHost(host, sourceState = state) {
+    if (!sourceState.viewportFollow.enabled) {
+      return false;
+    }
+    if (sourceState.viewportFollow.estimatedVisibleBars) {
+      return { ...sourceState.viewportFollow };
+    }
+    const width = Number(host?.dataset?.chartResizeWidth || 0);
+    const estimatedVisibleBars = width > 0 ? Math.floor(width / 10) : null;
+    return {
+      ...sourceState.viewportFollow,
+      estimatedVisibleBars: estimatedVisibleBars || sourceState.viewportFollow.estimatedVisibleBars,
+    };
+  }
+
   function syncChartHost(host, { deferDuringNativeInteraction = true } = {}) {
     const adapter = chartAdapters.get(host);
     if (!adapter) return;
@@ -46,7 +61,9 @@ export function createChartRuntimeHostSync({
         fullBarCount: sourceState.bars.length,
         displayContext: sourceState.displayContext,
         metadata: buildChartMetadata(renderedBars, sourceState),
-        followViewport: sourceState.interaction.mode === 'follow' && sourceState.viewportFollow.enabled,
+        followViewport: sourceState.interaction.mode === 'follow'
+          ? followViewportForHost(host, sourceState)
+          : false,
       });
       if (sourceState.interaction.mode === 'manual') {
         adapter.setVisibleRange(sourceState.visibleRange);
@@ -141,7 +158,9 @@ export function createChartRuntimeHostSync({
         metadata: buildChartMetadata(nextRenderedBars, nextSourceState),
         renderedBars: appendPlan.renderedBars,
         appendMode: appendPlan.mode,
-        followViewport: nextSourceState.interaction.mode === 'follow' && nextSourceState.viewportFollow.enabled,
+        followViewport: nextSourceState.interaction.mode === 'follow'
+          ? followViewportForHost(host, nextSourceState)
+          : false,
       });
       markReplayTrace('chartHostSync.append.adapter.end', { paneId });
       markReplayTrace('chartHostSync.append.resizeAfter.start', { paneId });

@@ -203,8 +203,8 @@ assert.deepEqual(
     Date.parse('2026-06-01T09:33:00.000Z') / 1000,
   ]
 );
-assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
-assert.equal(host.children[0].dataset.visibleLogicalRangeFrom, '0');
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 9, to: 11 });
+assert.equal(host.children[0].dataset.visibleLogicalRangeFrom, '9');
 assert.equal(host.children[0].dataset.visibleLogicalRangeTo, '11');
 assert.equal(host.dataset.viewportFollow, 'true');
 assert.equal(host.dataset.interactionMode, 'follow');
@@ -339,7 +339,7 @@ const resumed = await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
 });
 assert.equal(resumed.interaction.mode, 'follow');
 assert.equal(resumed.visibleRange, null);
-assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 9, to: 11 });
 assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeCallsBeforeResume);
 
 const setVisibleRangeBeforeDirectResumeManual = engineCalls.setVisibleRange.length;
@@ -354,7 +354,7 @@ const setVisibleRangeBeforeDirectResume = engineCalls.setVisibleRange.length;
 const directResumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
 assert.equal(directResumed.interaction.mode, 'follow');
 assert.equal(directResumed.visibleRange, null);
-assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 0, to: 11 });
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: 9, to: 11 });
 assert.equal(engineCalls.setVisibleRange.length, setVisibleRangeBeforeDirectResume);
 assert.equal(engineCalls.priceScaleApplyOptions.at(-1).autoScale, true);
 const directResumeState = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
