@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 504 completed. `chart-replay-layout-sync-controller.js`
-  now owns route-level time/date-range/crosshair sync effects and chart
-  visible-range/crosshair event sync decisions.
-- Next candidate: Step 505 - split pane shell DOM helpers and split-resize
-  behavior out of `chart-replay-pane-shell.js`.
+- Current status: Step 505 in progress. The implementation plan is to split
+  pane DOM helpers and split-resize behavior out of
+  `chart-replay-pane-shell.js` in bounded commits.
+- Next candidate: Complete Step 505, then Step 506 will split chart runtime
+  pane-state helpers.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
