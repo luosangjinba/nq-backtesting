@@ -32,6 +32,7 @@ import { createChartReplayStatusController } from './chart-replay-status.js';
 import { createChartReplayTruncateController } from './chart-replay-truncate.js';
 import { createChartReplayLayoutController } from './chart-replay-layout.js';
 import { createChartReplayPaneShellController } from './chart-replay-pane-shell.js';
+import { createChartReplayPaneOrchestrator } from './chart-replay-pane-orchestrator.js';
 import { createReplayFloatingControlsController } from './replay-floating-controls.js';
 import { createReplayViewportDemandBridge } from './viewport-demand-wiring.js';
 
@@ -108,6 +109,12 @@ export function createChartReplayRoute() {
           status.textContent = error?.message || String(error);
         },
       });
+      const paneOrchestrator = trackController(createChartReplayPaneOrchestrator({
+        getLayoutState: () => currentLayoutState,
+        getReplayDisplayTimeframe: () => replayDisplayTimeframe,
+        getSessionTimeframe: () => sessionTimeframe,
+        getDisplayTimeframeFallback: () => displayTimeframe,
+      }));
       const statusController = createChartReplayStatusController({
         root: section,
         getDisplayTimezone: () => displayTimezone,
@@ -304,8 +311,7 @@ export function createChartReplayRoute() {
       }
 
       function activePaneDisplayTimeframe(layoutState = currentLayoutState) {
-        const activePane = layoutState.panes?.find((pane) => pane.id === layoutState.activePaneId);
-        return Number(activePane?.displayTimeframe || replayDisplayTimeframe || sessionTimeframe || 1);
+        return paneOrchestrator.activeDisplayTimeframe(layoutState);
       }
 
       function mountChartHosts() {
