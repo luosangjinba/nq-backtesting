@@ -206,19 +206,28 @@ export function createFallbackInstance({ documentRef }) {
       render();
     },
     appendBars(nextBars = [], options = {}) {
-      markReplayTrace('fallback.append.start', { appendedCount: nextBars.length });
+      markReplayTrace('fallback.append.start', {
+        appendedCount: nextBars.length,
+        appendMode: options.appendMode || '',
+      });
       const appendedBars = [...nextBars];
-      bars = [
-        ...bars,
-        ...appendedBars,
-      ];
+      bars = Array.isArray(options.renderedBars)
+        ? [...options.renderedBars]
+        : [
+          ...bars,
+          ...appendedBars,
+        ];
       fullBarCount = Number(options.fullBarCount ?? bars.length);
       if (options.displayContext) {
         displayContext = normalizeContext(options.displayContext);
       }
       metadata = options.metadata ? { ...options.metadata } : metadata;
       render();
-      markReplayTrace('fallback.append.end', { appendedCount: appendedBars.length, fullBarCount });
+      markReplayTrace('fallback.append.end', {
+        appendedCount: appendedBars.length,
+        fullBarCount,
+        appendMode: options.appendMode || '',
+      });
     },
     readState() {
       return {

@@ -65,14 +65,36 @@ export function createChartRuntimeHostSync({
       && left?.close === right?.close;
   }
 
-  function splitRenderedAppend(previousRenderedBars = [], nextRenderedBars = []) {
-    if (nextRenderedBars.length < previousRenderedBars.length) return null;
-    for (let index = 0; index < previousRenderedBars.length; index += 1) {
-      if (!barsEqual(previousRenderedBars[index], nextRenderedBars[index])) {
-        return null;
+  function barsOverlap(previousRenderedBars = [], nextRenderedBars = [], overlapCount = 0) {
+    if (overlapCount <= 0) return false;
+    const previousStart = previousRenderedBars.length - overlapCount;
+    for (let index = 0; index < overlapCount; index += 1) {
+      if (!barsEqual(previousRenderedBars[previousStart + index], nextRenderedBars[index])) {
+        return false;
       }
     }
-    return nextRenderedBars.slice(previousRenderedBars.length);
+    return true;
+  }
+
+  function splitRenderedAppend(previousRenderedBars = [], nextRenderedBars = []) {
+    if (!nextRenderedBars.length) return null;
+    if (!previousRenderedBars.length) {
+      return {
+        mode: 'initial',
+        appendedBars: [...nextRenderedBars],
+        renderedBars: [...nextRenderedBars],
+      };
+    }
+    const maxOverlap = Math.min(previousRenderedBars.length, nextRenderedBars.length);
+    for (let overlapCount = maxOverlap; overlapCount > 0; overlapCount -= 1) {
+      if (!barsOverlap(previousRenderedBars, nextRenderedBars, overlapCount)) continue;
+      return {
+        mode: overlapCount === previousRenderedBars.length ? 'tail' : 'sliding-tail',
+        appendedBars: nextRenderedBars.slice(overlapCount),
+        renderedBars: [...nextRenderedBars],
+      };
+    }
+    return null;
   }
 
   function syncChartHostAppend(host, previousSourceState, nextSourceState, { deferDuringNativeInteraction = true } = {}) {
@@ -94,14 +116,15 @@ export function createChartRuntimeHostSync({
     markReplayTrace('chartHostSync.append.compute.start', { paneId });
     const previousRenderedBars = computeRenderedBars(previousSourceState);
     const nextRenderedBars = computeRenderedBars(nextSourceState);
-    const appendedBars = splitRenderedAppend(previousRenderedBars, nextRenderedBars);
+    const appendPlan = splitRenderedAppend(previousRenderedBars, nextRenderedBars);
     markReplayTrace('chartHostSync.append.compute.end', {
       paneId,
       previousRenderedCount: previousRenderedBars.length,
       nextRenderedCount: nextRenderedBars.length,
-      appendedCount: appendedBars?.length || 0,
+      appendedCount: appendPlan?.appendedBars?.length || 0,
+      mode: appendPlan?.mode || 'replace',
     });
-    if (!appendedBars || !appendedBars.length) {
+    if (!appendPlan || !appendPlan.appendedBars.length) {
       syncChartHost(host, { deferDuringNativeInteraction });
       markReplayTrace('chartHostSync.append.end', { paneId, mode: 'fallback-replace' });
       return;
@@ -112,10 +135,12 @@ export function createChartRuntimeHostSync({
       adapter.resizeToHost?.();
       markReplayTrace('chartHostSync.append.resizeBefore.end', { paneId });
       markReplayTrace('chartHostSync.append.adapter.start', { paneId });
-      adapter.appendBars(appendedBars, {
+      adapter.appendBars(appendPlan.appendedBars, {
         fullBarCount: nextSourceState.bars.length,
         displayContext: nextSourceState.displayContext,
         metadata: buildChartMetadata(nextRenderedBars, nextSourceState),
+        renderedBars: appendPlan.renderedBars,
+        appendMode: appendPlan.mode,
         followViewport: nextSourceState.interaction.mode === 'follow' && nextSourceState.viewportFollow.enabled,
       });
       markReplayTrace('chartHostSync.append.adapter.end', { paneId });

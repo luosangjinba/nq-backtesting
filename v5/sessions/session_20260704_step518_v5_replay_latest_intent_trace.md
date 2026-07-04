@@ -30,6 +30,9 @@ then apply only a bounded optimization that the trace justifies.
 - Step 518.3: completed. Added deeper chart-runtime and host-sync trace marks
   around append state update, rendered-bar computation, adapter append, resize,
   and fallback rendering.
+- Step 518.4: completed. Added sliding-window tail append support so replay
+  follow can use incremental adapter append when the rendered window shifts
+  left and new bars enter on the right.
 
 ## Initial Trace
 
@@ -66,3 +69,27 @@ full host sync / replacement path. The next optimization should support a
 sliding-window tail append so the engine can call incremental series updates
 when the right edge advances, even when old left-side rendered bars leave the
 visible window.
+
+Post-fix trace sample:
+
+- final-click-to-visible: about 275ms.
+- replay chart append: about 97ms.
+- chart sync append: about 11ms.
+- chart runtime append: about 10.5ms.
+- chart runtime host sync: about 10ms.
+- chart host adapter append: about 4.3ms.
+- Lightweight append / series update: about 3.7ms.
+
+Result: chart host sync now enters incremental `lightweight.append` instead of
+falling back to replacement. This removed the main chart replacement cost. The
+remaining user-visible delay is now more likely in controls batching / browser
+event scheduling / command dispatch around rapid clicks rather than bar-data
+fetch or chart replacement.
+
+Verification:
+
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed when run alone.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/replay-viewport-follow-browser-smoke.js` passed.
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js` passed.

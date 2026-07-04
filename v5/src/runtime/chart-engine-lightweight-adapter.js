@@ -317,15 +317,18 @@ export function createLightweightInstance({ engine, documentRef }) {
       markReplayTrace('lightweight.append.start', {
         appendedCount: nextBars.length,
         fullBarCount: options.fullBarCount ?? '',
+        appendMode: options.appendMode || '',
       });
       const appendedBars = [...nextBars];
       if (!appendedBars.length) {
         return;
       }
-      bars = [
-        ...bars,
-        ...appendedBars,
-      ];
+      bars = Array.isArray(options.renderedBars)
+        ? [...options.renderedBars]
+        : [
+          ...bars,
+          ...appendedBars,
+        ];
       fullBarCount = Number(options.fullBarCount ?? fullBarCount + appendedBars.length);
       if (options.displayContext) {
         displayContext = normalizeContext(options.displayContext);
@@ -352,6 +355,7 @@ export function createLightweightInstance({ engine, documentRef }) {
         cursorTimestamp: metadata.viewportCursorTimestamp || '',
         renderedBarCount: bars.length,
         fullBarCount,
+        appendMode: options.appendMode || '',
       });
       queueDebugRender();
       queueResizeToHost();

@@ -22,8 +22,9 @@
   applying more patches, then record the measured bottleneck and any bounded
   optimization. Initial trace shows data loading is not the bottleneck; chart
   append/follow is the dominant measured segment. Deeper trace shows the chart
-  host falls back to replacement because replay follow slides the rendered
-  window, so the next fix should support sliding-window tail append.
+  host fell back to replacement because replay follow slides the rendered
+  window. Step 518 now supports sliding-window tail append; remaining delay is
+  likely in controls batching / browser event scheduling / command dispatch.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
