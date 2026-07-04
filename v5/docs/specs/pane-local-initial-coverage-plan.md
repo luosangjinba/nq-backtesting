@@ -66,6 +66,9 @@ piece is initial coverage, not left-extension itself.
    - Ensure initial coverage does not immediately trigger stale or duplicate
      viewport-demand loads that overwrite the new display context.
    - Preserve manual left-extension behavior after initial load.
+   - Completed: the coverage smoke now verifies a manual left-extension after
+     initial coverage still loads more `1H` history without overwriting other
+     panes.
    - Commit the guard or document no code change if existing guards suffice.
 
 5. Step 532.5 - Add three-pane coverage regression.

@@ -223,6 +223,24 @@ async function main() {
               && primary.renderedBarCount >= minimumCoverage
               && requests.filter((request) => request.timeframe === 60).length >= 2;
           }, 12000);
+          const initialOneHourRequestCount = requests.filter((request) => request.timeframe === 60).length;
+          const beforeExtension = await commands.dispatchCommand('chart.getRenderedBars', { paneId: 'primary' });
+          const earliestTimestamp = Math.min(
+            ...beforeExtension.bars.map((bar) => Number(bar.timestamp)).filter(Number.isFinite)
+          );
+          await commands.dispatchCommand('chart.setManualVisibleRange', {
+            paneId: 'primary',
+            from: new Date((earliestTimestamp - (20 * 60 * 60)) * 1000).toISOString(),
+            to: new Date((earliestTimestamp + (5 * 60 * 60)) * 1000).toISOString(),
+          });
+          await waitFor('primary manual left extension remains pane-local', async () => {
+            const primary = paneState('primary');
+            return requests.filter((request) => request.timeframe === 60).length > initialOneHourRequestCount
+              && primary.displayTimeframe === '60'
+              && primary.interactionMode === 'manual'
+              && paneState('secondary').displayTimeframe === '1';
+          }, 12000);
+          const afterExtension = await commands.dispatchCommand('chart.getRenderedBars', { paneId: 'primary' });
 
           return JSON.stringify({
             error: '',
@@ -230,8 +248,14 @@ async function main() {
             rightOffsetBars,
             targetVisibleBars,
             minimumCoverage,
+            initialOneHourRequestCount,
             primary: paneState('primary'),
             secondary: paneState('secondary'),
+            afterExtension: {
+              fullBarCount: Number(afterExtension.fullBarCount || 0),
+              displayTimeframe: afterExtension.displayContext?.displayTimeframe || '',
+              interactionMode: afterExtension.interaction?.mode || '',
+            },
             requests,
           });
         } catch (error) {
@@ -250,13 +274,19 @@ async function main() {
     assert.equal(value.error, '', value.error ? JSON.stringify(value) : 'browser smoke failed');
     assert.equal(value.primary.displayTimeframe, '60');
     assert.ok(
-      value.primary.renderedBarCount >= value.minimumCoverage,
-      `expected initial coverage >= ${value.minimumCoverage}: ${JSON.stringify(value)}`
+      value.afterExtension.fullBarCount >= value.minimumCoverage,
+      `expected loaded coverage >= ${value.minimumCoverage}: ${JSON.stringify(value)}`
     );
+    assert.equal(value.afterExtension.displayTimeframe, 60);
+    assert.equal(value.afterExtension.interactionMode, 'manual');
     assert.equal(value.secondary.displayTimeframe, '1');
     assert.ok(
       value.requests.filter((request) => request.timeframe === 60).length >= 2,
       `expected sparse 1H initial coverage to seek earlier: ${JSON.stringify(value.requests)}`
+    );
+    assert.ok(
+      value.requests.filter((request) => request.timeframe === 60).length > value.initialOneHourRequestCount,
+      `expected manual left extension after initial coverage: ${JSON.stringify(value.requests)}`
     );
   } finally {
     if (client) {

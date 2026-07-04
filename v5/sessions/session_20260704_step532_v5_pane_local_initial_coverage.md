@@ -58,7 +58,11 @@ then extends and fills the canvas, which points to an initial coverage gap.
   display coverage target based on target pane viewport metrics. Backward
   display-window loading continues bounded seeking while merged display bars
   are below that target, preserving existing no-future filtering.
-- Step 532.4-532.6: pending.
+- Step 532.4: completed. The initial coverage smoke now also forces a manual
+  left-extension after coverage is reached. It verifies another `1H`
+  viewport-demand load occurs, primary stays on `1H`, and secondary stays on
+  `1m`.
+- Step 532.5-532.6: pending.
 
 ## Step 532.2 Verification
 
@@ -78,8 +82,14 @@ then extends and fills the canvas, which points to an initial coverage gap.
 - `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
 - `git diff --check`
 
+## Step 532.4 Verification
+
+- `node --check v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 532.4 next: verify the new initial coverage path does not
-trigger stale or duplicate viewport-demand overwrites and preserves manual
-left-extension after initial load.
+Implement Step 532.5 next: add a three-pane coverage regression for one active
+`1H` pane while the other panes keep their own TF and metadata.
