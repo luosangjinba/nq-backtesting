@@ -1,49 +1,10 @@
+import { createEmptyChartState } from './chart-runtime-state.js';
+
 export const DEFAULT_CHART_PANE_ID = 'primary';
 
 export function normalizePaneId(value) {
   const paneId = String(value || DEFAULT_CHART_PANE_ID).trim();
   return paneId || DEFAULT_CHART_PANE_ID;
-}
-
-function cloneDisplayContext(context = {}) {
-  return structuredClone(context || {});
-}
-
-function defaultPaneState(primaryState = {}) {
-  return {
-    bars: [],
-    visibleRange: null,
-    prefixDemand: null,
-    viewportDemand: null,
-    viewportFollow: {
-      enabled: false,
-      cursorTimestamp: null,
-      estimatedVisibleBars: null,
-      rightOffsetBars: primaryState.displayContext?.rightOffsetBars
-        ?? primaryState.viewportFollow?.rightOffsetBars
-        ?? null,
-    },
-    interaction: {
-      mode: 'follow',
-      manualVisibleRange: null,
-    },
-    nativeInteraction: structuredClone(primaryState.nativeInteraction || {
-      active: false,
-      type: null,
-      source: null,
-    }),
-    crosshair: structuredClone(primaryState.crosshair || {
-      active: false,
-      time: null,
-      price: null,
-      bar: null,
-      point: null,
-    }),
-    displayContext: {
-      ...cloneDisplayContext(primaryState.displayContext),
-      displayRevision: 0,
-    },
-  };
 }
 
 export function cloneChartStateSnapshot(sourceState) {
@@ -61,56 +22,86 @@ export function cloneChartStateSnapshot(sourceState) {
   };
 }
 
-export function stateForPane({
-  paneId = DEFAULT_CHART_PANE_ID,
-  primaryState,
-  paneDisplayStateByPaneId,
+function cloneDisplayContext(context = {}) {
+  return structuredClone(context || {});
+}
+
+function createPaneRecord(seedContext = {}) {
+  const nextState = createEmptyChartState();
+  if (seedContext && Object.keys(seedContext).length) {
+    nextState.displayContext = {
+      ...nextState.displayContext,
+      ...cloneDisplayContext(seedContext),
+      displayRevision: 0,
+    };
+    nextState.viewportFollow = {
+      ...nextState.viewportFollow,
+      rightOffsetBars: nextState.displayContext.rightOffsetBars,
+    };
+  }
+  return nextState;
+}
+
+export function createChartPaneStateStore({
+  defaultPaneId = DEFAULT_CHART_PANE_ID,
 } = {}) {
-  const normalizedPaneId = normalizePaneId(paneId);
-  if (normalizedPaneId === DEFAULT_CHART_PANE_ID) return primaryState;
-  const paneState = paneDisplayStateByPaneId?.get(normalizedPaneId);
-  const defaults = defaultPaneState(primaryState);
-  if (!paneState) return defaults;
+  const normalizedDefaultPaneId = normalizePaneId(defaultPaneId);
+  const paneStateById = new Map();
+  paneStateById.set(normalizedDefaultPaneId, createPaneRecord());
+
+  function defaultDisplayContext() {
+    return paneStateById.get(normalizedDefaultPaneId)?.displayContext || {};
+  }
+
+  function ensurePaneState(paneId = normalizedDefaultPaneId) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    if (!paneStateById.has(normalizedPaneId)) {
+      paneStateById.set(normalizedPaneId, createPaneRecord(defaultDisplayContext()));
+    }
+    return paneStateById.get(normalizedPaneId);
+  }
+
+  function updatePaneState(paneId, producer) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const currentState = ensurePaneState(normalizedPaneId);
+    const patch = typeof producer === 'function'
+      ? producer(currentState)
+      : producer;
+    if (patch && typeof patch === 'object') {
+      Object.assign(currentState, patch);
+    }
+    return currentState;
+  }
+
+  function releaseUnretained(paneIds = []) {
+    const retainedPaneIds = new Set([normalizedDefaultPaneId]);
+    if (Array.isArray(paneIds)) {
+      paneIds.forEach((paneId) => retainedPaneIds.add(normalizePaneId(paneId)));
+    }
+    const releasedPaneIds = [];
+    for (const paneId of paneStateById.keys()) {
+      if (retainedPaneIds.has(paneId)) continue;
+      paneStateById.delete(paneId);
+      releasedPaneIds.push(paneId);
+    }
+    return {
+      retainedPaneIds: [...retainedPaneIds],
+      releasedPaneIds,
+    };
+  }
+
+  function clear() {
+    paneStateById.clear();
+    paneStateById.set(normalizedDefaultPaneId, createPaneRecord());
+  }
+
   return {
-    ...defaults,
-    ...paneState,
-    bars: Array.isArray(paneState.bars) ? paneState.bars : defaults.bars,
-    visibleRange: paneState.visibleRange || defaults.visibleRange,
-    prefixDemand: paneState.prefixDemand || defaults.prefixDemand,
-    viewportDemand: paneState.viewportDemand || defaults.viewportDemand,
-    viewportFollow: paneState.viewportFollow || defaults.viewportFollow,
-    interaction: paneState.interaction || defaults.interaction,
-    nativeInteraction: paneState.nativeInteraction || defaults.nativeInteraction,
-    crosshair: paneState.crosshair || defaults.crosshair,
-    displayContext: paneState.displayContext || defaults.displayContext,
+    clear,
+    defaultPaneId: normalizedDefaultPaneId,
+    ensurePaneState,
+    entries: () => [...paneStateById.entries()],
+    get: (paneId) => ensurePaneState(paneId),
+    releaseUnretained,
+    updatePaneState,
   };
-}
-
-export function updatePaneDisplayState({
-  paneId,
-  patch = {},
-  primaryState,
-  paneDisplayStateByPaneId,
-} = {}) {
-  const normalizedPaneId = normalizePaneId(paneId);
-  const currentPaneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
-  const nextPaneState = {
-    ...currentPaneState,
-    ...patch,
-  };
-  paneDisplayStateByPaneId.set(normalizedPaneId, nextPaneState);
-  return stateForPane({
-    paneId: normalizedPaneId,
-    primaryState,
-    paneDisplayStateByPaneId,
-  });
-}
-
-export function retainedPaneIdSet(values = []) {
-  const retainedPaneIds = new Set([DEFAULT_CHART_PANE_ID]);
-  if (!Array.isArray(values)) return retainedPaneIds;
-  values.forEach((value) => {
-    retainedPaneIds.add(normalizePaneId(value));
-  });
-  return retainedPaneIds;
 }

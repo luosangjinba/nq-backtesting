@@ -9,13 +9,10 @@ import { createChartRuntimeHostSync } from './chart-runtime-host-sync.js';
 import {
   DEFAULT_CHART_PANE_ID,
   cloneChartStateSnapshot,
+  createChartPaneStateStore,
   normalizePaneId,
-  retainedPaneIdSet,
-  stateForPane as projectStateForPane,
-  updatePaneDisplayState as patchPaneDisplayState,
 } from './chart-runtime-pane-state.js';
 import {
-  createEmptyChartState,
   normalizeBars,
   normalizeCrosshair,
   normalizeGoToPayload,
@@ -44,14 +41,14 @@ export function createChartRuntime() {
   const mountedHostList = new Set();
   const mountedHostByPaneId = new Map();
   const chartAdapters = new Map();
-  const paneDisplayStateByPaneId = new Map();
+  const paneStore = createChartPaneStateStore();
   const unregisterCallbacks = [];
-  const state = createEmptyChartState();
   let rootElement = null;
   let observer = null;
   let emit = () => {};
+
   const hostSync = createChartRuntimeHostSync({
-    state,
+    state: paneStore.get(DEFAULT_CHART_PANE_ID),
     mountedHosts,
     mountedHostList,
     mountedHostByPaneId,
@@ -60,20 +57,80 @@ export function createChartRuntime() {
   });
 
   function stateForPane(paneId = DEFAULT_CHART_PANE_ID) {
-    return projectStateForPane({
-      paneId,
-      primaryState: state,
-      paneDisplayStateByPaneId,
-    });
+    return paneStore.get(paneId);
   }
 
-  function updatePaneDisplayState(paneId, patch = {}) {
-    return patchPaneDisplayState({
-      paneId,
-      patch,
-      primaryState: state,
-      paneDisplayStateByPaneId,
-    });
+  function updatePaneState(paneId, patch = {}) {
+    return paneStore.updatePaneState(paneId, patch);
+  }
+
+  function recomputePaneDemands(paneId) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const sourceState = stateForPane(normalizedPaneId);
+    sourceState.prefixDemand = computePrefixDemand(sourceState);
+    sourceState.viewportDemand = computeViewportDemand(sourceState, { paneId: normalizedPaneId });
+    return sourceState;
+  }
+
+  function emitPaneDemands(sourceState, paneId, { visibleRangeChanged = false } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    if (visibleRangeChanged && sourceState.visibleRange) {
+      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, {
+        paneId: normalizedPaneId,
+        visibleRange: { ...sourceState.visibleRange },
+      });
+    }
+    if (sourceState.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, {
+        viewportDemand: structuredClone(sourceState.viewportDemand),
+      });
+    }
+    if (sourceState.prefixDemand) {
+      emit(CHART_EVENTS.PREFIX_DEMAND, {
+        prefixDemand: { ...sourceState.prefixDemand },
+      });
+    }
+  }
+
+  function syncPaneHosts(paneId) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const host = mountedHostByPaneId.get(normalizedPaneId);
+    if (host?.isConnected) {
+      hostSync.syncChartHost(host);
+    }
+  }
+
+  function syncAllPaneHosts() {
+    hostSync.pruneDisconnectedHosts();
+    for (const host of mountedHostList) {
+      if (host.isConnected) hostSync.syncChartHost(host);
+    }
+  }
+
+  function syncPaneHostsAppended(paneId, previousPaneState, nextPaneState) {
+    const normalizedPaneId = normalizePaneId(paneId);
+    const host = mountedHostByPaneId.get(normalizedPaneId);
+    if (host?.isConnected) {
+      hostSync.syncChartHostAppend(host, previousPaneState, nextPaneState);
+    }
+  }
+
+  function expectedDisplayRevisionMatches(sourceState, expectedDisplayRevision) {
+    if (expectedDisplayRevision == null) return true;
+    const expected = Math.floor(Number(expectedDisplayRevision));
+    if (!Number.isFinite(expected)) return true;
+    const current = Math.floor(Number(sourceState.displayContext?.displayRevision || 0));
+    return current === expected;
+  }
+
+  function stalePaneWriteResult(normalizedPaneId, sourceState, expectedDisplayRevision) {
+    return {
+      paneId: normalizedPaneId,
+      staleWrite: true,
+      expectedDisplayRevision: Number(expectedDisplayRevision),
+      displayRevision: Number(sourceState.displayContext?.displayRevision || 0),
+      bars: [...(sourceState.bars || [])],
+    };
   }
 
   function mountHost(host, { paneId } = {}) {
@@ -81,6 +138,7 @@ export function createChartRuntime() {
       throw new Error('chart host element is required.');
     }
     const nextPaneId = normalizePaneId(paneId || host.dataset?.chartPaneId);
+    stateForPane(nextPaneId);
     const previousHost = mountedHostByPaneId.get(nextPaneId);
     if (previousHost && previousHost !== host) {
       chartAdapters.get(previousHost)?.destroy();
@@ -122,10 +180,10 @@ export function createChartRuntime() {
         setManualVisibleRange(visibleRange, { paneId: nextPaneId });
       },
       onCrosshairChange: (crosshair) => {
-        updateCrosshair(crosshair);
+        updateCrosshair(crosshair, { paneId: nextPaneId });
       },
       onNativeInteractionChange: (interaction) => {
-        updateNativeInteraction(interaction);
+        updateNativeInteraction(interaction, { paneId: nextPaneId });
       },
     });
     hostSync.syncChartHost(host);
@@ -154,20 +212,13 @@ export function createChartRuntime() {
   }
 
   function releasePanes({ paneIds } = {}) {
-    const retainedPaneIds = retainedPaneIdSet(paneIds);
-    const releasedPaneIds = [];
+    const releaseResult = paneStore.releaseUnretained(paneIds);
+    const retainedPaneIds = new Set(releaseResult.retainedPaneIds);
     const releasedHostPaneIds = [];
-
-    for (const paneId of paneDisplayStateByPaneId.keys()) {
-      const normalizedPaneId = normalizePaneId(paneId);
-      if (normalizedPaneId === DEFAULT_CHART_PANE_ID || retainedPaneIds.has(normalizedPaneId)) continue;
-      paneDisplayStateByPaneId.delete(normalizedPaneId);
-      releasedPaneIds.push(normalizedPaneId);
-    }
 
     for (const [paneId, host] of mountedHostByPaneId) {
       const normalizedPaneId = normalizePaneId(paneId);
-      if (normalizedPaneId === DEFAULT_CHART_PANE_ID || retainedPaneIds.has(normalizedPaneId)) continue;
+      if (retainedPaneIds.has(normalizedPaneId)) continue;
       if (destroyMountedHost(host, normalizedPaneId)) {
         releasedHostPaneIds.push(normalizedPaneId);
       }
@@ -175,8 +226,7 @@ export function createChartRuntime() {
 
     hostSync.pruneDisconnectedHosts();
     return {
-      retainedPaneIds: [...retainedPaneIds],
-      releasedPaneIds,
+      ...releaseResult,
       releasedHostPaneIds,
     };
   }
@@ -189,84 +239,17 @@ export function createChartRuntime() {
       }));
   }
 
-  function syncPaneHosts(paneId) {
-    const normalizedPaneId = normalizePaneId(paneId);
-    const host = mountedHostByPaneId.get(normalizedPaneId);
-    if (host?.isConnected) {
-      hostSync.syncChartHost(host);
-    }
-  }
-
-  function syncGlobalDisplayHosts() {
-    hostSync.pruneDisconnectedHosts();
-    for (const host of mountedHostList) {
-      if (!host.isConnected) continue;
-      const paneId = normalizePaneId(host.dataset?.chartPaneId);
-      if (paneId === DEFAULT_CHART_PANE_ID) {
-        hostSync.syncChartHost(host);
-      }
-    }
-  }
-
-  function syncPaneHostsAppended(paneId, previousPaneState, nextPaneState) {
-    const normalizedPaneId = normalizePaneId(paneId);
-    const host = mountedHostByPaneId.get(normalizedPaneId);
-    if (host?.isConnected) {
-      hostSync.syncChartHostAppend(host, previousPaneState, nextPaneState);
-    }
-  }
-
-  function syncGlobalDisplayHostsAppended(previousState, nextState) {
-    hostSync.pruneDisconnectedHosts();
-    for (const host of mountedHostList) {
-      if (!host.isConnected) continue;
-      const paneId = normalizePaneId(host.dataset?.chartPaneId);
-      if (paneId === DEFAULT_CHART_PANE_ID) {
-        hostSync.syncChartHostAppend(host, previousState, nextState);
-      }
-    }
-  }
-
-  function expectedDisplayRevisionMatches(sourceState, expectedDisplayRevision) {
-    if (expectedDisplayRevision == null) return true;
-    const expected = Math.floor(Number(expectedDisplayRevision));
-    if (!Number.isFinite(expected)) return true;
-    const current = Math.floor(Number(sourceState.displayContext?.displayRevision || 0));
-    return current === expected;
-  }
-
-  function stalePaneWriteResult(normalizedPaneId, sourceState, expectedDisplayRevision) {
-    return {
-      paneId: normalizedPaneId,
-      staleWrite: true,
-      expectedDisplayRevision: Number(expectedDisplayRevision),
-      displayRevision: Number(sourceState.displayContext?.displayRevision || 0),
-      bars: [...(sourceState.bars || [])],
-    };
-  }
-
   function updateBars(nextBars, { paneId, expectedDisplayRevision } = {}) {
     const normalizedPaneId = normalizePaneId(paneId);
     const sourceState = stateForPane(normalizedPaneId);
     if (!expectedDisplayRevisionMatches(sourceState, expectedDisplayRevision)) {
       return stalePaneWriteResult(normalizedPaneId, sourceState, expectedDisplayRevision);
     }
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const paneState = updatePaneDisplayState(normalizedPaneId, { bars: nextBars });
-      updatePaneDisplayState(normalizedPaneId, {
-        prefixDemand: computePrefixDemand(paneState),
-        viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
-      });
-      syncPaneHosts(normalizedPaneId);
-      emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...nextBars] });
-      return { paneId: normalizedPaneId, bars: [...nextBars] };
-    }
-    state.bars = nextBars;
-    state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    syncGlobalDisplayHosts();
-    emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
-    return { paneId: normalizedPaneId, bars: [...state.bars] };
+    sourceState.bars = [...nextBars];
+    recomputePaneDemands(normalizedPaneId);
+    syncPaneHosts(normalizedPaneId);
+    emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...sourceState.bars] });
+    return { paneId: normalizedPaneId, bars: [...sourceState.bars] };
   }
 
   function appendBars(nextBars, { paneId, viewportFollow, rightEdgeLimit, expectedDisplayRevision } = {}) {
@@ -292,75 +275,42 @@ export function createChartRuntime() {
       });
       return {
         paneId: normalizedPaneId,
-        bars: [...stateForPane(normalizedPaneId).bars],
+        bars: [...sourceState.bars],
       };
     }
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const previousPaneState = cloneChartStateSnapshot(stateForPane(normalizedPaneId));
-      markReplayTrace('chartRuntime.append.state.start', { paneId: normalizedPaneId });
-      if (viewportFollow) {
-        updatePaneDisplayState(normalizedPaneId, {
-          viewportFollow: normalizeViewportFollow(viewportFollow, previousPaneState),
-        });
-      }
-      const paneState = updatePaneDisplayState(normalizedPaneId, {
-        bars: [
-          ...previousPaneState.bars,
-          ...normalizedBars,
-        ],
-      });
-      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
-        prefixDemand: computePrefixDemand(paneState),
-        viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
-      });
-      markReplayTrace('chartRuntime.append.state.end', {
-        paneId: normalizedPaneId,
-        fullBarCount: nextPaneState.bars.length,
-      });
-      markReplayTrace('chartRuntime.append.hostSync.start', { paneId: normalizedPaneId });
-      syncPaneHostsAppended(
-        normalizedPaneId,
-        previousPaneState,
-        cloneChartStateSnapshot(nextPaneState)
-      );
-      markReplayTrace('chartRuntime.append.hostSync.end', { paneId: normalizedPaneId });
-      emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...nextPaneState.bars] });
-      markReplayTrace('chartRuntime.append.end', {
-        paneId: normalizedPaneId,
-        fullBarCount: nextPaneState.bars.length,
-      });
-      return { paneId: normalizedPaneId, bars: [...nextPaneState.bars] };
-    }
-    const previousState = cloneChartStateSnapshot(state);
+    const previousPaneState = cloneChartStateSnapshot(sourceState);
     markReplayTrace('chartRuntime.append.state.start', { paneId: normalizedPaneId });
     if (Number.isFinite(normalizedRightEdgeLimit)) {
-      state.rightEdgeLimit = normalizedRightEdgeLimit;
-      if (state.visibleRange && state.interaction.mode !== 'manual') {
-        state.visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
+      sourceState.rightEdgeLimit = normalizedRightEdgeLimit;
+      if (sourceState.visibleRange && sourceState.interaction.mode !== 'manual') {
+        sourceState.visibleRange = clampVisibleRange(sourceState.visibleRange, sourceState.rightEdgeLimit);
       }
     }
     if (viewportFollow) {
-      applyViewportFollowState(viewportFollow, { sync: false });
+      applyViewportFollowState(viewportFollow, { paneId: normalizedPaneId, sync: false });
     }
-    state.bars = [
-      ...state.bars,
+    sourceState.bars = [
+      ...sourceState.bars,
       ...normalizedBars,
     ];
-    state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+    recomputePaneDemands(normalizedPaneId);
     markReplayTrace('chartRuntime.append.state.end', {
       paneId: normalizedPaneId,
-      fullBarCount: state.bars.length,
+      fullBarCount: sourceState.bars.length,
     });
     markReplayTrace('chartRuntime.append.hostSync.start', { paneId: normalizedPaneId });
-    syncGlobalDisplayHostsAppended(previousState, cloneChartStateSnapshot(state));
+    syncPaneHostsAppended(
+      normalizedPaneId,
+      previousPaneState,
+      cloneChartStateSnapshot(sourceState)
+    );
     markReplayTrace('chartRuntime.append.hostSync.end', { paneId: normalizedPaneId });
-    emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...state.bars] });
+    emit(CHART_EVENTS.BARS_CHANGED, { paneId: normalizedPaneId, bars: [...sourceState.bars] });
     markReplayTrace('chartRuntime.append.end', {
       paneId: normalizedPaneId,
-      fullBarCount: state.bars.length,
+      fullBarCount: sourceState.bars.length,
     });
-    return { paneId: normalizedPaneId, bars: [...state.bars] };
+    return { paneId: normalizedPaneId, bars: [...sourceState.bars] };
   }
 
   function connectedHostForPane(paneId = DEFAULT_CHART_PANE_ID) {
@@ -375,313 +325,149 @@ export function createChartRuntime() {
     return readHostMetrics(host);
   }
 
-  function updateVisibleRange(range) {
-    const visibleRange = clampVisibleRange(normalizeRange(range), state.rightEdgeLimit);
-    state.visibleRange = visibleRange;
-    state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    syncGlobalDisplayHosts();
-    emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
-    if (state.viewportDemand) {
-      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
+  function updateVisibleRange(payload = {}) {
+    return setManualVisibleRange(payload, { paneId: payload.paneId });
+  }
+
+  function setRightEdgeLimit({ rightEdge, paneId } = {}) {
+    const targetPaneIds = paneId
+      ? [normalizePaneId(paneId)]
+      : paneStore.entries().map(([currentPaneId]) => currentPaneId);
+    const normalizedRightEdge = timestampSeconds(rightEdge, 'chart right edge limit');
+    let result = null;
+    for (const targetPaneId of targetPaneIds) {
+      const sourceState = stateForPane(targetPaneId);
+      sourceState.rightEdgeLimit = normalizedRightEdge;
+      let visibleRangeChanged = false;
+
+      if (sourceState.visibleRange && sourceState.interaction.mode !== 'manual') {
+        const visibleRange = clampVisibleRange(sourceState.visibleRange, sourceState.rightEdgeLimit);
+        visibleRangeChanged = !rangesEqual(sourceState.visibleRange, visibleRange);
+        sourceState.visibleRange = visibleRange;
+      }
+
+      recomputePaneDemands(targetPaneId);
+      syncPaneHosts(targetPaneId);
+      emitPaneDemands(sourceState, targetPaneId, { visibleRangeChanged });
+
+      result = {
+        paneId: targetPaneId,
+        rightEdgeLimit: sourceState.rightEdgeLimit,
+        visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
+        interaction: structuredClone(sourceState.interaction),
+        renderedBars: computeRenderedBars(sourceState),
+        viewportDemand: sourceState.viewportDemand ? structuredClone(sourceState.viewportDemand) : null,
+        prefixDemand: sourceState.prefixDemand ? { ...sourceState.prefixDemand } : null,
+      };
     }
-    if (state.prefixDemand) {
-      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
-    }
+    return result;
+  }
+
+  function getVisibleRange(payload = {}) {
+    const sourceState = stateForPane(payload.paneId);
     return {
-      visibleRange: { ...visibleRange },
-      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
-      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+      paneId: normalizePaneId(payload.paneId),
+      rightEdgeLimit: sourceState.rightEdgeLimit,
+      visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
     };
   }
 
-  function setRightEdgeLimit({ rightEdge } = {}) {
-    state.rightEdgeLimit = timestampSeconds(rightEdge, 'chart right edge limit');
-    let visibleRangeChanged = false;
-
-    if (state.visibleRange && state.interaction.mode !== 'manual') {
-      const visibleRange = clampVisibleRange(state.visibleRange, state.rightEdgeLimit);
-      visibleRangeChanged = !rangesEqual(state.visibleRange, visibleRange);
-      state.visibleRange = visibleRange;
-    }
-
-    state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    syncGlobalDisplayHosts();
-
-    if (state.visibleRange && visibleRangeChanged) {
-      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
-    }
-    if (state.viewportDemand) {
-      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
-    }
-    if (state.prefixDemand) {
-      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
-    }
-
+  function getPrefixDemand(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    const sourceState = recomputePaneDemands(normalizedPaneId);
     return {
-      rightEdgeLimit: state.rightEdgeLimit,
-      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
-      interaction: structuredClone(state.interaction),
-      renderedBars: computeRenderedBars(state),
-      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
-      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+      paneId: normalizedPaneId,
+      prefixDemand: sourceState.prefixDemand ? { ...sourceState.prefixDemand } : null,
     };
   }
 
-  function getVisibleRange() {
-    return {
-      rightEdgeLimit: state.rightEdgeLimit,
-      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
-    };
-  }
-
-  function getPrefixDemand() {
-    state.prefixDemand = computePrefixDemand(state);
-    return {
-      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
-    };
-  }
-
-  function applyViewportFollowState(payload = {}, { sync = true } = {}) {
-    const nextViewportFollow = normalizeViewportFollow(payload, state);
+  function applyViewportFollowState(payload = {}, { paneId, sync = true } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId || payload.paneId);
+    const sourceState = stateForPane(normalizedPaneId);
+    const nextViewportFollow = normalizeViewportFollow(payload, sourceState);
     let visibleRangeChanged = false;
     if (payload.resume) {
-      state.visibleRange = null;
-      state.interaction = {
+      sourceState.visibleRange = null;
+      sourceState.interaction = {
         mode: 'follow',
         manualVisibleRange: null,
       };
     } else {
-      const manualAnchorRange = deriveManualAnchorRange(state, nextViewportFollow);
+      const manualAnchorRange = deriveManualAnchorRange(sourceState, nextViewportFollow);
       if (manualAnchorRange) {
-        visibleRangeChanged = !rangesEqual(state.visibleRange, manualAnchorRange)
-          || !rangesEqual(state.interaction.manualVisibleRange, manualAnchorRange);
-        state.visibleRange = { ...manualAnchorRange };
-        state.interaction = {
+        visibleRangeChanged = !rangesEqual(sourceState.visibleRange, manualAnchorRange)
+          || !rangesEqual(sourceState.interaction.manualVisibleRange, manualAnchorRange);
+        sourceState.visibleRange = { ...manualAnchorRange };
+        sourceState.interaction = {
           mode: 'manual',
           manualVisibleRange: { ...manualAnchorRange },
         };
-        state.prefixDemand = computePrefixDemand(state);
-        state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
       }
     }
-    state.viewportFollow = state.interaction.mode === 'manual' && !payload.resume
+    sourceState.viewportFollow = sourceState.interaction.mode === 'manual' && !payload.resume
       ? {
         ...nextViewportFollow,
         enabled: false,
       }
       : nextViewportFollow;
+    recomputePaneDemands(normalizedPaneId);
     if (!sync) {
       return { visibleRangeChanged };
     }
-    syncGlobalDisplayHosts();
-    if (visibleRangeChanged && state.visibleRange) {
-      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...state.visibleRange } });
-    }
-    if (visibleRangeChanged && state.viewportDemand) {
-      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
-    }
-    if (visibleRangeChanged && state.prefixDemand) {
-      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
-    }
+    syncPaneHosts(normalizedPaneId);
+    emitPaneDemands(sourceState, normalizedPaneId, { visibleRangeChanged });
     return {
-      viewportFollow: { ...state.viewportFollow },
-      interaction: structuredClone(state.interaction),
-      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
-      renderedBars: computeRenderedBars(state),
-      fullBarCount: state.bars.length,
+      paneId: normalizedPaneId,
+      viewportFollow: { ...sourceState.viewportFollow },
+      interaction: structuredClone(sourceState.interaction),
+      visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
+      renderedBars: computeRenderedBars(sourceState),
+      fullBarCount: sourceState.bars.length,
     };
   }
 
   function setViewportFollow(payload = {}) {
-    const normalizedPaneId = normalizePaneId(payload.paneId);
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const sourceState = stateForPane(normalizedPaneId);
-      const nextViewportFollow = normalizeViewportFollow(payload, sourceState);
-      let visibleRange = sourceState.visibleRange;
-      let interaction = sourceState.interaction;
-      let visibleRangeChanged = false;
-      if (payload.resume) {
-        visibleRange = null;
-        interaction = {
-          mode: 'follow',
-          manualVisibleRange: null,
-        };
-      } else {
-        const manualAnchorRange = deriveManualAnchorRange(sourceState, nextViewportFollow);
-        if (manualAnchorRange) {
-          visibleRangeChanged = !rangesEqual(sourceState.visibleRange, manualAnchorRange)
-            || !rangesEqual(sourceState.interaction.manualVisibleRange, manualAnchorRange);
-          visibleRange = { ...manualAnchorRange };
-          interaction = {
-            mode: 'manual',
-            manualVisibleRange: { ...manualAnchorRange },
-          };
-        }
-      }
-      const viewportFollow = interaction.mode === 'manual' && !payload.resume
-        ? {
-          ...nextViewportFollow,
-          enabled: false,
-        }
-        : nextViewportFollow;
-      const paneState = updatePaneDisplayState(normalizedPaneId, {
-        visibleRange,
-        interaction,
-        viewportFollow,
-      });
-      const prefixDemand = computePrefixDemand(paneState);
-      const viewportDemand = computeViewportDemand(paneState, { paneId: normalizedPaneId });
-      updatePaneDisplayState(normalizedPaneId, { prefixDemand, viewportDemand });
-      syncPaneHosts(normalizedPaneId);
-      if (visibleRangeChanged && visibleRange) {
-        emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { paneId: normalizedPaneId, visibleRange: { ...visibleRange } });
-      }
-      if (visibleRangeChanged && viewportDemand) {
-        emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(viewportDemand) });
-      }
-      return {
-        paneId: normalizedPaneId,
-        viewportFollow: { ...viewportFollow },
-        interaction: structuredClone(interaction),
-        visibleRange: visibleRange ? { ...visibleRange } : null,
-        renderedBars: computeRenderedBars(paneState),
-        fullBarCount: paneState.bars.length,
-      };
-    }
-    return applyViewportFollowState(payload);
+    return applyViewportFollowState(payload, { paneId: payload.paneId });
   }
 
   function setManualVisibleRange(payload = {}, { paneId } = {}) {
-    const normalizedPaneId = normalizePaneId(paneId);
+    const normalizedPaneId = normalizePaneId(paneId || payload.paneId);
+    const sourceState = stateForPane(normalizedPaneId);
     const visibleRange = normalizeRange(payload);
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const sourceState = stateForPane(normalizedPaneId);
-      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
-        visibleRange,
-        interaction: {
-          mode: 'manual',
-          manualVisibleRange: { ...visibleRange },
-        },
-        viewportFollow: {
-          ...sourceState.viewportFollow,
-          enabled: false,
-        },
-      });
-      const prefixDemand = computePrefixDemand(nextPaneState);
-      const viewportDemand = computeViewportDemand(nextPaneState, { paneId: normalizedPaneId });
-      updatePaneDisplayState(normalizedPaneId, { prefixDemand, viewportDemand });
-      syncPaneHosts(normalizedPaneId);
-      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { paneId: normalizedPaneId, visibleRange: { ...visibleRange } });
-      if (viewportDemand) {
-        emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(viewportDemand) });
-      }
-      return {
-        paneId: normalizedPaneId,
-        visibleRange: { ...visibleRange },
-        viewportFollow: { ...nextPaneState.viewportFollow },
-        interaction: structuredClone(nextPaneState.interaction),
-        renderedBars: computeRenderedBars(nextPaneState),
-        viewportDemand: viewportDemand ? structuredClone(viewportDemand) : null,
-        prefixDemand: prefixDemand ? { ...prefixDemand } : null,
-      };
-    }
-    state.visibleRange = visibleRange;
-    state.interaction = {
+    sourceState.visibleRange = visibleRange;
+    sourceState.interaction = {
       mode: 'manual',
       manualVisibleRange: { ...visibleRange },
     };
-    state.viewportFollow = {
-      ...state.viewportFollow,
+    sourceState.viewportFollow = {
+      ...sourceState.viewportFollow,
       enabled: false,
     };
-    state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    syncPaneHosts(DEFAULT_CHART_PANE_ID);
-    emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
-    if (state.viewportDemand) {
-      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
-    }
-    if (state.prefixDemand) {
-      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
-    }
+    recomputePaneDemands(normalizedPaneId);
+    syncPaneHosts(normalizedPaneId);
+    emitPaneDemands(sourceState, normalizedPaneId, { visibleRangeChanged: true });
     return {
+      paneId: normalizedPaneId,
       visibleRange: { ...visibleRange },
-      viewportFollow: { ...state.viewportFollow },
-      interaction: structuredClone(state.interaction),
-      renderedBars: computeRenderedBars(state),
-      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
-      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+      viewportFollow: { ...sourceState.viewportFollow },
+      interaction: structuredClone(sourceState.interaction),
+      renderedBars: computeRenderedBars(sourceState),
+      viewportDemand: sourceState.viewportDemand ? structuredClone(sourceState.viewportDemand) : null,
+      prefixDemand: sourceState.prefixDemand ? { ...sourceState.prefixDemand } : null,
     };
   }
 
   function observeNativeVisibleRange(payload = {}, { paneId } = {}) {
-    const normalizedPaneId = normalizePaneId(paneId);
-    const visibleRange = normalizeRange(payload);
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const sourceState = stateForPane(normalizedPaneId);
-      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
-        visibleRange,
-        interaction: {
-          mode: 'manual',
-          manualVisibleRange: { ...visibleRange },
-        },
-        viewportFollow: {
-          ...sourceState.viewportFollow,
-          enabled: false,
-        },
-      });
-      const prefixDemand = computePrefixDemand(nextPaneState);
-      const viewportDemand = computeViewportDemand(nextPaneState, { paneId: normalizedPaneId });
-      updatePaneDisplayState(normalizedPaneId, { prefixDemand, viewportDemand });
-      chartAdapters.get(mountedHostByPaneId.get(normalizedPaneId))?.setMetadata?.({
-        viewportFollow: 'false',
-        interactionMode: 'manual',
-        renderedBarCount: computeRenderedBars(nextPaneState).length,
-        fullBarCount: nextPaneState.bars.length,
-      });
-      emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { paneId: normalizedPaneId, visibleRange: { ...visibleRange } });
-      if (viewportDemand) {
-        emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(viewportDemand) });
-      }
-      return {
-        paneId: normalizedPaneId,
-        visibleRange: { ...visibleRange },
-        viewportFollow: { ...nextPaneState.viewportFollow },
-        interaction: structuredClone(nextPaneState.interaction),
-        renderedBars: computeRenderedBars(nextPaneState),
-        viewportDemand: viewportDemand ? structuredClone(viewportDemand) : null,
-        prefixDemand: prefixDemand ? { ...prefixDemand } : null,
-        clamped: false,
-      };
-    }
-    state.visibleRange = visibleRange;
-    state.interaction = {
-      mode: 'manual',
-      manualVisibleRange: { ...visibleRange },
-    };
-    state.viewportFollow = {
-      ...state.viewportFollow,
-      enabled: false,
-    };
-    state.prefixDemand = computePrefixDemand(state);
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    hostSync.syncMetadataToMountedHosts();
-    emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { visibleRange: { ...visibleRange } });
-    if (state.viewportDemand) {
-      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: { ...state.viewportDemand } });
-    }
-    if (state.prefixDemand) {
-      emit(CHART_EVENTS.PREFIX_DEMAND, { prefixDemand: { ...state.prefixDemand } });
-    }
+    const result = setManualVisibleRange(payload, { paneId });
+    const host = mountedHostByPaneId.get(result.paneId);
+    chartAdapters.get(host)?.setMetadata?.({
+      viewportFollow: 'false',
+      interactionMode: 'manual',
+      renderedBarCount: result.renderedBars.length,
+      fullBarCount: stateForPane(result.paneId).bars.length,
+    });
     return {
-      visibleRange: { ...visibleRange },
-      viewportFollow: { ...state.viewportFollow },
-      interaction: structuredClone(state.interaction),
-      renderedBars: computeRenderedBars(state),
-      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
-      prefixDemand: state.prefixDemand ? { ...state.prefixDemand } : null,
+      ...result,
       clamped: false,
     };
   }
@@ -719,52 +505,27 @@ export function createChartRuntime() {
 
   function resumeViewportFollow(payload = {}) {
     const normalizedPaneId = normalizePaneId(payload.paneId);
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const sourceState = stateForPane(normalizedPaneId);
-      const nextPaneState = updatePaneDisplayState(normalizedPaneId, {
-        visibleRange: null,
-        interaction: {
-          mode: 'follow',
-          manualVisibleRange: null,
-        },
-        viewportFollow: {
-          ...sourceState.viewportFollow,
-          enabled: true,
-        },
-        prefixDemand: null,
-        viewportDemand: null,
-      });
-      syncPaneHosts(normalizedPaneId);
-      hostSync.resetPriceScales({ paneId: normalizedPaneId });
-      return {
-        paneId: normalizedPaneId,
-        viewportFollow: { ...nextPaneState.viewportFollow },
-        interaction: structuredClone(nextPaneState.interaction),
-        visibleRange: null,
-        renderedBars: computeRenderedBars(nextPaneState),
-        fullBarCount: nextPaneState.bars.length,
-      };
-    }
-    state.visibleRange = null;
-    state.interaction = {
+    const sourceState = stateForPane(normalizedPaneId);
+    sourceState.visibleRange = null;
+    sourceState.interaction = {
       mode: 'follow',
       manualVisibleRange: null,
     };
-    state.viewportFollow = {
-      ...state.viewportFollow,
+    sourceState.viewportFollow = {
+      ...sourceState.viewportFollow,
       enabled: true,
     };
-    state.prefixDemand = null;
-    state.viewportDemand = null;
-    syncPaneHosts(DEFAULT_CHART_PANE_ID);
-    hostSync.resetPriceScales({ paneId: DEFAULT_CHART_PANE_ID });
+    sourceState.prefixDemand = null;
+    sourceState.viewportDemand = null;
+    syncPaneHosts(normalizedPaneId);
+    hostSync.resetPriceScales({ paneId: normalizedPaneId });
     return {
       paneId: normalizedPaneId,
-      viewportFollow: { ...state.viewportFollow },
-      interaction: structuredClone(state.interaction),
+      viewportFollow: { ...sourceState.viewportFollow },
+      interaction: structuredClone(sourceState.interaction),
       visibleRange: null,
-      renderedBars: computeRenderedBars(state),
-      fullBarCount: state.bars.length,
+      renderedBars: computeRenderedBars(sourceState),
+      fullBarCount: sourceState.bars.length,
     };
   }
 
@@ -787,141 +548,130 @@ export function createChartRuntime() {
     };
   }
 
-  function getInteractionState() {
+  function getInteractionState(payload = {}) {
+    const sourceState = stateForPane(payload.paneId);
     return {
-      viewportFollow: { ...state.viewportFollow },
-      interaction: structuredClone(state.interaction),
-      nativeInteraction: structuredClone(state.nativeInteraction),
-      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
-      renderedBars: computeRenderedBars(state),
-      fullBarCount: state.bars.length,
+      paneId: normalizePaneId(payload.paneId),
+      viewportFollow: { ...sourceState.viewportFollow },
+      interaction: structuredClone(sourceState.interaction),
+      nativeInteraction: structuredClone(sourceState.nativeInteraction),
+      visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
+      renderedBars: computeRenderedBars(sourceState),
+      fullBarCount: sourceState.bars.length,
     };
   }
 
-  function updateCrosshair(payload = {}) {
-    state.crosshair = normalizeCrosshair(payload);
-    emit(CHART_EVENTS.CROSSHAIR_CHANGED, { crosshair: structuredClone(state.crosshair) });
+  function updateCrosshair(payload = {}, { paneId } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId || payload.paneId);
+    const sourceState = updatePaneState(normalizedPaneId, {
+      crosshair: normalizeCrosshair(payload),
+    });
+    emit(CHART_EVENTS.CROSSHAIR_CHANGED, {
+      paneId: normalizedPaneId,
+      crosshair: structuredClone(sourceState.crosshair),
+    });
     return {
-      crosshair: structuredClone(state.crosshair),
-      interaction: structuredClone(state.interaction),
-      viewportFollow: { ...state.viewportFollow },
-      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
+      paneId: normalizedPaneId,
+      crosshair: structuredClone(sourceState.crosshair),
+      interaction: structuredClone(sourceState.interaction),
+      viewportFollow: { ...sourceState.viewportFollow },
+      visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
     };
   }
 
-  function updateNativeInteraction(payload = {}) {
-    const wasActive = state.nativeInteraction.active;
-    state.nativeInteraction = {
+  function updateNativeInteraction(payload = {}, { paneId } = {}) {
+    const normalizedPaneId = normalizePaneId(paneId || payload.paneId);
+    const sourceState = stateForPane(normalizedPaneId);
+    const wasActive = sourceState.nativeInteraction.active;
+    const nativeInteraction = {
       active: Boolean(payload.active),
       type: payload.active && payload.type ? String(payload.type) : null,
       source: payload.source ? String(payload.source) : null,
     };
+    updatePaneState(normalizedPaneId, { nativeInteraction });
     hostSync.syncMetadataToMountedHosts();
-    if (wasActive && !state.nativeInteraction.active) {
+    if (wasActive && !nativeInteraction.active) {
       hostSync.flushPendingAfterNativeInteraction();
     }
-    if (wasActive && !state.nativeInteraction.active && state.viewportDemand) {
-      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(state.viewportDemand) });
+    if (wasActive && !nativeInteraction.active && sourceState.viewportDemand) {
+      emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(sourceState.viewportDemand) });
     }
     return {
-      nativeInteraction: structuredClone(state.nativeInteraction),
+      paneId: normalizedPaneId,
+      nativeInteraction: structuredClone(nativeInteraction),
       pendingChartSyncAfterNativeInteraction: hostSync.getSyncState().pendingChartSyncAfterNativeInteraction,
     };
   }
 
-  function getCrosshairState() {
+  function getCrosshairState(payload = {}) {
+    const sourceState = stateForPane(payload.paneId);
     return {
-      crosshair: structuredClone(state.crosshair),
-      interaction: structuredClone(state.interaction),
-      viewportFollow: { ...state.viewportFollow },
-      visibleRange: state.visibleRange ? { ...state.visibleRange } : null,
-      renderedBars: computeRenderedBars(state),
-      fullBarCount: state.bars.length,
+      paneId: normalizePaneId(payload.paneId),
+      crosshair: structuredClone(sourceState.crosshair),
+      interaction: structuredClone(sourceState.interaction),
+      viewportFollow: { ...sourceState.viewportFollow },
+      visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
+      renderedBars: computeRenderedBars(sourceState),
+      fullBarCount: sourceState.bars.length,
     };
   }
 
   function setDisplayContext(payload = {}) {
     const normalizedPaneId = normalizePaneId(payload.paneId);
-    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
-      const sourceState = stateForPane(normalizedPaneId);
-      if (!expectedDisplayRevisionMatches(sourceState, payload.expectedDisplayRevision)) {
-        return {
-          paneId: normalizedPaneId,
-          staleWrite: true,
-          displayContext: structuredClone(sourceState.displayContext),
-        };
-      }
-      const currentContext = sourceState.displayContext;
-      const nextRevision = payload.bumpDisplayRevision
-        || (
-          payload.displayTimeframe != null
-          && Number(payload.displayTimeframe) !== Number(currentContext.displayTimeframe || 0)
-        )
-        || (
-          payload.instrument != null
-          && String(payload.instrument) !== String(currentContext.instrument || '')
-        )
-        ? Math.max(0, Number(currentContext.displayRevision || 0)) + 1
-        : Math.max(0, Number(currentContext.displayRevision || 0));
-      const displayContext = buildChartDisplayContext({
-        ...payload,
-        displayRevision: nextRevision,
-      }, currentContext);
-      const paneState = updatePaneDisplayState(normalizedPaneId, { displayContext });
-      updatePaneDisplayState(normalizedPaneId, {
-        viewportDemand: computeViewportDemand(paneState, { paneId: normalizedPaneId }),
-      });
-      syncPaneHosts(normalizedPaneId);
-      return {
-        paneId: normalizedPaneId,
-        displayContext: structuredClone(displayContext),
-        viewportDemand: null,
-      };
-    }
-    if (!expectedDisplayRevisionMatches(state, payload.expectedDisplayRevision)) {
+    const sourceState = stateForPane(normalizedPaneId);
+    if (!expectedDisplayRevisionMatches(sourceState, payload.expectedDisplayRevision)) {
       return {
         paneId: normalizedPaneId,
         staleWrite: true,
-        displayContext: structuredClone(state.displayContext),
+        displayContext: structuredClone(sourceState.displayContext),
       };
     }
+    const currentContext = sourceState.displayContext;
     const nextRevision = payload.bumpDisplayRevision
       || (
         payload.displayTimeframe != null
-        && Number(payload.displayTimeframe) !== Number(state.displayContext.displayTimeframe || 0)
+        && Number(payload.displayTimeframe) !== Number(currentContext.displayTimeframe || 0)
       )
       || (
         payload.instrument != null
-        && String(payload.instrument) !== String(state.displayContext.instrument || '')
+        && String(payload.instrument) !== String(currentContext.instrument || '')
       )
-      ? Math.max(0, Number(state.displayContext.displayRevision || 0)) + 1
-      : Math.max(0, Number(state.displayContext.displayRevision || 0));
-    state.displayContext = buildChartDisplayContext({
+      ? Math.max(0, Number(currentContext.displayRevision || 0)) + 1
+      : Math.max(0, Number(currentContext.displayRevision || 0));
+    sourceState.displayContext = buildChartDisplayContext({
       ...payload,
       displayRevision: nextRevision,
-    }, state.displayContext);
-    state.viewportFollow = {
-      ...state.viewportFollow,
-      rightOffsetBars: state.displayContext.rightOffsetBars,
+    }, currentContext);
+    sourceState.viewportFollow = {
+      ...sourceState.viewportFollow,
+      rightOffsetBars: sourceState.displayContext.rightOffsetBars,
     };
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
-    syncGlobalDisplayHosts();
+    sourceState.viewportDemand = computeViewportDemand(sourceState, { paneId: normalizedPaneId });
+    syncPaneHosts(normalizedPaneId);
     return {
       paneId: normalizedPaneId,
-      displayContext: structuredClone(state.displayContext),
-      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+      displayContext: structuredClone(sourceState.displayContext),
+      viewportDemand: sourceState.viewportDemand ? structuredClone(sourceState.viewportDemand) : null,
     };
   }
 
+  function updateAllDisplayContexts(payload = {}) {
+    let result = null;
+    for (const [paneId] of paneStore.entries()) {
+      result = setDisplayContext({ ...payload, paneId });
+    }
+    return result;
+  }
+
   function updateDisplayTimezoneContext(payload = {}) {
-    return setDisplayContext({
+    return updateAllDisplayContexts({
       displayTimezone: payload.displayTimezone,
       exchangeTimezone: payload.exchangeTimezone,
     });
   }
 
   function updatePresentationContext(payload = {}) {
-    return setDisplayContext({
+    return updateAllDisplayContexts({
       timeFormat: payload.timeFormat,
       dateFormat: payload.dateFormat,
       showDayOfWeekLabels: payload.showDayOfWeekLabels,
@@ -937,10 +687,12 @@ export function createChartRuntime() {
     });
   }
 
-  function getViewportDemand() {
-    state.viewportDemand = computeViewportDemand(state, { paneId: DEFAULT_CHART_PANE_ID });
+  function getViewportDemand(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    const sourceState = recomputePaneDemands(normalizedPaneId);
     return {
-      viewportDemand: state.viewportDemand ? structuredClone(state.viewportDemand) : null,
+      paneId: normalizedPaneId,
+      viewportDemand: sourceState.viewportDemand ? structuredClone(sourceState.viewportDemand) : null,
     };
   }
 
@@ -960,11 +712,11 @@ export function createChartRuntime() {
         rightEdgeLimit,
         expectedDisplayRevision,
       })),
-      registerCommand(CHART_COMMANDS.CLEAR_BARS, () => updateBars([])),
+      registerCommand(CHART_COMMANDS.CLEAR_BARS, (payload = {}) => updateBars([], { paneId: payload.paneId })),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_METRICS, (payload) => getViewportMetrics(payload)),
       registerCommand(CHART_COMMANDS.SET_RIGHT_EDGE_LIMIT, (payload) => setRightEdgeLimit(payload)),
       registerCommand(CHART_COMMANDS.SET_VISIBLE_RANGE, (payload) => updateVisibleRange(payload)),
-      registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, () => getVisibleRange()),
+      registerCommand(CHART_COMMANDS.GET_VISIBLE_RANGE, (payload = {}) => getVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.SET_DISPLAY_CONTEXT, (payload) => setDisplayContext(payload)),
       registerCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, (payload) => setViewportFollow(payload)),
       registerCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, (payload = {}) => setManualVisibleRange(payload, { paneId: payload.paneId })),
@@ -973,10 +725,10 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, (payload) => panVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, (payload = {}) => resumeViewportFollow(payload)),
       registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, (payload) => getRenderedBars(payload)),
-      registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),
-      registerCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE, () => getCrosshairState()),
-      registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),
-      registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, () => getPrefixDemand()),
+      registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, (payload = {}) => getInteractionState(payload)),
+      registerCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE, (payload = {}) => getCrosshairState(payload)),
+      registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, (payload = {}) => getViewportDemand(payload)),
+      registerCommand(CHART_COMMANDS.GET_PREFIX_DEMAND, (payload = {}) => getPrefixDemand(payload)),
       subscribeEvent(DISPLAY_TIMEZONE_EVENTS.CHANGED, (payload) => updateDisplayTimezoneContext(payload)),
       subscribeEvent(CHART_PRESENTATION_EVENTS.CHANGED, (payload) => updatePresentationContext(payload))
     );
@@ -1003,7 +755,7 @@ export function createChartRuntime() {
     mountedHosts.clear();
     mountedHostList.clear();
     mountedHostByPaneId.clear();
-    paneDisplayStateByPaneId.clear();
+    paneStore.clear();
     observer = null;
     rootElement = null;
   }
