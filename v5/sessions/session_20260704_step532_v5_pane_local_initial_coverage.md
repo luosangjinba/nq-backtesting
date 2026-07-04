@@ -47,10 +47,23 @@ then extends and fills the canvas, which points to an initial coverage gap.
 
 ## Status
 
-- Step 532.1: in progress.
-- Step 532.2-532.6: pending.
+- Step 532.1: completed. Planning spec, TODO, docs index, specs index, and
+  session index now point to pane-local initial coverage.
+- Step 532.2: completed. Added
+  `v5/tests/multi-pane-initial-coverage-browser-smoke.js` as a current-bug
+  baseline. With sparse weekday-only `1H` data, primary/left active `1H`
+  initial load renders only 18 bars against a minimum coverage target around
+  52, and only one `1H` display-window request is made.
+- Step 532.3-532.6: pending.
+
+## Step 532.2 Verification
+
+- `node --check v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `git diff --check`
 
 ## Next
 
-Finish Step 532.1 docs and commit, then add the two-pane initial coverage
-browser smoke.
+Implement Step 532.3 next: make display-window loading continue bounded
+backward seeking when initial rendered coverage is below the target pane's
+visible capacity, then flip the baseline smoke to target behavior.
