@@ -64,3 +64,20 @@ layout:
   waiting for route event catch-up.
 - Same-timeframe append fanout behavior remains unchanged.
 - Existing multi-pane TF, replay controls, and pane projection smokes pass.
+
+## Result
+
+Completed in Step 537.
+
+- The browser regression was tightened to use a non-default `1H` pane beside
+  `1m` panes and to assert that the different-timeframe pane has reached the
+  new replay cursor immediately after `replay.next` returns.
+- `replay.next` now projects every different-timeframe pane returned by the
+  chart fanout result before emitting `REPLAY_EVENTS.NEXT`.
+- `projectDisplayForCursor` accepts explicit pane ids, so projection no longer
+  silently targets only the default replay pane.
+- Display-window projection now refreshes pane-local viewport follow even when
+  the higher-timeframe bar set is unchanged.
+- Route-level replay projection treats `paneFanoutProjected` payloads as
+  already applied, keeping the event handler as a fallback instead of the normal
+  visible path.

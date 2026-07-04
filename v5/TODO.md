@@ -10,15 +10,17 @@
 
 ## Current / Next
 
-- Current status: Step 537 in progress. Manual testing found severe visible
-  delay after `Next` when replay panes use different display timeframes. The
-  plan is to move different-TF pane projection into the replay `Next` fanout so
-  route event catch-up is no longer part of the normal visible path. See
+- Current status: Step 537 completed. Different-timeframe replay panes now
+  project inside the replay `Next` fanout before `REPLAY_EVENTS.NEXT` is
+  emitted. The tightened browser smoke reproduced the delay with a non-default
+  `1H` pane, then passed after `projectDisplayForCursor` became pane-targeted
+  and display-window projection refreshed pane-local viewport follow even when
+  no higher-timeframe bar was added. See
   `v5/docs/specs/multi-pane-different-tf-next-projection-plan.md` and
   `v5/sessions/session_20260704_step537_v5_multi_pane_different_tf_next_projection.md`.
-- Current direction: tighten the different-TF `Next` regression first, then
-  update replay runtime to project all different-TF panes before emitting
-  `REPLAY_EVENTS.NEXT`.
+- Current direction: manually retest two-pane and three-pane mixed-TF replay
+  layouts in the live app. If no delay/corruption remains, return to the
+  Settings parity checklist candidate from Step 528.
 - Current status: Step 536 completed. The Step 535 cleanup buckets were retired:
   default replay pane hardcoding was centralized, route-level
   `replayDisplayTimeframe` mirroring was removed, and stale primary/non-primary
