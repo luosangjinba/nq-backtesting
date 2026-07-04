@@ -10,14 +10,13 @@
 
 ## Current / Next
 
-- Current status: Step 503A completed as a documentation/audit step. The
-  multi-pane behavior contract is now cross-checked against current code and
-  smoke coverage before the Step 503-507 module split sequence begins.
-- Next candidate: Step 503 - extract `chart-replay-pane-orchestrator.js` from
-  `chart-replay-route.js` so pane display initialization, host mount/release,
-  active-pane TF changes, and interval fan-out stop living in the route shell.
-  Step 504-507 then split layout sync, pane shell DOM/resize, chart runtime pane
-  state, and replay pane display merge helpers.
+- Current status: Step 503 in progress. The implementation plan is to extract
+  `chart-replay-pane-orchestrator.js` in bounded commits: document the split,
+  add the module seam, move pane host/display/TF orchestration, then run the
+  multi-pane regression gates.
+- Next candidate: Complete Step 503, then continue Step 504 with
+  `chart-replay-layout-sync-controller.js` for time/date-range/crosshair sync
+  effects.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

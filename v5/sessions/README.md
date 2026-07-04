@@ -22,6 +22,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 501: `session_20260703_step501_v5_active_pane_tf_race.md`
 - Step 502: `session_20260704_step502_v5_multi_pane_tf_isolation.md`
 - Step 503A: `session_20260704_step503a_v5_multi_pane_behavior_contract_audit.md`
+- Step 503: `session_20260704_step503_v5_pane_orchestrator.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index
