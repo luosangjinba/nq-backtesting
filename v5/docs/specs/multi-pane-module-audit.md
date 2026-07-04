@@ -370,6 +370,8 @@ Step 505 result:
 
 ### Step 506 - Split `chart-runtime-pane-state.js`
 
+Status: in progress.
+
 Goal: remove pane-state branching helpers from `chart-runtime.js` while keeping
 chart runtime as the only chart writer.
 

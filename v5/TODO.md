@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 505 completed. `chart-replay-pane-shell.js` now
-  delegates pane DOM markup to `chart-replay-pane-dom.js` and split handle
-  positioning/drag/ratio dispatch to
-  `chart-replay-split-resize-controller.js`.
-- Next candidate: Step 506 will split chart runtime pane-state helpers out of
-  `chart-runtime.js`.
+- Current status: Step 506 in progress. The implementation plan is to split
+  pure pane-state helpers out of `chart-runtime.js` without moving chart
+  command registration, event emission, host lifecycle, or adapter writes.
+- Next candidate: Complete Step 506, then Step 507 will isolate replay
+  non-primary display-window merge helpers.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

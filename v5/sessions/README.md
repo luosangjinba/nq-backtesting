@@ -25,6 +25,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 503: `session_20260704_step503_v5_pane_orchestrator.md`
 - Step 504: `session_20260704_step504_v5_layout_sync_controller.md`
 - Step 505: `session_20260704_step505_v5_pane_shell_dom_resize.md`
+- Step 506: `session_20260704_step506_v5_chart_runtime_pane_state.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index
