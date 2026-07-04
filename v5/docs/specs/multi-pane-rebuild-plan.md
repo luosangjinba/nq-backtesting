@@ -371,9 +371,40 @@ approximately 100ms. If V5 fails that standard while V4 and FXReplay feel
 instant on the same machine, treat it as a V5 implementation bug, not an
 acceptable tradeoff.
 
+### Step 517 - Global Replay Latest-Intent Responsiveness
+
+Goal: make the 100ms latest-intent replay target apply to every chart mode, not
+only multi-pane.
+
+Non-negotiable scope: the standard applies first to single pane, then to every
+multi-pane layout. Single pane is the baseline path. If single pane cannot
+render the latest intended `Next` cursor at V4/FXReplay-like speed, the
+multi-pane path cannot be considered healthy.
+
+Implementation expectations:
+
+- document latest-intent-to-visible-candle as a replay transport contract, not a
+  split-pane feature contract;
+- add a single-pane browser smoke that measures the time from the final rapid
+  `Next` click to the expected cursor/candle being visible;
+- keep the product target at about 100ms, while allowing browser automation a
+  wider threshold only for CI/headless variance;
+- assert the chart jumps to the latest intended reveal count and does not
+  visually drain one candle at a time;
+- keep the existing multi-pane performance gate as a second-layer guard, not
+  the source of truth.
+
+Acceptance:
+
+- single-pane and multi-pane gates both pass;
+- the single-pane gate reports final-click-to-visible latency, not just total
+  batch elapsed time;
+- docs and handoff state clearly that V4 already achieves the expected user
+  feel, so V5 missing it is a V5 implementation defect.
+
 ## Required Verification For Rebuild Steps
 
-For Steps 512-516, the default verification set is:
+For Steps 512-517, the default verification set is:
 
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/multi-pane-active-pane-browser-smoke.js`

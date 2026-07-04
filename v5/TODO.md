@@ -14,13 +14,10 @@
   browser performance gate that opens a same-timeframe split layout, clicks
   `Next` rapidly, and asserts the final cursor, reveal count, both pane render
   counts, no forward fetch, and bounded elapsed time.
-- Next candidate: Step 517 should raise the replay responsiveness contract from
-  the initial 10-click regression gate to latest-intent rendering: no matter how
-  quickly the user clicks `Next`, V5 should coalesce to the newest intended
-  reveal count and render that chart state without visually draining one candle
-  at a time. Human click rate is roughly capped around 10 clicks/second, so the
-  product target is about 100ms latest-intent-to-visible-candle latency. V4
-  already achieves this user feel, so V5 failing it is a V5 implementation
+- Current step: Step 517 makes latest-intent replay responsiveness a global
+  contract. It applies to single pane first and multi-pane second. The product
+  target is about 100ms from latest `Next` intent to expected candle visible;
+  V4 already achieves this feel, so V5 failing it is a V5 implementation
   defect.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
