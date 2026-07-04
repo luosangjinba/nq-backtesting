@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 521 completed. Latest-intent browser gates now measure
-  cursor visibility with a `MutationObserver` on chart metadata instead of
-  treating later polling/rAF timing as the primary product latency metric.
-  Observer-based final-click-to-visible is about 23ms in the trace.
+- Current status: Step 522 in progress. Step 521 established observer-based
+  latest-intent visibility at about 23ms, but the automation thresholds are
+  still legacy-loose. Step 522 tightens single-pane and multi-pane replay
+  latest-intent gates around the observer metric.
 - Current status: Step 517 completed. The replay `Next` visible path no longer
   waits for cursor persistence, and replay gates assert the visible cursor
   directly with `viewportCursorTimestamp`.
@@ -21,10 +21,9 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 522 can either tighten latest-intent thresholds
-  around the observer-based metric or move to the next replay workstation
-  usability gap. The remaining large rAF number is now documented as a
-  presentation-frame diagnostic, not a replay command/runtime bottleneck.
+- Next recommended step: Complete Step 522 by replacing loose latest-intent
+  thresholds with observer-based acceptance limits and adding multi-pane cursor
+  observer timing, while keeping polling/rAF metrics as diagnostics.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

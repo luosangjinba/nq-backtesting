@@ -41,6 +41,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 519: `session_20260704_step519_v5_next_input_batching.md`
 - Step 520: `session_20260704_step520_v5_next_visible_update_latency.md`
 - Step 521: `session_20260704_step521_v5_visibility_measurement.md`
+- Step 522: `session_20260704_step522_v5_latest_intent_thresholds.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index
