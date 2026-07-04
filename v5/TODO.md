@@ -10,6 +10,9 @@
 
 ## Current / Next
 
+- Current status: Step 527 active. Persisting replay transport UI preferences:
+  floating control position and playback speed, with viewport clamping and
+  existing replay runtime ownership preserved.
 - Current status: Step 526 completed. Playback speed now has transport preset
   buttons for `0.5x`, `1x`, `2x`, and `4x`, plus `[` / `]` speed nudges through
   the existing replay controls controller. Runtime playback speed remains the
@@ -35,10 +38,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Move to replay control persistence/polish or an audit
-  of remaining FXReplay parity gaps. Multi-pane cadence or pane update-order
-  audits can stay optional unless manual testing exposes a user-visible
-  regression.
+- Next recommended step: Finish Step 527 replay transport persistence, then
+  move to an audit of remaining FXReplay parity gaps. Multi-pane cadence or
+  pane update-order audits can stay optional unless manual testing exposes a
+  user-visible regression.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
