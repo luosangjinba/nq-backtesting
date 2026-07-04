@@ -64,10 +64,23 @@ than a single rendering bug.
 
 ## Status
 
-- Step 531.1: in progress.
-- Step 531.2-531.6: pending.
+- Step 531.1: completed. Planning spec, TODO, docs index, specs index, and
+  session index now point to the pane-local display-state isolation step.
+- Step 531.2: completed. Added
+  `v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`. The smoke
+  covers two panes with interval sync off: primary/left active switches to
+  `1H`, wheel zooms the primary pane, and secondary/right remains `1m` in both
+  layout state and chart canvas metadata.
+- Step 531.3-531.6: pending.
+
+## Step 531.2 Verification
+
+- `node --check v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `node v5/tests/multi-pane-wheel-timeframe-isolation-browser-smoke.js`
+- `git diff --check`
 
 ## Next
 
-Finish Step 531.1 docs and commit, then add the two-pane wheel/TF isolation
-browser smoke.
+Implement Step 531.3 next: audit the interval-sync mutation path and make
+all-pane TF fan-out require explicit sync intent, then add focused coverage for
+that contract.
