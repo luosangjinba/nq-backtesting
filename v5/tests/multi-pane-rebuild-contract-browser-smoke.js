@@ -145,6 +145,10 @@ async function main() {
           });
         }
 
+        function paneMetricMap(metrics = paneMetrics()) {
+          return Object.fromEntries(metrics.map((pane) => [pane.paneId, pane]));
+        }
+
         async function waitFor(label, predicate, timeoutMs = 4_000) {
           const deadline = Date.now() + timeoutMs;
           while (Date.now() < deadline) {
@@ -216,6 +220,38 @@ async function main() {
 
             const layoutState = await commands.dispatchCommand('layout.getState');
             const metrics = paneMetrics();
+            for (const pane of metrics) {
+              await commands.dispatchCommand('chart.resumeViewportFollow', { paneId: pane.paneId });
+            }
+            await animationFrames();
+            let resetReady = true;
+            try {
+              await waitFor('reset keeps all panes rendered for ' + spec.variant, async () => {
+                const nextMetrics = paneMetrics();
+                return nextMetrics.length === spec.panes
+                  && nextMetrics.every((pane) => pane.fullBarCount > 0)
+                  && nextMetrics.every((pane) => pane.renderedBarCount > 0);
+              }, 3_000);
+            } catch {
+              resetReady = false;
+            }
+            const resetMetrics = paneMetrics();
+
+            const beforeNextMetrics = paneMetrics();
+            const beforeNextByPaneId = paneMetricMap(beforeNextMetrics);
+            document.querySelector('[data-replay-next]')?.click();
+            let nextReady = true;
+            try {
+              await waitFor('immediate next advances all panes for ' + spec.variant, async () => {
+                const nextMetrics = paneMetrics();
+                return nextMetrics.length === spec.panes
+                  && nextMetrics.every((pane) => pane.fullBarCount > (beforeNextByPaneId[pane.paneId]?.fullBarCount || 0))
+                  && nextMetrics.every((pane) => pane.renderedBarCount > 0);
+              }, 3_000);
+            } catch {
+              nextReady = false;
+            }
+            const afterNextMetrics = paneMetrics();
             results.push({
               variant: spec.variant,
               expectedActivePaneId: spec.expectedActivePaneId,
@@ -226,6 +262,20 @@ async function main() {
               allPanesReady: ready,
               panes: metrics,
               renderedEmptyPanes: metrics
+                .filter((pane) => pane.fullBarCount > 0 && pane.renderedBarCount === 0)
+                .map((pane) => pane.paneId),
+              resetReady,
+              resetPanes: resetMetrics,
+              resetRenderedEmptyPanes: resetMetrics
+                .filter((pane) => pane.fullBarCount > 0 && pane.renderedBarCount === 0)
+                .map((pane) => pane.paneId),
+              nextReady,
+              beforeNextPanes: beforeNextMetrics,
+              afterNextPanes: afterNextMetrics,
+              nextNotAdvancedPanes: afterNextMetrics
+                .filter((pane) => pane.fullBarCount <= (beforeNextByPaneId[pane.paneId]?.fullBarCount || 0))
+                .map((pane) => pane.paneId),
+              nextRenderedEmptyPanes: afterNextMetrics
                 .filter((pane) => pane.fullBarCount > 0 && pane.renderedBarCount === 0)
                 .map((pane) => pane.paneId),
             });
@@ -261,6 +311,24 @@ async function main() {
       }
       if (result.renderedEmptyPanes.length) {
         failures.push(`${result.variant}: panes have data but no rendered bars ${result.renderedEmptyPanes.join(',')}`);
+      }
+      if (!result.resetReady) {
+        failures.push(`${result.variant}: reset view did not keep every pane rendered ${JSON.stringify(result.resetPanes)}`);
+      }
+      if (result.resetRenderedEmptyPanes.length) {
+        failures.push(`${result.variant}: reset left panes with data but no rendered bars ${result.resetRenderedEmptyPanes.join(',')}`);
+      }
+      if (!result.nextReady) {
+        failures.push(`${result.variant}: immediate Next did not advance every pane ${JSON.stringify({
+          before: result.beforeNextPanes,
+          after: result.afterNextPanes,
+        })}`);
+      }
+      if (result.nextNotAdvancedPanes.length) {
+        failures.push(`${result.variant}: immediate Next did not advance panes ${result.nextNotAdvancedPanes.join(',')}`);
+      }
+      if (result.nextRenderedEmptyPanes.length) {
+        failures.push(`${result.variant}: immediate Next left panes with data but no rendered bars ${result.nextRenderedEmptyPanes.join(',')}`);
       }
     }
     assert.deepEqual(failures, []);

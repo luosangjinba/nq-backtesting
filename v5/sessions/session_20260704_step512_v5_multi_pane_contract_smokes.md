@@ -41,6 +41,21 @@ active-pane policy:
   - immediate `Next` after layout expansion advances every same-timeframe pane;
   - no pane becomes rendered-empty after `Next`.
 
+Status: completed. After extension, the smoke still fails only on triple initial
+active-pane policy. Reset recovery and immediate `Next` did not add further
+failures in the synthetic browser path, but remain guarded by the smoke for
+later rebuild steps.
+
+## Verification
+
+- `node --check v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+- `node v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+  - expected current failure:
+    - `triple.vertical`: expected `tertiary`, got `primary`;
+    - `triple.left`: expected `secondary`, got `primary`;
+    - `triple.bottom`: expected `secondary`, got `primary`.
+- `git diff --check`
+
 ## Status
 
-In progress.
+Completed.

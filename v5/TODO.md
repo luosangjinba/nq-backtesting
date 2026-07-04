@@ -10,15 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 511 completed. Multi-pane work is now a rebuild track,
-  not an incremental patch track. The rebuild plan freezes the observed
-  triple-pane missing-render, incomplete initial active-pane policy, reset
-  recovery, and replay catch-up/performance failures, then defines the target
-  pane lifecycle and replay projection boundaries.
-- Next candidate: Step 512 should add failing/guarding browser smokes for
-  multi-pane rebuild behavior before production rewrites: all twice/triple
-  variants, initial active pane, every-pane rendered bars, reset recovery, and
-  immediate replay `Next` across same-timeframe panes.
+- Current status: Step 512 completed. The new
+  `multi-pane-rebuild-contract-browser-smoke.js` is the strict executable
+  rebuild contract for twice/triple variants, initial active pane, every-pane
+  rendered bars, reset recovery, and immediate replay `Next`. It currently
+  fails as intended on triple initial active-pane policy only.
+- Next candidate: Step 513 should implement the layout-runtime variant
+  active-pane policy table so `triple.vertical`, `triple.left`, and
+  `triple.bottom` expand from single pane to the requested right-side/upper-side
+  active pane.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -323,6 +323,12 @@
   initial active-pane choice into a layout-runtime policy table, introduce a
   deterministic pane display coordinator, replace primary-first catch-up replay
   with coordinated pane projection, and add a replay performance gate.
+- Multi-pane rebuild smoke decision: Step 512 adds
+  `multi-pane-rebuild-contract-browser-smoke.js`. This smoke is allowed to fail
+  before rebuild implementation and currently fails on triple initial
+  active-pane policy: `triple.vertical` should start on `tertiary`,
+  `triple.left` should start on `secondary`, and `triple.bottom` should start
+  on `secondary`.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
