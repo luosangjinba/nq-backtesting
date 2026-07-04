@@ -10,12 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 513 completed. Layout runtime now uses an explicit
-  variant-to-initial-active-pane policy table, and the Step 512 multi-pane
-  rebuild contract smoke passes for all twice/triple variants.
-- Next candidate: Step 514 should introduce the pane display coordinator and
-  move pane initialization toward deterministic shared pane lifecycle states
-  instead of opportunistic non-primary catch-up work.
+- Current status: Step 514 completed. Pane display initialization now routes
+  through a dedicated coordinator with explicit display lifecycle states and a
+  pure smoke for skip/dedupe/ready/error behavior. The chart replay
+  orchestrator no longer owns pane display initialization Set/Map state.
+- Next candidate: Step 515 should rebuild replay pane projection so one replay
+  `Next` / playback tick advances the shared cursor once and projects the result
+  to every visible pane in one coordinated step instead of primary-first
+  catch-up behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

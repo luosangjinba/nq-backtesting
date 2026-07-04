@@ -27,6 +27,29 @@ owner before replay projection is rebuilt.
 
 - Step 514.1: completed. The rebuild plan now defines coordinator lifecycle,
   command boundaries, and acceptance checks.
-- Step 514.2: in progress. The coordinator module and pure lifecycle smoke are
-  being added before production integration.
-- Step 514.3: pending.
+- Step 514.2: completed. Added
+  `chart-replay-pane-display-coordinator.js` and a pure smoke covering primary
+  skip, display-timeframe initialization, duplicate load dedupe, concurrent
+  dedupe, ready state, and error state.
+- Step 514.3: completed. `chart-replay-pane-orchestrator.js` delegates pane
+  initialization and readiness marking to the coordinator.
+
+## Verification
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-orchestrator.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-display-coordinator.js`
+- `node v5/tests/chart-replay-pane-display-coordinator-smoke.js`
+- `node v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-fast-next-browser-smoke.js`
+
+All listed checks passed. Node emitted the repository's existing ES module
+package warning for browser/test files.
+
+## Next
+
+Step 515 should rebuild replay pane projection. The target is one shared replay
+cursor advance per tick, then pane-targeted projection for every visible pane in
+the same logical step.

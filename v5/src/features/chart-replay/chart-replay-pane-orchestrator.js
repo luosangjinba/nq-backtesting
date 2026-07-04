@@ -10,6 +10,9 @@ import {
   REPLAY_COMMANDS,
   REPLAY_EVENTS,
 } from '../../contracts/replay-contracts.js';
+import {
+  createChartReplayPaneDisplayCoordinator,
+} from './chart-replay-pane-display-coordinator.js';
 
 export function createChartReplayPaneOrchestrator({
   root,
@@ -32,9 +35,17 @@ export function createChartReplayPaneOrchestrator({
 } = {}) {
   let disposed = false;
   let currentLayoutState = getLayoutState?.() || DEFAULT_LAYOUT_STATE;
-  const paneDisplayLoadKeys = new Set();
-  const paneDisplayInitializationInFlight = new Set();
-  const paneDisplayInitializationPromises = new Map();
+  const paneDisplayCoordinator = createChartReplayPaneDisplayCoordinator({
+    dispatchCommand,
+    getReplayDisplayTimeframe,
+    getSessionTimeframe,
+    getDisplayTimeframeFallback,
+    getSessionId,
+    getReplayLoaded,
+    onLayoutState: (layoutState) => applyLayoutState(layoutState),
+    setStatusText,
+    isDisposed: () => disposed,
+  });
 
   function layoutSnapshot(layoutState) {
     return layoutState || currentLayoutState || getLayoutState?.() || DEFAULT_LAYOUT_STATE;
@@ -73,64 +84,15 @@ export function createChartReplayPaneOrchestrator({
   }
 
   function paneInitialDisplayTimeframe(pane = {}) {
-    return Number(
-      pane.displayTimeframe
-      || getReplayDisplayTimeframe?.()
-      || getSessionTimeframe?.()
-      || getDisplayTimeframeFallback?.()
-      || 1
-    );
+    return paneDisplayCoordinator.paneInitialDisplayTimeframe(pane);
   }
 
-  async function ensurePaneLocalDisplay(pane) {
-    const paneId = String(pane?.id || '').trim();
-    const sessionId = getSessionId?.() || '';
-    if (!paneId || paneId === DEFAULT_ACTIVE_PANE_ID || !sessionId || !getReplayLoaded?.() || disposed) return;
-    const nextDisplayTimeframe = paneInitialDisplayTimeframe(pane);
-    if (!Number.isFinite(nextDisplayTimeframe) || nextDisplayTimeframe <= 0) return;
-    const loadKey = `${paneId}:${nextDisplayTimeframe}`;
-    if (paneDisplayLoadKeys.has(loadKey)) return;
-    if (paneDisplayInitializationPromises.has(loadKey)) {
-      return paneDisplayInitializationPromises.get(loadKey);
-    }
-    const initialization = (async () => {
-      paneDisplayInitializationInFlight.add(loadKey);
-      try {
-        if (pane.displayTimeframe == null) {
-          const layoutState = await dispatchCommand(LAYOUT_COMMANDS.SET_PANE_DISPLAY_TIMEFRAME, {
-            paneId,
-            displayTimeframe: nextDisplayTimeframe,
-          });
-          if (!disposed) {
-            applyLayoutState(layoutState);
-          }
-        }
-        await dispatchCommand(REPLAY_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-          sessionId,
-          paneId,
-          displayTimeframe: nextDisplayTimeframe,
-        });
-        paneDisplayLoadKeys.add(loadKey);
-      } catch (error) {
-        if (!disposed) {
-          setStatusText?.(error?.message || String(error));
-        }
-      } finally {
-        paneDisplayInitializationInFlight.delete(loadKey);
-        paneDisplayInitializationPromises.delete(loadKey);
-      }
-    })();
-    paneDisplayInitializationPromises.set(loadKey, initialization);
-    return initialization;
+  function ensurePaneLocalDisplay(pane) {
+    return paneDisplayCoordinator.ensurePaneDisplay(pane);
   }
 
   function ensureNonPrimaryPaneDisplays(layoutState = currentLayoutState) {
-    if (!getReplayLoaded?.() || disposed || !Array.isArray(layoutState.panes)) return;
-    layoutState.panes
-      .filter((pane) => pane.id && pane.id !== DEFAULT_ACTIVE_PANE_ID)
-      .forEach((pane) => {
-        ensurePaneLocalDisplay(pane);
-      });
+    return paneDisplayCoordinator.ensureNonPrimaryPaneDisplays(layoutState);
   }
 
   async function syncPaneForReplayNext(pane, payload = {}) {
@@ -239,7 +201,7 @@ export function createChartReplayPaneOrchestrator({
     targetPaneIds
       .filter((targetPaneId) => targetPaneId !== DEFAULT_ACTIVE_PANE_ID)
       .forEach((targetPaneId) => {
-        paneDisplayLoadKeys.add(`${targetPaneId}:${Number(nextDisplayTimeframe)}`);
+        paneDisplayCoordinator.markPaneDisplayReady(targetPaneId, Number(nextDisplayTimeframe));
       });
     onDisplayTimeframeChange?.(activeDisplayTimeframe(layoutState));
     return {
@@ -252,9 +214,7 @@ export function createChartReplayPaneOrchestrator({
 
   function dispose() {
     disposed = true;
-    paneDisplayLoadKeys.clear();
-    paneDisplayInitializationInFlight.clear();
-    paneDisplayInitializationPromises.clear();
+    paneDisplayCoordinator.dispose();
   }
 
   return {
