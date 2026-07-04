@@ -2,7 +2,7 @@
 
 ## Status
 
-Active.
+Completed.
 
 ## Trigger
 
@@ -36,6 +36,15 @@ and clean them as explicit follow-up steps.
 ## Verification Log
 
 - `node v5/tests/v5-v6-rewrite-decision-audit.js` passed.
+- `node v5/tests/pane-display-state-store-static-smoke.js` passed.
+- `node v5/tests/multi-pane-tf-change-next-fanout-browser-smoke.js` passed.
+- `git diff --check` passed.
+
+## Commits
+
+- `1ccd44f docs(v5): plan v5 v6 rewrite decision audit`
+- `328482b test(v5): add v5 v6 rewrite decision audit`
+- `e725840 docs(v5): record v5 v6 rewrite audit result`
 
 ## Audit Result
 

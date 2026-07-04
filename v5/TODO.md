@@ -10,15 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 535 active. Decide whether V5 should continue after the
-  Step 534 pane-state rebuild or whether the remaining multi-pane/replay debt
-  warrants opening V6. See `v5/docs/specs/v5-v6-rewrite-decision-audit.md` and
+- Current status: Step 535 completed. Static architecture audit found no V6
+  blocker after the Step 534 pane-state rebuild. Continue V5, but keep cleanup
+  mandatory. See `v5/docs/specs/v5-v6-rewrite-decision-audit.md` and
   `v5/sessions/session_20260704_step535_v5_v6_rewrite_decision_audit.md`.
-- Current direction: static architecture audit found no V6 blocker. Continue
-  V5, but keep cleanup mandatory: retire default-pane bootstrap/prefix
-  hardcoding where practical, remove route-level replayDisplayTimeframe
-  mirroring, and update stale primary/non-primary test wording before adding
-  new multi-pane features.
+- Current direction: use Step 536 for cleanup before adding new multi-pane
+  features: retire default-pane bootstrap/prefix hardcoding where practical,
+  remove route-level replayDisplayTimeframe mirroring, and update stale
+  primary/non-primary test wording.
 - Current status: Step 534 completed. The remaining multi-pane "each pane plays
   separately" class was treated as an architecture defect, not a patch queue.
   V5 now uses one chart pane state store for every pane, replay display-window
