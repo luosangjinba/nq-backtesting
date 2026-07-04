@@ -81,4 +81,40 @@ Verification:
 
 ## Status
 
-In progress.
+Completed.
+
+## Result
+
+- Added `v5/src/features/chart-replay/chart-replay-pane-dom.js` for pure pane
+  DOM helpers:
+  - pane titles;
+  - split handle specs;
+  - dynamic pane creation;
+  - split handle creation;
+  - pane element metadata updates.
+- Added
+  `v5/src/features/chart-replay/chart-replay-split-resize-controller.js` for
+  split resize behavior:
+  - split track CSS variables;
+  - split handle lifecycle and positioning;
+  - pointer capture/drag state;
+  - `layout.setSplitRatio` command dispatch;
+  - window resize/animation-frame cleanup.
+- Kept `chart-replay-pane-shell.js` focused on pane render-state
+  orchestration, active-pane selection, and optimistic active-pane intent.
+- Reduced `chart-replay-pane-shell.js` to 140 lines after the split.
+
+## Commits
+
+- `1686345 docs(v5): plan pane shell extraction`
+- `80cee79 refactor(v5): extract pane DOM helpers`
+- `93597fa refactor(v5): extract split resize controller`
+
+## Verification
+
+- `node --check v5/src/features/chart-replay/chart-replay-pane-dom.js`
+- `node --check v5/src/features/chart-replay/chart-replay-pane-shell.js`
+- `node --check v5/src/features/chart-replay/chart-replay-split-resize-controller.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `git diff --check`

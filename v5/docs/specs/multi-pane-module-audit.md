@@ -323,6 +323,8 @@ Step 504 result:
 
 ### Step 505 - Split Pane Shell DOM And Resize
 
+Status: completed.
+
 Goal: keep pane shell focused on layout-state rendering and pane selection.
 
 Create `chart-replay-pane-dom.js`:
@@ -352,6 +354,19 @@ Acceptance:
 - pane shell line count falls materially;
 - split drag still uses layout runtime ratios, not pixels;
 - active-pane selection and controls remain unaffected.
+
+Step 505 result:
+
+- added `v5/src/features/chart-replay/chart-replay-pane-dom.js`;
+- added
+  `v5/src/features/chart-replay/chart-replay-split-resize-controller.js`;
+- reduced `chart-replay-pane-shell.js` from 414 lines at audit time to 140
+  lines;
+- kept active-pane selection and optimistic selection intent in pane shell;
+- moved static pane DOM helpers and split handle specs out of pane shell;
+- moved split handle positioning, pointer drag state, `layout.setSplitRatio`
+  dispatch, window resize handling, animation-frame scheduling, and resize
+  cleanup into the split resize controller.
 
 ### Step 506 - Split `chart-runtime-pane-state.js`
 
