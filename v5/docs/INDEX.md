@@ -29,6 +29,9 @@ Read this index before working on V5.
 - `v5/docs/specs/pane-local-display-state-isolation-plan.md`: current Step 531
   plan for stopping active-pane display TF and interaction state from leaking
   into other panes.
+- `v5/docs/specs/pane-local-initial-coverage-plan.md`: current Step 532 plan
+  for loading enough pane-local historical bars after TF changes without
+  requiring an immediate left drag.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.

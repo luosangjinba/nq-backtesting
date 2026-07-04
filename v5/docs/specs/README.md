@@ -93,6 +93,9 @@ that future work must follow this file order.
 - `pane-local-display-state-isolation-plan.md`: Step 531 plan to stop
   active-pane display timeframe and interaction state from leaking into other
   panes when interval sync is off.
+- `pane-local-initial-coverage-plan.md`: Step 532 plan to make pane-local TF
+  changes and pane initialization load enough initial historical coverage for
+  the target pane without an immediate left drag.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
