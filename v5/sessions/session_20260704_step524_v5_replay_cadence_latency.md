@@ -73,7 +73,8 @@ then click again within a short human cadence window.
 
 ## Status
 
-- Step 524.1: active. Planning the cadence-latency measurement and boundary.
+- Step 524.1: completed. Planned the cadence-latency measurement and boundary.
+- Step 524.2: completed. Added the single-pane cadence browser smoke.
 
 ## Next
 
