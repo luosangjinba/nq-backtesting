@@ -53,6 +53,15 @@ Verification:
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `git diff --check`
 
+Result:
+
+- Primary display viewport-demand behavior passed.
+- Display timeframe load behavior passed.
+- Multi-pane viewport demand still loads pane-local older bars.
+- Replay workstation layout smoke passed.
+- Node reported the existing `MODULE_TYPELESS_PACKAGE_JSON` warning during
+  test execution.
+
 ### 507.4 - Closeout
 
 Record final module boundaries, commits, and verification results.
