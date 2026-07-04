@@ -441,6 +441,9 @@ for:
 - replay cursor/reveal state remains shared and no-future across panes;
 - feature modules still pass boundary smoke tests;
 - viewport demand remains routed through replay/bar-data ownership.
+- pane-local viewport demand after an active-pane timeframe change merges with
+  the target pane's existing display bars and does not replace the pane with
+  only the newest requested window.
 
 ## Implementation Roadmap
 
@@ -491,3 +494,16 @@ Steps 470-472 should proceed next in this order:
    Render and mount secondary/tertiary `data-chart-host` elements through
    chart runtime. Preserve shared replay cursor, no-future reveal, and
    bar-data runtime ownership.
+
+Step 500 implementation status:
+
+- Completed. Pane-local viewport demand now reads the target pane snapshot via
+  `chart.getRenderedBars({ paneId })`; the returned bars include `timestamp`
+  so replay display-window merge code can use replay bar semantics even though
+  chart runtime stores chart-format bars internally.
+- Non-primary display-window loads compare/merge against the target pane's
+  existing display bars, not the global primary replay display state.
+- `v5/tests/multi-pane-viewport-demand-browser-smoke.js` verifies a secondary
+  pane switched to `5m` can load older left-side bars from a manual visible
+  range without mouseup/click stimulation, while primary pane bar count and
+  timeframe remain unchanged.

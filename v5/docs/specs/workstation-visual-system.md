@@ -189,6 +189,7 @@ Current and future checks should include:
 
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
 - `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
 - `node v5/tests/settings-polish-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js` with multi-pane

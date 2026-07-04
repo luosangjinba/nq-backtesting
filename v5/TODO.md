@@ -10,13 +10,15 @@
 
 ## Current / Next
 
-- Current status: Step 499 completed. Multi-pane active-pane acceptance is now
-  covered by a dedicated browser smoke: the shared TF control, Go to, Jump
-  cursor, and pane reset target the active/target pane without changing other
-  panes or accidentally reselecting `primary` through popover/control bubbling.
-- Next candidate: Step 500 - continue multi-pane hardening with viewport-demand
-  and left-extension acceptance after pane-local TF changes, then decide whether
-  to polish pane resize handles or move back to remaining Settings controls.
+- Current status: Step 500 completed. Pane-local viewport demand after an
+  active-pane TF change is now covered by a browser smoke: a secondary pane can
+  switch to `5m`, request older left-side bars from its own manual visible
+  range without a mouseup/click stimulus, merge the result with its existing
+  pane-local display bars, and leave the primary pane unchanged.
+- Next candidate: Step 501 - polish split-pane resize/active-pane UX details
+  and add a browser acceptance gate for resize handles/minimum pane walls, then
+  decide whether to continue multi-pane polish or return to remaining Settings
+  controls.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -241,6 +243,13 @@
   clicking controls hosted under the primary pane cannot accidentally reselect
   `primary`. Browser coverage now proves active-pane TF independence, active
   pane Go to, pane-local reset, and active-pane Jump cursor behavior.
+- Multi-pane viewport-demand decision: Step 500 makes pane-local left-extension
+  robust after independent TF changes. `chart.getRenderedBars` returns a replay
+  readable pane snapshot with `timestamp` values, and non-primary
+  display-window loads merge against the target pane's existing bars instead of
+  comparing or replacing the global primary replay display state. Browser
+  coverage proves secondary `5m` viewport demand loads older bars without
+  mouseup/click stimulation and without changing the primary pane.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

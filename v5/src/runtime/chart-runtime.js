@@ -688,12 +688,22 @@ export function createChartRuntime() {
     };
   }
 
-  function getRenderedBars() {
+  function getRenderedBars(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    const sourceState = stateForPane(normalizedPaneId);
+    const bars = sourceState.bars.map((bar) => ({
+      ...bar,
+      timestamp: timestampSeconds(bar.time, 'chart rendered bar time'),
+    }));
     return {
-      viewportFollow: { ...state.viewportFollow },
-      interaction: structuredClone(state.interaction),
-      renderedBars: computeRenderedBars(state),
-      fullBarCount: state.bars.length,
+      paneId: normalizedPaneId,
+      viewportFollow: { ...sourceState.viewportFollow },
+      interaction: structuredClone(sourceState.interaction),
+      visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
+      bars,
+      renderedBars: computeRenderedBars(sourceState),
+      fullBarCount: sourceState.bars.length,
+      displayContext: structuredClone(sourceState.displayContext),
     };
   }
 
@@ -833,7 +843,7 @@ export function createChartRuntime() {
       registerCommand(CHART_COMMANDS.ZOOM_VISIBLE_RANGE, (payload) => zoomVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.PAN_VISIBLE_RANGE, (payload) => panVisibleRange(payload)),
       registerCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW, (payload = {}) => resumeViewportFollow(payload)),
-      registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, () => getRenderedBars()),
+      registerCommand(CHART_COMMANDS.GET_RENDERED_BARS, (payload) => getRenderedBars(payload)),
       registerCommand(CHART_COMMANDS.GET_INTERACTION_STATE, () => getInteractionState()),
       registerCommand(CHART_COMMANDS.GET_CROSSHAIR_STATE, () => getCrosshairState()),
       registerCommand(CHART_COMMANDS.GET_VIEWPORT_DEMAND, () => getViewportDemand()),

@@ -18,6 +18,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 ## Current Handoff
 
 - Step 499: `session_20260703_step499_v5_multi_pane_active_pane_acceptance.md`
+- Step 500: `session_20260703_step500_v5_multi_pane_viewport_demand.md`
 
 ## Completed Session Index
 

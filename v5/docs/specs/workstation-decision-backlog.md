@@ -160,6 +160,31 @@ Related docs:
 - `chart-interaction-contracts.md`
 - `fx-replay-viewport-follow.md`
 
+## Pane-Local Viewport Demand Decision
+
+Multi-pane panes must behave like single panes for viewport extension.
+
+Rules:
+
+- A non-primary pane's viewport demand must include `paneId` and route through
+  replay runtime and bar-data runtime.
+- Non-primary display-window loading must merge with the target pane's existing
+  display bars, not the global primary replay display state.
+- Chart runtime may return a replay-readable pane snapshot through commands,
+  but route UI must not read chart internals, write series, or request bars.
+- Pane-local display bars returned for replay merge must expose stable
+  timestamps even if chart runtime internally stores chart-format `time`.
+- Manual range, wheel zoom, drag, and active-pane TF changes must not require a
+  mouseup/click stimulus before left-extension demand can load missing bars.
+- Primary pane display/replay state remains unchanged when a secondary/tertiary
+  pane fills its own viewport gap.
+
+Related docs:
+
+- `layout-split-panes-contract.md`
+- `fx-replay-viewport-follow.md`
+- `chart-interaction-contracts.md`
+
 ## Settings And Visual System Decisions
 
 V5 should feel like a professional FXReplay-like workstation, but the UI system

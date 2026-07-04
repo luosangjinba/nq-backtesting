@@ -78,6 +78,7 @@ export function createReplayDisplayWindowController({
     const demandKey = [
       sessionId,
       sourceState.session.instrument,
+      targetPaneId,
       normalizedDisplayTimeframe,
       normalizedAnchor,
       normalizedDirection,
@@ -98,14 +99,28 @@ export function createReplayDisplayWindowController({
         displayTimeframe: normalizedDisplayTimeframe,
         replayTimeframe: sourceState.replayTimeframe || sourceState.session.timeframe,
       };
-      const shouldMergeDisplayBars = sourceState.displayBarsTimeframe === normalizedDisplayTimeframe;
-      const currentEarliestTimestamp = earliestBarTimestamp(sourceState.displayBars);
+      const paneDisplayState = statefulLoad
+        ? null
+        : await dispatchCommand(chartCommands.GET_RENDERED_BARS, { paneId: targetPaneId }).catch(() => null);
+      const baseDisplayBars = statefulLoad
+        ? sourceState.displayBars
+        : (Array.isArray(paneDisplayState?.bars) ? paneDisplayState.bars : []);
+      const baseDisplayBarsTimeframe = statefulLoad
+        ? sourceState.displayBarsTimeframe
+        : paneDisplayState?.displayContext?.displayTimeframe;
+      const shouldMergeDisplayBars = statefulLoad
+        ? baseDisplayBarsTimeframe === normalizedDisplayTimeframe
+        : (
+          baseDisplayBars.length > 0
+          && Number(baseDisplayBarsTimeframe || normalizedDisplayTimeframe) === normalizedDisplayTimeframe
+        );
+      const currentEarliestTimestamp = earliestBarTimestamp(baseDisplayBars);
       const displayWindowAttempts = [];
       let nextAnchor = normalizedAnchor;
       let window = null;
       let windowDisplayBars = [];
       let accumulatedWindowDisplayBars = [];
-      let displayBars = sourceState.displayBars;
+      let displayBars = baseDisplayBars;
 
       for (let attempt = 0; attempt < MAX_DISPLAY_WINDOW_SEEK_ATTEMPTS; attempt += 1) {
         window = await dispatchCommand(barDataCommands.LOAD_WINDOW, {
@@ -124,7 +139,7 @@ export function createReplayDisplayWindowController({
           displayContext
         );
         displayBars = shouldMergeDisplayBars
-          ? mergeDisplayBarsForCursor(sourceState.displayBars, accumulatedWindowDisplayBars, displayContext)
+          ? mergeDisplayBarsForCursor(baseDisplayBars, accumulatedWindowDisplayBars, displayContext)
           : accumulatedWindowDisplayBars;
         const nextEarliestTimestamp = earliestBarTimestamp(windowDisplayBars);
         displayWindowAttempts.push({
@@ -152,7 +167,7 @@ export function createReplayDisplayWindowController({
         nextAnchor = previousWindowAnchor(window, normalizedDisplayTimeframe);
       }
 
-      const displayBarsChanged = !displayBarsEqual(sourceState.displayBars, displayBars);
+      const displayBarsChanged = !displayBarsEqual(baseDisplayBars, displayBars);
       if (displayBarsChanged) {
         await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp, { paneId: targetPaneId });
         if (statefulLoad) {
@@ -190,6 +205,7 @@ export function createReplayDisplayWindowController({
           key: window.key,
           instrument: window.instrument,
           timeframe: window.timeframe,
+          paneId: targetPaneId,
           start: window.start,
           end: window.end,
           anchor: window.anchor,
@@ -197,6 +213,8 @@ export function createReplayDisplayWindowController({
           estimatedBars: window.estimatedBars,
           cached: Boolean(window.cached),
           rendered: displayBarsChanged,
+          baseBarCount: baseDisplayBars.length,
+          mergedBarCount: displayBars.length,
           attempts: displayWindowAttempts,
           seekAttempts: Math.max(0, displayWindowAttempts.length - 1),
         },
