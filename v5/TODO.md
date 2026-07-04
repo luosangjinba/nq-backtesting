@@ -10,6 +10,15 @@
 
 ## Current / Next
 
+- Current status: Step 531 planned. The next multi-pane bugfix targets
+  pane-local display-state isolation: active-pane TF changes, wheel zoom, drag,
+  and reset must not mutate other panes' display timeframe when interval sync
+  is off. See
+  `v5/docs/specs/pane-local-display-state-isolation-plan.md` and
+  `v5/sessions/session_20260704_step531_v5_pane_local_display_state_isolation.md`.
+- Current direction: first add a reproducing two-pane wheel/TF isolation smoke,
+  then remove implicit TF fan-out and route/global display-timeframe fallback
+  leakage before adding a three-pane regression.
 - Current status: Step 530 completed. The active-pane `1H` blank-pane bug after
   manual/active-pane interactions is fixed: explicit pane TF changes resume the
   target pane before replacing bars, stale lower-timeframe viewport-demand
@@ -71,9 +80,8 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: manual Step 530 verification in the live app; if no
-  new multi-pane replay/display bug appears, return to the Settings parity
-  checklist candidate from Step 528.
+- Next recommended step: Step 531.2 should capture the active-left `1H`
+  wheel-zoom case where the right pane unexpectedly changes from `1m` to `1H`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

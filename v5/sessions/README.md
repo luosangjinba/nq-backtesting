@@ -50,6 +50,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 528: `session_20260704_step528_v5_fxreplay_parity_gap_audit.md`
 - Step 529: `session_20260704_step529_v5_replay_pane_fanout_plan.md`
 - Step 530: `session_20260704_step530_v5_pane_local_timeframe_follow.md`
+- Step 531: `session_20260704_step531_v5_pane_local_display_state_isolation.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index

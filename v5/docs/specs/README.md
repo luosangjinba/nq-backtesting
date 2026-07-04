@@ -90,6 +90,9 @@ that future work must follow this file order.
 - `pane-local-timeframe-follow-plan.md`: Step 530 plan to fix pane-local
   timeframe changes that can leave a pane blank by restoring explicit TF
   changes to follow mode and hardening higher-timeframe display-window loading.
+- `pane-local-display-state-isolation-plan.md`: Step 531 plan to stop
+  active-pane display timeframe and interaction state from leaking into other
+  panes when interval sync is off.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
