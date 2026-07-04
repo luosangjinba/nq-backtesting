@@ -224,24 +224,26 @@ async function main() {
             && paneState('tertiary').renderedBarCount > 0
           ));
 
-          await clickPaneCenter('primary');
+          await clickPaneCenter('secondary');
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
           timeframeSelect.value = '60';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          await waitFor('primary 1H others 1m', async () => (
-            paneState('primary').displayTimeframe === '60'
+          await waitFor('secondary 1H others 1m', async () => (
+            paneState('primary').displayTimeframe === '1'
             && paneState('primary').renderedBarCount > 0
-            && paneState('secondary').displayTimeframe === '1'
+            && paneState('secondary').displayTimeframe === '60'
             && paneState('secondary').renderedBarCount > 0
             && paneState('tertiary').displayTimeframe === '1'
             && paneState('tertiary').renderedBarCount > 0
           ), 12000);
 
-          await wheelPane('primary', -260);
+          await wheelPane('secondary', -260);
+          await clickPaneCenter('primary');
+          await wheelPane('primary', 260);
           await clickPaneCenter('secondary');
-          await wheelPane('secondary', 260);
+          await wheelPane('secondary', -180);
           await clickPaneCenter('tertiary');
-          await wheelPane('tertiary', -180);
+          await wheelPane('tertiary', 160);
           await clickPaneCenter('primary');
 
           const beforeReplay = await commands.dispatchCommand('replay.getState');
@@ -251,26 +253,39 @@ async function main() {
             secondary: paneState('secondary'),
             tertiary: paneState('tertiary'),
           };
-          await commands.dispatchCommand('replay.next', { sessionId: created.session.id });
-          const afterReplay = await waitFor('replay cursor advanced after tf change', async () => {
-            const state = await commands.dispatchCommand('replay.getState');
-            return timestampSeconds(state.cursorTimestamp) > before.cursorTimestamp ? state : null;
-          });
+          const afterReplay = await commands.dispatchCommand('replay.next', { sessionId: created.session.id });
+          const afterReplayCursor = timestampSeconds(afterReplay.cursorTimestamp);
+          if (afterReplayCursor <= before.cursorTimestamp) {
+            throw new Error('replay cursor did not advance after tf change');
+          }
+          const immediateAfter = {
+            primary: paneState('primary'),
+            secondary: paneState('secondary'),
+            tertiary: paneState('tertiary'),
+          };
+          if (immediateAfter.secondary.viewportCursorTimestamp < afterReplayCursor) {
+            throw new Error('different-timeframe pane projected after replay.next returned ' + JSON.stringify({
+              afterReplayCursor,
+              immediateAfter,
+            }));
+          }
           await waitFor('all panes remain responsive after next', async () => (
-            paneState('primary').displayTimeframe === '60'
+            paneState('primary').displayTimeframe === '1'
             && paneState('primary').renderedBarCount > 0
-            && paneState('secondary').displayTimeframe === '1'
+            && paneState('secondary').displayTimeframe === '60'
             && paneState('secondary').renderedBarCount > 0
             && paneState('tertiary').displayTimeframe === '1'
             && paneState('tertiary').renderedBarCount > 0
-            && paneState('secondary').viewportCursorTimestamp >= timestampSeconds(afterReplay.cursorTimestamp)
+            && paneState('primary').viewportCursorTimestamp >= afterReplayCursor
+            && paneState('secondary').viewportCursorTimestamp >= afterReplayCursor
             && paneState('tertiary').viewportCursorTimestamp >= timestampSeconds(afterReplay.cursorTimestamp)
           ), 12000);
 
           return JSON.stringify({
             error: '',
             before,
-            afterReplayCursor: timestampSeconds(afterReplay.cursorTimestamp),
+            afterReplayCursor,
+            immediateAfter,
             after: {
               primary: paneState('primary'),
               secondary: paneState('secondary'),
@@ -295,12 +310,14 @@ async function main() {
 
     assert.equal(value.error, '', value.error ? JSON.stringify(value) : 'browser smoke failed');
     assert.ok(value.afterReplayCursor > value.before.cursorTimestamp, JSON.stringify(value));
-    assert.equal(value.after.primary.displayTimeframe, '60', JSON.stringify(value));
-    assert.equal(value.after.secondary.displayTimeframe, '1', JSON.stringify(value));
+    assert.equal(value.after.primary.displayTimeframe, '1', JSON.stringify(value));
+    assert.equal(value.after.secondary.displayTimeframe, '60', JSON.stringify(value));
     assert.equal(value.after.tertiary.displayTimeframe, '1', JSON.stringify(value));
     assert.ok(value.after.primary.renderedBarCount > 0, JSON.stringify(value));
     assert.ok(value.after.secondary.renderedBarCount > 0, JSON.stringify(value));
     assert.ok(value.after.tertiary.renderedBarCount > 0, JSON.stringify(value));
+    assert.ok(value.immediateAfter.secondary.viewportCursorTimestamp >= value.afterReplayCursor, JSON.stringify(value));
+    assert.ok(value.after.primary.viewportCursorTimestamp >= value.afterReplayCursor, JSON.stringify(value));
     assert.ok(value.after.secondary.viewportCursorTimestamp >= value.afterReplayCursor, JSON.stringify(value));
     assert.ok(value.after.tertiary.viewportCursorTimestamp >= value.afterReplayCursor, JSON.stringify(value));
   } finally {
