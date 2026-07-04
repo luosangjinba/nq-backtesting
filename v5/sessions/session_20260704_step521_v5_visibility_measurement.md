@@ -79,6 +79,8 @@ production visibility delay or a browser-smoke measurement artifact.
 - Step 521.3: completed. Switched latest-intent browser visibility metrics to
   observer-based cursor metadata detection, with polling/rAF retained as
   diagnostics.
+- Step 521.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
 
 ## Baseline From Step 520
 
@@ -139,3 +141,27 @@ Interpretation: Step 521 does not need a production runtime change. The
 remaining large rAF number is a presentation-frame diagnostic, while the DOM
 metadata used by replay latest-intent gates is visible well inside the product
 target.
+
+## Final Verification
+
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/route-teardown-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `git diff --check` passed.
+- Final trace sample:
+  - final-click-to-visible: about 23ms.
+  - final-click-to-polling-visible: about 30ms.
+  - final-click-to-animation-frame: about 168ms.
+  - final-click-to-replay-start: about 1ms.
+  - replay next: about 29ms.
+  - chart runtime append: about 15ms.
+  - Lightweight append: about 5ms.
+
+## Next
+
+Step 522 can either tighten latest-intent thresholds around the observer-based
+metric or move to the next replay workstation usability gap. The key Step 521
+decision is that the prior 120-130ms post-command gap was not a production
+cursor metadata visibility delay.

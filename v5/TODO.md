@@ -10,11 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 521 in progress. Step 520 reduced replay `Next` command
-  runtime to about 16ms, but the trace still reports about 120-130ms between
-  Lightweight metadata application / replay command end and the browser smoke's
-  visible-cursor detection. Step 521 targets measurement of that post-command
-  visibility gap before changing production code.
+- Current status: Step 521 completed. Latest-intent browser gates now measure
+  cursor visibility with a `MutationObserver` on chart metadata instead of
+  treating later polling/rAF timing as the primary product latency metric.
+  Observer-based final-click-to-visible is about 23ms in the trace.
 - Current status: Step 517 completed. The replay `Next` visible path no longer
   waits for cursor persistence, and replay gates assert the visible cursor
   directly with `viewportCursorTimestamp`.
@@ -22,10 +21,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Complete Step 521 by adding observer-based visibility
-  timing to the latest-intent trace smoke, separating actual DOM metadata write
-  time from polling/rAF/headless scheduling, then only adjust production code if
-  the observer proves the DOM update itself is late.
+- Next recommended step: Step 522 can either tighten latest-intent thresholds
+  around the observer-based metric or move to the next replay workstation
+  usability gap. The remaining large rAF number is now documented as a
+  presentation-frame diagnostic, not a replay command/runtime bottleneck.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
