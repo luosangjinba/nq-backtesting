@@ -131,6 +131,9 @@ References checked during Step 488:
   and bottom `Cancel` / `Ok`.
 - Edits are draft-only until `Ok`.
 - `Cancel`, close, and backdrop dismiss must discard draft edits.
+- `Escape` is equivalent to cancel/close and must discard draft edits.
+- Section navigation should expose tab/tabpanel semantics and support arrow-key
+  tab movement.
 - Settings targets the active pane by default when the setting is pane-local.
   Shared/global scope must be explicitly modeled before a control can affect
   all panes.
@@ -185,6 +188,7 @@ Before closing a visual or interaction step, verify the relevant items:
 Current and future checks should include:
 
 - `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/settings-polish-browser-smoke.js`
 - `node v5/tests/replay-floating-controls-browser-smoke.js`
 - `node v5/tests/replay-workstation-layout-browser-smoke.js` with multi-pane
   variants when layout changes are affected;
@@ -211,3 +215,15 @@ Step 489 implementation status:
   layout runtime, or command dispatch ownership.
 - Settings modal internals and broader form primitives remain the next likely
   tokenization surface.
+
+Step 498 implementation status:
+
+- Settings modal internals now consume the V5 token layer for surfaces, borders,
+  text roles, focus rings, accents, compact control heights, radius, and shadow.
+- Settings sections use tighter grouped rows with hover/focus-within states.
+- Settings section navigation exposes `role="tablist"`, `role="tab"`,
+  `aria-selected`, `aria-controls`, and `role="tabpanel"` semantics.
+- Settings supports arrow-key tab navigation and `Escape` cancel/close while
+  preserving draft-only behavior.
+- `v5/tests/settings-polish-browser-smoke.js` verifies modal layout, selected
+  tab state, keyboard tab movement, Escape draft discard, and `Ok`-only apply.

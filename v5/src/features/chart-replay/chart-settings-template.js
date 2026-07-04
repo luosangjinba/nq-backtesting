@@ -1,20 +1,20 @@
 export function renderChartSettingsPopover() {
   return `
         <div class="chart-settings-popover" data-chart-settings-popover hidden>
-          <div class="chart-settings-panel" role="dialog" aria-modal="true" aria-label="Chart settings">
+          <div class="chart-settings-panel" role="dialog" aria-modal="true" aria-labelledby="chart-settings-title">
             <div class="chart-settings-header">
-              <strong>Settings</strong>
+              <strong id="chart-settings-title">Settings</strong>
               <button type="button" data-chart-settings-cancel aria-label="Close settings">&times;</button>
             </div>
             <div class="chart-settings-body">
-              <nav class="chart-settings-tabs" aria-label="Chart settings sections">
-                <button type="button" data-chart-settings-tab="symbol" aria-current="true">Symbol</button>
-                <button type="button" data-chart-settings-tab="status">Status line</button>
-                <button type="button" data-chart-settings-tab="scales">Scales and lines</button>
-                <button type="button" data-chart-settings-tab="canvas">Canvas</button>
+              <nav class="chart-settings-tabs" aria-label="Chart settings sections" role="tablist">
+                <button type="button" id="chart-settings-tab-symbol" role="tab" data-chart-settings-tab="symbol" aria-current="true" aria-selected="true" aria-controls="chart-settings-section-symbol">Symbol</button>
+                <button type="button" id="chart-settings-tab-status" role="tab" data-chart-settings-tab="status" aria-selected="false" aria-controls="chart-settings-section-status" tabindex="-1">Status line</button>
+                <button type="button" id="chart-settings-tab-scales" role="tab" data-chart-settings-tab="scales" aria-selected="false" aria-controls="chart-settings-section-scales" tabindex="-1">Scales and lines</button>
+                <button type="button" id="chart-settings-tab-canvas" role="tab" data-chart-settings-tab="canvas" aria-selected="false" aria-controls="chart-settings-section-canvas" tabindex="-1">Canvas</button>
               </nav>
               <div class="chart-settings-sections">
-                <section data-chart-settings-section="symbol">
+                <section id="chart-settings-section-symbol" role="tabpanel" aria-labelledby="chart-settings-tab-symbol" data-chart-settings-section="symbol">
                   <h3>Candles</h3>
                   <label class="chart-settings-color-row">
                     <span>Body</span>
@@ -53,7 +53,7 @@ export function renderChartSettingsPopover() {
                     </select>
                   </label>
                 </section>
-                <section data-chart-settings-section="status" hidden>
+                <section id="chart-settings-section-status" role="tabpanel" aria-labelledby="chart-settings-tab-status" data-chart-settings-section="status" hidden>
                   <h3>Status line</h3>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-presentation-toggle="showStatusTitle">
@@ -88,7 +88,7 @@ export function renderChartSettingsPopover() {
                     <span>Bar countdown</span>
                   </label>
                 </section>
-                <section data-chart-settings-section="scales" hidden>
+                <section id="chart-settings-section-scales" role="tabpanel" aria-labelledby="chart-settings-tab-scales" data-chart-settings-section="scales" hidden>
                   <h3>Time scale</h3>
                   <label class="chart-settings-row">
                     <span>Right offset</span>
@@ -155,7 +155,7 @@ export function renderChartSettingsPopover() {
                     </span>
                   </label>
                 </section>
-                <section data-chart-settings-section="canvas" hidden>
+                <section id="chart-settings-section-canvas" role="tabpanel" aria-labelledby="chart-settings-tab-canvas" data-chart-settings-section="canvas" hidden>
                   <h3>Margins</h3>
                   <label class="chart-settings-check">
                     <input type="checkbox" data-presentation-margin="compact">

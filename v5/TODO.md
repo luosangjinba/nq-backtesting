@@ -10,13 +10,12 @@
 
 ## Current / Next
 
-- Current status: Step 497 completed. A browser route teardown smoke now enters
-  a real chart route, opens Layout/Settings UI, queues replay Next work, switches
-  back to setup, then proves detached chart-route controls/listeners cannot
-  mutate layout, replay, playback, or the active route.
-- Next candidate: Step 498 - resume product/UI work from the workstation
-  backlog now that the lifecycle cleanup backlog is closed, with Settings polish
-  or multi-pane UX acceptance as likely candidates.
+- Current status: Step 498 completed. Settings modal internals now consume V5
+  workstation tokens, expose tab/tabpanel ARIA semantics, support Escape and
+  arrow-key tab navigation, and retain draft-only behavior until `Ok`.
+- Next candidate: Step 499 - continue product/UI work with multi-pane UX
+  acceptance, focusing on layout variants, active-pane signaling, reset view,
+  axis/OHLC parity, and resize behavior across panes.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -227,6 +226,12 @@
   pending Next batching, split-pane pointer handling, Settings/Layout listeners,
   and window resize callbacks must be inert after route teardown; stale events
   must not mutate layout/replay/playback state or revive chart route DOM.
+- Settings polish decision: Step 498 converts the Settings modal internals to
+  the workstation token/component-state model. The modal keeps FXReplay-style
+  left section navigation and bottom `Cancel` / `Ok`, adds tab/tabpanel ARIA,
+  Escape-to-cancel, arrow-key tab navigation, tighter grouped rows, and a
+  Settings polish browser smoke that proves draft edits remain unapplied until
+  `Ok`.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings

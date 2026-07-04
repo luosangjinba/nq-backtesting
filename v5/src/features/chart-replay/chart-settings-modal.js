@@ -8,6 +8,7 @@ export function createChartSettingsModalController({
   const cancelButtons = Array.from(root.querySelectorAll('[data-chart-settings-cancel]'));
   const tabButtons = Array.from(root.querySelectorAll('[data-chart-settings-tab]'));
   const sections = Array.from(root.querySelectorAll('[data-chart-settings-section]'));
+  const ownerDocument = root.ownerDocument || document;
   let disposed = false;
   const cleanupCallbacks = [];
 
@@ -19,11 +20,26 @@ export function createChartSettingsModalController({
   function showSection(sectionId) {
     if (disposed) return;
     tabButtons.forEach((button) => {
-      button.setAttribute('aria-current', button.dataset.chartSettingsTab === sectionId ? 'true' : 'false');
+      const selected = button.dataset.chartSettingsTab === sectionId;
+      button.setAttribute('aria-current', selected ? 'true' : 'false');
+      button.setAttribute('aria-selected', selected ? 'true' : 'false');
+      button.tabIndex = selected ? 0 : -1;
     });
     sections.forEach((section) => {
       section.hidden = section.dataset.chartSettingsSection !== sectionId;
     });
+  }
+
+  function activeTabIndex() {
+    const index = tabButtons.findIndex((button) => button.getAttribute('aria-selected') === 'true');
+    return index >= 0 ? index : 0;
+  }
+
+  function focusTabAt(index) {
+    const nextIndex = (index + tabButtons.length) % tabButtons.length;
+    const button = tabButtons[nextIndex];
+    showSection(button.dataset.chartSettingsTab || 'symbol');
+    button.focus();
   }
 
   function show() {
@@ -51,6 +67,25 @@ export function createChartSettingsModalController({
     onClose?.();
   }
 
+  function handleKeydown(event) {
+    if (disposed || popover.hidden) return;
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      close();
+      return;
+    }
+    const activeIndex = activeTabIndex();
+    if (event.key === 'ArrowDown' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      focusTabAt(activeIndex + 1);
+      return;
+    }
+    if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') {
+      event.preventDefault();
+      focusTabAt(activeIndex - 1);
+    }
+  }
+
   addListener(openButton, 'click', open);
   cancelButtons.forEach((button) => {
     addListener(button, 'click', close);
@@ -61,6 +96,7 @@ export function createChartSettingsModalController({
     }
   }
   addListener(popover, 'click', handlePopoverClick);
+  addListener(ownerDocument, 'keydown', handleKeydown);
   tabButtons.forEach((button) => {
     const handleTabClick = () => {
       showSection(button.dataset.chartSettingsTab || 'symbol');
