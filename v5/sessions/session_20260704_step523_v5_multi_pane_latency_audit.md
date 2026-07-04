@@ -68,7 +68,11 @@ and manual user perception before doing more runtime optimization.
 
 ## Status
 
-- Step 523.1: in progress.
+- Step 523.1: completed. Planned the multi-pane latest-intent audit and set the
+  no-runtime-optimization boundary.
+- Step 523.2: completed. Added
+  `multi-pane-latest-intent-audit-browser-smoke.js` to measure per-pane,
+  all-pane, polling, and rAF latest-intent timings.
 
 ## Baseline From Step 522
 
@@ -80,3 +84,21 @@ and manual user perception before doing more runtime optimization.
 
 Interpretation: the next useful work is measurement validity and pane timing
 decomposition, not immediate optimization.
+
+## Audit Harness
+
+- `node --check v5/tests/multi-pane-latest-intent-audit-browser-smoke.js`
+  passed.
+- Sandboxed audit smoke execution failed twice at local HTTP port binding with
+  `listen EPERM: operation not permitted 127.0.0.1`; rerunning the same command
+  with local test escalation passed.
+- `node v5/tests/multi-pane-latest-intent-audit-browser-smoke.js` passed with:
+  - primary pane observer latency: about 197ms.
+  - secondary pane observer latency: about 232ms.
+  - all-pane observer latency: about 232ms.
+  - polling visible latency: about 236ms.
+  - rAF latency: about 406ms.
+
+Interpretation: the all-pane number is not a pure measurement artifact. It is
+dominated by the secondary pane, while the primary pane is faster but still far
+above the single-pane latest-intent gate.
