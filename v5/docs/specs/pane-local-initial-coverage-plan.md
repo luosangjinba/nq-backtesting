@@ -75,6 +75,8 @@ piece is initial coverage, not left-extension itself.
    - Cover a triple layout with independent pane TFs.
    - Switch one pane to `1H` and assert its initial coverage is adequate while
      other panes retain their TF and chart metadata.
+   - Completed: triple-pane coverage smoke verifies primary `1H` coverage
+     while secondary stays `5m` and tertiary stays `1m`.
    - Commit the regression harness and any minimal fix.
 
 6. Step 532.6 - Regression and closeout.

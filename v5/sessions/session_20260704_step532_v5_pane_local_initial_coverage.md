@@ -62,7 +62,11 @@ then extends and fills the canvas, which points to an initial coverage gap.
   left-extension after coverage is reached. It verifies another `1H`
   viewport-demand load occurs, primary stays on `1H`, and secondary stays on
   `1m`.
-- Step 532.5-532.6: pending.
+- Step 532.5: completed. Added
+  `v5/tests/triple-pane-initial-coverage-browser-smoke.js`. It verifies
+  primary `1H` initial coverage reaches target in a triple layout while
+  secondary remains `5m` and tertiary remains `1m`.
+- Step 532.6: pending.
 
 ## Step 532.2 Verification
 
@@ -82,6 +86,12 @@ then extends and fills the canvas, which points to an initial coverage gap.
 - `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
 - `git diff --check`
 
+## Step 532.5 Verification
+
+- `node --check v5/tests/triple-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/triple-pane-initial-coverage-browser-smoke.js`
+- `git diff --check`
+
 ## Step 532.4 Verification
 
 - `node --check v5/tests/multi-pane-initial-coverage-browser-smoke.js`
@@ -91,5 +101,5 @@ then extends and fills the canvas, which points to an initial coverage gap.
 
 ## Next
 
-Implement Step 532.5 next: add a three-pane coverage regression for one active
-`1H` pane while the other panes keep their own TF and metadata.
+Implement Step 532.6 next: run the planned regression/closeout gates and update
+TODO/spec/session with the final Step 532 result.
