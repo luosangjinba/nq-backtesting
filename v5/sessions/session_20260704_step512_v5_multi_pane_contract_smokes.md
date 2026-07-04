@@ -26,6 +26,14 @@ rewriting production code.
   - every-pane rendered bar count;
   - `fullBarCount > 0 && renderedBarCount === 0` failures.
 
+Status: completed. `multi-pane-rebuild-contract-browser-smoke.js` currently
+fails against production as intended, exposing missing triple initial
+active-pane policy:
+
+- `triple.vertical`: expected `tertiary`, got `primary`;
+- `triple.left`: expected `secondary`, got `primary`;
+- `triple.bottom`: expected `secondary`, got `primary`.
+
 ### Step 512.3 - Reset And Immediate Next Contract Smoke
 
 - Extend the same smoke to assert:

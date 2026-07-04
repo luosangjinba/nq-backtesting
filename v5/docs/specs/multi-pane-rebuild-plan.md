@@ -73,6 +73,14 @@ contract. Production rewrites should then proceed behind those tests.
 
 The rebuilt multi-pane path should use four explicit layers.
 
+Core design principle: every visible pane should be an instance of the same
+chart/replay display unit. Single pane, primary pane, secondary pane, and
+tertiary pane must share the same lifecycle and rendering logic first. Multi-
+pane behavior should then add layout placement, active-pane focus, sync policy,
+and input routing on top of that shared unit. Do not split primary and
+non-primary behavior into separate logic paths unless there is an explicit
+runtime ownership reason and test coverage for the divergence.
+
 ### 1. Pane Layout Model
 
 Owner: layout runtime.
