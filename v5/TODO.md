@@ -10,11 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 522 completed. Single-pane latest-intent gates now use a
-  120ms observer-based threshold, and the multi-pane rapid `Next` gate now has
-  all-pane observer timing with a 300ms regression guard. Single-pane trace is
-  about 13ms; two-pane latest intent is guarded but still above the 100ms
-  product target.
+- Current status: Step 523 in progress. Manual testing reports both single-pane
+  and multi-pane rapid `Next` now feel comparable to FXReplay, so Step 523 is a
+  measurement audit rather than a forced multi-pane optimization. It should
+  explain the gap between headless all-pane observer timing and user-perceived
+  responsiveness.
 - Current status: Step 517 completed. The replay `Next` visible path no longer
   waits for cursor persistence, and replay gates assert the visible cursor
   directly with `viewportCursorTimestamp`.
@@ -22,10 +22,10 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Step 523 should target multi-pane latest-intent
-  latency specifically. The first 120ms multi-pane threshold attempt measured
-  around 228ms, so the product gap is now isolated to all-pane cursor projection
-  rather than single-pane replay input or chart append.
+- Next recommended step: Complete Step 523 by adding a multi-pane audit smoke
+  that separates primary, secondary, all-pane, polling, and rAF timing. Only
+  open a runtime optimization step if the audit shows a user-visible delay
+  rather than a strict all-pane measurement artifact.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
