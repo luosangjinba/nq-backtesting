@@ -75,6 +75,34 @@ then click again within a short human cadence window.
 
 - Step 524.1: completed. Planned the cadence-latency measurement and boundary.
 - Step 524.2: completed. Added the single-pane cadence browser smoke.
+- Step 524.3: completed. Ran the cadence smoke and recorded findings.
+
+## Cadence Smoke Findings
+
+- Sandboxed execution failed at local HTTP server binding with
+  `listen EPERM: operation not permitted 127.0.0.1`; rerunning the same smoke
+  with local test escalation passed.
+- `node v5/tests/replay-cadence-latency-browser-smoke.js` passed with 12
+  sequential `Next` clicks and a 50ms gap after each observed candle.
+- Every step was observed through `data-viewport-cursor-timestamp` mutation.
+- Latency summary:
+  - average: about 6.9ms.
+  - p95: about 15.3ms.
+  - max: about 15.3ms.
+  - automation ceiling: 120ms.
+  - product target: 100ms.
+- Correctness summary:
+  - final revealed count: 12.
+  - final cursor: `2026-06-01T09:42:00.000Z`.
+  - chart cursor metadata: `2026-06-01T09:42:00.000Z`.
+  - full bar delta: 12.
+  - forward request delta after initial load: 0.
+
+Interpretation: the previous latest-intent burst tests did not include this
+cadence shape, but the current single-pane replay path is well under the
+100ms product target when measured as `click -> candle visible -> 50ms gap ->
+next click -> next candle visible`. No runtime change is justified by this
+measurement.
 
 ## Next
 
