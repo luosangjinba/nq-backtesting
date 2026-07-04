@@ -11,6 +11,9 @@ import {
   selectStartBar,
   timestampSeconds,
 } from './replay-runtime-state.js';
+import {
+  DEFAULT_REPLAY_PANE_ID,
+} from './replay-pane-display-window-state.js';
 
 export function createReplayBootstrapController({
   getState,
@@ -50,7 +53,7 @@ export function createReplayBootstrapController({
       instrument: session.instrument,
       timeframe: session.timeframe,
       sessionId,
-      paneId: 'primary',
+      paneId: DEFAULT_REPLAY_PANE_ID,
       anchor: session.sessionStart,
       direction: 'forward',
       count: computeForwardRevealWindowCount({
@@ -110,7 +113,7 @@ export function createReplayBootstrapController({
         instrument: current.session.instrument,
         timeframe: current.session.timeframe,
         sessionId,
-        paneId: 'primary',
+        paneId: DEFAULT_REPLAY_PANE_ID,
         anchor,
         direction: 'forward',
         count,
@@ -147,7 +150,7 @@ export function createReplayBootstrapController({
       instrument: state.session.instrument,
       timeframe: state.session.timeframe,
       sessionId,
-      paneId: 'primary',
+      paneId: DEFAULT_REPLAY_PANE_ID,
       anchor: state.startBar.time,
       direction: 'backward',
       count: prefixCount + 1,

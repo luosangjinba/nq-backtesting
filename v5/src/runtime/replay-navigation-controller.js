@@ -14,6 +14,9 @@ import {
   timeframeSeconds,
   timestampSeconds,
 } from './replay-runtime-state.js';
+import {
+  DEFAULT_REPLAY_PANE_ID,
+} from './replay-pane-display-window-state.js';
 import { markReplayTrace } from './replay-trace.js';
 
 function forwardRevealWindowCount(sourceState) {
@@ -106,7 +109,7 @@ export function createReplayNavigationController({
       instrument: sourceState.session.instrument,
       timeframe: sourceState.session.timeframe,
       sessionId,
-      paneId: 'primary',
+      paneId: DEFAULT_REPLAY_PANE_ID,
       anchor: sourceState.cursorTimestamp,
       direction: 'forward',
       count: forwardRevealWindowCount(sourceState),
@@ -163,7 +166,7 @@ export function createReplayNavigationController({
     if (typeof chartSync.appendRevealedBarsToPanes === 'function') {
       const layoutState = await Promise.resolve(getLayoutState?.() || null).catch(() => null);
       paneFanout = await chartSync.appendRevealedBarsToPanes({
-        panes: layoutState?.panes || [{ id: 'primary', displayTimeframe: normalizedDisplayTimeframe }],
+        panes: layoutState?.panes || [{ id: DEFAULT_REPLAY_PANE_ID, displayTimeframe: normalizedDisplayTimeframe }],
         revealedBars: nextBars,
         cursorTimestamp: nextBar.time,
         replayTimeframe: normalizedReplayTimeframe,
@@ -173,7 +176,7 @@ export function createReplayNavigationController({
     } else if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       if (typeof chartSync.appendDisplayBars === 'function') {
         await chartSync.appendDisplayBars(nextBars, nextBar.time, {
-          paneId: 'primary',
+          paneId: DEFAULT_REPLAY_PANE_ID,
           fullDisplayBars: nextBars,
           rightEdgeLimit: nextBar.time,
         });

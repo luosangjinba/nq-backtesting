@@ -7,6 +7,9 @@ import {
   mergeSparseDisplayBars,
   splitRetainedPrefixChunks,
 } from './replay-runtime-state.js';
+import {
+  DEFAULT_REPLAY_PANE_ID,
+} from './replay-pane-display-window-state.js';
 
 export function createReplayPrefixController({
   getState,
@@ -62,7 +65,7 @@ export function createReplayPrefixController({
         instrument: state.session.instrument,
         timeframe: state.session.timeframe,
         sessionId: state.sessionId,
-        paneId: 'primary',
+        paneId: DEFAULT_REPLAY_PANE_ID,
         anchor,
         direction: 'backward',
         count,
