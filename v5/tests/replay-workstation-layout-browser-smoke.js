@@ -332,6 +332,9 @@ async function main() {
           const syncedNextSecondaryBefore = Number(document
             .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
             ?.dataset.fullBarCount || 0);
+          const syncedNextSecondaryRenderedBefore = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+            ?.dataset.renderedBarCount || 0);
           document.querySelector('[data-replay-next]')?.click();
           await waitFor('default panes both advance on replay next', async () => {
             const primaryCount = Number(document
@@ -340,8 +343,12 @@ async function main() {
             const secondaryCount = Number(document
               .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
               ?.dataset.fullBarCount || 0);
+            const secondaryRenderedCount = Number(document
+              .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+              ?.dataset.renderedBarCount || 0);
             return primaryCount > syncedNextPrimaryBefore
-              && secondaryCount > syncedNextSecondaryBefore;
+              && secondaryCount > syncedNextSecondaryBefore
+              && secondaryRenderedCount > 0;
           });
           const syncedNextPrimaryAfter = Number(document
             .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-canvas]')
@@ -349,6 +356,12 @@ async function main() {
           const syncedNextSecondaryAfter = Number(document
             .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
             ?.dataset.fullBarCount || 0);
+          const syncedNextSecondaryRenderedAfter = Number(document
+            .querySelector('[data-layout-pane][data-pane-id="secondary"] [data-chart-canvas]')
+            ?.dataset.renderedBarCount || 0);
+          const syncedNextSecondaryRenderedBars = await commands.dispatchCommand('chart.getRenderedBars', {
+            paneId: 'secondary',
+          });
           await waitFor('secondary pane initialized with independent timeframe', async () => {
             const layoutState = await commands.dispatchCommand('layout.getState');
             const secondaryCanvas = document
@@ -676,6 +689,9 @@ async function main() {
             syncedNextPrimaryAfter,
             syncedNextSecondaryBefore,
             syncedNextSecondaryAfter,
+            syncedNextSecondaryRenderedBefore,
+            syncedNextSecondaryRenderedAfter,
+            syncedNextSecondaryRenderedCommandCount: syncedNextSecondaryRenderedBars.renderedBars?.length || 0,
             verticalPrimaryIndependentPaneDisplayTimeframes: verticalPrimaryIndependentLayoutState.panes.map((pane) => pane.displayTimeframe),
             verticalPrimaryIndependentPrimaryDisplayTimeframe,
             verticalPrimaryIndependentSecondaryDisplayTimeframe,
@@ -801,6 +817,14 @@ async function main() {
     assert.ok(
       value.syncedNextSecondaryAfter > value.syncedNextSecondaryBefore,
       'secondary pane should advance on replay next by default'
+    );
+    assert.ok(
+      value.syncedNextSecondaryRenderedAfter > 0,
+      'secondary pane should render visible bars after immediate replay next'
+    );
+    assert.ok(
+      value.syncedNextSecondaryRenderedCommandCount > 0,
+      'secondary pane rendered-bars command should expose visible bars after immediate replay next'
     );
     assert.deepEqual(value.verticalPrimaryIndependentPaneDisplayTimeframes, [5, 1]);
     assert.equal(value.verticalPrimaryIndependentPrimaryDisplayTimeframe, '5');

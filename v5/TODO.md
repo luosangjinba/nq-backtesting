@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 509 completed. Pane-local replay follow now waits for
-  non-primary pane display initialization to finish before appending revealed
-  bars or loading an independent display window, preventing the right pane from
-  blanking when `Next` is clicked immediately after opening a two-pane layout.
+- Current status: Step 510 completed. Pane-local replay follow now advances the
+  non-primary pane viewport-follow cursor when appending same-timeframe replay
+  bars, and layout smoke coverage verifies visible rendered bars instead of
+  only backing bar counts.
 - Next candidate: Reassess remaining multi-pane behavior gaps before adding
   more multi-pane behavior.
 - Step 379 advanced Historical Replay Review by replacing the visible default
@@ -309,6 +309,11 @@
   pane-local display initialization promises. Opening a new pane and
   immediately clicking replay `Next` must not let append/follow writes race the
   initial pane display load and blank the newly active pane.
+- Multi-pane visible-follow decision: Step 510 treats `fullBarCount` as
+  insufficient replay-follow acceptance. Same-timeframe non-primary pane
+  appends must pass pane-local viewport-follow metadata with the replay cursor,
+  and regression coverage must assert `renderedBarCount` / `chart.getRenderedBars`
+  has visible bars after the immediate two-pane `Next` path.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
