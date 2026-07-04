@@ -52,6 +52,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 530: `session_20260704_step530_v5_pane_local_timeframe_follow.md`
 - Step 531: `session_20260704_step531_v5_pane_local_display_state_isolation.md`
 - Step 532: `session_20260704_step532_v5_pane_local_initial_coverage.md`
+- Step 533: `session_20260704_step533_v5_pane_display_state_unification.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index

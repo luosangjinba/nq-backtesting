@@ -32,6 +32,9 @@ Read this index before working on V5.
 - `v5/docs/specs/pane-local-initial-coverage-plan.md`: current Step 532 plan
   for loading enough pane-local historical bars after TF changes without
   requiring an immediate left drag.
+- `v5/docs/specs/pane-display-state-unification-plan.md`: current Step 533
+  plan for replacing split primary/non-primary chart display state with one
+  pane-local model and stale display-write guards.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.

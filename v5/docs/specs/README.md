@@ -96,6 +96,9 @@ that future work must follow this file order.
 - `pane-local-initial-coverage-plan.md`: Step 532 plan to make pane-local TF
   changes and pane initialization load enough initial historical coverage for
   the target pane without an immediate left drag.
+- `pane-display-state-unification-plan.md`: Step 533 plan to replace split
+  primary/non-primary chart display state with one pane-local model and stale
+  display-write guards.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
@@ -192,5 +195,7 @@ that future work must follow this file order.
 - Step 529: `replay-pane-fanout-plan.md`, `multi-pane-rebuild-plan.md`,
   `layout-split-panes-contract.md`
 - Step 530: `pane-local-timeframe-follow-plan.md`,
+  `layout-split-panes-contract.md`, `chart-interaction-contracts.md`
+- Step 533: `pane-display-state-unification-plan.md`,
   `layout-split-panes-contract.md`, `chart-interaction-contracts.md`
 - Cross-phase: `open-source-local-deployment.md`

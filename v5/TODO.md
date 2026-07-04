@@ -10,6 +10,16 @@
 
 ## Current / Next
 
+- Current status: Step 533 planned. Remaining multi-pane display corruption
+  after repeated active-pane `1H` drag/wheel/reset interactions is now treated
+  as split pane display-state ownership debt, not a one-off visual symptom.
+  Step 533 will unify primary and non-primary chart display state under one
+  pane-local model and add stale display-write guards. See
+  `v5/docs/specs/pane-display-state-unification-plan.md` and
+  `v5/sessions/session_20260704_step533_v5_pane_display_state_unification.md`.
+- Current direction: execute Step 533 in substeps with a commit after each
+  substep, starting with a continuous multi-pane interaction smoke for the
+  reported left `1H` / right `1m` corruption class.
 - Current status: Step 532 completed. Pane-local initial coverage now continues
   bounded backward display-window seeking until the target pane has enough
   visible historical bars after explicit TF changes or pane initialization,
