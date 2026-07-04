@@ -10,13 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 515 completed. Replay `Next` fan-out now routes through
-  a dedicated replay pane projection helper with pure smoke coverage for
-  same-timeframe append, independent-timeframe display-window loading, skip
-  behavior, and pane display initialization before projection.
-- Next candidate: Step 516 should add a multi-pane performance gate that checks
-  rapid `Next` clicks do not drain through a slow visible queue and that panes
-  avoid unnecessary full `setData()` fan-out when append/update is sufficient.
+- Current status: Step 516 completed. V5 now has a multi-pane rapid-Next
+  browser performance gate that opens a same-timeframe split layout, clicks
+  `Next` rapidly, and asserts the final cursor, reveal count, both pane render
+  counts, no forward fetch, and bounded elapsed time.
+- Next candidate: Step 517 should use the new performance gate while continuing
+  the multi-pane rebuild, likely by auditing residual chart/replay full-data
+  fan-out and adding lower-level instrumentation where browser-visible metrics
+  are not precise enough.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

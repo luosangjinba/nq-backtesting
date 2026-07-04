@@ -27,6 +27,32 @@ is measured instead of judged only by visual feel.
 
 - Step 516.1: completed. The rebuild plan now defines measurable multi-pane
   rapid-Next acceptance checks.
-- Step 516.2: in progress. A browser smoke is being added for same-timeframe
-  two-pane rapid Next projection and elapsed-time gating.
-- Step 516.3: pending.
+- Step 516.2: completed. Added
+  `multi-pane-rapid-next-performance-browser-smoke.js`, which opens a
+  same-timeframe two-pane layout, clicks `Next` 10 times rapidly, and verifies
+  final cursor, reveal count, both pane bar-count deltas, no forward fetch, and
+  bounded elapsed time.
+- Step 516.3: completed. Ran the rebuild/replay/multi-pane regression set and
+  updated handoff docs.
+
+## Verification
+
+- `node --check v5/tests/multi-pane-rapid-next-performance-browser-smoke.js`
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js`
+- `node v5/tests/chart-replay-pane-projection-smoke.js`
+- `node v5/tests/chart-replay-pane-display-coordinator-smoke.js`
+- `node v5/tests/multi-pane-rebuild-contract-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `node v5/tests/replay-fast-next-browser-smoke.js`
+
+All listed checks passed. The first sandboxed run of the new browser smoke hit
+local port `EPERM`, then passed with the approved browser-smoke command prefix.
+Node emitted the repository's existing ES module package warning for test files.
+
+## Next
+
+Step 517 should decide whether the next rebuild slice is lower-level
+instrumentation for chart append/setData behavior or another production cleanup
+behind the new Step 516 performance gate.
