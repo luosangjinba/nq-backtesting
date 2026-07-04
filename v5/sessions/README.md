@@ -36,6 +36,9 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 514: `session_20260704_step514_v5_pane_display_coordinator.md`
 - Step 515: `session_20260704_step515_v5_replay_pane_projection.md`
 - Step 516: `session_20260704_step516_v5_multi_pane_performance_gate.md`
+- Step 517: `session_20260704_step517_v5_global_replay_latest_intent.md`
+- Step 518: `session_20260704_step518_v5_replay_latest_intent_trace.md`
+- Step 519: `session_20260704_step519_v5_next_input_batching.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index

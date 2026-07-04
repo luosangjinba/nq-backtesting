@@ -1,0 +1,60 @@
+# Session 2026-07-04 - Step 519 Replay Next Input Batching
+
+## Goal
+
+Reduce the remaining perceptible rapid `Next` delay by targeting the controls
+input-batching path, after Step 518 proved data loading and chart replacement
+are no longer the dominant bottlenecks.
+
+## Product Standard
+
+- Product target remains about 100ms from latest `Next` intent to expected
+  candle visible.
+- The same standard applies to single pane and multi-pane replay.
+- UI may batch click intent, but it must not expose a per-candle queue or delay
+  the first replay command behind an avoidable timer.
+- UI still dispatches commands only. Chart runtime remains the only chart
+  writer, bar-data runtime remains the only requester/cache owner, and replay
+  runtime owns cursor/reveal state.
+
+## Plan
+
+1. Run the Step 518 latency smokes sequentially to establish a clean baseline.
+2. Add trace coverage for the input path from `controls.next.click` to
+   `controls.next.flush.start`, `controls.next.command.start`, and
+   `replay.next.start`.
+3. Optimize `chart-replay-controls.js` so the first `Next` click starts work
+   immediately while later clicks coalesce into pending batch state.
+4. Re-run single-pane and multi-pane latency gates, update TODO/session
+   handoff, and keep lifecycle disposal of pending `Next` intact.
+
+## Status
+
+- Step 519.1: completed. Baseline smokes were run sequentially after reboot.
+
+## Baseline
+
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed on rerun.
+  Initial launch failed once at Chrome debug-port connection before app
+  assertions; no stale Chrome/debug process remained.
+- Trace sample:
+  - final-click-to-visible: about 239ms.
+  - controls flush: about 116ms.
+  - replay command: about 110ms.
+  - replay next: about 104ms.
+  - load window: about 0.1ms.
+  - chart append: about 102ms.
+  - chart runtime host sync: about 8ms.
+  - Lightweight append / series update: about 4ms.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+
+Interpretation: the incremental chart path is active and data loading is not the
+problem. Step 519 should measure and reduce timer/queue delay before replay
+command start.
+
+## Next
+
+Add input-batching trace marks and assertions around
+`chart-replay-controls.js`, then use the measurements to remove avoidable timer
+delay from the first rapid `Next` intent.
