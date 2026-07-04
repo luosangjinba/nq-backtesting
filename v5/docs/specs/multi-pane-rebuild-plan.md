@@ -249,13 +249,41 @@ readiness.
 
 Implementation expectations:
 
-- add a pane display coordinator module;
-- model pane lifecycle states such as `host-mounted`, `display-loading`,
+- add a pane display coordinator module and move non-primary display
+  initialization state out of `chart-replay-pane-orchestrator.js`;
+- model pane display lifecycle states as `display-idle`, `display-loading`,
   `display-ready`, and `display-error`;
-- initialize all mounted panes from one layout snapshot;
-- prevent shared controls from assuming a pane is ready before its chart state
-  is ready;
-- keep route UI out of bars and chart writes.
+- initialize every non-primary pane from the same layout snapshot contract used
+  by single-pane display logic, with explicit pane id and display timeframe;
+- dedupe concurrent initialization by pane id plus display timeframe so repeated
+  layout renders cannot enqueue duplicate display loads;
+- expose readiness/error state for browser smokes and future shared controls;
+- keep route UI out of bars, chart writes, bar-data requests, and replay cursor
+  ownership.
+
+Step 514 is an extraction and lifecycle-boundary step. It may dispatch layout
+and replay display-timeframe commands, but it must not implement the final
+multi-pane replay projection. Same-timeframe replay `Next` fan-out and
+independent-timeframe projection belong to Step 515.
+
+Coordinator boundary:
+
+- allowed inputs: layout snapshot, pane records, route session getters, command
+  bus, and status callback;
+- allowed commands: `layout.setPaneDisplayTimeframe` and
+  `replay.setDisplayTimeframe` for pane-scoped display setup;
+- forbidden actions: direct Lightweight Charts calls, direct chart series
+  writes, direct bar-data cache reads/writes, replay cursor mutation, and
+  silent fallback to primary-pane data when pane display setup fails.
+
+Acceptance:
+
+- a pure coordinator smoke covers skip, dedupe, success, and error lifecycle
+  transitions;
+- the Step 512 rebuild contract smoke still passes after the orchestrator uses
+  the coordinator;
+- active-pane TF changes can mark the target pane display ready without touching
+  unrelated panes when interval sync is off.
 
 ### Step 515 - Replay Pane Projection
 
