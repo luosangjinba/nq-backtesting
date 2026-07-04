@@ -33,3 +33,9 @@ Step 536 cleans:
 - Existing targeted multi-pane TF/Next browser smoke still passes.
 - TODO/session handoff records that V5 can continue without V6 and without
   mandatory cleanup debt from Step 535.
+
+## Step 536 Result
+
+Completed. The rewrite-decision audit now returns `continue-v5` with no blocker
+or cleanup buckets. Remaining `primary` usage is accepted default-pane/layout
+compatibility, not display-state ownership.
