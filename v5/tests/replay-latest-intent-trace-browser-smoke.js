@@ -164,6 +164,15 @@ async function main() {
           return start && end ? end.t - start.t : null;
         }
 
+        function lastSpanFromAny(startLabels, endLabel) {
+          const starts = startLabels
+            .map((label) => lastMark(label))
+            .filter(Boolean)
+            .sort((a, b) => b.t - a.t);
+          const end = lastMark(endLabel);
+          return starts[0] && end ? end.t - starts[0].t : null;
+        }
+
         function sinceLastClick(label) {
           const click = lastMark('controls.next.click');
           const mark = lastMark(label);
@@ -221,7 +230,10 @@ async function main() {
             finalClickToCommandStartMs: sinceLastClick('controls.next.command.start'),
             finalClickToReplayStartMs: sinceLastClick('replay.next.start'),
             queueToFlushStartMs: span('controls.next.queue', 'controls.next.flush.start'),
-            scheduleToFlushStartMs: span('controls.next.schedule.timer', 'controls.next.flush.start'),
+            scheduleToFlushStartMs: lastSpanFromAny([
+              'controls.next.schedule.microtask',
+              'controls.next.schedule.timer',
+            ], 'controls.next.flush.start'),
             controlFlushMs: span('controls.next.flush.start', 'controls.next.flush.end'),
             commandMs: span('controls.next.command.start', 'controls.next.command.end'),
             replayNextMs: span('replay.next.start', 'replay.next.end'),

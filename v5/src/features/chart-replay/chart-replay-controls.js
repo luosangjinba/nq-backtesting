@@ -47,6 +47,7 @@ export function createChartReplayControlsController({
   let replayCommandQueue = Promise.resolve();
   let pendingNextStepCount = 0;
   let pendingNextTimer = null;
+  let pendingNextMicrotask = false;
   let nextBatchRunning = false;
   let disposed = false;
   const cleanupCallbacks = [];
@@ -177,9 +178,13 @@ export function createChartReplayControlsController({
 
   function schedulePendingNext() {
     if (disposed) return;
-    if (nextBatchRunning || pendingNextTimer !== null) return;
-    markReplayTrace('controls.next.schedule.timer', { pendingNextStepCount });
-    pendingNextTimer = setTimeout(flushPendingNext, 0);
+    if (nextBatchRunning || pendingNextTimer !== null || pendingNextMicrotask) return;
+    pendingNextMicrotask = true;
+    markReplayTrace('controls.next.schedule.microtask', { pendingNextStepCount });
+    queueMicrotask(() => {
+      pendingNextMicrotask = false;
+      void flushPendingNext();
+    });
   }
 
   function queueNextStep() {
@@ -296,6 +301,7 @@ export function createChartReplayControlsController({
       clearTimeout(pendingNextTimer);
       pendingNextTimer = null;
     }
+    pendingNextMicrotask = false;
     pendingNextStepCount = 0;
     nextBatchRunning = false;
   }

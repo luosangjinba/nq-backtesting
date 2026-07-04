@@ -34,6 +34,9 @@ are no longer the dominant bottlenecks.
 - Step 519.2: completed. Added input-batching trace marks for queue/schedule
   and extended the trace smoke to report final-click-to-flush,
   final-click-to-command, and final-click-to-replay-start timing.
+- Step 519.3: completed. Replaced timer-backed initial `Next` flush scheduling
+  with microtask scheduling so a rapid click burst still coalesces, but the
+  flush starts without a timer delay.
 
 ## Baseline
 
@@ -80,3 +83,29 @@ Interpretation: the timer delay is measurable, but the larger remaining segment
 is still the single coalesced command doing the visible replay update. The next
 change should remove the first-click timer wait without adding one command per
 click.
+
+## Input Batching Optimization
+
+- A direct synchronous flush was tested first and rejected: it split a 20-click
+  burst into an immediate 1-step command followed by a 19-step command, which
+  increased latest-intent latency.
+- The accepted implementation uses `queueMicrotask` for the first pending
+  `Next` flush. This preserves same-turn click coalescing while avoiding the
+  timer queue.
+- `pendingNextTimer` remains only for the existing edge path where new pending
+  clicks arrive while the controller is refreshing after a completed batch.
+- Disposal still clears pending step count and prevents the microtask callback
+  from mutating live state after teardown.
+- Verification:
+  - `node --check v5/src/features/chart-replay/chart-replay-controls.js` passed.
+  - `node --check v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+  - `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+  - `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- Post-fix trace sample:
+  - final-click-to-visible: about 242ms.
+  - final-click-to-flush-start: about 0.2ms.
+  - final-click-to-command-start: about 0.3ms.
+  - final-click-to-replay-start: about 0.8ms.
+  - schedule-to-flush-start: about 1ms.
+  - controls flush: about 106ms.
+  - replay next: about 93ms.
