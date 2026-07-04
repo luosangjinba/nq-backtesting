@@ -25,6 +25,8 @@ is measured instead of judged only by visual feel.
 
 ## Status
 
-- Step 516.1: in progress.
-- Step 516.2: pending.
+- Step 516.1: completed. The rebuild plan now defines measurable multi-pane
+  rapid-Next acceptance checks.
+- Step 516.2: in progress. A browser smoke is being added for same-timeframe
+  two-pane rapid Next projection and elapsed-time gating.
 - Step 516.3: pending.
