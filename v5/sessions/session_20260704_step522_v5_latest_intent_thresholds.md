@@ -69,6 +69,8 @@ gates by tightening single-pane and multi-pane rapid `Next` thresholds.
   recorded current loose thresholds.
 - Step 522.2: completed. Tightened single-pane latest-intent gates to a 120ms
   observer-based threshold.
+- Step 522.3: completed. Added all-pane observer timing to the multi-pane rapid
+  `Next` gate and introduced a 300ms observer-based regression guard.
 
 ## Baseline From Step 521
 
@@ -97,3 +99,21 @@ should make that protection explicit.
 The threshold is intentionally a little above the 100ms product target to allow
 headless variance while still catching regressions long before the previous
 350ms/1000ms gates.
+
+## Multi-Pane Threshold
+
+- `multi-pane-rapid-next-performance-browser-smoke.js` now observes every
+  mounted pane canvas and records final-click-to-all-pane-cursor visibility.
+- A first attempt to apply the 120ms single-pane threshold failed with observed
+  multi-pane latency around 228ms. That is useful signal, not a test artifact.
+- The committed multi-pane gate uses a 300ms observer-based guard so the test
+  now protects the measured all-pane latest-intent path while documenting that
+  multi-pane still misses the 100ms product target.
+- The existing `< 1800ms` polling elapsed guard remains as a broad fallback.
+- Verification:
+  - `node --check v5/tests/multi-pane-rapid-next-performance-browser-smoke.js`
+    passed.
+  - `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+
+Next performance work should target why two-pane all-cursor visibility is still
+around 200ms+ while single-pane is about 20ms.

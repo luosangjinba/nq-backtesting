@@ -13,6 +13,7 @@ import {
 const CHROME_BIN = process.env.CHROME_BIN || 'google-chrome';
 const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9401);
 const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || `/tmp/v5-multi-pane-rapid-next-performance-${process.pid}`;
+const MULTI_PANE_LATEST_INTENT_OBSERVER_THRESHOLD_MS = 300;
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -143,6 +144,60 @@ async function main() {
           return Object.fromEntries(metrics.map((pane) => [pane.paneId, pane]));
         }
 
+        function observeAllPaneCursors(expectedCursorTimestamp, timeoutMs = 1800) {
+          const canvases = Array.from(document.querySelectorAll('[data-layout-pane] [data-chart-canvas]'));
+          if (!canvases.length) {
+            return Promise.resolve({
+              observed: false,
+              observedAt: null,
+              reason: 'missing-canvases',
+            });
+          }
+          const allVisible = () => canvases.every((canvas) =>
+            Number(canvas.dataset.viewportCursorTimestamp || 0) === expectedCursorTimestamp
+          );
+          if (allVisible()) {
+            return Promise.resolve({
+              observed: true,
+              observedAt: performance.now(),
+              reason: 'already-visible',
+            });
+          }
+          return new Promise((resolve) => {
+            const observers = [];
+            const cleanup = () => {
+              clearTimeout(deadlineTimer);
+              observers.forEach((observer) => observer.disconnect());
+            };
+            const maybeResolve = () => {
+              if (!allVisible()) return;
+              const observedAt = performance.now();
+              cleanup();
+              resolve({
+                observed: true,
+                observedAt,
+                reason: 'mutation',
+              });
+            };
+            const deadlineTimer = setTimeout(() => {
+              cleanup();
+              resolve({
+                observed: false,
+                observedAt: null,
+                reason: 'timeout',
+              });
+            }, timeoutMs);
+            canvases.forEach((canvas) => {
+              const observer = new MutationObserver(maybeResolve);
+              observer.observe(canvas, {
+                attributes: true,
+                attributeFilter: ['data-viewport-cursor-timestamp'],
+              });
+              observers.push(observer);
+            });
+          });
+        }
+
         async function waitFor(label, predicate, timeoutMs = 5000) {
           const deadline = performance.now() + timeoutMs;
           while (performance.now() < deadline) {
@@ -196,11 +251,14 @@ async function main() {
           const beforeByPane = byPane(beforeMetrics);
           const forwardRequestsAfterLayout = window.__v5ForwardBarRequests;
           const expectedCursorTimestamp = Date.parse('2026-06-01T09:40:00.000Z') / 1000;
-          const startedAt = performance.now();
+          const observedCursorPromise = observeAllPaneCursors(expectedCursorTimestamp);
+          let finalClickAt = performance.now();
           const nextButton = document.querySelector('[data-replay-next]');
           for (let index = 0; index < 10; index += 1) {
             nextButton.click();
+            finalClickAt = performance.now();
           }
+          const observedCursor = await observedCursorPromise;
           await waitFor('ten rapid next clicks projected to both panes', async () => {
             const state = await commands.dispatchCommand('replay.getState');
             const metrics = paneMetrics();
@@ -215,7 +273,14 @@ async function main() {
           const afterMetrics = paneMetrics();
           return JSON.stringify({
             error: '',
-            elapsedMs: finishedAt - startedAt,
+            elapsedMs: finishedAt - finalClickAt,
+            latestIntentLatencyMs: observedCursor.observedAt == null
+              ? finishedAt - finalClickAt
+              : observedCursor.observedAt - finalClickAt,
+            latestIntentPollingLatencyMs: finishedAt - finalClickAt,
+            observerDetected: Boolean(observedCursor.observed),
+            observerReason: observedCursor.reason,
+            automationThresholdMs: ${MULTI_PANE_LATEST_INTENT_OBSERVER_THRESHOLD_MS},
             revealedCount: finalState.revealedCount,
             cursorTimestamp: finalState.cursorTimestamp,
             beforeMetrics,
@@ -238,6 +303,11 @@ async function main() {
     assert.equal(value.revealedCount, 10);
     assert.equal(value.cursorTimestamp, '2026-06-01T09:40:00.000Z');
     assert.equal(value.forwardRequestDelta, 0);
+    assert.equal(value.observerDetected, true, `all pane cursor observer should detect visibility: ${JSON.stringify(value)}`);
+    assert.ok(
+      value.latestIntentLatencyMs < value.automationThresholdMs,
+      `multi-pane latest intent latency ${value.latestIntentLatencyMs}ms exceeded ${value.automationThresholdMs}ms: ${JSON.stringify(value)}`
+    );
     assert.ok(value.elapsedMs < 1800, `10 rapid next clicks took ${value.elapsedMs}ms`);
     assert.equal(value.afterMetrics.length, 2);
     assert.ok(
