@@ -132,9 +132,14 @@ bars.
   `appendRevealedBarsToPanes` before `REPLAY_EVENTS.NEXT` notification. The
   ordering smoke now asserts both primary and secondary append before `NEXT`,
   and projection skips same-timeframe panes when fan-out has already applied.
-- Step 529.5-529.6: pending implementation.
+- Step 529.5: completed. `chart-replay-pane-projection` no longer dispatches
+  same-timeframe `chart.appendBars`; it now reports `fanout-already-applied`
+  or `same-timeframe-fanout-required` and keeps only different-timeframe
+  display-window projection as its mutation responsibility.
+- Step 529.6: pending regression and closeout.
 
 ## Next
 
-Implement Step 529.5 next: shrink `chart-replay-pane-projection` so
-same-timeframe `NEXT` appends are no longer its normal responsibility.
+Implement Step 529.6 next: run the full regression set, update TODO/spec
+closeout, and record manual retest guidance for remaining pane TF / pan display
+bugs.

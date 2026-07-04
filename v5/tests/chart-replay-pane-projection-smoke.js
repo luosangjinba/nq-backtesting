@@ -1,9 +1,6 @@
 import assert from 'node:assert/strict';
 
 import {
-  CHART_COMMANDS,
-} from '../src/contracts/chart-contracts.js';
-import {
   REPLAY_COMMANDS,
   REPLAY_EVENTS,
 } from '../src/contracts/replay-contracts.js';
@@ -28,9 +25,6 @@ function createProjectionHarness({
     setStatusText: (status) => statuses.push(status),
     dispatchCommand: async (command, payload) => {
       commands.push({ command, payload });
-      if (command === CHART_COMMANDS.GET_VIEWPORT_METRICS) {
-        return { estimatedVisibleBars: 120 };
-      }
       return { ok: true };
     },
   });
@@ -64,15 +58,25 @@ const replayPayload = {
     }
   ));
   assert.deepEqual(ensuredPanes, ['secondary']);
-  assert.deepEqual(results, [{ paneId: 'secondary', action: 'append-bars', displayTimeframe: 1 }]);
-  assert.deepEqual(
-    commands.map((entry) => entry.command),
-    [
-      CHART_COMMANDS.GET_VIEWPORT_METRICS,
-      CHART_COMMANDS.APPEND_BARS,
-    ]
-  );
-  assert.equal(commands[1].payload.viewportFollow.estimatedVisibleBars, 120);
+  assert.deepEqual(results, [{ paneId: 'secondary', action: 'same-timeframe-fanout-required', displayTimeframe: 1 }]);
+  assert.deepEqual(commands, []);
+}
+
+{
+  const { commands, ensuredPanes, projection } = createProjectionHarness();
+  const results = await Promise.all(projection.projectReplayEvent(
+    REPLAY_EVENTS.NEXT,
+    { ...replayPayload, paneFanoutApplied: true },
+    {
+      panes: [
+        { id: 'primary', displayTimeframe: 1 },
+        { id: 'secondary', displayTimeframe: 1 },
+      ],
+    }
+  ));
+  assert.deepEqual(ensuredPanes, ['secondary']);
+  assert.deepEqual(results, [{ paneId: 'secondary', action: 'fanout-already-applied', displayTimeframe: 1 }]);
+  assert.deepEqual(commands, []);
 }
 
 {

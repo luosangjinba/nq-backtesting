@@ -1,7 +1,4 @@
 import {
-  CHART_COMMANDS,
-} from '../../contracts/chart-contracts.js';
-import {
   DEFAULT_ACTIVE_PANE_ID,
 } from '../../contracts/layout-contracts.js';
 import {
@@ -62,24 +59,9 @@ export function createReplayPaneProjection({
     if (disposed()) return null;
 
     if (Number(paneTimeframe) === Number(replayTimeframe(payload)) && Array.isArray(payload.revealedBars)) {
-      if (payload.paneFanoutApplied) {
-        return {
-          paneId,
-          action: 'fanout-already-applied',
-          displayTimeframe: paneTimeframe,
-        };
-      }
-      await dispatchCommand?.(CHART_COMMANDS.APPEND_BARS, {
-        paneId,
-        bars: payload.revealedBars,
-        viewportFollow: {
-          enabled: true,
-          cursorTimestamp,
-        },
-      });
       return {
         paneId,
-        action: 'append-bars',
+        action: payload.paneFanoutApplied ? 'fanout-already-applied' : 'same-timeframe-fanout-required',
         displayTimeframe: paneTimeframe,
       };
     }
