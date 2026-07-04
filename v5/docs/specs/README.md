@@ -75,6 +75,12 @@ that future work must follow this file order.
 - `layout-split-panes-contract.md`: Phase 3 rules for future split panes,
   active-pane ownership, Settings scope, sync defaults, and forbidden runtime
   coupling before multi-pane UI implementation.
+- `multi-pane-behavior-contract-audit.md`: Step 503A audit that compares the
+  requested multi-pane behavior contract with current implementation points,
+  smoke coverage, and remaining gaps before module splitting starts.
+- `multi-pane-module-audit.md`: Phase 3 audit of current multi-pane ownership
+  debt, hotspots, proposed module boundaries, and the recommended refactor
+  order before adding more multi-pane behavior.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
@@ -157,4 +163,8 @@ that future work must follow this file order.
   `layout-split-panes-contract.md`, `workstation-visual-system.md`
 - Step 492: `runtime-lifecycle-cleanup.md`,
   `runtime-boundary-contracts.md`, `chart-engine-adapter.md`
+- Step 503A: `multi-pane-behavior-contract-audit.md`,
+  `layout-split-panes-contract.md`, `workstation-decision-backlog.md`
+- Step 503-507: `multi-pane-module-audit.md`,
+  `layout-split-panes-contract.md`, `runtime-boundary-contracts.md`
 - Cross-phase: `open-source-local-deployment.md`

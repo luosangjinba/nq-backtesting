@@ -16,6 +16,11 @@ Read this index before working on V5.
   state contract and UI ownership rules.
 - `v5/docs/specs/layout-split-panes-contract.md`: split-pane ownership,
   active-pane, Settings scope, and sync contract before multi-pane UI work.
+- `v5/docs/specs/multi-pane-behavior-contract-audit.md`: Step 503A behavior
+  contract audit for active pane, shared TF, sync toggles, pane-local chrome,
+  viewport demand, reset view, split resize walls, and test coverage.
+- `v5/docs/specs/multi-pane-module-audit.md`: current multi-pane module audit,
+  ownership debt, proposed split boundaries, and refactor order.
 - `v5/docs/specs/workstation-visual-system.md`: V5 visual and interaction
   system for FXReplay-like workstation polish without bypassing runtime
   boundaries.

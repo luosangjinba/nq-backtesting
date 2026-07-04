@@ -10,15 +10,14 @@
 
 ## Current / Next
 
-- Current status: Step 502 completed. Multi-pane TF isolation now covers the
-  fresh two-pane path: changing the initial active primary pane TF no longer
-  leaks into a newly mounted secondary pane, primary visible-range/reset sync no
-  longer rerenders non-primary panes, and OHLC overlay TF labels read each
-  pane's own display timeframe instead of the active pane's TF.
-- Next candidate: Step 503 - polish split-pane resize/active-pane UX details
-  and add a browser acceptance gate for resize handles/minimum pane walls, then
-  decide whether to continue multi-pane polish or return to remaining Settings
-  controls.
+- Current status: Step 503A completed as a documentation/audit step. The
+  multi-pane behavior contract is now cross-checked against current code and
+  smoke coverage before the Step 503-507 module split sequence begins.
+- Next candidate: Step 503 - extract `chart-replay-pane-orchestrator.js` from
+  `chart-replay-route.js` so pane display initialization, host mount/release,
+  active-pane TF changes, and interval fan-out stop living in the route shell.
+  Step 504-507 then split layout sync, pane shell DOM/resize, chart runtime pane
+  state, and replay pane display merge helpers.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -261,6 +260,18 @@
   replace/append/range/reset paths now target the primary host only; pane-local
   loads remain responsible for secondary/tertiary data. OHLC overlay timeframe
   labels are pane-local DOM/canvas metadata, not active-pane global state.
+- Multi-pane modularization decision: Steps 503-507 are a cleanup sequence, not
+  a feature sequence. Do not add new multi-pane behavior until route-level pane
+  orchestration, layout sync effects, pane shell DOM/resize, chart runtime pane
+  state helpers, and replay pane display merge logic have clearer module
+  boundaries. The owning audit is
+  `v5/docs/specs/multi-pane-module-audit.md`.
+- Multi-pane behavior audit decision: Step 503A is the contract check that
+  sits before Step 503. It records the requested behavior for active pane,
+  shared TF control, interval sync, per-pane OHLC/axis chrome, pane-local
+  viewport demand, reset view, split minimum wall, and module-boundary
+  ownership, then marks current implementation status and smoke coverage. The
+  owning audit is `v5/docs/specs/multi-pane-behavior-contract-audit.md`.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
