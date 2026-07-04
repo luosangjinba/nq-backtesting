@@ -99,6 +99,9 @@ that future work must follow this file order.
 - `pane-display-state-unification-plan.md`: Step 533 plan to replace split
   primary/non-primary chart display state with one pane-local model and stale
   display-write guards.
+- `pane-display-state-store-rebuild-plan.md`: Step 534 plan to delete the
+  remaining primary/non-primary display-state architecture and rebuild chart
+  and replay display paths around one pane state store.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
