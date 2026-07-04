@@ -57,8 +57,9 @@ function createCoordinatorHarness({
 {
   const { commands, coordinator } = createCoordinatorHarness();
   const primaryResult = await coordinator.ensurePaneDisplay({ id: 'primary', displayTimeframe: 1 });
-  assert.equal(primaryResult, null, 'primary display setup is owned by the main replay path');
-  assert.equal(commands.length, 0, 'primary pane must not enqueue pane-local display setup');
+  assert.equal(primaryResult.state, PANE_DISPLAY_STATES.READY);
+  assert.equal(primaryResult.displayTimeframe, 1);
+  assert.equal(commands.length, 0, 'default pane bootstrap compatibility must not enqueue duplicate display setup');
 }
 
 {
@@ -83,13 +84,13 @@ function createCoordinatorHarness({
   const { coordinator } = createCoordinatorHarness();
   assert.equal(
     coordinator.paneInitialDisplayTimeframe({ id: 'primary', displayTimeframe: null }),
-    5,
-    'primary may fall back to replay display timeframe'
+    1,
+    'default pane display fallback should use the session timeframe when no pane timeframe is set'
   );
   assert.equal(
     coordinator.paneInitialDisplayTimeframe({ id: 'secondary', displayTimeframe: null }),
     1,
-    'non-primary panes should default to the session timeframe, not primary replay display'
+    'pane display fallback should default to the session timeframe when no pane timeframe is set'
   );
 }
 
