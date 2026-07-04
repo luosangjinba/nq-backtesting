@@ -243,6 +243,7 @@ async function main() {
               emitStart,
               emitEnd,
               primaryBeforeEmit: Boolean(primaryAppend && emitStart && primaryAppend.sequence < emitStart.sequence),
+              secondaryBeforeEmit: Boolean(secondaryAppend && emitStart && secondaryAppend.sequence < emitStart.sequence),
               secondaryAfterEmit: Boolean(secondaryAppend && emitEnd && secondaryAppend.sequence > emitEnd.sequence),
             },
             marks: window.__v5ReplayTrace.marks,
@@ -270,12 +271,17 @@ async function main() {
     assert.equal(
       value.ordering.primaryBeforeEmit,
       true,
-      `current baseline should append primary before NEXT notification: ${JSON.stringify(value.ordering)}`
+      `fan-out should append primary before NEXT notification: ${JSON.stringify(value.ordering)}`
+    );
+    assert.equal(
+      value.ordering.secondaryBeforeEmit,
+      true,
+      `fan-out should append secondary before NEXT notification: ${JSON.stringify(value.ordering)}`
     );
     assert.equal(
       value.ordering.secondaryAfterEmit,
-      true,
-      `current baseline should append secondary through post-NEXT catch-up: ${JSON.stringify(value.ordering)}`
+      false,
+      `secondary should no longer append through post-NEXT catch-up: ${JSON.stringify(value.ordering)}`
     );
   } finally {
     if (client) {

@@ -62,6 +62,13 @@ export function createReplayPaneProjection({
     if (disposed()) return null;
 
     if (Number(paneTimeframe) === Number(replayTimeframe(payload)) && Array.isArray(payload.revealedBars)) {
+      if (payload.paneFanoutApplied) {
+        return {
+          paneId,
+          action: 'fanout-already-applied',
+          displayTimeframe: paneTimeframe,
+        };
+      }
       await dispatchCommand?.(CHART_COMMANDS.APPEND_BARS, {
         paneId,
         bars: payload.revealedBars,

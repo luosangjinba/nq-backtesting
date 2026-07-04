@@ -1,6 +1,7 @@
 import { dispatchCommand, hasCommand, registerCommand } from './commands.js';
 import { subscribeEvent } from './events.js';
 import { CHART_COMMANDS, CHART_EVENTS } from '../contracts/chart-contracts.js';
+import { LAYOUT_COMMANDS } from '../contracts/layout-contracts.js';
 import { REPLAY_COMMANDS, REPLAY_EVENTS } from '../contracts/replay-contracts.js';
 import { SESSION_COMMANDS } from '../contracts/session-contracts.js';
 import { createReplayBootstrapController } from './replay-bootstrap-controller.js';
@@ -81,6 +82,9 @@ export function createReplayRuntime() {
     displayWindowController,
     ensureInitialSession: (payload) => bootstrapController.loadInitialSession(payload),
     loadInitialPrefix: (payload) => bootstrapController.loadInitialPrefix(payload),
+    getLayoutState: () => (hasCommand(LAYOUT_COMMANDS.GET_STATE)
+      ? dispatchCommand(LAYOUT_COMMANDS.GET_STATE).catch(() => null)
+      : null),
     persistReplayCursor: (payload) => persistReplayCursor(payload),
     clearPersistedReplayCursor: () => clearPersistedReplayCursor(),
     pausePlayback: (payload) => playbackController.pause(payload),

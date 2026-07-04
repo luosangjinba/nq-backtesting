@@ -127,10 +127,14 @@ bars.
   The boundary appends same-timeframe panes from one reveal batch and returns
   different-timeframe panes for display-window projection instead of appending
   raw replay-timeframe bars.
-- Step 529.4-529.6: pending implementation.
+- Step 529.4: completed. Replay `Next` now reads a layout snapshot through
+  the command boundary and sends same-timeframe panes through
+  `appendRevealedBarsToPanes` before `REPLAY_EVENTS.NEXT` notification. The
+  ordering smoke now asserts both primary and secondary append before `NEXT`,
+  and projection skips same-timeframe panes when fan-out has already applied.
+- Step 529.5-529.6: pending implementation.
 
 ## Next
 
-Implement Step 529.4 next: route replay `Next` same-timeframe chart writes
-through `appendRevealedBarsToPanes`, then flip the ordering smoke toward the
-target fan-out contract.
+Implement Step 529.5 next: shrink `chart-replay-pane-projection` so
+same-timeframe `NEXT` appends are no longer its normal responsibility.

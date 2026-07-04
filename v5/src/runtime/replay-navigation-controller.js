@@ -41,6 +41,7 @@ export function createReplayNavigationController({
   displayWindowController,
   ensureInitialSession,
   loadInitialPrefix,
+  getLayoutState = async () => null,
   persistReplayCursor,
   clearPersistedReplayCursor,
   pausePlayback,
@@ -150,6 +151,7 @@ export function createReplayNavigationController({
       ]
       : sourceState.displayBars;
     markReplayTrace('replay.next.displayBuild.end', { displayCount: displayBars.length });
+    let paneFanout = null;
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       markReplayTrace('replay.next.chartAppend.start', {
         appendedCount: nextBars.length,
@@ -159,8 +161,20 @@ export function createReplayNavigationController({
         appendedCount: nextBars.length,
         displayCount: displayBars.length,
       });
-      if (typeof chartSync.appendDisplayBars === 'function') {
+      if (typeof chartSync.appendRevealedBarsToPanes === 'function') {
+        const layoutState = await getLayoutState?.().catch(() => null);
+        paneFanout = await chartSync.appendRevealedBarsToPanes({
+          panes: layoutState?.panes || [{ id: 'primary', displayTimeframe: normalizedDisplayTimeframe }],
+          revealedBars: nextBars,
+          cursorTimestamp: nextBar.time,
+          replayTimeframe: normalizedReplayTimeframe,
+          displayTimeframeFallback: normalizedDisplayTimeframe,
+          primaryFullDisplayBars: displayBars,
+          rightEdgeLimit: nextBar.time,
+        });
+      } else if (typeof chartSync.appendDisplayBars === 'function') {
         await chartSync.appendDisplayBars(nextBars, nextBar.time, {
+          paneId: 'primary',
           fullDisplayBars: displayBars,
           rightEdgeLimit: nextBar.time,
         });
@@ -216,6 +230,8 @@ export function createReplayNavigationController({
       advanced: true,
       revealedBar: clone(nextBar),
       revealedBars: clone(nextBars),
+      paneFanout: paneFanout ? clone(paneFanout) : null,
+      paneFanoutApplied: Boolean(paneFanout),
     };
     markReplayTrace('replay.next.emit.start', {
       cursorTimestamp: nextBar.time,
