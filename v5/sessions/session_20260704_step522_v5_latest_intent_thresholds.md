@@ -71,6 +71,8 @@ gates by tightening single-pane and multi-pane rapid `Next` thresholds.
   observer-based threshold.
 - Step 522.3: completed. Added all-pane observer timing to the multi-pane rapid
   `Next` gate and introduced a 300ms observer-based regression guard.
+- Step 522.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
 
 ## Baseline From Step 521
 
@@ -117,3 +119,25 @@ headless variance while still catching regressions long before the previous
 
 Next performance work should target why two-pane all-cursor visibility is still
 around 200ms+ while single-pane is about 20ms.
+
+## Final Verification
+
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/route-teardown-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `git diff --check` passed.
+- Final trace sample:
+  - single-pane observer final-click-to-visible: about 13ms.
+  - single-pane final-click-to-polling-visible: about 15ms.
+  - single-pane final-click-to-animation-frame: about 123ms.
+  - replay next: about 15ms.
+  - chart runtime append: about 10ms.
+
+## Next
+
+Step 523 should investigate multi-pane all-cursor visibility. Step 522 proved
+the single-pane 120ms target is comfortably met, but the attempted 120ms
+multi-pane threshold measured about 228ms before the gate was set to a 300ms
+regression guard.
