@@ -52,6 +52,15 @@ Verification:
 - `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
 - `git diff --check`
 
+Result:
+
+- `chart-runtime.js` now imports pane-state helpers and injects its primary
+  chart state plus pane display-state map through thin runtime-local wrappers.
+- Command registration, event emission, host lifecycle, host sync, and adapter
+  writes remain in `chart-runtime.js`.
+- Regression gate passed with the existing `MODULE_TYPELESS_PACKAGE_JSON`
+  warning from Node test execution.
+
 ### 506.4 - Closeout
 
 Record final module boundaries, line count movement, commits, and verification
