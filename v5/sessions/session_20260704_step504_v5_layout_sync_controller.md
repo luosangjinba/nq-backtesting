@@ -81,4 +81,40 @@ Verification:
 
 ## Status
 
-In progress.
+Completed.
+
+## Result
+
+Added:
+
+- `v5/src/features/chart-replay/chart-replay-layout-sync-controller.js`
+
+Changed:
+
+- `chart-replay-route.js` delegates time sync, date-range sync, crosshair sync,
+  chart visible-range event handling, and chart crosshair event handling to the
+  layout sync controller.
+- The controller dispatches layout commands and calls route callbacks for
+  applying layout state, refreshing replay status, updating crosshair UI state,
+  and disabling controls.
+- The controller does not write chart data, request bars, or mutate replay
+  cursor/reveal state.
+- `chart-replay-route.js` moved from 541 lines after Step 503 to 517 lines
+  after Step 504.
+
+## Verification Result
+
+Passed:
+
+- `node v5/tests/multi-pane-active-pane-browser-smoke.js`
+- `node v5/tests/replay-workstation-layout-browser-smoke.js`
+- `node v5/tests/chart-runtime-pane-local-viewport-smoke.js`
+- `git diff --check`
+
+Node emitted the existing `MODULE_TYPELESS_PACKAGE_JSON` warning for ESM test
+files; tests still passed.
+
+## Next
+
+Step 505 should split pane shell DOM helpers and split-resize behavior out of
+`chart-replay-pane-shell.js`.

@@ -280,6 +280,8 @@ Step 503 result:
 
 ### Step 504 - Extract `chart-replay-layout-sync-controller.js`
 
+Status: completed.
+
 Goal: put route-level sync effects behind one module.
 
 Move out of route:
@@ -309,6 +311,15 @@ Acceptance:
 
 - Go to / Jump cursor active-pane behavior unchanged;
 - dateRange sync and crosshair sync smoke behavior unchanged.
+
+Step 504 result:
+
+- added `v5/src/features/chart-replay/chart-replay-layout-sync-controller.js`;
+- reduced `chart-replay-route.js` from 541 lines after Step 503 to 517 lines;
+- moved `syncLayoutTime`, `syncLayoutDateRange`, `syncLayoutCrosshair`, and
+  chart visible-range/crosshair event sync decisions out of the route;
+- kept the controller limited to layout command dispatch and route callbacks,
+  with no chart writes, bar requests, or replay cursor mutation.
 
 ### Step 505 - Split Pane Shell DOM And Resize
 

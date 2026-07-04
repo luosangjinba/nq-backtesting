@@ -10,12 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 504 in progress. The implementation plan is to extract
-  `chart-replay-layout-sync-controller.js` in bounded commits: document the
-  split, add the controller seam, move time/date-range/crosshair sync effects,
-  then run the multi-pane layout regression gates.
-- Next candidate: Complete Step 504, then continue Step 505 with pane shell DOM
-  and split-resize controller extraction.
+- Current status: Step 504 completed. `chart-replay-layout-sync-controller.js`
+  now owns route-level time/date-range/crosshair sync effects and chart
+  visible-range/crosshair event sync decisions.
+- Next candidate: Step 505 - split pane shell DOM helpers and split-resize
+  behavior out of `chart-replay-pane-shell.js`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
@@ -276,6 +275,12 @@
   display initialization, active-pane TF changes, and interval-sync display
   reload fan-out. Route-level layout sync remains in `chart-replay-route.js`
   until Step 504.
+- Multi-pane layout sync decision: Step 504 extracts
+  `chart-replay-layout-sync-controller.js`. The controller owns time,
+  date-range, and crosshair sync effects plus chart visible-range/crosshair
+  event sync decisions. It dispatches layout commands only and uses route
+  callbacks for applying layout state, replay status refresh, and crosshair UI
+  updates.
 - UI decision: `Exchange / UTC` is useful as a display-timezone switch, but it
   should not stay as a prominent top-level control long term. Default to
   `Exchange`; later move timezone display switching into a display/settings
