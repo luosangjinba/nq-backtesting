@@ -10,6 +10,9 @@
 
 ## Current / Next
 
+- Current status: Step 528 active. Auditing remaining FXReplay parity gaps
+  after the recent replay transport latency, keyboard, speed, and persistence
+  work. This is a ranking/audit step, not a runtime optimization step.
 - Current status: Step 527 completed. Replay transport UI preferences now
   persist floating control position and playback speed across chart route
   re-entry and page reloads, with restored positions clamped to the current
@@ -39,9 +42,9 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Move to an audit of remaining FXReplay parity gaps or
-  the next replay workstation usability gap. Multi-pane cadence or pane
-  update-order audits can stay optional unless manual testing exposes a
+- Next recommended step: Finish Step 528 FXReplay parity gap audit and use it
+  to choose the next bounded replay workstation feature. Multi-pane cadence or
+  pane update-order audits can stay optional unless manual testing exposes a
   user-visible regression.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay

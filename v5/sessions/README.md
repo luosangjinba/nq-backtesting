@@ -47,6 +47,7 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 525: `session_20260704_step525_v5_keyboard_replay_controls.md`
 - Step 526: `session_20260704_step526_v5_playback_speed_ergonomics.md`
 - Step 527: `session_20260704_step527_v5_replay_transport_persistence.md`
+- Step 528: `session_20260704_step528_v5_fxreplay_parity_gap_audit.md`
 - Step 503-507: `session_20260704_step503_507_v5_multi_pane_module_split_plan.md`
 
 ## Completed Session Index
