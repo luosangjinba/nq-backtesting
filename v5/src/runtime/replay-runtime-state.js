@@ -175,6 +175,8 @@ export function shouldSeekEarlierDisplayWindow({
   attempt,
   displayTimeframe,
   replayTimeframe,
+  minimumDisplayBars,
+  displayBars,
   missingWindow,
   currentEarliestTimestamp,
   window,
@@ -187,6 +189,15 @@ export function shouldSeekEarlierDisplayWindow({
       > normalizeTimeframe(replayTimeframe || displayTimeframe, 'replay timeframe')
     && Array.isArray(windowDisplayBars)
     && windowDisplayBars.length === 0
+  ) {
+    return true;
+  }
+  const normalizedMinimumDisplayBars = Math.max(0, Math.floor(Number(minimumDisplayBars || 0)));
+  if (
+    normalizedMinimumDisplayBars > 0
+    && Array.isArray(displayBars)
+    && displayBars.length > 0
+    && displayBars.length < normalizedMinimumDisplayBars
   ) {
     return true;
   }

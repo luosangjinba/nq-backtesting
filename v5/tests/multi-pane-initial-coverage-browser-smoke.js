@@ -215,14 +215,13 @@ async function main() {
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
           timeframeSelect.value = '60';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          await waitFor('primary 1H initial coverage bug baseline', async () => {
+          await waitFor('primary 1H initial coverage reaches target', async () => {
             const primary = paneState('primary');
             return primary.displayTimeframe === '60'
               && primary.interactionMode === 'follow'
               && primary.viewportFollow === 'true'
-              && primary.renderedBarCount > 0
-              && primary.renderedBarCount < minimumCoverage
-              && requests.filter((request) => request.timeframe === 60).length === 1;
+              && primary.renderedBarCount >= minimumCoverage
+              && requests.filter((request) => request.timeframe === 60).length >= 2;
           }, 12000);
 
           return JSON.stringify({
@@ -250,13 +249,15 @@ async function main() {
 
     assert.equal(value.error, '', value.error ? JSON.stringify(value) : 'browser smoke failed');
     assert.equal(value.primary.displayTimeframe, '60');
-    assert.ok(value.primary.renderedBarCount > 0, `expected initial 1H bars: ${JSON.stringify(value)}`);
     assert.ok(
-      value.primary.renderedBarCount < value.minimumCoverage,
-      `baseline should capture under-covered initial 1H render: ${JSON.stringify(value)}`
+      value.primary.renderedBarCount >= value.minimumCoverage,
+      `expected initial coverage >= ${value.minimumCoverage}: ${JSON.stringify(value)}`
     );
     assert.equal(value.secondary.displayTimeframe, '1');
-    assert.equal(value.requests.filter((request) => request.timeframe === 60).length, 1);
+    assert.ok(
+      value.requests.filter((request) => request.timeframe === 60).length >= 2,
+      `expected sparse 1H initial coverage to seek earlier: ${JSON.stringify(value.requests)}`
+    );
   } finally {
     if (client) {
       try {

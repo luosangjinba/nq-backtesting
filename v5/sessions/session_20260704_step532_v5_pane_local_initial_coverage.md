@@ -54,7 +54,11 @@ then extends and fills the canvas, which points to an initial coverage gap.
   baseline. With sparse weekday-only `1H` data, primary/left active `1H`
   initial load renders only 18 bars against a minimum coverage target around
   52, and only one `1H` display-window request is made.
-- Step 532.3-532.6: pending.
+- Step 532.3: completed. Replay display-window loading now has a minimum
+  display coverage target based on target pane viewport metrics. Backward
+  display-window loading continues bounded seeking while merged display bars
+  are below that target, preserving existing no-future filtering.
+- Step 532.4-532.6: pending.
 
 ## Step 532.2 Verification
 
@@ -62,8 +66,20 @@ then extends and fills the canvas, which points to an initial coverage gap.
 - `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
 - `git diff --check`
 
+## Step 532.3 Verification
+
+- `node --check v5/src/runtime/replay-runtime-state.js`
+- `node --check v5/src/runtime/replay-display-window-controller.js`
+- `node --check v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/replay-display-timeframe-no-future-smoke.js`
+- `node v5/tests/replay-display-progression-smoke.js`
+- `node v5/tests/multi-pane-initial-coverage-browser-smoke.js`
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js`
+- `node v5/tests/multi-pane-viewport-demand-browser-smoke.js`
+- `git diff --check`
+
 ## Next
 
-Implement Step 532.3 next: make display-window loading continue bounded
-backward seeking when initial rendered coverage is below the target pane's
-visible capacity, then flip the baseline smoke to target behavior.
+Implement Step 532.4 next: verify the new initial coverage path does not
+trigger stale or duplicate viewport-demand overwrites and preserves manual
+left-extension after initial load.

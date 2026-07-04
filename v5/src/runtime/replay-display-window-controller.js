@@ -34,6 +34,7 @@ export function createReplayDisplayWindowController({
   replayEvents = REPLAY_EVENTS,
 }) {
   const loadingDisplayWindowKeys = new Set();
+  const defaultRightOffsetBars = 10;
 
   function displayContextSnapshot(sourceState = getState()) {
     return {
@@ -78,6 +79,10 @@ export function createReplayDisplayWindowController({
       ? Number(requestedCount)
       : computePrefixBarCount(metrics) + 1;
     const normalizedCount = Math.min(Math.max(1, Math.ceil(displayCount)), MAX_PREFIX_BARS);
+    const minimumDisplayBars = Math.max(
+      1,
+      Math.floor(Math.max(1, Number(metrics?.estimatedVisibleBars || 0) - defaultRightOffsetBars))
+    );
     const normalizedAnchor = missingWindow.anchor
       || isoFromTimestamp(alignTimestampToTimeframe(anchor, normalizedDisplayTimeframe));
     const normalizedDirection = missingWindow.direction || viewportDemand?.direction || direction;
@@ -149,6 +154,8 @@ export function createReplayDisplayWindowController({
           attempt,
           displayTimeframe: normalizedDisplayTimeframe,
           replayTimeframe: sourceState.replayTimeframe || sourceState.session.timeframe,
+          minimumDisplayBars,
+          displayBars,
           missingWindow,
           currentEarliestTimestamp,
           window,

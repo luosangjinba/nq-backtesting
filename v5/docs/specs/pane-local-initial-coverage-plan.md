@@ -57,6 +57,9 @@ piece is initial coverage, not left-extension itself.
      explicit TF changes and pane initialization.
    - Continue bounded backward seeking when rendered bars are below the target
      coverage.
+   - Completed: backward display-window loading now continues bounded seeking
+     while merged display bars are below the target pane's initial coverage
+     goal.
    - Commit the runtime fix.
 
 4. Step 532.4 - Guard against duplicate demand races.
