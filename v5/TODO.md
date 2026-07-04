@@ -10,10 +10,10 @@
 
 ## Current / Next
 
-- Current status: Step 520 in progress. Step 519 removed the input/timer gap;
-  final-click-to-replay-start is now about 1ms, but final-click-to-visible is
-  still about 240ms. Step 520 targets the remaining visible update delay inside
-  the coalesced replay command path.
+- Current status: Step 520 completed. Same-timeframe replay `Next` now folds
+  right-edge limit updates into the `chart.appendBars` command, avoiding the
+  separate pre-append `chart.setRightEdgeLimit` host sync. Final-click-to-visible
+  improved to about 138ms in the trace, with replay `Next` around 16ms.
 - Current status: Step 517 completed. The replay `Next` visible path no longer
   waits for cursor persistence, and replay gates assert the visible cursor
   directly with `viewportCursorTimestamp`.
@@ -21,10 +21,11 @@
   bottleneck; chart host sync fell back to replacement because replay follow
   slides the rendered window. V5 now supports sliding-window tail append and
   enters incremental `lightweight.append` / `series.update`.
-- Next recommended step: Complete Step 520 by adding replay-command phase trace
-  around right-edge sync, chart append metadata visibility, replay state/event,
-  and controls refresh; then apply the smallest optimization justified by the
-  trace while preserving replay/chart/bar-data ownership.
+- Next recommended step: Step 521 should investigate the remaining
+  metadata-to-visible gap after replay command completion. Step 520 removed the
+  measured replay command bottleneck, but trace still reports roughly 120-130ms
+  between Lightweight metadata application / replay end and the browser smoke's
+  visible-cursor detection.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.

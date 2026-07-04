@@ -93,6 +93,8 @@ cursor becoming visible in chart metadata.
 - Step 520.3: completed. Moved same-timeframe replay `Next` right-edge limit
   updates into `chart.appendBars`, avoiding the separate pre-append
   `chart.setRightEdgeLimit` host sync.
+- Step 520.4: completed. Ran the regression set and closed TODO/session
+  handoff.
 
 ## Baseline From Step 519
 
@@ -162,3 +164,32 @@ the incremental append.
 Interpretation: Step 520 removed the measured right-edge host-sync cost. The
 remaining gap is now largely after replay command completion / metadata apply
 and should be treated separately from replay command runtime cost.
+
+## Final Verification
+
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js` passed.
+- `node v5/tests/route-teardown-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `node v5/tests/chart-runtime-engine-adapter-smoke.js` passed.
+- `git diff --check` passed.
+- Final trace sample:
+  - final-click-to-visible: about 138ms.
+  - final-click-to-replay-start: about 1ms.
+  - controls flush: about 30ms.
+  - replay next: about 16ms.
+  - right-edge sync: removed from append path.
+  - append display: about 13ms.
+  - chart runtime append: about 12ms.
+  - Lightweight append: about 6ms.
+  - replay end to visible detection: about 121ms.
+  - Lightweight metadata to visible detection: about 131ms.
+
+## Next
+
+Step 521 should investigate the remaining post-command visibility gap. The
+replay command itself is no longer the main bottleneck, so the next trace should
+separate actual DOM metadata write timing, CDP/evaluation polling cadence,
+requestAnimationFrame presentation, and any browser/headless scheduling delay
+before changing production code.
