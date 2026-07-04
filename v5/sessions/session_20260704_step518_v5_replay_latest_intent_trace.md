@@ -108,3 +108,42 @@ is removed, but user testing still reports perceptible delay versus FXReplay.
 The next trace target is the gap between the final button click and
 `controls.next.flush.start` / `replay.next.start`, plus whether rapid clicks
 should update a latest desired cursor without waiting for a timer-backed flush.
+
+## After Reboot Handoff
+
+Repository state before reboot:
+
+- Branch: `v5/fx-replay-workstation`.
+- Worktree was clean after Step 518 commits.
+- Latest Step 518 commits:
+  - `c2afdd2 docs(v5): plan replay latest-intent trace step`
+  - `15d075c test(v5): add replay latest-intent trace smoke`
+  - `044ae34 test(v5): trace chart append replay phases`
+  - `b479788 fix(v5): append sliding replay windows incrementally`
+  - `7250f27 docs(v5): close replay latest-intent trace step`
+
+Recommended startup checks after reboot:
+
+1. Confirm branch and clean worktree:
+   - `git branch --show-current`
+   - `git status --short`
+2. Confirm no stale local servers are already using the V5 dev port:
+   - `ss -ltnp | rg ':8011|:8001|:8765|:8766'`
+3. Run latency browser smokes sequentially, not in parallel:
+   - `node v5/tests/replay-latest-intent-trace-browser-smoke.js`
+   - `node v5/tests/replay-latest-intent-browser-smoke.js`
+   - `node v5/tests/multi-pane-rapid-next-performance-browser-smoke.js`
+4. If latency smoke fails immediately after reboot, rerun once sequentially
+   before treating it as a product regression. If manual testing still feels
+   slower than FXReplay, proceed to Step 519.
+
+Step 519 entry point:
+
+- Start from `v5/src/features/chart-replay/chart-replay-controls.js`.
+- Focus on `handleNextClick`, `schedulePendingNext`, `flushPendingNext`,
+  `runNext`, and `runReplayCommand`.
+- Measure the gap from final click to `controls.next.flush.start` and
+  `replay.next.start`.
+- Decide whether `Next` should dispatch immediately on the first click and
+  coalesce only extra pending clicks, instead of always waiting for a
+  timer-backed flush.

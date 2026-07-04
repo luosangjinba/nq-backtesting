@@ -24,7 +24,9 @@
 - Next recommended step: Step 519 should target controls/input batching and the
   gap between the final `Next` click and replay command start. User testing
   still reports perceptible delay versus FXReplay, so the product target remains
-  unmet even though the chart replacement bottleneck is fixed.
+  unmet even though the chart replacement bottleneck is fixed. After reboot,
+  run latency browser smokes sequentially and start Step 519 from
+  `chart-replay-controls.js`.
 - Step 379 advanced Historical Replay Review by replacing the visible default
   DOM fallback with the real chart engine while preserving no-future replay
   boundaries.
