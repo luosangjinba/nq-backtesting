@@ -74,7 +74,33 @@ boundaries.
   controller using existing replay button handlers and controller cleanup.
 - Step 525.3: completed. Added browser smoke coverage for keyboard replay
   controls and corrected hidden-dialog shortcut blocking.
+- Step 525.4: completed. Ran regression coverage and closed TODO/session
+  handoff.
+
+## Implementation Notes
+
+- Keyboard ownership lives in `chart-replay-controls.js`, the existing feature
+  UI controller for replay transport behavior.
+- `ArrowRight`, `ArrowLeft`, and `Space` reuse the same handlers as the visible
+  controls, preserving batching, command-in-flight guards, status refresh, and
+  disabled state.
+- The document-level listener is removed by the existing controller
+  `dispose()` cleanup path.
+- Shortcuts are ignored for modified/repeated key events, editable or form
+  targets, and open popovers/modals. Hidden dialog panels are not treated as
+  blockers.
+
+## Final Verification
+
+- `node v5/tests/replay-keyboard-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-cadence-latency-browser-smoke.js` passed.
+- `node v5/tests/chart-replay-fast-next-controls-smoke.js` passed during
+  implementation validation.
+- `git diff --check` passed.
 
 ## Next
 
-Implement the keyboard listener in the existing replay controls controller.
+Move to the next replay workstation usability gap. Good candidates are replay
+control persistence/polish, playback speed ergonomics, or an audit of remaining
+FXReplay parity gaps.
