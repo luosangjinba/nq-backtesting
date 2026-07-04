@@ -78,9 +78,10 @@ export function createReplayChartSync({
     });
   }
 
-  async function syncChartViewportFollow(cursorTimestamp, { resume = false } = {}) {
+  async function syncChartViewportFollow(cursorTimestamp, { resume = false, paneId } = {}) {
     if (!hasCommand(chartCommands.SET_VIEWPORT_FOLLOW)) return null;
     return dispatchCommand(chartCommands.SET_VIEWPORT_FOLLOW, {
+      paneId,
       enabled: true,
       resume,
       cursorTimestamp,
@@ -102,8 +103,8 @@ export function createReplayChartSync({
       bars: displayBars,
       expectedDisplayRevision,
     });
-    if (syncViewportFollow && (!paneId || paneId === 'primary')) {
-      await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow });
+    if (syncViewportFollow) {
+      await syncChartViewportFollow(cursorTimestamp, { resume: resumeViewportFollow, paneId });
     }
     return result;
   }

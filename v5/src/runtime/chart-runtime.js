@@ -495,6 +495,61 @@ export function createChartRuntime() {
   }
 
   function setViewportFollow(payload = {}) {
+    const normalizedPaneId = normalizePaneId(payload.paneId);
+    if (normalizedPaneId !== DEFAULT_CHART_PANE_ID) {
+      const sourceState = stateForPane(normalizedPaneId);
+      const nextViewportFollow = normalizeViewportFollow(payload, sourceState);
+      let visibleRange = sourceState.visibleRange;
+      let interaction = sourceState.interaction;
+      let visibleRangeChanged = false;
+      if (payload.resume) {
+        visibleRange = null;
+        interaction = {
+          mode: 'follow',
+          manualVisibleRange: null,
+        };
+      } else {
+        const manualAnchorRange = deriveManualAnchorRange(sourceState, nextViewportFollow);
+        if (manualAnchorRange) {
+          visibleRangeChanged = !rangesEqual(sourceState.visibleRange, manualAnchorRange)
+            || !rangesEqual(sourceState.interaction.manualVisibleRange, manualAnchorRange);
+          visibleRange = { ...manualAnchorRange };
+          interaction = {
+            mode: 'manual',
+            manualVisibleRange: { ...manualAnchorRange },
+          };
+        }
+      }
+      const viewportFollow = interaction.mode === 'manual' && !payload.resume
+        ? {
+          ...nextViewportFollow,
+          enabled: false,
+        }
+        : nextViewportFollow;
+      const paneState = updatePaneDisplayState(normalizedPaneId, {
+        visibleRange,
+        interaction,
+        viewportFollow,
+      });
+      const prefixDemand = computePrefixDemand(paneState);
+      const viewportDemand = computeViewportDemand(paneState, { paneId: normalizedPaneId });
+      updatePaneDisplayState(normalizedPaneId, { prefixDemand, viewportDemand });
+      syncPaneHosts(normalizedPaneId);
+      if (visibleRangeChanged && visibleRange) {
+        emit(CHART_EVENTS.VISIBLE_RANGE_CHANGED, { paneId: normalizedPaneId, visibleRange: { ...visibleRange } });
+      }
+      if (visibleRangeChanged && viewportDemand) {
+        emit(CHART_EVENTS.VIEWPORT_DEMAND, { viewportDemand: structuredClone(viewportDemand) });
+      }
+      return {
+        paneId: normalizedPaneId,
+        viewportFollow: { ...viewportFollow },
+        interaction: structuredClone(interaction),
+        visibleRange: visibleRange ? { ...visibleRange } : null,
+        renderedBars: computeRenderedBars(paneState),
+        fullBarCount: paneState.bars.length,
+      };
+    }
     return applyViewportFollowState(payload);
   }
 
