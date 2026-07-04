@@ -10,17 +10,17 @@
 
 ## Current / Next
 
-- Current status: Step 534 active. The remaining multi-pane "each pane plays
-  separately" class is now treated as an architecture defect, not a patch queue.
-  Step 534 deletes the old primary/non-primary display-state architecture:
-  `primary` may remain the default pane id, but chart/replay display writes
-  must use one pane-state path for every pane. See
+- Current status: Step 534 completed. The remaining multi-pane "each pane plays
+  separately" class was treated as an architecture defect, not a patch queue.
+  V5 now uses one chart pane state store for every pane, replay display-window
+  loads resolve from the target pane chart state, and replay reveal fan-out no
+  longer depends on the default pane display timeframe. See
   `v5/docs/specs/pane-display-state-store-rebuild-plan.md` and
   `v5/sessions/session_20260704_step534_v5_pane_display_state_store_rebuild.md`.
-- Current direction: execute Step 534 in structural substeps with a commit after
-  each substep. First add static and browser regression coverage, then replace
-  chart runtime state storage, then remove replay display-window/fanout primary
-  branches.
+- Current direction: manually retest the original two-pane and three-pane
+  sequences: active left pane `1H`, other panes `1m`, repeated drag/wheel/reset,
+  then replay Next. If this queue is quiet, investigate the existing
+  `replay-initial-browser-smoke` full-range start-resolve request separately.
 - Current status: Step 533 completed. Remaining multi-pane display corruption
   after repeated active-pane `1H` drag/wheel/reset interactions was fixed by
   removing primary-state fallback from non-primary pane display state, adding

@@ -2,7 +2,7 @@
 
 ## Status
 
-Active.
+Completed.
 
 ## Trigger
 
@@ -40,4 +40,37 @@ chart or replay display state owner.
 
 ## Verification Log
 
-- Pending.
+- `node v5/tests/pane-display-state-store-static-smoke.js` passed.
+- `node v5/tests/replay-chart-sync-fanout-smoke.js` passed.
+- `node v5/tests/lifecycle-cleanup-static-smoke.js` passed.
+- `node v5/tests/multi-pane-tf-change-next-fanout-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-continuous-interaction-isolation-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js` passed.
+- `node v5/tests/replay-right-edge-follow-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+- `node v5/tests/replay-initial-browser-smoke.js` still fails because the
+  initial start-resolve path requests `2025-06-02 10:00` to `2025-06-02 10:30`.
+  The request list remains two calls, so this is not the removed duplicate
+  default-pane display load; track it as a separate bootstrap/bar-data issue.
+- `git diff --check` passed.
+
+## Commits
+
+- `2e70639 docs(v5): plan pane display state store rebuild`
+- `6411025 test(v5): guard pane display store rebuild`
+- `d6e485c refactor(v5): rebuild chart pane state store`
+- `40a9196 refactor(v5): rebuild replay pane display fanout`
+- `e947385 fix(v5): avoid duplicate default pane display load`
+
+## Result
+
+The old display-state split is removed from the core display path:
+
+- chart runtime no longer keeps a primary global display state plus a separate
+  non-primary map;
+- replay display-window base resolution no longer reads primary replay
+  `displayBars`;
+- replay fan-out no longer accepts `primaryFullDisplayBars`;
+- pane display coordination no longer exposes a non-primary-only ensure path;
+- replay Next fan-out now uses replay timeframe, so a default `1H` pane cannot
+  stop `1m` panes from advancing.
