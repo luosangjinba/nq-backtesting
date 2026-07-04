@@ -23,9 +23,14 @@ must not be used as an excuse for delayed manual replay stepping.
   product standard remains 100ms.
 - V4 already has this feel. V5 failing this standard is a V5 implementation
   defect.
+- FXReplay demonstrates that even 8 panes can replay with effectively zero
+  perceptible delay. V5 currently exposes fewer panes, but the architecture must
+  remain scalable to that standard.
 
 ## Status
 
-- Step 517.1: in progress.
-- Step 517.2: pending.
+- Step 517.1: completed. The global replay latest-intent contract is documented
+  and explicitly applies to single pane and multi-pane.
+- Step 517.2: completed. Added a single-pane browser smoke that measures
+  final-click-to-visible-cursor latency for rapid `Next` input.
 - Step 517.3: pending.

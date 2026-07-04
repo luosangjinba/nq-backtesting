@@ -381,6 +381,18 @@ multi-pane layout. Single pane is the baseline path. If single pane cannot
 render the latest intended `Next` cursor at V4/FXReplay-like speed, the
 multi-pane path cannot be considered healthy.
 
+Reference bar: FXReplay can keep even an 8-pane TradingView-backed layout in
+sync with effectively zero perceptible replay-step delay. V5's current
+user-facing layout scope remains single/twice/triple, but the replay
+responsiveness architecture must not assume small pane counts. A future 8-pane
+layout should use the same latest-intent projection contract, not a slower
+per-pane catch-up queue.
+
+Architecture inference from that behavior: replay stepping should be modeled as
+one shared latest intent and one shared cursor advance, followed by a coordinated
+projection to all visible panes. Pane count may increase rendering work, but it
+must not create user-visible per-pane or per-candle queue delay.
+
 Implementation expectations:
 
 - document latest-intent-to-visible-candle as a replay transport contract, not a
@@ -393,6 +405,8 @@ Implementation expectations:
   visually drain one candle at a time;
 - keep the existing multi-pane performance gate as a second-layer guard, not
   the source of truth.
+- keep the contract pane-count scalable: adding more panes should add bounded
+  projection work, not linear user-visible candle-by-candle delay.
 
 Acceptance:
 
