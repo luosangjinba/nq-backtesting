@@ -81,7 +81,29 @@ latency, keyboard, speed, and transport persistence work.
   coverage/open-gap matrix and V5 boundary rules for future parity work.
 - Step 528.3: completed. Ranked the remaining near-term parity gaps and
   recommended a Settings parity checklist as the Step 529 starting point.
+- Step 528.4: completed. Ran documentation verification and closed
+  TODO/session handoff.
+
+## Audit Result
+
+- Recent replay transport parity work is covered enough to stop active
+  latency/transport optimization.
+- Remaining gaps are mostly workflow/product gaps rather than replay runtime
+  performance gaps.
+- The highest-value near-term candidate is Settings parity because settings are
+  directly visible, already modularized, and likely to produce a small bounded
+  Step 529.
+- Multi-pane physical interaction audit remains the fallback if manual testing
+  exposes pane-specific wheel/drag regressions.
+
+## Final Verification
+
+- `rg "fxreplay-parity-gap-audit" v5/docs v5/TODO.md v5/sessions/README.md`
+  passed.
+- `git diff --check` passed.
 
 ## Next
 
-Create the parity audit matrix spec and map each gap to its owning V5 boundary.
+Step 529 should start with a Settings parity checklist and choose at most one
+bounded high-frequency settings gap to implement if the owner boundary is
+already clear.

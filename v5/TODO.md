@@ -10,9 +10,11 @@
 
 ## Current / Next
 
-- Current status: Step 528 active. Auditing remaining FXReplay parity gaps
-  after the recent replay transport latency, keyboard, speed, and persistence
-  work. This is a ranking/audit step, not a runtime optimization step.
+- Current status: Step 528 completed. `fxreplay-parity-gap-audit.md` now
+  records current FXReplay parity coverage, remaining workflow gaps, boundary
+  rules, and a ranked near-term backlog. The recommended Step 529 starting
+  point is a Settings parity checklist with at most one bounded high-frequency
+  settings implementation if ownership is clear.
 - Current status: Step 527 completed. Replay transport UI preferences now
   persist floating control position and playback speed across chart route
   re-entry and page reloads, with restored positions clamped to the current
