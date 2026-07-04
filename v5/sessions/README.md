@@ -205,3 +205,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 497: `session_20260703_step497_v5_route_teardown_behavior_smoke.md`
 - Step 498: `session_20260703_step498_v5_settings_polish.md`
 - Step 499: `session_20260703_step499_v5_multi_pane_active_pane_acceptance.md`
+- Step 537: `session_20260704_step537_v5_multi_pane_different_tf_next_projection.md`
