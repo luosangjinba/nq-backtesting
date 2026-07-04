@@ -7,6 +7,14 @@ import { createChartEngineAdapter } from './chart-engine-adapter.js';
 import { buildChartDisplayContext } from './chart-runtime-display-context.js';
 import { createChartRuntimeHostSync } from './chart-runtime-host-sync.js';
 import {
+  DEFAULT_CHART_PANE_ID,
+  cloneChartStateSnapshot,
+  normalizePaneId,
+  retainedPaneIdSet,
+  stateForPane as projectStateForPane,
+  updatePaneDisplayState as patchPaneDisplayState,
+} from './chart-runtime-pane-state.js';
+import {
   createEmptyChartState,
   normalizeBars,
   normalizeCrosshair,
@@ -30,28 +38,6 @@ import {
 
 export { CHART_COMMANDS, CHART_EVENTS };
 
-const DEFAULT_CHART_PANE_ID = 'primary';
-
-function normalizePaneId(value) {
-  const paneId = String(value || DEFAULT_CHART_PANE_ID).trim();
-  return paneId || DEFAULT_CHART_PANE_ID;
-}
-
-function cloneChartStateSnapshot(sourceState) {
-  return {
-    ...sourceState,
-    bars: [...(sourceState.bars || [])],
-    visibleRange: sourceState.visibleRange ? { ...sourceState.visibleRange } : null,
-    prefixDemand: sourceState.prefixDemand ? { ...sourceState.prefixDemand } : null,
-    viewportDemand: sourceState.viewportDemand ? structuredClone(sourceState.viewportDemand) : null,
-    viewportFollow: { ...(sourceState.viewportFollow || {}) },
-    interaction: structuredClone(sourceState.interaction || {}),
-    nativeInteraction: structuredClone(sourceState.nativeInteraction || {}),
-    crosshair: structuredClone(sourceState.crosshair || {}),
-    displayContext: structuredClone(sourceState.displayContext || {}),
-  };
-}
-
 export function createChartRuntime() {
   const mountedHosts = new Set();
   const mountedHostList = new Set();
@@ -73,31 +59,20 @@ export function createChartRuntime() {
   });
 
   function stateForPane(paneId = DEFAULT_CHART_PANE_ID) {
-    const normalizedPaneId = normalizePaneId(paneId);
-    if (normalizedPaneId === DEFAULT_CHART_PANE_ID) return state;
-    const paneState = paneDisplayStateByPaneId.get(normalizedPaneId);
-    if (!paneState) return state;
-    return {
-      ...state,
-      bars: paneState.bars || state.bars,
-      visibleRange: paneState.visibleRange || state.visibleRange,
-      prefixDemand: paneState.prefixDemand || null,
-      viewportDemand: paneState.viewportDemand || null,
-      viewportFollow: paneState.viewportFollow || state.viewportFollow,
-      interaction: paneState.interaction || state.interaction,
-      displayContext: paneState.displayContext || state.displayContext,
-    };
+    return projectStateForPane({
+      paneId,
+      primaryState: state,
+      paneDisplayStateByPaneId,
+    });
   }
 
   function updatePaneDisplayState(paneId, patch = {}) {
-    const normalizedPaneId = normalizePaneId(paneId);
-    const currentPaneState = paneDisplayStateByPaneId.get(normalizedPaneId) || {};
-    const nextPaneState = {
-      ...currentPaneState,
-      ...patch,
-    };
-    paneDisplayStateByPaneId.set(normalizedPaneId, nextPaneState);
-    return stateForPane(normalizedPaneId);
+    return patchPaneDisplayState({
+      paneId,
+      patch,
+      primaryState: state,
+      paneDisplayStateByPaneId,
+    });
   }
 
   function mountHost(host, { paneId } = {}) {
@@ -159,15 +134,6 @@ export function createChartRuntime() {
       mounted: true,
       reused: false,
     };
-  }
-
-  function retainedPaneIdSet(values = []) {
-    const retainedPaneIds = new Set([DEFAULT_CHART_PANE_ID]);
-    if (!Array.isArray(values)) return retainedPaneIds;
-    values.forEach((value) => {
-      retainedPaneIds.add(normalizePaneId(value));
-    });
-    return retainedPaneIds;
   }
 
   function destroyMountedHost(host, paneId = host?.dataset?.chartPaneId) {
