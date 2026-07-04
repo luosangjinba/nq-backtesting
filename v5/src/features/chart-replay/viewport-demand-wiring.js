@@ -20,6 +20,7 @@ function demandKey(sessionId, viewportDemand = {}) {
 
 export function createReplayViewportDemandBridge({
   getSessionId,
+  getPaneDisplayTimeframe = () => null,
   settleMs = 140,
   completedTtlMs = 2_000,
   setTimer = globalThis.setTimeout?.bind(globalThis),
@@ -41,6 +42,18 @@ export function createReplayViewportDemandBridge({
   let pendingTimer = null;
   let unsubscribe = null;
 
+  function isStaleDemand(viewportDemand = {}) {
+    const expectedDisplayTimeframe = Number(viewportDemand.displayTimeframe || 0);
+    const currentDisplayTimeframe = Number(
+      getPaneDisplayTimeframe?.(viewportDemand.paneId || 'primary') || 0
+    );
+    return Number.isFinite(expectedDisplayTimeframe)
+      && Number.isFinite(currentDisplayTimeframe)
+      && expectedDisplayTimeframe > 0
+      && currentDisplayTimeframe > 0
+      && expectedDisplayTimeframe !== currentDisplayTimeframe;
+  }
+
   function clearPendingDemand() {
     if (pendingTimer !== null) {
       clearTimer?.(pendingTimer);
@@ -56,6 +69,7 @@ export function createReplayViewportDemandBridge({
     if (!pending) return;
 
     const { sessionId, viewportDemand, key } = pending;
+    if (isStaleDemand(viewportDemand)) return;
     if (inFlightDemandKeys.has(key) || completedDemandKeys.has(key)) return;
     inFlightDemandKeys.add(key);
 

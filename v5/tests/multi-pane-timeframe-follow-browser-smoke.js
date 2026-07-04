@@ -89,6 +89,13 @@ async function main() {
       (async () => {
         const originalFetch = window.fetch.bind(window);
         const requests = [];
+        const runtimeErrors = [];
+        window.addEventListener('error', (event) => {
+          runtimeErrors.push(event.error?.stack || event.message || String(event.error));
+        });
+        window.addEventListener('unhandledrejection', (event) => {
+          runtimeErrors.push(event.reason?.stack || event.reason?.message || String(event.reason));
+        });
         window.fetch = async (...args) => {
           const url = String(args[0] || '');
           if (!url.includes('/v4/bars')) return originalFetch(...args);
@@ -175,8 +182,9 @@ async function main() {
           await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
         }
 
+        let commands = null;
         try {
-          const commands = await import('/v5/src/runtime/commands.js');
+          commands = await import('/v5/src/runtime/commands.js');
           const created = await commands.dispatchCommand('session.create', {
             id: 'browser-multi-pane-timeframe-follow',
             instrument: 'NQ',
@@ -221,23 +229,36 @@ async function main() {
           const timeframeSelect = document.querySelector('[data-display-timeframe-select]');
           timeframeSelect.value = '60';
           timeframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
-          const bugBaseline = await waitFor('primary 1H blank bug baseline', async () => {
+          await waitFor('primary 1H visible after explicit TF switch', async () => {
             const primary = paneState('primary');
             return requests.some((request) => request.timeframe === 60)
-              && primary.displayTimeframe === '1'
+              && primary.displayTimeframe === '60'
               && primary.fullBarCount > 0
-              && primary.renderedBarCount === 0
-              && primary.interactionMode === 'manual'
-              && primary.viewportFollow === 'false'
+              && primary.renderedBarCount > 0
+              && primary.interactionMode === 'follow'
+              && primary.viewportFollow === 'true'
+              && primary.visibleLogicalRangeTo !== ''
               && primary.priceScaleVisible === 'true'
               && primary.timeScaleVisible === 'true';
           }, 10000);
+
+          document
+            .querySelector('[data-layout-pane][data-pane-id="primary"] [data-chart-reset-view]')
+            ?.click();
+          await waitFor('primary remains visible after reset', async () => {
+            const primary = paneState('primary');
+            return primary.displayTimeframe === '60'
+              && primary.fullBarCount > 0
+              && primary.renderedBarCount > 0
+              && primary.interactionMode === 'follow'
+              && primary.priceScaleVisible === 'true'
+              && primary.timeScaleVisible === 'true';
+          });
 
           const primaryChartState = await commands.dispatchCommand('chart.getRenderedBars', { paneId: 'primary' });
           return JSON.stringify({
             error: '',
             activePaneId: document.querySelector('[data-route="chart"]')?.dataset.activePaneId || '',
-            bugBaseline,
             primary: paneState('primary'),
             secondary: paneState('secondary'),
             primaryChartState: {
@@ -251,20 +272,46 @@ async function main() {
             requests,
           });
         } catch (error) {
-          return JSON.stringify({ error: error?.stack || error?.message || String(error) });
+          const replayState = await commands?.dispatchCommand?.('replay.getState').catch(() => null);
+          const primaryChartState = await commands?.dispatchCommand?.('chart.getRenderedBars', {
+            paneId: 'primary',
+          }).catch(() => null);
+          const primaryPane = document.querySelector('[data-layout-pane][data-pane-id="primary"]');
+          return JSON.stringify({
+            error: error?.stack || error?.message || String(error),
+            primary: paneState('primary'),
+            primaryPaneDisplayTimeframe: primaryPane?.dataset.displayTimeframe || '',
+            replayState: replayState ? {
+              displayTimeframe: replayState.displayTimeframe,
+              displayBarsTimeframe: replayState.displayBarsTimeframe,
+              displayBarsLength: Array.isArray(replayState.displayBars) ? replayState.displayBars.length : 0,
+              status: replayState.status,
+            } : null,
+            primaryChartState: primaryChartState ? {
+              fullBarCount: Number(primaryChartState.fullBarCount || 0),
+              renderedBars: Array.isArray(primaryChartState.renderedBars)
+                ? primaryChartState.renderedBars.length
+                : 0,
+              displayTimeframe: primaryChartState.displayContext?.displayTimeframe || '',
+              interactionMode: primaryChartState.interaction?.mode || '',
+              viewportFollow: String(Boolean(primaryChartState.viewportFollow?.enabled)),
+            } : null,
+            requests,
+            runtimeErrors,
+          });
         } finally {
           window.fetch = originalFetch;
         }
       })();
     `));
 
-    assert.equal(value.error, '', value.error || 'browser smoke failed');
+    assert.equal(value.error, '', value.error ? JSON.stringify(value) : 'browser smoke failed');
     assert.equal(value.activePaneId, 'primary');
-    assert.equal(value.primary.displayTimeframe, '1');
-    assert.equal(value.primary.interactionMode, 'manual');
-    assert.equal(value.primary.viewportFollow, 'false');
-    assert.ok(value.primary.fullBarCount > 0, `primary bars should exist before the bug hides them: ${JSON.stringify(value)}`);
-    assert.equal(value.primary.renderedBarCount, 0);
+    assert.equal(value.primary.displayTimeframe, '60');
+    assert.equal(value.primary.interactionMode, 'follow');
+    assert.equal(value.primary.viewportFollow, 'true');
+    assert.ok(value.primary.fullBarCount > 0, `primary 1H full bars missing: ${JSON.stringify(value)}`);
+    assert.ok(value.primary.renderedBarCount > 0, `primary 1H rendered bars missing: ${JSON.stringify(value)}`);
     assert.equal(value.primary.priceScaleVisible, 'true');
     assert.equal(value.primary.timeScaleVisible, 'true');
     assert.ok(

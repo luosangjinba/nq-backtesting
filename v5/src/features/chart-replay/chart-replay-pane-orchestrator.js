@@ -155,6 +155,7 @@ export function createChartReplayPaneOrchestrator({
         sessionId: getSessionId?.() || '',
         paneId: targetPaneId,
         displayTimeframe: nextDisplayTimeframe,
+        resumeViewportFollow: true,
       });
       if (targetPaneId === DEFAULT_ACTIVE_PANE_ID || !state) {
         state = nextState;

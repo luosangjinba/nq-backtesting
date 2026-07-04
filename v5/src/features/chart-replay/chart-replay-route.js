@@ -104,8 +104,21 @@ export function createChartReplayRoute() {
         }
         return controller;
       }
+      function paneDisplayTimeframe(paneId = DEFAULT_ACTIVE_PANE_ID) {
+        const pane = currentLayoutState?.panes?.find((entry) => (
+          (entry.id || DEFAULT_ACTIVE_PANE_ID) === (paneId || DEFAULT_ACTIVE_PANE_ID)
+        ));
+        return Number(
+          pane?.displayTimeframe
+          || replayDisplayTimeframe
+          || sessionTimeframe
+          || displayTimeframe
+          || 1
+        );
+      }
       const viewportDemandBridge = createReplayViewportDemandBridge({
         getSessionId: () => params.sessionId || '',
+        getPaneDisplayTimeframe: (paneId) => paneDisplayTimeframe(paneId),
         onLoaded: (state) => {
           status.textContent = `Loaded ${state.displayBars?.length || 0} bars.`;
           refreshReplayStatus();

@@ -55,6 +55,7 @@ export function createReplayDisplayWindowController({
     direction = 'backward',
     count,
     viewportDemand,
+    resumeViewportFollow = false,
   } = {}) {
     if (!sessionId) {
       throw new Error('replay sessionId is required.');
@@ -157,8 +158,24 @@ export function createReplayDisplayWindowController({
         nextAnchor = previousWindowAnchor(window, normalizedDisplayTimeframe);
       }
 
+      if (
+        viewportDemand
+        && statefulLoad
+        && Number(getState().displayTimeframe || 0) !== normalizedDisplayTimeframe
+      ) {
+        return {
+          ...clone(getState()),
+          paneId: targetPaneId,
+          loaded: false,
+          reason: 'stale-display-window-demand',
+        };
+      }
+
       const displayBarsChanged = !displayBarsEqual(baseDisplayBars, displayBars);
       if (displayBarsChanged) {
+        if (resumeViewportFollow && chartCommands.RESUME_VIEWPORT_FOLLOW) {
+          await dispatchCommand(chartCommands.RESUME_VIEWPORT_FOLLOW, { paneId: targetPaneId });
+        }
         await chartSync.renderDisplayBars(displayBars, sourceState.cursorTimestamp, { paneId: targetPaneId });
         if (statefulLoad) {
           await chartSync.syncChartRightEdgeLimit(sourceState.cursorTimestamp);
@@ -244,6 +261,7 @@ export function createReplayDisplayWindowController({
     paneId = 'primary',
     displayTimeframe,
     count,
+    resumeViewportFollow = false,
   } = {}) {
     const sourceState = getState();
     const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
@@ -263,6 +281,7 @@ export function createReplayDisplayWindowController({
         anchor: current.cursorTimestamp,
         direction: 'backward',
         count,
+        resumeViewportFollow,
       });
     }
     if (current.displayTimeframe === normalizedDisplayTimeframe && current.status === 'display-loaded') {
@@ -280,6 +299,7 @@ export function createReplayDisplayWindowController({
       anchor: nextState.cursorTimestamp,
       direction: 'backward',
       count,
+      resumeViewportFollow,
     });
   }
 

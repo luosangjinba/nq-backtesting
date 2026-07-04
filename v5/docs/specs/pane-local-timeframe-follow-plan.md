@@ -68,6 +68,10 @@ closed higher-timeframe candle, without violating no-future replay semantics.
      `resumeViewportFollow` intent.
    - Apply it only for user-initiated TF changes, not viewport-demand loads.
    - Keep chart runtime as the owner of visible range/follow mutation.
+   - Completed: the target pane now resumes follow before replacing bars, so
+     an old manual visible range cannot be applied to a newly loaded higher
+     timeframe. Pending/stale viewport-demand loads are also guarded so lower
+     timeframe extension results do not overwrite an explicit pane TF change.
    - Commit the behavior change.
 
 4. Step 530.4 - Harden higher-timeframe display-window loading.
