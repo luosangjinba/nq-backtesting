@@ -211,6 +211,12 @@ Add browser coverage for:
 No production behavior changes should be included in Step 512 unless required
 to make the test harness itself deterministic.
 
+Step 512 may commit a strict smoke that fails against the current production
+implementation. That is intentional: it is the executable contract for Steps
+513-516. The step is complete when the smoke exists, documents the failing
+contract, and `git diff --check` passes. Later rebuild implementation steps
+must make the smoke pass before the rebuild is considered complete.
+
 ### Step 513 - Layout Active-Pane Policy Table
 
 Goal: move initial active-pane choice into explicit layout-runtime helpers.
