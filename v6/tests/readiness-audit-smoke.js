@@ -96,4 +96,10 @@ assert.match(todoSource, /Step 26 - V6 Readiness Audit/);
 assert.match(todoSource, /visible K-line delay/);
 assert.match(todoSource, /primary\/non-primary/);
 
+const auditSource = await readFile(path.join(V6_ROOT, 'docs/V6_READINESS_AUDIT.md'), 'utf8');
+assert.match(auditSource, /Ownership Snapshot/);
+assert.match(auditSource, /Visible K-Line Delay/);
+assert.match(auditSource, /Primary\/Non-Primary Multi-Pane Confusion/);
+assert.match(auditSource, /Step 27 should add a UI\/workflow readiness surface/);
+
 console.log('v6 readiness audit smoke passed');
