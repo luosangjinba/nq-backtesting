@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 16 - Display Timeframe Single-Pane. The
-  implementation adds display timeframe projection, pane timeframe commands, a
-  display-timeframe runtime, and a UI selector while preserving no-future
-  filtering and current viewport intent.
+- Latest completed step: Step 17 - Layout Runtime Skeleton. The implementation
+  adds a layout model/store/runtime with layout mode, pane list, active pane id,
+  and sync flags while keeping pane records unified.
 
 ## Next Executable Steps
 
-### Step 17 - Layout Runtime Skeleton
+### Step 18 - Multi-Pane Chart Hosts
 
-Implement the first layout runtime skeleton for future multi-pane work: layout
-mode, pane list, active pane id, and sync flags.
+Mount multiple chart hosts through one host lifecycle path. Keep chart data and
+viewport intent pane-local, with one coordinated fan-out for same-timeframe
+replay updates.
 
 Acceptance:
 
-- adding panes uses the same pane record shape;
-- no primary/non-primary state split.
+- multiple panes mount with the same chart host lifecycle;
+- same-timeframe Next updates all panes from one coordinated fan-out;
+- no separate secondary catch-up path.
 
 ## Completed Steps
 
@@ -324,6 +325,24 @@ Verification:
 - `node v6/tests/pane-runtime-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 17 - Layout Runtime Skeleton
+
+Completed in commits:
+
+- `30f73f8 feat(v6): add layout model store`
+- `ab02217 feat(v6): add layout runtime`
+- `80087de feat(v6): register layout runtime`
+- `862219b test(v6): enforce layout boundaries`
+
+Verification:
+
+- `node v6/tests/layout-model-smoke.js`
+- `node v6/tests/layout-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
