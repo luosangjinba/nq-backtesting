@@ -4,12 +4,14 @@ import {
   APP_EVENTS,
   BAR_DATA_COMMANDS,
   CHART_DATA_COMMANDS,
+  CHART_VIEWPORT_COMMANDS,
   PANE_COMMANDS,
   REPLAY_COMMANDS,
   SESSION_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import { createBarDataRuntime } from '../src/bar-data/bar-data-runtime.js';
 import { createChartDataRuntime } from '../src/chart-data/chart-data-runtime.js';
+import { createChartViewportRuntime } from '../src/chart-viewport/chart-viewport-runtime.js';
 import { createPaneRuntime } from '../src/panes/pane-runtime.js';
 import { createReplayRuntime } from '../src/replay/replay-runtime.js';
 import { createAppRuntime } from '../src/runtime/app-runtime.js';
@@ -44,14 +46,15 @@ registry.registerRuntime(createBarDataRuntime({
   fetchBars: async () => ({ bars: [] }),
 }));
 registry.registerRuntime(createChartDataRuntime());
+registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createReplayRuntime());
 assert.deepEqual(registry.snapshot(), {
   running: false,
-  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.bar-data', 'runtime.chart-data', 'runtime.replay'],
+  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay'],
   started: [],
 });
 
-await registry.start({ emitEvent });
+await registry.start({ emitEvent, subscribeEvent });
 
 assert.equal(listenerCount(APP_EVENTS.BOOTED), 1);
 assert.equal(bootEvents.length, 1);
@@ -69,6 +72,11 @@ assert.deepEqual(listCommands(), [
   CHART_DATA_COMMANDS.GET_BARS,
   CHART_DATA_COMMANDS.GET_SUMMARY,
   CHART_DATA_COMMANDS.REPLACE_BARS,
+  CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION,
+  CHART_VIEWPORT_COMMANDS.ENSURE_INTENT,
+  CHART_VIEWPORT_COMMANDS.GET_PANE,
+  CHART_VIEWPORT_COMMANDS.GET_SNAPSHOT,
+  CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT,
   PANE_COMMANDS.GET_ACTIVE,
   PANE_COMMANDS.GET_BY_ID,
   PANE_COMMANDS.GET_SNAPSHOT,

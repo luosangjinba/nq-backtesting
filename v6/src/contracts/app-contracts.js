@@ -69,3 +69,16 @@ export const CHART_DATA_COMMANDS = Object.freeze({
 export const CHART_DATA_EVENTS = Object.freeze({
   BARS_CHANGED: 'chartData:barsChanged',
 });
+
+export const CHART_VIEWPORT_COMMANDS = Object.freeze({
+  APPLY_CHART_DATA_REVISION: 'chartViewport.applyChartDataRevision',
+  ENSURE_INTENT: 'chartViewport.ensureIntent',
+  GET_PANE: 'chartViewport.getPane',
+  GET_SNAPSHOT: 'chartViewport.getSnapshot',
+  SET_MANUAL_INTENT: 'chartViewport.setManualIntent',
+});
+
+export const CHART_VIEWPORT_EVENTS = Object.freeze({
+  INTENT_CHANGED: 'chartViewport:intentChanged',
+  PROJECTED: 'chartViewport:projected',
+});
