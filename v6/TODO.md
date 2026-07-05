@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 7 - Viewport Intent Domain. The implementation
-  adds pure default/manual replay-wall intent creation, cursor-only intent
-  updates, manual wall measurement, and logical range projection without DOM,
-  chart engine, replay runtime, or bar-data dependencies.
+- Latest completed step: Step 8 - Chart Data Runtime. The implementation adds
+  pane-local chart bars, append/replace operations, no-future filtering, and
+  chartBarsRevision metadata without mutating viewport intent or owning replay
+  cursor/bar-data runtime state.
 
 ## Next Executable Steps
 
-### Step 8 - Chart Data Runtime
+### Step 9 - Chart Viewport Runtime
 
-Implement pane-local chart bars, append/replace operations, no-future filtering,
-and chart bars revision metadata.
+Implement pane-local viewport intent ownership, replay cursor notifications,
+and reapplication of current intent after chart data revisions.
 
 Acceptance:
 
-- append/replace does not mutate viewport intent;
-- no replay cursor or bar-data ownership exists.
+- data append/replace cannot reset wall origin/revision;
+- default and manual wall use the same projection path.
 
 ## Completed Steps
 
@@ -147,6 +147,24 @@ Verification:
 - `node v6/tests/viewport-intent-domain-smoke.js`
 - `node v6/tests/viewport-projection-smoke.js`
 - `node v6/tests/viewport-intent-invariant-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 8 - Chart Data Runtime
+
+Completed in commits:
+
+- `1fd4c2f feat(v6): add pane chart data store`
+- `799f205 feat(v6): register chart data runtime`
+- `a3bd5ee test(v6): gate chart data runtime`
+- `5ac957c test(v6): enforce chart data boundaries`
+
+Verification:
+
+- `node v6/tests/chart-data-domain-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
