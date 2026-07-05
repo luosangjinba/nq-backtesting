@@ -33,6 +33,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.settings'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.persistence'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.journal'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.journalPersistence'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.playDisabled, false);
@@ -45,6 +46,8 @@ async function main() {
     assert.equal(value.commands.includes('persistence.saveRecord'), true);
     assert.equal(value.commands.includes('journal.addEntry'), true);
     assert.equal(value.commands.includes('journal.analyzeRecords'), true);
+    assert.equal(value.commands.includes('journalPersistence.saveSnapshot'), true);
+    assert.equal(value.commands.includes('journalPersistence.loadSnapshot'), true);
   } finally {
     await page.cleanup();
   }
