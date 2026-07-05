@@ -14,24 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 12 - Single-Pane Default Wall Replay. The
-  implementation adds a default-wall replay domain/runtime, registers it in the
-  V6 app, and gates real chart Next visibility so latest candles stay on the
-  default wall while old candles push left without fetch on the visible path.
+- Latest completed step: Step 13 - Manual Wall Replay. The implementation keeps
+  manual viewport intent as chart-viewport-owned state, returns active manual
+  projections from replay advancement, and gates real chart manual-wall Next
+  visibility from measured logical range rather than time-range reconstruction.
 
 ## Next Executable Steps
 
-### Step 13 - Manual Wall Replay
+### Step 14 - Replay Transport Controls
 
-Implement native manual-wall replay behavior: drag or wheel establishes a
-manual replay wall and subsequent Next/Play preserves that wall instead of
-falling back to the default wall.
+Implement FXReplay-like transport controls that dispatch replay/default-wall
+commands only: Play/Pause, Next, speed presets, and keyboard shortcuts.
 
 Acceptance:
 
-- latest candle stays at the manual wall;
-- display-window loading cannot alter viewport intent;
-- browser tests assert logical offset/span, not only cursor text.
+- controls dispatch commands only;
+- visible latency gate still passes.
 
 ## Completed Steps
 
@@ -242,6 +240,28 @@ Verification:
 - `node v6/tests/visible-latency-domain-smoke.js`
 - `node v6/tests/chart-engine-adapter-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 13 - Manual Wall Replay
+
+Completed in commits:
+
+- `0b3ee42 feat(v6): preserve manual wall projection in replay`
+- `fc6a3ad test(v6): keep manual wall through display windows`
+- `10718ab test(v6): gate manual wall replay visibility`
+- `83daf7e test(v6): cover manual wall range measurement`
+
+Verification:
+
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/manual-wall-display-window-smoke.js`
+- `node v6/tests/manual-wall-replay-browser-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/viewport-projection-smoke.js`
+- `node v6/tests/viewport-intent-domain-smoke.js`
+- `node v6/tests/viewport-intent-invariant-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
