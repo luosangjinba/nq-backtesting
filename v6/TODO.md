@@ -14,26 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 29 - Replay Workflow Entry Surface. The
-  implementation adds a bounded Replay panel that reads replay/default-wall
-  state and exposes pause/reset controls without loading sessions, advancing
-  replay, or touching chart/data/viewport ownership paths.
+- Latest completed step: Step 30 - Journal Workflow Entry Surface. The
+  implementation adds a bounded Journal panel that uses existing journal and
+  journal-persistence commands without mutating chart/replay/data/viewport
+  state.
 
 ## Next Executable Steps
 
-### Step 30 - Journal Workflow Entry Surface
+### Step 31 - Workflow Surfaces Readiness Audit
 
-Add a bounded Journal workflow entry surface that uses existing journal and
-journal-persistence commands without importing chart/replay/data/viewport
-internals.
+Audit the newly added workflow entry surfaces before adding deeper workflow
+features or visual polish.
 
 Acceptance:
 
-- Journal UI dispatches journal and journal-persistence commands only;
-- loading/saving journal snapshots does not mutate chart/replay/data/viewport
-  state;
-- readiness, visible-latency, and multi-pane gates remain in the verification
-  chain.
+- Sessions, Replay, Journal, Settings, Readiness, Transport, and Status surfaces
+  have explicit command/event boundaries;
+- no workflow UI imports feature runtime internals or chart/data/viewport
+  ownership paths;
+- the next implementation target is narrowed from audit results.
 
 ## Completed Steps
 
@@ -568,6 +567,26 @@ Verification:
 - `node v6/tests/replay-workflow-surface-controller-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
 - `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `git diff --check`
+
+### Step 30 - Journal Workflow Entry Surface
+
+Completed in commits:
+
+- `7f54849 feat(v6): add journal workflow surface controller`
+- `7bce5c9 feat(v6): mount journal workflow surface`
+- `e46714b test(v6): enforce journal surface boundaries`
+
+Verification:
+
+- `node v6/tests/journal-surface-controller-smoke.js`
+- `node v6/tests/journal-runtime-smoke.js`
+- `node v6/tests/journal-persistence-runtime-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
