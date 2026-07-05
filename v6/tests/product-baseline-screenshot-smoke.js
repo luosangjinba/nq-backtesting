@@ -29,6 +29,7 @@ try {
       const chart = rectOf('[data-v6-chart-surface]');
       const chartHost = rectOf('[data-v6-chart-engine-host]');
       const transport = rectOf('[data-v6-transport]');
+      const transportElement = document.querySelector('[data-v6-transport]');
       const status = rectOf('[data-v6-status-bar]');
       const header = rectOf('[data-v6-workstation-header]');
       return {
@@ -44,6 +45,8 @@ try {
         title: document.querySelector('.top-bar h1')?.textContent || '',
         topCommandCount: document.querySelectorAll('[data-v6-workstation-header] .tool-button').length,
         transport,
+        transportInsideChart: Boolean(document.querySelector('[data-v6-chart-surface] [data-v6-transport]')),
+        transportPosition: getComputedStyle(transportElement).position,
         viewport,
       };
     })())
@@ -60,8 +63,12 @@ try {
   assert.equal(layout.header.height <= 72, true);
   assert.equal(layout.chart.height > layout.viewport.height * 0.58, true);
   assert.equal(layout.chart.width > layout.viewport.width * 0.88, true);
+  assert.equal(layout.transportInsideChart, false);
+  assert.equal(layout.transportPosition, 'fixed');
+  assert.equal(layout.transport.left >= 0, true);
+  assert.equal(layout.transport.right <= layout.viewport.width, true);
   assert.equal(layout.transport.top > layout.chart.top, true);
-  assert.equal(layout.transport.bottom < layout.chart.bottom, true);
+  assert.equal(layout.transport.bottom <= layout.viewport.height, true);
   assert.equal(layout.status.bottom <= layout.viewport.height, true);
 
   const screenshot = await page.client.send('Page.captureScreenshot', {

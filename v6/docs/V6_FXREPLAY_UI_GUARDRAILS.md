@@ -133,7 +133,10 @@ Indicators, undo, and redo are reserved top-toolbar commands:
 
 The replay transport is not a generic media player:
 
-- It is a compact floating bar that can be dragged around the chart viewport.
+- It is a compact floating bar mounted at workstation-shell level, not inside
+  the chart/canvas surface.
+- Its drag boundary is the full browser viewport, not the chart pane, canvas
+  box, or price-scale region.
 - It should expose a drag handle, truncate action, speed slider, previous bar,
   play/pause, replay step period menu, next bar, and active-chart-period sync
   toggle.

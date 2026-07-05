@@ -37,6 +37,7 @@ try {
       const playButton = document.querySelector('[data-v6-transport-action="play-toggle"]');
       const speedSlider = document.querySelector('[data-v6-transport-speed-slider]');
       const periodDetails = document.querySelector('[data-v6-transport-period-details]');
+      const transportRoot = document.querySelector('[data-v6-transport]');
 
       nextButton.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -84,6 +85,29 @@ try {
       document.querySelector('[data-v6-transport-period-toggle]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
+      const dragHandle = document.querySelector('[data-v6-transport-drag-handle]');
+      const beforeDragRect = transportRoot.getBoundingClientRect();
+      dragHandle.dispatchEvent(new PointerEvent('pointerdown', {
+        bubbles: true,
+        clientX: beforeDragRect.left + 10,
+        clientY: beforeDragRect.top + 10,
+        pointerId: 1,
+      }));
+      document.dispatchEvent(new PointerEvent('pointermove', {
+        bubbles: true,
+        clientX: 28,
+        clientY: 72,
+        pointerId: 1,
+      }));
+      document.dispatchEvent(new PointerEvent('pointerup', {
+        bubbles: true,
+        clientX: 28,
+        clientY: 72,
+        pointerId: 1,
+      }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const afterDragRect = transportRoot.getBoundingClientRect();
+
       return {
         afterClickNext,
         afterClickPause,
@@ -91,7 +115,18 @@ try {
         afterExternalPlay,
         afterKeyboardNext,
         afterSpacePlay,
-        dragHandleExists: Boolean(document.querySelector('[data-v6-transport-drag-handle]')),
+        afterDragRect: {
+          bottom: afterDragRect.bottom,
+          left: afterDragRect.left,
+          right: afterDragRect.right,
+          top: afterDragRect.top,
+        },
+        beforeDragRect: {
+          left: beforeDragRect.left,
+          top: beforeDragRect.top,
+        },
+        dragHandleExists: Boolean(dragHandle),
+        nestedInChart: Boolean(document.querySelector('[data-v6-chart-surface] [data-v6-transport]')),
         periodMenuOpen: periodDetails.open,
         periodOptions: [...document.querySelectorAll('[data-v6-transport-period-menu] button')].map((button) => button.textContent.trim()),
         syncToggleExists: Boolean(document.querySelector('[data-v6-transport-period-sync]')),
@@ -101,6 +136,12 @@ try {
         transportDataset: {
           playback: document.querySelector('[data-v6-transport]').dataset.playback,
           speed: document.querySelector('[data-v6-transport]').dataset.speed,
+        },
+        transportDragged: transportRoot.dataset.dragged,
+        transportPosition: getComputedStyle(transportRoot).position,
+        viewport: {
+          height: window.innerHeight,
+          width: window.innerWidth,
         },
       };
     })()))()
@@ -123,6 +164,14 @@ try {
   assert.equal(value.afterClickPause.status, 'paused');
   assert.equal(value.afterKeyboardNext.cursorIndex, 2);
   assert.equal(value.dragHandleExists, true);
+  assert.equal(value.nestedInChart, false);
+  assert.equal(value.transportPosition, 'fixed');
+  assert.equal(value.transportDragged, 'true');
+  assert.equal(value.afterDragRect.left >= 0, true);
+  assert.equal(value.afterDragRect.top >= 0, true);
+  assert.equal(value.afterDragRect.right <= value.viewport.width, true);
+  assert.equal(value.afterDragRect.bottom <= value.viewport.height, true);
+  assert.equal(value.afterDragRect.left !== value.beforeDragRect.left || value.afterDragRect.top !== value.beforeDragRect.top, true);
   assert.equal(value.periodMenuOpen, true);
   assert.deepEqual(value.periodOptions, ['1s', '5s', '10s', '15s', '30s', '1m', '3m', '5m']);
   assert.equal(value.syncToggleExists, true);

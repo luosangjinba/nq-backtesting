@@ -1253,14 +1253,15 @@ p {
 .candle:nth-child(24) { --offset: -68px; }
 
 .transport-placeholder {
-  position: absolute;
+  position: fixed;
   left: 50%;
-  bottom: 34px;
-  z-index: 4;
+  bottom: 84px;
+  z-index: 50;
   display: flex;
   align-items: center;
   gap: 6px;
   min-height: 48px;
+  max-width: calc(100vw - 24px);
   padding: 6px 8px;
   border-radius: 8px;
   border-color: #2b3036;
@@ -1298,6 +1299,7 @@ p {
 
 .transport-grip {
   cursor: grab;
+  touch-action: none;
 }
 
 .transport-grip:active {

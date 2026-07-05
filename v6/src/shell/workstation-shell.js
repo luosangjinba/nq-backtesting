@@ -358,38 +358,6 @@ export function createWorkstationShellMarkup() {
             <strong data-v6-status-title>NQ 1m</strong>
             <span data-v6-status-price>--</span>
           </div>
-          <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
-            <button type="button" class="transport-grip" data-v6-transport-drag-handle aria-label="Drag replay controls">${icon('grip')}</button>
-            <button type="button" class="transport-icon-button" data-v6-transport-truncate disabled aria-label="Truncate replay after current bar">${icon('truncate')}</button>
-            <label class="transport-speed-slider" aria-label="Replay speed">
-              <input type="range" min="0.5" max="4" step="0.5" value="1" data-v6-transport-speed-slider>
-            </label>
-            <button type="button" class="transport-icon-button" data-v6-transport-step-back disabled aria-label="Previous replay bar">${icon('stepBack')}</button>
-            <button type="button" class="transport-icon-button" aria-label="Play replay" data-v6-transport-action="play-toggle" aria-pressed="false">
-              ${icon('play')}
-              <span class="sr-only" data-v6-transport-play-label>Play replay</span>
-            </button>
-            <details class="transport-period-menu-anchor" data-v6-transport-period-details>
-              <summary class="transport-period-trigger" data-v6-transport-period-toggle aria-label="Replay step period">
-                <span data-v6-transport-period-label>1m</span>
-              </summary>
-              <div class="transport-period-menu" data-v6-transport-period-menu role="menu" aria-label="Replay step period">
-                <button type="button" disabled role="menuitem">1s</button>
-                <button type="button" disabled role="menuitem">5s</button>
-                <button type="button" disabled role="menuitem">10s</button>
-                <button type="button" disabled role="menuitem">15s</button>
-                <button type="button" disabled role="menuitem">30s</button>
-                <button type="button" disabled role="menuitem">1m</button>
-                <button type="button" disabled role="menuitem">3m</button>
-                <button type="button" disabled role="menuitem">5m</button>
-              </div>
-            </details>
-            <button type="button" class="transport-icon-button" aria-label="Next replay bar" data-v6-transport-action="next">${icon('stepForward')}</button>
-            <label class="transport-sync-toggle" aria-label="Sync replay period with active chart">
-              <input type="checkbox" data-v6-transport-period-sync>
-              <span></span>
-            </label>
-          </div>
         </section>
         <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">
           <button type="button" class="rail-button rail-button-icon" data-v6-rail-object-tree disabled aria-label="Show object tree">
@@ -436,6 +404,38 @@ export function createWorkstationShellMarkup() {
           </div>
         </aside>
       </main>
+      <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
+        <button type="button" class="transport-grip" data-v6-transport-drag-handle aria-label="Drag replay controls">${icon('grip')}</button>
+        <button type="button" class="transport-icon-button" data-v6-transport-truncate disabled aria-label="Truncate replay after current bar">${icon('truncate')}</button>
+        <label class="transport-speed-slider" aria-label="Replay speed">
+          <input type="range" min="0.5" max="4" step="0.5" value="1" data-v6-transport-speed-slider>
+        </label>
+        <button type="button" class="transport-icon-button" data-v6-transport-step-back disabled aria-label="Previous replay bar">${icon('stepBack')}</button>
+        <button type="button" class="transport-icon-button" aria-label="Play replay" data-v6-transport-action="play-toggle" aria-pressed="false">
+          ${icon('play')}
+          <span class="sr-only" data-v6-transport-play-label>Play replay</span>
+        </button>
+        <details class="transport-period-menu-anchor" data-v6-transport-period-details>
+          <summary class="transport-period-trigger" data-v6-transport-period-toggle aria-label="Replay step period">
+            <span data-v6-transport-period-label>1m</span>
+          </summary>
+          <div class="transport-period-menu" data-v6-transport-period-menu role="menu" aria-label="Replay step period">
+            <button type="button" disabled role="menuitem">1s</button>
+            <button type="button" disabled role="menuitem">5s</button>
+            <button type="button" disabled role="menuitem">10s</button>
+            <button type="button" disabled role="menuitem">15s</button>
+            <button type="button" disabled role="menuitem">30s</button>
+            <button type="button" disabled role="menuitem">1m</button>
+            <button type="button" disabled role="menuitem">3m</button>
+            <button type="button" disabled role="menuitem">5m</button>
+          </div>
+        </details>
+        <button type="button" class="transport-icon-button" aria-label="Next replay bar" data-v6-transport-action="next">${icon('stepForward')}</button>
+        <label class="transport-sync-toggle" aria-label="Sync replay period with active chart">
+          <input type="checkbox" data-v6-transport-period-sync>
+          <span></span>
+        </label>
+      </div>
 
       <footer class="status-bar" data-v6-status-bar>
         <span data-v6-footer-session>Session pending</span>
