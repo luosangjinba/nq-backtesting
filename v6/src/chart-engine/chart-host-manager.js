@@ -78,6 +78,22 @@ export function createChartHostManager({
     return measured ? { ...measured } : null;
   }
 
+  function subscribeVisibleLogicalRangeChange(paneId, handler) {
+    const record = getMountedRecord(paneId);
+    if (typeof handler !== 'function') {
+      throw new Error('Chart host visible range handler is required.');
+    }
+    if (typeof record.adapter.subscribeVisibleLogicalRangeChange !== 'function') {
+      return () => {};
+    }
+    return record.adapter.subscribeVisibleLogicalRangeChange((range) => {
+      handler({
+        paneId: record.paneId,
+        range: range ? { ...range } : null,
+      });
+    });
+  }
+
   function resizePane(paneId, size) {
     const record = getMountedRecord(paneId);
     record.adapter.resize(size);
@@ -121,6 +137,7 @@ export function createChartHostManager({
     setData,
     setVisibleLogicalRange,
     snapshot,
+    subscribeVisibleLogicalRangeChange,
     update,
   };
 }

@@ -58,6 +58,7 @@ export function mountWorkstationChartSurface(root, {
   const paneId = resolvePaneId(host);
   const appliedChartDataByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
+  const measuredVisibleRangeByPaneId = new Map();
   const size = measureHost(host);
   const manager = managerFactory({
     chartOptions: {
@@ -73,6 +74,16 @@ export function mountWorkstationChartSurface(root, {
   });
 
   manager.mountPane({ host, paneId });
+  const unsubscribeVisibleRange = typeof manager.subscribeVisibleLogicalRangeChange === 'function'
+    ? manager.subscribeVisibleLogicalRangeChange(paneId, ({ paneId: changedPaneId, range } = {}) => {
+        if (!range) return;
+        measuredVisibleRangeByPaneId.set(changedPaneId, {
+          from: Number(range.from),
+          paneId: changedPaneId,
+          to: Number(range.to),
+        });
+      })
+    : () => {};
 
   function resize() {
     const nextSize = measureHost(host);
@@ -131,6 +142,7 @@ export function mountWorkstationChartSurface(root, {
       return snapshot;
     },
     destroy() {
+      unsubscribeVisibleRange();
       resizeObserver?.disconnect();
       manager.destroyAll();
     },
@@ -143,6 +155,8 @@ export function mountWorkstationChartSurface(root, {
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         hostConnected: Boolean(host.isConnected),
         hostSelector,
+        measuredVisibleRange: [...measuredVisibleRangeByPaneId.values()]
+          .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         panes: snapshot.panes,
       };
     },

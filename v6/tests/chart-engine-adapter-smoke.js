@@ -9,6 +9,8 @@ const calls = {
   resize: [],
   setData: [],
   setVisibleLogicalRange: [],
+  subscribeVisibleLogicalRangeChange: 0,
+  unsubscribeVisibleLogicalRangeChange: 0,
   update: [],
 };
 
@@ -42,6 +44,13 @@ const fakeEngine = {
           },
           setVisibleLogicalRange(range) {
             calls.setVisibleLogicalRange.push(range);
+          },
+          subscribeVisibleLogicalRangeChange(handler) {
+            calls.subscribeVisibleLogicalRangeChange += 1;
+            handler({ from: 12, to: 22 });
+          },
+          unsubscribeVisibleLogicalRangeChange() {
+            calls.unsubscribeVisibleLogicalRangeChange += 1;
           },
         };
       },
@@ -86,6 +95,15 @@ assert.deepEqual(adapter.snapshot().visibleLogicalRange, { from: 5, to: 12 });
 
 assert.deepEqual(adapter.measureVisibleLogicalRange(), { from: 10, to: 20 });
 assert.deepEqual(adapter.snapshot().visibleLogicalRange, { from: 10, to: 20 });
+const visibleRangeEvents = [];
+const unsubscribeVisibleRange = adapter.subscribeVisibleLogicalRangeChange((range) => {
+  visibleRangeEvents.push(range);
+});
+assert.deepEqual(visibleRangeEvents, [{ from: 12, to: 22 }]);
+assert.deepEqual(adapter.snapshot().visibleLogicalRange, { from: 12, to: 22 });
+unsubscribeVisibleRange();
+assert.equal(calls.subscribeVisibleLogicalRangeChange, 1);
+assert.equal(calls.unsubscribeVisibleLogicalRangeChange, 1);
 
 adapter.resize({ height: 360, width: 640 });
 assert.deepEqual(calls.resize[0], { height: 360, width: 640 });

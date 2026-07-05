@@ -81,6 +81,14 @@ function managerFactory(options) {
           : [],
       };
     },
+    subscribeVisibleLogicalRangeChange(paneId, handler) {
+      calls.push({ method: 'subscribeVisibleLogicalRangeChange', paneId });
+      handler({
+        paneId,
+        range: { from: -9, to: 6 },
+      });
+      return () => calls.push({ method: 'unsubscribeVisibleLogicalRangeChange', paneId });
+    },
   };
 }
 
@@ -100,6 +108,11 @@ assert.deepEqual(state, {
   appliedViewport: [],
   hostConnected: true,
   hostSelector: '[data-v6-chart-engine-host]',
+  measuredVisibleRange: [{
+    from: -9,
+    paneId: 'default',
+    to: 6,
+  }],
   panes: [{
     paneId: 'default',
     snapshot: {
@@ -175,7 +188,10 @@ assert.deepEqual(calls.find((call) => call.method === 'resizePane'), {
 });
 
 surface.destroy();
-assert.equal(calls.at(-1).method, 'destroyAll');
+assert.deepEqual(calls.slice(-2), [
+  { method: 'unsubscribeVisibleLogicalRangeChange', paneId: 'default' },
+  { method: 'destroyAll' },
+]);
 
 assert.throws(
   () => mountWorkstationChartSurface(null),

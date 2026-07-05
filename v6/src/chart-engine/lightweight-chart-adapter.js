@@ -95,6 +95,28 @@ export function createLightweightChartAdapter({
     return measured;
   }
 
+  function subscribeVisibleLogicalRangeChange(handler) {
+    ensureMounted();
+    if (typeof handler !== 'function') {
+      throw new Error('Lightweight chart adapter visible range handler is required.');
+    }
+    const timeScale = chart.timeScale();
+    if (typeof timeScale.subscribeVisibleLogicalRangeChange !== 'function') {
+      return () => {};
+    }
+    const listener = (range) => {
+      const normalizedRange = cloneRange(range);
+      if (normalizedRange) {
+        lastVisibleLogicalRange = normalizedRange;
+      }
+      handler(normalizedRange);
+    };
+    timeScale.subscribeVisibleLogicalRangeChange(listener);
+    return () => {
+      timeScale.unsubscribeVisibleLogicalRangeChange?.(listener);
+    };
+  }
+
   function resize({ height, width } = {}) {
     ensureMounted();
     if (typeof chart.resize === 'function') {
@@ -128,6 +150,7 @@ export function createLightweightChartAdapter({
     setData,
     setVisibleLogicalRange,
     snapshot,
+    subscribeVisibleLogicalRangeChange,
     update,
   };
 }

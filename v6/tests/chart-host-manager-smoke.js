@@ -37,6 +37,11 @@ function createFakeAdapterFactory(calls) {
           visibleLogicalRange,
         };
       },
+      subscribeVisibleLogicalRangeChange(handler) {
+        calls.push({ method: 'subscribeVisibleLogicalRangeChange' });
+        handler({ from: -4, to: 3 });
+        return () => calls.push({ method: 'unsubscribeVisibleLogicalRangeChange' });
+      },
       update() {
         calls.push({ method: 'update' });
         dataLength += 1;
@@ -64,11 +69,21 @@ manager.setData('pane-left', [
 ]);
 manager.update('pane-right', { close: 3, high: 3, low: 3, open: 3, timestamp: 3 });
 manager.setVisibleLogicalRange('pane-left', { from: -3, to: 2 });
+const visibleRangeEvents = [];
+const unsubscribeVisibleRange = manager.subscribeVisibleLogicalRangeChange('pane-left', (event) => {
+  visibleRangeEvents.push(event);
+});
 manager.resizePane('pane-right', { height: 240, width: 320 });
 
 assert.equal(manager.snapshot().panes.find((pane) => pane.paneId === 'pane-left').snapshot.dataLength, 2);
 assert.equal(manager.snapshot().panes.find((pane) => pane.paneId === 'pane-right').snapshot.dataLength, 1);
 assert.deepEqual(manager.measureVisibleLogicalRange('pane-left'), { from: -3, to: 2 });
+assert.deepEqual(visibleRangeEvents, [{
+  paneId: 'pane-left',
+  range: { from: -4, to: 3 },
+}]);
+unsubscribeVisibleRange();
+assert.equal(calls.some((call) => call.method === 'unsubscribeVisibleLogicalRangeChange'), true);
 assert.deepEqual(calls.find((call) => call.method === 'resize'), {
   method: 'resize',
   size: { height: 240, width: 320 },
