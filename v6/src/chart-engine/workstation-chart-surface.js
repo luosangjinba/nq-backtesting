@@ -56,6 +56,7 @@ export function mountWorkstationChartSurface(root, {
   }
 
   const paneId = resolvePaneId(host);
+  const appliedChartDataByPaneId = new Map();
   const size = measureHost(host);
   const manager = managerFactory({
     chartOptions: {
@@ -87,6 +88,22 @@ export function mountWorkstationChartSurface(root, {
   resizeObserver?.observe(host);
 
   return {
+    applyChartDataRecord(record = {}) {
+      const recordPaneId = String(record.paneId || '').trim();
+      if (!recordPaneId) {
+        throw new Error('Workstation chart surface chart-data record requires paneId.');
+      }
+      if (recordPaneId !== paneId) {
+        return null;
+      }
+      const snapshot = manager.setData(recordPaneId, record.bars || []);
+      appliedChartDataByPaneId.set(recordPaneId, {
+        barCount: record.bars?.length || 0,
+        paneId: recordPaneId,
+        revision: Number(record.revision) || 0,
+      });
+      return snapshot;
+    },
     destroy() {
       resizeObserver?.disconnect();
       manager.destroyAll();
@@ -94,6 +111,8 @@ export function mountWorkstationChartSurface(root, {
     getState() {
       const snapshot = manager.snapshot();
       return {
+        appliedChartData: [...appliedChartDataByPaneId.values()]
+          .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         hostConnected: Boolean(host.isConnected),
         hostSelector,
         panes: snapshot.panes,
