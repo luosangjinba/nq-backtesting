@@ -12,6 +12,7 @@ const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
+const TRANSPORT_FILE = path.join(V6_ROOT, 'src', 'shell', 'replay-transport.js');
 const VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'viewport');
 const SOURCE_ROOTS = [
   path.join(V6_ROOT, 'src'),
@@ -160,6 +161,17 @@ const forbiddenDefaultWallOwnershipPatterns = [
   {
     pattern: /\b(document|window|HTMLElement|LightweightCharts|createChart|fetch|XMLHttpRequest|localStorage)\b/,
     reason: 'V6 default-wall modules must not touch DOM, chart engine APIs, browser storage, or network fetch.',
+  },
+];
+
+const forbiddenTransportOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|replay\/|viewport|default-wall|session|panes)[^'"]*['"]/i,
+    reason: 'V6 replay transport UI must dispatch commands only and not import feature runtimes or state modules.',
+  },
+  {
+    pattern: /\b(chartBars|viewportIntent|replayCursor|cursorIndex|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,
+    reason: 'V6 replay transport UI must not own replay, chart, viewport, data, storage, or network state.',
   },
 ];
 
@@ -317,6 +329,19 @@ for (const file of await walkFiles(DEFAULT_WALL_ROOT)) {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+{
+  const text = await readFile(TRANSPORT_FILE, 'utf8');
+  forbiddenTransportOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), TRANSPORT_FILE),
         pattern: String(pattern),
         reason,
       });
