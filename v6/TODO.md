@@ -14,25 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 25 - Journal Persistence Command Bridge. The
-  implementation adds an explicit command bridge for saving, loading, and
-  deleting journal snapshots through persistence without letting journal modules
-  import persistence internals or mutate chart/replay/data/viewport state.
+- Latest completed step: Step 26 - V6 Readiness Audit. The implementation adds
+  an executable readiness audit plus `v6/docs/V6_READINESS_AUDIT.md`, confirming
+  explicit runtime ownership, visible K-line delay gates, and multi-pane
+  primary/non-primary regression gates before broader UI/workflow work.
 
 ## Next Executable Steps
 
-### Step 26 - V6 Readiness Audit
+### Step 27 - UI Workflow Readiness Surface
 
-Audit the accumulated V6 runtime/contracts/tests before moving into broader
-visual polish or workflow UI work.
+Add a small workstation readiness surface that exposes existing runtime health,
+active gates, and current command availability without introducing new state
+ownership or chart/replay/data/viewport mutation paths.
 
 Acceptance:
 
-- V6 still has explicit owners for replay, data, chart data, viewport, panes,
-  persistence, journal, and bridges;
-- visible K-line delay and primary/non-primary regressions remain covered by
-  executable gates;
-- the next phase is documented with a bounded implementation target.
+- surface reads existing runtime/command state only;
+- UI dispatches no new chart/replay/data/viewport mutation path;
+- readiness, visible-latency, and multi-pane gates remain in the verification
+  chain.
 
 ## Completed Steps
 
@@ -498,6 +498,21 @@ Verification:
 - `node v6/tests/journal-persistence-runtime-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 26 - V6 Readiness Audit
+
+Completed in commits:
+
+- `7384f2f test(v6): add readiness audit smoke`
+- `e0253dd docs(v6): add readiness audit`
+
+Verification:
+
+- `node v6/tests/readiness-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Later Gates
