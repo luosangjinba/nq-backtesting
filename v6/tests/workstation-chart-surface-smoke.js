@@ -22,6 +22,7 @@ function managerFactory(options) {
   calls.push({ method: 'managerFactory', options });
   let dataLength = 0;
   let mounted = false;
+  let visibleLogicalRange = null;
   return {
     destroyAll() {
       calls.push({ method: 'destroyAll' });
@@ -54,6 +55,18 @@ function managerFactory(options) {
         },
       };
     },
+    setVisibleLogicalRange(paneId, range) {
+      calls.push({ method: 'setVisibleLogicalRange', paneId, range: { ...range } });
+      visibleLogicalRange = { ...range };
+      return {
+        paneId,
+        snapshot: {
+          dataLength,
+          mounted,
+          visibleLogicalRange,
+        },
+      };
+    },
     snapshot() {
       return {
         panes: mounted
@@ -62,7 +75,7 @@ function managerFactory(options) {
               snapshot: {
                 dataLength,
                 mounted: true,
-                visibleLogicalRange: null,
+                visibleLogicalRange,
               },
             }]
           : [],
@@ -84,6 +97,7 @@ assert.equal(calls[2].record.host, host);
 assert.equal(calls[2].record.paneId, 'default');
 assert.deepEqual(state, {
   appliedChartData: [],
+  appliedViewport: [],
   hostConnected: true,
   hostSelector: '[data-v6-chart-engine-host]',
   panes: [{
@@ -120,6 +134,39 @@ assert.deepEqual(calls.find((call) => call.method === 'setData'), {
   paneId: 'default',
 });
 
+assert.equal(surface.applyViewportProjection({
+  chartBarsRevision: 7,
+  paneId: 'default',
+  projection: {
+    from: -110,
+    origin: 'default',
+    revision: 0,
+    to: 10,
+  },
+}).snapshot.visibleLogicalRange.to, 10);
+assert.equal(surface.applyViewportProjection({
+  chartBarsRevision: 1,
+  paneId: 'other',
+  projection: { from: 1, origin: 'manual', revision: 1, to: 2 },
+}), null);
+assert.equal(surface.applyViewportProjection({
+  chartBarsRevision: 1,
+  paneId: 'default',
+}), null);
+assert.deepEqual(surface.getState().appliedViewport, [{
+  chartBarsRevision: 7,
+  from: -110,
+  origin: 'default',
+  paneId: 'default',
+  projectionRevision: 0,
+  to: 10,
+}]);
+assert.deepEqual(calls.find((call) => call.method === 'setVisibleLogicalRange'), {
+  method: 'setVisibleLogicalRange',
+  paneId: 'default',
+  range: { from: -110, to: 10 },
+});
+
 surface.resize();
 assert.deepEqual(calls.find((call) => call.method === 'resizePane'), {
   method: 'resizePane',
@@ -140,6 +187,10 @@ assert.throws(
 );
 assert.throws(
   () => surface.applyChartDataRecord({ bars: [] }),
+  /requires paneId/,
+);
+assert.throws(
+  () => surface.applyViewportProjection({ projection: { from: 0, to: 1 } }),
   /requires paneId/,
 );
 

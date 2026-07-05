@@ -57,6 +57,7 @@ export function mountWorkstationChartSurface(root, {
 
   const paneId = resolvePaneId(host);
   const appliedChartDataByPaneId = new Map();
+  const appliedViewportByPaneId = new Map();
   const size = measureHost(host);
   const manager = managerFactory({
     chartOptions: {
@@ -104,6 +105,31 @@ export function mountWorkstationChartSurface(root, {
       });
       return snapshot;
     },
+    applyViewportProjection(record = {}) {
+      const recordPaneId = String(record.paneId || '').trim();
+      if (!recordPaneId) {
+        throw new Error('Workstation chart surface viewport projection requires paneId.');
+      }
+      if (recordPaneId !== paneId) {
+        return null;
+      }
+      if (!record.projection) {
+        return null;
+      }
+      const snapshot = manager.setVisibleLogicalRange(recordPaneId, {
+        from: record.projection.from,
+        to: record.projection.to,
+      });
+      appliedViewportByPaneId.set(recordPaneId, {
+        chartBarsRevision: Number(record.chartBarsRevision) || 0,
+        from: Number(record.projection.from),
+        origin: record.projection.origin,
+        paneId: recordPaneId,
+        projectionRevision: Number(record.projection.revision) || 0,
+        to: Number(record.projection.to),
+      });
+      return snapshot;
+    },
     destroy() {
       resizeObserver?.disconnect();
       manager.destroyAll();
@@ -112,6 +138,8 @@ export function mountWorkstationChartSurface(root, {
       const snapshot = manager.snapshot();
       return {
         appliedChartData: [...appliedChartDataByPaneId.values()]
+          .sort((left, right) => left.paneId.localeCompare(right.paneId)),
+        appliedViewport: [...appliedViewportByPaneId.values()]
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         hostConnected: Boolean(host.isConnected),
         hostSelector,
