@@ -11,7 +11,9 @@ to fallback status. Chart-data snapshots now reach the mounted workstation
 adapter through a chart-engine bridge, and chart-viewport projections now write
 adapter logical ranges through a separate chart-engine bridge.
 The running app now has a default-wall load/next browser gate covering the
-full replay -> chart-data -> chart-viewport -> chart-engine path.
+full replay -> chart-data -> chart-viewport -> chart-engine path. It also has a
+manual-wall running-app gate proving manual projection is preserved across
+default-wall next.
 
 ## Current Presentation Paths
 
@@ -40,6 +42,7 @@ Passed:
 - `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
 - `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
 - `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 
 ## Findings
@@ -64,19 +67,21 @@ Passed:
   surface.
 - The running app default-wall flow gate verifies load and next update mounted
   chart data and projected range without route/shell writing the adapter.
+- The running app manual-wall flow gate verifies manual wall offset/span are
+  projected to the mounted chart and preserved across default-wall next.
 - The default shell still contains `.static-chart-visual`,
   `.price-scale-placeholder`, and `.time-scale-placeholder`, but these live
   under `[data-v6-chart-fallback]` with reduced opacity and `aria-hidden="true"`.
 
 ## Risk
 
-The next gap is no longer default-wall delivery; it is proving a running-app
-manual wall projection is preserved across default-wall next through the same
-runtime and chart-engine boundaries.
+The next gap is no longer manual-wall delivery; it is documenting the FXReplay
+UI reference kernel so workstation UI parity can expand without drifting into a
+dashboard/debug-console shape.
 
 ## Next Direction
 
-The next executable step should add a running-app manual-wall flow gate. The
+The next executable step should capture FXReplay UI reference guardrails. The
 step must preserve:
 
 - visible-latency gates;

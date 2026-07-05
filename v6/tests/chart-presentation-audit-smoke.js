@@ -30,7 +30,8 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'workstation-chart-data-bridge-browser-smoke.js',
   'workstation-chart-viewport-bridge-browser-smoke.js',
   'workstation-default-wall-flow-browser-smoke.js',
-  'The next executable step should add a running-app manual-wall flow gate',
+  'workstation-manual-wall-flow-browser-smoke.js',
+  'The next executable step should capture FXReplay UI reference guardrails',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be listed in chart presentation audit`);
 });
