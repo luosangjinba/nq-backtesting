@@ -8,6 +8,7 @@ const CHART_DATA_ROOT = path.join(V6_ROOT, 'src', 'chart-data');
 const CHART_ENGINE_ROOT = path.join(V6_ROOT, 'src', 'chart-engine');
 const CHART_VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'chart-viewport');
 const DEFAULT_WALL_ROOT = path.join(V6_ROOT, 'src', 'default-wall');
+const DISPLAY_TIMEFRAME_ROOT = path.join(V6_ROOT, 'src', 'display-timeframe');
 const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
@@ -190,6 +191,17 @@ const forbiddenStatusOwnershipPatterns = [
   },
 ];
 
+const forbiddenDisplayTimeframeOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data\/bar-data-runtime|v4|vendor|lightweight|replay\/|session|shell\/workstation|shell\/app)[^'"]*['"]/i,
+    reason: 'V6 display-timeframe modules must not import data adapters, replay internals, session, vendor, or shell UI modules.',
+  },
+  {
+    pattern: /\b(createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent)\b/,
+    reason: 'V6 display-timeframe modules must not own chart engine, network, storage, replay cursor, or viewport intent state.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -367,6 +379,19 @@ for (const file of await walkFiles(DEFAULT_WALL_ROOT)) {
 for (const file of STATUS_FILES) {
   const text = await readFile(file, 'utf8');
   forbiddenStatusOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(DISPLAY_TIMEFRAME_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenDisplayTimeframeOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
