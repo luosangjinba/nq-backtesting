@@ -88,11 +88,16 @@ export function createWorkstationShellMarkup() {
             <strong>NQ 1m</strong>
             <span>30318.75</span>
           </div>
-          <div class="transport-placeholder" aria-label="Replay transport placeholder" data-v6-transport>
-            <button type="button" disabled aria-label="Step back">|&lt;</button>
-            <button type="button" disabled aria-label="Play">Play</button>
-            <button type="button" disabled aria-label="Step forward">&gt;|</button>
-            <span>1x</span>
+          <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
+            <button type="button" aria-label="Step back" disabled>|&lt;</button>
+            <button type="button" aria-label="Play replay" data-v6-transport-action="play-toggle" aria-pressed="false">Play</button>
+            <button type="button" aria-label="Step forward" data-v6-transport-action="next">&gt;|</button>
+            <div class="transport-speed" aria-label="Replay speed">
+              <button type="button" data-v6-transport-speed="0.5" aria-pressed="false">0.5x</button>
+              <button type="button" data-v6-transport-speed="1" aria-pressed="true" class="is-active">1x</button>
+              <button type="button" data-v6-transport-speed="2" aria-pressed="false">2x</button>
+              <button type="button" data-v6-transport-speed="4" aria-pressed="false">4x</button>
+            </div>
             <span>1m</span>
           </div>
         </section>

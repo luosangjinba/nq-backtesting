@@ -15,7 +15,11 @@ async function main() {
         hasShell: Boolean(document.querySelector('[data-v6-workstation-shell]')),
         headerText: document.querySelector('.top-bar h1')?.textContent || '',
         transportText: document.querySelector('.transport-placeholder')?.textContent || '',
+        transportMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReplayTransport?.getState),
         registryRunning: Boolean(document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.().running),
+        playDisabled: document.querySelector('[data-v6-transport-action="play-toggle"]')?.disabled ?? true,
+        nextDisabled: document.querySelector('[data-v6-transport-action="next"]')?.disabled ?? true,
+        speedButtons: document.querySelectorAll('[data-v6-transport-speed]').length,
         });
       })()
     `));
@@ -26,6 +30,10 @@ async function main() {
     assert.equal(value.headerText, 'FX Session Replay');
     assert.match(value.transportText, /Play/);
     assert.equal(value.registryRunning, true);
+    assert.equal(value.transportMounted, true);
+    assert.equal(value.playDisabled, false);
+    assert.equal(value.nextDisabled, false);
+    assert.equal(value.speedButtons, 4);
     assert.equal(value.commands.includes('defaultWall.load'), true);
     assert.equal(value.commands.includes('defaultWall.next'), true);
   } finally {

@@ -9,6 +9,7 @@ import { createDefaultWallRuntime } from './default-wall/default-wall-runtime.js
 import { createPaneRuntime } from './panes/pane-runtime.js';
 import { createReplayRuntime } from './replay/replay-runtime.js';
 import { createSessionRuntime } from './session/session-runtime.js';
+import { mountReplayTransport } from './shell/replay-transport.js';
 
 const root = document.querySelector('[data-v6-root]');
 
@@ -27,5 +28,7 @@ registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createReplayRuntime());
 registry.registerRuntime(createDefaultWallRuntime());
 await registry.start({ root, emitEvent, subscribeEvent });
+const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'));
 root.__v6RuntimeRegistry = registry;
+root.__v6ReplayTransport = replayTransport;
 root.dataset.booted = 'true';

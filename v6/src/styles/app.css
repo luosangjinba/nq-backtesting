@@ -344,6 +344,35 @@ p {
   text-align: center;
 }
 
+.transport-placeholder button {
+  min-width: 34px;
+  padding: 0 10px;
+  color: #dce5eb;
+  cursor: pointer;
+}
+
+.transport-placeholder button:disabled {
+  color: #5e7180;
+  cursor: default;
+}
+
+.transport-placeholder button[aria-pressed="true"],
+.transport-placeholder button.is-active {
+  border-color: #2f7fd8;
+  background: #1f61c5;
+  color: #ffffff;
+}
+
+.transport-speed {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid #22323e;
+  border-radius: 6px;
+  background: #0a1117;
+}
+
 .status-bar {
   display: flex;
   flex-wrap: wrap;
