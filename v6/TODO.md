@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 2 - Product Baseline Shell. The implementation
-  establishes the first usable FXReplay-like workstation surface and screenshot
-  gate without adding chart/replay/data coupling.
+- Latest completed step: Step 3 - Session Model. The implementation adds local
+  replay session creation/lookup through command/event runtime boundaries and
+  an in-memory repository without chart/replay/data/viewport coupling.
 
 ## Next Executable Steps
 
-### Step 3 - Session Model
+### Step 4 - Bar Data Runtime
 
-Implement local replay session creation/get state with no chart/data coupling.
+Implement V4 bars API adapter, bounded window request planning, in-memory window
+cache, and timing metadata.
 
 Acceptance:
 
-- session smoke passes;
-- runtime boundary smoke confirms session runtime does not own bars, chart, or
-  viewport intent.
+- cache hit/miss tests pass;
+- API timing metadata is available;
+- bar runtime does not mutate chart or replay state.
 
 ## Completed Steps
 
@@ -61,6 +62,23 @@ Verification:
 - `node v6/tests/product-baseline-screenshot-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 3 - Session Model
+
+Completed in commits:
+
+- `dfd4ed5 feat(v6): add session domain repository`
+- `9f6cd8a feat(v6): register session runtime`
+- `8b80d4e test(v6): gate session runtime boundary`
+
+Verification:
+
+- `node v6/tests/session-domain-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Step 6 Passes
