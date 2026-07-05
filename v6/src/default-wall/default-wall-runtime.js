@@ -25,12 +25,32 @@ function cloneState(state) {
   } : null;
 }
 
+function cloneStates(states = []) {
+  return states.map(cloneState);
+}
+
 function cursorTimestampFromState(state) {
   const timestamp = state?.latestBar?.timestamp;
   if (!Number.isFinite(timestamp)) {
     throw new Error('Default wall state must include a latest bar timestamp.');
   }
   return timestamp;
+}
+
+function normalizePaneIds({ paneId, paneIds } = {}) {
+  const ids = Array.isArray(paneIds) && paneIds.length ? paneIds : [paneId];
+  const normalized = ids.map((id) => String(id || '').trim()).filter(Boolean);
+  if (!normalized.length) {
+    return [undefined];
+  }
+  const seen = new Set();
+  normalized.forEach((id) => {
+    if (seen.has(id)) {
+      throw new Error(`Default wall replay duplicate pane id: ${id}`);
+    }
+    seen.add(id);
+  });
+  return normalized;
 }
 
 async function getViewportRecord(paneId) {
@@ -40,67 +60,76 @@ async function getViewportRecord(paneId) {
 export function createDefaultWallRuntime() {
   const unregisterCallbacks = [];
   let emit = () => {};
-  let state = null;
+  let paneStates = [];
+
+  async function buildResult({
+    chartRecords = [],
+    replayState,
+  } = {}) {
+    const viewportRecords = await Promise.all(
+      paneStates.map((paneState) => getViewportRecord(paneState.paneId)),
+    );
+    const activeViewportRecord = viewportRecords[0] || null;
+    const activeState = paneStates[0] || null;
+    return {
+      activeProjection: activeViewportRecord?.projection || activeState?.projection || null,
+      chartRecord: chartRecords[0] || null,
+      chartRecords,
+      replayState,
+      state: cloneState(activeState),
+      states: cloneStates(paneStates),
+      viewportRecord: activeViewportRecord,
+      viewportRecords,
+    };
+  }
 
   async function load(payload = {}) {
     const replayState = await dispatchCommand(REPLAY_COMMANDS.LOAD_SESSION, payload.session);
-    state = createDefaultWallReplayState({
+    paneStates = normalizePaneIds(payload).map((paneId) => createDefaultWallReplayState({
       bars: payload.bars,
       latestOffsetBars: payload.latestOffsetBars,
-      paneId: payload.paneId,
+      paneId,
       prefixBars: payload.prefixBars,
       spanBars: payload.spanBars,
       startIndex: replayState.cursorIndex,
-    });
-    await dispatchCommand(CHART_VIEWPORT_COMMANDS.ENSURE_INTENT, {
-      cursorTimestamp: cursorTimestampFromState(state),
-      latestOffsetBars: state.settings.latestOffsetBars,
-      paneId: state.paneId,
-    });
-    const chartRecord = await dispatchCommand(
+    }));
+    await Promise.all(paneStates.map((paneState) => dispatchCommand(CHART_VIEWPORT_COMMANDS.ENSURE_INTENT, {
+      cursorTimestamp: cursorTimestampFromState(paneState),
+      latestOffsetBars: paneState.settings.latestOffsetBars,
+      paneId: paneState.paneId,
+    })));
+    const chartRecords = await Promise.all(paneStates.map((paneState) => dispatchCommand(
       CHART_DATA_COMMANDS.REPLACE_BARS,
-      createDefaultWallChartReplacePayload(state),
-    );
-    const viewportRecord = await getViewportRecord(state.paneId);
-    const result = {
-      activeProjection: viewportRecord?.projection || state.projection,
-      chartRecord,
+      createDefaultWallChartReplacePayload(paneState),
+    )));
+    const result = await buildResult({
+      chartRecords,
       replayState,
-      state: cloneState(state),
-      viewportRecord,
-    };
+    });
     emit(DEFAULT_WALL_EVENTS.LOADED, result);
     return result;
   }
 
   async function next() {
-    if (!state) {
+    if (!paneStates.length) {
       throw new Error('Default wall replay is not loaded.');
     }
-    if (!state.forwardBars.length) {
-      const viewportRecord = await getViewportRecord(state.paneId);
-      return {
-        activeProjection: viewportRecord?.projection || state.projection,
-        chartRecord: null,
+    if (!paneStates[0].forwardBars.length) {
+      return buildResult({
+        chartRecords: [],
         replayState: await dispatchCommand(REPLAY_COMMANDS.GET_STATE),
-        state: cloneState(state),
-        viewportRecord,
-      };
+      });
     }
     const replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
-    state = advanceDefaultWallReplayState(state);
-    const chartRecord = await dispatchCommand(
+    paneStates = paneStates.map(advanceDefaultWallReplayState);
+    const chartRecords = await Promise.all(paneStates.map((paneState) => dispatchCommand(
       CHART_DATA_COMMANDS.APPEND_BARS,
-      createDefaultWallChartAppendPayload(state),
-    );
-    const viewportRecord = await getViewportRecord(state.paneId);
-    const result = {
-      activeProjection: viewportRecord?.projection || state.projection,
-      chartRecord,
+      createDefaultWallChartAppendPayload(paneState),
+    )));
+    const result = await buildResult({
+      chartRecords,
       replayState,
-      state: cloneState(state),
-      viewportRecord,
-    };
+    });
     emit(DEFAULT_WALL_EVENTS.ADVANCED, result);
     return result;
   }
@@ -110,7 +139,7 @@ export function createDefaultWallRuntime() {
     unregisterCallbacks.push(
       registerCommand(DEFAULT_WALL_COMMANDS.LOAD, load),
       registerCommand(DEFAULT_WALL_COMMANDS.NEXT, next),
-      registerCommand(DEFAULT_WALL_COMMANDS.GET_STATE, () => cloneState(state)),
+      registerCommand(DEFAULT_WALL_COMMANDS.GET_STATE, () => cloneState(paneStates[0])),
     );
   }
 
@@ -119,7 +148,7 @@ export function createDefaultWallRuntime() {
       unregisterCallbacks.pop()();
     }
     emit = () => {};
-    state = null;
+    paneStates = [];
   }
 
   return {

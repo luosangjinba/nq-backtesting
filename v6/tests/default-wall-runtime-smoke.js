@@ -134,6 +134,34 @@ const noOp = await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
 assert.equal(noOp.chartRecord, null);
 assert.equal(noOp.state.chartBarCount, 5);
 
+const multiLoaded = await dispatchCommand(DEFAULT_WALL_COMMANDS.LOAD, {
+  bars,
+  latestOffsetBars: 4,
+  paneIds: ['pane-left', 'pane-right'],
+  prefixBars: 0,
+  session: {
+    ...session,
+    id: 'session-default-wall-multi',
+  },
+  spanBars: 120,
+});
+assert.deepEqual(multiLoaded.states.map((state) => state.paneId), ['pane-left', 'pane-right']);
+assert.equal(multiLoaded.chartRecords.length, 2);
+assert.equal(multiLoaded.viewportRecords.length, 2);
+
+const multiNext = await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
+assert.equal(multiNext.replayState.cursorIndex, 1);
+assert.equal(multiNext.states.length, 2);
+assert.deepEqual(multiNext.chartRecords.map((record) => record.paneId), ['pane-left', 'pane-right']);
+assert.deepEqual(multiNext.chartRecords.map((record) => record.bars.at(-1).timestamp), [1780306260, 1780306260]);
+const leftRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-left' });
+const rightRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-right' });
+assert.deepEqual(
+  leftRecord.bars.map((bar) => bar.timestamp),
+  rightRecord.bars.map((bar) => bar.timestamp),
+);
+assert.deepEqual(leftRecord.bars.map((bar) => bar.timestamp), [1780306200, 1780306260]);
+
 await registry.stop();
 assert.equal(hasCommand(DEFAULT_WALL_COMMANDS.LOAD), false);
 unsubscribeLoaded();
