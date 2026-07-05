@@ -137,47 +137,50 @@ export function createWorkstationShellMarkup() {
         </section>
 
         <section class="chart-surface" aria-label="Replay chart surface" data-v6-chart-surface>
-          <div class="price-scale-placeholder" aria-hidden="true">
-            <span>30520.00</span>
-            <span>30480.00</span>
-            <span>30440.00</span>
-            <span>30400.00</span>
-            <span>30360.00</span>
-            <span>30320.00</span>
-          </div>
-          <div class="time-scale-placeholder" aria-hidden="true">
-            <span>07:45</span>
-            <span>08:00</span>
-            <span>08:15</span>
-            <span>08:30</span>
-            <span>08:45</span>
-            <span>09:00</span>
-          </div>
-          <div class="static-chart-visual" aria-hidden="true">
-            <span class="candle up"></span>
-            <span class="candle down"></span>
-            <span class="candle up"></span>
-            <span class="candle down tall"></span>
-            <span class="candle down"></span>
-            <span class="candle up tall"></span>
-            <span class="candle up"></span>
-            <span class="candle down"></span>
-            <span class="candle down tall"></span>
-            <span class="candle up"></span>
-            <span class="candle down"></span>
-            <span class="candle up tall"></span>
-            <span class="candle down"></span>
-            <span class="candle up"></span>
-            <span class="candle up tall"></span>
-            <span class="candle down"></span>
-            <span class="candle down"></span>
-            <span class="candle up"></span>
-            <span class="candle down tall"></span>
-            <span class="candle up"></span>
-            <span class="candle up tall"></span>
-            <span class="candle down"></span>
-            <span class="candle up"></span>
-            <span class="candle down"></span>
+          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="default"></div>
+          <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
+            <div class="price-scale-placeholder">
+              <span>30520.00</span>
+              <span>30480.00</span>
+              <span>30440.00</span>
+              <span>30400.00</span>
+              <span>30360.00</span>
+              <span>30320.00</span>
+            </div>
+            <div class="time-scale-placeholder">
+              <span>07:45</span>
+              <span>08:00</span>
+              <span>08:15</span>
+              <span>08:30</span>
+              <span>08:45</span>
+              <span>09:00</span>
+            </div>
+            <div class="static-chart-visual">
+              <span class="candle up"></span>
+              <span class="candle down"></span>
+              <span class="candle up"></span>
+              <span class="candle down tall"></span>
+              <span class="candle down"></span>
+              <span class="candle up tall"></span>
+              <span class="candle up"></span>
+              <span class="candle down"></span>
+              <span class="candle down tall"></span>
+              <span class="candle up"></span>
+              <span class="candle down"></span>
+              <span class="candle up tall"></span>
+              <span class="candle down"></span>
+              <span class="candle up"></span>
+              <span class="candle up tall"></span>
+              <span class="candle down"></span>
+              <span class="candle down"></span>
+              <span class="candle up"></span>
+              <span class="candle down tall"></span>
+              <span class="candle up"></span>
+              <span class="candle up tall"></span>
+              <span class="candle down"></span>
+              <span class="candle up"></span>
+              <span class="candle down"></span>
+            </div>
           </div>
           <div class="chart-placeholder" data-v6-chart-placeholder>
             <strong data-v6-status-title>NQ 1m</strong>

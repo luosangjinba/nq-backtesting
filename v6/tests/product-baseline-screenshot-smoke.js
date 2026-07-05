@@ -27,12 +27,17 @@ try {
         width: window.innerWidth,
       };
       const chart = rectOf('[data-v6-chart-surface]');
+      const chartHost = rectOf('[data-v6-chart-engine-host]');
       const transport = rectOf('[data-v6-transport]');
       const status = rectOf('[data-v6-status-bar]');
       const header = rectOf('[data-v6-workstation-header]');
       return {
         candleCount: document.querySelectorAll('.static-chart-visual .candle').length,
         chart,
+        chartHost,
+        fallbackOpacity: Number.parseFloat(getComputedStyle(document.querySelector('[data-v6-chart-fallback]')).opacity),
+        hostZIndex: Number.parseInt(getComputedStyle(document.querySelector('[data-v6-chart-engine-host]')).zIndex, 10),
+        fallbackZIndex: Number.parseInt(getComputedStyle(document.querySelector('[data-v6-chart-fallback]')).zIndex, 10),
         header,
         landingLike: Boolean(document.querySelector('.hero, [data-landing-page], .marketing-page')),
         status,
@@ -48,6 +53,10 @@ try {
   assert.equal(layout.landingLike, false);
   assert.equal(layout.topActionCount >= 3, true);
   assert.equal(layout.candleCount >= 20, true);
+  assert.equal(layout.chartHost.width, layout.chart.width);
+  assert.equal(layout.chartHost.height, layout.chart.height);
+  assert.equal(layout.hostZIndex > layout.fallbackZIndex, true);
+  assert.equal(layout.fallbackOpacity <= 0.25, true);
   assert.equal(layout.header.height <= 72, true);
   assert.equal(layout.chart.height > layout.viewport.height * 0.58, true);
   assert.equal(layout.chart.width > layout.viewport.width * 0.88, true);
