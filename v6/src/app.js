@@ -4,6 +4,7 @@ import { createRuntimeRegistry } from './runtime/lifecycle.js';
 import { emitEvent, subscribeEvent } from './runtime/events.js';
 import { createBarDataRuntime } from './bar-data/bar-data-runtime.js';
 import { createChartDataRuntime } from './chart-data/chart-data-runtime.js';
+import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { createChartViewportRuntime } from './chart-viewport/chart-viewport-runtime.js';
 import { createDisplayTimeframeRuntime } from './display-timeframe/display-timeframe-runtime.js';
 import { createDefaultWallRuntime } from './default-wall/default-wall-runtime.js';
@@ -49,6 +50,7 @@ registry.registerRuntime(createDefaultWallRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
 await registry.start({ root, emitEvent, subscribeEvent });
 const workflowPanelCoordinator = createWorkflowPanelCoordinator();
+const workstationChartSurface = mountWorkstationChartSurface(root);
 const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
@@ -78,4 +80,5 @@ root.__v6ReplayTransport = replayTransport;
 root.__v6SettingsPanel = settingsPanel;
 root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
+root.__v6WorkstationChartSurface = workstationChartSurface;
 root.dataset.booted = 'true';
