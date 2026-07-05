@@ -961,22 +961,26 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
-### Step 51 - Session Settings Panel Shell Reservation
+### Step 51 - Real Chart Manual Wall Input Bridge
 
-Reserve the right-rail Session settings panel shell without making session
-settings interactive yet.
+Connect real chart visible-range interaction to V6 manual-wall intent without
+copying V5 chart runtime ownership. This step uses the Lightweight Charts
+time-scale visible logical range API through the chart-engine boundary.
 
 Acceptance:
 
-- right-rail Session settings entry opens a shell-only panel/sheet distinct
-  from the existing Workspace Settings panel;
-- panel labels match the FXReplay kernel direction: Session Info,
-  Balance & Assets, Spreads & Commissions, and Date Range;
-- settings remain inert placeholders until a session-settings owner exists;
+- native chart pan/zoom visible range changes can promote the active pane to a
+  manual wall through `CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT`;
+- the bridge measures logical range only and does not own chart bars, replay
+  cursor, viewport intent, adapter state, bar cache, or session persistence;
+- after a real chart range interaction, Next/Play preserves the manual wall
+  offset/span and moves the visible range left as new candles appear;
+- cache-hit visible path remains free of data fetches and visible-latency gates
+  still pass;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, adapter state, bar cache, or session persistence;
-- app-shell, product baseline, right utility rail, UI guardrails, parity audit,
-  and boundary gates remain passing.
+- workstation manual-wall, visible latency, chart engine, product baseline, and
+  boundary gates remain passing.
 
 ## Deferred Until Later Gates
 
