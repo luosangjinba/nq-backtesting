@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 13 - Manual Wall Replay. The implementation keeps
-  manual viewport intent as chart-viewport-owned state, returns active manual
-  projections from replay advancement, and gates real chart manual-wall Next
-  visibility from measured logical range rather than time-range reconstruction.
+- Latest completed step: Step 14 - Replay Transport Controls. The
+  implementation adds FXReplay-like transport controls, speed presets, and
+  keyboard shortcuts through a UI controller that dispatches commands only and
+  does not own replay, chart, data, or viewport state.
 
 ## Next Executable Steps
 
-### Step 14 - Replay Transport Controls
+### Step 15 - Chart Status And OHLC
 
-Implement FXReplay-like transport controls that dispatch replay/default-wall
-commands only: Play/Pause, Next, speed presets, and keyboard shortcuts.
+Implement read-only chart status and OHLC surfaces: top-left OHLC, footer status,
+session/cursor/revealed/playback readouts, and no-future progress messaging.
 
 Acceptance:
 
-- controls dispatch commands only;
-- visible latency gate still passes.
+- status is read-only;
+- no chart/replay mutation from status UI.
 
 ## Completed Steps
 
@@ -262,6 +262,25 @@ Verification:
 - `node v6/tests/viewport-intent-domain-smoke.js`
 - `node v6/tests/viewport-intent-invariant-smoke.js`
 - `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 14 - Replay Transport Controls
+
+Completed in commits:
+
+- `acdb530 feat(v6): add replay transport controller`
+- `d2da1a1 feat(v6): mount replay transport controls`
+- `37a7865 test(v6): verify replay transport dispatch`
+- `2a112ac test(v6): enforce replay transport boundaries`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
