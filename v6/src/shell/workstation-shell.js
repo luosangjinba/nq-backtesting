@@ -21,6 +21,10 @@ function icon(name) {
   return `<svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
 }
 
+function layoutPreview(cells) {
+  return `<span class="layout-preview" aria-hidden="true">${cells.map((cell) => `<span style="${cell}"></span>`).join('')}</span>`;
+}
+
 export function createWorkstationShellMarkup() {
   return `
     <section class="workstation-shell" data-v6-workstation-shell>
@@ -72,7 +76,6 @@ export function createWorkstationShellMarkup() {
               </section>
             </div>
           </div>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-page-layout disabled aria-label="Page layout">${icon('grid')}<span class="sr-only">Page layout</span></button>
           <button type="button" class="tool-button tool-button-text" data-v6-top-indicators disabled aria-label="Indicators">${icon('indicators')}<span>Indicators</span></button>
           <button type="button" class="tool-button tool-button-icon" data-v6-top-undo disabled aria-label="Undo">${icon('undo')}<span class="sr-only">Undo</span></button>
           <button type="button" class="tool-button tool-button-icon" data-v6-top-redo disabled aria-label="Redo">${icon('redo')}<span class="sr-only">Redo</span></button>
@@ -82,7 +85,36 @@ export function createWorkstationShellMarkup() {
         </div>
         <div class="top-tool-group top-tool-group-right" aria-label="Account and utility tools">
           <button type="button" data-v6-top-account data-v6-top-session-hours disabled aria-label="Trading hours">ETH</button>
-          <button type="button" data-v6-top-instrument disabled>NQ-2018</button>
+          <details class="layout-menu-anchor" data-v6-layout-menu-details>
+            <summary class="tool-button tool-button-icon" data-v6-top-page-layout aria-label="Page layout" aria-haspopup="true">${icon('grid')}<span class="sr-only">Page layout</span></summary>
+            <div class="layout-menu" data-v6-layout-menu role="menu" aria-label="Page layout">
+              <section class="layout-menu-row" aria-label="One pane">
+                <span class="layout-row-index">1</span>
+                <button type="button" class="layout-option is-selected" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 5;'])}</button>
+              </section>
+              <section class="layout-menu-row" aria-label="Two panes">
+                <span class="layout-row-index">2</span>
+                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
+                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 3;', 'grid-column: 1 / 5; grid-row: 3 / 5;'])}</button>
+              </section>
+              <section class="layout-menu-row" aria-label="Three panes">
+                <span class="layout-row-index">3</span>
+                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 2; grid-row: 1 / 5;', 'grid-column: 2 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
+                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 2;', 'grid-column: 1 / 5; grid-row: 2 / 3;', 'grid-column: 1 / 5; grid-row: 3 / 5;'])}</button>
+                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 3;', 'grid-column: 3 / 5; grid-row: 3 / 5;'])}</button>
+                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 3;', 'grid-column: 1 / 3; grid-row: 3 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
+              </section>
+              <section class="layout-sync-section" aria-label="Sync in layout">
+                <div class="layout-menu-heading">Sync in layout</div>
+                <label><span>Symbol</span><input type="checkbox" checked disabled></label>
+                <label><span>Interval</span><input type="checkbox" disabled></label>
+                <label><span>Crosshair</span><input type="checkbox" checked disabled></label>
+                <label><span>Time</span><input type="checkbox" disabled></label>
+                <label><span>Date range</span><input type="checkbox" disabled></label>
+              </section>
+            </div>
+          </details>
+          <span class="layout-name" data-v6-top-layout-name>NQ-2018</span>
           <button type="button" class="tool-button tool-button-icon" data-v6-top-search disabled aria-label="Search">${icon('search')}<span class="sr-only">Search</span></button>
           <button type="button" class="tool-button tool-button-icon" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false" aria-label="Settings">${icon('gear')}<span class="sr-only">Settings</span></button>
           <button type="button" class="tool-button tool-button-icon" data-v6-top-screenshot disabled aria-label="Screenshot">${icon('camera')}<span class="sr-only">Screenshot</span></button>

@@ -5,11 +5,14 @@ import { openV6Page } from './helpers/v6-browser-harness.js';
 const page = await openV6Page({ height: 760, width: 1200 });
 try {
   const value = JSON.parse(await evaluate(page.client, `
-    JSON.stringify((() => {
+    (async () => JSON.stringify(await (async () => {
       const textOf = (selector) => document.querySelector(selector)?.textContent?.trim() || '';
       const disabled = (selector) => document.querySelector(selector)?.disabled === true;
       const exists = (selector) => Boolean(document.querySelector(selector));
       const headerRect = document.querySelector('[data-v6-workstation-header]').getBoundingClientRect();
+      const layoutDetails = document.querySelector('[data-v6-layout-menu-details]');
+      document.querySelector('[data-v6-top-page-layout]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
       return {
         account: textOf('[data-v6-top-account]'),
         accountDisabled: disabled('[data-v6-top-account]'),
@@ -21,13 +24,17 @@ try {
         headerHeight: Math.round(headerRect.height),
         indicators: textOf('[data-v6-top-indicators]'),
         indicatorsDisabled: disabled('[data-v6-top-indicators]'),
-        instrument: textOf('[data-v6-top-instrument]'),
-        instrumentDisabled: disabled('[data-v6-top-instrument]'),
         interval: textOf('[data-v6-top-interval]'),
         intervalDisabled: disabled('[data-v6-top-interval]'),
         intervalExpanded: document.querySelector('[data-v6-top-interval]')?.getAttribute('aria-expanded'),
         layoutLabel: document.querySelector('[data-v6-top-page-layout]')?.getAttribute('aria-label') || '',
         layoutDisabled: disabled('[data-v6-top-page-layout]'),
+        layoutName: textOf('[data-v6-top-layout-name]'),
+        layoutMenuOpen: layoutDetails.open,
+        layoutRows: [...document.querySelectorAll('.layout-menu-row')].map((row) => row.getAttribute('aria-label')),
+        layoutOptions: document.querySelectorAll('.layout-option').length,
+        layoutSyncLabels: [...document.querySelectorAll('.layout-sync-section label span')].map((element) => element.textContent),
+        layoutSyncDisabled: [...document.querySelectorAll('.layout-sync-section input')].map((input) => input.disabled),
         profile: textOf('[data-v6-top-profile]'),
         rightIconCount: document.querySelectorAll('.top-tool-group-right .tool-button .tool-icon').length,
         readinessInHeader: exists('[data-v6-workstation-header] [data-v6-readiness-surface]'),
@@ -40,7 +47,7 @@ try {
         toolIconCount: document.querySelectorAll('[data-v6-workstation-header] .tool-button .tool-icon').length,
         undoDisabled: disabled('[data-v6-top-undo]'),
       };
-    })())
+    })()))()
   `));
 
   assert.equal(value.hasHeader, true);
@@ -53,7 +60,12 @@ try {
   assert.equal(value.indicators, 'Indicators');
   assert.equal(value.profile, 'test');
   assert.equal(value.account, 'ETH');
-  assert.equal(value.instrument, 'NQ-2018');
+  assert.equal(value.layoutName, 'NQ-2018');
+  assert.equal(value.layoutMenuOpen, true);
+  assert.deepEqual(value.layoutRows, ['One pane', 'Two panes', 'Three panes']);
+  assert.equal(value.layoutOptions, 7);
+  assert.deepEqual(value.layoutSyncLabels, ['Symbol', 'Interval', 'Crosshair', 'Time', 'Date range']);
+  assert.deepEqual(value.layoutSyncDisabled, [true, true, true, true, true]);
   assert.equal(value.editorExists, false);
   assert.equal(value.sessionsWorkflowStillPresent, true);
   assert.equal(value.readinessInHeader, true);
@@ -65,8 +77,6 @@ try {
     value.compareDisabled,
     value.fullscreenDisabled,
     value.indicatorsDisabled,
-    value.instrumentDisabled,
-    value.layoutDisabled,
     value.redoDisabled,
     value.searchDisabled,
     value.symbolSearchDisabled,

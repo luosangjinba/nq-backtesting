@@ -87,7 +87,7 @@ product:
 | Undo and redo | Needed. Keep inert until drawing/indicator/action-history ownership exists. |
 | Session name | Needed. It should show the user-defined replay session name, such as the FXReplay `test` label. |
 | RTH/ETH selector | Needed. ICT analysis uses regular and electronic trading hours, so this requires an explicit session-hours owner before interactivity. |
-| Page layout selector | Needed, but only to the third level. Do not expose deeper or generic layout complexity. |
+| Page layout selector | Needed, but only to the third level. The compact layout icon opens the layout panel; the adjacent `NQ-2018`-style text is the layout name, not the instrument selector. Do not expose deeper or generic layout complexity. |
 | Search utility | Keep as a placeholder. It should not be removed even if implementation is deferred. |
 | Settings | Needed. Chart settings and Session settings must remain distinct surfaces. |
 | Screenshot | Needed. Add as an inert placeholder until an export/screenshot owner exists. |
