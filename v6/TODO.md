@@ -14,23 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 9 - Chart Viewport Runtime. The implementation
-  adds pane-local viewport intent ownership, replay cursor notification
-  handling, and current-intent reprojection after chart data revisions without
-  touching chart engine APIs.
+- Latest completed step: Step 10 - Chart Engine Adapter. The implementation
+  adds a Lightweight Charts adapter lifecycle, `setData`/`update`,
+  `setVisibleLogicalRange`, native visible logical range measurement, and
+  adapter metadata without storing durable viewport intent.
 
 ## Next Executable Steps
 
-### Step 10 - Chart Engine Adapter
+### Step 11 - Visible Latency Harness
 
-Implement Lightweight adapter lifecycle, `setData`/`update`,
-`setVisibleLogicalRange`, native visible logical range measurement, and test
-metadata for latest offset/span.
+Implement browser latency harness for input-to-candle-visible timing with phase
+metadata: input, command received, bar available, chart update requested, and
+candle visible.
 
 Acceptance:
 
-- adapter smoke asserts logical range writes directly;
-- adapter stores no durable viewport intent.
+- cache-hit Next test proves DB/API is not on the visible path;
+- failures identify data latency vs frontend/chart latency.
 
 ## Completed Steps
 
@@ -184,6 +184,23 @@ Verification:
 
 - `node v6/tests/chart-viewport-store-smoke.js`
 - `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 10 - Chart Engine Adapter
+
+Completed in commits:
+
+- `0837d5d feat(v6): add lightweight chart adapter`
+- `60519b1 test(v6): verify chart engine browser adapter`
+- `bf132cc test(v6): enforce chart engine adapter boundaries`
+
+Verification:
+
+- `node v6/tests/chart-engine-adapter-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
