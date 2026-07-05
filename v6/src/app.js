@@ -5,6 +5,7 @@ import { emitEvent, subscribeEvent } from './runtime/events.js';
 import { createBarDataRuntime } from './bar-data/bar-data-runtime.js';
 import { createChartDataRuntime } from './chart-data/chart-data-runtime.js';
 import { connectChartDataSurfaceBridge } from './chart-engine/chart-data-surface-bridge.js';
+import { connectChartViewportSurfaceBridge } from './chart-engine/chart-viewport-surface-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { createChartViewportRuntime } from './chart-viewport/chart-viewport-runtime.js';
 import { createDisplayTimeframeRuntime } from './display-timeframe/display-timeframe-runtime.js';
@@ -56,6 +57,10 @@ const chartDataSurfaceBridge = connectChartDataSurfaceBridge({
   chartSurface: workstationChartSurface,
   subscribeEvent,
 });
+const chartViewportSurfaceBridge = connectChartViewportSurfaceBridge({
+  chartSurface: workstationChartSurface,
+  subscribeEvent,
+});
 const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
@@ -87,4 +92,5 @@ root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;
 root.__v6ChartDataSurfaceBridge = chartDataSurfaceBridge;
+root.__v6ChartViewportSurfaceBridge = chartViewportSurfaceBridge;
 root.dataset.booted = 'true';
