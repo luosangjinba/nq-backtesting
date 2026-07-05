@@ -16,6 +16,8 @@ Read this index before working on V6.
   workflow shell work and the next chart-facing direction.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
+- `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
+  workstation chrome, menus, settings, and parity work without pixel-copying.
 - `v6/docs/specs/replay-viewport-intent.md`: the first core V6 contract.
 - `v6/docs/specs/replay-visible-latency.md`: user-visible replay candle latency
   gates that prevent V5's delayed K-line appearance problem from returning.
@@ -46,6 +48,8 @@ Read this index before working on V6.
   display timeframe, multi-pane, and chart engine readiness gates.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
+- `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
+  toolbars, timeframe menu, settings modal, and chart-first visual tone.
 
 ## Reading Rule
 
