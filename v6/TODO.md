@@ -14,24 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 32 - Product Top Chrome Consolidation. The
-  implementation moves readiness into a compact header status, removes the
-  standalone diagnostics row from the main reading path, and documents the top
-  chrome product-surface rules.
+- Latest completed step: Step 33 - Workflow Panel Product Copy And Layout. The
+  implementation refines workflow panel labels and compact layout, fixes panel
+  grid rows so they do not consume the chart workspace, and adds a browser
+  layout smoke for the workflow panels.
 
 ## Next Executable Steps
 
-### Step 33 - Workflow Panel Product Copy And Layout
+### Step 34 - Workflow Action Active States
 
-Refine the Sessions, Replay, Journal, and Settings panels so opened workflow
-surfaces read like product UI instead of developer controls.
+Make top workflow actions communicate open/active state clearly while keeping
+the chart workspace dominant.
 
 Acceptance:
 
-- panel copy uses user-facing labels and empty states;
-- panel layout remains compact and does not compete with the chart workspace;
-- panel controllers still dispatch commands only and do not import feature
-  runtime internals or chart/data/viewport ownership paths.
+- opened workflow actions have visible active states and accessible state
+  attributes;
+- only shell UI controllers own these visual states;
+- no action-state logic imports feature runtime internals or chart/data/viewport
+  ownership paths.
 
 ## Completed Steps
 
@@ -619,6 +620,25 @@ Verification:
 
 - `node v6/tests/readiness-surface-controller-smoke.js`
 - `node v6/tests/readiness-audit-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 33 - Workflow Panel Product Copy And Layout
+
+Completed in commits:
+
+- `546a9f9 feat(v6): refine workflow panel product copy`
+- `3fe49ed test(v6): protect workflow panel layout`
+
+Verification:
+
+- `node v6/tests/sessions-surface-controller-smoke.js`
+- `node v6/tests/replay-workflow-surface-controller-smoke.js`
+- `node v6/tests/journal-surface-controller-smoke.js`
+- `node v6/tests/settings-panel-controller-smoke.js`
+- `node v6/tests/settings-panel-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
