@@ -25,7 +25,8 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'Priority Order',
   'Ownership Constraints',
   'Stop Conditions',
-  'Step 48 should implement the first shell-only top toolbar parity slice',
+  'shell-only UI complete for first slice',
+  'Step 49 should implement the shell-only timeframe menu parity slice',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be listed in UI parity gap audit`);
 });
@@ -34,7 +35,8 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'primary/non-primary',
   'Trading/account UI appears interactive without an explicit owner',
   'Settings becomes a dashboard page',
-  'disabled or inert placeholders',
+  'display-timeframe',
+  'runtime ownership must remain intact',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be a guarded stop/direction condition`);
 });

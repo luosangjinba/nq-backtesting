@@ -14,25 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 47 - FXReplay UI Parity Gap Audit. The
-  implementation audits the current V6 workstation shell against the FXReplay
-  UI guardrails and classifies gaps by shell-only, runtime-owned, and deferred
-  ownership.
+- Latest completed step: Step 48 - Top Toolbar Shell Parity Slice. The
+  implementation adds a compact FXReplay-style shell toolbar with disabled or
+  inert placeholders for tools that do not yet have runtime owners.
 
 ## Next Executable Steps
 
-### Step 48 - Top Toolbar Shell Parity Slice
+### Step 49 - Timeframe Menu Shell Parity Slice
 
-Implement the first shell-only top toolbar parity slice from the FXReplay UI gap
-audit.
+Replace the native chart-toolbar timeframe select with a shell-owned grouped
+floating interval menu while preserving display-timeframe runtime ownership.
 
 Acceptance:
 
-- top toolbar includes compact placeholders for instrument/search, interval,
-  Layout, Indicators, undo, redo, account/profile, instrument selector,
-  editor/theme/fullscreen-style controls;
-- controls without owners are disabled or inert placeholders with accessible
-  labels;
+- menu opens from the compact top-toolbar interval command and overlays the
+  chart without reflowing layout;
+- menu groups seconds, minutes, hours, and days and includes
+  `Add custom interval...`;
+- selecting supported minute intervals still dispatches through the existing
+  display-timeframe command path;
+- unsupported/custom intervals remain disabled or inert placeholders;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, or adapter state;
 - app-shell, product baseline, UI guardrails, parity audit, and boundary gates
@@ -906,6 +907,23 @@ Verification:
 
 - `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 48 - Top Toolbar Shell Parity Slice
+
+Completed in commits:
+
+- `da3ec583 feat(v6): add top toolbar parity shell`
+
+Verification:
+
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/status-readout-browser-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 

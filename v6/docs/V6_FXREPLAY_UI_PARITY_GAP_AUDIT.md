@@ -4,8 +4,9 @@ Date: 2026-07-05
 
 ## Decision
 
-The current V6 shell is acceptable as a guarded runtime/workflow scaffold, but
-it is not yet aligned with the FXReplay UI kernel documented in
+The current V6 shell is acceptable as a guarded runtime/workflow scaffold, and
+its top toolbar now has the first shell-only parity slice. It is still not fully
+aligned with the FXReplay UI kernel documented in
 `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`. Future UI parity work should proceed
 from chart-first workstation chrome outward, not by expanding the existing
 workflow-panel shape.
@@ -14,7 +15,7 @@ workflow-panel shape.
 
 | Area | Current V6 surface | Guardrail target | Gap class | Direction |
 | --- | --- | --- | --- | --- |
-| Top toolbar | Product lockup, readiness summary, Sessions/Replay/Journal/Settings buttons | Compact command toolbar with instrument search, symbol, interval, layout, Indicators, undo, redo, account/profile, instrument selector, editor/theme/fullscreen controls | shell-only UI plus future runtime-owned commands | Replace product-lockup emphasis with tool chrome; keep commands disabled until owners exist |
+| Top toolbar | Compact shell toolbar with instrument/search, interval, Layout, Indicators, undo, redo, workflow actions, profile/account, instrument selector, editor/theme/fullscreen placeholders | Compact command toolbar with instrument search, symbol, interval, layout, Indicators, undo, redo, account/profile, instrument selector, editor/theme/fullscreen controls | shell-only UI complete for first slice; future runtime-owned commands remain inert | Keep placeholders disabled until owners exist |
 | Timeframe menu | Native select with `1m/5m/15m` | Floating grouped interval dropdown with custom interval entry | shell-only UI now, runtime-owned timeframe behavior remains display-timeframe runtime | Build dropdown UI around existing display-timeframe command path |
 | Indicators / undo / redo | Missing | Reserved top-toolbar commands | runtime-owned behavior, shell-only disabled placeholders acceptable | Add disabled placeholders first; implement owners before interactivity |
 | Left toolbar | Missing | Vertical drawing/tool icon strip | deferred until drawing/tool runtime owner exists | Reserve shell rail without fake drawing behavior |
@@ -28,17 +29,14 @@ workflow-panel shape.
 
 ## Priority Order
 
-1. Top toolbar parity shell: instrument/search area, interval command, layout,
-   Indicators, undo, redo, account/profile, symbol selector, editor/theme/fullscreen
-   placeholders.
-2. Timeframe menu parity: replace the native select with a grouped floating
+1. Timeframe menu parity: replace the native select with a grouped floating
    menu that still dispatches display-timeframe commands.
-3. Settings modal parity: replace the inline workflow settings panel with a
+2. Settings modal parity: replace the inline workflow settings panel with a
    centered modal skeleton using Symbol, Status line, Scales and lines, Canvas
    tabs.
-4. Side rail reservations: add left drawing rail and right utility rail as
+3. Side rail reservations: add left drawing rail and right utility rail as
    inert shell surfaces before adding behavior.
-5. Bottom chrome audit: align transport plus account/trading chrome without
+4. Bottom chrome audit: align transport plus account/trading chrome without
    implementing fake trading actions.
 
 ## Ownership Constraints
@@ -64,8 +62,7 @@ workflow-panel shape.
 
 ## Next Direction
 
-Step 48 should implement the first shell-only top toolbar parity slice:
-instrument/search, interval command entry, Layout, Indicators, undo, redo, and
-right-side utility placeholders. Controls that lack owners should render as
-disabled or inert placeholders. Controls that lack owners should not appear
-interactive beyond accessible labels and disabled state.
+Step 49 should implement the shell-only timeframe menu parity slice: a compact
+top-toolbar interval command that opens a grouped floating menu with seconds,
+minutes, hours, days, and `Add custom interval...`. Existing display-timeframe
+runtime ownership must remain intact.
