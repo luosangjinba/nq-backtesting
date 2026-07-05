@@ -1,8 +1,10 @@
 import {
   DEFAULT_WALL_COMMANDS,
   REPLAY_COMMANDS,
+  REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
+import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 
 const SPEEDS = Object.freeze([0.5, 1, 2, 4]);
 
@@ -46,6 +48,15 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
   }
 }
 
+export function syncReplayTransportStateFromReplay(state, replayState = {}) {
+  const status = String(replayState.status || '').trim();
+  if (!status) return createReplayTransportState(state);
+  return createReplayTransportState({
+    playing: status === 'playing',
+    speed: state.speed,
+  });
+}
+
 function isEditableTarget(target) {
   const tagName = String(target?.tagName || '').toLowerCase();
   return Boolean(
@@ -74,6 +85,7 @@ function updateDom(root, state) {
 
 export function mountReplayTransport(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
     throw new Error('Replay transport root is required.');
@@ -81,6 +93,7 @@ export function mountReplayTransport(root, {
   let state = createReplayTransportState();
   const abortController = new AbortController();
   const signal = abortController.signal;
+  const unsubscribeCallbacks = [];
 
   function setState(nextState) {
     state = createReplayTransportState(nextState);
@@ -101,6 +114,10 @@ export function mountReplayTransport(root, {
       }
       return null;
     });
+  }
+
+  function syncFromReplayEvent(replayState) {
+    setState(syncReplayTransportStateFromReplay(state, replayState));
   }
 
   root.addEventListener('click', (event) => {
@@ -129,11 +146,22 @@ export function mountReplayTransport(root, {
     }
   }, { signal });
 
+  if (typeof subscribeEvent === 'function') {
+    unsubscribeCallbacks.push(
+      subscribeEvent(REPLAY_EVENTS.LOADED, syncFromReplayEvent),
+      subscribeEvent(REPLAY_EVENTS.PLAYBACK_CHANGED, syncFromReplayEvent),
+      subscribeEvent(REPLAY_EVENTS.RESET, syncFromReplayEvent),
+    );
+  }
+
   setState(state);
 
   return Object.freeze({
     destroy() {
       abortController.abort();
+      while (unsubscribeCallbacks.length) {
+        unsubscribeCallbacks.pop()();
+      }
     },
     getState() {
       return state;

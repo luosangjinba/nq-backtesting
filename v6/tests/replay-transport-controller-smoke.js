@@ -7,6 +7,7 @@ import {
   createReplayTransportState,
   mountReplayTransport,
   resolveReplayTransportAction,
+  syncReplayTransportStateFromReplay,
 } from '../src/shell/replay-transport.js';
 
 function createFakeElement({
@@ -80,6 +81,14 @@ const play = resolveReplayTransportAction('play-toggle', initialState);
 assert.equal(play.command, REPLAY_COMMANDS.PLAY);
 assert.equal(play.nextState.playing, true);
 assert.equal(resolveReplayTransportAction('play-toggle', play.nextState).command, REPLAY_COMMANDS.PAUSE);
+assert.deepEqual(syncReplayTransportStateFromReplay({ playing: false, speed: 2 }, { status: 'playing' }), {
+  playing: true,
+  speed: 2,
+});
+assert.deepEqual(syncReplayTransportStateFromReplay({ playing: true, speed: 4 }, { status: 'paused' }), {
+  playing: false,
+  speed: 4,
+});
 
 const fakeDocument = createFakeDocument();
 const root = createFakeElement({ tagName: 'div' });
@@ -92,10 +101,15 @@ root.children = [playButton, nextButton, speedButton];
 root.speedButtons = [speedButton];
 
 const dispatched = [];
+const eventListeners = new Map();
 const controller = mountReplayTransport(root, {
   dispatchCommand: async (command) => {
     dispatched.push(command);
     return { ok: true };
+  },
+  subscribeEvent: (eventName, listener) => {
+    eventListeners.set(eventName, listener);
+    return () => eventListeners.delete(eventName);
   },
 });
 
@@ -112,6 +126,16 @@ assert.equal(controller.getState().playing, true);
 root.click(speedButton);
 assert.equal(controller.getState().speed, 2);
 assert.equal(speedButton['aria-pressed'], 'true');
+
+eventListeners.get('replay:playbackChanged')?.({ status: 'paused' });
+assert.equal(controller.getState().playing, false);
+assert.equal(controller.getState().speed, 2);
+assert.equal(playButton.textContent, 'Play');
+
+eventListeners.get('replay:playbackChanged')?.({ status: 'playing' });
+assert.equal(controller.getState().playing, true);
+assert.equal(controller.getState().speed, 2);
+assert.equal(playButton.textContent, 'Pause');
 
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();
