@@ -14,21 +14,21 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 5 - Replay Runtime. The implementation adds
-  replay session loading, cursor/revealed state, Next/Play/Pause/Reset, and
-  no-future replay progression without chart/bar-data/viewport coupling.
+- Latest completed step: Step 6 - Unified Pane Model. The implementation adds
+  one canonical pane record shape, default pane id, active pane id, and static
+  audits against primary/non-primary split state before chart/pane expansion.
 
 ## Next Executable Steps
 
-### Step 6 - Unified Pane Model
+### Step 7 - Viewport Intent Domain
 
-Implement the first pane record shape, default pane id, active pane id, and
-static audit against primary/non-primary stores.
+Implement default wall intent, manual wall intent, cursor advance projection,
+and logical range projection as pure domain logic.
 
 Acceptance:
 
-- single pane uses the same model future panes use;
-- no `primaryState` / `secondaryState` style split exists.
+- pure tests for latest offset and span preservation pass;
+- no DOM, chart engine, replay, or bar-data dependency exists.
 
 ## Completed Steps
 
@@ -116,7 +116,24 @@ Verification:
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Deferred Until Step 6 Passes
+### Step 6 - Unified Pane Model
+
+Completed in commits:
+
+- `72c2e71 feat(v6): add unified pane model`
+- `9259e68 feat(v6): register pane runtime`
+- `228aadb test(v6): gate unified pane model`
+
+Verification:
+
+- `node v6/tests/pane-model-smoke.js`
+- `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+## Deferred Until Later Gates
 
 - multi-pane layout;
 - Settings parity;
