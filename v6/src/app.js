@@ -3,6 +3,7 @@ import { createAppRuntime } from './runtime/app-runtime.js';
 import { createRuntimeRegistry } from './runtime/lifecycle.js';
 import { emitEvent } from './runtime/events.js';
 import { createBarDataRuntime } from './bar-data/bar-data-runtime.js';
+import { createReplayRuntime } from './replay/replay-runtime.js';
 import { createSessionRuntime } from './session/session-runtime.js';
 
 const root = document.querySelector('[data-v6-root]');
@@ -16,6 +17,7 @@ const registry = createRuntimeRegistry();
 registry.registerRuntime(createAppRuntime());
 registry.registerRuntime(createSessionRuntime());
 registry.registerRuntime(createBarDataRuntime());
+registry.registerRuntime(createReplayRuntime());
 await registry.start({ root, emitEvent });
 root.__v6RuntimeRegistry = registry;
 root.dataset.booted = 'true';

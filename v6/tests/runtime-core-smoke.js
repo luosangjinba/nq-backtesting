@@ -3,9 +3,11 @@ import {
   APP_COMMANDS,
   APP_EVENTS,
   BAR_DATA_COMMANDS,
+  REPLAY_COMMANDS,
   SESSION_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import { createBarDataRuntime } from '../src/bar-data/bar-data-runtime.js';
+import { createReplayRuntime } from '../src/replay/replay-runtime.js';
 import { createAppRuntime } from '../src/runtime/app-runtime.js';
 import {
   clearCommandsForTest,
@@ -36,9 +38,10 @@ registry.registerRuntime(createSessionRuntime());
 registry.registerRuntime(createBarDataRuntime({
   fetchBars: async () => ({ bars: [] }),
 }));
+registry.registerRuntime(createReplayRuntime());
 assert.deepEqual(registry.snapshot(), {
   running: false,
-  runtimes: ['runtime.app', 'runtime.session', 'runtime.bar-data'],
+  runtimes: ['runtime.app', 'runtime.session', 'runtime.bar-data', 'runtime.replay'],
   started: [],
 });
 
@@ -55,6 +58,12 @@ assert.deepEqual(listCommands(), [
   BAR_DATA_COMMANDS.LOAD_WINDOW,
   BAR_DATA_COMMANDS.PLAN_WINDOW,
   BAR_DATA_COMMANDS.RELEASE_WINDOW,
+  REPLAY_COMMANDS.GET_STATE,
+  REPLAY_COMMANDS.LOAD_SESSION,
+  REPLAY_COMMANDS.NEXT,
+  REPLAY_COMMANDS.PAUSE,
+  REPLAY_COMMANDS.PLAY,
+  REPLAY_COMMANDS.RESET,
   SESSION_COMMANDS.CREATE,
   SESSION_COMMANDS.GET_ACTIVE,
   SESSION_COMMANDS.GET_BY_ID,

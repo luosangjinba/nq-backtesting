@@ -29,3 +29,19 @@ export const BAR_DATA_EVENTS = Object.freeze({
   WINDOW_LOADED: 'barData:windowLoaded',
   WINDOW_RELEASED: 'barData:windowReleased',
 });
+
+export const REPLAY_COMMANDS = Object.freeze({
+  GET_STATE: 'replay.getState',
+  LOAD_SESSION: 'replay.loadSession',
+  NEXT: 'replay.next',
+  PAUSE: 'replay.pause',
+  PLAY: 'replay.play',
+  RESET: 'replay.reset',
+});
+
+export const REPLAY_EVENTS = Object.freeze({
+  ADVANCED: 'replay:advanced',
+  LOADED: 'replay:loaded',
+  PLAYBACK_CHANGED: 'replay:playbackChanged',
+  RESET: 'replay:reset',
+});
