@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 34 - Workflow Action Active States. The
-  implementation adds shared shell-owned action state handling for workflow
-  toggles, accessible active-state attributes, and browser/unit smoke coverage.
+- Latest completed step: Step 35 - Workflow Panel Close Behavior. The
+  implementation adds shell-owned Close and Escape behavior for workflow panels
+  and protects it with browser/unit smoke coverage.
 
 ## Next Executable Steps
 
-### Step 35 - Workflow Panel Close Behavior
+### Step 36 - Workflow Panel Mutual Exclusivity
 
-Make workflow panels easy to close without adding cross-feature ownership.
+Keep the workflow area compact by allowing only one workflow panel to be open at
+a time.
 
 Acceptance:
 
-- repeated top-action clicks and explicit close affordances keep panel and
-  action state synchronized;
-- keyboard close behavior is owned by shell UI only;
-- no close behavior imports feature runtime internals or chart/data/viewport
+- opening one workflow panel closes the others and clears their action states;
+- panel coordination is owned by shell UI only;
+- no panel coordination imports feature runtime internals or chart/data/viewport
   ownership paths.
 
 ## Completed Steps
@@ -650,6 +650,26 @@ Completed in commits:
 
 Verification:
 
+- `node v6/tests/workflow-action-state-smoke.js`
+- `node v6/tests/sessions-surface-controller-smoke.js`
+- `node v6/tests/replay-workflow-surface-controller-smoke.js`
+- `node v6/tests/journal-surface-controller-smoke.js`
+- `node v6/tests/settings-panel-controller-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 35 - Workflow Panel Close Behavior
+
+Completed in commits:
+
+- `9f4ede5 feat(v6): add workflow panel close behavior`
+- `5d72c99 test(v6): cover workflow panel close helper`
+
+Verification:
+
+- `node v6/tests/workflow-panel-close-smoke.js`
 - `node v6/tests/workflow-action-state-smoke.js`
 - `node v6/tests/sessions-surface-controller-smoke.js`
 - `node v6/tests/replay-workflow-surface-controller-smoke.js`
