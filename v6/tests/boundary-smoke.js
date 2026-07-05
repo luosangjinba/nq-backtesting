@@ -3,6 +3,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
 
 const V6_ROOT = path.resolve('v6');
+const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
 const SOURCE_ROOTS = [
   path.join(V6_ROOT, 'src'),
 ];
@@ -43,6 +44,17 @@ const forbiddenSourcePatterns = [
   },
 ];
 
+const forbiddenSessionOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar|bars|viewport)[^'"]*['"]/i,
+    reason: 'V6 session modules must not import chart, bar-data, or viewport modules.',
+  },
+  {
+    pattern: /\b(chartRuntime|chartEngine|barData|barsRuntime|viewportIntent|viewportRuntime)\b/,
+    reason: 'V6 session modules must not own chart, bar-data, or viewport state.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -72,6 +84,19 @@ for (const root of TEST_ROOTS) {
       }
     });
   }
+}
+
+for (const file of await walkFiles(SESSION_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenSessionOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
 }
 
 assert.deepEqual(violations, []);
