@@ -14,22 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 28 - Session Workflow Entry Surface. The
-  implementation adds a bounded Sessions panel that uses existing session
-  commands only and does not load chart bars, replay state, or viewport intent.
+- Latest completed step: Step 29 - Replay Workflow Entry Surface. The
+  implementation adds a bounded Replay panel that reads replay/default-wall
+  state and exposes pause/reset controls without loading sessions, advancing
+  replay, or touching chart/data/viewport ownership paths.
 
 ## Next Executable Steps
 
-### Step 29 - Replay Workflow Entry Surface
+### Step 30 - Journal Workflow Entry Surface
 
-Add a bounded replay workflow entry surface that exposes existing replay/default
-wall commands without introducing new data loading, chart ownership, or viewport
-intent paths.
+Add a bounded Journal workflow entry surface that uses existing journal and
+journal-persistence commands without importing chart/replay/data/viewport
+internals.
 
 Acceptance:
 
-- Replay workflow UI dispatches existing replay/default-wall commands only;
-- UI does not import replay/chart/data/viewport internals;
+- Journal UI dispatches journal and journal-persistence commands only;
+- loading/saving journal snapshots does not mutate chart/replay/data/viewport
+  state;
 - readiness, visible-latency, and multi-pane gates remain in the verification
   chain.
 
@@ -548,6 +550,26 @@ Verification:
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/readiness-audit-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `git diff --check`
+
+### Step 29 - Replay Workflow Entry Surface
+
+Completed in commits:
+
+- `019f20b feat(v6): add replay workflow surface controller`
+- `4654b91 feat(v6): mount replay workflow surface`
+- `2a7b98c test(v6): enforce replay workflow boundaries`
+
+Verification:
+
+- `node v6/tests/replay-workflow-surface-controller-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
