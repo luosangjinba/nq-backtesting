@@ -12,6 +12,10 @@ const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
+const STATUS_FILES = [
+  path.join(V6_ROOT, 'src', 'shell', 'status-readout.js'),
+  path.join(V6_ROOT, 'src', 'shell', 'status-readout-model.js'),
+];
 const TRANSPORT_FILE = path.join(V6_ROOT, 'src', 'shell', 'replay-transport.js');
 const VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'viewport');
 const SOURCE_ROOTS = [
@@ -172,6 +176,17 @@ const forbiddenTransportOwnershipPatterns = [
   {
     pattern: /\b(chartBars|viewportIntent|replayCursor|cursorIndex|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,
     reason: 'V6 replay transport UI must not own replay, chart, viewport, data, storage, or network state.',
+  },
+];
+
+const forbiddenStatusOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|viewport|default-wall|session|panes|replay\/)[^'"]*['"]/i,
+    reason: 'V6 status UI must be read-only and not import feature runtimes or state modules.',
+  },
+  {
+    pattern: /\b(dispatchCommand|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,
+    reason: 'V6 status UI must not dispatch mutation commands or own chart/data/storage/network state.',
   },
 ];
 
@@ -342,6 +357,19 @@ for (const file of await walkFiles(DEFAULT_WALL_ROOT)) {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), TRANSPORT_FILE),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of STATUS_FILES) {
+  const text = await readFile(file, 'utf8');
+  forbiddenStatusOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
         pattern: String(pattern),
         reason,
       });
