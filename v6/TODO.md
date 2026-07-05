@@ -14,23 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 35 - Workflow Panel Close Behavior. The
-  implementation adds shell-owned Close and Escape behavior for workflow panels
-  and protects it with browser/unit smoke coverage.
+- Latest completed step: Step 36 - Workflow Panel Mutual Exclusivity. The
+  implementation adds shell-owned coordination so only one workflow panel can be
+  open at a time, with browser/unit smoke coverage.
 
 ## Next Executable Steps
 
-### Step 36 - Workflow Panel Mutual Exclusivity
+### Step 37 - Workflow Shell Audit
 
-Keep the workflow area compact by allowing only one workflow panel to be open at
-a time.
+Audit the Step 32-36 workflow shell changes before adding more UI behavior.
 
 Acceptance:
 
-- opening one workflow panel closes the others and clears their action states;
-- panel coordination is owned by shell UI only;
-- no panel coordination imports feature runtime internals or chart/data/viewport
-  ownership paths.
+- workflow chrome, panels, active state, close behavior, and mutual exclusivity
+  are documented as shell-owned behavior;
+- audit confirms no workflow UI imports feature runtime internals or
+  chart/data/viewport ownership paths;
+- next executable step is chosen from the audit, not from incidental UI polish.
 
 ## Completed Steps
 
@@ -671,6 +671,26 @@ Verification:
 
 - `node v6/tests/workflow-panel-close-smoke.js`
 - `node v6/tests/workflow-action-state-smoke.js`
+- `node v6/tests/sessions-surface-controller-smoke.js`
+- `node v6/tests/replay-workflow-surface-controller-smoke.js`
+- `node v6/tests/journal-surface-controller-smoke.js`
+- `node v6/tests/settings-panel-controller-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 36 - Workflow Panel Mutual Exclusivity
+
+Completed in commits:
+
+- `618f2b6 feat(v6): coordinate workflow panel exclusivity`
+- `d7a99dd test(v6): cover workflow panel coordinator`
+
+Verification:
+
+- `node v6/tests/workflow-panel-coordinator-smoke.js`
+- `node v6/tests/workflow-panel-close-smoke.js`
 - `node v6/tests/sessions-surface-controller-smoke.js`
 - `node v6/tests/replay-workflow-surface-controller-smoke.js`
 - `node v6/tests/journal-surface-controller-smoke.js`
