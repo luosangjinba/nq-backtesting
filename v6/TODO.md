@@ -14,25 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 30 - Journal Workflow Entry Surface. The
-  implementation adds a bounded Journal panel that uses existing journal and
-  journal-persistence commands without mutating chart/replay/data/viewport
-  state.
+- Latest completed step: Step 31 - Workflow Surfaces Readiness Audit. The
+  implementation hides engineering gate details from the default readiness
+  surface, adds a workflow surfaces audit, and protects the shell from exposing
+  test filenames or gate names to users.
 
 ## Next Executable Steps
 
-### Step 31 - Workflow Surfaces Readiness Audit
+### Step 32 - Product Top Chrome Consolidation
 
-Audit the newly added workflow entry surfaces before adding deeper workflow
-features or visual polish.
+Consolidate the top workstation chrome into a user-facing product surface before
+adding deeper workflow features.
 
 Acceptance:
 
-- Sessions, Replay, Journal, Settings, Readiness, Transport, and Status surfaces
-  have explicit command/event boundaries;
+- top chrome prioritizes chart context and user actions, not diagnostics;
+- diagnostics remain hidden or summarized with user-friendly language;
 - no workflow UI imports feature runtime internals or chart/data/viewport
-  ownership paths;
-- the next implementation target is narrowed from audit results.
+  ownership paths.
 
 ## Completed Steps
 
@@ -592,6 +591,21 @@ Verification:
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `git diff --check`
+
+### Step 31 - Workflow Surfaces Readiness Audit
+
+Completed in commits:
+
+- `675e69c feat(v6): hide engineering gates from readiness surface`
+- `8f9d078 docs(v6): audit workflow surfaces`
+
+Verification:
+
+- `node v6/tests/readiness-surface-controller-smoke.js`
+- `node v6/tests/readiness-audit-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Later Gates
