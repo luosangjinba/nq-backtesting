@@ -36,6 +36,49 @@ export function createReplayDisplayWindowController({
   const loadingDisplayWindowKeys = new Set();
   const defaultRightOffsetBars = 10;
 
+  function displayBarsCoverCursor(displayBars = [], cursorTimestamp, displayTimeframe) {
+    if (!Array.isArray(displayBars) || !displayBars.length) return false;
+    const cursor = alignTimestampToTimeframe(cursorTimestamp, displayTimeframe);
+    if (!Number.isFinite(cursor)) return false;
+    return displayBars.some((bar) => Number(bar?.timestamp) === cursor);
+  }
+
+  async function syncCoveredDisplayCursor({
+    sessionId,
+    paneId,
+    displayTimeframe,
+    cursorTimestamp,
+  } = {}) {
+    const targetPaneId = normalizeReplayPaneId(paneId);
+    const normalizedDisplayTimeframe = normalizeTimeframe(displayTimeframe, 'display timeframe');
+    const {
+      baseDisplayBars,
+      shouldMergeDisplayBars,
+    } = await resolvePaneDisplayWindowBase({
+      targetPaneId,
+      normalizedDisplayTimeframe,
+      dispatchCommand,
+      chartCommands,
+    });
+    if (!shouldMergeDisplayBars || !displayBarsCoverCursor(
+      baseDisplayBars,
+      cursorTimestamp,
+      normalizedDisplayTimeframe
+    )) {
+      return null;
+    }
+    await chartSync.syncChartRightEdgeLimit(cursorTimestamp, { paneId: targetPaneId });
+    await chartSync.syncChartViewportFollow(cursorTimestamp, { paneId: targetPaneId });
+    return {
+      ...clone(getState()),
+      sessionId,
+      paneId: targetPaneId,
+      displayTimeframe: normalizedDisplayTimeframe,
+      loaded: false,
+      reason: 'cursor-covered-by-display-window',
+    };
+  }
+
   function displayContextSnapshot(sourceState = getState()) {
     return {
       sessionId: sourceState.sessionId,
@@ -300,6 +343,13 @@ export function createReplayDisplayWindowController({
     if (normalizedDisplayTimeframe === normalizedReplayTimeframe) {
       return clone(sourceState);
     }
+    const covered = await syncCoveredDisplayCursor({
+      sessionId,
+      paneId,
+      displayTimeframe: normalizedDisplayTimeframe,
+      cursorTimestamp,
+    });
+    if (covered) return covered;
     return loadDisplayWindow({
       sessionId,
       paneId,
