@@ -5,6 +5,7 @@ import path from 'node:path';
 const V6_ROOT = path.resolve('v6');
 const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
 const CHART_DATA_ROOT = path.join(V6_ROOT, 'src', 'chart-data');
+const CHART_VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'chart-viewport');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
@@ -115,6 +116,17 @@ const forbiddenChartDataOwnershipPatterns = [
   },
 ];
 
+const forbiddenChartViewportOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data|session|shell|v4|vendor|lightweight)[^'"]*['"]/i,
+    reason: 'V6 chart-viewport modules must not import bar-data, session, shell, V4, vendor, or chart engine modules.',
+  },
+  {
+    pattern: /\b(createChart|setData|updateSeries|setVisibleLogicalRange|subscribeVisibleLogicalRangeChange|HTMLElement|document|window)\b/,
+    reason: 'V6 chart-viewport runtime must not touch DOM or chart engine APIs before the adapter step.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -214,6 +226,19 @@ for (const file of await walkFiles(VIEWPORT_ROOT)) {
 for (const file of await walkFiles(CHART_DATA_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenChartDataOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(CHART_VIEWPORT_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenChartViewportOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
