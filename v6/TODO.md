@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 27 - UI Workflow Readiness Surface. The
-  implementation adds a small read-only workstation surface for runtime health,
-  command availability, and active gates without adding chart/replay/data/
-  viewport mutation paths.
+- Latest completed step: Step 28 - Session Workflow Entry Surface. The
+  implementation adds a bounded Sessions panel that uses existing session
+  commands only and does not load chart bars, replay state, or viewport intent.
 
 ## Next Executable Steps
 
-### Step 28 - Session Workflow Entry Surface
+### Step 29 - Replay Workflow Entry Surface
 
-Add a bounded Sessions workflow entry surface that uses existing session
-commands only and does not load chart bars, replay state, or viewport intent.
+Add a bounded replay workflow entry surface that exposes existing replay/default
+wall commands without introducing new data loading, chart ownership, or viewport
+intent paths.
 
 Acceptance:
 
-- Sessions UI dispatches session commands only;
-- creating/listing sessions does not load chart/replay/data/viewport state;
+- Replay workflow UI dispatches existing replay/default-wall commands only;
+- UI does not import replay/chart/data/viewport internals;
 - readiness, visible-latency, and multi-pane gates remain in the verification
   chain.
 
@@ -528,6 +528,26 @@ Verification:
 - `node v6/tests/readiness-audit-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `git diff --check`
+
+### Step 28 - Session Workflow Entry Surface
+
+Completed in commits:
+
+- `3f5299b feat(v6): add sessions surface controller`
+- `4cf30b0 feat(v6): mount sessions workflow surface`
+- `f43d8e6 test(v6): enforce sessions surface boundaries`
+
+Verification:
+
+- `node v6/tests/sessions-surface-controller-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/readiness-audit-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
