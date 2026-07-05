@@ -32,6 +32,7 @@ async function main() {
     assert.equal(value.registrySnapshot.running, true);
     assert.equal(value.registrySnapshot.started.includes('runtime.settings'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.persistence'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.journal'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.playDisabled, false);
@@ -42,6 +43,8 @@ async function main() {
     assert.equal(value.commands.includes('layout.getSnapshot'), true);
     assert.equal(value.commands.includes('settings.getSnapshot'), true);
     assert.equal(value.commands.includes('persistence.saveRecord'), true);
+    assert.equal(value.commands.includes('journal.addEntry'), true);
+    assert.equal(value.commands.includes('journal.analyzeRecords'), true);
   } finally {
     await page.cleanup();
   }
