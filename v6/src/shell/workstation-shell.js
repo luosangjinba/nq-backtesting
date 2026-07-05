@@ -14,9 +14,34 @@ export function createWorkstationShellMarkup() {
         <div class="top-actions" aria-label="V6 route actions">
           <button type="button" disabled>Sessions</button>
           <button type="button" disabled>Historical Review</button>
-          <button type="button" disabled>Settings</button>
+          <button type="button" data-v6-settings-toggle aria-expanded="false">Settings</button>
         </div>
       </header>
+      <section class="settings-panel" data-v6-settings-panel hidden>
+        <label>
+          <span>Theme</span>
+          <select data-v6-settings-field="theme" aria-label="Theme">
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label>
+        <label>
+          <span>Timezone</span>
+          <select data-v6-settings-field="displayTimezone" aria-label="Timezone">
+            <option value="exchange">Exchange</option>
+            <option value="local">Local</option>
+            <option value="utc">UTC</option>
+          </select>
+        </label>
+        <label>
+          <input type="checkbox" data-v6-settings-field="chartGrid" checked>
+          <span>Grid</span>
+        </label>
+        <label>
+          <input type="checkbox" data-v6-settings-field="showWatermark" checked>
+          <span>Watermark</span>
+        </label>
+      </section>
 
       <main class="workstation-main" data-v6-workstation-main>
         <section class="chart-toolbar" aria-label="Chart controls placeholder">
