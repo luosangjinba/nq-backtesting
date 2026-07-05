@@ -14,23 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 26 - V6 Readiness Audit. The implementation adds
-  an executable readiness audit plus `v6/docs/V6_READINESS_AUDIT.md`, confirming
-  explicit runtime ownership, visible K-line delay gates, and multi-pane
-  primary/non-primary regression gates before broader UI/workflow work.
+- Latest completed step: Step 27 - UI Workflow Readiness Surface. The
+  implementation adds a small read-only workstation surface for runtime health,
+  command availability, and active gates without adding chart/replay/data/
+  viewport mutation paths.
 
 ## Next Executable Steps
 
-### Step 27 - UI Workflow Readiness Surface
+### Step 28 - Session Workflow Entry Surface
 
-Add a small workstation readiness surface that exposes existing runtime health,
-active gates, and current command availability without introducing new state
-ownership or chart/replay/data/viewport mutation paths.
+Add a bounded Sessions workflow entry surface that uses existing session
+commands only and does not load chart bars, replay state, or viewport intent.
 
 Acceptance:
 
-- surface reads existing runtime/command state only;
-- UI dispatches no new chart/replay/data/viewport mutation path;
+- Sessions UI dispatches session commands only;
+- creating/listing sessions does not load chart/replay/data/viewport state;
 - readiness, visible-latency, and multi-pane gates remain in the verification
   chain.
 
@@ -513,6 +512,25 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
+- `git diff --check`
+
+### Step 27 - UI Workflow Readiness Surface
+
+Completed in commits:
+
+- `10f4b05 feat(v6): add readiness surface controller`
+- `87dbdce feat(v6): mount readiness surface`
+- `663bcea test(v6): enforce readiness surface boundaries`
+
+Verification:
+
+- `node v6/tests/readiness-surface-controller-smoke.js`
+- `node v6/tests/readiness-audit-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Later Gates
