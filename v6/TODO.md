@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 36 - Workflow Panel Mutual Exclusivity. The
-  implementation adds shell-owned coordination so only one workflow panel can be
-  open at a time, with browser/unit smoke coverage.
+- Latest completed step: Step 37 - Workflow Shell Audit. The implementation
+  documents Steps 32-36 as accepted shell-owned workflow behavior and protects
+  the audit with a smoke test.
 
 ## Next Executable Steps
 
-### Step 37 - Workflow Shell Audit
+### Step 38 - Replay Chart Readiness Re-Audit
 
-Audit the Step 32-36 workflow shell changes before adding more UI behavior.
+Return from workflow-shell polish to replay/chart readiness and re-run the gates
+that protect V6 from V5's core failures.
 
 Acceptance:
 
-- workflow chrome, panels, active state, close behavior, and mutual exclusivity
-  are documented as shell-owned behavior;
-- audit confirms no workflow UI imports feature runtime internals or
-  chart/data/viewport ownership paths;
-- next executable step is chosen from the audit, not from incidental UI polish.
+- visible-latency, default wall, manual wall, display timeframe, and multi-pane
+  gates are run and summarized;
+- audit identifies the next replay/chart-facing executable step;
+- no new UI polish is added unless it is required by a failing replay/chart
+  readiness gate.
 
 ## Completed Steps
 
@@ -695,6 +696,22 @@ Verification:
 - `node v6/tests/replay-workflow-surface-controller-smoke.js`
 - `node v6/tests/journal-surface-controller-smoke.js`
 - `node v6/tests/settings-panel-controller-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 37 - Workflow Shell Audit
+
+Completed in commits:
+
+- `28a6666 docs(v6): audit workflow shell behavior`
+- `ff2a499 test(v6): protect workflow shell audit`
+
+Verification:
+
+- `node v6/tests/workflow-shell-audit-smoke.js`
+- `node v6/tests/workflow-panel-coordinator-smoke.js`
 - `node v6/tests/workflow-panels-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
