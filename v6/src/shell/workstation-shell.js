@@ -6,10 +6,20 @@ export function createWorkstationShellMarkup() {
           <div class="eyebrow">Replay Workstation</div>
           <h1>FX Session Replay</h1>
         </div>
-        <div class="market-strip" aria-label="Active replay context">
-          <span>NQ</span>
-          <span>1m</span>
-          <span>UTC-4</span>
+        <div class="top-context">
+          <div class="market-strip" aria-label="Active replay context">
+            <span>NQ</span>
+            <span>1m</span>
+            <span>UTC-4</span>
+          </div>
+          <div class="readiness-surface" data-v6-readiness-surface aria-label="V6 workflow readiness" aria-live="polite">
+            <span class="readiness-state" data-v6-readiness-state>System starting</span>
+            <span class="readiness-detail" data-v6-readiness-missing>Commands pending</span>
+            <span class="readiness-telemetry" data-v6-readiness-runtime-count>0 services active</span>
+            <span class="readiness-telemetry" data-v6-readiness-command-count>Setup pending</span>
+            <span class="readiness-telemetry" data-v6-readiness-gate-count>Core checks pending</span>
+            <ul class="readiness-gates" data-v6-readiness-gates></ul>
+          </div>
         </div>
         <div class="top-actions" aria-label="V6 route actions">
           <button type="button" data-v6-sessions-toggle aria-expanded="false">Sessions</button>
@@ -81,17 +91,6 @@ export function createWorkstationShellMarkup() {
           <input type="checkbox" data-v6-settings-field="showWatermark" checked>
           <span>Watermark</span>
         </label>
-      </section>
-
-      <section class="readiness-surface" data-v6-readiness-surface aria-label="V6 workflow readiness">
-        <div class="readiness-summary">
-          <span class="readiness-state" data-v6-readiness-state>Attention</span>
-          <span data-v6-readiness-runtime-count>0 runtimes</span>
-          <span data-v6-readiness-command-count>0 commands</span>
-          <span data-v6-readiness-gate-count>0 gates</span>
-          <span data-v6-readiness-missing>Commands pending</span>
-        </div>
-        <ul class="readiness-gates" data-v6-readiness-gates></ul>
       </section>
 
       <main class="workstation-main" data-v6-workstation-main>

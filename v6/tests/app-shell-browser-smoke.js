@@ -20,7 +20,10 @@ async function main() {
         journalMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6JournalSurface?.getState),
         sessionsMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6SessionsSurface?.getState),
         readinessMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReadinessSurface?.getState),
+        readinessInHeader: Boolean(document.querySelector('[data-v6-workstation-header] [data-v6-readiness-surface]')),
+        standaloneReadiness: Boolean(document.querySelector('[data-v6-workstation-shell] > [data-v6-readiness-surface]')),
         readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
+        readinessDetail: document.querySelector('[data-v6-readiness-missing]')?.textContent || '',
         readinessRuntimeCount: document.querySelector('[data-v6-readiness-runtime-count]')?.textContent || '',
         readinessCommandCount: document.querySelector('[data-v6-readiness-command-count]')?.textContent || '',
         readinessGateCount: document.querySelector('[data-v6-readiness-gate-count]')?.textContent || '',
@@ -50,7 +53,10 @@ async function main() {
     assert.equal(value.journalMounted, true);
     assert.equal(value.sessionsMounted, true);
     assert.equal(value.readinessMounted, true);
+    assert.equal(value.readinessInHeader, true);
+    assert.equal(value.standaloneReadiness, false);
     assert.equal(value.readinessState, 'System ready');
+    assert.equal(value.readinessDetail, 'Replay workstation is ready');
     assert.match(value.readinessRuntimeCount, /services active/);
     assert.equal(value.readinessCommandCount, 'Commands ready');
     assert.equal(value.readinessGateCount, 'Core checks passed');

@@ -54,7 +54,7 @@ p {
 
 .workstation-shell {
   display: grid;
-  grid-template-rows: auto auto minmax(460px, 1fr) auto;
+  grid-template-rows: auto minmax(460px, 1fr) auto;
   gap: 6px;
   padding: 10px;
   background: #090d12;
@@ -64,7 +64,6 @@ p {
 .journal-panel,
 .replay-workflow-panel,
 .sessions-panel,
-.readiness-surface,
 .status-bar,
 .transport-placeholder {
   border: 1px solid #1c2a33;
@@ -73,7 +72,7 @@ p {
 
 .top-bar {
   display: grid;
-  grid-template-columns: minmax(190px, auto) 1fr auto;
+  grid-template-columns: minmax(190px, auto) minmax(0, 1fr) auto;
   align-items: center;
   gap: 12px;
   min-height: 50px;
@@ -88,6 +87,13 @@ p {
 .product-lockup {
   display: grid;
   gap: 3px;
+}
+
+.top-context {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
 }
 
 .market-strip {
@@ -106,6 +112,50 @@ p {
   border-radius: 5px;
   background: #111d26;
   text-align: center;
+}
+
+.readiness-surface {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  color: #9fb7c6;
+  font-size: 12px;
+}
+
+.readiness-state,
+.readiness-detail {
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid #22323e;
+  border-radius: 5px;
+  background: #111d26;
+  white-space: nowrap;
+}
+
+.readiness-state {
+  color: #8ff1df;
+  font-weight: 700;
+}
+
+.readiness-detail {
+  overflow: hidden;
+  max-width: 220px;
+  color: #9db4c3;
+  text-overflow: ellipsis;
+}
+
+.readiness-telemetry,
+.readiness-gates {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }
 
 .top-actions {
@@ -204,60 +254,6 @@ p {
 .journal-list strong,
 .sessions-list strong {
   color: #8ff1df;
-}
-
-.readiness-surface {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 6px;
-  min-height: 64px;
-  padding: 8px 10px;
-  color: #9fb7c6;
-  font-size: 12px;
-}
-
-.readiness-summary,
-.readiness-gates {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0;
-}
-
-.readiness-summary {
-  flex-wrap: wrap;
-}
-
-.readiness-summary span,
-.readiness-gates li {
-  min-height: 24px;
-  padding: 4px 8px;
-  border: 1px solid #22323e;
-  border-radius: 5px;
-  background: #111d26;
-}
-
-.readiness-state {
-  color: #8ff1df;
-  font-weight: 700;
-}
-
-.readiness-gates {
-  margin: 0;
-  padding: 0;
-  overflow-x: auto;
-  list-style: none;
-}
-
-.readiness-gates li {
-  display: grid;
-  grid-template-columns: max-content max-content;
-  gap: 6px;
-  white-space: nowrap;
-}
-
-.readiness-gates strong {
-  color: #dce5eb;
 }
 
 .workstation-main {
