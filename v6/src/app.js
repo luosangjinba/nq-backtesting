@@ -2,6 +2,7 @@ import { renderAppShell } from './shell/app-shell.js';
 import { createAppRuntime } from './runtime/app-runtime.js';
 import { createRuntimeRegistry } from './runtime/lifecycle.js';
 import { emitEvent } from './runtime/events.js';
+import { createSessionRuntime } from './session/session-runtime.js';
 
 const root = document.querySelector('[data-v6-root]');
 
@@ -12,6 +13,7 @@ if (!root) {
 renderAppShell(root);
 const registry = createRuntimeRegistry();
 registry.registerRuntime(createAppRuntime());
+registry.registerRuntime(createSessionRuntime());
 await registry.start({ root, emitEvent });
 root.__v6RuntimeRegistry = registry;
 root.dataset.booted = 'true';
