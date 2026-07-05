@@ -14,24 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 37 - Workflow Shell Audit. The implementation
-  documents Steps 32-36 as accepted shell-owned workflow behavior and protects
-  the audit with a smoke test.
+- Latest completed step: Step 38 - Replay Chart Readiness Re-Audit. The
+  implementation records passing replay/chart gates after workflow shell work
+  and protects the audit with a smoke test.
 
 ## Next Executable Steps
 
-### Step 38 - Replay Chart Readiness Re-Audit
+### Step 39 - Chart Presentation Surface Audit
 
-Return from workflow-shell polish to replay/chart readiness and re-run the gates
-that protect V6 from V5's core failures.
+Audit the real chart presentation path before adding more replay UI behavior.
 
 Acceptance:
 
-- visible-latency, default wall, manual wall, display timeframe, and multi-pane
-  gates are run and summarized;
-- audit identifies the next replay/chart-facing executable step;
-- no new UI polish is added unless it is required by a failing replay/chart
-  readiness gate.
+- chart host and engine adapter are confirmed as the primary visual surface;
+- static placeholder usage is documented or scheduled for removal if it competes
+  with the real chart;
+- visible-latency, wall replay, and multi-pane gates remain passing.
 
 ## Completed Steps
 
@@ -714,6 +712,29 @@ Verification:
 - `node v6/tests/workflow-panel-coordinator-smoke.js`
 - `node v6/tests/workflow-panels-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 38 - Replay Chart Readiness Re-Audit
+
+Completed in commits:
+
+- `3122ff9 docs(v6): audit replay chart readiness`
+- `9ff7f11 test(v6): protect replay chart readiness audit`
+
+Verification:
+
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/visible-latency-domain-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/manual-wall-replay-browser-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `node v6/tests/multi-pane-chart-host-browser-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
