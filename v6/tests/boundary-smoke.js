@@ -14,6 +14,8 @@ const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
+const SETTINGS_ROOT = path.join(V6_ROOT, 'src', 'settings');
+const SETTINGS_PANEL_FILE = path.join(V6_ROOT, 'src', 'shell', 'settings-panel.js');
 const STATUS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'status-readout.js'),
   path.join(V6_ROOT, 'src', 'shell', 'status-readout-model.js'),
@@ -211,6 +213,28 @@ const forbiddenLayoutOwnershipPatterns = [
   {
     pattern: /\b(document|window|HTMLElement|LightweightCharts|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars)\b/,
     reason: 'V6 layout modules must not own DOM, chart engine, network, storage, replay, viewport, or bar state.',
+  },
+];
+
+const forbiddenSettingsOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|default-wall|display-timeframe|layout|panes|replay|session|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 settings modules must not import feature runtimes, UI, chart, data, replay, session, viewport, V4, or vendor modules.',
+  },
+  {
+    pattern: /\b(document|window|HTMLElement|LightweightCharts|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
+    reason: 'V6 settings modules must not own DOM, chart engine, network, storage, replay, data, or viewport state.',
+  },
+];
+
+const forbiddenSettingsPanelOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|default-wall|display-timeframe|layout|panes|replay|session|settings\/settings-|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 settings UI must dispatch settings commands only and not import feature runtimes, settings internals, or chart/data modules.',
+  },
+  {
+    pattern: /\b(registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
+    reason: 'V6 settings UI must not own command registration, chart, data, replay, viewport, storage, or network state.',
   },
 ];
 
@@ -420,6 +444,32 @@ for (const file of await walkFiles(LAYOUT_ROOT)) {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(SETTINGS_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenSettingsOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+{
+  const text = await readFile(SETTINGS_PANEL_FILE, 'utf8');
+  forbiddenSettingsPanelOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), SETTINGS_PANEL_FILE),
         pattern: String(pattern),
         reason,
       });
