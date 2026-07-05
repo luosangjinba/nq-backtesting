@@ -16,6 +16,12 @@ async function main() {
         headerText: document.querySelector('.top-bar h1')?.textContent || '',
         transportText: document.querySelector('.transport-placeholder')?.textContent || '',
         transportMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReplayTransport?.getState),
+        readinessMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReadinessSurface?.getState),
+        readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
+        readinessRuntimeCount: document.querySelector('[data-v6-readiness-runtime-count]')?.textContent || '',
+        readinessCommandCount: document.querySelector('[data-v6-readiness-command-count]')?.textContent || '',
+        readinessGateCount: document.querySelector('[data-v6-readiness-gate-count]')?.textContent || '',
+        readinessGateItems: document.querySelectorAll('[data-v6-readiness-gate]').length,
         registrySnapshot: document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.(),
         playDisabled: document.querySelector('[data-v6-transport-action="play-toggle"]')?.disabled ?? true,
         nextDisabled: document.querySelector('[data-v6-transport-action="next"]')?.disabled ?? true,
@@ -36,6 +42,12 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.journalPersistence'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.transportMounted, true);
+    assert.equal(value.readinessMounted, true);
+    assert.equal(value.readinessState, 'Ready');
+    assert.match(value.readinessRuntimeCount, /runtimes/);
+    assert.match(value.readinessCommandCount, /commands/);
+    assert.equal(value.readinessGateCount, '4 gates');
+    assert.equal(value.readinessGateItems, 4);
     assert.equal(value.playDisabled, false);
     assert.equal(value.nextDisabled, false);
     assert.equal(value.speedButtons, 4);

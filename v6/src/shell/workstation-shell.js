@@ -43,6 +43,17 @@ export function createWorkstationShellMarkup() {
         </label>
       </section>
 
+      <section class="readiness-surface" data-v6-readiness-surface aria-label="V6 workflow readiness">
+        <div class="readiness-summary">
+          <span class="readiness-state" data-v6-readiness-state>Attention</span>
+          <span data-v6-readiness-runtime-count>0 runtimes</span>
+          <span data-v6-readiness-command-count>0 commands</span>
+          <span data-v6-readiness-gate-count>0 gates</span>
+          <span data-v6-readiness-missing>Commands pending</span>
+        </div>
+        <ul class="readiness-gates" data-v6-readiness-gates></ul>
+      </section>
+
       <main class="workstation-main" data-v6-workstation-main>
         <section class="chart-toolbar" aria-label="Chart controls placeholder">
           <div class="symbol-readout" data-v6-status-readout>

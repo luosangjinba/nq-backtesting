@@ -54,13 +54,14 @@ p {
 
 .workstation-shell {
   display: grid;
-  grid-template-rows: auto minmax(460px, 1fr) auto;
+  grid-template-rows: auto auto minmax(460px, 1fr) auto;
   gap: 6px;
   padding: 10px;
   background: #090d12;
 }
 
 .top-bar,
+.readiness-surface,
 .status-bar,
 .transport-placeholder {
   border: 1px solid #1c2a33;
@@ -119,6 +120,60 @@ p {
   border-radius: 6px;
   background: #142230;
   color: #8ea2b3;
+}
+
+.readiness-surface {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 6px;
+  min-height: 64px;
+  padding: 8px 10px;
+  color: #9fb7c6;
+  font-size: 12px;
+}
+
+.readiness-summary,
+.readiness-gates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.readiness-summary {
+  flex-wrap: wrap;
+}
+
+.readiness-summary span,
+.readiness-gates li {
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid #22323e;
+  border-radius: 5px;
+  background: #111d26;
+}
+
+.readiness-state {
+  color: #8ff1df;
+  font-weight: 700;
+}
+
+.readiness-gates {
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.readiness-gates li {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.readiness-gates strong {
+  color: #dce5eb;
 }
 
 .workstation-main {
