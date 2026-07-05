@@ -14,26 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 24 - Journal Analytics Boundary Baseline. The
-  implementation adds explicit journal state ownership, command/event contracts,
-  supplied-record analytics, and boundary gates that prevent journal modules from
-  coupling to chart, replay, data, viewport, pane, layout, settings, or
-  persistence internals.
+- Latest completed step: Step 25 - Journal Persistence Command Bridge. The
+  implementation adds an explicit command bridge for saving, loading, and
+  deleting journal snapshots through persistence without letting journal modules
+  import persistence internals or mutate chart/replay/data/viewport state.
 
 ## Next Executable Steps
 
-### Step 25 - Journal Persistence Command Bridge
+### Step 26 - V6 Readiness Audit
 
-Define an explicit opt-in command path for saving and loading journal snapshots
-through the persistence contract without allowing journal modules to import
-persistence internals or restore chart/replay/data/viewport state.
+Audit the accumulated V6 runtime/contracts/tests before moving into broader
+visual polish or workflow UI work.
 
 Acceptance:
 
-- journal snapshot save/load uses dispatchable commands, not runtime side
-  effects;
-- journal modules do not import persistence modules directly;
-- loading a journal snapshot mutates only journal state.
+- V6 still has explicit owners for replay, data, chart data, viewport, panes,
+  persistence, journal, and bridges;
+- visible K-line delay and primary/non-primary regressions remain covered by
+  executable gates;
+- the next phase is documented with a bounded implementation target.
 
 ## Completed Steps
 
@@ -479,6 +478,25 @@ Verification:
 - `node v6/tests/journal-runtime-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 25 - Journal Persistence Command Bridge
+
+Completed in commits:
+
+- `6d79441 feat(v6): allow journal snapshot persistence`
+- `104a8e0 feat(v6): add journal persistence bridge`
+- `aeb6055 feat(v6): register journal persistence bridge`
+- `8797c2a test(v6): enforce journal persistence bridge boundaries`
+
+Verification:
+
+- `node v6/tests/persistence-repository-smoke.js`
+- `node v6/tests/persistence-runtime-smoke.js`
+- `node v6/tests/journal-runtime-smoke.js`
+- `node v6/tests/journal-persistence-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
