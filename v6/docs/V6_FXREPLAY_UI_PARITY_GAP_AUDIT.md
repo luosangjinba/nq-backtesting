@@ -5,8 +5,8 @@ Date: 2026-07-05
 ## Decision
 
 The current V6 shell is acceptable as a guarded runtime/workflow scaffold. Its
-top toolbar and timeframe menu now have shell-only parity slices. It is still
-not fully aligned with the FXReplay UI kernel documented in
+top toolbar, timeframe menu, and right utility rail now have shell-only parity
+slices. It is still not fully aligned with the FXReplay UI kernel documented in
 `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`. Future UI parity work should proceed
 from chart-first workstation chrome outward, not by expanding the existing
 workflow-panel shape.
@@ -19,7 +19,7 @@ workflow-panel shape.
 | Timeframe menu | Grouped floating interval dropdown with custom/unsupported intervals disabled and supported minute options routed through display-timeframe runtime | Floating grouped interval dropdown with custom interval entry | shell-only UI complete for first slice; runtime-owned timeframe behavior remains display-timeframe runtime | Keep unsupported intervals inert until data/runtime support exists |
 | Indicators / undo / redo | Missing | Reserved top-toolbar commands | runtime-owned behavior, shell-only disabled placeholders acceptable | Add disabled placeholders first; implement owners before interactivity |
 | Left toolbar | Missing | Vertical drawing/tool icon strip | deferred until drawing/tool runtime owner exists | Reserve shell rail without fake drawing behavior |
-| Right toolbar | Missing | Narrow utility strip for order, go-to, news, journal, settings, shortcuts | mixed shell-only and runtime-owned | Add shell rail progressively; route actions through commands/panels |
+| Right toolbar | Screen-right shell rail outside the chart price scale with Object tree, Order, Go to, News, Journal, watch/tool, and Session settings entries; Go to exposes an inert key-time menu | Narrow utility strip for object tree, order, go-to key times, news/calendar, journal, watch/tool, and session settings | shell-only UI complete for first slice; runtime-owned actions remain inert | Keep placeholders disabled until owners exist; Go to menu may open but must not mutate replay or viewport state |
 | Bottom transport | Present as floating replay transport but text-heavy and isolated from full bottom chrome | Compact bottom-center transport integrated with bottom chrome | shell-only UI, replay runtime already owns transport behavior | Restyle/position after top chrome audit; keep dispatch-only controls |
 | Trading/account chrome | Missing except current workflow panels | Dense bottom edge with Buy/Sell, quantity, analytics, account balance, PnL | deferred runtime-owned behavior with shell-only placeholders possible | Do not add fake trading workflows; placeholders must be visibly inert |
 | Settings | Small inline workflow panel | Centered chart-settings modal with left tab rail and fixed footer | shell-only UI now, settings runtime owns values | Replace panel with modal shell using settings commands |
@@ -29,9 +29,9 @@ workflow-panel shape.
 
 ## Priority Order
 
-1. Right utility rail reservation: add a narrow screen-right rail outside the
-   chart price scale with inert Order, Go to, News, Journal, watch/tool, and
-   Settings entries.
+1. Session settings panel reservation: make the right-rail Session settings
+   entry open a shell-only panel distinct from Workspace Settings, with Session
+   Info, Balance & Assets, Spreads & Commissions, and Date Range placeholders.
 2. Settings modal parity: replace the inline workflow settings panel with a
    centered modal skeleton using Symbol, Status line, Scales and lines, Canvas
    tabs.
@@ -61,8 +61,14 @@ workflow-panel shape.
   event paths.
 - Trading/account UI appears interactive without an explicit owner.
 
-## Next Direction
+## Completed Direction
 
 Step 50 should reserve the right utility rail outside the chart price scale and
 tight to the screen edge. It should add inert shell entries for Order, Go to,
-News, Journal, watch/tool, and Settings without implementing those workflows.
+News, Journal, watch/tool, and Session settings without implementing those workflows.
+
+## Next Direction
+
+Step 51 should reserve the right-rail Session settings panel shell. The panel
+must remain distinct from Workspace Settings and must stay inert until a
+session-settings owner exists.

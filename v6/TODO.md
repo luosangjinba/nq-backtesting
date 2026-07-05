@@ -945,6 +945,39 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 50 - Right Utility Rail Shell Reservation
+
+Completed in commits:
+
+- `e4ccf7f5 feat(v6): reserve right utility rail shell`
+
+Verification:
+
+- `node v6/tests/right-utility-rail-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 51 - Session Settings Panel Shell Reservation
+
+Reserve the right-rail Session settings panel shell without making session
+settings interactive yet.
+
+Acceptance:
+
+- right-rail Session settings entry opens a shell-only panel/sheet distinct
+  from the existing Workspace Settings panel;
+- panel labels match the FXReplay kernel direction: Session Info,
+  Balance & Assets, Spreads & Commissions, and Date Range;
+- settings remain inert placeholders until a session-settings owner exists;
+- route/shell code still does not own chart data, replay cursor, viewport
+  intent, adapter state, bar cache, or session persistence;
+- app-shell, product baseline, right utility rail, UI guardrails, parity audit,
+  and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
