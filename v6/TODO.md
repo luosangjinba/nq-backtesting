@@ -14,23 +14,21 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 4 - Bar Data Runtime. The implementation adds
-  bounded bar window planning, normalized bars, in-memory window cache, V4 bars
-  API adapter timing metadata, and a bar data runtime without chart/replay
-  mutation.
+- Latest completed step: Step 5 - Replay Runtime. The implementation adds
+  replay session loading, cursor/revealed state, Next/Play/Pause/Reset, and
+  no-future replay progression without chart/bar-data/viewport coupling.
 
 ## Next Executable Steps
 
-### Step 5 - Replay Runtime
+### Step 6 - Unified Pane Model
 
-Implement replay cursor/revealed state, initial session loading, and
-Next/Play/Pause/Reset without chart calls.
+Implement the first pane record shape, default pane id, active pane id, and
+static audit against primary/non-primary stores.
 
 Acceptance:
 
-- replay cursor state tests pass;
-- no-future reveal tests pass;
-- replay can run without chart engine.
+- single pane uses the same model future panes use;
+- no `primaryState` / `secondaryState` style split exists.
 
 ## Completed Steps
 
@@ -96,6 +94,23 @@ Verification:
 - `node v6/tests/bar-data-domain-smoke.js`
 - `node v6/tests/bar-data-adapter-smoke.js`
 - `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 5 - Replay Runtime
+
+Completed in commits:
+
+- `0b246d8 feat(v6): add replay state domain`
+- `602d6b7 feat(v6): register replay runtime`
+- `7150114 test(v6): gate replay runtime`
+
+Verification:
+
+- `node v6/tests/replay-domain-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
