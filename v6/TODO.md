@@ -14,24 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 41 - Mount Workstation Chart Adapter. The
-  implementation mounts a real Lightweight chart adapter into the workstation
-  chart host through a chart-engine boundary while leaving data length at zero
-  until chart-data explicitly drives it.
+- Latest completed step: Step 42 - Connect Chart Data Snapshot To Mounted
+  Adapter. The implementation bridges `chartData:barsChanged` events into the
+  mounted workstation chart through a chart-engine boundary.
 
 ## Next Executable Steps
 
-### Step 42 - Connect Chart Data Snapshot To Mounted Adapter
+### Step 43 - Connect Viewport Projection To Mounted Adapter
 
-Connect pane-local chart-data snapshots to the already-mounted workstation chart
-adapter through an explicit chart-engine/chart-data integration boundary.
+Connect chart-viewport projected logical ranges to the mounted workstation chart
+adapter through an explicit chart-engine/chart-viewport integration boundary.
 
 Acceptance:
 
-- chart-data remains the owner of pane-local bars and revisions;
-- chart-engine remains the only boundary that writes adapter series data;
+- chart-viewport remains the owner of viewport intent and projected ranges;
+- chart-engine remains the only boundary that writes adapter logical ranges;
 - route/shell code still does not own bars, replay cursor, or viewport intent;
-- chart adapter mount smoke and chart-data boundary gates remain passing.
+- chart data bridge, chart adapter mount, and viewport boundary gates remain
+  passing.
 
 ## Completed Steps
 
@@ -794,6 +794,27 @@ Verification:
 - `node v6/tests/default-wall-replay-browser-smoke.js`
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 42 - Connect Chart Data Snapshot To Mounted Adapter
+
+Completed in commits:
+
+- `1a3d854e feat(v6): apply chart data records to workstation chart`
+- `ee7bb97a feat(v6): bridge chart data to workstation chart`
+
+Verification:
+
+- `node v6/tests/chart-data-surface-bridge-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-adapter-browser-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
