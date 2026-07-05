@@ -14,24 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 11 - Visible Latency Harness. The implementation
-  adds pure phase timing, cache-hit visible path assertions, a real browser
-  cache-hit chart smoke, and a boundary audit that keeps latency logic separate
-  from DOM/chart/runtime ownership.
+- Latest completed step: Step 12 - Single-Pane Default Wall Replay. The
+  implementation adds a default-wall replay domain/runtime, registers it in the
+  V6 app, and gates real chart Next visibility so latest candles stay on the
+  default wall while old candles push left without fetch on the visible path.
 
 ## Next Executable Steps
 
-### Step 12 - Single-Pane Default Wall Replay
+### Step 13 - Manual Wall Replay
 
-Implement the first real single-pane replay path from the default anchor wall:
-initial prefix plus start bar, Next/Play consuming an in-memory forward buffer,
-and chart append/update through the chart engine adapter.
+Implement native manual-wall replay behavior: drag or wheel establishes a
+manual replay wall and subsequent Next/Play preserves that wall instead of
+falling back to the default wall.
 
 Acceptance:
 
-- latest candle stays on the default wall;
-- old candles push left;
-- p95 visible latency stays under the V6 threshold.
+- latest candle stays at the manual wall;
+- display-window loading cannot alter viewport intent;
+- browser tests assert logical offset/span, not only cursor text.
 
 ## Completed Steps
 
@@ -220,6 +220,28 @@ Verification:
 - `node v6/tests/visible-latency-domain-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/chart-engine-adapter-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 12 - Single-Pane Default Wall Replay
+
+Completed in commits:
+
+- `2d67dfe feat(v6): add default wall replay domain`
+- `dd79182 feat(v6): add default wall replay runtime`
+- `3387e05 feat(v6): register default wall runtime`
+- `9f22053 test(v6): gate default wall replay visibility`
+- `91a89ba test(v6): enforce default wall boundaries`
+
+Verification:
+
+- `node v6/tests/default-wall-replay-domain-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/visible-latency-domain-smoke.js`
+- `node v6/tests/chart-engine-adapter-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
