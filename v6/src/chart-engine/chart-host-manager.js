@@ -1,0 +1,119 @@
+import { createLightweightChartAdapter } from './lightweight-chart-adapter.js';
+
+function normalizePaneId(paneId) {
+  const id = String(paneId || '').trim();
+  if (!id) {
+    throw new Error('Chart host paneId must be a non-empty string.');
+  }
+  return id;
+}
+
+function cloneSnapshot(snapshot = {}) {
+  return {
+    ...snapshot,
+    visibleLogicalRange: snapshot.visibleLogicalRange
+      ? { ...snapshot.visibleLogicalRange }
+      : null,
+  };
+}
+
+export function createChartHostManager({
+  adapterFactory = createLightweightChartAdapter,
+  chartOptions = {},
+  seriesOptions = {},
+} = {}) {
+  const hostsByPaneId = new Map();
+
+  function getMountedRecord(paneId) {
+    const id = normalizePaneId(paneId);
+    const record = hostsByPaneId.get(id);
+    if (!record) {
+      throw new Error(`Chart host pane "${id}" is not mounted.`);
+    }
+    return record;
+  }
+
+  function mountPane({ host, paneId } = {}) {
+    const id = normalizePaneId(paneId);
+    if (!host) {
+      throw new Error('Chart host DOM node is required.');
+    }
+    if (hostsByPaneId.has(id)) {
+      throw new Error(`Chart host pane "${id}" is already mounted.`);
+    }
+    const adapter = adapterFactory({
+      chartOptions,
+      seriesOptions,
+    });
+    adapter.mount(host);
+    hostsByPaneId.set(id, {
+      adapter,
+      host,
+      paneId: id,
+    });
+    return getPaneSnapshot(id);
+  }
+
+  function setData(paneId, bars = []) {
+    const record = getMountedRecord(paneId);
+    record.adapter.setData(bars);
+    return getPaneSnapshot(record.paneId);
+  }
+
+  function update(paneId, bar) {
+    const record = getMountedRecord(paneId);
+    record.adapter.update(bar);
+    return getPaneSnapshot(record.paneId);
+  }
+
+  function setVisibleLogicalRange(paneId, range) {
+    const record = getMountedRecord(paneId);
+    record.adapter.setVisibleLogicalRange(range);
+    return getPaneSnapshot(record.paneId);
+  }
+
+  function measureVisibleLogicalRange(paneId) {
+    const record = getMountedRecord(paneId);
+    const measured = record.adapter.measureVisibleLogicalRange();
+    return measured ? { ...measured } : null;
+  }
+
+  function destroyPane(paneId) {
+    const record = getMountedRecord(paneId);
+    record.adapter.destroy();
+    hostsByPaneId.delete(record.paneId);
+  }
+
+  function destroyAll() {
+    for (const paneId of [...hostsByPaneId.keys()]) {
+      destroyPane(paneId);
+    }
+  }
+
+  function getPaneSnapshot(paneId) {
+    const record = getMountedRecord(paneId);
+    return {
+      paneId: record.paneId,
+      snapshot: cloneSnapshot(record.adapter.snapshot()),
+    };
+  }
+
+  function snapshot() {
+    return {
+      panes: [...hostsByPaneId.keys()]
+        .sort((left, right) => left.localeCompare(right))
+        .map(getPaneSnapshot),
+    };
+  }
+
+  return {
+    destroyAll,
+    destroyPane,
+    measureVisibleLogicalRange,
+    mountPane,
+    setData,
+    setVisibleLogicalRange,
+    snapshot,
+    update,
+  };
+}
