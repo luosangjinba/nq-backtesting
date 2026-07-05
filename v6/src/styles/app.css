@@ -320,7 +320,6 @@ p {
 .candle:nth-child(22) { --offset: -72px; }
 .candle:nth-child(23) { --offset: -42px; }
 .candle:nth-child(24) { --offset: -68px; }
-}
 
 .transport-placeholder {
   position: absolute;
