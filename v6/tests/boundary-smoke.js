@@ -9,6 +9,7 @@ const CHART_ENGINE_ROOT = path.join(V6_ROOT, 'src', 'chart-engine');
 const CHART_VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'chart-viewport');
 const DEFAULT_WALL_ROOT = path.join(V6_ROOT, 'src', 'default-wall');
 const DISPLAY_TIMEFRAME_ROOT = path.join(V6_ROOT, 'src', 'display-timeframe');
+const LAYOUT_ROOT = path.join(V6_ROOT, 'src', 'layout');
 const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
@@ -202,6 +203,17 @@ const forbiddenDisplayTimeframeOwnershipPatterns = [
   },
 ];
 
+const forbiddenLayoutOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|replay|session|shell|v4|vendor|lightweight|display-timeframe)[^'"]*['"]/i,
+    reason: 'V6 layout modules must not import chart, data, replay, session, shell, vendor, or feature UI modules.',
+  },
+  {
+    pattern: /\b(document|window|HTMLElement|LightweightCharts|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars)\b/,
+    reason: 'V6 layout modules must not own DOM, chart engine, network, storage, replay, viewport, or bar state.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -392,6 +404,19 @@ for (const file of STATUS_FILES) {
 for (const file of await walkFiles(DISPLAY_TIMEFRAME_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenDisplayTimeframeOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(LAYOUT_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenLayoutOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
