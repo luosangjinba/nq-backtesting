@@ -95,3 +95,11 @@ export const DEFAULT_WALL_EVENTS = Object.freeze({
   LOADED: 'defaultWall:loaded',
   ADVANCED: 'defaultWall:advanced',
 });
+
+export const DISPLAY_TIMEFRAME_COMMANDS = Object.freeze({
+  APPLY: 'displayTimeframe.apply',
+});
+
+export const DISPLAY_TIMEFRAME_EVENTS = Object.freeze({
+  APPLIED: 'displayTimeframe:applied',
+});
