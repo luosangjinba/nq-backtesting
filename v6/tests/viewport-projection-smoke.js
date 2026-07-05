@@ -49,6 +49,30 @@ assert.deepEqual(projectIntentToLogicalRange(manualIntent, {
   to: 56.75,
 });
 
+const draggedMeasurement = measureManualWallFromLogicalRange({
+  latestLogicalIndex: 43,
+  range: {
+    from: 11.25,
+    to: 56.75,
+  },
+});
+assert.deepEqual(draggedMeasurement, {
+  latestOffsetBars: 13.75,
+  spanBars: 45.5,
+});
+
+const wheelZoomMeasurement = measureManualWallFromLogicalRange({
+  latestLogicalIndex: 43,
+  range: {
+    from: 20,
+    to: 50,
+  },
+});
+assert.deepEqual(wheelZoomMeasurement, {
+  latestOffsetBars: 7,
+  spanBars: 30,
+});
+
 assert.throws(
   () => projectIntentToLogicalRange(defaultIntent, { latestLogicalIndex: 42, defaultSpanBars: 0 }),
   /defaultSpanBars/
