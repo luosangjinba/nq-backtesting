@@ -63,6 +63,7 @@ export function createDefaultWallRuntime() {
   let paneStates = [];
 
   async function buildResult({
+    chartRecord = null,
     chartRecords = [],
     replayState,
   } = {}) {
@@ -73,7 +74,7 @@ export function createDefaultWallRuntime() {
     const activeState = paneStates[0] || null;
     return {
       activeProjection: activeViewportRecord?.projection || activeState?.projection || null,
-      chartRecord: chartRecords[0] || null,
+      chartRecord,
       chartRecords,
       replayState,
       state: cloneState(activeState),
@@ -103,6 +104,7 @@ export function createDefaultWallRuntime() {
       createDefaultWallChartReplacePayload(paneState),
     )));
     const result = await buildResult({
+      chartRecord: chartRecords[0] || null,
       chartRecords,
       replayState,
     });
@@ -122,11 +124,13 @@ export function createDefaultWallRuntime() {
     }
     const replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
     paneStates = paneStates.map(advanceDefaultWallReplayState);
-    const chartRecords = await Promise.all(paneStates.map((paneState) => dispatchCommand(
+    const appendPayloads = paneStates.map(createDefaultWallChartAppendPayload);
+    const chartRecords = await Promise.all(appendPayloads.map((payload) => dispatchCommand(
       CHART_DATA_COMMANDS.APPEND_BARS,
-      createDefaultWallChartAppendPayload(paneState),
+      payload,
     )));
     const result = await buildResult({
+      chartRecord: appendPayloads[0] || null,
       chartRecords,
       replayState,
     });
