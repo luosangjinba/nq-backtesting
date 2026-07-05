@@ -8,6 +8,8 @@ Read this index before working on V6.
 - `v6/docs/V6_ARCHITECTURE.md`: runtime boundaries and non-porting rules.
 - `v6/docs/V6_EXECUTION_ROADMAP.md`: detailed execution order based on the
   useful V5 formation sequence, with V6 gates inserted earlier.
+- `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
+  diagnostics visibility limits, and UI reference handling.
 - `v6/docs/specs/replay-viewport-intent.md`: the first core V6 contract.
 - `v6/docs/specs/replay-visible-latency.md`: user-visible replay candle latency
   gates that prevent V5's delayed K-line appearance problem from returning.
@@ -30,6 +32,8 @@ Read this index before working on V6.
   single-pane and future multi-pane behavior.
 - `specs/fxreplay-baseline.md`: first-screen product baseline for replay
   controls, chart workspace, status, default/manual walls, and no-future bars.
+- `V6_PRODUCT_TOP_CHROME.md`: default top chrome rules that keep runtime/test
+  diagnostics out of the user's main reading path.
 
 ## Reading Rule
 
