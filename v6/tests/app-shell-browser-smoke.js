@@ -6,14 +6,18 @@ async function main() {
   const page = await openV6Page();
   try {
     const value = JSON.parse(await evaluate(page.client, `
-      JSON.stringify({
+      (async () => {
+        const commandsModule = await import('/v6/src/runtime/commands.js');
+        return JSON.stringify({
         title: document.title,
         booted: document.querySelector('[data-v6-root]')?.dataset.booted || '',
+        commands: commandsModule.listCommands(),
         hasShell: Boolean(document.querySelector('[data-v6-workstation-shell]')),
         headerText: document.querySelector('.top-bar h1')?.textContent || '',
         transportText: document.querySelector('.transport-placeholder')?.textContent || '',
         registryRunning: Boolean(document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.().running),
-      })
+        });
+      })()
     `));
 
     assert.equal(value.title, 'V6 FX Replay');
@@ -22,6 +26,8 @@ async function main() {
     assert.equal(value.headerText, 'FX Session Replay');
     assert.match(value.transportText, /Play/);
     assert.equal(value.registryRunning, true);
+    assert.equal(value.commands.includes('defaultWall.load'), true);
+    assert.equal(value.commands.includes('defaultWall.next'), true);
   } finally {
     await page.cleanup();
   }
