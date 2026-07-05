@@ -4,6 +4,7 @@ import path from 'node:path';
 
 const V6_ROOT = path.resolve('v6');
 const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
+const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
 const SOURCE_ROOTS = [
   path.join(V6_ROOT, 'src'),
@@ -67,6 +68,17 @@ const forbiddenBarDataOwnershipPatterns = [
   },
 ];
 
+const forbiddenReplayOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|viewport)[^'"]*['"]/i,
+    reason: 'V6 replay modules must not import chart, bar-data, or viewport modules.',
+  },
+  {
+    pattern: /\b(chartRuntime|chartEngine|barDataRuntime|viewportIntent|viewportRuntime|setData|updateSeries|setVisibleLogicalRange)\b/,
+    reason: 'V6 replay modules must not own chart, bar-data, or viewport state.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -114,6 +126,19 @@ for (const file of await walkFiles(SESSION_ROOT)) {
 for (const file of await walkFiles(BAR_DATA_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenBarDataOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(REPLAY_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenReplayOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
