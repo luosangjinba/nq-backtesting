@@ -12,6 +12,8 @@ Read this index before working on V6.
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,
   panels, active state, close behavior, mutual exclusivity, and ownership.
+- `v6/docs/V6_REPLAY_CHART_READINESS_AUDIT.md`: replay/chart gate results after
+  workflow shell work and the next chart-facing direction.
 - `v6/docs/specs/replay-viewport-intent.md`: the first core V6 contract.
 - `v6/docs/specs/replay-visible-latency.md`: user-visible replay candle latency
   gates that prevent V5's delayed K-line appearance problem from returning.
@@ -38,6 +40,8 @@ Read this index before working on V6.
   diagnostics out of the user's main reading path.
 - `V6_WORKFLOW_SHELL_AUDIT.md`: accepted shell-owned workflow behavior and the
   next-direction guardrail after Steps 32-36.
+- `V6_REPLAY_CHART_READINESS_AUDIT.md`: passed visible-latency, wall replay,
+  display timeframe, multi-pane, and chart engine readiness gates.
 
 ## Reading Rule
 
