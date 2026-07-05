@@ -368,6 +368,7 @@ await dispatchCommand(CHART_COMMANDS.SET_VIEWPORT_FOLLOW, {
   estimatedVisibleBars: 24,
 });
 const setDataBeforeAppend = engineCalls.setData.length;
+const setVisibleLogicalRangeBeforeAppend = engineCalls.setVisibleLogicalRange.length;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [bar(34, 104)],
   viewportFollow: {
@@ -378,11 +379,14 @@ await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
 });
 assert.equal(engineCalls.setData.length, setDataBeforeAppend);
 assert.equal(engineCalls.update.at(-1).time, Date.parse('2026-06-01T09:34:00.000Z') / 1000);
+assert.equal(engineCalls.setVisibleLogicalRange.length, setVisibleLogicalRangeBeforeAppend + 1);
+assert.deepEqual(engineCalls.setVisibleLogicalRange.at(-1), { from: -8, to: 15 });
 
 host.isConnected = false;
 await dispatchCommand(CHART_COMMANDS.APPEND_BARS, {
   bars: [bar(35, 105)],
 });
+mutationCallback();
 assert.equal(engineCalls.removed, 1);
 assert.equal(host.children.length, 0);
 
