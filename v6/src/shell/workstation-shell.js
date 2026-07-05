@@ -58,11 +58,35 @@ export function createWorkstationShellMarkup() {
             <span>08:45</span>
             <span>09:00</span>
           </div>
+          <div class="static-chart-visual" aria-hidden="true">
+            <span class="candle up"></span>
+            <span class="candle down"></span>
+            <span class="candle up"></span>
+            <span class="candle down tall"></span>
+            <span class="candle down"></span>
+            <span class="candle up tall"></span>
+            <span class="candle up"></span>
+            <span class="candle down"></span>
+            <span class="candle down tall"></span>
+            <span class="candle up"></span>
+            <span class="candle down"></span>
+            <span class="candle up tall"></span>
+            <span class="candle down"></span>
+            <span class="candle up"></span>
+            <span class="candle up tall"></span>
+            <span class="candle down"></span>
+            <span class="candle down"></span>
+            <span class="candle up"></span>
+            <span class="candle down tall"></span>
+            <span class="candle up"></span>
+            <span class="candle up tall"></span>
+            <span class="candle down"></span>
+            <span class="candle up"></span>
+            <span class="candle down"></span>
+          </div>
           <div class="chart-placeholder" data-v6-chart-placeholder>
-            <div>
-              <strong>Chart runtime pending</strong>
-              <span>V6 shell only</span>
-            </div>
+            <strong>NQ 1m</strong>
+            <span>30318.75</span>
           </div>
           <div class="transport-placeholder" aria-label="Replay transport placeholder" data-v6-transport>
             <button type="button" disabled aria-label="Step back">|&lt;</button>
