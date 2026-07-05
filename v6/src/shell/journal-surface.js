@@ -47,6 +47,7 @@ function createSampleEntry(sequence) {
 
 export function mountJournalSurface(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  onOpen = null,
   snapshotKey = DEFAULT_SNAPSHOT_KEY,
 } = {}) {
   if (!root) {
@@ -72,6 +73,9 @@ export function mountJournalSurface(root, {
       panel.hidden = !open;
     }
     setWorkflowActionOpen(toggle, open);
+    if (open) {
+      onOpen?.();
+    }
     return getState();
   }
 

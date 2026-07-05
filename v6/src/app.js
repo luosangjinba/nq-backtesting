@@ -23,6 +23,7 @@ import { mountReplayTransport } from './shell/replay-transport.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
 import { mountStatusReadout } from './shell/status-readout.js';
+import { createWorkflowPanelCoordinator } from './shell/workflow-panel-coordinator.js';
 
 const root = document.querySelector('[data-v6-root]');
 
@@ -47,13 +48,26 @@ registry.registerRuntime(createReplayRuntime());
 registry.registerRuntime(createDefaultWallRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
 await registry.start({ root, emitEvent, subscribeEvent });
+const workflowPanelCoordinator = createWorkflowPanelCoordinator();
 const displayTimeframeControl = mountDisplayTimeframeControl(root);
-const journalSurface = mountJournalSurface(root);
+const journalSurface = mountJournalSurface(root, {
+  onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
+});
 const readinessSurface = mountReadinessSurface(root, { registry });
-const replayWorkflowSurface = mountReplayWorkflowSurface(root);
+const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
+  onOpen: () => workflowPanelCoordinator.closeOthers('replay'),
+});
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'));
-const settingsPanel = mountSettingsPanel(root);
-const sessionsSurface = mountSessionsSurface(root);
+const settingsPanel = mountSettingsPanel(root, {
+  onOpen: () => workflowPanelCoordinator.closeOthers('settings'),
+});
+const sessionsSurface = mountSessionsSurface(root, {
+  onOpen: () => workflowPanelCoordinator.closeOthers('sessions'),
+});
+workflowPanelCoordinator.register('journal', journalSurface);
+workflowPanelCoordinator.register('replay', replayWorkflowSurface);
+workflowPanelCoordinator.register('settings', settingsPanel);
+workflowPanelCoordinator.register('sessions', sessionsSurface);
 const statusReadout = mountStatusReadout(root);
 root.__v6DisplayTimeframeControl = displayTimeframeControl;
 root.__v6JournalSurface = journalSurface;

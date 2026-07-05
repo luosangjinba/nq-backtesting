@@ -67,8 +67,24 @@ try {
         });
       }
 
+      const exclusivity = [];
+      for (const [name, toggleSelector] of panels) {
+        document.querySelector(toggleSelector).click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        exclusivity.push({
+          name,
+          openNames: panels
+            .filter(([, , panelSelector]) => !document.querySelector(panelSelector).hidden)
+            .map(([panelName]) => panelName),
+          activeNames: panels
+            .filter(([, toggleSelector]) => document.querySelector(toggleSelector).classList.contains('is-active'))
+            .map(([panelName]) => panelName),
+        });
+      }
+
       return {
         bodyText,
+        exclusivity,
         mounted: Boolean(root.__v6SessionsSurface?.getState)
           && Boolean(root.__v6ReplayWorkflowSurface?.getState)
           && Boolean(root.__v6JournalSurface?.getState)
@@ -102,6 +118,10 @@ try {
     });
     assert.ok(result.panelHeight <= 96, `${result.name} panel should stay compact: ${result.panelHeight}px`);
     assert.ok(result.mainHeight >= 460, `${result.name} panel should not crowd the chart: ${result.mainHeight}px`);
+  });
+  value.exclusivity.forEach((result) => {
+    assert.deepEqual(result.openNames, [result.name], `${result.name} should be the only open panel`);
+    assert.deepEqual(result.activeNames, [result.name], `${result.name} should be the only active action`);
   });
   assert.equal(value.bodyText.includes('Add sample'), false);
   assert.equal(value.bodyText.includes('Snapshot none'), false);

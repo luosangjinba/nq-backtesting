@@ -27,6 +27,7 @@ function renderSessionsSurface(root, state) {
 
 export function mountSessionsSurface(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  onOpen = null,
 } = {}) {
   if (!root) {
     throw new Error('Sessions surface root is required.');
@@ -47,6 +48,9 @@ export function mountSessionsSurface(root, {
       panel.hidden = !open;
     }
     setWorkflowActionOpen(toggle, open);
+    if (open) {
+      onOpen?.();
+    }
     return getState();
   }
 

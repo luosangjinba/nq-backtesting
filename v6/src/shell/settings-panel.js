@@ -22,7 +22,9 @@ function applySettingsToFields(root, settings = {}) {
   });
 }
 
-export function mountSettingsPanel(root) {
+export function mountSettingsPanel(root, {
+  onOpen = null,
+} = {}) {
   if (!root) {
     throw new Error('Settings panel root is required.');
   }
@@ -40,6 +42,9 @@ export function mountSettingsPanel(root) {
     open = Boolean(nextOpen);
     panel.hidden = !open;
     setWorkflowActionOpen(toggle, open);
+    if (open) {
+      onOpen?.();
+    }
     return getState();
   }
 

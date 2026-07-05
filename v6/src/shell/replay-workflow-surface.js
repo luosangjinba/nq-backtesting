@@ -29,6 +29,7 @@ async function optionalCommand(dispatchCommand, command) {
 
 export function mountReplayWorkflowSurface(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  onOpen = null,
 } = {}) {
   if (!root) {
     throw new Error('Replay workflow surface root is required.');
@@ -50,6 +51,9 @@ export function mountReplayWorkflowSurface(root, {
       panel.hidden = !open;
     }
     setWorkflowActionOpen(toggle, open);
+    if (open) {
+      onOpen?.();
+    }
     return getState();
   }
 
