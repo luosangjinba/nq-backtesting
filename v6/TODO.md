@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 8 - Chart Data Runtime. The implementation adds
-  pane-local chart bars, append/replace operations, no-future filtering, and
-  chartBarsRevision metadata without mutating viewport intent or owning replay
-  cursor/bar-data runtime state.
+- Latest completed step: Step 9 - Chart Viewport Runtime. The implementation
+  adds pane-local viewport intent ownership, replay cursor notification
+  handling, and current-intent reprojection after chart data revisions without
+  touching chart engine APIs.
 
 ## Next Executable Steps
 
-### Step 9 - Chart Viewport Runtime
+### Step 10 - Chart Engine Adapter
 
-Implement pane-local viewport intent ownership, replay cursor notifications,
-and reapplication of current intent after chart data revisions.
+Implement Lightweight adapter lifecycle, `setData`/`update`,
+`setVisibleLogicalRange`, native visible logical range measurement, and test
+metadata for latest offset/span.
 
 Acceptance:
 
-- data append/replace cannot reset wall origin/revision;
-- default and manual wall use the same projection path.
+- adapter smoke asserts logical range writes directly;
+- adapter stores no durable viewport intent.
 
 ## Completed Steps
 
@@ -165,6 +166,24 @@ Verification:
 
 - `node v6/tests/chart-data-domain-smoke.js`
 - `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 9 - Chart Viewport Runtime
+
+Completed in commits:
+
+- `61f9659 feat(v6): add chart viewport store`
+- `6daf30a feat(v6): register chart viewport runtime`
+- `03cb36a test(v6): gate chart viewport runtime`
+- `1e23714 test(v6): enforce chart viewport boundaries`
+
+Verification:
+
+- `node v6/tests/chart-viewport-store-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
