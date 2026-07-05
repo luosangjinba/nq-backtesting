@@ -14,23 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 21 - Settings Baseline. The implementation adds
-  a settings owner/runtime, command-only settings UI, browser coverage, and
-  boundary audits that prevent Settings from mutating chart/replay/data/viewport
-  state directly.
+- Latest completed step: Step 22 - Transport Polish Baseline. The
+  implementation keeps replay transport command-only while synchronizing UI
+  playback state from replay events and preserving speed state.
 
 ## Next Executable Steps
 
-### Step 22 - Transport Polish Baseline
+### Step 23 - Persistence Baseline
 
-Polish replay transport behavior within the existing command-only UI boundary.
-Keep transport controls dispatching replay/default-wall commands only.
+Define the first V6 persistence boundary beyond in-memory session state without
+letting persistence own chart, replay, data, viewport, pane, layout, or settings
+runtime behavior.
 
 Acceptance:
 
-- transport UI state stays synchronized with playback and speed state;
-- transport controls do not import feature runtime internals;
-- existing replay visible-latency gates remain green.
+- persistence has an explicit adapter/repository boundary;
+- persistence writes are opt-in command paths, not feature runtime side effects;
+- no persisted state restores chart/replay/data/viewport intent directly.
 
 ## Completed Steps
 
@@ -428,9 +428,23 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 22 - Transport Polish Baseline
+
+Completed in commits:
+
+- `7d50951 feat(v6): sync replay transport playback state`
+- `fc93c10 test(v6): verify transport external playback sync`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
 ## Deferred Until Later Gates
 
-- persistence beyond in-memory session state;
 - journal/orders/analytics;
 - visual polish.
 
