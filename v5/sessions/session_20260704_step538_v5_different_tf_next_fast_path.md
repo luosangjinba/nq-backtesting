@@ -29,6 +29,38 @@ mixed-timeframe pane fixes.
    pane bars already cover the cursor bucket.
 4. Run targeted latency and replay regressions, then close the docs.
 
-## Status
+## Result
 
-In progress.
+Completed.
+
+Step 538 did not find evidence that the Step 517/518 fast path was deleted:
+
+- replay cursor persistence is still queued after visible update;
+- same-timeframe `Next` still goes through `APPEND_BARS`;
+- Lightweight still uses `series.update` for append;
+- single-pane cadence max measured about 14.3ms in the final run;
+- same-TF multi-pane all-pane observer measured about 23.2ms in the final run.
+
+The real regression risk was mixed-TF projection from Step 537. That path
+correctly made panes consistent, but could wait on display-window projection
+even when the target pane already had the display bar covering the new cursor.
+The new fast path skips `barData.loadWindow` in that covered case and only syncs
+the target pane's right edge plus viewport follow.
+
+## Verification
+
+- `node v5/tests/replay-different-tf-projection-fast-path-smoke.js` passed.
+- `node v5/tests/chart-replay-pane-projection-smoke.js` passed.
+- `node v5/tests/replay-chart-sync-fanout-smoke.js` passed.
+- `node v5/tests/multi-pane-tf-change-next-fanout-browser-smoke.js` passed.
+- `node v5/tests/replay-cadence-latency-browser-smoke.js` passed.
+- `node v5/tests/replay-latest-intent-trace-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-latest-intent-audit-browser-smoke.js` passed.
+- `node v5/tests/multi-pane-timeframe-follow-browser-smoke.js` passed.
+- `node v5/tests/replay-controls-browser-smoke.js` passed.
+
+## Commits
+
+- `49034e0 docs(v5): plan different timeframe next fast path`
+- `ae2eab4 test(v5): expose covered different timeframe projection load`
+- `49cf0b7 fix(v5): skip covered different timeframe projection loads`

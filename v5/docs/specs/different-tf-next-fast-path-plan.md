@@ -40,3 +40,20 @@ path:
   ordinary minute-by-minute `Next`.
 - Same-timeframe single-pane and multi-pane append paths still use
   `APPEND_BARS` / `series.update`.
+
+## Result
+
+Completed in Step 538.
+
+- Added `replay-different-tf-projection-fast-path-smoke.js` to prove a covered
+  higher-timeframe pane does not issue another `barData.loadWindow` during
+  cursor projection.
+- Added a replay display-window fast path that checks the target pane's current
+  rendered display bars. If the aligned cursor bucket is already present, the
+  runtime syncs pane-local right edge and viewport follow without loading a
+  display window.
+- Preserved Step 537's invariant that mixed-TF panes reach the new replay
+  cursor before `replay.next` returns.
+- Single-pane and same-TF multi-pane traces confirm the original append path was
+  not lost: `fallbackAppendMs` stayed `null`, and cadence/latest-intent gates
+  remained below the 120ms observer threshold.

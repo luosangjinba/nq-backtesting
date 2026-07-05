@@ -10,15 +10,18 @@
 
 ## Current / Next
 
-- Current status: Step 538 in progress. Manual testing reports `Next` feels
-  close to half a second again. Initial checks show the Step 517 persistence
-  split and Step 518 append/`series.update` fast path still exist; the likely
-  regression is Step 537 awaiting different-TF display-window projection even
-  when a pane already has bars covering the new cursor. See
+- Current status: Step 538 completed. The Step 517/518 fast path was not lost:
+  persistence still runs after visible update, same-TF `Next` still uses
+  `APPEND_BARS` / Lightweight `series.update`, single-pane cadence stayed under
+  the 120ms observer gate, and same-TF multi-pane observer latency stayed around
+  tens of milliseconds. The mixed-TF regression risk from Step 537 was fixed by
+  skipping display-window loads when the target pane already has the
+  higher-timeframe bar covering the replay cursor. See
   `v5/docs/specs/different-tf-next-fast-path-plan.md` and
   `v5/sessions/session_20260704_step538_v5_different_tf_next_fast_path.md`.
-- Current direction: add a covered-cursor fast path so mixed-TF panes sync
-  viewport follow without reloading display windows on every minute `Next`.
+- Current direction: manually retest live two-pane/three-pane mixed-TF `Next`
+  feel. If it still feels like half a second, the next step should instrument
+  real paint/frame delay rather than runtime cursor/update latency.
 - Current status: Step 537 completed. Different-timeframe replay panes now
   project inside the replay `Next` fanout before `REPLAY_EVENTS.NEXT` is
   emitted. The tightened browser smoke reproduced the delay with a non-default
