@@ -14,23 +14,21 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 17 - Layout Runtime Skeleton. The implementation
-  adds a layout model/store/runtime with layout mode, pane list, active pane id,
-  and sync flags while keeping pane records unified.
+- Latest completed step: Step 18 - Multi-Pane Chart Hosts. The implementation
+  adds one chart host lifecycle path for multiple panes and a coordinated
+  same-timeframe default-wall fan-out.
 
 ## Next Executable Steps
 
-### Step 18 - Multi-Pane Chart Hosts
+### Step 19 - Mixed Timeframe Panes
 
-Mount multiple chart hosts through one host lifecycle path. Keep chart data and
-viewport intent pane-local, with one coordinated fan-out for same-timeframe
-replay updates.
+Keep pane-local timeframe projection independent across panes. Apply interval
+sync only through explicit layout sync intent.
 
 Acceptance:
 
-- multiple panes mount with the same chart host lifecycle;
-- same-timeframe Next updates all panes from one coordinated fan-out;
-- no separate secondary catch-up path.
+- active pane display timeframe does not leak into inactive panes;
+- mixed-timeframe Next visible latency is measured separately.
 
 ## Completed Steps
 
@@ -346,9 +344,28 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 18 - Multi-Pane Chart Hosts
+
+Completed in commits:
+
+- `375a810 feat(v6): add chart host manager`
+- `ec0c89d feat(v6): fan out default wall panes`
+- `48830d1 test(v6): verify multi pane chart hosts`
+- `7334195 fix(v6): preserve default wall append alias`
+
+Verification:
+
+- `node v6/tests/chart-host-manager-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/multi-pane-chart-host-browser-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/manual-wall-replay-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
 ## Deferred Until Later Gates
 
-- multi-pane layout;
 - Settings parity;
 - transport polish beyond the FXReplay baseline controls;
 - persistence beyond in-memory session state;
