@@ -2,6 +2,7 @@ import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createSessionsSurfaceState } from './sessions-surface-model.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
+import { bindWorkflowPanelClose } from './workflow-panel-close.js';
 
 function setText(root, selector, value) {
   const element = root.querySelector(selector);
@@ -32,6 +33,7 @@ export function mountSessionsSurface(root, {
   }
 
   const createButton = root.querySelector('[data-v6-sessions-create]');
+  const closeButton = root.querySelector('[data-v6-sessions-close]');
   const refreshButton = root.querySelector('[data-v6-sessions-refresh]');
   const panel = root.querySelector('[data-v6-sessions-panel]');
   const toggle = root.querySelector('[data-v6-sessions-toggle]');
@@ -78,6 +80,12 @@ export function mountSessionsSurface(root, {
     toggle.addEventListener('click', listener);
     unsubscriptions.push(() => toggle.removeEventListener('click', listener));
   }
+  bindWorkflowPanelClose({
+    close: () => setOpen(false),
+    closeButton,
+    root,
+    unsubscriptions,
+  });
 
   refresh();
 

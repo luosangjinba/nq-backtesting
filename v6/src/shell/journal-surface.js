@@ -5,6 +5,7 @@ import {
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createJournalSurfaceState } from './journal-surface-model.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
+import { bindWorkflowPanelClose } from './workflow-panel-close.js';
 
 const DEFAULT_SNAPSHOT_KEY = 'workstation-journal';
 
@@ -53,6 +54,7 @@ export function mountJournalSurface(root, {
   }
 
   const addButton = root.querySelector('[data-v6-journal-add]');
+  const closeButton = root.querySelector('[data-v6-journal-close]');
   const loadButton = root.querySelector('[data-v6-journal-load]');
   const panel = root.querySelector('[data-v6-journal-panel]');
   const refreshButton = root.querySelector('[data-v6-journal-refresh]');
@@ -108,6 +110,12 @@ export function mountJournalSurface(root, {
     if (!element) return;
     element.addEventListener(eventName, listener);
     unsubscriptions.push(() => element.removeEventListener(eventName, listener));
+  });
+  bindWorkflowPanelClose({
+    close: () => setOpen(false),
+    closeButton,
+    root,
+    unsubscriptions,
   });
 
   refresh();

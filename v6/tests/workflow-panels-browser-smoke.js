@@ -8,36 +8,63 @@ try {
     (async () => JSON.stringify(await (async () => {
       const root = document.querySelector('[data-v6-root]');
       const panels = [
-        ['Sessions', '[data-v6-sessions-toggle]', '[data-v6-sessions-panel]'],
-        ['Replay', '[data-v6-replay-workflow-toggle]', '[data-v6-replay-workflow-panel]'],
-        ['Journal', '[data-v6-journal-toggle]', '[data-v6-journal-panel]'],
-        ['Settings', '[data-v6-settings-toggle]', '[data-v6-settings-panel]'],
+        ['Sessions', '[data-v6-sessions-toggle]', '[data-v6-sessions-panel]', '[data-v6-sessions-close]'],
+        ['Replay', '[data-v6-replay-workflow-toggle]', '[data-v6-replay-workflow-panel]', '[data-v6-replay-workflow-close]'],
+        ['Journal', '[data-v6-journal-toggle]', '[data-v6-journal-panel]', '[data-v6-journal-close]'],
+        ['Settings', '[data-v6-settings-toggle]', '[data-v6-settings-panel]', '[data-v6-settings-close]'],
       ];
       const bodyText = document.body.textContent || '';
       const results = [];
 
-      for (const [name, toggleSelector, panelSelector] of panels) {
+      function closedState(toggle, panel) {
+        return {
+          active: toggle.classList.contains('is-active'),
+          activeData: toggle.dataset.v6WorkflowActive || '',
+          expanded: toggle.getAttribute('aria-expanded'),
+          open: !panel.hidden,
+          pressed: toggle.getAttribute('aria-pressed'),
+        };
+      }
+
+      for (const [name, toggleSelector, panelSelector, closeSelector] of panels) {
         const toggle = document.querySelector(toggleSelector);
         const panel = document.querySelector(panelSelector);
+        const closeButton = document.querySelector(closeSelector);
         toggle.click();
         await new Promise((resolve) => setTimeout(resolve, 0));
         const panelRect = panel.getBoundingClientRect();
         const mainRect = document.querySelector('[data-v6-workstation-main]').getBoundingClientRect();
+        const openedState = closedState(toggle, panel);
+        toggle.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const closedByRepeatClick = closedState(toggle, panel);
+        toggle.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        closeButton.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const closedByButton = closedState(toggle, panel);
+        toggle.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        closeButton.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const closedByEscape = closedState(toggle, panel);
         results.push({
           name,
-          active: toggle.classList.contains('is-active'),
-          activeData: toggle.dataset.v6WorkflowActive || '',
+          active: openedState.active,
+          activeData: openedState.activeData,
           controls: toggle.getAttribute('aria-controls') || '',
-          open: !panel.hidden,
-          expanded: toggle.getAttribute('aria-expanded'),
-          pressed: toggle.getAttribute('aria-pressed'),
+          closedByButton,
+          closedByEscape,
+          closedByRepeatClick,
+          closeLabel: closeButton.getAttribute('aria-label') || '',
+          open: openedState.open,
+          expanded: openedState.expanded,
+          pressed: openedState.pressed,
           panelHeight: Math.round(panelRect.height),
           mainHeight: Math.round(mainRect.height),
           panelId: panel.id,
           title: panel.querySelector('.panel-copy strong')?.textContent || '',
         });
-        toggle.click();
-        await new Promise((resolve) => setTimeout(resolve, 0));
       }
 
       return {
@@ -65,6 +92,14 @@ try {
     assert.equal(result.expanded, 'true', `${result.name} toggle should update aria-expanded`);
     assert.equal(result.pressed, 'true', `${result.name} toggle should update aria-pressed`);
     assert.equal(result.controls, result.panelId, `${result.name} toggle should point at its panel`);
+    assert.match(result.closeLabel, /^Close /, `${result.name} close button should be labelled`);
+    [result.closedByRepeatClick, result.closedByButton, result.closedByEscape].forEach((closedState) => {
+      assert.equal(closedState.open, false, `${result.name} panel should close`);
+      assert.equal(closedState.active, false, `${result.name} toggle active class should clear`);
+      assert.equal(closedState.activeData, 'false', `${result.name} active data should clear`);
+      assert.equal(closedState.expanded, 'false', `${result.name} aria-expanded should clear`);
+      assert.equal(closedState.pressed, 'false', `${result.name} aria-pressed should clear`);
+    });
     assert.ok(result.panelHeight <= 96, `${result.name} panel should stay compact: ${result.panelHeight}px`);
     assert.ok(result.mainHeight >= 460, `${result.name} panel should not crowd the chart: ${result.mainHeight}px`);
   });

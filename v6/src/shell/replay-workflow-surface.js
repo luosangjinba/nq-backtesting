@@ -5,6 +5,7 @@ import {
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createReplayWorkflowSurfaceState } from './replay-workflow-surface-model.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
+import { bindWorkflowPanelClose } from './workflow-panel-close.js';
 
 function setText(root, selector, value) {
   const element = root.querySelector(selector);
@@ -35,6 +36,7 @@ export function mountReplayWorkflowSurface(root, {
 
   const panel = root.querySelector('[data-v6-replay-workflow-panel]');
   const toggle = root.querySelector('[data-v6-replay-workflow-toggle]');
+  const closeButton = root.querySelector('[data-v6-replay-workflow-close]');
   const refreshButton = root.querySelector('[data-v6-replay-workflow-refresh]');
   const pauseButton = root.querySelector('[data-v6-replay-workflow-pause]');
   const resetButton = root.querySelector('[data-v6-replay-workflow-reset]');
@@ -91,6 +93,12 @@ export function mountReplayWorkflowSurface(root, {
     resetButton.addEventListener('click', listener);
     unsubscriptions.push(() => resetButton.removeEventListener('click', listener));
   }
+  bindWorkflowPanelClose({
+    close: () => setOpen(false),
+    closeButton,
+    root,
+    unsubscriptions,
+  });
 
   refresh();
 

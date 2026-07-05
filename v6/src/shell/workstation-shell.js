@@ -43,6 +43,7 @@ export function createWorkstationShellMarkup() {
           <button type="button" data-v6-journal-add>Add note</button>
           <button type="button" data-v6-journal-save>Save journal</button>
           <button type="button" data-v6-journal-load>Load journal</button>
+          <button type="button" data-v6-journal-close aria-label="Close Trade Journal panel">Close</button>
         </div>
         <ul class="journal-list" data-v6-journal-list></ul>
       </section>
@@ -59,6 +60,7 @@ export function createWorkstationShellMarkup() {
           <button type="button" data-v6-replay-workflow-refresh>Update</button>
           <button type="button" data-v6-replay-workflow-pause>Pause</button>
           <button type="button" data-v6-replay-workflow-reset>Reset</button>
+          <button type="button" data-v6-replay-workflow-close aria-label="Close Replay Control panel">Close</button>
         </div>
       </section>
       <section id="v6-sessions-panel" class="sessions-panel" data-v6-sessions-panel hidden>
@@ -72,6 +74,7 @@ export function createWorkstationShellMarkup() {
         <div class="panel-actions sessions-panel-actions">
           <button type="button" data-v6-sessions-create>New session</button>
           <button type="button" data-v6-sessions-refresh>Update</button>
+          <button type="button" data-v6-sessions-close aria-label="Close Replay Sessions panel">Close</button>
         </div>
         <ul class="sessions-list" data-v6-sessions-list></ul>
       </section>
@@ -103,6 +106,9 @@ export function createWorkstationShellMarkup() {
           <input type="checkbox" data-v6-settings-field="showWatermark" checked>
           <span>Watermark</span>
         </label>
+        <div class="panel-actions">
+          <button type="button" data-v6-settings-close aria-label="Close Workspace Settings panel">Close</button>
+        </div>
       </section>
 
       <main class="workstation-main" data-v6-workstation-main>

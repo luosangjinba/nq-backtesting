@@ -1,6 +1,7 @@
 import { SETTINGS_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand } from '../runtime/commands.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
+import { bindWorkflowPanelClose } from './workflow-panel-close.js';
 
 function readFieldValue(field) {
   if (field.type === 'checkbox') {
@@ -27,6 +28,7 @@ export function mountSettingsPanel(root) {
   }
   const toggle = root.querySelector('[data-v6-settings-toggle]');
   const panel = root.querySelector('[data-v6-settings-panel]');
+  const closeButton = root.querySelector('[data-v6-settings-close]');
   if (!toggle || !panel) {
     throw new Error('Settings panel controls are required.');
   }
@@ -51,6 +53,13 @@ export function mountSettingsPanel(root) {
 
   const toggleListener = () => setOpen(!open);
   toggle.addEventListener('click', toggleListener);
+  const closeUnsubscriptions = [];
+  bindWorkflowPanelClose({
+    close: () => setOpen(false),
+    closeButton,
+    root,
+    unsubscriptions: closeUnsubscriptions,
+  });
 
   panel.querySelectorAll('[data-v6-settings-field]').forEach((field) => {
     const listener = async () => {
@@ -72,6 +81,9 @@ export function mountSettingsPanel(root) {
     setOpen,
     unmount() {
       toggle.removeEventListener('click', toggleListener);
+      while (closeUnsubscriptions.length) {
+        closeUnsubscriptions.pop()();
+      }
       fieldListeners.forEach(([field, listener]) => {
         field.removeEventListener('change', listener);
       });
