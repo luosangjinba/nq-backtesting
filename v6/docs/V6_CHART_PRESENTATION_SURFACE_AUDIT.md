@@ -8,7 +8,8 @@ The real chart engine path is functional and protected by browser gates. The
 workstation shell now reserves an engine-owned chart host, mounts a real
 Lightweight chart adapter into that host, and demotes static placeholder visuals
 to fallback status. Chart-data snapshots now reach the mounted workstation
-adapter through a chart-engine bridge.
+adapter through a chart-engine bridge, and chart-viewport projections now write
+adapter logical ranges through a separate chart-engine bridge.
 
 ## Current Presentation Paths
 
@@ -20,6 +21,7 @@ adapter through a chart-engine bridge.
 | Chart host manager | `v6/src/chart-engine/chart-host-manager.js` | Pane-local chart hosts and adapter ownership | Functional and browser-tested |
 | Workstation chart surface | `v6/src/chart-engine/workstation-chart-surface.js`, `v6/src/app.js` | Mounts the default workstation chart host with a real adapter | Mounted in the running app with zero data until chart-data drives it |
 | Chart-data surface bridge | `v6/src/chart-engine/chart-data-surface-bridge.js`, `v6/src/app.js` | Subscribes to `chartData:barsChanged` and applies pane-local records to the mounted adapter | Functional and browser-tested |
+| Chart-viewport surface bridge | `v6/src/chart-engine/chart-viewport-surface-bridge.js`, `v6/src/app.js` | Subscribes to `chartViewport:projected` and applies projected logical ranges to the mounted adapter | Functional and browser-tested |
 
 ## Gate Results
 
@@ -34,6 +36,7 @@ Passed:
 - `node v6/tests/workstation-chart-host-browser-smoke.js`
 - `node v6/tests/workstation-chart-adapter-browser-smoke.js`
 - `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 
 ## Findings
@@ -53,21 +56,23 @@ Passed:
   chart-data emits a pane-local record for the default pane.
 - The chart-data bridge ignores records for other panes until those panes have
   their own mounted chart surface.
+- The chart-viewport bridge applies projected logical ranges for the default
+  pane and ignores other panes until those panes have their own mounted chart
+  surface.
 - The default shell still contains `.static-chart-visual`,
   `.price-scale-placeholder`, and `.time-scale-placeholder`, but these live
   under `[data-v6-chart-fallback]` with reduced opacity and `aria-hidden="true"`.
 
 ## Risk
 
-The next gap is no longer chart-data delivery; it is connecting chart-viewport
-projected logical ranges to the mounted adapter without allowing route or shell
-code to own bars, replay cursor, or viewport intent.
+The next gap is no longer viewport delivery; it is proving the running app
+default-wall load/next path drives the mounted workstation chart through the
+existing runtime and chart-engine boundaries.
 
 ## Next Direction
 
-The next executable step should connect chart-viewport projected ranges to the
-mounted workstation adapter through an explicit integration boundary. The step
-must preserve:
+The next executable step should add a running-app default-wall flow gate. The
+step must preserve:
 
 - visible-latency gates;
 - default and manual wall replay gates;

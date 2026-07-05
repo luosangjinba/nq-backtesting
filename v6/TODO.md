@@ -14,24 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 42 - Connect Chart Data Snapshot To Mounted
-  Adapter. The implementation bridges `chartData:barsChanged` events into the
+- Latest completed step: Step 43 - Connect Viewport Projection To Mounted
+  Adapter. The implementation bridges `chartViewport:projected` events into the
   mounted workstation chart through a chart-engine boundary.
 
 ## Next Executable Steps
 
-### Step 43 - Connect Viewport Projection To Mounted Adapter
+### Step 44 - Gate Workstation Default Wall Flow
 
-Connect chart-viewport projected logical ranges to the mounted workstation chart
-adapter through an explicit chart-engine/chart-viewport integration boundary.
+Add a running-app browser gate proving default-wall load/next drives the mounted
+workstation chart through the existing replay, chart-data, chart-viewport, and
+chart-engine boundaries.
 
 Acceptance:
 
-- chart-viewport remains the owner of viewport intent and projected ranges;
-- chart-engine remains the only boundary that writes adapter logical ranges;
+- default-wall load updates mounted chart data and visible logical range;
+- default-wall next appends/replaces through chart-data and preserves projected
+  viewport range;
 - route/shell code still does not own bars, replay cursor, or viewport intent;
-- chart data bridge, chart adapter mount, and viewport boundary gates remain
-  passing.
+- chart data bridge, viewport bridge, visible-latency, and multi-pane gates
+  remain passing.
 
 ## Completed Steps
 
@@ -809,6 +811,28 @@ Verification:
 - `node v6/tests/chart-data-surface-bridge-smoke.js`
 - `node v6/tests/chart-data-runtime-smoke.js`
 - `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-adapter-browser-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 43 - Connect Viewport Projection To Mounted Adapter
+
+Completed in commits:
+
+- `1675b8ec feat(v6): apply viewport projection to workstation chart`
+- `1fba4157 feat(v6): bridge viewport projection to workstation chart`
+
+Verification:
+
+- `node v6/tests/chart-viewport-surface-bridge-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
 - `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
 - `node v6/tests/workstation-chart-adapter-browser-smoke.js`
 - `node v6/tests/chart-engine-browser-smoke.js`

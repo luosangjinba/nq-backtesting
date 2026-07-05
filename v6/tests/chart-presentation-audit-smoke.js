@@ -13,6 +13,7 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'v6/src/chart-engine/chart-host-manager.js',
   'v6/src/chart-engine/workstation-chart-surface.js',
   'v6/src/chart-engine/chart-data-surface-bridge.js',
+  'v6/src/chart-engine/chart-viewport-surface-bridge.js',
   '[data-v6-chart-engine-host]',
   'data-v6-pane-id="default"',
   '[data-v6-chart-fallback]',
@@ -27,7 +28,8 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'visible-latency-cache-hit-browser-smoke.js',
   'workstation-chart-adapter-browser-smoke.js',
   'workstation-chart-data-bridge-browser-smoke.js',
-  'The next executable step should connect chart-viewport projected ranges',
+  'workstation-chart-viewport-bridge-browser-smoke.js',
+  'The next executable step should add a running-app default-wall flow gate',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be listed in chart presentation audit`);
 });
