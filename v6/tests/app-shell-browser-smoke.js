@@ -30,6 +30,7 @@ async function main() {
     assert.equal(value.headerText, 'FX Session Replay');
     assert.match(value.transportText, /Play/);
     assert.equal(value.registrySnapshot.running, true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.settings'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.playDisabled, false);
@@ -38,6 +39,7 @@ async function main() {
     assert.equal(value.commands.includes('defaultWall.load'), true);
     assert.equal(value.commands.includes('defaultWall.next'), true);
     assert.equal(value.commands.includes('layout.getSnapshot'), true);
+    assert.equal(value.commands.includes('settings.getSnapshot'), true);
   } finally {
     await page.cleanup();
   }
