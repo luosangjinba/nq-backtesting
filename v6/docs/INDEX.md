@@ -18,6 +18,8 @@ Read this index before working on V6.
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
   workstation chrome, menus, settings, and parity work without pixel-copying.
+- `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`: current V6 workstation shell
+  gaps against the FXReplay UI guardrails and the next shell-only UI slice.
 - `v6/docs/specs/replay-viewport-intent.md`: the first core V6 contract.
 - `v6/docs/specs/replay-visible-latency.md`: user-visible replay candle latency
   gates that prevent V5's delayed K-line appearance problem from returning.
@@ -50,6 +52,8 @@ Read this index before working on V6.
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
   toolbars, timeframe menu, settings modal, and chart-first visual tone.
+- `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`: accepted UI parity gap classification
+  and priority order before changing workstation chrome.
 
 ## Reading Rule
 
