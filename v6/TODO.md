@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 10 - Chart Engine Adapter. The implementation
-  adds a Lightweight Charts adapter lifecycle, `setData`/`update`,
-  `setVisibleLogicalRange`, native visible logical range measurement, and
-  adapter metadata without storing durable viewport intent.
+- Latest completed step: Step 11 - Visible Latency Harness. The implementation
+  adds pure phase timing, cache-hit visible path assertions, a real browser
+  cache-hit chart smoke, and a boundary audit that keeps latency logic separate
+  from DOM/chart/runtime ownership.
 
 ## Next Executable Steps
 
-### Step 11 - Visible Latency Harness
+### Step 12 - Single-Pane Default Wall Replay
 
-Implement browser latency harness for input-to-candle-visible timing with phase
-metadata: input, command received, bar available, chart update requested, and
-candle visible.
+Implement the first real single-pane replay path from the default anchor wall:
+initial prefix plus start bar, Next/Play consuming an in-memory forward buffer,
+and chart append/update through the chart engine adapter.
 
 Acceptance:
 
-- cache-hit Next test proves DB/API is not on the visible path;
-- failures identify data latency vs frontend/chart latency.
+- latest candle stays on the default wall;
+- old candles push left;
+- p95 visible latency stays under the V6 threshold.
 
 ## Completed Steps
 
@@ -204,6 +205,22 @@ Verification:
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 11 - Visible Latency Harness
+
+Completed in commits:
+
+- `3a64a56 feat(v6): add visible latency timeline`
+- `8ef6cf8 test(v6): add cache-hit visible latency browser smoke`
+- `df59b93 test(v6): enforce visible latency boundary`
+
+Verification:
+
+- `node v6/tests/visible-latency-domain-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/chart-engine-adapter-smoke.js`
+- `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Later Gates
