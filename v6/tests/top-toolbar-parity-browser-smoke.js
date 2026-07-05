@@ -14,8 +14,8 @@ try {
         account: textOf('[data-v6-top-account]'),
         accountDisabled: disabled('[data-v6-top-account]'),
         backDisabled: disabled('[data-v6-top-back]'),
-        editor: textOf('[data-v6-top-editor]'),
-        editorDisabled: disabled('[data-v6-top-editor]'),
+        compareDisabled: disabled('[data-v6-top-compare]'),
+        editorExists: exists('[data-v6-top-editor]'),
         fullscreenDisabled: disabled('[data-v6-top-fullscreen]'),
         hasHeader: exists('[data-v6-workstation-header]'),
         headerHeight: Math.round(headerRect.height),
@@ -26,15 +26,18 @@ try {
         interval: textOf('[data-v6-top-interval]'),
         intervalDisabled: disabled('[data-v6-top-interval]'),
         intervalExpanded: document.querySelector('[data-v6-top-interval]')?.getAttribute('aria-expanded'),
-        layout: textOf('[data-v6-top-layout]'),
-        layoutDisabled: disabled('[data-v6-top-layout]'),
+        layoutLabel: document.querySelector('[data-v6-top-page-layout]')?.getAttribute('aria-label') || '',
+        layoutDisabled: disabled('[data-v6-top-page-layout]'),
         profile: textOf('[data-v6-top-profile]'),
+        rightIconCount: document.querySelectorAll('.top-tool-group-right .tool-button .tool-icon').length,
         readinessInHeader: exists('[data-v6-workstation-header] [data-v6-readiness-surface]'),
         redoDisabled: disabled('[data-v6-top-redo]'),
         searchDisabled: disabled('[data-v6-top-search]'),
+        symbolSearchDisabled: disabled('[data-v6-top-search-symbol]'),
         sessionsWorkflowStillPresent: exists('[data-v6-sessions-toggle]'),
         symbol: textOf('[data-v6-top-symbol]'),
         themeDisabled: disabled('[data-v6-top-theme]'),
+        toolIconCount: document.querySelectorAll('[data-v6-workstation-header] .tool-button .tool-icon').length,
         undoDisabled: disabled('[data-v6-top-undo]'),
       };
     })())
@@ -46,25 +49,27 @@ try {
   assert.equal(value.interval, '1m');
   assert.equal(value.intervalDisabled, false);
   assert.equal(value.intervalExpanded, 'false');
-  assert.equal(value.layout, 'Layout');
+  assert.equal(value.layoutLabel, 'Page layout');
   assert.equal(value.indicators, 'Indicators');
   assert.equal(value.profile, 'test');
   assert.equal(value.account, 'ETH');
   assert.equal(value.instrument, 'NQ-2018');
-  assert.equal(value.editor, 'Editor');
+  assert.equal(value.editorExists, false);
   assert.equal(value.sessionsWorkflowStillPresent, true);
   assert.equal(value.readinessInHeader, true);
+  assert.equal(value.toolIconCount >= 12, true);
+  assert.equal(value.rightIconCount >= 5, true);
 
   [
     value.accountDisabled,
-    value.backDisabled,
-    value.editorDisabled,
+    value.compareDisabled,
     value.fullscreenDisabled,
     value.indicatorsDisabled,
     value.instrumentDisabled,
     value.layoutDisabled,
     value.redoDisabled,
     value.searchDisabled,
+    value.symbolSearchDisabled,
     value.themeDisabled,
     value.undoDisabled,
   ].forEach((isDisabled) => {

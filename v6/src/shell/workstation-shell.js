@@ -1,13 +1,37 @@
+const ICONS = {
+  arrowLeft: '<path d="M15 18l-6-6 6-6"/><path d="M9 12h12"/>',
+  arrowRight: '<path d="M9 18l6-6-6-6"/><path d="M3 12h12"/>',
+  calendar: '<path d="M7 3v4"/><path d="M17 3v4"/><path d="M4 9h16"/><rect x="4" y="5" width="16" height="16" rx="2"/>',
+  camera: '<path d="M7 7l1.8-2h6.4L17 7h3v12H4V7z"/><circle cx="12" cy="13" r="3"/>',
+  fullscreen: '<path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/>',
+  gear: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 3.1a7 7 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 3.1h5l.4-3.1a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z"/>',
+  grid: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
+  indicators: '<path d="M4 18V6"/><path d="M10 18V10"/><path d="M16 18V4"/><path d="M21 18H3"/>',
+  journal: '<path d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/>',
+  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
+  moon: '<path d="M21 14.8A8 8 0 0 1 9.2 3a7 7 0 1 0 11.8 11.8z"/>',
+  plusCircle: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/>',
+  redo: '<path d="M21 7v6h-6"/><path d="M20 13a7 7 0 1 0-2 5"/>',
+  search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
+  spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+  undo: '<path d="M3 7v6h6"/><path d="M4 13a7 7 0 1 1 2 5"/>',
+};
+
+function icon(name) {
+  return `<svg class="tool-icon" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name]}</svg>`;
+}
+
 export function createWorkstationShellMarkup() {
   return `
     <section class="workstation-shell" data-v6-workstation-shell>
       <header class="top-bar" data-v6-workstation-header>
-        <div class="top-tool-group top-tool-group-left" aria-label="Market tools">
-          <button type="button" class="icon-tool" data-v6-top-back disabled aria-label="Back">Back</button>
-          <button type="button" class="icon-tool" data-v6-top-forward disabled aria-label="Forward">Fwd</button>
-          <button type="button" class="icon-tool" data-v6-top-search disabled aria-label="Search symbol">Search</button>
+        <div class="top-tool-group top-tool-group-left" aria-label="Session and symbol tools">
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-back data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false" aria-label="Back to session selection">${icon('arrowLeft')}<span class="sr-only">Back to session selection</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-session-forward disabled aria-label="Forward">${icon('arrowRight')}<span class="sr-only">Forward</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-search-symbol disabled aria-label="Search symbol">${icon('search')}<span class="sr-only">Search symbol</span></button>
           <h1>FX Session Replay</h1>
           <span class="top-symbol" data-v6-top-symbol>NQ</span>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-compare disabled aria-label="Add comparison symbol">${icon('plusCircle')}<span class="sr-only">Add comparison symbol</span></button>
         </div>
         <div class="top-tool-group top-tool-group-main" aria-label="Chart tools">
           <div class="timeframe-menu-anchor">
@@ -48,24 +72,26 @@ export function createWorkstationShellMarkup() {
               </section>
             </div>
           </div>
-          <button type="button" data-v6-top-layout disabled>Layout</button>
-          <button type="button" data-v6-top-indicators disabled>Indicators</button>
-          <button type="button" class="icon-tool" data-v6-top-undo disabled aria-label="Undo">Undo</button>
-          <button type="button" class="icon-tool" data-v6-top-redo disabled aria-label="Redo">Redo</button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-page-layout disabled aria-label="Page layout">${icon('grid')}<span class="sr-only">Page layout</span></button>
+          <button type="button" class="tool-button tool-button-text" data-v6-top-indicators disabled aria-label="Indicators">${icon('indicators')}<span>Indicators</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-undo disabled aria-label="Undo">${icon('undo')}<span class="sr-only">Undo</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-redo disabled aria-label="Redo">${icon('redo')}<span class="sr-only">Redo</span></button>
         </div>
-        <div class="top-actions" aria-label="V6 route actions">
-          <button type="button" data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false">Sessions</button>
-          <button type="button" data-v6-replay-workflow-toggle aria-controls="v6-replay-workflow-panel" aria-expanded="false" aria-pressed="false">Replay</button>
-          <button type="button" data-v6-journal-toggle aria-controls="v6-journal-panel" aria-expanded="false" aria-pressed="false">Journal</button>
-          <button type="button" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false">Settings</button>
+        <div class="top-session-group" aria-label="Session identity">
+          <span class="profile-chip" data-v6-top-profile data-v6-session-name>test</span>
         </div>
         <div class="top-tool-group top-tool-group-right" aria-label="Account and utility tools">
-          <span class="profile-chip" data-v6-top-profile>test</span>
-          <button type="button" data-v6-top-account disabled>ETH</button>
+          <button type="button" data-v6-top-account data-v6-top-session-hours disabled aria-label="Trading hours">ETH</button>
           <button type="button" data-v6-top-instrument disabled>NQ-2018</button>
-          <button type="button" data-v6-top-editor disabled>Editor</button>
-          <button type="button" class="icon-tool" data-v6-top-theme disabled aria-label="Theme">Theme</button>
-          <button type="button" class="icon-tool" data-v6-top-fullscreen disabled aria-label="Fullscreen">Full</button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-search disabled aria-label="Search">${icon('search')}<span class="sr-only">Search</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false" aria-label="Settings">${icon('gear')}<span class="sr-only">Settings</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-screenshot disabled aria-label="Screenshot">${icon('camera')}<span class="sr-only">Screenshot</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-theme disabled aria-label="Theme">${icon('moon')}<span class="sr-only">Theme</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-fullscreen disabled aria-label="Fullscreen">${icon('fullscreen')}<span class="sr-only">Fullscreen</span></button>
+        </div>
+        <div class="top-workflow-hooks" aria-label="Workflow panels">
+          <button type="button" data-v6-replay-workflow-toggle aria-controls="v6-replay-workflow-panel" aria-expanded="false" aria-pressed="false">Replay</button>
+          <button type="button" data-v6-journal-toggle aria-controls="v6-journal-panel" aria-expanded="false" aria-pressed="false">Journal</button>
         </div>
         <div class="top-context">
           <div class="readiness-surface" data-v6-readiness-surface aria-label="V6 workflow readiness" aria-live="polite">
@@ -163,15 +189,6 @@ export function createWorkstationShellMarkup() {
 
       <main class="workstation-main" data-v6-workstation-main>
         <section class="chart-toolbar" aria-label="Chart controls placeholder">
-          <div class="symbol-readout" data-v6-status-readout>
-            <span class="status-dot" aria-hidden="true"></span>
-            <strong data-v6-status-symbol>NQ</strong>
-            <span data-v6-status-timeframe>1m</span>
-            <span data-v6-status-open>O --</span>
-            <span data-v6-status-high>H --</span>
-            <span data-v6-status-low>L --</span>
-            <span data-v6-status-close>C --</span>
-          </div>
           <div class="toolbar-actions">
             <label>
               <span>TF</span>
@@ -183,6 +200,15 @@ export function createWorkstationShellMarkup() {
         </section>
 
         <section class="chart-surface" aria-label="Replay chart surface" data-v6-chart-surface>
+          <div class="symbol-readout pane-status-readout" data-v6-status-readout>
+            <span class="status-dot" aria-hidden="true"></span>
+            <strong data-v6-status-symbol>NQ</strong>
+            <span data-v6-status-timeframe>1m</span>
+            <span data-v6-status-open>O --</span>
+            <span data-v6-status-high>H --</span>
+            <span data-v6-status-low>L --</span>
+            <span data-v6-status-close>C --</span>
+          </div>
           <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="default"></div>
           <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
             <div class="price-scale-placeholder">
@@ -247,16 +273,17 @@ export function createWorkstationShellMarkup() {
         </section>
         <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">
           <button type="button" class="rail-button rail-button-icon" data-v6-rail-object-tree disabled aria-label="Show object tree">
-            <span aria-hidden="true">Layers</span>
+            ${icon('layers')}
+            <span class="sr-only">Show object tree</span>
           </button>
           <div class="rail-main-actions">
             <button type="button" class="rail-button" data-v6-rail-order disabled aria-label="Order">
-              <span aria-hidden="true">+</span>
+              ${icon('plusCircle')}
               <span>Order</span>
             </button>
             <details class="rail-popover-anchor" data-v6-rail-goto-details>
               <summary class="rail-button" data-v6-rail-goto aria-label="Go to key time">
-                <span aria-hidden="true">-&gt;</span>
+                ${icon('arrowRight')}
                 <span>Go to</span>
               </summary>
               <div class="rail-popover" data-v6-rail-goto-menu role="menu" aria-label="Go to key time">
@@ -269,20 +296,22 @@ export function createWorkstationShellMarkup() {
               </div>
             </details>
             <button type="button" class="rail-button" data-v6-rail-news disabled aria-label="News and calendar events">
-              <span aria-hidden="true">Cal</span>
+              ${icon('calendar')}
               <span>News</span>
             </button>
             <button type="button" class="rail-button" data-v6-rail-journal disabled aria-label="Journal">
-              <span aria-hidden="true">Doc</span>
+              ${icon('journal')}
               <span>Journal</span>
             </button>
           </div>
           <div class="rail-bottom-actions">
             <button type="button" class="rail-button rail-button-icon" data-v6-rail-watch disabled aria-label="Watch tool">
-              <span aria-hidden="true">*</span>
+              ${icon('spark')}
+              <span class="sr-only">Watch tool</span>
             </button>
             <button type="button" class="rail-button rail-button-icon" data-v6-rail-session-settings disabled aria-label="Session settings">
-              <span aria-hidden="true">Set</span>
+              ${icon('gear')}
+              <span class="sr-only">Session settings</span>
             </button>
           </div>
         </aside>

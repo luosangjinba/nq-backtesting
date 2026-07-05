@@ -30,6 +30,23 @@ Primary references:
 - `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_104743.png`
 - `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_104757.png`
 - `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_104815.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114127.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114221.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114325.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114427.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114459.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114559.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114633.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114724.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114816.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114913.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_114923.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_115016.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_115114.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_115149.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_115300.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_115335.png`
+- `/home/leo/myworkspace/trading/backtesting/tmp/2026-07-05_115409.png`
 
 ## UI Kernel
 
@@ -52,6 +69,31 @@ V6 should preserve these interaction and information-architecture traits:
   OHLC, and pane-local price scales.
 - Engineering diagnostics such as boundary, cache-hit latency, command counts,
   and test gates must not appear in the normal user surface.
+
+## Top Bar Decision Matrix
+
+V6 should preserve the top-bar kernel, but only the controls that match this
+product:
+
+| FXReplay reference area | V6 decision |
+| --- | --- |
+| Back to session selection | Needed once V6 has a session selection page. Keep as a shell placeholder until that route exists. |
+| Symbol search and active symbol | Needed. Symbol identity must be visible in the top bar and pane title. |
+| Add comparison symbol | Needed later. It should wait for an explicit comparison/multi-symbol owner. |
+| Timeframe selector | Needed. It is already routed through display-timeframe runtime for supported intervals. |
+| Chart type selector | Not needed. V6 is candle-only, so do not add a line/bar/area selector. |
+| New layout | Not needed. Layout presets should not be added as a generic FXReplay clone control. |
+| Indicators | Needed. Keep inert until an indicators owner exists. |
+| Undo and redo | Needed. Keep inert until drawing/indicator/action-history ownership exists. |
+| Session name | Needed. It should show the user-defined replay session name, such as the FXReplay `test` label. |
+| RTH/ETH selector | Needed. ICT analysis uses regular and electronic trading hours, so this requires an explicit session-hours owner before interactivity. |
+| Page layout selector | Needed, but only to the third level. Do not expose deeper or generic layout complexity. |
+| Search utility | Keep as a placeholder. It should not be removed even if implementation is deferred. |
+| Settings | Needed. Chart settings and Session settings must remain distinct surfaces. |
+| Screenshot | Needed. Add as an inert placeholder until an export/screenshot owner exists. |
+| Pine/code editor | Not needed for now. Do not reserve it in the main toolbar unless the product direction changes. |
+| Theme | Needed. Route through settings/theme ownership before interactivity. |
+| Fullscreen | Needed. Route through a shell/browser capability boundary before interactivity. |
 
 ## Timeframe Menu
 

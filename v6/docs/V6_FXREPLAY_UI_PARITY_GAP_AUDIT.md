@@ -15,7 +15,7 @@ workflow-panel shape.
 
 | Area | Current V6 surface | Guardrail target | Gap class | Direction |
 | --- | --- | --- | --- | --- |
-| Top toolbar | Compact shell toolbar with instrument/search, interval, Layout, Indicators, undo, redo, workflow actions, profile/account, instrument selector, editor/theme/fullscreen placeholders | Compact command toolbar with instrument search, symbol, interval, layout, Indicators, undo, redo, account/profile, instrument selector, editor/theme/fullscreen controls | shell-only UI complete for first slice; future runtime-owned commands remain inert | Keep placeholders disabled until owners exist |
+| Top toolbar | Compact shell toolbar with instrument/search, interval, Layout, Indicators, undo, redo, workflow actions, profile/account, instrument selector, editor/theme/fullscreen placeholders | Compact command toolbar with session-back, symbol/search, comparison add, interval, Indicators, undo/redo, session name, RTH/ETH, three-level page layout, search utility, settings, screenshot, theme, and fullscreen. Exclude chart-type selector, New Layout, and Pine/code editor for now | shell-only UI complete for first slice; future runtime-owned commands remain inert | Keep placeholders disabled until owners exist; prune controls that V6 explicitly does not need |
 | Timeframe menu | Grouped floating interval dropdown with custom/unsupported intervals disabled and supported minute options routed through display-timeframe runtime | Floating grouped interval dropdown with custom interval entry | shell-only UI complete for first slice; runtime-owned timeframe behavior remains display-timeframe runtime | Keep unsupported intervals inert until data/runtime support exists |
 | Indicators / undo / redo | Missing | Reserved top-toolbar commands | runtime-owned behavior, shell-only disabled placeholders acceptable | Add disabled placeholders first; implement owners before interactivity |
 | Left toolbar | Missing | Vertical drawing/tool icon strip | deferred until drawing/tool runtime owner exists | Reserve shell rail without fake drawing behavior |
@@ -49,6 +49,8 @@ workflow-panel shape.
   chart bars, replay cursor, viewport intent, adapter state, or bar cache.
 - Indicators, drawing tools, account/trading, undo, and redo must remain inert
   until their state owner and command/event contracts exist.
+- Comparison symbols, RTH/ETH, page layout, screenshot, theme, and fullscreen
+  controls also require explicit owners before they become interactive.
 
 ## Stop Conditions
 
@@ -60,6 +62,8 @@ workflow-panel shape.
 - Multi-pane UI introduces primary/non-primary ownership language or separate
   event paths.
 - Trading/account UI appears interactive without an explicit owner.
+- The top bar grows FXReplay clone controls that V6 explicitly rejected:
+  chart-type selector, generic New Layout, or Pine/code editor.
 
 ## Completed Direction
 
