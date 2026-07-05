@@ -14,25 +14,29 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 46 - FXReplay UI Reference Guardrails. The
-  implementation documents the FXReplay UI kernel for workstation chrome,
-  timeframe menu, indicators/undo/redo, settings, side toolbars, bottom
-  transport, and ownership boundaries.
+- Latest completed step: Step 47 - FXReplay UI Parity Gap Audit. The
+  implementation audits the current V6 workstation shell against the FXReplay
+  UI guardrails and classifies gaps by shell-only, runtime-owned, and deferred
+  ownership.
 
 ## Next Executable Steps
 
-### Step 47 - FXReplay UI Parity Gap Audit
+### Step 48 - Top Toolbar Shell Parity Slice
 
-Audit the current V6 workstation shell against the FXReplay UI guardrails before
-changing product chrome, menus, settings, or side toolbars.
+Implement the first shell-only top toolbar parity slice from the FXReplay UI gap
+audit.
 
 Acceptance:
 
-- identify gaps for top toolbar, timeframe menu, indicators/undo/redo,
-  settings modal, side toolbars, bottom transport, and trading/account chrome;
-- classify each gap as shell-only UI, runtime-owned behavior, or deferred;
-- preserve chart/replay/data/viewport ownership rules;
-- add or update an audit smoke so future UI parity work follows the guardrails.
+- top toolbar includes compact placeholders for instrument/search, interval,
+  Layout, Indicators, undo, redo, account/profile, instrument selector,
+  editor/theme/fullscreen-style controls;
+- controls without owners are disabled or inert placeholders with accessible
+  labels;
+- route/shell code still does not own chart data, replay cursor, viewport
+  intent, or adapter state;
+- app-shell, product baseline, UI guardrails, parity audit, and boundary gates
+  remain passing.
 
 ## Completed Steps
 
@@ -888,6 +892,19 @@ Completed in commits:
 
 Verification:
 
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 47 - FXReplay UI Parity Gap Audit
+
+Completed in commits:
+
+- `c411c76b docs(v6): audit fxreplay ui parity gaps`
+
+Verification:
+
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
