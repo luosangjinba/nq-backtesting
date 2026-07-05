@@ -19,6 +19,10 @@ const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
 const SETTINGS_ROOT = path.join(V6_ROOT, 'src', 'settings');
 const SETTINGS_PANEL_FILE = path.join(V6_ROOT, 'src', 'shell', 'settings-panel.js');
+const READINESS_FILES = [
+  path.join(V6_ROOT, 'src', 'shell', 'readiness-surface.js'),
+  path.join(V6_ROOT, 'src', 'shell', 'readiness-surface-model.js'),
+];
 const STATUS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'status-readout.js'),
   path.join(V6_ROOT, 'src', 'shell', 'status-readout-model.js'),
@@ -238,6 +242,17 @@ const forbiddenSettingsPanelOwnershipPatterns = [
   {
     pattern: /\b(registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
     reason: 'V6 settings UI must not own command registration, chart, data, replay, viewport, storage, or network state.',
+  },
+];
+
+const forbiddenReadinessSurfaceOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|default-wall|display-timeframe|layout\/|panes|persistence\/|journal\/|journal-persistence|replay\/|session|settings\/settings-|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 readiness UI must read command/runtime metadata only and not import feature runtimes, internals, V4, vendor, or chart/data modules.',
+  },
+  {
+    pattern: /\b(dispatchCommand|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
+    reason: 'V6 readiness UI must not dispatch mutation commands or own chart, data, replay, viewport, storage, or network state.',
   },
 ];
 
@@ -506,6 +521,19 @@ for (const file of await walkFiles(SETTINGS_ROOT)) {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), SETTINGS_PANEL_FILE),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of READINESS_FILES) {
+  const text = await readFile(file, 'utf8');
+  forbiddenReadinessSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
         pattern: String(pattern),
         reason,
       });
