@@ -14,22 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 23 - Persistence Baseline. The implementation
-  adds an explicit persistence adapter/repository/runtime boundary with opt-in
-  command writes and no feature runtime restore side effects.
+- Latest completed step: Step 24 - Journal Analytics Boundary Baseline. The
+  implementation adds explicit journal state ownership, command/event contracts,
+  supplied-record analytics, and boundary gates that prevent journal modules from
+  coupling to chart, replay, data, viewport, pane, layout, settings, or
+  persistence internals.
 
 ## Next Executable Steps
 
-### Step 24 - Journal Analytics Boundary Baseline
+### Step 25 - Journal Persistence Command Bridge
 
-Define the first journal/orders/analytics boundary without coupling it to chart,
-replay, data, viewport, pane, layout, settings, or persistence internals.
+Define an explicit opt-in command path for saving and loading journal snapshots
+through the persistence contract without allowing journal modules to import
+persistence internals or restore chart/replay/data/viewport state.
 
 Acceptance:
 
-- journal/analytics state has an explicit owner and command/event contract;
-- analytics reads supplied records, not live runtime internals;
-- no journal/orders/analytics path mutates chart/replay/data/viewport state.
+- journal snapshot save/load uses dispatchable commands, not runtime side
+  effects;
+- journal modules do not import persistence modules directly;
+- loading a journal snapshot mutates only journal state.
 
 ## Completed Steps
 
@@ -455,6 +459,24 @@ Verification:
 
 - `node v6/tests/persistence-repository-smoke.js`
 - `node v6/tests/persistence-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 24 - Journal Analytics Boundary Baseline
+
+Completed in commits:
+
+- `eedd897 feat(v6): add journal analytics domain`
+- `f304aed feat(v6): add journal runtime contract`
+- `cb51216 feat(v6): register journal runtime`
+- `6513de5 test(v6): enforce journal boundaries`
+
+Verification:
+
+- `node v6/tests/journal-domain-smoke.js`
+- `node v6/tests/journal-runtime-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
