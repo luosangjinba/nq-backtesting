@@ -19,6 +19,10 @@ const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
 const SETTINGS_ROOT = path.join(V6_ROOT, 'src', 'settings');
 const SETTINGS_PANEL_FILE = path.join(V6_ROOT, 'src', 'shell', 'settings-panel.js');
+const JOURNAL_SURFACE_FILES = [
+  path.join(V6_ROOT, 'src', 'shell', 'journal-surface.js'),
+  path.join(V6_ROOT, 'src', 'shell', 'journal-surface-model.js'),
+];
 const READINESS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface.js'),
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface-model.js'),
@@ -250,6 +254,17 @@ const forbiddenSettingsPanelOwnershipPatterns = [
   {
     pattern: /\b(registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
     reason: 'V6 settings UI must not own command registration, chart, data, replay, viewport, storage, or network state.',
+  },
+];
+
+const forbiddenJournalSurfaceOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|default-wall|display-timeframe|layout\/|panes|persistence|replay\/|session|settings\/settings-|v4|vendor|lightweight|viewport|journal\/|journal-persistence)[^'"]*['"]/i,
+    reason: 'V6 journal UI must use journal/journal-persistence commands only and not import feature runtimes, internals, V4, vendor, or chart/data modules.',
+  },
+  {
+    pattern: /\b(BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|LAYOUT_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SESSION_COMMANDS|SETTINGS_COMMANDS|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
+    reason: 'V6 journal UI must not dispatch or own chart, data, replay, viewport, persistence, settings, storage, or network state.',
   },
 ];
 
@@ -561,6 +576,19 @@ for (const file of await walkFiles(SETTINGS_ROOT)) {
 for (const file of READINESS_FILES) {
   const text = await readFile(file, 'utf8');
   forbiddenReadinessSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of JOURNAL_SURFACE_FILES) {
+  const text = await readFile(file, 'utf8');
+  forbiddenJournalSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
