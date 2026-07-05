@@ -20,8 +20,12 @@ clearCommandsForTest();
 clearEventsForTest();
 
 const activeChangedEvents = [];
+const displayTimeframeEvents = [];
 const unsubscribeActive = subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, (payload) => {
   activeChangedEvents.push(payload);
+});
+const unsubscribeDisplayTimeframe = subscribeEvent(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, (payload) => {
+  displayTimeframeEvents.push(payload);
 });
 
 const defaultPane = createPaneRecord({
@@ -68,6 +72,25 @@ assert.deepEqual(activeChangedEvents[0], active);
 assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).active, false);
 assert.equal((await dispatchCommand(PANE_COMMANDS.LIST)).filter((pane) => pane.active).length, 1);
 
+const changedTimeframe = await dispatchCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+  displayTimeframe: 15,
+  paneId: 'pane-review',
+});
+assert.equal(changedTimeframe.id, 'pane-review');
+assert.equal(changedTimeframe.active, true);
+assert.equal(changedTimeframe.displayTimeframe, 15);
+assert.equal(displayTimeframeEvents.length, 1);
+assert.deepEqual(displayTimeframeEvents[0], changedTimeframe);
+assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).displayTimeframe, 1);
+
+await assert.rejects(
+  () => dispatchCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
+    displayTimeframe: 0,
+    paneId: 'pane-review',
+  }),
+  /displayTimeframe/
+);
+
 await assert.rejects(
   () => dispatchCommand(PANE_COMMANDS.SET_ACTIVE, 'missing-pane'),
   /does not exist/
@@ -76,6 +99,8 @@ await assert.rejects(
 await registry.stop();
 assert.equal(hasCommand(PANE_COMMANDS.GET_SNAPSHOT), false);
 unsubscribeActive();
+unsubscribeDisplayTimeframe();
 assert.equal(listenerCount(PANE_EVENTS.ACTIVE_CHANGED), 0);
+assert.equal(listenerCount(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED), 0);
 
 console.log('v6 pane runtime smoke passed');

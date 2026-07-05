@@ -17,6 +17,11 @@ export function createPaneRuntime({
         const pane = store.setActivePane(paneId);
         emitEvent?.(PANE_EVENTS.ACTIVE_CHANGED, pane);
         return pane;
+      }),
+      registerCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, ({ displayTimeframe, paneId } = {}) => {
+        const pane = store.setDisplayTimeframe(paneId, displayTimeframe);
+        emitEvent?.(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, pane);
+        return pane;
       })
     );
   }

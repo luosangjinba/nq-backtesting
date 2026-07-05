@@ -17,6 +17,14 @@ function normalizePaneId(paneId) {
   return normalized;
 }
 
+function normalizeDisplayTimeframe(value) {
+  const timeframe = Number(value);
+  if (!Number.isInteger(timeframe) || timeframe <= 0) {
+    throw new Error('Pane displayTimeframe must be a positive integer.');
+  }
+  return timeframe;
+}
+
 export function createPaneStore({
   initialPanes = [createDefaultPaneRecord()],
 } = {}) {
@@ -72,6 +80,20 @@ export function createPaneStore({
     return getActivePane();
   }
 
+  function setDisplayTimeframe(paneId = activePaneId, displayTimeframe) {
+    const id = normalizePaneId(paneId);
+    const existing = panesById.get(id);
+    if (!existing) {
+      throw new Error(`Pane "${id}" does not exist.`);
+    }
+    const record = createPaneRecord({
+      ...existing,
+      displayTimeframe: normalizeDisplayTimeframe(displayTimeframe),
+    });
+    panesById.set(id, record);
+    return getPane(id);
+  }
+
   function snapshot() {
     return {
       activePaneId,
@@ -87,6 +109,7 @@ export function createPaneStore({
     getPane,
     listPanes,
     setActivePane,
+    setDisplayTimeframe,
     snapshot,
   };
 }

@@ -52,10 +52,12 @@ export const PANE_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'pane.getSnapshot',
   LIST: 'pane.list',
   SET_ACTIVE: 'pane.setActive',
+  SET_DISPLAY_TIMEFRAME: 'pane.setDisplayTimeframe',
 });
 
 export const PANE_EVENTS = Object.freeze({
   ACTIVE_CHANGED: 'pane:activeChanged',
+  DISPLAY_TIMEFRAME_CHANGED: 'pane:displayTimeframeChanged',
 });
 
 export const CHART_DATA_COMMANDS = Object.freeze({
