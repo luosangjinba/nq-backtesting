@@ -102,4 +102,15 @@ assert.match(auditSource, /Visible K-Line Delay/);
 assert.match(auditSource, /Primary\/Non-Primary Multi-Pane Confusion/);
 assert.match(auditSource, /Step 27 should add a UI\/workflow readiness surface/);
 
+const workflowAuditSource = await readFile(path.join(V6_ROOT, 'docs/V6_WORKFLOW_SURFACES_AUDIT.md'), 'utf8');
+assert.match(workflowAuditSource, /Do not show file names, test names, command IDs, runtime IDs, or engineering/);
+assert.match(workflowAuditSource, /shadcn\/ui/);
+assert.match(workflowAuditSource, /ui-ux-pro-max/);
+assert.match(workflowAuditSource, /Step 32 should begin product UI consolidation/);
+
+const appShellSmokeSource = await readFile(path.join(V6_ROOT, 'tests/app-shell-browser-smoke.js'), 'utf8');
+assert.match(appShellSmokeSource, /boundary-smoke\.js/);
+assert.match(appShellSmokeSource, /Cache-hit latency/);
+assert.match(appShellSmokeSource, /mixed-timeframe-visible-latency-browser-smoke\.js/);
+
 console.log('v6 readiness audit smoke passed');
