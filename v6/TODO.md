@@ -14,26 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 45 - Gate Workstation Manual Wall Flow. The
-  implementation adds a running-app browser gate proving manual wall projection
-  is applied to the mounted workstation chart and preserved across default-wall
-  next.
+- Latest completed step: Step 46 - FXReplay UI Reference Guardrails. The
+  implementation documents the FXReplay UI kernel for workstation chrome,
+  timeframe menu, indicators/undo/redo, settings, side toolbars, bottom
+  transport, and ownership boundaries.
 
 ## Next Executable Steps
 
-### Step 46 - FXReplay UI Reference Guardrails
+### Step 47 - FXReplay UI Parity Gap Audit
 
-Capture the FXReplay UI reference screenshots as V6 guardrails before expanding
-workstation UI parity.
+Audit the current V6 workstation shell against the FXReplay UI guardrails before
+changing product chrome, menus, settings, or side toolbars.
 
 Acceptance:
 
-- document top toolbar, timeframe menu, indicators/undo/redo placeholders,
-  settings modal, side toolbars, bottom transport, and trading/account chrome
-  expectations;
-- distinguish FXReplay UI kernel requirements from pixel-copy details;
-- add a smoke/audit check so future UI changes cannot omit the guardrail doc;
-- no chart/replay/data/viewport ownership rules are relaxed.
+- identify gaps for top toolbar, timeframe menu, indicators/undo/redo,
+  settings modal, side toolbars, bottom transport, and trading/account chrome;
+- classify each gap as shell-only UI, runtime-owned behavior, or deferred;
+- preserve chart/replay/data/viewport ownership rules;
+- add or update an audit smoke so future UI parity work follows the guardrails.
 
 ## Completed Steps
 
@@ -878,6 +877,18 @@ Verification:
 - `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 46 - FXReplay UI Reference Guardrails
+
+Completed in commits:
+
+- `5e9573d0 docs(v6): capture fxreplay ui guardrails`
+
+Verification:
+
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
