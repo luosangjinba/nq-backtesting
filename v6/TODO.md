@@ -14,24 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 40 - Workstation Chart Host Surface. The
-  implementation reserves an engine-owned chart host in the workstation chart
-  surface and demotes static chart visuals to fallback status.
+- Latest completed step: Step 41 - Mount Workstation Chart Adapter. The
+  implementation mounts a real Lightweight chart adapter into the workstation
+  chart host through a chart-engine boundary while leaving data length at zero
+  until chart-data explicitly drives it.
 
 ## Next Executable Steps
 
-### Step 41 - Mount Workstation Chart Adapter
+### Step 42 - Connect Chart Data Snapshot To Mounted Adapter
 
-Mount the real chart adapter into the workstation chart host through an explicit
-shell/chart boundary.
+Connect pane-local chart-data snapshots to the already-mounted workstation chart
+adapter through an explicit chart-engine/chart-data integration boundary.
 
 Acceptance:
 
-- workstation chart host is mounted by the chart adapter in the running app;
-- route/shell code still does not own chart data, replay cursor, or viewport
-  intent;
-- chart engine, visible-latency, wall replay, and multi-pane gates remain
-  passing.
+- chart-data remains the owner of pane-local bars and revisions;
+- chart-engine remains the only boundary that writes adapter series data;
+- route/shell code still does not own bars, replay cursor, or viewport intent;
+- chart adapter mount smoke and chart-data boundary gates remain passing.
 
 ## Completed Steps
 
@@ -774,6 +774,26 @@ Verification:
 - `node v6/tests/chart-engine-adapter-smoke.js`
 - `node v6/tests/chart-engine-browser-smoke.js`
 - `node v6/tests/visible-latency-domain-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 41 - Mount Workstation Chart Adapter
+
+Completed in commits:
+
+- `90e747d1 feat(v6): add workstation chart surface mount`
+- `56586e14 feat(v6): mount workstation chart adapter`
+
+Verification:
+
+- `node v6/tests/chart-host-manager-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-chart-adapter-browser-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 

@@ -11,6 +11,7 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'v6/src/styles/app.css',
   'v6/src/chart-engine/lightweight-chart-adapter.js',
   'v6/src/chart-engine/chart-host-manager.js',
+  'v6/src/chart-engine/workstation-chart-surface.js',
   '[data-v6-chart-engine-host]',
   'data-v6-pane-id="default"',
   '[data-v6-chart-fallback]',
@@ -23,7 +24,8 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'default-wall-replay-browser-smoke.js',
   'manual-wall-replay-browser-smoke.js',
   'visible-latency-cache-hit-browser-smoke.js',
-  'The next executable step should mount a real chart adapter into',
+  'workstation-chart-adapter-browser-smoke.js',
+  'The next executable step should connect pane-local chart-data snapshots',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be listed in chart presentation audit`);
 });
