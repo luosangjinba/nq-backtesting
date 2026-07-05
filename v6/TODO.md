@@ -14,24 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 33 - Workflow Panel Product Copy And Layout. The
-  implementation refines workflow panel labels and compact layout, fixes panel
-  grid rows so they do not consume the chart workspace, and adds a browser
-  layout smoke for the workflow panels.
+- Latest completed step: Step 34 - Workflow Action Active States. The
+  implementation adds shared shell-owned action state handling for workflow
+  toggles, accessible active-state attributes, and browser/unit smoke coverage.
 
 ## Next Executable Steps
 
-### Step 34 - Workflow Action Active States
+### Step 35 - Workflow Panel Close Behavior
 
-Make top workflow actions communicate open/active state clearly while keeping
-the chart workspace dominant.
+Make workflow panels easy to close without adding cross-feature ownership.
 
 Acceptance:
 
-- opened workflow actions have visible active states and accessible state
-  attributes;
-- only shell UI controllers own these visual states;
-- no action-state logic imports feature runtime internals or chart/data/viewport
+- repeated top-action clicks and explicit close affordances keep panel and
+  action state synchronized;
+- keyboard close behavior is owned by shell UI only;
+- no close behavior imports feature runtime internals or chart/data/viewport
   ownership paths.
 
 ## Completed Steps
@@ -638,6 +636,25 @@ Verification:
 - `node v6/tests/journal-surface-controller-smoke.js`
 - `node v6/tests/settings-panel-controller-smoke.js`
 - `node v6/tests/settings-panel-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 34 - Workflow Action Active States
+
+Completed in commits:
+
+- `1b2f788 feat(v6): add workflow action active states`
+- `661ce3a test(v6): cover workflow action state helper`
+
+Verification:
+
+- `node v6/tests/workflow-action-state-smoke.js`
+- `node v6/tests/sessions-surface-controller-smoke.js`
+- `node v6/tests/replay-workflow-surface-controller-smoke.js`
+- `node v6/tests/journal-surface-controller-smoke.js`
+- `node v6/tests/settings-panel-controller-smoke.js`
 - `node v6/tests/workflow-panels-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
