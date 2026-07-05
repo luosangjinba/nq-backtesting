@@ -25,10 +25,15 @@ try {
         const mainRect = document.querySelector('[data-v6-workstation-main]').getBoundingClientRect();
         results.push({
           name,
+          active: toggle.classList.contains('is-active'),
+          activeData: toggle.dataset.v6WorkflowActive || '',
+          controls: toggle.getAttribute('aria-controls') || '',
           open: !panel.hidden,
           expanded: toggle.getAttribute('aria-expanded'),
+          pressed: toggle.getAttribute('aria-pressed'),
           panelHeight: Math.round(panelRect.height),
           mainHeight: Math.round(mainRect.height),
+          panelId: panel.id,
           title: panel.querySelector('.panel-copy strong')?.textContent || '',
         });
         toggle.click();
@@ -55,7 +60,11 @@ try {
   ]);
   value.results.forEach((result) => {
     assert.equal(result.open, true, `${result.name} panel should open`);
+    assert.equal(result.active, true, `${result.name} toggle should show an active state`);
+    assert.equal(result.activeData, 'true', `${result.name} toggle should expose active data`);
     assert.equal(result.expanded, 'true', `${result.name} toggle should update aria-expanded`);
+    assert.equal(result.pressed, 'true', `${result.name} toggle should update aria-pressed`);
+    assert.equal(result.controls, result.panelId, `${result.name} toggle should point at its panel`);
     assert.ok(result.panelHeight <= 96, `${result.name} panel should stay compact: ${result.panelHeight}px`);
     assert.ok(result.mainHeight >= 460, `${result.name} panel should not crowd the chart: ${result.mainHeight}px`);
   });

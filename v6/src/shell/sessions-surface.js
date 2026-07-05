@@ -1,6 +1,7 @@
 import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createSessionsSurfaceState } from './sessions-surface-model.js';
+import { setWorkflowActionOpen } from './workflow-action-state.js';
 
 function setText(root, selector, value) {
   const element = root.querySelector(selector);
@@ -43,7 +44,7 @@ export function mountSessionsSurface(root, {
     if (panel) {
       panel.hidden = !open;
     }
-    toggle?.setAttribute?.('aria-expanded', String(open));
+    setWorkflowActionOpen(toggle, open);
     return getState();
   }
 

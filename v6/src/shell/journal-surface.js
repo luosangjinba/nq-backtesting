@@ -4,6 +4,7 @@ import {
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createJournalSurfaceState } from './journal-surface-model.js';
+import { setWorkflowActionOpen } from './workflow-action-state.js';
 
 const DEFAULT_SNAPSHOT_KEY = 'workstation-journal';
 
@@ -68,7 +69,7 @@ export function mountJournalSurface(root, {
     if (panel) {
       panel.hidden = !open;
     }
-    toggle?.setAttribute?.('aria-expanded', String(open));
+    setWorkflowActionOpen(toggle, open);
     return getState();
   }
 

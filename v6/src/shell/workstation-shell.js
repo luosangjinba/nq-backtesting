@@ -22,13 +22,13 @@ export function createWorkstationShellMarkup() {
           </div>
         </div>
         <div class="top-actions" aria-label="V6 route actions">
-          <button type="button" data-v6-sessions-toggle aria-expanded="false">Sessions</button>
-          <button type="button" data-v6-replay-workflow-toggle aria-expanded="false">Replay</button>
-          <button type="button" data-v6-journal-toggle aria-expanded="false">Journal</button>
-          <button type="button" data-v6-settings-toggle aria-expanded="false">Settings</button>
+          <button type="button" data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false">Sessions</button>
+          <button type="button" data-v6-replay-workflow-toggle aria-controls="v6-replay-workflow-panel" aria-expanded="false" aria-pressed="false">Replay</button>
+          <button type="button" data-v6-journal-toggle aria-controls="v6-journal-panel" aria-expanded="false" aria-pressed="false">Journal</button>
+          <button type="button" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false">Settings</button>
         </div>
       </header>
-      <section class="journal-panel" data-v6-journal-panel hidden>
+      <section id="v6-journal-panel" class="journal-panel" data-v6-journal-panel hidden>
         <div class="panel-copy">
           <strong>Trade Journal</strong>
           <span>Review replay notes and saved outcomes.</span>
@@ -46,7 +46,7 @@ export function createWorkstationShellMarkup() {
         </div>
         <ul class="journal-list" data-v6-journal-list></ul>
       </section>
-      <section class="replay-workflow-panel" data-v6-replay-workflow-panel hidden>
+      <section id="v6-replay-workflow-panel" class="replay-workflow-panel" data-v6-replay-workflow-panel hidden>
         <div class="panel-copy">
           <strong>Replay Control</strong>
           <span>Manage replay state without changing chart ownership.</span>
@@ -61,7 +61,7 @@ export function createWorkstationShellMarkup() {
           <button type="button" data-v6-replay-workflow-reset>Reset</button>
         </div>
       </section>
-      <section class="sessions-panel" data-v6-sessions-panel hidden>
+      <section id="v6-sessions-panel" class="sessions-panel" data-v6-sessions-panel hidden>
         <div class="panel-copy sessions-panel-header">
           <strong>Replay Sessions</strong>
           <span data-v6-sessions-active>No active replay session</span>
@@ -75,7 +75,7 @@ export function createWorkstationShellMarkup() {
         </div>
         <ul class="sessions-list" data-v6-sessions-list></ul>
       </section>
-      <section class="settings-panel" data-v6-settings-panel hidden>
+      <section id="v6-settings-panel" class="settings-panel" data-v6-settings-panel hidden>
         <div class="panel-copy">
           <strong>Workspace Settings</strong>
           <span>Adjust display preferences for this workstation.</span>

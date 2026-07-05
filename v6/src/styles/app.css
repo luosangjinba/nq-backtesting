@@ -178,6 +178,13 @@ p {
   color: #8ea2b3;
 }
 
+.top-actions button.is-active {
+  border-color: #3abec9;
+  background: #143340;
+  color: #d9fbff;
+  box-shadow: inset 0 0 0 1px rgba(58, 190, 201, 0.25);
+}
+
 .journal-panel,
 .replay-workflow-panel,
 .sessions-panel,

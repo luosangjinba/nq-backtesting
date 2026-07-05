@@ -1,5 +1,6 @@
 import { SETTINGS_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand } from '../runtime/commands.js';
+import { setWorkflowActionOpen } from './workflow-action-state.js';
 
 function readFieldValue(field) {
   if (field.type === 'checkbox') {
@@ -36,7 +37,7 @@ export function mountSettingsPanel(root) {
   function setOpen(nextOpen) {
     open = Boolean(nextOpen);
     panel.hidden = !open;
-    toggle.setAttribute('aria-expanded', String(open));
+    setWorkflowActionOpen(toggle, open);
     return getState();
   }
 
