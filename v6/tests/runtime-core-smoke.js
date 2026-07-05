@@ -3,11 +3,13 @@ import {
   APP_COMMANDS,
   APP_EVENTS,
   BAR_DATA_COMMANDS,
+  CHART_DATA_COMMANDS,
   PANE_COMMANDS,
   REPLAY_COMMANDS,
   SESSION_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import { createBarDataRuntime } from '../src/bar-data/bar-data-runtime.js';
+import { createChartDataRuntime } from '../src/chart-data/chart-data-runtime.js';
 import { createPaneRuntime } from '../src/panes/pane-runtime.js';
 import { createReplayRuntime } from '../src/replay/replay-runtime.js';
 import { createAppRuntime } from '../src/runtime/app-runtime.js';
@@ -41,10 +43,11 @@ registry.registerRuntime(createPaneRuntime());
 registry.registerRuntime(createBarDataRuntime({
   fetchBars: async () => ({ bars: [] }),
 }));
+registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createReplayRuntime());
 assert.deepEqual(registry.snapshot(), {
   running: false,
-  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.bar-data', 'runtime.replay'],
+  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.bar-data', 'runtime.chart-data', 'runtime.replay'],
   started: [],
 });
 
@@ -61,6 +64,11 @@ assert.deepEqual(listCommands(), [
   BAR_DATA_COMMANDS.LOAD_WINDOW,
   BAR_DATA_COMMANDS.PLAN_WINDOW,
   BAR_DATA_COMMANDS.RELEASE_WINDOW,
+  CHART_DATA_COMMANDS.APPEND_BARS,
+  CHART_DATA_COMMANDS.CLEAR_PANE,
+  CHART_DATA_COMMANDS.GET_BARS,
+  CHART_DATA_COMMANDS.GET_SUMMARY,
+  CHART_DATA_COMMANDS.REPLACE_BARS,
   PANE_COMMANDS.GET_ACTIVE,
   PANE_COMMANDS.GET_BY_ID,
   PANE_COMMANDS.GET_SNAPSHOT,

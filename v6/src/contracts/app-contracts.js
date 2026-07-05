@@ -57,3 +57,15 @@ export const PANE_COMMANDS = Object.freeze({
 export const PANE_EVENTS = Object.freeze({
   ACTIVE_CHANGED: 'pane:activeChanged',
 });
+
+export const CHART_DATA_COMMANDS = Object.freeze({
+  APPEND_BARS: 'chartData.appendBars',
+  CLEAR_PANE: 'chartData.clearPane',
+  GET_BARS: 'chartData.getBars',
+  GET_SUMMARY: 'chartData.getSummary',
+  REPLACE_BARS: 'chartData.replaceBars',
+});
+
+export const CHART_DATA_EVENTS = Object.freeze({
+  BARS_CHANGED: 'chartData:barsChanged',
+});
