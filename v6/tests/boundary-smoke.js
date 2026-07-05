@@ -7,6 +7,7 @@ const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
+const VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'viewport');
 const SOURCE_ROOTS = [
   path.join(V6_ROOT, 'src'),
 ];
@@ -91,6 +92,17 @@ const forbiddenPaneOwnershipPatterns = [
   },
 ];
 
+const forbiddenViewportDomainPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|replay|session|panes|shell|runtime)[^'"]*['"]/i,
+    reason: 'V6 viewport domain modules must remain pure and not import app runtimes or UI modules.',
+  },
+  {
+    pattern: /\b(document|window|HTMLElement|createChart|setData|updateSeries|setVisibleLogicalRange|subscribeVisibleLogicalRangeChange)\b/,
+    reason: 'V6 viewport domain modules must not touch DOM or chart engine APIs.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -164,6 +176,19 @@ for (const file of await walkFiles(REPLAY_ROOT)) {
 for (const file of await walkFiles(PANES_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenPaneOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(VIEWPORT_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenViewportDomainPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
