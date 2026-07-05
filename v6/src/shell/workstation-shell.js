@@ -245,6 +245,47 @@ export function createWorkstationShellMarkup() {
             <span>1m</span>
           </div>
         </section>
+        <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">
+          <button type="button" class="rail-button rail-button-icon" data-v6-rail-object-tree disabled aria-label="Show object tree">
+            <span aria-hidden="true">Layers</span>
+          </button>
+          <div class="rail-main-actions">
+            <button type="button" class="rail-button" data-v6-rail-order disabled aria-label="Order">
+              <span aria-hidden="true">+</span>
+              <span>Order</span>
+            </button>
+            <details class="rail-popover-anchor" data-v6-rail-goto-details>
+              <summary class="rail-button" data-v6-rail-goto aria-label="Go to key time">
+                <span aria-hidden="true">-&gt;</span>
+                <span>Go to</span>
+              </summary>
+              <div class="rail-popover" data-v6-rail-goto-menu role="menu" aria-label="Go to key time">
+                <button type="button" disabled role="menuitem">Next Day Open <kbd>Y</kbd></button>
+                <button type="button" disabled role="menuitem">Next Session <kbd>Z</kbd></button>
+                <button type="button" disabled role="menuitem">Asian Session <kbd>I</kbd></button>
+                <button type="button" disabled role="menuitem">London Session <kbd>L</kbd></button>
+                <button type="button" disabled role="menuitem">New York Session <kbd>N</kbd></button>
+                <button type="button" disabled role="menuitem">Custom Settings</button>
+              </div>
+            </details>
+            <button type="button" class="rail-button" data-v6-rail-news disabled aria-label="News and calendar events">
+              <span aria-hidden="true">Cal</span>
+              <span>News</span>
+            </button>
+            <button type="button" class="rail-button" data-v6-rail-journal disabled aria-label="Journal">
+              <span aria-hidden="true">Doc</span>
+              <span>Journal</span>
+            </button>
+          </div>
+          <div class="rail-bottom-actions">
+            <button type="button" class="rail-button rail-button-icon" data-v6-rail-watch disabled aria-label="Watch tool">
+              <span aria-hidden="true">*</span>
+            </button>
+            <button type="button" class="rail-button rail-button-icon" data-v6-rail-session-settings disabled aria-label="Session settings">
+              <span aria-hidden="true">Set</span>
+            </button>
+          </div>
+        </aside>
       </main>
 
       <footer class="status-bar" data-v6-status-bar>
