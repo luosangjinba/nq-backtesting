@@ -82,3 +82,14 @@ export const CHART_VIEWPORT_EVENTS = Object.freeze({
   INTENT_CHANGED: 'chartViewport:intentChanged',
   PROJECTED: 'chartViewport:projected',
 });
+
+export const DEFAULT_WALL_COMMANDS = Object.freeze({
+  GET_STATE: 'defaultWall.getState',
+  LOAD: 'defaultWall.load',
+  NEXT: 'defaultWall.next',
+});
+
+export const DEFAULT_WALL_EVENTS = Object.freeze({
+  LOADED: 'defaultWall:loaded',
+  ADVANCED: 'defaultWall:advanced',
+});
