@@ -32,8 +32,10 @@ export function createWorkstationShellMarkup() {
           <div class="toolbar-actions">
             <label>
               <span>TF</span>
-              <select disabled aria-label="Timeframe">
-                <option>1m</option>
+              <select aria-label="Timeframe" data-v6-display-timeframe-select>
+                <option value="1">1m</option>
+                <option value="5">5m</option>
+                <option value="15">15m</option>
               </select>
             </label>
             <button type="button" disabled>Go to</button>
