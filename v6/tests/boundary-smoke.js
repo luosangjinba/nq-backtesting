@@ -23,6 +23,10 @@ const READINESS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface.js'),
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface-model.js'),
 ];
+const SESSIONS_SURFACE_FILES = [
+  path.join(V6_ROOT, 'src', 'shell', 'sessions-surface.js'),
+  path.join(V6_ROOT, 'src', 'shell', 'sessions-surface-model.js'),
+];
 const STATUS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'status-readout.js'),
   path.join(V6_ROOT, 'src', 'shell', 'status-readout-model.js'),
@@ -253,6 +257,17 @@ const forbiddenReadinessSurfaceOwnershipPatterns = [
   {
     pattern: /\b(dispatchCommand|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
     reason: 'V6 readiness UI must not dispatch mutation commands or own chart, data, replay, viewport, storage, or network state.',
+  },
+];
+
+const forbiddenSessionsSurfaceOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|default-wall|display-timeframe|layout\/|panes|persistence|journal|replay\/|settings\/settings-|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 sessions UI must use session commands only and not import feature runtimes, internals, V4, vendor, or chart/data modules.',
+  },
+  {
+    pattern: /\b(BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SETTINGS_COMMANDS|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
+    reason: 'V6 sessions UI must not dispatch or own chart, data, replay, viewport, persistence, settings, storage, or network state.',
   },
 ];
 
@@ -531,6 +546,19 @@ for (const file of await walkFiles(SETTINGS_ROOT)) {
 for (const file of READINESS_FILES) {
   const text = await readFile(file, 'utf8');
   forbiddenReadinessSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of SESSIONS_SURFACE_FILES) {
+  const text = await readFile(file, 'utf8');
+  forbiddenSessionsSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
