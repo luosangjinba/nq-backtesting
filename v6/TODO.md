@@ -14,20 +14,11 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
+- Latest completed step: Step 1 - Skeleton And Contracts. The implementation
+  bootstraps the V6 app shell, runtime lifecycle, command/event contracts, and
+  smoke gates without chart/replay/data coupling.
 
 ## Next Executable Steps
-
-### Step 1 - Skeleton And Contracts
-
-Build only the V6 app/runtime skeleton from
-`v6/docs/V6_EXECUTION_ROADMAP.md`.
-
-Acceptance:
-
-- `v6/index.html` boots;
-- command/event smoke passes;
-- no chart/replay/data coupling exists yet;
-- no imports from V5 runtime implementation modules.
 
 ### Step 2 - Product Baseline Shell
 
@@ -48,6 +39,23 @@ Acceptance:
 - session smoke passes;
 - runtime boundary smoke confirms session runtime does not own bars, chart, or
   viewport intent.
+
+## Completed Steps
+
+### Step 1 - Skeleton And Contracts
+
+Completed in commits:
+
+- `8e44281 feat(v6): scaffold workstation shell`
+- `5ca0d75 feat(v6): add runtime core`
+- `98847cb test(v6): add step one smoke gates`
+
+Verification:
+
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Step 6 Passes
 
