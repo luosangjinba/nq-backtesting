@@ -9,6 +9,7 @@ import { createDisplayTimeframeRuntime } from './display-timeframe/display-timef
 import { createDefaultWallRuntime } from './default-wall/default-wall-runtime.js';
 import { createLayoutRuntime } from './layout/layout-runtime.js';
 import { createPaneRuntime } from './panes/pane-runtime.js';
+import { createPersistenceRuntime } from './persistence/persistence-runtime.js';
 import { createReplayRuntime } from './replay/replay-runtime.js';
 import { createSessionRuntime } from './session/session-runtime.js';
 import { createSettingsRuntime } from './settings/settings-runtime.js';
@@ -28,6 +29,7 @@ const registry = createRuntimeRegistry();
 registry.registerRuntime(createAppRuntime());
 registry.registerRuntime(createSessionRuntime());
 registry.registerRuntime(createSettingsRuntime());
+registry.registerRuntime(createPersistenceRuntime());
 registry.registerRuntime(createPaneRuntime());
 registry.registerRuntime(createLayoutRuntime());
 registry.registerRuntime(createBarDataRuntime());
