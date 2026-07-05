@@ -61,6 +61,7 @@ p {
 }
 
 .top-bar,
+.journal-panel,
 .replay-workflow-panel,
 .sessions-panel,
 .readiness-surface,
@@ -114,6 +115,7 @@ p {
 }
 
 .top-actions button,
+.journal-panel button,
 .replay-workflow-panel button,
 .sessions-panel button,
 .transport-placeholder button,
@@ -126,6 +128,7 @@ p {
   color: #8ea2b3;
 }
 
+.journal-panel,
 .replay-workflow-panel,
 .sessions-panel {
   display: grid;
@@ -137,11 +140,15 @@ p {
   font-size: 12px;
 }
 
+.journal-panel[hidden],
 .replay-workflow-panel[hidden],
 .sessions-panel[hidden] {
   display: none;
 }
 
+.journal-summary,
+.journal-actions,
+.journal-list,
 .replay-workflow-summary,
 .replay-workflow-actions,
 .sessions-panel-header,
@@ -153,18 +160,22 @@ p {
   min-width: 0;
 }
 
+.journal-summary,
 .replay-workflow-summary,
 .sessions-panel-header {
   flex-wrap: wrap;
 }
 
+.journal-summary strong,
 .replay-workflow-summary strong,
 .sessions-panel-header strong {
   color: #dce5eb;
 }
 
+.journal-summary span,
 .replay-workflow-summary span,
 .sessions-panel-header span,
+.journal-list li,
 .sessions-list li {
   min-height: 24px;
   padding: 4px 8px;
@@ -173,6 +184,7 @@ p {
   background: #111d26;
 }
 
+.journal-list,
 .sessions-list {
   grid-column: 1 / -1;
   margin: 0;
@@ -181,6 +193,7 @@ p {
   list-style: none;
 }
 
+.journal-list li,
 .sessions-list li {
   display: grid;
   grid-template-columns: max-content max-content;
@@ -188,6 +201,7 @@ p {
   white-space: nowrap;
 }
 
+.journal-list strong,
 .sessions-list strong {
   color: #8ff1df;
 }

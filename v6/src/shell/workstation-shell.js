@@ -14,9 +14,25 @@ export function createWorkstationShellMarkup() {
         <div class="top-actions" aria-label="V6 route actions">
           <button type="button" data-v6-sessions-toggle aria-expanded="false">Sessions</button>
           <button type="button" data-v6-replay-workflow-toggle aria-expanded="false">Replay</button>
+          <button type="button" data-v6-journal-toggle aria-expanded="false">Journal</button>
           <button type="button" data-v6-settings-toggle aria-expanded="false">Settings</button>
         </div>
       </header>
+      <section class="journal-panel" data-v6-journal-panel hidden>
+        <div class="journal-summary">
+          <strong>Journal</strong>
+          <span data-v6-journal-count>0 entries</span>
+          <span data-v6-journal-pnl>Net --</span>
+          <span data-v6-journal-snapshot>Snapshot none</span>
+        </div>
+        <div class="journal-actions">
+          <button type="button" data-v6-journal-refresh>Refresh</button>
+          <button type="button" data-v6-journal-add>Add sample</button>
+          <button type="button" data-v6-journal-save>Save</button>
+          <button type="button" data-v6-journal-load>Load</button>
+        </div>
+        <ul class="journal-list" data-v6-journal-list></ul>
+      </section>
       <section class="replay-workflow-panel" data-v6-replay-workflow-panel hidden>
         <div class="replay-workflow-summary">
           <strong>Replay</strong>

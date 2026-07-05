@@ -17,6 +17,7 @@ async function main() {
         transportText: document.querySelector('.transport-placeholder')?.textContent || '',
         transportMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReplayTransport?.getState),
         replayWorkflowMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReplayWorkflowSurface?.getState),
+        journalMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6JournalSurface?.getState),
         sessionsMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6SessionsSurface?.getState),
         readinessMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReadinessSurface?.getState),
         readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
@@ -45,6 +46,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
+    assert.equal(value.journalMounted, true);
     assert.equal(value.sessionsMounted, true);
     assert.equal(value.readinessMounted, true);
     assert.equal(value.readinessState, 'Ready');
@@ -108,6 +110,37 @@ async function main() {
     assert.equal(replayWorkflow.loaded, false);
     assert.equal(replayWorkflow.replayText, 'Replay not loaded');
     assert.equal(replayWorkflow.wallText, 'Wall not loaded');
+
+    const journalFlow = JSON.parse(await evaluate(page.client, `
+      (async () => {
+        const root = document.querySelector('[data-v6-root]');
+        document.querySelector('[data-v6-journal-toggle]').click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        document.querySelector('[data-v6-journal-add]').click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        document.querySelector('[data-v6-journal-save]').click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        document.querySelector('[data-v6-journal-load]').click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        return JSON.stringify({
+          open: root.__v6JournalSurface.getState().open,
+          count: root.__v6JournalSurface.getState().count,
+          countText: document.querySelector('[data-v6-journal-count]')?.textContent || '',
+          pnlText: document.querySelector('[data-v6-journal-pnl]')?.textContent || '',
+          snapshotText: document.querySelector('[data-v6-journal-snapshot]')?.textContent || '',
+          rows: document.querySelectorAll('[data-v6-journal-row]').length,
+        });
+      })()
+    `));
+    assert.equal(journalFlow.open, true);
+    assert.equal(journalFlow.count, 1);
+    assert.equal(journalFlow.countText, '1 entries');
+    assert.equal(journalFlow.pnlText, 'Net 1');
+    assert.equal(journalFlow.snapshotText, 'Snapshot workstation-journal');
+    assert.equal(journalFlow.rows, 1);
   } finally {
     await page.cleanup();
   }
