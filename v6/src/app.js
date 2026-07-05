@@ -10,6 +10,7 @@ import { createPaneRuntime } from './panes/pane-runtime.js';
 import { createReplayRuntime } from './replay/replay-runtime.js';
 import { createSessionRuntime } from './session/session-runtime.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
+import { mountStatusReadout } from './shell/status-readout.js';
 
 const root = document.querySelector('[data-v6-root]');
 
@@ -29,6 +30,8 @@ registry.registerRuntime(createReplayRuntime());
 registry.registerRuntime(createDefaultWallRuntime());
 await registry.start({ root, emitEvent, subscribeEvent });
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'));
+const statusReadout = mountStatusReadout(root);
 root.__v6RuntimeRegistry = registry;
 root.__v6ReplayTransport = replayTransport;
+root.__v6StatusReadout = statusReadout;
 root.dataset.booted = 'true';

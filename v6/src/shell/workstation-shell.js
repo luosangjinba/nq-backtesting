@@ -20,14 +20,14 @@ export function createWorkstationShellMarkup() {
 
       <main class="workstation-main" data-v6-workstation-main>
         <section class="chart-toolbar" aria-label="Chart controls placeholder">
-          <div class="symbol-readout">
+          <div class="symbol-readout" data-v6-status-readout>
             <span class="status-dot" aria-hidden="true"></span>
-            <strong>NQ</strong>
-            <span>1m</span>
-            <span>O 30343.00</span>
-            <span>H 30370.00</span>
-            <span>L 30310.75</span>
-            <span>C 30318.75</span>
+            <strong data-v6-status-symbol>NQ</strong>
+            <span data-v6-status-timeframe>1m</span>
+            <span data-v6-status-open>O --</span>
+            <span data-v6-status-high>H --</span>
+            <span data-v6-status-low>L --</span>
+            <span data-v6-status-close>C --</span>
           </div>
           <div class="toolbar-actions">
             <label>
@@ -85,8 +85,8 @@ export function createWorkstationShellMarkup() {
             <span class="candle down"></span>
           </div>
           <div class="chart-placeholder" data-v6-chart-placeholder>
-            <strong>NQ 1m</strong>
-            <span>30318.75</span>
+            <strong data-v6-status-title>NQ 1m</strong>
+            <span data-v6-status-price>--</span>
           </div>
           <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
             <button type="button" aria-label="Step back" disabled>|&lt;</button>
@@ -104,12 +104,13 @@ export function createWorkstationShellMarkup() {
       </main>
 
       <footer class="status-bar" data-v6-status-bar>
-        <span>Session pending</span>
-        <span>Start pending</span>
-        <span>Cursor pending</span>
-        <span>Revealed 0</span>
-        <span>Playback idle</span>
-        <span>Latency gate pending</span>
+        <span data-v6-footer-session>Session pending</span>
+        <span data-v6-footer-start>Start pending</span>
+        <span data-v6-footer-cursor>Cursor pending</span>
+        <span data-v6-footer-end>End pending</span>
+        <span data-v6-footer-revealed>Revealed 0/--</span>
+        <span data-v6-footer-playback>Playback idle</span>
+        <span data-v6-footer-no-future>No future pending</span>
       </footer>
     </section>
   `;
