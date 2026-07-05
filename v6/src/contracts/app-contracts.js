@@ -141,3 +141,20 @@ export const PERSISTENCE_EVENTS = Object.freeze({
   DELETED: 'persistence:deleted',
   SAVED: 'persistence:saved',
 });
+
+export const JOURNAL_COMMANDS = Object.freeze({
+  ADD_ENTRY: 'journal.addEntry',
+  ANALYZE_RECORDS: 'journal.analyzeRecords',
+  DELETE_ENTRY: 'journal.deleteEntry',
+  GET_ENTRY: 'journal.getEntry',
+  LIST_ENTRIES: 'journal.listEntries',
+  REPLACE_ENTRIES: 'journal.replaceEntries',
+  UPDATE_ENTRY: 'journal.updateEntry',
+});
+
+export const JOURNAL_EVENTS = Object.freeze({
+  ENTRY_ADDED: 'journal:entryAdded',
+  ENTRY_DELETED: 'journal:entryDeleted',
+  ENTRY_REPLACED: 'journal:entryReplaced',
+  ENTRY_UPDATED: 'journal:entryUpdated',
+});
