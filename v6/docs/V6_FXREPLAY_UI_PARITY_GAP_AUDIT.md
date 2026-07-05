@@ -4,9 +4,9 @@ Date: 2026-07-05
 
 ## Decision
 
-The current V6 shell is acceptable as a guarded runtime/workflow scaffold, and
-its top toolbar now has the first shell-only parity slice. It is still not fully
-aligned with the FXReplay UI kernel documented in
+The current V6 shell is acceptable as a guarded runtime/workflow scaffold. Its
+top toolbar and timeframe menu now have shell-only parity slices. It is still
+not fully aligned with the FXReplay UI kernel documented in
 `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`. Future UI parity work should proceed
 from chart-first workstation chrome outward, not by expanding the existing
 workflow-panel shape.
@@ -16,7 +16,7 @@ workflow-panel shape.
 | Area | Current V6 surface | Guardrail target | Gap class | Direction |
 | --- | --- | --- | --- | --- |
 | Top toolbar | Compact shell toolbar with instrument/search, interval, Layout, Indicators, undo, redo, workflow actions, profile/account, instrument selector, editor/theme/fullscreen placeholders | Compact command toolbar with instrument search, symbol, interval, layout, Indicators, undo, redo, account/profile, instrument selector, editor/theme/fullscreen controls | shell-only UI complete for first slice; future runtime-owned commands remain inert | Keep placeholders disabled until owners exist |
-| Timeframe menu | Native select with `1m/5m/15m` | Floating grouped interval dropdown with custom interval entry | shell-only UI now, runtime-owned timeframe behavior remains display-timeframe runtime | Build dropdown UI around existing display-timeframe command path |
+| Timeframe menu | Grouped floating interval dropdown with custom/unsupported intervals disabled and supported minute options routed through display-timeframe runtime | Floating grouped interval dropdown with custom interval entry | shell-only UI complete for first slice; runtime-owned timeframe behavior remains display-timeframe runtime | Keep unsupported intervals inert until data/runtime support exists |
 | Indicators / undo / redo | Missing | Reserved top-toolbar commands | runtime-owned behavior, shell-only disabled placeholders acceptable | Add disabled placeholders first; implement owners before interactivity |
 | Left toolbar | Missing | Vertical drawing/tool icon strip | deferred until drawing/tool runtime owner exists | Reserve shell rail without fake drawing behavior |
 | Right toolbar | Missing | Narrow utility strip for order, go-to, news, journal, settings, shortcuts | mixed shell-only and runtime-owned | Add shell rail progressively; route actions through commands/panels |
@@ -29,13 +29,14 @@ workflow-panel shape.
 
 ## Priority Order
 
-1. Timeframe menu parity: replace the native select with a grouped floating
-   menu that still dispatches display-timeframe commands.
+1. Right utility rail reservation: add a narrow screen-right rail outside the
+   chart price scale with inert Order, Go to, News, Journal, watch/tool, and
+   Settings entries.
 2. Settings modal parity: replace the inline workflow settings panel with a
    centered modal skeleton using Symbol, Status line, Scales and lines, Canvas
    tabs.
-3. Side rail reservations: add left drawing rail and right utility rail as
-   inert shell surfaces before adding behavior.
+3. Left drawing rail reservation: add a vertical drawing/tool icon strip as an
+   inert shell surface before adding behavior.
 4. Bottom chrome audit: align transport plus account/trading chrome without
    implementing fake trading actions.
 
@@ -62,7 +63,6 @@ workflow-panel shape.
 
 ## Next Direction
 
-Step 49 should implement the shell-only timeframe menu parity slice: a compact
-top-toolbar interval command that opens a grouped floating menu with seconds,
-minutes, hours, days, and `Add custom interval...`. Existing display-timeframe
-runtime ownership must remain intact.
+Step 50 should reserve the right utility rail outside the chart price scale and
+tight to the screen edge. It should add inert shell entries for Order, Go to,
+News, Journal, watch/tool, and Settings without implementing those workflows.

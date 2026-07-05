@@ -14,26 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 48 - Top Toolbar Shell Parity Slice. The
-  implementation adds a compact FXReplay-style shell toolbar with disabled or
-  inert placeholders for tools that do not yet have runtime owners.
+- Latest completed step: Step 49 - Timeframe Menu Shell Parity Slice. The
+  implementation replaces the native timeframe select with a grouped floating
+  interval menu while preserving display-timeframe runtime ownership.
 
 ## Next Executable Steps
 
-### Step 49 - Timeframe Menu Shell Parity Slice
+### Step 50 - Right Utility Rail Shell Reservation
 
-Replace the native chart-toolbar timeframe select with a shell-owned grouped
-floating interval menu while preserving display-timeframe runtime ownership.
+Reserve the FXReplay-style right utility rail outside the chart price scale and
+tight to the screen edge.
 
 Acceptance:
 
-- menu opens from the compact top-toolbar interval command and overlays the
-  chart without reflowing layout;
-- menu groups seconds, minutes, hours, and days and includes
-  `Add custom interval...`;
-- selecting supported minute intervals still dispatches through the existing
-  display-timeframe command path;
-- unsupported/custom intervals remain disabled or inert placeholders;
+- right utility rail is visually outside the chart price scale and does not
+  resize the chart engine host unexpectedly;
+- rail includes inert shell entries for Order, Go to, News, Journal,
+  watch/tool, and Settings;
+- entries without owners are disabled or inert placeholders with accessible
+  labels;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, or adapter state;
 - app-shell, product baseline, UI guardrails, parity audit, and boundary gates
@@ -918,6 +917,25 @@ Completed in commits:
 
 Verification:
 
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/status-readout-browser-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 49 - Timeframe Menu Shell Parity Slice
+
+Completed in commits:
+
+- `846ce242 feat(v6): add timeframe menu parity shell`
+
+Verification:
+
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
 - `node v6/tests/top-toolbar-parity-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
