@@ -54,7 +54,7 @@ p {
 
 .workstation-shell {
   display: grid;
-  grid-template-rows: auto minmax(460px, 1fr) auto;
+  grid-template-rows: auto auto auto auto auto minmax(460px, 1fr) auto;
   gap: 6px;
   padding: 10px;
   background: #090d12;
@@ -191,6 +191,22 @@ p {
   font-size: 12px;
 }
 
+.journal-panel {
+  grid-row: 2;
+}
+
+.replay-workflow-panel {
+  grid-row: 3;
+}
+
+.sessions-panel {
+  grid-row: 4;
+}
+
+.settings-panel {
+  grid-row: 5;
+}
+
 .journal-panel[hidden],
 .replay-workflow-panel[hidden],
 .sessions-panel[hidden],
@@ -282,6 +298,7 @@ p {
 }
 
 .workstation-main {
+  grid-row: 6;
   display: grid;
   grid-template-rows: auto minmax(420px, 1fr);
   min-height: 0;
@@ -534,6 +551,7 @@ p {
 }
 
 .status-bar {
+  grid-row: 7;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
