@@ -59,6 +59,7 @@ export function mountWorkstationChartSurface(root, {
   const appliedChartDataByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
+  const visibleRangeListeners = new Set();
   const size = measureHost(host);
   const manager = managerFactory({
     chartOptions: {
@@ -77,11 +78,13 @@ export function mountWorkstationChartSurface(root, {
   const unsubscribeVisibleRange = typeof manager.subscribeVisibleLogicalRangeChange === 'function'
     ? manager.subscribeVisibleLogicalRangeChange(paneId, ({ paneId: changedPaneId, range } = {}) => {
         if (!range) return;
-        measuredVisibleRangeByPaneId.set(changedPaneId, {
+        const record = {
           from: Number(range.from),
           paneId: changedPaneId,
           to: Number(range.to),
-        });
+        };
+        measuredVisibleRangeByPaneId.set(changedPaneId, record);
+        visibleRangeListeners.forEach((listener) => listener({ ...record }));
       })
     : () => {};
 
@@ -145,6 +148,7 @@ export function mountWorkstationChartSurface(root, {
       unsubscribeVisibleRange();
       resizeObserver?.disconnect();
       manager.destroyAll();
+      visibleRangeListeners.clear();
     },
     getState() {
       const snapshot = manager.snapshot();
@@ -161,5 +165,14 @@ export function mountWorkstationChartSurface(root, {
       };
     },
     resize,
+    subscribeVisibleRangeChange(handler) {
+      if (typeof handler !== 'function') {
+        throw new Error('Workstation chart surface visible range handler is required.');
+      }
+      visibleRangeListeners.add(handler);
+      return () => {
+        visibleRangeListeners.delete(handler);
+      };
+    },
   };
 }
