@@ -61,6 +61,7 @@ p {
 }
 
 .top-bar,
+.replay-workflow-panel,
 .sessions-panel,
 .readiness-surface,
 .status-bar,
@@ -113,6 +114,7 @@ p {
 }
 
 .top-actions button,
+.replay-workflow-panel button,
 .sessions-panel button,
 .transport-placeholder button,
 .toolbar-actions button,
@@ -124,6 +126,7 @@ p {
   color: #8ea2b3;
 }
 
+.replay-workflow-panel,
 .sessions-panel {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
@@ -134,10 +137,13 @@ p {
   font-size: 12px;
 }
 
+.replay-workflow-panel[hidden],
 .sessions-panel[hidden] {
   display: none;
 }
 
+.replay-workflow-summary,
+.replay-workflow-actions,
 .sessions-panel-header,
 .sessions-panel-actions,
 .sessions-list {
@@ -147,14 +153,17 @@ p {
   min-width: 0;
 }
 
+.replay-workflow-summary,
 .sessions-panel-header {
   flex-wrap: wrap;
 }
 
+.replay-workflow-summary strong,
 .sessions-panel-header strong {
   color: #dce5eb;
 }
 
+.replay-workflow-summary span,
 .sessions-panel-header span,
 .sessions-list li {
   min-height: 24px;

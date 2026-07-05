@@ -13,10 +13,22 @@ export function createWorkstationShellMarkup() {
         </div>
         <div class="top-actions" aria-label="V6 route actions">
           <button type="button" data-v6-sessions-toggle aria-expanded="false">Sessions</button>
-          <button type="button" disabled>Historical Review</button>
+          <button type="button" data-v6-replay-workflow-toggle aria-expanded="false">Replay</button>
           <button type="button" data-v6-settings-toggle aria-expanded="false">Settings</button>
         </div>
       </header>
+      <section class="replay-workflow-panel" data-v6-replay-workflow-panel hidden>
+        <div class="replay-workflow-summary">
+          <strong>Replay</strong>
+          <span data-v6-replay-workflow-state>Replay not loaded</span>
+          <span data-v6-replay-workflow-wall>Wall not loaded</span>
+        </div>
+        <div class="replay-workflow-actions">
+          <button type="button" data-v6-replay-workflow-refresh>Refresh</button>
+          <button type="button" data-v6-replay-workflow-pause>Pause</button>
+          <button type="button" data-v6-replay-workflow-reset>Reset</button>
+        </div>
+      </section>
       <section class="sessions-panel" data-v6-sessions-panel hidden>
         <div class="sessions-panel-header">
           <strong>Sessions</strong>
