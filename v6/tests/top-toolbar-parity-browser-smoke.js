@@ -25,6 +25,7 @@ try {
         instrumentDisabled: disabled('[data-v6-top-instrument]'),
         interval: textOf('[data-v6-top-interval]'),
         intervalDisabled: disabled('[data-v6-top-interval]'),
+        intervalExpanded: document.querySelector('[data-v6-top-interval]')?.getAttribute('aria-expanded'),
         layout: textOf('[data-v6-top-layout]'),
         layoutDisabled: disabled('[data-v6-top-layout]'),
         profile: textOf('[data-v6-top-profile]'),
@@ -43,6 +44,8 @@ try {
   assert.equal(value.headerHeight <= 56, true);
   assert.equal(value.symbol, 'NQ');
   assert.equal(value.interval, '1m');
+  assert.equal(value.intervalDisabled, false);
+  assert.equal(value.intervalExpanded, 'false');
   assert.equal(value.layout, 'Layout');
   assert.equal(value.indicators, 'Indicators');
   assert.equal(value.profile, 'test');
@@ -59,7 +62,6 @@ try {
     value.fullscreenDisabled,
     value.indicatorsDisabled,
     value.instrumentDisabled,
-    value.intervalDisabled,
     value.layoutDisabled,
     value.redoDisabled,
     value.searchDisabled,

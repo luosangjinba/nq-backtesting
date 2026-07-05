@@ -10,7 +10,44 @@ export function createWorkstationShellMarkup() {
           <span class="top-symbol" data-v6-top-symbol>NQ</span>
         </div>
         <div class="top-tool-group top-tool-group-main" aria-label="Chart tools">
-          <button type="button" class="interval-command" data-v6-top-interval disabled aria-label="Interval menu">1m</button>
+          <div class="timeframe-menu-anchor">
+            <button type="button" class="interval-command" data-v6-top-interval data-v6-display-timeframe-toggle aria-haspopup="true" aria-expanded="false" aria-controls="v6-timeframe-menu" aria-label="Interval menu">
+              <span data-v6-display-timeframe-label>1m</span>
+            </button>
+            <div id="v6-timeframe-menu" class="timeframe-menu" data-v6-display-timeframe-menu hidden role="menu" aria-label="Interval menu">
+              <button type="button" class="timeframe-custom" data-v6-display-timeframe-custom disabled role="menuitem">Add custom interval...</button>
+              <section class="timeframe-menu-section" aria-label="Seconds">
+                <div class="timeframe-menu-heading">Seconds</div>
+                <button type="button" disabled role="menuitem">1 second</button>
+                <button type="button" disabled role="menuitem">5 seconds</button>
+                <button type="button" disabled role="menuitem">10 seconds</button>
+                <button type="button" disabled role="menuitem">15 seconds</button>
+                <button type="button" disabled role="menuitem">30 seconds</button>
+              </section>
+              <section class="timeframe-menu-section" aria-label="Minutes">
+                <div class="timeframe-menu-heading">Minutes</div>
+                <button type="button" data-v6-display-timeframe-option="1" role="menuitemradio" aria-checked="true">1 minute</button>
+                <button type="button" data-v6-display-timeframe-option="5" role="menuitemradio" aria-checked="false">5 minutes</button>
+                <button type="button" data-v6-display-timeframe-option="15" role="menuitemradio" aria-checked="false">15 minutes</button>
+                <button type="button" disabled role="menuitem">30 minutes</button>
+                <button type="button" disabled role="menuitem">45 minutes</button>
+              </section>
+              <section class="timeframe-menu-section" aria-label="Hours">
+                <div class="timeframe-menu-heading">Hours</div>
+                <button type="button" disabled role="menuitem">1 hour</button>
+                <button type="button" disabled role="menuitem">2 hours</button>
+                <button type="button" disabled role="menuitem">4 hours</button>
+                <button type="button" disabled role="menuitem">12 hours</button>
+              </section>
+              <section class="timeframe-menu-section" aria-label="Days">
+                <div class="timeframe-menu-heading">Days</div>
+                <button type="button" disabled role="menuitem">1 day</button>
+                <button type="button" disabled role="menuitem">1 week</button>
+                <button type="button" disabled role="menuitem">1 month</button>
+                <button type="button" disabled role="menuitem">12 months</button>
+              </section>
+            </div>
+          </div>
           <button type="button" data-v6-top-layout disabled>Layout</button>
           <button type="button" data-v6-top-indicators disabled>Indicators</button>
           <button type="button" class="icon-tool" data-v6-top-undo disabled aria-label="Undo">Undo</button>
@@ -138,11 +175,7 @@ export function createWorkstationShellMarkup() {
           <div class="toolbar-actions">
             <label>
               <span>TF</span>
-              <select aria-label="Timeframe" data-v6-display-timeframe-select>
-                <option value="1">1m</option>
-                <option value="5">5m</option>
-                <option value="15">15m</option>
-              </select>
+              <span class="toolbar-readonly-value" data-v6-display-timeframe-readout>1m</span>
             </label>
             <button type="button" disabled>Go to</button>
             <button type="button" disabled>Layout</button>

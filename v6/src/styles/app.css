@@ -71,6 +71,7 @@ p {
 }
 
 .top-bar {
+  position: relative;
   display: grid;
   grid-template-columns: auto auto minmax(240px, 1fr) auto auto;
   align-items: center;
@@ -223,6 +224,74 @@ p {
 .top-tool-group .interval-command {
   min-width: 38px;
   color: #f7fbff;
+}
+
+.timeframe-menu-anchor {
+  position: relative;
+}
+
+.timeframe-menu {
+  position: absolute;
+  top: calc(100% + 7px);
+  left: 0;
+  z-index: 30;
+  width: 205px;
+  max-height: min(680px, calc(100vh - 72px));
+  overflow: auto;
+  border: 1px solid #343b42;
+  border-radius: 0 0 7px 7px;
+  background: #26282a;
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+  color: #e6edf2;
+  padding: 0 5px 8px;
+}
+
+.timeframe-menu[hidden] {
+  display: none;
+}
+
+.timeframe-menu button {
+  display: block;
+  width: 100%;
+  height: 32px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #e6edf2;
+  font-size: 13px;
+  text-align: left;
+}
+
+.timeframe-menu button:not(:disabled):hover,
+.timeframe-menu button[aria-checked="true"] {
+  background: #e6e6e8;
+  color: #1b1d20;
+}
+
+.timeframe-menu button:disabled {
+  color: #9aa1a9;
+  opacity: 0.7;
+}
+
+.timeframe-custom {
+  margin: 6px 0;
+}
+
+.timeframe-menu-section {
+  padding: 6px 0 4px;
+  border-top: 1px solid #4a4d51;
+}
+
+.timeframe-menu-section:first-of-type {
+  border-top: 0;
+}
+
+.timeframe-menu-heading {
+  padding: 4px 7px 8px;
+  color: #9aa1a9;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-transform: uppercase;
 }
 
 .top-tool-group .icon-tool {
@@ -459,6 +528,16 @@ p {
 .toolbar-actions select {
   min-width: 72px;
   padding: 0 24px 0 10px;
+}
+
+.toolbar-readonly-value {
+  min-width: 34px;
+  height: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #dce5eb;
+  font-weight: 700;
 }
 
 .chart-surface {

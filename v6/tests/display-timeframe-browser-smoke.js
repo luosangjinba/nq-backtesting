@@ -38,9 +38,10 @@ try {
         paneId: 'pane-default',
       });
 
-      const select = document.querySelector('[data-v6-display-timeframe-select]');
-      select.value = '5';
-      select.dispatchEvent(new Event('change', { bubbles: true }));
+      const toggle = document.querySelector('[data-v6-display-timeframe-toggle]');
+      toggle.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      document.querySelector('[data-v6-display-timeframe-option="5"]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       const chartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
@@ -55,16 +56,20 @@ try {
         beforeViewport,
         chartBars: chartRecord.bars,
         controlMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6DisplayTimeframeControl?.getValue),
+        menuOpen: document.querySelector('[data-v6-display-timeframe-toggle]')?.getAttribute('aria-expanded'),
         pane,
         rootDataset: document.querySelector('[data-v6-root]').dataset.displayTimeframe,
-        selectValue: select.value,
+        selectMissing: !document.querySelector('[data-v6-display-timeframe-select]'),
+        toggleText: document.querySelector('[data-v6-display-timeframe-toggle]')?.textContent.trim(),
         viewport,
       };
     })()))()
   `));
 
   assert.equal(value.controlMounted, true);
-  assert.equal(value.selectValue, '5');
+  assert.equal(value.menuOpen, 'false');
+  assert.equal(value.selectMissing, true);
+  assert.equal(value.toggleText, '5m');
   assert.equal(value.rootDataset, '5');
   assert.equal(value.pane.displayTimeframe, 5);
   assert.deepEqual(value.chartBars.map((bar) => bar.timestamp), [1780306200, 1780306500]);
