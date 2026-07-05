@@ -3,15 +3,18 @@ import {
   CHART_VIEWPORT_COMMANDS,
   DEFAULT_WALL_COMMANDS,
   DEFAULT_WALL_EVENTS,
+  PANE_COMMANDS,
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
-import { dispatchCommand, registerCommand } from '../runtime/commands.js';
+import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
 import {
   advanceDefaultWallReplayState,
-  createDefaultWallChartAppendPayload,
-  createDefaultWallChartReplacePayload,
   createDefaultWallReplayState,
 } from './default-wall-replay.js';
+import {
+  createDefaultWallPaneNextOperation,
+  createDefaultWallPaneReplacePayload,
+} from './default-wall-pane-projection.js';
 
 function cloneState(state) {
   return state ? {
@@ -23,6 +26,10 @@ function cloneState(state) {
     projection: { ...state.projection },
     settings: { ...state.settings },
   } : null;
+}
+
+function cloneTimeframes(timeframesByPaneId = new Map()) {
+  return Object.fromEntries([...timeframesByPaneId.entries()].sort(([left], [right]) => left.localeCompare(right)));
 }
 
 function cloneStates(states = []) {
@@ -53,6 +60,14 @@ function normalizePaneIds({ paneId, paneIds } = {}) {
   return normalized;
 }
 
+function normalizeDisplayTimeframe(value = 1) {
+  const timeframe = Number(value);
+  if (!Number.isInteger(timeframe) || timeframe <= 0) {
+    throw new Error('Default wall pane displayTimeframe must be a positive integer.');
+  }
+  return timeframe;
+}
+
 async function getViewportRecord(paneId) {
   return dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId });
 }
@@ -61,6 +76,20 @@ export function createDefaultWallRuntime() {
   const unregisterCallbacks = [];
   let emit = () => {};
   let paneStates = [];
+  let paneTimeframes = new Map();
+
+  async function resolvePaneDisplayTimeframe(paneId, explicitTimeframes = {}) {
+    if (Object.hasOwn(explicitTimeframes, paneId)) {
+      return normalizeDisplayTimeframe(explicitTimeframes[paneId]);
+    }
+    if (hasCommand(PANE_COMMANDS.GET_BY_ID)) {
+      const pane = await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
+      if (pane?.displayTimeframe) {
+        return normalizeDisplayTimeframe(pane.displayTimeframe);
+      }
+    }
+    return 1;
+  }
 
   async function buildResult({
     chartRecord = null,
@@ -76,6 +105,7 @@ export function createDefaultWallRuntime() {
       activeProjection: activeViewportRecord?.projection || activeState?.projection || null,
       chartRecord,
       chartRecords,
+      displayTimeframes: cloneTimeframes(paneTimeframes),
       replayState,
       state: cloneState(activeState),
       states: cloneStates(paneStates),
@@ -94,6 +124,10 @@ export function createDefaultWallRuntime() {
       spanBars: payload.spanBars,
       startIndex: replayState.cursorIndex,
     }));
+    paneTimeframes = new Map(await Promise.all(paneStates.map(async (paneState) => [
+      paneState.paneId,
+      await resolvePaneDisplayTimeframe(paneState.paneId, payload.paneDisplayTimeframes || {}),
+    ])));
     await Promise.all(paneStates.map((paneState) => dispatchCommand(CHART_VIEWPORT_COMMANDS.ENSURE_INTENT, {
       cursorTimestamp: cursorTimestampFromState(paneState),
       latestOffsetBars: paneState.settings.latestOffsetBars,
@@ -101,7 +135,9 @@ export function createDefaultWallRuntime() {
     })));
     const chartRecords = await Promise.all(paneStates.map((paneState) => dispatchCommand(
       CHART_DATA_COMMANDS.REPLACE_BARS,
-      createDefaultWallChartReplacePayload(paneState),
+      createDefaultWallPaneReplacePayload(paneState, {
+        displayTimeframe: paneTimeframes.get(paneState.paneId),
+      }),
     )));
     const result = await buildResult({
       chartRecord: chartRecords[0] || null,
@@ -124,13 +160,15 @@ export function createDefaultWallRuntime() {
     }
     const replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
     paneStates = paneStates.map(advanceDefaultWallReplayState);
-    const appendPayloads = paneStates.map(createDefaultWallChartAppendPayload);
-    const chartRecords = await Promise.all(appendPayloads.map((payload) => dispatchCommand(
-      CHART_DATA_COMMANDS.APPEND_BARS,
+    const operations = paneStates.map((paneState) => createDefaultWallPaneNextOperation(paneState, {
+      displayTimeframe: paneTimeframes.get(paneState.paneId),
+    }));
+    const chartRecords = await Promise.all(operations.map(({ operation, payload }) => dispatchCommand(
+      operation === 'append' ? CHART_DATA_COMMANDS.APPEND_BARS : CHART_DATA_COMMANDS.REPLACE_BARS,
       payload,
     )));
     const result = await buildResult({
-      chartRecord: appendPayloads[0] || null,
+      chartRecord: operations[0]?.payload || null,
       chartRecords,
       replayState,
     });
@@ -153,6 +191,7 @@ export function createDefaultWallRuntime() {
     }
     emit = () => {};
     paneStates = [];
+    paneTimeframes = new Map();
   }
 
   return {
