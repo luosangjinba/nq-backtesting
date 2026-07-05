@@ -11,9 +11,8 @@ function setText(root, selector, value) {
 function renderGateList(root, gates = []) {
   const list = root.querySelector('[data-v6-readiness-gates]');
   if (!list) return;
-  list.innerHTML = gates
-    .map((gate) => `<li data-v6-readiness-gate="${gate.id}"><strong>${gate.label}</strong><span>${gate.test}</span></li>`)
-    .join('');
+  list.innerHTML = '';
+  list.dataset.gateCount = String(gates.length);
 }
 
 function renderReadinessSurface(root, state) {
@@ -22,13 +21,11 @@ function renderReadinessSurface(root, state) {
     surface.dataset.ready = String(state.ready);
     surface.dataset.running = String(state.running);
   }
-  setText(root, '[data-v6-readiness-state]', state.ready ? 'Ready' : 'Attention');
-  setText(root, '[data-v6-readiness-runtime-count]', `${state.startedRuntimeCount} runtimes`);
-  setText(root, '[data-v6-readiness-command-count]', `${state.commandCount} commands`);
-  setText(root, '[data-v6-readiness-gate-count]', `${state.gateCount} gates`);
-  setText(root, '[data-v6-readiness-missing]', state.missingCommands.length
-    ? `Missing ${state.missingCommands.join(', ')}`
-    : 'Commands ready');
+  setText(root, '[data-v6-readiness-state]', state.statusLabel);
+  setText(root, '[data-v6-readiness-runtime-count]', state.runtimeLabel);
+  setText(root, '[data-v6-readiness-command-count]', state.commandLabel);
+  setText(root, '[data-v6-readiness-gate-count]', state.ready ? 'Core checks passed' : 'Core checks pending');
+  setText(root, '[data-v6-readiness-missing]', state.ready ? 'Replay workstation is ready' : 'Some services are still starting');
   renderGateList(root, state.gates);
 }
 

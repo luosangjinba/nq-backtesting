@@ -43,12 +43,15 @@ export function createReadinessSurfaceState({
   const missingCommands = REQUIRED_COMMANDS.filter((command) => !normalizedCommands.includes(command));
   return {
     commandCount: normalizedCommands.length,
+    commandLabel: missingCommands.length ? 'Setup pending' : 'Commands ready',
     gateCount: READINESS_GATES.length,
     gates: READINESS_GATES.map((gate) => ({ ...gate })),
     missingCommands,
     ready: Boolean(registrySnapshot.running) && missingCommands.length === 0,
+    statusLabel: Boolean(registrySnapshot.running) && missingCommands.length === 0 ? 'System ready' : 'System warming up',
     running: Boolean(registrySnapshot.running),
     startedRuntimes,
+    runtimeLabel: `${startedRuntimes.length} services active`,
     startedRuntimeCount: startedRuntimes.length,
   };
 }

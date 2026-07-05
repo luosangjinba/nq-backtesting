@@ -45,6 +45,8 @@ const state = createReadinessSurfaceState({
 assert.equal(state.ready, true);
 assert.equal(state.commandCount, 6);
 assert.equal(state.gateCount, 4);
+assert.equal(state.statusLabel, 'System ready');
+assert.equal(state.runtimeLabel, '3 services active');
 assert.deepEqual(state.missingCommands, []);
 
 const root = createFakeRoot();
@@ -71,12 +73,13 @@ const controller = mountReadinessSurface(root, {
 assert.equal(commandReads, 1);
 assert.equal(controller.getState().ready, false);
 assert.deepEqual(controller.getState().missingCommands, ['journalPersistence.saveSnapshot']);
-assert.equal(root.text('[data-v6-readiness-state]'), 'Attention');
-assert.equal(root.text('[data-v6-readiness-runtime-count]'), '2 runtimes');
-assert.equal(root.text('[data-v6-readiness-command-count]'), '5 commands');
-assert.equal(root.text('[data-v6-readiness-gate-count]'), '4 gates');
-assert.match(root.text('[data-v6-readiness-missing]'), /journalPersistence\.saveSnapshot/);
-assert.match(root.html('[data-v6-readiness-gates]'), /Cache-hit latency/);
+assert.equal(root.text('[data-v6-readiness-state]'), 'System warming up');
+assert.equal(root.text('[data-v6-readiness-runtime-count]'), '2 services active');
+assert.equal(root.text('[data-v6-readiness-command-count]'), 'Setup pending');
+assert.equal(root.text('[data-v6-readiness-gate-count]'), 'Core checks pending');
+assert.equal(root.text('[data-v6-readiness-missing]'), 'Some services are still starting');
+assert.equal(root.html('[data-v6-readiness-gates]'), '');
+assert.equal(root.datasetFor('[data-v6-readiness-gates]').gateCount, '4');
 assert.equal(root.datasetFor('[data-v6-readiness-surface]').running, 'true');
 
 console.log('v6 readiness surface controller smoke passed');
