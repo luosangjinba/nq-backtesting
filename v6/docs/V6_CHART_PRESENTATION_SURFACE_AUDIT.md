@@ -10,6 +10,8 @@ Lightweight chart adapter into that host, and demotes static placeholder visuals
 to fallback status. Chart-data snapshots now reach the mounted workstation
 adapter through a chart-engine bridge, and chart-viewport projections now write
 adapter logical ranges through a separate chart-engine bridge.
+The running app now has a default-wall load/next browser gate covering the
+full replay -> chart-data -> chart-viewport -> chart-engine path.
 
 ## Current Presentation Paths
 
@@ -37,6 +39,7 @@ Passed:
 - `node v6/tests/workstation-chart-adapter-browser-smoke.js`
 - `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
 - `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 
 ## Findings
@@ -59,19 +62,21 @@ Passed:
 - The chart-viewport bridge applies projected logical ranges for the default
   pane and ignores other panes until those panes have their own mounted chart
   surface.
+- The running app default-wall flow gate verifies load and next update mounted
+  chart data and projected range without route/shell writing the adapter.
 - The default shell still contains `.static-chart-visual`,
   `.price-scale-placeholder`, and `.time-scale-placeholder`, but these live
   under `[data-v6-chart-fallback]` with reduced opacity and `aria-hidden="true"`.
 
 ## Risk
 
-The next gap is no longer viewport delivery; it is proving the running app
-default-wall load/next path drives the mounted workstation chart through the
-existing runtime and chart-engine boundaries.
+The next gap is no longer default-wall delivery; it is proving a running-app
+manual wall projection is preserved across default-wall next through the same
+runtime and chart-engine boundaries.
 
 ## Next Direction
 
-The next executable step should add a running-app default-wall flow gate. The
+The next executable step should add a running-app manual-wall flow gate. The
 step must preserve:
 
 - visible-latency gates;

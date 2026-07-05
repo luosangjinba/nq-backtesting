@@ -14,23 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 43 - Connect Viewport Projection To Mounted
-  Adapter. The implementation bridges `chartViewport:projected` events into the
-  mounted workstation chart through a chart-engine boundary.
+- Latest completed step: Step 44 - Gate Workstation Default Wall Flow. The
+  implementation adds a running-app browser gate proving default-wall load/next
+  drives the mounted workstation chart through replay, chart-data,
+  chart-viewport, and chart-engine boundaries.
 
 ## Next Executable Steps
 
-### Step 44 - Gate Workstation Default Wall Flow
+### Step 45 - Gate Workstation Manual Wall Flow
 
-Add a running-app browser gate proving default-wall load/next drives the mounted
-workstation chart through the existing replay, chart-data, chart-viewport, and
-chart-engine boundaries.
+Add a running-app browser gate proving a manual wall projection can be applied
+to the mounted workstation chart and preserved across default-wall next.
 
 Acceptance:
 
-- default-wall load updates mounted chart data and visible logical range;
-- default-wall next appends/replaces through chart-data and preserves projected
-  viewport range;
+- manual wall intent updates the mounted chart visible logical range;
+- default-wall next preserves the manual wall projection through chart-viewport
+  and chart-engine bridges;
 - route/shell code still does not own bars, replay cursor, or viewport intent;
 - chart data bridge, viewport bridge, visible-latency, and multi-pane gates
   remain passing.
@@ -838,6 +838,25 @@ Verification:
 - `node v6/tests/chart-engine-browser-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 44 - Gate Workstation Default Wall Flow
+
+Completed in commits:
+
+- `3c40b396 test(v6): gate workstation default wall flow`
+
+Verification:
+
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/chart-data-surface-bridge-smoke.js`
+- `node v6/tests/chart-viewport-surface-bridge-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
