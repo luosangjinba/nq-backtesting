@@ -23,6 +23,10 @@ const READINESS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface.js'),
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface-model.js'),
 ];
+const REPLAY_WORKFLOW_FILES = [
+  path.join(V6_ROOT, 'src', 'shell', 'replay-workflow-surface.js'),
+  path.join(V6_ROOT, 'src', 'shell', 'replay-workflow-surface-model.js'),
+];
 const SESSIONS_SURFACE_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'sessions-surface.js'),
   path.join(V6_ROOT, 'src', 'shell', 'sessions-surface-model.js'),
@@ -257,6 +261,17 @@ const forbiddenReadinessSurfaceOwnershipPatterns = [
   {
     pattern: /\b(dispatchCommand|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
     reason: 'V6 readiness UI must not dispatch mutation commands or own chart, data, replay, viewport, storage, or network state.',
+  },
+];
+
+const forbiddenReplayWorkflowSurfaceOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart|bar-data|display-timeframe|layout\/|panes|persistence|journal|session|settings\/settings-|v4|vendor|lightweight|viewport|replay\/|default-wall\/)[^'"]*['"]/i,
+    reason: 'V6 replay workflow UI must use replay/default-wall commands only and not import feature runtimes, internals, V4, vendor, or chart/data modules.',
+  },
+  {
+    pattern: /\b(BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|SESSION_COMMANDS|SETTINGS_COMMANDS|LOAD_SESSION|DEFAULT_WALL_COMMANDS\.LOAD|DEFAULT_WALL_COMMANDS\.NEXT|REPLAY_COMMANDS\.NEXT|REPLAY_COMMANDS\.PLAY|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime)\b/,
+    reason: 'V6 replay workflow UI must not load sessions, advance replay, or own chart, data, viewport, storage, or network state.',
   },
 ];
 
@@ -546,6 +561,19 @@ for (const file of await walkFiles(SETTINGS_ROOT)) {
 for (const file of READINESS_FILES) {
   const text = await readFile(file, 'utf8');
   forbiddenReadinessSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of REPLAY_WORKFLOW_FILES) {
+  const text = await readFile(file, 'utf8');
+  forbiddenReplayWorkflowSurfaceOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
