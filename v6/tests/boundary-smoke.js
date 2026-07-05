@@ -9,6 +9,7 @@ const CHART_ENGINE_ROOT = path.join(V6_ROOT, 'src', 'chart-engine');
 const CHART_VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'chart-viewport');
 const DEFAULT_WALL_ROOT = path.join(V6_ROOT, 'src', 'default-wall');
 const DISPLAY_TIMEFRAME_ROOT = path.join(V6_ROOT, 'src', 'display-timeframe');
+const JOURNAL_PERSISTENCE_ROOT = path.join(V6_ROOT, 'src', 'journal-persistence');
 const JOURNAL_ROOT = path.join(V6_ROOT, 'src', 'journal');
 const LAYOUT_ROOT = path.join(V6_ROOT, 'src', 'layout');
 const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
@@ -259,6 +260,17 @@ const forbiddenJournalOwnershipPatterns = [
   {
     pattern: /\b(createChart|setData|setVisibleLogicalRange|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime|subscribeEvent|localStorage|fetch|XMLHttpRequest)\b/,
     reason: 'V6 journal modules must not own chart, data, replay, viewport, persistence, storage, or network state.',
+  },
+];
+
+const forbiddenJournalPersistenceOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data|chart|default-wall|display-timeframe|layout|panes|replay|session|settings|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 journal-persistence bridge must not import feature runtimes, UI, chart, data, replay, session, settings, viewport, V4, or vendor modules.',
+  },
+  {
+    pattern: /\b(createChart|setData|setVisibleLogicalRange|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime|subscribeEvent|localStorage|fetch|XMLHttpRequest)\b/,
+    reason: 'V6 journal-persistence bridge must not own chart, data, replay, viewport, storage, or network state.',
   },
 ];
 
@@ -517,6 +529,19 @@ for (const file of await walkFiles(PERSISTENCE_ROOT)) {
 for (const file of await walkFiles(JOURNAL_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenJournalOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(JOURNAL_PERSISTENCE_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenJournalPersistenceOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
