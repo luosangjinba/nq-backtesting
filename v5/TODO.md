@@ -10,6 +10,20 @@
 
 ## Current / Next
 
+- Current status: Manual-anchor replay wall handoff recorded before machine
+  restart. Recent commits fixed the right-edge wall path in three layers:
+  synchronous follow-range apply on append (`6307057`), replay follow recovery
+  after manual viewport (`13fea7c`), then the corrected user-facing semantic
+  that dragging/zooming away from the default right wall must create a
+  pane-local temporary anchor wall instead of resetting back to the default wall
+  on Play/Next (`0b04164`). See
+  `v5/sessions/session_20260704_v5_manual_anchor_wall_handoff.md`.
+- Current direction: after reboot, restart the local HTML/API service and
+  manually retest single-pane and multi-pane replay: initial default wall,
+  drag/wheel away from the wall, Play/Next, active-pane TF changes, and
+  two-/three-pane mixed-TF layouts. If any pane still jumps back to the default
+  wall or drifts without a wall, continue from the manual-anchor wall path
+  rather than starting a new architecture track.
 - Current status: Step 538 completed. The Step 517/518 fast path was not lost:
   persistence still runs after visible update, same-TF `Next` still uses
   `APPEND_BARS` / Lightweight `series.update`, single-pane cadence stayed under
