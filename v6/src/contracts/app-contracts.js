@@ -103,3 +103,16 @@ export const DISPLAY_TIMEFRAME_COMMANDS = Object.freeze({
 export const DISPLAY_TIMEFRAME_EVENTS = Object.freeze({
   APPLIED: 'displayTimeframe:applied',
 });
+
+export const LAYOUT_COMMANDS = Object.freeze({
+  GET_SNAPSHOT: 'layout.getSnapshot',
+  SET_ACTIVE_PANE: 'layout.setActivePane',
+  SET_MODE: 'layout.setMode',
+  SET_SYNC: 'layout.setSync',
+});
+
+export const LAYOUT_EVENTS = Object.freeze({
+  ACTIVE_PANE_CHANGED: 'layout:activePaneChanged',
+  MODE_CHANGED: 'layout:modeChanged',
+  SYNC_CHANGED: 'layout:syncChanged',
+});
