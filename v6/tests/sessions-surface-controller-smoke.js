@@ -95,6 +95,8 @@ async function dispatchCommand(command) {
 }
 
 const root = createFakeRoot();
+const panel = root.elementFor('[data-v6-sessions-panel]');
+panel.hidden = true;
 const controller = mountSessionsSurface(root, { dispatchCommand });
 await Promise.resolve();
 await Promise.resolve();
@@ -102,6 +104,11 @@ await Promise.resolve();
 assert.deepEqual(calls, [SESSION_COMMANDS.GET_ACTIVE, SESSION_COMMANDS.LIST]);
 assert.equal(root.text('[data-v6-sessions-count]'), '0 sessions');
 assert.equal(root.text('[data-v6-sessions-active]'), 'No active session');
+assert.equal(controller.getState().open, false);
+
+await root.elementFor('[data-v6-sessions-toggle]').dispatch('click');
+assert.equal(controller.getState().open, true);
+assert.equal(panel.hidden, false);
 
 await root.elementFor('[data-v6-sessions-create]').dispatch('click');
 await Promise.resolve();

@@ -32,8 +32,20 @@ export function mountSessionsSurface(root, {
 
   const createButton = root.querySelector('[data-v6-sessions-create]');
   const refreshButton = root.querySelector('[data-v6-sessions-refresh]');
+  const panel = root.querySelector('[data-v6-sessions-panel]');
+  const toggle = root.querySelector('[data-v6-sessions-toggle]');
   const unsubscriptions = [];
+  let open = Boolean(panel && !panel.hidden);
   let state = createSessionsSurfaceState();
+
+  function setOpen(nextOpen) {
+    open = Boolean(nextOpen);
+    if (panel) {
+      panel.hidden = !open;
+    }
+    toggle?.setAttribute?.('aria-expanded', String(open));
+    return getState();
+  }
 
   async function refresh() {
     const [activeSession, sessions] = await Promise.all([
@@ -60,15 +72,26 @@ export function mountSessionsSurface(root, {
     refreshButton.addEventListener('click', listener);
     unsubscriptions.push(() => refreshButton.removeEventListener('click', listener));
   }
+  if (toggle) {
+    const listener = () => setOpen(!open);
+    toggle.addEventListener('click', listener);
+    unsubscriptions.push(() => toggle.removeEventListener('click', listener));
+  }
 
   refresh();
 
+  function getState() {
+    return {
+      open,
+      ...state,
+    };
+  }
+
   return Object.freeze({
     createSession,
-    getState() {
-      return state;
-    },
+    getState,
     refresh,
+    setOpen,
     unmount() {
       while (unsubscriptions.length) {
         unsubscriptions.pop()();

@@ -12,11 +12,23 @@ export function createWorkstationShellMarkup() {
           <span>UTC-4</span>
         </div>
         <div class="top-actions" aria-label="V6 route actions">
-          <button type="button" disabled>Sessions</button>
+          <button type="button" data-v6-sessions-toggle aria-expanded="false">Sessions</button>
           <button type="button" disabled>Historical Review</button>
           <button type="button" data-v6-settings-toggle aria-expanded="false">Settings</button>
         </div>
       </header>
+      <section class="sessions-panel" data-v6-sessions-panel hidden>
+        <div class="sessions-panel-header">
+          <strong>Sessions</strong>
+          <span data-v6-sessions-count>0 sessions</span>
+          <span data-v6-sessions-active>No active session</span>
+        </div>
+        <div class="sessions-panel-actions">
+          <button type="button" data-v6-sessions-create>Create</button>
+          <button type="button" data-v6-sessions-refresh>Refresh</button>
+        </div>
+        <ul class="sessions-list" data-v6-sessions-list></ul>
+      </section>
       <section class="settings-panel" data-v6-settings-panel hidden>
         <label>
           <span>Theme</span>

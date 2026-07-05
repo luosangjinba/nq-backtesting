@@ -61,6 +61,7 @@ p {
 }
 
 .top-bar,
+.sessions-panel,
 .readiness-surface,
 .status-bar,
 .transport-placeholder {
@@ -112,6 +113,7 @@ p {
 }
 
 .top-actions button,
+.sessions-panel button,
 .transport-placeholder button,
 .toolbar-actions button,
 .toolbar-actions select {
@@ -120,6 +122,65 @@ p {
   border-radius: 6px;
   background: #142230;
   color: #8ea2b3;
+}
+
+.sessions-panel {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  min-height: 46px;
+  padding: 8px 10px;
+  color: #9fb7c6;
+  font-size: 12px;
+}
+
+.sessions-panel[hidden] {
+  display: none;
+}
+
+.sessions-panel-header,
+.sessions-panel-actions,
+.sessions-list {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.sessions-panel-header {
+  flex-wrap: wrap;
+}
+
+.sessions-panel-header strong {
+  color: #dce5eb;
+}
+
+.sessions-panel-header span,
+.sessions-list li {
+  min-height: 24px;
+  padding: 4px 8px;
+  border: 1px solid #22323e;
+  border-radius: 5px;
+  background: #111d26;
+}
+
+.sessions-list {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0;
+  overflow-x: auto;
+  list-style: none;
+}
+
+.sessions-list li {
+  display: grid;
+  grid-template-columns: max-content max-content;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.sessions-list strong {
+  color: #8ff1df;
 }
 
 .readiness-surface {

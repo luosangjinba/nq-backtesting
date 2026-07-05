@@ -19,6 +19,7 @@ import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.
 import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
+import { mountSessionsSurface } from './shell/sessions-surface.js';
 import { mountStatusReadout } from './shell/status-readout.js';
 
 const root = document.querySelector('[data-v6-root]');
@@ -48,11 +49,13 @@ const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const readinessSurface = mountReadinessSurface(root, { registry });
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'));
 const settingsPanel = mountSettingsPanel(root);
+const sessionsSurface = mountSessionsSurface(root);
 const statusReadout = mountStatusReadout(root);
 root.__v6DisplayTimeframeControl = displayTimeframeControl;
 root.__v6ReadinessSurface = readinessSurface;
 root.__v6RuntimeRegistry = registry;
 root.__v6ReplayTransport = replayTransport;
 root.__v6SettingsPanel = settingsPanel;
+root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
 root.dataset.booted = 'true';

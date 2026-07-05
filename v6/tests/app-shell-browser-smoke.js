@@ -16,6 +16,7 @@ async function main() {
         headerText: document.querySelector('.top-bar h1')?.textContent || '',
         transportText: document.querySelector('.transport-placeholder')?.textContent || '',
         transportMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReplayTransport?.getState),
+        sessionsMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6SessionsSurface?.getState),
         readinessMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReadinessSurface?.getState),
         readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
         readinessRuntimeCount: document.querySelector('[data-v6-readiness-runtime-count]')?.textContent || '',
@@ -42,6 +43,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.journalPersistence'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.transportMounted, true);
+    assert.equal(value.sessionsMounted, true);
     assert.equal(value.readinessMounted, true);
     assert.equal(value.readinessState, 'Ready');
     assert.match(value.readinessRuntimeCount, /runtimes/);
@@ -60,6 +62,29 @@ async function main() {
     assert.equal(value.commands.includes('journal.analyzeRecords'), true);
     assert.equal(value.commands.includes('journalPersistence.saveSnapshot'), true);
     assert.equal(value.commands.includes('journalPersistence.loadSnapshot'), true);
+
+    const sessionFlow = JSON.parse(await evaluate(page.client, `
+      (async () => {
+        const root = document.querySelector('[data-v6-root]');
+        document.querySelector('[data-v6-sessions-toggle]').click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        document.querySelector('[data-v6-sessions-create]').click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        return JSON.stringify({
+          open: root.__v6SessionsSurface.getState().open,
+          count: root.__v6SessionsSurface.getState().count,
+          activeText: document.querySelector('[data-v6-sessions-active]')?.textContent || '',
+          countText: document.querySelector('[data-v6-sessions-count]')?.textContent || '',
+          rows: document.querySelectorAll('[data-v6-session-row]').length,
+        });
+      })()
+    `));
+    assert.equal(sessionFlow.open, true);
+    assert.equal(sessionFlow.count, 1);
+    assert.equal(sessionFlow.countText, '1 sessions');
+    assert.match(sessionFlow.activeText, /NQ 1m/);
+    assert.equal(sessionFlow.rows, 1);
   } finally {
     await page.cleanup();
   }
