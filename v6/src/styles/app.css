@@ -399,6 +399,28 @@ p {
   font-weight: 600;
 }
 
+.layout-sync-section label > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.layout-info-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #b7bec6;
+}
+
+.layout-info-icon .tool-icon {
+  width: 15px;
+  height: 15px;
+  fill: #b7bec6;
+  stroke: none;
+}
+
 .layout-sync-section input {
   width: 38px;
   height: 20px;

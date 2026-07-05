@@ -105,6 +105,20 @@ The interval menu should behave like a tool dropdown:
 - `Add custom interval...` belongs at the top of the menu.
 - The menu overlays the chart and does not reflow chart layout.
 
+## Layout Sync Policy
+
+The layout panel sync switches are multi-pane policy controls:
+
+- `Symbol` means symbol changes apply to all charts within the layout.
+- `Interval` means interval changes apply to all charts within the layout.
+- `Crosshair` means crosshair movement is synced across all charts within the
+  layout.
+- `Time` means clicking a chart aligns all charts to the same point of time.
+- `Date range` means date-range changes apply to all charts within the layout.
+
+These controls stay inert until layout/pane sync ownership exists, but their
+labels, help text, and default states should match the future policy.
+
 ## Indicators, Undo, Redo
 
 Indicators, undo, and redo are reserved top-toolbar commands:

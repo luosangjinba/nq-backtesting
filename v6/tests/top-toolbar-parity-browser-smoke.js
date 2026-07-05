@@ -33,8 +33,10 @@ try {
         layoutMenuOpen: layoutDetails.open,
         layoutRows: [...document.querySelectorAll('.layout-menu-row')].map((row) => row.getAttribute('aria-label')),
         layoutOptions: document.querySelectorAll('.layout-option').length,
-        layoutSyncLabels: [...document.querySelectorAll('.layout-sync-section label span')].map((element) => element.textContent),
+        layoutSyncLabels: [...document.querySelectorAll('.layout-sync-section label > span')].map((element) => element.childNodes[0].textContent.trim()),
         layoutSyncDisabled: [...document.querySelectorAll('.layout-sync-section input')].map((input) => input.disabled),
+        layoutSyncChecked: [...document.querySelectorAll('.layout-sync-section input')].map((input) => input.checked),
+        layoutSyncTitles: [...document.querySelectorAll('.layout-sync-section label')].map((label) => label.title),
         profile: textOf('[data-v6-top-profile]'),
         rightIconCount: document.querySelectorAll('.top-tool-group-right .tool-button .tool-icon').length,
         readinessInHeader: exists('[data-v6-workstation-header] [data-v6-readiness-surface]'),
@@ -66,6 +68,14 @@ try {
   assert.equal(value.layoutOptions, 7);
   assert.deepEqual(value.layoutSyncLabels, ['Symbol', 'Interval', 'Crosshair', 'Time', 'Date range']);
   assert.deepEqual(value.layoutSyncDisabled, [true, true, true, true, true]);
+  assert.deepEqual(value.layoutSyncChecked, [true, true, false, true, false]);
+  assert.deepEqual(value.layoutSyncTitles, [
+    'Symbol changes on all charts within the layout',
+    'Interval changes on all charts within the layout',
+    'Crosshair is synced across all charts within the layout',
+    'When a chart is clicked, all charts within the layout display the same point of time',
+    'Date range changes on all charts within the layout',
+  ]);
   assert.equal(value.editorExists, false);
   assert.equal(value.sessionsWorkflowStillPresent, true);
   assert.equal(value.readinessInHeader, true);

@@ -8,6 +8,7 @@ const ICONS = {
   grid: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
   grip: '<circle cx="8" cy="5" r="1"/><circle cx="16" cy="5" r="1"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><circle cx="8" cy="19" r="1"/><circle cx="16" cy="19" r="1"/>',
   indicators: '<path d="M4 18V6"/><path d="M10 18V10"/><path d="M16 18V4"/><path d="M21 18H3"/>',
+  info: '<circle cx="12" cy="12" r="8"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
   journal: '<path d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/>',
   layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
   moon: '<path d="M21 14.8A8 8 0 0 1 9.2 3a7 7 0 1 0 11.8 11.8z"/>',
@@ -112,11 +113,26 @@ export function createWorkstationShellMarkup() {
               </section>
               <section class="layout-sync-section" aria-label="Sync in layout">
                 <div class="layout-menu-heading">Sync in layout</div>
-                <label><span>Symbol</span><input type="checkbox" checked disabled></label>
-                <label><span>Interval</span><input type="checkbox" disabled></label>
-                <label><span>Crosshair</span><input type="checkbox" checked disabled></label>
-                <label><span>Time</span><input type="checkbox" disabled></label>
-                <label><span>Date range</span><input type="checkbox" disabled></label>
+                <label data-v6-layout-sync-row="symbol" title="Symbol changes on all charts within the layout">
+                  <span>Symbol <span class="layout-info-icon">${icon('info')}</span></span>
+                  <input type="checkbox" checked disabled aria-label="Sync symbol across panes">
+                </label>
+                <label data-v6-layout-sync-row="interval" title="Interval changes on all charts within the layout">
+                  <span>Interval <span class="layout-info-icon">${icon('info')}</span></span>
+                  <input type="checkbox" checked disabled aria-label="Sync interval across panes">
+                </label>
+                <label data-v6-layout-sync-row="crosshair" title="Crosshair is synced across all charts within the layout">
+                  <span>Crosshair <span class="layout-info-icon">${icon('info')}</span></span>
+                  <input type="checkbox" disabled aria-label="Sync crosshair across panes">
+                </label>
+                <label data-v6-layout-sync-row="time" title="When a chart is clicked, all charts within the layout display the same point of time">
+                  <span>Time <span class="layout-info-icon">${icon('info')}</span></span>
+                  <input type="checkbox" checked disabled aria-label="Sync clicked time across panes">
+                </label>
+                <label data-v6-layout-sync-row="date-range" title="Date range changes on all charts within the layout">
+                  <span>Date range <span class="layout-info-icon">${icon('info')}</span></span>
+                  <input type="checkbox" disabled aria-label="Sync date range across panes">
+                </label>
               </section>
             </div>
           </details>
