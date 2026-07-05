@@ -45,6 +45,22 @@ try {
       const speedState = transport.getState();
       const replayAfterSpeed = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
 
+      await commands.dispatchCommand(contracts.REPLAY_COMMANDS.PLAY);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const afterExternalPlay = {
+        buttonPressed: playButton.getAttribute('aria-pressed'),
+        buttonText: playButton.textContent,
+        state: transport.getState(),
+      };
+
+      await commands.dispatchCommand(contracts.REPLAY_COMMANDS.PAUSE);
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const afterExternalPause = {
+        buttonPressed: playButton.getAttribute('aria-pressed'),
+        buttonText: playButton.textContent,
+        state: transport.getState(),
+      };
+
       document.dispatchEvent(new KeyboardEvent('keydown', {
         bubbles: true,
         code: 'Space',
@@ -67,6 +83,8 @@ try {
       return {
         afterClickNext,
         afterClickPause,
+        afterExternalPause,
+        afterExternalPlay,
         afterKeyboardNext,
         afterSpacePlay,
         speedButtonPressed: speedButton.getAttribute('aria-pressed'),
@@ -85,6 +103,14 @@ try {
   assert.equal(value.speedState.speed, 2);
   assert.equal(value.speedButtonPressed, 'true');
   assert.equal(value.transportDataset.speed, '2');
+  assert.equal(value.afterExternalPlay.state.playing, true);
+  assert.equal(value.afterExternalPlay.state.speed, 2);
+  assert.equal(value.afterExternalPlay.buttonText, 'Pause');
+  assert.equal(value.afterExternalPlay.buttonPressed, 'true');
+  assert.equal(value.afterExternalPause.state.playing, false);
+  assert.equal(value.afterExternalPause.state.speed, 2);
+  assert.equal(value.afterExternalPause.buttonText, 'Play');
+  assert.equal(value.afterExternalPause.buttonPressed, 'false');
   assert.equal(value.afterSpacePlay.status, 'playing');
   assert.equal(value.afterClickPause.status, 'paused');
   assert.equal(value.afterKeyboardNext.cursorIndex, 2);
