@@ -72,46 +72,71 @@ p {
 
 .top-bar {
   display: grid;
-  grid-template-columns: minmax(190px, auto) minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(240px, 1fr) auto auto;
   align-items: center;
-  gap: 12px;
-  min-height: 50px;
-  padding: 10px 12px;
+  gap: 8px;
+  min-height: 40px;
+  padding: 5px 8px;
 }
 
 .top-bar h1 {
-  font-size: 16px;
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  font-size: 13px;
   font-weight: 700;
 }
 
-.product-lockup {
-  display: grid;
-  gap: 3px;
-}
-
+.top-tool-group,
+.top-actions,
 .top-context {
   display: flex;
   align-items: center;
-  gap: 10px;
   min-width: 0;
 }
 
-.market-strip {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  min-width: 0;
-  color: #9db4c3;
+.top-tool-group {
+  gap: 5px;
+}
+
+.top-tool-group-left {
+  padding-right: 8px;
+  border-right: 1px solid #22323e;
+}
+
+.top-tool-group-main {
+  padding-right: 8px;
+  border-right: 1px solid #22323e;
+}
+
+.top-tool-group-right {
+  justify-content: flex-end;
+}
+
+.top-symbol {
+  color: #e6edf2;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.profile-chip {
+  padding: 3px 7px;
+  color: #f7fbff;
   font-size: 12px;
+  font-style: italic;
+  white-space: nowrap;
 }
 
-.market-strip span {
-  min-width: 42px;
-  padding: 4px 8px;
-  border: 1px solid #22323e;
-  border-radius: 5px;
-  background: #111d26;
-  text-align: center;
+.top-context {
+  justify-content: flex-end;
+  max-width: 150px;
 }
 
 .readiness-surface {
@@ -139,6 +164,7 @@ p {
 }
 
 .readiness-detail {
+  display: none;
   overflow: hidden;
   max-width: 220px;
   color: #9db4c3;
@@ -159,12 +185,12 @@ p {
 }
 
 .top-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+  flex-wrap: nowrap;
+  gap: 3px;
 }
 
 .top-actions button,
+.top-tool-group button,
 .journal-panel button,
 .replay-workflow-panel button,
 .sessions-panel button,
@@ -172,11 +198,76 @@ p {
 .transport-placeholder button,
 .toolbar-actions button,
 .toolbar-actions select {
-  height: 30px;
+  height: 28px;
   border: 1px solid #2b4050;
   border-radius: 6px;
   background: #142230;
   color: #8ea2b3;
+}
+
+.top-tool-group button,
+.top-actions button {
+  padding: 0 6px;
+  border-color: transparent;
+  background: transparent;
+  color: #dce5eb;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.top-tool-group button:disabled {
+  color: #8a96a3;
+  opacity: 0.8;
+}
+
+.top-tool-group .interval-command {
+  min-width: 38px;
+  color: #f7fbff;
+}
+
+.top-tool-group .icon-tool {
+  width: 30px;
+  padding: 0;
+  overflow: hidden;
+  color: transparent;
+  position: relative;
+}
+
+.top-tool-group .icon-tool::before {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #dce5eb;
+  font-size: 12px;
+}
+
+.top-tool-group [data-v6-top-back]::before {
+  content: "<";
+}
+
+.top-tool-group [data-v6-top-forward]::before {
+  content: ">";
+}
+
+.top-tool-group [data-v6-top-search]::before {
+  content: "Q";
+}
+
+.top-tool-group [data-v6-top-undo]::before {
+  content: "U";
+}
+
+.top-tool-group [data-v6-top-redo]::before {
+  content: "R";
+}
+
+.top-tool-group [data-v6-top-theme]::before {
+  content: "T";
+}
+
+.top-tool-group [data-v6-top-fullscreen]::before {
+  content: "[]";
 }
 
 .top-actions button.is-active {

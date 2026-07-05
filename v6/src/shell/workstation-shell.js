@@ -2,16 +2,35 @@ export function createWorkstationShellMarkup() {
   return `
     <section class="workstation-shell" data-v6-workstation-shell>
       <header class="top-bar" data-v6-workstation-header>
-        <div class="product-lockup">
-          <div class="eyebrow">Replay Workstation</div>
+        <div class="top-tool-group top-tool-group-left" aria-label="Market tools">
+          <button type="button" class="icon-tool" data-v6-top-back disabled aria-label="Back">Back</button>
+          <button type="button" class="icon-tool" data-v6-top-forward disabled aria-label="Forward">Fwd</button>
+          <button type="button" class="icon-tool" data-v6-top-search disabled aria-label="Search symbol">Search</button>
           <h1>FX Session Replay</h1>
+          <span class="top-symbol" data-v6-top-symbol>NQ</span>
+        </div>
+        <div class="top-tool-group top-tool-group-main" aria-label="Chart tools">
+          <button type="button" class="interval-command" data-v6-top-interval disabled aria-label="Interval menu">1m</button>
+          <button type="button" data-v6-top-layout disabled>Layout</button>
+          <button type="button" data-v6-top-indicators disabled>Indicators</button>
+          <button type="button" class="icon-tool" data-v6-top-undo disabled aria-label="Undo">Undo</button>
+          <button type="button" class="icon-tool" data-v6-top-redo disabled aria-label="Redo">Redo</button>
+        </div>
+        <div class="top-actions" aria-label="V6 route actions">
+          <button type="button" data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false">Sessions</button>
+          <button type="button" data-v6-replay-workflow-toggle aria-controls="v6-replay-workflow-panel" aria-expanded="false" aria-pressed="false">Replay</button>
+          <button type="button" data-v6-journal-toggle aria-controls="v6-journal-panel" aria-expanded="false" aria-pressed="false">Journal</button>
+          <button type="button" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false">Settings</button>
+        </div>
+        <div class="top-tool-group top-tool-group-right" aria-label="Account and utility tools">
+          <span class="profile-chip" data-v6-top-profile>test</span>
+          <button type="button" data-v6-top-account disabled>ETH</button>
+          <button type="button" data-v6-top-instrument disabled>NQ-2018</button>
+          <button type="button" data-v6-top-editor disabled>Editor</button>
+          <button type="button" class="icon-tool" data-v6-top-theme disabled aria-label="Theme">Theme</button>
+          <button type="button" class="icon-tool" data-v6-top-fullscreen disabled aria-label="Fullscreen">Full</button>
         </div>
         <div class="top-context">
-          <div class="market-strip" aria-label="Active replay context">
-            <span>NQ</span>
-            <span>1m</span>
-            <span>UTC-4</span>
-          </div>
           <div class="readiness-surface" data-v6-readiness-surface aria-label="V6 workflow readiness" aria-live="polite">
             <span class="readiness-state" data-v6-readiness-state>System starting</span>
             <span class="readiness-detail" data-v6-readiness-missing>Commands pending</span>
@@ -20,12 +39,6 @@ export function createWorkstationShellMarkup() {
             <span class="readiness-telemetry" data-v6-readiness-gate-count>Core checks pending</span>
             <ul class="readiness-gates" data-v6-readiness-gates></ul>
           </div>
-        </div>
-        <div class="top-actions" aria-label="V6 route actions">
-          <button type="button" data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false">Sessions</button>
-          <button type="button" data-v6-replay-workflow-toggle aria-controls="v6-replay-workflow-panel" aria-expanded="false" aria-pressed="false">Replay</button>
-          <button type="button" data-v6-journal-toggle aria-controls="v6-journal-panel" aria-expanded="false" aria-pressed="false">Journal</button>
-          <button type="button" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false">Settings</button>
         </div>
       </header>
       <section id="v6-journal-panel" class="journal-panel" data-v6-journal-panel hidden>

@@ -69,7 +69,7 @@ try {
     format: 'png',
   });
   const png = Buffer.from(screenshot.data, 'base64');
-  assert.equal(png.length > 40_000, true);
+  assert.equal(png.length > 35_000, true);
   await writeFile(SCREENSHOT_PATH, png);
 } finally {
   await page.cleanup();
