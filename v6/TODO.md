@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 19 - Mixed Timeframe Panes. The implementation
-  keeps default-wall pane projection pane-local, preserves active-pane
-  timeframe isolation, and measures mixed-timeframe visible latency separately.
+- Latest completed step: Step 20 - Pane-Local Manual Walls. The implementation
+  gates pane-local manual viewport intent at runtime and browser levels while
+  keeping multi-pane visible latency measured.
 
 ## Next Executable Steps
 
-### Step 20 - Pane-Local Manual Walls
+### Step 21 - Settings Baseline
 
-Keep manual wall intent pane-local when a user drags or wheels one pane.
-Other panes must preserve their own viewport intent.
+Define the first Settings boundary for V6 without coupling settings UI to chart,
+replay, data, or viewport internals.
 
 Acceptance:
 
-- drag/wheel on one pane does not mutate another pane's viewport intent;
-- multi-pane visible latency remains gated.
+- settings state has an explicit owner and command/event contract;
+- settings UI dispatches commands only;
+- no Settings path mutates chart/replay/data/viewport state directly.
 
 ## Completed Steps
 
@@ -387,9 +388,27 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 20 - Pane-Local Manual Walls
+
+Completed in commits:
+
+- `ef540a6 test(v6): guard pane manual viewport intent`
+- `699eac4 test(v6): verify multi pane manual wall replay`
+
+Verification:
+
+- `node v6/tests/chart-viewport-pane-manual-isolation-smoke.js`
+- `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
+- `node v6/tests/manual-wall-replay-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
 ## Deferred Until Later Gates
 
-- Settings parity;
 - transport polish beyond the FXReplay baseline controls;
 - persistence beyond in-memory session state;
 - journal/orders/analytics;
