@@ -12,7 +12,7 @@ export function createSessionsSurfaceState({
     activeSession: activeSession ? { ...activeSession } : null,
     activeSessionLabel: activeSession
       ? `${activeSession.symbol} ${activeSession.timeframe} ${formatSessionTime(activeSession.startTime)}`
-      : 'No active session',
+      : 'No active replay session',
     count: normalizedSessions.length,
     sessions: normalizedSessions,
   };

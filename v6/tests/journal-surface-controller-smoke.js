@@ -66,8 +66,8 @@ const modeled = createJournalSurfaceState({
 });
 assert.equal(modeled.count, 1);
 assert.deepEqual(modeled.entryLabels, ['NQ buy 1@100']);
-assert.equal(modeled.pnlLabel, 'Net 2');
-assert.equal(modeled.snapshotLabel, 'Snapshot snapshot-a');
+assert.equal(modeled.pnlLabel, 'Net P/L 2');
+assert.equal(modeled.snapshotLabel, 'Saved snapshot-a');
 
 let entries = [];
 let snapshotEntries = [];
@@ -127,8 +127,8 @@ assert.deepEqual(calls.map((call) => call.command), [
   JOURNAL_COMMANDS.LIST_ENTRIES,
   JOURNAL_COMMANDS.ANALYZE_RECORDS,
 ]);
-assert.equal(root.text('[data-v6-journal-count]'), '0 entries');
-assert.equal(root.text('[data-v6-journal-pnl]'), 'Net 0');
+assert.equal(root.text('[data-v6-journal-count]'), '0 journal entries');
+assert.equal(root.text('[data-v6-journal-pnl]'), 'Net P/L 0');
 assert.equal(controller.getState().open, false);
 
 await root.elementFor('[data-v6-journal-toggle]').dispatch('click');
@@ -152,7 +152,7 @@ assert.deepEqual(calls.map((call) => call.command), [
   JOURNAL_COMMANDS.LIST_ENTRIES,
   JOURNAL_COMMANDS.ANALYZE_RECORDS,
 ]);
-assert.equal(controller.getState().snapshotLabel, 'Snapshot surface');
+assert.equal(controller.getState().snapshotLabel, 'Saved surface');
 
 entries = [];
 calls.length = 0;

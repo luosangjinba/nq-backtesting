@@ -1,12 +1,12 @@
 function formatStateLabel(state) {
-  if (!state) return 'Replay not loaded';
+  if (!state) return 'No replay loaded';
   const status = String(state.status || 'unknown');
   const cursor = state.cursorTime || (state.cursorIndex ?? 'pending');
   return `${status} at ${cursor}`;
 }
 
 function formatWallLabel(state) {
-  if (!state) return 'Wall not loaded';
+  if (!state) return 'No replay wall loaded';
   return `${state.chartBarCount || 0} visible / ${state.forwardBarCount || 0} forward`;
 }
 

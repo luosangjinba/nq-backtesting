@@ -180,9 +180,10 @@ p {
 
 .journal-panel,
 .replay-workflow-panel,
-.sessions-panel {
+.sessions-panel,
+.settings-panel {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: minmax(180px, 0.85fr) minmax(180px, 1fr) auto;
   gap: 8px;
   min-height: 46px;
   padding: 8px 10px;
@@ -192,17 +193,15 @@ p {
 
 .journal-panel[hidden],
 .replay-workflow-panel[hidden],
-.sessions-panel[hidden] {
+.sessions-panel[hidden],
+.settings-panel[hidden] {
   display: none;
 }
 
-.journal-summary,
-.journal-actions,
+.panel-copy,
+.panel-metrics,
+.panel-actions,
 .journal-list,
-.replay-workflow-summary,
-.replay-workflow-actions,
-.sessions-panel-header,
-.sessions-panel-actions,
 .sessions-list {
   display: flex;
   align-items: center;
@@ -210,21 +209,27 @@ p {
   min-width: 0;
 }
 
-.journal-summary,
-.replay-workflow-summary,
-.sessions-panel-header {
+.panel-copy,
+.panel-metrics,
+.panel-actions {
   flex-wrap: wrap;
 }
 
-.journal-summary strong,
-.replay-workflow-summary strong,
-.sessions-panel-header strong {
+.panel-copy {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.panel-copy strong {
   color: #dce5eb;
 }
 
-.journal-summary span,
-.replay-workflow-summary span,
-.sessions-panel-header span,
+.panel-copy span {
+  color: #9db4c3;
+}
+
+.panel-metrics span,
 .journal-list li,
 .sessions-list li {
   min-height: 24px;
@@ -232,6 +237,26 @@ p {
   border: 1px solid #22323e;
   border-radius: 5px;
   background: #111d26;
+}
+
+.panel-actions {
+  justify-content: flex-end;
+}
+
+.settings-panel label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #9fb7c6;
+}
+
+.settings-panel label span {
+  white-space: nowrap;
+}
+
+.settings-panel select {
+  min-width: 92px;
 }
 
 .journal-list,
@@ -533,6 +558,17 @@ p {
   .top-bar {
     grid-template-columns: 1fr;
     align-items: start;
+  }
+
+  .journal-panel,
+  .replay-workflow-panel,
+  .sessions-panel,
+  .settings-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-actions {
+    justify-content: flex-start;
   }
 
   .chart-toolbar {

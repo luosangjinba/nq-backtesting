@@ -29,45 +29,57 @@ export function createWorkstationShellMarkup() {
         </div>
       </header>
       <section class="journal-panel" data-v6-journal-panel hidden>
-        <div class="journal-summary">
-          <strong>Journal</strong>
-          <span data-v6-journal-count>0 entries</span>
-          <span data-v6-journal-pnl>Net --</span>
-          <span data-v6-journal-snapshot>Snapshot none</span>
+        <div class="panel-copy">
+          <strong>Trade Journal</strong>
+          <span>Review replay notes and saved outcomes.</span>
         </div>
-        <div class="journal-actions">
-          <button type="button" data-v6-journal-refresh>Refresh</button>
-          <button type="button" data-v6-journal-add>Add sample</button>
-          <button type="button" data-v6-journal-save>Save</button>
-          <button type="button" data-v6-journal-load>Load</button>
+        <div class="panel-metrics journal-summary">
+          <span data-v6-journal-count>0 journal entries</span>
+          <span data-v6-journal-pnl>Net P/L pending</span>
+          <span data-v6-journal-snapshot>No saved journal</span>
+        </div>
+        <div class="panel-actions journal-actions">
+          <button type="button" data-v6-journal-refresh>Update</button>
+          <button type="button" data-v6-journal-add>Add note</button>
+          <button type="button" data-v6-journal-save>Save journal</button>
+          <button type="button" data-v6-journal-load>Load journal</button>
         </div>
         <ul class="journal-list" data-v6-journal-list></ul>
       </section>
       <section class="replay-workflow-panel" data-v6-replay-workflow-panel hidden>
-        <div class="replay-workflow-summary">
-          <strong>Replay</strong>
-          <span data-v6-replay-workflow-state>Replay not loaded</span>
-          <span data-v6-replay-workflow-wall>Wall not loaded</span>
+        <div class="panel-copy">
+          <strong>Replay Control</strong>
+          <span>Manage replay state without changing chart ownership.</span>
         </div>
-        <div class="replay-workflow-actions">
-          <button type="button" data-v6-replay-workflow-refresh>Refresh</button>
+        <div class="panel-metrics replay-workflow-summary">
+          <span data-v6-replay-workflow-state>No replay loaded</span>
+          <span data-v6-replay-workflow-wall>No replay wall loaded</span>
+        </div>
+        <div class="panel-actions replay-workflow-actions">
+          <button type="button" data-v6-replay-workflow-refresh>Update</button>
           <button type="button" data-v6-replay-workflow-pause>Pause</button>
           <button type="button" data-v6-replay-workflow-reset>Reset</button>
         </div>
       </section>
       <section class="sessions-panel" data-v6-sessions-panel hidden>
-        <div class="sessions-panel-header">
-          <strong>Sessions</strong>
-          <span data-v6-sessions-count>0 sessions</span>
-          <span data-v6-sessions-active>No active session</span>
+        <div class="panel-copy sessions-panel-header">
+          <strong>Replay Sessions</strong>
+          <span data-v6-sessions-active>No active replay session</span>
         </div>
-        <div class="sessions-panel-actions">
-          <button type="button" data-v6-sessions-create>Create</button>
-          <button type="button" data-v6-sessions-refresh>Refresh</button>
+        <div class="panel-metrics">
+          <span data-v6-sessions-count>0 replay sessions</span>
+        </div>
+        <div class="panel-actions sessions-panel-actions">
+          <button type="button" data-v6-sessions-create>New session</button>
+          <button type="button" data-v6-sessions-refresh>Update</button>
         </div>
         <ul class="sessions-list" data-v6-sessions-list></ul>
       </section>
       <section class="settings-panel" data-v6-settings-panel hidden>
+        <div class="panel-copy">
+          <strong>Workspace Settings</strong>
+          <span>Adjust display preferences for this workstation.</span>
+        </div>
         <label>
           <span>Theme</span>
           <select data-v6-settings-field="theme" aria-label="Theme">

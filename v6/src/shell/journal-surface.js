@@ -23,7 +23,7 @@ function renderEntryList(root, entries = []) {
 }
 
 function renderJournalSurface(root, state) {
-  setText(root, '[data-v6-journal-count]', `${state.count} entries`);
+  setText(root, '[data-v6-journal-count]', `${state.count} journal entries`);
   setText(root, '[data-v6-journal-pnl]', state.pnlLabel);
   setText(root, '[data-v6-journal-snapshot]', state.snapshotLabel);
   renderEntryList(root, state.entries);

@@ -18,7 +18,7 @@ function renderSessionList(root, sessions = []) {
 }
 
 function renderSessionsSurface(root, state) {
-  setText(root, '[data-v6-sessions-count]', `${state.count} sessions`);
+  setText(root, '[data-v6-sessions-count]', `${state.count} replay sessions`);
   setText(root, '[data-v6-sessions-active]', state.activeSessionLabel);
   renderSessionList(root, state.sessions);
 }

@@ -102,8 +102,8 @@ await Promise.resolve();
 await Promise.resolve();
 
 assert.deepEqual(calls, [SESSION_COMMANDS.GET_ACTIVE, SESSION_COMMANDS.LIST]);
-assert.equal(root.text('[data-v6-sessions-count]'), '0 sessions');
-assert.equal(root.text('[data-v6-sessions-active]'), 'No active session');
+assert.equal(root.text('[data-v6-sessions-count]'), '0 replay sessions');
+assert.equal(root.text('[data-v6-sessions-active]'), 'No active replay session');
 assert.equal(controller.getState().open, false);
 
 await root.elementFor('[data-v6-sessions-toggle]').dispatch('click');
@@ -122,7 +122,7 @@ assert.deepEqual(calls, [
   SESSION_COMMANDS.LIST,
 ]);
 assert.equal(controller.getState().count, 1);
-assert.equal(root.text('[data-v6-sessions-count]'), '1 sessions');
+assert.equal(root.text('[data-v6-sessions-count]'), '1 replay sessions');
 assert.match(root.html('[data-v6-sessions-list]'), /session-created/);
 
 controller.unmount();

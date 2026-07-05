@@ -28,6 +28,7 @@ async function main() {
         readinessCommandCount: document.querySelector('[data-v6-readiness-command-count]')?.textContent || '',
         readinessGateCount: document.querySelector('[data-v6-readiness-gate-count]')?.textContent || '',
         readinessGateItems: document.querySelectorAll('[data-v6-readiness-gate]').length,
+        panelTitles: [...document.querySelectorAll('.panel-copy strong')].map((element) => element.textContent),
         bodyText: document.body.textContent || '',
         registrySnapshot: document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.(),
         playDisabled: document.querySelector('[data-v6-transport-action="play-toggle"]')?.disabled ?? true,
@@ -61,6 +62,12 @@ async function main() {
     assert.equal(value.readinessCommandCount, 'Commands ready');
     assert.equal(value.readinessGateCount, 'Core checks passed');
     assert.equal(value.readinessGateItems, 0);
+    assert.deepEqual(value.panelTitles, [
+      'Trade Journal',
+      'Replay Control',
+      'Replay Sessions',
+      'Workspace Settings',
+    ]);
     assert.equal(value.bodyText.includes('boundary-smoke.js'), false);
     assert.equal(value.bodyText.includes('Cache-hit latency'), false);
     assert.equal(value.bodyText.includes('mixed-timeframe-visible-latency-browser-smoke.js'), false);
@@ -96,7 +103,7 @@ async function main() {
     `));
     assert.equal(sessionFlow.open, true);
     assert.equal(sessionFlow.count, 1);
-    assert.equal(sessionFlow.countText, '1 sessions');
+    assert.equal(sessionFlow.countText, '1 replay sessions');
     assert.match(sessionFlow.activeText, /NQ 1m/);
     assert.equal(sessionFlow.rows, 1);
 
@@ -118,8 +125,8 @@ async function main() {
     `));
     assert.equal(replayWorkflow.open, true);
     assert.equal(replayWorkflow.loaded, false);
-    assert.equal(replayWorkflow.replayText, 'Replay not loaded');
-    assert.equal(replayWorkflow.wallText, 'Wall not loaded');
+    assert.equal(replayWorkflow.replayText, 'No replay loaded');
+    assert.equal(replayWorkflow.wallText, 'No replay wall loaded');
 
     const journalFlow = JSON.parse(await evaluate(page.client, `
       (async () => {
@@ -147,9 +154,9 @@ async function main() {
     `));
     assert.equal(journalFlow.open, true);
     assert.equal(journalFlow.count, 1);
-    assert.equal(journalFlow.countText, '1 entries');
-    assert.equal(journalFlow.pnlText, 'Net 1');
-    assert.equal(journalFlow.snapshotText, 'Snapshot workstation-journal');
+    assert.equal(journalFlow.countText, '1 journal entries');
+    assert.equal(journalFlow.pnlText, 'Net P/L 1');
+    assert.equal(journalFlow.snapshotText, 'Saved workstation-journal');
     assert.equal(journalFlow.rows, 1);
   } finally {
     await page.cleanup();

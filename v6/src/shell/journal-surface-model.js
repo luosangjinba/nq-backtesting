@@ -14,7 +14,7 @@ export function createJournalSurfaceState({
     entries: normalizedEntries,
     entryLabels: normalizedEntries.map(formatEntryLabel),
     lastSnapshot: lastSnapshot ? { ...lastSnapshot } : null,
-    pnlLabel: analytics ? `Net ${analytics.netPnl}` : 'Net --',
-    snapshotLabel: lastSnapshot?.key ? `Snapshot ${lastSnapshot.key}` : 'Snapshot none',
+    pnlLabel: analytics ? `Net P/L ${analytics.netPnl}` : 'Net P/L pending',
+    snapshotLabel: lastSnapshot?.key ? `Saved ${lastSnapshot.key}` : 'No saved journal',
   };
 }
