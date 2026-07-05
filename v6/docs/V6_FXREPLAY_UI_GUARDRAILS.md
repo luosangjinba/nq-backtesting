@@ -115,6 +115,21 @@ Indicators, undo, and redo are reserved top-toolbar commands:
   or a dedicated indicator/drawing runtime. These controls must not directly own
   chart data, replay cursor, viewport intent, or adapter state.
 
+## Replay Transport
+
+The replay transport is not a generic media player:
+
+- It is a compact floating bar that can be dragged around the chart viewport.
+- It should expose a drag handle, truncate action, speed slider, previous bar,
+  play/pause, replay step period menu, next bar, and active-chart-period sync
+  toggle.
+- The replay step period menu is distinct from the chart display timeframe
+  selector. It controls replay cadence/step size once an owner exists.
+- The sync toggle means replay step period follows the active chart period once
+  an owner exists.
+- Controls without a runtime owner must look like real reserved tools, but stay
+  inert until their command/event boundary exists.
+
 ## Settings Kernel
 
 Settings should use a chart-settings modal, not a full page:

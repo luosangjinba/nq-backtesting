@@ -6,14 +6,20 @@ const ICONS = {
   fullscreen: '<path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 3.1a7 7 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 3.1h5l.4-3.1a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z"/>',
   grid: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
+  grip: '<circle cx="8" cy="5" r="1"/><circle cx="16" cy="5" r="1"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><circle cx="8" cy="19" r="1"/><circle cx="16" cy="19" r="1"/>',
   indicators: '<path d="M4 18V6"/><path d="M10 18V10"/><path d="M16 18V4"/><path d="M21 18H3"/>',
   journal: '<path d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/>',
   layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
   moon: '<path d="M21 14.8A8 8 0 0 1 9.2 3a7 7 0 1 0 11.8 11.8z"/>',
+  pause: '<path d="M9 5v14"/><path d="M15 5v14"/>',
+  play: '<path d="M8 5l11 7-11 7z"/>',
   plusCircle: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/>',
   redo: '<path d="M21 7v6h-6"/><path d="M20 13a7 7 0 1 0-2 5"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
   spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+  stepBack: '<path d="M19 5v14"/><path d="M15 6l-8 6 8 6"/>',
+  stepForward: '<path d="M5 5v14"/><path d="M9 6l8 6-8 6"/>',
+  truncate: '<path d="M19 5v14"/><path d="M5 12h11"/><path d="M9 8l-4 4 4 4"/>',
   undo: '<path d="M3 7v6h6"/><path d="M4 13a7 7 0 1 1 2 5"/>',
 };
 
@@ -291,16 +297,36 @@ export function createWorkstationShellMarkup() {
             <span data-v6-status-price>--</span>
           </div>
           <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
-            <button type="button" aria-label="Step back" disabled>|&lt;</button>
-            <button type="button" aria-label="Play replay" data-v6-transport-action="play-toggle" aria-pressed="false">Play</button>
-            <button type="button" aria-label="Step forward" data-v6-transport-action="next">&gt;|</button>
-            <div class="transport-speed" aria-label="Replay speed">
-              <button type="button" data-v6-transport-speed="0.5" aria-pressed="false">0.5x</button>
-              <button type="button" data-v6-transport-speed="1" aria-pressed="true" class="is-active">1x</button>
-              <button type="button" data-v6-transport-speed="2" aria-pressed="false">2x</button>
-              <button type="button" data-v6-transport-speed="4" aria-pressed="false">4x</button>
-            </div>
-            <span>1m</span>
+            <button type="button" class="transport-grip" data-v6-transport-drag-handle aria-label="Drag replay controls">${icon('grip')}</button>
+            <button type="button" class="transport-icon-button" data-v6-transport-truncate disabled aria-label="Truncate replay after current bar">${icon('truncate')}</button>
+            <label class="transport-speed-slider" aria-label="Replay speed">
+              <input type="range" min="0.5" max="4" step="0.5" value="1" data-v6-transport-speed-slider>
+            </label>
+            <button type="button" class="transport-icon-button" data-v6-transport-step-back disabled aria-label="Previous replay bar">${icon('stepBack')}</button>
+            <button type="button" class="transport-icon-button" aria-label="Play replay" data-v6-transport-action="play-toggle" aria-pressed="false">
+              ${icon('play')}
+              <span class="sr-only" data-v6-transport-play-label>Play replay</span>
+            </button>
+            <details class="transport-period-menu-anchor" data-v6-transport-period-details>
+              <summary class="transport-period-trigger" data-v6-transport-period-toggle aria-label="Replay step period">
+                <span data-v6-transport-period-label>1m</span>
+              </summary>
+              <div class="transport-period-menu" data-v6-transport-period-menu role="menu" aria-label="Replay step period">
+                <button type="button" disabled role="menuitem">1s</button>
+                <button type="button" disabled role="menuitem">5s</button>
+                <button type="button" disabled role="menuitem">10s</button>
+                <button type="button" disabled role="menuitem">15s</button>
+                <button type="button" disabled role="menuitem">30s</button>
+                <button type="button" disabled role="menuitem">1m</button>
+                <button type="button" disabled role="menuitem">3m</button>
+                <button type="button" disabled role="menuitem">5m</button>
+              </div>
+            </details>
+            <button type="button" class="transport-icon-button" aria-label="Next replay bar" data-v6-transport-action="next">${icon('stepForward')}</button>
+            <label class="transport-sync-toggle" aria-label="Sync replay period with active chart">
+              <input type="checkbox" data-v6-transport-period-sync>
+              <span></span>
+            </label>
           </div>
         </section>
         <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">

@@ -1064,39 +1064,204 @@ p {
   z-index: 4;
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px;
+  gap: 6px;
+  min-height: 48px;
+  padding: 6px 8px;
   border-radius: 8px;
+  border-color: #2b3036;
+  background: #090a0d;
   box-shadow: 0 16px 38px rgba(0, 0, 0, 0.36);
   transform: translateX(-50%);
 }
 
-.transport-placeholder span {
-  min-width: 36px;
-  color: #dce5eb;
-  font-size: 12px;
-  font-weight: 700;
-  text-align: center;
-}
-
 .transport-placeholder button {
-  min-width: 34px;
-  padding: 0 10px;
   color: #dce5eb;
   cursor: pointer;
 }
 
 .transport-placeholder button:disabled {
-  color: #5e7180;
+  color: #b8c0ca;
+  opacity: 1;
   cursor: default;
 }
 
-.transport-placeholder button[aria-pressed="true"],
-.transport-placeholder button.is-active {
-  border-color: #2f7fd8;
-  background: #1f61c5;
+.transport-grip,
+.transport-icon-button,
+.transport-period-trigger {
+  width: 34px;
+  min-width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #dce5eb;
+}
+
+.transport-grip {
+  cursor: grab;
+}
+
+.transport-grip:active {
+  cursor: grabbing;
+}
+
+.transport-icon-button .tool-icon,
+.transport-grip .tool-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.transport-placeholder [data-v6-transport-action="play-toggle"] .tool-icon {
+  fill: currentColor;
+  stroke-width: 0;
+}
+
+.transport-icon-button:hover:not(:disabled),
+.transport-grip:hover,
+.transport-period-trigger:hover {
+  background: #171b20;
+}
+
+.transport-speed-slider {
+  width: 116px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+}
+
+.transport-speed-slider input {
+  width: 100%;
+  height: 18px;
+  appearance: none;
+  background: transparent;
+}
+
+.transport-speed-slider input::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #34383d;
+}
+
+.transport-speed-slider input::-webkit-slider-thumb {
+  width: 12px;
+  height: 12px;
+  margin-top: -4px;
+  appearance: none;
+  border-radius: 999px;
+  background: #1e73ff;
+}
+
+.transport-speed-slider input::-moz-range-track {
+  height: 4px;
+  border-radius: 999px;
+  background: #34383d;
+}
+
+.transport-speed-slider input::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  background: #1e73ff;
+}
+
+.transport-period-menu-anchor {
+  position: relative;
+}
+
+.transport-period-menu-anchor summary {
+  list-style: none;
+}
+
+.transport-period-menu-anchor summary::-webkit-details-marker {
+  display: none;
+}
+
+.transport-period-trigger {
+  width: 60px;
+  gap: 8px;
   color: #ffffff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.transport-period-trigger::after {
+  color: #d6dbe1;
+  content: "⌄";
+  font-size: 13px;
+}
+
+.transport-period-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 40;
+  width: 74px;
+  max-height: 318px;
+  overflow-y: auto;
+  padding: 12px 0;
+  border: 1px solid #3a3f45;
+  border-radius: 12px;
+  background: #000000;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.5);
+}
+
+.transport-period-menu button {
+  width: 100%;
+  height: 40px;
+  justify-content: flex-start;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #f5f7fa;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: left;
+}
+
+.transport-sync-toggle {
+  width: 48px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.transport-sync-toggle input {
+  position: absolute;
+  opacity: 0;
+}
+
+.transport-sync-toggle span {
+  width: 40px;
+  height: 24px;
+  display: block;
+  border-radius: 999px;
+  background: #3e444c;
+}
+
+.transport-sync-toggle span::before {
+  width: 20px;
+  height: 20px;
+  display: block;
+  margin: 2px;
+  border-radius: 999px;
+  background: #050607;
+  content: "";
+}
+
+.transport-sync-toggle input:checked + span {
+  background: #d8dde2;
+}
+
+.transport-sync-toggle input:checked + span::before {
+  transform: translateX(16px);
 }
 
 .transport-speed {

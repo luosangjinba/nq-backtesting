@@ -130,12 +130,12 @@ assert.equal(speedButton['aria-pressed'], 'true');
 eventListeners.get('replay:playbackChanged')?.({ status: 'paused' });
 assert.equal(controller.getState().playing, false);
 assert.equal(controller.getState().speed, 2);
-assert.equal(playButton.textContent, 'Play');
+assert.equal(playButton['aria-label'], 'Play replay');
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'playing' });
 assert.equal(controller.getState().playing, true);
 assert.equal(controller.getState().speed, 2);
-assert.equal(playButton.textContent, 'Pause');
+assert.equal(playButton['aria-label'], 'Pause replay');
 
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();

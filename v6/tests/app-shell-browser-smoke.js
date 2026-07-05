@@ -33,7 +33,9 @@ async function main() {
         registrySnapshot: document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.(),
         playDisabled: document.querySelector('[data-v6-transport-action="play-toggle"]')?.disabled ?? true,
         nextDisabled: document.querySelector('[data-v6-transport-action="next"]')?.disabled ?? true,
-        speedButtons: document.querySelectorAll('[data-v6-transport-speed]').length,
+        speedSliderMounted: Boolean(document.querySelector('[data-v6-transport-speed-slider]')),
+        periodMenuMounted: Boolean(document.querySelector('[data-v6-transport-period-menu]')),
+        syncToggleMounted: Boolean(document.querySelector('[data-v6-transport-period-sync]')),
         });
       })()
     `));
@@ -73,7 +75,9 @@ async function main() {
     assert.equal(value.bodyText.includes('mixed-timeframe-visible-latency-browser-smoke.js'), false);
     assert.equal(value.playDisabled, false);
     assert.equal(value.nextDisabled, false);
-    assert.equal(value.speedButtons, 4);
+    assert.equal(value.speedSliderMounted, true);
+    assert.equal(value.periodMenuMounted, true);
+    assert.equal(value.syncToggleMounted, true);
     assert.equal(value.commands.includes('defaultWall.load'), true);
     assert.equal(value.commands.includes('defaultWall.next'), true);
     assert.equal(value.commands.includes('layout.getSnapshot'), true);
