@@ -116,3 +116,14 @@ export const LAYOUT_EVENTS = Object.freeze({
   MODE_CHANGED: 'layout:modeChanged',
   SYNC_CHANGED: 'layout:syncChanged',
 });
+
+export const SETTINGS_COMMANDS = Object.freeze({
+  GET_SNAPSHOT: 'settings.getSnapshot',
+  RESET: 'settings.reset',
+  UPDATE: 'settings.update',
+});
+
+export const SETTINGS_EVENTS = Object.freeze({
+  RESET: 'settings:reset',
+  UPDATED: 'settings:updated',
+});
