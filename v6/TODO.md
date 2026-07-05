@@ -14,24 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 31 - Workflow Surfaces Readiness Audit. The
-  implementation hides engineering gate details from the default readiness
-  surface, adds a workflow surfaces audit, and protects the shell from exposing
-  test filenames or gate names to users.
+- Latest completed step: Step 32 - Product Top Chrome Consolidation. The
+  implementation moves readiness into a compact header status, removes the
+  standalone diagnostics row from the main reading path, and documents the top
+  chrome product-surface rules.
 
 ## Next Executable Steps
 
-### Step 32 - Product Top Chrome Consolidation
+### Step 33 - Workflow Panel Product Copy And Layout
 
-Consolidate the top workstation chrome into a user-facing product surface before
-adding deeper workflow features.
+Refine the Sessions, Replay, Journal, and Settings panels so opened workflow
+surfaces read like product UI instead of developer controls.
 
 Acceptance:
 
-- top chrome prioritizes chart context and user actions, not diagnostics;
-- diagnostics remain hidden or summarized with user-friendly language;
-- no workflow UI imports feature runtime internals or chart/data/viewport
-  ownership paths.
+- panel copy uses user-facing labels and empty states;
+- panel layout remains compact and does not compete with the chart workspace;
+- panel controllers still dispatch commands only and do not import feature
+  runtime internals or chart/data/viewport ownership paths.
 
 ## Completed Steps
 
@@ -599,6 +599,21 @@ Completed in commits:
 
 - `675e69c feat(v6): hide engineering gates from readiness surface`
 - `8f9d078 docs(v6): audit workflow surfaces`
+
+Verification:
+
+- `node v6/tests/readiness-surface-controller-smoke.js`
+- `node v6/tests/readiness-audit-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 32 - Product Top Chrome Consolidation
+
+Completed in commits:
+
+- `3d3a6f7 feat(v6): consolidate product top chrome`
+- `cd73cea docs(v6): document product top chrome`
 
 Verification:
 
