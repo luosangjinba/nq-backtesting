@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 20 - Pane-Local Manual Walls. The implementation
-  gates pane-local manual viewport intent at runtime and browser levels while
-  keeping multi-pane visible latency measured.
+- Latest completed step: Step 21 - Settings Baseline. The implementation adds
+  a settings owner/runtime, command-only settings UI, browser coverage, and
+  boundary audits that prevent Settings from mutating chart/replay/data/viewport
+  state directly.
 
 ## Next Executable Steps
 
-### Step 21 - Settings Baseline
+### Step 22 - Transport Polish Baseline
 
-Define the first Settings boundary for V6 without coupling settings UI to chart,
-replay, data, or viewport internals.
+Polish replay transport behavior within the existing command-only UI boundary.
+Keep transport controls dispatching replay/default-wall commands only.
 
 Acceptance:
 
-- settings state has an explicit owner and command/event contract;
-- settings UI dispatches commands only;
-- no Settings path mutates chart/replay/data/viewport state directly.
+- transport UI state stays synchronized with playback and speed state;
+- transport controls do not import feature runtime internals;
+- existing replay visible-latency gates remain green.
 
 ## Completed Steps
 
@@ -407,9 +408,28 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 21 - Settings Baseline
+
+Completed in commits:
+
+- `61453e7 feat(v6): add settings runtime`
+- `82f3b49 feat(v6): register settings runtime`
+- `28ebfda feat(v6): mount settings panel`
+- `3090181 test(v6): enforce settings boundaries`
+- `a195d7c test(v6): verify settings panel browser flow`
+
+Verification:
+
+- `node v6/tests/settings-runtime-smoke.js`
+- `node v6/tests/settings-panel-controller-smoke.js`
+- `node v6/tests/settings-panel-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
 ## Deferred Until Later Gates
 
-- transport polish beyond the FXReplay baseline controls;
 - persistence beyond in-memory session state;
 - journal/orders/analytics;
 - visual polish.
