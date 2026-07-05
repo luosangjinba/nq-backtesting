@@ -14,23 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 22 - Transport Polish Baseline. The
-  implementation keeps replay transport command-only while synchronizing UI
-  playback state from replay events and preserving speed state.
+- Latest completed step: Step 23 - Persistence Baseline. The implementation
+  adds an explicit persistence adapter/repository/runtime boundary with opt-in
+  command writes and no feature runtime restore side effects.
 
 ## Next Executable Steps
 
-### Step 23 - Persistence Baseline
+### Step 24 - Journal Analytics Boundary Baseline
 
-Define the first V6 persistence boundary beyond in-memory session state without
-letting persistence own chart, replay, data, viewport, pane, layout, or settings
-runtime behavior.
+Define the first journal/orders/analytics boundary without coupling it to chart,
+replay, data, viewport, pane, layout, settings, or persistence internals.
 
 Acceptance:
 
-- persistence has an explicit adapter/repository boundary;
-- persistence writes are opt-in command paths, not feature runtime side effects;
-- no persisted state restores chart/replay/data/viewport intent directly.
+- journal/analytics state has an explicit owner and command/event contract;
+- analytics reads supplied records, not live runtime internals;
+- no journal/orders/analytics path mutates chart/replay/data/viewport state.
 
 ## Completed Steps
 
@@ -443,9 +442,26 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 23 - Persistence Baseline
+
+Completed in commits:
+
+- `7046048 feat(v6): add persistence repository`
+- `3b8dcbf feat(v6): add persistence runtime`
+- `6cde633 feat(v6): register persistence runtime`
+- `7c6ef9c test(v6): enforce persistence boundaries`
+
+Verification:
+
+- `node v6/tests/persistence-repository-smoke.js`
+- `node v6/tests/persistence-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
 ## Deferred Until Later Gates
 
-- journal/orders/analytics;
 - visual polish.
 
 ## V5 Reference Policy
