@@ -206,3 +206,4 @@ Session files are targeted handoffs for completed or active V5 steps.
 - Step 498: `session_20260703_step498_v5_settings_polish.md`
 - Step 499: `session_20260703_step499_v5_multi_pane_active_pane_acceptance.md`
 - Step 537: `session_20260704_step537_v5_multi_pane_different_tf_next_projection.md`
+- Step 538: `session_20260704_step538_v5_different_tf_next_fast_path.md`

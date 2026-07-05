@@ -209,4 +209,6 @@ that future work must follow this file order.
   `layout-split-panes-contract.md`, `chart-interaction-contracts.md`
 - Step 537: `multi-pane-different-tf-next-projection-plan.md`,
   `replay-pane-fanout-plan.md`, `layout-split-panes-contract.md`
+- Step 538: `different-tf-next-fast-path-plan.md`,
+  `multi-pane-different-tf-next-projection-plan.md`
 - Cross-phase: `open-source-local-deployment.md`

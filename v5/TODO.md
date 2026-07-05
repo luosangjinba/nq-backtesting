@@ -10,6 +10,15 @@
 
 ## Current / Next
 
+- Current status: Step 538 in progress. Manual testing reports `Next` feels
+  close to half a second again. Initial checks show the Step 517 persistence
+  split and Step 518 append/`series.update` fast path still exist; the likely
+  regression is Step 537 awaiting different-TF display-window projection even
+  when a pane already has bars covering the new cursor. See
+  `v5/docs/specs/different-tf-next-fast-path-plan.md` and
+  `v5/sessions/session_20260704_step538_v5_different_tf_next_fast_path.md`.
+- Current direction: add a covered-cursor fast path so mixed-TF panes sync
+  viewport follow without reloading display windows on every minute `Next`.
 - Current status: Step 537 completed. Different-timeframe replay panes now
   project inside the replay `Next` fanout before `REPLAY_EVENTS.NEXT` is
   emitted. The tightened browser smoke reproduced the delay with a non-default
