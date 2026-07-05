@@ -28,7 +28,7 @@ async function main() {
         readinessCommandCount: document.querySelector('[data-v6-readiness-command-count]')?.textContent || '',
         readinessGateCount: document.querySelector('[data-v6-readiness-gate-count]')?.textContent || '',
         readinessGateItems: document.querySelectorAll('[data-v6-readiness-gate]').length,
-        panelTitles: [...document.querySelectorAll('.panel-copy strong')].map((element) => element.textContent),
+        panelTitles: [...document.querySelectorAll('.panel-copy strong, .settings-modal-header strong')].map((element) => element.textContent),
         bodyText: document.body.textContent || '',
         registrySnapshot: document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.(),
         playDisabled: document.querySelector('[data-v6-transport-action="play-toggle"]')?.disabled ?? true,
@@ -68,7 +68,7 @@ async function main() {
       'Trade Journal',
       'Replay Control',
       'Replay Sessions',
-      'Workspace Settings',
+      'Settings',
     ]);
     assert.equal(value.bodyText.includes('boundary-smoke.js'), false);
     assert.equal(value.bodyText.includes('Cache-hit latency'), false);

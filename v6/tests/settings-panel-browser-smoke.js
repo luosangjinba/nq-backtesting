@@ -11,6 +11,7 @@ try {
       const root = document.querySelector('[data-v6-root]');
       const toggle = document.querySelector('[data-v6-settings-toggle]');
       const panel = document.querySelector('[data-v6-settings-panel]');
+      const modal = document.querySelector('.settings-modal');
       const theme = document.querySelector('[data-v6-settings-field="theme"]');
       const timezone = document.querySelector('[data-v6-settings-field="displayTimezone"]');
       const grid = document.querySelector('[data-v6-settings-field="chartGrid"]');
@@ -31,6 +32,12 @@ try {
         before,
         commandNames: commands.listCommands(),
         mounted: Boolean(root.__v6SettingsPanel?.getState),
+        modalTitle: document.querySelector('.settings-modal-header strong')?.textContent || '',
+        tabLabels: [...document.querySelectorAll('.settings-tab-rail button span')].map((element) => element.textContent),
+        modalRect: (() => {
+          const rect = modal.getBoundingClientRect();
+          return { height: Math.round(rect.height), width: Math.round(rect.width) };
+        })(),
         open: !panel.hidden,
         toggleExpanded: toggle.getAttribute('aria-expanded'),
         uiState: root.__v6SettingsPanel.getState(),
@@ -40,6 +47,10 @@ try {
 
   assert.equal(value.mounted, true);
   assert.equal(value.open, true);
+  assert.equal(value.modalTitle, 'Settings');
+  assert.deepEqual(value.tabLabels, ['Symbol', 'Status line', 'Scales and lines', 'Canvas']);
+  assert.equal(value.modalRect.width >= 560, true);
+  assert.equal(value.modalRect.height >= 520, true);
   assert.equal(value.toggleExpanded, 'true');
   assert.deepEqual(value.before, {
     chartGrid: true,

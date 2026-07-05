@@ -31,6 +31,9 @@ export function mountSettingsPanel(root, {
   const toggle = root.querySelector('[data-v6-settings-toggle]');
   const panel = root.querySelector('[data-v6-settings-panel]');
   const closeButton = root.querySelector('[data-v6-settings-close]');
+  const secondaryCloseButtons = Array.from(
+    root.querySelectorAll?.('[data-v6-settings-close-secondary], [data-v6-settings-ok]') || [],
+  );
   if (!toggle || !panel) {
     throw new Error('Settings panel controls are required.');
   }
@@ -64,6 +67,11 @@ export function mountSettingsPanel(root, {
     closeButton,
     root,
     unsubscriptions: closeUnsubscriptions,
+  });
+  secondaryCloseButtons.forEach((button) => {
+    const listener = () => setOpen(false);
+    button.addEventListener('click', listener);
+    closeUnsubscriptions.push(() => button.removeEventListener('click', listener));
   });
 
   panel.querySelectorAll('[data-v6-settings-field]').forEach((field) => {

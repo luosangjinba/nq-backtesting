@@ -63,7 +63,7 @@ try {
           panelHeight: Math.round(panelRect.height),
           mainHeight: Math.round(mainRect.height),
           panelId: panel.id,
-          title: panel.querySelector('.panel-copy strong')?.textContent || '',
+          title: panel.querySelector('.panel-copy strong, .settings-modal-header strong')?.textContent || '',
         });
       }
 
@@ -99,7 +99,7 @@ try {
     'Replay Sessions',
     'Replay Control',
     'Trade Journal',
-    'Workspace Settings',
+    'Settings',
   ]);
   value.results.forEach((result) => {
     assert.equal(result.open, true, `${result.name} panel should open`);
@@ -116,7 +116,11 @@ try {
       assert.equal(closedState.expanded, 'false', `${result.name} aria-expanded should clear`);
       assert.equal(closedState.pressed, 'false', `${result.name} aria-pressed should clear`);
     });
-    assert.ok(result.panelHeight <= 96, `${result.name} panel should stay compact: ${result.panelHeight}px`);
+    if (result.name === 'Settings') {
+      assert.ok(result.panelHeight >= 520, `${result.name} should use a modal shape: ${result.panelHeight}px`);
+    } else {
+      assert.ok(result.panelHeight <= 96, `${result.name} panel should stay compact: ${result.panelHeight}px`);
+    }
     assert.ok(result.mainHeight >= 460, `${result.name} panel should not crowd the chart: ${result.mainHeight}px`);
   });
   value.exclusivity.forEach((result) => {

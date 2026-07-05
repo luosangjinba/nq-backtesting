@@ -576,8 +576,7 @@ p {
 
 .journal-panel,
 .replay-workflow-panel,
-.sessions-panel,
-.settings-panel {
+.sessions-panel {
   display: grid;
   grid-template-columns: minmax(180px, 0.85fr) minmax(180px, 1fr) auto;
   gap: 8px;
@@ -600,7 +599,13 @@ p {
 }
 
 .settings-panel {
-  grid-row: 5;
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.18);
 }
 
 .journal-panel[hidden],
@@ -655,20 +660,188 @@ p {
   justify-content: flex-end;
 }
 
-.settings-panel label {
+.settings-modal {
+  width: min(610px, calc(100vw - 48px));
+  min-height: 560px;
+  display: grid;
+  grid-template-rows: 68px 1fr 66px;
+  overflow: hidden;
+  border: 1px solid #45484d;
+  border-radius: 5px;
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.55);
+  background: #2a2b2d;
+  color: #eceff2;
+}
+
+.settings-modal-header,
+.settings-modal-footer {
   display: flex;
   align-items: center;
-  gap: 8px;
+  justify-content: space-between;
+  padding: 0 20px;
+  border-bottom: 1px solid #4a4d51;
+}
+
+.settings-modal-header strong {
+  font-size: 20px;
+}
+
+.settings-close-button {
+  width: 36px;
+  min-width: 36px;
+  border: 0;
+  background: transparent;
+  color: #dce2e8;
+  font-size: 28px;
+  font-weight: 300;
+}
+
+.settings-modal-body {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  min-height: 0;
+}
+
+.settings-tab-rail {
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #4a4d51;
+  background: #262729;
+}
+
+.settings-tab-rail button {
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 12px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #d8dde2;
+  font-weight: 700;
+}
+
+.settings-tab-rail button.is-active {
+  background: #383a3d;
+  color: #ffffff;
+}
+
+.settings-tab-rail .tool-icon {
+  width: 18px;
+  height: 18px;
+}
+
+.settings-modal-content {
   min-width: 0;
-  color: #9fb7c6;
+  padding: 26px 20px;
 }
 
-.settings-panel label span {
-  white-space: nowrap;
+.settings-field-group {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 28px;
 }
 
-.settings-panel select {
-  min-width: 92px;
+.settings-group-heading {
+  color: #9aa1a9;
+  font-size: 10px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.settings-check-row,
+.settings-swatch-row,
+.settings-select-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  color: #e5e9ed;
+  font-size: 14px;
+}
+
+.settings-select-row {
+  grid-template-columns: 80px 150px;
+}
+
+.settings-check-row input,
+.settings-swatch-row input {
+  width: 18px;
+  height: 18px;
+  accent-color: #e9edf1;
+}
+
+.settings-select-row select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #747a82;
+  border-radius: 6px;
+  background: #303133;
+  color: #f4f7fa;
+}
+
+.settings-hidden-runtime-field {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+}
+
+.color-swatch {
+  width: 34px;
+  height: 34px;
+  border: 1px solid #9fa7af;
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 4px #303133;
+}
+
+.swatch-up,
+.swatch-border-up {
+  background: #087c65;
+}
+
+.swatch-down,
+.swatch-border-down {
+  background: #af602e;
+}
+
+.swatch-wick-up {
+  background: #27ad91;
+}
+
+.swatch-wick-down {
+  background: #a16f58;
+}
+
+.settings-modal-footer {
+  border-top: 1px solid #4a4d51;
+  border-bottom: 0;
+}
+
+.settings-template-button,
+.settings-footer-actions button {
+  height: 34px;
+  padding: 0 16px;
+  border: 1px solid #8b929a;
+  border-radius: 6px;
+  background: #303133;
+  color: #f3f6f8;
+  font-weight: 700;
+}
+
+.settings-footer-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.settings-ok-button {
+  border-color: #f2f4f6;
+  background: #f2f4f6;
+  color: #17191b;
 }
 
 .journal-list,
@@ -1326,9 +1499,21 @@ p {
 
   .journal-panel,
   .replay-workflow-panel,
-  .sessions-panel,
-  .settings-panel {
+  .sessions-panel {
     grid-template-columns: 1fr;
+  }
+
+  .settings-modal {
+    grid-template-rows: 58px 1fr 60px;
+    width: calc(100vw - 24px);
+  }
+
+  .settings-modal-body {
+    grid-template-columns: 154px minmax(0, 1fr);
+  }
+
+  .settings-tab-rail button {
+    padding: 0 14px;
   }
 
   .panel-actions {

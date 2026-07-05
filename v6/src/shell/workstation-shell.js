@@ -208,36 +208,82 @@ export function createWorkstationShellMarkup() {
         </div>
         <ul class="sessions-list" data-v6-sessions-list></ul>
       </section>
-      <section id="v6-settings-panel" class="settings-panel" data-v6-settings-panel hidden>
-        <div class="panel-copy">
-          <strong>Workspace Settings</strong>
-          <span>Adjust display preferences for this workstation.</span>
-        </div>
-        <label>
-          <span>Theme</span>
-          <select data-v6-settings-field="theme" aria-label="Theme">
-            <option value="dark">Dark</option>
-            <option value="light">Light</option>
-          </select>
-        </label>
-        <label>
-          <span>Timezone</span>
-          <select data-v6-settings-field="displayTimezone" aria-label="Timezone">
-            <option value="exchange">Exchange</option>
-            <option value="local">Local</option>
-            <option value="utc">UTC</option>
-          </select>
-        </label>
-        <label>
-          <input type="checkbox" data-v6-settings-field="chartGrid" checked>
-          <span>Grid</span>
-        </label>
-        <label>
-          <input type="checkbox" data-v6-settings-field="showWatermark" checked>
-          <span>Watermark</span>
-        </label>
-        <div class="panel-actions">
-          <button type="button" data-v6-settings-close aria-label="Close Workspace Settings panel">Close</button>
+      <section id="v6-settings-panel" class="settings-panel" data-v6-settings-panel hidden role="dialog" aria-modal="true" aria-label="Settings">
+        <div class="settings-modal">
+          <header class="settings-modal-header">
+            <strong>Settings</strong>
+            <button type="button" class="settings-close-button" data-v6-settings-close aria-label="Close Settings panel">×</button>
+          </header>
+          <div class="settings-modal-body">
+            <nav class="settings-tab-rail" aria-label="Settings sections">
+              <button type="button" class="is-active" disabled>${icon('indicators')}<span>Symbol</span></button>
+              <button type="button" disabled>${icon('journal')}<span>Status line</span></button>
+              <button type="button" disabled>${icon('arrowRight')}<span>Scales and lines</span></button>
+              <button type="button" disabled>${icon('camera')}<span>Canvas</span></button>
+            </nav>
+            <div class="settings-modal-content">
+              <section class="settings-field-group" aria-label="Candles">
+                <div class="settings-group-heading">Candles</div>
+                <label class="settings-check-row">
+                  <input type="checkbox" data-v6-settings-field="showWatermark" checked>
+                  <span>Color bars based on previous close</span>
+                </label>
+                <label class="settings-swatch-row">
+                  <input type="checkbox" checked disabled>
+                  <span>Body</span>
+                  <span class="color-swatch swatch-up"></span>
+                  <span class="color-swatch swatch-down"></span>
+                </label>
+                <label class="settings-swatch-row">
+                  <input type="checkbox" checked disabled>
+                  <span>Borders</span>
+                  <span class="color-swatch swatch-border-up"></span>
+                  <span class="color-swatch swatch-border-down"></span>
+                </label>
+                <label class="settings-swatch-row">
+                  <input type="checkbox" checked disabled>
+                  <span>Wick</span>
+                  <span class="color-swatch swatch-wick-up"></span>
+                  <span class="color-swatch swatch-wick-down"></span>
+                </label>
+              </section>
+              <section class="settings-field-group" aria-label="Data modification">
+                <div class="settings-group-heading">Data modification</div>
+                <label class="settings-select-row">
+                  <span>Precision</span>
+                  <select disabled aria-label="Precision">
+                    <option>Default</option>
+                  </select>
+                </label>
+                <label class="settings-select-row">
+                  <span>Timezone</span>
+                  <select data-v6-settings-field="displayTimezone" aria-label="Timezone">
+                    <option value="exchange">(UTC-4) New York</option>
+                    <option value="local">Local</option>
+                    <option value="utc">UTC</option>
+                  </select>
+                </label>
+                <label class="settings-check-row settings-hidden-runtime-field">
+                  <input type="checkbox" data-v6-settings-field="chartGrid" checked>
+                  <span>Grid</span>
+                </label>
+                <label class="settings-select-row settings-hidden-runtime-field">
+                  <span>Theme</span>
+                  <select data-v6-settings-field="theme" aria-label="Theme">
+                    <option value="dark">Dark</option>
+                    <option value="light">Light</option>
+                  </select>
+                </label>
+              </section>
+            </div>
+          </div>
+          <footer class="settings-modal-footer">
+            <button type="button" class="settings-template-button" disabled>Template</button>
+            <div class="settings-footer-actions">
+              <button type="button" data-v6-settings-close-secondary>Cancel</button>
+              <button type="button" class="settings-ok-button" data-v6-settings-ok>Ok</button>
+            </div>
+          </footer>
         </div>
       </section>
 
