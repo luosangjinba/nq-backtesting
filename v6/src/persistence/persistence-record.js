@@ -1,4 +1,5 @@
 export const PERSISTENCE_COLLECTIONS = Object.freeze([
+  'journalSnapshots',
   'recentSessions',
   'userNotes',
   'workspaceDrafts',

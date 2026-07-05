@@ -54,8 +54,16 @@ repository.save({
     sessionId: 'session-a',
   },
 });
+repository.save({
+  collection: 'journalSnapshots',
+  key: 'journal-a',
+  value: {
+    entries: [],
+  },
+});
 assert.deepEqual(repository.list('workspaceDrafts').map((record) => record.key), ['draft-a']);
 assert.deepEqual(repository.list().map((record) => `${record.collection}:${record.key}`), [
+  'journalSnapshots:journal-a',
   'recentSessions:session-a',
   'workspaceDrafts:draft-a',
 ]);
