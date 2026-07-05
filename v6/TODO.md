@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 14 - Replay Transport Controls. The
-  implementation adds FXReplay-like transport controls, speed presets, and
-  keyboard shortcuts through a UI controller that dispatches commands only and
-  does not own replay, chart, data, or viewport state.
+- Latest completed step: Step 15 - Chart Status And OHLC. The implementation
+  adds read-only OHLC, session, cursor, revealed, playback, and no-future
+  readouts through event subscriptions without dispatching mutation commands or
+  owning replay/chart/data/viewport state.
 
 ## Next Executable Steps
 
-### Step 15 - Chart Status And OHLC
+### Step 16 - Display Timeframe Single-Pane
 
-Implement read-only chart status and OHLC surfaces: top-left OHLC, footer status,
-session/cursor/revealed/playback readouts, and no-future progress messaging.
+Implement single-pane display timeframe selection and projection while
+preserving no-future behavior and current viewport intent.
 
 Acceptance:
 
-- status is read-only;
-- no chart/replay mutation from status UI.
+- TF change does not reset viewport intent unless explicit reset/follow;
+- latency gate still passes.
 
 ## Completed Steps
 
@@ -278,6 +278,26 @@ Verification:
 
 - `node v6/tests/replay-transport-controller-smoke.js`
 - `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 15 - Chart Status And OHLC
+
+Completed in commits:
+
+- `8b7e65f feat(v6): add status readout model`
+- `7844ce9 feat(v6): mount read-only status readouts`
+- `29c4d69 test(v6): verify read-only status updates`
+- `a0f80c8 test(v6): enforce status readout boundaries`
+
+Verification:
+
+- `node v6/tests/status-readout-model-smoke.js`
+- `node v6/tests/status-readout-controller-smoke.js`
+- `node v6/tests/status-readout-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
 - `node v6/tests/default-wall-replay-browser-smoke.js`
