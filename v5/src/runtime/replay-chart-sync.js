@@ -155,6 +155,7 @@ export function createReplayChartSync({
       rightEdgeLimit: rightEdgeLimit || cursorTimestamp,
       viewportFollow: {
         enabled: true,
+        resume: true,
         cursorTimestamp,
       },
     });

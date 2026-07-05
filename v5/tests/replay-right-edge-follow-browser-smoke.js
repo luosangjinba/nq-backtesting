@@ -188,6 +188,19 @@ async function main() {
           const secondCursor = Date.parse('2026-06-01T09:32:00.000Z') / 1000;
           const singleAfterFirst = await clickNextAndWait(firstCursor);
           const singleAfterSecond = await clickNextAndWait(secondCursor);
+          await commands.dispatchCommand('chart.setManualVisibleRange', {
+            from: secondCursor - 600,
+            to: secondCursor,
+          });
+          await waitFor('manual viewport', async () => {
+            const interaction = await commands.dispatchCommand('chart.getInteractionState');
+            return interaction.interaction?.mode === 'manual'
+              && interaction.viewportFollow?.enabled === false
+              && interaction;
+          });
+          const thirdCursorAfterManual = Date.parse('2026-06-01T09:33:00.000Z') / 1000;
+          const singleAfterManualNext = await clickNextAndWait(thirdCursorAfterManual);
+          const afterManualNextInteraction = await commands.dispatchCommand('chart.getInteractionState');
 
           await commands.dispatchCommand('layout.setMode', {
             mode: 'twice',
@@ -196,16 +209,18 @@ async function main() {
           await waitFor('two panes rendered', async () =>
             paneMetrics().length === 2
               && paneMetrics().every((pane) => pane.renderedBarCount > 0)
-              && paneMetrics().every((pane) => pane.viewportCursorTimestamp === secondCursor)
+              && paneMetrics().every((pane) => pane.viewportCursorTimestamp === thirdCursorAfterManual)
           );
 
-          const thirdCursor = Date.parse('2026-06-01T09:33:00.000Z') / 1000;
-          const multiAfterNext = await clickNextAndWait(thirdCursor);
+          const fourthCursor = Date.parse('2026-06-01T09:34:00.000Z') / 1000;
+          const multiAfterNext = await clickNextAndWait(fourthCursor);
 
           return JSON.stringify({
             error: '',
             singleAfterFirst,
             singleAfterSecond,
+            singleAfterManualNext,
+            afterManualNextInteraction,
             multiAfterNext,
           });
         } catch (error) {
@@ -217,7 +232,12 @@ async function main() {
     `));
 
     assert.equal(value.error, '', value.error || 'browser smoke failed');
-    for (const pane of [...value.singleAfterFirst, ...value.singleAfterSecond, ...value.multiAfterNext]) {
+    for (const pane of [
+      ...value.singleAfterFirst,
+      ...value.singleAfterSecond,
+      ...value.singleAfterManualNext,
+      ...value.multiAfterNext,
+    ]) {
       assert.equal(
         pane.latestRightOffset,
         pane.rightOffsetBars,
@@ -230,6 +250,9 @@ async function main() {
     }
     assert.equal(value.singleAfterFirst.length, 1);
     assert.equal(value.singleAfterSecond.length, 1);
+    assert.equal(value.singleAfterManualNext.length, 1);
+    assert.equal(value.afterManualNextInteraction.interaction.mode, 'follow');
+    assert.equal(value.afterManualNextInteraction.viewportFollow.enabled, true);
     assert.equal(value.multiAfterNext.length, 2);
   } finally {
     if (client) {
