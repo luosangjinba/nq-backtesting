@@ -14,21 +14,21 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 18 - Multi-Pane Chart Hosts. The implementation
-  adds one chart host lifecycle path for multiple panes and a coordinated
-  same-timeframe default-wall fan-out.
+- Latest completed step: Step 19 - Mixed Timeframe Panes. The implementation
+  keeps default-wall pane projection pane-local, preserves active-pane
+  timeframe isolation, and measures mixed-timeframe visible latency separately.
 
 ## Next Executable Steps
 
-### Step 19 - Mixed Timeframe Panes
+### Step 20 - Pane-Local Manual Walls
 
-Keep pane-local timeframe projection independent across panes. Apply interval
-sync only through explicit layout sync intent.
+Keep manual wall intent pane-local when a user drags or wheels one pane.
+Other panes must preserve their own viewport intent.
 
 Acceptance:
 
-- active pane display timeframe does not leak into inactive panes;
-- mixed-timeframe Next visible latency is measured separately.
+- drag/wheel on one pane does not mutate another pane's viewport intent;
+- multi-pane visible latency remains gated.
 
 ## Completed Steps
 
@@ -360,6 +360,29 @@ Verification:
 - `node v6/tests/multi-pane-chart-host-browser-smoke.js`
 - `node v6/tests/default-wall-replay-browser-smoke.js`
 - `node v6/tests/manual-wall-replay-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 19 - Mixed Timeframe Panes
+
+Completed in commits:
+
+- `114baec feat(v6): project default wall pane timeframes`
+- `6ac7883 feat(v6): support mixed timeframe wall fanout`
+- `644da85 test(v6): measure mixed timeframe visible latency`
+- `b65aaf3 test(v6): guard pane timeframe isolation`
+
+Verification:
+
+- `node v6/tests/default-wall-pane-projection-smoke.js`
+- `node v6/tests/default-wall-mixed-timeframe-runtime-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/multi-pane-chart-host-browser-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
