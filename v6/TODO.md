@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 3 - Session Model. The implementation adds local
-  replay session creation/lookup through command/event runtime boundaries and
-  an in-memory repository without chart/replay/data/viewport coupling.
+- Latest completed step: Step 4 - Bar Data Runtime. The implementation adds
+  bounded bar window planning, normalized bars, in-memory window cache, V4 bars
+  API adapter timing metadata, and a bar data runtime without chart/replay
+  mutation.
 
 ## Next Executable Steps
 
-### Step 4 - Bar Data Runtime
+### Step 5 - Replay Runtime
 
-Implement V4 bars API adapter, bounded window request planning, in-memory window
-cache, and timing metadata.
+Implement replay cursor/revealed state, initial session loading, and
+Next/Play/Pause/Reset without chart calls.
 
 Acceptance:
 
-- cache hit/miss tests pass;
-- API timing metadata is available;
-- bar runtime does not mutate chart or replay state.
+- replay cursor state tests pass;
+- no-future reveal tests pass;
+- replay can run without chart engine.
 
 ## Completed Steps
 
@@ -76,6 +77,25 @@ Verification:
 
 - `node v6/tests/session-domain-smoke.js`
 - `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 4 - Bar Data Runtime
+
+Completed in commits:
+
+- `a790062 feat(v6): add bar data window cache`
+- `7693073 feat(v6): add v4 bars adapter`
+- `dc7f958 feat(v6): register bar data runtime`
+- `a853113 test(v6): gate bar data runtime`
+
+Verification:
+
+- `node v6/tests/bar-data-domain-smoke.js`
+- `node v6/tests/bar-data-adapter-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
