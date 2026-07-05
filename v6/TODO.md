@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 6 - Unified Pane Model. The implementation adds
-  one canonical pane record shape, default pane id, active pane id, and static
-  audits against primary/non-primary split state before chart/pane expansion.
+- Latest completed step: Step 7 - Viewport Intent Domain. The implementation
+  adds pure default/manual replay-wall intent creation, cursor-only intent
+  updates, manual wall measurement, and logical range projection without DOM,
+  chart engine, replay runtime, or bar-data dependencies.
 
 ## Next Executable Steps
 
-### Step 7 - Viewport Intent Domain
+### Step 8 - Chart Data Runtime
 
-Implement default wall intent, manual wall intent, cursor advance projection,
-and logical range projection as pure domain logic.
+Implement pane-local chart bars, append/replace operations, no-future filtering,
+and chart bars revision metadata.
 
 Acceptance:
 
-- pure tests for latest offset and span preservation pass;
-- no DOM, chart engine, replay, or bar-data dependency exists.
+- append/replace does not mutate viewport intent;
+- no replay cursor or bar-data ownership exists.
 
 ## Completed Steps
 
@@ -128,6 +129,24 @@ Verification:
 
 - `node v6/tests/pane-model-smoke.js`
 - `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 7 - Viewport Intent Domain
+
+Completed in commits:
+
+- `993697d feat(v6): add viewport intent domain`
+- `db46ab5 feat(v6): add viewport projection domain`
+- `1c2e05b test(v6): gate viewport intent invariants`
+
+Verification:
+
+- `node v6/tests/viewport-intent-domain-smoke.js`
+- `node v6/tests/viewport-projection-smoke.js`
+- `node v6/tests/viewport-intent-invariant-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
