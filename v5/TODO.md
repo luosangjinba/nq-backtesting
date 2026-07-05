@@ -10,6 +10,33 @@
 
 ## Current / Next
 
+- Current status: V6 opened. Manual live retest showed the Step 539
+  manual-anchor wall fixes still did not make V5 reliable: after dragging away
+  from the default wall, Play continued walking candles rightward instead of
+  pushing from the new temporary wall. This confirms a structural V5 viewport
+  ownership blocker, not a missing small patch. See
+  `v5/docs/specs/v6-rewrite-start-decision.md`.
+- Current direction: stop adding V5 replay viewport/manual-anchor fixes. Use V5
+  only as reference/negative evidence and continue in `v6/TODO.md`, starting
+  with the viewport-intent model in
+  `v6/docs/specs/replay-viewport-intent.md`.
+- Current status: Step 539 completed. The manual-anchor replay wall now stores
+  a relative Lightweight logical anchor (`rightOffsetBars` from the latest
+  rendered candle plus logical span) instead of relying on time-range
+  projection alone. Native drag/wheel manual ranges pass their logical range
+  and rendered bar count into chart runtime, replay cursor movement preserves
+  the manual time range, and Lightweight reprojects the logical wall against
+  the current rendered bars after append or data-window replacement. This
+  now also preserves the anchor across viewport-demand/display-window loading,
+  which was the live screenshot path that erased the temporary wall after a
+  drag. This fixes the observed behavior where Play/Next walked candles
+  rightward until the default wall instead of using the user's temporary wall.
+  See
+  `v5/sessions/session_20260704_step539_v5_manual_logical_anchor_wall.md`.
+- Current direction: manually retest the live app from the initial state:
+  default wall Play/Next, drag left then Play/Next, drag right then Play/Next,
+  wheel zoom then Play/Next, and two-/three-pane pane-local manual walls. If
+  quiet, return to the Settings parity checklist candidate from Step 528.
 - Current status: Manual-anchor replay wall handoff recorded before machine
   restart. Recent commits fixed the right-edge wall path in three layers:
   synchronous follow-range apply on append (`6307057`), replay follow recovery

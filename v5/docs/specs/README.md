@@ -108,6 +108,9 @@ that future work must follow this file order.
 - `v5-cleanup-after-rewrite-decision.md`: Step 536 cleanup plan for retiring
   the remaining default-pane, route timeframe mirror, and stale test wording
   debt found by the V5/V6 audit.
+- `v6-rewrite-start-decision.md`: supersedes the Step 535 continue-V5 decision
+  for replay viewport/manual-anchor work after live testing proved the same
+  bug class still requires special-case patches. V6 is now open.
 - `workstation-visual-system.md`: Phase 3 visual and interaction system for
   compact FXReplay-like workstation polish, tokenized styling, component states,
   active-pane controls, and screenshot/browser quality gates.
