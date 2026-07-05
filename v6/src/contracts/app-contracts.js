@@ -127,3 +127,17 @@ export const SETTINGS_EVENTS = Object.freeze({
   RESET: 'settings:reset',
   UPDATED: 'settings:updated',
 });
+
+export const PERSISTENCE_COMMANDS = Object.freeze({
+  CLEAR: 'persistence.clear',
+  DELETE_RECORD: 'persistence.deleteRecord',
+  GET_RECORD: 'persistence.getRecord',
+  LIST_RECORDS: 'persistence.listRecords',
+  SAVE_RECORD: 'persistence.saveRecord',
+});
+
+export const PERSISTENCE_EVENTS = Object.freeze({
+  CLEARED: 'persistence:cleared',
+  DELETED: 'persistence:deleted',
+  SAVED: 'persistence:saved',
+});
