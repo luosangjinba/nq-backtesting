@@ -45,3 +45,15 @@ export const REPLAY_EVENTS = Object.freeze({
   PLAYBACK_CHANGED: 'replay:playbackChanged',
   RESET: 'replay:reset',
 });
+
+export const PANE_COMMANDS = Object.freeze({
+  GET_ACTIVE: 'pane.getActive',
+  GET_BY_ID: 'pane.getById',
+  GET_SNAPSHOT: 'pane.getSnapshot',
+  LIST: 'pane.list',
+  SET_ACTIVE: 'pane.setActive',
+});
+
+export const PANE_EVENTS = Object.freeze({
+  ACTIVE_CHANGED: 'pane:activeChanged',
+});
