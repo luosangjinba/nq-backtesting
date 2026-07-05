@@ -158,3 +158,15 @@ export const JOURNAL_EVENTS = Object.freeze({
   ENTRY_REPLACED: 'journal:entryReplaced',
   ENTRY_UPDATED: 'journal:entryUpdated',
 });
+
+export const JOURNAL_PERSISTENCE_COMMANDS = Object.freeze({
+  DELETE_SNAPSHOT: 'journalPersistence.deleteSnapshot',
+  LOAD_SNAPSHOT: 'journalPersistence.loadSnapshot',
+  SAVE_SNAPSHOT: 'journalPersistence.saveSnapshot',
+});
+
+export const JOURNAL_PERSISTENCE_EVENTS = Object.freeze({
+  SNAPSHOT_DELETED: 'journalPersistence:snapshotDeleted',
+  SNAPSHOT_LOADED: 'journalPersistence:snapshotLoaded',
+  SNAPSHOT_SAVED: 'journalPersistence:snapshotSaved',
+});
