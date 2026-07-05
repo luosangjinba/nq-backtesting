@@ -7,6 +7,7 @@ const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
 const CHART_DATA_ROOT = path.join(V6_ROOT, 'src', 'chart-data');
 const CHART_ENGINE_ROOT = path.join(V6_ROOT, 'src', 'chart-engine');
 const CHART_VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'chart-viewport');
+const DEFAULT_WALL_ROOT = path.join(V6_ROOT, 'src', 'default-wall');
 const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
@@ -151,6 +152,17 @@ const forbiddenLatencyOwnershipPatterns = [
   },
 ];
 
+const forbiddenDefaultWallOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(shell|v4|vendor|lightweight|bar-data)[^'"]*['"]/i,
+    reason: 'V6 default-wall modules must not import UI, V4/vendor, chart engine, or bar-data implementation modules.',
+  },
+  {
+    pattern: /\b(document|window|HTMLElement|LightweightCharts|createChart|fetch|XMLHttpRequest|localStorage)\b/,
+    reason: 'V6 default-wall modules must not touch DOM, chart engine APIs, browser storage, or network fetch.',
+  },
+];
+
 const violations = [];
 for (const root of SOURCE_ROOTS) {
   for (const file of await walkFiles(root)) {
@@ -289,6 +301,19 @@ for (const file of await walkFiles(CHART_ENGINE_ROOT)) {
 for (const file of await walkFiles(LATENCY_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenLatencyOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(DEFAULT_WALL_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenDefaultWallOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
