@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 15 - Chart Status And OHLC. The implementation
-  adds read-only OHLC, session, cursor, revealed, playback, and no-future
-  readouts through event subscriptions without dispatching mutation commands or
-  owning replay/chart/data/viewport state.
+- Latest completed step: Step 16 - Display Timeframe Single-Pane. The
+  implementation adds display timeframe projection, pane timeframe commands, a
+  display-timeframe runtime, and a UI selector while preserving no-future
+  filtering and current viewport intent.
 
 ## Next Executable Steps
 
-### Step 16 - Display Timeframe Single-Pane
+### Step 17 - Layout Runtime Skeleton
 
-Implement single-pane display timeframe selection and projection while
-preserving no-future behavior and current viewport intent.
+Implement the first layout runtime skeleton for future multi-pane work: layout
+mode, pane list, active pane id, and sync flags.
 
 Acceptance:
 
-- TF change does not reset viewport intent unless explicit reset/follow;
-- latency gate still passes.
+- adding panes uses the same pane record shape;
+- no primary/non-primary state split.
 
 ## Completed Steps
 
@@ -300,6 +300,29 @@ Verification:
 - `node v6/tests/status-readout-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/default-wall-replay-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 16 - Display Timeframe Single-Pane
+
+Completed in commits:
+
+- `45175eb feat(v6): add display timeframe projection`
+- `d4c2b5b feat(v6): add pane display timeframe command`
+- `47a8f1f feat(v6): add display timeframe runtime`
+- `af5d9de feat(v6): mount display timeframe control`
+- `76b840a test(v6): verify display timeframe selection`
+- `93565b2 test(v6): enforce display timeframe boundaries`
+
+Verification:
+
+- `node v6/tests/display-timeframe-projection-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/default-wall-replay-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
