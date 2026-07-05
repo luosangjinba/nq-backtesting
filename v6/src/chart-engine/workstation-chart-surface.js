@@ -1,0 +1,104 @@
+import { createChartHostManager } from './chart-host-manager.js';
+
+const DEFAULT_CHART_OPTIONS = Object.freeze({
+  grid: {
+    horzLines: { color: 'rgba(100, 116, 139, 0.24)' },
+    vertLines: { color: 'rgba(100, 116, 139, 0.24)' },
+  },
+  layout: {
+    background: { color: '#0f1721', type: 'solid' },
+    textColor: '#c9d6df',
+  },
+  rightPriceScale: {
+    borderColor: 'rgba(56, 189, 248, 0.2)',
+    visible: true,
+  },
+  timeScale: {
+    borderColor: 'rgba(56, 189, 248, 0.2)',
+    timeVisible: true,
+    visible: true,
+  },
+});
+
+const DEFAULT_SERIES_OPTIONS = Object.freeze({
+  borderVisible: false,
+  downColor: '#f25f68',
+  upColor: '#36b7a8',
+  wickDownColor: '#c94c58',
+  wickUpColor: '#2a958b',
+});
+
+function measureHost(host) {
+  const rect = host.getBoundingClientRect?.() ?? {};
+  return {
+    height: Math.max(1, Math.round(Number(rect.height) || host.clientHeight || 420)),
+    width: Math.max(1, Math.round(Number(rect.width) || host.clientWidth || 800)),
+  };
+}
+
+function resolvePaneId(host) {
+  return String(host.dataset.v6PaneId || 'default').trim() || 'default';
+}
+
+export function mountWorkstationChartSurface(root, {
+  chartOptions = {},
+  hostSelector = '[data-v6-chart-engine-host]',
+  managerFactory = createChartHostManager,
+  seriesOptions = {},
+} = {}) {
+  if (!root) {
+    throw new Error('Workstation chart surface root is required.');
+  }
+
+  const host = root.querySelector(hostSelector);
+  if (!host) {
+    throw new Error(`Workstation chart surface host "${hostSelector}" is missing.`);
+  }
+
+  const paneId = resolvePaneId(host);
+  const size = measureHost(host);
+  const manager = managerFactory({
+    chartOptions: {
+      ...DEFAULT_CHART_OPTIONS,
+      ...chartOptions,
+      height: chartOptions.height ?? size.height,
+      width: chartOptions.width ?? size.width,
+    },
+    seriesOptions: {
+      ...DEFAULT_SERIES_OPTIONS,
+      ...seriesOptions,
+    },
+  });
+
+  manager.mountPane({ host, paneId });
+
+  function resize() {
+    const nextSize = measureHost(host);
+    const record = manager.snapshot().panes.find((pane) => pane.paneId === paneId);
+    if (!record?.snapshot?.mounted) {
+      return null;
+    }
+    return manager.resizePane(paneId, nextSize);
+  }
+
+  const resizeObserver = typeof ResizeObserver === 'function'
+    ? new ResizeObserver(() => resize())
+    : null;
+  resizeObserver?.observe(host);
+
+  return {
+    destroy() {
+      resizeObserver?.disconnect();
+      manager.destroyAll();
+    },
+    getState() {
+      const snapshot = manager.snapshot();
+      return {
+        hostConnected: Boolean(host.isConnected),
+        hostSelector,
+        panes: snapshot.panes,
+      };
+    },
+    resize,
+  };
+}

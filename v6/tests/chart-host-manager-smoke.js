@@ -19,6 +19,9 @@ function createFakeAdapterFactory(calls) {
         calls.push({ host, method: 'mount' });
         mounted = true;
       },
+      resize(size) {
+        calls.push({ method: 'resize', size: { ...size } });
+      },
       setData(bars = []) {
         calls.push({ length: bars.length, method: 'setData' });
         dataLength = bars.length;
@@ -61,10 +64,15 @@ manager.setData('pane-left', [
 ]);
 manager.update('pane-right', { close: 3, high: 3, low: 3, open: 3, timestamp: 3 });
 manager.setVisibleLogicalRange('pane-left', { from: -3, to: 2 });
+manager.resizePane('pane-right', { height: 240, width: 320 });
 
 assert.equal(manager.snapshot().panes.find((pane) => pane.paneId === 'pane-left').snapshot.dataLength, 2);
 assert.equal(manager.snapshot().panes.find((pane) => pane.paneId === 'pane-right').snapshot.dataLength, 1);
 assert.deepEqual(manager.measureVisibleLogicalRange('pane-left'), { from: -3, to: 2 });
+assert.deepEqual(calls.find((call) => call.method === 'resize'), {
+  method: 'resize',
+  size: { height: 240, width: 320 },
+});
 
 assert.throws(
   () => manager.mountPane({ host: leftHost, paneId: 'pane-left' }),

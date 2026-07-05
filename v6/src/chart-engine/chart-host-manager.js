@@ -78,6 +78,12 @@ export function createChartHostManager({
     return measured ? { ...measured } : null;
   }
 
+  function resizePane(paneId, size) {
+    const record = getMountedRecord(paneId);
+    record.adapter.resize(size);
+    return getPaneSnapshot(record.paneId);
+  }
+
   function destroyPane(paneId) {
     const record = getMountedRecord(paneId);
     record.adapter.destroy();
@@ -111,6 +117,7 @@ export function createChartHostManager({
     destroyPane,
     measureVisibleLogicalRange,
     mountPane,
+    resizePane,
     setData,
     setVisibleLogicalRange,
     snapshot,
