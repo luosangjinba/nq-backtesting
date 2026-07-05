@@ -10,6 +10,8 @@ Read this index before working on V6.
   useful V5 formation sequence, with V6 gates inserted earlier.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
+- `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,
+  panels, active state, close behavior, mutual exclusivity, and ownership.
 - `v6/docs/specs/replay-viewport-intent.md`: the first core V6 contract.
 - `v6/docs/specs/replay-visible-latency.md`: user-visible replay candle latency
   gates that prevent V5's delayed K-line appearance problem from returning.
@@ -34,6 +36,8 @@ Read this index before working on V6.
   controls, chart workspace, status, default/manual walls, and no-future bars.
 - `V6_PRODUCT_TOP_CHROME.md`: default top chrome rules that keep runtime/test
   diagnostics out of the user's main reading path.
+- `V6_WORKFLOW_SHELL_AUDIT.md`: accepted shell-owned workflow behavior and the
+  next-direction guardrail after Steps 32-36.
 
 ## Reading Rule
 
