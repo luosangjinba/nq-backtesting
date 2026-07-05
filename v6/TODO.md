@@ -14,21 +14,11 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 1 - Skeleton And Contracts. The implementation
-  bootstraps the V6 app shell, runtime lifecycle, command/event contracts, and
-  smoke gates without chart/replay/data coupling.
+- Latest completed step: Step 2 - Product Baseline Shell. The implementation
+  establishes the first usable FXReplay-like workstation surface and screenshot
+  gate without adding chart/replay/data coupling.
 
 ## Next Executable Steps
-
-### Step 2 - Product Baseline Shell
-
-Create the FXReplay-like chart route shell before internal replay work grows.
-
-Acceptance:
-
-- full chart-workstation surface, compact chrome, floating transport
-  placeholder, and footer/status placeholder exist;
-- screenshot smoke verifies it is not a landing/demo page.
 
 ### Step 3 - Session Model
 
@@ -55,6 +45,22 @@ Verification:
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+### Step 2 - Product Baseline Shell
+
+Completed in commits:
+
+- `6c2611a feat(v6): expand workstation shell markup`
+- `e9649f1 feat(v6): style product baseline shell`
+- `0c708d2 test(v6): gate product baseline shell`
+
+Verification:
+
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Step 6 Passes
