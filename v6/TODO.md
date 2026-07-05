@@ -14,22 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 38 - Replay Chart Readiness Re-Audit. The
-  implementation records passing replay/chart gates after workflow shell work
-  and protects the audit with a smoke test.
+- Latest completed step: Step 39 - Chart Presentation Surface Audit. The
+  implementation documents the real chart host/engine path and identifies the
+  static shell placeholder as the next chart-facing replacement target.
 
 ## Next Executable Steps
 
-### Step 39 - Chart Presentation Surface Audit
+### Step 40 - Workstation Chart Host Surface
 
-Audit the real chart presentation path before adding more replay UI behavior.
+Reserve an engine-owned chart host inside the workstation chart surface and
+demote static placeholder visuals to fallback status.
 
 Acceptance:
 
-- chart host and engine adapter are confirmed as the primary visual surface;
-- static placeholder usage is documented or scheduled for removal if it competes
-  with the real chart;
-- visible-latency, wall replay, and multi-pane gates remain passing.
+- workstation shell exposes a chart host container for the real chart engine;
+- static placeholder candles do not compete with the chart host as the primary
+  visual surface;
+- chart engine, visible-latency, wall replay, and multi-pane gates remain
+  passing.
 
 ## Completed Steps
 
@@ -735,6 +737,24 @@ Verification:
 - `node v6/tests/multi-pane-manual-wall-browser-smoke.js`
 - `node v6/tests/multi-pane-chart-host-browser-smoke.js`
 - `node v6/tests/chart-engine-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 39 - Chart Presentation Surface Audit
+
+Completed in commits:
+
+- `87ac595 docs(v6): audit chart presentation surface`
+- `4aeffe1 test(v6): protect chart presentation audit`
+
+Verification:
+
+- `node v6/tests/chart-presentation-audit-smoke.js`
+- `node v6/tests/chart-engine-adapter-smoke.js`
+- `node v6/tests/chart-host-manager-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
+- `node v6/tests/multi-pane-chart-host-browser-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
