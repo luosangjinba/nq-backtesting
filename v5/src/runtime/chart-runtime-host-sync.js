@@ -163,6 +163,9 @@ export function createChartRuntimeHostSync({
           ? followViewportForHost(host, nextSourceState)
           : false,
       });
+      if (nextSourceState.interaction.mode === 'manual') {
+        adapter.setVisibleRange(nextSourceState.visibleRange);
+      }
       markReplayTrace('chartHostSync.append.adapter.end', { paneId });
       markReplayTrace('chartHostSync.append.resizeAfter.start', { paneId });
       adapter.resizeToHost?.();

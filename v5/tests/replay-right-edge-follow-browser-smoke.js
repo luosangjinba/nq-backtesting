@@ -148,16 +148,21 @@ async function main() {
           }));
         }
 
-        async function clickNextAndWait(expectedCursorTimestamp) {
+        async function clickNextAndWait(expectedCursorTimestamp, { expectedLatestRightOffset = null } = {}) {
           document.querySelector('[data-replay-next]').click();
           await waitFor('cursor ' + expectedCursorTimestamp, async () =>
             paneMetrics().every((pane) => pane.viewportCursorTimestamp === expectedCursorTimestamp)
           );
           return waitFor('right edge wall ' + expectedCursorTimestamp, async () => {
             const metrics = paneMetrics();
+            const expectedOffset = typeof expectedLatestRightOffset === 'function'
+              ? expectedLatestRightOffset
+              : expectedLatestRightOffset == null
+              ? (pane) => pane.rightOffsetBars
+              : () => expectedLatestRightOffset;
             return metrics.length > 0
               && metrics.every((pane) => pane.viewportCursorTimestamp === expectedCursorTimestamp)
-              && metrics.every((pane) => pane.latestRightOffset === pane.rightOffsetBars)
+              && metrics.every((pane) => pane.latestRightOffset === expectedOffset(pane))
               && metrics;
           });
         }
@@ -190,7 +195,7 @@ async function main() {
           const singleAfterSecond = await clickNextAndWait(secondCursor);
           await commands.dispatchCommand('chart.setManualVisibleRange', {
             from: secondCursor - 600,
-            to: secondCursor,
+            to: secondCursor + 300,
           });
           await waitFor('manual viewport', async () => {
             const interaction = await commands.dispatchCommand('chart.getInteractionState');
@@ -199,7 +204,9 @@ async function main() {
               && interaction;
           });
           const thirdCursorAfterManual = Date.parse('2026-06-01T09:33:00.000Z') / 1000;
-          const singleAfterManualNext = await clickNextAndWait(thirdCursorAfterManual);
+          const singleAfterManualNext = await clickNextAndWait(thirdCursorAfterManual, {
+            expectedLatestRightOffset: 5,
+          });
           const afterManualNextInteraction = await commands.dispatchCommand('chart.getInteractionState');
 
           await commands.dispatchCommand('layout.setMode', {
@@ -213,7 +220,9 @@ async function main() {
           );
 
           const fourthCursor = Date.parse('2026-06-01T09:34:00.000Z') / 1000;
-          const multiAfterNext = await clickNextAndWait(fourthCursor);
+          const multiAfterNext = await clickNextAndWait(fourthCursor, {
+            expectedLatestRightOffset: (pane) => pane.paneId === 'primary' ? 5 : pane.rightOffsetBars,
+          });
 
           return JSON.stringify({
             error: '',
@@ -235,8 +244,6 @@ async function main() {
     for (const pane of [
       ...value.singleAfterFirst,
       ...value.singleAfterSecond,
-      ...value.singleAfterManualNext,
-      ...value.multiAfterNext,
     ]) {
       assert.equal(
         pane.latestRightOffset,
@@ -248,11 +255,22 @@ async function main() {
         `follow range should be allowed to reserve left whitespace while early replay fills: ${JSON.stringify(pane)}`
       );
     }
+    for (const pane of [
+      ...value.singleAfterManualNext,
+      ...value.multiAfterNext,
+    ]) {
+      const expectedOffset = pane.paneId === 'primary' ? 5 : pane.rightOffsetBars;
+      assert.equal(
+        pane.latestRightOffset,
+        expectedOffset,
+        `latest candle should preserve its pane-local anchor wall: ${JSON.stringify(pane)}`
+      );
+    }
     assert.equal(value.singleAfterFirst.length, 1);
     assert.equal(value.singleAfterSecond.length, 1);
     assert.equal(value.singleAfterManualNext.length, 1);
-    assert.equal(value.afterManualNextInteraction.interaction.mode, 'follow');
-    assert.equal(value.afterManualNextInteraction.viewportFollow.enabled, true);
+    assert.equal(value.afterManualNextInteraction.interaction.mode, 'manual');
+    assert.equal(value.afterManualNextInteraction.viewportFollow.enabled, false);
     assert.equal(value.multiAfterNext.length, 2);
   } finally {
     if (client) {

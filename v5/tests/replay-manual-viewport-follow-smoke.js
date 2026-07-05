@@ -113,7 +113,7 @@ assert.equal(initial.displayBars.at(-1).timestamp, Date.parse('2026-06-01T09:30:
 
 const manual = await dispatchCommand(CHART_COMMANDS.SET_MANUAL_VISIBLE_RANGE, {
   from: '2026-06-01T09:27:00.000Z',
-  to: '2026-06-01T09:30:00.000Z',
+  to: '2026-06-01T09:33:00.000Z',
 });
 assert.equal(manual.interaction.mode, 'manual');
 assert.equal(manual.viewportFollow.enabled, false);
@@ -140,13 +140,16 @@ assert.ok(
 );
 
 const afterNextInteraction = await dispatchCommand(CHART_COMMANDS.GET_INTERACTION_STATE);
-assert.equal(afterNextInteraction.interaction.mode, 'follow');
-assert.equal(afterNextInteraction.viewportFollow.enabled, true);
-assert.equal(afterNextInteraction.visibleRange, null);
+assert.equal(afterNextInteraction.interaction.mode, 'manual');
+assert.equal(afterNextInteraction.viewportFollow.enabled, false);
+assert.deepEqual(afterNextInteraction.visibleRange, {
+  from: Date.parse('2026-06-01T09:28:00.000Z') / 1000,
+  to: Date.parse('2026-06-01T09:34:00.000Z') / 1000,
+});
 assert.ok(afterNextInteraction.fullBarCount >= next.displayBars.length);
 assert.equal(afterNextInteraction.renderedBars.at(-1).time, '2026-06-01T09:31:00.000Z');
-assert.equal(host.children[0].dataset.interactionMode, 'follow');
-assert.equal(host.children[0].dataset.viewportFollow, 'true');
+assert.equal(host.children[0].dataset.interactionMode, 'manual');
+assert.equal(host.children[0].dataset.viewportFollow, 'false');
 
 const resumed = await dispatchCommand(CHART_COMMANDS.RESUME_VIEWPORT_FOLLOW);
 assert.equal(resumed.interaction.mode, 'follow');

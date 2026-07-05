@@ -64,7 +64,6 @@ assert.equal(appendCalls[0].payload.paneId, 'primary');
 assert.deepEqual(appendCalls[0].payload.bars, revealedBars);
 assert.deepEqual(appendCalls[0].payload.viewportFollow, {
   enabled: true,
-  resume: true,
   cursorTimestamp: '2026-06-01T09:31:00.000Z',
 });
 assert.equal(appendCalls[0].payload.rightEdgeLimit, '2026-06-01T09:31:00.000Z');
@@ -73,7 +72,6 @@ assert.equal(appendCalls[1].payload.paneId, 'secondary');
 assert.deepEqual(appendCalls[1].payload.bars, revealedBars);
 assert.deepEqual(appendCalls[1].payload.viewportFollow, {
   enabled: true,
-  resume: true,
   cursorTimestamp: '2026-06-01T09:31:00.000Z',
 });
 assert.ok(
