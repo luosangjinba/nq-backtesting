@@ -67,6 +67,7 @@ assert.equal(loaded.replayState.cursorIndex, 0);
 assert.equal(loaded.state.chartBarCount, 1);
 assert.equal(loaded.state.forwardBarCount, 4);
 assert.equal(loaded.chartRecord.bars.length, 1);
+assert.equal(loaded.activeProjection.origin, 'default');
 assert.equal(loadedEvents.length, 1);
 
 let replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
@@ -88,6 +89,7 @@ const firstNext = await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
 assert.equal(firstNext.replayState.cursorIndex, 1);
 assert.equal(firstNext.state.chartBarCount, 2);
 assert.equal(firstNext.state.latestBar.timestamp, 1780306260);
+assert.equal(firstNext.activeProjection.origin, 'default');
 assert.equal(advancedEvents.length, 1);
 chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-main' });
 assert.deepEqual(chartRecord.bars.map((bar) => bar.timestamp), [1780306200, 1780306260]);
@@ -102,7 +104,27 @@ assert.deepEqual(viewport.projection, {
   to: 5,
 });
 
-await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
+const manual = await dispatchCommand(CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT, {
+  latestOffsetBars: 2,
+  paneId: 'pane-main',
+  spanBars: 20,
+});
+assert.equal(manual.intent.origin, 'manual');
+assert.equal(manual.intent.revision, 1);
+
+const manualNext = await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
+assert.equal(manualNext.state.latestBar.timestamp, 1780306320);
+assert.equal(manualNext.activeProjection.origin, 'manual');
+assert.deepEqual(manualNext.activeProjection, {
+  from: -16,
+  latestLogicalIndex: 2,
+  latestOffsetBars: 2,
+  origin: 'manual',
+  revision: 1,
+  spanBars: 20,
+  to: 4,
+});
+
 await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
 await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);
 const exhausted = await dispatchCommand(DEFAULT_WALL_COMMANDS.NEXT);

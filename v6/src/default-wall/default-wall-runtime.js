@@ -33,6 +33,10 @@ function cursorTimestampFromState(state) {
   return timestamp;
 }
 
+async function getViewportRecord(paneId) {
+  return dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId });
+}
+
 export function createDefaultWallRuntime() {
   const unregisterCallbacks = [];
   let emit = () => {};
@@ -57,10 +61,13 @@ export function createDefaultWallRuntime() {
       CHART_DATA_COMMANDS.REPLACE_BARS,
       createDefaultWallChartReplacePayload(state),
     );
+    const viewportRecord = await getViewportRecord(state.paneId);
     const result = {
+      activeProjection: viewportRecord?.projection || state.projection,
       chartRecord,
       replayState,
       state: cloneState(state),
+      viewportRecord,
     };
     emit(DEFAULT_WALL_EVENTS.LOADED, result);
     return result;
@@ -71,10 +78,13 @@ export function createDefaultWallRuntime() {
       throw new Error('Default wall replay is not loaded.');
     }
     if (!state.forwardBars.length) {
+      const viewportRecord = await getViewportRecord(state.paneId);
       return {
+        activeProjection: viewportRecord?.projection || state.projection,
         chartRecord: null,
         replayState: await dispatchCommand(REPLAY_COMMANDS.GET_STATE),
         state: cloneState(state),
+        viewportRecord,
       };
     }
     const replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
@@ -83,10 +93,13 @@ export function createDefaultWallRuntime() {
       CHART_DATA_COMMANDS.APPEND_BARS,
       createDefaultWallChartAppendPayload(state),
     );
+    const viewportRecord = await getViewportRecord(state.paneId);
     const result = {
+      activeProjection: viewportRecord?.projection || state.projection,
       chartRecord,
       replayState,
       state: cloneState(state),
+      viewportRecord,
     };
     emit(DEFAULT_WALL_EVENTS.ADVANCED, result);
     return result;
