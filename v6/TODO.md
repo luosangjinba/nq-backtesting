@@ -14,44 +14,37 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 80 - Session Dashboard Persistence Boundary.
-  Session dashboard persistence is now scoped to metadata-only records, and a
-  runtime smoke proves `session.list` does not emit chart-entry events, fetch
-  bars, write chart data, or mutate replay state.
+- Latest completed step: Step 81 - Session Metadata Persistence Adapter.
+  Dashboard-created session metadata now survives reload through a metadata-only
+  storage adapter, while restored session listing still avoids bars, chart data,
+  replay state, and viewport ownership.
 
 ## Next Executable Steps
 
-### Step 81 - Session Metadata Persistence Adapter
+### Step 82 - Session Metadata Delete Action
 
-Implement the first durable session metadata adapter behind the session
-repository boundary.
+Add a metadata-only delete action for stored dashboard sessions.
 
-Status: active.
-
-Implementation notes:
-
-- repository API remains the runtime boundary;
-- storage adapter stores only replay session metadata and active session id;
-- browser storage corruption must fall back to an empty repository.
+Status: planned.
 
 Notes for execution:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- preserve the session-first flow and do not load full bar ranges just because a
-  session row is listed.
+- deleting a session row must not enter chart workstation or mutate chart data.
 
 Scope:
 
-- add a metadata-only storage adapter for session records and active session id;
-- inject it into the session repository/runtime boundary;
-- keep storage format limited to session metadata records.
+- add repository/runtime delete support for session metadata;
+- add a compact dashboard row delete control;
+- update browser smoke for delete persistence across reload.
 
 Acceptance:
 
-- sessions created in the dashboard survive page reload;
-- listing restored sessions does not load bars or chart data;
-- opening a restored session remains the only chart workstation entry path;
-- tests cover corrupted/empty storage fallback.
+- deleting a row removes metadata from durable storage;
+- deleting an inactive row does not change active chart/replay state;
+- deleting the active metadata clears active session id but does not mutate
+  chart data or replay state;
+- tests cover reload after delete.
 
 ## Completed Steps
 
@@ -1658,6 +1651,27 @@ Verification:
 - `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `git diff --check`
+
+### Step 81 - Session Metadata Persistence Adapter
+
+Completed in commits:
+
+- `8f1cd83d docs(v6): scope step eighty one session metadata`
+- `172bb8ea feat(v6): persist session metadata`
+- `4eb472e6 test(v6): verify durable session metadata`
+
+Verification:
+
+- `node v6/tests/session-metadata-storage-smoke.js`
+- `node v6/tests/session-dashboard-persistence-boundary-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
