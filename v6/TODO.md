@@ -14,41 +14,63 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 81 - Session Metadata Persistence Adapter.
-  Dashboard-created session metadata now survives reload through a metadata-only
-  storage adapter, while restored session listing still avoids bars, chart data,
-  replay state, and viewport ownership.
+- Latest completed step: Step 82 - Session Metadata Delete Action.
+  Dashboard session rows can now be deleted through a metadata-only command.
+  Deleting inactive metadata preserves active chart/replay state; deleting
+  active metadata clears only the repository active session id and leaves chart
+  data, replay state, bars, and viewport ownership untouched.
 
 ## Next Executable Steps
 
-### Step 82 - Session Metadata Delete Action
+### Step 83 - Session Metadata Rename Action
 
-Add a metadata-only delete action for stored dashboard sessions.
+Add a metadata-only rename/edit action for stored dashboard sessions.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- deleting a session row must not enter chart workstation or mutate chart data;
-- deleting active metadata only clears the repository active session id and must
-  not drive chart/replay cleanup.
+- editing a session row must not enter chart workstation or mutate chart data;
+- restored renamed sessions must remain metadata-only until explicitly opened.
 
 Scope:
 
-- add repository/runtime delete support for session metadata;
-- add a compact dashboard row delete control;
-- update browser smoke for delete persistence across reload.
+- add repository/runtime update support for editable session metadata;
+- add compact dashboard rename/edit UI;
+- update browser smoke for rename persistence across reload.
 
 Acceptance:
 
-- deleting a row removes metadata from durable storage;
-- deleting an inactive row does not change active chart/replay state;
-- deleting the active metadata clears active session id but does not mutate
-  chart data or replay state;
-- tests cover reload after delete.
+- renaming a row updates durable metadata;
+- editing inactive metadata does not change active chart/replay state;
+- editing active metadata does not mutate chart data, bars, replay state, or
+  viewport intent;
+- tests cover reload after rename.
 
 ## Completed Steps
+
+### Step 82 - Session Metadata Delete Action
+
+Completed in commits:
+
+- `052fbfc4 docs(v6): scope step eighty two session delete`
+- `6979bfca feat(v6): delete session metadata`
+- `474b0e3d test(v6): verify session metadata delete`
+
+Verification:
+
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/session-metadata-storage-smoke.js`
+- `node v6/tests/session-dashboard-persistence-boundary-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `git diff --check`
 
 ### Step 1 - Skeleton And Contracts
 
