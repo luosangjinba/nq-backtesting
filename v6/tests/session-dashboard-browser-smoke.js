@@ -6,6 +6,7 @@ const page = await openV6Page({ height: 820, width: 1360 });
 try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
+      localStorage.removeItem('v6.sessions.metadata');
       const root = document.querySelector('[data-v6-root]');
       const visible = (selector) => {
         const element = document.querySelector(selector);
@@ -26,14 +27,14 @@ try {
 
       const openedState = {
         analyticsText: document.querySelector('[data-v6-dashboard-analytics]')?.textContent || '',
-        backtestingTitle: document.querySelector('[data-v6-session-setup-form] header')?.textContent.trim() || '',
+        backtestingTitle: document.querySelector('[data-v6-quick-session-open] strong')?.textContent.trim() || '',
         createButtonLabel: document.querySelector('[data-v6-dashboard-create-session]')?.textContent.trim() || '',
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         forwardExists: Boolean(document.querySelector('[data-v6-top-session-forward]')),
         setupStatus: document.querySelector('[data-v6-session-setup-status]')?.textContent || '',
         primaryLabels: [
-          document.querySelector('[data-v6-session-setup-form] header')?.textContent.trim() || '',
+          document.querySelector('[data-v6-quick-session-open] strong')?.textContent.trim() || '',
           document.querySelector('.session-dashboard-list-section header strong')?.textContent.trim() || '',
           document.querySelector('[data-v6-dashboard-analytics] header')?.textContent.trim() || '',
         ],
@@ -144,15 +145,15 @@ try {
   assert.equal(value.openedState.dashboardHidden, false);
   assert.equal(value.openedState.dashboardOpen, true);
   assert.equal(value.openedState.tabCount, 0);
-  assert.deepEqual(value.openedState.primaryLabels, ['Backtesting session', 'Sessions', 'Analytics']);
+  assert.deepEqual(value.openedState.primaryLabels, ['Backtesting session', 'Recent Sessions', 'Analytics']);
   assert.equal(value.openedState.backtestingTitle, 'Backtesting session');
-  assert.equal(value.openedState.createButtonLabel, 'Enter chart');
+  assert.equal(value.openedState.createButtonLabel, 'Create session');
   assert.equal(value.openedState.setupStatus, 'No bars are loaded on create.');
   assert.match(value.openedState.analyticsText, /replay orders/);
   assert.match(value.openedState.analyticsText, /live orders/);
   assert.equal(value.openedState.text.includes('Dashboard'), false);
   assert.equal(value.openedState.text.includes('Tutorials'), false);
-  assert.equal(value.openedState.text.includes('Prop firm'), false);
+  assert.equal(value.openedState.text.includes('Prop Firm Session'), true);
   assert.equal(value.openedState.forwardExists, false);
   assert.equal(value.openedState.surface, 'session');
   assert.equal(value.openedState.toggleExpanded, 'true');
@@ -183,7 +184,8 @@ try {
   assert.equal(value.afterCreate.surface, 'workstation');
   assert.equal(value.afterCreate.transportVisible, true);
   assert.equal(value.afterCreate.workstationHidden, false);
-  assert.match(value.afterCreate.sessionText, /NQ 1m/);
+  assert.match(value.afterCreate.sessionText, /test/);
+  assert.match(value.afterCreate.sessionText, /NQ/);
   assert.equal(value.afterOpenSession.dashboardHidden, true);
   assert.equal(value.afterOpenSession.dashboardOpen, false);
   assert.equal(value.afterOpenSession.activeId, value.afterCreate.sessionId);

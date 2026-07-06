@@ -3,6 +3,8 @@ const ICONS = {
   arrowRight: '<path d="M9 18l6-6-6-6"/><path d="M3 12h12"/>',
   calendar: '<path d="M7 3v4"/><path d="M17 3v4"/><path d="M4 9h16"/><rect x="4" y="5" width="16" height="16" rx="2"/>',
   camera: '<path d="M7 7l1.8-2h6.4L17 7h3v12H4V7z"/><circle cx="12" cy="13" r="3"/>',
+  chevronDown: '<path d="M6 9l6 6 6-6"/>',
+  close: '<path d="M18 6L6 18"/><path d="M6 6l12 12"/>',
   fullscreen: '<path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 3.1a7 7 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 3.1h5l.4-3.1a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z"/>',
   grid: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
@@ -14,6 +16,7 @@ const ICONS = {
   moon: '<path d="M21 14.8A8 8 0 0 1 9.2 3a7 7 0 1 0 11.8 11.8z"/>',
   pause: '<path d="M9 5v14"/><path d="M15 5v14"/>',
   play: '<path d="M8 5l11 7-11 7z"/>',
+  plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
   plusCircle: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/>',
   redo: '<path d="M21 7v6h-6"/><path d="M20 13a7 7 0 1 0-2 5"/>',
   restart: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 8v5l3 2"/>',
@@ -44,29 +47,109 @@ export function createWorkstationShellMarkup() {
         </header>
         <main class="session-dashboard-main">
           <section class="session-dashboard-actions" aria-label="Backtesting session">
-            <form class="session-setup-form" data-v6-session-setup-form>
-              <header>${icon('plusCircle')}<strong>Backtesting session</strong></header>
-              <div class="session-setup-fields">
-                <label>
-                  <span>Start</span>
-                  <input name="startTime" type="datetime-local" value="2026-06-01T09:30" data-v6-session-setup-start>
+            <button type="button" class="quick-session-card" data-v6-quick-session-open>
+              ${icon('plus')}
+              <span>
+                <strong>Backtesting session</strong>
+                <em>Start a session</em>
+              </span>
+            </button>
+            <div class="quick-session-backdrop" data-v6-quick-session-modal hidden>
+              <form class="quick-session-dialog" data-v6-session-setup-form>
+                <header class="quick-session-header">
+                  <strong>Create a quick session</strong>
+                  <div>
+                    <button type="button" class="quick-session-pill" disabled>Advanced session</button>
+                    <button type="button" class="quick-session-icon-button" data-v6-quick-session-close aria-label="Close quick session">${icon('close')}</button>
+                  </div>
+                </header>
+                <div class="quick-session-tabs" aria-label="Session type">
+                  <button type="button" class="is-active">Backtesting Session</button>
+                  <button type="button" disabled>Prop Firm Session <span>New</span></button>
+                </div>
+                <label class="quick-session-field">
+                  <span>Name *</span>
+                  <input name="name" type="text" value="test" placeholder="Name your session" data-v6-session-setup-name>
                 </label>
-                <label>
-                  <span>End</span>
-                  <input name="endTime" type="datetime-local" value="2026-06-05T16:00" data-v6-session-setup-end>
+                <label class="quick-session-field">
+                  <span>Account Balance *</span>
+                  <input name="accountBalance" type="number" min="0" step="1" value="100000" data-v6-session-setup-balance>
                 </label>
-              </div>
-              <div class="session-setup-actions">
-                <button type="submit" data-v6-dashboard-create-session>${icon('arrowRight')}<span>Enter chart</span></button>
-                <span data-v6-session-setup-status>No bars are loaded on create.</span>
-              </div>
-            </form>
+                <section class="quick-session-field quick-session-assets" data-v6-session-assets>
+                  <header>
+                    <span>Assets *</span>
+                    <button type="button" disabled>Request asset</button>
+                  </header>
+                  <button type="button" class="asset-picker-control" data-v6-asset-picker-toggle aria-expanded="false">
+                    <span data-v6-selected-asset-chips></span>
+                    ${icon('chevronDown')}
+                  </button>
+                  <div class="asset-hidden-inputs" data-v6-selected-asset-inputs></div>
+                  <div class="asset-picker-menu" data-v6-asset-picker-menu hidden>
+                    <div class="asset-filter-row" aria-label="Asset filters">
+                      <button type="button" class="is-active" disabled>All</button>
+                      <button type="button" disabled>Stocks</button>
+                      <button type="button" disabled>Futures</button>
+                      <button type="button" disabled>Forex</button>
+                      <button type="button" disabled>Crypto</button>
+                      <button type="button" disabled>Indices</button>
+                    </div>
+                    <strong>Recently Used</strong>
+                    <button type="button" class="asset-option" data-v6-asset-option="ES"><span>ES <em>E-Mini S&amp;P 500 Futures</em></span><span>US Futures</span></button>
+                    <button type="button" class="asset-option" data-v6-asset-option="NQ"><span>NQ <em>E-Mini NASDAQ-100 Futures</em></span><span>US Futures</span></button>
+                    <strong>Futures</strong>
+                    <button type="button" class="asset-option" data-v6-asset-option="YM"><span>YM <em>E-Mini Dow Futures</em></span><span>US Futures</span></button>
+                    <button type="button" class="asset-option" data-v6-asset-option="RTY"><span>RTY <em>E-Mini Russell 2000 Futures</em></span><span>US Futures</span></button>
+                  </div>
+                </section>
+                <label class="quick-session-field">
+                  <span>Select Chart Layout (Optional) ${icon('info')}</span>
+                  <button type="button" class="layout-placeholder" disabled>${icon('chevronDown')}</button>
+                </label>
+                <div class="quick-session-date-grid">
+                  <label class="quick-session-field">
+                    <span>Initial Date *</span>
+                    <input name="startTime" type="datetime-local" value="2026-06-01T09:30" data-v6-session-setup-start>
+                    <small>Min: Jan 4, 2012</small>
+                  </label>
+                  <label class="quick-session-field">
+                    <span>End Date *</span>
+                    <input name="endTime" type="datetime-local" value="2026-06-05T16:00" data-v6-session-setup-end>
+                    <input name="computedEndTime" type="hidden" value="2026-06-05T16:00" data-v6-session-setup-computed-end>
+                    <small>Max: Jul 5, 2026</small>
+                  </label>
+                  <div class="quick-session-date-actions">
+                    <button type="button" data-v6-date-offset-days="1">+1D</button>
+                    <button type="button" data-v6-date-offset-days="7">+1W</button>
+                    <button type="button" data-v6-date-offset-days="30">+1M</button>
+                    <button type="button" disabled>Random</button>
+                  </div>
+                </div>
+                <label class="auto-end-toggle" title="Automatically keeps the session end date updated to the most recent data available.">
+                  <input name="autoUpdateEndDate" type="checkbox" data-v6-session-auto-end>
+                  <span></span>
+                  <strong>Auto-update end date ${icon('info')}</strong>
+                </label>
+                <footer class="quick-session-footer">
+                  <span data-v6-session-setup-status>No bars are loaded on create.</span>
+                  <button type="button" data-v6-quick-session-cancel>Cancel</button>
+                  <button type="submit" data-v6-dashboard-create-session>Create session</button>
+                </footer>
+              </form>
+            </div>
           </section>
-          <section class="session-dashboard-list-section" aria-label="Sessions">
+          <section class="session-dashboard-list-section" aria-label="Recent Sessions">
             <header>
-              <strong>${icon('journal')}<span>Sessions</span></strong>
+              <strong><span>Recent Sessions</span></strong>
               <button type="button" data-v6-dashboard-refresh>${icon('redo')}<span>Refresh</span></button>
             </header>
+            <div class="session-dashboard-list-tools">
+              <label>
+                ${icon('search')}
+                <input type="search" placeholder="Search Here" disabled>
+              </label>
+              <button type="button" disabled>Newest to oldest ${icon('chevronDown')}</button>
+            </div>
             <ul class="session-dashboard-list" data-v6-dashboard-session-list></ul>
             <p class="session-dashboard-empty" data-v6-dashboard-empty>No replay sessions yet</p>
           </section>

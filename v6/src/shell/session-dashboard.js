@@ -8,8 +8,45 @@ function formatSessionMeta(session = {}) {
   return `${start} / ${end}`;
 }
 
+function formatSessionMoney(value) {
+  const amount = Number(value ?? 0);
+  return Number.isFinite(amount)
+    ? amount.toLocaleString('en-US', { maximumFractionDigits: 0, style: 'currency', currency: 'USD' })
+    : '$0';
+}
+
 function sessionLabel(session = {}) {
-  return `${session.symbol || 'NQ'} ${session.timeframe || '1m'}`;
+  return session.name || `${session.symbol || 'NQ'} ${session.timeframe || '1m'}`;
+}
+
+function sessionSymbols(session = {}) {
+  return Array.isArray(session.symbols) && session.symbols.length ? session.symbols : [session.symbol || 'NQ'];
+}
+
+function formatLocalDateTime(date) {
+  const pad = (value) => String(value).padStart(2, '0');
+  return [
+    date.getFullYear(),
+    '-',
+    pad(date.getMonth() + 1),
+    '-',
+    pad(date.getDate()),
+    'T',
+    pad(date.getHours()),
+    ':',
+    pad(date.getMinutes()),
+  ].join('');
+}
+
+function addDaysToLocalDateTime(value, days) {
+  const date = new Date(value);
+  if (Number.isNaN(date.valueOf())) return value;
+  date.setDate(date.getDate() + days);
+  return formatLocalDateTime(date);
+}
+
+function isElementVisible(element) {
+  return element && !element.hidden;
 }
 
 function renderSessions(root, sessions = []) {
@@ -18,9 +55,13 @@ function renderSessions(root, sessions = []) {
   if (!list) return;
   list.innerHTML = sessions.map((session) => `
     <li data-v6-dashboard-session-row="${session.id}">
-      <button type="button" data-v6-dashboard-open-session="${session.id}" aria-label="Open ${sessionLabel(session)}">${sessionLabel(session)}</button>
-      <strong>${session.id}</strong>
-      <span>${formatSessionMeta(session)}</span>
+      <button class="session-open-button" type="button" data-v6-dashboard-open-session="${session.id}" aria-label="Open ${sessionLabel(session)}">&#9658;</button>
+      <div class="session-row-main">
+        <strong>${sessionLabel(session)}</strong>
+        <span>${formatSessionMeta(session)} &middot; ${formatSessionMoney(session.accountBalance)}</span>
+        <div class="session-asset-chips">${sessionSymbols(session).map((symbol) => `<em>${symbol}</em>`).join('')}</div>
+      </div>
+      <span class="session-progress">Remaining days: --</span>
       <button class="session-dashboard-delete" type="button" data-v6-dashboard-delete-session="${session.id}" aria-label="Delete ${sessionLabel(session)} session">&times;</button>
     </li>
   `).join('');
@@ -64,10 +105,22 @@ export function mountSessionDashboard(root, {
   }
   const dashboard = root.querySelector('[data-v6-session-dashboard]');
   const toggle = root.querySelector('[data-v6-dashboard-toggle]');
+  const quickSessionOpen = root.querySelector('[data-v6-quick-session-open]');
+  const quickSessionModal = root.querySelector('[data-v6-quick-session-modal]');
+  const quickSessionClose = root.querySelector('[data-v6-quick-session-close]');
+  const quickSessionCancel = root.querySelector('[data-v6-quick-session-cancel]');
   const createButton = root.querySelector('[data-v6-dashboard-create-session]');
   const setupForm = root.querySelector('[data-v6-session-setup-form]');
   const setupStatus = root.querySelector('[data-v6-session-setup-status]');
   const refreshButton = root.querySelector('[data-v6-dashboard-refresh]');
+  const assetPickerToggle = root.querySelector('[data-v6-asset-picker-toggle]');
+  const assetPickerMenu = root.querySelector('[data-v6-asset-picker-menu]');
+  const selectedAssetChips = root.querySelector('[data-v6-selected-asset-chips]');
+  const selectedAssetInputs = root.querySelector('[data-v6-selected-asset-inputs]');
+  const startInput = root.querySelector('[data-v6-session-setup-start]');
+  const endInput = root.querySelector('[data-v6-session-setup-end]');
+  const computedEndInput = root.querySelector('[data-v6-session-setup-computed-end]');
+  const autoEndInput = root.querySelector('[data-v6-session-auto-end]');
   if (!dashboard || !toggle) {
     throw new Error('Session dashboard controls are required.');
   }
@@ -75,6 +128,69 @@ export function mountSessionDashboard(root, {
   const unsubscriptions = [];
   let surface = 'session';
   let sessions = [];
+  let selectedSymbols = ['NQ'];
+
+  function renderSelectedAssets() {
+    if (selectedAssetChips) {
+      selectedAssetChips.innerHTML = selectedSymbols.map((symbol) => `
+        <span class="asset-chip">${symbol}<button type="button" data-v6-remove-asset="${symbol}" aria-label="Remove ${symbol}">&times;</button></span>
+      `).join('');
+    }
+    if (selectedAssetInputs) {
+      selectedAssetInputs.innerHTML = selectedSymbols
+        .map((symbol) => `<input type="hidden" name="symbols" value="${symbol}">`)
+        .join('');
+    }
+    root.querySelectorAll('[data-v6-asset-option]').forEach((option) => {
+      option.classList.toggle('is-selected', selectedSymbols.includes(option.dataset.v6AssetOption));
+    });
+  }
+
+  function updateComputedEnd() {
+    if (!startInput || !endInput || !computedEndInput) return;
+    if (autoEndInput?.checked) {
+      computedEndInput.value = addDaysToLocalDateTime(startInput.value, 4);
+      endInput.value = computedEndInput.value;
+      endInput.disabled = true;
+    } else {
+      computedEndInput.value = endInput.value;
+      endInput.disabled = false;
+    }
+  }
+
+  function openQuickSession() {
+    if (!quickSessionModal) return;
+    const nameInput = root.querySelector('[data-v6-session-setup-name]');
+    if (nameInput?.value === 'test') {
+      nameInput.value = '';
+    }
+    updateComputedEnd();
+    renderSelectedAssets();
+    quickSessionModal.hidden = false;
+    root.querySelector('[data-v6-session-setup-name]')?.focus();
+  }
+
+  function closeQuickSession() {
+    if (quickSessionModal) {
+      quickSessionModal.hidden = true;
+    }
+    if (assetPickerMenu) {
+      assetPickerMenu.hidden = true;
+    }
+    assetPickerToggle?.setAttribute('aria-expanded', 'false');
+  }
+
+  function updateSessionChrome(session = {}) {
+    const name = session.name || 'test';
+    const symbol = session.symbol || 'NQ';
+    const layoutName = `${name}-${String(session.id || '').slice(-6) || symbol}`;
+    const sessionName = root.querySelector('[data-v6-session-name]');
+    const topSymbol = root.querySelector('[data-v6-top-symbol]');
+    const layout = root.querySelector('[data-v6-top-layout-name]');
+    if (sessionName) sessionName.textContent = name;
+    if (topSymbol) topSymbol.textContent = symbol;
+    if (layout) layout.textContent = layoutName;
+  }
 
   function setSurface(nextSurface) {
     surface = nextSurface === 'workstation' ? 'workstation' : 'session';
@@ -113,13 +229,16 @@ export function mountSessionDashboard(root, {
   async function createSession(input = {}) {
     const session = await dispatchCommand(SESSION_COMMANDS.CREATE, input);
     await refresh();
+    updateSessionChrome(session);
+    closeQuickSession();
     enterWorkstation();
-    setSetupStatus(`Created ${session.id}`);
+    setSetupStatus(`Created ${session.name || session.id}`);
     return getState();
   }
 
   async function openSession(id) {
-    await dispatchCommand(SESSION_COMMANDS.OPEN, id);
+    const session = await dispatchCommand(SESSION_COMMANDS.OPEN, id);
+    updateSessionChrome(session);
     enterWorkstation();
     return getState();
   }
@@ -133,6 +252,79 @@ export function mountSessionDashboard(root, {
   const toggleListener = () => enterSessionSurface();
   toggle.addEventListener('click', toggleListener);
   unsubscriptions.push(() => toggle.removeEventListener('click', toggleListener));
+
+  if (quickSessionOpen) {
+    const listener = () => openQuickSession();
+    quickSessionOpen.addEventListener('click', listener);
+    unsubscriptions.push(() => quickSessionOpen.removeEventListener('click', listener));
+  }
+  [quickSessionClose, quickSessionCancel].filter(Boolean).forEach((button) => {
+    const listener = () => closeQuickSession();
+    button.addEventListener('click', listener);
+    unsubscriptions.push(() => button.removeEventListener('click', listener));
+  });
+  if (quickSessionModal) {
+    const listener = (event) => {
+      if (event.target === quickSessionModal) {
+        closeQuickSession();
+      }
+    };
+    quickSessionModal.addEventListener('click', listener);
+    unsubscriptions.push(() => quickSessionModal.removeEventListener('click', listener));
+  }
+
+  if (assetPickerToggle && assetPickerMenu) {
+    const listener = () => {
+      assetPickerMenu.hidden = !assetPickerMenu.hidden;
+      assetPickerToggle.setAttribute('aria-expanded', String(isElementVisible(assetPickerMenu)));
+    };
+    assetPickerToggle.addEventListener('click', listener);
+    unsubscriptions.push(() => assetPickerToggle.removeEventListener('click', listener));
+  }
+  root.querySelectorAll('[data-v6-asset-option]').forEach((option) => {
+    const listener = () => {
+      const symbol = option.dataset.v6AssetOption;
+      selectedSymbols = selectedSymbols.includes(symbol)
+        ? selectedSymbols.filter((item) => item !== symbol)
+        : [...selectedSymbols, symbol];
+      if (!selectedSymbols.length) {
+        selectedSymbols = [symbol];
+      }
+      renderSelectedAssets();
+    };
+    option.addEventListener('click', listener);
+    unsubscriptions.push(() => option.removeEventListener('click', listener));
+  });
+  if (selectedAssetChips) {
+    const listener = (event) => {
+      const removeButton = event.target.closest?.('[data-v6-remove-asset]');
+      if (!removeButton) return;
+      selectedSymbols = selectedSymbols.filter((symbol) => symbol !== removeButton.dataset.v6RemoveAsset);
+      if (!selectedSymbols.length) selectedSymbols = ['NQ'];
+      renderSelectedAssets();
+    };
+    selectedAssetChips.addEventListener('click', listener);
+    unsubscriptions.push(() => selectedAssetChips.removeEventListener('click', listener));
+  }
+
+  [startInput, endInput, autoEndInput].filter(Boolean).forEach((input) => {
+    const listener = () => updateComputedEnd();
+    input.addEventListener('change', listener);
+    input.addEventListener('input', listener);
+    unsubscriptions.push(() => {
+      input.removeEventListener('change', listener);
+      input.removeEventListener('input', listener);
+    });
+  });
+  root.querySelectorAll('[data-v6-date-offset-days]').forEach((button) => {
+    const listener = () => {
+      if (!startInput || !endInput) return;
+      endInput.value = addDaysToLocalDateTime(startInput.value, Number(button.dataset.v6DateOffsetDays || 0));
+      updateComputedEnd();
+    };
+    button.addEventListener('click', listener);
+    unsubscriptions.push(() => button.removeEventListener('click', listener));
+  });
 
   if (setupForm) {
     const listener = (event) => {
@@ -186,6 +378,8 @@ export function mountSessionDashboard(root, {
   }
 
   enterSessionSurface();
+  renderSelectedAssets();
+  updateComputedEnd();
 
   return {
     createSession,
