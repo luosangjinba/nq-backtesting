@@ -77,7 +77,7 @@ product:
 
 | FXReplay reference area | V6 decision |
 | --- | --- |
-| Back to session selection | Needed once V6 has a session selection page. Keep as a shell placeholder until that route exists. |
+| Back to session selection | Needed once V6 has a session dashboard/list page. Use one left-arrow control only, labelled as back to the session dashboard. Do not add a matching forward arrow in chart chrome. |
 | Symbol search and active symbol | Needed. Symbol identity must be visible in the top bar and pane title. |
 | Add comparison symbol | Needed later. It should wait for an explicit comparison/multi-symbol owner. |
 | Timeframe selector | Needed. It is already routed through display-timeframe runtime for supported intervals. |
@@ -94,6 +94,18 @@ product:
 | Pine/code editor | Not needed for now. Do not reserve it in the main toolbar unless the product direction changes. |
 | Theme | Needed. Route through settings/theme ownership before interactivity. |
 | Fullscreen | Needed. Route through a shell/browser capability boundary before interactivity. |
+
+## Chart Surface Chrome
+
+The chart surface itself should stay focused on pane-local chart information:
+
+- Keep pane title and OHLC/status readout at the chart top-left.
+- Do not place duplicate `Go to`, `Layout`, or timeframe text buttons inside
+  the chart surface.
+- Go-to key times belong on the right utility rail.
+- Page layout belongs in the top toolbar layout menu.
+- The chart surface may contain chart overlays and pane-local readouts, but not
+  a second command toolbar.
 
 ## Timeframe Menu
 
