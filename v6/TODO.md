@@ -1219,29 +1219,24 @@ Verification:
 
 ### Step 64 - Chart Entry Projection Preparation Owner
 
-Introduce the first projection-preparation owner after default-wall planning.
-This step may read the already-loaded bounded context window from bar-data cache
-and produce chart-data plus viewport payloads for the planned default wall, but
-it must not write chart data, mutate viewport intent, call `defaultWall.load`,
-advance replay, fetch bars, or touch chart adapter APIs.
+Completed in commits:
 
-Acceptance:
+- `2741c2cd docs(v6): scope step sixty four projection prep`
+- `d7b50ae7 feat(v6): define chart entry projection preparation`
+- `ceade2a4 feat(v6): add chart entry projection preparation runtime`
+- `282c287f feat(v6): register chart entry projection preparation runtime`
 
-- a dedicated projection-preparation runtime subscribes to
-  `chartEntryDefaultWallPlan:planned`;
-- the runtime reads cached bounded context through `barData.getWindow`;
-- the runtime produces deterministic chart replace payload and viewport intent
-  payload for the planned pane;
-- prepared state is exposed through an explicit command for tests and future
-  owners;
-- prepared events carry cloned payload data, not mutable cache records;
-- missing cache data or invalid wall plans leave the owner in error state
-  without mutating chart-data, viewport, default-wall runtime, replay, or adapter
-  surfaces;
-- app shell registers the runtime after wall plan and before future projection
-  owners;
-- projection-preparation runtime, wall-plan runtime, app shell, session
-  dashboard, product baseline, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-projection-preparation-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/chart-entry-default-wall-plan-runtime-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 

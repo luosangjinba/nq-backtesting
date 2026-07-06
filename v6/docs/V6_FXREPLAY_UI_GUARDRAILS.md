@@ -166,6 +166,11 @@ Chart entry has a dedicated runtime boundary:
 - `runtime.chartEntryDefaultWallPlan` may consume replay bootstrap loaded events
   and produce the initial wall plan. It must not call `defaultWall.load`, write
   chart data, mutate viewport intent, advance replay, or call chart adapter APIs.
+- `runtime.chartEntryProjectionPreparation` may consume wall plans, read the
+  already-loaded bounded context through `barData.getWindow`, and prepare chart
+  data plus viewport payloads. It must not write chart data, mutate viewport
+  intent, call `defaultWall.load`, fetch bars, advance replay, or call chart
+  adapter APIs.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu
