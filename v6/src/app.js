@@ -29,6 +29,8 @@ import { createPaneRuntime } from './panes/pane-runtime.js';
 import { createPlaybackPeriodRuntime } from './playback-period/playback-period-runtime.js';
 import { createPersistenceRuntime } from './persistence/persistence-runtime.js';
 import { createReplayRuntime } from './replay/replay-runtime.js';
+import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
+import { createInMemorySessionRepository } from './session/session-repository.js';
 import { createSessionRuntime } from './session/session-runtime.js';
 import { createSettingsRuntime } from './settings/settings-runtime.js';
 import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.js';
@@ -51,8 +53,11 @@ if (!root) {
 
 renderAppShell(root);
 const registry = createRuntimeRegistry();
+const sessionRepository = createInMemorySessionRepository({
+  metadataStore: createSessionMetadataStorage(),
+});
 registry.registerRuntime(createAppRuntime());
-registry.registerRuntime(createSessionRuntime());
+registry.registerRuntime(createSessionRuntime({ repository: sessionRepository }));
 registry.registerRuntime(createSettingsRuntime());
 registry.registerRuntime(createPersistenceRuntime());
 registry.registerRuntime(createJournalRuntime());
