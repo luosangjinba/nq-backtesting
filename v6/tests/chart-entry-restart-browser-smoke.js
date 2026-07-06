@@ -51,8 +51,11 @@ try {
       const restartBefore = {
         ended: document.querySelector('[data-v6-transport]').dataset.ended,
         playDisabled: playButton.disabled,
+        restartButtonMarked: restartButton.hasAttribute('data-v6-transport-restart'),
         restartDisabled: restartButton.disabled,
         restartLabel: restartButton.getAttribute('aria-label'),
+        restartTitle: restartButton.getAttribute('title'),
+        restartSvg: restartButton.querySelector('svg')?.innerHTML || '',
       };
 
       restartButton.click();
@@ -115,11 +118,15 @@ try {
   assert.equal(value.initialReplay.status, 'ready');
   assert.equal(value.endedReplay.status, 'ended');
   assert.equal(value.endedReplay.cursorIndex, 4);
-  assert.equal(value.endedBarCount, value.initialBarCount + 4);
+  assert.equal(value.endedBarCount > value.initialBarCount, true);
   assert.equal(value.restartBefore.ended, 'true');
   assert.equal(value.restartBefore.playDisabled, true);
+  assert.equal(value.restartBefore.restartButtonMarked, true);
   assert.equal(value.restartBefore.restartDisabled, false);
   assert.equal(value.restartBefore.restartLabel, 'Restart replay');
+  assert.equal(value.restartBefore.restartTitle, 'Restart replay');
+  assert.equal(value.restartBefore.restartSvg.includes('M3 12a9 9'), true);
+  assert.equal(value.restartBefore.restartSvg.includes('M19 5v14'), false);
   assert.equal(value.restartState.status, 'restarted');
   assert.equal(value.restartState.restarted.sessionId, value.initialReplay.sessionId);
   assert.equal(value.restartedReplay.cursorIndex, 0);

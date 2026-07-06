@@ -16,11 +16,11 @@ const ICONS = {
   play: '<path d="M8 5l11 7-11 7z"/>',
   plusCircle: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/>',
   redo: '<path d="M21 7v6h-6"/><path d="M20 13a7 7 0 1 0-2 5"/>',
+  restart: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 8v5l3 2"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
   spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
   stepBack: '<path d="M19 5v14"/><path d="M15 6l-8 6 8 6"/>',
   stepForward: '<path d="M5 5v14"/><path d="M9 6l8 6-8 6"/>',
-  truncate: '<path d="M19 5v14"/><path d="M5 12h11"/><path d="M9 8l-4 4 4 4"/>',
   undo: '<path d="M3 7v6h6"/><path d="M4 13a7 7 0 1 1 2 5"/>',
 };
 
@@ -439,7 +439,7 @@ export function createWorkstationShellMarkup() {
       </main>
       <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
         <button type="button" class="transport-grip" data-v6-transport-drag-handle aria-label="Drag replay controls">${icon('grip')}</button>
-        <button type="button" class="transport-icon-button" data-v6-transport-action="restart" disabled aria-label="Restart available after replay ends">${icon('truncate')}</button>
+        <button type="button" class="transport-icon-button" data-v6-transport-action="restart" data-v6-transport-restart disabled aria-label="Restart available after replay ends" title="Restart replay">${icon('restart')}</button>
         <label class="transport-speed-slider" aria-label="Replay speed">
           <input type="range" min="0.5" max="4" step="0.5" value="1" data-v6-transport-speed-slider>
         </label>

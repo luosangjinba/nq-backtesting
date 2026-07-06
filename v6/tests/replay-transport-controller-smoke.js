@@ -215,6 +215,7 @@ assert.deepEqual(dispatched.at(-1), {
 });
 assert.equal(controller.getState().replayStatus, 'restarting');
 assert.equal(restartButton.disabled, true);
+assert.equal(restartButton['aria-label'], 'Restart available after replay ends');
 
 eventListeners.get('replay:loaded')?.({ status: 'ready' });
 assert.equal(controller.getState().replayStatus, 'ready');
