@@ -159,6 +159,10 @@ Chart entry has a dedicated runtime boundary:
   loaded summaries without leaking mutable bar cache records, and it must not
   load replay state, write chart data, mutate viewport intent, or call adapter
   APIs directly.
+- `runtime.chartEntryReplayBootstrap` may consume bounded context loaded events,
+  read session metadata, and call `replay.loadSession`. It must not advance
+  playback, write chart data, mutate viewport intent, project walls, or call
+  chart adapter APIs.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu

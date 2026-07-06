@@ -1178,26 +1178,23 @@ Verification:
 
 ### Step 62 - Chart Entry Replay Bootstrap Owner
 
-Introduce a replay bootstrap owner after bounded context load. This step may
-load the replay runtime from session metadata once bounded context is ready, but
-it must not advance playback, write chart data, mutate viewport intent, project
-walls, or call chart adapter APIs.
+Completed in commits:
 
-Acceptance:
+- `c868f975 docs(v6): scope step sixty two replay bootstrap`
+- `7ae20b36 feat(v6): add chart entry replay bootstrap runtime`
+- `3b4adbe0 feat(v6): register chart entry replay bootstrap runtime`
 
-- a dedicated replay-bootstrap runtime subscribes to `chartEntryContext:loaded`;
-- the runtime reads session metadata through `session.getById`;
-- the runtime calls `replay.loadSession` exactly once per context-loaded event;
-- loaded bootstrap state is exposed through an explicit command for tests and
-  future owners;
-- bootstrap events carry session id, context summary, and replay state without
-  exposing mutable bar data;
-- missing session metadata or replay load failures leave the owner in error
-  state without mutating chart-data, viewport, default-wall, or adapter surfaces;
-- app shell registers the runtime after chart-entry context and before future
-  chart projection owners;
-- replay-bootstrap runtime, replay runtime, context runtime, app shell, session
-  dashboard, product baseline, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-replay-bootstrap-runtime-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/chart-entry-context-runtime-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 
