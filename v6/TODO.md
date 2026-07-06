@@ -25,12 +25,14 @@
 
 Add a metadata-only delete action for stored dashboard sessions.
 
-Status: planned.
+Status: active.
 
 Notes for execution:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- deleting a session row must not enter chart workstation or mutate chart data.
+- deleting a session row must not enter chart workstation or mutate chart data;
+- deleting active metadata only clears the repository active session id and must
+  not drive chart/replay cleanup.
 
 Scope:
 
