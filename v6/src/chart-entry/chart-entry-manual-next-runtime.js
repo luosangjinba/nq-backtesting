@@ -35,6 +35,23 @@ function cloneAdvanced(advanced) {
   } : null;
 }
 
+function createEndedAdvanced({
+  playbackPeriod,
+  replayState,
+  stepCount,
+}) {
+  return {
+    appendedBarCount: 0,
+    chartRecord: null,
+    loadedWindow: null,
+    loadedWindows: [],
+    playbackPeriod,
+    replayState,
+    sessionId: replayState?.sessionId || null,
+    stepCount,
+  };
+}
+
 function normalizeTimeframeMinutes(timeframe) {
   const match = String(timeframe || '').trim().match(/^(\d+)(m)?$/i);
   if (!match) {
@@ -97,6 +114,18 @@ export function createChartEntryManualNextRuntime() {
         playbackPeriod: playbackPeriodState?.period,
         sourceTimeframe: currentReplayState?.timeframe,
       });
+      if (currentReplayState?.status === 'ended') {
+        state = {
+          advanced: createEndedAdvanced({
+            playbackPeriod: playbackPeriodState?.period || '1m',
+            replayState: currentReplayState,
+            stepCount,
+          }),
+          error: null,
+          status: 'ended',
+        };
+        return getState();
+      }
       let replayState = null;
       let chartRecord = null;
       const loadedWindows = [];
