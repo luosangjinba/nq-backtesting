@@ -19,6 +19,14 @@ export const SESSION_EVENTS = Object.freeze({
   OPENED: 'session:opened',
 });
 
+export const CHART_ENTRY_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntry.getState',
+});
+
+export const CHART_ENTRY_EVENTS = Object.freeze({
+  ACTIVATED: 'chartEntry:activated',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
