@@ -180,6 +180,11 @@ Chart entry has a dedicated runtime boundary:
   appending through `chartData.appendBars`. It must not call
   `defaultWall.next`, `defaultWall.load`, chart adapter APIs, or route/shell
   internals.
+- `runtime.chartEntryAutoPlay` owns chart-entry playback timer lifecycle.
+  Transport play/pause may dispatch auto-play start/stop commands with speed
+  payloads, but timer cadence and each playback tick must stay in this runtime.
+  Each tick must reuse `chartEntryManualNext.next` or an equivalent chart-entry
+  owner API, not `defaultWall.next`, chart adapter APIs, or shell timers.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu

@@ -11,6 +11,7 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'primary/non-primary multi-pane confusion',
   'chart-entry-initial-visibility-browser-smoke.js',
   'chart-entry-manual-next-browser-smoke.js',
+  'chart-entry-auto-play-browser-smoke.js',
   'visible-latency-cache-hit-browser-smoke.js',
   'default-wall-replay-browser-smoke.js',
   'manual-wall-replay-browser-smoke.js',

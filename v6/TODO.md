@@ -14,31 +14,28 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 67 - Chart Entry Manual Next Owner. Transport
-  `next` now uses the chart-entry owner path to advance replay, load the cursor
-  bar through bar-data, append chart data, and keep latest candle visibility
-  covered by a browser gate.
+- Latest completed step: Step 68 - Chart Entry Auto Playback Tick Owner.
+  Transport play/pause now dispatches chart-entry auto-play commands, and the
+  dedicated auto-play owner controls timer ticks through the manual-next owner
+  path.
 
 ## Next Executable Steps
 
-### Step 68 - Chart Entry Auto Playback Tick Owner
+### Step 69 - Chart Entry Playback End-State And Speed Policy
 
-Extend the chart-entry replay path from manual next to automatic playback ticks
-without reintroducing shell-owned timers or default-wall stepping.
-
-Status: active.
+Tighten edge behavior around automatic playback after the first working owner
+path: end-of-session handling, speed changes while playing, and UI state
+reconciliation when playback stops itself.
 
 Acceptance:
 
-- a dedicated auto-play owner controls timer lifecycle for chart-entry playback;
-- transport play/pause dispatches owner commands and does not own replay timing;
-- each tick reuses the chart-entry manual next command or an equivalent shared
-  owner API, not `defaultWall.next`;
-- speed settings influence tick cadence without creating visible candle delay;
-- browser smoke verifies automatic playback appends multiple visible candles and
-  keeps latest candle inside projected visible range;
-- manual next, initial visibility, app shell, session dashboard, product
-  baseline, UI guardrail, and boundary gates remain passing.
+- playback reaching the session end stops the auto-play owner and leaves
+  transport UI paused;
+- changing speed while playing updates the active timer cadence through the
+  owner, not shell-owned timing;
+- browser smoke covers auto-stop at end and active speed change;
+- manual next, auto-play, transport, app shell, UI guardrail, and boundary gates
+  remain passing.
 
 ## Completed Steps
 
@@ -1299,6 +1296,31 @@ Verification:
 - `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
 - `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 68 - Chart Entry Auto Playback Tick Owner
+
+Completed in commits:
+
+- `85554e7a docs(v6): scope step sixty eight autoplay`
+- `d4bc7062 feat(v6): add chart entry autoplay owner`
+- `3b02c2fb test(v6): verify chart entry autoplay browser flow`
+
+Verification:
+
+- `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-entry-manual-next-browser-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
