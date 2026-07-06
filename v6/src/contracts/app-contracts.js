@@ -35,6 +35,14 @@ export const CHART_ENTRY_INITIALIZATION_EVENTS = Object.freeze({
   PLANNED: 'chartEntryInitialization:planned',
 });
 
+export const CHART_ENTRY_CONTEXT_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryContext.getState',
+});
+
+export const CHART_ENTRY_CONTEXT_EVENTS = Object.freeze({
+  LOADED: 'chartEntryContext:loaded',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
