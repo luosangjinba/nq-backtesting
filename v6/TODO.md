@@ -25,7 +25,7 @@
 
 Harden playback-period execution near replay end and latency-sensitive paths.
 
-Status: planned.
+Status: active.
 
 Acceptance:
 
