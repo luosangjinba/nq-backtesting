@@ -22,31 +22,39 @@
 
 ## Next Executable Steps
 
-### Step 83 - Session Metadata Rename Action
+### Step 83 - Quick Session Creation Flow
 
-Add a metadata-only rename/edit action for stored dashboard sessions.
+Replace the simplified embedded start/end form with an FXReplay-style quick
+session creation flow.
 
 Status: planned.
 
 Notes for execution:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- editing a session row must not enter chart workstation or mutate chart data;
-- restored renamed sessions must remain metadata-only until explicitly opened.
+- the quick session modal collects session metadata and only creates/opens the
+  chart after the user confirms;
+- multi-asset selection is metadata-first, with the first selected asset as the
+  active chart symbol until multi-pane support owns secondary symbols;
+- account balance, chart layout, prop firm session, advanced session, and random
+  date remain UI placeholders unless an owning runtime is introduced.
 
 Scope:
 
-- add repository/runtime update support for editable session metadata;
-- add compact dashboard rename/edit UI;
-- update browser smoke for rename persistence across reload.
+- add session name, selected assets, account balance, and auto-update-end-date
+  metadata to session creation;
+- replace dashboard quick-create card with a modal flow;
+- restyle recent sessions around named sessions and asset chips;
+- update browser smoke for create, reload, and reopen from recent sessions.
 
 Acceptance:
 
-- renaming a row updates durable metadata;
-- editing inactive metadata does not change active chart/replay state;
-- editing active metadata does not mutate chart data, bars, replay state, or
-  viewport intent;
-- tests cover reload after rename.
+- clicking Backtesting session opens the quick session modal;
+- creating a valid quick session persists name/assets/date metadata and enters
+  the chart;
+- restored recent sessions can be opened explicitly without loading bars on
+  dashboard render;
+- unsupported controls remain clearly non-owning placeholders.
 
 ## Completed Steps
 
