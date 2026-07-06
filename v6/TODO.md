@@ -1136,6 +1136,29 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 60 - Chart Entry Context Initialization Owner
+
+Introduce the first executable owner that consumes chart-entry activation and
+prepares start-bar plus bounded-context initialization input. This step may read
+session metadata and plan the bounded bar-data window, but it must not load bar
+data, load replay state, write chart data, mutate viewport intent, or touch the
+chart adapter.
+
+Acceptance:
+
+- a dedicated initialization runtime subscribes to chart-entry activation;
+- the runtime reads session metadata by active session id through session
+  runtime command boundaries;
+- the runtime produces a start-bar anchor and bounded context window plan for
+  prefix plus start-bar coverage;
+- state is exposed through an explicit command for tests and future owners;
+- missing session metadata leaves initialization in an error/idle state without
+  mutating chart/replay/bar data;
+- no `barData.loadWindow`, replay, chart-data, chart-viewport, or adapter command
+  is dispatched in this step;
+- initialization runtime, chart-entry runtime, app shell, session dashboard,
+  product baseline, and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
