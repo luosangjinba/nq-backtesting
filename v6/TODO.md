@@ -26,7 +26,13 @@
 Persist the floating replay transport position after drag while keeping it
 viewport-local shell UI state.
 
-Status: planned.
+Status: active.
+
+Notes:
+
+- `replay-transport.js` must not import or directly call `localStorage`;
+- persistence must enter through an injected shell UI preference adapter so the
+  transport boundary remains command/event UI plus local DOM behavior.
 
 Scope:
 
