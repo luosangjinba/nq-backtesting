@@ -12,6 +12,7 @@ const ensured = store.ensureIntent('pane-default', {
 assert.equal(ensured.intent.origin, 'default');
 assert.equal(ensured.intent.revision, 0);
 assert.equal(ensured.intent.latestOffsetBars, 8);
+assert.equal(ensured.defaultLatestOffsetBars, 8);
 assert.equal(ensured.projection, null);
 
 const projected = store.applyChartDataRevision('pane-default', {
@@ -91,5 +92,18 @@ assert.throws(
   () => store.resetView('missing-pane'),
   /no viewport intent/
 );
+
+store.ensureIntent('pane-custom-default', {
+  cursorTimestamp: 1780306200,
+  latestOffsetBars: 12,
+});
+store.setManualIntent('pane-custom-default', {
+  latestOffsetBars: 3,
+  spanBars: 30,
+});
+const customReset = store.resetView('pane-custom-default');
+assert.equal(customReset.defaultLatestOffsetBars, 12);
+assert.equal(customReset.intent.origin, 'default');
+assert.equal(customReset.intent.latestOffsetBars, 12);
 
 console.log('v6 chart viewport store smoke passed');

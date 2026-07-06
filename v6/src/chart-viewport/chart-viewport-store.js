@@ -36,6 +36,7 @@ function normalizeRevision(revision = 0) {
 function cloneRecord(record) {
   return {
     chartBarsRevision: record.chartBarsRevision,
+    defaultLatestOffsetBars: record.defaultLatestOffsetBars,
     intent: { ...record.intent },
     paneId: record.paneId,
     projection: record.projection ? { ...record.projection } : null,
@@ -65,6 +66,7 @@ export function createChartViewportStore({
     }
     const record = {
       chartBarsRevision: 0,
+      defaultLatestOffsetBars: Number(latestOffsetBars),
       intent: createDefaultWallIntent({
         cursorTimestamp: normalizeCursorTimestamp(cursorTimestamp),
         latestOffsetBars,
@@ -93,7 +95,7 @@ export function createChartViewportStore({
 
   function resetView(paneId, {
     cursorTimestamp,
-    latestOffsetBars = defaultRightOffsetBars,
+    latestOffsetBars,
   } = {}) {
     const id = normalizePaneId(paneId);
     const existing = recordsByPaneId.get(id);
@@ -106,7 +108,9 @@ export function createChartViewportStore({
         cursorTimestamp: cursorTimestamp === undefined
           ? existing.intent.cursorTimestamp
           : normalizeCursorTimestamp(cursorTimestamp),
-        latestOffsetBars,
+        latestOffsetBars: latestOffsetBars === undefined
+          ? existing.defaultLatestOffsetBars ?? defaultRightOffsetBars
+          : latestOffsetBars,
       }),
       projection: null,
     };
