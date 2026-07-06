@@ -26,7 +26,13 @@
 Implement the first durable session metadata adapter behind the session
 repository boundary.
 
-Status: planned.
+Status: active.
+
+Implementation notes:
+
+- repository API remains the runtime boundary;
+- storage adapter stores only replay session metadata and active session id;
+- browser storage corruption must fall back to an empty repository.
 
 Notes for execution:
 
