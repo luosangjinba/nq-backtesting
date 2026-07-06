@@ -111,9 +111,10 @@ The chart surface itself should stay focused on pane-local chart information:
 
 The session dashboard/list is a separate surface from the chart workstation:
 
-- The chart top-left back arrow opens the session dashboard shell.
-- Do not add a chart-forward arrow. Returning to the chart happens from the
-  dashboard surface.
+- The app boots into the standalone session surface.
+- The chart top-left back arrow returns to the standalone session surface.
+- Do not add a chart-forward arrow. Entering the chart happens only by creating
+  or opening a session from the session surface.
 - The primary dashboard entries are only `Backtesting session`, `Sessions`, and
   `Analytics`.
 - Do not duplicate these entries as a separate tab strip above the same page
@@ -125,7 +126,7 @@ The session dashboard/list is a separate surface from the chart workstation:
   promotion panels, or performance charts before their runtime owners exist.
 - Session list and dashboard actions may use session commands to create a
   session, list sessions, or select the active session identity.
-- Opening a session from the dashboard returns to the chart workstation with
+- Opening a session from the session surface enters the chart workstation with
   active-session identity only. It must not load chart bars, replay cursor,
   replay windows, viewport intent, adapter state, or bar cache directly.
 - Keep dashboard statistics and trading/account analytics shell-only until their
