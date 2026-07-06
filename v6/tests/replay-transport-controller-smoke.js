@@ -43,6 +43,7 @@ function createFakeElement({
     },
     querySelector(selector) {
       if (selector === '[data-v6-transport-action="play-toggle"]') return this.playButton || null;
+      if (selector === '[data-v6-transport-action="next"]') return this.nextButton || null;
       return null;
     },
     querySelectorAll(selector) {
@@ -86,14 +87,17 @@ assert.deepEqual(syncReplayTransportStateFromReplay({ playing: false, speed: 2 }
   period: '1m',
   periodSync: false,
   playing: true,
+  replayStatus: 'playing',
   speed: 2,
 });
 assert.deepEqual(syncReplayTransportStateFromReplay({ playing: true, speed: 4 }, { status: 'paused' }), {
   period: '1m',
   periodSync: false,
   playing: false,
+  replayStatus: 'paused',
   speed: 4,
 });
+assert.equal(resolveReplayTransportAction('next', createReplayTransportState({ replayStatus: 'ended' })).command, null);
 
 const fakeDocument = createFakeDocument();
 const root = createFakeElement({ tagName: 'div' });
@@ -102,6 +106,7 @@ const playButton = createFakeElement({ dataset: { v6TransportAction: 'play-toggl
 const nextButton = createFakeElement({ dataset: { v6TransportAction: 'next' } });
 const speedButton = createFakeElement({ dataset: { v6TransportSpeed: '2' } });
 root.playButton = playButton;
+root.nextButton = nextButton;
 root.children = [playButton, nextButton, speedButton];
 root.speedButtons = [speedButton];
 
@@ -145,6 +150,7 @@ assert.deepEqual(dispatched.at(-1), {
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'paused' });
 assert.equal(controller.getState().playing, false);
+assert.equal(controller.getState().replayStatus, 'paused');
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Play replay');
 
@@ -155,6 +161,7 @@ assert.equal(dispatched.length, dispatchCountBeforePausedSpeed);
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'playing' });
 assert.equal(controller.getState().playing, true);
+assert.equal(controller.getState().replayStatus, 'playing');
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Pause replay');
 
@@ -172,6 +179,22 @@ assert.deepEqual(dispatched.at(-1), {
   payload: undefined,
 });
 assert.equal(controller.getState().playing, false);
+
+eventListeners.get('replay:playbackChanged')?.({ status: 'ended' });
+assert.equal(controller.getState().replayStatus, 'ended');
+assert.equal(controller.getState().playing, false);
+assert.equal(root.dataset.ended, 'true');
+assert.equal(root.dataset.playbackStatus, 'ended');
+assert.equal(playButton.disabled, true);
+assert.equal(nextButton.disabled, true);
+assert.equal(playButton['aria-label'], 'Replay ended');
+assert.equal(nextButton['aria-label'], 'Replay ended');
+const dispatchCountAtEnded = dispatched.length;
+fakeDocument.keydown({ key: 'ArrowRight', target: root });
+fakeDocument.keydown({ key: ' ', target: root });
+await Promise.resolve();
+assert.equal(dispatched.length, dispatchCountAtEnded);
+assert.equal(root.dataset.lastAction, 'ended');
 
 controller.destroy();
 

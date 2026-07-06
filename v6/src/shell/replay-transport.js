@@ -1,6 +1,8 @@
 import {
   CHART_ENTRY_AUTO_PLAY_COMMANDS,
+  CHART_ENTRY_AUTO_PLAY_EVENTS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
+  CHART_ENTRY_MANUAL_NEXT_EVENTS,
   PLAYBACK_PERIOD_COMMANDS,
   PLAYBACK_PERIOD_EVENTS,
   REPLAY_EVENTS,
@@ -29,17 +31,26 @@ export function createReplayTransportState({
   period = '1m',
   periodSync = false,
   playing = false,
+  replayStatus = 'idle',
   speed = 1,
 } = {}) {
   return Object.freeze({
     period: String(period || '1m'),
     periodSync: Boolean(periodSync),
     playing: Boolean(playing),
+    replayStatus: String(replayStatus || 'idle'),
     speed: normalizeSpeed(speed),
   });
 }
 
 export function resolveReplayTransportAction(action, state = createReplayTransportState()) {
+  if (state.replayStatus === 'ended' && (action === 'next' || action === 'play-toggle')) {
+    return Object.freeze({
+      command: null,
+      nextState: createReplayTransportState(state),
+      payload: undefined,
+    });
+  }
   switch (action) {
     case 'next':
       return Object.freeze({
@@ -54,6 +65,7 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
           period: state.period,
           periodSync: state.periodSync,
           playing,
+          replayStatus: state.replayStatus,
           speed: state.speed,
         }),
         payload: playing ? { speed: state.speed } : undefined,
@@ -71,6 +83,7 @@ export function syncReplayTransportStateFromReplay(state, replayState = {}) {
     period: state.period,
     periodSync: state.periodSync,
     playing: status === 'playing',
+    replayStatus: status,
     speed: state.speed,
   });
 }
@@ -87,18 +100,30 @@ function isEditableTarget(target) {
 
 function updateDom(root, state) {
   root.dataset.playback = state.playing ? 'playing' : 'paused';
+  root.dataset.playbackStatus = state.replayStatus;
+  root.dataset.ended = String(state.replayStatus === 'ended');
   root.dataset.period = state.period;
   root.dataset.periodSync = String(state.periodSync);
   root.dataset.speed = String(state.speed);
   const playButton = root.querySelector('[data-v6-transport-action="play-toggle"]');
   if (playButton) {
-    const label = state.playing ? 'Pause replay' : 'Play replay';
+    const ended = state.replayStatus === 'ended';
+    const label = ended ? 'Replay ended' : state.playing ? 'Pause replay' : 'Play replay';
     const labelElement = playButton.querySelector?.('[data-v6-transport-play-label]');
     if (labelElement) {
       labelElement.textContent = label;
     }
+    playButton.disabled = ended;
     playButton.setAttribute('aria-label', label);
     playButton.setAttribute('aria-pressed', String(state.playing));
+    playButton.setAttribute('aria-disabled', String(ended));
+  }
+  const nextButton = root.querySelector('[data-v6-transport-action="next"]');
+  if (nextButton) {
+    const ended = state.replayStatus === 'ended';
+    nextButton.disabled = ended;
+    nextButton.setAttribute('aria-label', ended ? 'Replay ended' : 'Next replay bar');
+    nextButton.setAttribute('aria-disabled', String(ended));
   }
   const speedSlider = root.querySelector('[data-v6-transport-speed-slider]');
   if (speedSlider) {
@@ -145,6 +170,10 @@ export function mountReplayTransport(root, {
   function dispatchAction(action) {
     const resolved = resolveReplayTransportAction(action, state);
     setState(resolved.nextState);
+    if (!resolved.command) {
+      root.dataset.lastAction = 'ended';
+      return Promise.resolve(null);
+    }
     return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).catch((error) => {
       root.dataset.lastError = error?.message || String(error);
       if (action === 'play-toggle') {
@@ -152,6 +181,7 @@ export function mountReplayTransport(root, {
           period: state.period,
           periodSync: state.periodSync,
           playing: !state.playing,
+          replayStatus: state.replayStatus,
           speed: state.speed,
         });
       }
@@ -164,6 +194,7 @@ export function mountReplayTransport(root, {
       period: state.period,
       periodSync: state.periodSync,
       playing: state.playing,
+      replayStatus: state.replayStatus,
       speed,
     });
     if (!state.playing) return Promise.resolve(null);
@@ -182,8 +213,27 @@ export function mountReplayTransport(root, {
       period: playbackPeriodState.period || state.period,
       periodSync: playbackPeriodState.sync ?? state.periodSync,
       playing: state.playing,
+      replayStatus: state.replayStatus,
       speed: state.speed,
     });
+  }
+
+  function syncFromManualNextEvent(advanced = {}) {
+    const replayState = advanced.replayState || advanced.advanced?.replayState || null;
+    if (replayState) {
+      syncFromReplayEvent(replayState);
+    }
+  }
+
+  function syncFromAutoPlayEvent(autoState = {}) {
+    const replayState = autoState.lastTick?.replayState || null;
+    if (replayState) {
+      syncFromReplayEvent(replayState);
+      return;
+    }
+    if (autoState.status) {
+      syncFromReplayEvent({ status: autoState.status === 'ended' ? 'ended' : state.replayStatus });
+    }
   }
 
   function dispatchPeriodChange(period) {
@@ -286,8 +336,11 @@ export function mountReplayTransport(root, {
   if (typeof subscribeEvent === 'function') {
     unsubscribeCallbacks.push(
       subscribeEvent(REPLAY_EVENTS.LOADED, syncFromReplayEvent),
+      subscribeEvent(REPLAY_EVENTS.ADVANCED, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.PLAYBACK_CHANGED, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.RESET, syncFromReplayEvent),
+      subscribeEvent(CHART_ENTRY_MANUAL_NEXT_EVENTS.ADVANCED, syncFromManualNextEvent),
+      subscribeEvent(CHART_ENTRY_AUTO_PLAY_EVENTS.STOPPED, syncFromAutoPlayEvent),
       subscribeEvent(PLAYBACK_PERIOD_EVENTS.CHANGED, syncFromPlaybackPeriodEvent),
     );
   }
