@@ -27,9 +27,15 @@ function normalizeSeriesBar(bar) {
 
 function cloneRange(range) {
   return range ? {
-    from: Number(range.from),
-    to: Number(range.to),
+    from: normalizeLogicalValue(range.from),
+    to: normalizeLogicalValue(range.to),
   } : null;
+}
+
+function normalizeLogicalValue(value) {
+  const number = Number(value);
+  const rounded = Math.round(number);
+  return Math.abs(number - rounded) < 1e-9 ? rounded : number;
 }
 
 export function createLightweightChartAdapter({

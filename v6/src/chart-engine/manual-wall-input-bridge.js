@@ -2,7 +2,7 @@ import { CHART_VIEWPORT_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { measureManualWallFromLogicalRange } from '../viewport/viewport-projection.js';
 
-const RANGE_EPSILON = 0.000001;
+const RANGE_EPSILON = 0.5;
 
 function rangesEqual(left = {}, right = {}) {
   return (

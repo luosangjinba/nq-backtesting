@@ -28,6 +28,10 @@ const DEFAULT_SERIES_OPTIONS = Object.freeze({
   wickUpColor: '#2a958b',
 });
 
+const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
+const PROGRAMMATIC_RANGE_EPSILON = 2;
+const USER_RANGE_INPUT_WINDOW_MS = 2000;
+
 function measureHost(host) {
   const rect = host.getBoundingClientRect?.() ?? {};
   return {
@@ -38,6 +42,13 @@ function measureHost(host) {
 
 function resolvePaneId(host) {
   return String(host.dataset.v6PaneId || 'default').trim() || 'default';
+}
+
+function rangesNear(left = {}, right = {}) {
+  return (
+    Math.abs(Number(left.from) - Number(right.from)) <= PROGRAMMATIC_RANGE_EPSILON &&
+    Math.abs(Number(left.to) - Number(right.to)) <= PROGRAMMATIC_RANGE_EPSILON
+  );
 }
 
 export function mountWorkstationChartSurface(root, {
@@ -59,7 +70,9 @@ export function mountWorkstationChartSurface(root, {
   const appliedChartDataByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
+  const programmaticRangeByPaneId = new Map();
   const visibleRangeListeners = new Set();
+  let userRangeInputUntil = 0;
   const size = measureHost(host);
   const manager = managerFactory({
     chartOptions: {
@@ -84,9 +97,24 @@ export function mountWorkstationChartSurface(root, {
           to: Number(range.to),
         };
         measuredVisibleRangeByPaneId.set(changedPaneId, record);
+        const programmaticRange = programmaticRangeByPaneId.get(changedPaneId);
+        if (programmaticRange && Date.now() <= programmaticRange.suppressUntil && rangesNear(record, programmaticRange)) {
+          return;
+        }
+        if (Date.now() > userRangeInputUntil) {
+          return;
+        }
         visibleRangeListeners.forEach((listener) => listener({ ...record }));
       })
     : () => {};
+
+  const markUserRangeInput = () => {
+    userRangeInputUntil = Date.now() + USER_RANGE_INPUT_WINDOW_MS;
+  };
+  const userInputEvents = ['pointerdown', 'mousedown', 'wheel', 'touchstart'];
+  userInputEvents.forEach((eventName) => {
+    host.addEventListener?.(eventName, markUserRangeInput, { passive: true });
+  });
 
   function resize() {
     const nextSize = measureHost(host);
@@ -130,10 +158,6 @@ export function mountWorkstationChartSurface(root, {
       if (!record.projection) {
         return null;
       }
-      const snapshot = manager.setVisibleLogicalRange(recordPaneId, {
-        from: record.projection.from,
-        to: record.projection.to,
-      });
       appliedViewportByPaneId.set(recordPaneId, {
         chartBarsRevision: Number(record.chartBarsRevision) || 0,
         from: Number(record.projection.from),
@@ -142,10 +166,22 @@ export function mountWorkstationChartSurface(root, {
         projectionRevision: Number(record.projection.revision) || 0,
         to: Number(record.projection.to),
       });
+      programmaticRangeByPaneId.set(recordPaneId, {
+        from: Number(record.projection.from),
+        suppressUntil: Date.now() + PROGRAMMATIC_RANGE_SUPPRESSION_MS,
+        to: Number(record.projection.to),
+      });
+      const snapshot = manager.setVisibleLogicalRange(recordPaneId, {
+        from: record.projection.from,
+        to: record.projection.to,
+      });
       return snapshot;
     },
     destroy() {
       unsubscribeVisibleRange();
+      userInputEvents.forEach((eventName) => {
+        host.removeEventListener?.(eventName, markUserRangeInput);
+      });
       resizeObserver?.disconnect();
       manager.destroyAll();
       visibleRangeListeners.clear();
