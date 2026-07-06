@@ -223,9 +223,7 @@ p {
 .replay-workflow-panel button,
 .sessions-panel button,
 .settings-panel button,
-.transport-placeholder button,
-.toolbar-actions button,
-.toolbar-actions select {
+.transport-placeholder button {
   height: 28px;
   border: 1px solid #2b4050;
   border-radius: 6px;
@@ -878,31 +876,7 @@ p {
   background: #0c141d;
 }
 
-.chart-toolbar {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  grid-column: 1;
-  grid-row: 1;
-  display: block;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  min-height: 40px;
-  padding: 7px 10px;
-  border-bottom: 1px solid #173140;
-  background: #0b131a;
-}
-
-.symbol-readout,
-.toolbar-actions,
-.toolbar-actions label {
+.symbol-readout {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -926,31 +900,6 @@ p {
   border-radius: 999px;
   background: #2ccf83;
   box-shadow: 0 0 12px rgba(44, 207, 131, 0.7);
-}
-
-.toolbar-actions {
-  flex-shrink: 0;
-  color: #91a8b6;
-  font-size: 12px;
-}
-
-.toolbar-actions label span {
-  font-weight: 700;
-}
-
-.toolbar-actions select {
-  min-width: 72px;
-  padding: 0 24px 0 10px;
-}
-
-.toolbar-readonly-value {
-  min-width: 34px;
-  height: 30px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  color: #dce5eb;
-  font-weight: 700;
 }
 
 .chart-surface {
@@ -1522,17 +1471,8 @@ p {
     justify-content: flex-start;
   }
 
-  .chart-toolbar {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
   .symbol-readout {
     overflow-x: auto;
-  }
-
-  .toolbar-actions {
-    justify-content: space-between;
   }
 
   .static-chart-visual {

@@ -16,9 +16,11 @@ try {
       return {
         account: textOf('[data-v6-top-account]'),
         accountDisabled: disabled('[data-v6-top-account]'),
+        backLabel: document.querySelector('[data-v6-top-back]')?.getAttribute('aria-label') || '',
         backDisabled: disabled('[data-v6-top-back]'),
         compareDisabled: disabled('[data-v6-top-compare]'),
         editorExists: exists('[data-v6-top-editor]'),
+        forwardExists: exists('[data-v6-top-session-forward]'),
         fullscreenDisabled: disabled('[data-v6-top-fullscreen]'),
         hasHeader: exists('[data-v6-workstation-header]'),
         headerHeight: Math.round(headerRect.height),
@@ -54,6 +56,8 @@ try {
 
   assert.equal(value.hasHeader, true);
   assert.equal(value.headerHeight <= 56, true);
+  assert.equal(value.backLabel, 'Back to session dashboard');
+  assert.equal(value.forwardExists, false);
   assert.equal(value.symbol, 'NQ');
   assert.equal(value.interval, '1m');
   assert.equal(value.intervalDisabled, false);

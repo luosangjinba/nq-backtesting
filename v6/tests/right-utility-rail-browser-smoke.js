@@ -21,7 +21,6 @@ try {
       };
       const chart = rectOf('[data-v6-chart-surface]');
       const host = rectOf('[data-v6-chart-engine-host]');
-      const toolbarStyle = getComputedStyle(document.querySelector('.chart-toolbar'));
       const rail = rectOf('[data-v6-right-utility-rail]');
       const main = rectOf('[data-v6-workstation-main]');
       const beforeChart = rectOf('[data-v6-chart-surface]');
@@ -64,8 +63,7 @@ try {
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
         menuRect,
         rail,
-        toolbarClip: toolbarStyle.clip,
-        toolbarPosition: toolbarStyle.position,
+        chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
         viewportWidth: window.innerWidth,
       };
     })()))()
@@ -73,7 +71,7 @@ try {
 
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);
-  assert.equal(value.toolbarPosition, 'absolute');
+  assert.equal(value.chartToolbarExists, false);
   assert.equal(value.chart.right <= value.rail.left + 1, true);
   assert.equal(value.rail.right <= value.viewportWidth - 8, true);
   assert.equal(value.rail.right >= value.viewportWidth - 16, true);

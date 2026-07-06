@@ -37,8 +37,7 @@ export function createWorkstationShellMarkup() {
     <section class="workstation-shell" data-v6-workstation-shell>
       <header class="top-bar" data-v6-workstation-header>
         <div class="top-tool-group top-tool-group-left" aria-label="Session and symbol tools">
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-back data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false" aria-label="Back to session selection">${icon('arrowLeft')}<span class="sr-only">Back to session selection</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-session-forward disabled aria-label="Forward">${icon('arrowRight')}<span class="sr-only">Forward</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-back data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false" aria-label="Back to session dashboard">${icon('arrowLeft')}<span class="sr-only">Back to session dashboard</span></button>
           <button type="button" class="tool-button tool-button-icon" data-v6-top-search-symbol disabled aria-label="Search symbol">${icon('search')}<span class="sr-only">Search symbol</span></button>
           <h1>FX Session Replay</h1>
           <span class="top-symbol" data-v6-top-symbol>NQ</span>
@@ -288,17 +287,6 @@ export function createWorkstationShellMarkup() {
       </section>
 
       <main class="workstation-main" data-v6-workstation-main>
-        <section class="chart-toolbar" aria-label="Chart controls placeholder">
-          <div class="toolbar-actions">
-            <label>
-              <span>TF</span>
-              <span class="toolbar-readonly-value" data-v6-display-timeframe-readout>1m</span>
-            </label>
-            <button type="button" disabled>Go to</button>
-            <button type="button" disabled>Layout</button>
-          </div>
-        </section>
-
         <section class="chart-surface" aria-label="Replay chart surface" data-v6-chart-surface>
           <div class="symbol-readout pane-status-readout" data-v6-status-readout>
             <span class="status-dot" aria-hidden="true"></span>
