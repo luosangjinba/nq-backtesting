@@ -338,6 +338,10 @@ export function createWorkstationShellMarkup() {
             <span data-v6-status-low>L --</span>
             <span data-v6-status-close>C --</span>
           </div>
+          <button type="button" class="chart-reset-view-button" data-v6-reset-view aria-label="Reset chart view">
+            ${icon('redo')}
+            <span class="sr-only">Reset chart view</span>
+          </button>
           <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main"></div>
           <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
             <div class="price-scale-placeholder">

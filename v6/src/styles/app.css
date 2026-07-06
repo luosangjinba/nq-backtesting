@@ -1290,6 +1290,33 @@ p {
   min-height: 100%;
 }
 
+.chart-reset-view-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 5;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(77, 96, 110, 0.7);
+  border-radius: 999px;
+  background: rgba(7, 12, 18, 0.74);
+  color: #dce8ef;
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
+}
+
+.chart-reset-view-button:hover {
+  border-color: rgba(122, 147, 163, 0.86);
+  background: rgba(20, 30, 40, 0.86);
+}
+
+.chart-reset-view-button .tool-icon {
+  width: 17px;
+  height: 17px;
+}
+
 .chart-fallback {
   position: absolute;
   inset: 0;

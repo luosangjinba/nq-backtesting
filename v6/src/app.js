@@ -16,6 +16,7 @@ import { createChartEntryRuntime } from './chart-entry/chart-entry-runtime.js';
 import { connectChartDataSurfaceBridge } from './chart-engine/chart-data-surface-bridge.js';
 import { connectChartViewportSurfaceBridge } from './chart-engine/chart-viewport-surface-bridge.js';
 import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-bridge.js';
+import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { createChartViewportRuntime } from './chart-viewport/chart-viewport-runtime.js';
 import { createDisplayTimeframeRuntime } from './display-timeframe/display-timeframe-runtime.js';
@@ -84,6 +85,10 @@ const chartViewportSurfaceBridge = connectChartViewportSurfaceBridge({
 const manualWallInputBridge = connectManualWallInputBridge({
   chartSurface: workstationChartSurface,
 });
+const resetViewControl = connectResetViewControl({
+  button: root.querySelector('[data-v6-reset-view]'),
+  chartSurface: workstationChartSurface,
+});
 const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
@@ -119,4 +124,5 @@ root.__v6WorkstationChartSurface = workstationChartSurface;
 root.__v6ChartDataSurfaceBridge = chartDataSurfaceBridge;
 root.__v6ChartViewportSurfaceBridge = chartViewportSurfaceBridge;
 root.__v6ManualWallInputBridge = manualWallInputBridge;
+root.__v6ResetViewControl = resetViewControl;
 root.dataset.booted = 'true';
