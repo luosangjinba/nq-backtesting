@@ -1044,25 +1044,21 @@ Verification:
 
 ### Step 55 - Session Dashboard Open Session Contract
 
-Define the shell-to-session-runtime contract for opening an existing session
-from the simplified dashboard. The dashboard may select an active session and
-return to the chart workstation, but it must not load chart bars, replay
-windows, viewport intent, adapter state, or bar cache directly.
+Completed in commits:
 
-Acceptance:
+- `50ebe9d4 docs(v6): scope step fifty five session open contract`
+- `be79ea77 feat(v6): add session open command`
+- `9cb1f049 fix(v6): open dashboard sessions through runtime`
 
-- session runtime exposes an explicit open/select-active command for existing
-  sessions;
-- opening a missing session fails clearly and does not change the active
-  session;
-- dashboard `Sessions` rows dispatch the open/select-active command before
-  returning to the chart workstation;
-- creating a session still makes that session active through session runtime;
-- route/shell code only observes active-session identity and never requests
-  chart data, replay loads, viewport mutations, adapter writes, or bar-cache
-  windows;
-- session runtime, session dashboard, app shell, product baseline, and boundary
-  gates remain passing.
+Verification:
+
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 

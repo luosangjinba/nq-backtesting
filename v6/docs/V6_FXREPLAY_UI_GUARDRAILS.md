@@ -121,8 +121,11 @@ The session dashboard/list is a separate surface from the chart workstation:
   replay orders, live orders, and review statistics.
 - Do not reintroduce a generic Dashboard overview, Tutorials, Prop firm session,
   promotion panels, or performance charts before their runtime owners exist.
-- Session list and dashboard actions may use session commands, but must not own
-  chart bars, replay cursor, viewport intent, adapter state, or bar cache.
+- Session list and dashboard actions may use session commands to create a
+  session, list sessions, or select the active session identity.
+- Opening a session from the dashboard returns to the chart workstation with
+  active-session identity only. It must not load chart bars, replay cursor,
+  replay windows, viewport intent, adapter state, or bar cache directly.
 - Keep dashboard statistics and trading/account analytics shell-only until their
   own runtime owners exist.
 
