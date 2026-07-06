@@ -1098,6 +1098,27 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 58 - Chart Entry Activation Owner
+
+Define the runtime owner that receives active-session identity when the user
+creates or opens a session and enters the chart workstation. This step should
+only establish the activation boundary and observable state; it must not load
+chart bars, replay windows, viewport intent, adapter state, or bar cache.
+
+Acceptance:
+
+- a dedicated chart-entry/workstation-activation runtime subscribes to session
+  create/open events and records active-session identity;
+- activation state is exposed through an explicit command for tests and future
+  owners;
+- missing-session open failures do not activate anything;
+- session surface and route shell still only create/open sessions and switch
+  surfaces;
+- no bar-data, replay, chart-data, chart-viewport, or adapter command is called
+  by the activation runtime in this step;
+- activation runtime, app shell, session dashboard, product baseline, and
+  boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
