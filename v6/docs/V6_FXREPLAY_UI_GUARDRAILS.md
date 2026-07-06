@@ -136,6 +136,18 @@ The session dashboard/list is a separate surface from the chart workstation:
 - Keep dashboard statistics and trading/account analytics shell-only until their
   own runtime owners exist.
 
+## Chart Entry Activation
+
+Chart entry has a dedicated runtime boundary:
+
+- Session surface code may create/open sessions and switch to the workstation.
+- `runtime.chartEntry` owns the first activation record for active-session
+  identity after `session:created` or `session:opened`.
+- The activation runtime may expose activation state for tests and future
+  owners, but must not load chart bars, replay windows, viewport intent, adapter
+  state, or bar cache directly.
+- Missing-session open failures must not change activation state.
+
 ## Timeframe Menu
 
 The interval menu should behave like a tool dropdown:
