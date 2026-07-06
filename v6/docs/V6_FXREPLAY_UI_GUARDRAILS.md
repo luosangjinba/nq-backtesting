@@ -119,16 +119,20 @@ The session dashboard/list is a separate surface from the chart workstation:
   `Analytics`.
 - Do not duplicate these entries as a separate tab strip above the same page
   sections. Keep one clear page hierarchy until a real navigation owner exists.
-- `Backtesting session` is the create-session entry. `Sessions` is the existing
-  session list. `Analytics` is reserved for session-segment analysis, including
-  replay orders, live orders, and review statistics.
+- `Backtesting session` is the create-session entry. The first setup form only
+  exposes `Start`, `End`, and an enter-chart action; symbol and timeframe stay
+  on V6 defaults until their own owners exist.
+- `Sessions` is the existing session list. `Analytics` is reserved for
+  session-segment analysis, including replay orders, live orders, and review
+  statistics.
 - Do not reintroduce a generic Dashboard overview, Tutorials, Prop firm session,
   promotion panels, or performance charts before their runtime owners exist.
 - Session list and dashboard actions may use session commands to create a
   session, list sessions, or select the active session identity.
-- Opening a session from the session surface enters the chart workstation with
-  active-session identity only. It must not load chart bars, replay cursor,
-  replay windows, viewport intent, adapter state, or bar cache directly.
+- Creating or opening a session from the session surface enters the chart
+  workstation with active-session identity only. It must not load chart bars,
+  replay cursor, replay windows, viewport intent, adapter state, or bar cache
+  directly.
 - Keep dashboard statistics and trading/account analytics shell-only until their
   own runtime owners exist.
 
