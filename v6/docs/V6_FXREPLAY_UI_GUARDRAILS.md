@@ -187,6 +187,12 @@ Chart entry has a dedicated runtime boundary:
   they must not rebuild timers or advance replay from shell code.
   Each tick must reuse `chartEntryManualNext.next` or an equivalent chart-entry
   owner API, not `defaultWall.next`, chart adapter APIs, or shell timers.
+- Reset View belongs to chart viewport ownership. UI may dispatch
+  `chartViewport.resetView` through a thin bridge with current pane chart-data
+  revision and latest logical index, but it must not call chart adapter APIs,
+  mutate replay cursor, rewrite chart bars, change playback state, or infer a
+  time-based range. Reset View restores the pane's remembered default
+  right-side wall offset.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu

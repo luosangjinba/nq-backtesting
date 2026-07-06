@@ -22,6 +22,7 @@ Passed:
 - `node v6/tests/chart-entry-manual-next-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/chart-entry-playback-policy-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
 - `node v6/tests/visible-latency-domain-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
@@ -41,6 +42,10 @@ Finding:
 - playback policy now has a browser-level gate that verifies playing-speed
   changes route through the auto-play owner, playback auto-stops at session end,
   and transport UI reconciles back to paused.
+- reset view now has a browser-level gate that verifies native manual wall input
+  can be discarded through `chartViewport.resetView`, returning latest candle
+  placement to the pane's default right-side wall without changing replay cursor
+  or chart bars.
 - cache-hit visible replay remains covered by a browser gate, so the database
   and API path are not allowed to become the visible candle path.
 
