@@ -1138,26 +1138,24 @@ Verification:
 
 ### Step 60 - Chart Entry Context Initialization Owner
 
-Introduce the first executable owner that consumes chart-entry activation and
-prepares start-bar plus bounded-context initialization input. This step may read
-session metadata and plan the bounded bar-data window, but it must not load bar
-data, load replay state, write chart data, mutate viewport intent, or touch the
-chart adapter.
+Completed in commits:
 
-Acceptance:
+- `43caa27f docs(v6): scope step sixty context initialization`
+- `53c05106 feat(v6): define chart entry context plan`
+- `91f38936 feat(v6): add chart entry initialization runtime`
+- `f2b607de feat(v6): register chart entry initialization runtime`
 
-- a dedicated initialization runtime subscribes to chart-entry activation;
-- the runtime reads session metadata by active session id through session
-  runtime command boundaries;
-- the runtime produces a start-bar anchor and bounded context window plan for
-  prefix plus start-bar coverage;
-- state is exposed through an explicit command for tests and future owners;
-- missing session metadata leaves initialization in an error/idle state without
-  mutating chart/replay/bar data;
-- no `barData.loadWindow`, replay, chart-data, chart-viewport, or adapter command
-  is dispatched in this step;
-- initialization runtime, chart-entry runtime, app shell, session dashboard,
-  product baseline, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-context-plan-smoke.js`
+- `node v6/tests/chart-entry-initialization-runtime-smoke.js`
+- `node v6/tests/chart-entry-runtime-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 

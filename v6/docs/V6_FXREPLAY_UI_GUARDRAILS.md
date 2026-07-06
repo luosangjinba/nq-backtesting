@@ -150,6 +150,10 @@ Chart entry has a dedicated runtime boundary:
   start bar, loading bounded replay context, loading replay state, projecting
   the default wall, and applying chart data/viewport. The plan is a contract,
   not execution.
+- `runtime.chartEntryInitialization` may read session metadata and call
+  `barData.planWindow` to prepare bounded prefix-plus-start context. It must not
+  call `barData.loadWindow`, replay load, chart-data writes, viewport mutation,
+  or adapter APIs.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu
