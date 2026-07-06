@@ -43,10 +43,6 @@ export function createWorkstationShellMarkup() {
           </div>
           <button type="button" class="session-dashboard-chart-button" data-v6-dashboard-open-chart>${icon('arrowRight')}<span>Open chart</span></button>
         </header>
-        <nav class="session-dashboard-tabs" aria-label="Session dashboard sections">
-          <button type="button" class="is-active" disabled>${icon('journal')}<span>Sessions</span></button>
-          <button type="button" disabled>${icon('indicators')}<span>Analytics</span></button>
-        </nav>
         <main class="session-dashboard-main">
           <section class="session-dashboard-actions" aria-label="Backtesting session">
             <button type="button" data-v6-dashboard-create-session>${icon('plusCircle')}<span>Backtesting session</span></button>

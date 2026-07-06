@@ -21,7 +21,12 @@ try {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         forwardExists: Boolean(document.querySelector('[data-v6-top-session-forward]')),
-        tabLabels: [...document.querySelectorAll('.session-dashboard-tabs button')].map((button) => button.textContent.trim()),
+        primaryLabels: [
+          document.querySelector('[data-v6-dashboard-create-session]')?.textContent.trim() || '',
+          document.querySelector('.session-dashboard-list-section header strong')?.textContent.trim() || '',
+          document.querySelector('[data-v6-dashboard-analytics] header')?.textContent.trim() || '',
+        ],
+        tabCount: document.querySelectorAll('.session-dashboard-tabs button').length,
         text: document.querySelector('[data-v6-session-dashboard]').textContent || '',
         surface: root.dataset.v6Surface,
         toggleExpanded: document.querySelector('[data-v6-dashboard-toggle]').getAttribute('aria-expanded'),
@@ -83,7 +88,8 @@ try {
   });
   assert.equal(value.openedState.dashboardHidden, false);
   assert.equal(value.openedState.dashboardOpen, true);
-  assert.deepEqual(value.openedState.tabLabels, ['Sessions', 'Analytics']);
+  assert.equal(value.openedState.tabCount, 0);
+  assert.deepEqual(value.openedState.primaryLabels, ['Backtesting session', 'Sessions', 'Analytics']);
   assert.deepEqual(value.openedState.actionLabels, ['Backtesting session']);
   assert.match(value.openedState.analyticsText, /replay orders/);
   assert.match(value.openedState.analyticsText, /live orders/);

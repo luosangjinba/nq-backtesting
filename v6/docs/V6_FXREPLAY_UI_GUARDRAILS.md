@@ -116,6 +116,8 @@ The session dashboard/list is a separate surface from the chart workstation:
   dashboard surface.
 - The primary dashboard entries are only `Backtesting session`, `Sessions`, and
   `Analytics`.
+- Do not duplicate these entries as a separate tab strip above the same page
+  sections. Keep one clear page hierarchy until a real navigation owner exists.
 - `Backtesting session` is the create-session entry. `Sessions` is the existing
   session list. `Analytics` is reserved for session-segment analysis, including
   replay orders, live orders, and review statistics.

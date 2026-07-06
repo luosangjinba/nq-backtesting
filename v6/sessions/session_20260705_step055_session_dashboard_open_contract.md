@@ -17,11 +17,16 @@ the chart workstation. This keeps the route/shell layer limited to active
 session identity. It still does not request chart bars, replay loads, viewport
 mutations, adapter writes, or bar-cache windows.
 
+Follow-up correction: the session dashboard keeps one clear page hierarchy.
+The duplicate top `Sessions` / `Analytics` tab strip was removed because it
+repeated the lower page sections without owning navigation behavior.
+
 ## Commits
 
 - `50ebe9d4 docs(v6): scope step fifty five session open contract`
 - `be79ea77 feat(v6): add session open command`
 - `9cb1f049 fix(v6): open dashboard sessions through runtime`
+- duplicate tab correction committed after the initial closeout
 
 ## Verification
 
