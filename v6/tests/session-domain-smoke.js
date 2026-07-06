@@ -10,10 +10,14 @@ resetSessionIdsForTest();
 
 const defaults = getDefaultSessionInput();
 assert.deepEqual(defaults, {
+  accountBalance: 100000,
+  autoUpdateEndDate: false,
   endTime: '2026-06-05T16:00:00.000Z',
+  name: 'Backtesting session',
   profileId: 'default-profile',
   startTime: '2026-06-01T09:30:00.000Z',
   symbol: 'NQ',
+  symbols: ['NQ'],
   timeframe: '1m',
   workspaceId: 'default-workspace',
 });
@@ -23,26 +27,38 @@ const session = createReplaySession({
 });
 assert.deepEqual(session, {
   createdAt: '2026-07-04T00:00:00.000Z',
+  accountBalance: defaults.accountBalance,
+  autoUpdateEndDate: false,
   endTime: defaults.endTime,
   id: 'v6-session-0001',
+  name: defaults.name,
   profileId: defaults.profileId,
   startTime: defaults.startTime,
   status: 'created',
   symbol: defaults.symbol,
+  symbols: defaults.symbols,
   timeframe: defaults.timeframe,
   workspaceId: defaults.workspaceId,
 });
 
 const custom = createReplaySession({
   createdAt: '2026-07-04T00:00:01.000Z',
+  accountBalance: 250000,
+  autoUpdateEndDate: true,
   endTime: '2026-06-02T16:00:00-04:00',
+  name: 'NY AM review',
   profileId: 'fx-profile',
   startTime: '2026-06-02T09:30:00-04:00',
-  symbol: 'ES',
+  symbols: ['es', 'nq', 'ES'],
   timeframe: '5m',
   workspaceId: 'main-workspace',
 });
 assert.equal(custom.id, 'v6-session-0002');
+assert.equal(custom.accountBalance, 250000);
+assert.equal(custom.autoUpdateEndDate, true);
+assert.equal(custom.name, 'NY AM review');
+assert.equal(custom.symbol, 'ES');
+assert.deepEqual(custom.symbols, ['ES', 'NQ']);
 assert.equal(custom.startTime, '2026-06-02T13:30:00.000Z');
 assert.equal(custom.endTime, '2026-06-02T20:00:00.000Z');
 
@@ -54,7 +70,9 @@ assert.throws(
 const repository = createInMemorySessionRepository();
 const saved = repository.save(session);
 saved.symbol = 'MUTATED';
+saved.symbols.push('BROKEN');
 assert.equal(repository.getActive().symbol, 'NQ');
+assert.deepEqual(repository.getActive().symbols, ['NQ']);
 assert.equal(repository.getById(session.id).id, session.id);
 assert.equal(repository.list().length, 1);
 repository.clear();

@@ -1,5 +1,9 @@
 function cloneSession(session) {
-  return { ...session };
+  const cloned = { ...session };
+  if (Array.isArray(session.symbols)) {
+    cloned.symbols = [...session.symbols];
+  }
+  return cloned;
 }
 
 function cloneSessions(sessions = []) {

@@ -1,8 +1,12 @@
 const DEFAULT_SESSION_INPUT = Object.freeze({
+  accountBalance: 100000,
+  autoUpdateEndDate: false,
   endTime: '2026-06-05T16:00:00.000Z',
+  name: 'Backtesting session',
   profileId: 'default-profile',
   startTime: '2026-06-01T09:30:00.000Z',
   symbol: 'NQ',
+  symbols: ['NQ'],
   timeframe: '1m',
   workspaceId: 'default-workspace',
 });
@@ -26,6 +30,27 @@ function normalizeIsoTime(value, fallback, fieldName) {
   return date.toISOString();
 }
 
+function normalizeAccountBalance(value, fallback) {
+  const parsed = Number(value ?? fallback);
+  if (!Number.isFinite(parsed) || parsed < 0) {
+    throw new Error('Session accountBalance must be a non-negative number.');
+  }
+  return parsed;
+}
+
+function normalizeSymbols(value, fallback) {
+  const source = Array.isArray(value) ? value : [value || fallback];
+  const symbols = source
+    .flat()
+    .map((symbol) => String(symbol || '').trim().toUpperCase())
+    .filter(Boolean);
+  const unique = [...new Set(symbols)];
+  if (!unique.length) {
+    throw new Error('Session symbols must include at least one symbol.');
+  }
+  return unique;
+}
+
 function createSessionId() {
   const sequence = String(nextSessionSequence).padStart(4, '0');
   nextSessionSequence += 1;
@@ -38,15 +63,20 @@ export function createReplaySession(input = {}) {
   if (new Date(startTime).valueOf() >= new Date(endTime).valueOf()) {
     throw new Error('Session startTime must be before endTime.');
   }
+  const symbols = normalizeSymbols(input.symbols || input.symbol, DEFAULT_SESSION_INPUT.symbol);
 
   const session = {
     createdAt: normalizeIsoTime(input.createdAt, new Date().toISOString(), 'createdAt'),
+    accountBalance: normalizeAccountBalance(input.accountBalance, DEFAULT_SESSION_INPUT.accountBalance),
+    autoUpdateEndDate: Boolean(input.autoUpdateEndDate),
     endTime,
     id: normalizeText(input.id, createSessionId(), 'id'),
+    name: normalizeText(input.name, DEFAULT_SESSION_INPUT.name, 'name'),
     profileId: normalizeText(input.profileId, DEFAULT_SESSION_INPUT.profileId, 'profileId'),
     startTime,
     status: 'created',
-    symbol: normalizeText(input.symbol, DEFAULT_SESSION_INPUT.symbol, 'symbol'),
+    symbol: symbols[0],
+    symbols,
     timeframe: normalizeText(input.timeframe, DEFAULT_SESSION_INPUT.timeframe, 'timeframe'),
     workspaceId: normalizeText(input.workspaceId, DEFAULT_SESSION_INPUT.workspaceId, 'workspaceId'),
   };
