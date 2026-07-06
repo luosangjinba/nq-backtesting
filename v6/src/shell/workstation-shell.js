@@ -338,7 +338,7 @@ export function createWorkstationShellMarkup() {
             <span data-v6-status-low>L --</span>
             <span data-v6-status-close>C --</span>
           </div>
-          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="default"></div>
+          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main"></div>
           <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
             <div class="price-scale-placeholder">
               <span>30520.00</span>
