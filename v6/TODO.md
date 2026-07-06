@@ -14,26 +14,28 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 75 - Replay End Restart Entry Policy. Ended
-  replay now has an explicit restart control backed by a chart-entry restart
-  owner, and restart re-enters the session/chart-entry initialization chain
-  without overloading Play or Reset View.
+- Latest completed step: Step 76 - Restart UX Polish And Semantics. Restart now
+  uses a distinct restart icon/marker instead of the old truncate placeholder,
+  and transport refreshes replay state after restart to avoid stale ended
+  feedback.
 
 ## Next Executable Steps
 
-### Step 76 - Restart UX Polish And Semantics
+### Step 77 - Transport Control Visual State Audit
 
-Make the restart transport control easier to understand visually and align it
-with FXReplay-style control semantics.
+Audit all replay transport controls for final visual state consistency before
+adding more workflow features.
 
-Status: active.
+Status: planned.
 
 Acceptance:
 
-- restart icon/label is distinct from truncate/history semantics;
-- available/disabled states are visually clear at normal and ended playback;
-- accessible labels remain explicit;
-- UI guardrail/browser smoke covers the final transport button semantics.
+- play/pause/restart/next/period/sync disabled and active states are visually
+  consistent;
+- no control uses stale placeholder semantics;
+- keyboard and click behavior match button disabled states;
+- screenshot or browser smoke covers normal, playing, ended, and restarted
+  transport states.
 
 ## Completed Steps
 
@@ -1511,6 +1513,33 @@ Verification:
 - `node v6/tests/chart-entry-restart-runtime-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
 - `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-restart-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/playback-period-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 76 - Restart UX Polish And Semantics
+
+Completed in commits:
+
+- `d6bb0e28 docs(v6): scope step seventy six restart polish`
+- `03bd3070 feat(v6): clarify restart transport semantics`
+- `5d4cc823 fix(v6): stabilize transport after restart`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/chart-entry-restart-runtime-smoke.js`
 - `node v6/tests/replay-chart-readiness-audit-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
 - `node v6/tests/boundary-smoke.js`
