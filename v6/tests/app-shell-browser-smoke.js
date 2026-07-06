@@ -125,7 +125,8 @@ async function main() {
     assert.equal(sessionFlow.rows, 1);
     assert.equal(sessionFlow.activeSessionId, sessionFlow.createdSessionId);
     assert.equal(sessionFlow.activationState.activeSessionId, sessionFlow.createdSessionId);
-    assert.equal(sessionFlow.activationState.status, 'activated');
+    assert.equal(sessionFlow.activationState.status, 'planned');
+    assert.equal(sessionFlow.activationState.initializationPlan.sessionId, sessionFlow.createdSessionId);
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {

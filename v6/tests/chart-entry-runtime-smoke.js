@@ -43,6 +43,7 @@ assert.equal(listenerCount(CHART_ENTRY_EVENTS.ACTIVATED), 1);
 assert.deepEqual(await dispatchCommand(CHART_ENTRY_COMMANDS.GET_STATE), {
   activation: null,
   activeSessionId: null,
+  initializationPlan: null,
   status: 'idle',
 });
 
@@ -52,9 +53,18 @@ const created = await dispatchCommand(SESSION_COMMANDS.CREATE, {
 });
 const afterCreate = await dispatchCommand(CHART_ENTRY_COMMANDS.GET_STATE);
 assert.equal(afterCreate.activeSessionId, created.id);
-assert.equal(afterCreate.status, 'activated');
+assert.equal(afterCreate.status, 'planned');
 assert.equal(afterCreate.activation.sessionId, created.id);
 assert.equal(afterCreate.activation.source, 'session.created');
+assert.equal(afterCreate.initializationPlan.sessionId, created.id);
+assert.equal(afterCreate.initializationPlan.source, 'session.created');
+assert.deepEqual(afterCreate.initializationPlan.steps, [
+  'resolve-start-bar',
+  'load-bounded-replay-context',
+  'load-replay-state',
+  'project-default-wall',
+  'apply-chart-data-and-viewport',
+]);
 assert.equal(activatedEvents.length, 1);
 assert.equal(activatedEvents[0].sessionId, created.id);
 
@@ -67,6 +77,8 @@ const afterOpen = await dispatchCommand(CHART_ENTRY_COMMANDS.GET_STATE);
 assert.equal(second.id, 'v6-session-0002');
 assert.equal(afterOpen.activeSessionId, created.id);
 assert.equal(afterOpen.activation.source, 'session.opened');
+assert.equal(afterOpen.initializationPlan.sessionId, created.id);
+assert.equal(afterOpen.initializationPlan.source, 'session.opened');
 assert.equal(activatedEvents.length, 3);
 
 await assert.rejects(

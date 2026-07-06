@@ -4,6 +4,7 @@ import {
   SESSION_EVENTS,
 } from '../contracts/app-contracts.js';
 import { registerCommand } from '../runtime/commands.js';
+import { createChartEntryInitializationPlan } from './chart-entry-plan.js';
 
 function activationFromSession(session, source) {
   if (!session?.id) {
@@ -20,12 +21,14 @@ export function createChartEntryRuntime() {
   const unregisterCallbacks = [];
   const unsubscribeCallbacks = [];
   let activation = null;
+  let plan = null;
 
   function getState() {
     return {
       activation: activation ? { ...activation } : null,
       activeSessionId: activation?.sessionId || null,
-      status: activation ? 'activated' : 'idle',
+      initializationPlan: plan ? { ...plan, steps: [...plan.steps] } : null,
+      status: plan ? 'planned' : activation ? 'activated' : 'idle',
     };
   }
 
@@ -33,6 +36,10 @@ export function createChartEntryRuntime() {
     const nextActivation = activationFromSession(session, source);
     if (!nextActivation) return getState();
     activation = nextActivation;
+    plan = createChartEntryInitializationPlan({
+      sessionId: nextActivation.sessionId,
+      source,
+    });
     emitEvent?.(CHART_ENTRY_EVENTS.ACTIVATED, { ...activation });
     return getState();
   }
@@ -58,6 +65,7 @@ export function createChartEntryRuntime() {
       unregisterCallbacks.pop()();
     }
     activation = null;
+    plan = null;
   }
 
   return {
