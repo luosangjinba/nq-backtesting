@@ -1534,6 +1534,7 @@ Completed in commits:
 
 - `d6bb0e28 docs(v6): scope step seventy six restart polish`
 - `03bd3070 feat(v6): clarify restart transport semantics`
+- `363e749b fix(v6): refresh transport after replay restart`
 - `5d4cc823 fix(v6): stabilize transport after restart`
 
 Verification:
