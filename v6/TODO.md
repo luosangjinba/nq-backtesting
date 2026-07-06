@@ -25,6 +25,8 @@
 Define the distinction between chart display timeframe and playback period sync
 for the FXReplay transport.
 
+Status: active.
+
 Acceptance:
 
 - playback period state has an explicit owner and does not live as shell-only
