@@ -1517,6 +1517,16 @@ p {
   background: #171b20;
 }
 
+.transport-grip:focus-visible,
+.transport-icon-button:focus-visible,
+.transport-period-trigger:focus-visible,
+.transport-period-menu button:focus-visible,
+.transport-speed-slider input:focus-visible,
+.transport-sync-toggle input:focus-visible + span {
+  outline: 2px solid #54a3ff;
+  outline-offset: 2px;
+}
+
 .transport-icon-button.is-active,
 .transport-period-trigger.is-active,
 .transport-sync-toggle.is-active span {

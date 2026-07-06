@@ -45,7 +45,12 @@ function createFakeElement({
       return null;
     },
     contains(target) {
-      return target === this || this.children?.includes(target);
+      return target === this || Boolean(this.children?.some((child) => child === target || child.contains?.(target)));
+    },
+    focus() {
+      if (this.ownerDocument) {
+        this.ownerDocument.activeElement = this;
+      }
     },
     querySelector(selector) {
       if (selector === '[data-v6-transport-action="play-toggle"]') return this.playButton || null;
@@ -54,6 +59,7 @@ function createFakeElement({
       if (selector === '[data-v6-transport-speed-slider]') return this.speedSlider || null;
       if (selector === '[data-v6-transport-period-label]') return this.periodLabel || null;
       if (selector === '[data-v6-transport-period-toggle]') return this.periodTrigger || null;
+      if (selector === '[data-v6-transport-period-details]') return this.periodDetails || null;
       if (selector === '[data-v6-transport-period-sync]') return this.periodSync || null;
       return null;
     },
@@ -74,6 +80,7 @@ function createFakeElement({
 function createFakeDocument() {
   const listeners = new Map();
   return {
+    activeElement: null,
     addEventListener(type, listener) {
       listeners.set(type, listener);
     },
@@ -123,16 +130,39 @@ const restartButton = createFakeElement({ dataset: { v6TransportAction: 'restart
 const speedButton = createFakeElement({ dataset: { v6TransportSpeed: '2' } });
 const speedSlider = createFakeElement({ dataset: { v6TransportSpeedSlider: 'true' }, tagName: 'input' });
 const periodLabel = createFakeElement({ tagName: 'span' });
+const periodDetails = createFakeElement({ tagName: 'details' });
 const periodTrigger = createFakeElement({ tagName: 'summary' });
 const periodButton = createFakeElement({ dataset: { v6TransportPeriodOption: '1m' } });
+const periodButton3m = createFakeElement({ dataset: { v6TransportPeriodOption: '3m' } });
+const periodButton5m = createFakeElement({ dataset: { v6TransportPeriodOption: '5m' } });
 const periodSync = createFakeElement({ dataset: { v6TransportPeriodSync: 'true' }, tagName: 'input' });
 const periodSyncParent = createFakeElement({ tagName: 'label' });
 periodSync.parentElement = periodSyncParent;
+[
+  root,
+  playButton,
+  nextButton,
+  restartButton,
+  speedButton,
+  speedSlider,
+  periodLabel,
+  periodDetails,
+  periodTrigger,
+  periodButton,
+  periodButton3m,
+  periodButton5m,
+  periodSync,
+  periodSyncParent,
+].forEach((element) => {
+  element.ownerDocument = fakeDocument;
+});
+periodDetails.children = [periodTrigger, periodButton, periodButton3m, periodButton5m];
 root.playButton = playButton;
 root.nextButton = nextButton;
 root.restartButton = restartButton;
 root.speedSlider = speedSlider;
 root.periodLabel = periodLabel;
+root.periodDetails = periodDetails;
 root.periodTrigger = periodTrigger;
 root.periodSync = periodSync;
 root.children = [
@@ -141,11 +171,11 @@ root.children = [
   restartButton,
   speedButton,
   speedSlider,
-  periodButton,
+  periodDetails,
   periodSync,
 ];
 root.speedButtons = [speedButton];
-root.periodButtons = [periodButton];
+root.periodButtons = [periodButton, periodButton3m, periodButton5m];
 
 const dispatched = [];
 const eventListeners = new Map();
@@ -283,6 +313,23 @@ assert.equal(controller.getState().replayStatus, 'ready');
 assert.equal(playButton.disabled, false);
 assert.equal(nextButton.disabled, false);
 assert.equal(restartButton.disabled, true);
+
+periodDetails.open = false;
+const dispatchCountBeforeMenuKeys = dispatched.length;
+fakeDocument.keydown({ key: 'ArrowDown', target: periodTrigger });
+assert.equal(periodDetails.open, true);
+assert.equal(fakeDocument.activeElement, periodButton);
+fakeDocument.keydown({ key: 'ArrowDown', target: periodButton });
+assert.equal(fakeDocument.activeElement, periodButton3m);
+fakeDocument.keydown({ key: 'End', target: periodButton3m });
+assert.equal(fakeDocument.activeElement, periodButton5m);
+fakeDocument.keydown({ key: ' ', target: periodButton5m });
+fakeDocument.keydown({ key: 'ArrowRight', target: periodButton5m });
+await Promise.resolve();
+assert.equal(dispatched.length, dispatchCountBeforeMenuKeys);
+fakeDocument.keydown({ key: 'Escape', target: periodButton5m });
+assert.equal(periodDetails.open, false);
+assert.equal(fakeDocument.activeElement, periodTrigger);
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'ended' });
 assert.equal(controller.getState().replayStatus, 'ended');

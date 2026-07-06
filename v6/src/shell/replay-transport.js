@@ -120,6 +120,11 @@ function isDisabledControl(control) {
   );
 }
 
+function getFocusablePeriodOptions(root) {
+  return Array.from(root.querySelectorAll('[data-v6-transport-period-option]'))
+    .filter((option) => !isDisabledControl(option));
+}
+
 function updateDom(root, state) {
   root.dataset.playback = state.playing ? 'playing' : 'paused';
   root.dataset.playbackStatus = state.replayStatus;
@@ -186,6 +191,7 @@ function updateDom(root, state) {
   root.querySelectorAll('[data-v6-transport-period-option]').forEach((button) => {
     const selected = button.dataset.v6TransportPeriodOption === state.period;
     button.setAttribute('aria-checked', String(selected));
+    button.setAttribute('tabindex', selected ? '0' : '-1');
     button.classList.toggle('is-active', selected);
   });
   const periodSync = root.querySelector('[data-v6-transport-period-sync]');
@@ -372,6 +378,57 @@ export function mountReplayTransport(root, {
   const dragHandle = root.querySelector('[data-v6-transport-drag-handle]');
   dragHandle?.addEventListener?.('pointerdown', startDrag, { signal });
 
+  function focusPeriodOption(index) {
+    const options = getFocusablePeriodOptions(root);
+    if (!options.length) return;
+    const clampedIndex = Math.min(options.length - 1, Math.max(0, index));
+    options[clampedIndex]?.focus?.();
+  }
+
+  function handlePeriodMenuKeydown(event) {
+    const details = root.querySelector('[data-v6-transport-period-details]');
+    if (!details) return false;
+    const targetIsInPeriodMenu = root.contains(event.target) && details.contains?.(event.target);
+    if (!targetIsInPeriodMenu) return false;
+    const options = getFocusablePeriodOptions(root);
+    if (!options.length) return false;
+    const activeIndex = options.indexOf(root.ownerDocument?.activeElement);
+    if (event.key === 'Escape') {
+      if (details.open) {
+        event.preventDefault();
+        details.open = false;
+        root.querySelector('[data-v6-transport-period-toggle]')?.focus?.();
+        return true;
+      }
+      return false;
+    }
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      details.open = true;
+      focusPeriodOption(activeIndex < 0 ? 0 : (activeIndex + 1) % options.length);
+      return true;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      details.open = true;
+      focusPeriodOption(activeIndex < 0 ? options.length - 1 : (activeIndex - 1 + options.length) % options.length);
+      return true;
+    }
+    if (event.key === 'Home') {
+      event.preventDefault();
+      details.open = true;
+      focusPeriodOption(0);
+      return true;
+    }
+    if (event.key === 'End') {
+      event.preventDefault();
+      details.open = true;
+      focusPeriodOption(options.length - 1);
+      return true;
+    }
+    return false;
+  }
+
   root.addEventListener('click', (event) => {
     const actionButton = event.target.closest?.('[data-v6-transport-action]');
     if (actionButton && root.contains(actionButton)) {
@@ -412,6 +469,8 @@ export function mountReplayTransport(root, {
   }, { signal });
 
   root.ownerDocument.addEventListener('keydown', (event) => {
+    if (handlePeriodMenuKeydown(event)) return;
+    if (root.querySelector('[data-v6-transport-period-details]')?.open) return;
     if (isEditableTarget(event.target)) return;
     if (event.key === ' ' || event.code === 'Space') {
       event.preventDefault();
