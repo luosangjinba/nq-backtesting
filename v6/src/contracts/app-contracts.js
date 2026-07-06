@@ -75,6 +75,15 @@ export const CHART_ENTRY_PROJECTION_APPLY_EVENTS = Object.freeze({
   APPLIED: 'chartEntryProjectionApply:applied',
 });
 
+export const CHART_ENTRY_MANUAL_NEXT_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryManualNext.getState',
+  NEXT: 'chartEntryManualNext.next',
+});
+
+export const CHART_ENTRY_MANUAL_NEXT_EVENTS = Object.freeze({
+  ADVANCED: 'chartEntryManualNext:advanced',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
