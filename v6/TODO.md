@@ -21,22 +21,26 @@
 
 ## Next Executable Steps
 
-### Step 70 - Chart Entry Playback Period Sync Policy
+### Step 70 - Chart View Reset Intent Owner
 
-Define the distinction between chart display timeframe and playback period sync
-for the FXReplay transport.
+Backfill the missing Reset View behavior without polluting shell, chart surface,
+or replay owner boundaries. Reset View should discard a manual/temporary wall
+and restore the current pane to the default right-side anchor wall.
 
 Acceptance:
 
-- playback period state has an explicit owner and does not live as shell-only
-  DOM state;
-- sync-on mode follows active pane display timeframe through commands/events;
-- sync-off mode lets transport playback period differ from chart display
-  timeframe without changing pane display timeframe;
-- browser smoke verifies period menu, sync toggle, and active playback period
-  behavior;
-- replay/chart visibility, auto-play, transport, UI guardrail, and boundary
-  gates remain passing.
+- chart viewport runtime exposes a reset-view command owned by viewport state;
+- reset view converts the current pane intent back to default-wall origin with
+  the default right offset and current cursor timestamp;
+- reset view reapplies projection through chart viewport/chart surface bridges
+  and does not mutate replay cursor, chart bars, playback state, display
+  timeframe, or bar cache;
+- UI dispatches reset-view through a thin controller/bridge and does not call
+  chart adapter APIs directly;
+- browser smoke verifies manual wall -> reset view -> latest candle returns to
+  default right-side anchor offset;
+- existing manual wall, auto-play, transport, app shell, UI guardrail, and
+  boundary gates remain passing.
 
 ## Completed Steps
 
