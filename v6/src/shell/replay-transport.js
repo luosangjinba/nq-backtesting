@@ -82,7 +82,7 @@ export function syncReplayTransportStateFromReplay(state, replayState = {}) {
   return createReplayTransportState({
     period: state.period,
     periodSync: state.periodSync,
-    playing: status === 'playing',
+    playing: status === 'playing' || (status === 'ready' && state.playing),
     replayStatus: status,
     speed: state.speed,
   });

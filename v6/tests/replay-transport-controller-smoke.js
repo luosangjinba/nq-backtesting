@@ -165,6 +165,11 @@ assert.equal(controller.getState().replayStatus, 'playing');
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Pause replay');
 
+eventListeners.get('replay:advanced')?.({ status: 'ready' });
+assert.equal(controller.getState().playing, true);
+assert.equal(controller.getState().replayStatus, 'ready');
+assert.equal(playButton['aria-label'], 'Pause replay');
+
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();
 assert.deepEqual(dispatched.at(-1), {
