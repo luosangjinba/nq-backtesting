@@ -7,10 +7,20 @@ try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
       const root = document.querySelector('[data-v6-root]');
+      const visible = (selector) => {
+        const element = document.querySelector(selector);
+        if (!element) return false;
+        const rect = element.getBoundingClientRect();
+        return getComputedStyle(element).display !== 'none' && rect.width > 0 && rect.height > 0;
+      };
       const defaultState = {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
+        headerVisible: visible('[data-v6-workstation-header]'),
+        mainVisible: visible('[data-v6-workstation-main]'),
         surface: root.dataset.v6Surface || '',
+        transportVisible: visible('[data-v6-transport]'),
+        statusVisible: visible('[data-v6-status-bar]'),
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
@@ -30,8 +40,12 @@ try {
         tabCount: document.querySelectorAll('.session-dashboard-tabs button').length,
         text: document.querySelector('[data-v6-session-dashboard]').textContent || '',
         surface: root.dataset.v6Surface,
+        headerVisible: visible('[data-v6-workstation-header]'),
+        mainVisible: visible('[data-v6-workstation-main]'),
         toggleExpanded: document.querySelector('[data-v6-dashboard-toggle]').getAttribute('aria-expanded'),
         transportHidden: document.querySelector('[data-v6-transport]').hidden,
+        transportVisible: visible('[data-v6-transport]'),
+        statusVisible: visible('[data-v6-status-bar]'),
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
@@ -41,9 +55,13 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 0));
       const afterInvalidCreate = {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
+        headerVisible: visible('[data-v6-workstation-header]'),
+        mainVisible: visible('[data-v6-workstation-main]'),
         rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
         status: document.querySelector('[data-v6-session-setup-status]')?.textContent || '',
         surface: root.dataset.v6Surface,
+        transportVisible: visible('[data-v6-transport]'),
+        statusVisible: visible('[data-v6-status-bar]'),
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
@@ -58,11 +76,15 @@ try {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         emptyHidden: document.querySelector('[data-v6-dashboard-empty]').hidden,
+        headerVisible: visible('[data-v6-workstation-header]'),
+        mainVisible: visible('[data-v6-workstation-main]'),
         rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
         sessionCount: root.__v6SessionDashboard.getState().sessionCount,
         sessionId: root.__v6SessionDashboard.getState().sessions[0]?.id || '',
         sessionText: document.querySelector('[data-v6-dashboard-session-row]')?.textContent || '',
         surface: root.dataset.v6Surface,
+        transportVisible: visible('[data-v6-transport]'),
+        statusVisible: visible('[data-v6-status-bar]'),
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
@@ -74,8 +96,12 @@ try {
         activeId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
+        headerVisible: visible('[data-v6-workstation-header]'),
+        mainVisible: visible('[data-v6-workstation-main]'),
         surface: root.dataset.v6Surface,
         transportHidden: document.querySelector('[data-v6-transport]').hidden,
+        transportVisible: visible('[data-v6-transport]'),
+        statusVisible: visible('[data-v6-status-bar]'),
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
@@ -84,7 +110,11 @@ try {
       const afterReturnToSession = {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
+        headerVisible: visible('[data-v6-workstation-header]'),
+        mainVisible: visible('[data-v6-workstation-main]'),
         surface: root.dataset.v6Surface,
+        transportVisible: visible('[data-v6-transport]'),
+        statusVisible: visible('[data-v6-status-bar]'),
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
@@ -104,7 +134,11 @@ try {
   assert.deepEqual(value.defaultState, {
     dashboardHidden: false,
     dashboardOpen: true,
+    headerVisible: false,
+    mainVisible: false,
     surface: 'session',
+    statusVisible: false,
+    transportVisible: false,
     workstationHidden: true,
   });
   assert.equal(value.openedState.dashboardHidden, false);
@@ -123,11 +157,19 @@ try {
   assert.equal(value.openedState.surface, 'session');
   assert.equal(value.openedState.toggleExpanded, 'true');
   assert.equal(value.openedState.transportHidden, true);
+  assert.equal(value.openedState.headerVisible, false);
+  assert.equal(value.openedState.mainVisible, false);
+  assert.equal(value.openedState.statusVisible, false);
+  assert.equal(value.openedState.transportVisible, false);
   assert.equal(value.openedState.workstationHidden, true);
   assert.equal(value.afterInvalidCreate.dashboardHidden, false);
+  assert.equal(value.afterInvalidCreate.headerVisible, false);
+  assert.equal(value.afterInvalidCreate.mainVisible, false);
   assert.equal(value.afterInvalidCreate.rows, 0);
+  assert.equal(value.afterInvalidCreate.statusVisible, false);
   assert.equal(value.afterInvalidCreate.status, 'Start must be before End.');
   assert.equal(value.afterInvalidCreate.surface, 'session');
+  assert.equal(value.afterInvalidCreate.transportVisible, false);
   assert.equal(value.afterInvalidCreate.workstationHidden, true);
   assert.equal(value.afterCreate.dashboardHidden, true);
   assert.equal(value.afterCreate.dashboardOpen, false);
@@ -135,18 +177,30 @@ try {
   assert.equal(value.afterCreate.rows, 1);
   assert.equal(value.afterCreate.sessionCount, 1);
   assert.equal(value.afterCreate.activeId, value.afterCreate.sessionId);
+  assert.equal(value.afterCreate.headerVisible, true);
+  assert.equal(value.afterCreate.mainVisible, true);
+  assert.equal(value.afterCreate.statusVisible, true);
   assert.equal(value.afterCreate.surface, 'workstation');
+  assert.equal(value.afterCreate.transportVisible, true);
   assert.equal(value.afterCreate.workstationHidden, false);
   assert.match(value.afterCreate.sessionText, /NQ 1m/);
   assert.equal(value.afterOpenSession.dashboardHidden, true);
   assert.equal(value.afterOpenSession.dashboardOpen, false);
   assert.equal(value.afterOpenSession.activeId, value.afterCreate.sessionId);
+  assert.equal(value.afterOpenSession.headerVisible, true);
+  assert.equal(value.afterOpenSession.mainVisible, true);
+  assert.equal(value.afterOpenSession.statusVisible, true);
   assert.equal(value.afterOpenSession.surface, 'workstation');
   assert.equal(value.afterOpenSession.transportHidden, false);
+  assert.equal(value.afterOpenSession.transportVisible, true);
   assert.equal(value.afterOpenSession.workstationHidden, false);
   assert.equal(value.afterReturnToSession.dashboardHidden, false);
   assert.equal(value.afterReturnToSession.dashboardOpen, true);
+  assert.equal(value.afterReturnToSession.headerVisible, false);
+  assert.equal(value.afterReturnToSession.mainVisible, false);
   assert.equal(value.afterReturnToSession.surface, 'session');
+  assert.equal(value.afterReturnToSession.statusVisible, false);
+  assert.equal(value.afterReturnToSession.transportVisible, false);
   assert.equal(value.afterReturnToSession.workstationHidden, true);
 } finally {
   await page.cleanup();

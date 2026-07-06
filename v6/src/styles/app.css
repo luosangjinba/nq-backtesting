@@ -64,6 +64,10 @@ p {
   white-space: nowrap;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 .workstation-shell {
   display: grid;
   grid-template-rows: auto auto auto auto auto minmax(460px, 1fr) auto;
