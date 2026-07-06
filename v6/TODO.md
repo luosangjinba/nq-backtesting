@@ -26,7 +26,7 @@
 Make playback-period end-state and disabled/available actions clearer in the
 transport UI.
 
-Status: planned.
+Status: active.
 
 Acceptance:
 
