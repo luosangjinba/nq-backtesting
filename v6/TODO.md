@@ -1198,26 +1198,24 @@ Verification:
 
 ### Step 63 - Chart Entry Default Wall Plan Owner
 
-Introduce the default-wall planning owner after replay bootstrap. This step
-decides the initial visible wall plan from bounded context and replay state, but
-it must not call `defaultWall.load`, write chart data, mutate viewport intent, or
-touch chart adapter APIs.
+Completed in commits:
 
-Acceptance:
+- `2000f87e docs(v6): scope step sixty three wall plan`
+- `6f11cc51 feat(v6): define chart entry wall plan`
+- `9d261a9e feat(v6): add chart entry wall plan runtime`
+- `82aa9359 feat(v6): register chart entry wall plan runtime`
 
-- a dedicated default-wall-plan runtime subscribes to
-  `chartEntryReplayBootstrap:loaded`;
-- the runtime creates a deterministic initial wall plan with session id,
-  anchor/cursor, pane target, visible span, prefix, and loaded context summary;
-- the plan is exposed through an explicit command for tests and future owners;
-- planned events carry only immutable planning data and no raw bar arrays;
-- missing context/replay metadata leaves the owner in error state without
-  mutating replay, chart-data, viewport, default-wall runtime, or adapter
-  surfaces;
-- app shell registers the runtime after replay bootstrap and before future
-  projection owners;
-- wall-plan runtime, replay-bootstrap runtime, app shell, session dashboard,
-  product baseline, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-default-wall-plan-smoke.js`
+- `node v6/tests/chart-entry-default-wall-plan-runtime-smoke.js`
+- `node v6/tests/chart-entry-replay-bootstrap-runtime-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 
