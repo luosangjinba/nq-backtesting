@@ -183,6 +183,8 @@ Chart entry has a dedicated runtime boundary:
 - `runtime.chartEntryAutoPlay` owns chart-entry playback timer lifecycle.
   Transport play/pause may dispatch auto-play start/stop commands with speed
   payloads, but timer cadence and each playback tick must stay in this runtime.
+  Transport speed changes while playing may dispatch `chartEntryAutoPlay.setSpeed`;
+  they must not rebuild timers or advance replay from shell code.
   Each tick must reuse `chartEntryManualNext.next` or an equivalent chart-entry
   owner API, not `defaultWall.next`, chart adapter APIs, or shell timers.
 - Missing-session open failures must not change activation state.

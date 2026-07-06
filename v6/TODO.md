@@ -14,30 +14,29 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 68 - Chart Entry Auto Playback Tick Owner.
-  Transport play/pause now dispatches chart-entry auto-play commands, and the
-  dedicated auto-play owner controls timer ticks through the manual-next owner
-  path.
+- Latest completed step: Step 69 - Chart Entry Playback End-State And Speed
+  Policy. Playback speed changes while playing now route through the auto-play
+  owner, and browser gates cover end-of-session auto-stop with transport state
+  reconciliation.
 
 ## Next Executable Steps
 
-### Step 69 - Chart Entry Playback End-State And Speed Policy
+### Step 70 - Chart Entry Playback Period Sync Policy
 
-Tighten edge behavior around automatic playback after the first working owner
-path: end-of-session handling, speed changes while playing, and UI state
-reconciliation when playback stops itself.
-
-Status: active.
+Define the distinction between chart display timeframe and playback period sync
+for the FXReplay transport.
 
 Acceptance:
 
-- playback reaching the session end stops the auto-play owner and leaves
-  transport UI paused;
-- changing speed while playing updates the active timer cadence through the
-  owner, not shell-owned timing;
-- browser smoke covers auto-stop at end and active speed change;
-- manual next, auto-play, transport, app shell, UI guardrail, and boundary gates
-  remain passing.
+- playback period state has an explicit owner and does not live as shell-only
+  DOM state;
+- sync-on mode follows active pane display timeframe through commands/events;
+- sync-off mode lets transport playback period differ from chart display
+  timeframe without changing pane display timeframe;
+- browser smoke verifies period menu, sync toggle, and active playback period
+  behavior;
+- replay/chart visibility, auto-play, transport, UI guardrail, and boundary
+  gates remain passing.
 
 ## Completed Steps
 
@@ -1317,6 +1316,32 @@ Completed in commits:
 Verification:
 
 - `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-entry-manual-next-browser-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 69 - Chart Entry Playback End-State And Speed Policy
+
+Completed in commits:
+
+- `93f799f7 docs(v6): scope step sixty nine playback policy`
+- `9df04628 feat(v6): route active playback speed through owner`
+- `330cb94e test(v6): verify playback policy browser flow`
+
+Verification:
+
+- `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/chart-entry-playback-policy-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
 - `node v6/tests/chart-entry-manual-next-browser-smoke.js`

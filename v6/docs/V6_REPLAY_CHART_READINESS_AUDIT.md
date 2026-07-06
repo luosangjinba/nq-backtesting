@@ -21,6 +21,7 @@ Passed:
 - `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `node v6/tests/chart-entry-manual-next-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-policy-browser-smoke.js`
 - `node v6/tests/visible-latency-domain-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
@@ -37,6 +38,9 @@ Finding:
   play starts the chart-entry auto-play owner, appends multiple visible candles,
   pauses cleanly, and keeps the latest candle inside the projected visible
   range.
+- playback policy now has a browser-level gate that verifies playing-speed
+  changes route through the auto-play owner, playback auto-stops at session end,
+  and transport UI reconciles back to paused.
 - cache-hit visible replay remains covered by a browser gate, so the database
   and API path are not allowed to become the visible candle path.
 
