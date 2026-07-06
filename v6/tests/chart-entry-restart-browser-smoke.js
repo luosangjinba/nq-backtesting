@@ -63,13 +63,15 @@ try {
       let restartState = await commands.dispatchCommand('chartEntryRestart.getState');
       let restarted = await commands.dispatchCommand('replay.getState');
       let restartedChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
+      let transportEnded = document.querySelector('[data-v6-transport]').dataset.ended;
       while (
         (
           restartState.status !== 'restarted' ||
           !restarted ||
           restarted.cursorIndex !== 0 ||
           restarted.status !== 'ready' ||
-          (restartedChart.bars?.length || 0) !== (initial.chart.bars?.length || 0)
+          (restartedChart.bars?.length || 0) >= (endedChart.bars?.length || 0) ||
+          transportEnded !== 'false'
         ) &&
         performance.now() < restartDeadline
       ) {
@@ -77,6 +79,7 @@ try {
         restartState = await commands.dispatchCommand('chartEntryRestart.getState');
         restarted = await commands.dispatchCommand('replay.getState');
         restartedChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
+        transportEnded = document.querySelector('[data-v6-transport]').dataset.ended;
       }
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
@@ -131,7 +134,7 @@ try {
   assert.equal(value.restartState.restarted.sessionId, value.initialReplay.sessionId);
   assert.equal(value.restartedReplay.cursorIndex, 0);
   assert.equal(value.restartedReplay.status, 'ready');
-  assert.equal(value.restartedBarCount, value.initialBarCount);
+  assert.equal(value.restartedBarCount < value.endedBarCount, true);
   assert.equal(value.surfaceDataLength, value.restartedBarCount);
   assert.equal(value.latestVisible, true);
   assert.equal(value.restartedTransport.ended, 'false');

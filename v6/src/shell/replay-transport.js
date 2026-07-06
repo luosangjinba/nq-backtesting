@@ -3,10 +3,12 @@ import {
   CHART_ENTRY_AUTO_PLAY_EVENTS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
+  CHART_ENTRY_PROJECTION_APPLY_EVENTS,
   CHART_ENTRY_RESTART_COMMANDS,
   PLAYBACK_PERIOD_COMMANDS,
   PLAYBACK_PERIOD_EVENTS,
   REPLAY_EVENTS,
+  REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
@@ -89,6 +91,9 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
 export function syncReplayTransportStateFromReplay(state, replayState = {}) {
   const status = String(replayState.status || '').trim();
   if (!status) return createReplayTransportState(state);
+  if (state.replayStatus === 'restarting' && status === 'ended') {
+    return createReplayTransportState(state);
+  }
   return createReplayTransportState({
     period: state.period,
     periodSync: state.periodSync,
@@ -191,6 +196,7 @@ export function mountReplayTransport(root, {
       root.dataset.lastAction = 'ended';
       return Promise.resolve(null);
     }
+    root.dataset.lastAction = action;
     return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).catch((error) => {
       root.dataset.lastError = error?.message || String(error);
       if (action === 'play-toggle') {
@@ -251,6 +257,19 @@ export function mountReplayTransport(root, {
     if (autoState.status) {
       syncFromReplayEvent({ status: autoState.status === 'ended' ? 'ended' : state.replayStatus });
     }
+  }
+
+  function refreshReplayStateAfterRestart() {
+    if (root.dataset.lastAction !== 'restart') return;
+    Promise.resolve(dispatchCommand(REPLAY_COMMANDS.GET_STATE))
+      .then((replayState) => {
+        if (replayState) {
+          syncFromReplayEvent(replayState);
+        }
+      })
+      .catch((error) => {
+        root.dataset.lastError = error?.message || String(error);
+      });
   }
 
   function dispatchPeriodChange(period) {
@@ -358,6 +377,7 @@ export function mountReplayTransport(root, {
       subscribeEvent(REPLAY_EVENTS.RESET, syncFromReplayEvent),
       subscribeEvent(CHART_ENTRY_MANUAL_NEXT_EVENTS.ADVANCED, syncFromManualNextEvent),
       subscribeEvent(CHART_ENTRY_AUTO_PLAY_EVENTS.STOPPED, syncFromAutoPlayEvent),
+      subscribeEvent(CHART_ENTRY_PROJECTION_APPLY_EVENTS.APPLIED, refreshReplayStateAfterRestart),
       subscribeEvent(PLAYBACK_PERIOD_EVENTS.CHANGED, syncFromPlaybackPeriodEvent),
     );
   }

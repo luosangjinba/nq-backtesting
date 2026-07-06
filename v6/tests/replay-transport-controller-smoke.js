@@ -2,7 +2,9 @@ import assert from 'node:assert/strict';
 import {
   CHART_ENTRY_AUTO_PLAY_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
+  CHART_ENTRY_PROJECTION_APPLY_EVENTS,
   CHART_ENTRY_RESTART_COMMANDS,
+  REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
   createReplayTransportState,
@@ -119,6 +121,9 @@ const eventListeners = new Map();
 const controller = mountReplayTransport(root, {
   dispatchCommand: async (command, payload) => {
     dispatched.push({ command, payload });
+    if (command === REPLAY_COMMANDS.GET_STATE) {
+      return { status: 'ready' };
+    }
     return { ok: true };
   },
   subscribeEvent: (eventName, listener) => {
@@ -217,11 +222,27 @@ assert.equal(controller.getState().replayStatus, 'restarting');
 assert.equal(restartButton.disabled, true);
 assert.equal(restartButton['aria-label'], 'Restart available after replay ends');
 
+eventListeners.get('replay:playbackChanged')?.({ status: 'ended' });
+assert.equal(controller.getState().replayStatus, 'restarting');
+assert.equal(root.dataset.ended, 'false');
+
 eventListeners.get('replay:loaded')?.({ status: 'ready' });
 assert.equal(controller.getState().replayStatus, 'ready');
 assert.equal(playButton.disabled, false);
 assert.equal(nextButton.disabled, false);
 assert.equal(restartButton.disabled, true);
+
+eventListeners.get('replay:playbackChanged')?.({ status: 'ended' });
+assert.equal(controller.getState().replayStatus, 'ended');
+root.click(restartButton);
+await Promise.resolve();
+eventListeners.get(CHART_ENTRY_PROJECTION_APPLY_EVENTS.APPLIED)?.({ sessionId: 'session-restart' });
+await Promise.resolve();
+assert.deepEqual(dispatched.at(-1), {
+  command: REPLAY_COMMANDS.GET_STATE,
+  payload: undefined,
+});
+assert.equal(controller.getState().replayStatus, 'ready');
 
 controller.destroy();
 
