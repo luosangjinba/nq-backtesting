@@ -57,6 +57,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryContext'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryReplayBootstrap'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryDefaultWallPlan'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryProjectionPreparation'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
     assert.equal(value.journalMounted, true);
@@ -124,6 +125,11 @@ async function main() {
           await new Promise((resolve) => setTimeout(resolve, 50));
           wallPlanState = await commandsModule.dispatchCommand('chartEntryDefaultWallPlan.getState');
         }
+        let projectionPreparationState = await commandsModule.dispatchCommand('chartEntryProjectionPreparation.getState');
+        while (projectionPreparationState.status === 'idle' && performance.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          projectionPreparationState = await commandsModule.dispatchCommand('chartEntryProjectionPreparation.getState');
+        }
         return JSON.stringify({
           activeSessionId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
           activationState: await commandsModule.dispatchCommand('chartEntry.getState'),
@@ -132,6 +138,7 @@ async function main() {
           contextState,
           defaultWallState: await commandsModule.dispatchCommand('defaultWall.getState'),
           initializationState: await commandsModule.dispatchCommand('chartEntryInitialization.getState'),
+          projectionPreparationState,
           replayState: await commandsModule.dispatchCommand('replay.getState'),
           wallPlanState,
           closedSurface: root.dataset.v6Surface,
@@ -174,6 +181,11 @@ async function main() {
     assert.equal(sessionFlow.wallPlanState.plan.paneId, 'main');
     assert.equal(sessionFlow.wallPlanState.plan.prefixBars, 120);
     assert.equal(sessionFlow.wallPlanState.plan.spanBars, 80);
+    assert.equal(sessionFlow.projectionPreparationState.status, 'prepared');
+    assert.equal(sessionFlow.projectionPreparationState.prepared.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.projectionPreparationState.prepared.chartReplacePayload.paneId, 'main');
+    assert.equal(sessionFlow.projectionPreparationState.prepared.chartReplacePayload.bars.length > 0, true);
+    assert.equal(sessionFlow.projectionPreparationState.prepared.viewportIntentPayload.paneId, 'main');
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {
