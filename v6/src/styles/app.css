@@ -76,10 +76,174 @@ p {
 .journal-panel,
 .replay-workflow-panel,
 .sessions-panel,
+.session-dashboard,
 .status-bar,
 .transport-placeholder {
   border: 1px solid #1c2a33;
   background: #0d151c;
+}
+
+.session-dashboard {
+  grid-row: 1 / -1;
+  min-height: calc(100vh - 20px);
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 14px;
+  padding: 18px;
+  border-color: #202a32;
+  background: #020406;
+}
+
+.session-dashboard[hidden] {
+  display: none;
+}
+
+.session-dashboard-header,
+.session-dashboard-tabs,
+.session-dashboard-actions,
+.session-dashboard-list-section header {
+  display: flex;
+  align-items: center;
+}
+
+.session-dashboard-header {
+  justify-content: space-between;
+  min-height: 48px;
+}
+
+.session-dashboard-header div {
+  display: grid;
+  gap: 5px;
+}
+
+.session-dashboard-header strong {
+  color: #f3f7fa;
+  font-size: 22px;
+}
+
+.session-dashboard-header span,
+.session-dashboard-tabs button,
+.session-dashboard-list-section span,
+.session-dashboard-empty {
+  color: #84909b;
+  font-size: 12px;
+}
+
+.session-dashboard-chart-button,
+.session-dashboard-actions button,
+.session-dashboard-list-section header button,
+.session-dashboard-list button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid #2b3740;
+  border-radius: 7px;
+  background: #0b1118;
+  color: #e8eef3;
+  font-weight: 700;
+}
+
+.session-dashboard-tabs {
+  gap: 18px;
+  border-bottom: 1px solid #252b31;
+}
+
+.session-dashboard-tabs button {
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 0 8px;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  font-weight: 700;
+}
+
+.session-dashboard-tabs button.is-active {
+  border-bottom-color: #e7edf2;
+  color: #f2f6f9;
+}
+
+.session-dashboard-main {
+  width: min(100%, 980px);
+  display: grid;
+  align-content: start;
+  gap: 18px;
+  justify-self: center;
+}
+
+.session-dashboard-actions {
+  gap: 12px;
+}
+
+.session-dashboard-actions button {
+  min-width: 190px;
+  justify-content: flex-start;
+}
+
+.session-dashboard-actions button:first-child {
+  border-color: #1c63b7;
+  background: #0d1b2d;
+}
+
+.session-dashboard-list-section {
+  display: grid;
+  gap: 10px;
+}
+
+.session-dashboard-list-section header {
+  justify-content: space-between;
+}
+
+.session-dashboard-list-section header strong {
+  color: #e8eef3;
+  font-size: 14px;
+}
+
+.session-dashboard-list {
+  display: grid;
+  margin: 0;
+  padding: 0;
+  border: 1px solid #242a30;
+  border-radius: 8px;
+  overflow: hidden;
+  list-style: none;
+  background: #111416;
+}
+
+.session-dashboard-list li {
+  display: grid;
+  grid-template-columns: 150px minmax(160px, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  min-height: 58px;
+  padding: 0 14px;
+  border-bottom: 1px solid #262c32;
+}
+
+.session-dashboard-list li:last-child {
+  border-bottom: 0;
+}
+
+.session-dashboard-list button {
+  justify-content: center;
+  border-color: #1f6ed4;
+  background: #0d1e34;
+  color: #f5f9fc;
+}
+
+.session-dashboard-list strong {
+  color: #eef3f6;
+}
+
+.session-dashboard-empty {
+  margin: 0;
+  padding: 14px;
+  border: 1px dashed #2b343c;
+  border-radius: 8px;
 }
 
 .top-bar {

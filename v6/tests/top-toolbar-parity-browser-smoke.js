@@ -45,6 +45,7 @@ try {
         redoDisabled: disabled('[data-v6-top-redo]'),
         searchDisabled: disabled('[data-v6-top-search]'),
         symbolSearchDisabled: disabled('[data-v6-top-search-symbol]'),
+        sessionDashboardToggleExists: exists('[data-v6-dashboard-toggle]'),
         sessionsWorkflowStillPresent: exists('[data-v6-sessions-toggle]'),
         symbol: textOf('[data-v6-top-symbol]'),
         themeDisabled: disabled('[data-v6-top-theme]'),
@@ -81,7 +82,8 @@ try {
     'Date range changes on all charts within the layout',
   ]);
   assert.equal(value.editorExists, false);
-  assert.equal(value.sessionsWorkflowStillPresent, true);
+  assert.equal(value.sessionDashboardToggleExists, true);
+  assert.equal(value.sessionsWorkflowStillPresent, false);
   assert.equal(value.readinessInHeader, true);
   assert.equal(value.toolIconCount >= 12, true);
   assert.equal(value.rightIconCount >= 5, true);

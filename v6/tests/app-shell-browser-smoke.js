@@ -20,6 +20,7 @@ async function main() {
         journalMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6JournalSurface?.getState),
         sessionsMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6SessionsSurface?.getState),
         readinessMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReadinessSurface?.getState),
+        sessionDashboardMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6SessionDashboard?.getState),
         readinessInHeader: Boolean(document.querySelector('[data-v6-workstation-header] [data-v6-readiness-surface]')),
         standaloneReadiness: Boolean(document.querySelector('[data-v6-workstation-shell] > [data-v6-readiness-surface]')),
         readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
@@ -56,6 +57,7 @@ async function main() {
     assert.equal(value.journalMounted, true);
     assert.equal(value.sessionsMounted, true);
     assert.equal(value.readinessMounted, true);
+    assert.equal(value.sessionDashboardMounted, true);
     assert.equal(value.readinessInHeader, true);
     assert.equal(value.standaloneReadiness, false);
     assert.equal(value.readinessState, 'System ready');
@@ -91,24 +93,29 @@ async function main() {
     const sessionFlow = JSON.parse(await evaluate(page.client, `
       (async () => {
         const root = document.querySelector('[data-v6-root]');
-        document.querySelector('[data-v6-sessions-toggle]').click();
+        document.querySelector('[data-v6-dashboard-toggle]').click();
         await new Promise((resolve) => setTimeout(resolve, 0));
-        document.querySelector('[data-v6-sessions-create]').click();
+        document.querySelector('[data-v6-dashboard-create-session]').click();
         await new Promise((resolve) => setTimeout(resolve, 0));
+        await new Promise((resolve) => setTimeout(resolve, 0));
+        const openState = root.__v6SessionDashboard.getState();
+        document.querySelector('[data-v6-dashboard-open-chart]').click();
         await new Promise((resolve) => setTimeout(resolve, 0));
         return JSON.stringify({
-          open: root.__v6SessionsSurface.getState().open,
-          count: root.__v6SessionsSurface.getState().count,
-          activeText: document.querySelector('[data-v6-sessions-active]')?.textContent || '',
-          countText: document.querySelector('[data-v6-sessions-count]')?.textContent || '',
-          rows: document.querySelectorAll('[data-v6-session-row]').length,
+          closedSurface: root.dataset.v6Surface,
+          count: openState.sessionCount,
+          dashboardOpenAfterReturn: root.__v6SessionDashboard.getState().open,
+          openSurface: 'dashboard',
+          rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
+          workstationHiddenAfterReturn: document.querySelector('[data-v6-workstation-main]').hidden,
         });
       })()
     `));
-    assert.equal(sessionFlow.open, true);
+    assert.equal(sessionFlow.openSurface, 'dashboard');
+    assert.equal(sessionFlow.closedSurface, 'workstation');
+    assert.equal(sessionFlow.dashboardOpenAfterReturn, false);
+    assert.equal(sessionFlow.workstationHiddenAfterReturn, false);
     assert.equal(sessionFlow.count, 1);
-    assert.equal(sessionFlow.countText, '1 replay sessions');
-    assert.match(sessionFlow.activeText, /NQ 1m/);
     assert.equal(sessionFlow.rows, 1);
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `

@@ -35,9 +35,38 @@ function layoutPreview(cells) {
 export function createWorkstationShellMarkup() {
   return `
     <section class="workstation-shell" data-v6-workstation-shell>
+      <section class="session-dashboard" data-v6-session-dashboard hidden aria-label="Session dashboard">
+        <header class="session-dashboard-header">
+          <div>
+            <strong>Testing</strong>
+            <span>Replay sessions</span>
+          </div>
+          <button type="button" class="session-dashboard-chart-button" data-v6-dashboard-open-chart>${icon('arrowRight')}<span>Open chart</span></button>
+        </header>
+        <nav class="session-dashboard-tabs" aria-label="Session dashboard sections">
+          <button type="button" class="is-active" disabled>${icon('grid')}<span>Dashboard</span></button>
+          <button type="button" disabled>${icon('journal')}<span>Sessions</span></button>
+          <button type="button" disabled>${icon('indicators')}<span>Analytics</span></button>
+        </nav>
+        <main class="session-dashboard-main">
+          <section class="session-dashboard-actions" aria-label="Session actions">
+            <button type="button" data-v6-dashboard-create-session>${icon('plusCircle')}<span>Backtesting session</span></button>
+            <button type="button" disabled>${icon('spark')}<span>Prop firm session</span></button>
+            <button type="button" disabled>${icon('info')}<span>Tutorials</span></button>
+          </section>
+          <section class="session-dashboard-list-section" aria-label="Recent sessions">
+            <header>
+              <strong>Recent Sessions</strong>
+              <button type="button" data-v6-dashboard-refresh>${icon('redo')}<span>Refresh</span></button>
+            </header>
+            <ul class="session-dashboard-list" data-v6-dashboard-session-list></ul>
+            <p class="session-dashboard-empty" data-v6-dashboard-empty>No replay sessions yet</p>
+          </section>
+        </main>
+      </section>
       <header class="top-bar" data-v6-workstation-header>
         <div class="top-tool-group top-tool-group-left" aria-label="Session and symbol tools">
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-back data-v6-sessions-toggle aria-controls="v6-sessions-panel" aria-expanded="false" aria-pressed="false" aria-label="Back to session dashboard">${icon('arrowLeft')}<span class="sr-only">Back to session dashboard</span></button>
+          <button type="button" class="tool-button tool-button-icon" data-v6-top-back data-v6-dashboard-toggle aria-controls="v6-session-dashboard" aria-expanded="false" aria-pressed="false" aria-label="Back to session dashboard">${icon('arrowLeft')}<span class="sr-only">Back to session dashboard</span></button>
           <button type="button" class="tool-button tool-button-icon" data-v6-top-search-symbol disabled aria-label="Search symbol">${icon('search')}<span class="sr-only">Search symbol</span></button>
           <h1>FX Session Replay</h1>
           <span class="top-symbol" data-v6-top-symbol>NQ</span>

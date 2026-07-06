@@ -8,7 +8,6 @@ try {
     (async () => JSON.stringify(await (async () => {
       const root = document.querySelector('[data-v6-root]');
       const panels = [
-        ['Sessions', '[data-v6-sessions-toggle]', '[data-v6-sessions-panel]', '[data-v6-sessions-close]'],
         ['Replay', '[data-v6-replay-workflow-toggle]', '[data-v6-replay-workflow-panel]', '[data-v6-replay-workflow-close]'],
         ['Journal', '[data-v6-journal-toggle]', '[data-v6-journal-panel]', '[data-v6-journal-close]'],
         ['Settings', '[data-v6-settings-toggle]', '[data-v6-settings-panel]', '[data-v6-settings-close]'],
@@ -86,6 +85,7 @@ try {
         bodyText,
         exclusivity,
         mounted: Boolean(root.__v6SessionsSurface?.getState)
+          && Boolean(root.__v6SessionDashboard?.getState)
           && Boolean(root.__v6ReplayWorkflowSurface?.getState)
           && Boolean(root.__v6JournalSurface?.getState)
           && Boolean(root.__v6SettingsPanel?.getState),
@@ -96,7 +96,6 @@ try {
 
   assert.equal(value.mounted, true);
   assert.deepEqual(value.results.map((result) => result.title), [
-    'Replay Sessions',
     'Replay Control',
     'Trade Journal',
     'Settings',

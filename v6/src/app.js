@@ -24,6 +24,7 @@ import { mountJournalSurface } from './shell/journal-surface.js';
 import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayWorkflowSurface } from './shell/replay-workflow-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
+import { mountSessionDashboard } from './shell/session-dashboard.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
 import { mountStatusReadout } from './shell/status-readout.js';
@@ -74,6 +75,7 @@ const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('replay'),
 });
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'));
+const sessionDashboard = mountSessionDashboard(root);
 const settingsPanel = mountSettingsPanel(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('settings'),
 });
@@ -91,6 +93,7 @@ root.__v6ReadinessSurface = readinessSurface;
 root.__v6ReplayWorkflowSurface = replayWorkflowSurface;
 root.__v6RuntimeRegistry = registry;
 root.__v6ReplayTransport = replayTransport;
+root.__v6SessionDashboard = sessionDashboard;
 root.__v6SettingsPanel = settingsPanel;
 root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
