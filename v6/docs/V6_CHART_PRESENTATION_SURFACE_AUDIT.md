@@ -55,7 +55,7 @@ Passed:
   mount chart hosts inside the test harness rather than through the default
   workstation shell chart surface.
 - The default shell now exposes `[data-v6-chart-engine-host]` with
-  `data-v6-pane-id="default"`.
+  `data-v6-pane-id="main"`.
 - The running app now mounts that default host through
   `mountWorkstationChartSurface(root)`.
 - The mounted adapter state reports `dataLength: 0` at boot, then updates when

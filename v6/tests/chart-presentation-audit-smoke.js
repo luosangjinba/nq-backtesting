@@ -15,7 +15,7 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'v6/src/chart-engine/chart-data-surface-bridge.js',
   'v6/src/chart-engine/chart-viewport-surface-bridge.js',
   '[data-v6-chart-engine-host]',
-  'data-v6-pane-id="default"',
+  'data-v6-pane-id="main"',
   '[data-v6-chart-fallback]',
   '.static-chart-visual',
   '.price-scale-placeholder',
