@@ -1259,25 +1259,25 @@ Verification:
 
 ### Step 66 - Chart Entry Initial Visibility Browser Gate
 
-Add a browser-level visible chart gate for the session-entry path. This step
-should verify that entering a chart produces visible initial default-wall candles
-on the chart surface promptly, not just ready runtime state.
+Completed in commits:
 
-Acceptance:
+- `e0259d49 docs(v6): scope step sixty six visibility gate`
+- `9e46453f fix(v6): align workstation chart pane id`
+- `af66f7f3 test(v6): add chart entry visibility smoke`
+- `2033c03d docs(v6): align chart presentation pane id`
 
-- a dedicated browser smoke creates/opens a session through the session
-  dashboard path;
-- the smoke waits for `chartEntryProjectionApply` to reach `applied`;
-- the smoke verifies chart-data, viewport projection, chart surface data length,
-  visible logical range, canvas presence, and candle-colored pixels;
-- the smoke verifies the latest initial candle is within the projected visible
-  range;
-- the smoke fails if apply is only reflected in runtime state but not in the
-  chart surface/browser canvas;
-- the smoke remains independent of `defaultWall.load` and does not use adapter
-  internals directly;
-- app shell, session dashboard, product baseline, projection apply, UI
-  guardrail, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `node v6/tests/chart-entry-projection-apply-runtime-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/chart-presentation-audit-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 

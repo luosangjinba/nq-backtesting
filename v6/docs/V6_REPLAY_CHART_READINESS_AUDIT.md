@@ -18,12 +18,15 @@ No new UI polish is required before the next replay/chart step.
 
 Passed:
 
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `node v6/tests/visible-latency-domain-smoke.js`
 - `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
 - `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
 
 Finding:
 
+- session entry now has a browser-level gate that verifies runtime projection
+  reaches chart surface state and candle-colored pixels on canvas.
 - cache-hit visible replay remains covered by a browser gate, so the database
   and API path are not allowed to become the visible candle path.
 
