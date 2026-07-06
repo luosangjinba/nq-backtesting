@@ -26,7 +26,7 @@
 Make manual next and auto-play consume the owned playback period state without
 collapsing it into chart display timeframe.
 
-Status: planned.
+Status: active.
 
 Acceptance:
 
