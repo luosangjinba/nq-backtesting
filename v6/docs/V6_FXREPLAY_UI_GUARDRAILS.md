@@ -146,6 +146,10 @@ Chart entry has a dedicated runtime boundary:
 - The activation runtime may expose activation state for tests and future
   owners, but must not load chart bars, replay windows, viewport intent, adapter
   state, or bar cache directly.
+- Chart-entry initialization plans may list future owner steps such as resolving
+  start bar, loading bounded replay context, loading replay state, projecting
+  the default wall, and applying chart data/viewport. The plan is a contract,
+  not execution.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu
