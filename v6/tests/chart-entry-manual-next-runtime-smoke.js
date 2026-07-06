@@ -5,6 +5,7 @@ import {
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
   DEFAULT_WALL_COMMANDS,
+  PLAYBACK_PERIOD_COMMANDS,
   REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
@@ -35,26 +36,48 @@ const registry = createRuntimeRegistry();
 registry.registerRuntime(createChartEntryManualNextRuntime());
 await registry.start({ emitEvent });
 
-registerCommand(REPLAY_COMMANDS.NEXT, () => {
-  calls.push({ command: REPLAY_COMMANDS.NEXT });
+let cursorIndex = 0;
+registerCommand(REPLAY_COMMANDS.GET_STATE, () => {
+  calls.push({ command: REPLAY_COMMANDS.GET_STATE });
   return {
-    cursorIndex: 1,
-    cursorTime: '2026-06-01T09:31:00.000Z',
-    revealedCount: 2,
+    cursorIndex,
+    cursorTime: `2026-06-01T09:${String(30 + cursorIndex).padStart(2, '0')}:00.000Z`,
+    revealedCount: cursorIndex + 1,
     sessionId: 'session-next',
     status: 'ready',
     symbol: 'NQ',
     timeframe: '1m',
   };
 });
+registerCommand(REPLAY_COMMANDS.NEXT, () => {
+  cursorIndex += 1;
+  calls.push({ command: REPLAY_COMMANDS.NEXT });
+  return {
+    cursorIndex,
+    cursorTime: `2026-06-01T09:${String(30 + cursorIndex).padStart(2, '0')}:00.000Z`,
+    revealedCount: cursorIndex + 1,
+    sessionId: 'session-next',
+    status: 'ready',
+    symbol: 'NQ',
+    timeframe: '1m',
+  };
+});
+registerCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE, () => {
+  calls.push({ command: PLAYBACK_PERIOD_COMMANDS.GET_STATE });
+  return {
+    period: '3m',
+    sync: false,
+  };
+});
 registerCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, (payload) => {
   calls.push({ command: BAR_DATA_COMMANDS.LOAD_WINDOW, payload });
+  const cursorTimestamp = Math.floor(new Date(payload.anchor).valueOf() / 1000);
   return {
     bars: [
-      { close: 101, high: 102, low: 100, open: 100, timestamp: 1780306260 },
+      { close: 101, high: 102, low: 100, open: 100, timestamp: cursorTimestamp },
     ],
     cacheHit: false,
-    key: 'NQ|1|2026-06-01 09:31|2026-06-01 09:31',
+    key: `NQ|1|${payload.anchor}`,
   };
 });
 registerCommand(CHART_DATA_COMMANDS.APPEND_BARS, (payload) => {
@@ -91,21 +114,33 @@ assert.equal(state.advanced.sessionId, 'session-next');
 assert.equal(state.advanced.chartRecord.revision, 2);
 assert.equal(state.advanced.chartRecord.bars.length, 1);
 assert.equal(state.advanced.loadedWindow.barCount, 1);
+assert.equal(state.advanced.loadedWindows.length, 3);
+assert.equal(state.advanced.playbackPeriod, '3m');
+assert.equal(state.advanced.stepCount, 3);
+assert.equal(state.advanced.appendedBarCount, 3);
 assert.equal(advancedEvents.length, 1);
 assert.deepEqual(calls.map((call) => call.command), [
+  REPLAY_COMMANDS.GET_STATE,
+  PLAYBACK_PERIOD_COMMANDS.GET_STATE,
+  REPLAY_COMMANDS.NEXT,
+  BAR_DATA_COMMANDS.LOAD_WINDOW,
+  CHART_DATA_COMMANDS.APPEND_BARS,
+  REPLAY_COMMANDS.NEXT,
+  BAR_DATA_COMMANDS.LOAD_WINDOW,
+  CHART_DATA_COMMANDS.APPEND_BARS,
   REPLAY_COMMANDS.NEXT,
   BAR_DATA_COMMANDS.LOAD_WINDOW,
   CHART_DATA_COMMANDS.APPEND_BARS,
 ]);
-assert.deepEqual(calls[1].payload, {
+assert.deepEqual(calls[3].payload, {
   anchor: '2026-06-01T09:31:00.000Z',
   count: 2,
   direction: 'backward',
   instrument: 'NQ',
   timeframe: 1,
 });
-assert.equal(calls[2].payload.paneId, 'main');
-assert.equal(calls[2].payload.cursorTimestamp, 1780306260);
+assert.equal(calls[10].payload.paneId, 'main');
+assert.equal(calls[10].payload.cursorTimestamp, 1780306380);
 assert.equal(forbiddenCalls.length, 0);
 
 await registry.stop();
@@ -120,6 +155,12 @@ clearEventsForTest();
 const failingRegistry = createRuntimeRegistry();
 failingRegistry.registerRuntime(createChartEntryManualNextRuntime());
 await failingRegistry.start({ emitEvent });
+registerCommand(REPLAY_COMMANDS.GET_STATE, () => ({
+  timeframe: '1m',
+}));
+registerCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE, () => ({
+  period: '1m',
+}));
 registerCommand(REPLAY_COMMANDS.NEXT, () => {
   throw new Error('replay unavailable');
 });
