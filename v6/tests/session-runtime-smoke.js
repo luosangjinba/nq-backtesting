@@ -36,6 +36,7 @@ registry.registerRuntime(createSessionRuntime());
 await registry.start({ emitEvent });
 
 assert.equal(hasCommand(SESSION_COMMANDS.CREATE), true);
+assert.equal(hasCommand(SESSION_COMMANDS.DELETE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.GET_ACTIVE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.GET_BY_ID), true);
 assert.equal(hasCommand(SESSION_COMMANDS.LIST), true);
@@ -88,6 +89,32 @@ await assert.rejects(
   /Session missing-session does not exist/
 );
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
+
+const deleteMissing = await dispatchCommand(SESSION_COMMANDS.DELETE, 'missing-session');
+assert.deepEqual(deleteMissing, {
+  activeSessionId: session.id,
+  deleted: false,
+  id: 'missing-session',
+});
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
+
+const deletedInactive = await dispatchCommand(SESSION_COMMANDS.DELETE, secondSession.id);
+assert.deepEqual(deletedInactive, {
+  activeSessionId: session.id,
+  deleted: true,
+  id: secondSession.id,
+});
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), [session]);
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
+
+const deletedActive = await dispatchCommand(SESSION_COMMANDS.DELETE, session.id);
+assert.deepEqual(deletedActive, {
+  activeSessionId: null,
+  deleted: true,
+  id: session.id,
+});
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), []);
+assert.equal(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), null);
 
 await registry.stop();
 assert.equal(hasCommand(SESSION_COMMANDS.CREATE), false);

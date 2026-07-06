@@ -59,7 +59,38 @@ const reopenedRepository = createInMemorySessionRepository({
 });
 assert.equal(reopenedRepository.getActive().id, first.id);
 
-reopenedRepository.clear();
+const deleteMissing = reopenedRepository.delete('missing-session');
+assert.deepEqual(deleteMissing, {
+  activeSessionId: first.id,
+  deleted: false,
+  id: 'missing-session',
+});
+
+const deleteInactive = reopenedRepository.delete(second.id);
+assert.deepEqual(deleteInactive, {
+  activeSessionId: first.id,
+  deleted: true,
+  id: second.id,
+});
+const restoredAfterInactiveDelete = createInMemorySessionRepository({
+  metadataStore: createSessionMetadataStorage({ storage, storageKey }),
+});
+assert.deepEqual(restoredAfterInactiveDelete.list(), [first]);
+assert.equal(restoredAfterInactiveDelete.getActive().id, first.id);
+
+const deleteActive = restoredAfterInactiveDelete.delete(first.id);
+assert.deepEqual(deleteActive, {
+  activeSessionId: null,
+  deleted: true,
+  id: first.id,
+});
+const restoredAfterActiveDelete = createInMemorySessionRepository({
+  metadataStore: createSessionMetadataStorage({ storage, storageKey }),
+});
+assert.deepEqual(restoredAfterActiveDelete.list(), []);
+assert.equal(restoredAfterActiveDelete.getActive(), null);
+
+restoredAfterActiveDelete.clear();
 const clearedRepository = createInMemorySessionRepository({
   metadataStore: createSessionMetadataStorage({ storage, storageKey }),
 });

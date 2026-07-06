@@ -21,6 +21,7 @@ function renderSessions(root, sessions = []) {
       <button type="button" data-v6-dashboard-open-session="${session.id}" aria-label="Open ${sessionLabel(session)}">${sessionLabel(session)}</button>
       <strong>${session.id}</strong>
       <span>${formatSessionMeta(session)}</span>
+      <button class="session-dashboard-delete" type="button" data-v6-dashboard-delete-session="${session.id}" aria-label="Delete ${sessionLabel(session)} session">&times;</button>
     </li>
   `).join('');
   if (empty) {
@@ -123,6 +124,12 @@ export function mountSessionDashboard(root, {
     return getState();
   }
 
+  async function deleteSession(id) {
+    await dispatchCommand(SESSION_COMMANDS.DELETE, id);
+    await refresh();
+    return getState();
+  }
+
   const toggleListener = () => enterSessionSurface();
   toggle.addEventListener('click', toggleListener);
   unsubscriptions.push(() => toggle.removeEventListener('click', toggleListener));
@@ -155,6 +162,11 @@ export function mountSessionDashboard(root, {
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   if (list) {
     const listener = (event) => {
+      const deleteSessionButton = event.target.closest?.('[data-v6-dashboard-delete-session]');
+      if (deleteSessionButton && list.contains(deleteSessionButton)) {
+        void deleteSession(deleteSessionButton.dataset.v6DashboardDeleteSession);
+        return;
+      }
       const openSessionButton = event.target.closest?.('[data-v6-dashboard-open-session]');
       if (openSessionButton && list.contains(openSessionButton)) {
         void openSession(openSessionButton.dataset.v6DashboardOpenSession);
@@ -177,6 +189,7 @@ export function mountSessionDashboard(root, {
 
   return {
     createSession,
+    deleteSession,
     enterSessionSurface,
     enterWorkstation,
     getState,

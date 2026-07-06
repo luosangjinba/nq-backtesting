@@ -89,6 +89,17 @@ assert.deepEqual(chartDataAfterList, {
 assert.equal(replayAfterList, null);
 assert.deepEqual(fetchedWindows, []);
 
+const deletedMissing = await dispatchCommand(SESSION_COMMANDS.DELETE, 'missing-session');
+const chartEntryAfterMissingDelete = await dispatchCommand(CHART_ENTRY_COMMANDS.GET_STATE);
+assert.deepEqual(deletedMissing, {
+  activeSessionId: storedSession.id,
+  deleted: false,
+  id: 'missing-session',
+});
+assert.equal(chartEntryAfterMissingDelete.status, 'idle');
+assert.deepEqual(sessionEvents, []);
+assert.deepEqual(chartEntryEvents, []);
+
 const opened = await dispatchCommand(SESSION_COMMANDS.OPEN, storedSession.id);
 await new Promise((resolve) => setTimeout(resolve, 0));
 const chartEntryAfterOpen = await dispatchCommand(CHART_ENTRY_COMMANDS.GET_STATE);
@@ -108,6 +119,25 @@ assert.deepEqual(barCacheAfterOpen, {
   windowCount: 0,
 });
 assert.equal(replayAfterOpen, null);
+assert.deepEqual(fetchedWindows, []);
+
+const deleteActive = await dispatchCommand(SESSION_COMMANDS.DELETE, storedSession.id);
+const chartEntryAfterDelete = await dispatchCommand(CHART_ENTRY_COMMANDS.GET_STATE);
+const chartDataAfterDelete = await dispatchCommand(CHART_DATA_COMMANDS.GET_SUMMARY);
+const replayAfterDelete = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+assert.deepEqual(deleteActive, {
+  activeSessionId: null,
+  deleted: true,
+  id: storedSession.id,
+});
+assert.equal(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), null);
+assert.equal(chartEntryAfterDelete.activeSessionId, storedSession.id);
+assert.equal(chartEntryAfterDelete.status, 'planned');
+assert.deepEqual(chartDataAfterDelete, {
+  paneCount: 0,
+  panes: [],
+});
+assert.equal(replayAfterDelete, null);
 assert.deepEqual(fetchedWindows, []);
 
 await registry.stop();

@@ -21,6 +21,10 @@ export function createSessionRuntime({
     return repository.open(id);
   }
 
+  function deleteSession(id) {
+    return repository.delete(id);
+  }
+
   function start({ emitEvent } = {}) {
     unregisterCallbacks.push(
       registerCommand(SESSION_COMMANDS.CREATE, (input = {}) => {
@@ -28,6 +32,7 @@ export function createSessionRuntime({
         emitEvent?.(SESSION_EVENTS.CREATED, session);
         return session;
       }),
+      registerCommand(SESSION_COMMANDS.DELETE, (id) => deleteSession(id)),
       registerCommand(SESSION_COMMANDS.GET_ACTIVE, () => getActiveSession()),
       registerCommand(SESSION_COMMANDS.GET_BY_ID, (id) => repository.getById(id)),
       registerCommand(SESSION_COMMANDS.LIST, () => repository.list()),

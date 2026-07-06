@@ -72,6 +72,27 @@ export function createInMemorySessionRepository({
     return cloneSession(session);
   }
 
+  function deleteSession(id) {
+    const sessionId = String(id || '').trim();
+    const deleted = sessionsById.delete(sessionId);
+    if (!deleted) {
+      return {
+        activeSessionId,
+        deleted: false,
+        id: sessionId,
+      };
+    }
+    if (activeSessionId === sessionId) {
+      activeSessionId = null;
+    }
+    persist();
+    return {
+      activeSessionId,
+      deleted: true,
+      id: sessionId,
+    };
+  }
+
   function list() {
     return [...sessionsById.values()].map(cloneSession);
   }
@@ -84,6 +105,7 @@ export function createInMemorySessionRepository({
 
   return {
     clear,
+    delete: deleteSession,
     getActive,
     getById,
     list,
