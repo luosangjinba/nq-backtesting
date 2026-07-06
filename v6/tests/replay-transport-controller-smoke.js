@@ -131,13 +131,23 @@ assert.deepEqual(dispatched.at(-1), {
 assert.equal(controller.getState().playing, true);
 
 root.click(speedButton);
+await Promise.resolve();
 assert.equal(controller.getState().speed, 2);
 assert.equal(speedButton['aria-pressed'], 'true');
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED,
+  payload: { speed: 2 },
+});
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'paused' });
 assert.equal(controller.getState().playing, false);
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Play replay');
+
+const dispatchCountBeforePausedSpeed = dispatched.length;
+root.click(speedButton);
+await Promise.resolve();
+assert.equal(dispatched.length, dispatchCountBeforePausedSpeed);
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'playing' });
 assert.equal(controller.getState().playing, true);

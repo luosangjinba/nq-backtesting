@@ -132,6 +132,18 @@ export function mountReplayTransport(root, {
     });
   }
 
+  function dispatchSpeedChange(speed) {
+    setState({
+      playing: state.playing,
+      speed,
+    });
+    if (!state.playing) return Promise.resolve(null);
+    return Promise.resolve(dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED, { speed })).catch((error) => {
+      root.dataset.lastError = error?.message || String(error);
+      return null;
+    });
+  }
+
   function syncFromReplayEvent(replayState) {
     setState(syncReplayTransportStateFromReplay(state, replayState));
   }
@@ -181,20 +193,14 @@ export function mountReplayTransport(root, {
     }
     const speedButton = event.target.closest?.('[data-v6-transport-speed]');
     if (speedButton && root.contains(speedButton)) {
-      setState({
-        playing: state.playing,
-        speed: normalizeSpeed(speedButton.dataset.v6TransportSpeed),
-      });
+      void dispatchSpeedChange(normalizeSpeed(speedButton.dataset.v6TransportSpeed));
     }
   }, { signal });
 
   root.addEventListener('input', (event) => {
     const speedSlider = event.target.closest?.('[data-v6-transport-speed-slider]');
     if (speedSlider && root.contains(speedSlider)) {
-      setState({
-        playing: state.playing,
-        speed: normalizeSliderSpeed(speedSlider.value),
-      });
+      void dispatchSpeedChange(normalizeSliderSpeed(speedSlider.value));
     }
   }, { signal });
 
@@ -230,10 +236,8 @@ export function mountReplayTransport(root, {
       return state;
     },
     setSpeed(speed) {
-      return setState({
-        playing: state.playing,
-        speed,
-      });
+      void dispatchSpeedChange(normalizeSpeed(speed));
+      return state;
     },
   });
 }

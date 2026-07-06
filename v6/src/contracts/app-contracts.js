@@ -86,6 +86,7 @@ export const CHART_ENTRY_MANUAL_NEXT_EVENTS = Object.freeze({
 
 export const CHART_ENTRY_AUTO_PLAY_COMMANDS = Object.freeze({
   GET_STATE: 'chartEntryAutoPlay.getState',
+  SET_SPEED: 'chartEntryAutoPlay.setSpeed',
   START: 'chartEntryAutoPlay.start',
   STOP: 'chartEntryAutoPlay.stop',
 });

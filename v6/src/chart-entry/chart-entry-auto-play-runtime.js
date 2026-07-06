@@ -50,6 +50,13 @@ export function createChartEntryAutoPlayRuntime({
     }
   }
 
+  function startTimer(speed) {
+    stopTimer();
+    timerId = timer.setInterval(() => {
+      void tick();
+    }, intervalForSpeed(speed));
+  }
+
   function getState() {
     return {
       error: state.error,
@@ -116,10 +123,21 @@ export function createChartEntryAutoPlayRuntime({
       status: replayState?.status === 'playing' ? 'playing' : String(replayState?.status || 'idle'),
     };
     if (state.playing) {
-      timerId = timer.setInterval(() => {
-        void tick();
-      }, intervalForSpeed(speed));
+      startTimer(speed);
       emit(CHART_ENTRY_AUTO_PLAY_EVENTS.STARTED, getState());
+    }
+    return getState();
+  }
+
+  function setSpeed(payload = {}) {
+    const speed = normalizeSpeed(payload.speed);
+    state = {
+      ...state,
+      error: null,
+      speed,
+    };
+    if (state.playing) {
+      startTimer(speed);
     }
     return getState();
   }
@@ -135,6 +153,7 @@ export function createChartEntryAutoPlayRuntime({
     emit = emitEvent || (() => {});
     unregisterCallbacks.push(
       registerCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.GET_STATE, () => getState()),
+      registerCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED, setSpeed),
       registerCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.START, start),
       registerCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP, stop),
     );

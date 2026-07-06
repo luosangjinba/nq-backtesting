@@ -95,6 +95,7 @@ registry.registerRuntime(createChartEntryAutoPlayRuntime({ timer: fakeTimer }));
 await registry.start({ emitEvent });
 
 assert.equal(hasCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.START), true);
+assert.equal(hasCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED), true);
 assert.equal(hasCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP), true);
 assert.equal(listenerCount(CHART_ENTRY_AUTO_PLAY_EVENTS.STARTED), 1);
 assert.deepEqual(await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.GET_STATE), {
@@ -112,6 +113,12 @@ assert.equal(started.status, 'playing');
 assert.equal(fakeTimer.intervalCount(), 1);
 assert.equal(fakeTimer.intervalDelay(), 250);
 assert.deepEqual(calls, [REPLAY_COMMANDS.PLAY]);
+
+let speedChanged = await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED, { speed: 4 });
+assert.equal(speedChanged.playing, true);
+assert.equal(speedChanged.speed, 4);
+assert.equal(fakeTimer.intervalCount(), 1);
+assert.equal(fakeTimer.intervalDelay(), 125);
 
 await fakeTimer.tick();
 let state = await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.GET_STATE);
@@ -136,6 +143,10 @@ assert.equal(stopped.status, 'paused');
 assert.equal(stopped.playing, false);
 assert.equal(fakeTimer.intervalCount(), 0);
 assert.equal(calls.at(-1), REPLAY_COMMANDS.PAUSE);
+speedChanged = await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED, { speed: 0.5 });
+assert.equal(speedChanged.playing, false);
+assert.equal(speedChanged.speed, 0.5);
+assert.equal(fakeTimer.intervalCount(), 0);
 
 await assert.rejects(
   () => dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.START, { speed: 3 }),
