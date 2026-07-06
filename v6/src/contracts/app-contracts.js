@@ -67,6 +67,14 @@ export const CHART_ENTRY_PROJECTION_PREPARATION_EVENTS = Object.freeze({
   PREPARED: 'chartEntryProjectionPreparation:prepared',
 });
 
+export const CHART_ENTRY_PROJECTION_APPLY_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryProjectionApply.getState',
+});
+
+export const CHART_ENTRY_PROJECTION_APPLY_EVENTS = Object.freeze({
+  APPLIED: 'chartEntryProjectionApply:applied',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
