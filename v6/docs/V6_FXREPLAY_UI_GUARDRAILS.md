@@ -154,6 +154,11 @@ Chart entry has a dedicated runtime boundary:
   `barData.planWindow` to prepare bounded prefix-plus-start context. It must not
   call `barData.loadWindow`, replay load, chart-data writes, viewport mutation,
   or adapter APIs.
+- `runtime.chartEntryContext` may consume initialization plans and call
+  `barData.loadWindow` for the planned bounded context only. It must expose
+  loaded summaries without leaking mutable bar cache records, and it must not
+  load replay state, write chart data, mutate viewport intent, or call adapter
+  APIs directly.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu

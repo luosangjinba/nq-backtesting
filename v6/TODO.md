@@ -1159,26 +1159,22 @@ Verification:
 
 ### Step 61 - Chart Entry Bounded Context Load Owner
 
-Introduce the bounded context load owner that consumes chart-entry initialization
-plans and loads only the planned bounded context window through bar-data runtime.
-This step may call `barData.loadWindow`, but it must not load replay state, write
-chart data, mutate viewport intent, or touch chart adapter APIs.
+Completed in commits:
 
-Acceptance:
+- `32e26c87 docs(v6): scope step sixty one context load`
+- `b1501ccc feat(v6): add chart entry context load runtime`
+- `4551847d feat(v6): register chart entry context load runtime`
 
-- a dedicated bounded-context runtime subscribes to chart-entry initialization
-  planned events;
-- the runtime loads the planned bounded window through `barData.loadWindow`;
-- loaded state is exposed through an explicit command for tests and future
-  owners;
-- loaded events carry session id, anchor, planned window, and bar-data record
-  summary without leaking mutable cache records;
-- load failures put the owner in an error state without mutating replay,
-  chart-data, viewport, or adapter surfaces;
-- app shell registers the runtime after chart-entry initialization and before
-  future replay/chart owners;
-- bounded-context runtime, initialization runtime, app shell, session dashboard,
-  product baseline, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-context-runtime-smoke.js`
+- `node v6/tests/chart-entry-initialization-runtime-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 
