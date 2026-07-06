@@ -43,6 +43,14 @@ export const CHART_ENTRY_CONTEXT_EVENTS = Object.freeze({
   LOADED: 'chartEntryContext:loaded',
 });
 
+export const CHART_ENTRY_REPLAY_BOOTSTRAP_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryReplayBootstrap.getState',
+});
+
+export const CHART_ENTRY_REPLAY_BOOTSTRAP_EVENTS = Object.freeze({
+  LOADED: 'chartEntryReplayBootstrap:loaded',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
