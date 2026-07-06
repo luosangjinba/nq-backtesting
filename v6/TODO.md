@@ -1196,6 +1196,29 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 63 - Chart Entry Default Wall Plan Owner
+
+Introduce the default-wall planning owner after replay bootstrap. This step
+decides the initial visible wall plan from bounded context and replay state, but
+it must not call `defaultWall.load`, write chart data, mutate viewport intent, or
+touch chart adapter APIs.
+
+Acceptance:
+
+- a dedicated default-wall-plan runtime subscribes to
+  `chartEntryReplayBootstrap:loaded`;
+- the runtime creates a deterministic initial wall plan with session id,
+  anchor/cursor, pane target, visible span, prefix, and loaded context summary;
+- the plan is exposed through an explicit command for tests and future owners;
+- planned events carry only immutable planning data and no raw bar arrays;
+- missing context/replay metadata leaves the owner in error state without
+  mutating replay, chart-data, viewport, default-wall runtime, or adapter
+  surfaces;
+- app shell registers the runtime after replay bootstrap and before future
+  projection owners;
+- wall-plan runtime, replay-bootstrap runtime, app shell, session dashboard,
+  product baseline, and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
