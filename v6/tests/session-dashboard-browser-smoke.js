@@ -15,13 +15,15 @@ try {
       };
 
       const openedState = {
-        actionLabels: [...document.querySelectorAll('.session-dashboard-actions button')].map((button) => button.textContent.trim()),
         analyticsText: document.querySelector('[data-v6-dashboard-analytics]')?.textContent || '',
+        backtestingTitle: document.querySelector('[data-v6-session-setup-form] header')?.textContent.trim() || '',
+        createButtonLabel: document.querySelector('[data-v6-dashboard-create-session]')?.textContent.trim() || '',
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         forwardExists: Boolean(document.querySelector('[data-v6-top-session-forward]')),
+        setupStatus: document.querySelector('[data-v6-session-setup-status]')?.textContent || '',
         primaryLabels: [
-          document.querySelector('[data-v6-dashboard-create-session]')?.textContent.trim() || '',
+          document.querySelector('[data-v6-session-setup-form] header')?.textContent.trim() || '',
           document.querySelector('.session-dashboard-list-section header strong')?.textContent.trim() || '',
           document.querySelector('[data-v6-dashboard-analytics] header')?.textContent.trim() || '',
         ],
@@ -33,6 +35,20 @@ try {
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
+      document.querySelector('[data-v6-session-setup-start]').value = '2026-06-05T16:00';
+      document.querySelector('[data-v6-session-setup-end]').value = '2026-06-01T09:30';
+      document.querySelector('[data-v6-session-setup-form]').requestSubmit();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const afterInvalidCreate = {
+        dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
+        rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
+        status: document.querySelector('[data-v6-session-setup-status]')?.textContent || '',
+        surface: root.dataset.v6Surface,
+        workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
+      };
+
+      document.querySelector('[data-v6-session-setup-start]').value = '2026-06-01T09:30';
+      document.querySelector('[data-v6-session-setup-end]').value = '2026-06-05T16:00';
       document.querySelector('[data-v6-dashboard-create-session]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       await new Promise((resolve) => setTimeout(resolve, 0));
@@ -74,6 +90,7 @@ try {
 
       return {
         afterCreate,
+        afterInvalidCreate,
         afterOpenSession,
         afterReturnToSession,
         defaultState,
@@ -94,7 +111,9 @@ try {
   assert.equal(value.openedState.dashboardOpen, true);
   assert.equal(value.openedState.tabCount, 0);
   assert.deepEqual(value.openedState.primaryLabels, ['Backtesting session', 'Sessions', 'Analytics']);
-  assert.deepEqual(value.openedState.actionLabels, ['Backtesting session']);
+  assert.equal(value.openedState.backtestingTitle, 'Backtesting session');
+  assert.equal(value.openedState.createButtonLabel, 'Enter chart');
+  assert.equal(value.openedState.setupStatus, 'No bars are loaded on create.');
   assert.match(value.openedState.analyticsText, /replay orders/);
   assert.match(value.openedState.analyticsText, /live orders/);
   assert.equal(value.openedState.text.includes('Dashboard'), false);
@@ -105,6 +124,11 @@ try {
   assert.equal(value.openedState.toggleExpanded, 'true');
   assert.equal(value.openedState.transportHidden, true);
   assert.equal(value.openedState.workstationHidden, true);
+  assert.equal(value.afterInvalidCreate.dashboardHidden, false);
+  assert.equal(value.afterInvalidCreate.rows, 0);
+  assert.equal(value.afterInvalidCreate.status, 'Start must be before End.');
+  assert.equal(value.afterInvalidCreate.surface, 'session');
+  assert.equal(value.afterInvalidCreate.workstationHidden, true);
   assert.equal(value.afterCreate.dashboardHidden, true);
   assert.equal(value.afterCreate.dashboardOpen, false);
   assert.equal(value.afterCreate.emptyHidden, true);

@@ -44,7 +44,23 @@ export function createWorkstationShellMarkup() {
         </header>
         <main class="session-dashboard-main">
           <section class="session-dashboard-actions" aria-label="Backtesting session">
-            <button type="button" data-v6-dashboard-create-session>${icon('plusCircle')}<span>Backtesting session</span></button>
+            <form class="session-setup-form" data-v6-session-setup-form>
+              <header>${icon('plusCircle')}<strong>Backtesting session</strong></header>
+              <div class="session-setup-fields">
+                <label>
+                  <span>Start</span>
+                  <input name="startTime" type="datetime-local" value="2026-06-01T09:30" data-v6-session-setup-start>
+                </label>
+                <label>
+                  <span>End</span>
+                  <input name="endTime" type="datetime-local" value="2026-06-05T16:00" data-v6-session-setup-end>
+                </label>
+              </div>
+              <div class="session-setup-actions">
+                <button type="submit" data-v6-dashboard-create-session>${icon('arrowRight')}<span>Enter chart</span></button>
+                <span data-v6-session-setup-status>No bars are loaded on create.</span>
+              </div>
+            </form>
           </section>
           <section class="session-dashboard-list-section" aria-label="Sessions">
             <header>

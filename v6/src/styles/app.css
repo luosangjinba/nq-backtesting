@@ -153,17 +153,68 @@ p {
 }
 
 .session-dashboard-actions {
+  display: block;
+}
+
+.session-setup-form {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+  border: 1px solid #233241;
+  border-radius: 8px;
+  background: #0b1118;
+}
+
+.session-setup-form header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #f2f6f9;
+  font-size: 15px;
+}
+
+.session-setup-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(180px, 1fr));
   gap: 12px;
 }
 
-.session-dashboard-actions button {
-  min-width: 190px;
-  justify-content: flex-start;
+.session-setup-fields label {
+  display: grid;
+  gap: 7px;
+  color: #aeb8c2;
+  font-size: 12px;
+  font-weight: 700;
 }
 
-.session-dashboard-actions button:first-child {
+.session-setup-fields input {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid #2b3740;
+  border-radius: 6px;
+  background: #05080c;
+  color: #e8eef3;
+  color-scheme: dark;
+}
+
+.session-setup-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.session-setup-actions button {
+  min-width: 150px;
+  justify-content: center;
   border-color: #1c63b7;
   background: #0d1b2d;
+}
+
+.session-setup-actions span {
+  min-width: 0;
+  color: #84909b;
+  font-size: 12px;
 }
 
 .session-dashboard-list-section {

@@ -1,5 +1,6 @@
 import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
+import { readSessionSetupForm } from './session-setup-model.js';
 
 function formatSessionMeta(session = {}) {
   const start = session.startTime ? String(session.startTime).slice(0, 10) : 'Start pending';
@@ -63,6 +64,8 @@ export function mountSessionDashboard(root, {
   const dashboard = root.querySelector('[data-v6-session-dashboard]');
   const toggle = root.querySelector('[data-v6-dashboard-toggle]');
   const createButton = root.querySelector('[data-v6-dashboard-create-session]');
+  const setupForm = root.querySelector('[data-v6-session-setup-form]');
+  const setupStatus = root.querySelector('[data-v6-session-setup-status]');
   const refreshButton = root.querySelector('[data-v6-dashboard-refresh]');
   if (!dashboard || !toggle) {
     throw new Error('Session dashboard controls are required.');
@@ -100,10 +103,17 @@ export function mountSessionDashboard(root, {
     return getState();
   }
 
-  async function createSession() {
-    await dispatchCommand(SESSION_COMMANDS.CREATE);
+  function setSetupStatus(message) {
+    if (setupStatus) {
+      setupStatus.textContent = message;
+    }
+  }
+
+  async function createSession(input = {}) {
+    const session = await dispatchCommand(SESSION_COMMANDS.CREATE, input);
     await refresh();
     enterWorkstation();
+    setSetupStatus(`Created ${session.id}`);
     return getState();
   }
 
@@ -117,8 +127,22 @@ export function mountSessionDashboard(root, {
   toggle.addEventListener('click', toggleListener);
   unsubscriptions.push(() => toggle.removeEventListener('click', toggleListener));
 
-  if (createButton) {
-    const listener = () => createSession();
+  if (setupForm) {
+    const listener = (event) => {
+      event.preventDefault();
+      try {
+        setSetupStatus('Creating session...');
+        void createSession(readSessionSetupForm(setupForm)).catch((error) => {
+          setSetupStatus(error?.message || String(error));
+        });
+      } catch (error) {
+        setSetupStatus(error?.message || String(error));
+      }
+    };
+    setupForm.addEventListener('submit', listener);
+    unsubscriptions.push(() => setupForm.removeEventListener('submit', listener));
+  } else if (createButton) {
+    const listener = () => void createSession();
     createButton.addEventListener('click', listener);
     unsubscriptions.push(() => createButton.removeEventListener('click', listener));
   }
