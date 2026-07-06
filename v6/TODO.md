@@ -1006,25 +1006,40 @@ Verification:
 
 ### Step 53 - Session Dashboard Shell Direction
 
-Define and reserve the separate session dashboard/list surface that the chart
-top-left back arrow will navigate to later.
-This step should implement shell-level dashboard/workstation visibility
-switching first; durable route URLs and persisted session navigation remain
-deferred until their owners exist.
+Completed in commits:
+
+- `e1592af5 docs(v6): clarify step fifty three dashboard scope`
+- `b15c51ed feat(v6): add session dashboard shell`
+- `544179d9 docs(v6): guard session dashboard shell`
+
+Verification:
+
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 54 - Session Dashboard Navigation Contract
+
+Define the session dashboard's open-session/navigation contract before adding
+dashboard statistics, account analytics, or persistence polish.
 
 Acceptance:
 
-- dashboard is a separate surface from the chart workstation;
-- chart top-left back arrow opens the dashboard shell and remains the only
-  chart-to-dashboard navigation affordance;
-- dashboard can return to the chart workstation without reintroducing a chart
-  forward arrow;
-- no chart-forward arrow is reintroduced;
-- dashboard/session list remains shell-only until session persistence/navigation
-  ownership is explicit;
+- session rows have a clear shell-level open action that returns to the chart
+  workstation;
+- opening a session does not load full date ranges into chart state;
+- active session display remains owned by session runtime/state, not chart UI;
+- durable route URLs and persisted dashboard state remain deferred until their
+  owners exist;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, adapter state, bar cache, or session persistence;
-- app-shell, product baseline, UI guardrails, parity audit, sessions surface, and
+- dashboard, app-shell, product baseline, sessions surface, and
   boundary gates remain passing.
 
 ## Deferred Until Later Gates
