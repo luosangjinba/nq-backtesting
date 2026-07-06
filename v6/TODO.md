@@ -14,39 +14,38 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 78 - Transport Focus And Keyboard Polish.
-  Transport controls now have visible focus rings, predictable replay-period
-  menu keyboard behavior, and browser coverage that shortcuts do not fire while
-  menus or editable controls own focus.
+- Latest completed step: Step 79 - Transport Drag Position Persistence.
+  Floating transport drag position now persists through an injected shell
+  preference adapter, restores within viewport bounds, and stays independent
+  from replay cursor, chart data, bars, and viewport intent.
 
 ## Next Executable Steps
 
-### Step 79 - Transport Drag Position Persistence
+### Step 80 - Session Dashboard Persistence Boundary
 
-Persist the floating replay transport position after drag while keeping it
-viewport-local shell UI state.
+Define and test the session dashboard persistence boundary before making the
+session list durable.
 
-Status: active.
+Status: planned.
 
 Notes:
 
-- `replay-transport.js` must not import or directly call `localStorage`;
-- persistence must enter through an injected shell UI preference adapter so the
-  transport boundary remains command/event UI plus local DOM behavior.
+- keep dashboard persistence out of chart, replay, bars, and viewport ownership;
+- preserve the session-first flow and do not load full bar ranges just because a
+  session row is listed.
 
 Scope:
 
-- keep drag position out of replay, chart data, bars, and viewport intent;
-- clamp restored position to the current browser viewport;
-- preserve the default centered position until the user drags the transport.
+- audit current dashboard/session runtime responsibilities;
+- choose a small persistence adapter boundary for session metadata only;
+- add a smoke that proves listing sessions does not load chart bars.
 
 Acceptance:
 
-- dragging stores a transport-local position preference;
-- route re-entry or reload restores the transport within viewport bounds;
-- reset/session/dashboard visibility does not mutate replay cursor or chart
-  viewport state;
-- browser smoke covers drag, restore, and clamp behavior.
+- durable session metadata has an explicit owner or adapter plan;
+- opening a session remains the only path that enters the chart workstation;
+- listed sessions do not request or cache full date-range bars;
+- tests cover dashboard persistence boundary without touching chart ownership.
 
 ## Completed Steps
 
@@ -1607,6 +1606,31 @@ Verification:
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`
 - `node v6/tests/chart-entry-restart-browser-smoke.js`
 - `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 79 - Transport Drag Position Persistence
+
+Completed in commits:
+
+- `b07f23bf docs(v6): scope step seventy nine transport persistence`
+- `d6a6aad0 feat(v6): persist transport drag position`
+- `32e1df68 test(v6): verify transport position persistence`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/replay-transport-position-persistence-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/replay-transport-focus-keyboard-browser-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/chart-entry-restart-browser-smoke.js`
 - `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
