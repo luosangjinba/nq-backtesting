@@ -7,6 +7,28 @@ const SCREENSHOT_PATH = process.env.V6_SCREENSHOT_PATH || '/tmp/v6-product-basel
 
 const page = await openV6Page({ height: 900, width: 1440 });
 try {
+  const sessionSurface = JSON.parse(await evaluate(page.client, `
+    JSON.stringify({
+      dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
+      surface: document.querySelector('[data-v6-root]')?.dataset.v6Surface || '',
+      workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
+    })
+  `));
+  assert.deepEqual(sessionSurface, {
+    dashboardHidden: false,
+    surface: 'session',
+    workstationHidden: true,
+  });
+
+  await evaluate(page.client, `
+    (async () => {
+      document.querySelector('[data-v6-dashboard-create-session]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      return true;
+    })()
+  `);
+
   const layout = JSON.parse(await evaluate(page.client, `
     JSON.stringify((() => {
       const rectOf = (selector) => {

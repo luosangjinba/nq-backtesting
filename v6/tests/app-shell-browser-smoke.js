@@ -109,13 +109,13 @@ async function main() {
           count: openState.sessionCount,
           createdSessionId,
           dashboardOpenAfterReturn: root.__v6SessionDashboard.getState().open,
-          openSurface: 'dashboard',
+          openSurface: 'session',
           rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
           workstationHiddenAfterReturn: document.querySelector('[data-v6-workstation-main]').hidden,
         });
       })()
     `));
-    assert.equal(sessionFlow.openSurface, 'dashboard');
+    assert.equal(sessionFlow.openSurface, 'session');
     assert.equal(sessionFlow.closedSurface, 'workstation');
     assert.equal(sessionFlow.dashboardOpenAfterReturn, false);
     assert.equal(sessionFlow.workstationHiddenAfterReturn, false);

@@ -62,28 +62,36 @@ export function mountSessionDashboard(root, {
   }
   const dashboard = root.querySelector('[data-v6-session-dashboard]');
   const toggle = root.querySelector('[data-v6-dashboard-toggle]');
-  const openChartButton = root.querySelector('[data-v6-dashboard-open-chart]');
   const createButton = root.querySelector('[data-v6-dashboard-create-session]');
   const refreshButton = root.querySelector('[data-v6-dashboard-refresh]');
-  if (!dashboard || !toggle || !openChartButton) {
+  if (!dashboard || !toggle) {
     throw new Error('Session dashboard controls are required.');
   }
 
   const unsubscriptions = [];
-  let open = false;
+  let surface = 'session';
   let sessions = [];
 
-  function setOpen(nextOpen) {
-    open = Boolean(nextOpen);
-    dashboard.hidden = !open;
-    root.dataset.v6Surface = open ? 'dashboard' : 'workstation';
-    toggle.setAttribute('aria-expanded', String(open));
-    toggle.setAttribute('aria-pressed', String(open));
-    setWorkstationHidden(root, open);
-    if (open) {
+  function setSurface(nextSurface) {
+    surface = nextSurface === 'workstation' ? 'workstation' : 'session';
+    const sessionActive = surface === 'session';
+    dashboard.hidden = !sessionActive;
+    root.dataset.v6Surface = surface;
+    toggle.setAttribute('aria-expanded', String(sessionActive));
+    toggle.setAttribute('aria-pressed', String(sessionActive));
+    setWorkstationHidden(root, sessionActive);
+    if (sessionActive) {
       void refresh();
     }
     return getState();
+  }
+
+  function enterSessionSurface() {
+    return setSurface('session');
+  }
+
+  function enterWorkstation() {
+    return setSurface('workstation');
   }
 
   async function refresh() {
@@ -95,22 +103,19 @@ export function mountSessionDashboard(root, {
   async function createSession() {
     await dispatchCommand(SESSION_COMMANDS.CREATE);
     await refresh();
+    enterWorkstation();
     return getState();
   }
 
   async function openSession(id) {
     await dispatchCommand(SESSION_COMMANDS.OPEN, id);
-    setOpen(false);
+    enterWorkstation();
     return getState();
   }
 
-  const toggleListener = () => setOpen(true);
+  const toggleListener = () => enterSessionSurface();
   toggle.addEventListener('click', toggleListener);
   unsubscriptions.push(() => toggle.removeEventListener('click', toggleListener));
-
-  const openChartListener = () => setOpen(false);
-  openChartButton.addEventListener('click', openChartListener);
-  unsubscriptions.push(() => openChartButton.removeEventListener('click', openChartListener));
 
   if (createButton) {
     const listener = () => createSession();
@@ -137,20 +142,22 @@ export function mountSessionDashboard(root, {
 
   function getState() {
     return {
-      open,
+      open: surface === 'session',
+      surface,
       sessionCount: sessions.length,
       sessions: sessions.map((session) => ({ ...session })),
     };
   }
 
-  void refresh();
+  enterSessionSurface();
 
   return {
     createSession,
+    enterSessionSurface,
+    enterWorkstation,
     getState,
     openSession,
     refresh,
-    setOpen,
     unmount() {
       while (unsubscriptions.length) {
         unsubscriptions.pop()();

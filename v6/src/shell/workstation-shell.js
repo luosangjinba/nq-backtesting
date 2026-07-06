@@ -41,7 +41,6 @@ export function createWorkstationShellMarkup() {
             <strong>Testing</strong>
             <span>Replay sessions</span>
           </div>
-          <button type="button" class="session-dashboard-chart-button" data-v6-dashboard-open-chart>${icon('arrowRight')}<span>Open chart</span></button>
         </header>
         <main class="session-dashboard-main">
           <section class="session-dashboard-actions" aria-label="Backtesting session">

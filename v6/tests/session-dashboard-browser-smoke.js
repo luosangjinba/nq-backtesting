@@ -9,12 +9,11 @@ try {
       const root = document.querySelector('[data-v6-root]');
       const defaultState = {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
-        surface: root.dataset.v6Surface || 'workstation',
+        dashboardOpen: root.__v6SessionDashboard.getState().open,
+        surface: root.dataset.v6Surface || '',
         workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
-      document.querySelector('[data-v6-dashboard-toggle]').click();
-      await new Promise((resolve) => setTimeout(resolve, 0));
       const openedState = {
         actionLabels: [...document.querySelectorAll('.session-dashboard-actions button')].map((button) => button.textContent.trim()),
         analyticsText: document.querySelector('[data-v6-dashboard-analytics]')?.textContent || '',
@@ -40,13 +39,19 @@ try {
       const commandsModule = await import('/v6/src/runtime/commands.js');
       const afterCreate = {
         activeId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
+        dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
+        dashboardOpen: root.__v6SessionDashboard.getState().open,
         emptyHidden: document.querySelector('[data-v6-dashboard-empty]').hidden,
         rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
         sessionCount: root.__v6SessionDashboard.getState().sessionCount,
         sessionId: root.__v6SessionDashboard.getState().sessions[0]?.id || '',
         sessionText: document.querySelector('[data-v6-dashboard-session-row]')?.textContent || '',
+        surface: root.dataset.v6Surface,
+        workstationHidden: document.querySelector('[data-v6-workstation-main]').hidden,
       };
 
+      document.querySelector('[data-v6-dashboard-toggle]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
       document.querySelector('[data-v6-dashboard-open-session]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       const afterOpenSession = {
@@ -60,9 +65,7 @@ try {
 
       document.querySelector('[data-v6-dashboard-toggle]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
-      document.querySelector('[data-v6-dashboard-open-chart]').click();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterOpenChart = {
+      const afterReturnToSession = {
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         surface: root.dataset.v6Surface,
@@ -71,8 +74,8 @@ try {
 
       return {
         afterCreate,
-        afterOpenChart,
         afterOpenSession,
+        afterReturnToSession,
         defaultState,
         mounted: Boolean(root.__v6SessionDashboard?.getState),
         openedState,
@@ -82,9 +85,10 @@ try {
 
   assert.equal(value.mounted, true);
   assert.deepEqual(value.defaultState, {
-    dashboardHidden: true,
-    surface: 'workstation',
-    workstationHidden: false,
+    dashboardHidden: false,
+    dashboardOpen: true,
+    surface: 'session',
+    workstationHidden: true,
   });
   assert.equal(value.openedState.dashboardHidden, false);
   assert.equal(value.openedState.dashboardOpen, true);
@@ -97,14 +101,18 @@ try {
   assert.equal(value.openedState.text.includes('Tutorials'), false);
   assert.equal(value.openedState.text.includes('Prop firm'), false);
   assert.equal(value.openedState.forwardExists, false);
-  assert.equal(value.openedState.surface, 'dashboard');
+  assert.equal(value.openedState.surface, 'session');
   assert.equal(value.openedState.toggleExpanded, 'true');
   assert.equal(value.openedState.transportHidden, true);
   assert.equal(value.openedState.workstationHidden, true);
+  assert.equal(value.afterCreate.dashboardHidden, true);
+  assert.equal(value.afterCreate.dashboardOpen, false);
   assert.equal(value.afterCreate.emptyHidden, true);
   assert.equal(value.afterCreate.rows, 1);
   assert.equal(value.afterCreate.sessionCount, 1);
   assert.equal(value.afterCreate.activeId, value.afterCreate.sessionId);
+  assert.equal(value.afterCreate.surface, 'workstation');
+  assert.equal(value.afterCreate.workstationHidden, false);
   assert.match(value.afterCreate.sessionText, /NQ 1m/);
   assert.equal(value.afterOpenSession.dashboardHidden, true);
   assert.equal(value.afterOpenSession.dashboardOpen, false);
@@ -112,10 +120,10 @@ try {
   assert.equal(value.afterOpenSession.surface, 'workstation');
   assert.equal(value.afterOpenSession.transportHidden, false);
   assert.equal(value.afterOpenSession.workstationHidden, false);
-  assert.equal(value.afterOpenChart.dashboardHidden, true);
-  assert.equal(value.afterOpenChart.dashboardOpen, false);
-  assert.equal(value.afterOpenChart.surface, 'workstation');
-  assert.equal(value.afterOpenChart.workstationHidden, false);
+  assert.equal(value.afterReturnToSession.dashboardHidden, false);
+  assert.equal(value.afterReturnToSession.dashboardOpen, true);
+  assert.equal(value.afterReturnToSession.surface, 'session');
+  assert.equal(value.afterReturnToSession.workstationHidden, true);
 } finally {
   await page.cleanup();
 }
