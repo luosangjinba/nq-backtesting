@@ -185,6 +185,16 @@ export const DISPLAY_TIMEFRAME_EVENTS = Object.freeze({
   APPLIED: 'displayTimeframe:applied',
 });
 
+export const PLAYBACK_PERIOD_COMMANDS = Object.freeze({
+  GET_STATE: 'playbackPeriod.getState',
+  SET_PERIOD: 'playbackPeriod.setPeriod',
+  SET_SYNC: 'playbackPeriod.setSync',
+});
+
+export const PLAYBACK_PERIOD_EVENTS = Object.freeze({
+  CHANGED: 'playbackPeriod:changed',
+});
+
 export const LAYOUT_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'layout.getSnapshot',
   SET_ACTIVE_PANE: 'layout.setActivePane',
