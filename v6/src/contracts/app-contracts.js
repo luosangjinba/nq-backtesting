@@ -27,6 +27,15 @@ export const CHART_ENTRY_EVENTS = Object.freeze({
   ACTIVATED: 'chartEntry:activated',
 });
 
+export const CHART_ENTRY_RESTART_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryRestart.getState',
+  RESTART: 'chartEntryRestart.restart',
+});
+
+export const CHART_ENTRY_RESTART_EVENTS = Object.freeze({
+  RESTARTED: 'chartEntryRestart:restarted',
+});
+
 export const CHART_ENTRY_INITIALIZATION_COMMANDS = Object.freeze({
   GET_STATE: 'chartEntryInitialization.getState',
 });
