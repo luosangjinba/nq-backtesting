@@ -1078,6 +1078,27 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 57 - Backtesting Session Setup Form
+
+Add the V5-style simplified Backtesting Session setup flow to the standalone
+session surface. The first V6 form exposes only `Start`, `End`, and an
+enter-chart action; symbol and timeframe continue using V6 defaults until their
+own owners are introduced.
+
+Acceptance:
+
+- Backtesting session entry becomes a setup form with Start and End
+  `datetime-local` inputs and an enter-chart submit action;
+- valid submit creates a session with `startTime` and `endTime`, then enters the
+  chart workstation through session runtime identity only;
+- invalid date/time or Start >= End shows a friendly form status and does not
+  enter the chart;
+- creation still does not request chart bars, replay loads, viewport mutations,
+  adapter writes, or bar-cache windows from route/shell code;
+- Sessions list still opens existing sessions through `session.open`;
+- session dashboard, session runtime, app shell, product baseline, guardrails,
+  and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
