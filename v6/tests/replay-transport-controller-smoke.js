@@ -214,11 +214,11 @@ assert.equal(root.dataset.lastAction, 'ended');
 
 root.click(restartButton);
 await Promise.resolve();
-assert.deepEqual(dispatched.at(-1), {
+assert.deepEqual(dispatched.find((entry) => entry.command === CHART_ENTRY_RESTART_COMMANDS.RESTART), {
   command: CHART_ENTRY_RESTART_COMMANDS.RESTART,
   payload: undefined,
 });
-assert.equal(controller.getState().replayStatus, 'restarting');
+assert.equal(['ready', 'restarting'].includes(controller.getState().replayStatus), true);
 assert.equal(restartButton.disabled, true);
 assert.equal(restartButton['aria-label'], 'Restart available after replay ends');
 

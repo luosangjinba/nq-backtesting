@@ -197,7 +197,12 @@ export function mountReplayTransport(root, {
       return Promise.resolve(null);
     }
     root.dataset.lastAction = action;
-    return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).catch((error) => {
+    return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).then((result) => {
+      if (action === 'restart') {
+        scheduleReplayStateRefreshAfterRestart();
+      }
+      return result;
+    }).catch((error) => {
       root.dataset.lastError = error?.message || String(error);
       if (action === 'play-toggle') {
       setState({
@@ -265,6 +270,24 @@ export function mountReplayTransport(root, {
       .then((replayState) => {
         if (replayState) {
           syncFromReplayEvent(replayState);
+        }
+      })
+      .catch((error) => {
+        root.dataset.lastError = error?.message || String(error);
+      });
+  }
+
+  function scheduleReplayStateRefreshAfterRestart(attempt = 0) {
+    if (root.dataset.lastAction !== 'restart') return;
+    Promise.resolve(dispatchCommand(REPLAY_COMMANDS.GET_STATE))
+      .then((replayState) => {
+        if (replayState?.status && replayState.status !== 'ended') {
+          syncFromReplayEvent(replayState);
+          return;
+        }
+        if (attempt < 40) {
+          const setTimeoutFn = root.ownerDocument?.defaultView?.setTimeout || globalThis.setTimeout;
+          setTimeoutFn(() => scheduleReplayStateRefreshAfterRestart(attempt + 1), 25);
         }
       })
       .catch((error) => {
