@@ -171,6 +171,10 @@ Chart entry has a dedicated runtime boundary:
   data plus viewport payloads. It must not write chart data, mutate viewport
   intent, call `defaultWall.load`, fetch bars, advance replay, or call chart
   adapter APIs.
+- `runtime.chartEntryProjectionApply` may consume prepared projection payloads
+  and dispatch `chartViewport.ensureIntent` followed by `chartData.replaceBars`.
+  It must not call chart adapter APIs directly, call `defaultWall.load`, fetch
+  bars, advance replay, or re-own bar/replay state.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu
