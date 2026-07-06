@@ -987,18 +987,39 @@ Verification:
 
 ### Step 52 - Chart Toolbar Chrome Cleanup
 
-Remove or replace the remaining chart-internal text toolbar controls so the
-single-pane chart surface does not duplicate the top toolbar and right utility
-rail.
+Completed in commits:
+
+- `b3624e4f fix(v6): clean duplicate chart toolbar chrome`
+- `e121d712 docs(v6): guard chart chrome cleanup`
+
+Verification:
+
+- `node v6/tests/chart-toolbar-cleanup-browser-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/right-utility-rail-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 53 - Session Dashboard Shell Direction
+
+Define and reserve the separate session dashboard/list surface that the chart
+top-left back arrow will navigate to later.
 
 Acceptance:
 
-- chart surface no longer exposes duplicate `Go to` / `Layout` text buttons;
-- chart status/OHLC remains pane-local at the chart top-left;
-- top toolbar/right rail remain the shell homes for layout and go-to commands;
+- dashboard is a separate surface from the chart workstation;
+- chart top-left back arrow remains the only chart-to-dashboard navigation
+  affordance;
+- no chart-forward arrow is reintroduced;
+- dashboard/session list remains shell-only until session persistence/navigation
+  ownership is explicit;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, adapter state, bar cache, or session persistence;
-- app-shell, product baseline, status-readout, UI guardrails, parity audit, and
+- app-shell, product baseline, UI guardrails, parity audit, sessions surface, and
   boundary gates remain passing.
 
 ## Deferred Until Later Gates
