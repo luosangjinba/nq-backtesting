@@ -14,42 +14,33 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 77 - Transport Control Visual State Audit.
-  Transport controls now expose explicit active/disabled DOM state, ignore
-  disabled delegated actions, and have a browser matrix for ready, playing,
-  ended, and restarted states.
+- Latest completed step: Step 78 - Transport Focus And Keyboard Polish.
+  Transport controls now have visible focus rings, predictable replay-period
+  menu keyboard behavior, and browser coverage that shortcuts do not fire while
+  menus or editable controls own focus.
 
 ## Next Executable Steps
 
-### Step 78 - Transport Focus And Keyboard Polish
+### Step 79 - Transport Drag Position Persistence
 
-Polish replay transport focus behavior and keyboard affordances now that the
-visual state matrix is stable.
+Persist the floating replay transport position after drag while keeping it
+viewport-local shell UI state.
 
-Status: active.
-
-Notes:
-
-- transport shortcuts must not fire while a transport popover/menu is open;
-- focus behavior should be visible and testable without changing replay
-  runtime state ownership.
+Status: planned.
 
 Scope:
 
-- keep all behavior in shell transport UI and command dispatch boundaries;
-- do not add replay cursor, chart data, bars, or viewport ownership;
-- verify keyboard shortcuts do not interfere with editable controls or open
-  menus.
+- keep drag position out of replay, chart data, bars, and viewport intent;
+- clamp restored position to the current browser viewport;
+- preserve the default centered position until the user drags the transport.
 
 Acceptance:
 
-- focus rings are visible on transport buttons, period menu items, speed slider,
-  and sync toggle;
-- keyboard shortcuts remain disabled in terminal replay state;
-- period menu keyboard/focus behavior is predictable enough for the current
-  shell scope;
-- browser smoke covers focusable transport controls without mutating chart,
-  bars, or viewport ownership.
+- dragging stores a transport-local position preference;
+- route re-entry or reload restores the transport within viewport bounds;
+- reset/session/dashboard visibility does not mutate replay cursor or chart
+  viewport state;
+- browser smoke covers drag, restore, and clamp behavior.
 
 ## Completed Steps
 
@@ -1587,6 +1578,30 @@ Verification:
 - `node v6/tests/chart-entry-restart-browser-smoke.js`
 - `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
 - `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 78 - Transport Focus And Keyboard Polish
+
+Completed in commits:
+
+- `6e3f37ef docs(v6): scope step seventy eight transport focus`
+- `5e4a3b81 feat(v6): polish transport focus keyboard`
+- `72f2bf24 test(v6): verify transport focus keyboard`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/replay-transport-focus-keyboard-browser-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/chart-entry-restart-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
