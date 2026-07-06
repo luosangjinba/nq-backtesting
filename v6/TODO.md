@@ -1117,6 +1117,27 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 59 - Chart Entry Initialization Plan
+
+Define the first replay/chart initialization plan produced from chart-entry
+activation. This step should describe what future owners must do after entering
+the chart, but must not dispatch replay, bar-data, chart-data, chart-viewport,
+or adapter commands.
+
+Acceptance:
+
+- `runtime.chartEntry` stores an explicit initialization plan after session
+  create/open activation;
+- the plan includes active session identity and named future steps for resolving
+  start bar, loading bounded replay context, loading replay state, projecting the
+  default wall, and applying chart data/viewport through their owners;
+- activation state remains observable through `chartEntry.getState`;
+- no data-loading or chart mutation command is dispatched by chart-entry in this
+  step;
+- missing-session failures leave the existing plan unchanged;
+- chart-entry runtime, app shell, session dashboard, product baseline, and
+  boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
