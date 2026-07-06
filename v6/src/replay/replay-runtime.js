@@ -13,6 +13,7 @@ function cloneState(state) {
 }
 
 export function createReplayRuntime({
+  enableInternalTimer = true,
   playIntervalMs = 500,
   timer = globalThis,
 } = {}) {
@@ -76,7 +77,7 @@ export function createReplayRuntime({
   function play() {
     const playing = setState(markReplayPlaying(requireState()));
     emit(REPLAY_EVENTS.PLAYBACK_CHANGED, playing);
-    if (playing.status !== 'playing' || playbackTimerId !== null) {
+    if (!enableInternalTimer || playing.status !== 'playing' || playbackTimerId !== null) {
       return playing;
     }
     playbackTimerId = timer.setInterval(() => {

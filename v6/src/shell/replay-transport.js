@@ -1,6 +1,6 @@
 import {
+  CHART_ENTRY_AUTO_PLAY_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
-  REPLAY_COMMANDS,
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
@@ -43,11 +43,12 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
     case 'play-toggle': {
       const playing = !state.playing;
       return Object.freeze({
-        command: playing ? REPLAY_COMMANDS.PLAY : REPLAY_COMMANDS.PAUSE,
+        command: playing ? CHART_ENTRY_AUTO_PLAY_COMMANDS.START : CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP,
         nextState: createReplayTransportState({
           playing,
           speed: state.speed,
         }),
+        payload: playing ? { speed: state.speed } : undefined,
       });
     }
     default:
@@ -119,7 +120,7 @@ export function mountReplayTransport(root, {
   function dispatchAction(action) {
     const resolved = resolveReplayTransportAction(action, state);
     setState(resolved.nextState);
-    return Promise.resolve(dispatchCommand(resolved.command)).catch((error) => {
+    return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).catch((error) => {
       root.dataset.lastError = error?.message || String(error);
       if (action === 'play-toggle') {
         setState({

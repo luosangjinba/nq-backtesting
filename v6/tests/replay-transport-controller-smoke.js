@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {
+  CHART_ENTRY_AUTO_PLAY_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
-  REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
   createReplayTransportState,
@@ -78,9 +78,10 @@ assert.deepEqual(resolveReplayTransportAction('next', initialState), {
   nextState: initialState,
 });
 const play = resolveReplayTransportAction('play-toggle', initialState);
-assert.equal(play.command, REPLAY_COMMANDS.PLAY);
+assert.equal(play.command, CHART_ENTRY_AUTO_PLAY_COMMANDS.START);
 assert.equal(play.nextState.playing, true);
-assert.equal(resolveReplayTransportAction('play-toggle', play.nextState).command, REPLAY_COMMANDS.PAUSE);
+assert.deepEqual(play.payload, { speed: 1 });
+assert.equal(resolveReplayTransportAction('play-toggle', play.nextState).command, CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP);
 assert.deepEqual(syncReplayTransportStateFromReplay({ playing: false, speed: 2 }, { status: 'playing' }), {
   playing: true,
   speed: 2,
@@ -103,8 +104,8 @@ root.speedButtons = [speedButton];
 const dispatched = [];
 const eventListeners = new Map();
 const controller = mountReplayTransport(root, {
-  dispatchCommand: async (command) => {
-    dispatched.push(command);
+  dispatchCommand: async (command, payload) => {
+    dispatched.push({ command, payload });
     return { ok: true };
   },
   subscribeEvent: (eventName, listener) => {
@@ -115,12 +116,18 @@ const controller = mountReplayTransport(root, {
 
 root.click(playButton);
 await Promise.resolve();
-assert.equal(dispatched.at(-1), REPLAY_COMMANDS.PLAY);
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_AUTO_PLAY_COMMANDS.START,
+  payload: { speed: 1 },
+});
 assert.equal(controller.getState().playing, true);
 
 root.click(nextButton);
 await Promise.resolve();
-assert.equal(dispatched.at(-1), CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
+  payload: undefined,
+});
 assert.equal(controller.getState().playing, true);
 
 root.click(speedButton);
@@ -139,11 +146,17 @@ assert.equal(playButton['aria-label'], 'Pause replay');
 
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();
-assert.equal(dispatched.at(-1), CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
+  payload: undefined,
+});
 
 fakeDocument.keydown({ key: ' ', target: root });
 await Promise.resolve();
-assert.equal(dispatched.at(-1), REPLAY_COMMANDS.PAUSE);
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP,
+  payload: undefined,
+});
 assert.equal(controller.getState().playing, false);
 
 controller.destroy();

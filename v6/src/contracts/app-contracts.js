@@ -84,6 +84,18 @@ export const CHART_ENTRY_MANUAL_NEXT_EVENTS = Object.freeze({
   ADVANCED: 'chartEntryManualNext:advanced',
 });
 
+export const CHART_ENTRY_AUTO_PLAY_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryAutoPlay.getState',
+  START: 'chartEntryAutoPlay.start',
+  STOP: 'chartEntryAutoPlay.stop',
+});
+
+export const CHART_ENTRY_AUTO_PLAY_EVENTS = Object.freeze({
+  STARTED: 'chartEntryAutoPlay:started',
+  STOPPED: 'chartEntryAutoPlay:stopped',
+  TICKED: 'chartEntryAutoPlay:ticked',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
