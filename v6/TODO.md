@@ -27,6 +27,8 @@ Tighten edge behavior around automatic playback after the first working owner
 path: end-of-session handling, speed changes while playing, and UI state
 reconciliation when playback stops itself.
 
+Status: active.
+
 Acceptance:
 
 - playback reaching the session end stops the auto-play owner and leaves
