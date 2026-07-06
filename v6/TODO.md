@@ -28,7 +28,7 @@
 Turn the Recent Sessions search, sort, and row controls into explicit
 metadata-only dashboard behavior.
 
-Status: planned.
+Status: active.
 
 Notes for execution:
 
