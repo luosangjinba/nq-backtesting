@@ -14,29 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 71 - Chart Entry Playback Period Sync Policy.
-  Transport playback period now has an explicit runtime owner, a synced/unsynced
-  state model, and browser coverage proving manual period changes do not mutate
-  pane display timeframe.
+- Latest completed step: Step 72 - Chart Entry Playback Period Execution
+  Integration. Manual next now consumes owned playback period state and
+  auto-play reuses the same path, so non-1m and sync-on periods advance the
+  correct number of source bars without transport UI writing chart/replay state.
 
 ## Next Executable Steps
 
-### Step 72 - Chart Entry Playback Period Execution Integration
+### Step 73 - Playback Period Boundary Gates
 
-Make manual next and auto-play consume the owned playback period state without
-collapsing it into chart display timeframe.
+Harden playback-period execution near replay end and latency-sensitive paths.
 
-Status: active.
+Status: planned.
 
 Acceptance:
 
-- manual next consults playback period through command boundaries before
-  deciding how many source bars to reveal;
-- auto-play ticks use the same period policy as manual next;
-- sync-on playback period follows active pane display timeframe but still does
-  not let transport UI write pane/chart state directly;
-- browser smoke covers at least one non-1m manual period and one sync-on period;
-- existing visible latency and reset-view gates remain passing.
+- large playback periods stop cleanly at replay end without over-appending;
+- auto-play stops cleanly when a multi-bar tick reaches replay end;
+- browser latency gate covers a non-1m playback period with visible candle
+  appearance;
+- reset view and playback period state remain independent.
 
 ## Completed Steps
 
@@ -1409,6 +1406,36 @@ Verification:
 - `node v6/tests/replay-chart-readiness-audit-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 72 - Chart Entry Playback Period Execution Integration
+
+Completed in commits:
+
+- `6241ffab docs(v6): scope step seventy two playback execution`
+- `b112ba2a feat(v6): apply playback period to manual next`
+- `d20f9cbc test(v6): verify playback period execution`
+
+Verification:
+
+- `node v6/tests/chart-entry-playback-period-policy-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/playback-period-runtime-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-playback-period-browser-smoke.js`
+- `node v6/tests/chart-entry-manual-next-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/playback-period-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Later Gates
