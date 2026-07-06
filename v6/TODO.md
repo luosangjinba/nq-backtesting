@@ -14,36 +14,36 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 76 - Restart UX Polish And Semantics. Restart now
-  uses a distinct restart icon/marker instead of the old truncate placeholder,
-  and transport refreshes replay state after restart to avoid stale ended
-  feedback.
+- Latest completed step: Step 77 - Transport Control Visual State Audit.
+  Transport controls now expose explicit active/disabled DOM state, ignore
+  disabled delegated actions, and have a browser matrix for ready, playing,
+  ended, and restarted states.
 
 ## Next Executable Steps
 
-### Step 77 - Transport Control Visual State Audit
+### Step 78 - Transport Focus And Keyboard Polish
 
-Audit all replay transport controls for final visual state consistency before
-adding more workflow features.
+Polish replay transport focus behavior and keyboard affordances now that the
+visual state matrix is stable.
 
-Status: active.
+Status: planned.
 
 Scope:
 
-- keep replay transport as shell-owned viewport UI that dispatches commands;
-- audit only control state semantics and visual markers, not replay cursor,
-  chart data, bars, or viewport intent ownership;
-- make disabled click/keyboard behavior explicit enough to test instead of
-  relying only on browser native disabled-button behavior.
+- keep all behavior in shell transport UI and command dispatch boundaries;
+- do not add replay cursor, chart data, bars, or viewport ownership;
+- verify keyboard shortcuts do not interfere with editable controls or open
+  menus.
 
 Acceptance:
 
-- play/pause/restart/next/period/sync disabled and active states are visually
-  consistent;
-- no control uses stale placeholder semantics;
-- keyboard and click behavior match button disabled states;
-- screenshot or browser smoke covers normal, playing, ended, and restarted
-  transport states.
+- focus rings are visible on transport buttons, period menu items, speed slider,
+  and sync toggle;
+- keyboard shortcuts remain disabled in terminal replay state;
+- period menu keyboard/focus behavior is predictable enough for the current
+  shell scope;
+- browser smoke covers focusable transport controls without mutating chart,
+  bars, or viewport ownership.
 
 ## Completed Steps
 
@@ -1559,6 +1559,29 @@ Verification:
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/playback-period-browser-smoke.js`
 - `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 77 - Transport Control Visual State Audit
+
+Completed in commits:
+
+- `e299cfff docs(v6): scope step seventy seven transport audit`
+- `270259e2 feat(v6): harden transport control states`
+- `6e6cb3c2 test(v6): audit transport visual states`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/chart-entry-restart-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
