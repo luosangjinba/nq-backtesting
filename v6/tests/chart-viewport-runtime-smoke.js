@@ -124,6 +124,29 @@ assert.deepEqual(record.projection, {
   to: 7,
 });
 
+const reset = await dispatchCommand(CHART_VIEWPORT_COMMANDS.RESET_VIEW, {
+  chartBarsRevision: 3,
+  latestLogicalIndex: 3,
+  paneId: 'pane-default',
+});
+assert.equal(reset.chartBarsRevision, 3);
+assert.equal(reset.intent.cursorTimestamp, 1780306260);
+assert.equal(reset.intent.origin, 'default');
+assert.equal(reset.intent.revision, 2);
+assert.equal(reset.intent.latestOffsetBars, 8);
+assert.equal(reset.intent.spanBars, null);
+assert.deepEqual(reset.projection, {
+  from: -109,
+  latestLogicalIndex: 3,
+  latestOffsetBars: 8,
+  origin: 'default',
+  revision: 2,
+  spanBars: 120,
+  to: 11,
+});
+assert.equal(intentEvents.at(-1).intent.origin, 'default');
+assert.equal(projectedEvents.at(-1).projection.origin, 'default');
+
 assert.equal((await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_SNAPSHOT)).panes.length, 1);
 assert.equal(listenerCount(CHART_DATA_EVENTS.BARS_CHANGED), 1);
 assert.equal(listenerCount(REPLAY_EVENTS.ADVANCED), 1);

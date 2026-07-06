@@ -1,6 +1,7 @@
 import {
   createDefaultWallIntent,
   promoteMeasuredRangeToManualIntent,
+  resetToDefaultWallIntent,
   updateIntentCursor,
 } from '../viewport/viewport-intent.js';
 import { projectIntentToLogicalRange } from '../viewport/viewport-projection.js';
@@ -90,6 +91,29 @@ export function createChartViewportStore({
     return cloneRecord(record);
   }
 
+  function resetView(paneId, {
+    cursorTimestamp,
+    latestOffsetBars = defaultRightOffsetBars,
+  } = {}) {
+    const id = normalizePaneId(paneId);
+    const existing = recordsByPaneId.get(id);
+    if (!existing) {
+      throw new Error(`Chart viewport pane "${id}" has no viewport intent.`);
+    }
+    const record = {
+      ...existing,
+      intent: resetToDefaultWallIntent(existing.intent, {
+        cursorTimestamp: cursorTimestamp === undefined
+          ? existing.intent.cursorTimestamp
+          : normalizeCursorTimestamp(cursorTimestamp),
+        latestOffsetBars,
+      }),
+      projection: null,
+    };
+    recordsByPaneId.set(id, record);
+    return cloneRecord(record);
+  }
+
   function updateCursor(cursorTimestamp) {
     const timestamp = normalizeCursorTimestamp(cursorTimestamp);
     const records = [];
@@ -137,6 +161,7 @@ export function createChartViewportStore({
     applyChartDataRevision,
     ensureIntent,
     getRecord,
+    resetView,
     setManualIntent,
     snapshot,
     updateCursor,

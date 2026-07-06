@@ -157,6 +157,7 @@ export const CHART_VIEWPORT_COMMANDS = Object.freeze({
   ENSURE_INTENT: 'chartViewport.ensureIntent',
   GET_PANE: 'chartViewport.getPane',
   GET_SNAPSHOT: 'chartViewport.getSnapshot',
+  RESET_VIEW: 'chartViewport.resetView',
   SET_MANUAL_INTENT: 'chartViewport.setManualIntent',
 });
 

@@ -42,6 +42,22 @@ export function createChartViewportRuntime({
         emit(CHART_VIEWPORT_EVENTS.INTENT_CHANGED, record);
         return record;
       }),
+      registerCommand(CHART_VIEWPORT_COMMANDS.RESET_VIEW, (payload = {}) => {
+        const reset = store.resetView(payload.paneId, payload);
+        emit(CHART_VIEWPORT_EVENTS.INTENT_CHANGED, reset);
+        if (
+          Number.isFinite(Number(payload.chartBarsRevision)) &&
+          Number.isFinite(Number(payload.latestLogicalIndex))
+        ) {
+          const projected = store.applyChartDataRevision(payload.paneId, {
+            chartBarsRevision: payload.chartBarsRevision,
+            latestLogicalIndex: payload.latestLogicalIndex,
+          });
+          emit(CHART_VIEWPORT_EVENTS.PROJECTED, projected);
+          return projected;
+        }
+        return reset;
+      }),
       registerCommand(CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION, (payload = {}) => {
         const record = store.applyChartDataRevision(payload.paneId, payload);
         emit(CHART_VIEWPORT_EVENTS.PROJECTED, record);

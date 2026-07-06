@@ -61,8 +61,34 @@ assert.equal(cursorUpdated.intent.revision, 1);
 assert.equal(cursorUpdated.intent.latestOffsetBars, 4);
 assert.equal(cursorUpdated.intent.spanBars, 48);
 
+const reset = store.resetView('pane-default');
+assert.equal(reset.intent.cursorTimestamp, 1780306260);
+assert.equal(reset.intent.origin, 'default');
+assert.equal(reset.intent.revision, 2);
+assert.equal(reset.intent.latestOffsetBars, 8);
+assert.equal(reset.intent.spanBars, null);
+assert.equal(reset.projection, null);
+
+const resetProjected = store.applyChartDataRevision('pane-default', {
+  chartBarsRevision: 3,
+  latestLogicalIndex: 22,
+});
+assert.deepEqual(resetProjected.projection, {
+  from: -70,
+  latestLogicalIndex: 22,
+  latestOffsetBars: 8,
+  origin: 'default',
+  revision: 2,
+  spanBars: 100,
+  to: 30,
+});
+
 assert.throws(
   () => store.setManualIntent('missing-pane', { latestOffsetBars: 1, spanBars: 10 }),
+  /no viewport intent/
+);
+assert.throws(
+  () => store.resetView('missing-pane'),
   /no viewport intent/
 );
 
