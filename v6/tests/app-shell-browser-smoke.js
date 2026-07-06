@@ -98,12 +98,16 @@ async function main() {
         document.querySelector('[data-v6-dashboard-create-session]').click();
         await new Promise((resolve) => setTimeout(resolve, 0));
         await new Promise((resolve) => setTimeout(resolve, 0));
+        const commandsModule = await import('/v6/src/runtime/commands.js');
         const openState = root.__v6SessionDashboard.getState();
-        document.querySelector('[data-v6-dashboard-open-chart]').click();
+        const createdSessionId = openState.sessions[0]?.id || '';
+        document.querySelector('[data-v6-dashboard-open-session]').click();
         await new Promise((resolve) => setTimeout(resolve, 0));
         return JSON.stringify({
+          activeSessionId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
           closedSurface: root.dataset.v6Surface,
           count: openState.sessionCount,
+          createdSessionId,
           dashboardOpenAfterReturn: root.__v6SessionDashboard.getState().open,
           openSurface: 'dashboard',
           rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
@@ -117,6 +121,7 @@ async function main() {
     assert.equal(sessionFlow.workstationHiddenAfterReturn, false);
     assert.equal(sessionFlow.count, 1);
     assert.equal(sessionFlow.rows, 1);
+    assert.equal(sessionFlow.activeSessionId, sessionFlow.createdSessionId);
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {

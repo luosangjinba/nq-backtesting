@@ -32,16 +32,20 @@ try {
       document.querySelector('[data-v6-dashboard-create-session]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       await new Promise((resolve) => setTimeout(resolve, 0));
+      const commandsModule = await import('/v6/src/runtime/commands.js');
       const afterCreate = {
+        activeId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
         emptyHidden: document.querySelector('[data-v6-dashboard-empty]').hidden,
         rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
         sessionCount: root.__v6SessionDashboard.getState().sessionCount,
+        sessionId: root.__v6SessionDashboard.getState().sessions[0]?.id || '',
         sessionText: document.querySelector('[data-v6-dashboard-session-row]')?.textContent || '',
       };
 
       document.querySelector('[data-v6-dashboard-open-session]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       const afterOpenSession = {
+        activeId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         surface: root.dataset.v6Surface,
@@ -94,9 +98,11 @@ try {
   assert.equal(value.afterCreate.emptyHidden, true);
   assert.equal(value.afterCreate.rows, 1);
   assert.equal(value.afterCreate.sessionCount, 1);
+  assert.equal(value.afterCreate.activeId, value.afterCreate.sessionId);
   assert.match(value.afterCreate.sessionText, /NQ 1m/);
   assert.equal(value.afterOpenSession.dashboardHidden, true);
   assert.equal(value.afterOpenSession.dashboardOpen, false);
+  assert.equal(value.afterOpenSession.activeId, value.afterCreate.sessionId);
   assert.equal(value.afterOpenSession.surface, 'workstation');
   assert.equal(value.afterOpenSession.transportHidden, false);
   assert.equal(value.afterOpenSession.workstationHidden, false);

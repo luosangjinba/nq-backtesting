@@ -98,6 +98,12 @@ export function mountSessionDashboard(root, {
     return getState();
   }
 
+  async function openSession(id) {
+    await dispatchCommand(SESSION_COMMANDS.OPEN, id);
+    setOpen(false);
+    return getState();
+  }
+
   const toggleListener = () => setOpen(true);
   toggle.addEventListener('click', toggleListener);
   unsubscriptions.push(() => toggle.removeEventListener('click', toggleListener));
@@ -122,7 +128,7 @@ export function mountSessionDashboard(root, {
     const listener = (event) => {
       const openSessionButton = event.target.closest?.('[data-v6-dashboard-open-session]');
       if (openSessionButton && list.contains(openSessionButton)) {
-        setOpen(false);
+        void openSession(openSessionButton.dataset.v6DashboardOpenSession);
       }
     };
     list.addEventListener('click', listener);
@@ -142,6 +148,7 @@ export function mountSessionDashboard(root, {
   return {
     createSession,
     getState,
+    openSession,
     refresh,
     setOpen,
     unmount() {
