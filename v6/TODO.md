@@ -14,26 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 74 - Playback Period UI Feedback. Transport now
-  exposes ended replay state clearly, disables Play/Next at end, keeps
-  playback-period controls usable, and preserves playing feedback during
-  auto-play replay advances.
+- Latest completed step: Step 75 - Replay End Restart Entry Policy. Ended
+  replay now has an explicit restart control backed by a chart-entry restart
+  owner, and restart re-enters the session/chart-entry initialization chain
+  without overloading Play or Reset View.
 
 ## Next Executable Steps
 
-### Step 75 - Replay End Restart Entry Policy
+### Step 76 - Restart UX Polish And Semantics
 
-Define the user-facing way to restart or reset replay after the transport reaches
-ended state.
+Make the restart transport control easier to understand visually and align it
+with FXReplay-style control semantics.
 
-Status: active.
+Status: planned.
 
 Acceptance:
 
-- restart/reset action is explicit and does not overload disabled Play;
-- restart path goes through replay/chart-entry owners, not direct chart writes;
-- browser smoke covers ended -> restart -> replay visible again;
-- reset view remains viewport-only and is not used as replay restart.
+- restart icon/label is distinct from truncate/history semantics;
+- available/disabled states are visually clear at normal and ended playback;
+- accessible labels remain explicit;
+- UI guardrail/browser smoke covers the final transport button semantics.
 
 ## Completed Steps
 
@@ -1486,6 +1486,35 @@ Verification:
 - `node v6/tests/replay-chart-readiness-audit-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/playback-period-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 75 - Replay End Restart Entry Policy
+
+Completed in commits:
+
+- `fac490d4 docs(v6): scope step seventy five restart entry`
+- `5e99061b feat(v6): add chart entry restart owner`
+- `996fb2a1 feat(v6): wire explicit replay restart control`
+- `14cdef1f test(v6): verify replay restart browser flow`
+
+Verification:
+
+- `node v6/tests/chart-entry-restart-runtime-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-restart-browser-smoke.js`
 - `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
 - `node v6/tests/replay-transport-browser-smoke.js`
 - `node v6/tests/chart-entry-playback-period-browser-smoke.js`
