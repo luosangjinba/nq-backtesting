@@ -14,26 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 72 - Chart Entry Playback Period Execution
-  Integration. Manual next now consumes owned playback period state and
-  auto-play reuses the same path, so non-1m and sync-on periods advance the
-  correct number of source bars without transport UI writing chart/replay state.
+- Latest completed step: Step 73 - Playback Period Boundary Gates. Playback
+  period execution now no-ops cleanly when replay is already ended, stops at
+  replay end without over-appending, and has browser coverage for non-1m visible
+  candle appearance plus reset-view independence.
 
 ## Next Executable Steps
 
-### Step 73 - Playback Period Boundary Gates
+### Step 74 - Playback Period UI Feedback
 
-Harden playback-period execution near replay end and latency-sensitive paths.
+Make playback-period end-state and disabled/available actions clearer in the
+transport UI.
 
-Status: active.
+Status: planned.
 
 Acceptance:
 
-- large playback periods stop cleanly at replay end without over-appending;
-- auto-play stops cleanly when a multi-bar tick reaches replay end;
-- browser latency gate covers a non-1m playback period with visible candle
-  appearance;
-- reset view and playback period state remain independent.
+- transport reflects replay ended state without leaving play controls ambiguous;
+- manual next at ended has an explicit UI/status outcome;
+- period menu and sync toggle remain usable independently of ended playback;
+- browser smoke covers end-state feedback after a large playback period.
 
 ## Completed Steps
 
@@ -1427,6 +1427,37 @@ Verification:
 - `node v6/tests/replay-chart-readiness-audit-smoke.js`
 - `node v6/tests/fxreplay-ui-guardrails-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-playback-period-browser-smoke.js`
+- `node v6/tests/chart-entry-manual-next-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/playback-period-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 73 - Playback Period Boundary Gates
+
+Completed in commits:
+
+- `d7180ed7 docs(v6): scope step seventy three boundaries`
+- `fc745805 fix(v6): guard playback period replay end`
+- `33e681eb test(v6): gate playback period browser boundaries`
+
+Verification:
+
+- `node v6/tests/chart-entry-playback-period-boundary-runtime-smoke.js`
+- `node v6/tests/chart-entry-playback-period-policy-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/playback-period-runtime-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
 - `node v6/tests/chart-entry-playback-period-browser-smoke.js`
 - `node v6/tests/chart-entry-manual-next-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
