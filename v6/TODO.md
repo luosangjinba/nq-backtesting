@@ -1238,6 +1238,32 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 65 - Chart Entry Projection Apply Owner
+
+Introduce the first projection-apply owner after projection preparation. This
+step may dispatch chart-data and chart-viewport commands in a controlled order
+to make the initial default-wall bars visible through existing chart surface
+bridges, but it must not call chart adapter APIs directly, call
+`defaultWall.load`, fetch bars, advance replay, or re-own bar/replay state.
+
+Acceptance:
+
+- a dedicated projection-apply runtime subscribes to
+  `chartEntryProjectionPreparation:prepared`;
+- the runtime dispatches `chartViewport.ensureIntent` before
+  `chartData.replaceBars` using the prepared payloads;
+- applied state is exposed through an explicit command for tests and future
+  owners;
+- applied events carry cloned chart and viewport records, not mutable runtime
+  internals;
+- apply failures leave the owner in error state without calling
+  `defaultWall.load`, fetching bars, advancing replay, or touching adapter APIs;
+- app shell registers the runtime after projection preparation;
+- app shell smoke verifies initial chart-data and viewport state are present
+  after entering the chart;
+- projection-apply runtime, projection-preparation runtime, app shell, session
+  dashboard, product baseline, and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
