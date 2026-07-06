@@ -1008,12 +1008,17 @@ Verification:
 
 Define and reserve the separate session dashboard/list surface that the chart
 top-left back arrow will navigate to later.
+This step should implement shell-level dashboard/workstation visibility
+switching first; durable route URLs and persisted session navigation remain
+deferred until their owners exist.
 
 Acceptance:
 
 - dashboard is a separate surface from the chart workstation;
-- chart top-left back arrow remains the only chart-to-dashboard navigation
-  affordance;
+- chart top-left back arrow opens the dashboard shell and remains the only
+  chart-to-dashboard navigation affordance;
+- dashboard can return to the chart workstation without reintroducing a chart
+  forward arrow;
 - no chart-forward arrow is reintroduced;
 - dashboard/session list remains shell-only until session persistence/navigation
   ownership is explicit;
