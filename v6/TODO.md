@@ -1049,6 +1049,7 @@ Completed in commits:
 - `50ebe9d4 docs(v6): scope step fifty five session open contract`
 - `be79ea77 feat(v6): add session open command`
 - `9cb1f049 fix(v6): open dashboard sessions through runtime`
+- `8191b57c fix(v6): remove duplicate session dashboard tabs`
 
 Verification:
 
