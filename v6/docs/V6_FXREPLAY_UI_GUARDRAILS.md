@@ -107,6 +107,18 @@ The chart surface itself should stay focused on pane-local chart information:
 - The chart surface may contain chart overlays and pane-local readouts, but not
   a second command toolbar.
 
+## Session Dashboard
+
+The session dashboard/list is a separate surface from the chart workstation:
+
+- The chart top-left back arrow opens the session dashboard shell.
+- Do not add a chart-forward arrow. Returning to the chart happens from the
+  dashboard surface.
+- Session list and dashboard actions may use session commands, but must not own
+  chart bars, replay cursor, viewport intent, adapter state, or bar cache.
+- Keep dashboard statistics and trading/account analytics shell-only until their
+  own runtime owners exist.
+
 ## Timeframe Menu
 
 The interval menu should behave like a tool dropdown:
