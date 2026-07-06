@@ -23,11 +23,17 @@ using V6 defaults until their own owners are introduced. Creating the session
 still does not request chart bars, replay loads, viewport mutations, adapter
 writes, or bar-cache windows from route/shell code.
 
+Follow-up correction: the standalone session surface now fully hides the
+workstation header, chart area, transport, and status bar. The session dashboard
+browser smoke asserts actual computed visibility, not only the `hidden`
+attribute.
+
 ## Commits
 
 - `e3de8392 docs(v6): scope step fifty seven session setup`
 - `0e5fd68f feat(v6): add session setup form model`
 - `e6cc06bd feat(v6): add backtesting session setup form`
+- `de92a0f0 fix(v6): hide workstation on session surface`
 
 ## Verification
 

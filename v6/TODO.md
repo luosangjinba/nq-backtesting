@@ -1085,6 +1085,7 @@ Completed in commits:
 - `e3de8392 docs(v6): scope step fifty seven session setup`
 - `0e5fd68f feat(v6): add session setup form model`
 - `e6cc06bd feat(v6): add backtesting session setup form`
+- `de92a0f0 fix(v6): hide workstation on session surface`
 
 Verification:
 
