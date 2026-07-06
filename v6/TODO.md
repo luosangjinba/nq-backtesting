@@ -14,26 +14,26 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 73 - Playback Period Boundary Gates. Playback
-  period execution now no-ops cleanly when replay is already ended, stops at
-  replay end without over-appending, and has browser coverage for non-1m visible
-  candle appearance plus reset-view independence.
+- Latest completed step: Step 74 - Playback Period UI Feedback. Transport now
+  exposes ended replay state clearly, disables Play/Next at end, keeps
+  playback-period controls usable, and preserves playing feedback during
+  auto-play replay advances.
 
 ## Next Executable Steps
 
-### Step 74 - Playback Period UI Feedback
+### Step 75 - Replay End Restart Entry Policy
 
-Make playback-period end-state and disabled/available actions clearer in the
-transport UI.
+Define the user-facing way to restart or reset replay after the transport reaches
+ended state.
 
-Status: active.
+Status: planned.
 
 Acceptance:
 
-- transport reflects replay ended state without leaving play controls ambiguous;
-- manual next at ended has an explicit UI/status outcome;
-- period menu and sync toggle remain usable independently of ended playback;
-- browser smoke covers end-state feedback after a large playback period.
+- restart/reset action is explicit and does not overload disabled Play;
+- restart path goes through replay/chart-entry owners, not direct chart writes;
+- browser smoke covers ended -> restart -> replay visible again;
+- reset view remains viewport-only and is not used as replay restart.
 
 ## Completed Steps
 
@@ -1463,6 +1463,34 @@ Verification:
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/playback-period-browser-smoke.js`
 - `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 74 - Playback Period UI Feedback
+
+Completed in commits:
+
+- `4109e1b9 docs(v6): scope step seventy four transport feedback`
+- `e5ea90cb feat(v6): show ended replay transport state`
+- `e228955e test(v6): verify ended transport feedback`
+- `4d52b47e fix(v6): keep transport playing during replay advance`
+
+Verification:
+
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-runtime-smoke.js`
+- `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-playback-period-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/playback-period-browser-smoke.js`
 - `node v6/tests/chart-reset-view-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
