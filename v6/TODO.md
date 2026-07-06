@@ -1257,6 +1257,28 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 66 - Chart Entry Initial Visibility Browser Gate
+
+Add a browser-level visible chart gate for the session-entry path. This step
+should verify that entering a chart produces visible initial default-wall candles
+on the chart surface promptly, not just ready runtime state.
+
+Acceptance:
+
+- a dedicated browser smoke creates/opens a session through the session
+  dashboard path;
+- the smoke waits for `chartEntryProjectionApply` to reach `applied`;
+- the smoke verifies chart-data, viewport projection, chart surface data length,
+  visible logical range, canvas presence, and candle-colored pixels;
+- the smoke verifies the latest initial candle is within the projected visible
+  range;
+- the smoke fails if apply is only reflected in runtime state but not in the
+  chart surface/browser canvas;
+- the smoke remains independent of `defaultWall.load` and does not use adapter
+  internals directly;
+- app shell, session dashboard, product baseline, projection apply, UI
+  guardrail, and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
