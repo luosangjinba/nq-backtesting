@@ -52,6 +52,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.journal'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.journalPersistence'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.chartEntry'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
     assert.equal(value.journalMounted, true);
@@ -105,6 +106,7 @@ async function main() {
         await new Promise((resolve) => setTimeout(resolve, 0));
         return JSON.stringify({
           activeSessionId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
+          activationState: await commandsModule.dispatchCommand('chartEntry.getState'),
           closedSurface: root.dataset.v6Surface,
           count: openState.sessionCount,
           createdSessionId,
@@ -122,6 +124,8 @@ async function main() {
     assert.equal(sessionFlow.count, 1);
     assert.equal(sessionFlow.rows, 1);
     assert.equal(sessionFlow.activeSessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.activationState.activeSessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.activationState.status, 'activated');
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {
