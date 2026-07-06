@@ -58,6 +58,25 @@ try {
         Number(visibleRange.from) <= latestLogicalIndex &&
         Number(visibleRange.to) >= latestLogicalIndex
       );
+      const playButton = document.querySelector('[data-v6-transport-action="play-toggle"]');
+      const nextButton = document.querySelector('[data-v6-transport-action="next"]');
+
+      document.querySelector('[data-v6-transport-period-details]').open = true;
+      document.querySelector('[data-v6-transport-period-option="3m"]').click();
+      const waitForPeriod = async (predicate) => {
+        const periodDeadline = performance.now() + 3000;
+        let state = await commands.dispatchCommand('playbackPeriod.getState');
+        while (!predicate(state) && performance.now() < periodDeadline) {
+          await new Promise((resolve) => setTimeout(resolve, 25));
+          state = await commands.dispatchCommand('playbackPeriod.getState');
+        }
+        return state;
+      };
+      const periodAfterMenu = await waitForPeriod((state) => state.period === '3m' && !state.sync);
+      const syncToggle = document.querySelector('[data-v6-transport-period-sync]');
+      syncToggle.checked = true;
+      syncToggle.dispatchEvent(new Event('change', { bubbles: true }));
+      const periodAfterSync = await waitForPeriod((state) => state.sync === true);
 
       return {
         afterBarCount: afterChart.bars?.length || 0,
@@ -67,8 +86,18 @@ try {
         beforeBarCount: beforeChart.bars?.length || 0,
         beforeReplay,
         latestVisible,
+        periodAfterMenu,
+        periodAfterSync,
         playbackPeriod: await commands.dispatchCommand('playbackPeriod.getState'),
         surfaceDataLength: paneSnapshot.dataLength || 0,
+        transport: {
+          ended: document.querySelector('[data-v6-transport]').dataset.ended,
+          nextDisabled: nextButton.disabled,
+          nextLabel: nextButton.getAttribute('aria-label'),
+          playbackStatus: document.querySelector('[data-v6-transport]').dataset.playbackStatus,
+          playDisabled: playButton.disabled,
+          playLabel: playButton.getAttribute('aria-label'),
+        },
         visibleLatencyMs: visibleAt - startedAt,
         visibleRange,
       };
@@ -84,8 +113,16 @@ try {
   assert.equal(setup.autoState.status, 'ended');
   assert.equal(setup.autoState.playing, false);
   assert.equal(setup.autoState.lastTick.replayState.status, 'ended');
-  assert.equal(setup.playbackPeriod.period, '15m');
-  assert.equal(setup.playbackPeriod.sync, false);
+  assert.equal(setup.transport.ended, 'true');
+  assert.equal(setup.transport.playbackStatus, 'ended');
+  assert.equal(setup.transport.playDisabled, true);
+  assert.equal(setup.transport.playLabel, 'Replay ended');
+  assert.equal(setup.transport.nextDisabled, true);
+  assert.equal(setup.transport.nextLabel, 'Replay ended');
+  assert.equal(setup.periodAfterMenu.period, '3m');
+  assert.equal(setup.periodAfterMenu.sync, false);
+  assert.equal(setup.periodAfterSync.sync, true);
+  assert.equal(setup.playbackPeriod.sync, true);
   assert.equal(setup.surfaceDataLength, setup.afterBarCount);
   assert.equal(setup.latestVisible, true);
   assert.equal(Boolean(setup.visibleRange), true);
@@ -133,8 +170,6 @@ try {
   assert.equal(resetValue.manualIntent.origin, 'manual');
   assert.equal(resetValue.resetIntent.origin, 'default');
   assert.deepEqual(resetValue.periodAfterReset, resetValue.periodBeforeReset);
-  assert.equal(resetValue.periodAfterReset.period, '15m');
-  assert.equal(resetValue.periodAfterReset.sync, false);
   assert.deepEqual(resetValue.replayAfterReset, resetValue.replayBeforeReset);
   assert.equal(resetValue.chartAfterResetCount, resetValue.chartBeforeResetCount);
 } finally {
