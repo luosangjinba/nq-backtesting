@@ -26,7 +26,7 @@
 Make the restart transport control easier to understand visually and align it
 with FXReplay-style control semantics.
 
-Status: planned.
+Status: active.
 
 Acceptance:
 
