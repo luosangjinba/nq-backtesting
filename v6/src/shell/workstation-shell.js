@@ -453,14 +453,14 @@ export function createWorkstationShellMarkup() {
             <span data-v6-transport-period-label>1m</span>
           </summary>
           <div class="transport-period-menu" data-v6-transport-period-menu role="menu" aria-label="Replay step period">
-            <button type="button" disabled role="menuitem">1s</button>
-            <button type="button" disabled role="menuitem">5s</button>
-            <button type="button" disabled role="menuitem">10s</button>
-            <button type="button" disabled role="menuitem">15s</button>
-            <button type="button" disabled role="menuitem">30s</button>
-            <button type="button" disabled role="menuitem">1m</button>
-            <button type="button" disabled role="menuitem">3m</button>
-            <button type="button" disabled role="menuitem">5m</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="1s">1s</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="5s">5s</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="10s">10s</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="15s">15s</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="30s">30s</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="1m">1m</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="3m">3m</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="5m">5m</button>
           </div>
         </details>
         <button type="button" class="transport-icon-button" aria-label="Next replay bar" data-v6-transport-action="next">${icon('stepForward')}</button>

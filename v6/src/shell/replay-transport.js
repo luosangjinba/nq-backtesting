@@ -1,6 +1,8 @@
 import {
   CHART_ENTRY_AUTO_PLAY_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
+  PLAYBACK_PERIOD_COMMANDS,
+  PLAYBACK_PERIOD_EVENTS,
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
@@ -24,10 +26,14 @@ function normalizeSliderSpeed(value) {
 }
 
 export function createReplayTransportState({
+  period = '1m',
+  periodSync = false,
   playing = false,
   speed = 1,
 } = {}) {
   return Object.freeze({
+    period: String(period || '1m'),
+    periodSync: Boolean(periodSync),
     playing: Boolean(playing),
     speed: normalizeSpeed(speed),
   });
@@ -45,6 +51,8 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
       return Object.freeze({
         command: playing ? CHART_ENTRY_AUTO_PLAY_COMMANDS.START : CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP,
         nextState: createReplayTransportState({
+          period: state.period,
+          periodSync: state.periodSync,
           playing,
           speed: state.speed,
         }),
@@ -60,6 +68,8 @@ export function syncReplayTransportStateFromReplay(state, replayState = {}) {
   const status = String(replayState.status || '').trim();
   if (!status) return createReplayTransportState(state);
   return createReplayTransportState({
+    period: state.period,
+    periodSync: state.periodSync,
     playing: status === 'playing',
     speed: state.speed,
   });
@@ -77,6 +87,8 @@ function isEditableTarget(target) {
 
 function updateDom(root, state) {
   root.dataset.playback = state.playing ? 'playing' : 'paused';
+  root.dataset.period = state.period;
+  root.dataset.periodSync = String(state.periodSync);
   root.dataset.speed = String(state.speed);
   const playButton = root.querySelector('[data-v6-transport-action="play-toggle"]');
   if (playButton) {
@@ -97,6 +109,19 @@ function updateDom(root, state) {
     button.setAttribute('aria-pressed', String(selected));
     button.classList.toggle('is-active', selected);
   });
+  const periodLabel = root.querySelector('[data-v6-transport-period-label]');
+  if (periodLabel) {
+    periodLabel.textContent = state.period;
+  }
+  root.querySelectorAll('[data-v6-transport-period-option]').forEach((button) => {
+    const selected = button.dataset.v6TransportPeriodOption === state.period;
+    button.setAttribute('aria-checked', String(selected));
+    button.classList.toggle('is-active', selected);
+  });
+  const periodSync = root.querySelector('[data-v6-transport-period-sync]');
+  if (periodSync) {
+    periodSync.checked = state.periodSync;
+  }
 }
 
 export function mountReplayTransport(root, {
@@ -123,7 +148,9 @@ export function mountReplayTransport(root, {
     return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).catch((error) => {
       root.dataset.lastError = error?.message || String(error);
       if (action === 'play-toggle') {
-        setState({
+      setState({
+          period: state.period,
+          periodSync: state.periodSync,
           playing: !state.playing,
           speed: state.speed,
         });
@@ -134,6 +161,8 @@ export function mountReplayTransport(root, {
 
   function dispatchSpeedChange(speed) {
     setState({
+      period: state.period,
+      periodSync: state.periodSync,
       playing: state.playing,
       speed,
     });
@@ -146,6 +175,29 @@ export function mountReplayTransport(root, {
 
   function syncFromReplayEvent(replayState) {
     setState(syncReplayTransportStateFromReplay(state, replayState));
+  }
+
+  function syncFromPlaybackPeriodEvent(playbackPeriodState = {}) {
+    setState({
+      period: playbackPeriodState.period || state.period,
+      periodSync: playbackPeriodState.sync ?? state.periodSync,
+      playing: state.playing,
+      speed: state.speed,
+    });
+  }
+
+  function dispatchPeriodChange(period) {
+    return Promise.resolve(dispatchCommand(PLAYBACK_PERIOD_COMMANDS.SET_PERIOD, { period })).catch((error) => {
+      root.dataset.lastError = error?.message || String(error);
+      return null;
+    });
+  }
+
+  function dispatchPeriodSyncChange(sync) {
+    return Promise.resolve(dispatchCommand(PLAYBACK_PERIOD_COMMANDS.SET_SYNC, { sync })).catch((error) => {
+      root.dataset.lastError = error?.message || String(error);
+      return null;
+    });
   }
 
   function startDrag(event) {
@@ -194,6 +246,15 @@ export function mountReplayTransport(root, {
     const speedButton = event.target.closest?.('[data-v6-transport-speed]');
     if (speedButton && root.contains(speedButton)) {
       void dispatchSpeedChange(normalizeSpeed(speedButton.dataset.v6TransportSpeed));
+      return;
+    }
+    const periodButton = event.target.closest?.('[data-v6-transport-period-option]');
+    if (periodButton && root.contains(periodButton)) {
+      void dispatchPeriodChange(periodButton.dataset.v6TransportPeriodOption);
+      const details = root.querySelector('[data-v6-transport-period-details]');
+      if (details) {
+        details.open = false;
+      }
     }
   }, { signal });
 
@@ -201,6 +262,13 @@ export function mountReplayTransport(root, {
     const speedSlider = event.target.closest?.('[data-v6-transport-speed-slider]');
     if (speedSlider && root.contains(speedSlider)) {
       void dispatchSpeedChange(normalizeSliderSpeed(speedSlider.value));
+    }
+  }, { signal });
+
+  root.addEventListener('change', (event) => {
+    const periodSync = event.target.closest?.('[data-v6-transport-period-sync]');
+    if (periodSync && root.contains(periodSync)) {
+      void dispatchPeriodSyncChange(periodSync.checked);
     }
   }, { signal });
 
@@ -220,10 +288,14 @@ export function mountReplayTransport(root, {
       subscribeEvent(REPLAY_EVENTS.LOADED, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.PLAYBACK_CHANGED, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.RESET, syncFromReplayEvent),
+      subscribeEvent(PLAYBACK_PERIOD_EVENTS.CHANGED, syncFromPlaybackPeriodEvent),
     );
   }
 
   setState(state);
+  Promise.resolve(dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE))
+    .then(syncFromPlaybackPeriodEvent)
+    .catch(() => {});
 
   return Object.freeze({
     destroy() {

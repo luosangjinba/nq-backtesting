@@ -25,6 +25,7 @@ import { createJournalPersistenceRuntime } from './journal-persistence/journal-p
 import { createLayoutRuntime } from './layout/layout-runtime.js';
 import { createJournalRuntime } from './journal/journal-runtime.js';
 import { createPaneRuntime } from './panes/pane-runtime.js';
+import { createPlaybackPeriodRuntime } from './playback-period/playback-period-runtime.js';
 import { createPersistenceRuntime } from './persistence/persistence-runtime.js';
 import { createReplayRuntime } from './replay/replay-runtime.js';
 import { createSessionRuntime } from './session/session-runtime.js';
@@ -71,6 +72,7 @@ registry.registerRuntime(createChartEntryManualNextRuntime());
 registry.registerRuntime(createChartEntryAutoPlayRuntime());
 registry.registerRuntime(createDefaultWallRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
+registry.registerRuntime(createPlaybackPeriodRuntime());
 await registry.start({ root, emitEvent, subscribeEvent });
 const workflowPanelCoordinator = createWorkflowPanelCoordinator();
 const workstationChartSurface = mountWorkstationChartSurface(root);

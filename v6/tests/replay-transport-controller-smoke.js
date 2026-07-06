@@ -83,10 +83,14 @@ assert.equal(play.nextState.playing, true);
 assert.deepEqual(play.payload, { speed: 1 });
 assert.equal(resolveReplayTransportAction('play-toggle', play.nextState).command, CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP);
 assert.deepEqual(syncReplayTransportStateFromReplay({ playing: false, speed: 2 }, { status: 'playing' }), {
+  period: '1m',
+  periodSync: false,
   playing: true,
   speed: 2,
 });
 assert.deepEqual(syncReplayTransportStateFromReplay({ playing: true, speed: 4 }, { status: 'paused' }), {
+  period: '1m',
+  periodSync: false,
   playing: false,
   speed: 4,
 });

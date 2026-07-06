@@ -1616,6 +1616,12 @@ p {
   text-align: left;
 }
 
+.transport-period-menu button:hover,
+.transport-period-menu button.is-active {
+  background: #1e2732;
+  color: #ffffff;
+}
+
 .transport-sync-toggle {
   width: 48px;
   height: 34px;
