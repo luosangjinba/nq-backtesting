@@ -46,12 +46,14 @@ Reset View button, and verifies:
 - `ed415bd8 feat(v6): wire reset view control`
 - `3dbd3025 fix(v6): reset view to pane default wall`
 - `edf197d0 test(v6): verify chart reset view browser flow`
+- `5f47a775 test(v6): include reset view in runtime inventory`
 
 ## Verification
 
 - `node v6/tests/chart-viewport-store-smoke.js`
 - `node v6/tests/chart-viewport-runtime-smoke.js`
 - `node v6/tests/reset-view-control-bridge-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
 - `node v6/tests/chart-reset-view-browser-smoke.js`
 - `node v6/tests/chart-entry-manual-next-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
