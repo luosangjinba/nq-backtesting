@@ -14,28 +14,21 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 79 - Transport Drag Position Persistence.
-  Floating transport drag position now persists through an injected shell
-  preference adapter, restores within viewport bounds, and stays independent
-  from replay cursor, chart data, bars, and viewport intent.
+- Latest completed step: Step 80 - Session Dashboard Persistence Boundary.
+  Session dashboard persistence is now scoped to metadata-only records, and a
+  runtime smoke proves `session.list` does not emit chart-entry events, fetch
+  bars, write chart data, or mutate replay state.
 
 ## Next Executable Steps
 
-### Step 80 - Session Dashboard Persistence Boundary
+### Step 81 - Session Metadata Persistence Adapter
 
-Define and test the session dashboard persistence boundary before making the
-session list durable.
+Implement the first durable session metadata adapter behind the session
+repository boundary.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
-
-- this step defines and gates the boundary first; it does not need to make
-  sessions durable yet;
-- the first durable slice should store session metadata only, not bars or chart
-  state.
-
-Notes:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
 - preserve the session-first flow and do not load full bar ranges just because a
@@ -43,16 +36,16 @@ Notes:
 
 Scope:
 
-- audit current dashboard/session runtime responsibilities;
-- choose a small persistence adapter boundary for session metadata only;
-- add a smoke that proves listing sessions does not load chart bars.
+- add a metadata-only storage adapter for session records and active session id;
+- inject it into the session repository/runtime boundary;
+- keep storage format limited to session metadata records.
 
 Acceptance:
 
-- durable session metadata has an explicit owner or adapter plan;
-- opening a session remains the only path that enters the chart workstation;
-- listed sessions do not request or cache full date-range bars;
-- tests cover dashboard persistence boundary without touching chart ownership.
+- sessions created in the dashboard survive page reload;
+- listing restored sessions does not load bars or chart data;
+- opening a restored session remains the only chart workstation entry path;
+- tests cover corrupted/empty storage fallback.
 
 ## Completed Steps
 
@@ -1643,6 +1636,26 @@ Verification:
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
+
+### Step 80 - Session Dashboard Persistence Boundary
+
+Completed in commits:
+
+- `5285817e docs(v6): scope step eighty session boundary`
+- `9a9025ba docs(v6): define session dashboard persistence boundary`
+- `b3ff08f3 test(v6): gate session dashboard persistence boundary`
+
+Verification:
+
+- `node v6/tests/session-dashboard-persistence-boundary-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `git diff --check`
 
 ## Deferred Until Later Gates
