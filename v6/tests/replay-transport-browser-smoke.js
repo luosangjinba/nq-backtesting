@@ -7,30 +7,6 @@ try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
       const commands = await import('/v6/src/runtime/commands.js');
-      const contracts = await import('/v6/src/contracts/app-contracts.js');
-      const bars = Array.from({ length: 4 }, (_, index) => ({
-        close: 100 + index + 0.5,
-        high: 101 + index,
-        low: 99 + index,
-        open: 100 + index,
-        timestamp: 1780306200 + (index * 60),
-      }));
-      const session = {
-        endTime: '2026-06-01T09:33:00.000Z',
-        id: 'transport-browser-session',
-        startTime: '2026-06-01T09:30:00.000Z',
-        symbol: 'NQ',
-        timeframe: '1m',
-      };
-      await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.LOAD, {
-        bars,
-        latestOffsetBars: 8,
-        paneId: 'transport-pane',
-        prefixBars: 0,
-        session,
-        spanBars: 120,
-      });
-
       const root = document.querySelector('[data-v6-root]');
       const transport = root.__v6ReplayTransport;
       const nextButton = document.querySelector('[data-v6-transport-action="next"]');
@@ -39,26 +15,44 @@ try {
       const periodDetails = document.querySelector('[data-v6-transport-period-details]');
       const transportRoot = document.querySelector('[data-v6-transport]');
 
+      document.querySelector('[data-v6-dashboard-create-session]').click();
+      const applyDeadline = performance.now() + 5000;
+      let applyState = await commands.dispatchCommand('chartEntryProjectionApply.getState');
+      while (applyState.status === 'idle' && performance.now() < applyDeadline) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        applyState = await commands.dispatchCommand('chartEntryProjectionApply.getState');
+      }
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+
+      const beforeNextChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
       nextButton.click();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterClickNext = await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.GET_STATE);
+      let manualNextState = await commands.dispatchCommand('chartEntryManualNext.getState');
+      const nextDeadline = performance.now() + 5000;
+      while (manualNextState.status === 'idle' && performance.now() < nextDeadline) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        manualNextState = await commands.dispatchCommand('chartEntryManualNext.getState');
+      }
+      const afterClickNextChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
+      const afterClickNextReplay = await commands.dispatchCommand('replay.getState');
 
       speedSlider.value = '2';
       speedSlider.dispatchEvent(new Event('input', { bubbles: true }));
       const speedState = transport.getState();
-      const replayAfterSpeed = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
+      const replayAfterSpeed = await commands.dispatchCommand('replay.getState');
 
-      await commands.dispatchCommand(contracts.REPLAY_COMMANDS.PLAY);
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterExternalPlay = {
+      playButton.click();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const afterClickPlay = {
+        autoState: await commands.dispatchCommand('chartEntryAutoPlay.getState'),
         buttonLabel: playButton.getAttribute('aria-label'),
         buttonPressed: playButton.getAttribute('aria-pressed'),
         state: transport.getState(),
       };
 
-      await commands.dispatchCommand(contracts.REPLAY_COMMANDS.PAUSE);
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterExternalPause = {
+      playButton.click();
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const afterClickPause = {
+        autoState: await commands.dispatchCommand('chartEntryAutoPlay.getState'),
         buttonLabel: playButton.getAttribute('aria-label'),
         buttonPressed: playButton.getAttribute('aria-pressed'),
         state: transport.getState(),
@@ -69,19 +63,39 @@ try {
         code: 'Space',
         key: ' ',
       }));
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterSpacePlay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const afterSpacePlay = {
+        autoState: await commands.dispatchCommand('chartEntryAutoPlay.getState'),
+        replayState: await commands.dispatchCommand('replay.getState'),
+      };
 
       playButton.click();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterClickPause = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
+      await new Promise((resolve) => setTimeout(resolve, 50));
+      const afterKeyboardClickPause = {
+        autoState: await commands.dispatchCommand('chartEntryAutoPlay.getState'),
+        replayState: await commands.dispatchCommand('replay.getState'),
+      };
 
+      const beforeKeyboardNextChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
+      const beforeKeyboardNextReplay = await commands.dispatchCommand('replay.getState');
       document.dispatchEvent(new KeyboardEvent('keydown', {
         bubbles: true,
         key: 'ArrowRight',
       }));
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const afterKeyboardNext = await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.GET_STATE);
+      let afterKeyboardNextReplay = await commands.dispatchCommand('replay.getState');
+      let afterKeyboardNextChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
+      const keyboardNextDeadline = performance.now() + 5000;
+      while (
+        (
+          afterKeyboardNextReplay.cursorIndex <= beforeKeyboardNextReplay.cursorIndex ||
+          (afterKeyboardNextChart.bars?.length || 0) <= (beforeKeyboardNextChart.bars?.length || 0)
+        ) &&
+        performance.now() < keyboardNextDeadline
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        afterKeyboardNextReplay = await commands.dispatchCommand('replay.getState');
+        afterKeyboardNextChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
+      }
       document.querySelector('[data-v6-transport-period-toggle]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
 
@@ -109,12 +123,17 @@ try {
       const afterDragRect = transportRoot.getBoundingClientRect();
 
       return {
-        afterClickNext,
+        afterClickNextBarCount: afterClickNextChart.bars?.length || 0,
+        afterClickNextReplay,
         afterClickPause,
-        afterExternalPause,
-        afterExternalPlay,
-        afterKeyboardNext,
+        afterClickPlay,
+        afterKeyboardClickPause,
+        afterKeyboardNextBarCount: afterKeyboardNextChart.bars?.length || 0,
+        afterKeyboardNextReplay,
         afterSpacePlay,
+        beforeKeyboardNextBarCount: beforeKeyboardNextChart.bars?.length || 0,
+        beforeKeyboardNextReplay,
+        beforeNextBarCount: beforeNextChart.bars?.length || 0,
         afterDragRect: {
           bottom: afterDragRect.bottom,
           left: afterDragRect.left,
@@ -147,22 +166,27 @@ try {
     })()))()
   `));
 
-  assert.equal(value.afterClickNext.cursorIndex, 1);
-  assert.equal(value.replayAfterSpeed.cursorIndex, 1);
+  assert.equal(value.afterClickNextBarCount, value.beforeNextBarCount + 1);
+  assert.equal(value.afterClickNextReplay.cursorIndex, value.replayAfterSpeed.cursorIndex);
   assert.equal(value.speedState.speed, 2);
   assert.equal(value.speedSliderValue, '2');
   assert.equal(value.transportDataset.speed, '2');
-  assert.equal(value.afterExternalPlay.state.playing, true);
-  assert.equal(value.afterExternalPlay.state.speed, 2);
-  assert.equal(value.afterExternalPlay.buttonLabel, 'Pause replay');
-  assert.equal(value.afterExternalPlay.buttonPressed, 'true');
-  assert.equal(value.afterExternalPause.state.playing, false);
-  assert.equal(value.afterExternalPause.state.speed, 2);
-  assert.equal(value.afterExternalPause.buttonLabel, 'Play replay');
-  assert.equal(value.afterExternalPause.buttonPressed, 'false');
-  assert.equal(value.afterSpacePlay.status, 'playing');
-  assert.equal(value.afterClickPause.status, 'paused');
-  assert.equal(value.afterKeyboardNext.cursorIndex, 2);
+  assert.equal(value.afterClickPlay.state.playing, true);
+  assert.equal(value.afterClickPlay.state.speed, 2);
+  assert.equal(value.afterClickPlay.autoState.playing, true);
+  assert.equal(value.afterClickPlay.buttonLabel, 'Pause replay');
+  assert.equal(value.afterClickPlay.buttonPressed, 'true');
+  assert.equal(value.afterClickPause.state.playing, false);
+  assert.equal(value.afterClickPause.state.speed, 2);
+  assert.equal(value.afterClickPause.autoState.playing, false);
+  assert.equal(value.afterClickPause.buttonLabel, 'Play replay');
+  assert.equal(value.afterClickPause.buttonPressed, 'false');
+  assert.equal(value.afterSpacePlay.autoState.playing, true);
+  assert.equal(value.afterSpacePlay.replayState.status, 'playing');
+  assert.equal(value.afterKeyboardClickPause.autoState.playing, false);
+  assert.equal(value.afterKeyboardClickPause.replayState.status, 'paused');
+  assert.equal(value.afterKeyboardNextReplay.cursorIndex, value.beforeKeyboardNextReplay.cursorIndex + 1);
+  assert.equal(value.afterKeyboardNextBarCount, value.beforeKeyboardNextBarCount + 1);
   assert.equal(value.dragHandleExists, true);
   assert.equal(value.nestedInChart, false);
   assert.equal(value.transportPosition, 'fixed');
