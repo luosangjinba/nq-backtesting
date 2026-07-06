@@ -51,6 +51,14 @@ export const CHART_ENTRY_REPLAY_BOOTSTRAP_EVENTS = Object.freeze({
   LOADED: 'chartEntryReplayBootstrap:loaded',
 });
 
+export const CHART_ENTRY_DEFAULT_WALL_PLAN_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryDefaultWallPlan.getState',
+});
+
+export const CHART_ENTRY_DEFAULT_WALL_PLAN_EVENTS = Object.freeze({
+  PLANNED: 'chartEntryDefaultWallPlan:planned',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
