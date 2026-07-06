@@ -1470,8 +1470,8 @@ p {
 }
 
 .transport-placeholder button:disabled {
-  color: #b8c0ca;
-  opacity: 1;
+  color: #7f8892;
+  opacity: 0.62;
   cursor: default;
 }
 
@@ -1515,6 +1515,17 @@ p {
 .transport-grip:hover,
 .transport-period-trigger:hover {
   background: #171b20;
+}
+
+.transport-icon-button.is-active,
+.transport-period-trigger.is-active,
+.transport-sync-toggle.is-active span {
+  background: #13253c;
+  color: #ffffff;
+}
+
+.transport-icon-button.is-disabled {
+  background: transparent;
 }
 
 .transport-speed-slider {

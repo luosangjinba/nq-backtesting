@@ -39,6 +39,9 @@ function createFakeElement({
     closest(selector) {
       if (selector === '[data-v6-transport-action]' && this.dataset.v6TransportAction) return this;
       if (selector === '[data-v6-transport-speed]' && this.dataset.v6TransportSpeed) return this;
+      if (selector === '[data-v6-transport-speed-slider]' && this.dataset.v6TransportSpeedSlider) return this;
+      if (selector === '[data-v6-transport-period-option]' && this.dataset.v6TransportPeriodOption) return this;
+      if (selector === '[data-v6-transport-period-sync]' && this.dataset.v6TransportPeriodSync) return this;
       return null;
     },
     contains(target) {
@@ -48,11 +51,19 @@ function createFakeElement({
       if (selector === '[data-v6-transport-action="play-toggle"]') return this.playButton || null;
       if (selector === '[data-v6-transport-action="next"]') return this.nextButton || null;
       if (selector === '[data-v6-transport-action="restart"]') return this.restartButton || null;
+      if (selector === '[data-v6-transport-speed-slider]') return this.speedSlider || null;
+      if (selector === '[data-v6-transport-period-label]') return this.periodLabel || null;
+      if (selector === '[data-v6-transport-period-toggle]') return this.periodTrigger || null;
+      if (selector === '[data-v6-transport-period-sync]') return this.periodSync || null;
       return null;
     },
     querySelectorAll(selector) {
       if (selector === '[data-v6-transport-speed]') return this.speedButtons || [];
+      if (selector === '[data-v6-transport-period-option]') return this.periodButtons || [];
       return [];
+    },
+    getAttribute(name) {
+      return this[name];
     },
     setAttribute(name, value) {
       this[name] = value;
@@ -110,11 +121,31 @@ const playButton = createFakeElement({ dataset: { v6TransportAction: 'play-toggl
 const nextButton = createFakeElement({ dataset: { v6TransportAction: 'next' } });
 const restartButton = createFakeElement({ dataset: { v6TransportAction: 'restart' } });
 const speedButton = createFakeElement({ dataset: { v6TransportSpeed: '2' } });
+const speedSlider = createFakeElement({ dataset: { v6TransportSpeedSlider: 'true' }, tagName: 'input' });
+const periodLabel = createFakeElement({ tagName: 'span' });
+const periodTrigger = createFakeElement({ tagName: 'summary' });
+const periodButton = createFakeElement({ dataset: { v6TransportPeriodOption: '1m' } });
+const periodSync = createFakeElement({ dataset: { v6TransportPeriodSync: 'true' }, tagName: 'input' });
+const periodSyncParent = createFakeElement({ tagName: 'label' });
+periodSync.parentElement = periodSyncParent;
 root.playButton = playButton;
 root.nextButton = nextButton;
 root.restartButton = restartButton;
-root.children = [playButton, nextButton, restartButton, speedButton];
+root.speedSlider = speedSlider;
+root.periodLabel = periodLabel;
+root.periodTrigger = periodTrigger;
+root.periodSync = periodSync;
+root.children = [
+  playButton,
+  nextButton,
+  restartButton,
+  speedButton,
+  speedSlider,
+  periodButton,
+  periodSync,
+];
 root.speedButtons = [speedButton];
+root.periodButtons = [periodButton];
 
 const dispatched = [];
 const eventListeners = new Map();
@@ -139,6 +170,9 @@ assert.deepEqual(dispatched.at(-1), {
   payload: { speed: 1 },
 });
 assert.equal(controller.getState().playing, true);
+assert.equal(playButton['aria-pressed'], 'true');
+assert.equal(playButton.title, 'Pause replay');
+assert.equal(playButton.classList.classes.has('is-active'), true);
 
 root.click(nextButton);
 await Promise.resolve();
@@ -151,6 +185,7 @@ assert.equal(controller.getState().playing, true);
 root.click(speedButton);
 await Promise.resolve();
 assert.equal(controller.getState().speed, 2);
+assert.equal(speedSlider['aria-valuetext'], '2x replay speed');
 assert.equal(speedButton['aria-pressed'], 'true');
 assert.deepEqual(dispatched.at(-1), {
   command: CHART_ENTRY_AUTO_PLAY_COMMANDS.SET_SPEED,
@@ -162,6 +197,7 @@ assert.equal(controller.getState().playing, false);
 assert.equal(controller.getState().replayStatus, 'paused');
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Play replay');
+assert.equal(playButton.classList.classes.has('is-active'), false);
 
 const dispatchCountBeforePausedSpeed = dispatched.length;
 root.click(speedButton);
@@ -205,12 +241,20 @@ assert.equal(restartButton.disabled, false);
 assert.equal(playButton['aria-label'], 'Replay ended');
 assert.equal(nextButton['aria-label'], 'Replay ended');
 assert.equal(restartButton['aria-label'], 'Restart replay');
+assert.equal(playButton.classList.classes.has('is-disabled'), true);
+assert.equal(nextButton.classList.classes.has('is-disabled'), true);
+assert.equal(restartButton.classList.classes.has('is-active'), true);
+assert.equal(restartButton.classList.classes.has('is-disabled'), false);
 const dispatchCountAtEnded = dispatched.length;
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 fakeDocument.keydown({ key: ' ', target: root });
 await Promise.resolve();
 assert.equal(dispatched.length, dispatchCountAtEnded);
 assert.equal(root.dataset.lastAction, 'ended');
+root.click(playButton);
+root.click(nextButton);
+await Promise.resolve();
+assert.equal(dispatched.length, dispatchCountAtEnded);
 
 root.click(restartButton);
 await Promise.resolve();
@@ -221,6 +265,14 @@ assert.deepEqual(dispatched.find((entry) => entry.command === CHART_ENTRY_RESTAR
 assert.equal(['ready', 'restarting'].includes(controller.getState().replayStatus), true);
 assert.equal(restartButton.disabled, true);
 assert.equal(restartButton['aria-label'], 'Restart available after replay ends');
+assert.equal(restartButton.classList.classes.has('is-disabled'), true);
+assert.equal(periodLabel.textContent, '1m');
+assert.equal(periodTrigger.title, 'Replay step period 1m');
+assert.equal(periodButton['aria-checked'], 'true');
+assert.equal(periodButton.classList.classes.has('is-active'), true);
+assert.equal(periodSync['aria-checked'], 'false');
+assert.equal(periodSync.title, 'Replay period is manual');
+assert.equal(periodSyncParent.classList.classes.has('is-active'), false);
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'ended' });
 assert.equal(controller.getState().replayStatus, 'restarting');

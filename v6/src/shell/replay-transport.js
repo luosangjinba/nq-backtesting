@@ -113,6 +113,13 @@ function isEditableTarget(target) {
   );
 }
 
+function isDisabledControl(control) {
+  return Boolean(
+    control?.disabled ||
+    control?.getAttribute?.('aria-disabled') === 'true',
+  );
+}
+
 function updateDom(root, state) {
   root.dataset.playback = state.playing ? 'playing' : 'paused';
   root.dataset.playbackStatus = state.replayStatus;
@@ -132,24 +139,35 @@ function updateDom(root, state) {
     playButton.setAttribute('aria-label', label);
     playButton.setAttribute('aria-pressed', String(state.playing));
     playButton.setAttribute('aria-disabled', String(ended));
+    playButton.setAttribute('title', label);
+    playButton.classList.toggle('is-active', state.playing);
+    playButton.classList.toggle('is-disabled', ended);
   }
   const nextButton = root.querySelector('[data-v6-transport-action="next"]');
   if (nextButton) {
     const ended = state.replayStatus === 'ended';
+    const label = ended ? 'Replay ended' : 'Next replay bar';
     nextButton.disabled = ended;
-    nextButton.setAttribute('aria-label', ended ? 'Replay ended' : 'Next replay bar');
+    nextButton.setAttribute('aria-label', label);
     nextButton.setAttribute('aria-disabled', String(ended));
+    nextButton.setAttribute('title', label);
+    nextButton.classList.toggle('is-disabled', ended);
   }
   const restartButton = root.querySelector('[data-v6-transport-action="restart"]');
   if (restartButton) {
     const ended = state.replayStatus === 'ended';
+    const label = ended ? 'Restart replay' : 'Restart available after replay ends';
     restartButton.disabled = !ended;
-    restartButton.setAttribute('aria-label', ended ? 'Restart replay' : 'Restart available after replay ends');
+    restartButton.setAttribute('aria-label', label);
     restartButton.setAttribute('aria-disabled', String(!ended));
+    restartButton.setAttribute('title', label);
+    restartButton.classList.toggle('is-active', ended);
+    restartButton.classList.toggle('is-disabled', !ended);
   }
   const speedSlider = root.querySelector('[data-v6-transport-speed-slider]');
   if (speedSlider) {
     speedSlider.value = String(state.speed);
+    speedSlider.setAttribute('aria-valuetext', `${state.speed}x replay speed`);
   }
   root.querySelectorAll('[data-v6-transport-speed]').forEach((button) => {
     const selected = Number(button.dataset.v6TransportSpeed) === state.speed;
@@ -160,6 +178,11 @@ function updateDom(root, state) {
   if (periodLabel) {
     periodLabel.textContent = state.period;
   }
+  const periodTrigger = root.querySelector('[data-v6-transport-period-toggle]');
+  if (periodTrigger) {
+    periodTrigger.setAttribute('aria-label', `Replay step period ${state.period}`);
+    periodTrigger.setAttribute('title', `Replay step period ${state.period}`);
+  }
   root.querySelectorAll('[data-v6-transport-period-option]').forEach((button) => {
     const selected = button.dataset.v6TransportPeriodOption === state.period;
     button.setAttribute('aria-checked', String(selected));
@@ -168,6 +191,9 @@ function updateDom(root, state) {
   const periodSync = root.querySelector('[data-v6-transport-period-sync]');
   if (periodSync) {
     periodSync.checked = state.periodSync;
+    periodSync.setAttribute('aria-checked', String(state.periodSync));
+    periodSync.setAttribute('title', state.periodSync ? 'Replay period follows active chart' : 'Replay period is manual');
+    periodSync.parentElement?.classList?.toggle('is-active', state.periodSync);
   }
 }
 
@@ -349,6 +375,7 @@ export function mountReplayTransport(root, {
   root.addEventListener('click', (event) => {
     const actionButton = event.target.closest?.('[data-v6-transport-action]');
     if (actionButton && root.contains(actionButton)) {
+      if (isDisabledControl(actionButton)) return;
       void dispatchAction(actionButton.dataset.v6TransportAction);
       return;
     }
@@ -359,6 +386,7 @@ export function mountReplayTransport(root, {
     }
     const periodButton = event.target.closest?.('[data-v6-transport-period-option]');
     if (periodButton && root.contains(periodButton)) {
+      if (isDisabledControl(periodButton)) return;
       void dispatchPeriodChange(periodButton.dataset.v6TransportPeriodOption);
       const details = root.querySelector('[data-v6-transport-period-details]');
       if (details) {
@@ -370,6 +398,7 @@ export function mountReplayTransport(root, {
   root.addEventListener('input', (event) => {
     const speedSlider = event.target.closest?.('[data-v6-transport-speed-slider]');
     if (speedSlider && root.contains(speedSlider)) {
+      if (isDisabledControl(speedSlider)) return;
       void dispatchSpeedChange(normalizeSliderSpeed(speedSlider.value));
     }
   }, { signal });
@@ -377,6 +406,7 @@ export function mountReplayTransport(root, {
   root.addEventListener('change', (event) => {
     const periodSync = event.target.closest?.('[data-v6-transport-period-sync]');
     if (periodSync && root.contains(periodSync)) {
+      if (isDisabledControl(periodSync)) return;
       void dispatchPeriodSyncChange(periodSync.checked);
     }
   }, { signal });
