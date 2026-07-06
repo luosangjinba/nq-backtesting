@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {
-  DEFAULT_WALL_COMMANDS,
+  CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
@@ -74,7 +74,7 @@ function createFakeDocument() {
 
 const initialState = createReplayTransportState();
 assert.deepEqual(resolveReplayTransportAction('next', initialState), {
-  command: DEFAULT_WALL_COMMANDS.NEXT,
+  command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
   nextState: initialState,
 });
 const play = resolveReplayTransportAction('play-toggle', initialState);
@@ -120,7 +120,7 @@ assert.equal(controller.getState().playing, true);
 
 root.click(nextButton);
 await Promise.resolve();
-assert.equal(dispatched.at(-1), DEFAULT_WALL_COMMANDS.NEXT);
+assert.equal(dispatched.at(-1), CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
 assert.equal(controller.getState().playing, true);
 
 root.click(speedButton);
@@ -139,7 +139,7 @@ assert.equal(playButton['aria-label'], 'Pause replay');
 
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();
-assert.equal(dispatched.at(-1), DEFAULT_WALL_COMMANDS.NEXT);
+assert.equal(dispatched.at(-1), CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
 
 fakeDocument.keydown({ key: ' ', target: root });
 await Promise.resolve();

@@ -1,5 +1,5 @@
 import {
-  DEFAULT_WALL_COMMANDS,
+  CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   REPLAY_COMMANDS,
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
@@ -37,7 +37,7 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
   switch (action) {
     case 'next':
       return Object.freeze({
-        command: DEFAULT_WALL_COMMANDS.NEXT,
+        command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
         nextState: state,
       });
     case 'play-toggle': {
