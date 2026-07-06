@@ -17,6 +17,10 @@ export function createSessionRuntime({
     return repository.save(session);
   }
 
+  function openSession(id) {
+    return repository.open(id);
+  }
+
   function start({ emitEvent } = {}) {
     unregisterCallbacks.push(
       registerCommand(SESSION_COMMANDS.CREATE, (input = {}) => {
@@ -26,7 +30,12 @@ export function createSessionRuntime({
       }),
       registerCommand(SESSION_COMMANDS.GET_ACTIVE, () => getActiveSession()),
       registerCommand(SESSION_COMMANDS.GET_BY_ID, (id) => repository.getById(id)),
-      registerCommand(SESSION_COMMANDS.LIST, () => repository.list())
+      registerCommand(SESSION_COMMANDS.LIST, () => repository.list()),
+      registerCommand(SESSION_COMMANDS.OPEN, (id) => {
+        const session = openSession(id);
+        emitEvent?.(SESSION_EVENTS.OPENED, session);
+        return session;
+      })
     );
   }
 

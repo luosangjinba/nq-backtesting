@@ -24,6 +24,15 @@ export function createInMemorySessionRepository() {
     return activeSessionId ? getById(activeSessionId) : null;
   }
 
+  function open(id) {
+    const session = getById(id);
+    if (!session) {
+      throw new Error(`Session ${String(id || '').trim() || '<missing>'} does not exist.`);
+    }
+    activeSessionId = session.id;
+    return cloneSession(session);
+  }
+
   function list() {
     return [...sessionsById.values()].map(cloneSession);
   }
@@ -38,6 +47,7 @@ export function createInMemorySessionRepository() {
     getActive,
     getById,
     list,
+    open,
     save,
   };
 }

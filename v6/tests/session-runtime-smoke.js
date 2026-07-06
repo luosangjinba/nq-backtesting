@@ -24,8 +24,12 @@ resetSessionIdsForTest();
 
 const registry = createRuntimeRegistry();
 const createdEvents = [];
+const openedEvents = [];
 const unsubscribeCreated = subscribeEvent(SESSION_EVENTS.CREATED, (payload) => {
   createdEvents.push(payload);
+});
+const unsubscribeOpened = subscribeEvent(SESSION_EVENTS.OPENED, (payload) => {
+  openedEvents.push(payload);
 });
 
 registry.registerRuntime(createSessionRuntime());
@@ -35,7 +39,9 @@ assert.equal(hasCommand(SESSION_COMMANDS.CREATE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.GET_ACTIVE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.GET_BY_ID), true);
 assert.equal(hasCommand(SESSION_COMMANDS.LIST), true);
+assert.equal(hasCommand(SESSION_COMMANDS.OPEN), true);
 assert.equal(listenerCount(SESSION_EVENTS.CREATED), 1);
+assert.equal(listenerCount(SESSION_EVENTS.OPENED), 1);
 
 assert.equal(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), null);
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), []);
@@ -61,9 +67,34 @@ assert.equal((await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE)).symbol, 'NQ');
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_BY_ID, session.id), session);
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), [session]);
 
+const secondSession = await dispatchCommand(SESSION_COMMANDS.CREATE, {
+  createdAt: '2026-07-04T01:01:00.000Z',
+  endTime: '2026-06-04T16:00:00-04:00',
+  startTime: '2026-06-04T09:30:00-04:00',
+});
+assert.equal(secondSession.id, 'v6-session-0002');
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), secondSession);
+
+const opened = await dispatchCommand(SESSION_COMMANDS.OPEN, session.id);
+assert.deepEqual(opened, session);
+assert.equal(openedEvents.length, 1);
+assert.deepEqual(openedEvents[0], session);
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
+opened.symbol = 'MUTATED';
+assert.equal((await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE)).symbol, 'NQ');
+
+await assert.rejects(
+  () => dispatchCommand(SESSION_COMMANDS.OPEN, 'missing-session'),
+  /Session missing-session does not exist/
+);
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
+
 await registry.stop();
 assert.equal(hasCommand(SESSION_COMMANDS.CREATE), false);
+assert.equal(hasCommand(SESSION_COMMANDS.OPEN), false);
 unsubscribeCreated();
+unsubscribeOpened();
 assert.equal(listenerCount(SESSION_EVENTS.CREATED), 0);
+assert.equal(listenerCount(SESSION_EVENTS.OPENED), 0);
 
 console.log('v6 session runtime smoke passed');
