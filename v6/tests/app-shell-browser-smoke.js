@@ -54,6 +54,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntry'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryInitialization'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryContext'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
     assert.equal(value.journalMounted, true);
@@ -105,9 +106,16 @@ async function main() {
         const createdSessionId = openState.sessions[0]?.id || '';
         document.querySelector('[data-v6-dashboard-open-session]').click();
         await new Promise((resolve) => setTimeout(resolve, 0));
+        let contextState = await commandsModule.dispatchCommand('chartEntryContext.getState');
+        const deadline = performance.now() + 3000;
+        while (contextState.status === 'idle' && performance.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          contextState = await commandsModule.dispatchCommand('chartEntryContext.getState');
+        }
         return JSON.stringify({
           activeSessionId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
           activationState: await commandsModule.dispatchCommand('chartEntry.getState'),
+          contextState,
           initializationState: await commandsModule.dispatchCommand('chartEntryInitialization.getState'),
           closedSurface: root.dataset.v6Surface,
           count: openState.sessionCount,
@@ -132,6 +140,10 @@ async function main() {
     assert.equal(sessionFlow.initializationState.status, 'planned');
     assert.equal(sessionFlow.initializationState.plan.sessionId, sessionFlow.createdSessionId);
     assert.equal(sessionFlow.initializationState.plan.plannedWindow.bounded, true);
+    assert.equal(sessionFlow.contextState.status, 'loaded');
+    assert.equal(sessionFlow.contextState.loaded.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.contextState.loaded.plannedWindow.bounded, true);
+    assert.equal(sessionFlow.contextState.loaded.record.barCount > 0, true);
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {
