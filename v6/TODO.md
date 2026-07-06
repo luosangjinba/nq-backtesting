@@ -26,7 +26,7 @@
 Define the user-facing way to restart or reset replay after the transport reaches
 ended state.
 
-Status: planned.
+Status: active.
 
 Acceptance:
 
