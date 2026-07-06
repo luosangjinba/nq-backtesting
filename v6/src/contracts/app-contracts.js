@@ -59,6 +59,14 @@ export const CHART_ENTRY_DEFAULT_WALL_PLAN_EVENTS = Object.freeze({
   PLANNED: 'chartEntryDefaultWallPlan:planned',
 });
 
+export const CHART_ENTRY_PROJECTION_PREPARATION_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryProjectionPreparation.getState',
+});
+
+export const CHART_ENTRY_PROJECTION_PREPARATION_EVENTS = Object.freeze({
+  PREPARED: 'chartEntryProjectionPreparation:prepared',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
