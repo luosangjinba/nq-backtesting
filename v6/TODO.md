@@ -1026,22 +1026,21 @@ Verification:
 
 ### Step 54 - Simplify Session Dashboard Tabs
 
-Simplify the session dashboard to the three V6 entry points: Backtesting
-session, Sessions, and Analytics. Remove tutorial, prop-firm, generic dashboard,
-marketing, and premature statistics entry points.
+Completed in commits:
 
-Acceptance:
+- `ccfdf2a1 docs(v6): retarget step fifty four dashboard simplification`
+- `a6735ff8 fix(v6): simplify session dashboard entries`
+- `ebe5cca2 docs(v6): guard simplified session dashboard`
 
-- dashboard exposes only Backtesting session, Sessions, and Analytics as primary
-  sections/actions;
-- Backtesting session remains the only enabled create-session action;
-- Sessions displays the existing session list;
-- Analytics is a reserved placeholder for later session-segment analysis,
-  including replay orders and live orders, but owns no analytics state yet;
-- route/shell code still does not own chart data, replay cursor, viewport
-  intent, adapter state, bar cache, or session persistence;
-- dashboard, app-shell, product baseline, sessions surface, and
-  boundary gates remain passing.
+Verification:
+
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 
