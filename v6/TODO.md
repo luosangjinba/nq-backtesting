@@ -26,6 +26,8 @@
 Extend the chart-entry replay path from manual next to automatic playback ticks
 without reintroducing shell-owned timers or default-wall stepping.
 
+Status: active.
+
 Acceptance:
 
 - a dedicated auto-play owner controls timer lifecycle for chart-entry playback;
