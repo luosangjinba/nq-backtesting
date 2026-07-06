@@ -53,6 +53,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.journalPersistence'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.layout'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntry'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryInitialization'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
     assert.equal(value.journalMounted, true);
@@ -107,6 +108,7 @@ async function main() {
         return JSON.stringify({
           activeSessionId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
           activationState: await commandsModule.dispatchCommand('chartEntry.getState'),
+          initializationState: await commandsModule.dispatchCommand('chartEntryInitialization.getState'),
           closedSurface: root.dataset.v6Surface,
           count: openState.sessionCount,
           createdSessionId,
@@ -127,6 +129,9 @@ async function main() {
     assert.equal(sessionFlow.activationState.activeSessionId, sessionFlow.createdSessionId);
     assert.equal(sessionFlow.activationState.status, 'planned');
     assert.equal(sessionFlow.activationState.initializationPlan.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.initializationState.status, 'planned');
+    assert.equal(sessionFlow.initializationState.plan.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.initializationState.plan.plannedWindow.bounded, true);
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {
