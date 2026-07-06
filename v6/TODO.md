@@ -26,7 +26,14 @@
 Define and test the session dashboard persistence boundary before making the
 session list durable.
 
-Status: planned.
+Status: active.
+
+Notes for execution:
+
+- this step defines and gates the boundary first; it does not need to make
+  sessions durable yet;
+- the first durable slice should store session metadata only, not bars or chart
+  state.
 
 Notes:
 
