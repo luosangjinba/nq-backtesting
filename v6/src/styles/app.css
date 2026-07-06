@@ -1517,11 +1517,17 @@ p {
   background: #171b20;
 }
 
+.transport-grip:focus,
 .transport-grip:focus-visible,
+.transport-icon-button:focus,
 .transport-icon-button:focus-visible,
+.transport-period-trigger:focus,
 .transport-period-trigger:focus-visible,
+.transport-period-menu button:focus,
 .transport-period-menu button:focus-visible,
+.transport-speed-slider input:focus,
 .transport-speed-slider input:focus-visible,
+.transport-sync-toggle input:focus + span,
 .transport-sync-toggle input:focus-visible + span {
   outline: 2px solid #54a3ff;
   outline-offset: 2px;
