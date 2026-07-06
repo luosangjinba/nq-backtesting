@@ -107,15 +107,16 @@ const state = await dispatchCommand(CHART_ENTRY_PROJECTION_PREPARATION_COMMANDS.
 assert.equal(state.status, 'prepared');
 assert.equal(state.error, null);
 assert.equal(state.prepared.sessionId, 'session-prep');
-assert.equal(state.prepared.chartReplacePayload.bars.length, 5);
-assert.equal(state.prepared.viewportIntentPayload.cursorTimestamp, bars.at(-1).timestamp);
+assert.equal(state.prepared.chartReplacePayload.bars.length, 1);
+assert.equal(state.prepared.chartReplacePayload.cursorTimestamp, bars[0].timestamp);
+assert.equal(state.prepared.viewportIntentPayload.cursorTimestamp, bars[0].timestamp);
 assert.equal(state.prepared.source.barCount, 5);
 assert.equal('bars' in state.prepared.source, false);
 assert.equal('bars' in state.prepared.source.window, false);
 assert.equal(getWindowCalls.length, 1);
 assert.deepEqual(getWindowCalls[0], window);
 assert.equal(preparedEvents.length, 1);
-assert.equal(preparedEvents[0].chartReplacePayload.bars.length, 5);
+assert.equal(preparedEvents[0].chartReplacePayload.bars.length, 1);
 assert.equal(forbiddenCalls.length, 0);
 
 await registry.stop();

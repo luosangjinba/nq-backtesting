@@ -33,7 +33,7 @@ const plan = {
       key: 'NQ|1|2026-06-01 09:26|2026-06-01 09:30',
     },
   },
-  cursorTime: '2026-06-01T09:30:00.000Z',
+  cursorTime: new Date((1780306200 + (4 * 60)) * 1000).toISOString(),
   latestOffsetBars: 12,
   paneId: 'main',
   prefixBars: 120,

@@ -48,8 +48,8 @@ function createNextWindowPayload(replayState) {
   }
   return {
     anchor: replayState.cursorTime,
-    count: 1,
-    direction: 'forward',
+    count: 2,
+    direction: 'backward',
     instrument: String(replayState.symbol).toUpperCase(),
     timeframe: normalizeTimeframeMinutes(replayState.timeframe),
   };
@@ -62,7 +62,7 @@ function pickCursorBars(record, replayState) {
   }
   const cursorTimestamp = Math.floor(new Date(replayState.cursorTime).valueOf() / 1000);
   const exact = bars.filter((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
-  return exact.length ? exact : bars.slice(0, 1);
+  return exact.length ? exact : bars.slice(-1);
 }
 
 export function createChartEntryManualNextRuntime() {

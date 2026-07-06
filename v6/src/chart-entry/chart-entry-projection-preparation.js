@@ -29,6 +29,28 @@ function normalizeText(value, fieldName) {
   return normalized;
 }
 
+function parseCursorTimestamp(cursorTime) {
+  const timestamp = Math.floor(new Date(normalizeText(cursorTime, 'cursorTime')).valueOf() / 1000);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error('Chart entry projection cursorTime must be a valid date/time.');
+  }
+  return timestamp;
+}
+
+function findCursorBarIndex(bars, cursorTime) {
+  const cursorTimestamp = parseCursorTimestamp(cursorTime);
+  const exactIndex = bars.findIndex((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
+  if (exactIndex >= 0) return exactIndex;
+  let nearestPastIndex = -1;
+  bars.forEach((bar, index) => {
+    if (Number(bar.timestamp ?? bar.time) <= cursorTimestamp) {
+      nearestPastIndex = index;
+    }
+  });
+  if (nearestPastIndex >= 0) return nearestPastIndex;
+  throw new Error('Chart entry projection cached bars do not cover replay cursor.');
+}
+
 function normalizeSourceTimeframe(plan, cacheRecord) {
   return normalizePositiveInteger(
     plan?.context?.loadedWindow?.timeframe
@@ -87,7 +109,7 @@ export function createChartEntryProjectionPreparation(plan, cacheRecord, {
     paneId: normalizeText(plan.paneId, 'paneId'),
     prefixBars: normalizeNonNegativeInteger(plan.prefixBars, 'prefixBars'),
     spanBars: normalizePositiveInteger(plan.spanBars, 'spanBars'),
-    startIndex: bars.length - 1,
+    startIndex: findCursorBarIndex(bars, plan.cursorTime),
   });
   const chartReplacePayload = createDefaultWallPaneReplacePayload(wallState, {
     displayTimeframe: targetTimeframe,
