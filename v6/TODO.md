@@ -1061,6 +1061,26 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 56 - Standalone Session Surface
+
+Convert the session dashboard from a chart-workstation overlay into a standalone
+session surface. The app should boot into the session page, and the chart
+workstation should be entered only after creating or opening a session.
+
+Acceptance:
+
+- default V6 surface is `session`, not `workstation`;
+- the chart workstation is hidden while the session surface is active;
+- the chart top-left back button returns to the standalone session surface;
+- creating a backtesting session or opening an existing session switches to the
+  chart workstation through session runtime identity only;
+- no duplicate session tabs, no chart-forward control, and no dashboard overlay
+  semantics remain in the controller API;
+- route/shell code still does not load chart data, replay windows, viewport
+  intent, adapter state, or bar cache;
+- session dashboard, app shell, product baseline, guardrails, and boundary gates
+  remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
