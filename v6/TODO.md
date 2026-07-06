@@ -26,7 +26,13 @@
 Polish replay transport focus behavior and keyboard affordances now that the
 visual state matrix is stable.
 
-Status: planned.
+Status: active.
+
+Notes:
+
+- transport shortcuts must not fire while a transport popover/menu is open;
+- focus behavior should be visible and testable without changing replay
+  runtime state ownership.
 
 Scope:
 
