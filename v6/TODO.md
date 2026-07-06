@@ -963,23 +963,42 @@ Verification:
 
 ### Step 51 - Real Chart Manual Wall Input Bridge
 
-Connect real chart visible-range interaction to V6 manual-wall intent without
-copying V5 chart runtime ownership. This step uses the Lightweight Charts
-time-scale visible logical range API through the chart-engine boundary.
+Completed in commits:
+
+- `40e8e6a9 docs(v6): retarget step fifty one to chart input bridge`
+- `65221c65 feat(v6): expose chart visible range subscriptions`
+- `83798dde feat(v6): bridge chart range input to manual walls`
+- `6d74660c test(v6): gate native chart input manual walls`
+
+Verification:
+
+- `node v6/tests/manual-wall-input-bridge-smoke.js`
+- `node v6/tests/chart-engine-adapter-smoke.js`
+- `node v6/tests/chart-host-manager-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-native-manual-wall-input-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 52 - Chart Toolbar Chrome Cleanup
+
+Remove or replace the remaining chart-internal text toolbar controls so the
+single-pane chart surface does not duplicate the top toolbar and right utility
+rail.
 
 Acceptance:
 
-- native chart pan/zoom visible range changes can promote the active pane to a
-  manual wall through `CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT`;
-- the bridge measures logical range only and does not own chart bars, replay
-  cursor, viewport intent, adapter state, bar cache, or session persistence;
-- after a real chart range interaction, Next/Play preserves the manual wall
-  offset/span and moves the visible range left as new candles appear;
-- cache-hit visible path remains free of data fetches and visible-latency gates
-  still pass;
+- chart surface no longer exposes duplicate `Go to` / `Layout` text buttons;
+- chart status/OHLC remains pane-local at the chart top-left;
+- top toolbar/right rail remain the shell homes for layout and go-to commands;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, adapter state, bar cache, or session persistence;
-- workstation manual-wall, visible latency, chart engine, product baseline, and
+- app-shell, product baseline, status-readout, UI guardrails, parity audit, and
   boundary gates remain passing.
 
 ## Deferred Until Later Gates
