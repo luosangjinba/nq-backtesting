@@ -1279,6 +1279,30 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
+### Step 67 - Chart Entry Manual Next Owner
+
+Introduce the chart-entry manual next owner for the new session-entry path. This
+step should route transport next away from the old coupled `defaultWall.next`
+path, advance replay once, load the next cursor bar through bar-data runtime,
+append it to chart-data, and rely on chart-viewport/chart-surface bridges for
+projection and browser visibility.
+
+Acceptance:
+
+- a dedicated manual-next runtime exposes an explicit next command and state
+  command;
+- transport `next` dispatches the new chart-entry next command instead of
+  `defaultWall.next`;
+- the runtime calls `replay.next`, loads the next cursor bar through
+  `barData.loadWindow`, and dispatches `chartData.appendBars`;
+- the runtime does not call `defaultWall.next`, `defaultWall.load`, chart adapter
+  APIs, or route/shell internals;
+- next state/events carry cloned replay, loaded bar, and chart record summaries;
+- browser smoke verifies clicking the transport next button increments visible
+  chart data and keeps the latest candle inside the projected visible range;
+- projection apply, initial visibility, app shell, session dashboard, product
+  baseline, UI guardrail, and boundary gates remain passing.
+
 ## Deferred Until Later Gates
 
 - visual polish.
