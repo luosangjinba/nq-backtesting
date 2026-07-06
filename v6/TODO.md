@@ -26,7 +26,15 @@
 Audit all replay transport controls for final visual state consistency before
 adding more workflow features.
 
-Status: planned.
+Status: active.
+
+Scope:
+
+- keep replay transport as shell-owned viewport UI that dispatches commands;
+- audit only control state semantics and visual markers, not replay cursor,
+  chart data, bars, or viewport intent ownership;
+- make disabled click/keyboard behavior explicit enough to test instead of
+  relying only on browser native disabled-button behavior.
 
 Acceptance:
 
