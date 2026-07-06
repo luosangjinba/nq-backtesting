@@ -14,30 +14,29 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 70 - Chart View Reset Intent Owner. Reset View
-  now restores the current pane from a manual/temporary wall to that pane's
-  default right-side anchor wall through chart-viewport ownership.
+- Latest completed step: Step 71 - Chart Entry Playback Period Sync Policy.
+  Transport playback period now has an explicit runtime owner, a synced/unsynced
+  state model, and browser coverage proving manual period changes do not mutate
+  pane display timeframe.
 
 ## Next Executable Steps
 
-### Step 71 - Chart Entry Playback Period Sync Policy
+### Step 72 - Chart Entry Playback Period Execution Integration
 
-Define the distinction between chart display timeframe and playback period sync
-for the FXReplay transport.
+Make manual next and auto-play consume the owned playback period state without
+collapsing it into chart display timeframe.
 
-Status: active.
+Status: planned.
 
 Acceptance:
 
-- playback period state has an explicit owner and does not live as shell-only
-  DOM state;
-- sync-on mode follows active pane display timeframe through commands/events;
-- sync-off mode lets transport playback period differ from chart display
-  timeframe without changing pane display timeframe;
-- browser smoke verifies period menu, sync toggle, and active playback period
-  behavior;
-- replay/chart visibility, auto-play, transport, UI guardrail, and boundary
-  gates remain passing.
+- manual next consults playback period through command boundaries before
+  deciding how many source bars to reveal;
+- auto-play ticks use the same period policy as manual next;
+- sync-on playback period follows active pane display timeframe but still does
+  not let transport UI write pane/chart state directly;
+- browser smoke covers at least one non-1m manual period and one sync-on period;
+- existing visible latency and reset-view gates remain passing.
 
 ## Completed Steps
 
@@ -1378,6 +1377,32 @@ Verification:
 - `node v6/tests/chart-entry-manual-next-browser-smoke.js`
 - `node v6/tests/chart-entry-auto-play-browser-smoke.js`
 - `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+### Step 71 - Chart Entry Playback Period Sync Policy
+
+Completed in commits:
+
+- `de86fb32 docs(v6): scope step seventy one playback period`
+- `280c4f8d feat(v6): add playback period runtime`
+- `263de362 feat(v6): wire playback period controls`
+- `84af0053 test(v6): cover playback period sync`
+
+Verification:
+
+- `node v6/tests/playback-period-runtime-smoke.js`
+- `node v6/tests/playback-period-browser-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-transport-browser-smoke.js`
+- `node v6/tests/chart-entry-manual-next-browser-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/product-baseline-screenshot-smoke.js`
