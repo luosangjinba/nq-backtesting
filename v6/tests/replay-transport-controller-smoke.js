@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {
   CHART_ENTRY_AUTO_PLAY_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
+  CHART_ENTRY_RESTART_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
   createReplayTransportState,
@@ -44,6 +45,7 @@ function createFakeElement({
     querySelector(selector) {
       if (selector === '[data-v6-transport-action="play-toggle"]') return this.playButton || null;
       if (selector === '[data-v6-transport-action="next"]') return this.nextButton || null;
+      if (selector === '[data-v6-transport-action="restart"]') return this.restartButton || null;
       return null;
     },
     querySelectorAll(selector) {
@@ -104,10 +106,12 @@ const root = createFakeElement({ tagName: 'div' });
 root.ownerDocument = fakeDocument;
 const playButton = createFakeElement({ dataset: { v6TransportAction: 'play-toggle' } });
 const nextButton = createFakeElement({ dataset: { v6TransportAction: 'next' } });
+const restartButton = createFakeElement({ dataset: { v6TransportAction: 'restart' } });
 const speedButton = createFakeElement({ dataset: { v6TransportSpeed: '2' } });
 root.playButton = playButton;
 root.nextButton = nextButton;
-root.children = [playButton, nextButton, speedButton];
+root.restartButton = restartButton;
+root.children = [playButton, nextButton, restartButton, speedButton];
 root.speedButtons = [speedButton];
 
 const dispatched = [];
@@ -192,14 +196,31 @@ assert.equal(root.dataset.ended, 'true');
 assert.equal(root.dataset.playbackStatus, 'ended');
 assert.equal(playButton.disabled, true);
 assert.equal(nextButton.disabled, true);
+assert.equal(restartButton.disabled, false);
 assert.equal(playButton['aria-label'], 'Replay ended');
 assert.equal(nextButton['aria-label'], 'Replay ended');
+assert.equal(restartButton['aria-label'], 'Restart replay');
 const dispatchCountAtEnded = dispatched.length;
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 fakeDocument.keydown({ key: ' ', target: root });
 await Promise.resolve();
 assert.equal(dispatched.length, dispatchCountAtEnded);
 assert.equal(root.dataset.lastAction, 'ended');
+
+root.click(restartButton);
+await Promise.resolve();
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_RESTART_COMMANDS.RESTART,
+  payload: undefined,
+});
+assert.equal(controller.getState().replayStatus, 'restarting');
+assert.equal(restartButton.disabled, true);
+
+eventListeners.get('replay:loaded')?.({ status: 'ready' });
+assert.equal(controller.getState().replayStatus, 'ready');
+assert.equal(playButton.disabled, false);
+assert.equal(nextButton.disabled, false);
+assert.equal(restartButton.disabled, true);
 
 controller.destroy();
 

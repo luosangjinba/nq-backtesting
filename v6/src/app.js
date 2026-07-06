@@ -12,6 +12,7 @@ import { createChartEntryManualNextRuntime } from './chart-entry/chart-entry-man
 import { createChartEntryProjectionApplyRuntime } from './chart-entry/chart-entry-projection-apply-runtime.js';
 import { createChartEntryProjectionPreparationRuntime } from './chart-entry/chart-entry-projection-preparation-runtime.js';
 import { createChartEntryReplayBootstrapRuntime } from './chart-entry/chart-entry-replay-bootstrap-runtime.js';
+import { createChartEntryRestartRuntime } from './chart-entry/chart-entry-restart-runtime.js';
 import { createChartEntryRuntime } from './chart-entry/chart-entry-runtime.js';
 import { connectChartDataSurfaceBridge } from './chart-engine/chart-data-surface-bridge.js';
 import { connectChartViewportSurfaceBridge } from './chart-engine/chart-viewport-surface-bridge.js';
@@ -70,6 +71,7 @@ registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createChartEntryProjectionApplyRuntime());
 registry.registerRuntime(createChartEntryManualNextRuntime());
 registry.registerRuntime(createChartEntryAutoPlayRuntime());
+registry.registerRuntime(createChartEntryRestartRuntime());
 registry.registerRuntime(createDefaultWallRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
 registry.registerRuntime(createPlaybackPeriodRuntime());

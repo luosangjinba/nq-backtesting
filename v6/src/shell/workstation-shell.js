@@ -439,7 +439,7 @@ export function createWorkstationShellMarkup() {
       </main>
       <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
         <button type="button" class="transport-grip" data-v6-transport-drag-handle aria-label="Drag replay controls">${icon('grip')}</button>
-        <button type="button" class="transport-icon-button" data-v6-transport-truncate disabled aria-label="Truncate replay after current bar">${icon('truncate')}</button>
+        <button type="button" class="transport-icon-button" data-v6-transport-action="restart" disabled aria-label="Restart available after replay ends">${icon('truncate')}</button>
         <label class="transport-speed-slider" aria-label="Replay speed">
           <input type="range" min="0.5" max="4" step="0.5" value="1" data-v6-transport-speed-slider>
         </label>

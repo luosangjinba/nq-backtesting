@@ -3,6 +3,7 @@ import {
   CHART_ENTRY_AUTO_PLAY_EVENTS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
+  CHART_ENTRY_RESTART_COMMANDS,
   PLAYBACK_PERIOD_COMMANDS,
   PLAYBACK_PERIOD_EVENTS,
   REPLAY_EVENTS,
@@ -71,6 +72,15 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
         payload: playing ? { speed: state.speed } : undefined,
       });
     }
+    case 'restart':
+      return Object.freeze({
+        command: CHART_ENTRY_RESTART_COMMANDS.RESTART,
+        nextState: createReplayTransportState({
+          ...state,
+          playing: false,
+          replayStatus: 'restarting',
+        }),
+      });
     default:
       throw new Error(`Unsupported replay transport action: ${action}`);
   }
@@ -124,6 +134,13 @@ function updateDom(root, state) {
     nextButton.disabled = ended;
     nextButton.setAttribute('aria-label', ended ? 'Replay ended' : 'Next replay bar');
     nextButton.setAttribute('aria-disabled', String(ended));
+  }
+  const restartButton = root.querySelector('[data-v6-transport-action="restart"]');
+  if (restartButton) {
+    const ended = state.replayStatus === 'ended';
+    restartButton.disabled = !ended;
+    restartButton.setAttribute('aria-label', ended ? 'Restart replay' : 'Restart available after replay ends');
+    restartButton.setAttribute('aria-disabled', String(!ended));
   }
   const speedSlider = root.querySelector('[data-v6-transport-speed-slider]');
   if (speedSlider) {
