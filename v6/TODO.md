@@ -14,49 +14,71 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 82 - Session Metadata Delete Action.
-  Dashboard session rows can now be deleted through a metadata-only command.
-  Deleting inactive metadata preserves active chart/replay state; deleting
-  active metadata clears only the repository active session id and leaves chart
-  data, replay state, bars, and viewport ownership untouched.
+- Latest completed step: Step 83 - Quick Session Creation Flow.
+  The dashboard now opens an FXReplay-style quick session modal for backtesting
+  sessions. Session creation captures name, assets, account balance, start/end
+  dates, and auto-update-end-date metadata, then enters the chart through the
+  existing session.create path without moving chart, replay, bars, or viewport
+  ownership into the dashboard.
 
 ## Next Executable Steps
 
-### Step 83 - Quick Session Creation Flow
+### Step 84 - Recent Sessions Controls
 
-Replace the simplified embedded start/end form with an FXReplay-style quick
-session creation flow.
+Turn the Recent Sessions search, sort, and row controls into explicit
+metadata-only dashboard behavior.
 
 Status: planned.
 
 Notes for execution:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- the quick session modal collects session metadata and only creates/opens the
-  chart after the user confirms;
-- multi-asset selection is metadata-first, with the first selected asset as the
-  active chart symbol until multi-pane support owns secondary symbols;
-- account balance, chart layout, prop firm session, advanced session, and random
-  date remain UI placeholders unless an owning runtime is introduced.
+- search/sort/pagination must filter only session metadata already loaded into
+  the dashboard;
+- summary/analytics/copy row controls remain placeholders until their owning
+  modules exist;
+- opening a recent session remains the only path that enters chart workstation
+  and loads bars.
 
 Scope:
 
-- add session name, selected assets, account balance, and auto-update-end-date
-  metadata to session creation;
-- replace dashboard quick-create card with a modal flow;
-- restyle recent sessions around named sessions and asset chips;
-- update browser smoke for create, reload, and reopen from recent sessions.
+- add dashboard-local search and newest/oldest sort;
+- add rows-per-page controls if needed for long metadata lists;
+- clarify placeholder row actions without implying active trading ownership;
+- update browser smoke for metadata-only filtering.
 
 Acceptance:
 
-- clicking Backtesting session opens the quick session modal;
-- creating a valid quick session persists name/assets/date metadata and enters
-  the chart;
-- restored recent sessions can be opened explicitly without loading bars on
-  dashboard render;
-- unsupported controls remain clearly non-owning placeholders.
+- filtering and sorting do not dispatch chart, replay, bar, or viewport commands;
+- opening a filtered row still loads only that explicit session;
+- tests cover reload plus search/sort behavior.
 
 ## Completed Steps
+
+### Step 83 - Quick Session Creation Flow
+
+Completed in commits:
+
+- `c7e13d04 docs(v6): scope quick session flow`
+- `1b2d2ccd feat(v6): extend quick session metadata`
+- `54f143ef feat(v6): add quick session modal`
+
+Verification:
+
+- `node v6/tests/session-domain-smoke.js`
+- `node v6/tests/session-setup-model-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/session-metadata-storage-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `git diff --check`
 
 ### Step 82 - Session Metadata Delete Action
 
