@@ -7,6 +7,7 @@ import {
   REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
+  clampReplayTransportPosition,
   createReplayTransportState,
   mountReplayTransport,
   resolveReplayTransportAction,
@@ -30,11 +31,15 @@ function createFakeElement({
     ownerDocument: null,
     tagName,
     textContent: '',
+    style: {},
     addEventListener(type, listener) {
       listeners.set(type, listener);
     },
     click(target = this) {
       listeners.get('click')?.({ target });
+    },
+    dispatchEvent(event) {
+      listeners.get(event.type)?.(event);
     },
     closest(selector) {
       if (selector === '[data-v6-transport-action]' && this.dataset.v6TransportAction) return this;
@@ -56,12 +61,27 @@ function createFakeElement({
       if (selector === '[data-v6-transport-action="play-toggle"]') return this.playButton || null;
       if (selector === '[data-v6-transport-action="next"]') return this.nextButton || null;
       if (selector === '[data-v6-transport-action="restart"]') return this.restartButton || null;
+      if (selector === '[data-v6-transport-drag-handle]') return this.dragHandle || null;
       if (selector === '[data-v6-transport-speed-slider]') return this.speedSlider || null;
       if (selector === '[data-v6-transport-period-label]') return this.periodLabel || null;
       if (selector === '[data-v6-transport-period-toggle]') return this.periodTrigger || null;
       if (selector === '[data-v6-transport-period-details]') return this.periodDetails || null;
       if (selector === '[data-v6-transport-period-sync]') return this.periodSync || null;
       return null;
+    },
+    getBoundingClientRect() {
+      const left = Number.parseFloat(this.style.left || this.rect?.left || 0);
+      const top = Number.parseFloat(this.style.top || this.rect?.top || 0);
+      const width = Number(this.rect?.width || 0);
+      const height = Number(this.rect?.height || 0);
+      return {
+        bottom: top + height,
+        height,
+        left,
+        right: left + width,
+        top,
+        width,
+      };
     },
     querySelectorAll(selector) {
       if (selector === '[data-v6-transport-speed]') return this.speedButtons || [];
@@ -81,8 +101,19 @@ function createFakeDocument() {
   const listeners = new Map();
   return {
     activeElement: null,
+    defaultView: {
+      innerHeight: 160,
+      innerWidth: 300,
+      setTimeout,
+    },
     addEventListener(type, listener) {
       listeners.set(type, listener);
+    },
+    removeEventListener(type) {
+      listeners.delete(type);
+    },
+    dispatchEvent(event) {
+      listeners.get(event.type)?.(event);
     },
     keydown(event) {
       listeners.get('keydown')?.({
@@ -120,13 +151,31 @@ assert.deepEqual(syncReplayTransportStateFromReplay({ playing: true, speed: 4 },
   speed: 4,
 });
 assert.equal(resolveReplayTransportAction('next', createReplayTransportState({ replayStatus: 'ended' })).command, null);
+assert.deepEqual(clampReplayTransportPosition({
+  height: 40,
+  left: 500,
+  top: -20,
+  viewportHeight: 160,
+  viewportWidth: 300,
+  width: 100,
+}), {
+  left: 200,
+  top: 0,
+});
 
 const fakeDocument = createFakeDocument();
 const root = createFakeElement({ tagName: 'div' });
 root.ownerDocument = fakeDocument;
+root.rect = {
+  height: 40,
+  left: 0,
+  top: 0,
+  width: 100,
+};
 const playButton = createFakeElement({ dataset: { v6TransportAction: 'play-toggle' } });
 const nextButton = createFakeElement({ dataset: { v6TransportAction: 'next' } });
 const restartButton = createFakeElement({ dataset: { v6TransportAction: 'restart' } });
+const dragHandle = createFakeElement({ tagName: 'button' });
 const speedButton = createFakeElement({ dataset: { v6TransportSpeed: '2' } });
 const speedSlider = createFakeElement({ dataset: { v6TransportSpeedSlider: 'true' }, tagName: 'input' });
 const periodLabel = createFakeElement({ tagName: 'span' });
@@ -143,6 +192,7 @@ periodSync.parentElement = periodSyncParent;
   playButton,
   nextButton,
   restartButton,
+  dragHandle,
   speedButton,
   speedSlider,
   periodLabel,
@@ -160,6 +210,7 @@ periodDetails.children = [periodTrigger, periodButton, periodButton3m, periodBut
 root.playButton = playButton;
 root.nextButton = nextButton;
 root.restartButton = restartButton;
+root.dragHandle = dragHandle;
 root.speedSlider = speedSlider;
 root.periodLabel = periodLabel;
 root.periodDetails = periodDetails;
@@ -169,6 +220,7 @@ root.children = [
   playButton,
   nextButton,
   restartButton,
+  dragHandle,
   speedButton,
   speedSlider,
   periodDetails,
@@ -178,6 +230,7 @@ root.speedButtons = [speedButton];
 root.periodButtons = [periodButton, periodButton3m, periodButton5m];
 
 const dispatched = [];
+const savedPositions = [];
 const eventListeners = new Map();
 const controller = mountReplayTransport(root, {
   dispatchCommand: async (command, payload) => {
@@ -191,6 +244,56 @@ const controller = mountReplayTransport(root, {
     eventListeners.set(eventName, listener);
     return () => eventListeners.delete(eventName);
   },
+  positionPreference: {
+    load() {
+      return {
+        height: 40,
+        left: 500,
+        top: -20,
+        width: 100,
+      };
+    },
+    save(position) {
+      savedPositions.push(position);
+    },
+  },
+});
+
+assert.equal(root.style.left, '200px');
+assert.equal(root.style.top, '0px');
+assert.equal(root.style.bottom, 'auto');
+assert.equal(root.style.transform, 'none');
+assert.equal(root.dataset.positionRestored, 'true');
+assert.deepEqual(savedPositions.at(-1), {
+  height: 40,
+  left: 200,
+  top: 0,
+  width: 100,
+});
+
+dragHandle.dispatchEvent({
+  clientX: 210,
+  clientY: 10,
+  preventDefault() {},
+  type: 'pointerdown',
+});
+fakeDocument.dispatchEvent({
+  clientX: 60,
+  clientY: 80,
+  type: 'pointermove',
+});
+fakeDocument.dispatchEvent({
+  clientX: 60,
+  clientY: 80,
+  type: 'pointerup',
+});
+assert.equal(root.style.left, '50px');
+assert.equal(root.style.top, '70px');
+assert.deepEqual(savedPositions.at(-1), {
+  height: 40,
+  left: 50,
+  top: 70,
+  width: 100,
 });
 
 root.click(playButton);

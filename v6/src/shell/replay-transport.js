@@ -15,6 +15,13 @@ import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 
 const SPEEDS = Object.freeze([0.5, 1, 2, 4]);
 
+const EMPTY_POSITION_PREFERENCE = Object.freeze({
+  load() {
+    return null;
+  },
+  save() {},
+});
+
 function normalizeSpeed(value) {
   const speed = Number(value);
   if (!SPEEDS.includes(speed)) {
@@ -28,6 +35,31 @@ function normalizeSliderSpeed(value) {
   return SPEEDS.reduce((nearest, speed) => (
     Math.abs(speed - numericValue) < Math.abs(nearest - numericValue) ? speed : nearest
   ), SPEEDS[0]);
+}
+
+function normalizeFiniteNumber(value, fallback = 0) {
+  const numericValue = Number(value);
+  return Number.isFinite(numericValue) ? numericValue : fallback;
+}
+
+export function clampReplayTransportPosition({
+  height = 0,
+  left = 0,
+  top = 0,
+  viewportHeight = 0,
+  viewportWidth = 0,
+  width = 0,
+} = {}) {
+  const safeWidth = Math.max(0, normalizeFiniteNumber(width));
+  const safeHeight = Math.max(0, normalizeFiniteNumber(height));
+  const safeViewportWidth = Math.max(0, normalizeFiniteNumber(viewportWidth));
+  const safeViewportHeight = Math.max(0, normalizeFiniteNumber(viewportHeight));
+  const maxLeft = Math.max(0, safeViewportWidth - safeWidth);
+  const maxTop = Math.max(0, safeViewportHeight - safeHeight);
+  return Object.freeze({
+    left: Math.min(maxLeft, Math.max(0, normalizeFiniteNumber(left))),
+    top: Math.min(maxTop, Math.max(0, normalizeFiniteNumber(top))),
+  });
 }
 
 export function createReplayTransportState({
@@ -205,6 +237,7 @@ function updateDom(root, state) {
 
 export function mountReplayTransport(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  positionPreference = EMPTY_POSITION_PREFERENCE,
   subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
@@ -214,6 +247,7 @@ export function mountReplayTransport(root, {
   const abortController = new AbortController();
   const signal = abortController.signal;
   const unsubscribeCallbacks = [];
+  const preference = positionPreference || EMPTY_POSITION_PREFERENCE;
 
   function setState(nextState) {
     state = createReplayTransportState(nextState);
@@ -341,6 +375,70 @@ export function mountReplayTransport(root, {
     });
   }
 
+  function getViewportSize() {
+    const view = root.ownerDocument?.defaultView;
+    return {
+      height: normalizeFiniteNumber(view?.innerHeight),
+      width: normalizeFiniteNumber(view?.innerWidth),
+    };
+  }
+
+  function getTransportSize(fallback = {}) {
+    const rect = root.getBoundingClientRect?.() || {};
+    return {
+      height: normalizeFiniteNumber(rect.height, normalizeFiniteNumber(fallback.height)),
+      width: normalizeFiniteNumber(rect.width, normalizeFiniteNumber(fallback.width)),
+    };
+  }
+
+  function applyTransportPosition(position) {
+    if (!position) return null;
+    const viewport = getViewportSize();
+    const size = getTransportSize(position);
+    const nextPosition = clampReplayTransportPosition({
+      height: size.height,
+      left: position.left,
+      top: position.top,
+      viewportHeight: viewport.height,
+      viewportWidth: viewport.width,
+      width: size.width,
+    });
+    root.style.left = `${nextPosition.left}px`;
+    root.style.top = `${nextPosition.top}px`;
+    root.style.bottom = 'auto';
+    root.style.transform = 'none';
+    root.dataset.dragged = 'true';
+    root.dataset.positionRestored = 'true';
+    return Object.freeze({
+      ...nextPosition,
+      height: size.height,
+      width: size.width,
+    });
+  }
+
+  function saveTransportPosition(position) {
+    if (typeof preference.save !== 'function') return;
+    try {
+      preference.save(position);
+    } catch (error) {
+      root.dataset.lastError = error?.message || String(error);
+    }
+  }
+
+  function restoreTransportPosition() {
+    if (typeof preference.load !== 'function') return null;
+    try {
+      const restoredPosition = applyTransportPosition(preference.load());
+      if (restoredPosition) {
+        saveTransportPosition(restoredPosition);
+      }
+      return restoredPosition;
+    } catch (error) {
+      root.dataset.lastError = error?.message || String(error);
+      return null;
+    }
+  }
+
   function startDrag(event) {
     if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') return;
     event.preventDefault?.();
@@ -370,6 +468,15 @@ export function mountReplayTransport(root, {
     const stop = () => {
       root.ownerDocument?.removeEventListener?.('pointermove', move);
       root.ownerDocument?.removeEventListener?.('pointerup', stop);
+      const rect = root.getBoundingClientRect?.();
+      if (rect) {
+        saveTransportPosition({
+          height: rect.height,
+          left: rect.left,
+          top: rect.top,
+          width: rect.width,
+        });
+      }
     };
     root.ownerDocument?.addEventListener?.('pointermove', move);
     root.ownerDocument?.addEventListener?.('pointerup', stop, { once: true });
@@ -498,6 +605,7 @@ export function mountReplayTransport(root, {
   Promise.resolve(dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE))
     .then(syncFromPlaybackPeriodEvent)
     .catch(() => {});
+  restoreTransportPosition();
 
   return Object.freeze({
     destroy() {

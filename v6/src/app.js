@@ -36,6 +36,7 @@ import { mountJournalSurface } from './shell/journal-surface.js';
 import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayWorkflowSurface } from './shell/replay-workflow-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
+import { createReplayTransportPositionPreference } from './shell/replay-transport-position-preference.js';
 import { mountSessionDashboard } from './shell/session-dashboard.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
@@ -101,7 +102,9 @@ const readinessSurface = mountReadinessSurface(root, { registry });
 const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('replay'),
 });
-const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'));
+const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'), {
+  positionPreference: createReplayTransportPositionPreference(),
+});
 const sessionDashboard = mountSessionDashboard(root);
 const settingsPanel = mountSettingsPanel(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('settings'),
