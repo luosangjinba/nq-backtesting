@@ -1024,19 +1024,20 @@ Verification:
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
-### Step 54 - Session Dashboard Navigation Contract
+### Step 54 - Simplify Session Dashboard Tabs
 
-Define the session dashboard's open-session/navigation contract before adding
-dashboard statistics, account analytics, or persistence polish.
+Simplify the session dashboard to the three V6 entry points: Backtesting
+session, Sessions, and Analytics. Remove tutorial, prop-firm, generic dashboard,
+marketing, and premature statistics entry points.
 
 Acceptance:
 
-- session rows have a clear shell-level open action that returns to the chart
-  workstation;
-- opening a session does not load full date ranges into chart state;
-- active session display remains owned by session runtime/state, not chart UI;
-- durable route URLs and persisted dashboard state remain deferred until their
-  owners exist;
+- dashboard exposes only Backtesting session, Sessions, and Analytics as primary
+  sections/actions;
+- Backtesting session remains the only enabled create-session action;
+- Sessions displays the existing session list;
+- Analytics is a reserved placeholder for later session-segment analysis,
+  including replay orders and live orders, but owns no analytics state yet;
 - route/shell code still does not own chart data, replay cursor, viewport
   intent, adapter state, bar cache, or session persistence;
 - dashboard, app-shell, product baseline, sessions surface, and
