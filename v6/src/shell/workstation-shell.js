@@ -44,23 +44,24 @@ export function createWorkstationShellMarkup() {
           <button type="button" class="session-dashboard-chart-button" data-v6-dashboard-open-chart>${icon('arrowRight')}<span>Open chart</span></button>
         </header>
         <nav class="session-dashboard-tabs" aria-label="Session dashboard sections">
-          <button type="button" class="is-active" disabled>${icon('grid')}<span>Dashboard</span></button>
-          <button type="button" disabled>${icon('journal')}<span>Sessions</span></button>
+          <button type="button" class="is-active" disabled>${icon('journal')}<span>Sessions</span></button>
           <button type="button" disabled>${icon('indicators')}<span>Analytics</span></button>
         </nav>
         <main class="session-dashboard-main">
-          <section class="session-dashboard-actions" aria-label="Session actions">
+          <section class="session-dashboard-actions" aria-label="Backtesting session">
             <button type="button" data-v6-dashboard-create-session>${icon('plusCircle')}<span>Backtesting session</span></button>
-            <button type="button" disabled>${icon('spark')}<span>Prop firm session</span></button>
-            <button type="button" disabled>${icon('info')}<span>Tutorials</span></button>
           </section>
-          <section class="session-dashboard-list-section" aria-label="Recent sessions">
+          <section class="session-dashboard-list-section" aria-label="Sessions">
             <header>
-              <strong>Recent Sessions</strong>
+              <strong>${icon('journal')}<span>Sessions</span></strong>
               <button type="button" data-v6-dashboard-refresh>${icon('redo')}<span>Refresh</span></button>
             </header>
             <ul class="session-dashboard-list" data-v6-dashboard-session-list></ul>
             <p class="session-dashboard-empty" data-v6-dashboard-empty>No replay sessions yet</p>
+          </section>
+          <section class="session-dashboard-analytics" data-v6-dashboard-analytics aria-label="Analytics">
+            <header>${icon('indicators')}<strong>Analytics</strong></header>
+            <p>Session segment analysis placeholder for replay orders, live orders, and review statistics.</p>
           </section>
         </main>
       </section>

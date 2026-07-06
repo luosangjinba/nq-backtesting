@@ -16,9 +16,13 @@ try {
       document.querySelector('[data-v6-dashboard-toggle]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       const openedState = {
+        actionLabels: [...document.querySelectorAll('.session-dashboard-actions button')].map((button) => button.textContent.trim()),
+        analyticsText: document.querySelector('[data-v6-dashboard-analytics]')?.textContent || '',
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
         dashboardOpen: root.__v6SessionDashboard.getState().open,
         forwardExists: Boolean(document.querySelector('[data-v6-top-session-forward]')),
+        tabLabels: [...document.querySelectorAll('.session-dashboard-tabs button')].map((button) => button.textContent.trim()),
+        text: document.querySelector('[data-v6-session-dashboard]').textContent || '',
         surface: root.dataset.v6Surface,
         toggleExpanded: document.querySelector('[data-v6-dashboard-toggle]').getAttribute('aria-expanded'),
         transportHidden: document.querySelector('[data-v6-transport]').hidden,
@@ -75,6 +79,13 @@ try {
   });
   assert.equal(value.openedState.dashboardHidden, false);
   assert.equal(value.openedState.dashboardOpen, true);
+  assert.deepEqual(value.openedState.tabLabels, ['Sessions', 'Analytics']);
+  assert.deepEqual(value.openedState.actionLabels, ['Backtesting session']);
+  assert.match(value.openedState.analyticsText, /replay orders/);
+  assert.match(value.openedState.analyticsText, /live orders/);
+  assert.equal(value.openedState.text.includes('Dashboard'), false);
+  assert.equal(value.openedState.text.includes('Tutorials'), false);
+  assert.equal(value.openedState.text.includes('Prop firm'), false);
   assert.equal(value.openedState.forwardExists, false);
   assert.equal(value.openedState.surface, 'dashboard');
   assert.equal(value.openedState.toggleExpanded, 'true');

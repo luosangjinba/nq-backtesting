@@ -101,7 +101,8 @@ p {
 .session-dashboard-header,
 .session-dashboard-tabs,
 .session-dashboard-actions,
-.session-dashboard-list-section header {
+.session-dashboard-list-section header,
+.session-dashboard-analytics header {
   display: flex;
   align-items: center;
 }
@@ -124,6 +125,7 @@ p {
 .session-dashboard-header span,
 .session-dashboard-tabs button,
 .session-dashboard-list-section span,
+.session-dashboard-analytics p,
 .session-dashboard-empty {
   color: #84909b;
   font-size: 12px;
@@ -194,13 +196,22 @@ p {
   gap: 10px;
 }
 
-.session-dashboard-list-section header {
+.session-dashboard-list-section header,
+.session-dashboard-analytics header {
   justify-content: space-between;
 }
 
-.session-dashboard-list-section header strong {
+.session-dashboard-list-section header strong,
+.session-dashboard-analytics header {
   color: #e8eef3;
   font-size: 14px;
+}
+
+.session-dashboard-list-section header strong,
+.session-dashboard-analytics header {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .session-dashboard-list {
@@ -244,6 +255,19 @@ p {
   padding: 14px;
   border: 1px dashed #2b343c;
   border-radius: 8px;
+}
+
+.session-dashboard-analytics {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid #242a30;
+  border-radius: 8px;
+  background: #101316;
+}
+
+.session-dashboard-analytics p {
+  margin: 0;
 }
 
 .top-bar {
