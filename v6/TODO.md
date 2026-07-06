@@ -14,29 +14,29 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 49 - Timeframe Menu Shell Parity Slice. The
-  implementation replaces the native timeframe select with a grouped floating
-  interval menu while preserving display-timeframe runtime ownership.
+- Latest completed step: Step 67 - Chart Entry Manual Next Owner. Transport
+  `next` now uses the chart-entry owner path to advance replay, load the cursor
+  bar through bar-data, append chart data, and keep latest candle visibility
+  covered by a browser gate.
 
 ## Next Executable Steps
 
-### Step 50 - Right Utility Rail Shell Reservation
+### Step 68 - Chart Entry Auto Playback Tick Owner
 
-Reserve the FXReplay-style right utility rail outside the chart price scale and
-tight to the screen edge.
+Extend the chart-entry replay path from manual next to automatic playback ticks
+without reintroducing shell-owned timers or default-wall stepping.
 
 Acceptance:
 
-- right utility rail is visually outside the chart price scale and does not
-  resize the chart engine host unexpectedly;
-- rail includes inert shell entries for Order, Go to, News, Journal,
-  watch/tool, and Settings;
-- entries without owners are disabled or inert placeholders with accessible
-  labels;
-- route/shell code still does not own chart data, replay cursor, viewport
-  intent, or adapter state;
-- app-shell, product baseline, UI guardrails, parity audit, and boundary gates
-  remain passing.
+- a dedicated auto-play owner controls timer lifecycle for chart-entry playback;
+- transport play/pause dispatches owner commands and does not own replay timing;
+- each tick reuses the chart-entry manual next command or an equivalent shared
+  owner API, not `defaultWall.next`;
+- speed settings influence tick cadence without creating visible candle delay;
+- browser smoke verifies automatic playback appends multiple visible candles and
+  keeps latest candle inside projected visible range;
+- manual next, initial visibility, app shell, session dashboard, product
+  baseline, UI guardrail, and boundary gates remain passing.
 
 ## Completed Steps
 
@@ -1281,27 +1281,29 @@ Verification:
 
 ### Step 67 - Chart Entry Manual Next Owner
 
-Introduce the chart-entry manual next owner for the new session-entry path. This
-step should route transport next away from the old coupled `defaultWall.next`
-path, advance replay once, load the next cursor bar through bar-data runtime,
-append it to chart-data, and rely on chart-viewport/chart-surface bridges for
-projection and browser visibility.
+Completed in commits:
 
-Acceptance:
+- `ad398407 docs(v6): scope step sixty seven manual next`
+- `5f558c9d feat(v6): add chart entry manual next runtime`
+- `7200225a feat(v6): route transport next through chart entry`
+- `22e4104a fix(v6): align chart entry cursor projection`
+- `9ab77168 test(v6): add chart entry manual next browser smoke`
 
-- a dedicated manual-next runtime exposes an explicit next command and state
-  command;
-- transport `next` dispatches the new chart-entry next command instead of
-  `defaultWall.next`;
-- the runtime calls `replay.next`, loads the next cursor bar through
-  `barData.loadWindow`, and dispatches `chartData.appendBars`;
-- the runtime does not call `defaultWall.next`, `defaultWall.load`, chart adapter
-  APIs, or route/shell internals;
-- next state/events carry cloned replay, loaded bar, and chart record summaries;
-- browser smoke verifies clicking the transport next button increments visible
-  chart data and keeps the latest candle inside the projected visible range;
-- projection apply, initial visibility, app shell, session dashboard, product
-  baseline, UI guardrail, and boundary gates remain passing.
+Verification:
+
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-entry-manual-next-browser-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ## Deferred Until Later Gates
 

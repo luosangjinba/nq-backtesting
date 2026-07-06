@@ -175,6 +175,11 @@ Chart entry has a dedicated runtime boundary:
   and dispatch `chartViewport.ensureIntent` followed by `chartData.replaceBars`.
   It must not call chart adapter APIs directly, call `defaultWall.load`, fetch
   bars, advance replay, or re-own bar/replay state.
+- `runtime.chartEntryManualNext` may handle transport next by dispatching
+  `replay.next`, loading the cursor bar through `barData.loadWindow`, and
+  appending through `chartData.appendBars`. It must not call
+  `defaultWall.next`, `defaultWall.load`, chart adapter APIs, or route/shell
+  internals.
 - Missing-session open failures must not change activation state.
 
 ## Timeframe Menu
