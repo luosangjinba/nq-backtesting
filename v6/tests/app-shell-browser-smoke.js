@@ -55,6 +55,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntry'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryInitialization'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryContext'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryReplayBootstrap'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
     assert.equal(value.journalMounted, true);
@@ -112,11 +113,19 @@ async function main() {
           await new Promise((resolve) => setTimeout(resolve, 50));
           contextState = await commandsModule.dispatchCommand('chartEntryContext.getState');
         }
+        let bootstrapState = await commandsModule.dispatchCommand('chartEntryReplayBootstrap.getState');
+        while (bootstrapState.status === 'idle' && performance.now() < deadline) {
+          await new Promise((resolve) => setTimeout(resolve, 50));
+          bootstrapState = await commandsModule.dispatchCommand('chartEntryReplayBootstrap.getState');
+        }
         return JSON.stringify({
           activeSessionId: (await commandsModule.dispatchCommand('session.getActive'))?.id || '',
           activationState: await commandsModule.dispatchCommand('chartEntry.getState'),
+          bootstrapState,
+          chartDataSummary: await commandsModule.dispatchCommand('chartData.getSummary'),
           contextState,
           initializationState: await commandsModule.dispatchCommand('chartEntryInitialization.getState'),
+          replayState: await commandsModule.dispatchCommand('replay.getState'),
           closedSurface: root.dataset.v6Surface,
           count: openState.sessionCount,
           createdSessionId,
@@ -144,6 +153,13 @@ async function main() {
     assert.equal(sessionFlow.contextState.loaded.sessionId, sessionFlow.createdSessionId);
     assert.equal(sessionFlow.contextState.loaded.plannedWindow.bounded, true);
     assert.equal(sessionFlow.contextState.loaded.record.barCount > 0, true);
+    assert.equal(sessionFlow.bootstrapState.status, 'loaded');
+    assert.equal(sessionFlow.bootstrapState.loaded.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.bootstrapState.loaded.replayState.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.replayState.sessionId, sessionFlow.createdSessionId);
+    assert.equal(sessionFlow.replayState.revealedCount, 1);
+    assert.equal(sessionFlow.replayState.status, 'ready');
+    assert.equal(sessionFlow.chartDataSummary.paneCount, 0);
 
     const replayWorkflow = JSON.parse(await evaluate(page.client, `
       (async () => {
@@ -162,8 +178,8 @@ async function main() {
       })()
     `));
     assert.equal(replayWorkflow.open, true);
-    assert.equal(replayWorkflow.loaded, false);
-    assert.equal(replayWorkflow.replayText, 'No replay loaded');
+    assert.equal(replayWorkflow.loaded, true);
+    assert.equal(replayWorkflow.replayText, `ready at ${sessionFlow.replayState.cursorTime}`);
     assert.equal(replayWorkflow.wallText, 'No replay wall loaded');
 
     const journalFlow = JSON.parse(await evaluate(page.client, `
