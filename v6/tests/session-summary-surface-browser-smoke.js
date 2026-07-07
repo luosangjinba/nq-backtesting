@@ -96,7 +96,7 @@ try {
   assert.equal(value.before.replay, null);
   assert.equal(value.before.chartEntry.status, 'idle');
   assert.deepEqual(value.disabledActions, [
-    { id: 'analytics', disabled: true, ariaDisabled: 'true' },
+    { id: 'analytics', disabled: false, ariaDisabled: 'false' },
     { id: 'copy', disabled: true, ariaDisabled: 'true' },
   ]);
 

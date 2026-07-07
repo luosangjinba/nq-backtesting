@@ -98,6 +98,13 @@ try {
       document.querySelectorAll('[data-v6-row-action]').forEach((button) => button.click());
       const afterRowActions = {
         dashboard: root.__v6SessionDashboard.getState(),
+        analyticsMetrics: [...document.querySelectorAll('[data-v6-session-analytics-metric]')]
+          .map((field) => [
+            field.dataset.v6SessionAnalyticsMetric,
+            field.dataset.v6SessionAnalyticsMetricStatus,
+            field.querySelector('strong')?.textContent.trim() || '',
+          ]),
+        analyticsTitle: document.querySelector('#v6-session-analytics-title')?.textContent.trim() || '',
         summaryFields: [...document.querySelectorAll('[data-v6-session-summary-field]')]
           .map((field) => [
             field.dataset.v6SessionSummaryField,
@@ -192,32 +199,32 @@ try {
   assert.equal(value.before.chartEntry.status, 'idle');
   assert.deepEqual(value.rowActions, [
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
-    { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
+    { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
-    { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
+    { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
-    { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
+    { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
   ]);
   assert.deepEqual(value.afterRowActions.snapshot, value.before);
   assert.equal(value.afterRowActions.dashboard.surface, 'session');
   assert.deepEqual(value.afterRowActions.dashboard.summary, {
+    open: false,
+    owner: null,
+    sessionId: null,
+  });
+  assert.deepEqual(value.afterRowActions.dashboard.analytics, {
     open: true,
-    owner: 'session-summary',
+    owner: 'session-analytics',
     sessionId: 'recent-asia',
   });
-  assert.equal(value.afterRowActions.summaryTitle, 'Asia prep');
-  assert.deepEqual(
-    value.afterRowActions.summaryFields.filter(([field]) => ['id', 'name', 'symbols', 'durationDays'].includes(field)),
-    [
-      ['durationDays', '1 days'],
-      ['id', 'recent-asia'],
-      ['name', 'Asia prep'],
-      ['symbols', 'YM'],
-    ],
-  );
+  assert.equal(value.afterRowActions.analyticsTitle, 'Asia prep Stats');
+  assert.equal(value.afterRowActions.analyticsMetrics.length, 10);
+  assert.ok(value.afterRowActions.analyticsMetrics.every(([, status, value]) => status === 'unavailable' && value === '--'));
+  assert.equal(value.afterRowActions.summaryTitle, '');
+  assert.deepEqual(value.afterRowActions.summaryFields, []);
 
   assert.deepEqual(value.afterSearch.names, ['NY AM', 'London review']);
   assert.equal(value.afterSearch.state.query, 'nq');
