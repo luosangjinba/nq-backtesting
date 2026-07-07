@@ -36,7 +36,7 @@ try {
       await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.LOAD, {
         bars,
         latestOffsetBars: 8,
-        paneId: 'default',
+        paneId: 'main',
         prefixBars: 0,
         session,
         spanBars: 120,
@@ -45,7 +45,7 @@ try {
         requestAnimationFrame(resolve);
       }));
       const loadedChartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
-        paneId: 'default',
+        paneId: 'main',
       });
       const loadedSurface = root.__v6WorkstationChartSurface.getState();
       const latestLogicalIndex = loadedSurface.panes[0].snapshot.dataLength - 1;
@@ -56,12 +56,12 @@ try {
 
       const manualIntent = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT, {
         ...manualMeasurement,
-        paneId: 'default',
+        paneId: 'main',
       });
       const manualProjection = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION, {
         chartBarsRevision: loadedChartRecord.revision,
         latestLogicalIndex,
-        paneId: 'default',
+        paneId: 'main',
       });
       await new Promise((resolve) => requestAnimationFrame(() => {
         requestAnimationFrame(resolve);
@@ -74,10 +74,10 @@ try {
       }));
       const nextSurface = root.__v6WorkstationChartSurface.getState();
       const nextChartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
-        paneId: 'default',
+        paneId: 'main',
       });
       const nextViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-        paneId: 'default',
+        paneId: 'main',
       });
 
       window.fetch = originalFetch;
@@ -130,7 +130,7 @@ try {
     chartBarsRevision: 1,
     from: -18,
     origin: 'manual',
-    paneId: 'default',
+    paneId: 'main',
     projectionRevision: 1,
     to: 6,
   }]);
@@ -147,14 +147,14 @@ try {
   assert.deepEqual(value.next.visibleLogicalRange, { from: -17, to: 7 });
   assert.deepEqual(value.next.appliedChartData, [{
     barCount: 2,
-    paneId: 'default',
+    paneId: 'main',
     revision: 2,
   }]);
   assert.deepEqual(value.next.appliedViewport, [{
     chartBarsRevision: 2,
     from: -17,
     origin: 'manual',
-    paneId: 'default',
+    paneId: 'main',
     projectionRevision: 1,
     to: 7,
   }]);

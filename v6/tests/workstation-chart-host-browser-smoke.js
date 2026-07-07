@@ -28,7 +28,7 @@ try {
     })())
   `));
 
-  assert.equal(value.hostPaneId, 'default');
+  assert.equal(value.hostPaneId, 'main');
   assert.equal(value.hostWidth, value.surfaceWidth);
   assert.equal(value.hostHeight, value.surfaceHeight);
   assert.equal(value.hostZIndex > value.fallbackZIndex, true);

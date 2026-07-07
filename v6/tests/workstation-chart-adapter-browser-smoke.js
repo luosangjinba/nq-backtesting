@@ -22,11 +22,11 @@ try {
     })()))()
   `));
 
-  assert.equal(value.hostPaneId, 'default');
+  assert.equal(value.hostPaneId, 'main');
   assert.equal(value.state.hostConnected, true);
   assert.equal(value.state.hostSelector, '[data-v6-chart-engine-host]');
   assert.equal(value.state.panes.length, 1);
-  assert.equal(value.state.panes[0].paneId, 'default');
+  assert.equal(value.state.panes[0].paneId, 'main');
   assert.equal(value.state.panes[0].snapshot.mounted, true);
   assert.equal(value.state.panes[0].snapshot.dataLength, 0);
   assert.equal(value.state.panes[0].snapshot.visibleLogicalRange, null);

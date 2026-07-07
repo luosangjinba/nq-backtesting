@@ -15,7 +15,7 @@ try {
           { timestamp: 1780306260, open: 100.5, high: 102, low: 100, close: 101.5 },
           { timestamp: 1780306320, open: 101.5, high: 103, low: 101, close: 102.5 },
         ],
-        paneId: 'default',
+        paneId: 'main',
       });
       await new Promise((resolve) => requestAnimationFrame(resolve));
       const firstState = root.__v6WorkstationChartSurface.getState();
@@ -41,7 +41,7 @@ try {
   assert.equal(value.secondDataLength, 3);
   assert.deepEqual(value.applied, [{
     barCount: 3,
-    paneId: 'default',
+    paneId: 'main',
     revision: 1,
   }]);
 } finally {

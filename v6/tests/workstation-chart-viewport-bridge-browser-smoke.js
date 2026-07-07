@@ -12,7 +12,7 @@ try {
       await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.ENSURE_INTENT, {
         cursorTimestamp: 1780306200,
         latestOffsetBars: 8,
-        paneId: 'default',
+        paneId: 'main',
       });
       await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.REPLACE_BARS, {
         bars: [
@@ -20,7 +20,7 @@ try {
           { timestamp: 1780306260, open: 100.5, high: 102, low: 100, close: 101.5 },
           { timestamp: 1780306320, open: 101.5, high: 103, low: 101, close: 102.5 },
         ],
-        paneId: 'default',
+        paneId: 'main',
       });
       await new Promise((resolve) => requestAnimationFrame(resolve));
       const state = root.__v6WorkstationChartSurface.getState();
@@ -38,7 +38,7 @@ try {
     chartBarsRevision: 1,
     from: -110,
     origin: 'default',
-    paneId: 'default',
+    paneId: 'main',
     projectionRevision: 0,
     to: 10,
   }]);
