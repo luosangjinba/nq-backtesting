@@ -59,6 +59,8 @@ Read this index before working on V6.
   bounded workstation/chart slice after rail regression.
 - `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: accepted inert
   bottom account/trading chrome reservation.
+- `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`: accepted lower workstation
+  chrome regression audit after adding bottom account/trading chrome.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -140,6 +142,8 @@ Read this index before working on V6.
   workstation/chart slice selection after rail regression.
 - `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: accepted inert bottom
   account/trading chrome reservation and browser coverage.
+- `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`: accepted lower workstation chrome
+  regression state after bottom account/trading chrome reservation.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
