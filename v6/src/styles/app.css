@@ -1804,6 +1804,16 @@ p {
   color: #9ee7d6;
 }
 
+.pane-status-readout {
+  position: absolute;
+  top: 16px;
+  right: 64px;
+  left: 16px;
+  z-index: 5;
+  min-width: 0;
+  pointer-events: none;
+}
+
 .status-dot {
   width: 8px;
   height: 8px;
