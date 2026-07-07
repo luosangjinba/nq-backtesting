@@ -14,46 +14,70 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 83 - Quick Session Creation Flow.
-  The dashboard now opens an FXReplay-style quick session modal for backtesting
-  sessions. Session creation captures name, assets, account balance, start/end
-  dates, and auto-update-end-date metadata, then enters the chart through the
-  existing session.create path without moving chart, replay, bars, or viewport
-  ownership into the dashboard.
+- Latest completed step: Step 84 - Recent Sessions Controls.
+  Recent Sessions now has dashboard-local search, newest/oldest sort,
+  rows-per-page pagination, and explicit placeholder row actions. Filtering,
+  sorting, and paging operate only on already-loaded session metadata; opening a
+  row remains the only path that enters the chart workstation and loads bars.
 
 ## Next Executable Steps
 
-### Step 84 - Recent Sessions Controls
+### Step 85 - Recent Sessions Row Action Boundaries
 
-Turn the Recent Sessions search, sort, and row controls into explicit
-metadata-only dashboard behavior.
+Define the ownership boundaries for Recent Sessions row actions before any
+summary, analytics, clone, order, journal, or calendar behavior becomes active.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
 
 - keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- search/sort/pagination must filter only session metadata already loaded into
-  the dashboard;
-- summary/analytics/copy row controls remain placeholders until their owning
-  modules exist;
-- opening a recent session remains the only path that enters chart workstation
-  and loads bars.
+- row actions must not become a hidden cross-module control surface;
+- summary and analytics need explicit owners before activation;
+- clone/copy must stay metadata-only unless it intentionally creates a new
+  session record;
+- order, journal, and calendar actions need their own module contracts.
 
 Scope:
 
-- add dashboard-local search and newest/oldest sort;
-- add rows-per-page controls if needed for long metadata lists;
-- clarify placeholder row actions without implying active trading ownership;
-- update browser smoke for metadata-only filtering.
+- document the planned owners for each row action;
+- keep placeholder controls disabled or clearly non-owning;
+- add guard tests preventing row actions from dispatching unrelated runtime
+  commands.
 
 Acceptance:
 
-- filtering and sorting do not dispatch chart, replay, bar, or viewport commands;
-- opening a filtered row still loads only that explicit session;
-- tests cover reload plus search/sort behavior.
+- each row action has a documented owner or stays disabled;
+- tests prevent dashboard row actions from mutating chart, replay, bars,
+  viewport, orders, journal, or calendar state before ownership exists.
 
 ## Completed Steps
+
+### Step 84 - Recent Sessions Controls
+
+Completed in commits:
+
+- `f88e3fe2 docs(v6): scope recent sessions controls`
+- `ce2ad615 feat(v6): model recent sessions controls`
+- `bd8bdb9b feat(v6): wire recent sessions controls`
+
+Verification:
+
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-domain-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/session-metadata-storage-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `git diff --check`
 
 ### Step 83 - Quick Session Creation Flow
 
