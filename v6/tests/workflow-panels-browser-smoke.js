@@ -15,6 +15,17 @@ try {
       const bodyText = document.body.textContent || '';
       const results = [];
 
+      localStorage.removeItem('v6.sessions.metadata');
+      document.querySelector('[data-v6-session-setup-start]').value = '2026-06-01T09:30';
+      document.querySelector('[data-v6-session-setup-end]').value = '2026-06-05T16:00';
+      document.querySelector('[data-v6-dashboard-create-session]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      document.querySelector('[data-v6-dashboard-toggle]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      document.querySelector('[data-v6-dashboard-open-session]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+
       function closedState(toggle, panel) {
         return {
           active: toggle.classList.contains('is-active'),
@@ -90,11 +101,13 @@ try {
           && Boolean(root.__v6JournalSurface?.getState)
           && Boolean(root.__v6SettingsPanel?.getState),
         results,
+        surface: root.dataset.v6Surface || '',
       };
     })()))()
   `));
 
   assert.equal(value.mounted, true);
+  assert.equal(value.surface, 'workstation');
   assert.deepEqual(value.results.map((result) => result.title), [
     'Replay Control',
     'Trade Journal',
