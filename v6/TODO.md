@@ -14,40 +14,66 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 108 - Dashboard Session Browser Regression Pack
-  Audit. The dashboard/session browser pack now has documented coverage before
-  exposing additional row actions.
+- Latest completed step: Step 109 - Next Dashboard Row Action Exposure
+  Readiness Audit. No hidden row action is ready to expose yet; Journal is the
+  nearest candidate but still needs owner surface and browser coverage.
 
 ## Next Executable Steps
 
-### Step 109 - Next Dashboard Row Action Exposure Readiness Audit
+### Step 110 - Journal Row Action Owner Surface Readiness Audit
 
-Audit readiness for exposing the next hidden dashboard row action.
+Audit the Journal owner surface requirements before any dashboard row-action
+exposure.
 
 Status: planned.
 
 Notes for execution:
 
-- compare Order, Journal, and Calendar owner contracts and browser coverage;
-- identify which hidden row action can be exposed next without violating V6
-  ownership rules;
-- do not expose a row action until its owner surface has browser coverage;
-- keep dashboard row action visibility unchanged;
+- keep the Journal row action hidden while auditing readiness;
+- define the minimum journal-owned surface/browser contract needed before
+  exposure;
+- keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
+  and session-dashboard runtime control paths;
 - do not modify runtime behavior unless the audit exposes a mismatch.
 
 Scope:
 
-- add or update a focused next-row-action readiness audit/smoke if needed;
-- keep owner contracts and browser smokes as the source of truth.
+- add or update focused Journal owner surface readiness documentation/smoke if
+  needed;
+- keep `journal-contract.js`, row-action boundaries, and browser smokes as the
+  source of truth.
 
 Acceptance:
 
-- dashboard/session browser pack audit smoke passes;
-- row-action owner contract smokes pass;
+- Journal contract smoke passes;
+- next-row-action readiness audit smoke passes;
+- dashboard row action visibility remains unchanged;
 - boundary smoke passes;
-- dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 109 - Next Dashboard Row Action Exposure Readiness Audit
+
+Completed in commit:
+
+- `6a521368 docs(v6): audit next row action exposure readiness`
+
+Verification:
+
+- `node v6/tests/next-dashboard-row-action-exposure-readiness-audit-smoke.js`
+- `node v6/tests/dashboard-session-browser-regression-pack-audit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/orders-contract-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/calendar-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `git diff --check`
 
 ### Step 108 - Dashboard Session Browser Regression Pack Audit
 
