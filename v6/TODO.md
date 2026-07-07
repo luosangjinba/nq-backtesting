@@ -14,40 +14,65 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 116 - Journal Row Action Visibility Wiring.
-  Journal is now visible in Recent Sessions through a Journal-owned adapter with
-  visible browser coverage; Summary, Stats, and Copy remain covered.
+- Latest completed step: Step 117 - Dashboard Journal Row Action Regression
+  Pack Audit. The dashboard/session browser pack still holds with Summary,
+  Stats, Copy, and Journal visible; Order and Calendar remain hidden.
 
 ## Next Executable Steps
 
-### Step 117 - Dashboard Journal Row Action Regression Pack Audit
+### Step 118 - Workstation Chart Presentation Re-audit
 
-Audit the dashboard/session browser regression pack after Journal became a
-visible row action.
+Return to the workstation/chart-facing path after the dashboard row-action
+sequence and re-audit the chart presentation surface.
 
 Status: planned.
 
 Notes for execution:
 
-- re-run the selected dashboard/session browser pack sequentially;
-- confirm pack docs name Summary, Stats, Copy, and Journal as visible actions;
-- verify Order and Calendar remain hidden;
-- keep the audit read-only unless a pack mismatch is found.
+- read `V6_CHART_PRESENTATION_SURFACE_AUDIT.md` and current chart-engine/browser
+  smokes;
+- verify the real chart host/adapter path still owns presentation writes;
+- keep dashboard row-action visibility unchanged;
+- do not expose Order or Calendar.
 
 Scope:
 
-- update only docs/smokes needed to keep the regression pack honest after Step
-  116;
-- do not add another row action.
+- document any drift between chart presentation docs and the current app;
+- keep the step read-only unless a chart presentation mismatch is found.
 
 Acceptance:
 
-- dashboard/session browser regression pack audit smoke passes;
-- visible row-action browser coverage audit smoke passes;
-- recent sessions controls and Summary/Stats/Copy/Journal browser smokes pass;
+- one Step 118 chart presentation re-audit doc or smoke captures the current
+  owner boundary;
+- selected chart-engine/workstation browser smokes pass;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 117 - Dashboard Journal Row Action Regression Pack Audit
+
+Completed in commit:
+
+- `2a3e5eb5 docs(v6): audit journal row action regression pack`
+
+Verification:
+
+- `node v6/tests/dashboard-journal-row-action-regression-pack-audit-smoke.js`
+- `node v6/tests/dashboard-session-browser-regression-pack-audit-smoke.js`
+- `node v6/tests/dashboard-visible-row-action-browser-coverage-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-journal-row-action-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
 
 ### Step 116 - Journal Row Action Visibility Wiring
 
