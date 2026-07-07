@@ -37,6 +37,8 @@ Read this index before working on V6.
   session context contract for a future dashboard row action.
 - `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md`: hidden Journal row-action
   harness for owner-side testing before dashboard exposure.
+- `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_HARNESS.md`: browser coverage
+  for the hidden Journal row-action harness before dashboard exposure.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -96,6 +98,8 @@ Read this index before working on V6.
   row-action session context contract while the action remains hidden.
 - `V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md`: accepted hidden Journal row-action
   harness state before dashboard exposure.
+- `V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_HARNESS.md`: accepted hidden Journal
+  row-action browser harness state before dashboard exposure.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
