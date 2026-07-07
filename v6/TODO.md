@@ -14,43 +14,57 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 89 - Session Summary Surface Polish.
-  The read-only Summary surface now has deterministic close behavior, Escape
-  handling, focus return, responsive placement, and browser guards preserving
-  metadata-only behavior while Stats and Copy remain disabled.
+- Latest completed step: Step 90 - Session Analytics Owner Contract.
+  The `session-analytics` owner contract now exposes read-only session metadata
+  fields and explicit empty metric placeholders while tests prevent analytics
+  from touching chart, replay, bars, viewport, orders, journal, or calendar.
+  Stats and Copy remain disabled.
 
 ## Next Executable Steps
 
-### Step 90 - Session Analytics Owner Contract
+### Step 91 - Session Analytics Read-only Surface
 
-Define the Session Analytics owner contract before enabling the Recent Sessions
-Stats row action.
+Build the first read-only Session Analytics surface/model after the owner
+contract exists.
 
 Status: planned.
 
 Notes for execution:
 
-- keep analytics read-only until trade/order/journal/calendar owners expose
-  explicit read contracts;
-- analytics must not load bars or open chart runtime by itself;
-- first-pass analytics may read only session metadata and explicitly empty
-  metric placeholders;
-- keep dashboard out of analytics calculations.
+- keep analytics read-only and metadata-only;
+- keep empty metric placeholders explicit until trade/order/journal/calendar
+  owners expose read contracts;
+- Stats may become enabled only if it opens a surface owned by
+  `session-analytics`;
+- dashboard must still not compute analytics directly.
 
 Scope:
 
-- define the `session-analytics` public interface;
-- document allowed first-pass fields and blocked integrations;
-- keep Stats disabled unless the owner contract and guards are in place.
+- define an analytics surface model that consumes `session-analytics`;
+- mount a read-only Stats surface from Recent Sessions;
+- preserve deterministic focus/close behavior similar to Summary.
 
 Acceptance:
 
-- analytics ownership is explicit;
-- dashboard cannot directly mutate analytics state;
-- tests prevent analytics from touching chart, replay, bars, viewport, orders,
-  journal, or calendar before those integrations exist.
+- Stats opens a read-only analytics surface;
+- empty metrics are presented as unavailable, not computed by dashboard;
+- tests preserve analytics ownership boundaries and existing dashboard flows.
 
 ## Completed Steps
+
+### Step 90 - Session Analytics Owner Contract
+
+Completed in commits:
+
+- `18b71f81 feat(v6): add session analytics contract`
+- `c2a32db6 test(v6): guard session analytics boundaries`
+
+Verification:
+
+- `node v6/tests/session-analytics-contract-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 89 - Session Summary Surface Polish
 

@@ -1,23 +1,21 @@
 # V6 Handoff
 
-Last updated: 2026-07-06
+Last updated: 2026-07-07
 
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 89 completed.
-- Next planned step: Step 90 - Session Analytics Owner Contract.
+- Current V6 step state: Step 90 completed.
+- Next planned step: Step 91 - Session Analytics Read-only Surface.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Session Summary surface polish:
+The latest completed work is Session Analytics owner contract:
 
-- Summary row action is enabled from Recent Sessions.
-- Summary opens a read-only metadata-only surface owned by `session-summary`.
-- Summary close behavior is deterministic:
-  - opening focuses the close button;
-  - Escape closes the surface;
-  - closing restores focus to the Summary row action;
-  - the panel has bounded height and responsive placement.
+- `session-analytics` now has an explicit read-only public contract.
+- Analytics may read session metadata fields only.
+- Analytics exposes empty metric placeholders for future Stats UI.
+- Boundary tests prevent analytics from touching chart, replay, bars, viewport,
+  orders, journal, calendar, UI, storage, or network paths.
 - Stats and Copy row actions remain disabled.
 
 ## Restart Reading Order
@@ -27,19 +25,21 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260706_step089_session_summary_surface_polish.md`
+4. `v6/sessions/session_20260707_step090_session_analytics_owner_contract.md`
 5. `v6/src/shell/session-row-action-boundaries.js`
-6. `v6/src/session-summary/session-summary-contract.js`
-7. `v6/src/session-summary/session-summary-surface-model.js`
-8. `v6/src/shell/session-summary-surface.js`
-9. `v6/src/shell/session-dashboard.js`
+6. `v6/src/session-analytics/session-analytics-contract.js`
+7. `v6/tests/session-analytics-contract-smoke.js`
+8. `v6/tests/session-row-action-boundaries-smoke.js`
+9. `v6/src/session-summary/session-summary-contract.js`
+10. `v6/src/shell/session-dashboard.js`
 
 ## Next Step
 
-Step 90 should define the `session-analytics` owner contract before enabling the
-Recent Sessions Stats action.
+Step 91 should build the first read-only Session Analytics surface/model before
+enabling the Recent Sessions Stats action.
 
-Keep Step 90 contract-only unless the user explicitly asks to continue further:
+Keep Step 91 read-only and metadata-only unless the required owners expose
+explicit read contracts:
 
 - analytics must remain read-only;
 - analytics must not load bars;
@@ -50,12 +50,13 @@ Keep Step 90 contract-only unless the user explicitly asks to continue further:
   explicit read contracts;
 - dashboard must not compute analytics directly.
 
-Expected first-pass analytics shape:
+Expected first-pass surface shape:
 
 - owner: `session-analytics`;
-- allowed metadata fields from session metadata;
-- explicit empty metric placeholders;
-- disabled Stats action unless the owner contract and boundary tests exist.
+- session metadata section from the analytics contract;
+- explicit unavailable/empty metric placeholders;
+- deterministic close/focus behavior similar to the Summary surface;
+- Stats action remains disabled until the surface and browser guards exist.
 
 ## Critical Boundaries
 
@@ -75,7 +76,7 @@ Preserve these V6 rules:
 For the current Recent Sessions row actions:
 
 - Summary: enabled, read-only metadata-only, owner `session-summary`.
-- Stats: disabled, future owner `session-analytics`.
+- Stats: disabled, contract-ready owner `session-analytics`.
 - Copy: disabled, future owner `session-repository`, metadata-only when enabled.
 - Order: disabled/future, owner `orders-runtime`.
 - Journal: disabled/future, owner `journal-runtime`.
@@ -83,8 +84,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 90 work:
+Run these before committing Step 91 work:
 
+- `node v6/tests/session-analytics-contract-smoke.js`
 - `node v6/tests/session-row-action-boundaries-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 
@@ -110,16 +112,14 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `c2a32db6 test(v6): guard session analytics boundaries`
+- `18b71f81 feat(v6): add session analytics contract`
 - `99c86805 docs(v6): close session summary polish`
 - `3ea0d684 feat(v6): polish session summary surface`
 - `fab143df docs(v6): scope session summary polish`
-- `37ab38c5 docs(v6): close session summary surface`
-- `7b74c34f feat(v6): open read-only session summary`
-- `f17e6321 feat(v6): add session summary surface model`
-- `23b3dea6 docs(v6): scope session summary surface`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-90. The handoff point is intentionally before enabling Stats.
+91. The handoff point is intentionally before enabling Stats.
