@@ -5,21 +5,21 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 97 completed.
-- Next planned step: Step 98 - Session Dashboard Readiness Re-audit.
+- Current V6 step state: Step 98 completed.
+- Next planned step: Step 99 - Workstation Replay/Chart Re-entry Audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Recent Sessions row action contract audit:
+The latest completed work is Session Dashboard readiness re-audit:
 
-- Summary, Stats, and Copy are the only visible Recent Sessions row actions.
-- Summary is owned by `session-summary`, Stats by `session-analytics`, and Copy
-  by `session-repository`.
+- The dashboard remains a session-first orchestration surface.
+- Dashboard imports remain limited to session command contracts, runtime command
+  dispatch, recent session view helpers, row action boundaries, and read-only
+  Summary/Stats surfaces.
+- Dashboard dispatches only `session.list`, `session.create`, `session.open`,
+  `session.delete`, and `session.copy`.
+- Summary, Stats, and Copy remain the only visible Recent Sessions row actions.
 - Order, Journal, and Calendar remain hidden/disabled and contract-ready only.
-- The dashboard remains an orchestration surface; it does not compute
-  analytics, clone sessions directly, load chart/bar/replay state, or query
-  order/journal/calendar providers.
-- The audit is documented in
-  `v6/docs/V6_RECENT_SESSIONS_ROW_ACTION_CONTRACT_AUDIT.md`.
+- The next direction is workstation replay/chart readiness re-entry.
 
 ## Restart Reading Order
 
@@ -28,34 +28,33 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step097_recent_sessions_row_action_contract_audit.md`
-5. `v6/docs/V6_RECENT_SESSIONS_ROW_ACTION_CONTRACT_AUDIT.md`
-6. `v6/src/shell/session-row-action-boundaries.js`
+4. `v6/sessions/session_20260707_step098_session_dashboard_readiness_reaudit.md`
+5. `v6/docs/V6_SESSION_DASHBOARD_READINESS_REAUDIT.md`
+6. `v6/tests/session-dashboard-readiness-audit-smoke.js`
 7. `v6/src/shell/session-dashboard.js`
-8. `v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
-9. `v6/tests/session-row-action-boundaries-smoke.js`
+8. `v6/src/shell/session-row-action-boundaries.js`
+9. `v6/docs/V6_RECENT_SESSIONS_ROW_ACTION_CONTRACT_AUDIT.md`
 10. `v6/tests/recent-sessions-controls-browser-smoke.js`
 
 ## Next Step
 
-Step 98 should re-audit the Session Dashboard after the Step 80-97 dashboard
-sequence and row-action contract closeout.
+Step 99 should re-audit the workstation replay/chart path after dashboard
+readiness closeout.
 
-Keep Step 98 audit-only unless the user explicitly asks to continue further:
+Keep Step 99 audit-only unless the user explicitly asks to continue further:
 
-- verify the dashboard remains orchestration-only for row actions and session
-  metadata flows;
-- verify no hidden chart/replay/bar-data/viewport paths were introduced by the
-  dashboard sequence;
-- decide whether Step 99 should return to workstation replay/chart readiness or
-  continue dashboard surface polish;
-- do not expose Order, Journal, or Calendar row actions in this step.
+- re-read replay, chart-entry, chart-data, chart-viewport, bar-data, and
+  workstation browser smokes;
+- verify the dashboard closeout did not change workstation ownership
+  assumptions;
+- identify one bounded Step 100 implementation slice;
+- do not modify dashboard row action visibility.
 
 Expected audit shape:
 
-- review dashboard modules, row-action wiring, and browser smokes;
-- identify stale assumptions or mixed ownership in the Step 80-97 sequence;
-- document one bounded Step 99 owner boundary and test plan.
+- review relevant workstation contracts and browser smokes;
+- capture the selected workstation owner boundary;
+- document the Step 100 test plan.
 
 ## Critical Boundaries
 
@@ -84,8 +83,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 98 audit work:
+Run these before committing Step 99 audit work:
 
+- `node v6/tests/session-dashboard-readiness-audit-smoke.js`
 - `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
 - `node v6/tests/session-row-action-boundaries-smoke.js`
 - `node v6/tests/boundary-smoke.js`
@@ -114,21 +114,30 @@ For broader dashboard/session regression:
 - `node v6/tests/product-baseline-screenshot-smoke.js`
 - `git diff --check`
 
+For workstation replay/chart re-entry, select from:
+
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+
 Browser tests should be run sequentially because they share browser/debug-server
 resources. If a browser smoke fails with `listen EPERM: 127.0.0.1`, rerun the
 same command with approved escalation.
 
 ## Recent Commits
 
+- `8eb24471 docs(v6): audit session dashboard readiness`
+- `ccccf944 docs(v6): close row action contract audit`
 - `3a66c0b0 docs(v6): audit recent session row actions`
 - `a7ddcd84 docs(v6): close calendar owner contract`
 - `ad13a835 test(v6): guard calendar owner boundaries`
-- `ff91676b feat(v6): add calendar owner contract`
-- `2f28f9a7 test(v6): guard journal owner boundaries`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-98. The handoff point is intentionally before exposing Order, Journal, or
-Calendar.
+99. The handoff point is intentionally before workstation replay/chart re-entry
+and before exposing Order, Journal, or Calendar.

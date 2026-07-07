@@ -14,18 +14,17 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 97 - Recent Sessions Row Action Contract Audit.
-  Recent Sessions row actions are now contract-complete for the current
-  dashboard phase: Summary, Stats, and Copy are visible through their owners;
-  Order, Journal, and Calendar remain hidden/disabled behind explicit owner
-  contracts.
+- Latest completed step: Step 98 - Session Dashboard Readiness Re-audit.
+  The dashboard remains a session-first orchestration surface after the Step
+  80-97 dashboard sequence. No new owner violation was found, and the next
+  direction returns to workstation replay/chart readiness.
 
 ## Next Executable Steps
 
-### Step 98 - Session Dashboard Readiness Re-audit
+### Step 99 - Workstation Replay/Chart Re-entry Audit
 
-Re-audit the Session Dashboard after the Summary, Stats, Copy, Order, Journal,
-Calendar, and row-action contract closeout work.
+Re-audit the workstation replay/chart path after the dashboard readiness
+closeout.
 
 Status: planned.
 
@@ -33,27 +32,44 @@ Notes for execution:
 
 - keep this step audit-only unless a specific next implementation slice is
   selected from the findings;
-- verify the dashboard remains an orchestration surface rather than a hidden
-  owner for session copy, analytics, orders, journal, calendar, chart, bars,
-  replay, or viewport behavior;
-- decide whether the next implementation direction should return to workstation
-  replay/chart readiness or continue dashboard surface polish;
-- do not expose Order, Journal, or Calendar row actions in this step.
+- focus on replay, chart-entry, chart-data, chart-viewport, bar-data, and
+  workstation browser smokes;
+- identify one bounded owner boundary for the next implementation step;
+- do not modify dashboard row action visibility;
+- do not patch V5 replay viewport behavior as a substitute for V6 work.
 
 Scope:
 
-- audit dashboard modules, row-action wiring, and recent session browser flows;
-- identify stale assumptions from the Step 80-97 dashboard sequence;
-- document one bounded Step 99 implementation direction.
+- read the relevant workstation replay/chart contracts and smokes;
+- verify dashboard work did not change workstation ownership assumptions;
+- document one bounded Step 100 implementation direction.
 
 Acceptance:
 
 - no new owner violations are found, or any violation is documented with a
   bounded remediation step;
-- Step 99 has a single clear owner boundary and test plan;
-- dashboard browser regressions still pass.
+- Step 100 has a single clear owner boundary and test plan;
+- chosen workstation regression smokes still pass.
 
 ## Completed Steps
+
+### Step 98 - Session Dashboard Readiness Re-audit
+
+Completed in commit:
+
+- `8eb24471 docs(v6): audit session dashboard readiness`
+
+Verification:
+
+- `node v6/tests/session-dashboard-readiness-audit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `git diff --check`
 
 ### Step 97 - Recent Sessions Row Action Contract Audit
 
