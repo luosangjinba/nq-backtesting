@@ -5,22 +5,24 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 100 completed.
-- Next planned step: Step 101 - Workstation Chart Surface Contract Integration Audit.
+- Current V6 step state: Step 101 completed.
+- Next planned step: Step 102 - Chart Surface Boundary Smoke Expansion.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Surface owner contract:
+The latest completed work is Workstation Chart Surface contract integration
+audit:
 
-- `workstation-chart-surface` now has an explicit owner contract.
-- Allowed operations are chart host lifecycle, series data writes, visible
-  logical range application, user visible-range measurement, subscriptions, and
-  read-only snapshots.
-- Blocked integrations include bar fetches, replay cursor ownership, session
-  loading, dashboard row actions, orders, journal, and calendar.
+- The chart surface owner contract matches `workstation-chart-surface`,
+  `lightweight-chart-adapter`, `chart-host-manager`,
+  `chart-data-surface-bridge`, and `chart-viewport-surface-bridge`.
+- `lightweight-chart-adapter` remains the only file that directly calls
+  Lightweight Charts chart creation, series data writes, and time-scale visible
+  range APIs.
 - `chart-data-surface-bridge` and `chart-viewport-surface-bridge` remain
-  event-only in the contract and smoke.
-- The next direction is an audit that the contract is reflected consistently in
-  the chart surface and bridge files.
+  event-only.
+- `manual-wall-input-bridge` and `reset-view-control-bridge` are separate
+  control bridges limited to viewport commands.
+- Dashboard row actions remain outside the workstation chart surface path.
 
 ## Restart Reading Order
 
@@ -29,33 +31,32 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step100_workstation_chart_surface_owner_contract.md`
-5. `v6/src/chart-engine/chart-surface-contract.js`
-6. `v6/tests/chart-surface-contract-smoke.js`
-7. `v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
+4. `v6/sessions/session_20260707_step101_chart_surface_contract_integration_audit.md`
+5. `v6/docs/V6_CHART_SURFACE_CONTRACT_INTEGRATION_AUDIT.md`
+6. `v6/tests/chart-surface-contract-integration-audit-smoke.js`
+7. `v6/src/chart-engine/chart-surface-contract.js`
 8. `v6/src/chart-engine/workstation-chart-surface.js`
 9. `v6/src/chart-engine/chart-data-surface-bridge.js`
 10. `v6/src/chart-engine/chart-viewport-surface-bridge.js`
 
 ## Next Step
 
-Step 101 should audit that the chart surface owner contract is reflected by the
-browser chart surface, chart-data bridge, chart-viewport bridge, and selected
-workstation smokes.
+Step 102 should add chart surface owner contract checks to the broader
+boundary-smoke gate or a focused boundary helper used by it.
 
-Keep Step 101 audit-only unless a concrete mismatch is found:
+Keep Step 102 test-focused unless a concrete mismatch is found:
 
-- verify `chart-surface-contract.js` matches `workstation-chart-surface.js`;
-- verify both chart surface bridges remain event-only;
-- verify dashboard row actions remain unchanged;
+- keep chart-data and chart-viewport surface bridges event-only;
+- keep manual-wall and reset-view control bridges limited to viewport commands;
+- keep chart surface series writes and visible range application inside
+  chart-engine browser surface files;
 - do not modify dashboard row action visibility.
 
-Expected audit shape:
+Expected implementation shape:
 
-- document any mismatch or select the next bounded workstation slice;
-- run selected workstation browser smokes on pane `main`;
-- decide whether Step 102 should be a runtime guard, boundary-smoke expansion,
-  or documentation-only handoff.
+- extend `boundary-smoke.js` or add a focused helper invoked by it;
+- reuse `chart-surface-contract.js` where practical;
+- run selected workstation browser smokes on pane `main`.
 
 ## Critical Boundaries
 
@@ -84,8 +85,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 101 work:
+Run these before committing Step 102 work:
 
+- `node v6/tests/chart-surface-contract-integration-audit-smoke.js`
 - `node v6/tests/chart-surface-contract-smoke.js`
 - `node v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
 - `node v6/tests/session-dashboard-readiness-audit-smoke.js`
@@ -133,15 +135,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `a95d20df docs(v6): audit chart surface contract integration`
+- `a74d0df4 docs(v6): close chart surface owner contract`
 - `dcc8252c test(v6): guard chart surface reentry contract`
 - `bc995ea9 feat(v6): add chart surface owner contract`
 - `69f956f8 docs(v6): close workstation replay chart reentry audit`
-- `c34ace79 test(v6): align workstation browser smokes with main pane`
-- `b2cbcb1f docs(v6): audit workstation replay chart reentry`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-101. The handoff point is intentionally after adding the chart surface owner
-contract and before exposing Order, Journal, or Calendar.
+102. The handoff point is intentionally before expanding the global chart
+surface boundary smoke and before exposing Order, Journal, or Calendar.
