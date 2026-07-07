@@ -14,43 +14,58 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 93 - Session Copy Metadata Action.
-  The Recent Sessions Copy action now dispatches `session.copy`, and the
-  repository creates a metadata-only duplicate with a new session id and Copy
-  suffix. Copy does not load bars, open chart runtime, advance replay, or copy
-  chart/replay/viewport/orders/journal/calendar state.
+- Latest completed step: Step 94 - Orders Owner Contract.
+  The `orders-runtime` owner contract now defines first-pass order fields,
+  blocked integrations, and disabled command/persistence/write surfaces. Order
+  remains hidden/disabled from Recent Sessions.
 
 ## Next Executable Steps
 
-### Step 94 - Orders Owner Contract
+### Step 95 - Journal Owner Contract
 
-Define the Orders owner contract before exposing any Recent Sessions Order row
-action.
+Define the Journal owner contract before exposing any Recent Sessions Journal
+row action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep Order disabled until an explicit owner contract and guards exist;
-- orders must not load bars, open chart runtime, advance replay, or touch
+- keep Journal disabled/hidden until an explicit owner contract and guards
+  exist;
+- journal must not load bars, open chart runtime, advance replay, or touch
   viewport state;
-- dashboard must not compute, persist, or query order data directly;
-- Summary, Stats, and Copy must remain bounded to their owners.
+- dashboard must not compute, persist, or query journal data directly;
+- Summary, Stats, Copy, and Order must remain bounded to their owners.
 
 Scope:
 
-- define the Order public interface and allowed first-pass fields;
+- define the Journal public interface and allowed first-pass fields;
 - document blocked integrations and future read/write boundaries;
-- keep Order hidden/disabled unless the owner contract and guards are in place.
+- keep Journal hidden/disabled unless the owner contract and guards are in
+  place.
 
 Acceptance:
 
-- Order ownership is explicit;
-- dashboard cannot directly access order state;
-- tests prevent Order from touching chart, replay, bars, viewport, journal, or
+- Journal ownership is explicit;
+- dashboard cannot directly access journal state;
+- tests prevent Journal from touching chart, replay, bars, viewport, orders, or
   calendar before those integrations exist.
 
 ## Completed Steps
+
+### Step 94 - Orders Owner Contract
+
+Completed in commits:
+
+- `8b61e350 feat(v6): add orders owner contract`
+- `826a5e74 test(v6): guard orders owner boundaries`
+
+Verification:
+
+- `node v6/tests/orders-contract-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 93 - Session Copy Metadata Action
 

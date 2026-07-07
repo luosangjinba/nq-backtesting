@@ -5,21 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 93 completed.
-- Next planned step: Step 94 - Orders Owner Contract.
+- Current V6 step state: Step 94 completed.
+- Next planned step: Step 95 - Journal Owner Contract.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Session Copy metadata action:
+The latest completed work is Orders owner contract:
 
-- Copy row action is enabled from Recent Sessions.
-- Copy dispatches `session.copy`; dashboard does not clone session objects.
-- `session-repository` creates a metadata-only duplicate with:
-  - a new session id;
-  - the configured Copy suffix;
-  - copied session metadata fields only.
-- Copy closes Summary/Stats surfaces and refreshes Recent Sessions.
-- Browser coverage proves Copy does not mutate chart, replay, bar-data, or
-  viewport runtime state.
+- `orders-runtime` now has an explicit contract.
+- Order allowed fields are first-pass metadata/read fields.
+- Order blocked integrations include chart, replay, bars, viewport, journal,
+  calendar, and dashboard direct access.
+- Order command, persistence, and write surfaces are not ready.
+- Order remains hidden/disabled from Recent Sessions.
 
 ## Restart Reading Order
 
@@ -28,34 +25,34 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step093_session_copy_metadata_action.md`
+4. `v6/sessions/session_20260707_step094_orders_owner_contract.md`
 5. `v6/src/shell/session-row-action-boundaries.js`
-6. `v6/src/session/session-copy-contract.js`
-7. `v6/src/session/session-repository.js`
-8. `v6/src/session/session-runtime.js`
-9. `v6/src/shell/session-dashboard.js`
-10. `v6/tests/session-copy-action-browser-smoke.js`
+6. `v6/src/orders/orders-contract.js`
+7. `v6/tests/orders-contract-smoke.js`
+8. `v6/tests/session-row-action-boundaries-smoke.js`
+9. `v6/tests/boundary-smoke.js`
+10. `v6/src/shell/session-dashboard.js`
 
 ## Next Step
 
-Step 94 should define the Orders owner contract before exposing any Recent
-Sessions Order row action.
+Step 95 should define the Journal owner contract before exposing any Recent
+Sessions Journal row action.
 
-Keep Step 94 contract-only unless the user explicitly asks to continue further:
+Keep Step 95 contract-only unless the user explicitly asks to continue further:
 
-- Order must remain hidden/disabled until its owner contract and guards exist;
-- Order must not load bars;
-- Order must not open chart runtime;
-- Order must not advance replay;
-- Order must not touch viewport state;
-- dashboard must not compute, persist, or query order data directly.
+- Journal must remain hidden/disabled until its owner contract and guards exist;
+- Journal must not load bars;
+- Journal must not open chart runtime;
+- Journal must not advance replay;
+- Journal must not touch viewport state;
+- dashboard must not compute, persist, or query journal data directly.
 
-Expected first-pass Order shape:
+Expected first-pass Journal shape:
 
-- owner: `orders-runtime`;
+- owner: `journal-runtime`;
 - allowed first-pass metadata/read fields;
 - blocked write/runtime integrations;
-- Order row action remains hidden/disabled unless contract and guards exist.
+- Journal row action remains hidden/disabled unless contract and guards exist.
 
 ## Critical Boundaries
 
@@ -78,16 +75,17 @@ For the current Recent Sessions row actions:
 - Stats: enabled, read-only metadata/unavailable metrics, owner
   `session-analytics`.
 - Copy: enabled, metadata-only, owner `session-repository`.
-- Order: disabled/future, owner `orders-runtime`.
+- Order: disabled/contract-ready, owner `orders-runtime`.
 - Journal: disabled/future, owner `journal-runtime`.
 - Calendar: disabled/future, owner `calendar-runtime`.
 
 ## Key Tests
 
-Run these before committing Step 94 work:
+Run these before committing Step 95 work:
 
 - `node v6/tests/session-row-action-boundaries-smoke.js`
 - `node v6/tests/boundary-smoke.js`
+- `node v6/tests/orders-contract-smoke.js`
 
 For Summary/Stats/Copy regression:
 
@@ -116,14 +114,14 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `826a5e74 test(v6): guard orders owner boundaries`
+- `8b61e350 feat(v6): add orders owner contract`
 - `50b54920 feat(v6): enable session copy action`
 - `64582c7b feat(v6): expose session copy command`
 - `eb6c3f2d feat(v6): copy session metadata in repository`
-- `820be36b test(v6): guard session copy boundaries`
-- `bc7b48f0 feat(v6): add session copy contract`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-94. The handoff point is intentionally before exposing Order.
+95. The handoff point is intentionally before exposing Journal.
