@@ -5,19 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 122 completed.
-- Next planned step: Step 123 - Bottom Account/Trading Chrome Reservation.
+- Current V6 step state: Step 123 completed.
+- Next planned step: Step 124 - Bottom Chrome Regression Audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Slice Selection:
+The latest completed work is Bottom Account/Trading Chrome Reservation:
 
-- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md` selects Bottom
-  Account/Trading Chrome Reservation as the next bounded workstation/chart
-  slice.
-- `workstation-chart-slice-selection-step122-smoke.js` guards the selected
-  slice, owner boundary, verification plan, and visible row-action state.
-- Step 123 should reserve the bottom account/trading strip without adding
-  trading behavior or runtime ownership.
+- `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md` records the inert shell-owned bottom
+  account/trading chrome boundary and regression coverage.
+- `workstation-shell.js` now reserves a bottom account/trading strip below the
+  chart work area.
+- `bottom-account-chrome-browser-smoke.js` guards disabled controls,
+  non-overlap, chart host visibility, and dashboard row-action visibility.
 
 ## Restart Reading Order
 
@@ -46,44 +45,47 @@ After restarting the server or assistant context, read these first:
 21. `v6/sessions/session_20260707_step120_left_drawing_rail_reservation.md`
 22. `v6/sessions/session_20260707_step121_workstation_rail_regression_audit.md`
 23. `v6/sessions/session_20260707_step122_workstation_chart_slice_selection.md`
-24. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-25. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-26. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-27. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-28. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-29. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-30. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-31. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-32. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-33. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+24. `v6/sessions/session_20260707_step123_bottom_account_chrome_reservation.md`
+25. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+26. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+27. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+28. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+29. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+30. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+31. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+32. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+33. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+34. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+35. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 123 should reserve an inert bottom account/trading chrome strip.
+Step 124 should audit lower workstation chrome after adding the bottom
+account/trading strip.
 
-Keep Step 123 bounded:
+Keep Step 124 bounded:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md` and FXReplay UI
+- read `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`, and FXReplay UI
   guardrails;
-- add shell markup/CSS only for a dense bottom account/trading chrome strip;
+- re-audit chart host, rails, pane status/readout, reset view, floating replay
+  transport, bottom account/trading chrome, and footer status bar as one lower
+  workstation surface;
 - keep Buy, Sell, quantity, account balance, PnL, and analytics placeholders
-  disabled or inert until owners exist;
-- preserve floating replay transport ownership and placement;
-- prove chart host, rails, status/readout, reset view, and transport remain
-  mounted, visible, and non-overlapped;
+  disabled or inert;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- shell markup/CSS plus browser coverage only;
+- docs/test audit only unless a regression is found;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from the bottom account/trading strip;
+  viewport commands from bottom chrome audit code;
 - do not import orders, chart-engine, chart-data, chart-viewport, replay,
   bar-data, default-wall, or account/analytics owner modules into a
   bottom-chrome controller;
-- run bottom chrome browser coverage, rail regression audit, chart presentation
-  re-audit, and boundary smoke.
+- run bottom chrome regression coverage, bottom account chrome browser coverage,
+  rail regression audit, chart presentation re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -112,8 +114,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 123 work:
+Run these before committing Step 124 work:
 
+- `node v6/tests/bottom-account-chrome-browser-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step122-smoke.js`
 - `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
 - `node v6/tests/left-drawing-rail-browser-smoke.js`
@@ -185,15 +188,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `3ef40a84 feat(v6): reserve bottom account chrome`
 - `ba95a9a5 docs(v6): select bottom account chrome slice`
 - `8cd045ed test(v6): audit workstation rail regression`
 - `4452f65a feat(v6): reserve left drawing rail`
 - `ff2cad47 docs(v6): select left drawing rail slice`
-- `8cb8480c docs(v6): audit workstation chart presentation`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-123. The handoff point is intentionally after selecting Bottom Account/Trading
-Chrome Reservation as the next bounded workstation/chart slice.
+124. The handoff point is intentionally after reserving the inert bottom
+account/trading chrome as a shell-owned workstation surface.
