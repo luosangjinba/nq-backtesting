@@ -45,6 +45,8 @@ Read this index before working on V6.
   row-action exposure gate audit before visible dashboard wiring.
 - `v6/docs/V6_JOURNAL_ROW_ACTION_VISIBILITY_WIRING.md`: visible Journal
   row-action wiring and browser coverage.
+- `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`: dashboard
+  and session regression pack audit after Journal became visible.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -112,6 +114,8 @@ Read this index before working on V6.
   gate state before visible dashboard wiring.
 - `V6_JOURNAL_ROW_ACTION_VISIBILITY_WIRING.md`: accepted visible Journal
   row-action wiring state.
+- `V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`: accepted
+  dashboard/session regression pack state after Journal became visible.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
