@@ -49,6 +49,8 @@ Read this index before working on V6.
   and session regression pack audit after Journal became visible.
 - `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`: workstation chart
   presentation boundary re-audit after dashboard row-action work.
+- `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`: selected next bounded
+  workstation/chart implementation slice.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -120,6 +122,8 @@ Read this index before working on V6.
   dashboard/session regression pack state after Journal became visible.
 - `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`: accepted workstation chart
   presentation boundary after dashboard row-action work.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION.md`: accepted next bounded
+  workstation/chart implementation slice.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,

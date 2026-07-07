@@ -6,6 +6,15 @@ const page = await openV6Page({ height: 820, width: 1360 });
 try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
+      localStorage.removeItem('v6.sessions.metadata');
+      document.querySelector('[data-v6-session-setup-name]').value = 'Right rail layout';
+      document.querySelector('[data-v6-session-setup-start]').value = '2026-06-01T09:30';
+      document.querySelector('[data-v6-session-setup-end]').value = '2026-06-01T10:30';
+      document.querySelector('[data-v6-dashboard-create-session]').click();
+      const deadline = performance.now() + 5000;
+      while (document.querySelector('[data-v6-root]')?.dataset.v6Surface !== 'workstation' && performance.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 25));
+      }
       const rectOf = (selector) => {
         const element = document.querySelector(selector);
         if (!element) return null;

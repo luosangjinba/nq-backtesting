@@ -25,7 +25,7 @@ try {
   assert.equal(value.statusReadoutInChart, true);
   assert.equal(value.layoutTopExists, true);
   assert.equal(value.gotoRailExists, true);
-  assert.deepEqual(value.chartSurfaceButtonTexts, []);
+  assert.deepEqual(value.chartSurfaceButtonTexts, ['Reset chart view']);
 } finally {
   await page.cleanup();
 }
