@@ -14,44 +14,54 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 95 - Journal Owner Contract.
-  The `journal-runtime` owner contract now defines first-pass journal fields,
-  blocked integrations, and the disabled Recent Sessions surface boundary.
-  Journal remains hidden/disabled from Recent Sessions.
+- Latest completed step: Step 96 - Calendar Owner Contract.
+  The `calendar-runtime` owner contract now defines first-pass calendar fields,
+  blocked integrations, and disabled command/provider/persistence/write
+  surfaces. Calendar remains hidden/disabled from Recent Sessions.
 
 ## Next Executable Steps
 
-### Step 96 - Calendar Owner Contract
+### Step 97 - Recent Sessions Row Action Contract Audit
 
-Define the Calendar owner contract before exposing any Recent Sessions Calendar
-row action.
+Audit the completed Recent Sessions row action ownership set after Summary,
+Stats, Copy, Order, Journal, and Calendar contracts are in place.
 
 Status: planned.
 
 Notes for execution:
 
-- keep Calendar disabled/hidden until an explicit owner contract and guards
-  exist;
-- calendar must not load bars, open chart runtime, advance replay, or touch
-  viewport state;
-- dashboard must not compute, persist, or query calendar data directly;
-- Summary, Stats, Copy, Order, and Journal must remain bounded to their owners.
+- keep Summary, Stats, and Copy enabled through their owners only;
+- keep Order, Journal, and Calendar hidden/disabled from Recent Sessions;
+- verify row actions do not create hidden chart/replay/bar-data/viewport paths;
+- dashboard must remain orchestration-only for row actions.
 
 Scope:
 
-- define the Calendar public interface and allowed first-pass fields;
-- document blocked integrations and future read/write boundaries;
-- keep Calendar hidden/disabled unless the owner contract and guards are in
-  place.
+- audit `session-row-action-boundaries`;
+- audit row-action browser behavior and owner contracts;
+- document the next feature direction after contract closeout.
 
 Acceptance:
 
-- Calendar ownership is explicit;
-- dashboard cannot directly access calendar state;
-- tests prevent Calendar from touching chart, replay, bars, viewport, orders, or
-  journal before those integrations exist.
+- all row actions have explicit owners and tests;
+- visible actions remain limited to Summary, Stats, and Copy;
+- hidden actions remain inaccessible until their owner surfaces are implemented.
 
 ## Completed Steps
+
+### Step 96 - Calendar Owner Contract
+
+Completed in commits:
+
+- `ff91676b feat(v6): add calendar owner contract`
+- `ad13a835 test(v6): guard calendar owner boundaries`
+
+Verification:
+
+- `node v6/tests/calendar-contract-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 95 - Journal Owner Contract
 

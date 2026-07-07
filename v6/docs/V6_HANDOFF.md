@@ -5,18 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 95 completed.
-- Next planned step: Step 96 - Calendar Owner Contract.
+- Current V6 step state: Step 96 completed.
+- Next planned step: Step 97 - Recent Sessions Row Action Contract Audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Journal owner contract:
+The latest completed work is Calendar owner contract:
 
-- `journal-runtime` now has an explicit row-action owner contract.
-- Journal allowed fields mirror the current journal entry shape.
-- Journal blocked integrations include chart, replay, bars, viewport, orders,
-  calendar, and dashboard direct access.
-- Existing journal command/persistence surfaces remain owned by journal modules.
-- Journal remains hidden/disabled from Recent Sessions.
+- `calendar-runtime` now has an explicit row-action owner contract.
+- Calendar allowed fields are first-pass economic/calendar event metadata.
+- Calendar blocked integrations include chart, replay, bars, viewport, orders,
+  journal, and dashboard direct access.
+- Calendar command, provider, persistence, and write surfaces are not ready.
+- Calendar remains hidden/disabled from Recent Sessions.
 
 ## Restart Reading Order
 
@@ -25,35 +25,34 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step095_journal_owner_contract.md`
+4. `v6/sessions/session_20260707_step096_calendar_owner_contract.md`
 5. `v6/src/shell/session-row-action-boundaries.js`
-6. `v6/src/journal/journal-contract.js`
-7. `v6/tests/journal-contract-smoke.js`
+6. `v6/src/calendar/calendar-contract.js`
+7. `v6/tests/calendar-contract-smoke.js`
 8. `v6/tests/session-row-action-boundaries-smoke.js`
 9. `v6/tests/boundary-smoke.js`
 10. `v6/src/shell/session-dashboard.js`
 
 ## Next Step
 
-Step 96 should define the Calendar owner contract before exposing any Recent
-Sessions Calendar row action.
+Step 97 should audit the completed Recent Sessions row action ownership set
+after Summary, Stats, Copy, Order, Journal, and Calendar contracts are in place.
 
-Keep Step 96 contract-only unless the user explicitly asks to continue further:
+Keep Step 97 audit-only unless the user explicitly asks to continue further:
 
-- Calendar must remain hidden/disabled until its owner contract and guards
-  exist;
-- Calendar must not load bars;
-- Calendar must not open chart runtime;
-- Calendar must not advance replay;
-- Calendar must not touch viewport state;
-- dashboard must not compute, persist, or query calendar data directly.
+- Summary, Stats, and Copy must remain the only visible Recent Sessions row
+  actions;
+- Order, Journal, and Calendar must remain hidden/disabled;
+- dashboard must not gain direct owner logic for orders, journal, or calendar;
+- audit should not add new runtime features.
 
-Expected first-pass Calendar shape:
+Expected audit shape:
 
-- owner: `calendar-runtime`;
-- allowed first-pass metadata/read fields;
-- blocked write/runtime integrations;
-- Calendar row action remains hidden/disabled unless contract and guards exist.
+- verify each row action owner contract;
+- verify visible and hidden action sets;
+- verify browser row-action behavior still avoids chart/replay/data side
+  effects;
+- document the next implementation direction.
 
 ## Critical Boundaries
 
@@ -78,16 +77,17 @@ For the current Recent Sessions row actions:
 - Copy: enabled, metadata-only, owner `session-repository`.
 - Order: disabled/contract-ready, owner `orders-runtime`.
 - Journal: disabled/contract-ready, owner `journal-runtime`.
-- Calendar: disabled/future, owner `calendar-runtime`.
+- Calendar: disabled/contract-ready, owner `calendar-runtime`.
 
 ## Key Tests
 
-Run these before committing Step 96 work:
+Run these before committing Step 97 work:
 
 - `node v6/tests/session-row-action-boundaries-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/orders-contract-smoke.js`
 - `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/calendar-contract-smoke.js`
 
 For Summary/Stats/Copy regression:
 
@@ -116,14 +116,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `ad13a835 test(v6): guard calendar owner boundaries`
+- `ff91676b feat(v6): add calendar owner contract`
 - `2f28f9a7 test(v6): guard journal owner boundaries`
 - `6ac21fc0 feat(v6): add journal owner contract`
 - `826a5e74 test(v6): guard orders owner boundaries`
-- `8b61e350 feat(v6): add orders owner contract`
-- `50b54920 feat(v6): enable session copy action`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-96. The handoff point is intentionally before exposing Calendar.
+97. The handoff point is intentionally before exposing Order, Journal, or
+Calendar.
