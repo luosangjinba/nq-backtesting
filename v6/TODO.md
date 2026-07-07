@@ -14,40 +14,59 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 118 - Workstation Chart Presentation Re-audit.
-  The real chart host/adapter/bridge presentation boundary still holds after
-  the dashboard row-action sequence.
+- Latest completed step: Step 119 - Workstation Chart Implementation Slice
+  Selection. The next bounded chart-facing slice is Left Drawing Rail
+  Reservation.
 
 ## Next Executable Steps
 
-### Step 119 - Workstation Chart Implementation Slice Selection
+### Step 120 - Left Drawing Rail Reservation
 
-Choose the next bounded workstation/chart implementation slice now that chart
-presentation ownership has been re-audited.
+Reserve an inert left drawing/tool rail as a shell-owned workstation chart
+surface.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`,
-  `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`, and FXReplay UI guardrails;
-- identify one narrow chart-facing slice with clear owner boundaries;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION.md` and FXReplay UI guardrails;
+- add shell markup/CSS only for a narrow left drawing/tool rail;
+- keep tool buttons disabled or inert until a drawing/tool owner exists;
+- prove chart host remains mounted, visible, and non-overlapped;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- document the selected slice, ownership boundary, and acceptance gates;
-- keep the step read-only unless the selection exposes a small prerequisite
-  mismatch.
+- avoid dispatching chart/replay/bar-data/default-wall/display-timeframe or
+  viewport commands from the rail;
+- do not import chart-engine or runtime owner modules into a left-rail
+  controller.
 
 Acceptance:
 
-- one Step 119 selection doc or smoke captures the next bounded slice;
-- selected chart-engine/workstation browser smokes still pass;
+- left drawing rail browser smoke passes;
+- workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 119 - Workstation Chart Implementation Slice Selection
+
+Completed in commit:
+
+- `ff2cad47 docs(v6): select left drawing rail slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/chart-toolbar-cleanup-browser-smoke.js`
+- `node v6/tests/right-utility-rail-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 118 - Workstation Chart Presentation Re-audit
 

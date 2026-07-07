@@ -5,17 +5,17 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 118 completed.
-- Next planned step: Step 119 - Workstation Chart Implementation Slice Selection.
+- Current V6 step state: Step 119 completed.
+- Next planned step: Step 120 - Left Drawing Rail Reservation.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Presentation Re-audit:
+The latest completed work is Workstation Chart Implementation Slice Selection:
 
-- `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md` documents that the real chart
-  host/adapter/bridge boundary still holds after dashboard row-action work.
-- `workstation-chart-presentation-reaudit-smoke.js` guards shell host markup,
-  app bridge wiring, and dashboard non-ownership of chart presentation writes.
-- Selected chart-engine/workstation browser smokes passed.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION.md` selects Left Drawing Rail
+  Reservation as the next bounded chart-facing slice.
+- `workstation-chart-slice-selection-smoke.js` guards the selected slice,
+  owner boundary, and existing visible row-action state.
+- The selected slice is shell-only and inert until a drawing/tool owner exists.
 
 ## Restart Reading Order
 
@@ -40,31 +40,36 @@ After restarting the server or assistant context, read these first:
 17. `v6/sessions/session_20260707_step116_journal_row_action_visibility_wiring.md`
 18. `v6/sessions/session_20260707_step117_dashboard_journal_row_action_regression_pack_audit.md`
 19. `v6/sessions/session_20260707_step118_workstation_chart_presentation_reaudit.md`
-20. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-21. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-22. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-23. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-24. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-25. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+20. `v6/sessions/session_20260707_step119_workstation_chart_slice_selection.md`
+21. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+22. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+23. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+24. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+25. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+26. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+27. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 119 should choose the next bounded workstation/chart implementation slice.
+Step 120 should reserve an inert left drawing/tool rail.
 
-Keep Step 119 bounded:
+Keep Step 120 bounded:
 
-- read `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`,
-  `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`, and FXReplay UI guardrails;
-- identify one narrow chart-facing slice with clear owner boundaries;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION.md` and FXReplay UI guardrails;
+- add shell markup/CSS only for a narrow left drawing/tool rail;
+- keep tool buttons disabled or inert until a drawing/tool owner exists;
+- prove chart host remains mounted, visible, and non-overlapped;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- document the selected slice, ownership boundary, and acceptance gates;
-- keep the step read-only unless the selection exposes a small prerequisite
-  mismatch;
-- run selected chart-engine/workstation browser smokes plus boundary smoke.
+- do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
+  viewport commands from the rail;
+- do not import chart-engine or runtime owner modules into a left-rail
+  controller;
+- run left rail browser coverage, chart presentation re-audit, and boundary
+  smoke.
 
 ## Critical Boundaries
 
@@ -93,7 +98,7 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 119 work:
+Run these before committing Step 120 work:
 
 - `node v6/tests/journal-row-action-exposure-gate-audit-smoke.js`
 - `node v6/tests/journal-surface-ready-flag-audit-smoke.js`
@@ -121,6 +126,7 @@ Run these before committing Step 119 work:
 - `node v6/tests/session-journal-row-action-browser-smoke.js`
 - `node v6/tests/dashboard-journal-row-action-regression-pack-audit-smoke.js`
 - `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-smoke.js`
 
 For Summary/Stats/Copy regression:
 
@@ -161,15 +167,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `ff2cad47 docs(v6): select left drawing rail slice`
 - `8cb8480c docs(v6): audit workstation chart presentation`
 - `2a3e5eb5 docs(v6): audit journal row action regression pack`
 - `40c34f17 docs(v6): close journal row action visibility wiring`
 - `0b1eebea feat(v6): expose journal row action`
-- `a56a711c docs(v6): audit journal row action exposure gate`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-119. The handoff point is intentionally after the workstation chart presentation
-boundary re-audit passed.
+120. The handoff point is intentionally after selecting Left Drawing Rail
+Reservation as the next bounded chart-facing slice.
