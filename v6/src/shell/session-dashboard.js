@@ -1,5 +1,6 @@
 import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
+import { createRecentSessionsView } from './session-dashboard-model.js';
 import { readSessionSetupForm } from './session-setup-model.js';
 
 function formatSessionMeta(session = {}) {
@@ -49,11 +50,12 @@ function isElementVisible(element) {
   return element && !element.hidden;
 }
 
-function renderSessions(root, sessions = []) {
+function renderSessions(root, view) {
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   const empty = root.querySelector('[data-v6-dashboard-empty]');
   if (!list) return;
-  list.innerHTML = sessions.map((session) => `
+  const rows = view?.rows || [];
+  list.innerHTML = rows.map((session) => `
     <li data-v6-dashboard-session-row="${session.id}">
       <button class="session-open-button" type="button" data-v6-dashboard-open-session="${session.id}" aria-label="Open ${sessionLabel(session)}">&#9658;</button>
       <div class="session-row-main">
@@ -62,12 +64,31 @@ function renderSessions(root, sessions = []) {
         <div class="session-asset-chips">${sessionSymbols(session).map((symbol) => `<em>${symbol}</em>`).join('')}</div>
       </div>
       <span class="session-progress">Remaining days: --</span>
+      <div class="session-row-actions" aria-label="Session row actions">
+        <button type="button" disabled title="Summary placeholder">Summary</button>
+        <button type="button" disabled title="Analytics placeholder">Stats</button>
+        <button type="button" disabled title="Copy placeholder">Copy</button>
+      </div>
       <button class="session-dashboard-delete" type="button" data-v6-dashboard-delete-session="${session.id}" aria-label="Delete ${sessionLabel(session)} session">&times;</button>
     </li>
   `).join('');
   if (empty) {
-    empty.hidden = sessions.length > 0;
+    empty.hidden = rows.length > 0;
+    empty.textContent = view?.totalCount && !rows.length ? 'No matching sessions' : 'No replay sessions yet';
   }
+}
+
+function renderPager(root, view) {
+  const pageReadout = root.querySelector('[data-v6-dashboard-page-readout]');
+  const pageSize = root.querySelector('[data-v6-dashboard-page-size]');
+  const previous = root.querySelector('[data-v6-dashboard-page-prev]');
+  const next = root.querySelector('[data-v6-dashboard-page-next]');
+  const sortLabel = root.querySelector('[data-v6-dashboard-sort-label]');
+  if (pageReadout) pageReadout.textContent = `${view.page} of ${view.pageCount}`;
+  if (pageSize) pageSize.value = String(view.pageSize);
+  if (previous) previous.disabled = view.page <= 1;
+  if (next) next.disabled = view.page >= view.pageCount;
+  if (sortLabel) sortLabel.textContent = view.sort === 'oldest' ? 'Oldest to newest' : 'Newest to oldest';
 }
 
 function setWorkstationHidden(root, hidden) {
@@ -113,6 +134,11 @@ export function mountSessionDashboard(root, {
   const setupForm = root.querySelector('[data-v6-session-setup-form]');
   const setupStatus = root.querySelector('[data-v6-session-setup-status]');
   const refreshButton = root.querySelector('[data-v6-dashboard-refresh]');
+  const searchInput = root.querySelector('[data-v6-dashboard-search]');
+  const sortButton = root.querySelector('[data-v6-dashboard-sort]');
+  const pageSizeSelect = root.querySelector('[data-v6-dashboard-page-size]');
+  const previousPageButton = root.querySelector('[data-v6-dashboard-page-prev]');
+  const nextPageButton = root.querySelector('[data-v6-dashboard-page-next]');
   const assetPickerToggle = root.querySelector('[data-v6-asset-picker-toggle]');
   const assetPickerMenu = root.querySelector('[data-v6-asset-picker-menu]');
   const selectedAssetChips = root.querySelector('[data-v6-selected-asset-chips]');
@@ -128,7 +154,30 @@ export function mountSessionDashboard(root, {
   const unsubscriptions = [];
   let surface = 'session';
   let sessions = [];
+  let recentSessionsControls = {
+    page: 1,
+    pageSize: Number(pageSizeSelect?.value || 5),
+    query: '',
+    sort: 'newest',
+  };
   let selectedSymbols = ['NQ'];
+
+  function getRecentSessionsView() {
+    return createRecentSessionsView(sessions, recentSessionsControls);
+  }
+
+  function renderRecentSessions() {
+    const view = getRecentSessionsView();
+    recentSessionsControls = {
+      ...recentSessionsControls,
+      page: view.page,
+      pageSize: view.pageSize,
+      sort: view.sort,
+    };
+    renderSessions(root, view);
+    renderPager(root, view);
+    return view;
+  }
 
   function renderSelectedAssets() {
     if (selectedAssetChips) {
@@ -216,7 +265,7 @@ export function mountSessionDashboard(root, {
 
   async function refresh() {
     sessions = await dispatchCommand(SESSION_COMMANDS.LIST);
-    renderSessions(root, sessions);
+    renderRecentSessions();
     return getState();
   }
 
@@ -351,6 +400,69 @@ export function mountSessionDashboard(root, {
     unsubscriptions.push(() => refreshButton.removeEventListener('click', listener));
   }
 
+  if (searchInput) {
+    const listener = () => {
+      recentSessionsControls = {
+        ...recentSessionsControls,
+        page: 1,
+        query: searchInput.value,
+      };
+      renderRecentSessions();
+    };
+    searchInput.addEventListener('input', listener);
+    unsubscriptions.push(() => searchInput.removeEventListener('input', listener));
+  }
+
+  if (sortButton) {
+    const listener = () => {
+      recentSessionsControls = {
+        ...recentSessionsControls,
+        page: 1,
+        sort: recentSessionsControls.sort === 'newest' ? 'oldest' : 'newest',
+      };
+      renderRecentSessions();
+    };
+    sortButton.addEventListener('click', listener);
+    unsubscriptions.push(() => sortButton.removeEventListener('click', listener));
+  }
+
+  if (pageSizeSelect) {
+    const listener = () => {
+      recentSessionsControls = {
+        ...recentSessionsControls,
+        page: 1,
+        pageSize: Number(pageSizeSelect.value || 5),
+      };
+      renderRecentSessions();
+    };
+    pageSizeSelect.addEventListener('change', listener);
+    unsubscriptions.push(() => pageSizeSelect.removeEventListener('change', listener));
+  }
+
+  if (previousPageButton) {
+    const listener = () => {
+      recentSessionsControls = {
+        ...recentSessionsControls,
+        page: recentSessionsControls.page - 1,
+      };
+      renderRecentSessions();
+    };
+    previousPageButton.addEventListener('click', listener);
+    unsubscriptions.push(() => previousPageButton.removeEventListener('click', listener));
+  }
+
+  if (nextPageButton) {
+    const listener = () => {
+      recentSessionsControls = {
+        ...recentSessionsControls,
+        page: recentSessionsControls.page + 1,
+      };
+      renderRecentSessions();
+    };
+    nextPageButton.addEventListener('click', listener);
+    unsubscriptions.push(() => nextPageButton.removeEventListener('click', listener));
+  }
+
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   if (list) {
     const listener = (event) => {
@@ -369,11 +481,20 @@ export function mountSessionDashboard(root, {
   }
 
   function getState() {
+    const recentSessionsView = getRecentSessionsView();
     return {
       open: surface === 'session',
       surface,
       sessionCount: sessions.length,
       sessions: sessions.map((session) => ({ ...session })),
+      recentSessions: {
+        page: recentSessionsView.page,
+        pageCount: recentSessionsView.pageCount,
+        pageSize: recentSessionsView.pageSize,
+        query: recentSessionsView.query,
+        sort: recentSessionsView.sort,
+        visibleCount: recentSessionsView.visibleCount,
+      },
     };
   }
 

@@ -13,6 +13,7 @@ const ICONS = {
   info: '<circle cx="12" cy="12" r="8"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
   journal: '<path d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/>',
   layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
+  listFilter: '<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>',
   moon: '<path d="M21 14.8A8 8 0 0 1 9.2 3a7 7 0 1 0 11.8 11.8z"/>',
   pause: '<path d="M9 5v14"/><path d="M15 5v14"/>',
   play: '<path d="M8 5l11 7-11 7z"/>',
@@ -22,6 +23,7 @@ const ICONS = {
   restart: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 8v5l3 2"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
   spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
+  sort: '<path d="M7 4v16"/><path d="M4 7l3-3 3 3"/><path d="M17 20V4"/><path d="M14 17l3 3 3-3"/>',
   stepBack: '<path d="M19 5v14"/><path d="M15 6l-8 6 8 6"/>',
   stepForward: '<path d="M5 5v14"/><path d="M9 6l8 6-8 6"/>',
   undo: '<path d="M3 7v6h6"/><path d="M4 13a7 7 0 1 1 2 5"/>',
@@ -146,12 +148,26 @@ export function createWorkstationShellMarkup() {
             <div class="session-dashboard-list-tools">
               <label>
                 ${icon('search')}
-                <input type="search" placeholder="Search Here" disabled>
+                <input type="search" placeholder="Search Here" data-v6-dashboard-search>
               </label>
-              <button type="button" disabled>Newest to oldest ${icon('chevronDown')}</button>
+              <button type="button" data-v6-dashboard-sort aria-label="Sort recent sessions">${icon('sort')}<span data-v6-dashboard-sort-label>Newest to oldest</span>${icon('chevronDown')}</button>
             </div>
             <ul class="session-dashboard-list" data-v6-dashboard-session-list></ul>
             <p class="session-dashboard-empty" data-v6-dashboard-empty>No replay sessions yet</p>
+            <footer class="session-dashboard-pager" data-v6-dashboard-pager>
+              <label>Rows per page
+                <select data-v6-dashboard-page-size>
+                  <option value="2">2</option>
+                  <option value="5" selected>5</option>
+                  <option value="10">10</option>
+                </select>
+              </label>
+              <span data-v6-dashboard-page-readout>1 of 1</span>
+              <div>
+                <button type="button" data-v6-dashboard-page-prev aria-label="Previous recent sessions page">${icon('arrowLeft')}</button>
+                <button type="button" data-v6-dashboard-page-next aria-label="Next recent sessions page">${icon('arrowRight')}</button>
+              </div>
+            </footer>
           </section>
           <section class="session-dashboard-analytics" data-v6-dashboard-analytics aria-label="Analytics">
             <header>${icon('indicators')}<strong>Analytics</strong></header>

@@ -612,7 +612,9 @@ p {
   color: #e7edf3;
 }
 
-.session-dashboard-list-tools button {
+.session-dashboard-list-tools button,
+.session-dashboard-pager button,
+.session-dashboard-pager select {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -622,6 +624,35 @@ p {
   border-radius: 10px;
   background: #050607;
   color: #f5f7fa;
+}
+
+.session-dashboard-pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #f5f7fa;
+  font-size: 12px;
+}
+
+.session-dashboard-pager label,
+.session-dashboard-pager div {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-dashboard-pager select {
+  min-height: 32px;
+  padding: 0 10px;
+  color-scheme: dark;
+}
+
+.session-dashboard-pager button {
+  width: 34px;
+  min-height: 32px;
+  justify-content: center;
+  padding: 0;
 }
 
 .session-dashboard-list-section header,
@@ -655,7 +686,7 @@ p {
 
 .session-dashboard-list li {
   display: grid;
-  grid-template-columns: 38px minmax(240px, 1fr) minmax(150px, auto) 34px;
+  grid-template-columns: 38px minmax(240px, 1fr) minmax(120px, auto) auto 34px;
   align-items: center;
   gap: 12px;
   min-height: 100px;
@@ -730,6 +761,24 @@ p {
   color: #f5f7fa;
   font-size: 12px;
   font-weight: 800;
+}
+
+.session-row-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.session-row-actions button {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 15px;
+  background: #3a3f45;
+  color: #f5f7fa;
+  font-size: 12px;
+  font-weight: 800;
+  opacity: 1;
 }
 
 .session-dashboard-empty {
