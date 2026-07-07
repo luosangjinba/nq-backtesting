@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createSessionAnalyticsContract } from '../src/session-analytics/session-analytics-contract.js';
 import {
   getRecentSessionRowActionBoundaries,
   getVisibleRecentSessionRowActions,
@@ -26,6 +27,8 @@ assert.equal(byId.get('summary').status, 'surface-ready');
 assert.match(byId.get('summary').reason, /read-only metadata/i);
 assert.equal(byId.get('analytics').owner, 'session-analytics');
 assert.equal(byId.get('analytics').enabled, false);
+assert.equal(byId.get('analytics').status, 'placeholder');
+assert.match(byId.get('analytics').reason, /dedicated session-analytics owner/i);
 assert.equal(byId.get('copy').owner, 'session-repository');
 assert.equal(byId.get('copy').enabled, false);
 assert.match(byId.get('copy').reason, /metadata/i);
@@ -40,5 +43,45 @@ assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
   ['summary', 'analytics', 'copy'],
 );
+
+assert.deepEqual(createSessionAnalyticsContract(), {
+  allowedFields: [
+    'accountBalance',
+    'autoUpdateEndDate',
+    'createdAt',
+    'durationDays',
+    'endTime',
+    'id',
+    'name',
+    'profileId',
+    'startTime',
+    'status',
+    'symbol',
+    'symbols',
+    'timeframe',
+    'workspaceId',
+  ],
+  canAdvanceReplay: false,
+  canLoadBars: false,
+  canMutateSession: false,
+  canOpenChart: false,
+  canReadCalendar: false,
+  canReadJournal: false,
+  canReadOrders: false,
+  canTouchViewport: false,
+  metricPlaceholders: [
+    'averageRMultiple',
+    'expectancy',
+    'grossLoss',
+    'grossProfit',
+    'lossCount',
+    'maxDrawdown',
+    'netProfit',
+    'tradeCount',
+    'winCount',
+    'winRate',
+  ],
+  owner: 'session-analytics',
+});
 
 console.log('v6 session row action boundaries smoke passed');
