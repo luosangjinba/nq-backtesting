@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createJournalContract } from '../src/journal/journal-contract.js';
 import { createOrdersContract } from '../src/orders/orders-contract.js';
 import { createSessionAnalyticsContract } from '../src/session-analytics/session-analytics-contract.js';
 import { createSessionCopyContract } from '../src/session/session-copy-contract.js';
@@ -40,6 +41,7 @@ assert.equal(byId.get('order').enabled, false);
 assert.equal(byId.get('order').status, 'future');
 assert.equal(byId.get('journal').owner, 'journal-runtime');
 assert.equal(byId.get('journal').enabled, false);
+assert.equal(byId.get('journal').status, 'future');
 assert.equal(byId.get('calendar').owner, 'calendar-runtime');
 assert.equal(byId.get('calendar').enabled, false);
 
@@ -175,6 +177,46 @@ assert.deepEqual(createOrdersContract(), {
   persistenceReady: false,
   rowActionVisible: false,
   writeReady: false,
+});
+
+assert.deepEqual(createJournalContract(), {
+  allowedFields: [
+    'closedAt',
+    'createdAt',
+    'entryPrice',
+    'exitPrice',
+    'id',
+    'metadata',
+    'notes',
+    'openedAt',
+    'quantity',
+    'side',
+    'symbol',
+    'tags',
+    'updatedAt',
+  ],
+  blockedIntegrations: [
+    'bar-data',
+    'calendar',
+    'chart-data',
+    'chart-engine',
+    'chart-viewport',
+    'orders',
+    'replay',
+    'session-dashboard',
+    'viewport',
+  ],
+  canAdvanceReplay: false,
+  canLoadBars: false,
+  canOpenChart: false,
+  canQueryCalendar: false,
+  canReadOrders: false,
+  canTouchViewport: false,
+  commandSurfaceReady: true,
+  owner: 'journal-runtime',
+  persistenceReady: true,
+  rowActionVisible: false,
+  surfaceReady: false,
 });
 
 console.log('v6 session row action boundaries smoke passed');
