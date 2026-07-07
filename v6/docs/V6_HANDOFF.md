@@ -5,19 +5,19 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 114 completed.
-- Next planned step: Step 115 - Journal Row Action Exposure Gate Audit.
+- Current V6 step state: Step 115 completed.
+- Next planned step: Step 116 - Journal Row Action Visibility Wiring.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Journal Surface Ready Flag Audit:
+The latest completed work is Journal Row Action Exposure Gate Audit:
 
-- `journal-contract.js` now reports `surfaceReady: true`.
-- `rowActionVisible` remains false, and `session-row-action-boundaries.js`
-  still keeps Journal hidden and disabled.
-- `V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md` documents that this readiness is for
-  hidden owner-side use, not dashboard exposure.
-- Browser regressions still show Recent Sessions renders only Summary, Stats,
-  and Copy row actions.
+- `V6_JOURNAL_ROW_ACTION_EXPOSURE_GATE_AUDIT.md` documents that Journal is ready
+  for a deliberate exposure implementation step, but remains hidden in the
+  audit.
+- `journal-row-action-exposure-gate-audit-smoke.js` guards owner readiness,
+  hidden row-action boundaries, and the absence of dashboard Journal click
+  wiring.
+- Summary, Stats, and Copy browser regressions still pass.
 
 ## Restart Reading Order
 
@@ -38,24 +38,26 @@ After restarting the server or assistant context, read these first:
 13. `v6/sessions/session_20260707_step112_hidden_journal_row_action_harness.md`
 14. `v6/sessions/session_20260707_step113_hidden_journal_row_action_browser_harness.md`
 15. `v6/sessions/session_20260707_step114_journal_surface_ready_flag_audit.md`
-16. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-17. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
-18. `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`
-19. `v6/docs/V6_JOURNAL_ROW_ACTION_SESSION_CONTEXT_CONTRACT.md`
-20. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md`
-21. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_HARNESS.md`
-22. `v6/docs/V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md`
+16. `v6/sessions/session_20260707_step115_journal_row_action_exposure_gate_audit.md`
+17. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+18. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
+19. `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`
+20. `v6/docs/V6_JOURNAL_ROW_ACTION_SESSION_CONTEXT_CONTRACT.md`
+21. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md`
+22. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_HARNESS.md`
+23. `v6/docs/V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md`
+24. `v6/docs/V6_JOURNAL_ROW_ACTION_EXPOSURE_GATE_AUDIT.md`
 
 ## Next Step
 
-Step 115 should audit the final gate for deliberately exposing the Journal
-dashboard row action.
+Step 116 should wire the Journal dashboard row action visibly.
 
-Keep Step 115 bounded:
+Keep Step 116 bounded:
 
-- keep Journal hidden unless this step explicitly updates row-action boundaries;
-- require visible row-action browser coverage before any exposure;
-- keep `rowActionVisible` and `session-row-action-boundaries.js` aligned;
+- update `journal-contract.js` and `session-row-action-boundaries.js` together;
+- add visible browser coverage for `data-v6-row-action="journal"` in the same
+  step;
+- prove Summary, Stats, and Copy remain unchanged;
 - preserve the Journal command/persistence-only dispatch boundary;
 - keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
   and session-dashboard runtime control paths;
@@ -64,7 +66,7 @@ Keep Step 115 bounded:
 
 Expected implementation shape:
 
-- add or update focused Journal row-action exposure gate documentation/smoke if
+- add or update focused Journal visible row-action wiring documentation/smoke if
   needed;
 - keep `journal-contract.js`, row-action boundaries, and browser smokes as the
   source of truth;
@@ -97,8 +99,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 115 work:
+Run these before committing Step 116 work:
 
+- `node v6/tests/journal-row-action-exposure-gate-audit-smoke.js`
 - `node v6/tests/journal-surface-ready-flag-audit-smoke.js`
 - `node v6/tests/hidden-journal-row-action-browser-smoke.js`
 - `node v6/tests/hidden-journal-row-action-harness-smoke.js`
@@ -161,15 +164,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `a56a711c docs(v6): audit journal row action exposure gate`
 - `8520c294 feat(v6): mark journal owner surface ready`
 - `16c05bcc test(v6): add hidden journal row action browser harness`
 - `65d8b027 feat(v6): add hidden journal row action harness`
 - `ff634845 feat(v6): add journal row action session context contract`
-- `131320ca test(v6): open workstation before workflow panel browser check`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-115. The handoff point is intentionally before any hidden dashboard row action
-is exposed.
+116. The handoff point is intentionally before Journal is visible in Recent
+Sessions.
