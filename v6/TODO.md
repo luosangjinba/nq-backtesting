@@ -22,34 +22,33 @@
 
 ## Next Executable Steps
 
-### Step 85 - Recent Sessions Row Action Boundaries
+### Step 85 - Quick Session Modal Polish
 
-Define the ownership boundaries for Recent Sessions row actions before any
-summary, analytics, clone, order, journal, or calendar behavior becomes active.
+Polish the quick session modal before more dashboard actions are activated.
 
 Status: planned.
 
 Notes for execution:
 
-- keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- row actions must not become a hidden cross-module control surface;
-- summary and analytics need explicit owners before activation;
-- clone/copy must stay metadata-only unless it intentionally creates a new
-  session record;
-- order, journal, and calendar actions need their own module contracts.
+- remove non-owned Prop Firm and Advanced Session controls;
+- keep assets empty by default and expose only symbols with available data;
+- fix close button, asset chip, and date action alignment;
+- preserve session creation ownership through the existing session command path.
 
 Scope:
 
-- document the planned owners for each row action;
-- keep placeholder controls disabled or clearly non-owning;
-- add guard tests preventing row actions from dispatching unrelated runtime
-  commands.
+- simplify quick session modal markup;
+- make NQ/ES the only selectable assets;
+- improve modal layout and chip controls;
+- update quick session browser smoke.
 
 Acceptance:
 
-- each row action has a documented owner or stays disabled;
-- tests prevent dashboard row actions from mutating chart, replay, bars,
-  viewport, orders, journal, or calendar state before ownership exists.
+- quick session modal opens with no selected assets;
+- asset menu contains only NQ and ES;
+- date shortcut buttons do not overlap date inputs;
+- close and asset-remove controls are visually centered;
+- creating a session still enters the chart through `SESSION_COMMANDS.CREATE`.
 
 ## Completed Steps
 
