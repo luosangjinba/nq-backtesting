@@ -21,10 +21,10 @@ const ROW_ACTIONS = Object.freeze([
     id: 'copy',
     label: 'Copy',
     owner: 'session-repository',
-    status: 'placeholder',
-    enabled: false,
+    status: 'action-ready',
+    enabled: true,
     visibleInRecentSessions: true,
-    reason: 'Copy may only create metadata records through the session repository when it becomes active.',
+    reason: 'Copy creates a metadata-only session record through the session repository.',
   }),
   Object.freeze({
     id: 'order',

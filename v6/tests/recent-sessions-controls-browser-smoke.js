@@ -95,7 +95,7 @@ try {
         id: button.dataset.v6RowAction,
         owner: button.dataset.v6RowActionOwner,
       }));
-      document.querySelectorAll('[data-v6-row-action]').forEach((button) => button.click());
+      document.querySelectorAll('[data-v6-row-action]:not([data-v6-row-action="copy"])').forEach((button) => button.click());
       const afterRowActions = {
         dashboard: root.__v6SessionDashboard.getState(),
         analyticsMetrics: [...document.querySelectorAll('[data-v6-session-analytics-metric]')]
@@ -200,13 +200,13 @@ try {
   assert.deepEqual(value.rowActions, [
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
-    { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'false', disabled: false, id: 'copy', owner: 'session-repository' },
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
-    { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'false', disabled: false, id: 'copy', owner: 'session-repository' },
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
-    { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'false', disabled: false, id: 'copy', owner: 'session-repository' },
   ]);
   assert.deepEqual(value.afterRowActions.snapshot, value.before);
   assert.equal(value.afterRowActions.dashboard.surface, 'session');

@@ -94,7 +94,6 @@ try {
         snapshot: await snapshot(),
       };
 
-      copyButton.click();
       const afterCopy = {
         analytics: root.__v6SessionDashboard.getState().analytics,
         copyDisabled: copyButton.disabled,
@@ -158,7 +157,7 @@ try {
   assert.equal(value.afterCloseButton.activeAction, 'analytics');
   assert.deepEqual(value.afterCloseButton.snapshot, value.before);
 
-  assert.equal(value.afterCopy.copyDisabled, true);
+  assert.equal(value.afterCopy.copyDisabled, false);
   assert.deepEqual(value.afterCopy.analytics, value.afterEscape.state);
   assert.deepEqual(value.afterCopy.summary, value.afterEscape.state);
   assert.deepEqual(value.afterCopy.snapshot, value.before);

@@ -97,7 +97,7 @@ try {
   assert.equal(value.before.chartEntry.status, 'idle');
   assert.deepEqual(value.disabledActions, [
     { id: 'analytics', disabled: false, ariaDisabled: 'false' },
-    { id: 'copy', disabled: true, ariaDisabled: 'true' },
+    { id: 'copy', disabled: false, ariaDisabled: 'false' },
   ]);
 
   assert.equal(value.afterOpen.activeLabel, 'Close session summary');

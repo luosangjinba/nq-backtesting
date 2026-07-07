@@ -318,6 +318,15 @@ export function mountSessionDashboard(root, {
     return getState();
   }
 
+  async function copySession(id) {
+    if (!id) return getState();
+    analyticsSurface.close();
+    summarySurface.close();
+    await dispatchCommand(SESSION_COMMANDS.COPY, { id });
+    await refresh();
+    return getState();
+  }
+
   function openSessionAnalytics(id) {
     const session = sessions.find((item) => item.id === id);
     if (!session) return getState();
@@ -508,6 +517,8 @@ export function mountSessionDashboard(root, {
           openSessionSummary(row?.dataset.v6DashboardSessionRow);
         } else if (rowActionButton.dataset.v6RowAction === 'analytics') {
           openSessionAnalytics(row?.dataset.v6DashboardSessionRow);
+        } else if (rowActionButton.dataset.v6RowAction === 'copy') {
+          void copySession(row?.dataset.v6DashboardSessionRow);
         }
         return;
       }
@@ -551,6 +562,7 @@ export function mountSessionDashboard(root, {
 
   return {
     createSession,
+    copySession,
     deleteSession,
     enterSessionSurface,
     enterWorkstation,
