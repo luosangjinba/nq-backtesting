@@ -21,6 +21,8 @@ for (const action of actions) {
 }
 
 assert.equal(byId.get('summary').owner, 'session-summary');
+assert.equal(byId.get('summary').status, 'contract-ready');
+assert.match(byId.get('summary').reason, /summary UI/i);
 assert.equal(byId.get('analytics').owner, 'session-analytics');
 assert.equal(byId.get('copy').owner, 'session-repository');
 assert.match(byId.get('copy').reason, /metadata/i);

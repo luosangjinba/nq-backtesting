@@ -3,10 +3,10 @@ const ROW_ACTIONS = Object.freeze([
     id: 'summary',
     label: 'Summary',
     owner: 'session-summary',
-    status: 'placeholder',
+    status: 'contract-ready',
     enabled: false,
     visibleInRecentSessions: true,
-    reason: 'Summary needs a dedicated session-summary owner before it can open session analysis UI.',
+    reason: 'Summary has a read-only owner contract but remains disabled until a dedicated summary UI is implemented.',
   }),
   Object.freeze({
     id: 'analytics',
