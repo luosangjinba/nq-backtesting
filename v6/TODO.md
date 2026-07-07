@@ -14,41 +14,65 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 88 - Session Summary Read-only Surface.
-  Recent Sessions Summary now opens a dedicated read-only metadata surface owned
-  by `session-summary`; browser guards verify opening it does not mutate chart,
-  replay, bars, or viewport state, while Stats and Copy remain disabled.
+- Latest completed step: Step 89 - Session Summary Surface Polish.
+  The read-only Summary surface now has deterministic close behavior, Escape
+  handling, focus return, responsive placement, and browser guards preserving
+  metadata-only behavior while Stats and Copy remain disabled.
 
 ## Next Executable Steps
 
-### Step 89 - Session Summary Surface Polish
+### Step 90 - Session Analytics Owner Contract
 
-Polish the read-only Session Summary surface layout and interaction details
-before adding more row actions.
+Define the Session Analytics owner contract before enabling the Recent Sessions
+Stats row action.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
 
-- keep the surface metadata-only;
-- preserve the Step 88 runtime guard that opening Summary does not touch chart,
-  replay, bars, or viewport state;
-- improve close/focus behavior and responsive placement if needed;
-- do not enable Stats, Copy, orders, journal, or calendar.
+- keep analytics read-only until trade/order/journal/calendar owners expose
+  explicit read contracts;
+- analytics must not load bars or open chart runtime by itself;
+- first-pass analytics may read only session metadata and explicitly empty
+  metric placeholders;
+- keep dashboard out of analytics calculations.
 
 Scope:
 
-- review the visual fit of the summary panel on dashboard and chart routes;
-- add focus/escape handling only inside the summary surface controller;
-- add a browser smoke for close behavior and field stability.
+- define the `session-analytics` public interface;
+- document allowed first-pass fields and blocked integrations;
+- keep Stats disabled unless the owner contract and guards are in place.
 
 Acceptance:
 
-- Summary remains read-only and metadata-only;
-- close behavior is deterministic;
-- non-summary row actions stay disabled.
+- analytics ownership is explicit;
+- dashboard cannot directly mutate analytics state;
+- tests prevent analytics from touching chart, replay, bars, viewport, orders,
+  journal, or calendar before those integrations exist.
 
 ## Completed Steps
+
+### Step 89 - Session Summary Surface Polish
+
+Completed in commits:
+
+- `fab143df docs(v6): scope session summary polish`
+- `3ea0d684 feat(v6): polish session summary surface`
+
+Verification:
+
+- `node v6/tests/session-summary-surface-model-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
 
 ### Step 88 - Session Summary Read-only Surface
 
