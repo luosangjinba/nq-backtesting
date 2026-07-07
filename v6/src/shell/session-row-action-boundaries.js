@@ -3,10 +3,10 @@ const ROW_ACTIONS = Object.freeze([
     id: 'summary',
     label: 'Summary',
     owner: 'session-summary',
-    status: 'contract-ready',
-    enabled: false,
+    status: 'surface-ready',
+    enabled: true,
     visibleInRecentSessions: true,
-    reason: 'Summary has a read-only owner contract but remains disabled until a dedicated summary UI is implemented.',
+    reason: 'Summary opens a read-only metadata surface owned by session-summary.',
   }),
   Object.freeze({
     id: 'analytics',
