@@ -14,46 +14,69 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 115 - Journal Row Action Exposure Gate Audit.
-  Journal is ready for a deliberate exposure implementation step, but remains
-  hidden until visible browser coverage is added with the wiring.
+- Latest completed step: Step 116 - Journal Row Action Visibility Wiring.
+  Journal is now visible in Recent Sessions through a Journal-owned adapter with
+  visible browser coverage; Summary, Stats, and Copy remain covered.
 
 ## Next Executable Steps
 
-### Step 116 - Journal Row Action Visibility Wiring
+### Step 117 - Dashboard Journal Row Action Regression Pack Audit
 
-Wire the Journal dashboard row action visibly only with matching browser
-coverage and aligned owner contracts.
+Audit the dashboard/session browser regression pack after Journal became a
+visible row action.
 
 Status: planned.
 
 Notes for execution:
 
-- update `journal-contract.js` and `session-row-action-boundaries.js` together;
-- add visible browser coverage for `data-v6-row-action="journal"` in the same
-  step;
-- prove Summary, Stats, and Copy remain unchanged;
-- preserve the Journal command/persistence-only dispatch boundary;
-- keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
-  and session-dashboard runtime control paths;
-- do not modify runtime behavior unless the audit exposes a mismatch.
+- re-run the selected dashboard/session browser pack sequentially;
+- confirm pack docs name Summary, Stats, Copy, and Journal as visible actions;
+- verify Order and Calendar remain hidden;
+- keep the audit read-only unless a pack mismatch is found.
 
 Scope:
 
-- add or update focused Journal visible row-action wiring documentation/smoke if
-  needed;
-- keep `journal-contract.js`, row-action boundaries, and browser smokes as the
-  source of truth.
+- update only docs/smokes needed to keep the regression pack honest after Step
+  116;
+- do not add another row action.
 
 Acceptance:
 
-- Journal contract smoke passes;
-- Journal row-action exposure gate audit smoke passes;
-- visible Journal row-action browser smoke passes;
-- Summary, Stats, and Copy browser smokes pass;
+- dashboard/session browser regression pack audit smoke passes;
+- visible row-action browser coverage audit smoke passes;
+- recent sessions controls and Summary/Stats/Copy/Journal browser smokes pass;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 116 - Journal Row Action Visibility Wiring
+
+Completed in commit:
+
+- `0b1eebea feat(v6): expose journal row action`
+
+Verification:
+
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/journal-row-action-exposure-gate-audit-smoke.js`
+- `node v6/tests/journal-surface-ready-flag-audit-smoke.js`
+- `node v6/tests/dashboard-row-action-isolation-reaudit-smoke.js`
+- `node v6/tests/dashboard-visible-row-action-browser-coverage-audit-smoke.js`
+- `node v6/tests/dashboard-session-browser-regression-pack-audit-smoke.js`
+- `node v6/tests/hidden-journal-row-action-harness-smoke.js`
+- `node v6/tests/hidden-journal-row-action-browser-smoke.js`
+- `node v6/tests/journal-row-action-session-context-contract-smoke.js`
+- `node v6/tests/session-journal-row-action-browser-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 115 - Journal Row Action Exposure Gate Audit
 
