@@ -26,7 +26,7 @@
 Add the first Session Summary read-only surface before enabling the Recent
 Sessions Summary row action.
 
-Status: planned.
+Status: active.
 
 Notes for execution:
 
