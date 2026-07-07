@@ -14,41 +14,41 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 123 - Bottom Account/Trading Chrome Reservation.
-  The workstation now has an inert shell-owned bottom account/trading strip.
+- Latest completed step: Step 124 - Bottom Chrome Regression Audit. Lower
+  workstation chrome now has regression coverage across chart work area,
+  floating transport, bottom account/trading chrome, and footer status bar.
 
 ## Next Executable Steps
 
-### Step 124 - Bottom Chrome Regression Audit
+### Step 125 - Workstation Chart Slice Selection
 
-Audit lower workstation chrome after adding the bottom account/trading strip.
+Choose the next bounded workstation/chart implementation slice after lower
+chrome stabilization.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`, and FXReplay UI
-  guardrails;
-- re-audit chart host, rails, pane status/readout, reset view, floating replay
-  transport, bottom account/trading chrome, and footer status bar as one lower
-  workstation surface;
-- keep Buy, Sell, quantity, account balance, PnL, and analytics placeholders
-  disabled or inert;
+- read `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`,
+  `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`, FXReplay UI guardrails, and the
+  parity gap audit;
+- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
+- select one small next slice with explicit owner boundary and acceptance tests;
+- prefer shell-only parity work unless the next slice requires a runtime owner
+  contract first;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test audit only unless a regression is found;
+- docs/test selection only;
+- do not implement the selected slice in Step 125;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from bottom chrome audit code;
-- do not import orders, chart-engine, chart-data, chart-viewport, replay,
-  bar-data, default-wall, or account/analytics owner modules into a
-  bottom-chrome controller.
+  viewport commands from selection/audit code.
 
 Acceptance:
 
+- new Step 125 slice selection smoke passes;
 - bottom chrome regression audit smoke passes;
 - bottom account/trading chrome browser smoke passes;
 - workstation rail regression audit browser smoke passes;
@@ -56,6 +56,21 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 124 - Bottom Chrome Regression Audit
+
+Completed in commit:
+
+- `763fff26 test(v6): audit bottom chrome regression`
+
+Verification:
+
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/bottom-account-chrome-browser-smoke.js`
+- `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 123 - Bottom Account/Trading Chrome Reservation
 
