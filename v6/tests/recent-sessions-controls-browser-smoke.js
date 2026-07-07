@@ -98,6 +98,12 @@ try {
       document.querySelectorAll('[data-v6-row-action]').forEach((button) => button.click());
       const afterRowActions = {
         dashboard: root.__v6SessionDashboard.getState(),
+        summaryFields: [...document.querySelectorAll('[data-v6-session-summary-field]')]
+          .map((field) => [
+            field.dataset.v6SessionSummaryField,
+            field.querySelector('dd')?.textContent.trim() || '',
+          ]),
+        summaryTitle: document.querySelector('#v6-session-summary-title')?.textContent.trim() || '',
         snapshot: await snapshot(),
       };
 
@@ -185,18 +191,33 @@ try {
   assert.equal(value.before.replay, null);
   assert.equal(value.before.chartEntry.status, 'idle');
   assert.deepEqual(value.rowActions, [
-    { ariaDisabled: 'true', disabled: true, id: 'summary', owner: 'session-summary' },
+    { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
-    { ariaDisabled: 'true', disabled: true, id: 'summary', owner: 'session-summary' },
+    { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
-    { ariaDisabled: 'true', disabled: true, id: 'summary', owner: 'session-summary' },
+    { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
   ]);
   assert.deepEqual(value.afterRowActions.snapshot, value.before);
   assert.equal(value.afterRowActions.dashboard.surface, 'session');
+  assert.deepEqual(value.afterRowActions.dashboard.summary, {
+    open: true,
+    owner: 'session-summary',
+    sessionId: 'recent-asia',
+  });
+  assert.equal(value.afterRowActions.summaryTitle, 'Asia prep');
+  assert.deepEqual(
+    value.afterRowActions.summaryFields.filter(([field]) => ['id', 'name', 'symbols', 'durationDays'].includes(field)),
+    [
+      ['durationDays', '1 days'],
+      ['id', 'recent-asia'],
+      ['name', 'Asia prep'],
+      ['symbols', 'YM'],
+    ],
+  );
 
   assert.deepEqual(value.afterSearch.names, ['NY AM', 'London review']);
   assert.equal(value.afterSearch.state.query, 'nq');

@@ -2,6 +2,7 @@ import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createRecentSessionsView } from './session-dashboard-model.js';
 import { getVisibleRecentSessionRowActions } from './session-row-action-boundaries.js';
+import { mountSessionSummarySurface } from './session-summary-surface.js';
 import { readSessionSetupForm } from './session-setup-model.js';
 
 function formatSessionMeta(session = {}) {
@@ -57,8 +58,8 @@ function renderSessionRowActions() {
       type="button"
       data-v6-row-action="${action.id}"
       data-v6-row-action-owner="${action.owner}"
-      aria-disabled="true"
-      disabled
+      aria-disabled="${String(!action.enabled)}"
+      ${action.enabled ? '' : 'disabled'}
       title="${action.reason}"
     >${action.label}</button>
   `).join('');
@@ -166,6 +167,7 @@ export function mountSessionDashboard(root, {
   const unsubscriptions = [];
   let surface = 'session';
   let sessions = [];
+  const summarySurface = mountSessionSummarySurface(root);
   let recentSessionsControls = {
     page: 1,
     pageSize: Number(pageSizeSelect?.value || 5),
@@ -308,8 +310,15 @@ export function mountSessionDashboard(root, {
 
   async function deleteSession(id) {
     await dispatchCommand(SESSION_COMMANDS.DELETE, id);
+    summarySurface.close();
     await refresh();
     return getState();
+  }
+
+  function openSessionSummary(id) {
+    const session = sessions.find((item) => item.id === id);
+    if (!session) return getState();
+    return summarySurface.open(session);
   }
 
   const toggleListener = () => enterSessionSurface();
@@ -480,6 +489,13 @@ export function mountSessionDashboard(root, {
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   if (list) {
     const listener = (event) => {
+      const rowActionButton = event.target.closest?.('[data-v6-row-action]');
+      if (rowActionButton && list.contains(rowActionButton)) {
+        if (rowActionButton.disabled || rowActionButton.dataset.v6RowAction !== 'summary') return;
+        const row = rowActionButton.closest('[data-v6-dashboard-session-row]');
+        openSessionSummary(row?.dataset.v6DashboardSessionRow);
+        return;
+      }
       const deleteSessionButton = event.target.closest?.('[data-v6-dashboard-delete-session]');
       if (deleteSessionButton && list.contains(deleteSessionButton)) {
         void deleteSession(deleteSessionButton.dataset.v6DashboardDeleteSession);
@@ -509,6 +525,7 @@ export function mountSessionDashboard(root, {
         sort: recentSessionsView.sort,
         visibleCount: recentSessionsView.visibleCount,
       },
+      summary: summarySurface.getState(),
     };
   }
 
@@ -528,6 +545,7 @@ export function mountSessionDashboard(root, {
       while (unsubscriptions.length) {
         unsubscriptions.pop()();
       }
+      summarySurface.unmount();
     },
   };
 }
