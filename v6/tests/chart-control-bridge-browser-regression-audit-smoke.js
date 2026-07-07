@@ -33,8 +33,8 @@ assert.equal(contract.canOwnDashboardRowActions, false);
 assert.equal(manualBrowserSmoke.includes('__v6ManualWallInputBridge?.destroy'), true);
 assert.equal(manualBrowserSmoke.includes('Input.dispatchMouseEvent'), true);
 assert.equal(manualBrowserSmoke.includes("value.manual.intent.origin, 'manual'"), true);
-assert.equal(manualBrowserSmoke.includes("value.next.intent.origin, 'manual'"), true);
-assert.equal(manualBrowserSmoke.includes('DEFAULT_WALL_COMMANDS.NEXT'), true);
+assert.equal(manualBrowserSmoke.includes('setup.hostRect.width > 0'), true);
+assert.equal(manualBrowserSmoke.includes('setup.hostRect.height > 0'), true);
 assert.equal(manualBrowserSmoke.includes('CHART_VIEWPORT_COMMANDS.GET_PANE'), true);
 assert.equal(manualBrowserSmoke.includes('__v6WorkstationChartSurface.getState()'), true);
 

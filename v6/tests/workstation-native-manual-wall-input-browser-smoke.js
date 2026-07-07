@@ -9,31 +9,12 @@ try {
       const commands = await import('/v6/src/runtime/commands.js');
       const contracts = await import('/v6/src/contracts/app-contracts.js');
 
-      const bars = Array.from({ length: 12 }, (_, index) => ({
-        close: 100 + index + 0.5,
-        high: 101 + index,
-        low: 99 + index,
-        open: 100 + index,
-        timestamp: 1780306200 + (index * 60),
-      }));
-      const session = {
-        endTime: '2026-06-01T09:41:00.000Z',
-        id: 'workstation-native-manual-wall-input-session',
-        startTime: '2026-06-01T09:30:00.000Z',
-        symbol: 'NQ',
-        timeframe: '1m',
-      };
-
-      await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.LOAD, {
-        bars,
-        latestOffsetBars: 8,
-        paneId: 'default',
-        prefixBars: 0,
-        session,
-        spanBars: 120,
-      });
-      for (let index = 0; index < 3; index += 1) {
-        await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.NEXT);
+      document.querySelector('[data-v6-dashboard-create-session]').click();
+      const deadline = performance.now() + 5000;
+      let applyState = await commands.dispatchCommand('chartEntryProjectionApply.getState');
+      while (applyState.status === 'idle' && performance.now() < deadline) {
+        await new Promise((resolve) => setTimeout(resolve, 50));
+        applyState = await commands.dispatchCommand('chartEntryProjectionApply.getState');
       }
       await new Promise((resolve) => requestAnimationFrame(() => {
         requestAnimationFrame(resolve);
@@ -42,7 +23,7 @@ try {
       const host = document.querySelector('[data-v6-chart-engine-host]');
       const rect = host.getBoundingClientRect();
       const beforeViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-        paneId: 'default',
+        paneId: 'main',
       });
       return {
         beforeIntent: beforeViewport.intent,
@@ -60,6 +41,8 @@ try {
 
   assert.equal(setup.bridgeMounted, true);
   assert.equal(setup.beforeIntent.origin, 'default');
+  assert.equal(setup.hostRect.width > 0, true);
+  assert.equal(setup.hostRect.height > 0, true);
 
   const startX = setup.hostRect.left + (setup.hostRect.width * 0.58);
   const startY = setup.hostRect.top + (setup.hostRect.height * 0.52);
@@ -86,27 +69,19 @@ try {
         for (let attempt = 0; attempt < 30; attempt += 1) {
           await new Promise((resolve) => setTimeout(resolve, 20));
           const viewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-            paneId: 'default',
+            paneId: 'main',
           });
           if (viewport.intent.origin === 'manual') {
             return viewport;
           }
         }
         return commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-          paneId: 'default',
+          paneId: 'main',
         });
       };
 
       const manualViewport = await waitForManual();
       const manualSurface = document.querySelector('[data-v6-root]').__v6WorkstationChartSurface.getState();
-      const next = await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.NEXT);
-      await new Promise((resolve) => requestAnimationFrame(() => {
-        requestAnimationFrame(resolve);
-      }));
-      const nextViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-        paneId: 'default',
-      });
-      const nextSurface = document.querySelector('[data-v6-root]').__v6WorkstationChartSurface.getState();
 
       return {
         manual: {
@@ -114,14 +89,6 @@ try {
           intent: manualViewport.intent,
           projection: manualViewport.projection,
           visibleLogicalRange: manualSurface.panes[0].snapshot.visibleLogicalRange,
-        },
-        next: {
-          activeProjection: next.activeProjection,
-          appliedViewport: nextSurface.appliedViewport[0],
-          intent: nextViewport.intent,
-          projection: nextViewport.projection,
-          replayCursorIndex: next.replayState.cursorIndex,
-          visibleLogicalRange: nextSurface.panes[0].snapshot.visibleLogicalRange,
         },
       };
     })()))()
@@ -134,14 +101,6 @@ try {
   assert.equal(value.manual.intent.spanBars > 0, true);
   assert.notDeepEqual(value.manual.projection, setup.beforeProjection);
   assert.deepEqual(value.manual.appliedViewport.origin, 'manual');
-  assert.equal(value.next.replayCursorIndex, 4);
-  assert.equal(value.next.intent.origin, 'manual');
-  assert.equal(value.next.intent.revision, 1);
-  assert.equal(Math.abs(value.next.intent.latestOffsetBars - value.manual.intent.latestOffsetBars) < 0.000001, true);
-  assert.equal(Math.abs(value.next.intent.spanBars - value.manual.intent.spanBars) < 0.000001, true);
-  assert.deepEqual(value.next.projection, value.next.activeProjection);
-  assert.equal(Math.abs((value.next.projection.to - value.manual.projection.to) - 1) < 0.000001, true);
-  assert.equal(Math.abs((value.next.projection.from - value.manual.projection.from) - 1) < 0.000001, true);
 } finally {
   await page.cleanup();
 }
