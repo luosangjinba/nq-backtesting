@@ -14,47 +14,62 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 121 - Workstation Rail Regression Audit. The
-  workstation chart chrome now has browser coverage across left rail, chart
-  host, right rail, status/readout, reset view, and transport placement.
+- Latest completed step: Step 122 - Workstation Chart Slice Selection. The next
+  bounded workstation/chart slice is Bottom Account/Trading Chrome Reservation.
 
 ## Next Executable Steps
 
-### Step 122 - Workstation Chart Slice Selection
+### Step 123 - Bottom Account/Trading Chrome Reservation
 
-Choose the next bounded workstation/chart implementation slice after the rail
-regression audit.
+Reserve an inert bottom account/trading chrome strip as a shell-owned
+workstation surface.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`,
-  `V6_LEFT_DRAWING_RAIL_RESERVATION.md`, FXReplay UI guardrails, and the parity
-  gap audit;
-- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
-- select one small next slice with explicit owner boundary and acceptance tests;
-- prefer shell-only parity work unless the next slice requires a runtime owner
-  contract first;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md` and FXReplay UI
+  guardrails;
+- add shell markup/CSS only for a dense bottom account/trading chrome strip;
+- keep Buy, Sell, quantity, account balance, PnL, and analytics placeholders
+  disabled or inert until owners exist;
+- preserve floating replay transport ownership and placement;
+- prove chart host, rails, status/readout, reset view, and transport remain
+  mounted, visible, and non-overlapped;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test selection only;
-- do not implement the selected slice in Step 122;
+- shell markup/CSS plus browser coverage only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from selection/audit code.
+  viewport commands from the bottom account/trading strip;
+- do not import orders, chart-engine, chart-data, chart-viewport, replay,
+  bar-data, default-wall, or account/analytics owner modules into a
+  bottom-chrome controller.
 
 Acceptance:
 
-- workstation chart slice selection smoke is updated or a new Step 122 slice
-  selection smoke passes;
+- bottom account/trading chrome browser smoke passes;
 - workstation rail regression audit browser smoke passes;
 - workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 122 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `ba95a9a5 docs(v6): select bottom account chrome slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step122-smoke.js`
+- `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 121 - Workstation Rail Regression Audit
 

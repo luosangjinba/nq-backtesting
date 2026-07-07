@@ -5,19 +5,19 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 121 completed.
-- Next planned step: Step 122 - Workstation Chart Slice Selection.
+- Current V6 step state: Step 122 completed.
+- Next planned step: Step 123 - Bottom Account/Trading Chrome Reservation.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Rail Regression Audit:
+The latest completed work is Workstation Chart Slice Selection:
 
-- `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md` records the accepted rail/chrome
-  regression state after adding the left drawing rail.
-- `workstation-rail-regression-audit-browser-smoke.js` covers left rail, chart
-  host, right rail, status/readout, reset view, transport, and row-action
-  visibility.
-- The audit found and fixed a status/readout spacing issue by reserving the
-  Reset View area inside the chart surface.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md` selects Bottom
+  Account/Trading Chrome Reservation as the next bounded workstation/chart
+  slice.
+- `workstation-chart-slice-selection-step122-smoke.js` guards the selected
+  slice, owner boundary, verification plan, and visible row-action state.
+- Step 123 should reserve the bottom account/trading strip without adding
+  trading behavior or runtime ownership.
 
 ## Restart Reading Order
 
@@ -45,39 +45,44 @@ After restarting the server or assistant context, read these first:
 20. `v6/sessions/session_20260707_step119_workstation_chart_slice_selection.md`
 21. `v6/sessions/session_20260707_step120_left_drawing_rail_reservation.md`
 22. `v6/sessions/session_20260707_step121_workstation_rail_regression_audit.md`
-23. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-24. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-25. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-26. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-27. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-28. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-29. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-30. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-31. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+23. `v6/sessions/session_20260707_step122_workstation_chart_slice_selection.md`
+24. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+25. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+26. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+27. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+28. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+29. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+30. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+31. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+32. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+33. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 122 should choose the next bounded workstation/chart implementation slice.
+Step 123 should reserve an inert bottom account/trading chrome strip.
 
-Keep Step 122 bounded:
+Keep Step 123 bounded:
 
-- read `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`,
-  `V6_LEFT_DRAWING_RAIL_RESERVATION.md`, FXReplay UI guardrails, and the parity
-  gap audit;
-- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
-- select one small next slice with explicit owner boundary and acceptance tests;
-- prefer shell-only parity work unless the next slice requires a runtime owner
-  contract first;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md` and FXReplay UI
+  guardrails;
+- add shell markup/CSS only for a dense bottom account/trading chrome strip;
+- keep Buy, Sell, quantity, account balance, PnL, and analytics placeholders
+  disabled or inert until owners exist;
+- preserve floating replay transport ownership and placement;
+- prove chart host, rails, status/readout, reset view, and transport remain
+  mounted, visible, and non-overlapped;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- docs/test selection only;
-- do not implement the selected slice in Step 122;
+- shell markup/CSS plus browser coverage only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from selection/audit code;
-- run the slice-selection smoke, rail regression audit, chart presentation
+  viewport commands from the bottom account/trading strip;
+- do not import orders, chart-engine, chart-data, chart-viewport, replay,
+  bar-data, default-wall, or account/analytics owner modules into a
+  bottom-chrome controller;
+- run bottom chrome browser coverage, rail regression audit, chart presentation
   re-audit, and boundary smoke.
 
 ## Critical Boundaries
@@ -107,8 +112,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 122 work:
+Run these before committing Step 123 work:
 
+- `node v6/tests/workstation-chart-slice-selection-step122-smoke.js`
 - `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
 - `node v6/tests/left-drawing-rail-browser-smoke.js`
 - `node v6/tests/right-utility-rail-browser-smoke.js`
@@ -179,15 +185,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `ba95a9a5 docs(v6): select bottom account chrome slice`
 - `8cd045ed test(v6): audit workstation rail regression`
 - `4452f65a feat(v6): reserve left drawing rail`
 - `ff2cad47 docs(v6): select left drawing rail slice`
 - `8cb8480c docs(v6): audit workstation chart presentation`
-- `2a3e5eb5 docs(v6): audit journal row action regression pack`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-122. The handoff point is intentionally after auditing workstation rail/chrome
-regression coverage.
+123. The handoff point is intentionally after selecting Bottom Account/Trading
+Chrome Reservation as the next bounded workstation/chart slice.
