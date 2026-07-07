@@ -5,21 +5,22 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 98 completed.
-- Next planned step: Step 99 - Workstation Replay/Chart Re-entry Audit.
+- Current V6 step state: Step 99 completed.
+- Next planned step: Step 100 - Workstation Chart Surface Owner Contract.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Session Dashboard readiness re-audit:
+The latest completed work is Workstation Replay/Chart re-entry audit:
 
-- The dashboard remains a session-first orchestration surface.
-- Dashboard imports remain limited to session command contracts, runtime command
-  dispatch, recent session view helpers, row action boundaries, and read-only
-  Summary/Stats surfaces.
-- Dashboard dispatches only `session.list`, `session.create`, `session.open`,
-  `session.delete`, and `session.copy`.
-- Summary, Stats, and Copy remain the only visible Recent Sessions row actions.
-- Order, Journal, and Calendar remain hidden/disabled and contract-ready only.
-- The next direction is workstation replay/chart readiness re-entry.
+- The workstation replay/chart path is ready to re-enter after dashboard
+  closeout.
+- Lightweight Charts API and TradingView ecosystem references were checked
+  before selecting the next slice.
+- `bar-data`, `replay`, `chart-entry`, `chart-data`, `chart-viewport`, and
+  `chart-engine` boundaries still match V6 ownership rules.
+- The browser chart surface remains the only path that should apply series data
+  and visible logical ranges to Lightweight Charts.
+- Workstation browser smokes now target the current shell pane id, `main`.
+- The next direction is an explicit chart surface owner contract.
 
 ## Restart Reading Order
 
@@ -28,33 +29,35 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step098_session_dashboard_readiness_reaudit.md`
-5. `v6/docs/V6_SESSION_DASHBOARD_READINESS_REAUDIT.md`
-6. `v6/tests/session-dashboard-readiness-audit-smoke.js`
-7. `v6/src/shell/session-dashboard.js`
-8. `v6/src/shell/session-row-action-boundaries.js`
-9. `v6/docs/V6_RECENT_SESSIONS_ROW_ACTION_CONTRACT_AUDIT.md`
-10. `v6/tests/recent-sessions-controls-browser-smoke.js`
+4. `v6/sessions/session_20260707_step099_workstation_replay_chart_reentry_audit.md`
+5. `v6/docs/V6_WORKSTATION_REPLAY_CHART_REENTRY_AUDIT.md`
+6. `v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
+7. `v6/src/chart-engine/workstation-chart-surface.js`
+8. `v6/src/chart-engine/lightweight-chart-adapter.js`
+9. `v6/src/chart-engine/chart-data-surface-bridge.js`
+10. `v6/src/chart-engine/chart-viewport-surface-bridge.js`
 
 ## Next Step
 
-Step 99 should re-audit the workstation replay/chart path after dashboard
-readiness closeout.
+Step 100 should add an explicit owner contract for the workstation browser chart
+surface.
 
-Keep Step 99 audit-only unless the user explicitly asks to continue further:
+Keep Step 100 bounded:
 
-- re-read replay, chart-entry, chart-data, chart-viewport, bar-data, and
-  workstation browser smokes;
-- verify the dashboard closeout did not change workstation ownership
-  assumptions;
-- identify one bounded Step 100 implementation slice;
+- chart surface owns chart host lifecycle, series data writes, visible logical
+  range application, user-driven visible range measurement, and read-only
+  browser snapshots;
+- chart surface must not fetch bars, advance replay, load sessions, compute
+  replay cursor state, own dashboard row actions, or mutate order/journal/
+  calendar state;
+- chart-data and chart-viewport bridges must remain event-only;
 - do not modify dashboard row action visibility.
 
-Expected audit shape:
+Expected implementation shape:
 
-- review relevant workstation contracts and browser smokes;
-- capture the selected workstation owner boundary;
-- document the Step 100 test plan.
+- create a small chart surface owner contract module;
+- add a contract smoke for allowed and blocked operations;
+- run selected workstation browser smokes on pane `main`.
 
 ## Critical Boundaries
 
@@ -83,8 +86,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 99 audit work:
+Run these before committing Step 100 work:
 
+- `node v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
 - `node v6/tests/session-dashboard-readiness-audit-smoke.js`
 - `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
 - `node v6/tests/session-row-action-boundaries-smoke.js`
@@ -117,6 +121,7 @@ For broader dashboard/session regression:
 For workstation replay/chart re-entry, select from:
 
 - `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/workstation-chart-adapter-browser-smoke.js`
 - `node v6/tests/workstation-chart-host-browser-smoke.js`
 - `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
 - `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
@@ -129,15 +134,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `c34ace79 test(v6): align workstation browser smokes with main pane`
+- `b2cbcb1f docs(v6): audit workstation replay chart reentry`
+- `e31fc150 docs(v6): close session dashboard readiness audit`
 - `8eb24471 docs(v6): audit session dashboard readiness`
 - `ccccf944 docs(v6): close row action contract audit`
-- `3a66c0b0 docs(v6): audit recent session row actions`
-- `a7ddcd84 docs(v6): close calendar owner contract`
-- `ad13a835 test(v6): guard calendar owner boundaries`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-99. The handoff point is intentionally before workstation replay/chart re-entry
-and before exposing Order, Journal, or Calendar.
+100. The handoff point is intentionally before adding the chart surface owner
+contract and before exposing Order, Journal, or Calendar.

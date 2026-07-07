@@ -14,44 +14,64 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 98 - Session Dashboard Readiness Re-audit.
-  The dashboard remains a session-first orchestration surface after the Step
-  80-97 dashboard sequence. No new owner violation was found, and the next
-  direction returns to workstation replay/chart readiness.
+- Latest completed step: Step 99 - Workstation Replay/Chart Re-entry Audit.
+  The workstation replay/chart path is ready to re-enter after dashboard
+  closeout. The next bounded owner boundary is the browser chart surface.
 
 ## Next Executable Steps
 
-### Step 99 - Workstation Replay/Chart Re-entry Audit
+### Step 100 - Workstation Chart Surface Owner Contract
 
-Re-audit the workstation replay/chart path after the dashboard readiness
-closeout.
+Add an explicit owner contract for the workstation browser chart surface.
 
 Status: planned.
 
 Notes for execution:
 
-- keep this step audit-only unless a specific next implementation slice is
-  selected from the findings;
-- focus on replay, chart-entry, chart-data, chart-viewport, bar-data, and
-  workstation browser smokes;
-- identify one bounded owner boundary for the next implementation step;
-- do not modify dashboard row action visibility;
-- do not patch V5 replay viewport behavior as a substitute for V6 work.
+- chart surface owns Lightweight Charts adapter calls, chart host lifecycle,
+  series data writes, visible logical range application, and read-only browser
+  snapshots;
+- chart surface must not fetch bars, advance replay, load sessions, compute
+  replay cursor state, own dashboard row actions, or mutate order/journal/
+  calendar state;
+- chart-data and chart-viewport bridges remain event-only;
+- use the current main pane id in workstation browser smokes.
 
 Scope:
 
-- read the relevant workstation replay/chart contracts and smokes;
-- verify dashboard work did not change workstation ownership assumptions;
-- document one bounded Step 100 implementation direction.
+- create a small chart surface owner contract module;
+- add a contract smoke that guards allowed and blocked operations;
+- wire documentation only if needed; do not change chart runtime behavior.
 
 Acceptance:
 
-- no new owner violations are found, or any violation is documented with a
-  bounded remediation step;
-- Step 100 has a single clear owner boundary and test plan;
-- chosen workstation regression smokes still pass.
+- contract smoke passes;
+- workstation chart host/data bridge/viewport bridge/default-wall/manual-wall
+  browser smokes pass;
+- dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 99 - Workstation Replay/Chart Re-entry Audit
+
+Completed in commits:
+
+- `b2cbcb1f docs(v6): audit workstation replay chart reentry`
+- `c34ace79 test(v6): align workstation browser smokes with main pane`
+
+Verification:
+
+- `node v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
+- `node v6/tests/replay-chart-readiness-audit-smoke.js`
+- `node v6/tests/session-dashboard-readiness-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/workstation-chart-adapter-browser-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+- `git diff --check`
 
 ### Step 98 - Session Dashboard Readiness Re-audit
 
