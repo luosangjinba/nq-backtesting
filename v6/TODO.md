@@ -14,43 +14,65 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 99 - Workstation Replay/Chart Re-entry Audit.
-  The workstation replay/chart path is ready to re-enter after dashboard
-  closeout. The next bounded owner boundary is the browser chart surface.
+- Latest completed step: Step 100 - Workstation Chart Surface Owner Contract.
+  The browser chart surface now has an explicit owner contract for chart host
+  lifecycle, series writes, visible range application, user visible-range
+  measurement, read-only snapshots, and event-only bridge boundaries.
 
 ## Next Executable Steps
 
-### Step 100 - Workstation Chart Surface Owner Contract
+### Step 101 - Workstation Chart Surface Contract Integration Audit
 
-Add an explicit owner contract for the workstation browser chart surface.
+Audit that the chart surface owner contract is reflected by the browser chart
+surface, chart-data bridge, chart-viewport bridge, and selected workstation
+smokes.
 
 Status: planned.
 
 Notes for execution:
 
-- chart surface owns Lightweight Charts adapter calls, chart host lifecycle,
-  series data writes, visible logical range application, and read-only browser
-  snapshots;
-- chart surface must not fetch bars, advance replay, load sessions, compute
-  replay cursor state, own dashboard row actions, or mutate order/journal/
-  calendar state;
-- chart-data and chart-viewport bridges remain event-only;
-- use the current main pane id in workstation browser smokes.
+- keep the step audit-only unless a concrete mismatch is found;
+- verify the owner contract still matches `workstation-chart-surface`,
+  `lightweight-chart-adapter`, `chart-data-surface-bridge`, and
+  `chart-viewport-surface-bridge`;
+- verify dashboard row actions remain unchanged;
+- keep browser smokes on the current `main` pane id.
 
 Scope:
 
-- create a small chart surface owner contract module;
-- add a contract smoke that guards allowed and blocked operations;
-- wire documentation only if needed; do not change chart runtime behavior.
+- read the chart surface contract and chart-engine browser surface files;
+- identify whether Step 102 should apply the contract to a runtime guard,
+  boundary smoke, or documentation-only handoff;
+- run selected workstation browser smokes.
 
 Acceptance:
 
-- contract smoke passes;
+- chart surface contract and re-entry audit smokes pass;
 - workstation chart host/data bridge/viewport bridge/default-wall/manual-wall
   browser smokes pass;
 - dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 100 - Workstation Chart Surface Owner Contract
+
+Completed in commits:
+
+- `bc995ea9 feat(v6): add chart surface owner contract`
+- `dcc8252c test(v6): guard chart surface reentry contract`
+
+Verification:
+
+- `node v6/tests/chart-surface-contract-smoke.js`
+- `node v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
+- `node v6/tests/session-dashboard-readiness-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+- `git diff --check`
 
 ### Step 99 - Workstation Replay/Chart Re-entry Audit
 
