@@ -55,7 +55,7 @@ assert.deepEqual(
     commandSurfaceReady: true,
     persistenceReady: true,
     rowActionVisible: false,
-    surfaceReady: false,
+    surfaceReady: true,
   },
 );
 assert.equal(journalContract.blockedIntegrations.includes('session-dashboard'), true);

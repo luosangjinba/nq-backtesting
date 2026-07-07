@@ -101,7 +101,7 @@ assert.deepEqual(
   {
     commandSurfaceReady: true,
     persistenceReady: true,
-    surfaceReady: false,
+    surfaceReady: true,
   },
 );
 assert.deepEqual(

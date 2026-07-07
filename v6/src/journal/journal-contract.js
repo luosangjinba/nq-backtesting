@@ -54,6 +54,6 @@ export function createJournalContract() {
     owner: JOURNAL_OWNER,
     persistenceReady: true,
     rowActionVisible: false,
-    surfaceReady: false,
+    surfaceReady: true,
   });
 }

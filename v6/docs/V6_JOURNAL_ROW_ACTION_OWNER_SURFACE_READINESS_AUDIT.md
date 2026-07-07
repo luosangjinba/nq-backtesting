@@ -31,11 +31,15 @@ Ready:
 
 Not ready:
 
-- `journal-contract.js` still marks `surfaceReady` false.
 - `journal-contract.js` still marks `rowActionVisible` false.
 - `session-row-action-boundaries.js` still keeps Journal hidden and disabled.
 - No browser smoke opens Journal from a recent-session row action.
 - The current Journal panel is not session-scoped from a dashboard row context.
+
+Step 114 update: hidden harness and browser coverage later moved
+`journal-contract.js` to `surfaceReady: true`. This document's dashboard
+exposure decision still holds: Journal remains hidden until a deliberate
+row-action visibility step.
 
 ## Minimum Exposure Gate
 

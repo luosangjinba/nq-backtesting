@@ -141,7 +141,7 @@ assert.equal(createOrdersContract().rowActionVisible, false);
 assert.equal(createOrdersContract().commandSurfaceReady, false);
 assert.equal(createJournalContract().owner, 'journal-runtime');
 assert.equal(createJournalContract().rowActionVisible, false);
-assert.equal(createJournalContract().surfaceReady, false);
+assert.equal(createJournalContract().surfaceReady, true);
 assert.equal(createCalendarContract().owner, 'calendar-runtime');
 assert.equal(createCalendarContract().rowActionVisible, false);
 assert.equal(createCalendarContract().providerReadReady, false);

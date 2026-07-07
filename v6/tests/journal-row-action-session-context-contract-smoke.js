@@ -112,7 +112,7 @@ for (const blockedField of getJournalRowActionContextBlockedFields()) {
 }
 
 assert.equal(createJournalContract().rowActionVisible, false);
-assert.equal(createJournalContract().surfaceReady, false);
+assert.equal(createJournalContract().surfaceReady, true);
 assert.equal(
   getRecentSessionRowActionBoundaries().find((action) => action.id === 'journal').visibleInRecentSessions,
   false,
