@@ -1,6 +1,7 @@
 import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { createRecentSessionsView } from './session-dashboard-model.js';
+import { getVisibleRecentSessionRowActions } from './session-row-action-boundaries.js';
 import { readSessionSetupForm } from './session-setup-model.js';
 
 function formatSessionMeta(session = {}) {
@@ -50,6 +51,19 @@ function isElementVisible(element) {
   return element && !element.hidden;
 }
 
+function renderSessionRowActions() {
+  return getVisibleRecentSessionRowActions().map((action) => `
+    <button
+      type="button"
+      data-v6-row-action="${action.id}"
+      data-v6-row-action-owner="${action.owner}"
+      aria-disabled="true"
+      disabled
+      title="${action.reason}"
+    >${action.label}</button>
+  `).join('');
+}
+
 function renderSessions(root, view) {
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   const empty = root.querySelector('[data-v6-dashboard-empty]');
@@ -65,9 +79,7 @@ function renderSessions(root, view) {
       </div>
       <span class="session-progress">Remaining days: --</span>
       <div class="session-row-actions" aria-label="Session row actions">
-        <button type="button" disabled title="Summary placeholder">Summary</button>
-        <button type="button" disabled title="Analytics placeholder">Stats</button>
-        <button type="button" disabled title="Copy placeholder">Copy</button>
+        ${renderSessionRowActions()}
       </div>
       <button class="session-dashboard-delete" type="button" data-v6-dashboard-delete-session="${session.id}" aria-label="Delete ${sessionLabel(session)} session">&times;</button>
     </li>
