@@ -14,40 +14,63 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 117 - Dashboard Journal Row Action Regression
-  Pack Audit. The dashboard/session browser pack still holds with Summary,
-  Stats, Copy, and Journal visible; Order and Calendar remain hidden.
+- Latest completed step: Step 118 - Workstation Chart Presentation Re-audit.
+  The real chart host/adapter/bridge presentation boundary still holds after
+  the dashboard row-action sequence.
 
 ## Next Executable Steps
 
-### Step 118 - Workstation Chart Presentation Re-audit
+### Step 119 - Workstation Chart Implementation Slice Selection
 
-Return to the workstation/chart-facing path after the dashboard row-action
-sequence and re-audit the chart presentation surface.
+Choose the next bounded workstation/chart implementation slice now that chart
+presentation ownership has been re-audited.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CHART_PRESENTATION_SURFACE_AUDIT.md` and current chart-engine/browser
-  smokes;
-- verify the real chart host/adapter path still owns presentation writes;
+- read `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`,
+  `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`, and FXReplay UI guardrails;
+- identify one narrow chart-facing slice with clear owner boundaries;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- document any drift between chart presentation docs and the current app;
-- keep the step read-only unless a chart presentation mismatch is found.
+- document the selected slice, ownership boundary, and acceptance gates;
+- keep the step read-only unless the selection exposes a small prerequisite
+  mismatch.
 
 Acceptance:
 
-- one Step 118 chart presentation re-audit doc or smoke captures the current
-  owner boundary;
-- selected chart-engine/workstation browser smokes pass;
+- one Step 119 selection doc or smoke captures the next bounded slice;
+- selected chart-engine/workstation browser smokes still pass;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 118 - Workstation Chart Presentation Re-audit
+
+Completed in commit:
+
+- `8cb8480c docs(v6): audit workstation chart presentation`
+
+Verification:
+
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/chart-presentation-audit-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/chart-surface-contract-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/workstation-chart-adapter-browser-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+- `node v6/tests/chart-engine-browser-smoke.js`
+- `node v6/tests/multi-pane-chart-host-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 117 - Dashboard Journal Row Action Regression Pack Audit
 

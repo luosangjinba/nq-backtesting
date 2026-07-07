@@ -5,17 +5,17 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 117 completed.
-- Next planned step: Step 118 - Workstation Chart Presentation Re-audit.
+- Current V6 step state: Step 118 completed.
+- Next planned step: Step 119 - Workstation Chart Implementation Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Dashboard Journal Row Action Regression Pack Audit:
+The latest completed work is Workstation Chart Presentation Re-audit:
 
-- `V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md` documents that the
-  dashboard/session browser pack still holds with Journal visible.
-- `dashboard-journal-row-action-regression-pack-audit-smoke.js` guards pack
-  membership, visible row-action boundaries, and hidden Order/Calendar state.
-- The selected dashboard/session browser pack passed sequentially.
+- `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md` documents that the real chart
+  host/adapter/bridge boundary still holds after dashboard row-action work.
+- `workstation-chart-presentation-reaudit-smoke.js` guards shell host markup,
+  app bridge wiring, and dashboard non-ownership of chart presentation writes.
+- Selected chart-engine/workstation browser smokes passed.
 
 ## Restart Reading Order
 
@@ -39,34 +39,31 @@ After restarting the server or assistant context, read these first:
 16. `v6/sessions/session_20260707_step115_journal_row_action_exposure_gate_audit.md`
 17. `v6/sessions/session_20260707_step116_journal_row_action_visibility_wiring.md`
 18. `v6/sessions/session_20260707_step117_dashboard_journal_row_action_regression_pack_audit.md`
-19. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-20. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-21. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
-22. `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`
-23. `v6/docs/V6_JOURNAL_ROW_ACTION_SESSION_CONTEXT_CONTRACT.md`
-24. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md`
-25. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_HARNESS.md`
-26. `v6/docs/V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md`
-27. `v6/docs/V6_JOURNAL_ROW_ACTION_EXPOSURE_GATE_AUDIT.md`
-28. `v6/docs/V6_JOURNAL_ROW_ACTION_VISIBILITY_WIRING.md`
+19. `v6/sessions/session_20260707_step118_workstation_chart_presentation_reaudit.md`
+20. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+21. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+22. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+23. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+24. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+25. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 118 should return to the workstation/chart-facing path and re-audit the
-chart presentation surface.
+Step 119 should choose the next bounded workstation/chart implementation slice.
 
-Keep Step 118 bounded:
+Keep Step 119 bounded:
 
-- read `V6_CHART_PRESENTATION_SURFACE_AUDIT.md` and current chart-engine/browser
-  smokes;
-- verify the real chart host/adapter path still owns presentation writes;
+- read `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`,
+  `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`, and FXReplay UI guardrails;
+- identify one narrow chart-facing slice with clear owner boundaries;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- document any drift between chart presentation docs and current app behavior;
-- keep the step read-only unless a chart presentation mismatch is found;
+- document the selected slice, ownership boundary, and acceptance gates;
+- keep the step read-only unless the selection exposes a small prerequisite
+  mismatch;
 - run selected chart-engine/workstation browser smokes plus boundary smoke.
 
 ## Critical Boundaries
@@ -96,7 +93,7 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 118 work:
+Run these before committing Step 119 work:
 
 - `node v6/tests/journal-row-action-exposure-gate-audit-smoke.js`
 - `node v6/tests/journal-surface-ready-flag-audit-smoke.js`
@@ -123,6 +120,7 @@ Run these before committing Step 118 work:
 - `node v6/tests/calendar-contract-smoke.js`
 - `node v6/tests/session-journal-row-action-browser-smoke.js`
 - `node v6/tests/dashboard-journal-row-action-regression-pack-audit-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
 
 For Summary/Stats/Copy regression:
 
@@ -163,15 +161,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `8cb8480c docs(v6): audit workstation chart presentation`
 - `2a3e5eb5 docs(v6): audit journal row action regression pack`
 - `40c34f17 docs(v6): close journal row action visibility wiring`
 - `0b1eebea feat(v6): expose journal row action`
 - `a56a711c docs(v6): audit journal row action exposure gate`
-- `8520c294 feat(v6): mark journal owner surface ready`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-118. The handoff point is intentionally after the Journal-visible dashboard
-regression pack passed.
+119. The handoff point is intentionally after the workstation chart presentation
+boundary re-audit passed.
