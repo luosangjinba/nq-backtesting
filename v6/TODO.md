@@ -14,44 +14,69 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 85 - Quick Session Modal Polish.
-  The quick session modal now removes non-owned Prop Firm and Advanced controls,
-  starts with an empty asset selection, exposes only NQ and ES, and fixes close,
-  asset chip, and date action alignment while preserving session creation
-  through the existing session command path.
+- Latest completed step: Step 86 - Recent Sessions Row Action Boundaries.
+  Recent Sessions row actions now have explicit owner metadata, remain disabled
+  placeholders until those owners exist, and browser guards verify they do not
+  mutate chart, replay, bars, viewport, order, journal, or calendar state.
 
 ## Next Executable Steps
 
-### Step 86 - Recent Sessions Row Action Boundaries
+### Step 87 - Session Summary Owner Contract
 
-Define the ownership boundaries for Recent Sessions row actions before any
-summary, analytics, clone, order, journal, or calendar behavior becomes active.
+Define the Session Summary owner contract before enabling the Recent Sessions
+Summary row action.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
 
-- keep dashboard persistence out of chart, replay, bars, and viewport ownership;
-- row actions must not become a hidden cross-module control surface;
-- summary and analytics need explicit owners before activation;
-- clone/copy must stay metadata-only unless it intentionally creates a new
-  session record;
-- order, journal, and calendar actions need their own module contracts.
+- keep summary as a read-only metadata/review surface until analytics, journal,
+  orders, and calendar have explicit contracts;
+- summary must not load bars or open chart runtime by itself;
+- summary may read session metadata through the session repository boundary;
+- if UI is added, it must open through a dedicated session-summary module, not
+  direct dashboard logic.
 
 Scope:
 
-- document the planned owners for each row action;
-- keep placeholder controls disabled or clearly non-owning;
-- add guard tests preventing row actions from dispatching unrelated runtime
-  commands.
+- define the session-summary public interface;
+- document which data fields are allowed in the first summary pass;
+- keep the Summary row action disabled unless the owner contract and guards are
+  in place.
 
 Acceptance:
 
-- each row action has a documented owner or stays disabled;
-- tests prevent dashboard row actions from mutating chart, replay, bars,
-  viewport, orders, journal, or calendar state before ownership exists.
+- summary ownership is explicit;
+- dashboard cannot directly mutate summary state;
+- tests prevent summary from touching chart, replay, bars, viewport, orders,
+  journal, or calendar before those integrations exist.
 
 ## Completed Steps
+
+### Step 86 - Recent Sessions Row Action Boundaries
+
+Completed in commits:
+
+- `dbf6e104 docs(v6): scope recent row action boundaries`
+- `50c7c75a feat(v6): define recent row action boundaries`
+- `09183e3c test(v6): guard recent row action placeholders`
+
+Verification:
+
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `git diff --check`
 
 ### Step 85 - Quick Session Modal Polish
 
