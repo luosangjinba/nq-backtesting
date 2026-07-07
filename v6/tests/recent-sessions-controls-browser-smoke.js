@@ -89,6 +89,17 @@ try {
         names: rowNames(),
         state: root.__v6SessionDashboard.getState().recentSessions,
       };
+      const rowActions = [...document.querySelectorAll('[data-v6-row-action]')].map((button) => ({
+        ariaDisabled: button.getAttribute('aria-disabled'),
+        disabled: button.disabled,
+        id: button.dataset.v6RowAction,
+        owner: button.dataset.v6RowActionOwner,
+      }));
+      document.querySelectorAll('[data-v6-row-action]').forEach((button) => button.click());
+      const afterRowActions = {
+        dashboard: root.__v6SessionDashboard.getState(),
+        snapshot: await snapshot(),
+      };
 
       document.querySelector('[data-v6-dashboard-search]').value = 'nq';
       document.querySelector('[data-v6-dashboard-search]').dispatchEvent(new Event('input', { bubbles: true }));
@@ -142,9 +153,11 @@ try {
       return {
         afterSearch,
         afterSort,
+        afterRowActions,
         before,
         initial,
         opened,
+        rowActions,
         pageOne,
         pageTwo,
       };
@@ -171,6 +184,19 @@ try {
   });
   assert.equal(value.before.replay, null);
   assert.equal(value.before.chartEntry.status, 'idle');
+  assert.deepEqual(value.rowActions, [
+    { ariaDisabled: 'true', disabled: true, id: 'summary', owner: 'session-summary' },
+    { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
+    { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'true', disabled: true, id: 'summary', owner: 'session-summary' },
+    { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
+    { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'true', disabled: true, id: 'summary', owner: 'session-summary' },
+    { ariaDisabled: 'true', disabled: true, id: 'analytics', owner: 'session-analytics' },
+    { ariaDisabled: 'true', disabled: true, id: 'copy', owner: 'session-repository' },
+  ]);
+  assert.deepEqual(value.afterRowActions.snapshot, value.before);
+  assert.equal(value.afterRowActions.dashboard.surface, 'session');
 
   assert.deepEqual(value.afterSearch.names, ['NY AM', 'London review']);
   assert.equal(value.afterSearch.state.query, 'nq');
