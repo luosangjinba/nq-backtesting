@@ -31,6 +31,8 @@ Read this index before working on V6.
   and session browser regression pack audit before exposing more row actions.
 - `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`: readiness
   audit for choosing the next hidden dashboard row action exposure target.
+- `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`: Journal
+  owner surface readiness audit before dashboard row-action exposure.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -84,6 +86,8 @@ Read this index before working on V6.
   dashboard/session browser regression pack coverage.
 - `V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`: accepted next
   row-action exposure readiness state.
+- `V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`: accepted Journal
+  owner surface readiness state before dashboard row-action exposure.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
