@@ -20,6 +20,8 @@ Read this index before working on V6.
   workstation chrome, menus, settings, and parity work without pixel-copying.
 - `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`: current V6 workstation shell
   gaps against the FXReplay UI guardrails and the next shell-only UI slice.
+- `v6/docs/V6_HANDOFF.md`: latest restart handoff, current completed step,
+  next step, key files, boundaries, and verification commands.
 - `v6/docs/specs/replay-viewport-intent.md`: the first core V6 contract.
 - `v6/docs/specs/replay-visible-latency.md`: user-visible replay candle latency
   gates that prevent V5's delayed K-line appearance problem from returning.
