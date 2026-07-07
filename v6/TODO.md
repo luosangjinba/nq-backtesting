@@ -14,41 +14,45 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 124 - Bottom Chrome Regression Audit. Lower
-  workstation chrome now has regression coverage across chart work area,
-  floating transport, bottom account/trading chrome, and footer status bar.
+- Latest completed step: Step 125 - Workstation Chart Slice Selection. The next
+  bounded workstation/chart slice is Right Rail Session Settings Panel
+  Reservation.
 
 ## Next Executable Steps
 
-### Step 125 - Workstation Chart Slice Selection
+### Step 126 - Right Rail Session Settings Panel Reservation
 
-Choose the next bounded workstation/chart implementation slice after lower
-chrome stabilization.
+Reserve an inert right-rail Session settings panel as a shell-owned
+workstation surface.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`,
-  `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`, FXReplay UI guardrails, and the
-  parity gap audit;
-- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
-- select one small next slice with explicit owner boundary and acceptance tests;
-- prefer shell-only parity work unless the next slice requires a runtime owner
-  contract first;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md` and FXReplay UI
+  guardrails;
+- add shell markup/CSS only for a right-rail anchored Session settings panel;
+- keep Chart Settings and Session settings as distinct surfaces;
+- add disabled/inert placeholders for Session Info, Balance & Assets, Spreads
+  & Commissions, and Date Range;
+- preserve chart host, rails, pane status/readout, reset view, floating replay
+  transport, bottom account/trading chrome, and footer status bar placement;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test selection only;
-- do not implement the selected slice in Step 125;
+- shell markup/CSS plus browser coverage only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from selection/audit code.
+  viewport commands from the Session settings panel;
+- do not dispatch session-settings, orders, or calendar commands;
+- do not import settings, orders, calendar, chart-engine, chart-data,
+  chart-viewport, replay, bar-data, default-wall, or account/analytics owner
+  modules into a session-settings panel controller.
 
 Acceptance:
 
-- new Step 125 slice selection smoke passes;
+- right-rail session settings panel browser smoke passes;
 - bottom chrome regression audit smoke passes;
 - bottom account/trading chrome browser smoke passes;
 - workstation rail regression audit browser smoke passes;
@@ -56,6 +60,21 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 125 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `90eaabc1 docs(v6): select session settings panel slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step125-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 124 - Bottom Chrome Regression Audit
 
