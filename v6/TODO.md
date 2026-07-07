@@ -14,42 +14,65 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 102 - Chart Surface Boundary Smoke Expansion.
-  The broader boundary smoke now guards the chart surface owner contract,
-  event-only chart surface bridges, viewport-command-only control bridges, and
-  dashboard row-action visibility.
+- Latest completed step: Step 103 - Chart Control Bridge Owner Contract.
+  Chart-engine user control bridges now have an explicit owner contract and the
+  broader boundary smoke reads that contract when guarding viewport-command-only
+  behavior.
 
 ## Next Executable Steps
 
-### Step 103 - Chart Control Bridge Owner Contract
+### Step 104 - Chart Control Bridge Integration Audit
 
-Add an explicit owner contract for chart-engine control bridges that translate
-user chart controls into viewport commands.
+Audit chart-engine control bridge wiring against the new owner contract.
 
 Status: planned.
 
 Notes for execution:
 
-- include `manual-wall-input-bridge` and `reset-view-control-bridge`;
-- allow viewport command dispatch only;
-- block series writes, bar fetches, replay advancement, session loading,
-  dashboard row actions, orders, journal, and calendar mutation;
-- do not modify dashboard row action visibility.
+- verify `manual-wall-input-bridge` and `reset-view-control-bridge` remain the
+  only contract-listed control bridges;
+- verify the bridges only translate user chart controls into viewport commands;
+- keep dashboard row action visibility unchanged;
+- do not modify runtime behavior unless the audit exposes a mismatch.
 
 Scope:
 
-- create a small chart control bridge owner contract module;
-- add a contract smoke;
-- keep runtime behavior unchanged unless the contract exposes a mismatch.
+- add or update a focused integration audit document/smoke;
+- keep the chart control bridge contract as the source of truth.
 
 Acceptance:
 
-- contract and boundary smokes pass;
+- chart control bridge contract smoke passes;
+- boundary smoke passes;
 - workstation chart host/data bridge/viewport bridge/default-wall/manual-wall
   browser smokes pass;
 - dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 103 - Chart Control Bridge Owner Contract
+
+Completed in commits:
+
+- `3c6839c1 feat(v6): add chart control bridge contract`
+- `87e10e9e test(v6): guard chart control bridge boundaries`
+
+Verification:
+
+- `node v6/tests/chart-control-bridge-contract-smoke.js`
+- `node v6/tests/manual-wall-input-bridge-smoke.js`
+- `node v6/tests/reset-view-control-bridge-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-surface-contract-smoke.js`
+- `node v6/tests/chart-surface-contract-integration-audit-smoke.js`
+- `node v6/tests/workstation-replay-chart-reentry-audit-smoke.js`
+- `node v6/tests/session-dashboard-readiness-audit-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+- `git diff --check`
 
 ### Step 102 - Chart Surface Boundary Smoke Expansion
 
