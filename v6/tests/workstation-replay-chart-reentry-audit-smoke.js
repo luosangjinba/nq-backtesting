@@ -4,6 +4,10 @@ import path from 'node:path';
 import {
   getVisibleRecentSessionRowActions,
 } from '../src/shell/session-row-action-boundaries.js';
+import {
+  createChartSurfaceContract,
+  getChartSurfaceOwner,
+} from '../src/chart-engine/chart-surface-contract.js';
 
 const SOURCE_ROOT = path.join('v6', 'src');
 
@@ -39,6 +43,7 @@ const dashboardSource = await readFile('v6/src/shell/session-dashboard.js', 'utf
 const chartDataBridge = await readFile('v6/src/chart-engine/chart-data-surface-bridge.js', 'utf8');
 const chartViewportBridge = await readFile('v6/src/chart-engine/chart-viewport-surface-bridge.js', 'utf8');
 const chartSurface = await readFile('v6/src/chart-engine/workstation-chart-surface.js', 'utf8');
+const chartSurfaceContractSource = await readFile('v6/src/chart-engine/chart-surface-contract.js', 'utf8');
 
 assert.equal(indexDoc.includes('V6_WORKSTATION_REPLAY_CHART_REENTRY_AUDIT.md'), true);
 assert.match(auditDoc, /Step 100 should be Workstation Chart Surface Owner Contract/);
@@ -98,6 +103,15 @@ for (const forbiddenToken of [
 assert.equal(chartSurface.includes('applyChartDataRecord'), true);
 assert.equal(chartSurface.includes('applyViewportProjection'), true);
 assert.equal(chartSurface.includes('subscribeVisibleRangeChange'), true);
+assert.equal(getChartSurfaceOwner(), 'workstation-chart-surface');
+assert.equal(createChartSurfaceContract().canWriteSeriesData, true);
+assert.equal(createChartSurfaceContract().canApplyVisibleLogicalRange, true);
+assert.equal(createChartSurfaceContract().canFetchBars, false);
+assert.equal(createChartSurfaceContract().canAdvanceReplay, false);
+assert.equal(createChartSurfaceContract().canLoadSession, false);
+assert.equal(createChartSurfaceContract().canOwnDashboardRowActions, false);
+assert.equal(chartSurfaceContractSource.includes('chart-data-surface-bridge'), true);
+assert.equal(chartSurfaceContractSource.includes('chart-viewport-surface-bridge'), true);
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
   ['summary', 'analytics', 'copy'],
