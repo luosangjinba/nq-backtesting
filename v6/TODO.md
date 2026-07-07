@@ -14,24 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 110 - Journal Row Action Owner Surface Readiness
-  Audit. The workstation Journal panel is owner-scoped and browser-covered, but
-  it is not yet a session-scoped dashboard row-action surface.
+- Latest completed step: Step 111 - Journal Row Action Session Context
+  Contract. Journal now has a pure owner-side session context whitelist for a
+  future dashboard row action, while the action remains hidden.
 
 ## Next Executable Steps
 
-### Step 111 - Journal Row Action Session Context Contract
+### Step 112 - Hidden Journal Row Action Harness
 
-Define the session context contract needed before a Journal dashboard row action
-can be exposed.
+Add a hidden Journal row-action harness or owner-surface adapter that consumes
+the Step 111 session context without exposing the dashboard row action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep the Journal row action hidden while defining the contract;
-- define what recent-session metadata/context may flow into the Journal owner
-  surface;
+- keep the Journal row action hidden while adding the harness;
+- consume only `createJournalRowActionSessionContext` output;
 - preserve the Journal command/persistence-only dispatch boundary;
 - keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
   and session-dashboard runtime control paths;
@@ -39,7 +38,7 @@ Notes for execution:
 
 Scope:
 
-- add or update focused Journal row-action session context documentation/smoke if
+- add or update focused hidden Journal row-action harness documentation/smoke if
   needed;
 - keep `journal-contract.js`, row-action boundaries, and browser smokes as the
   source of truth.
@@ -47,11 +46,32 @@ Scope:
 Acceptance:
 
 - Journal contract smoke passes;
-- Journal row-action owner surface readiness audit smoke passes;
+- Journal row-action session context contract smoke passes;
 - dashboard row action visibility remains unchanged;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 111 - Journal Row Action Session Context Contract
+
+Completed in commit:
+
+- `ff634845 feat(v6): add journal row action session context contract`
+
+Verification:
+
+- `node v6/tests/journal-row-action-session-context-contract-smoke.js`
+- `node v6/tests/journal-row-action-owner-surface-readiness-audit-smoke.js`
+- `node v6/tests/next-dashboard-row-action-exposure-readiness-audit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/journal-surface-controller-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `git diff --check`
 
 ### Step 110 - Journal Row Action Owner Surface Readiness Audit
 
