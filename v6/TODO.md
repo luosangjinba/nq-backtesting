@@ -14,25 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 113 - Hidden Journal Row Action Browser Harness.
-  Hidden browser coverage now drives the Journal row-action harness with real
-  dashboard session metadata while the dashboard row action remains hidden.
+- Latest completed step: Step 114 - Journal Surface Ready Flag Audit. Journal
+  `surfaceReady` is now true for hidden owner-side use while `rowActionVisible`
+  remains false.
 
 ## Next Executable Steps
 
-### Step 114 - Journal Surface Ready Flag Audit
+### Step 115 - Journal Row Action Exposure Gate Audit
 
-Audit whether the hidden Journal row-action harness and browser coverage are
-enough to mark the Journal owner surface ready while keeping the row action
-hidden.
+Audit the final gate for deliberately exposing the Journal dashboard row action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep `rowActionVisible` false and keep `data-v6-row-action="journal"` absent
-  from Recent Sessions;
-- decide whether `journal-contract.js` can move `surfaceReady` to true;
+- keep Journal hidden unless this step explicitly updates row-action boundaries;
+- require visible row-action browser coverage before any exposure;
+- keep `rowActionVisible` and `session-row-action-boundaries.js` aligned;
 - preserve the Journal command/persistence-only dispatch boundary;
 - keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
   and session-dashboard runtime control paths;
@@ -40,7 +38,7 @@ Notes for execution:
 
 Scope:
 
-- add or update focused Journal surface ready flag audit documentation/smoke if
+- add or update focused Journal row-action exposure gate documentation/smoke if
   needed;
 - keep `journal-contract.js`, row-action boundaries, and browser smokes as the
   source of truth.
@@ -48,6 +46,7 @@ Scope:
 Acceptance:
 
 - Journal contract smoke passes;
+- Journal surface ready flag audit smoke passes;
 - hidden Journal row-action browser smoke passes;
 - hidden Journal row-action harness smoke passes;
 - Journal row-action session context contract smoke passes;
@@ -55,6 +54,29 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 114 - Journal Surface Ready Flag Audit
+
+Completed in commit:
+
+- `8520c294 feat(v6): mark journal owner surface ready`
+
+Verification:
+
+- `node v6/tests/journal-surface-ready-flag-audit-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/hidden-journal-row-action-browser-smoke.js`
+- `node v6/tests/hidden-journal-row-action-harness-smoke.js`
+- `node v6/tests/journal-row-action-session-context-contract-smoke.js`
+- `node v6/tests/journal-row-action-owner-surface-readiness-audit-smoke.js`
+- `node v6/tests/next-dashboard-row-action-exposure-readiness-audit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `git diff --check`
 
 ### Step 113 - Hidden Journal Row Action Browser Harness
 
