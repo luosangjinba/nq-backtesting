@@ -5,21 +5,21 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 92 completed.
-- Next planned step: Step 93 - Session Copy Metadata Action.
+- Current V6 step state: Step 93 completed.
+- Next planned step: Step 94 - Orders Owner Contract.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Session Copy owner contract:
+The latest completed work is Session Copy metadata action:
 
-- `session-repository` now has an explicit Copy contract.
-- Copy allowed fields are metadata-only.
-- Copy blocked fields include ids and stateful chart/replay/data/order/journal
-  surfaces.
-- Copy id/name policies are explicit placeholders:
-  - new session id required;
-  - append copy suffix.
-- Copy remains disabled until the repository-owned metadata action is
-  implemented.
+- Copy row action is enabled from Recent Sessions.
+- Copy dispatches `session.copy`; dashboard does not clone session objects.
+- `session-repository` creates a metadata-only duplicate with:
+  - a new session id;
+  - the configured Copy suffix;
+  - copied session metadata fields only.
+- Copy closes Summary/Stats surfaces and refreshes Recent Sessions.
+- Browser coverage proves Copy does not mutate chart, replay, bar-data, or
+  viewport runtime state.
 
 ## Restart Reading Order
 
@@ -28,37 +28,34 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step092_session_copy_owner_contract.md`
+4. `v6/sessions/session_20260707_step093_session_copy_metadata_action.md`
 5. `v6/src/shell/session-row-action-boundaries.js`
 6. `v6/src/session/session-copy-contract.js`
-7. `v6/tests/session-copy-contract-smoke.js`
-8. `v6/tests/session-row-action-boundaries-smoke.js`
-9. `v6/src/session/session-repository.js`
-10. `v6/src/shell/session-dashboard.js`
+7. `v6/src/session/session-repository.js`
+8. `v6/src/session/session-runtime.js`
+9. `v6/src/shell/session-dashboard.js`
+10. `v6/tests/session-copy-action-browser-smoke.js`
 
 ## Next Step
 
-Step 93 should implement the first metadata-only Copy action through the
-`session-repository` owner contract.
+Step 94 should define the Orders owner contract before exposing any Recent
+Sessions Order row action.
 
-Keep Step 93 metadata-only:
+Keep Step 94 contract-only unless the user explicitly asks to continue further:
 
-- Copy must create a new session id;
-- Copy must append the configured copy suffix;
-- Copy must not load bars;
-- Copy must not open chart runtime;
-- Copy must not advance replay;
-- Copy must not touch viewport state;
-- Copy must not copy orders, journal, or calendar data;
-- dashboard must not clone or persist copied sessions directly.
+- Order must remain hidden/disabled until its owner contract and guards exist;
+- Order must not load bars;
+- Order must not open chart runtime;
+- Order must not advance replay;
+- Order must not touch viewport state;
+- dashboard must not compute, persist, or query order data directly.
 
-Expected first-pass action shape:
+Expected first-pass Order shape:
 
-- owner: `session-repository`;
-- command/helper accepts source session id;
-- repository creates a metadata-only duplicate;
-- dashboard refreshes Recent Sessions after successful copy;
-- browser smoke proves no chart, replay, bar-data, or viewport runtime changes.
+- owner: `orders-runtime`;
+- allowed first-pass metadata/read fields;
+- blocked write/runtime integrations;
+- Order row action remains hidden/disabled unless contract and guards exist.
 
 ## Critical Boundaries
 
@@ -80,22 +77,22 @@ For the current Recent Sessions row actions:
 - Summary: enabled, read-only metadata-only, owner `session-summary`.
 - Stats: enabled, read-only metadata/unavailable metrics, owner
   `session-analytics`.
-- Copy: disabled, contract-ready owner `session-repository`, metadata-only when
-  enabled.
+- Copy: enabled, metadata-only, owner `session-repository`.
 - Order: disabled/future, owner `orders-runtime`.
 - Journal: disabled/future, owner `journal-runtime`.
 - Calendar: disabled/future, owner `calendar-runtime`.
 
 ## Key Tests
 
-Run these before committing Step 93 work:
+Run these before committing Step 94 work:
 
-- `node v6/tests/session-copy-contract-smoke.js`
 - `node v6/tests/session-row-action-boundaries-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 
-For Summary/Stats regression:
+For Summary/Stats/Copy regression:
 
+- `node v6/tests/session-copy-contract-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
 - `node v6/tests/session-analytics-contract-smoke.js`
 - `node v6/tests/session-analytics-surface-model-smoke.js`
 - `node v6/tests/session-analytics-surface-browser-smoke.js`
@@ -119,14 +116,14 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `50b54920 feat(v6): enable session copy action`
+- `64582c7b feat(v6): expose session copy command`
+- `eb6c3f2d feat(v6): copy session metadata in repository`
 - `820be36b test(v6): guard session copy boundaries`
 - `bc7b48f0 feat(v6): add session copy contract`
-- `f4f00ed6 test(v6): verify read-only session stats surface`
-- `7b9f8846 feat(v6): open read-only session stats surface`
-- `bc49e851 feat(v6): add session analytics surface model`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-93. The handoff point is intentionally before enabling Copy.
+94. The handoff point is intentionally before exposing Order.

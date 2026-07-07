@@ -14,43 +14,66 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 92 - Session Copy Owner Contract.
-  The `session-repository` Copy owner contract now defines metadata-only copy
-  fields, blocked stateful surfaces, and id/name policy placeholders. Copy
-  remains disabled until a repository-owned metadata action is implemented.
+- Latest completed step: Step 93 - Session Copy Metadata Action.
+  The Recent Sessions Copy action now dispatches `session.copy`, and the
+  repository creates a metadata-only duplicate with a new session id and Copy
+  suffix. Copy does not load bars, open chart runtime, advance replay, or copy
+  chart/replay/viewport/orders/journal/calendar state.
 
 ## Next Executable Steps
 
-### Step 93 - Session Copy Metadata Action
+### Step 94 - Orders Owner Contract
 
-Implement the first metadata-only Copy action through the `session-repository`
-owner contract.
+Define the Orders owner contract before exposing any Recent Sessions Order row
+action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep Copy metadata-only and repository-owned;
-- Copy must create a new session id and append the configured copy suffix;
-- Copy must not copy bars, chart state, replay state, viewport state, orders,
-  journal, or calendar data;
-- dashboard may dispatch only an explicit session/repository command and must
-  not clone objects directly;
-- Summary and Stats must remain enabled and read-only.
+- keep Order disabled until an explicit owner contract and guards exist;
+- orders must not load bars, open chart runtime, advance replay, or touch
+  viewport state;
+- dashboard must not compute, persist, or query order data directly;
+- Summary, Stats, and Copy must remain bounded to their owners.
 
 Scope:
 
-- add the repository-owned metadata duplication helper/API;
-- wire the disabled Copy row action only after the helper and guards exist;
-- verify persistence and dashboard refresh behavior.
+- define the Order public interface and allowed first-pass fields;
+- document blocked integrations and future read/write boundaries;
+- keep Order hidden/disabled unless the owner contract and guards are in place.
 
 Acceptance:
 
-- Copy creates a new metadata record only;
-- copied sessions do not become hidden chart/replay/data load triggers;
-- tests preserve Summary/Stats behavior and V6 ownership boundaries.
+- Order ownership is explicit;
+- dashboard cannot directly access order state;
+- tests prevent Order from touching chart, replay, bars, viewport, journal, or
+  calendar before those integrations exist.
 
 ## Completed Steps
+
+### Step 93 - Session Copy Metadata Action
+
+Completed in commits:
+
+- `eb6c3f2d feat(v6): copy session metadata in repository`
+- `64582c7b feat(v6): expose session copy command`
+- `50b54920 feat(v6): enable session copy action`
+
+Verification:
+
+- `node v6/tests/session-copy-contract-smoke.js`
+- `node v6/tests/session-domain-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `git diff --check`
 
 ### Step 92 - Session Copy Owner Contract
 
