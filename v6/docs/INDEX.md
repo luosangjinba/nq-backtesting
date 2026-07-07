@@ -27,6 +27,8 @@ Read this index before working on V6.
   isolation re-audit after chart control bridge browser regression.
 - `v6/docs/V6_DASHBOARD_VISIBLE_ROW_ACTION_BROWSER_COVERAGE_AUDIT.md`: browser
   coverage audit for visible Summary, Stats, and Copy row actions.
+- `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`: dashboard
+  and session browser regression pack audit before exposing more row actions.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -76,6 +78,8 @@ Read this index before working on V6.
   visible and hidden dashboard row actions.
 - `V6_DASHBOARD_VISIBLE_ROW_ACTION_BROWSER_COVERAGE_AUDIT.md`: accepted browser
   coverage state for Summary, Stats, and Copy row actions.
+- `V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`: accepted
+  dashboard/session browser regression pack coverage.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
