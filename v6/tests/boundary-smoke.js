@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import path from 'node:path';
+import {
+  createChartSurfaceContract,
+  getChartSurfaceEventOnlyBridges,
+  getChartSurfaceOwner,
+} from '../src/chart-engine/chart-surface-contract.js';
+import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
 const V6_ROOT = path.resolve('v6');
 const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
@@ -43,8 +49,15 @@ const STATUS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'status-readout.js'),
   path.join(V6_ROOT, 'src', 'shell', 'status-readout-model.js'),
 ];
+const CHART_DATA_SURFACE_BRIDGE_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'chart-data-surface-bridge.js');
+const CHART_HOST_MANAGER_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'chart-host-manager.js');
+const CHART_VIEWPORT_SURFACE_BRIDGE_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'chart-viewport-surface-bridge.js');
+const LIGHTWEIGHT_CHART_ADAPTER_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'lightweight-chart-adapter.js');
+const MANUAL_WALL_INPUT_BRIDGE_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'manual-wall-input-bridge.js');
+const RESET_VIEW_CONTROL_BRIDGE_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'reset-view-control-bridge.js');
 const TRANSPORT_FILE = path.join(V6_ROOT, 'src', 'shell', 'replay-transport.js');
 const VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'viewport');
+const WORKSTATION_CHART_SURFACE_FILE = path.join(V6_ROOT, 'src', 'chart-engine', 'workstation-chart-surface.js');
 const SOURCE_ROOTS = [
   path.join(V6_ROOT, 'src'),
 ];
@@ -64,6 +77,19 @@ async function walkFiles(root) {
     }
   }
   return files;
+}
+
+async function sourceFilesContaining(token) {
+  const matches = [];
+  for (const root of SOURCE_ROOTS) {
+    for (const file of await walkFiles(root)) {
+      const text = await readFile(file, 'utf8');
+      if (text.includes(token)) {
+        matches.push(path.relative(process.cwd(), file));
+      }
+    }
+  }
+  return matches.sort();
 }
 
 const forbiddenV5RuntimeImports = [
@@ -761,6 +787,102 @@ for (const file of await walkFiles(CALENDAR_ROOT)) {
         reason,
       });
     }
+  });
+}
+
+const chartSurfaceContract = createChartSurfaceContract();
+if (getChartSurfaceOwner() !== 'workstation-chart-surface') {
+  violations.push({
+    file: 'v6/src/chart-engine/chart-surface-contract.js',
+    pattern: 'getChartSurfaceOwner()',
+    reason: 'V6 chart surface owner must remain workstation-chart-surface.',
+  });
+}
+
+[
+  ['canWriteSeriesData', true],
+  ['canApplyVisibleLogicalRange', true],
+  ['canMeasureUserVisibleRange', true],
+  ['canFetchBars', false],
+  ['canAdvanceReplay', false],
+  ['canLoadSession', false],
+  ['canOwnDashboardRowActions', false],
+].forEach(([field, expected]) => {
+  if (chartSurfaceContract[field] !== expected) {
+    violations.push({
+      file: 'v6/src/chart-engine/chart-surface-contract.js',
+      pattern: field,
+      reason: `V6 chart surface contract ${field} must remain ${expected}.`,
+    });
+  }
+});
+
+const chartApiExpectedFiles = [
+  {
+    expected: [path.relative(process.cwd(), LIGHTWEIGHT_CHART_ADAPTER_FILE)],
+    token: 'createChart(host',
+  },
+  {
+    expected: [path.relative(process.cwd(), LIGHTWEIGHT_CHART_ADAPTER_FILE)],
+    token: 'series.setData',
+  },
+  {
+    expected: [path.relative(process.cwd(), LIGHTWEIGHT_CHART_ADAPTER_FILE)],
+    token: 'series.update',
+  },
+  {
+    expected: [
+      path.relative(process.cwd(), CHART_HOST_MANAGER_FILE),
+      path.relative(process.cwd(), LIGHTWEIGHT_CHART_ADAPTER_FILE),
+      path.relative(process.cwd(), WORKSTATION_CHART_SURFACE_FILE),
+    ].sort(),
+    token: 'setVisibleLogicalRange',
+  },
+];
+
+for (const { expected, token } of chartApiExpectedFiles) {
+  const actual = await sourceFilesContaining(token);
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    violations.push({
+      file: 'v6/src/chart-engine',
+      pattern: token,
+      reason: `V6 chart surface contract allows ${token} only in ${expected.join(', ')}.`,
+    });
+  }
+}
+
+const bridgeFilesById = new Map([
+  ['chart-data-surface-bridge', CHART_DATA_SURFACE_BRIDGE_FILE],
+  ['chart-viewport-surface-bridge', CHART_VIEWPORT_SURFACE_BRIDGE_FILE],
+]);
+for (const bridgeId of getChartSurfaceEventOnlyBridges()) {
+  const bridgeFile = bridgeFilesById.get(bridgeId);
+  const text = bridgeFile ? await readFile(bridgeFile, 'utf8') : '';
+  if (!bridgeFile || !/subscribeEvent/.test(text) || /dispatchCommand|BAR_DATA_COMMANDS|REPLAY_COMMANDS|SESSION_COMMANDS|fetch\(|XMLHttpRequest/.test(text)) {
+    violations.push({
+      file: bridgeFile ? path.relative(process.cwd(), bridgeFile) : 'v6/src/chart-engine/chart-surface-contract.js',
+      pattern: bridgeId,
+      reason: 'V6 chart-data/chart-viewport surface bridges must remain event-only.',
+    });
+  }
+}
+
+for (const file of [MANUAL_WALL_INPUT_BRIDGE_FILE, RESET_VIEW_CONTROL_BRIDGE_FILE]) {
+  const text = await readFile(file, 'utf8');
+  if (!/CHART_VIEWPORT_COMMANDS/.test(text) || /\bsetData\b|REPLAY_COMMANDS|SESSION_COMMANDS|fetch\(|XMLHttpRequest/.test(text)) {
+    violations.push({
+      file: path.relative(process.cwd(), file),
+      pattern: 'chart surface control bridge',
+      reason: 'V6 manual-wall/reset-view control bridges may dispatch viewport commands only.',
+    });
+  }
+}
+
+if (JSON.stringify(getVisibleRecentSessionRowActions().map((action) => action.id)) !== JSON.stringify(['summary', 'analytics', 'copy'])) {
+  violations.push({
+    file: 'v6/src/shell/session-row-action-boundaries.js',
+    pattern: 'getVisibleRecentSessionRowActions',
+    reason: 'V6 chart surface boundary work must not expose more dashboard row actions.',
   });
 }
 
