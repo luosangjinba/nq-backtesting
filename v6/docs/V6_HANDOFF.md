@@ -5,18 +5,20 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 106 completed.
-- Next planned step: Step 107 - Dashboard Summary/Stats/Copy Browser Coverage Audit.
+- Current V6 step state: Step 107 completed.
+- Next planned step: Step 108 - Dashboard Session Browser Regression Pack Audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Dashboard Row Action Isolation Re-audit:
+The latest completed work is Dashboard Summary/Stats/Copy Browser Coverage
+Audit:
 
-- `V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md` documents that Summary, Stats,
-  and Copy remain the only visible Recent Sessions row actions.
-- `dashboard-row-action-isolation-reaudit-smoke.js` guards visible/hidden row
-  actions, owner contracts, browser smoke coverage, and dashboard row action
-  visibility.
-- Order, Journal, and Calendar remain hidden/disabled and contract-ready only.
+- `V6_DASHBOARD_VISIBLE_ROW_ACTION_BROWSER_COVERAGE_AUDIT.md` documents browser
+  coverage for Summary, Stats, and Copy row actions.
+- `dashboard-visible-row-action-browser-coverage-audit-smoke.js` guards the
+  audit, docs index, owner contracts, and expected Summary/Stats/Copy browser
+  smoke coverage.
+- Order, Journal, and Calendar remain hidden until their owner surfaces have
+  browser coverage.
 
 ## Restart Reading Order
 
@@ -29,19 +31,20 @@ After restarting the server or assistant context, read these first:
 5. `v6/sessions/session_20260707_step104_chart_control_bridge_integration_audit.md`
 6. `v6/sessions/session_20260707_step105_chart_control_bridge_browser_regression_audit.md`
 7. `v6/sessions/session_20260707_step106_dashboard_row_action_isolation_reaudit.md`
-8. `v6/tests/boundary-smoke.js`
-9. `v6/docs/V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md`
-10. `v6/src/shell/session-row-action-boundaries.js`
+8. `v6/sessions/session_20260707_step107_dashboard_visible_row_action_browser_coverage_audit.md`
+9. `v6/tests/boundary-smoke.js`
+10. `v6/docs/V6_DASHBOARD_VISIBLE_ROW_ACTION_BROWSER_COVERAGE_AUDIT.md`
 
 ## Next Step
 
-Step 107 should audit dashboard browser coverage for Summary, Stats, and Copy
-row actions.
+Step 108 should audit the dashboard/session browser regression pack as a whole
+before exposing additional row actions.
 
-Keep Step 107 bounded:
+Keep Step 108 bounded:
 
-- verify Summary and Stats surfaces still render read-only metadata-only state;
-- verify Copy still creates a metadata-only duplicate session;
+- verify selected dashboard/session browser smoke coverage still spans create,
+  open, recent sessions controls, Summary, Stats, Copy, persistence, delete,
+  and quick-session flow;
 - verify Order, Journal, and Calendar remain hidden until their owner surfaces
   have browser coverage;
 - do not modify runtime behavior unless the audit exposes a mismatch;
@@ -49,8 +52,7 @@ Keep Step 107 bounded:
 
 Expected implementation shape:
 
-- add or update a focused Summary/Stats/Copy browser coverage audit/smoke if
-  needed;
+- add or update a focused dashboard/session browser pack audit/smoke if needed;
 - keep row-action owner contracts and browser smokes as the source of truth;
 - run selected dashboard/session browser smokes.
 
@@ -81,8 +83,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 107 work:
+Run these before committing Step 108 work:
 
+- `node v6/tests/dashboard-visible-row-action-browser-coverage-audit-smoke.js`
 - `node v6/tests/dashboard-row-action-isolation-reaudit-smoke.js`
 - `node v6/tests/chart-control-bridge-browser-regression-audit-smoke.js`
 - `node v6/tests/chart-control-bridge-integration-audit-smoke.js`
@@ -137,15 +140,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `8ecacd2e docs(v6): audit visible row action browser coverage`
+- `1c8c055b docs(v6): close dashboard row action isolation audit`
 - `342176cc docs(v6): audit dashboard row action isolation`
 - `4175bdcf docs(v6): close chart control bridge browser regression`
 - `e9fd784c test(v6): align native manual wall browser regression`
-- `6c726815 docs(v6): audit chart control bridge browser regression`
-- `e8d775ec docs(v6): close chart control bridge integration audit`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-107. The handoff point is intentionally before the Summary/Stats/Copy browser
-coverage audit and before exposing Order, Journal, or Calendar.
+108. The handoff point is intentionally before the dashboard/session browser
+regression pack audit and before exposing Order, Journal, or Calendar.
