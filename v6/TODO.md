@@ -14,43 +14,64 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 90 - Session Analytics Owner Contract.
-  The `session-analytics` owner contract now exposes read-only session metadata
-  fields and explicit empty metric placeholders while tests prevent analytics
-  from touching chart, replay, bars, viewport, orders, journal, or calendar.
-  Stats and Copy remain disabled.
+- Latest completed step: Step 91 - Session Analytics Read-only Surface.
+  The Recent Sessions Stats action now opens a read-only `session-analytics`
+  surface with session metadata and explicit unavailable metric placeholders.
+  Dashboard still does not compute analytics or touch chart, replay, bars,
+  viewport, orders, journal, or calendar.
 
 ## Next Executable Steps
 
-### Step 91 - Session Analytics Read-only Surface
+### Step 92 - Session Copy Owner Contract
 
-Build the first read-only Session Analytics surface/model after the owner
-contract exists.
+Define the Session Copy owner contract before enabling the Recent Sessions Copy
+row action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep analytics read-only and metadata-only;
-- keep empty metric placeholders explicit until trade/order/journal/calendar
-  owners expose read contracts;
-- Stats may become enabled only if it opens a surface owned by
-  `session-analytics`;
-- dashboard must still not compute analytics directly.
+- keep Copy metadata-only until repository duplication semantics are explicit;
+- Copy must not load bars, open chart runtime, advance replay, or touch
+  viewport intent;
+- Copy should go through `session-repository`/session metadata storage, not
+  dashboard-side object cloning;
+- Summary and Stats must remain enabled and read-only.
 
 Scope:
 
-- define an analytics surface model that consumes `session-analytics`;
-- mount a read-only Stats surface from Recent Sessions;
-- preserve deterministic focus/close behavior similar to Summary.
+- define the Copy public interface and allowed metadata fields;
+- document blocked integrations and persistence behavior;
+- keep Copy disabled unless the owner contract and guards are in place.
 
 Acceptance:
 
-- Stats opens a read-only analytics surface;
-- empty metrics are presented as unavailable, not computed by dashboard;
-- tests preserve analytics ownership boundaries and existing dashboard flows.
+- Copy ownership is explicit;
+- dashboard cannot directly duplicate session records;
+- tests prevent Copy from touching chart, replay, bars, viewport, orders,
+  journal, or calendar before those integrations exist.
 
 ## Completed Steps
+
+### Step 91 - Session Analytics Read-only Surface
+
+Completed in commits:
+
+- `bc49e851 feat(v6): add session analytics surface model`
+- `7b9f8846 feat(v6): open read-only session stats surface`
+- `f4f00ed6 test(v6): verify read-only session stats surface`
+
+Verification:
+
+- `node v6/tests/session-analytics-contract-smoke.js`
+- `node v6/tests/session-analytics-surface-model-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `git diff --check`
 
 ### Step 90 - Session Analytics Owner Contract
 
