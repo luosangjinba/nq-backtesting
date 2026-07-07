@@ -75,6 +75,20 @@ assert.equal(repository.getActive().symbol, 'NQ');
 assert.deepEqual(repository.getActive().symbols, ['NQ']);
 assert.equal(repository.getById(session.id).id, session.id);
 assert.equal(repository.list().length, 1);
+const copy = repository.copyMetadata(session.id, {
+  createdAt: '2026-07-04T02:00:00.000Z',
+});
+assert.equal(copy.id, 'v6-session-0003');
+assert.equal(copy.name, 'Backtesting session Copy');
+assert.equal(copy.createdAt, '2026-07-04T02:00:00.000Z');
+assert.equal(copy.symbol, session.symbol);
+assert.deepEqual(copy.symbols, session.symbols);
+assert.equal(repository.getActive().id, copy.id);
+assert.deepEqual(repository.list().map((item) => item.id), [session.id, copy.id]);
+assert.throws(
+  () => repository.copyMetadata('missing-session'),
+  /Session missing-session does not exist/
+);
 repository.clear();
 assert.equal(repository.getActive(), null);
 

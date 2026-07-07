@@ -1,3 +1,6 @@
+import { createReplaySession } from './session-domain.js';
+import { getSessionCopyAllowedFields } from './session-copy-contract.js';
+
 function cloneSession(session) {
   const cloned = { ...session };
   if (Array.isArray(session.symbols)) {
@@ -8,6 +11,25 @@ function cloneSession(session) {
 
 function cloneSessions(sessions = []) {
   return sessions.map(cloneSession);
+}
+
+function pickCopyMetadata(session = {}, {
+  createdAt = new Date().toISOString(),
+  nameSuffix = ' Copy',
+} = {}) {
+  const metadata = {};
+  for (const field of getSessionCopyAllowedFields()) {
+    if (field === 'createdAt') {
+      metadata.createdAt = createdAt;
+    } else if (field === 'name') {
+      metadata.name = `${String(session.name || 'Untitled session').trim()}${nameSuffix}`;
+    } else if (field === 'symbols' && Array.isArray(session.symbols)) {
+      metadata.symbols = [...session.symbols];
+    } else if (Object.hasOwn(session, field)) {
+      metadata[field] = session[field];
+    }
+  }
+  return metadata;
 }
 
 const EMPTY_SESSION_METADATA_STORE = Object.freeze({
@@ -97,6 +119,15 @@ export function createInMemorySessionRepository({
     };
   }
 
+  function copyMetadata(id, options = {}) {
+    const source = getById(id);
+    if (!source) {
+      throw new Error(`Session ${String(id || '').trim() || '<missing>'} does not exist.`);
+    }
+    const copiedSession = createReplaySession(pickCopyMetadata(source, options));
+    return save(copiedSession);
+  }
+
   function list() {
     return [...sessionsById.values()].map(cloneSession);
   }
@@ -109,6 +140,7 @@ export function createInMemorySessionRepository({
 
   return {
     clear,
+    copyMetadata,
     delete: deleteSession,
     getActive,
     getById,
