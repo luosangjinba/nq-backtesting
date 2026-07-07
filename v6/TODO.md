@@ -14,43 +14,66 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 107 - Dashboard Summary/Stats/Copy Browser
-  Coverage Audit. Visible row actions now have documented browser coverage
-  aligned with their owner contracts.
+- Latest completed step: Step 108 - Dashboard Session Browser Regression Pack
+  Audit. The dashboard/session browser pack now has documented coverage before
+  exposing additional row actions.
 
 ## Next Executable Steps
 
-### Step 108 - Dashboard Session Browser Regression Pack Audit
+### Step 109 - Next Dashboard Row Action Exposure Readiness Audit
 
-Audit the dashboard/session browser regression pack as a whole before exposing
-additional row actions.
+Audit readiness for exposing the next hidden dashboard row action.
 
 Status: planned.
 
 Notes for execution:
 
-- verify selected dashboard/session browser smoke coverage still spans create,
-  open, recent sessions controls, Summary, Stats, Copy, persistence, delete,
-  and quick-session flow;
-- verify Order, Journal, and Calendar remain hidden until their owner surfaces
-  have browser coverage;
+- compare Order, Journal, and Calendar owner contracts and browser coverage;
+- identify which hidden row action can be exposed next without violating V6
+  ownership rules;
+- do not expose a row action until its owner surface has browser coverage;
 - keep dashboard row action visibility unchanged;
 - do not modify runtime behavior unless the audit exposes a mismatch.
 
 Scope:
 
-- add or update a focused dashboard/session browser pack audit/smoke if needed;
-- keep row-action owner contracts and browser smokes as the source of truth.
+- add or update a focused next-row-action readiness audit/smoke if needed;
+- keep owner contracts and browser smokes as the source of truth.
 
 Acceptance:
 
-- visible row-action browser coverage audit smoke passes;
-- dashboard/session browser pack smokes pass;
+- dashboard/session browser pack audit smoke passes;
+- row-action owner contract smokes pass;
 - boundary smoke passes;
-- session dashboard/recent sessions browser smokes pass;
 - dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 108 - Dashboard Session Browser Regression Pack Audit
+
+Completed in commit:
+
+- `bfdbead5 docs(v6): audit dashboard session browser pack`
+
+Verification:
+
+- `node v6/tests/dashboard-session-browser-regression-pack-audit-smoke.js`
+- `node v6/tests/dashboard-visible-row-action-browser-coverage-audit-smoke.js`
+- `node v6/tests/dashboard-row-action-isolation-reaudit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
 
 ### Step 107 - Dashboard Summary/Stats/Copy Browser Coverage Audit
 
