@@ -153,7 +153,7 @@ try {
   assert.match(value.openedState.analyticsText, /live orders/);
   assert.equal(value.openedState.text.includes('Dashboard'), false);
   assert.equal(value.openedState.text.includes('Tutorials'), false);
-  assert.equal(value.openedState.text.includes('Prop Firm Session'), true);
+  assert.equal(value.openedState.text.includes('Prop Firm Session'), false);
   assert.equal(value.openedState.forwardExists, false);
   assert.equal(value.openedState.surface, 'session');
   assert.equal(value.openedState.toggleExpanded, 'true');

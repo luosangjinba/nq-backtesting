@@ -60,14 +60,10 @@ export function createWorkstationShellMarkup() {
               <form class="quick-session-dialog" data-v6-session-setup-form>
                 <header class="quick-session-header">
                   <strong>Create a quick session</strong>
-                  <div>
-                    <button type="button" class="quick-session-pill" disabled>Advanced session</button>
-                    <button type="button" class="quick-session-icon-button" data-v6-quick-session-close aria-label="Close quick session">${icon('close')}</button>
-                  </div>
+                  <button type="button" class="quick-session-icon-button" data-v6-quick-session-close aria-label="Close quick session">${icon('close')}</button>
                 </header>
                 <div class="quick-session-tabs" aria-label="Session type">
                   <button type="button" class="is-active">Backtesting Session</button>
-                  <button type="button" disabled>Prop Firm Session <span>New</span></button>
                 </div>
                 <label class="quick-session-field">
                   <span>Name *</span>
@@ -88,20 +84,9 @@ export function createWorkstationShellMarkup() {
                   </button>
                   <div class="asset-hidden-inputs" data-v6-selected-asset-inputs></div>
                   <div class="asset-picker-menu" data-v6-asset-picker-menu hidden>
-                    <div class="asset-filter-row" aria-label="Asset filters">
-                      <button type="button" class="is-active" disabled>All</button>
-                      <button type="button" disabled>Stocks</button>
-                      <button type="button" disabled>Futures</button>
-                      <button type="button" disabled>Forex</button>
-                      <button type="button" disabled>Crypto</button>
-                      <button type="button" disabled>Indices</button>
-                    </div>
-                    <strong>Recently Used</strong>
-                    <button type="button" class="asset-option" data-v6-asset-option="ES"><span>ES <em>E-Mini S&amp;P 500 Futures</em></span><span>US Futures</span></button>
+                    <strong>Available assets</strong>
                     <button type="button" class="asset-option" data-v6-asset-option="NQ"><span>NQ <em>E-Mini NASDAQ-100 Futures</em></span><span>US Futures</span></button>
-                    <strong>Futures</strong>
-                    <button type="button" class="asset-option" data-v6-asset-option="YM"><span>YM <em>E-Mini Dow Futures</em></span><span>US Futures</span></button>
-                    <button type="button" class="asset-option" data-v6-asset-option="RTY"><span>RTY <em>E-Mini Russell 2000 Futures</em></span><span>US Futures</span></button>
+                    <button type="button" class="asset-option" data-v6-asset-option="ES"><span>ES <em>E-Mini S&amp;P 500 Futures</em></span><span>US Futures</span></button>
                   </div>
                 </section>
                 <label class="quick-session-field">
@@ -109,17 +94,19 @@ export function createWorkstationShellMarkup() {
                   <button type="button" class="layout-placeholder" disabled>${icon('chevronDown')}</button>
                 </label>
                 <div class="quick-session-date-grid">
-                  <label class="quick-session-field">
-                    <span>Initial Date *</span>
-                    <input name="startTime" type="datetime-local" value="2026-06-01T09:30" data-v6-session-setup-start>
-                    <small>Min: Jan 4, 2012</small>
-                  </label>
-                  <label class="quick-session-field">
-                    <span>End Date *</span>
-                    <input name="endTime" type="datetime-local" value="2026-06-05T16:00" data-v6-session-setup-end>
-                    <input name="computedEndTime" type="hidden" value="2026-06-05T16:00" data-v6-session-setup-computed-end>
-                    <small>Max: Jul 5, 2026</small>
-                  </label>
+                  <div class="quick-session-date-fields">
+                    <label class="quick-session-field">
+                      <span>Initial Date *</span>
+                      <input name="startTime" type="datetime-local" value="2026-06-01T09:30" data-v6-session-setup-start>
+                      <small>Min: Jan 4, 2012</small>
+                    </label>
+                    <label class="quick-session-field">
+                      <span>End Date *</span>
+                      <input name="endTime" type="datetime-local" value="2026-06-05T16:00" data-v6-session-setup-end>
+                      <input name="computedEndTime" type="hidden" value="2026-06-05T16:00" data-v6-session-setup-computed-end>
+                      <small>Max: Jul 5, 2026</small>
+                    </label>
+                  </div>
                   <div class="quick-session-date-actions">
                     <button type="button" data-v6-date-offset-days="1">+1D</button>
                     <button type="button" data-v6-date-offset-days="7">+1W</button>

@@ -226,17 +226,11 @@ p {
   font-size: 24px;
 }
 
-.quick-session-header div,
 .quick-session-tabs,
 .quick-session-date-actions,
-.quick-session-footer,
-.asset-filter-row {
+.quick-session-footer {
   display: flex;
   align-items: center;
-}
-
-.quick-session-header div {
-  gap: 10px;
 }
 
 .quick-session-pill,
@@ -244,7 +238,6 @@ p {
 .quick-session-tabs button,
 .quick-session-date-actions button,
 .quick-session-footer button,
-.asset-filter-row button,
 .asset-picker-control,
 .layout-placeholder {
   min-height: 36px;
@@ -262,14 +255,21 @@ p {
 }
 
 .quick-session-icon-button {
-  width: 36px;
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  min-height: 40px;
   padding: 0;
-  border-color: transparent;
-  background: transparent;
+  border-color: #2d343c;
+  background: #10151b;
+}
+
+.quick-session-icon-button .tool-icon {
+  width: 20px;
+  height: 20px;
 }
 
 .quick-session-tabs {
-  gap: 8px;
   padding: 8px;
   border: 1px solid #2d3137;
   border-radius: 12px;
@@ -354,28 +354,56 @@ p {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
 }
 
 .asset-chip {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   min-height: 34px;
-  padding: 0 10px;
+  padding: 0 8px 0 12px;
   border-radius: 17px;
   background: #23272d;
   color: #f8fbff;
 }
 
 .asset-chip button {
-  width: 18px;
-  height: 18px;
+  position: relative;
+  width: 20px;
+  height: 20px;
   padding: 0;
   border: 1px solid #89939f;
   border-radius: 50%;
   background: transparent;
   color: #ffffff;
-  line-height: 1;
+  overflow: hidden;
+  text-indent: -999px;
+}
+
+.asset-chip button::before,
+.asset-chip button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 9px;
+  height: 1.5px;
+  background: #ffffff;
+  transform-origin: center;
+}
+
+.asset-chip button::before {
+  transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.asset-chip button::after {
+  transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+.asset-placeholder {
+  color: #85909a;
+  font-weight: 600;
 }
 
 .asset-picker-menu {
@@ -392,24 +420,6 @@ p {
   border-radius: 10px;
   background: #151719;
   overflow: auto;
-}
-
-.asset-filter-row {
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.asset-filter-row button {
-  min-height: 32px;
-  padding: 0 12px;
-  border-radius: 16px;
-  background: #242424;
-  color: #d3d8dd;
-}
-
-.asset-filter-row button.is-active {
-  background: #4a4d51;
-  color: #ffffff;
 }
 
 .asset-option {
@@ -438,14 +448,23 @@ p {
 
 .quick-session-date-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 12px;
   align-items: start;
 }
 
+.quick-session-date-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
 .quick-session-date-actions {
+  flex-wrap: wrap;
   gap: 8px;
   padding-top: 28px;
+  justify-content: flex-end;
+  max-width: 250px;
 }
 
 .quick-session-date-actions button {

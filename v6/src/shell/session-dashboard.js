@@ -160,7 +160,7 @@ export function mountSessionDashboard(root, {
     query: '',
     sort: 'newest',
   };
-  let selectedSymbols = ['NQ'];
+  let selectedSymbols = [];
 
   function getRecentSessionsView() {
     return createRecentSessionsView(sessions, recentSessionsControls);
@@ -181,9 +181,11 @@ export function mountSessionDashboard(root, {
 
   function renderSelectedAssets() {
     if (selectedAssetChips) {
-      selectedAssetChips.innerHTML = selectedSymbols.map((symbol) => `
-        <span class="asset-chip">${symbol}<button type="button" data-v6-remove-asset="${symbol}" aria-label="Remove ${symbol}">&times;</button></span>
-      `).join('');
+      selectedAssetChips.innerHTML = selectedSymbols.length
+        ? selectedSymbols.map((symbol) => `
+          <span class="asset-chip">${symbol}<button type="button" data-v6-remove-asset="${symbol}" aria-label="Remove ${symbol}">${symbol} remove</button></span>
+        `).join('')
+        : '<span class="asset-placeholder">Select NQ or ES</span>';
     }
     if (selectedAssetInputs) {
       selectedAssetInputs.innerHTML = selectedSymbols
@@ -336,9 +338,6 @@ export function mountSessionDashboard(root, {
       selectedSymbols = selectedSymbols.includes(symbol)
         ? selectedSymbols.filter((item) => item !== symbol)
         : [...selectedSymbols, symbol];
-      if (!selectedSymbols.length) {
-        selectedSymbols = [symbol];
-      }
       renderSelectedAssets();
     };
     option.addEventListener('click', listener);
@@ -349,7 +348,6 @@ export function mountSessionDashboard(root, {
       const removeButton = event.target.closest?.('[data-v6-remove-asset]');
       if (!removeButton) return;
       selectedSymbols = selectedSymbols.filter((symbol) => symbol !== removeButton.dataset.v6RemoveAsset);
-      if (!selectedSymbols.length) selectedSymbols = ['NQ'];
       renderSelectedAssets();
     };
     selectedAssetChips.addEventListener('click', listener);
@@ -379,6 +377,10 @@ export function mountSessionDashboard(root, {
     const listener = (event) => {
       event.preventDefault();
       try {
+        if (quickSessionModal?.hidden && !selectedSymbols.length) {
+          selectedSymbols = ['NQ'];
+          renderSelectedAssets();
+        }
         setSetupStatus('Creating session...');
         void createSession(readSessionSetupForm(setupForm)).catch((error) => {
           setSetupStatus(error?.message || String(error));

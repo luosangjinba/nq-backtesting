@@ -22,13 +22,16 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 0));
       const opened = {
         assetChips: document.querySelector('[data-v6-selected-asset-chips]')?.textContent || '',
+        assetOptions: [...document.querySelectorAll('[data-v6-asset-option]')].map((option) => option.dataset.v6AssetOption),
         createLabel: document.querySelector('[data-v6-dashboard-create-session]')?.textContent.trim() || '',
         modalVisible: visible('[data-v6-quick-session-modal]'),
         nameValue: document.querySelector('[data-v6-session-setup-name]')?.value || '',
+        propFirmVisible: document.querySelector('[data-v6-session-setup-form]')?.textContent.includes('Prop Firm Session') || false,
       };
 
       document.querySelector('[data-v6-asset-picker-toggle]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
+      document.querySelector('[data-v6-asset-option="NQ"]').click();
       document.querySelector('[data-v6-asset-option="ES"]').click();
       document.querySelector('[data-v6-session-setup-name]').value = 'abc';
       document.querySelector('[data-v6-session-setup-start]').value = '2026-07-01T09:30';
@@ -71,7 +74,9 @@ try {
 
   assert.equal(value.opened.modalVisible, true);
   assert.equal(value.opened.nameValue, '');
-  assert.match(value.opened.assetChips, /NQ/);
+  assert.match(value.opened.assetChips, /Select NQ or ES/);
+  assert.deepEqual(value.opened.assetOptions, ['NQ', 'ES']);
+  assert.equal(value.opened.propFirmVisible, false);
   assert.equal(value.opened.createLabel, 'Create session');
   assert.deepEqual(value.beforeCreate.selectedSymbols, ['NQ', 'ES']);
   assert.equal(value.beforeCreate.autoEndChecked, true);
