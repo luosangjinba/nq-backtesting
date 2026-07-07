@@ -26,7 +26,7 @@
 Polish the read-only Session Summary surface layout and interaction details
 before adding more row actions.
 
-Status: planned.
+Status: active.
 
 Notes for execution:
 
