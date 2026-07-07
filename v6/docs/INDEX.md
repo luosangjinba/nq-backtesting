@@ -23,6 +23,8 @@ Read this index before working on V6.
   owner contract wiring audit and next boundary-smoke expansion direction.
 - `v6/docs/V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT.md`: chart control
   bridge browser regression audit for native manual wall and reset-view paths.
+- `v6/docs/V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md`: dashboard row-action
+  isolation re-audit after chart control bridge browser regression.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -68,6 +70,8 @@ Read this index before working on V6.
   commands.
 - `V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT.md`: accepted browser
   regression coverage for chart control bridge user interactions.
+- `V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md`: accepted isolation state for
+  visible and hidden dashboard row actions.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
