@@ -26,7 +26,7 @@
 Define the Session Summary owner contract before enabling the Recent Sessions
 Summary row action.
 
-Status: planned.
+Status: active.
 
 Notes for execution:
 
