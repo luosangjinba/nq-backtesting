@@ -5,20 +5,19 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 111 completed.
-- Next planned step: Step 112 - Hidden Journal Row Action Harness.
+- Current V6 step state: Step 112 completed.
+- Next planned step: Step 113 - Hidden Journal Row Action Browser Harness.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Journal Row Action Session Context Contract:
+The latest completed work is Hidden Journal Row Action Harness:
 
-- `journal-row-action-session-context.js` defines the Journal-owned whitelist
-  for recent-session row context.
-- `V6_JOURNAL_ROW_ACTION_SESSION_CONTEXT_CONTRACT.md` documents allowed and
-  blocked fields.
-- `journal-row-action-session-context-contract-smoke.js` guards that the
-  context strips bars, chart state, replay state, viewport state, orders,
-  calendar events, and journal entries while keeping the dashboard Journal row
-  action hidden.
+- `journal-row-action-hidden-harness.js` provides a pure owner-side hidden
+  harness for future Journal row-action wiring.
+- The harness consumes the Step 111 session context factory by injection so the
+  Journal module does not import shell, session, runtime, or dashboard modules.
+- `hidden-journal-row-action-harness-smoke.js` guards the hidden harness,
+  blocked context fields, no command dispatch, and unchanged row-action
+  visibility.
 
 ## Restart Reading Order
 
@@ -36,20 +35,23 @@ After restarting the server or assistant context, read these first:
 10. `v6/sessions/session_20260707_step109_next_dashboard_row_action_exposure_readiness_audit.md`
 11. `v6/sessions/session_20260707_step110_journal_row_action_owner_surface_readiness_audit.md`
 12. `v6/sessions/session_20260707_step111_journal_row_action_session_context_contract.md`
-13. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-14. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
-15. `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`
-16. `v6/docs/V6_JOURNAL_ROW_ACTION_SESSION_CONTEXT_CONTRACT.md`
+13. `v6/sessions/session_20260707_step112_hidden_journal_row_action_harness.md`
+14. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+15. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
+16. `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`
+17. `v6/docs/V6_JOURNAL_ROW_ACTION_SESSION_CONTEXT_CONTRACT.md`
+18. `v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md`
 
 ## Next Step
 
-Step 112 should add a hidden Journal row-action harness or owner-surface adapter
-that consumes the Step 111 session context.
+Step 113 should add hidden browser coverage for the Journal row-action harness.
 
-Keep Step 112 bounded:
+Keep Step 113 bounded:
 
 - keep the Journal row action hidden;
-- consume only `createJournalRowActionSessionContext` output;
+- keep `data-v6-row-action="journal"` absent from Recent Sessions;
+- exercise the hidden Journal row-action harness through browser-safe owner
+  wiring;
 - preserve the Journal command/persistence-only dispatch boundary;
 - keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
   and session-dashboard runtime control paths;
@@ -58,8 +60,8 @@ Keep Step 112 bounded:
 
 Expected implementation shape:
 
-- add or update focused hidden Journal row-action harness documentation/smoke if
-  needed;
+- add or update focused hidden Journal row-action browser harness
+  documentation/smoke if needed;
 - keep `journal-contract.js`, row-action boundaries, and browser smokes as the
   source of truth;
 - run selected Journal contract and row-action boundary smokes.
@@ -91,8 +93,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 112 work:
+Run these before committing Step 113 work:
 
+- `node v6/tests/hidden-journal-row-action-harness-smoke.js`
 - `node v6/tests/journal-row-action-session-context-contract-smoke.js`
 - `node v6/tests/journal-row-action-owner-surface-readiness-audit-smoke.js`
 - `node v6/tests/next-dashboard-row-action-exposure-readiness-audit-smoke.js`
@@ -152,15 +155,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `65d8b027 feat(v6): add hidden journal row action harness`
 - `ff634845 feat(v6): add journal row action session context contract`
 - `131320ca test(v6): open workstation before workflow panel browser check`
 - `93bec759 docs(v6): audit journal row action surface readiness`
 - `6a521368 docs(v6): audit next row action exposure readiness`
-- `bfdbead5 docs(v6): audit dashboard session browser pack`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-112. The handoff point is intentionally before any hidden dashboard row action
+113. The handoff point is intentionally before any hidden dashboard row action
 is exposed.

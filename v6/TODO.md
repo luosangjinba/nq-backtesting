@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 111 - Journal Row Action Session Context
-  Contract. Journal now has a pure owner-side session context whitelist for a
-  future dashboard row action, while the action remains hidden.
+- Latest completed step: Step 112 - Hidden Journal Row Action Harness. Journal
+  now has an owner-side hidden harness that consumes the session context
+  factory by injection while the dashboard row action remains hidden.
 
 ## Next Executable Steps
 
-### Step 112 - Hidden Journal Row Action Harness
+### Step 113 - Hidden Journal Row Action Browser Harness
 
-Add a hidden Journal row-action harness or owner-surface adapter that consumes
-the Step 111 session context without exposing the dashboard row action.
+Add hidden browser coverage for the Journal row-action harness without exposing
+the dashboard row action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep the Journal row action hidden while adding the harness;
-- consume only `createJournalRowActionSessionContext` output;
+- keep `data-v6-row-action="journal"` absent from Recent Sessions;
+- exercise the hidden Journal row-action harness through browser-safe owner
+  wiring;
 - preserve the Journal command/persistence-only dispatch boundary;
 - keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
   and session-dashboard runtime control paths;
@@ -38,19 +39,41 @@ Notes for execution:
 
 Scope:
 
-- add or update focused hidden Journal row-action harness documentation/smoke if
-  needed;
+- add or update focused hidden Journal row-action browser harness
+  documentation/smoke if needed;
 - keep `journal-contract.js`, row-action boundaries, and browser smokes as the
   source of truth.
 
 Acceptance:
 
 - Journal contract smoke passes;
+- hidden Journal row-action harness smoke passes;
 - Journal row-action session context contract smoke passes;
 - dashboard row action visibility remains unchanged;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 112 - Hidden Journal Row Action Harness
+
+Completed in commit:
+
+- `65d8b027 feat(v6): add hidden journal row action harness`
+
+Verification:
+
+- `node v6/tests/hidden-journal-row-action-harness-smoke.js`
+- `node v6/tests/journal-row-action-session-context-contract-smoke.js`
+- `node v6/tests/journal-row-action-owner-surface-readiness-audit-smoke.js`
+- `node v6/tests/next-dashboard-row-action-exposure-readiness-audit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/workflow-panels-browser-smoke.js`
+- `git diff --check`
 
 ### Step 111 - Journal Row Action Session Context Contract
 
