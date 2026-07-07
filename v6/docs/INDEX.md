@@ -51,6 +51,8 @@ Read this index before working on V6.
   presentation boundary re-audit after dashboard row-action work.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`: selected next bounded
   workstation/chart implementation slice.
+- `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`: accepted inert shell-owned
+  left drawing/tool rail reservation for the workstation chart surface.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -124,6 +126,8 @@ Read this index before working on V6.
   presentation boundary after dashboard row-action work.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION.md`: accepted next bounded
   workstation/chart implementation slice.
+- `V6_LEFT_DRAWING_RAIL_RESERVATION.md`: accepted inert left drawing/tool rail
+  reservation and browser coverage.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,

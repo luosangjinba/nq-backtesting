@@ -14,42 +14,61 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 119 - Workstation Chart Implementation Slice
-  Selection. The next bounded chart-facing slice is Left Drawing Rail
-  Reservation.
+- Latest completed step: Step 120 - Left Drawing Rail Reservation. The
+  workstation chart surface now reserves an inert shell-owned left drawing/tool
+  rail beside the chart host.
 
 ## Next Executable Steps
 
-### Step 120 - Left Drawing Rail Reservation
+### Step 121 - Workstation Rail Regression Audit
 
-Reserve an inert left drawing/tool rail as a shell-owned workstation chart
-surface.
+Audit workstation chart chrome after adding the left drawing rail and keeping
+the existing right utility rail.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION.md` and FXReplay UI guardrails;
-- add shell markup/CSS only for a narrow left drawing/tool rail;
-- keep tool buttons disabled or inert until a drawing/tool owner exists;
-- prove chart host remains mounted, visible, and non-overlapped;
+- read `V6_LEFT_DRAWING_RAIL_RESERVATION.md`, `V6_WORKSTATION_CHART_SLICE_SELECTION.md`,
+  and FXReplay UI guardrails;
+- re-audit left rail, chart host, right rail, status readout, reset view, and
+  transport placement as a single workstation chrome surface;
+- keep drawing buttons disabled/inert and do not add drawing behavior;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- avoid dispatching chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from the rail;
-- do not import chart-engine or runtime owner modules into a left-rail
-  controller.
+- docs/test audit only unless a regression is found;
+- do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
+  viewport commands from rail/chrome audit code;
+- do not import chart-engine or runtime owner modules into a rail controller.
 
 Acceptance:
 
+- workstation rail regression audit smoke passes;
 - left drawing rail browser smoke passes;
+- right utility rail browser smoke passes;
 - workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 120 - Left Drawing Rail Reservation
+
+Completed in commit:
+
+- `4452f65a feat(v6): reserve left drawing rail`
+
+Verification:
+
+- `node v6/tests/left-drawing-rail-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/right-utility-rail-browser-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/chart-toolbar-cleanup-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 119 - Workstation Chart Implementation Slice Selection
 
