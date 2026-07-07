@@ -34,24 +34,26 @@ No contract mismatch was found:
 
 ## Step 105 Direction
 
-Step 105 should expand the broader boundary smoke with the chart control bridge
-integration audit expectations.
+Step 105 should audit workstation browser behavior for the chart control
+bridges against the owner contract.
 
 Scope:
 
+- verify native manual chart range input still dispatches viewport manual intent
+  through `manual-wall-input-bridge`;
+- verify the reset-view button still dispatches viewport reset through
+  `reset-view-control-bridge`;
 - keep `chart-control-bridge-contract.js` as the source of truth for listed
   control bridges and allowed commands;
-- guard that `app.js` only mounts the contract-listed control bridges;
-- guard that the control bridges remain viewport-command-only and do not
-  acquire series, bar-data, replay, session, dashboard, orders, journal, or
-  calendar ownership.
+- do not modify runtime behavior unless the audit exposes a mismatch.
 
 Acceptance:
 
 - chart control bridge integration audit smoke passes;
 - chart control bridge contract smoke passes;
 - boundary smoke passes;
-- selected workstation browser smokes still pass on pane `main`.
+- selected workstation browser smokes, including native manual wall and reset
+  view, still pass on pane `main`.
 
 ## Verification
 

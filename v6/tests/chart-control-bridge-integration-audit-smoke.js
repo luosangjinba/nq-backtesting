@@ -54,7 +54,7 @@ const manualWallBridge = await readFile(BRIDGE_FILES.get('manual-wall-input-brid
 const resetViewBridge = await readFile(BRIDGE_FILES.get('reset-view-control-bridge'), 'utf8');
 
 assert.equal(indexDoc.includes('V6_CHART_CONTROL_BRIDGE_INTEGRATION_AUDIT.md'), true);
-assert.match(auditDoc, /Step 105 should expand the broader boundary smoke/);
+assert.match(auditDoc, /Step 105 should audit workstation browser behavior/);
 assert.match(auditDoc, /manual-wall-input-bridge/);
 assert.match(auditDoc, /reset-view-control-bridge/);
 assert.match(auditDoc, /viewport-command-only/);
