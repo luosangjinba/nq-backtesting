@@ -46,24 +46,39 @@ export function mountSessionSummarySurface(root) {
   }
 
   let currentView = null;
+  let previousFocus = null;
   const closeListener = (event) => {
     if (event.target.closest?.('[data-v6-session-summary-close]')) {
       close();
     }
   };
+  const keydownListener = (event) => {
+    if (event.key === 'Escape' && !surface.hidden) {
+      event.preventDefault();
+      close();
+    }
+  };
   surface.addEventListener('click', closeListener);
+  root.ownerDocument.addEventListener('keydown', keydownListener);
 
   function open(session = {}) {
+    previousFocus = root.ownerDocument.activeElement;
     currentView = createSessionSummarySurfaceView(session);
     renderSummarySurface(surface, currentView);
     surface.hidden = false;
+    surface.querySelector('[data-v6-session-summary-close]')?.focus();
     return getState();
   }
 
   function close() {
+    const focusTarget = previousFocus;
     currentView = null;
+    previousFocus = null;
     surface.hidden = true;
     surface.innerHTML = '';
+    if (focusTarget?.isConnected && typeof focusTarget.focus === 'function') {
+      focusTarget.focus();
+    }
     return getState();
   }
 
@@ -81,6 +96,7 @@ export function mountSessionSummarySurface(root) {
     open,
     unmount() {
       surface.removeEventListener('click', closeListener);
+      root.ownerDocument.removeEventListener('keydown', keydownListener);
       close();
     },
   };
