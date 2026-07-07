@@ -14,6 +14,9 @@ Read this index before working on V6.
   panels, active state, close behavior, mutual exclusivity, and ownership.
 - `v6/docs/V6_REPLAY_CHART_READINESS_AUDIT.md`: replay/chart gate results after
   workflow shell work and the next chart-facing direction.
+- `v6/docs/V6_WORKSTATION_REPLAY_CHART_REENTRY_AUDIT.md`: replay/chart
+  re-entry audit after dashboard closeout and the next chart-surface owner
+  contract direction.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -50,6 +53,8 @@ Read this index before working on V6.
   next-direction guardrail after Steps 32-36.
 - `V6_REPLAY_CHART_READINESS_AUDIT.md`: passed visible-latency, wall replay,
   display timeframe, multi-pane, and chart engine readiness gates.
+- `V6_WORKSTATION_REPLAY_CHART_REENTRY_AUDIT.md`: accepted workstation
+  replay/chart re-entry boundary after dashboard closeout.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
