@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createCalendarContract } from '../src/calendar/calendar-contract.js';
 import { createJournalContract } from '../src/journal/journal-contract.js';
 import { createOrdersContract } from '../src/orders/orders-contract.js';
 import { createSessionAnalyticsContract } from '../src/session-analytics/session-analytics-contract.js';
@@ -44,6 +45,7 @@ assert.equal(byId.get('journal').enabled, false);
 assert.equal(byId.get('journal').status, 'future');
 assert.equal(byId.get('calendar').owner, 'calendar-runtime');
 assert.equal(byId.get('calendar').enabled, false);
+assert.equal(byId.get('calendar').status, 'future');
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
@@ -217,6 +219,49 @@ assert.deepEqual(createJournalContract(), {
   persistenceReady: true,
   rowActionVisible: false,
   surfaceReady: false,
+});
+
+assert.deepEqual(createCalendarContract(), {
+  allowedFields: [
+    'actual',
+    'country',
+    'createdAt',
+    'currency',
+    'eventId',
+    'forecast',
+    'impact',
+    'metadata',
+    'previous',
+    'provider',
+    'releaseTime',
+    'sessionId',
+    'source',
+    'title',
+    'updatedAt',
+  ],
+  blockedIntegrations: [
+    'bar-data',
+    'chart-data',
+    'chart-engine',
+    'chart-viewport',
+    'journal',
+    'orders',
+    'replay',
+    'session-dashboard',
+    'viewport',
+  ],
+  canAdvanceReplay: false,
+  canLoadBars: false,
+  canMutateJournal: false,
+  canOpenChart: false,
+  canReadOrders: false,
+  canTouchViewport: false,
+  commandSurfaceReady: false,
+  owner: 'calendar-runtime',
+  persistenceReady: false,
+  providerReadReady: false,
+  rowActionVisible: false,
+  writeReady: false,
 });
 
 console.log('v6 session row action boundaries smoke passed');
