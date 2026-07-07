@@ -14,44 +14,60 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 94 - Orders Owner Contract.
-  The `orders-runtime` owner contract now defines first-pass order fields,
-  blocked integrations, and disabled command/persistence/write surfaces. Order
-  remains hidden/disabled from Recent Sessions.
+- Latest completed step: Step 95 - Journal Owner Contract.
+  The `journal-runtime` owner contract now defines first-pass journal fields,
+  blocked integrations, and the disabled Recent Sessions surface boundary.
+  Journal remains hidden/disabled from Recent Sessions.
 
 ## Next Executable Steps
 
-### Step 95 - Journal Owner Contract
+### Step 96 - Calendar Owner Contract
 
-Define the Journal owner contract before exposing any Recent Sessions Journal
+Define the Calendar owner contract before exposing any Recent Sessions Calendar
 row action.
 
 Status: planned.
 
 Notes for execution:
 
-- keep Journal disabled/hidden until an explicit owner contract and guards
+- keep Calendar disabled/hidden until an explicit owner contract and guards
   exist;
-- journal must not load bars, open chart runtime, advance replay, or touch
+- calendar must not load bars, open chart runtime, advance replay, or touch
   viewport state;
-- dashboard must not compute, persist, or query journal data directly;
-- Summary, Stats, Copy, and Order must remain bounded to their owners.
+- dashboard must not compute, persist, or query calendar data directly;
+- Summary, Stats, Copy, Order, and Journal must remain bounded to their owners.
 
 Scope:
 
-- define the Journal public interface and allowed first-pass fields;
+- define the Calendar public interface and allowed first-pass fields;
 - document blocked integrations and future read/write boundaries;
-- keep Journal hidden/disabled unless the owner contract and guards are in
+- keep Calendar hidden/disabled unless the owner contract and guards are in
   place.
 
 Acceptance:
 
-- Journal ownership is explicit;
-- dashboard cannot directly access journal state;
-- tests prevent Journal from touching chart, replay, bars, viewport, orders, or
-  calendar before those integrations exist.
+- Calendar ownership is explicit;
+- dashboard cannot directly access calendar state;
+- tests prevent Calendar from touching chart, replay, bars, viewport, orders, or
+  journal before those integrations exist.
 
 ## Completed Steps
+
+### Step 95 - Journal Owner Contract
+
+Completed in commits:
+
+- `6ac21fc0 feat(v6): add journal owner contract`
+- `2f28f9a7 test(v6): guard journal owner boundaries`
+
+Verification:
+
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/journal-runtime-smoke.js`
+- `node v6/tests/journal-domain-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 94 - Orders Owner Contract
 
