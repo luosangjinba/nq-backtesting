@@ -14,44 +14,72 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 105 - Workstation Chart Control Browser
-  Regression Audit. Browser regression coverage for native manual wall input
-  and reset-view control is documented, smoke-tested, and aligned with the chart
-  control bridge owner contract.
+- Latest completed step: Step 106 - Dashboard Row Action Isolation Re-audit.
+  Dashboard row actions remain isolated after the chart control bridge browser
+  regression audit; Summary, Stats, and Copy are visible, while Order, Journal,
+  and Calendar remain hidden/contract-ready.
 
 ## Next Executable Steps
 
-### Step 106 - Dashboard Row Action Isolation Re-audit
+### Step 107 - Dashboard Summary/Stats/Copy Browser Coverage Audit
 
-Re-audit dashboard row-action isolation after the chart control bridge browser
-regression checks.
+Audit dashboard browser coverage for the visible Summary, Stats, and Copy row
+actions.
 
 Status: planned.
 
 Notes for execution:
 
-- verify Summary, Stats, and Copy remain the only visible dashboard row actions;
-- verify disabled Order, Journal, and Calendar actions remain contract-ready but
-  not visible;
-- verify dashboard row actions still do not control chart, bars, replay,
-  viewport, orders, journal, or calendar directly;
+- verify Summary and Stats surfaces still render read-only metadata-only state;
+- verify Copy still creates a metadata-only duplicate session;
+- verify Order, Journal, and Calendar remain hidden until their owner surfaces
+  have browser coverage;
 - keep dashboard row action visibility unchanged;
 - do not modify runtime behavior unless the audit exposes a mismatch.
 
 Scope:
 
-- add or update a focused row-action isolation audit/smoke if needed;
-- keep row-action owner contracts as the source of truth.
+- add or update a focused Summary/Stats/Copy browser coverage audit/smoke if
+  needed;
+- keep row-action owner contracts and browser smokes as the source of truth.
 
 Acceptance:
 
-- recent sessions row action contract and boundary smokes pass;
-- orders, journal, and calendar owner contract smokes pass;
+- dashboard row-action isolation re-audit smoke passes;
+- Summary, Stats, and Copy browser smokes pass;
 - boundary smoke passes;
 - session dashboard/recent sessions browser smokes pass;
 - dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 106 - Dashboard Row Action Isolation Re-audit
+
+Completed in commit:
+
+- `342176cc docs(v6): audit dashboard row action isolation`
+
+Verification:
+
+- `node v6/tests/dashboard-row-action-isolation-reaudit-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/orders-contract-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/calendar-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/session-dashboard-readiness-audit-smoke.js`
+- `node v6/tests/session-copy-contract-smoke.js`
+- `node v6/tests/session-analytics-contract-smoke.js`
+- `node v6/tests/session-analytics-surface-model-smoke.js`
+- `node v6/tests/session-summary-surface-model-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-analytics-surface-browser-smoke.js`
+- `node v6/tests/session-summary-surface-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `git diff --check`
 
 ### Step 105 - Workstation Chart Control Browser Regression Audit
 

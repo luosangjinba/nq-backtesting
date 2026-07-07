@@ -5,21 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 105 completed.
-- Next planned step: Step 106 - Dashboard Row Action Isolation Re-audit.
+- Current V6 step state: Step 106 completed.
+- Next planned step: Step 107 - Dashboard Summary/Stats/Copy Browser Coverage Audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Control Browser Regression
-Audit:
+The latest completed work is Dashboard Row Action Isolation Re-audit:
 
-- `V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT.md` documents the browser
-  regression coverage for native manual wall input and reset-view control.
-- `chart-control-bridge-browser-regression-audit-smoke.js` guards the audit,
-  docs index, expected browser smoke coverage, and dashboard row action
+- `V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md` documents that Summary, Stats,
+  and Copy remain the only visible Recent Sessions row actions.
+- `dashboard-row-action-isolation-reaudit-smoke.js` guards visible/hidden row
+  actions, owner contracts, browser smoke coverage, and dashboard row action
   visibility.
-- `workstation-native-manual-wall-input-browser-smoke.js` now uses the real
-  dashboard-created workstation path and asserts the chart host is measurable
-  before dispatching native wheel input.
+- Order, Journal, and Calendar remain hidden/disabled and contract-ready only.
 
 ## Restart Reading Order
 
@@ -31,30 +28,30 @@ After restarting the server or assistant context, read these first:
 4. `v6/sessions/session_20260707_step103_chart_control_bridge_owner_contract.md`
 5. `v6/sessions/session_20260707_step104_chart_control_bridge_integration_audit.md`
 6. `v6/sessions/session_20260707_step105_chart_control_bridge_browser_regression_audit.md`
-7. `v6/tests/boundary-smoke.js`
-8. `v6/src/chart-engine/chart-control-bridge-contract.js`
-9. `v6/docs/V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT.md`
+7. `v6/sessions/session_20260707_step106_dashboard_row_action_isolation_reaudit.md`
+8. `v6/tests/boundary-smoke.js`
+9. `v6/docs/V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md`
 10. `v6/src/shell/session-row-action-boundaries.js`
 
 ## Next Step
 
-Step 106 should re-audit dashboard row-action isolation after the chart control
-bridge browser regression checks.
+Step 107 should audit dashboard browser coverage for Summary, Stats, and Copy
+row actions.
 
-Keep Step 106 bounded:
+Keep Step 107 bounded:
 
-- verify Summary, Stats, and Copy remain the only visible dashboard row actions;
-- verify disabled Order, Journal, and Calendar actions remain contract-ready but
-  not visible;
-- verify dashboard row actions still do not control chart, bars, replay,
-  viewport, orders, journal, or calendar directly;
+- verify Summary and Stats surfaces still render read-only metadata-only state;
+- verify Copy still creates a metadata-only duplicate session;
+- verify Order, Journal, and Calendar remain hidden until their owner surfaces
+  have browser coverage;
 - do not modify runtime behavior unless the audit exposes a mismatch;
 - keep dashboard row action visibility unchanged.
 
 Expected implementation shape:
 
-- add or update a focused row-action isolation audit/smoke if needed;
-- keep row-action owner contracts as the source of truth;
+- add or update a focused Summary/Stats/Copy browser coverage audit/smoke if
+  needed;
+- keep row-action owner contracts and browser smokes as the source of truth;
 - run selected dashboard/session browser smokes.
 
 ## Critical Boundaries
@@ -84,8 +81,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 106 work:
+Run these before committing Step 107 work:
 
+- `node v6/tests/dashboard-row-action-isolation-reaudit-smoke.js`
 - `node v6/tests/chart-control-bridge-browser-regression-audit-smoke.js`
 - `node v6/tests/chart-control-bridge-integration-audit-smoke.js`
 - `node v6/tests/chart-control-bridge-contract-smoke.js`
@@ -139,15 +137,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `342176cc docs(v6): audit dashboard row action isolation`
+- `4175bdcf docs(v6): close chart control bridge browser regression`
 - `e9fd784c test(v6): align native manual wall browser regression`
 - `6c726815 docs(v6): audit chart control bridge browser regression`
 - `e8d775ec docs(v6): close chart control bridge integration audit`
-- `e2529fe8 test(v6): guard chart control bridge integration`
-- `b2610b67 docs(v6): audit chart control bridge integration`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-106. The handoff point is intentionally before the dashboard row-action
-isolation re-audit and before exposing Order, Journal, or Calendar.
+107. The handoff point is intentionally before the Summary/Stats/Copy browser
+coverage audit and before exposing Order, Journal, or Calendar.
