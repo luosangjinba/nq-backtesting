@@ -14,45 +14,62 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 120 - Left Drawing Rail Reservation. The
-  workstation chart surface now reserves an inert shell-owned left drawing/tool
-  rail beside the chart host.
+- Latest completed step: Step 121 - Workstation Rail Regression Audit. The
+  workstation chart chrome now has browser coverage across left rail, chart
+  host, right rail, status/readout, reset view, and transport placement.
 
 ## Next Executable Steps
 
-### Step 121 - Workstation Rail Regression Audit
+### Step 122 - Workstation Chart Slice Selection
 
-Audit workstation chart chrome after adding the left drawing rail and keeping
-the existing right utility rail.
+Choose the next bounded workstation/chart implementation slice after the rail
+regression audit.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LEFT_DRAWING_RAIL_RESERVATION.md`, `V6_WORKSTATION_CHART_SLICE_SELECTION.md`,
-  and FXReplay UI guardrails;
-- re-audit left rail, chart host, right rail, status readout, reset view, and
-  transport placement as a single workstation chrome surface;
-- keep drawing buttons disabled/inert and do not add drawing behavior;
+- read `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`,
+  `V6_LEFT_DRAWING_RAIL_RESERVATION.md`, FXReplay UI guardrails, and the parity
+  gap audit;
+- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
+- select one small next slice with explicit owner boundary and acceptance tests;
+- prefer shell-only parity work unless the next slice requires a runtime owner
+  contract first;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test audit only unless a regression is found;
+- docs/test selection only;
+- do not implement the selected slice in Step 122;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from rail/chrome audit code;
-- do not import chart-engine or runtime owner modules into a rail controller.
+  viewport commands from selection/audit code.
 
 Acceptance:
 
-- workstation rail regression audit smoke passes;
-- left drawing rail browser smoke passes;
-- right utility rail browser smoke passes;
+- workstation chart slice selection smoke is updated or a new Step 122 slice
+  selection smoke passes;
+- workstation rail regression audit browser smoke passes;
 - workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 121 - Workstation Rail Regression Audit
+
+Completed in commit:
+
+- `8cd045ed test(v6): audit workstation rail regression`
+
+Verification:
+
+- `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
+- `node v6/tests/left-drawing-rail-browser-smoke.js`
+- `node v6/tests/right-utility-rail-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 120 - Left Drawing Rail Reservation
 

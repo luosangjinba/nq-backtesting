@@ -5,18 +5,19 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 120 completed.
-- Next planned step: Step 121 - Workstation Rail Regression Audit.
+- Current V6 step state: Step 121 completed.
+- Next planned step: Step 122 - Workstation Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Left Drawing Rail Reservation:
+The latest completed work is Workstation Rail Regression Audit:
 
-- `V6_LEFT_DRAWING_RAIL_RESERVATION.md` records the inert shell-owned left rail
-  boundary and regression coverage.
-- `workstation-shell.js` now reserves a 48px disabled drawing/tool rail beside
-  the chart surface.
-- `left-drawing-rail-browser-smoke.js` guards disabled state, non-overlap,
-  chart host visibility, and dashboard row-action visibility.
+- `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md` records the accepted rail/chrome
+  regression state after adding the left drawing rail.
+- `workstation-rail-regression-audit-browser-smoke.js` covers left rail, chart
+  host, right rail, status/readout, reset view, transport, and row-action
+  visibility.
+- The audit found and fixed a status/readout spacing issue by reserving the
+  Reset View area inside the chart surface.
 
 ## Restart Reading Order
 
@@ -43,38 +44,41 @@ After restarting the server or assistant context, read these first:
 19. `v6/sessions/session_20260707_step118_workstation_chart_presentation_reaudit.md`
 20. `v6/sessions/session_20260707_step119_workstation_chart_slice_selection.md`
 21. `v6/sessions/session_20260707_step120_left_drawing_rail_reservation.md`
-22. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-23. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-24. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-25. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-26. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-27. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-28. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-29. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+22. `v6/sessions/session_20260707_step121_workstation_rail_regression_audit.md`
+23. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+24. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+25. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+26. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+27. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+28. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+29. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+30. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+31. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 121 should audit workstation rail/chrome regression coverage now that both
-left and right rails are present.
+Step 122 should choose the next bounded workstation/chart implementation slice.
 
-Keep Step 121 bounded:
+Keep Step 122 bounded:
 
-- read `V6_LEFT_DRAWING_RAIL_RESERVATION.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION.md`, and FXReplay UI guardrails;
-- re-audit left rail, chart host, right rail, status readout, reset view, and
-  transport placement as a single workstation chrome surface;
-- keep drawing buttons disabled/inert and do not add drawing behavior;
+- read `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`,
+  `V6_LEFT_DRAWING_RAIL_RESERVATION.md`, FXReplay UI guardrails, and the parity
+  gap audit;
+- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
+- select one small next slice with explicit owner boundary and acceptance tests;
+- prefer shell-only parity work unless the next slice requires a runtime owner
+  contract first;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- docs/test audit only unless a regression is found;
+- docs/test selection only;
+- do not implement the selected slice in Step 122;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from rail/chrome audit code;
-- do not import chart-engine or runtime owner modules into a rail controller;
-- run rail regression coverage, left/right rail browser coverage, chart
-  presentation re-audit, and boundary smoke.
+  viewport commands from selection/audit code;
+- run the slice-selection smoke, rail regression audit, chart presentation
+  re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -103,8 +107,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 121 work:
+Run these before committing Step 122 work:
 
+- `node v6/tests/workstation-rail-regression-audit-browser-smoke.js`
 - `node v6/tests/left-drawing-rail-browser-smoke.js`
 - `node v6/tests/right-utility-rail-browser-smoke.js`
 - `node v6/tests/journal-row-action-exposure-gate-audit-smoke.js`
@@ -174,15 +179,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `8cd045ed test(v6): audit workstation rail regression`
 - `4452f65a feat(v6): reserve left drawing rail`
 - `ff2cad47 docs(v6): select left drawing rail slice`
 - `8cb8480c docs(v6): audit workstation chart presentation`
 - `2a3e5eb5 docs(v6): audit journal row action regression pack`
-- `40c34f17 docs(v6): close journal row action visibility wiring`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-121. The handoff point is intentionally after reserving the inert left drawing
-rail as a shell-owned workstation chart surface.
+122. The handoff point is intentionally after auditing workstation rail/chrome
+regression coverage.
