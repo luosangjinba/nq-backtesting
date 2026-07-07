@@ -5,20 +5,20 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 109 completed.
-- Next planned step: Step 110 - Journal Row Action Owner Surface Readiness
-  Audit.
+- Current V6 step state: Step 110 completed.
+- Next planned step: Step 111 - Journal Row Action Session Context Contract.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Next Dashboard Row Action Exposure Readiness Audit:
+The latest completed work is Journal Row Action Owner Surface Readiness Audit:
 
-- `V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md` documents that no
-  hidden dashboard row action is ready to expose yet.
-- Journal is the nearest candidate because command surface and persistence are
-  ready, but it remains hidden until owner surface and browser coverage are
-  ready.
-- Order and Calendar remain later candidates because their owner contracts lack
-  ready command/persistence paths.
+- `V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md` documents that the
+  workstation Journal panel is a valid journal-owned surface but not yet a
+  session-scoped dashboard row-action surface.
+- `journal-row-action-owner-surface-readiness-audit-smoke.js` guards the
+  Journal contract flags, hidden row-action boundary, existing Journal surface
+  command boundary, and missing dashboard row-action browser coverage.
+- `workflow-panels-browser-smoke.js` now creates and opens a session before
+  checking workstation workflow panel layout.
 
 ## Restart Reading Order
 
@@ -34,18 +34,21 @@ After restarting the server or assistant context, read these first:
 8. `v6/sessions/session_20260707_step107_dashboard_visible_row_action_browser_coverage_audit.md`
 9. `v6/sessions/session_20260707_step108_dashboard_session_browser_regression_pack_audit.md`
 10. `v6/sessions/session_20260707_step109_next_dashboard_row_action_exposure_readiness_audit.md`
-11. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-12. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
+11. `v6/sessions/session_20260707_step110_journal_row_action_owner_surface_readiness_audit.md`
+12. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+13. `v6/docs/V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md`
+14. `v6/docs/V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md`
 
 ## Next Step
 
-Step 110 should audit Journal row-action owner surface readiness.
+Step 111 should define the Journal row-action session context contract.
 
-Keep Step 110 bounded:
+Keep Step 111 bounded:
 
 - keep the Journal row action hidden;
-- define the minimum journal-owned surface/browser contract needed before any
-  row-action exposure;
+- define what recent-session metadata/context may flow into the Journal owner
+  surface;
+- preserve the Journal command/persistence-only dispatch boundary;
 - keep Journal isolated from chart, bars, replay, viewport, orders, calendar,
   and session-dashboard runtime control paths;
 - do not modify runtime behavior unless the audit exposes a mismatch;
@@ -53,7 +56,7 @@ Keep Step 110 bounded:
 
 Expected implementation shape:
 
-- add or update focused Journal owner surface readiness documentation/smoke if
+- add or update focused Journal row-action session context documentation/smoke if
   needed;
 - keep `journal-contract.js`, row-action boundaries, and browser smokes as the
   source of truth;
@@ -86,8 +89,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 109 work:
+Run these before committing Step 111 work:
 
+- `node v6/tests/journal-row-action-owner-surface-readiness-audit-smoke.js`
 - `node v6/tests/next-dashboard-row-action-exposure-readiness-audit-smoke.js`
 - `node v6/tests/dashboard-session-browser-regression-pack-audit-smoke.js`
 - `node v6/tests/dashboard-visible-row-action-browser-coverage-audit-smoke.js`
@@ -145,15 +149,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `131320ca test(v6): open workstation before workflow panel browser check`
+- `93bec759 docs(v6): audit journal row action surface readiness`
 - `6a521368 docs(v6): audit next row action exposure readiness`
 - `bfdbead5 docs(v6): audit dashboard session browser pack`
 - `6db3cc32 docs(v6): close visible row action browser coverage audit`
-- `8ecacd2e docs(v6): audit visible row action browser coverage`
-- `1c8c055b docs(v6): close dashboard row action isolation audit`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-110. The handoff point is intentionally before any hidden dashboard row action
+111. The handoff point is intentionally before any hidden dashboard row action
 is exposed.
