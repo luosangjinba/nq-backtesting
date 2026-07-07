@@ -17,6 +17,10 @@ export function createSessionRuntime({
     return repository.save(session);
   }
 
+  function copySession(id, options = {}) {
+    return repository.copyMetadata(id, options);
+  }
+
   function openSession(id) {
     return repository.open(id);
   }
@@ -27,6 +31,11 @@ export function createSessionRuntime({
 
   function start({ emitEvent } = {}) {
     unregisterCallbacks.push(
+      registerCommand(SESSION_COMMANDS.COPY, ({ id, ...options } = {}) => {
+        const session = copySession(id, options);
+        emitEvent?.(SESSION_EVENTS.COPIED, session);
+        return session;
+      }),
       registerCommand(SESSION_COMMANDS.CREATE, (input = {}) => {
         const session = createSession(input);
         emitEvent?.(SESSION_EVENTS.CREATED, session);

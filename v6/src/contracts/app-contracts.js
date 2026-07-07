@@ -7,6 +7,7 @@ export const APP_EVENTS = Object.freeze({
 });
 
 export const SESSION_COMMANDS = Object.freeze({
+  COPY: 'session.copy',
   CREATE: 'session.create',
   DELETE: 'session.delete',
   GET_ACTIVE: 'session.getActive',
@@ -16,6 +17,7 @@ export const SESSION_COMMANDS = Object.freeze({
 });
 
 export const SESSION_EVENTS = Object.freeze({
+  COPIED: 'session:copied',
   CREATED: 'session:created',
   OPENED: 'session:opened',
 });

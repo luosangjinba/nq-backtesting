@@ -24,7 +24,11 @@ resetSessionIdsForTest();
 
 const registry = createRuntimeRegistry();
 const createdEvents = [];
+const copiedEvents = [];
 const openedEvents = [];
+const unsubscribeCopied = subscribeEvent(SESSION_EVENTS.COPIED, (payload) => {
+  copiedEvents.push(payload);
+});
 const unsubscribeCreated = subscribeEvent(SESSION_EVENTS.CREATED, (payload) => {
   createdEvents.push(payload);
 });
@@ -35,12 +39,14 @@ const unsubscribeOpened = subscribeEvent(SESSION_EVENTS.OPENED, (payload) => {
 registry.registerRuntime(createSessionRuntime());
 await registry.start({ emitEvent });
 
+assert.equal(hasCommand(SESSION_COMMANDS.COPY), true);
 assert.equal(hasCommand(SESSION_COMMANDS.CREATE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.DELETE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.GET_ACTIVE), true);
 assert.equal(hasCommand(SESSION_COMMANDS.GET_BY_ID), true);
 assert.equal(hasCommand(SESSION_COMMANDS.LIST), true);
 assert.equal(hasCommand(SESSION_COMMANDS.OPEN), true);
+assert.equal(listenerCount(SESSION_EVENTS.COPIED), 1);
 assert.equal(listenerCount(SESSION_EVENTS.CREATED), 1);
 assert.equal(listenerCount(SESSION_EVENTS.OPENED), 1);
 
@@ -68,12 +74,25 @@ assert.equal((await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE)).symbol, 'NQ');
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_BY_ID, session.id), session);
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), [session]);
 
+const copied = await dispatchCommand(SESSION_COMMANDS.COPY, {
+  createdAt: '2026-07-04T01:02:00.000Z',
+  id: session.id,
+});
+assert.equal(copied.id, 'v6-session-0002');
+assert.equal(copied.name, 'Backtesting session Copy');
+assert.equal(copied.createdAt, '2026-07-04T01:02:00.000Z');
+assert.equal(copied.symbol, session.symbol);
+assert.deepEqual(copied.symbols, session.symbols);
+assert.deepEqual(copiedEvents, [copied]);
+assert.equal(createdEvents.length, 1);
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), copied);
+
 const secondSession = await dispatchCommand(SESSION_COMMANDS.CREATE, {
   createdAt: '2026-07-04T01:01:00.000Z',
   endTime: '2026-06-04T16:00:00-04:00',
   startTime: '2026-06-04T09:30:00-04:00',
 });
-assert.equal(secondSession.id, 'v6-session-0002');
+assert.equal(secondSession.id, 'v6-session-0003');
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), secondSession);
 
 const opened = await dispatchCommand(SESSION_COMMANDS.OPEN, session.id);
@@ -104,6 +123,15 @@ assert.deepEqual(deletedInactive, {
   deleted: true,
   id: secondSession.id,
 });
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), [session, copied]);
+assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
+
+const deletedCopy = await dispatchCommand(SESSION_COMMANDS.DELETE, copied.id);
+assert.deepEqual(deletedCopy, {
+  activeSessionId: session.id,
+  deleted: true,
+  id: copied.id,
+});
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), [session]);
 assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), session);
 
@@ -117,10 +145,13 @@ assert.deepEqual(await dispatchCommand(SESSION_COMMANDS.LIST), []);
 assert.equal(await dispatchCommand(SESSION_COMMANDS.GET_ACTIVE), null);
 
 await registry.stop();
+assert.equal(hasCommand(SESSION_COMMANDS.COPY), false);
 assert.equal(hasCommand(SESSION_COMMANDS.CREATE), false);
 assert.equal(hasCommand(SESSION_COMMANDS.OPEN), false);
+unsubscribeCopied();
 unsubscribeCreated();
 unsubscribeOpened();
+assert.equal(listenerCount(SESSION_EVENTS.COPIED), 0);
 assert.equal(listenerCount(SESSION_EVENTS.CREATED), 0);
 assert.equal(listenerCount(SESSION_EVENTS.OPENED), 0);
 
