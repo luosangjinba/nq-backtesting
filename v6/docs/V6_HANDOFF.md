@@ -5,18 +5,21 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 96 completed.
-- Next planned step: Step 97 - Recent Sessions Row Action Contract Audit.
+- Current V6 step state: Step 97 completed.
+- Next planned step: Step 98 - Session Dashboard Readiness Re-audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Calendar owner contract:
+The latest completed work is Recent Sessions row action contract audit:
 
-- `calendar-runtime` now has an explicit row-action owner contract.
-- Calendar allowed fields are first-pass economic/calendar event metadata.
-- Calendar blocked integrations include chart, replay, bars, viewport, orders,
-  journal, and dashboard direct access.
-- Calendar command, provider, persistence, and write surfaces are not ready.
-- Calendar remains hidden/disabled from Recent Sessions.
+- Summary, Stats, and Copy are the only visible Recent Sessions row actions.
+- Summary is owned by `session-summary`, Stats by `session-analytics`, and Copy
+  by `session-repository`.
+- Order, Journal, and Calendar remain hidden/disabled and contract-ready only.
+- The dashboard remains an orchestration surface; it does not compute
+  analytics, clone sessions directly, load chart/bar/replay state, or query
+  order/journal/calendar providers.
+- The audit is documented in
+  `v6/docs/V6_RECENT_SESSIONS_ROW_ACTION_CONTRACT_AUDIT.md`.
 
 ## Restart Reading Order
 
@@ -25,34 +28,34 @@ After restarting the server or assistant context, read these first:
 1. `v6/TODO.md`
 2. `v6/docs/INDEX.md`
 3. `v6/docs/V6_HANDOFF.md`
-4. `v6/sessions/session_20260707_step096_calendar_owner_contract.md`
-5. `v6/src/shell/session-row-action-boundaries.js`
-6. `v6/src/calendar/calendar-contract.js`
-7. `v6/tests/calendar-contract-smoke.js`
-8. `v6/tests/session-row-action-boundaries-smoke.js`
-9. `v6/tests/boundary-smoke.js`
-10. `v6/src/shell/session-dashboard.js`
+4. `v6/sessions/session_20260707_step097_recent_sessions_row_action_contract_audit.md`
+5. `v6/docs/V6_RECENT_SESSIONS_ROW_ACTION_CONTRACT_AUDIT.md`
+6. `v6/src/shell/session-row-action-boundaries.js`
+7. `v6/src/shell/session-dashboard.js`
+8. `v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+9. `v6/tests/session-row-action-boundaries-smoke.js`
+10. `v6/tests/recent-sessions-controls-browser-smoke.js`
 
 ## Next Step
 
-Step 97 should audit the completed Recent Sessions row action ownership set
-after Summary, Stats, Copy, Order, Journal, and Calendar contracts are in place.
+Step 98 should re-audit the Session Dashboard after the Step 80-97 dashboard
+sequence and row-action contract closeout.
 
-Keep Step 97 audit-only unless the user explicitly asks to continue further:
+Keep Step 98 audit-only unless the user explicitly asks to continue further:
 
-- Summary, Stats, and Copy must remain the only visible Recent Sessions row
-  actions;
-- Order, Journal, and Calendar must remain hidden/disabled;
-- dashboard must not gain direct owner logic for orders, journal, or calendar;
-- audit should not add new runtime features.
+- verify the dashboard remains orchestration-only for row actions and session
+  metadata flows;
+- verify no hidden chart/replay/bar-data/viewport paths were introduced by the
+  dashboard sequence;
+- decide whether Step 99 should return to workstation replay/chart readiness or
+  continue dashboard surface polish;
+- do not expose Order, Journal, or Calendar row actions in this step.
 
 Expected audit shape:
 
-- verify each row action owner contract;
-- verify visible and hidden action sets;
-- verify browser row-action behavior still avoids chart/replay/data side
-  effects;
-- document the next implementation direction.
+- review dashboard modules, row-action wiring, and browser smokes;
+- identify stale assumptions or mixed ownership in the Step 80-97 sequence;
+- document one bounded Step 99 owner boundary and test plan.
 
 ## Critical Boundaries
 
@@ -81,8 +84,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 97 work:
+Run these before committing Step 98 audit work:
 
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
 - `node v6/tests/session-row-action-boundaries-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/orders-contract-smoke.js`
@@ -116,15 +120,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `3a66c0b0 docs(v6): audit recent session row actions`
+- `a7ddcd84 docs(v6): close calendar owner contract`
 - `ad13a835 test(v6): guard calendar owner boundaries`
 - `ff91676b feat(v6): add calendar owner contract`
 - `2f28f9a7 test(v6): guard journal owner boundaries`
-- `6ac21fc0 feat(v6): add journal owner contract`
-- `826a5e74 test(v6): guard orders owner boundaries`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-97. The handoff point is intentionally before exposing Order, Journal, or
+98. The handoff point is intentionally before exposing Order, Journal, or
 Calendar.

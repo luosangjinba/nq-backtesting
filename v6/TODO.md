@@ -14,40 +14,65 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 96 - Calendar Owner Contract.
-  The `calendar-runtime` owner contract now defines first-pass calendar fields,
-  blocked integrations, and disabled command/provider/persistence/write
-  surfaces. Calendar remains hidden/disabled from Recent Sessions.
+- Latest completed step: Step 97 - Recent Sessions Row Action Contract Audit.
+  Recent Sessions row actions are now contract-complete for the current
+  dashboard phase: Summary, Stats, and Copy are visible through their owners;
+  Order, Journal, and Calendar remain hidden/disabled behind explicit owner
+  contracts.
 
 ## Next Executable Steps
 
-### Step 97 - Recent Sessions Row Action Contract Audit
+### Step 98 - Session Dashboard Readiness Re-audit
 
-Audit the completed Recent Sessions row action ownership set after Summary,
-Stats, Copy, Order, Journal, and Calendar contracts are in place.
+Re-audit the Session Dashboard after the Summary, Stats, Copy, Order, Journal,
+Calendar, and row-action contract closeout work.
 
 Status: planned.
 
 Notes for execution:
 
-- keep Summary, Stats, and Copy enabled through their owners only;
-- keep Order, Journal, and Calendar hidden/disabled from Recent Sessions;
-- verify row actions do not create hidden chart/replay/bar-data/viewport paths;
-- dashboard must remain orchestration-only for row actions.
+- keep this step audit-only unless a specific next implementation slice is
+  selected from the findings;
+- verify the dashboard remains an orchestration surface rather than a hidden
+  owner for session copy, analytics, orders, journal, calendar, chart, bars,
+  replay, or viewport behavior;
+- decide whether the next implementation direction should return to workstation
+  replay/chart readiness or continue dashboard surface polish;
+- do not expose Order, Journal, or Calendar row actions in this step.
 
 Scope:
 
-- audit `session-row-action-boundaries`;
-- audit row-action browser behavior and owner contracts;
-- document the next feature direction after contract closeout.
+- audit dashboard modules, row-action wiring, and recent session browser flows;
+- identify stale assumptions from the Step 80-97 dashboard sequence;
+- document one bounded Step 99 implementation direction.
 
 Acceptance:
 
-- all row actions have explicit owners and tests;
-- visible actions remain limited to Summary, Stats, and Copy;
-- hidden actions remain inaccessible until their owner surfaces are implemented.
+- no new owner violations are found, or any violation is documented with a
+  bounded remediation step;
+- Step 99 has a single clear owner boundary and test plan;
+- dashboard browser regressions still pass.
 
 ## Completed Steps
+
+### Step 97 - Recent Sessions Row Action Contract Audit
+
+Completed in commits:
+
+- `3a66c0b0 docs(v6): audit recent session row actions`
+
+Verification:
+
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/orders-contract-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/calendar-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `git diff --check`
 
 ### Step 96 - Calendar Owner Contract
 
