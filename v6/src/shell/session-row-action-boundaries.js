@@ -12,10 +12,10 @@ const ROW_ACTIONS = Object.freeze([
     id: 'analytics',
     label: 'Stats',
     owner: 'session-analytics',
-    status: 'placeholder',
-    enabled: false,
+    status: 'surface-ready',
+    enabled: true,
     visibleInRecentSessions: true,
-    reason: 'Analytics needs a dedicated session-analytics owner before it can read trade or replay metrics.',
+    reason: 'Stats opens a read-only metadata and unavailable-metrics surface owned by session-analytics.',
   }),
   Object.freeze({
     id: 'copy',

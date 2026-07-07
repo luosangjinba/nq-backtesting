@@ -808,7 +808,8 @@ p {
   color: #9ca6af;
 }
 
-.session-summary-surface {
+.session-summary-surface,
+.session-analytics-surface {
   position: fixed;
   inset: 96px 72px auto auto;
   z-index: 40;
@@ -816,11 +817,13 @@ p {
   max-height: calc(100vh - 128px);
 }
 
-.session-summary-surface[hidden] {
+.session-summary-surface[hidden],
+.session-analytics-surface[hidden] {
   display: none;
 }
 
-.session-summary-card {
+.session-summary-card,
+.session-analytics-card {
   max-height: inherit;
   border: 1px solid #303842;
   border-radius: 8px;
@@ -830,7 +833,8 @@ p {
   overflow: hidden;
 }
 
-.session-summary-card header {
+.session-summary-card header,
+.session-analytics-card header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -839,23 +843,27 @@ p {
   border-bottom: 1px solid #262c32;
 }
 
-.session-summary-card header div {
+.session-summary-card header div,
+.session-analytics-card header div {
   display: grid;
   gap: 4px;
 }
 
-.session-summary-card header span {
+.session-summary-card header span,
+.session-analytics-card header span {
   color: #8c99a5;
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
 }
 
-.session-summary-card header strong {
+.session-summary-card header strong,
+.session-analytics-card header strong {
   font-size: 18px;
 }
 
-.session-summary-card header button {
+.session-summary-card header button,
+.session-analytics-card header button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -870,7 +878,8 @@ p {
   line-height: 1;
 }
 
-.session-summary-card dl {
+.session-summary-card dl,
+.session-analytics-card dl {
   display: grid;
   grid-template-columns: 1fr;
   gap: 0;
@@ -880,7 +889,8 @@ p {
   overflow: auto;
 }
 
-.session-summary-card dl div {
+.session-summary-card dl div,
+.session-analytics-card dl div {
   display: grid;
   grid-template-columns: minmax(128px, 0.8fr) minmax(0, 1.2fr);
   gap: 12px;
@@ -888,37 +898,77 @@ p {
   border-bottom: 1px solid #20262d;
 }
 
-.session-summary-card dl div:last-child {
+.session-summary-card dl div:last-child,
+.session-analytics-card dl div:last-child {
   border-bottom: 0;
 }
 
 .session-summary-card dt,
-.session-summary-card dd {
+.session-summary-card dd,
+.session-analytics-card dt,
+.session-analytics-card dd {
   margin: 0;
   min-width: 0;
   font-size: 13px;
 }
 
-.session-summary-card dt {
+.session-summary-card dt,
+.session-analytics-card dt {
   color: #8996a2;
   font-weight: 800;
 }
 
-.session-summary-card dd {
+.session-summary-card dd,
+.session-analytics-card dd {
   color: #f5f7fa;
   overflow-wrap: anywhere;
 }
 
+.session-analytics-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px 18px 4px;
+}
+
+.session-analytics-metrics article {
+  min-height: 62px;
+  border: 1px solid #26303a;
+  border-radius: 8px;
+  background: #11171d;
+  padding: 10px;
+}
+
+.session-analytics-metrics span {
+  display: block;
+  color: #8996a2;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.session-analytics-metrics strong {
+  display: block;
+  margin-top: 7px;
+  color: #f5f7fa;
+  font-size: 16px;
+}
+
 @media (max-width: 720px) {
-  .session-summary-surface {
+  .session-summary-surface,
+  .session-analytics-surface {
     inset: auto 12px 18px 12px;
     width: auto;
     max-height: calc(100vh - 36px);
   }
 
-  .session-summary-card dl div {
+  .session-summary-card dl div,
+  .session-analytics-card dl div {
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .session-analytics-metrics {
+    grid-template-columns: 1fr;
   }
 }
 
