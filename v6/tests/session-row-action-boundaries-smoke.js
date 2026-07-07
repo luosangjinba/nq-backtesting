@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createSessionAnalyticsContract } from '../src/session-analytics/session-analytics-contract.js';
+import { createSessionCopyContract } from '../src/session/session-copy-contract.js';
 import {
   getRecentSessionRowActionBoundaries,
   getVisibleRecentSessionRowActions,
@@ -31,6 +32,7 @@ assert.equal(byId.get('analytics').status, 'surface-ready');
 assert.match(byId.get('analytics').reason, /read-only metadata/i);
 assert.equal(byId.get('copy').owner, 'session-repository');
 assert.equal(byId.get('copy').enabled, false);
+assert.equal(byId.get('copy').status, 'placeholder');
 assert.match(byId.get('copy').reason, /metadata/i);
 assert.equal(byId.get('order').owner, 'orders-runtime');
 assert.equal(byId.get('order').enabled, false);
@@ -82,6 +84,45 @@ assert.deepEqual(createSessionAnalyticsContract(), {
     'winRate',
   ],
   owner: 'session-analytics',
+});
+
+assert.deepEqual(createSessionCopyContract(), {
+  allowedFields: [
+    'accountBalance',
+    'autoUpdateEndDate',
+    'createdAt',
+    'endTime',
+    'name',
+    'profileId',
+    'startTime',
+    'status',
+    'symbol',
+    'symbols',
+    'timeframe',
+    'workspaceId',
+  ],
+  blockedFields: [
+    'activeReplayState',
+    'bars',
+    'chartState',
+    'id',
+    'journalEntries',
+    'orders',
+    'viewportState',
+  ],
+  canAdvanceReplay: false,
+  canCopyBars: false,
+  canCopyCalendar: false,
+  canCopyChartState: false,
+  canCopyJournal: false,
+  canCopyOrders: false,
+  canCreateMetadataRecord: true,
+  canLoadBars: false,
+  canOpenChart: false,
+  canTouchViewport: false,
+  idPolicy: 'new-session-id-required',
+  namePolicy: 'append-copy-suffix',
+  owner: 'session-repository',
 });
 
 console.log('v6 session row action boundaries smoke passed');
