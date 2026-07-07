@@ -6,6 +6,11 @@ import {
   getChartSurfaceEventOnlyBridges,
   getChartSurfaceOwner,
 } from '../src/chart-engine/chart-surface-contract.js';
+import {
+  createChartControlBridgeContract,
+  getChartControlBridgeOwner,
+  getChartControlBridges,
+} from '../src/chart-engine/chart-control-bridge-contract.js';
 import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
 const V6_ROOT = path.resolve('v6');
@@ -791,11 +796,19 @@ for (const file of await walkFiles(CALENDAR_ROOT)) {
 }
 
 const chartSurfaceContract = createChartSurfaceContract();
+const chartControlBridgeContract = createChartControlBridgeContract();
 if (getChartSurfaceOwner() !== 'workstation-chart-surface') {
   violations.push({
     file: 'v6/src/chart-engine/chart-surface-contract.js',
     pattern: 'getChartSurfaceOwner()',
     reason: 'V6 chart surface owner must remain workstation-chart-surface.',
+  });
+}
+if (getChartControlBridgeOwner() !== 'chart-control-bridge') {
+  violations.push({
+    file: 'v6/src/chart-engine/chart-control-bridge-contract.js',
+    pattern: 'getChartControlBridgeOwner()',
+    reason: 'V6 chart control bridge owner must remain chart-control-bridge.',
   });
 }
 
@@ -813,6 +826,29 @@ if (getChartSurfaceOwner() !== 'workstation-chart-surface') {
       file: 'v6/src/chart-engine/chart-surface-contract.js',
       pattern: field,
       reason: `V6 chart surface contract ${field} must remain ${expected}.`,
+    });
+  }
+});
+
+[
+  ['canDispatchViewportCommands', true],
+  ['canReadChartSurfaceSnapshot', true],
+  ['canSubscribeVisibleRange', true],
+  ['canMeasureManualWall', true],
+  ['canWriteSeriesData', false],
+  ['canFetchBars', false],
+  ['canAdvanceReplay', false],
+  ['canLoadSession', false],
+  ['canOwnDashboardRowActions', false],
+  ['canMutateOrders', false],
+  ['canMutateJournal', false],
+  ['canMutateCalendar', false],
+].forEach(([field, expected]) => {
+  if (chartControlBridgeContract[field] !== expected) {
+    violations.push({
+      file: 'v6/src/chart-engine/chart-control-bridge-contract.js',
+      pattern: field,
+      reason: `V6 chart control bridge contract ${field} must remain ${expected}.`,
     });
   }
 });
@@ -854,6 +890,8 @@ for (const { expected, token } of chartApiExpectedFiles) {
 const bridgeFilesById = new Map([
   ['chart-data-surface-bridge', CHART_DATA_SURFACE_BRIDGE_FILE],
   ['chart-viewport-surface-bridge', CHART_VIEWPORT_SURFACE_BRIDGE_FILE],
+  ['manual-wall-input-bridge', MANUAL_WALL_INPUT_BRIDGE_FILE],
+  ['reset-view-control-bridge', RESET_VIEW_CONTROL_BRIDGE_FILE],
 ]);
 for (const bridgeId of getChartSurfaceEventOnlyBridges()) {
   const bridgeFile = bridgeFilesById.get(bridgeId);
@@ -867,13 +905,18 @@ for (const bridgeId of getChartSurfaceEventOnlyBridges()) {
   }
 }
 
-for (const file of [MANUAL_WALL_INPUT_BRIDGE_FILE, RESET_VIEW_CONTROL_BRIDGE_FILE]) {
-  const text = await readFile(file, 'utf8');
-  if (!/CHART_VIEWPORT_COMMANDS/.test(text) || /\bsetData\b|REPLAY_COMMANDS|SESSION_COMMANDS|fetch\(|XMLHttpRequest/.test(text)) {
+for (const bridgeId of getChartControlBridges()) {
+  const bridgeFile = bridgeFilesById.get(bridgeId);
+  const text = bridgeFile ? await readFile(bridgeFile, 'utf8') : '';
+  if (
+    !bridgeFile ||
+    !/CHART_VIEWPORT_COMMANDS/.test(text) ||
+    /\bsetData\b|series\.update|BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|REPLAY_COMMANDS|SESSION_COMMANDS|ORDER_COMMANDS|JOURNAL_COMMANDS|CALENDAR_COMMANDS|fetch\(|XMLHttpRequest/.test(text)
+  ) {
     violations.push({
-      file: path.relative(process.cwd(), file),
-      pattern: 'chart surface control bridge',
-      reason: 'V6 manual-wall/reset-view control bridges may dispatch viewport commands only.',
+      file: bridgeFile ? path.relative(process.cwd(), bridgeFile) : 'v6/src/chart-engine/chart-control-bridge-contract.js',
+      pattern: bridgeId,
+      reason: 'V6 chart control bridges may dispatch viewport commands only.',
     });
   }
 }
