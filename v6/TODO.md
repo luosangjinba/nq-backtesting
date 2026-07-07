@@ -14,44 +14,68 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 86 - Recent Sessions Row Action Boundaries.
-  Recent Sessions row actions now have explicit owner metadata, remain disabled
-  placeholders until those owners exist, and browser guards verify they do not
-  mutate chart, replay, bars, viewport, order, journal, or calendar state.
+- Latest completed step: Step 87 - Session Summary Owner Contract.
+  Session Summary now has a read-only owner contract, explicit allowed metadata
+  fields, ownership guards, and a row-action contract-ready state while the UI
+  remains disabled until a dedicated summary surface exists.
 
 ## Next Executable Steps
 
-### Step 87 - Session Summary Owner Contract
+### Step 88 - Session Summary Read-only Surface
 
-Define the Session Summary owner contract before enabling the Recent Sessions
-Summary row action.
+Add the first Session Summary read-only surface before enabling the Recent
+Sessions Summary row action.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
 
-- keep summary as a read-only metadata/review surface until analytics, journal,
-  orders, and calendar have explicit contracts;
-- summary must not load bars or open chart runtime by itself;
-- summary may read session metadata through the session repository boundary;
-- if UI is added, it must open through a dedicated session-summary module, not
-  direct dashboard logic.
+- use the `session-summary` owner contract from Step 87;
+- summary UI must be read-only and metadata-only;
+- opening summary must not open chart runtime, load bars, advance replay, or
+  touch viewport intent;
+- keep analytics, order, journal, and calendar data out until their owners
+  expose explicit read contracts.
 
 Scope:
 
-- define the session-summary public interface;
-- document which data fields are allowed in the first summary pass;
-- keep the Summary row action disabled unless the owner contract and guards are
-  in place.
+- create a small summary surface/controller boundary;
+- enable only the Summary row action if the surface can be opened without
+  crossing ownership boundaries;
+- add browser guards proving Summary is metadata-only.
 
 Acceptance:
 
-- summary ownership is explicit;
-- dashboard cannot directly mutate summary state;
-- tests prevent summary from touching chart, replay, bars, viewport, orders,
-  journal, or calendar before those integrations exist.
+- Summary opens from Recent Sessions without changing chart, replay, bars, or
+  viewport state;
+- the surface renders only allowed session metadata fields;
+- tests keep non-summary row actions disabled.
 
 ## Completed Steps
+
+### Step 87 - Session Summary Owner Contract
+
+Completed in commits:
+
+- `c0ebcf09 docs(v6): scope session summary contract`
+- `c0926349 feat(v6): define session summary contract`
+- `7becd460 test(v6): guard session summary ownership`
+- `67ee8860 feat(v6): mark summary action contract ready`
+
+Verification:
+
+- `node v6/tests/session-summary-contract-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `git diff --check`
 
 ### Step 86 - Recent Sessions Row Action Boundaries
 
