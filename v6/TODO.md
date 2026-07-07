@@ -14,44 +14,66 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 87 - Session Summary Owner Contract.
-  Session Summary now has a read-only owner contract, explicit allowed metadata
-  fields, ownership guards, and a row-action contract-ready state while the UI
-  remains disabled until a dedicated summary surface exists.
+- Latest completed step: Step 88 - Session Summary Read-only Surface.
+  Recent Sessions Summary now opens a dedicated read-only metadata surface owned
+  by `session-summary`; browser guards verify opening it does not mutate chart,
+  replay, bars, or viewport state, while Stats and Copy remain disabled.
 
 ## Next Executable Steps
 
-### Step 88 - Session Summary Read-only Surface
+### Step 89 - Session Summary Surface Polish
 
-Add the first Session Summary read-only surface before enabling the Recent
-Sessions Summary row action.
+Polish the read-only Session Summary surface layout and interaction details
+before adding more row actions.
 
-Status: active.
+Status: planned.
 
 Notes for execution:
 
-- use the `session-summary` owner contract from Step 87;
-- summary UI must be read-only and metadata-only;
-- opening summary must not open chart runtime, load bars, advance replay, or
-  touch viewport intent;
-- keep analytics, order, journal, and calendar data out until their owners
-  expose explicit read contracts.
+- keep the surface metadata-only;
+- preserve the Step 88 runtime guard that opening Summary does not touch chart,
+  replay, bars, or viewport state;
+- improve close/focus behavior and responsive placement if needed;
+- do not enable Stats, Copy, orders, journal, or calendar.
 
 Scope:
 
-- create a small summary surface/controller boundary;
-- enable only the Summary row action if the surface can be opened without
-  crossing ownership boundaries;
-- add browser guards proving Summary is metadata-only.
+- review the visual fit of the summary panel on dashboard and chart routes;
+- add focus/escape handling only inside the summary surface controller;
+- add a browser smoke for close behavior and field stability.
 
 Acceptance:
 
-- Summary opens from Recent Sessions without changing chart, replay, bars, or
-  viewport state;
-- the surface renders only allowed session metadata fields;
-- tests keep non-summary row actions disabled.
+- Summary remains read-only and metadata-only;
+- close behavior is deterministic;
+- non-summary row actions stay disabled.
 
 ## Completed Steps
+
+### Step 88 - Session Summary Read-only Surface
+
+Completed in commits:
+
+- `23b3dea6 docs(v6): scope session summary surface`
+- `f17e6321 feat(v6): add session summary surface model`
+- `7b74c34f feat(v6): open read-only session summary`
+
+Verification:
+
+- `node v6/tests/session-summary-surface-model-smoke.js`
+- `node v6/tests/session-summary-contract-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-controls-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/session-metadata-persistence-browser-smoke.js`
+- `node v6/tests/session-metadata-delete-browser-smoke.js`
+- `node v6/tests/product-baseline-screenshot-smoke.js`
+- `git diff --check`
 
 ### Step 87 - Session Summary Owner Contract
 
