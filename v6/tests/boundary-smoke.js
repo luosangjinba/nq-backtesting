@@ -13,6 +13,7 @@ const JOURNAL_PERSISTENCE_ROOT = path.join(V6_ROOT, 'src', 'journal-persistence'
 const JOURNAL_ROOT = path.join(V6_ROOT, 'src', 'journal');
 const LAYOUT_ROOT = path.join(V6_ROOT, 'src', 'layout');
 const LATENCY_ROOT = path.join(V6_ROOT, 'src', 'latency');
+const ORDERS_ROOT = path.join(V6_ROOT, 'src', 'orders');
 const PANES_ROOT = path.join(V6_ROOT, 'src', 'panes');
 const PERSISTENCE_ROOT = path.join(V6_ROOT, 'src', 'persistence');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
@@ -355,6 +356,17 @@ const forbiddenSessionAnalyticsOwnershipPatterns = [
   {
     pattern: /\b(BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime)\b/,
     reason: 'V6 session-analytics modules must not dispatch commands or own chart, data, replay, viewport, UI, storage, or network state.',
+  },
+];
+
+const forbiddenOrdersOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data|calendar|chart|default-wall|display-timeframe|journal\/|journal-persistence|layout|panes|persistence|replay|session\/session-|settings|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 orders modules must not import feature runtimes, UI, V4, vendor, chart, data, replay, viewport, journal, calendar, or settings modules before the owner contract is expanded.',
+  },
+  {
+    pattern: /\b(BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SESSION_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime)\b/,
+    reason: 'V6 orders modules must not dispatch commands or own chart, data, replay, viewport, UI, storage, or network state.',
   },
 ];
 
@@ -704,6 +716,19 @@ for (const file of await walkFiles(SESSION_SUMMARY_ROOT)) {
 for (const file of await walkFiles(SESSION_ANALYTICS_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenSessionAnalyticsOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(ORDERS_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenOrdersOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),

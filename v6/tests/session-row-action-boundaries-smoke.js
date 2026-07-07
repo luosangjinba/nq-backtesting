@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createOrdersContract } from '../src/orders/orders-contract.js';
 import { createSessionAnalyticsContract } from '../src/session-analytics/session-analytics-contract.js';
 import { createSessionCopyContract } from '../src/session/session-copy-contract.js';
 import {
@@ -36,6 +37,7 @@ assert.equal(byId.get('copy').status, 'action-ready');
 assert.match(byId.get('copy').reason, /metadata/i);
 assert.equal(byId.get('order').owner, 'orders-runtime');
 assert.equal(byId.get('order').enabled, false);
+assert.equal(byId.get('order').status, 'future');
 assert.equal(byId.get('journal').owner, 'journal-runtime');
 assert.equal(byId.get('journal').enabled, false);
 assert.equal(byId.get('calendar').owner, 'calendar-runtime');
@@ -123,6 +125,56 @@ assert.deepEqual(createSessionCopyContract(), {
   idPolicy: 'new-session-id-required',
   namePolicy: 'append-copy-suffix',
   owner: 'session-repository',
+});
+
+assert.deepEqual(createOrdersContract(), {
+  allowedFields: [
+    'accountId',
+    'averagePrice',
+    'closedAt',
+    'commission',
+    'createdAt',
+    'direction',
+    'entryPrice',
+    'exitPrice',
+    'fees',
+    'id',
+    'instrument',
+    'metadata',
+    'openedAt',
+    'profitLoss',
+    'quantity',
+    'sessionId',
+    'source',
+    'status',
+    'strategy',
+    'tags',
+    'timeframe',
+    'type',
+  ],
+  blockedIntegrations: [
+    'bar-data',
+    'calendar',
+    'chart-data',
+    'chart-engine',
+    'chart-viewport',
+    'journal',
+    'replay',
+    'session-dashboard',
+    'viewport',
+  ],
+  canAdvanceReplay: false,
+  canLoadBars: false,
+  canMutateJournal: false,
+  canOpenChart: false,
+  canQueryCalendar: false,
+  canReadSessionMetadata: false,
+  canTouchViewport: false,
+  commandSurfaceReady: false,
+  owner: 'orders-runtime',
+  persistenceReady: false,
+  rowActionVisible: false,
+  writeReady: false,
 });
 
 console.log('v6 session row action boundaries smoke passed');
