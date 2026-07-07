@@ -8,12 +8,14 @@ import {
 } from '../src/chart-engine/chart-surface-contract.js';
 import {
   createChartControlBridgeContract,
+  getChartControlAllowedCommands,
   getChartControlBridgeOwner,
   getChartControlBridges,
 } from '../src/chart-engine/chart-control-bridge-contract.js';
 import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
 const V6_ROOT = path.resolve('v6');
+const APP_FILE = path.join(V6_ROOT, 'src', 'app.js');
 const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
 const CALENDAR_ROOT = path.join(V6_ROOT, 'src', 'calendar');
 const CHART_DATA_ROOT = path.join(V6_ROOT, 'src', 'chart-data');
@@ -69,6 +71,11 @@ const SOURCE_ROOTS = [
 const TEST_ROOTS = [
   path.join(V6_ROOT, 'tests'),
 ];
+const CHART_CONTROL_COMMAND_TOKENS = new Map([
+  ['chartViewport.applyChartDataRevision', 'CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'],
+  ['chartViewport.resetView', 'CHART_VIEWPORT_COMMANDS.RESET_VIEW'],
+  ['chartViewport.setManualIntent', 'CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT'],
+]);
 
 async function walkFiles(root) {
   const entries = await readdir(root, { withFileTypes: true });
@@ -908,15 +915,48 @@ for (const bridgeId of getChartSurfaceEventOnlyBridges()) {
 for (const bridgeId of getChartControlBridges()) {
   const bridgeFile = bridgeFilesById.get(bridgeId);
   const text = bridgeFile ? await readFile(bridgeFile, 'utf8') : '';
+  const allowedCommandTokens = new Set(
+    getChartControlAllowedCommands().map((command) => CHART_CONTROL_COMMAND_TOKENS.get(command)),
+  );
+  const bridgeCommandTokens = [...text.matchAll(/CHART_VIEWPORT_COMMANDS\.[A-Z_]+/g)]
+    .map((match) => match[0]);
   if (
     !bridgeFile ||
     !/CHART_VIEWPORT_COMMANDS/.test(text) ||
+    !bridgeCommandTokens.every((token) => allowedCommandTokens.has(token)) ||
     /\bsetData\b|series\.update|BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|REPLAY_COMMANDS|SESSION_COMMANDS|ORDER_COMMANDS|JOURNAL_COMMANDS|CALENDAR_COMMANDS|fetch\(|XMLHttpRequest/.test(text)
   ) {
     violations.push({
       file: bridgeFile ? path.relative(process.cwd(), bridgeFile) : 'v6/src/chart-engine/chart-control-bridge-contract.js',
       pattern: bridgeId,
       reason: 'V6 chart control bridges may dispatch viewport commands only.',
+    });
+  }
+}
+
+{
+  const appText = await readFile(APP_FILE, 'utf8');
+  const controlBridgeMounts = [
+    ['manual-wall-input-bridge', 'connectManualWallInputBridge({\n  chartSurface: workstationChartSurface,'],
+    ['reset-view-control-bridge', 'connectResetViewControl({\n  button: root.querySelector'],
+  ];
+  for (const [bridgeId, mountToken] of controlBridgeMounts) {
+    if (!getChartControlBridges().includes(bridgeId) || !appText.includes(mountToken)) {
+      violations.push({
+        file: path.relative(process.cwd(), APP_FILE),
+        pattern: bridgeId,
+        reason: 'V6 app wiring must mount only contract-listed chart control bridges from the workstation chart surface.',
+      });
+    }
+  }
+}
+
+for (const command of getChartControlAllowedCommands()) {
+  if (!CHART_CONTROL_COMMAND_TOKENS.get(command)) {
+    violations.push({
+      file: 'v6/src/chart-engine/chart-control-bridge-contract.js',
+      pattern: command,
+      reason: 'V6 chart control bridge allowed command must have a static boundary-smoke token mapping.',
     });
   }
 }
