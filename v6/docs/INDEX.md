@@ -41,6 +41,8 @@ Read this index before working on V6.
   for the hidden Journal row-action harness before dashboard exposure.
 - `v6/docs/V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md`: Journal surface-ready flag
   audit after hidden harness and browser coverage.
+- `v6/docs/V6_JOURNAL_ROW_ACTION_EXPOSURE_GATE_AUDIT.md`: final Journal
+  row-action exposure gate audit before visible dashboard wiring.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -104,6 +106,8 @@ Read this index before working on V6.
   row-action browser harness state before dashboard exposure.
 - `V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md`: accepted Journal surface-ready flag
   state while row-action visibility remains hidden.
+- `V6_JOURNAL_ROW_ACTION_EXPOSURE_GATE_AUDIT.md`: accepted Journal exposure
+  gate state before visible dashboard wiring.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
