@@ -5,18 +5,21 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 104 completed.
-- Next planned step: Step 105 - Workstation Chart Control Browser Regression Audit.
+- Current V6 step state: Step 105 completed.
+- Next planned step: Step 106 - Dashboard Row Action Isolation Re-audit.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Chart Control Bridge integration audit:
+The latest completed work is Workstation Chart Control Browser Regression
+Audit:
 
-- `V6_CHART_CONTROL_BRIDGE_INTEGRATION_AUDIT.md` documents the wiring from
-  `app.js` into the contract-listed control bridges.
-- `chart-control-bridge-integration-audit-smoke.js` guards the audit, docs
-  index, app wiring, bridge command usage, and dashboard row action visibility.
-- `boundary-smoke.js` now checks control bridge app mounting and verifies bridge
-  command tokens stay inside the owner contract allowlist.
+- `V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT.md` documents the browser
+  regression coverage for native manual wall input and reset-view control.
+- `chart-control-bridge-browser-regression-audit-smoke.js` guards the audit,
+  docs index, expected browser smoke coverage, and dashboard row action
+  visibility.
+- `workstation-native-manual-wall-input-browser-smoke.js` now uses the real
+  dashboard-created workstation path and asserts the chart host is measurable
+  before dispatching native wheel input.
 
 ## Restart Reading Order
 
@@ -27,31 +30,32 @@ After restarting the server or assistant context, read these first:
 3. `v6/docs/V6_HANDOFF.md`
 4. `v6/sessions/session_20260707_step103_chart_control_bridge_owner_contract.md`
 5. `v6/sessions/session_20260707_step104_chart_control_bridge_integration_audit.md`
-6. `v6/tests/boundary-smoke.js`
-7. `v6/src/chart-engine/chart-control-bridge-contract.js`
-8. `v6/src/chart-engine/manual-wall-input-bridge.js`
-9. `v6/src/chart-engine/reset-view-control-bridge.js`
-10. `v6/docs/V6_CHART_CONTROL_BRIDGE_INTEGRATION_AUDIT.md`
+6. `v6/sessions/session_20260707_step105_chart_control_bridge_browser_regression_audit.md`
+7. `v6/tests/boundary-smoke.js`
+8. `v6/src/chart-engine/chart-control-bridge-contract.js`
+9. `v6/docs/V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT.md`
+10. `v6/src/shell/session-row-action-boundaries.js`
 
 ## Next Step
 
-Step 105 should audit workstation browser behavior for chart control bridges
-against the owner contract.
+Step 106 should re-audit dashboard row-action isolation after the chart control
+bridge browser regression checks.
 
-Keep Step 105 bounded:
+Keep Step 106 bounded:
 
-- verify native manual chart range input still dispatches viewport manual intent
-  through `manual-wall-input-bridge`;
-- verify the reset-view button still dispatches viewport reset through
-  `reset-view-control-bridge`;
+- verify Summary, Stats, and Copy remain the only visible dashboard row actions;
+- verify disabled Order, Journal, and Calendar actions remain contract-ready but
+  not visible;
+- verify dashboard row actions still do not control chart, bars, replay,
+  viewport, orders, journal, or calendar directly;
 - do not modify runtime behavior unless the audit exposes a mismatch;
 - keep dashboard row action visibility unchanged.
 
 Expected implementation shape:
 
-- add or update a focused browser regression audit/smoke if needed;
-- keep the chart control bridge contract as the source of truth;
-- run selected workstation browser smokes on pane `main`.
+- add or update a focused row-action isolation audit/smoke if needed;
+- keep row-action owner contracts as the source of truth;
+- run selected dashboard/session browser smokes.
 
 ## Critical Boundaries
 
@@ -80,8 +84,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 105 work:
+Run these before committing Step 106 work:
 
+- `node v6/tests/chart-control-bridge-browser-regression-audit-smoke.js`
 - `node v6/tests/chart-control-bridge-integration-audit-smoke.js`
 - `node v6/tests/chart-control-bridge-contract-smoke.js`
 - `node v6/tests/chart-surface-contract-integration-audit-smoke.js`
@@ -134,15 +139,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `e9fd784c test(v6): align native manual wall browser regression`
+- `6c726815 docs(v6): audit chart control bridge browser regression`
+- `e8d775ec docs(v6): close chart control bridge integration audit`
 - `e2529fe8 test(v6): guard chart control bridge integration`
 - `b2610b67 docs(v6): audit chart control bridge integration`
-- `74cf489c docs(v6): close chart control bridge contract`
-- `87e10e9e test(v6): guard chart control bridge boundaries`
-- `3c6839c1 feat(v6): add chart control bridge contract`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-105. The handoff point is intentionally before the browser-level chart control
-bridge regression audit and before exposing Order, Journal, or Calendar.
+106. The handoff point is intentionally before the dashboard row-action
+isolation re-audit and before exposing Order, Journal, or Calendar.

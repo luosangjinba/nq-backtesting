@@ -14,44 +14,73 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 104 - Chart Control Bridge Integration Audit.
-  The control bridge wiring audit is documented, smoke-tested, indexed, and
-  reflected in the broader boundary smoke.
+- Latest completed step: Step 105 - Workstation Chart Control Browser
+  Regression Audit. Browser regression coverage for native manual wall input
+  and reset-view control is documented, smoke-tested, and aligned with the chart
+  control bridge owner contract.
 
 ## Next Executable Steps
 
-### Step 105 - Workstation Chart Control Browser Regression Audit
+### Step 106 - Dashboard Row Action Isolation Re-audit
 
-Audit workstation browser behavior for chart control bridges against the owner
-contract.
+Re-audit dashboard row-action isolation after the chart control bridge browser
+regression checks.
 
 Status: planned.
 
 Notes for execution:
 
-- verify native manual chart range input still dispatches viewport manual intent
-  through `manual-wall-input-bridge`;
-- verify the reset-view button still dispatches viewport reset through
-  `reset-view-control-bridge`;
+- verify Summary, Stats, and Copy remain the only visible dashboard row actions;
+- verify disabled Order, Journal, and Calendar actions remain contract-ready but
+  not visible;
+- verify dashboard row actions still do not control chart, bars, replay,
+  viewport, orders, journal, or calendar directly;
 - keep dashboard row action visibility unchanged;
 - do not modify runtime behavior unless the audit exposes a mismatch.
 
 Scope:
 
-- add or update a focused browser regression audit/smoke if needed;
-- keep the chart control bridge contract as the source of truth.
+- add or update a focused row-action isolation audit/smoke if needed;
+- keep row-action owner contracts as the source of truth.
 
 Acceptance:
 
-- chart control bridge contract smoke passes;
-- chart control bridge integration audit smoke passes;
+- recent sessions row action contract and boundary smokes pass;
+- orders, journal, and calendar owner contract smokes pass;
 - boundary smoke passes;
-- native manual wall and reset-view browser smokes pass;
-- workstation chart host/data bridge/viewport bridge/default-wall/manual-wall
-  browser smokes pass;
+- session dashboard/recent sessions browser smokes pass;
 - dashboard row action visibility remains unchanged.
 
 ## Completed Steps
+
+### Step 105 - Workstation Chart Control Browser Regression Audit
+
+Completed in commits:
+
+- `6c726815 docs(v6): audit chart control bridge browser regression`
+- `e9fd784c test(v6): align native manual wall browser regression`
+
+Verification:
+
+- `node v6/tests/chart-control-bridge-browser-regression-audit-smoke.js`
+- `node v6/tests/chart-control-bridge-contract-smoke.js`
+- `node v6/tests/chart-control-bridge-integration-audit-smoke.js`
+- `node v6/tests/chart-surface-contract-integration-audit-smoke.js`
+- `node v6/tests/chart-surface-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/recent-sessions-row-action-contract-audit-smoke.js`
+- `node v6/tests/session-row-action-boundaries-smoke.js`
+- `node v6/tests/orders-contract-smoke.js`
+- `node v6/tests/journal-contract-smoke.js`
+- `node v6/tests/calendar-contract-smoke.js`
+- `node v6/tests/workstation-native-manual-wall-input-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/workstation-chart-host-browser-smoke.js`
+- `node v6/tests/workstation-chart-data-bridge-browser-smoke.js`
+- `node v6/tests/workstation-chart-viewport-bridge-browser-smoke.js`
+- `node v6/tests/workstation-default-wall-flow-browser-smoke.js`
+- `node v6/tests/workstation-manual-wall-flow-browser-smoke.js`
+- `git diff --check`
 
 ### Step 104 - Chart Control Bridge Integration Audit
 
