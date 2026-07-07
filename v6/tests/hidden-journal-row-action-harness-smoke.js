@@ -16,9 +16,9 @@ const indexDoc = await readFile('v6/docs/INDEX.md', 'utf8');
 const harnessSource = await readFile('v6/src/journal/journal-row-action-hidden-harness.js', 'utf8');
 
 assert.equal(indexDoc.includes('V6_HIDDEN_JOURNAL_ROW_ACTION_HARNESS.md'), true);
-assert.match(harnessDoc, /dashboard Journal row action remains hidden/);
+assert.match(harnessDoc, /dashboard Journal row action through a shell adapter/);
 assert.match(harnessDoc, /injected\s+`createJournalRowActionSessionContext` context factory/);
-assert.match(harnessDoc, /Step 113 should add a hidden browser harness/);
+assert.match(harnessDoc, /Step 113 added a hidden browser harness/);
 
 for (const forbiddenToken of [
   'dispatchCommand',
@@ -99,14 +99,14 @@ assert.equal(opened.rowActionVisible, false);
 assert.deepEqual(openedContexts, [opened.context]);
 assert.deepEqual(refreshedContexts, [opened.context]);
 
-assert.equal(createJournalContract().rowActionVisible, false);
+assert.equal(createJournalContract().rowActionVisible, true);
 assert.equal(
   getRecentSessionRowActionBoundaries().find((action) => action.id === 'journal').visibleInRecentSessions,
-  false,
+  true,
 );
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 hidden journal row action harness smoke passed');

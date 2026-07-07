@@ -14,8 +14,8 @@ No new owner violation was found in the dashboard path:
   surfaces;
 - dashboard dispatches only `session.list`, `session.create`, `session.open`,
   `session.delete`, and `session.copy`;
-- Summary, Stats, and Copy remain the only visible Recent Sessions row actions;
-- Order, Journal, and Calendar remain hidden/disabled and contract-ready only;
+- Summary, Stats, Copy, and Journal are now visible Recent Sessions row actions;
+- Order and Calendar remain hidden/disabled and contract-ready only;
 - Recent Sessions browser regressions still prove row actions, filtering,
   sorting, and paging avoid chart, replay, bar-data, and viewport side effects.
 
@@ -35,9 +35,9 @@ The following paths remain outside dashboard ownership:
 
 ## Stale Assumptions
 
-The dashboard contract closeout confirms that the next V6 work should not expose
-more Recent Sessions row actions yet. Order, Journal, and Calendar need their
-own user-facing owner surfaces before they can appear in Recent Sessions.
+Step 116 later exposed Journal through its owner-owned adapter and browser
+coverage. Order and Calendar still need their own user-facing owner surfaces
+before they can appear in Recent Sessions.
 
 The next implementation direction should return to workstation readiness rather
 than adding more dashboard surface area.

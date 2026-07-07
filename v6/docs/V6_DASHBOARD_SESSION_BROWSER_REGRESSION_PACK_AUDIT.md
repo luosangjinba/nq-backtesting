@@ -12,8 +12,8 @@ The selected pack covers:
 - app shell mounting and session dashboard availability;
 - session create/open and workstation transition;
 - recent sessions controls, including search, sort, pagination, Summary, Stats,
-  and Copy row actions;
-- Summary, Stats, and Copy browser behavior;
+  Copy, and Journal row actions;
+- Summary, Stats, Copy, and Journal browser behavior;
 - session metadata persistence across reload;
 - session delete behavior for inactive and active sessions;
 - quick-session modal flow;
@@ -22,7 +22,7 @@ The selected pack covers:
 ## Boundary Notes
 
 - No runtime behavior changed.
-- Order, Journal, and Calendar remain hidden until their owner surfaces have
+- Order and Calendar remain hidden until their owner surfaces have
   explicit browser coverage.
 - The pack keeps dashboard/session behavior separate from hidden chart, bars,
   replay, viewport, orders, journal, and calendar ownership paths.

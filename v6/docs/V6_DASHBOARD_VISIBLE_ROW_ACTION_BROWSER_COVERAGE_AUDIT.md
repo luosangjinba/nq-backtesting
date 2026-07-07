@@ -1,4 +1,4 @@
-# V6 Dashboard Summary/Stats/Copy Browser Coverage Audit
+# V6 Dashboard Visible Row Action Browser Coverage Audit
 
 Date: 2026-07-07
 
@@ -12,11 +12,12 @@ No coverage mismatch was found:
 - Summary is covered by `session-summary-surface-browser-smoke.js`.
 - Stats is covered by `session-analytics-surface-browser-smoke.js`.
 - Copy is covered by `session-copy-action-browser-smoke.js`.
+- Journal is covered by `session-journal-row-action-browser-smoke.js`.
 - Summary and Stats browser tests verify read-only metadata surfaces and confirm
   chart, bar-data, chart-entry, and replay snapshots remain unchanged.
 - Copy browser coverage verifies metadata-only duplication and confirms chart,
   bar-data, chart-entry, and replay snapshots remain unchanged.
-- Order, Journal, and Calendar remain hidden until their owner surfaces have
+- Order and Calendar remain hidden until their owner surfaces have
   browser coverage.
 
 ## Boundary Notes
@@ -25,6 +26,7 @@ No coverage mismatch was found:
 - Summary remains owned by `session-summary`.
 - Stats remains owned by `session-analytics`.
 - Copy remains owned by `session-repository`.
+- Journal remains owned by `journal-runtime`.
 - The browser coverage does not route visible row actions through chart,
   bar-data, replay, viewport, orders, journal, or calendar ownership paths.
 
@@ -38,7 +40,7 @@ Scope:
 - verify the selected dashboard/session browser smoke pack still covers create,
   open, recent sessions controls, Summary, Stats, Copy, persistence, delete, and
   quick-session flow;
-- keep Order, Journal, and Calendar hidden until their owner surfaces have
+- keep Order and Calendar hidden until their owner surfaces have
   explicit browser coverage.
 
 Acceptance:
@@ -55,5 +57,6 @@ Acceptance:
 - `node v6/tests/session-summary-surface-browser-smoke.js`
 - `node v6/tests/session-analytics-surface-browser-smoke.js`
 - `node v6/tests/session-copy-action-browser-smoke.js`
+- `node v6/tests/session-journal-row-action-browser-smoke.js`
 - `node v6/tests/recent-sessions-controls-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`

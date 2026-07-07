@@ -4,8 +4,9 @@ Date: 2026-07-07
 
 ## Decision
 
-The hidden Journal row-action harness is available for owner-side testing, but
-the dashboard Journal row action remains hidden.
+The hidden Journal row-action harness is available for owner-side testing. Step
+116 later exposed the dashboard Journal row action through a shell adapter that
+uses this owner-side harness.
 
 The harness lives under `v6/src/journal/`, consumes an injected
 `createJournalRowActionSessionContext` context factory, and exposes `prepare`
@@ -16,9 +17,10 @@ or browser state.
 
 ## Boundary Notes
 
-- No dashboard markup changed.
-- No runtime behavior changed.
-- `rowActionVisible` remains false.
+- Dashboard markup now includes the visible Journal action through Step 116.
+- No chart, bars, replay, viewport, orders, or calendar runtime behavior changed.
+- The direct hidden harness default still reports `rowActionVisible` false unless
+  an adapter opts into visibility.
 - The harness does not dispatch commands.
 - The harness does not load bars, open charts, advance replay, touch viewport
   state, query orders, or query calendar.
@@ -27,8 +29,8 @@ or browser state.
 
 ## Next Direction
 
-Step 113 should add a hidden browser harness for the Journal row-action flow,
-still without exposing `data-v6-row-action="journal"` in Recent Sessions.
+Step 113 added a hidden browser harness for the Journal row-action flow. Step
+116 later added the visible `data-v6-row-action="journal"` adapter path.
 
 ## Verification
 

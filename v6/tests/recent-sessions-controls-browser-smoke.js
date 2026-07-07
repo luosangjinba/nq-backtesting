@@ -95,9 +95,15 @@ try {
         id: button.dataset.v6RowAction,
         owner: button.dataset.v6RowActionOwner,
       }));
-      document.querySelectorAll('[data-v6-row-action]:not([data-v6-row-action="copy"])').forEach((button) => button.click());
+      for (const button of document.querySelectorAll('[data-v6-row-action]:not([data-v6-row-action="copy"])')) {
+        button.click();
+        await new Promise((resolve) => setTimeout(resolve, 0));
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
       const afterRowActions = {
         dashboard: root.__v6SessionDashboard.getState(),
+        journal: root.__v6JournalSurface.getState(),
+        journalRowAction: root.__v6JournalRowAction.getState(),
         analyticsMetrics: [...document.querySelectorAll('[data-v6-session-analytics-metric]')]
           .map((field) => [
             field.dataset.v6SessionAnalyticsMetric,
@@ -201,12 +207,15 @@ try {
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'false', disabled: false, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'false', disabled: false, id: 'journal', owner: 'journal-runtime' },
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'false', disabled: false, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'false', disabled: false, id: 'journal', owner: 'journal-runtime' },
     { ariaDisabled: 'false', disabled: false, id: 'summary', owner: 'session-summary' },
     { ariaDisabled: 'false', disabled: false, id: 'analytics', owner: 'session-analytics' },
     { ariaDisabled: 'false', disabled: false, id: 'copy', owner: 'session-repository' },
+    { ariaDisabled: 'false', disabled: false, id: 'journal', owner: 'journal-runtime' },
   ]);
   assert.deepEqual(value.afterRowActions.snapshot, value.before);
   assert.equal(value.afterRowActions.dashboard.surface, 'session');
@@ -216,13 +225,18 @@ try {
     sessionId: null,
   });
   assert.deepEqual(value.afterRowActions.dashboard.analytics, {
-    open: true,
-    owner: 'session-analytics',
-    sessionId: 'recent-asia',
+    open: false,
+    owner: null,
+    sessionId: null,
   });
-  assert.equal(value.afterRowActions.analyticsTitle, 'Asia prep Stats');
-  assert.equal(value.afterRowActions.analyticsMetrics.length, 10);
-  assert.ok(value.afterRowActions.analyticsMetrics.every(([, status, value]) => status === 'unavailable' && value === '--'));
+  assert.equal(value.afterRowActions.journal.open, true);
+  assert.equal(value.afterRowActions.journalRowAction.opened, true);
+  assert.equal(value.afterRowActions.journalRowAction.refreshed, true);
+  assert.equal(value.afterRowActions.journalRowAction.rowActionVisible, true);
+  assert.equal(value.afterRowActions.journalRowAction.context.sessionId, 'recent-asia');
+  assert.equal(value.afterRowActions.journalRowAction.context.source, 'recent-session-row');
+  assert.equal(value.afterRowActions.analyticsTitle, '');
+  assert.deepEqual(value.afterRowActions.analyticsMetrics, []);
   assert.equal(value.afterRowActions.summaryTitle, '');
   assert.deepEqual(value.afterRowActions.summaryFields, []);
 

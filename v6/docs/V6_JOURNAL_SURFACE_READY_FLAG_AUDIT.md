@@ -4,7 +4,7 @@ Date: 2026-07-07
 
 ## Decision
 
-Journal `surfaceReady` is now true, while `rowActionVisible` remains false.
+Journal `surfaceReady` is now true.
 
 The Journal owner surface has enough coverage for hidden owner-side use:
 
@@ -15,14 +15,13 @@ The Journal owner surface has enough coverage for hidden owner-side use:
 - the session context contract strips bars, chart state, replay state, viewport
   state, orders, calendar events, and journal entries.
 
-This does not expose Journal in Recent Sessions. Dashboard row-action exposure
-still requires a deliberate row-action visibility step.
+Step 116 update: Journal `rowActionVisible` is now true after visible browser
+coverage and dashboard row-action wiring landed. This document's original
+surface-ready decision remains the prerequisite for that later exposure.
+Recent Sessions now renders Summary, Stats, Copy, and Journal row actions.
 
 ## Boundary Notes
 
-- `journal-contract.js` keeps `rowActionVisible` false.
-- `session-row-action-boundaries.js` keeps Journal hidden and disabled.
-- Recent Sessions still renders only Summary, Stats, and Copy.
 - Journal remains isolated from chart, bars, replay, viewport, orders,
   calendar, and session-dashboard runtime control paths.
 

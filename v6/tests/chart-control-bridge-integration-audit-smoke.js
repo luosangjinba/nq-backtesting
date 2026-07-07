@@ -136,7 +136,7 @@ for (const [bridgeId, source] of [
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 chart control bridge integration audit smoke passed');

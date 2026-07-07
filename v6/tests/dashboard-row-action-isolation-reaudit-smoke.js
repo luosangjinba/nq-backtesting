@@ -21,8 +21,8 @@ const byId = new Map(actions.map((action) => [action.id, action]));
 
 assert.equal(indexDoc.includes('V6_DASHBOARD_ROW_ACTION_ISOLATION_REAUDIT.md'), true);
 assert.match(auditDoc, /Step 107 should audit dashboard browser coverage/);
-assert.match(auditDoc, /Summary, Stats, and Copy remain the only visible/);
-assert.match(auditDoc, /Order, Journal, and Calendar remain disabled\/hidden/);
+assert.match(auditDoc, /Summary, Stats, Copy, and Journal are now visible/);
+assert.match(auditDoc, /Order and Calendar remain disabled\/hidden/);
 assert.match(auditDoc, /Row actions do not directly control chart, bars, replay, viewport/);
 
 assert.deepEqual(actions.map((action) => action.id), [
@@ -37,10 +37,11 @@ assert.deepEqual(getVisibleRecentSessionRowActions().map((action) => action.id),
   'summary',
   'analytics',
   'copy',
+  'journal',
 ]);
 
 assert.deepEqual(
-  ['summary', 'analytics', 'copy'].map((id) => ({
+  ['summary', 'analytics', 'copy', 'journal'].map((id) => ({
     enabled: byId.get(id).enabled,
     id,
     owner: byId.get(id).owner,
@@ -69,11 +70,18 @@ assert.deepEqual(
       status: 'action-ready',
       visible: true,
     },
+    {
+      enabled: true,
+      id: 'journal',
+      owner: 'journal-runtime',
+      status: 'surface-ready',
+      visible: true,
+    },
   ],
 );
 
 assert.deepEqual(
-  ['order', 'journal', 'calendar'].map((id) => ({
+  ['order', 'calendar'].map((id) => ({
     enabled: byId.get(id).enabled,
     id,
     owner: byId.get(id).owner,
@@ -85,13 +93,6 @@ assert.deepEqual(
       enabled: false,
       id: 'order',
       owner: 'orders-runtime',
-      status: 'future',
-      visible: false,
-    },
-    {
-      enabled: false,
-      id: 'journal',
-      owner: 'journal-runtime',
       status: 'future',
       visible: false,
     },
@@ -117,11 +118,7 @@ assert.equal(analyticsContract.canTouchViewport, false);
 assert.equal(copyContract.canAdvanceReplay, false);
 assert.equal(copyContract.canTouchViewport, false);
 
-for (const contract of [
-  createOrdersContract(),
-  createJournalContract(),
-  createCalendarContract(),
-]) {
+for (const contract of [createOrdersContract(), createCalendarContract()]) {
   assert.equal(contract.rowActionVisible, false);
   assert.equal(contract.canLoadBars, false);
   assert.equal(contract.canOpenChart, false);
@@ -129,6 +126,13 @@ for (const contract of [
   assert.equal(contract.canTouchViewport, false);
   assert.equal(contract.blockedIntegrations.includes('session-dashboard'), true);
 }
+const journalContract = createJournalContract();
+assert.equal(journalContract.rowActionVisible, true);
+assert.equal(journalContract.canLoadBars, false);
+assert.equal(journalContract.canOpenChart, false);
+assert.equal(journalContract.canAdvanceReplay, false);
+assert.equal(journalContract.canTouchViewport, false);
+assert.equal(journalContract.blockedIntegrations.includes('session-dashboard'), true);
 
 assert.equal(controlsBrowserSmoke.includes('[data-v6-row-action]'), true);
 assert.equal(controlsBrowserSmoke.includes("id: 'summary', owner: 'session-summary'"), true);
@@ -145,7 +149,6 @@ assert.equal(controlsBrowserSmoke.includes('replay.getState'), true);
 
 for (const forbiddenToken of [
   "data-v6-row-action=\"order\"",
-  "data-v6-row-action=\"journal\"",
   "data-v6-row-action=\"calendar\"",
   'ORDER_COMMANDS',
   'JOURNAL_COMMANDS',

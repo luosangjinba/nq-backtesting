@@ -961,7 +961,7 @@ for (const command of getChartControlAllowedCommands()) {
   }
 }
 
-if (JSON.stringify(getVisibleRecentSessionRowActions().map((action) => action.id)) !== JSON.stringify(['summary', 'analytics', 'copy'])) {
+if (JSON.stringify(getVisibleRecentSessionRowActions().map((action) => action.id)) !== JSON.stringify(['summary', 'analytics', 'copy', 'journal'])) {
   violations.push({
     file: 'v6/src/shell/session-row-action-boundaries.js',
     pattern: 'getVisibleRecentSessionRowActions',

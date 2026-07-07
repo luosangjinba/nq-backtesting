@@ -13,6 +13,7 @@ const indexDoc = await readFile('v6/docs/INDEX.md', 'utf8');
 const summaryBrowserSmoke = await readFile('v6/tests/session-summary-surface-browser-smoke.js', 'utf8');
 const analyticsBrowserSmoke = await readFile('v6/tests/session-analytics-surface-browser-smoke.js', 'utf8');
 const copyBrowserSmoke = await readFile('v6/tests/session-copy-action-browser-smoke.js', 'utf8');
+const journalBrowserSmoke = await readFile('v6/tests/session-journal-row-action-browser-smoke.js', 'utf8');
 
 const actions = getRecentSessionRowActionBoundaries();
 const byId = new Map(actions.map((action) => [action.id, action]));
@@ -25,18 +26,20 @@ assert.match(auditDoc, /Step 108 should audit the dashboard\/session browser reg
 assert.match(auditDoc, /Summary is covered by `session-summary-surface-browser-smoke\.js`/);
 assert.match(auditDoc, /Stats is covered by `session-analytics-surface-browser-smoke\.js`/);
 assert.match(auditDoc, /Copy is covered by `session-copy-action-browser-smoke\.js`/);
-assert.match(auditDoc, /Order, Journal, and Calendar remain hidden/);
+assert.match(auditDoc, /Journal is covered by `session-journal-row-action-browser-smoke\.js`/);
+assert.match(auditDoc, /Order and Calendar remain hidden/);
 
 assert.deepEqual(getVisibleRecentSessionRowActions().map((action) => action.id), [
   'summary',
   'analytics',
   'copy',
+  'journal',
 ]);
 assert.equal(byId.get('summary').owner, summaryContract.owner);
 assert.equal(byId.get('analytics').owner, analyticsContract.owner);
 assert.equal(byId.get('copy').owner, copyContract.owner);
 assert.equal(byId.get('order').visibleInRecentSessions, false);
-assert.equal(byId.get('journal').visibleInRecentSessions, false);
+assert.equal(byId.get('journal').visibleInRecentSessions, true);
 assert.equal(byId.get('calendar').visibleInRecentSessions, false);
 
 assert.equal(summaryContract.canLoadBars, false);
@@ -77,7 +80,12 @@ assert.equal(copyBrowserSmoke.includes('after, value.before'), true);
 assert.equal(copyBrowserSmoke.includes('state.summary, { open: false'), true);
 assert.equal(copyBrowserSmoke.includes('state.analytics, { open: false'), true);
 
-for (const source of [summaryBrowserSmoke, analyticsBrowserSmoke, copyBrowserSmoke]) {
+assert.equal(journalBrowserSmoke.includes('[data-v6-row-action="journal"]'), true);
+assert.equal(journalBrowserSmoke.includes("owner: 'journal-runtime'"), true);
+assert.equal(journalBrowserSmoke.includes('rowActionVisible, true'), true);
+assert.equal(journalBrowserSmoke.includes('afterOpen.snapshot, value.before'), true);
+
+for (const source of [summaryBrowserSmoke, analyticsBrowserSmoke, copyBrowserSmoke, journalBrowserSmoke]) {
   assert.equal(source.includes('barData.getCacheSummary'), true);
   assert.equal(source.includes('chartData.getSummary'), true);
   assert.equal(source.includes('chartEntry.getState'), true);

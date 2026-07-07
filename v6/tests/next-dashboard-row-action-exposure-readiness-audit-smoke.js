@@ -22,7 +22,7 @@ assert.equal(
   indexDoc.includes('V6_NEXT_DASHBOARD_ROW_ACTION_EXPOSURE_READINESS_AUDIT.md'),
   true,
 );
-assert.match(auditDoc, /No hidden dashboard row action is ready to expose yet/);
+assert.match(auditDoc, /Journal row action has since been exposed/);
 assert.match(auditDoc, /Journal is the nearest candidate/);
 assert.match(auditDoc, /owner surface is ready/);
 assert.match(auditDoc, /dedicated browser smoke/);
@@ -30,11 +30,11 @@ assert.match(auditDoc, /Step 110 should focus on Journal row-action owner surfac
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 const hiddenActions = getRecentSessionRowActionBoundaries()
-  .filter((action) => ['order', 'journal', 'calendar'].includes(action.id))
+  .filter((action) => ['order', 'calendar'].includes(action.id))
   .map((action) => ({
     enabled: action.enabled,
     id: action.id,
@@ -53,13 +53,6 @@ assert.deepEqual(hiddenActions, [
   },
   {
     enabled: false,
-    id: 'journal',
-    owner: 'journal-runtime',
-    status: 'future',
-    visible: false,
-  },
-  {
-    enabled: false,
     id: 'calendar',
     owner: 'calendar-runtime',
     status: 'future',
@@ -71,7 +64,7 @@ const order = createOrdersContract();
 const journal = createJournalContract();
 const calendar = createCalendarContract();
 
-for (const contract of [order, journal, calendar]) {
+for (const contract of [order, calendar]) {
   assert.equal(contract.rowActionVisible, false);
   assert.equal(contract.canLoadBars, false);
   assert.equal(contract.canOpenChart, false);
@@ -79,6 +72,12 @@ for (const contract of [order, journal, calendar]) {
   assert.equal(contract.canTouchViewport, false);
   assert.equal(contract.blockedIntegrations.includes('session-dashboard'), true);
 }
+assert.equal(journal.rowActionVisible, true);
+assert.equal(journal.canLoadBars, false);
+assert.equal(journal.canOpenChart, false);
+assert.equal(journal.canAdvanceReplay, false);
+assert.equal(journal.canTouchViewport, false);
+assert.equal(journal.blockedIntegrations.includes('session-dashboard'), true);
 
 assert.deepEqual(
   {

@@ -35,6 +35,7 @@ import { createSessionRuntime } from './session/session-runtime.js';
 import { createSettingsRuntime } from './settings/settings-runtime.js';
 import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.js';
 import { mountJournalSurface } from './shell/journal-surface.js';
+import { createJournalRowActionAdapter } from './shell/journal-row-action-adapter.js';
 import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayWorkflowSurface } from './shell/replay-workflow-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
@@ -103,6 +104,10 @@ const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
 });
+const journalRowAction = createJournalRowActionAdapter({
+  journalSurface,
+  onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
+});
 const readinessSurface = mountReadinessSurface(root, { registry });
 const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('replay'),
@@ -110,7 +115,9 @@ const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'), {
   positionPreference: createReplayTransportPositionPreference(),
 });
-const sessionDashboard = mountSessionDashboard(root);
+const sessionDashboard = mountSessionDashboard(root, {
+  journalRowAction,
+});
 const settingsPanel = mountSettingsPanel(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('settings'),
 });
@@ -124,6 +131,7 @@ workflowPanelCoordinator.register('sessions', sessionsSurface);
 const statusReadout = mountStatusReadout(root);
 root.__v6DisplayTimeframeControl = displayTimeframeControl;
 root.__v6JournalSurface = journalSurface;
+root.__v6JournalRowAction = journalRowAction;
 root.__v6ReadinessSurface = readinessSurface;
 root.__v6ReplayWorkflowSurface = replayWorkflowSurface;
 root.__v6RuntimeRegistry = registry;

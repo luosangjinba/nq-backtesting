@@ -98,6 +98,7 @@ try {
   assert.deepEqual(value.disabledActions, [
     { id: 'analytics', disabled: false, ariaDisabled: 'false' },
     { id: 'copy', disabled: false, ariaDisabled: 'false' },
+    { id: 'journal', disabled: false, ariaDisabled: 'false' },
   ]);
 
   assert.equal(value.afterOpen.activeLabel, 'Close session summary');

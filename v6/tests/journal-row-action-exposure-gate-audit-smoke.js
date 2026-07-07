@@ -14,15 +14,14 @@ const readyFlagSmoke = await readFile('v6/tests/journal-surface-ready-flag-audit
 
 assert.equal(indexDoc.includes('V6_JOURNAL_ROW_ACTION_EXPOSURE_GATE_AUDIT.md'), true);
 assert.match(auditDoc, /ready for a deliberate exposure implementation step/);
-assert.match(auditDoc, /remains\s+hidden in this audit/);
-assert.match(auditDoc, /visible row-action browser coverage\s+does not exist yet/);
+assert.match(auditDoc, /ready for a deliberate exposure implementation step/);
 assert.match(auditDoc, /Step 116 should implement Journal row-action visibility wiring/);
 
 const journalContract = createJournalContract();
 assert.equal(journalContract.commandSurfaceReady, true);
 assert.equal(journalContract.persistenceReady, true);
 assert.equal(journalContract.surfaceReady, true);
-assert.equal(journalContract.rowActionVisible, false);
+assert.equal(journalContract.rowActionVisible, true);
 assert.equal(journalContract.canLoadBars, false);
 assert.equal(journalContract.canOpenChart, false);
 assert.equal(journalContract.canAdvanceReplay, false);
@@ -39,24 +38,23 @@ assert.deepEqual(
     visible: journalAction.visibleInRecentSessions,
   },
   {
-    enabled: false,
+    enabled: true,
     owner: 'journal-runtime',
-    status: 'future',
-    visible: false,
+    status: 'surface-ready',
+    visible: true,
   },
 );
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 assert.equal(dashboardSource.includes("v6RowAction === 'summary'"), true);
 assert.equal(dashboardSource.includes("v6RowAction === 'analytics'"), true);
 assert.equal(dashboardSource.includes("v6RowAction === 'copy'"), true);
-assert.equal(dashboardSource.includes("v6RowAction === 'journal'"), false);
-assert.equal(hiddenBrowserSmoke.includes('data-v6-row-action="journal"'), false);
-assert.equal(hiddenBrowserSmoke.includes("rowActionsAfter.includes('journal'), false"), true);
+assert.equal(dashboardSource.includes("v6RowAction === 'journal'"), true);
+assert.equal(hiddenBrowserSmoke.includes("rowActionsBefore, ['summary', 'analytics', 'copy', 'journal']"), true);
 assert.equal(readyFlagSmoke.includes('surfaceReady, true'), true);
-assert.equal(readyFlagSmoke.includes('rowActionVisible, false'), true);
+assert.equal(readyFlagSmoke.includes('rowActionVisible, true'), true);
 
 console.log('v6 journal row action exposure gate audit smoke passed');

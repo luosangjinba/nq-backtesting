@@ -16,7 +16,7 @@ assert.equal(indexDoc.includes('V6_CHART_CONTROL_BRIDGE_BROWSER_REGRESSION_AUDIT
 assert.match(auditDoc, /Step 106 should re-audit dashboard row-action isolation/);
 assert.match(auditDoc, /workstation-native-manual-wall-input-browser-smoke\.js/);
 assert.match(auditDoc, /chart-reset-view-browser-smoke\.js/);
-assert.match(auditDoc, /Dashboard row action visibility remains Summary, Stats, and Copy/);
+assert.match(auditDoc, /Dashboard row action visibility now includes Summary, Stats, Copy, and Journal/);
 
 assert.deepEqual(getChartControlBridges(), [
   'manual-wall-input-bridge',
@@ -62,7 +62,7 @@ for (const source of [manualBrowserSmoke, resetBrowserSmoke]) {
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 chart control bridge browser regression audit smoke passed');

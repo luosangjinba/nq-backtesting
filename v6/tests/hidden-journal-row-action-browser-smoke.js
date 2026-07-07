@@ -7,8 +7,8 @@ const browserDoc = await readFile('v6/docs/V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_
 const indexDoc = await readFile('v6/docs/INDEX.md', 'utf8');
 
 assert.equal(indexDoc.includes('V6_HIDDEN_JOURNAL_ROW_ACTION_BROWSER_HARNESS.md'), true);
-assert.match(browserDoc, /dashboard Journal row action remains hidden/);
-assert.match(browserDoc, /Recent Sessions still renders only Summary, Stats, and Copy/);
+assert.match(browserDoc, /dashboard Journal row action visible through a separate adapter/);
+assert.match(browserDoc, /Recent Sessions now renders Summary, Stats, Copy, and Journal/);
 assert.match(browserDoc, /Step 114 should audit whether the hidden browser harness is enough/);
 
 const page = await openV6Page({ height: 820, width: 1360 });
@@ -84,10 +84,10 @@ try {
     })()))()
   `));
 
-  assert.deepEqual(value.rowActionsBefore, ['summary', 'analytics', 'copy']);
-  assert.deepEqual(value.rowActionsAfter, ['summary', 'analytics', 'copy']);
-  assert.equal(value.rowActionsAfter.includes('journal'), false);
-  assert.equal(value.visibleJournalRows, 3);
+  assert.deepEqual(value.rowActionsBefore, ['summary', 'analytics', 'copy', 'journal']);
+  assert.deepEqual(value.rowActionsAfter, ['summary', 'analytics', 'copy', 'journal']);
+  assert.equal(value.rowActionsAfter.includes('journal'), true);
+  assert.equal(value.visibleJournalRows, 4);
   assert.equal(value.dashboardSurface, 'workstation');
   assert.equal(value.context.sessionId.length > 0, true);
   assert.equal(value.context.source, 'recent-session-row');

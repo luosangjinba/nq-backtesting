@@ -24,10 +24,10 @@ assert.equal(
   indexDoc.includes('V6_JOURNAL_ROW_ACTION_OWNER_SURFACE_READINESS_AUDIT.md'),
   true,
 );
-assert.match(auditDoc, /not ready for dashboard row-action exposure yet/);
+assert.match(auditDoc, /Step 116 update: Journal is now exposed/);
 assert.match(auditDoc, /workstation Journal panel is a valid journal-owned surface/);
-assert.match(auditDoc, /not yet a session-scoped dashboard row-action surface/);
-assert.match(auditDoc, /Keep the Journal dashboard row action hidden/);
+assert.match(auditDoc, /session-scoped dashboard row-action surface is covered/);
+assert.match(auditDoc, /Journal dashboard row action now opens through the Journal-owned adapter/);
 assert.match(auditDoc, /data-v6-row-action="journal"/);
 assert.match(auditDoc, /Step 111 should define the Journal row-action session context contract/);
 
@@ -54,7 +54,7 @@ assert.deepEqual(
     canTouchViewport: false,
     commandSurfaceReady: true,
     persistenceReady: true,
-    rowActionVisible: false,
+    rowActionVisible: true,
     surfaceReady: true,
   },
 );
@@ -70,15 +70,15 @@ assert.deepEqual(
     visible: journalAction.visibleInRecentSessions,
   },
   {
-    enabled: false,
+    enabled: true,
     owner: 'journal-runtime',
-    status: 'future',
-    visible: false,
+    status: 'surface-ready',
+    visible: true,
   },
 );
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 assert.equal(journalSurfaceSource.includes('JOURNAL_COMMANDS'), true);

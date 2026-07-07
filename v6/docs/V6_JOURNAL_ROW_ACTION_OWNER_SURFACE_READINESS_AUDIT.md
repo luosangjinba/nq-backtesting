@@ -4,17 +4,15 @@ Date: 2026-07-07
 
 ## Decision
 
-The Journal owner surface is not ready for dashboard row-action exposure yet.
+Step 116 update: Journal is now exposed from the dashboard row action.
 
 The existing workstation Journal panel is a valid journal-owned surface for the
 workstation workflow: it dispatches journal and journal-persistence commands,
 has controller coverage, and has browser coverage through the workflow panel
-smoke. It is not yet a session-scoped dashboard row-action surface because it
-does not accept a recent-session context, does not prove row-action opening from
-the dashboard, and does not have browser coverage for
-`data-v6-row-action="journal"`.
+smoke. Its session-scoped dashboard row-action surface is covered by the visible
+Journal row-action browser smoke.
 
-Keep the Journal dashboard row action hidden.
+Journal dashboard row action now opens through the Journal-owned adapter.
 
 ## Current Readiness
 
@@ -31,15 +29,15 @@ Ready:
 
 Not ready:
 
-- `journal-contract.js` still marks `rowActionVisible` false.
-- `session-row-action-boundaries.js` still keeps Journal hidden and disabled.
-- No browser smoke opens Journal from a recent-session row action.
-- The current Journal panel is not session-scoped from a dashboard row context.
+- `journal-contract.js` marks `rowActionVisible` true.
+- `session-row-action-boundaries.js` keeps Journal enabled and visible.
+- `session-journal-row-action-browser-smoke.js` opens Journal from a
+  recent-session row action.
+- The Journal panel receives a sanitized session context from a dashboard row.
 
 Step 114 update: hidden harness and browser coverage later moved
-`journal-contract.js` to `surfaceReady: true`. This document's dashboard
-exposure decision still holds: Journal remains hidden until a deliberate
-row-action visibility step.
+`journal-contract.js` to `surfaceReady: true`. Step 116 then completed the
+deliberate row-action visibility step.
 
 ## Minimum Exposure Gate
 

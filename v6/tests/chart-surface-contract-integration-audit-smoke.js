@@ -123,7 +123,7 @@ for (const source of [manualWallBridge, resetViewBridge]) {
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 chart surface contract integration audit smoke passed');

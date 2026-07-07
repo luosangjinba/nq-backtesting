@@ -9,14 +9,14 @@ browser regression audit.
 
 No row-action ownership mismatch was found:
 
-- Summary, Stats, and Copy remain the only visible Recent Sessions row actions.
-- Order, Journal, and Calendar remain disabled/hidden row actions with owner
+- Summary, Stats, Copy, and Journal are now visible Recent Sessions row actions.
+- Order and Calendar remain disabled/hidden row actions with owner
   contracts in place.
 - Summary is owned by `session-summary` and remains read-only metadata.
 - Stats is owned by `session-analytics` and remains read-only metadata plus
   unavailable metric placeholders.
 - Copy is owned by `session-repository` and remains metadata-only duplication.
-- Order, Journal, and Calendar remain contract-ready but not visible from Recent
+- Order and Calendar remain contract-ready but not visible from Recent
   Sessions.
 - Row actions do not directly control chart, bars, replay, viewport, orders,
   journal, or calendar state.
@@ -26,7 +26,7 @@ No row-action ownership mismatch was found:
 `recent-sessions-controls-browser-smoke.js` is the current browser guard for
 row-action isolation. It verifies:
 
-- visible row action buttons are Summary, Stats, and Copy with their owner data
+- visible row action buttons are Summary, Stats, Copy, and Journal with their owner data
   attributes;
 - clicking Summary/Stats does not change chart data summary, bar-data cache,
   chart-entry state, or replay state;
@@ -42,13 +42,13 @@ Scope:
 
 - verify Summary and Stats surfaces still render read-only metadata-only state;
 - verify Copy still creates a metadata-only duplicate session;
-- keep Order, Journal, and Calendar hidden until their owner surfaces have
+- keep Order and Calendar hidden until their owner surfaces have
   browser coverage.
 
 Acceptance:
 
 - dashboard row-action isolation re-audit smoke passes;
-- Summary, Stats, and Copy browser smokes pass;
+- Summary, Stats, Copy, and Journal browser smokes pass;
 - recent sessions controls and session dashboard browser smokes pass;
 - boundary and owner contract smokes pass.
 

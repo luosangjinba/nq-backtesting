@@ -4,9 +4,9 @@ Date: 2026-07-07
 
 ## Decision
 
-No hidden dashboard row action is ready to expose yet.
+Journal row action has since been exposed by Step 116.
 
-Journal is the nearest candidate because its owner contract already marks the
+Journal is the nearest candidate in this audit because its owner contract already marks the
 command surface and persistence as ready. It must remain hidden until the
 journal owner surface is ready and a dedicated browser smoke proves the row
 action can open that surface without crossing into chart, bars, replay,
@@ -23,21 +23,19 @@ Order and Calendar remain later candidates:
 | Action | Owner | Current exposure | Ready signals | Blocking signals |
 | --- | --- | --- | --- | --- |
 | Order | `orders-runtime` | hidden | none | command surface, persistence, and write path are not ready |
-| Journal | `journal-runtime` | hidden | command surface and persistence are ready | owner surface and browser row-action coverage are not ready |
+| Journal | `journal-runtime` | visible after Step 116 | command surface, persistence, owner surface, and browser row-action coverage are ready | chart/bars/replay/viewport/orders/calendar paths remain blocked |
 | Calendar | `calendar-runtime` | hidden | none | command surface, persistence, provider-read, and write path are not ready |
 
-All three owner contracts keep `rowActionVisible` false and block
-`session-dashboard` as an integration path. They also cannot load bars, open a
-chart, advance replay, or touch the viewport.
+Order and Calendar keep `rowActionVisible` false. Journal now keeps
+`rowActionVisible` true after Step 116, while all three still cannot load bars,
+open a chart, advance replay, or touch the viewport.
 
 ## Browser Coverage Gate
 
-The existing dashboard/session browser pack covers only the currently visible
-Summary, Stats, and Copy actions. It intentionally contains no browser selector
-or command path for:
+The dashboard/session browser pack now covers Summary, Stats, Copy, and Journal
+actions. It intentionally contains no browser selector or command path for:
 
 - `data-v6-row-action="order"`
-- `data-v6-row-action="journal"`
 - `data-v6-row-action="calendar"`
 
 Before any hidden action becomes visible, its owner must provide a browser smoke

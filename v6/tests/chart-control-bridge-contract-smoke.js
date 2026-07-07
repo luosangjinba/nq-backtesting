@@ -96,7 +96,7 @@ for (const [name, source] of [
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 chart control bridge contract smoke passed');

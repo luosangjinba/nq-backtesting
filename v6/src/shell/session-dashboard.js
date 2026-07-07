@@ -134,6 +134,7 @@ function setWorkstationHidden(root, hidden) {
 
 export function mountSessionDashboard(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  journalRowAction = null,
 } = {}) {
   if (!root) {
     throw new Error('Session dashboard root is required.');
@@ -341,6 +342,17 @@ export function mountSessionDashboard(root, {
     return summarySurface.open(session);
   }
 
+  async function openSessionJournal(id) {
+    const session = sessions.find((item) => item.id === id);
+    if (!session || !journalRowAction || typeof journalRowAction.open !== 'function') {
+      return getState();
+    }
+    analyticsSurface.close();
+    summarySurface.close();
+    await journalRowAction.open(session);
+    return getState();
+  }
+
   const toggleListener = () => enterSessionSurface();
   toggle.addEventListener('click', toggleListener);
   unsubscriptions.push(() => toggle.removeEventListener('click', toggleListener));
@@ -519,6 +531,8 @@ export function mountSessionDashboard(root, {
           openSessionAnalytics(row?.dataset.v6DashboardSessionRow);
         } else if (rowActionButton.dataset.v6RowAction === 'copy') {
           void copySession(row?.dataset.v6DashboardSessionRow);
+        } else if (rowActionButton.dataset.v6RowAction === 'journal') {
+          void openSessionJournal(row?.dataset.v6DashboardSessionRow);
         }
         return;
       }
@@ -567,6 +581,7 @@ export function mountSessionDashboard(root, {
     enterSessionSurface,
     enterWorkstation,
     getState,
+    openSessionJournal,
     openSession,
     refresh,
     unmount() {

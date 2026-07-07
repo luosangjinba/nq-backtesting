@@ -4,8 +4,8 @@ Date: 2026-07-07
 
 ## Decision
 
-The hidden Journal row-action harness now has browser coverage, but the
-dashboard Journal row action remains hidden.
+The hidden Journal row-action harness now has browser coverage. Step 116 later
+made the dashboard Journal row action visible through a separate adapter.
 
 The browser smoke imports the Journal-owned hidden harness and the Step 111
 session context factory inside the browser, creates a normal dashboard session,
@@ -14,13 +14,13 @@ existing Journal owner surface through injected callbacks only.
 
 ## Boundary Notes
 
-- Recent Sessions still renders only Summary, Stats, and Copy row actions.
-- No `journal` row-action button is rendered in Recent Sessions.
+- Recent Sessions now renders Summary, Stats, Copy, and Journal row actions.
+- The hidden harness remains callable independently from the visible adapter.
 - The hidden harness receives only the normalized session context.
 - The existing Journal workflow panel opens through the injected owner-surface
   callback.
-- No dashboard click handler, chart, bars, replay, viewport, orders, or calendar
-  path is wired to Journal.
+- The visible dashboard click handler delegates to the Journal-owned adapter;
+  chart, bars, replay, viewport, orders, and calendar paths remain unwired.
 
 ## Next Direction
 

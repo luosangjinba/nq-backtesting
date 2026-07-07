@@ -114,7 +114,7 @@ assert.equal(chartSurfaceContractSource.includes('chart-data-surface-bridge'), t
 assert.equal(chartSurfaceContractSource.includes('chart-viewport-surface-bridge'), true);
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 workstation replay chart reentry audit smoke passed');

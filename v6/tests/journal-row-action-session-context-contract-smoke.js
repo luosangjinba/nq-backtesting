@@ -111,15 +111,15 @@ for (const blockedField of getJournalRowActionContextBlockedFields()) {
   assert.equal(Object.hasOwn(context, blockedField), false, `${blockedField} must not enter context`);
 }
 
-assert.equal(createJournalContract().rowActionVisible, false);
+assert.equal(createJournalContract().rowActionVisible, true);
 assert.equal(createJournalContract().surfaceReady, true);
 assert.equal(
   getRecentSessionRowActionBoundaries().find((action) => action.id === 'journal').visibleInRecentSessions,
-  false,
+  true,
 );
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 journal row action session context contract smoke passed');

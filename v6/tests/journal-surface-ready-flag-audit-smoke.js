@@ -14,15 +14,15 @@ const contextSmoke = await readFile('v6/tests/journal-row-action-session-context
 
 assert.equal(indexDoc.includes('V6_JOURNAL_SURFACE_READY_FLAG_AUDIT.md'), true);
 assert.match(auditDoc, /surfaceReady` is now true/);
-assert.match(auditDoc, /rowActionVisible` remains false/);
-assert.match(auditDoc, /Recent Sessions still renders only Summary, Stats, and Copy/);
+assert.match(auditDoc, /rowActionVisible` is now true/);
+assert.match(auditDoc, /Recent Sessions now renders Summary, Stats, Copy, and Journal/);
 assert.match(auditDoc, /Step 115 should audit readiness/);
 
 const journalContract = createJournalContract();
 assert.equal(journalContract.commandSurfaceReady, true);
 assert.equal(journalContract.persistenceReady, true);
 assert.equal(journalContract.surfaceReady, true);
-assert.equal(journalContract.rowActionVisible, false);
+assert.equal(journalContract.rowActionVisible, true);
 assert.equal(journalContract.canLoadBars, false);
 assert.equal(journalContract.canOpenChart, false);
 assert.equal(journalContract.canAdvanceReplay, false);
@@ -40,20 +40,20 @@ assert.deepEqual(
     visible: journalAction.visibleInRecentSessions,
   },
   {
-    enabled: false,
+    enabled: true,
     owner: 'journal-runtime',
-    status: 'future',
-    visible: false,
+    status: 'surface-ready',
+    visible: true,
   },
 );
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
-assert.equal(browserSmoke.includes('data-v6-row-action="journal"'), false);
+assert.equal(browserSmoke.includes("rowActionsBefore, ['summary', 'analytics', 'copy', 'journal']"), true);
 assert.equal(browserSmoke.includes('rowActionsBefore'), true);
-assert.equal(browserSmoke.includes("['summary', 'analytics', 'copy']"), true);
+assert.equal(browserSmoke.includes("['summary', 'analytics', 'copy', 'journal']"), true);
 assert.equal(harnessSmoke.includes('rowActionVisible: false'), true);
 assert.equal(contextSmoke.includes('getJournalRowActionContextBlockedFields'), true);
 

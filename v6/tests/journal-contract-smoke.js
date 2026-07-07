@@ -46,7 +46,7 @@ assert.deepEqual(createJournalContract(), {
   commandSurfaceReady: true,
   owner: 'journal-runtime',
   persistenceReady: true,
-  rowActionVisible: false,
+  rowActionVisible: true,
   surfaceReady: true,
 });
 assert.equal(Object.isFrozen(createJournalContract()), true);

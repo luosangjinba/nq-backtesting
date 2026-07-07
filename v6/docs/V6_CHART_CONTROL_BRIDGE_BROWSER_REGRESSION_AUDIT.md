@@ -30,7 +30,7 @@ No browser-level contract mismatch was found:
   drag/zoom input reaching viewport manual intent through the chart surface.
 - The reset-view browser test remains the guard for user reset control reaching
   viewport reset through the chart surface.
-- Dashboard row action visibility remains Summary, Stats, and Copy.
+- Dashboard row action visibility now includes Summary, Stats, Copy, and Journal.
 
 ## Step 106 Direction
 
@@ -39,8 +39,8 @@ bridge browser regression checks.
 
 Scope:
 
-- verify Summary, Stats, and Copy remain the only visible dashboard row actions;
-- verify disabled Order, Journal, and Calendar actions remain contract-ready but
+- verify Summary, Stats, Copy, and Journal remain the visible dashboard row actions;
+- verify disabled Order and Calendar actions remain contract-ready but
   not visible;
 - keep chart control bridge behavior unchanged unless the audit exposes a
   cross-module ownership mismatch.

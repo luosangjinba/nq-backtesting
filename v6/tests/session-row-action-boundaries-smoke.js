@@ -41,15 +41,15 @@ assert.equal(byId.get('order').owner, 'orders-runtime');
 assert.equal(byId.get('order').enabled, false);
 assert.equal(byId.get('order').status, 'future');
 assert.equal(byId.get('journal').owner, 'journal-runtime');
-assert.equal(byId.get('journal').enabled, false);
-assert.equal(byId.get('journal').status, 'future');
+assert.equal(byId.get('journal').enabled, true);
+assert.equal(byId.get('journal').status, 'surface-ready');
 assert.equal(byId.get('calendar').owner, 'calendar-runtime');
 assert.equal(byId.get('calendar').enabled, false);
 assert.equal(byId.get('calendar').status, 'future');
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 assert.deepEqual(createSessionAnalyticsContract(), {
@@ -217,7 +217,7 @@ assert.deepEqual(createJournalContract(), {
   commandSurfaceReady: true,
   owner: 'journal-runtime',
   persistenceReady: true,
-  rowActionVisible: false,
+  rowActionVisible: true,
   surfaceReady: true,
 });
 

@@ -62,6 +62,15 @@ const PACK = Object.freeze([
     ],
   },
   {
+    file: 'v6/tests/session-journal-row-action-browser-smoke.js',
+    tokens: [
+      '[data-v6-row-action="journal"]',
+      "owner: 'journal-runtime'",
+      'rowActionVisible, true',
+      'afterOpen.snapshot, value.before',
+    ],
+  },
+  {
     file: 'v6/tests/session-metadata-persistence-browser-smoke.js',
     tokens: [
       'Page.reload',
@@ -114,19 +123,22 @@ assert.deepEqual(getVisibleRecentSessionRowActions().map((action) => action.id),
   'summary',
   'analytics',
   'copy',
+  'journal',
 ]);
 
-for (const contract of [
-  createOrdersContract(),
-  createJournalContract(),
-  createCalendarContract(),
-]) {
+for (const contract of [createOrdersContract(), createCalendarContract()]) {
   assert.equal(contract.rowActionVisible, false);
   assert.equal(contract.canLoadBars, false);
   assert.equal(contract.canOpenChart, false);
   assert.equal(contract.canAdvanceReplay, false);
   assert.equal(contract.canTouchViewport, false);
 }
+const journalContract = createJournalContract();
+assert.equal(journalContract.rowActionVisible, true);
+assert.equal(journalContract.canLoadBars, false);
+assert.equal(journalContract.canOpenChart, false);
+assert.equal(journalContract.canAdvanceReplay, false);
+assert.equal(journalContract.canTouchViewport, false);
 
 for (const { file, tokens } of PACK) {
   await access(file, constants.R_OK);
@@ -139,7 +151,6 @@ for (const { file, tokens } of PACK) {
     'JOURNAL_COMMANDS',
     'CALENDAR_COMMANDS',
     'data-v6-row-action="order"',
-    'data-v6-row-action="journal"',
     'data-v6-row-action="calendar"',
   ]) {
     assert.equal(source.includes(forbiddenToken), false, `${file} must not expose ${forbiddenToken}`);

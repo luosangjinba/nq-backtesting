@@ -34,10 +34,11 @@ assert.deepEqual(getVisibleRecentSessionRowActions().map((action) => action.id),
   'summary',
   'analytics',
   'copy',
+  'journal',
 ]);
 
 assert.deepEqual(
-  ['summary', 'analytics', 'copy'].map((id) => ({
+  ['summary', 'analytics', 'copy', 'journal'].map((id) => ({
     enabled: byId.get(id).enabled,
     id,
     owner: byId.get(id).owner,
@@ -66,11 +67,18 @@ assert.deepEqual(
       status: 'action-ready',
       visible: true,
     },
+    {
+      enabled: true,
+      id: 'journal',
+      owner: 'journal-runtime',
+      status: 'surface-ready',
+      visible: true,
+    },
   ],
 );
 
 assert.deepEqual(
-  ['order', 'journal', 'calendar'].map((id) => ({
+  ['order', 'calendar'].map((id) => ({
     enabled: byId.get(id).enabled,
     id,
     owner: byId.get(id).owner,
@@ -82,13 +90,6 @@ assert.deepEqual(
       enabled: false,
       id: 'order',
       owner: 'orders-runtime',
-      status: 'future',
-      visible: false,
-    },
-    {
-      enabled: false,
-      id: 'journal',
-      owner: 'journal-runtime',
       status: 'future',
       visible: false,
     },
@@ -140,7 +141,7 @@ assert.equal(createOrdersContract().owner, 'orders-runtime');
 assert.equal(createOrdersContract().rowActionVisible, false);
 assert.equal(createOrdersContract().commandSurfaceReady, false);
 assert.equal(createJournalContract().owner, 'journal-runtime');
-assert.equal(createJournalContract().rowActionVisible, false);
+assert.equal(createJournalContract().rowActionVisible, true);
 assert.equal(createJournalContract().surfaceReady, true);
 assert.equal(createCalendarContract().owner, 'calendar-runtime');
 assert.equal(createCalendarContract().rowActionVisible, false);

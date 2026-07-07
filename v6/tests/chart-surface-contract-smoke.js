@@ -81,7 +81,7 @@ assert.equal(chartViewportBridge.includes('CHART_VIEWPORT_EVENTS.PROJECTED'), tr
 assert.equal(chartViewportBridge.includes('dispatchCommand'), false);
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 console.log('v6 chart surface contract smoke passed');

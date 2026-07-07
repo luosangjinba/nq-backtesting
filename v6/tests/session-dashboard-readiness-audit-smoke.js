@@ -72,7 +72,7 @@ for (const forbiddenToken of [
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
-  ['summary', 'analytics', 'copy'],
+  ['summary', 'analytics', 'copy', 'journal'],
 );
 
 assert.deepEqual(
@@ -81,7 +81,6 @@ assert.deepEqual(
     .map((action) => [action.id, action.owner, action.enabled]),
   [
     ['order', 'orders-runtime', false],
-    ['journal', 'journal-runtime', false],
     ['calendar', 'calendar-runtime', false],
   ],
 );

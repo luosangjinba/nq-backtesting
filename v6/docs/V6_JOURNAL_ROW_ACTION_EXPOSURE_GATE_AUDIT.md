@@ -4,8 +4,7 @@ Date: 2026-07-07
 
 ## Decision
 
-Journal is ready for a deliberate exposure implementation step, but it remains
-hidden in this audit.
+Journal is ready for a deliberate exposure implementation step.
 
 The exposure gate now has the required owner-side prerequisites:
 
@@ -18,10 +17,10 @@ The exposure gate now has the required owner-side prerequisites:
 - the hidden browser harness opens the existing Journal owner surface with real
   dashboard session metadata.
 
-This step does not expose Journal because visible row-action browser coverage
-does not exist yet. Exposure must be a deliberate implementation step that
-updates `journal-contract.js`, `session-row-action-boundaries.js`, and a visible
-browser smoke together.
+Step 116 update: visible Journal row-action browser coverage and wiring landed
+after this audit. The exposure step updated `journal-contract.js`,
+`session-row-action-boundaries.js`, dashboard handling, and browser coverage
+together.
 
 ## Required Exposure Changes
 
@@ -37,10 +36,11 @@ A future exposure step must:
 
 ## Current Boundary State
 
-- Recent Sessions still renders only Summary, Stats, and Copy.
-- Journal remains hidden and disabled.
-- `rowActionVisible` remains false.
-- No dashboard click handler handles `journal` row actions.
+- Recent Sessions renders Summary, Stats, Copy, and Journal.
+- Journal is enabled and visible.
+- `rowActionVisible` is true.
+- The dashboard click handler handles `journal` row actions through a
+  Journal-owned adapter.
 
 ## Next Direction
 
