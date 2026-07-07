@@ -27,7 +27,7 @@
 Define the ownership boundaries for Recent Sessions row actions before any
 summary, analytics, clone, order, journal, or calendar behavior becomes active.
 
-Status: planned.
+Status: active.
 
 Notes for execution:
 
