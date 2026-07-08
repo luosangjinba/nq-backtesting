@@ -14,6 +14,7 @@ function cloneRecord(record, extras = {}) {
     ...record,
     ...extras,
     bars: cloneBars(extras.bars || record.bars),
+    history: (extras.history || record.history) ? { ...(extras.history || record.history) } : null,
     timing: record.timing ? { ...record.timing } : null,
   };
 }
@@ -61,12 +62,18 @@ export function createBarWindowCache({ maxBarsPerWindow = 500 } = {}) {
       coveredByKey: covered.key,
       key,
       lastAccessedSequence: covered.lastAccessedSequence,
+      history: covered.history ? { ...covered.history } : null,
       requestedRange: covered.requestedRange || null,
       timing: covered.timing ? { ...covered.timing } : null,
     };
   }
 
-  function put(window, { bars = [], requestedRange = null, timing = null } = {}) {
+  function put(window, {
+    bars = [],
+    history = null,
+    requestedRange = null,
+    timing = null,
+  } = {}) {
     const planned = normalizeBarWindow(window, { maxBarsPerWindow });
     const key = makeBarWindowKey(planned);
     const record = touch({
@@ -74,6 +81,7 @@ export function createBarWindowCache({ maxBarsPerWindow = 500 } = {}) {
       bars: cloneBars(bars),
       cacheHit: false,
       coveredByKey: null,
+      history: history ? { ...history } : null,
       key,
       requestedRange,
       timing: timing ? { ...timing } : null,

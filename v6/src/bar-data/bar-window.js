@@ -125,6 +125,44 @@ export function windowBoundsMs(window) {
   };
 }
 
+export function planCanvasLeftOlderWindow(payload = {}, options = {}) {
+  const maxBarsPerWindow = Number(options.maxBarsPerWindow || DEFAULT_MAX_BARS_PER_WINDOW);
+  const instrument = normalizeInstrument(payload.instrument);
+  const timeframe = normalizeTimeframe(payload.timeframe);
+  const oldestLoadedMs = parseBarTimeMs(payload.oldestLoadedTimestamp, 'oldestLoadedTimestamp');
+  const canvasLeftMs = parseBarTimeMs(payload.canvasLeftTimestamp, 'canvasLeftTimestamp');
+  const stepMs = timeframe * MINUTE_MS;
+  const endMs = oldestLoadedMs - stepMs;
+
+  if (canvasLeftMs >= oldestLoadedMs) {
+    return {
+      bounded: true,
+      exhausted: true,
+      instrument,
+      reason: 'canvas-left-inside-loaded-window',
+      timeframe,
+    };
+  }
+
+  const estimatedBars = estimateWindowBars(canvasLeftMs, endMs, timeframe);
+  if (estimatedBars > maxBarsPerWindow) {
+    throw new Error(`Canvas-left older window estimates ${estimatedBars} bars, limit ${maxBarsPerWindow}.`);
+  }
+
+  return {
+    bounded: true,
+    canvasLeftBoundary: formatApiTime(canvasLeftMs),
+    direction: 'backward',
+    end: formatApiTime(endMs),
+    estimatedBars,
+    historyRequest: 'older-window',
+    instrument,
+    requestCap: 'canvas-left',
+    start: formatApiTime(canvasLeftMs),
+    timeframe,
+  };
+}
+
 export function windowCovers(record, planned) {
   if (!record || !planned) return false;
   if (record.instrument !== planned.instrument) return false;

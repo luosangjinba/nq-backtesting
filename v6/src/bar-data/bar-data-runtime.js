@@ -26,6 +26,7 @@ export function createBarDataRuntime({
     const response = await fetchBars(planned);
     return cache.put(planned, {
       bars: normalizeBars(response.bars),
+      history: response.history || null,
       requestedRange: response.requestedRange || null,
       timing: response.timing || null,
     });
