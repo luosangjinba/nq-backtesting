@@ -14,22 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 156 - Multi-Pane Replay Append / Auto-Play
-  Isolation. V6 now verifies replay `Next` and auto-play append into the
-  requested pane-local chart-data record without mutating unrelated panes, while
-  preserving shared bar-data fetch/cache ownership and chart-surface writes.
+- Latest completed step: Step 157 - Multi-Pane Replay Viewport Projection
+  Isolation. V6 now verifies replay `Next`, auto-play, and post-history replay
+  append projection only affects the intended pane-local chart-viewport record
+  while preserving unrelated pane projection state.
 
 ## Next Executable Steps
 
-### Step 157 - Multi-Pane Replay Viewport Projection Isolation
+### Step 158 - Chart Foundation Integration Re-Audit
 
-Harden replay-driven viewport projection behavior for multi-pane chart hosts.
+Audit the completed chart foundation path before moving into the next feature
+layer.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
+- read `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
+  `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
   `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
   `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
   `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
@@ -46,10 +48,14 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- verify replay `Next` and auto-play viewport projection applies only to the
-  intended pane-local chart-viewport record;
-- verify replay append remains visible without shifting unrelated pane viewport
-  intent after multi-pane historical extension;
+- audit database import, replay chart load, reset view / KXG reset, multi-pane
+  chart hosts, leftward extension, replay speed, crosshair OHLC, replay append,
+  and replay viewport projection as one integrated chart foundation;
+- verify there is no route-level or feature-level bypass of bar-data,
+  chart-data, chart-viewport, chart-engine, chart-history, or replay ownership;
+- verify browser regression coverage remains sequential and stable for the chart
+  foundation path;
+- preserve Step 157 pane-local replay viewport projection isolation;
 - preserve Step 156 pane-local replay append and auto-play isolation;
 - preserve pane-local leftward history exhaustion from Step 155;
 - preserve Step 154 hovered-pane crosshair readout isolation;
@@ -67,9 +73,9 @@ Notes for execution:
 
 Scope:
 
-- multi-pane replay viewport projection isolation using existing chart-entry,
-  replay, chart-data, chart-viewport, chart-surface, chart-engine,
-  chart-history, bar-data, and pane ownership boundaries;
+- chart foundation integration audit across existing chart-entry, replay,
+  chart-data, chart-viewport, chart-surface, chart-engine, chart-history,
+  bar-data, and pane ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -78,6 +84,7 @@ Scope:
 
 Acceptance:
 
+- chart foundation integration re-audit smoke passes;
 - multi-pane replay viewport projection isolation smoke passes;
 - multi-pane replay append / auto-play isolation smoke passes;
 - multi-pane leftward history extension isolation smoke passes;
@@ -102,6 +109,30 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 157 - Multi-Pane Replay Viewport Projection Isolation
+
+Completed in commits:
+
+- `f5640ec1 test(v6): cover multi-pane replay viewport projection`
+- `7fe3cf74 test(v6): cover multi-pane replay viewport browser flow`
+- `bde3de52 test(v6): cover replay viewport after history extension`
+
+Verification:
+
+- `node v6/tests/multi-pane-replay-viewport-projection-step157-smoke.js`
+- `node v6/tests/multi-pane-replay-viewport-projection-browser-step157-smoke.js`
+- `node v6/tests/multi-pane-replay-viewport-history-step157-smoke.js`
+- `node v6/tests/multi-pane-replay-append-step156-smoke.js`
+- `node v6/tests/multi-pane-replay-append-browser-step156-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/chart-viewport-store-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-step155-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-browser-step155-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
+- `node v6/tests/replay-speed-history-inflight-step150-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 156 - Multi-Pane Replay Append / Auto-Play Isolation
 

@@ -143,6 +143,9 @@ Read this index before working on V6.
 - `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`: accepted multi-pane replay
   append and auto-play isolation using pane-aware manual next dispatch,
   pane-aware auto-play state, and pane-local chart-data appends.
+- `v6/docs/V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`: accepted
+  multi-pane replay viewport projection isolation for manual next, auto-play,
+  and replay append after pane-local historical extension.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
