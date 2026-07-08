@@ -33,6 +33,7 @@ const PERSISTENCE_ROOT = path.join(V6_ROOT, 'src', 'persistence');
 const REPLAY_ROOT = path.join(V6_ROOT, 'src', 'replay');
 const SESSION_ROOT = path.join(V6_ROOT, 'src', 'session');
 const SESSION_ANALYTICS_ROOT = path.join(V6_ROOT, 'src', 'session-analytics');
+const SESSION_SETTINGS_ROOT = path.join(V6_ROOT, 'src', 'session-settings');
 const SESSION_SUMMARY_ROOT = path.join(V6_ROOT, 'src', 'session-summary');
 const SETTINGS_ROOT = path.join(V6_ROOT, 'src', 'settings');
 const SETTINGS_PANEL_FILE = path.join(V6_ROOT, 'src', 'shell', 'settings-panel.js');
@@ -395,6 +396,17 @@ const forbiddenSessionAnalyticsOwnershipPatterns = [
   {
     pattern: /\b(BAR_DATA_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime)\b/,
     reason: 'V6 session-analytics modules must not dispatch commands or own chart, data, replay, viewport, UI, storage, or network state.',
+  },
+];
+
+const forbiddenSessionSettingsOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data|calendar|chart|default-wall|display-timeframe|journal\/|journal-persistence|layout|orders|panes|persistence|replay|session\/session-|settings|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 session-settings modules must stay pure and not import feature runtimes, UI, V4, vendor, chart, data, replay, viewport, orders, calendar, journal, or settings modules.',
+  },
+  {
+    pattern: /\b(BAR_DATA_COMMANDS|CALENDAR_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|ORDERS_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SESSION_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime)\b/,
+    reason: 'V6 session-settings modules must not dispatch commands or own chart, data, replay, viewport, UI, storage, or network state.',
   },
 ];
 
@@ -766,6 +778,19 @@ for (const file of await walkFiles(SESSION_SUMMARY_ROOT)) {
 for (const file of await walkFiles(SESSION_ANALYTICS_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenSessionAnalyticsOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(SESSION_SETTINGS_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenSessionSettingsOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
