@@ -92,6 +92,7 @@ export function mountWorkstationChartSurface(root, {
   const programmaticRangeByPaneId = new Map();
   const crosshairListeners = new Set();
   const visibleRangeListeners = new Set();
+  let readoutPaneId = null;
   let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
   const manager = managerFactory({
@@ -131,9 +132,18 @@ export function mountWorkstationChartSurface(root, {
     : [];
   const unsubscribeCrosshairCallbacks = typeof manager.subscribeCrosshairMove === 'function'
     ? [...hostsByPaneId.keys()].map((paneId) => manager.subscribeCrosshairMove(paneId, (payload = {}) => {
+        const recordPaneId = String(payload.paneId || paneId);
+        const hasSelectedBar = Boolean(payload.bar);
+        const displayReadout = hasSelectedBar || recordPaneId === readoutPaneId;
+        if (hasSelectedBar) {
+          readoutPaneId = recordPaneId;
+        } else if (recordPaneId === readoutPaneId) {
+          readoutPaneId = null;
+        }
         const record = {
           bar: payload.bar ? { ...payload.bar } : null,
-          paneId: String(payload.paneId || paneId),
+          displayReadout,
+          paneId: recordPaneId,
           point: payload.point ? { ...payload.point } : null,
           time: payload.time ?? null,
         };

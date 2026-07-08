@@ -153,6 +153,7 @@ managerInstance.triggerCrosshair({
 });
 assert.deepEqual(subscribedCrosshair, {
   bar: { close: 2, high: 3, low: 1, open: 1.5, timestamp: 200 },
+  displayReadout: true,
   paneId: 'default',
   point: { x: 12, y: 34 },
   time: 200,

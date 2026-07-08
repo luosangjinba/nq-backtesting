@@ -116,6 +116,9 @@ export function statusReadoutStateFromChartDataPayload(payload = {}, previousSta
 }
 
 export function statusReadoutStateFromCrosshairPayload(payload = {}, previousState = createStatusReadoutState()) {
+  if (payload.displayReadout === false) {
+    return previousState;
+  }
   return createStatusReadoutState({
     crosshairBar: payload.bar || null,
     latestBar: previousState.latestBar,
