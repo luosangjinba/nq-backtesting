@@ -22,10 +22,13 @@ try {
           state: root.__v6WorkstationChartSurface.getState().layout,
           variant: chartSurface.dataset.v6ChartLayoutVariant,
           hosts: [...document.querySelectorAll('[data-v6-chart-engine-host]')].map((host) => {
+            const hostStyles = getComputedStyle(host);
             return {
-              computedGridArea: getComputedStyle(host).gridArea,
+              computedGridArea: hostStyles.gridArea,
               gridArea: host.style.gridArea,
+              heightStyle: hostStyles.height,
               hidden: host.hidden,
+              minHeight: hostStyles.minHeight,
               paneId: host.dataset.v6PaneId,
               slot: host.dataset.v6ChartPaneSlot,
               visible: host.dataset.v6ChartPaneVisible,
@@ -68,6 +71,7 @@ try {
     'auto',
   ]);
   assert.match(value.twiceVertical.columns, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
+  assert.deepEqual(value.twiceVertical.hosts.slice(0, 2).map((host) => host.minHeight), ['0px', '0px']);
 
   assert.equal(value.twiceHorizontal.variant, 'twice-horizontal');
   assert.deepEqual(value.twiceHorizontal.hosts.map((host) => host.computedGridArea), [
@@ -77,6 +81,7 @@ try {
   ]);
   assert.match(value.twiceHorizontal.rows, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
   assert.notEqual(value.twiceHorizontal.rows, value.twiceVertical.rows);
+  assert.deepEqual(value.twiceHorizontal.hosts.slice(0, 2).map((host) => host.minHeight), ['0px', '0px']);
 
   assert.equal(value.tripleColumns.variant, 'triple-columns');
   assert.deepEqual(value.tripleColumns.hosts.map((host) => host.gridArea), [
@@ -94,6 +99,7 @@ try {
   ]);
   assert.match(value.tripleRows.rows, /repeat\(3, minmax\(0px, 1fr\)\)|0px 0px 0px/);
   assert.notEqual(value.tripleRows.rows, value.tripleColumns.rows);
+  assert.deepEqual(value.tripleRows.hosts.map((host) => host.minHeight), ['0px', '0px', '0px']);
 
   assert.equal(value.tripleRightStack.variant, 'triple-right-stack');
   assert.deepEqual(value.tripleRightStack.hosts.map((host) => host.gridArea), [
@@ -103,6 +109,7 @@ try {
   ]);
   assert.match(value.tripleRightStack.columns, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
   assert.match(value.tripleRightStack.rows, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
+  assert.deepEqual(value.tripleRightStack.hosts.map((host) => host.minHeight), ['0px', '0px', '0px']);
 
   assert.equal(value.tripleLeftStack.variant, 'triple-left-stack');
   assert.deepEqual(value.tripleLeftStack.hosts.map((host) => host.gridArea), [
@@ -114,6 +121,7 @@ try {
     value.tripleLeftStack.hosts.map((host) => host.gridArea),
     value.tripleRightStack.hosts.map((host) => host.gridArea),
   );
+  assert.deepEqual(value.tripleLeftStack.hosts.map((host) => host.minHeight), ['0px', '0px', '0px']);
 } finally {
   await page.cleanup();
 }
