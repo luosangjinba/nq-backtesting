@@ -14,22 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 161 - Layout Pane Surface Reflow Boundary. V6 now
-  routes layout mode changes from layout-runtime into chart-surface-owned pane
-  host presentation for one, two, and three visible chart hosts.
+- Latest completed step: Step 162 - Layout Pane Data Bootstrap Boundary. V6 now
+  bootstraps newly visible layout pane hosts with pane-local chart-data and
+  chart-viewport state through existing owner commands.
 
 ## Next Executable Steps
 
-### Step 162 - Layout Pane Data Bootstrap Boundary
+### Step 163 - Pane-Local Reset View Controls
 
-Bootstrap visible layout panes through existing pane-local data and viewport
-owners.
+Give each visible chart pane its own reset view / KXG reset control.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
+- read `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
+  `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
   `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
   `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
   `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
@@ -51,15 +51,16 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- define how newly visible layout pane hosts receive initial chart-data and
-  chart-viewport state through the existing owners;
-- align layout-visible pane host ids with pane-local chart-data and viewport
-  records without creating primary/non-primary special cases;
-- keep bar requests inside bar-data, chart-data mutation inside chart-data,
-  viewport projection inside chart-viewport, and series writes inside
-  chart-engine;
+- move reset view / KXG reset from a single chart-surface-global control to
+  pane-local controls rendered inside each visible pane host;
+- each reset button must dispatch `CHART_VIEWPORT_COMMANDS.RESET_VIEW` only for
+  its own paneId;
+- preserve pane-local chart-data and viewport records when resetting one pane;
+- keep reset control DOM ownership in chart surface / chart-engine UI boundary,
+  while viewport mutation remains inside chart-viewport runtime;
 - keep cross-pane symbol, interval, crosshair, time, and date-range sync behavior
   out of this step;
+- preserve Step 162 layout pane data bootstrap;
 - preserve Step 161 layout pane surface reflow;
 - preserve Step 160 layout menu owner binding;
 - preserve Step 159 selected owner boundary and non-goals;
@@ -82,8 +83,8 @@ Notes for execution:
 
 Scope:
 
-- visible layout pane data/bootstrap through existing pane, bar-data,
-  chart-data, chart-viewport, and chart-engine boundaries;
+- pane-local reset controls through chart surface / chart-engine UI and
+  chart-viewport owner boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -92,6 +93,8 @@ Scope:
 
 Acceptance:
 
+- pane-local reset controls smoke passes;
+- pane-local reset controls browser smoke passes;
 - layout pane data bootstrap smoke passes;
 - layout pane data bootstrap browser smoke passes;
 - layout surface bridge smoke passes;
@@ -125,6 +128,28 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 162 - Layout Pane Data Bootstrap Boundary
+
+Completed in commits:
+
+- `f82e647a feat(v6): add layout pane bootstrap runtime`
+- `b29ca065 feat(v6): bootstrap data for visible layout panes`
+
+Verification:
+
+- `node v6/tests/layout-pane-bootstrap-runtime-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/layout-surface-bridge-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-step161-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-browser-step161-smoke.js`
+- `node v6/tests/layout-menu-owner-binding-browser-step160-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/chart-foundation-integration-reaudit-step158-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 161 - Layout Pane Surface Reflow Boundary
 
