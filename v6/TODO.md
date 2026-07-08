@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 167 - Crosshair Sync Effect Boundary. V6 now keeps
-  Crosshair layout sync as a chart-surface effect using Lightweight Charts'
-  native crosshair API, without requesting bars, mutating replay, or writing
-  chart-data series.
+- Latest completed step: Step 168 - Symbol/Interval Sync Boundary Decision. V6
+  now explicitly keeps Symbol/Interval sync out of chart-only layout sync
+  bridges and reserves it for pane intent plus a future dedicated fan-out
+  runtime.
 
 ## Next Executable Steps
 
-### Step 168 - Symbol/Interval Sync Boundary Decision
+### Step 169 - Pane Symbol/Interval Intent Model
 
-Decide the owner boundary for Symbol and Interval layout sync before any data
-reload behavior is implemented.
+Add explicit pane-local Symbol/Interval intent state before any sync fan-out or
+data reload behavior is implemented.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CROSSHAIR_SYNC_EFFECT_STEP167.md`,
+- read `V6_SYMBOL_INTERVAL_SYNC_BOUNDARY_STEP168.md`,
+  `V6_CROSSHAIR_SYNC_EFFECT_STEP167.md`,
   `V6_LAYOUT_SYNC_EFFECTS_STEP166.md`,
   `V6_PANE_RESIZE_DRAG_STEP165.md`,
   `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
@@ -57,11 +58,12 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- use Step 166/167 as the chart-only sync baseline;
-- define whether Symbol/Interval sync belongs in layout-runtime fan-out,
-  pane-runtime commands, a dedicated pane instrument/timeframe sync runtime, or
-  a chart-entry orchestration boundary;
-- do not implement reloads before the owner contract is explicit;
+- add pane-local symbol intent and interval/display-timeframe intent through
+  pane-runtime/store commands and events;
+- do not request bars, replace chart-data, or project viewport in this step;
+- preserve the Step 168 decision that Symbol/Interval sync fan-out belongs to a
+  future dedicated runtime, not `layout-sync-surface-bridge`;
+- preserve Step 168 boundary smoke;
 - preserve Step 167 Crosshair sync;
 - preserve Step 166 date-range/time visible-range sync;
 - keep resize ratios from Step 165 local to chart presentation;
@@ -146,6 +148,21 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 168 - Symbol/Interval Sync Boundary Decision
+
+Completed in commits:
+
+- `0df39952 docs(v6): define symbol interval sync boundary`
+- `377d7466 test(v6): guard symbol interval sync boundary`
+
+Verification:
+
+- `node v6/tests/symbol-interval-sync-boundary-step168-smoke.js`
+- `node v6/tests/layout-sync-effects-model-step166-smoke.js`
+- `node v6/tests/layout-sync-surface-bridge-step166-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 167 - Crosshair Sync Effect Boundary
 
