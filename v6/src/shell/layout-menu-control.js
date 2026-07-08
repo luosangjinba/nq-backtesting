@@ -22,6 +22,7 @@ function readVariant(option, mode) {
 
 function syncRootDataset(root, snapshot = {}) {
   root.dataset.layoutMode = normalizeMode(snapshot.mode);
+  root.dataset.layoutVariant = readVariant({ dataset: { v6LayoutVariant: snapshot.variant } }, snapshot.mode);
   Object.entries(snapshot.sync || {}).forEach(([key, value]) => {
     root.dataset[`layoutSync${key[0].toUpperCase()}${key.slice(1)}`] = String(Boolean(value));
   });
@@ -53,10 +54,12 @@ export function mountLayoutMenuControl(root, {
       sync: { ...(nextSnapshot.sync || {}) },
     };
     const currentMode = normalizeMode(snapshot.mode);
+    const currentVariant = snapshot.variant || selectedVariantByMode[currentMode];
+    selectedVariantByMode[currentMode] = currentVariant;
     syncRootDataset(root, snapshot);
     options.forEach((option) => {
       const mode = normalizeMode(option.dataset.v6LayoutMode);
-      const selected = mode === currentMode && readVariant(option, mode) === selectedVariantByMode[mode];
+      const selected = mode === currentMode && readVariant(option, mode) === currentVariant;
       option.classList.toggle('is-selected', selected);
       option.setAttribute('aria-checked', String(selected));
     });
@@ -78,10 +81,14 @@ export function mountLayoutMenuControl(root, {
       render({
         ...(snapshot || {}),
         mode,
+        variant: selectedVariantByMode[mode],
         sync: snapshot?.sync || {},
       });
       try {
-        render(await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode }));
+        render(await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
+          mode,
+          variant: selectedVariantByMode[mode],
+        }));
       } catch (error) {
         root.dataset.layoutMenuError = error?.message || String(error);
         await refresh().catch(() => null);

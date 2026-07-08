@@ -7,6 +7,17 @@ import {
 
 export const LAYOUT_MODES = Object.freeze(['single', 'twice', 'triple']);
 export const LAYOUT_SYNC_KEYS = Object.freeze(['symbol', 'interval', 'crosshair', 'time', 'dateRange']);
+export const LAYOUT_VARIANTS_BY_MODE = Object.freeze({
+  single: Object.freeze(['single']),
+  triple: Object.freeze(['triple-columns', 'triple-rows', 'triple-right-stack', 'triple-left-stack']),
+  twice: Object.freeze(['twice-vertical', 'twice-horizontal']),
+});
+
+const DEFAULT_VARIANT_BY_MODE = Object.freeze({
+  single: 'single',
+  triple: 'triple-columns',
+  twice: 'twice-vertical',
+});
 
 function normalizeLayoutMode(mode = 'single') {
   const normalized = String(mode || '').trim();
@@ -22,6 +33,16 @@ function normalizePaneId(paneId) {
     throw new Error('Layout pane id must be a non-empty string.');
   }
   return id;
+}
+
+function normalizeLayoutVariant(mode, variant) {
+  const normalizedMode = normalizeLayoutMode(mode);
+  const fallback = DEFAULT_VARIANT_BY_MODE[normalizedMode];
+  const normalized = String(variant || fallback || '').trim();
+  if (!LAYOUT_VARIANTS_BY_MODE[normalizedMode].includes(normalized)) {
+    throw new Error(`Unsupported layout variant for ${normalizedMode}: ${variant}`);
+  }
+  return normalized;
 }
 
 function normalizeSyncFlags(sync = {}) {
@@ -59,20 +80,24 @@ export function createLayoutRecord({
   mode = 'single',
   panes = [createDefaultPaneRecord()],
   sync = {},
+  variant = null,
 } = {}) {
+  const normalizedMode = normalizeLayoutMode(mode);
   const normalized = normalizePanes(panes, activePaneId);
   return Object.freeze({
     activePaneId: normalized.activePaneId,
-    mode: normalizeLayoutMode(mode),
+    mode: normalizedMode,
     panes: Object.freeze(normalized.panes.map((pane) => clonePane(pane, normalized.activePaneId))),
     sync: normalizeSyncFlags(sync),
+    variant: normalizeLayoutVariant(normalizedMode, variant),
   });
 }
 
-export function setLayoutMode(layout, mode) {
+export function setLayoutMode(layout, mode, variant = null) {
   return createLayoutRecord({
     ...layout,
     mode,
+    variant,
   });
 }
 

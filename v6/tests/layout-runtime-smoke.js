@@ -44,7 +44,21 @@ assert.equal((await dispatchCommand(LAYOUT_COMMANDS.GET_SNAPSHOT)).activePaneId,
 
 const twice = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'twice' });
 assert.equal(twice.mode, 'twice');
+assert.equal(twice.variant, 'twice-vertical');
 assert.equal(modeEvents.length, 1);
+
+const horizontal = await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
+  mode: 'twice',
+  variant: 'twice-horizontal',
+});
+assert.equal(horizontal.mode, 'twice');
+assert.equal(horizontal.variant, 'twice-horizontal');
+assert.equal(modeEvents.length, 2);
+
+await assert.rejects(
+  () => dispatchCommand(LAYOUT_COMMANDS.SET_MODE, { mode: 'twice', variant: 'triple-columns' }),
+  /Unsupported layout variant/
+);
 
 const activeRight = await dispatchCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, { paneId: 'pane-right' });
 assert.equal(activeRight.activePaneId, 'pane-right');

@@ -10,8 +10,8 @@ export function createLayoutRuntime({
   function start({ emitEvent } = {}) {
     unregisterCallbacks.push(
       registerCommand(LAYOUT_COMMANDS.GET_SNAPSHOT, () => store.snapshot()),
-      registerCommand(LAYOUT_COMMANDS.SET_MODE, ({ mode } = {}) => {
-        const snapshot = store.setMode(mode);
+      registerCommand(LAYOUT_COMMANDS.SET_MODE, ({ mode, variant } = {}) => {
+        const snapshot = store.setMode(mode, variant);
         emitEvent?.(LAYOUT_EVENTS.MODE_CHANGED, snapshot);
         return snapshot;
       }),

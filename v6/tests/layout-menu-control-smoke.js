@@ -57,6 +57,7 @@ function createRoot() {
   const options = [
     new FakeElement({ classNames: ['layout-option', 'is-selected'], dataset: { v6LayoutMode: 'single', v6LayoutVariant: 'single' }, disabled: true }),
     new FakeElement({ classNames: ['layout-option'], dataset: { v6LayoutMode: 'twice', v6LayoutVariant: 'twice-vertical' }, disabled: true }),
+    new FakeElement({ classNames: ['layout-option'], dataset: { v6LayoutMode: 'twice', v6LayoutVariant: 'twice-horizontal' }, disabled: true }),
     new FakeElement({ classNames: ['layout-option'], dataset: { v6LayoutMode: 'triple', v6LayoutVariant: 'triple-columns' }, disabled: true }),
   ];
   const syncInputs = [
@@ -97,6 +98,7 @@ let snapshot = {
     symbol: true,
     time: true,
   },
+  variant: 'single',
 };
 const dispatches = [];
 const listeners = new Map();
@@ -105,7 +107,7 @@ const control = mountLayoutMenuControl(root, {
     dispatches.push({ command, payload });
     if (command === LAYOUT_COMMANDS.GET_SNAPSHOT) return snapshot;
     if (command === LAYOUT_COMMANDS.SET_MODE) {
-      snapshot = { ...snapshot, mode: payload.mode };
+      snapshot = { ...snapshot, mode: payload.mode, variant: payload.variant };
       listeners.get(LAYOUT_EVENTS.MODE_CHANGED)?.(snapshot);
       return snapshot;
     }
@@ -130,17 +132,20 @@ const control = mountLayoutMenuControl(root, {
 
 await new Promise((resolve) => setTimeout(resolve, 0));
 assert.deepEqual(dispatches.map((entry) => entry.command), [LAYOUT_COMMANDS.GET_SNAPSHOT]);
-assert.deepEqual([...root.querySelectorAll('[data-v6-layout-mode]')].map((button) => button.disabled), [false, false, false]);
+assert.deepEqual([...root.querySelectorAll('[data-v6-layout-mode]')].map((button) => button.disabled), [false, false, false, false]);
 assert.deepEqual([...root.querySelectorAll('[data-v6-layout-sync]')].map((input) => input.disabled), [false, false, false, false, false]);
 assert.equal(root.dataset.layoutMode, 'single');
+assert.equal(root.dataset.layoutVariant, 'single');
 
-root.querySelector('[data-v6-layout-mode="twice"]').click();
+root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].click();
 await new Promise((resolve) => setTimeout(resolve, 0));
 assert.equal(dispatches.at(-1).command, LAYOUT_COMMANDS.SET_MODE);
-assert.deepEqual(dispatches.at(-1).payload, { mode: 'twice' });
+assert.deepEqual(dispatches.at(-1).payload, { mode: 'twice', variant: 'twice-horizontal' });
 assert.equal(root.dataset.layoutMode, 'twice');
-assert.equal(root.querySelector('[data-v6-layout-mode="twice"]').classList.contains('is-selected'), true);
-assert.equal(root.querySelector('[data-v6-layout-mode="twice"]').getAttribute('aria-checked'), 'true');
+assert.equal(root.dataset.layoutVariant, 'twice-horizontal');
+assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[0].classList.contains('is-selected'), false);
+assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].classList.contains('is-selected'), true);
+assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].getAttribute('aria-checked'), 'true');
 
 const crosshair = root.querySelector('[data-v6-layout-sync="crosshair"]');
 crosshair.checked = true;

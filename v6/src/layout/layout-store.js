@@ -11,6 +11,7 @@ function cloneLayout(layout) {
     mode: layout.mode,
     panes: layout.panes.map((pane) => ({ ...pane })),
     sync: { ...layout.sync },
+    variant: layout.variant,
   };
 }
 
@@ -21,8 +22,8 @@ export function createLayoutStore(initialLayout = {}) {
     return cloneLayout(layout);
   }
 
-  function setMode(mode) {
-    layout = setLayoutMode(layout, mode);
+  function setMode(mode, variant = null) {
+    layout = setLayoutMode(layout, mode, variant);
     return snapshot();
   }
 
