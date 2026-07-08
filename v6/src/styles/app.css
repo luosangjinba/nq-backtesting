@@ -1890,7 +1890,7 @@ p {
 .symbol-readout {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 }
 
 .symbol-readout {
@@ -1902,7 +1902,18 @@ p {
 }
 
 .symbol-readout strong {
+  flex: 0 0 auto;
   color: #9ee7d6;
+}
+
+.symbol-readout span {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.symbol-readout [data-v6-status-timeframe] {
+  min-width: 24px;
+  color: #b7c8d2;
 }
 
 .pane-status-readout {
@@ -1916,6 +1927,7 @@ p {
 }
 
 .status-dot {
+  flex: 0 0 8px;
   width: 8px;
   height: 8px;
   border-radius: 999px;

@@ -89,3 +89,11 @@ export function statusReadoutStateFromReplayPayload(payload = {}, previousState 
     },
   });
 }
+
+export function statusReadoutStateFromChartDataPayload(payload = {}, previousState = createStatusReadoutState()) {
+  return createStatusReadoutState({
+    latestBar: payload.record?.bars?.at?.(-1) || previousState.latestBar,
+    playback: previousState.playback,
+    replayState: previousState.replay,
+  });
+}

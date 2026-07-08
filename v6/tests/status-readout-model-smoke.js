@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   createStatusReadoutState,
+  statusReadoutStateFromChartDataPayload,
   statusReadoutStateFromDefaultWallPayload,
   statusReadoutStateFromReplayPayload,
 } from '../src/shell/status-readout-model.js';
@@ -55,5 +56,27 @@ const playing = statusReadoutStateFromReplayPayload({
 }, loaded);
 assert.equal(playing.footer.playback, 'Playback playing');
 assert.equal(playing.ohlc.close, 'C 100.50');
+
+const chartDataChanged = statusReadoutStateFromChartDataPayload({
+  record: {
+    bars: [
+      {
+        close: 101.5,
+        high: 102,
+        low: 100,
+        open: 101,
+        timestamp: 1780306260,
+      },
+    ],
+  },
+}, playing);
+assert.deepEqual(chartDataChanged.ohlc, {
+  close: 'C 101.50',
+  high: 'H 102.00',
+  low: 'L 100.00',
+  open: 'O 101.00',
+});
+assert.equal(chartDataChanged.footer.playback, 'Playback playing');
+assert.equal(chartDataChanged.timestamp, '09:31');
 
 console.log('v6 status readout model smoke passed');

@@ -1,10 +1,12 @@
 import {
+  CHART_DATA_EVENTS,
   DEFAULT_WALL_EVENTS,
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import {
   createStatusReadoutState,
+  statusReadoutStateFromChartDataPayload,
   statusReadoutStateFromDefaultWallPayload,
   statusReadoutStateFromReplayPayload,
 } from './status-readout-model.js';
@@ -58,6 +60,9 @@ export function mountStatusReadout(root, {
     }),
     subscribeEvent(DEFAULT_WALL_EVENTS.ADVANCED, (payload) => {
       setState(statusReadoutStateFromDefaultWallPayload(payload, state));
+    }),
+    subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (payload) => {
+      setState(statusReadoutStateFromChartDataPayload(payload, state));
     }),
     subscribeEvent(REPLAY_EVENTS.LOADED, (payload) => {
       setState(statusReadoutStateFromReplayPayload(payload, state));

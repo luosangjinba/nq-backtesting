@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  CHART_DATA_EVENTS,
   DEFAULT_WALL_EVENTS,
   REPLAY_EVENTS,
 } from '../src/contracts/app-contracts.js';
@@ -65,6 +66,26 @@ assert.equal(root.text('[data-v6-footer-no-future]'), 'No future 3 hidden');
 listeners.get(REPLAY_EVENTS.PLAYBACK_CHANGED)({ status: 'playing' });
 assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
 assert.equal(controller.getState().ohlc.close, 'C 100.50');
+
+listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
+  record: {
+    bars: [
+      {
+        close: 101.5,
+        high: 102,
+        low: 100,
+        open: 101,
+        timestamp: 1780306260,
+      },
+    ],
+  },
+});
+assert.equal(root.text('[data-v6-status-open]'), 'O 101.00');
+assert.equal(root.text('[data-v6-status-high]'), 'H 102.00');
+assert.equal(root.text('[data-v6-status-low]'), 'L 100.00');
+assert.equal(root.text('[data-v6-status-close]'), 'C 101.50');
+assert.equal(root.text('[data-v6-status-price]'), '101.50');
+assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
 
 controller.destroy();
 assert.equal(listeners.size, 0);
