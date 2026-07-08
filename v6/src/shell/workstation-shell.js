@@ -458,7 +458,11 @@ export function createWorkstationShellMarkup() {
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="main">
-                <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view" title="Reset chart view">
+                <button type="button" class="chart-pane-action-button chart-maximize-restore-button" data-v6-chart-maximize-restore data-v6-chart-maximize-pane-id="main" aria-label="Maximize chart" title="Maximize chart">
+                  ${icon('fullscreen')}
+                  <span class="sr-only" data-v6-chart-maximize-label>Maximize chart</span>
+                </button>
+                <button type="button" class="chart-pane-action-button chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view" title="Reset chart view">
                   ${icon('redo')}
                   <span class="sr-only">Reset main pane view</span>
                 </button>
@@ -475,7 +479,11 @@ export function createWorkstationShellMarkup() {
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="secondary">
-                <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view" title="Reset chart view">
+                <button type="button" class="chart-pane-action-button chart-maximize-restore-button" data-v6-chart-maximize-restore data-v6-chart-maximize-pane-id="secondary" aria-label="Maximize chart" title="Maximize chart">
+                  ${icon('fullscreen')}
+                  <span class="sr-only" data-v6-chart-maximize-label>Maximize chart</span>
+                </button>
+                <button type="button" class="chart-pane-action-button chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view" title="Reset chart view">
                   ${icon('redo')}
                   <span class="sr-only">Reset secondary pane view</span>
                 </button>
@@ -492,7 +500,11 @@ export function createWorkstationShellMarkup() {
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="tertiary">
-                <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view" title="Reset chart view">
+                <button type="button" class="chart-pane-action-button chart-maximize-restore-button" data-v6-chart-maximize-restore data-v6-chart-maximize-pane-id="tertiary" aria-label="Maximize chart" title="Maximize chart">
+                  ${icon('fullscreen')}
+                  <span class="sr-only" data-v6-chart-maximize-label>Maximize chart</span>
+                </button>
+                <button type="button" class="chart-pane-action-button chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view" title="Reset chart view">
                   ${icon('redo')}
                   <span class="sr-only">Reset tertiary pane view</span>
                 </button>

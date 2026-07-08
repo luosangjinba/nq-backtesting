@@ -18,6 +18,7 @@ import { connectChartDataSurfaceBridge } from './chart-engine/chart-data-surface
 import { connectChartViewportSurfaceBridge } from './chart-engine/chart-viewport-surface-bridge.js';
 import { connectLayoutSyncSurfaceBridge } from './chart-engine/layout-sync-surface-bridge.js';
 import { connectLayoutSurfaceBridge } from './chart-engine/layout-surface-bridge.js';
+import { connectMaximizeRestoreControl } from './chart-engine/maximize-restore-control-bridge.js';
 import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-bridge.js';
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
@@ -130,6 +131,18 @@ const leftwardHistoryInputBridge = connectLeftwardHistoryInputBridge({
 });
 const layoutMenuControl = mountLayoutMenuControl(root);
 const paneStatusReadout = mountPaneStatusReadout(root);
+const maximizeRestoreControls = [...root.querySelectorAll('[data-v6-chart-maximize-restore]')]
+  .map((button) => connectMaximizeRestoreControl({
+    button,
+    chartSurface: workstationChartSurface,
+    paneId: button.dataset.v6ChartMaximizePaneId,
+  }));
+const maximizeRestoreControl = {
+  controls: maximizeRestoreControls,
+  destroy() {
+    maximizeRestoreControls.forEach((control) => control.destroy());
+  },
+};
 const resetViewControls = [...root.querySelectorAll('[data-v6-reset-view]')]
   .map((button) => connectResetViewControl({
     button,
@@ -197,5 +210,6 @@ root.__v6LayoutSyncSurfaceBridge = layoutSyncSurfaceBridge;
 root.__v6LayoutSurfaceBridge = layoutSurfaceBridge;
 root.__v6LeftwardHistoryInputBridge = leftwardHistoryInputBridge;
 root.__v6ManualWallInputBridge = manualWallInputBridge;
+root.__v6MaximizeRestoreControl = maximizeRestoreControl;
 root.__v6ResetViewControl = resetViewControl;
 root.dataset.booted = 'true';

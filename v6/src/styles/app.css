@@ -2386,7 +2386,7 @@ p {
   pointer-events: auto;
 }
 
-.chart-reset-view-button {
+.chart-pane-action-button {
   position: relative;
   width: 30px;
   height: 30px;
@@ -2400,12 +2400,12 @@ p {
   box-shadow: 0 12px 26px rgba(0, 0, 0, 0.34);
 }
 
-.chart-reset-view-button:hover {
+.chart-pane-action-button:hover {
   border-color: rgba(122, 147, 163, 0.86);
   background: rgba(20, 30, 40, 0.86);
 }
 
-.chart-reset-view-button .tool-icon {
+.chart-pane-action-button .tool-icon {
   width: 17px;
   height: 17px;
 }
