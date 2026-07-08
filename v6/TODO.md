@@ -14,10 +14,11 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 188 - Globex Session Boundary / Chart
-  Data Range Clarity. V6 now separates dashboard trading-date labels from
-  futures chart-data boundary hints, so the default NQ `2026-06-01` session can
-  clearly explain the valid prior Sunday `2026-05-31 18:00` Globex open.
+- Latest completed roadmap step: Step 189 - Real-Date Sunday Gap Leftward
+  Extension Stability. V6 now verifies the user-reported `2026-05-01` session
+  can drag left across the prior Sunday `2026-04-26 18:00` boundary into earlier
+  `2026-04-24` data, keeps the gap scan generic rather than date-specific, and
+  records recent leftward-history request diagnostics.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -27,13 +28,14 @@
 
 ## Next Executable Steps
 
-### Step 189 - Bar-Data Owned Chart Boundary Metadata
+### Step 190 - Bar-Data Owned Chart Boundary Metadata
 
 Status: planned.
 
 Notes for execution:
 
 - read `V6_GLOBEX_SESSION_BOUNDARY_CLARITY_STEP188.md`;
+- read `session_20260708_step189_real_date_gap_extension.md`;
 - move from static session-dashboard Globex inference toward bar-data-owned
   boundary metadata for the actual loaded/requestable chart range;
 - keep bar-data as the only runtime that queries/cache bars and computes actual
@@ -54,6 +56,26 @@ Acceptance:
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 189 - Real-Date Sunday Gap Leftward Extension Stability
+
+Completed in commits:
+
+- `19923603 fix(v6): stabilize real-date leftward gap extension`
+- `753f9f6a feat(v6): expose leftward history request diagnostics`
+
+Verification:
+
+- `node v6/tests/real-date-leftward-gap-browser-step189-smoke.js`
+- `node v6/tests/bar-data-fetch-retry-step189-smoke.js`
+- `node v6/tests/leftward-history-debug-state-step189-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/leftward-history-gap-scan-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/continuous-leftward-history-browser-step151-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 188 - Globex Session Boundary / Chart Data Range Clarity
 
