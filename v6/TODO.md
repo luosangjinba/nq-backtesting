@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 163 - Pane-Local Reset View Controls. V6 now
-  renders reset view / KXG reset controls per visible pane and targets only the
-  clicked pane's viewport record.
+- Latest completed step: Step 164 - Layout Variant Geometry Boundary. V6 now
+  persists Page layout variants and applies distinct chart surface geometry for
+  two-pane vertical/horizontal and three-pane columns/rows/stack variants.
 
 ## Next Executable Steps
 
-### Step 164 - Layout Variant Geometry Boundary
+### Step 165 - Pane Resize Drag Boundary
 
-Make Page layout variants produce distinct chart pane geometry.
+Make visible chart pane boundaries draggable within the current layout variant.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
+- read `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
+  `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
   `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
   `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
   `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
@@ -52,16 +53,15 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- persist the selected layout variant from the Page layout menu through
-  layout-runtime/layout-surface bridge state;
-- make two-pane vertical and horizontal variants render different chart surface
-  geometry;
-- make three-pane columns, rows, right-stack, and left-stack variants render
-  distinct chart surface geometry;
-- keep draggable pane resizing out of this step unless the variant geometry
-  boundary is already stable;
+- add draggable pane resizing through a chart-surface-owned boundary;
+- keep persisted layout variant state from Step 164 unchanged;
+- make drag resizing work per active variant without changing layout mode or
+  visible pane membership;
+- keep resize state local to chart presentation unless a later persistence
+  step explicitly accepts saved layout sizes;
 - keep cross-pane symbol, interval, crosshair, time, and date-range sync behavior
   out of this step;
+- preserve Step 164 layout variant geometry;
 - preserve Step 163 pane-local reset controls;
 - preserve Step 162 layout pane data bootstrap;
 - preserve Step 161 layout pane surface reflow;
@@ -86,8 +86,9 @@ Notes for execution:
 
 Scope:
 
-- layout variant state and chart surface geometry through layout-runtime and
-  chart-engine/chart-surface boundaries;
+- pane resize interaction and geometry through chart-engine/chart-surface
+  boundaries;
+- do not move layout variant ownership out of layout-runtime;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -96,15 +97,16 @@ Scope:
 
 Acceptance:
 
-- layout variant geometry smoke passes;
+- pane resize drag smoke passes;
+- pane resize drag browser smoke passes;
 - layout variant geometry browser smoke passes;
+- layout pane surface reflow smoke passes;
+- layout pane surface reflow browser smoke passes;
 - pane-local reset controls smoke passes;
 - pane-local reset controls browser smoke passes;
 - layout pane data bootstrap smoke passes;
 - layout pane data bootstrap browser smoke passes;
 - layout surface bridge smoke passes;
-- layout pane surface reflow smoke passes;
-- layout pane surface reflow browser smoke passes;
 - layout menu owner binding smoke passes;
 - layout menu owner binding browser smoke passes;
 - chart foundation next slice selection smoke passes;
@@ -133,6 +135,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 164 - Layout Variant Geometry Boundary
+
+Completed in commits:
+
+- `846344d4 feat(v6): persist layout variants`
+- `104c5cd3 feat(v6): apply layout variant geometry`
+
+Verification:
+
+- `node v6/tests/layout-runtime-smoke.js`
+- `node v6/tests/layout-menu-control-smoke.js`
+- `node v6/tests/layout-surface-bridge-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-step161-smoke.js`
+- `node v6/tests/layout-variant-geometry-browser-step164-smoke.js`
+- `node v6/tests/layout-menu-owner-binding-browser-step160-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-browser-step161-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/pane-local-reset-controls-browser-step163-smoke.js`
+- `git diff --check`
 
 ### Step 163 - Pane-Local Reset View Controls
 

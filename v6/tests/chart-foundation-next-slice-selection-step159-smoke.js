@@ -20,8 +20,9 @@ assert.match(selectionDoc, /Do not sync symbol, interval, crosshair, time, or da
 assert.match(selectionDoc, /Do not mutate chart-data, chart-viewport, chart-engine, chart-history,\s+replay, or bar-data state from shell code/);
 assert.match(selectionDoc, /Step 158 chart foundation integration re-audit still passes/);
 
-assert.match(todoDoc, /Latest completed step: Step 163 - Pane-Local Reset View Controls/);
-assert.match(todoDoc, /Step 164 - Layout Variant Geometry Boundary/);
+assert.match(todoDoc, /Latest completed step: Step 164 - Layout Variant Geometry Boundary/);
+assert.match(todoDoc, /Step 165 - Pane Resize Drag Boundary/);
+assert.match(todoDoc, /preserve Step 164 layout variant geometry/);
 assert.match(todoDoc, /preserve Step 163 pane-local reset controls/);
 assert.match(todoDoc, /preserve Step 162 layout pane data bootstrap/);
 assert.match(todoDoc, /preserve Step 161 layout pane surface reflow/);
