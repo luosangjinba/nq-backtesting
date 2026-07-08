@@ -14,52 +14,57 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 141 - Account/Trading Owner Contract.
-  The account/trading owner contract is in place while the bottom
-  account/trading chrome remains disabled and inert.
+- Latest completed step: Step 142 - Workstation Chart Slice Selection.
+  Comparison Symbol Owner Contract is selected as the next bounded
+  workstation/chart slice.
 
 ## Next Executable Steps
 
-### Step 142 - Workstation Chart Slice Selection
+### Step 143 - Comparison Symbol Owner Contract
 
-Select the next bounded workstation/chart slice after the account/trading owner
-contract.
+Establish the comparison symbol owner contract before the top-toolbar Add
+comparison symbol control becomes interactive.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`,
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`,
+  `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- choose one small next slice from the remaining workstation/chart gaps;
-- prefer docs/test selection only unless the selected slice is already sharply
-  bounded by existing owner contracts;
-- keep bottom trading controls, order placement, position mutation, account
-  mutation, analytics calculation, drawing tools, chart overlays, pane
-  mutation, undo/redo execution, indicator calculation, screenshot capture,
-  session settings editing, and runtime command wiring disabled unless that
-  exact slice is selected;
+- create a focused comparison-symbol contract/domain module;
+- define explicit comparison request fields for base symbol, comparison symbol,
+  display mode, scale mode, color, source series, visibility, session id, and
+  metadata;
+- define supported display modes such as price, percent, indexed, and spread;
+- define supported scale modes such as overlay and separate-scale;
+- define default read-only comparison intent state and validation helpers for
+  future owner wiring;
+- keep the top-toolbar Add comparison symbol button disabled and inert;
+- do not add symbol search, bar requests, comparison series creation, chart
+  series writes, Lightweight Charts primitives/plugins, pane mutation,
+  persistence, browser storage, or runtime command wiring in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- selection doc plus focused smoke;
+- contract/domain module plus focused tests;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, indicators,
-  drawing/action-history, account/trading, orders, or calendar commands from the
-  bottom chrome, toolbar, or rail;
+  drawing/action-history, account/trading, comparison-symbol, orders, or
+  calendar commands from the top toolbar, bottom chrome, or rail;
 - do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
   default-wall, display-timeframe, indicators, drawing-action-history,
   account-trading, settings, session-settings, screenshot-export, orders,
   calendar, account, analytics, persistence, V4, vendor, or Lightweight Charts
-  modules into any selection test helper.
+  modules into the comparison-symbol contract.
 
 Acceptance:
 
-- new Step 142 slice selection smoke passes;
+- new comparison-symbol contract smoke passes;
+- Step 142 slice selection smoke passes;
 - Step 140 slice selection smoke passes;
 - account/trading contract smoke passes;
 - new drawing/action-history contract smoke passes;
@@ -74,6 +79,27 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 142 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `63f62181 docs(v6): select comparison symbol contract slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step142-smoke.js`
+- `node v6/tests/account-trading-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step140-smoke.js`
+- `node v6/tests/drawing-action-history-contract-smoke.js`
+- `node v6/tests/indicators-contract-smoke.js`
+- `node v6/tests/screenshot-export-contract-smoke.js`
+- `node v6/tests/session-settings-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `git diff --check`
 
 ### Step 141 - Account/Trading Owner Contract
 

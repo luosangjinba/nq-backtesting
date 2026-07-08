@@ -5,18 +5,20 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 141 completed.
-- Next planned step: Step 142 - Workstation Chart Slice Selection.
+- Current V6 step state: Step 142 completed.
+- Next planned step: Step 143 - Comparison Symbol Owner Contract.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is the Account/Trading Owner Contract:
+The latest completed work is Workstation Chart Slice Selection:
 
-- `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md` documents the accepted account/trading
-  owner surface.
-- `account-trading-contract-smoke.js` locks the owner identity, account readout
-  fields, trade draft fields, read-only intent, disabled bottom chrome, and
-  dashboard row-action visibility.
-- `boundary-smoke.js` now covers the `account-trading` source root.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md` selects Comparison Symbol
+  Owner Contract as the next bounded slice.
+- `workstation-chart-slice-selection-step142-smoke.js` locks the selected owner
+  boundary, disabled top-toolbar Add comparison symbol state, no chart
+  series/plugin/primitive integration, and dashboard row-action visibility.
+- Step 143 should define comparison-symbol contract/default/validation helpers
+  while keeping the top-toolbar Add comparison symbol button disabled and
+  inert.
 
 ## Restart Reading Order
 
@@ -64,68 +66,69 @@ After restarting the server or assistant context, read these first:
 40. `v6/sessions/session_20260707_step139_drawing_action_history_owner_contract.md`
 41. `v6/sessions/session_20260707_step140_workstation_chart_slice_selection.md`
 42. `v6/sessions/session_20260707_step141_account_trading_owner_contract.md`
-43. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-44. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-45. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-46. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-47. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-48. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-49. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-50. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-51. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-52. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-53. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-54. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-56. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-57. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-59. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-61. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-62. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-63. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-64. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-65. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-66. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-67. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-68. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-69. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-70. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+43. `v6/sessions/session_20260707_step142_workstation_chart_slice_selection.md`
+44. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+45. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+46. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+47. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+48. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+49. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+50. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+51. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+52. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+53. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+54. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+55. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+56. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+57. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+59. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+60. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+62. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+64. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+65. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+66. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+67. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+68. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+69. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+70. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+71. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+72. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 142 should select the next bounded workstation/chart slice.
+Step 143 should implement the Comparison Symbol Owner Contract.
 
-Keep Step 142 bounded:
+Keep Step 143 bounded:
 
-- read `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`,
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`,
+  `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- choose one small next slice from the remaining workstation/chart gaps;
-- prefer docs/test selection only unless the selected slice is sharply bounded
-  by existing owner contracts;
-- keep bottom trading controls, order placement, position mutation, account
-  mutation, analytics calculation, drawing tools, chart overlays, pane
-  mutation, undo/redo execution, indicator calculation, screenshot capture,
-  session settings editing, and runtime command wiring disabled unless that
-  exact slice is selected;
+- create a focused comparison-symbol contract/domain module;
+- define explicit comparison request fields;
+- define supported display modes and scale modes;
+- define default read-only comparison intent state and validation helpers;
+- keep the top-toolbar Add comparison symbol button disabled and inert;
+- avoid symbol search, bar requests, comparison series creation, chart series
+  writes, Lightweight Charts primitives/plugins, pane mutation, browser
+  storage, persistence, and runtime command wiring in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- selection doc plus focused smoke;
+- contract/domain module plus focused tests;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, indicators,
-  drawing/action-history, account/trading, orders, or calendar commands from
-  bottom chrome, toolbar, or rail;
-- run the new Step 142 slice selection smoke, account/trading contract smoke,
-  Step 140 slice selection smoke, drawing/action-history contract smoke,
-  indicators contract smoke, diagnostics visibility cleanup browser smoke,
-  bottom chrome regression audit, bottom account chrome browser smoke, chart
-  presentation re-audit, and boundary smoke.
+  drawing/action-history, account/trading, comparison-symbol, orders, or
+  calendar commands from toolbar, bottom chrome, or rail;
+- run the new comparison-symbol contract smoke, Step 142 slice selection smoke,
+  account/trading contract smoke, top toolbar parity browser smoke, diagnostics
+  visibility cleanup browser smoke, chart presentation re-audit, and boundary
+  smoke.
 
 ## Critical Boundaries
 
@@ -154,8 +157,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 142 selection work:
+Run these before committing Step 143 work:
 
+- `node v6/tests/workstation-chart-slice-selection-step142-smoke.js`
 - `node v6/tests/account-trading-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step140-smoke.js`
 - `node v6/tests/drawing-action-history-contract-smoke.js`
@@ -247,15 +251,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `63f62181 docs(v6): select comparison symbol contract slice`
 - `28e78e55 feat(v6): add account trading owner contract`
 - `8f958eba docs(v6): select account trading contract slice`
 - `d4c5b0b2 docs(v6): close drawing action history owner contract`
 - `68e8ec7d docs(v6): select drawing action history contract slice`
-- `4c2c992d feat(v6): add drawing action history owner contract`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-142. The handoff point is intentionally after establishing the Account/Trading
-Owner Contract and before choosing the next bounded workstation/chart slice.
+143. The handoff point is intentionally after selecting the Comparison Symbol
+Owner Contract slice.
