@@ -141,6 +141,8 @@ export function mountWorkstationChartSurface(root, {
     variant: 'single',
     visiblePaneIds: hosts.slice(0, 1).map(resolvePaneId),
   };
+  let destroyed = false;
+  let pendingLayoutResizeFrame = null;
   let readoutPaneId = null;
   let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
@@ -213,6 +215,9 @@ export function mountWorkstationChartSurface(root, {
   });
 
   function resize() {
+    if (destroyed) {
+      return [];
+    }
     const mountedPanes = manager.snapshot().panes;
     return [...hostsByPaneId.entries()]
       .map(([paneId, host]) => {
@@ -226,6 +231,22 @@ export function mountWorkstationChartSurface(root, {
         return manager.resizePane(paneId, measureHost(host));
       })
       .filter(Boolean);
+  }
+
+  function scheduleLayoutResize() {
+    if (typeof requestAnimationFrame !== 'function') {
+      return [];
+    }
+    if (pendingLayoutResizeFrame !== null && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(pendingLayoutResizeFrame);
+    }
+    pendingLayoutResizeFrame = requestAnimationFrame(() => {
+      pendingLayoutResizeFrame = requestAnimationFrame(() => {
+        pendingLayoutResizeFrame = null;
+        resize();
+      });
+    });
+    return pendingLayoutResizeFrame;
   }
 
   function applyLayoutSnapshot(snapshot = {}) {
@@ -262,6 +283,7 @@ export function mountWorkstationChartSurface(root, {
       chartSurfaceElement.dataset.v6ChartLayoutVariant = variant;
     }
     resize();
+    scheduleLayoutResize();
     return { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] };
   }
 
@@ -318,6 +340,11 @@ export function mountWorkstationChartSurface(root, {
       return snapshot;
     },
     destroy() {
+      destroyed = true;
+      if (pendingLayoutResizeFrame !== null && typeof cancelAnimationFrame === 'function') {
+        cancelAnimationFrame(pendingLayoutResizeFrame);
+        pendingLayoutResizeFrame = null;
+      }
       unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       hosts.forEach((host) => {
