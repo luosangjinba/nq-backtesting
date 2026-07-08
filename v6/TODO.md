@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 150 - Replay Speed Under History Extension.
-  V6 now preserves replay `Next` responsiveness and latest-candle visibility
-  while older-window history extension is active or recently loaded.
+- Latest completed step: Step 151 - Continuous Leftward Extension Until Exhausted.
+  V6 now supports repeated canvas-left capped historical extension, remembers
+  exhausted older history by pane/instrument/timeframe, and keeps replay state
+  isolated while older bars are prepended.
 
 ## Next Executable Steps
 
-### Step 151 - Continuous Leftward Extension Until Exhausted
+### Step 152 - Auto-Play Speed Under Continuous History
 
-Extend the drag-triggered history flow into repeated leftward extension until
-the bar-data source reports no older bars, while preserving canvas-left request
-caps and replay visible speed.
+Verify replay auto-play speed and visible latest-candle updates while continuous
+leftward historical extension is active or recently loaded.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
+- read `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
+  `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
   `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
   `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
   `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
@@ -41,9 +42,12 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- repeatedly trigger leftward extension from progressively older visible ranges;
-- stop requesting once bar-data reports exhausted historical coverage;
-- verify each request is capped at the current canvas-left timeline boundary;
+- run auto-play immediately after multiple older-window extensions;
+- run auto-play while an older-window request is in flight if the existing
+  runtime boundary can be exercised without adding artificial UI coupling;
+- verify each auto-play tick remains visibly fast and only replay runtime owns
+  cursor/reveal advancement;
+- preserve continuous leftward exhaustion stopping and canvas-left request caps;
 - preserve duplicate/exhausted older-window suppression;
 - preserve replay speed under active and recently loaded history extension;
 - preserve pane-local chart-data and viewport intent for multi-pane hosts;
@@ -54,8 +58,8 @@ Notes for execution:
 
 Scope:
 
-- continuous leftward history extension using existing chart-history, bar-data,
-  chart-data, chart-viewport, chart-engine, chart-entry, replay, and pane
+- auto-play speed under continuous history using existing chart-history,
+  bar-data, chart-data, chart-viewport, chart-engine, chart-entry, replay, and pane
   ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
@@ -65,6 +69,7 @@ Scope:
 
 Acceptance:
 
+- auto-play speed under continuous history smoke passes;
 - continuous leftward extension smoke passes;
 - replay speed under history extension smoke passes;
 - drag-triggered history extension browser smoke passes;
@@ -83,6 +88,29 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 151 - Continuous Leftward Extension Until Exhausted
+
+Completed in commits:
+
+- `1635af5a feat(v6): stop continuous history at exhaustion`
+- `47eaeeeb test(v6): cover continuous leftward history in browser`
+- `1fa65bac test(v6): preserve pane-local history exhaustion`
+
+Verification:
+
+- `node v6/tests/continuous-leftward-history-step151-smoke.js`
+- `node v6/tests/continuous-leftward-history-browser-step151-smoke.js`
+- `node v6/tests/continuous-leftward-history-pane-isolation-step151-smoke.js`
+- `node v6/tests/replay-speed-history-inflight-step150-smoke.js`
+- `node v6/tests/replay-speed-history-extension-browser-step150-smoke.js`
+- `node v6/tests/leftward-history-hardening-step149-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/leftward-history-extension-browser-step148-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-step147-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 150 - Replay Speed Under History Extension
 

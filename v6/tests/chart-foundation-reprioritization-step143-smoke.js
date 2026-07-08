@@ -32,10 +32,10 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Latest completed step: Step 150 - Replay Speed Under History Extension/);
-assert.match(todoDoc, /Step 151 - Continuous Leftward Extension Until Exhausted/);
-assert.match(todoDoc, /repeatedly trigger leftward extension from progressively older visible ranges/);
-assert.match(todoDoc, /preserve replay speed under active and recently loaded history extension/);
+assert.match(todoDoc, /Latest completed step: Step 151 - Continuous Leftward Extension Until Exhausted/);
+assert.match(todoDoc, /Step 152 - Auto-Play Speed Under Continuous History/);
+assert.match(todoDoc, /run auto-play immediately after multiple older-window extensions/);
+assert.match(todoDoc, /preserve continuous leftward exhaustion stopping and canvas-left request caps/);
 
 for (const forbiddenToken of [
   'COMPARISON_SYMBOL_COMMANDS',

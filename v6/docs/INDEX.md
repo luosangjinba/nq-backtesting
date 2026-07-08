@@ -125,6 +125,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`: accepted replay
   speed under history extension, including pending older-window requests,
   immediate post-extension `Next`, and stale-cursor prepend protection.
+- `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`: accepted continuous
+  leftward historical extension until exhausted, pane-local exhaustion memory,
+  browser repeated-extension coverage, and replay isolation.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
