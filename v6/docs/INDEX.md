@@ -192,6 +192,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_SAFE_LEFTWARD_HISTORY_LATENCY_STEP187.md`: accepted
   replay-safe leftward history latency gate for delayed/coalesced/chunked older
   history while replay and manual drag remain visually responsive.
+- `v6/docs/V6_GLOBEX_SESSION_BOUNDARY_CLARITY_STEP188.md`: accepted distinction
+  between dashboard trading-date labels and futures chart data boundaries such
+  as the prior Sunday Globex open.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
