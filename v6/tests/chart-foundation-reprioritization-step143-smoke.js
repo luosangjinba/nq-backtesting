@@ -32,11 +32,10 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Step 144 - Database K-Line Import Boundary/);
-assert.match(todoDoc, /Comparison Symbol Owner Contract direction is superseded/);
-assert.match(todoDoc, /dragging the chart toward older bars\s+should request older bounded windows through bar-data until the database\s+adapter reports exhausted history/);
-assert.match(todoDoc, /cap each triggered historical request at the canvas-left timeline boundary/);
-assert.match(todoDoc, /must not introduce obvious candle reveal latency/);
+assert.match(todoDoc, /Latest completed step: Step 144 - Database K-Line Import Boundary/);
+assert.match(todoDoc, /Step 145 - Replay K-Line Chart Flow/);
+assert.match(todoDoc, /preserve canvas-left older-window request caps and exhausted-history stop\s+semantics/);
+assert.match(todoDoc, /add browser-visible replay K-line checks that measure candle visibility/);
 
 for (const forbiddenToken of [
   'COMPARISON_SYMBOL_COMMANDS',

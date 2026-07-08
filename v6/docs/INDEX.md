@@ -104,6 +104,9 @@ Read this index before working on V6.
   reprioritization from additional workstation chrome owner contracts back to
   database K-line import, replay K-line flow, reset view, and multi-pane chart
   foundations.
+- `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`: accepted database
+  K-line import boundary, V4 DuckDB schema discovery, canvas-left request caps,
+  exhausted-history metadata, and replay-visible latency requirements.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -227,6 +230,9 @@ Read this index before working on V6.
 - `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`: accepted chart foundation
   priority reset after Step 142, with Step 144 directed at database K-line
   import through the bar-data boundary.
+- `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`: accepted database K-line
+  import boundary, V4 DuckDB schema discovery, canvas-left request caps,
+  exhausted-history metadata, and replay-visible latency requirements.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,

@@ -14,57 +14,46 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 143 - Chart Foundation Re-prioritization.
-  The Step 142 Comparison Symbol Owner Contract direction is superseded, and
-  the next phase prioritizes database K-line import, replay K-line flow, reset
-  view, and multi-pane chart foundations.
+- Latest completed step: Step 144 - Database K-Line Import Boundary.
+  V6 now has a database bars adapter seam under bar-data ownership, V4 DuckDB
+  schema discovery, canvas-left older-window request caps, exhausted-history
+  metadata, and bounded chart-entry coverage.
 
 ## Next Executable Steps
 
-### Step 144 - Database K-Line Import Boundary
+### Step 145 - Replay K-Line Chart Flow
 
-Establish the database-backed bounded K-line import boundary for V6 before
-adding more workstation chrome owner contracts.
+Start the replay K-line chart flow on top of the database/bar-data boundary
+before adding more workstation chrome owner contracts.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
+- read `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
+  `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- inspect the local database source and available schema before designing the
-  adapter;
+- use the Step 144 database bars adapter seam through bar-data ownership;
 - keep bar-data runtime as the only owner that requests and caches bars;
-- define a database bars adapter interface that returns the same normalized
-  bounded window shape expected by the existing bar-data runtime;
-- keep all requests bounded by existing bar window rules and limits;
-- include leftward historical extension: dragging the chart toward older bars
-  should request older bounded windows through bar-data until the database
-  adapter reports exhausted history;
-- cap each triggered historical request at the canvas-left timeline boundary
-  that caused the load, so V6 does not spend resources prefetching farther left
-  than the chart currently needs;
-- preserve replay-visible speed: database import and older-window extension
-  must not introduce obvious candle reveal latency;
-- add tests that prove session creation and chart entry do not load a full date
-  range;
-- if the database schema is not ready or cannot be discovered locally, record
-  the gap and select the smallest fixture-backed adapter seam with the same
-  bar-data ownership boundary;
-- do not add chart series writes, chart overlays, replay cursor mutation,
-  viewport mutation, multi-pane UI, simulated trading, comparison symbols, or
-  additional workstation chrome behavior in this step;
+- keep chart-engine as the only owner that writes chart series;
+- keep replay runtime as the only owner of replay cursor and reveal state;
+- load only prefix plus start bar for initial chart entry;
+- reveal future K-lines only through replay Next/Play;
+- preserve canvas-left older-window request caps and exhausted-history stop
+  semantics;
+- add browser-visible replay K-line checks that measure candle visibility, not
+  only replay command completion;
+- do not add chart overlays, multi-pane UI, simulated trading, comparison
+  symbols, or additional workstation chrome behavior in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- data-source/schema discovery plus a focused adapter or adapter contract;
-- older-window/exhausted-history response semantics for leftward chart
-  extension;
-- canvas-left timeline request caps and replay-visible latency acceptance;
+- replay K-line chart flow using existing chart-entry, replay, bar-data,
+  chart-data, chart-engine, and chart-viewport ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -72,12 +61,9 @@ Scope:
 
 Acceptance:
 
-- new database K-line import boundary smoke passes;
+- replay K-line chart flow smoke passes;
+- database K-line import boundary smoke passes;
 - chart foundation reprioritization smoke passes;
-- older-window/exhausted-history boundary coverage is included in the new
-  database K-line import boundary smoke;
-- canvas-left request cap and replay-visible latency coverage are included in
-  the new database K-line import boundary smoke or a focused follow-up smoke;
 - bar-data runtime smoke passes;
 - chart entry context/window planning smoke passes;
 - replay runtime smoke passes;
@@ -87,6 +73,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 144 - Database K-Line Import Boundary
+
+Completed in commits:
+
+- `b74fd09e feat(v6): add database bars adapter boundary`
+- `3be1804e test(v6): cover database k-line import boundary`
+
+Verification:
+
+- `node v6/tests/database-bars-adapter-smoke.js`
+- `node v6/tests/database-kline-import-boundary-step144-smoke.js`
+- `node v6/tests/bar-data-domain-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/bar-data-adapter-smoke.js`
+- `node v6/tests/chart-entry-context-plan-smoke.js`
+- `node v6/tests/chart-entry-context-runtime-smoke.js`
+- `node v6/tests/chart-entry-initialization-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 143 - Chart Foundation Re-prioritization
 

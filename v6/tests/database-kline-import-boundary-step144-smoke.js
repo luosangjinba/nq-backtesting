@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { BAR_DATA_COMMANDS } from '../src/contracts/app-contracts.js';
 import {
   clearCommandsForTest,
@@ -16,6 +17,15 @@ import { createChartEntryContextPlan } from '../src/chart-entry/chart-entry-cont
 
 clearCommandsForTest();
 clearEventsForTest();
+
+const boundaryDoc = await readFile('v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md', 'utf8');
+const todoDoc = await readFile('v6/TODO.md', 'utf8');
+
+assert.match(boundaryDoc, /V4 DuckDB source/);
+assert.match(boundaryDoc, /canvas-left timeline boundary/);
+assert.match(boundaryDoc, /history\.exhaustedBefore/);
+assert.match(boundaryDoc, /no full session\/date-range load/);
+assert.match(todoDoc, /Step 145 - Replay K-Line Chart Flow/);
 
 const timingSamples = [200, 207, 209];
 const queryCalls = [];
