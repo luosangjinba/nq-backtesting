@@ -22,12 +22,13 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'shell-only UI',
   'runtime-owned',
   'deferred',
-  'Priority Order',
+  'Updated Priority Order',
   'Ownership Constraints',
   'Stop Conditions',
-  'shell-only UI complete for first slice',
+  'shell-only UI complete for current slice',
   'Grouped floating interval dropdown',
-  'Step 50 should reserve the right utility rail',
+  'Diagnostics visibility cleanup',
+  'Step 130 should select the next bounded workstation/chart slice',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be listed in UI parity gap audit`);
 });
@@ -36,10 +37,21 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'primary/non-primary',
   'Trading/account UI appears interactive without an explicit owner',
   'Settings becomes a dashboard page',
-  'outside the chart price scale',
+  'Chart Settings distinct from Session settings',
   'without implementing those workflows',
+  'Order or Calendar appears as a visible dashboard row action',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be a guarded stop/direction condition`);
+});
+
+[
+  'Step 50 should reserve',
+  'Step 51 should reserve',
+  'Session settings panel reservation: make',
+  'Left drawing rail reservation: add',
+  'Bottom chrome audit: align',
+].forEach((staleNeedle) => {
+  assert.equal(audit.includes(staleNeedle), false, `${staleNeedle} should not remain as active stale direction`);
 });
 
 assert.equal(index.includes('V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md'), true);

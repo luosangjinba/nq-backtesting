@@ -69,6 +69,8 @@ Read this index before working on V6.
   accepted right-rail Session settings panel regression audit.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`: selected next
   bounded workstation/chart slice after Session settings panel stabilization.
+- `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`: accepted workstation UI
+  parity gap re-audit after Session settings panel stabilization.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -160,6 +162,8 @@ Read this index before working on V6.
   right-rail Session settings panel regression state.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`: accepted next
   workstation/chart slice selection after Session settings panel stabilization.
+- `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`: accepted workstation UI parity
+  gap re-audit and refreshed current shell/runtime gap classification.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
