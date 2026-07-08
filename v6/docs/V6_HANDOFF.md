@@ -5,20 +5,21 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 144 completed.
-- Next planned step: Step 145 - Replay K-Line Chart Flow.
+- Current V6 step state: Step 145 completed.
+- Next planned step: Step 146 - Reset View / KXG Reset Flow.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Database K-Line Import Boundary:
+The latest completed work is Replay K-Line Chart Flow:
 
-- `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md` records the V4 DuckDB schema
-  discovery and V6 database bars adapter seam.
-- `database-bars-adapter.js` maps database rows into the existing normalized
-  bounded bar-window response path.
-- `database-kline-import-boundary-step144-smoke.js` covers canvas-left request
-  caps, exhausted-history metadata, cache preservation, and bounded chart-entry
-  planning.
-- Step 145 should begin replay K-line chart flow on top of this boundary.
+- `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md` records the replay K-line chart flow
+  gate.
+- `replay-kline-chart-flow-step145-smoke.js` proves bounded database-backed
+  initial K-line loading and replay `Next` append through runtime ownership
+  boundaries.
+- `replay-kline-chart-flow-browser-step145-smoke.js` proves latest-candle
+  visibility before and after `Next`.
+- Step 146 should focus on reset view / KXG reset through chart-viewport
+  ownership.
 
 ## Restart Reading Order
 
@@ -69,58 +70,57 @@ After restarting the server or assistant context, read these first:
 43. `v6/sessions/session_20260707_step142_workstation_chart_slice_selection.md`
 44. `v6/sessions/session_20260707_step143_chart_foundation_reprioritization.md`
 45. `v6/sessions/session_20260707_step144_database_kline_import_boundary.md`
-46. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-47. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-48. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-49. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-50. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-51. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-52. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-53. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-54. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-56. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-57. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-59. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-62. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-64. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-65. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-66. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-67. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-68. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-69. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-70. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-71. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
-72. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
-73. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
-74. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-75. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-76. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+46. `v6/sessions/session_20260707_step145_replay_kline_chart_flow.md`
+47. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+48. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+49. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+50. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+51. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+52. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+53. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+54. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+55. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+56. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+57. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+58. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+59. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+60. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+62. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+63. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+64. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+65. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+66. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+67. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+68. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+69. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+70. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+71. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+72. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+73. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
+74. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
+75. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
+76. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+77. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+78. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 145 should begin the Replay K-Line Chart Flow.
+Step 146 should focus on Reset View / KXG Reset Flow.
 
-Keep Step 145 bounded:
+Keep Step 146 bounded:
 
-- read `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
+- read `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
+  `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
   `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- use the Step 144 database bars adapter seam through bar-data ownership;
-- keep bar-data runtime as the only owner that requests and caches bars;
-- keep chart-engine as the only owner that writes chart series;
-- keep replay runtime as the only owner of replay cursor and reveal state;
-- load only prefix plus start bar for initial chart entry;
-- reveal future K-lines only through replay Next/Play;
-- preserve canvas-left older-window request caps and exhausted-history stop
-  semantics;
-- add browser-visible replay K-line checks that measure candle visibility, not
-  only replay command completion;
+- keep reset view as a chart-viewport intent operation;
+- verify reset after initial replay K-line load;
+- verify reset after replay `Next`;
+- preserve database/bar-data bounded windows and replay cursor ownership;
+- ensure reset does not request bars, mutate replay cursor, or write chart
+  series outside chart-engine/chart-data bridges;
 - avoid chart overlays, multi-pane UI, simulated trading, comparison symbols,
   and additional workstation chrome behavior in this step;
 - keep dashboard row-action visibility unchanged;
@@ -128,8 +128,8 @@ Keep Step 145 bounded:
 
 Expected implementation shape:
 
-- replay K-line chart flow using existing chart-entry, replay, bar-data,
-  chart-data, chart-engine, and chart-viewport ownership boundaries;
+- reset view / KXG reset flow using existing chart-viewport, chart-data,
+  chart-engine, chart-entry, replay, and bar-data ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -166,8 +166,10 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 145 work:
+Run these before committing Step 146 work:
 
+- `node v6/tests/replay-kline-chart-flow-step145-smoke.js`
+- `node v6/tests/replay-kline-chart-flow-browser-step145-smoke.js`
 - `node v6/tests/database-kline-import-boundary-step144-smoke.js`
 - `node v6/tests/database-bars-adapter-smoke.js`
 - `node v6/tests/chart-foundation-reprioritization-step143-smoke.js`
@@ -263,16 +265,16 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `3417f9dc test(v6): verify replay k-line chart visibility`
+- `8e3ebd86 feat(v6): gate replay k-line chart flow`
 - `3be1804e test(v6): cover database k-line import boundary`
 - `b74fd09e feat(v6): add database bars adapter boundary`
 - `07899ef6 docs(v6): constrain history requests and replay latency`
 - `91441296 docs(v6): capture leftward history extension requirement`
-- `5f85ae9e docs(v6): close chart foundation reprioritization`
-- `5ca385bb docs(v6): reprioritize chart foundation`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-145. The handoff point is intentionally after establishing the database K-line
-import boundary and before starting replay K-line chart flow.
+146. The handoff point is intentionally after gating replay K-line chart flow
+and before stabilizing reset view / KXG reset behavior.

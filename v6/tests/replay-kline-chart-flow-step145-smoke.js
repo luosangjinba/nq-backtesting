@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import {
   BAR_DATA_COMMANDS,
   CHART_DATA_COMMANDS,
@@ -51,6 +52,14 @@ async function waitForCommandState(command, predicate, label) {
 clearCommandsForTest();
 clearEventsForTest();
 resetSessionIdsForTest();
+
+const step145Doc = await readFile('v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md', 'utf8');
+const todoDoc = await readFile('v6/TODO.md', 'utf8');
+
+assert.match(step145Doc, /browser-visible K-line checks/);
+assert.match(step145Doc, /prefix plus start bar/);
+assert.match(step145Doc, /Step 146 should focus on reset view \/ KXG reset behavior/);
+assert.match(todoDoc, /Step 146 - Reset View \/ KXG Reset Flow/);
 
 const databaseRows = new Map([
   ['2026-06-01 09:27|2026-06-01 09:30', [

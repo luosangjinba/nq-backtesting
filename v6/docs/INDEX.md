@@ -107,6 +107,9 @@ Read this index before working on V6.
 - `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`: accepted database
   K-line import boundary, V4 DuckDB schema discovery, canvas-left request caps,
   exhausted-history metadata, and replay-visible latency requirements.
+- `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`: accepted replay K-line chart
+  flow gate using bounded bar-data windows, browser-visible latest-candle
+  checks, and chart-viewport wall span ownership.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -233,6 +236,9 @@ Read this index before working on V6.
 - `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`: accepted database K-line
   import boundary, V4 DuckDB schema discovery, canvas-left request caps,
   exhausted-history metadata, and replay-visible latency requirements.
+- `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`: accepted replay K-line chart flow
+  gate using bounded bar-data windows, browser-visible latest-candle checks,
+  and chart-viewport wall span ownership.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
