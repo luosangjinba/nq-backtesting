@@ -10,6 +10,7 @@ import {
   PANE_INTENT_RELOAD_COMMANDS,
   PANE_INTENT_RELOAD_DATA_COMMANDS,
   PANE_INTENT_RELOAD_PLAN_COMMANDS,
+  PANE_INTENT_RELOAD_VIEWPORT_COMMANDS,
   PANE_INTENT_SYNC_COMMANDS,
   PANE_COMMANDS,
   REPLAY_COMMANDS,
@@ -22,6 +23,7 @@ import { createLayoutRuntime } from '../src/layout/layout-runtime.js';
 import { createPaneIntentReloadChartDataRuntime } from '../src/pane-intent-reload/pane-intent-reload-chart-data-runtime.js';
 import { createPaneIntentReloadDataRuntime } from '../src/pane-intent-reload/pane-intent-reload-data-runtime.js';
 import { createPaneIntentReloadRuntime } from '../src/pane-intent-reload/pane-intent-reload-runtime.js';
+import { createPaneIntentReloadViewportRuntime } from '../src/pane-intent-reload/pane-intent-reload-viewport-runtime.js';
 import { createPaneIntentReloadWindowRuntime } from '../src/pane-intent-reload/pane-intent-reload-window-runtime.js';
 import { createPaneIntentSyncRuntime } from '../src/pane-intent-sync/pane-intent-sync-runtime.js';
 import { createPaneRuntime } from '../src/panes/pane-runtime.js';
@@ -66,9 +68,10 @@ registry.registerRuntime(createReplayRuntime());
 registry.registerRuntime(createPaneIntentReloadWindowRuntime());
 registry.registerRuntime(createPaneIntentReloadDataRuntime());
 registry.registerRuntime(createPaneIntentReloadChartDataRuntime());
+registry.registerRuntime(createPaneIntentReloadViewportRuntime());
 assert.deepEqual(registry.snapshot(), {
   running: false,
-  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.layout', 'runtime.paneIntentSync', 'runtime.paneIntentReload', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay', 'runtime.paneIntentReloadWindow', 'runtime.paneIntentReloadData', 'runtime.paneIntentReloadChartData'],
+  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.layout', 'runtime.paneIntentSync', 'runtime.paneIntentReload', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay', 'runtime.paneIntentReloadWindow', 'runtime.paneIntentReloadData', 'runtime.paneIntentReloadChartData', 'runtime.paneIntentReloadViewport'],
   started: [],
 });
 
@@ -113,6 +116,7 @@ assert.deepEqual(listCommands(), [
   PANE_INTENT_RELOAD_CHART_DATA_COMMANDS.GET_STATE,
   PANE_INTENT_RELOAD_DATA_COMMANDS.GET_STATE,
   PANE_INTENT_RELOAD_PLAN_COMMANDS.GET_STATE,
+  PANE_INTENT_RELOAD_VIEWPORT_COMMANDS.GET_STATE,
   PANE_INTENT_SYNC_COMMANDS.GET_STATE,
   REPLAY_COMMANDS.GET_STATE,
   REPLAY_COMMANDS.LOAD_SESSION,

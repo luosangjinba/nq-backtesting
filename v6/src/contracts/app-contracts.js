@@ -207,6 +207,14 @@ export const PANE_INTENT_RELOAD_CHART_DATA_EVENTS = Object.freeze({
   REPLACED: 'paneIntentReloadChartData:replaced',
 });
 
+export const PANE_INTENT_RELOAD_VIEWPORT_COMMANDS = Object.freeze({
+  GET_STATE: 'paneIntentReloadViewport.getState',
+});
+
+export const PANE_INTENT_RELOAD_VIEWPORT_EVENTS = Object.freeze({
+  PROJECTED: 'paneIntentReloadViewport:projected',
+});
+
 export const CHART_DATA_COMMANDS = Object.freeze({
   APPEND_BARS: 'chartData.appendBars',
   CLEAR_PANE: 'chartData.clearPane',
