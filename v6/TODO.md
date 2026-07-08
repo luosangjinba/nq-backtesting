@@ -14,23 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 151 - Continuous Leftward Extension Until Exhausted.
-  V6 now supports repeated canvas-left capped historical extension, remembers
-  exhausted older history by pane/instrument/timeframe, and keeps replay state
-  isolated while older bars are prepended.
+- Latest completed step: Step 152 - Auto-Play Speed Under Continuous History.
+  V6 now verifies that 4x auto-play remains responsive after multiple
+  canvas-left capped older-window extensions and keeps the latest replay candle
+  visible while preserving replay, bar-data, chart-data, chart-engine, and
+  viewport ownership boundaries.
 
 ## Next Executable Steps
 
-### Step 152 - Auto-Play Speed Under Continuous History
+### Step 153 - Crosshair OHLC Readout Boundary
 
-Verify replay auto-play speed and visible latest-candle updates while continuous
-leftward historical extension is active or recently loaded.
+Define and gate the chart crosshair OHLC readout owner boundary before
+reintroducing OHLC values in the chart header.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
+- read `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
+  `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
   `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
   `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
   `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
@@ -42,14 +44,18 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- run auto-play immediately after multiple older-window extensions;
-- run auto-play while an older-window request is in flight if the existing
-  runtime boundary can be exercised without adding artificial UI coupling;
-- verify each auto-play tick remains visibly fast and only replay runtime owns
-  cursor/reveal advancement;
+- inspect Lightweight Charts crosshair APIs and use the existing chart surface
+  and chart-engine boundaries instead of direct route ownership;
+- define which runtime/surface owns crosshair-selected bar state and which UI
+  module renders the readout;
+- show OHLC only from the crosshair-selected candle, or keep OHLC hidden when no
+  selected candle is available;
+- prevent duplicate symbol/timeframe labels and avoid layered placeholder text
+  behind the real chart header;
 - preserve continuous leftward exhaustion stopping and canvas-left request caps;
 - preserve duplicate/exhausted older-window suppression;
-- preserve replay speed under active and recently loaded history extension;
+- preserve replay speed under active and recently loaded history extension and
+  auto-play;
 - preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - do not add simulated trading, comparison symbols, overlays, Order, or Calendar
   behavior in this step;
@@ -58,9 +64,8 @@ Notes for execution:
 
 Scope:
 
-- auto-play speed under continuous history using existing chart-history,
-  bar-data, chart-data, chart-viewport, chart-engine, chart-entry, replay, and pane
-  ownership boundaries;
+- crosshair/OHLC readout owner contract using existing chart-surface,
+  chart-engine, chart-data, chart-entry, replay, and pane ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -69,6 +74,9 @@ Scope:
 
 Acceptance:
 
+- crosshair OHLC readout owner-boundary smoke passes;
+- browser smoke proves the chart header does not duplicate labels or render
+  stale layered placeholder text;
 - auto-play speed under continuous history smoke passes;
 - continuous leftward extension smoke passes;
 - replay speed under history extension smoke passes;
@@ -88,6 +96,24 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 152 - Auto-Play Speed Under Continuous History
+
+Completed in commits:
+
+- `c4f53c78 test(v6): cover auto play after continuous history`
+- `2b19832c test(v6): cover auto play browser after continuous history`
+
+Verification:
+
+- `node v6/tests/auto-play-continuous-history-step152-smoke.js`
+- `node v6/tests/auto-play-continuous-history-browser-step152-smoke.js`
+- `node v6/tests/chart-entry-auto-play-runtime-smoke.js`
+- `node v6/tests/chart-entry-auto-play-browser-smoke.js`
+- `node v6/tests/continuous-leftward-history-step151-smoke.js`
+- `node v6/tests/continuous-leftward-history-browser-step151-smoke.js`
+- `node v6/tests/replay-speed-history-extension-browser-step150-smoke.js`
+- `git diff --check`
 
 ### Step 151 - Continuous Leftward Extension Until Exhausted
 
