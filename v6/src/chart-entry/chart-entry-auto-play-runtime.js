@@ -38,6 +38,7 @@ export function createChartEntryAutoPlayRuntime({
   let state = {
     error: null,
     lastTick: null,
+    paneId: 'main',
     playing: false,
     speed: 1,
     status: 'idle',
@@ -61,6 +62,7 @@ export function createChartEntryAutoPlayRuntime({
     return {
       error: state.error,
       lastTick: cloneTick(state.lastTick),
+      paneId: state.paneId,
       playing: state.playing,
       speed: state.speed,
       status: state.status,
@@ -82,7 +84,9 @@ export function createChartEntryAutoPlayRuntime({
     if (ticking || !state.playing) return getState();
     ticking = true;
     try {
-      const nextState = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
+      const nextState = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, {
+        paneId: state.paneId,
+      });
       if (nextState?.status === 'error') {
         throw new Error(nextState.error || 'Chart entry manual next failed during auto play.');
       }
@@ -118,6 +122,7 @@ export function createChartEntryAutoPlayRuntime({
     state = {
       error: null,
       lastTick: null,
+      paneId: String(payload.paneId || state.paneId || 'main'),
       playing: replayState?.status === 'playing',
       speed,
       status: replayState?.status === 'playing' ? 'playing' : String(replayState?.status || 'idle'),
@@ -169,6 +174,7 @@ export function createChartEntryAutoPlayRuntime({
     state = {
       error: null,
       lastTick: null,
+      paneId: 'main',
       playing: false,
       speed: 1,
       status: 'idle',

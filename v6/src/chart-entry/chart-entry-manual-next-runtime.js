@@ -90,6 +90,14 @@ function pickCursorBars(record, replayState) {
   return exact.length ? exact : bars.slice(-1);
 }
 
+function normalizePaneId(value = 'main') {
+  const paneId = String(value || 'main').trim();
+  if (!paneId) {
+    throw new Error('Chart entry manual next paneId must be a non-empty string.');
+  }
+  return paneId;
+}
+
 export function createChartEntryManualNextRuntime() {
   const unregisterCallbacks = [];
   let state = {
@@ -106,8 +114,9 @@ export function createChartEntryManualNextRuntime() {
     };
   }
 
-  async function next(emitEvent) {
+  async function next(payload = {}, emitEvent) {
     try {
+      const paneId = normalizePaneId(payload.paneId);
       const currentReplayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
       const playbackPeriodState = await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE);
       const stepCount = resolvePlaybackPeriodStepCount({
@@ -139,7 +148,7 @@ export function createChartEntryManualNextRuntime() {
         chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
           bars,
           cursorTimestamp,
-          paneId: 'main',
+          paneId,
         });
         appendedBarCount += bars.length;
         loadedWindows.push({
@@ -178,7 +187,7 @@ export function createChartEntryManualNextRuntime() {
   function start({ emitEvent } = {}) {
     unregisterCallbacks.push(
       registerCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.GET_STATE, () => getState()),
-      registerCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, () => next(emitEvent)),
+      registerCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, (payload) => next(payload, emitEvent)),
     );
   }
 

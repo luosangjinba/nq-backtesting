@@ -76,8 +76,8 @@ registerCommand(REPLAY_COMMANDS.PAUSE, () => {
     status: 'paused',
   };
 });
-registerCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, () => {
-  calls.push(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
+registerCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, (payload) => {
+  calls.push({ command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, payload });
   cursorIndex += 1;
   return {
     advanced: {
@@ -101,6 +101,7 @@ assert.equal(listenerCount(CHART_ENTRY_AUTO_PLAY_EVENTS.STARTED), 1);
 assert.deepEqual(await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.GET_STATE), {
   error: null,
   lastTick: null,
+  paneId: 'main',
   playing: false,
   speed: 1,
   status: 'idle',
@@ -132,7 +133,10 @@ assert.equal(state.status, 'ended');
 assert.equal(state.playing, false);
 assert.equal(state.lastTick.replayState.cursorIndex, 2);
 assert.equal(fakeTimer.intervalCount(), 0);
-assert.equal(calls.filter((command) => command === CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT).length, 2);
+assert.deepEqual(
+  calls.filter((call) => call.command === CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT).map((call) => call.payload),
+  [{ paneId: 'main' }, { paneId: 'main' }],
+);
 assert.equal(events.some((entry) => entry.event === CHART_ENTRY_AUTO_PLAY_EVENTS.TICKED), true);
 assert.equal(events.at(-1).event, CHART_ENTRY_AUTO_PLAY_EVENTS.STOPPED);
 
