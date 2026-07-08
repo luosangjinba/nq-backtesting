@@ -16,6 +16,7 @@ import { createChartEntryRestartRuntime } from './chart-entry/chart-entry-restar
 import { createChartEntryRuntime } from './chart-entry/chart-entry-runtime.js';
 import { connectChartDataSurfaceBridge } from './chart-engine/chart-data-surface-bridge.js';
 import { connectChartViewportSurfaceBridge } from './chart-engine/chart-viewport-surface-bridge.js';
+import { connectLayoutSyncSurfaceBridge } from './chart-engine/layout-sync-surface-bridge.js';
 import { connectLayoutSurfaceBridge } from './chart-engine/layout-surface-bridge.js';
 import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-bridge.js';
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
@@ -104,6 +105,10 @@ const layoutSurfaceBridge = connectLayoutSurfaceBridge({
   chartSurface: workstationChartSurface,
   subscribeEvent,
 });
+const layoutSyncSurfaceBridge = connectLayoutSyncSurfaceBridge({
+  chartSurface: workstationChartSurface,
+  subscribeEvent,
+});
 const manualWallInputBridge = connectManualWallInputBridge({
   chartSurface: workstationChartSurface,
 });
@@ -172,6 +177,7 @@ root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;
 root.__v6ChartDataSurfaceBridge = chartDataSurfaceBridge;
 root.__v6ChartViewportSurfaceBridge = chartViewportSurfaceBridge;
+root.__v6LayoutSyncSurfaceBridge = layoutSyncSurfaceBridge;
 root.__v6LayoutSurfaceBridge = layoutSurfaceBridge;
 root.__v6LeftwardHistoryInputBridge = leftwardHistoryInputBridge;
 root.__v6ManualWallInputBridge = manualWallInputBridge;
