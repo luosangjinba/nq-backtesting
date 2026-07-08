@@ -14,24 +14,25 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 174 - Replay-Safe Reload Window Planning. V6 now
-  converts pane reload-intent records into pure replay-capped backward bar
-  window plans, without making bar-data requests, chart-data writes, viewport
-  projections, runtime registration, or replay mutations.
+- Latest completed step: Step 175 - Reload Window Planning Runtime Handoff. V6
+  now listens for pane reload-intent events, reads replay state through the
+  replay owner, and emits/stores replay-safe planned reload windows, without
+  making bar-data requests, chart-data writes, viewport projections, chart
+  series writes, or replay mutations.
 
 ## Next Executable Steps
 
-### Step 175 - Reload Window Planning Runtime Handoff
+### Step 176 - Planned Reload Bar-Data Handoff Boundary
 
-Add the runtime handoff that listens for pane reload-intent records, reads replay
-state through the replay owner, and records/emits replay-safe reload window
-plans before implementing any actual bar-data request.
+Define how replay-safe planned reload windows will be consumed by the bar-data
+owner before chart-data replacement or viewport projection is implemented.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_REPLAY_SAFE_RELOAD_WINDOW_PLAN_STEP174.md`,
+- read `V6_RELOAD_WINDOW_PLANNING_RUNTIME_STEP175.md`,
+  `V6_REPLAY_SAFE_RELOAD_WINDOW_PLAN_STEP174.md`,
   `V6_PANE_INTENT_RELOAD_RUNTIME_STEP173.md`,
   `V6_SYNCED_INTENT_RELOAD_BOUNDARY_STEP172.md`,
   `V6_SYMBOL_INTERVAL_INTENT_FANOUT_STEP171.md`,
@@ -65,12 +66,13 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- add a reload window planning runtime handoff through explicit
-  command/event contracts;
-- read replay state through `REPLAY_COMMANDS.GET_STATE` only inside this
-  handoff owner;
-- do not call `BAR_DATA_COMMANDS.LOAD_WINDOW`, write chart-data, or project
-  viewport in this step;
+- define or implement the narrow bar-data-owner handoff for planned reload
+  windows;
+- if implementing requests, route them through `BAR_DATA_COMMANDS.LOAD_WINDOW`
+  from the accepted handoff owner only;
+- do not write chart-data or project viewport in this step unless a separate
+  accepted boundary is documented first;
+- preserve Step 175 reload planning runtime and `paneIntentReloadPlan:planned`;
 - preserve Step 174 pure reload window planning and no-future caps;
 - preserve Step 173 reload-intent runtime and events;
 - preserve Step 172 reload-intent model and boundary doc;
@@ -164,6 +166,20 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 175 - Reload Window Planning Runtime Handoff
+
+Completed in commit:
+
+- `b1d5ff6b feat(v6): add reload window planning runtime`
+
+Verification:
+
+- `node v6/tests/pane-intent-reload-window-runtime-step175-smoke.js`
+- `node v6/tests/pane-intent-reload-window-plan-step174-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 174 - Replay-Safe Reload Window Planning
 

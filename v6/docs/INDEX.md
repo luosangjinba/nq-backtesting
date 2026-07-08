@@ -167,6 +167,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_SAFE_RELOAD_WINDOW_PLAN_STEP174.md`: accepted pure
   replay-safe reload window planning from pane reload-intent records, capped at
   the replay cursor and not yet issuing bar-data requests.
+- `v6/docs/V6_RELOAD_WINDOW_PLANNING_RUNTIME_STEP175.md`: accepted runtime
+  handoff from pane reload-intent events to replay-safe planned reload windows,
+  still without issuing bar-data requests.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
