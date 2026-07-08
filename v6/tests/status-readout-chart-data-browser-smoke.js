@@ -54,6 +54,7 @@ try {
         },
         readoutStyle: {
           backgroundColor: getComputedStyle(document.querySelector('[data-v6-status-readout]')).backgroundColor,
+          boxShadow: getComputedStyle(document.querySelector('[data-v6-status-readout]')).boxShadow,
           overflow: getComputedStyle(document.querySelector('[data-v6-status-readout]')).overflow,
         },
         symbol: text('[data-v6-status-symbol]'),
@@ -77,8 +78,8 @@ try {
   assert.equal(value.pricePresent, false);
   assert.notEqual(value.rects.readout, null);
   assert.equal(value.rects.readout.width > 120, true);
-  assert.match(value.readoutStyle.backgroundColor, /rgba?\(/);
-  assert.notEqual(value.readoutStyle.backgroundColor, 'rgba(0, 0, 0, 0)');
+  assert.equal(value.readoutStyle.backgroundColor, 'rgba(0, 0, 0, 0)');
+  assert.equal(value.readoutStyle.boxShadow, 'none');
   assert.equal(value.readoutStyle.overflow, 'hidden');
 
   const ordered = [

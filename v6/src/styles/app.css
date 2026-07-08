@@ -1898,11 +1898,6 @@ p {
   max-width: calc(100% - 144px);
   min-width: 0;
   overflow: hidden;
-  padding: 5px 9px;
-  border: 1px solid rgba(86, 111, 124, 0.35);
-  border-radius: 6px;
-  background: rgba(11, 18, 24, 0.92);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.24);
   color: #9fb7c6;
   font-size: 12px;
   white-space: nowrap;
@@ -1925,8 +1920,8 @@ p {
 
 .pane-status-readout {
   position: absolute;
-  top: 16px;
-  left: 16px;
+  top: 18px;
+  left: 28px;
   z-index: 5;
   min-width: 0;
   pointer-events: none;
