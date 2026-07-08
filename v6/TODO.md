@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 176 - Planned Reload Bar-Data Handoff Boundary.
-  V6 now consumes replay-safe planned reload windows through the bar-data owner
-  and emits loaded metadata, without chart-data writes, viewport projections,
-  chart series writes, or replay mutations.
+- Latest completed step: Step 177 - Reloaded Data Chart-Data Replacement
+  Boundary. V6 now replaces pane-local chart-data from loaded reload windows
+  under replay no-future filtering, without viewport projections, chart series
+  writes, or replay mutations.
 
 ## Next Executable Steps
 
-### Step 177 - Reloaded Data Chart-Data Replacement Boundary
+### Step 178 - Reload Replacement Viewport Projection Boundary
 
-Define how loaded reload data replaces pane-local chart-data under replay
-no-future constraints before viewport projection is implemented.
+Define how reload chart-data replacement projects pane-local viewport through
+the chart-viewport owner.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PLANNED_RELOAD_BAR_DATA_HANDOFF_STEP176.md`,
+- read `V6_RELOADED_DATA_CHART_DATA_REPLACEMENT_STEP177.md`,
+  `V6_PLANNED_RELOAD_BAR_DATA_HANDOFF_STEP176.md`,
   `V6_RELOAD_WINDOW_PLANNING_RUNTIME_STEP175.md`,
   `V6_REPLAY_SAFE_RELOAD_WINDOW_PLAN_STEP174.md`,
   `V6_PANE_INTENT_RELOAD_RUNTIME_STEP173.md`,
@@ -66,13 +67,12 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- define or implement the chart-data replacement boundary for loaded reload
-  data;
-- route chart-data writes through `CHART_DATA_COMMANDS.REPLACE_BARS` from the
-  accepted owner only;
-- preserve replay no-future filtering and pane-local chart-data ownership;
-- do not project viewport in this step unless a separate accepted boundary is
-  documented first;
+- define or implement the viewport projection boundary for reload chart-data
+  replacement;
+- route viewport projection through the chart-viewport owner only;
+- do not write chart series directly in this step;
+- preserve Step 177 chart-data replacement and
+  `paneIntentReloadChartData:replaced`;
 - preserve Step 176 planned reload bar-data handoff and
   `paneIntentReloadData:loaded`;
 - preserve Step 175 reload planning runtime and `paneIntentReloadPlan:planned`;
@@ -169,6 +169,21 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 177 - Reloaded Data Chart-Data Replacement Boundary
+
+Completed in commit:
+
+- `dee4e696 feat(v6): replace chart data from reload windows`
+
+Verification:
+
+- `node v6/tests/pane-intent-reload-chart-data-runtime-step177-smoke.js`
+- `node v6/tests/pane-intent-reload-data-runtime-step176-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 176 - Planned Reload Bar-Data Handoff Boundary
 
