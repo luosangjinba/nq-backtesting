@@ -111,10 +111,23 @@ const leftwardHistoryInputBridge = connectLeftwardHistoryInputBridge({
   chartSurface: workstationChartSurface,
 });
 const layoutMenuControl = mountLayoutMenuControl(root);
-const resetViewControl = connectResetViewControl({
-  button: root.querySelector('[data-v6-reset-view]'),
-  chartSurface: workstationChartSurface,
-});
+const resetViewControls = [...root.querySelectorAll('[data-v6-reset-view]')]
+  .map((button) => connectResetViewControl({
+    button,
+    chartSurface: workstationChartSurface,
+    paneId: button.dataset.v6ResetPaneId,
+  }));
+const resetViewControl = {
+  controls: resetViewControls,
+  destroy() {
+    resetViewControls.forEach((control) => control.destroy());
+  },
+  resetView(payload = {}) {
+    const paneId = String(payload.paneId || 'main');
+    const control = resetViewControls.find((candidate) => candidate.paneId === paneId) || resetViewControls[0];
+    return control?.resetView() ?? null;
+  },
+};
 const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),

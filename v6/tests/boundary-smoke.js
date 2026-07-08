@@ -1063,7 +1063,7 @@ for (const bridgeId of getChartControlBridges()) {
   const appText = await readFile(APP_FILE, 'utf8');
   const controlBridgeMounts = [
     ['manual-wall-input-bridge', 'connectManualWallInputBridge({\n  chartSurface: workstationChartSurface,'],
-    ['reset-view-control-bridge', 'connectResetViewControl({\n  button: root.querySelector'],
+    ['reset-view-control-bridge', 'connectResetViewControl({\n    button,'],
   ];
   for (const [bridgeId, mountToken] of controlBridgeMounts) {
     if (!getChartControlBridges().includes(bridgeId) || !appText.includes(mountToken)) {

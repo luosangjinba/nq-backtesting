@@ -64,6 +64,7 @@ export function connectResetViewControl({
     destroy() {
       abortController.abort();
     },
+    paneId,
     resetView,
   };
 }
