@@ -39,7 +39,8 @@ const DEFAULT_SERIES_OPTIONS = Object.freeze({
 
 const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
 const PROGRAMMATIC_RANGE_EPSILON = 2;
-const USER_RANGE_INPUT_WINDOW_MS = 2000;
+const USER_RANGE_DRAG_RELEASE_GRACE_MS = 80;
+const USER_RANGE_WHEEL_WINDOW_MS = 2000;
 const LAYOUT_PANE_COUNTS = Object.freeze({
   single: 1,
   triple: 3,
@@ -157,6 +158,7 @@ export function mountWorkstationChartSurface(root, {
   let pendingLayoutResizeFrame = null;
   let readoutPaneId = null;
   let restoreLayoutSnapshot = null;
+  let activeUserRangeGestures = 0;
   let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
   const manager = managerFactory({
@@ -188,7 +190,7 @@ export function mountWorkstationChartSurface(root, {
         if (programmaticRange && Date.now() <= programmaticRange.suppressUntil && rangesNear(record, programmaticRange)) {
           return;
         }
-        if (Date.now() > userRangeInputUntil) {
+        if (!isUserRangeInputActive()) {
           return;
         }
         visibleRangeListeners.forEach((listener) => listener({ ...record }));
@@ -217,13 +219,37 @@ export function mountWorkstationChartSurface(root, {
       }))
     : [];
 
-  const markUserRangeInput = () => {
-    userRangeInputUntil = Date.now() + USER_RANGE_INPUT_WINDOW_MS;
+  function isUserRangeInputActive() {
+    return activeUserRangeGestures > 0 || Date.now() <= userRangeInputUntil;
+  }
+
+  const markUserRangeDragStart = () => {
+    activeUserRangeGestures += 1;
+    userRangeInputUntil = Date.now() + USER_RANGE_DRAG_RELEASE_GRACE_MS;
   };
-  const userInputEvents = ['pointerdown', 'mousedown', 'wheel', 'touchstart'];
+  const markUserRangeDragEnd = () => {
+    activeUserRangeGestures = 0;
+    userRangeInputUntil = Date.now() + USER_RANGE_DRAG_RELEASE_GRACE_MS;
+  };
+  const markUserRangeWheelInput = () => {
+    userRangeInputUntil = Date.now() + USER_RANGE_WHEEL_WINDOW_MS;
+  };
+  const userInputStartEvents = ['pointerdown', 'mousedown', 'touchstart'];
+  const userInputReleaseEvents = ['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchcancel'];
+  const userInputReleaseTargets = new Set();
   hosts.forEach((host) => {
-    userInputEvents.forEach((eventName) => {
-      host.addEventListener?.(eventName, markUserRangeInput, { passive: true });
+    userInputStartEvents.forEach((eventName) => {
+      host.addEventListener?.(eventName, markUserRangeDragStart, { passive: true });
+    });
+    host.addEventListener?.('wheel', markUserRangeWheelInput, { passive: true });
+    const releaseTarget = host.ownerDocument || root.ownerDocument || globalThis.document;
+    if (releaseTarget) {
+      userInputReleaseTargets.add(releaseTarget);
+    }
+  });
+  userInputReleaseTargets.forEach((target) => {
+    userInputReleaseEvents.forEach((eventName) => {
+      target.addEventListener?.(eventName, markUserRangeDragEnd, { passive: true });
     });
   });
 
@@ -626,8 +652,14 @@ export function mountWorkstationChartSurface(root, {
       unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       hosts.forEach((host) => {
-        userInputEvents.forEach((eventName) => {
-          host.removeEventListener?.(eventName, markUserRangeInput);
+        userInputStartEvents.forEach((eventName) => {
+          host.removeEventListener?.(eventName, markUserRangeDragStart);
+        });
+        host.removeEventListener?.('wheel', markUserRangeWheelInput);
+      });
+      userInputReleaseTargets.forEach((target) => {
+        userInputReleaseEvents.forEach((eventName) => {
+          target.removeEventListener?.(eventName, markUserRangeDragEnd);
         });
       });
       resizeObserver?.disconnect();
