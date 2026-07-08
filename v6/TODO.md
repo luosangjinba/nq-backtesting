@@ -14,49 +14,60 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 137 - Indicators Owner Contract. The pure
-  indicators owner contract, fixed built-in indicator id whitelist, read-only
-  indicator intent state, validation helpers, and boundary coverage are in
-  place while the top-toolbar Indicators button remains disabled and inert.
+- Latest completed step: Step 138 - Workstation Chart Slice Selection.
+  Drawing/Action-History Owner Contract is selected as the next bounded
+  workstation/chart slice.
 
 ## Next Executable Steps
 
-### Step 138 - Workstation Chart Slice Selection
+### Step 139 - Drawing/Action-History Owner Contract
 
-Choose the next bounded workstation/chart slice after the Indicators Owner
-Contract.
+Establish the drawing/action-history owner contract before the left drawing rail
+or top-toolbar undo/redo controls become interactive.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_INDICATORS_OWNER_CONTRACT.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`,
-  `V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`,
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`,
+  `V6_INDICATORS_OWNER_CONTRACT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- select one small next slice with explicit owner boundary and acceptance
-  tests;
-- prefer selecting one deferred owner contract family or a narrow audit needed
-  before enabling interactivity;
-- keep the selection docs/test only;
-- do not implement the selected slice in Step 138;
+- create a focused drawing/action-history contract/domain module;
+- define explicit drawing request fields for tool id, anchor points, target
+  pane, style, label, visibility, and metadata;
+- define explicit action-history fields for action id, action type, target,
+  timestamp, and metadata;
+- define default read-only drawing intent state and validation helpers for
+  future owner wiring;
+- keep the left drawing rail and top-toolbar undo/redo controls disabled and
+  inert;
+- do not add drawing creation, chart overlays, pane mutation, undo/redo
+  execution, browser storage, persistence, or runtime command wiring in this
+  step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test selection only;
+- contract/domain module plus focused tests;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, screenshot/export, indicators, orders, or
-  calendar commands from selection code.
+  viewport, session-settings, screenshot/export, indicators,
+  drawing/action-history, orders, or calendar commands from the toolbar or rail;
+- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
+  default-wall, display-timeframe, indicators, settings, session-settings,
+  screenshot-export, orders, calendar, account, analytics, persistence, V4,
+  vendor, or Lightweight Charts modules into the drawing/action-history
+  contract.
 
 Acceptance:
 
-- new Step 138 slice selection smoke passes;
+- new drawing/action-history contract smoke passes;
+- Step 138 slice selection smoke passes;
 - indicators contract smoke passes;
 - Step 136 slice selection smoke passes;
 - screenshot/export contract smoke passes;
+- left drawing rail browser smoke passes;
 - Step 134 slice selection smoke passes;
 - session-settings contract smoke passes;
 - diagnostics visibility cleanup browser smoke passes;
@@ -68,6 +79,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 138 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `68e8ec7d docs(v6): select drawing action history contract slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step138-smoke.js`
+- `node v6/tests/indicators-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step136-smoke.js`
+- `node v6/tests/screenshot-export-contract-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/left-drawing-rail-browser-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 137 - Indicators Owner Contract
 
