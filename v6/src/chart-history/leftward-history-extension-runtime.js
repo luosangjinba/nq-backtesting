@@ -102,6 +102,18 @@ function cloneExtension(extension) {
   } : null;
 }
 
+function cloneRecentRequest(request) {
+  return request ? {
+    barCount: request.barCount,
+    gapScanIndex: request.gapScanIndex,
+    loadedWindow: request.loadedWindow ? { ...request.loadedWindow } : null,
+    paneId: request.paneId,
+    plannedWindow: cloneWindow(request.plannedWindow),
+    reason: request.reason || null,
+    status: request.status,
+  } : null;
+}
+
 function createRequestKey(paneId, plannedWindow) {
   return `${paneId}|${makeBarWindowKey(plannedWindow)}`;
 }
@@ -153,16 +165,33 @@ export function createLeftwardHistoryExtensionRuntime({
   const exhaustedScopes = new Map();
   const exhaustedRequestKeys = new Set();
   const inFlightRequestKeys = new Set();
+  const recentRequests = [];
   let state = {
     error: null,
     extension: null,
     status: 'idle',
   };
 
+  function recordRequestAttempt(record) {
+    recentRequests.push({
+      barCount: Number(record.barCount) || 0,
+      gapScanIndex: Number(record.gapScanIndex) || 0,
+      loadedWindow: record.loadedWindow || null,
+      paneId: record.paneId,
+      plannedWindow: cloneWindow(record.plannedWindow),
+      reason: record.reason || null,
+      status: record.status,
+    });
+    while (recentRequests.length > 32) {
+      recentRequests.shift();
+    }
+  }
+
   function getState() {
     return {
       error: state.error,
       extension: cloneExtension(state.extension),
+      recentRequests: recentRequests.map(cloneRecentRequest),
       status: state.status,
     };
   }
@@ -257,6 +286,15 @@ export function createLeftwardHistoryExtensionRuntime({
           inFlightRequestKeys.delete(requestKey);
         }
         loadedBars = cloneBars(loadedWindow?.bars);
+        recordRequestAttempt({
+          barCount: loadedBars.length,
+          gapScanIndex: emptyGapScans,
+          loadedWindow: summarizeLoadedWindow(loadedWindow),
+          paneId,
+          plannedWindow,
+          reason: loadedBars.length ? null : 'empty-window',
+          status: loadedBars.length ? 'loaded' : 'empty',
+        });
         if (loadedWindow?.history?.exhaustedBefore === true) {
           exhaustedRequestKeys.add(requestKey);
           exhaustedScopes.set(
@@ -337,6 +375,7 @@ export function createLeftwardHistoryExtensionRuntime({
     exhaustedRequestKeys.clear();
     exhaustedScopes.clear();
     inFlightRequestKeys.clear();
+    recentRequests.length = 0;
     state = {
       error: null,
       extension: null,
