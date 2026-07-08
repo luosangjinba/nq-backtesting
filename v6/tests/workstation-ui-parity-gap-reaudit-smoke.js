@@ -61,6 +61,7 @@ for (const forbiddenToken of [
   'localStorage.setItem',
 ]) {
   assert.equal(reAuditDoc.includes(forbiddenToken), false, `re-audit doc must not choose runtime-owned ${forbiddenToken}`);
+  assert.equal(parityGapDoc.includes(forbiddenToken), false, `parity gap doc must not choose runtime-owned ${forbiddenToken}`);
 }
 
 for (const staleDirection of [
