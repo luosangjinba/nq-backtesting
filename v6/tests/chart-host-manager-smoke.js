@@ -15,6 +15,9 @@ function createFakeAdapterFactory(calls) {
         calls.push({ method: 'measureVisibleLogicalRange' });
         return visibleLogicalRange ? { ...visibleLogicalRange } : null;
       },
+      clearCrosshairPosition() {
+        calls.push({ method: 'clearCrosshairPosition' });
+      },
       mount(host) {
         calls.push({ host, method: 'mount' });
         mounted = true;
@@ -25,6 +28,9 @@ function createFakeAdapterFactory(calls) {
       setData(bars = []) {
         calls.push({ length: bars.length, method: 'setData' });
         dataLength = bars.length;
+      },
+      setCrosshairPosition(crosshair) {
+        calls.push({ crosshair: { ...crosshair }, method: 'setCrosshairPosition' });
       },
       setVisibleLogicalRange(range) {
         calls.push({ method: 'setVisibleLogicalRange', range: { ...range } });
@@ -69,6 +75,8 @@ manager.setData('pane-left', [
 ]);
 manager.update('pane-right', { close: 3, high: 3, low: 3, open: 3, timestamp: 3 });
 manager.setVisibleLogicalRange('pane-left', { from: -3, to: 2 });
+manager.setCrosshairPosition('pane-right', { price: 3, time: 3 });
+manager.clearCrosshairPosition('pane-right');
 const visibleRangeEvents = [];
 const unsubscribeVisibleRange = manager.subscribeVisibleLogicalRangeChange('pane-left', (event) => {
   visibleRangeEvents.push(event);
@@ -78,6 +86,11 @@ manager.resizePane('pane-right', { height: 240, width: 320 });
 assert.equal(manager.snapshot().panes.find((pane) => pane.paneId === 'pane-left').snapshot.dataLength, 2);
 assert.equal(manager.snapshot().panes.find((pane) => pane.paneId === 'pane-right').snapshot.dataLength, 1);
 assert.deepEqual(manager.measureVisibleLogicalRange('pane-left'), { from: -3, to: 2 });
+assert.deepEqual(calls.find((call) => call.method === 'setCrosshairPosition'), {
+  crosshair: { price: 3, time: 3 },
+  method: 'setCrosshairPosition',
+});
+assert.equal(calls.some((call) => call.method === 'clearCrosshairPosition'), true);
 assert.deepEqual(visibleRangeEvents, [{
   paneId: 'pane-left',
   range: { from: -4, to: 3 },

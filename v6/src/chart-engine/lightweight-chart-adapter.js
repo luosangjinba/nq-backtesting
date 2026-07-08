@@ -122,6 +122,22 @@ export function createLightweightChartAdapter({
     return snapshot();
   }
 
+  function setCrosshairPosition({ price, time } = {}) {
+    ensureMounted();
+    const normalizedPrice = Number(price);
+    if (!Number.isFinite(normalizedPrice) || time == null) {
+      return snapshot();
+    }
+    chart.setCrosshairPosition?.(normalizedPrice, time, series);
+    return snapshot();
+  }
+
+  function clearCrosshairPosition() {
+    ensureMounted();
+    chart.clearCrosshairPosition?.();
+    return snapshot();
+  }
+
   function measureVisibleLogicalRange() {
     ensureMounted();
     const measured = cloneRange(chart.timeScale().getVisibleLogicalRange?.());
@@ -196,10 +212,12 @@ export function createLightweightChartAdapter({
   }
 
   return {
+    clearCrosshairPosition,
     destroy,
     measureVisibleLogicalRange,
     mount,
     resize,
+    setCrosshairPosition,
     setData,
     setVisibleLogicalRange,
     snapshot,

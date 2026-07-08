@@ -80,6 +80,18 @@ export function createChartHostManager({
     return getPaneSnapshot(record.paneId);
   }
 
+  function setCrosshairPosition(paneId, crosshair = {}) {
+    const record = getMountedRecord(paneId);
+    record.adapter.setCrosshairPosition?.(crosshair);
+    return getPaneSnapshot(record.paneId);
+  }
+
+  function clearCrosshairPosition(paneId) {
+    const record = getMountedRecord(paneId);
+    record.adapter.clearCrosshairPosition?.();
+    return getPaneSnapshot(record.paneId);
+  }
+
   function measureVisibleLogicalRange(paneId) {
     const record = getMountedRecord(paneId);
     const measured = record.adapter.measureVisibleLogicalRange();
@@ -153,11 +165,13 @@ export function createChartHostManager({
   }
 
   return {
+    clearCrosshairPosition,
     destroyAll,
     destroyPane,
     measureVisibleLogicalRange,
     mountPane,
     resizePane,
+    setCrosshairPosition,
     setData,
     setVisibleLogicalRange,
     snapshot,

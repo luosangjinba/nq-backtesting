@@ -507,6 +507,24 @@ export function mountWorkstationChartSurface(root, {
       });
       return snapshot;
     },
+    applyCrosshairProjection(record = {}) {
+      const recordPaneId = String(record.paneId || '').trim();
+      if (!recordPaneId) {
+        throw new Error('Workstation chart surface crosshair projection requires paneId.');
+      }
+      if (!hostsByPaneId.has(recordPaneId)) {
+        return null;
+      }
+      if (record.clear) {
+        return manager.clearCrosshairPosition?.(recordPaneId) || null;
+      }
+      const price = Number(record.price);
+      const time = record.time;
+      if (!Number.isFinite(price) || time == null) {
+        return null;
+      }
+      return manager.setCrosshairPosition?.(recordPaneId, { price, time }) || null;
+    },
     destroy() {
       destroyed = true;
       endPaneResize();

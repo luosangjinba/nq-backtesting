@@ -33,6 +33,17 @@ function managerFactory(options) {
       calls.push({ method: 'mountPane', record });
       mounted = true;
     },
+    clearCrosshairPosition(paneId) {
+      calls.push({ method: 'clearCrosshairPosition', paneId });
+      return {
+        paneId,
+        snapshot: {
+          dataLength,
+          mounted,
+          visibleLogicalRange,
+        },
+      };
+    },
     resizePane(paneId, size) {
       calls.push({ method: 'resizePane', paneId, size });
       return {
@@ -53,6 +64,17 @@ function managerFactory(options) {
           dataLength,
           mounted,
           visibleLogicalRange: null,
+        },
+      };
+    },
+    setCrosshairPosition(paneId, crosshair) {
+      calls.push({ crosshair: { ...crosshair }, method: 'setCrosshairPosition', paneId });
+      return {
+        paneId,
+        snapshot: {
+          dataLength,
+          mounted,
+          visibleLogicalRange,
         },
       };
     },
@@ -237,6 +259,30 @@ assert.deepEqual(calls.find((call) => call.method === 'setVisibleLogicalRange'),
   range: { from: -110, to: 10 },
 });
 
+assert.equal(surface.applyCrosshairProjection({
+  paneId: 'default',
+  price: 2,
+  time: 200,
+}).paneId, 'default');
+assert.deepEqual(calls.find((call) => call.method === 'setCrosshairPosition'), {
+  crosshair: { price: 2, time: 200 },
+  method: 'setCrosshairPosition',
+  paneId: 'default',
+});
+assert.equal(surface.applyCrosshairProjection({
+  clear: true,
+  paneId: 'default',
+}).paneId, 'default');
+assert.deepEqual(calls.find((call) => call.method === 'clearCrosshairPosition'), {
+  method: 'clearCrosshairPosition',
+  paneId: 'default',
+});
+assert.equal(surface.applyCrosshairProjection({
+  paneId: 'missing',
+  price: 2,
+  time: 200,
+}), null);
+
 surface.resize();
 assert.deepEqual(calls.find((call) => call.method === 'resizePane'), {
   method: 'resizePane',
@@ -265,6 +311,10 @@ assert.throws(
 );
 assert.throws(
   () => surface.applyViewportProjection({ projection: { from: 0, to: 1 } }),
+  /requires paneId/,
+);
+assert.throws(
+  () => surface.applyCrosshairProjection({ price: 1, time: 1 }),
   /requires paneId/,
 );
 
