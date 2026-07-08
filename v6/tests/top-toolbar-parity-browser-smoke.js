@@ -35,6 +35,7 @@ try {
         layoutMenuOpen: layoutDetails.open,
         layoutRows: [...document.querySelectorAll('.layout-menu-row')].map((row) => row.getAttribute('aria-label')),
         layoutOptions: document.querySelectorAll('.layout-option').length,
+        layoutOptionDisabled: [...document.querySelectorAll('.layout-option')].map((button) => button.disabled),
         layoutSyncLabels: [...document.querySelectorAll('.layout-sync-section label > span')].map((element) => element.childNodes[0].textContent.trim()),
         layoutSyncDisabled: [...document.querySelectorAll('.layout-sync-section input')].map((input) => input.disabled),
         layoutSyncChecked: [...document.querySelectorAll('.layout-sync-section input')].map((input) => input.checked),
@@ -71,9 +72,10 @@ try {
   assert.equal(value.layoutMenuOpen, true);
   assert.deepEqual(value.layoutRows, ['One pane', 'Two panes', 'Three panes']);
   assert.equal(value.layoutOptions, 7);
+  assert.deepEqual(value.layoutOptionDisabled, [false, false, false, false, false, false, false]);
   assert.deepEqual(value.layoutSyncLabels, ['Symbol', 'Interval', 'Crosshair', 'Time', 'Date range']);
-  assert.deepEqual(value.layoutSyncDisabled, [true, true, true, true, true]);
-  assert.deepEqual(value.layoutSyncChecked, [true, true, false, true, false]);
+  assert.deepEqual(value.layoutSyncDisabled, [false, false, false, false, false]);
+  assert.deepEqual(value.layoutSyncChecked, [false, false, false, false, false]);
   assert.deepEqual(value.layoutSyncTitles, [
     'Symbol changes on all charts within the layout',
     'Interval changes on all charts within the layout',
