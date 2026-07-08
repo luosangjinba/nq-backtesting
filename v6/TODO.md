@@ -14,37 +14,55 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 185 - Pane Maximize / Restore State Model. V6 now
-  has chart-surface state for showing one pane and restoring the previous
-  layout without resetting data, viewport, or replay.
+- Latest completed step: Step 186 - Pane Maximize / Restore Action Rail Bridge.
+  V6 now has pane-local maximize/restore controls wired into the chart action
+  rail.
 
 ## Next Executable Steps
 
-### Step 186 - Pane Maximize / Restore Action Rail Bridge
+### Step 187 - Replay-Safe Leftward History Latency Gate
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_MAXIMIZE_RESTORE_STATE_STEP185.md`;
-- add a maximize/restore button to each pane action rail;
-- route button clicks to `workstation-chart-surface.maximizePane()` and
-  `restorePane()`;
-- switch the button label/title/state between `Maximize chart` and
-  `Restore chart`;
-- keep reset view in the same pane action rail and preserve its current
-  pane-local routing;
-- keep replay, bar-data, chart-data, viewport, and pane ownership unchanged.
+- read `V6_PANE_MAXIMIZE_RESTORE_CONTROL_STEP186.md`;
+- build a browser latency gate around leftward historical extension during
+  replay;
+- prove history requests are triggered only when the visible range reaches the
+  canvas-left request boundary;
+- prove replay Next/Play remains visibly responsive while historical extension
+  is pending or completing;
+- keep the request/resource-saving behavior from Steps 148-151 intact;
+- keep chart-engine, bar-data, replay, chart-data, viewport, layout, and pane
+  ownership unchanged.
 
 Acceptance:
 
-- maximize/restore action rail smoke passes;
-- pane action rail browser smoke passes;
+- new replay-safe leftward history latency smoke passes;
+- existing leftward history browser smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 186 - Pane Maximize / Restore Action Rail Bridge
+
+Completed in commits:
+
+- `7032a7d6 feat(v6): wire pane maximize restore controls`
+- `eca9b1b9 test(v6): cover pane maximize restore controls`
+
+Verification:
+
+- `node v6/tests/maximize-restore-control-bridge-step186-smoke.js`
+- `node v6/tests/pane-maximize-state-browser-step185-smoke.js`
+- `node v6/tests/pane-action-rail-browser-step184-smoke.js`
+- `node v6/tests/maximize-restore-control-browser-step186-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 185 - Pane Maximize / Restore State Model
 
