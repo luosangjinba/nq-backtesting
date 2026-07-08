@@ -14,10 +14,10 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 187 - Replay-Safe Leftward History
-  Latency Gate. V6 now has a browser gate proving replay `Next` remains
-  responsive while leftward history is delayed/completing, and that history
-  prepend preserves replay state plus visible-range stability.
+- Latest completed roadmap step: Step 188 - Globex Session Boundary / Chart
+  Data Range Clarity. V6 now separates dashboard trading-date labels from
+  futures chart-data boundary hints, so the default NQ `2026-06-01` session can
+  clearly explain the valid prior Sunday `2026-05-31 18:00` Globex open.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -27,32 +27,49 @@
 
 ## Next Executable Steps
 
-### Step 188 - Globex Session Boundary / Chart Data Range Clarity
+### Step 189 - Bar-Data Owned Chart Boundary Metadata
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_REPLAY_SAFE_LEFTWARD_HISTORY_LATENCY_STEP187.md`;
-- clarify session date display versus tradable chart data boundaries for
-  futures Globex sessions;
-- prove the default `2026-06-01` NQ session can legitimately display the prior
-  Sunday `2026-05-31 18:00` Globex open while still respecting data/session
-  ownership;
-- decide whether the UI should surface "trading day" versus "chart data from"
-  labels so users do not mistake Globex pre-session bars for a left-extension
-  bug;
-- keep chart data loading bounded and keep replay/chart latency gates intact.
+- read `V6_GLOBEX_SESSION_BOUNDARY_CLARITY_STEP188.md`;
+- move from static session-dashboard Globex inference toward bar-data-owned
+  boundary metadata for the actual loaded/requestable chart range;
+- keep bar-data as the only runtime that queries/cache bars and computes actual
+  earliest/latest available timestamps;
+- let dashboard/session UI consume display metadata through explicit events or
+  model inputs rather than querying chart/bar internals;
+- preserve replay-safe leftward history latency and chart regression gates.
 
 Acceptance:
 
-- new Globex/session-boundary clarity smoke or model test passes;
+- bar-data boundary metadata smoke proves actual earliest available NQ bar for
+  the default session is `2026-05-31 18:00`;
+- session/dashboard display can consume the metadata without direct bar-data
+  access from UI modules;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 188 - Globex Session Boundary / Chart Data Range Clarity
+
+Completed in commits:
+
+- `bbabd94c docs(v6): define step 188 globex boundary`
+- `ff6bda24 feat(v6): clarify session globex boundary label`
+
+Verification:
+
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 187 - Replay-Safe Leftward History Latency Gate
 
