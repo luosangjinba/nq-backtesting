@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 162 - Layout Pane Data Bootstrap Boundary. V6 now
-  bootstraps newly visible layout pane hosts with pane-local chart-data and
-  chart-viewport state through existing owner commands.
+- Latest completed step: Step 163 - Pane-Local Reset View Controls. V6 now
+  renders reset view / KXG reset controls per visible pane and targets only the
+  clicked pane's viewport record.
 
 ## Next Executable Steps
 
-### Step 163 - Pane-Local Reset View Controls
+### Step 164 - Layout Variant Geometry Boundary
 
-Give each visible chart pane its own reset view / KXG reset control.
+Make Page layout variants produce distinct chart pane geometry.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
+- read `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
+  `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
   `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
   `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
   `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
@@ -51,15 +52,17 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- move reset view / KXG reset from a single chart-surface-global control to
-  pane-local controls rendered inside each visible pane host;
-- each reset button must dispatch `CHART_VIEWPORT_COMMANDS.RESET_VIEW` only for
-  its own paneId;
-- preserve pane-local chart-data and viewport records when resetting one pane;
-- keep reset control DOM ownership in chart surface / chart-engine UI boundary,
-  while viewport mutation remains inside chart-viewport runtime;
+- persist the selected layout variant from the Page layout menu through
+  layout-runtime/layout-surface bridge state;
+- make two-pane vertical and horizontal variants render different chart surface
+  geometry;
+- make three-pane columns, rows, right-stack, and left-stack variants render
+  distinct chart surface geometry;
+- keep draggable pane resizing out of this step unless the variant geometry
+  boundary is already stable;
 - keep cross-pane symbol, interval, crosshair, time, and date-range sync behavior
   out of this step;
+- preserve Step 163 pane-local reset controls;
 - preserve Step 162 layout pane data bootstrap;
 - preserve Step 161 layout pane surface reflow;
 - preserve Step 160 layout menu owner binding;
@@ -83,8 +86,8 @@ Notes for execution:
 
 Scope:
 
-- pane-local reset controls through chart surface / chart-engine UI and
-  chart-viewport owner boundaries;
+- layout variant state and chart surface geometry through layout-runtime and
+  chart-engine/chart-surface boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -93,6 +96,8 @@ Scope:
 
 Acceptance:
 
+- layout variant geometry smoke passes;
+- layout variant geometry browser smoke passes;
 - pane-local reset controls smoke passes;
 - pane-local reset controls browser smoke passes;
 - layout pane data bootstrap smoke passes;
@@ -128,6 +133,25 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 163 - Pane-Local Reset View Controls
+
+Completed in commits:
+
+- `1ab1ddb5 feat(v6): add pane-local reset controls`
+- `a11890e6 test(v6): cover pane-local reset browser flow`
+
+Verification:
+
+- `node v6/tests/pane-local-reset-controls-step163-smoke.js`
+- `node v6/tests/pane-local-reset-controls-browser-step163-smoke.js`
+- `node v6/tests/reset-view-control-bridge-smoke.js`
+- `node v6/tests/reset-view-kxg-flow-browser-step146-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-browser-step161-smoke.js`
+- `node v6/tests/layout-pane-bootstrap-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 162 - Layout Pane Data Bootstrap Boundary
 

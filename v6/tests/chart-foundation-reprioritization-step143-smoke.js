@@ -32,8 +32,9 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Latest completed step: Step 162 - Layout Pane Data Bootstrap Boundary/);
-assert.match(todoDoc, /Step 163 - Pane-Local Reset View Controls/);
+assert.match(todoDoc, /Latest completed step: Step 163 - Pane-Local Reset View Controls/);
+assert.match(todoDoc, /Step 164 - Layout Variant Geometry Boundary/);
+assert.match(todoDoc, /preserve Step 163 pane-local reset controls/);
 assert.match(todoDoc, /preserve Step 162 layout pane data bootstrap/);
 assert.match(todoDoc, /preserve Step 161 layout pane surface reflow/);
 assert.match(todoDoc, /preserve Step 160 layout menu owner binding/);

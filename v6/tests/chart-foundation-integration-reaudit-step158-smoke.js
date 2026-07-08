@@ -123,14 +123,15 @@ assertIncludesAll(architectureDoc, [
   'V6 must model user/chart viewport intent as a',
 ], 'architecture doc');
 assertIncludesAll(todoDoc, [
-  'Latest completed step: Step 162 - Layout Pane Data Bootstrap Boundary',
-  'Step 163 - Pane-Local Reset View Controls',
+  'Latest completed step: Step 163 - Pane-Local Reset View Controls',
+  'Step 164 - Layout Variant Geometry Boundary',
   'do not request/cache bars outside bar-data',
   'do not write chart series outside chart-engine',
   'do not mutate replay cursor outside replay runtime',
   'do not mutate viewport intent outside chart-viewport runtime',
 ], 'todo');
 assertIncludesAll(indexDoc, [
+  'V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md',
   'V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md',
   'V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md',
   'V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md',
@@ -141,8 +142,8 @@ assertIncludesAll(indexDoc, [
   'V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md',
 ], 'index');
 assertIncludesAll(handoffDoc, [
-  'Current V6 step state: Step 162 completed.',
-  'Next planned step: Step 163 - Pane-Local Reset View Controls.',
+  'Current V6 step state: Step 163 completed.',
+  'Next planned step: Step 164 - Layout Variant Geometry Boundary.',
   'Browser tests should be run sequentially',
 ], 'handoff');
 
