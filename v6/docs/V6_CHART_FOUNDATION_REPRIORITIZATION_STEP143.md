@@ -14,10 +14,13 @@ features remain deferred until the core chart path is dependable.
 The chart foundation priority order is:
 
 1. database-backed bounded K-line import through the bar-data owner path;
-2. replay K-line chart flow, including initial load, no-future filtering,
+2. leftward historical K-line extension, where dragging the chart toward older
+   bars requests the next bounded older window until the data source is
+   exhausted;
+3. replay K-line chart flow, including initial load, no-future filtering,
    cursor advance, and browser-visible candle checks;
-3. reset view behavior through chart-viewport ownership;
-4. multi-pane chart flow through the existing pane model, without
+4. reset view behavior through chart-viewport ownership;
+5. multi-pane chart flow through the existing pane model, without
    primary/non-primary ownership paths.
 
 ## Selected Slice
@@ -31,6 +34,9 @@ The slice should:
 - define a database bars adapter interface that returns the same normalized
   window shape expected by the existing bar-data runtime;
 - keep all requests bounded by existing bar window rules and limits;
+- preserve leftward chart extension: when the visible range reaches the oldest
+  loaded bars, the chart flow should request an older bounded window through
+  bar-data and keep extending left until the data source reports no older bars;
 - add tests that prove session creation and chart entry do not load a full date
   range;
 - avoid chart series writes, chart overlays, replay cursor mutation, viewport
@@ -61,6 +67,8 @@ Allowed for Step 144:
 - data-source/schema discovery;
 - a focused database bars adapter or adapter contract;
 - bar-window bounded query planning;
+- an explicit older-window/exhausted-history response shape for leftward chart
+  extension;
 - bar normalizer compatibility tests;
 - smoke coverage that chart entry remains bounded.
 
@@ -81,6 +89,8 @@ Forbidden for Step 144:
 - database K-line import boundary smoke passes;
 - bar-data runtime smoke passes;
 - chart entry context/window planning smoke passes;
+- older-window/exhausted-history boundary smoke passes or is explicitly scoped
+  into the database import boundary smoke;
 - replay runtime smoke passes;
 - chart-data no-future filtering smoke passes;
 - chart viewport/reset-view smoke or contract smoke passes;

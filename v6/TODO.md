@@ -40,6 +40,9 @@ Notes for execution:
 - define a database bars adapter interface that returns the same normalized
   bounded window shape expected by the existing bar-data runtime;
 - keep all requests bounded by existing bar window rules and limits;
+- include leftward historical extension: dragging the chart toward older bars
+  should request older bounded windows through bar-data until the database
+  adapter reports exhausted history;
 - add tests that prove session creation and chart entry do not load a full date
   range;
 - if the database schema is not ready or cannot be discovered locally, record
@@ -54,6 +57,8 @@ Notes for execution:
 Scope:
 
 - data-source/schema discovery plus a focused adapter or adapter contract;
+- older-window/exhausted-history response semantics for leftward chart
+  extension;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -63,6 +68,8 @@ Acceptance:
 
 - new database K-line import boundary smoke passes;
 - chart foundation reprioritization smoke passes;
+- older-window/exhausted-history boundary coverage is included in the new
+  database K-line import boundary smoke;
 - bar-data runtime smoke passes;
 - chart entry context/window planning smoke passes;
 - replay runtime smoke passes;

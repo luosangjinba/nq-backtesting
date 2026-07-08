@@ -112,6 +112,9 @@ Keep Step 144 bounded:
 - define a database bars adapter interface that returns the same normalized
   bounded window shape expected by the existing bar-data runtime;
 - keep all requests bounded by existing bar window rules and limits;
+- include leftward historical extension: dragging the chart toward older bars
+  should request older bounded windows through bar-data until the database
+  adapter reports exhausted history;
 - add tests that prove session creation and chart entry do not load a full date
   range;
 - avoid chart series writes, chart overlays, replay cursor mutation, viewport
@@ -123,6 +126,8 @@ Keep Step 144 bounded:
 Expected implementation shape:
 
 - data-source/schema discovery plus a focused adapter or adapter contract;
+- older-window/exhausted-history response semantics for leftward chart
+  extension;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
