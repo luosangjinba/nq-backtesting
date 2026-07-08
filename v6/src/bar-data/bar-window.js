@@ -108,7 +108,7 @@ export function normalizeBarWindow(payload = {}, options = {}) {
     throw new Error(`Bar data window estimates ${estimatedBars} bars, limit ${maxBarsPerWindow}.`);
   }
 
-  return {
+  const window = {
     bounded: true,
     end: formatApiTime(endMs),
     estimatedBars,
@@ -116,6 +116,12 @@ export function normalizeBarWindow(payload = {}, options = {}) {
     start: formatApiTime(startMs),
     timeframe,
   };
+  for (const key of ['canvasLeftBoundary', 'direction', 'historyRequest', 'requestCap']) {
+    if (payload[key]) {
+      window[key] = payload[key];
+    }
+  }
+  return window;
 }
 
 export function windowBoundsMs(window) {
