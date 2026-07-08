@@ -199,6 +199,14 @@ export const PANE_INTENT_RELOAD_DATA_EVENTS = Object.freeze({
   LOADED: 'paneIntentReloadData:loaded',
 });
 
+export const PANE_INTENT_RELOAD_CHART_DATA_COMMANDS = Object.freeze({
+  GET_STATE: 'paneIntentReloadChartData.getState',
+});
+
+export const PANE_INTENT_RELOAD_CHART_DATA_EVENTS = Object.freeze({
+  REPLACED: 'paneIntentReloadChartData:replaced',
+});
+
 export const CHART_DATA_COMMANDS = Object.freeze({
   APPEND_BARS: 'chartData.appendBars',
   CLEAR_PANE: 'chartData.clearPane',

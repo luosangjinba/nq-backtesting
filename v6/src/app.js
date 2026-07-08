@@ -30,6 +30,7 @@ import { createJournalPersistenceRuntime } from './journal-persistence/journal-p
 import { createLayoutPaneBootstrapRuntime } from './layout/layout-pane-bootstrap-runtime.js';
 import { createLayoutRuntime } from './layout/layout-runtime.js';
 import { createJournalRuntime } from './journal/journal-runtime.js';
+import { createPaneIntentReloadChartDataRuntime } from './pane-intent-reload/pane-intent-reload-chart-data-runtime.js';
 import { createPaneIntentReloadDataRuntime } from './pane-intent-reload/pane-intent-reload-data-runtime.js';
 import { createPaneIntentReloadRuntime } from './pane-intent-reload/pane-intent-reload-runtime.js';
 import { createPaneIntentReloadWindowRuntime } from './pane-intent-reload/pane-intent-reload-window-runtime.js';
@@ -86,6 +87,7 @@ registry.registerRuntime(createChartEntryContextRuntime());
 registry.registerRuntime(createReplayRuntime({ enableInternalTimer: false }));
 registry.registerRuntime(createPaneIntentReloadWindowRuntime());
 registry.registerRuntime(createPaneIntentReloadDataRuntime());
+registry.registerRuntime(createPaneIntentReloadChartDataRuntime());
 registry.registerRuntime(createChartEntryReplayBootstrapRuntime());
 registry.registerRuntime(createChartEntryDefaultWallPlanRuntime());
 registry.registerRuntime(createChartEntryProjectionPreparationRuntime());
