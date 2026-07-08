@@ -7,6 +7,7 @@ import {
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
 import {
+  formatApiTime,
   makeBarWindowKey,
   planCanvasLeftOlderWindow,
   windowBoundsMs,
@@ -131,7 +132,23 @@ function exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds) {
   return windowBoundsMs(plannedWindow).endMs;
 }
 
-export function createLeftwardHistoryExtensionRuntime() {
+function planPreviousGapScanWindow(plannedWindow, stepSeconds) {
+  const bounds = windowBoundsMs(plannedWindow);
+  const count = Math.max(1, Number(plannedWindow.estimatedBars) || 1);
+  const stepMs = stepSeconds * 1000;
+  const endMs = bounds.startMs - stepMs;
+  const startMs = endMs - ((count - 1) * stepMs);
+  return {
+    ...plannedWindow,
+    chunked: true,
+    end: formatApiTime(endMs),
+    start: formatApiTime(startMs),
+  };
+}
+
+export function createLeftwardHistoryExtensionRuntime({
+  emptyGapScanLimit = 12,
+} = {}) {
   const unregisterCallbacks = [];
   const exhaustedScopes = new Map();
   const exhaustedRequestKeys = new Set();
@@ -204,7 +221,7 @@ export function createLeftwardHistoryExtensionRuntime() {
       const oldestLoadedTimestamp = Number(sortedBars[0].timestamp);
       const stepSeconds = inferStepSeconds(sortedBars, timeframe);
       const canvasLeftTimestamp = oldestLoadedTimestamp + (leftBoundaryIndex * stepSeconds);
-      const plannedWindow = planCanvasLeftOlderWindow({
+      let plannedWindow = planCanvasLeftOlderWindow({
         canvasLeftTimestamp,
         instrument,
         oldestLoadedTimestamp,
@@ -214,48 +231,61 @@ export function createLeftwardHistoryExtensionRuntime() {
         return ignore(plannedWindow.reason || 'history-exhausted', paneId, emitEvent);
       }
 
-      const requestKey = createRequestKey(paneId, plannedWindow);
-      if (inFlightRequestKeys.has(requestKey)) {
-        return ignore('older-window-request-in-flight', paneId, emitEvent);
-      }
-      if (exhaustedRequestKeys.has(requestKey)) {
-        return ignore('older-window-exhausted', paneId, emitEvent);
-      }
       const exhaustedScopeKey = createExhaustedScopeKey(paneId, plannedWindow);
-      const exhaustedThroughMs = exhaustedScopes.get(exhaustedScopeKey);
-      const plannedBounds = windowBoundsMs(plannedWindow);
-      if (Number.isFinite(exhaustedThroughMs) && plannedBounds.endMs <= exhaustedThroughMs) {
-        return ignore('older-history-exhausted', paneId, emitEvent);
-      }
+      let loadedWindow = null;
+      let loadedBars = [];
+      let emptyGapScans = 0;
 
-      inFlightRequestKeys.add(requestKey);
-      const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, plannedWindow);
-      inFlightRequestKeys.delete(requestKey);
-      const loadedBars = cloneBars(loadedWindow?.bars);
-      if (loadedWindow?.history?.exhaustedBefore === true) {
-        exhaustedRequestKeys.add(requestKey);
-        exhaustedScopes.set(
-          exhaustedScopeKey,
-          exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds),
-        );
-      }
-      if (!loadedBars.length) {
-        exhaustedRequestKeys.add(requestKey);
-        state = {
-          error: null,
-          extension: {
-            chartRecord: null,
-            loadedWindow: summarizeLoadedWindow(loadedWindow),
-            paneId,
-            plannedWindow,
-            prependedBarCount: 0,
-            reason: 'no-older-bars-returned',
+      while (true) {
+        const requestKey = createRequestKey(paneId, plannedWindow);
+        if (inFlightRequestKeys.has(requestKey)) {
+          return ignore('older-window-request-in-flight', paneId, emitEvent);
+        }
+        if (exhaustedRequestKeys.has(requestKey)) {
+          return ignore('older-window-exhausted', paneId, emitEvent);
+        }
+        const exhaustedThroughMs = exhaustedScopes.get(exhaustedScopeKey);
+        const plannedBounds = windowBoundsMs(plannedWindow);
+        if (Number.isFinite(exhaustedThroughMs) && plannedBounds.endMs <= exhaustedThroughMs) {
+          return ignore('older-history-exhausted', paneId, emitEvent);
+        }
+
+        inFlightRequestKeys.add(requestKey);
+        try {
+          loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, plannedWindow);
+        } finally {
+          inFlightRequestKeys.delete(requestKey);
+        }
+        loadedBars = cloneBars(loadedWindow?.bars);
+        if (loadedWindow?.history?.exhaustedBefore === true) {
+          exhaustedRequestKeys.add(requestKey);
+          exhaustedScopes.set(
+            exhaustedScopeKey,
+            exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds),
+          );
+        }
+        if (loadedBars.length) {
+          break;
+        }
+        if (loadedWindow?.history?.exhaustedBefore === true || emptyGapScans >= emptyGapScanLimit) {
+          state = {
+            error: null,
+            extension: {
+              chartRecord: null,
+              loadedWindow: summarizeLoadedWindow(loadedWindow),
+              paneId,
+              plannedWindow,
+              prependedBarCount: 0,
+              reason: 'no-older-bars-returned',
+              status: 'ignored',
+            },
             status: 'ignored',
-          },
-          status: 'ignored',
-        };
-        emitEvent?.(CHART_HISTORY_EVENTS.LEFT_EXTENSION_IGNORED, getState().extension);
-        return getState();
+          };
+          emitEvent?.(CHART_HISTORY_EVENTS.LEFT_EXTENSION_IGNORED, getState().extension);
+          return getState();
+        }
+        emptyGapScans += 1;
+        plannedWindow = planPreviousGapScanWindow(plannedWindow, stepSeconds);
       }
 
       const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);

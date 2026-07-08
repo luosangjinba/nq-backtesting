@@ -64,6 +64,11 @@ const windows = new Map([
     history: { exhaustedBefore: false },
   }],
 ]);
+function timestampFromWindowTime(value) {
+  const text = String(value || '');
+  const iso = text.includes('T') ? text : `${text.replace(' ', 'T')}:00.000Z`;
+  return Math.floor(new Date(iso).valueOf() / 1000);
+}
 const fetchBars = async (window) => {
   fetchCalls.push({ ...window });
   if (window.historyRequest === 'older-window') {
@@ -73,7 +78,7 @@ const fetchBars = async (window) => {
       history: record?.history ? { ...record.history } : { exhaustedBefore: true },
     };
   }
-  const cursorTimestamp = Math.floor(new Date(window.end || window.anchor).valueOf() / 1000);
+  const cursorTimestamp = timestampFromWindowTime(window.end || window.anchor);
   return {
     bars: [
       { close: 100 + fetchCalls.length, high: 101 + fetchCalls.length, low: 99 + fetchCalls.length, open: 100 + fetchCalls.length, timestamp: cursorTimestamp },

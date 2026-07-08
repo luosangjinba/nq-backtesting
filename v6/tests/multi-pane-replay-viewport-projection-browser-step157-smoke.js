@@ -48,7 +48,12 @@ try {
       });
       const fetchBars = async (window) => {
         fetchCalls.push({ ...window });
-        const timestamp = Math.floor(new Date(window.end || window.anchor).valueOf() / 1000);
+        const timestampFromWindowTime = (value) => {
+          const text = String(value || '');
+          const iso = text.includes('T') ? text : text.replace(' ', 'T') + ':00.000Z';
+          return Math.floor(new Date(iso).valueOf() / 1000);
+        };
+        const timestamp = timestampFromWindowTime(window.end || window.anchor);
         return {
           bars: [
             { close: 100 + fetchCalls.length, high: 101 + fetchCalls.length, low: 99 + fetchCalls.length, open: 100 + fetchCalls.length, timestamp },

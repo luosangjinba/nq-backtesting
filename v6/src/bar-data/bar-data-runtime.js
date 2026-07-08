@@ -2,8 +2,17 @@ import { BAR_DATA_COMMANDS, BAR_DATA_EVENTS } from '../contracts/app-contracts.j
 import { registerCommand } from '../runtime/commands.js';
 import { normalizeBars } from './bar-normalizer.js';
 import { createBarWindowCache } from './bar-window-cache.js';
-import { normalizeBarWindow, planBarWindow } from './bar-window.js';
+import { normalizeBarWindow, planBarWindow, windowBoundsMs } from './bar-window.js';
 import { fetchV4Bars } from './v4-bars-adapter.js';
+
+function filterBarsForWindow(bars = [], planned) {
+  const { startMs, endMs } = windowBoundsMs(planned);
+  const startTimestamp = Math.floor(startMs / 1000);
+  const endTimestamp = Math.floor(endMs / 1000);
+  return normalizeBars(bars).filter((bar) => (
+    bar.timestamp >= startTimestamp && bar.timestamp <= endTimestamp
+  ));
+}
 
 export function createBarDataRuntime({
   cache = createBarWindowCache(),
@@ -25,7 +34,7 @@ export function createBarDataRuntime({
 
     const response = await fetchBars(planned);
     return cache.put(planned, {
-      bars: normalizeBars(response.bars),
+      bars: filterBarsForWindow(response.bars, planned),
       history: response.history || null,
       requestedRange: response.requestedRange || null,
       timing: response.timing || null,

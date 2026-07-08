@@ -33,9 +33,11 @@ const runtime = createBarDataRuntime({
     requests.push(window);
     return {
       bars: [
+        { timestamp: 1780306140, open: 99, high: 100, low: 98, close: 99.5 },
         { timestamp: 1780306320, open: 102, high: 103, low: 101, close: 102.5 },
         { timestamp: 1780306200, open: 100, high: 101, low: 99, close: 100.5 },
         { time: '2026-06-01 09:31', open: 100.5, high: 102, low: 100, close: 101.5 },
+        { timestamp: 1780306380, open: 103, high: 104, low: 102, close: 103.5 },
       ],
       requestedRange: { startTs: 1780306200, endTs: 1780306320 },
       timing: {
