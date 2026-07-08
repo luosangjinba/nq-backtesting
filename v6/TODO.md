@@ -14,11 +14,11 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 189 - Real-Date Sunday Gap Leftward
-  Extension Stability. V6 now verifies the user-reported `2026-05-01` session
-  can drag left across the prior Sunday `2026-04-26 18:00` boundary into earlier
-  `2026-04-24` data, keeps the gap scan generic rather than date-specific, and
-  records recent leftward-history request diagnostics.
+- Latest completed roadmap step: Step 190 - Bar-Data Owned Chart Boundary
+  Metadata. V6 now exposes owner-side bar-data boundary metadata for loaded
+  windows, verifies multiple real Sunday `18:00` boundaries through a browser
+  smoke, and lets the dashboard model consume explicitly supplied metadata
+  without querying bar-data or chart internals.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -28,34 +28,54 @@
 
 ## Next Executable Steps
 
-### Step 190 - Bar-Data Owned Chart Boundary Metadata
+### Step 191 - Chart Boundary Metadata Bridge
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_GLOBEX_SESSION_BOUNDARY_CLARITY_STEP188.md`;
-- read `session_20260708_step189_real_date_gap_extension.md`;
-- move from static session-dashboard Globex inference toward bar-data-owned
-  boundary metadata for the actual loaded/requestable chart range;
-- keep bar-data as the only runtime that queries/cache bars and computes actual
-  earliest/latest available timestamps;
-- let dashboard/session UI consume display metadata through explicit events or
-  model inputs rather than querying chart/bar internals;
+- read `session_20260708_step190_bar_data_boundary_metadata.md`;
+- bridge `BAR_DATA_COMMANDS.GET_BOUNDARY_METADATA` or owner events into a small
+  shell/session-facing state surface without letting dashboard UI query
+  bar-data directly;
+- decide whether the first visible consumer should be dashboard rows, pane
+  status, or a compact diagnostics-only surface;
+- preserve static Globex fallback until actual metadata exists for a session;
 - preserve replay-safe leftward history latency and chart regression gates.
 
 Acceptance:
 
-- bar-data boundary metadata smoke proves actual earliest available NQ bar for
-  the default session is `2026-05-31 18:00`;
-- session/dashboard display can consume the metadata without direct bar-data
-  access from UI modules;
+- actual boundary metadata can be rendered or inspected through an explicit
+  owner bridge rather than direct UI runtime calls;
+- static dashboard fallback remains unchanged before metadata is available;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 190 - Bar-Data Owned Chart Boundary Metadata
+
+Completed in commits:
+
+- `e9c8491e feat(v6): expose bar data boundary metadata`
+- `1d62f10b test(v6): cover real-date chart boundary metadata`
+- `e873b447 feat(v6): let dashboard model consume chart boundary metadata`
+
+Verification:
+
+- `node v6/tests/bar-data-boundary-metadata-step190-smoke.js`
+- `node v6/tests/real-date-boundary-metadata-browser-step190-smoke.js`
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/real-date-leftward-gap-browser-step189-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 189 - Real-Date Sunday Gap Leftward Extension Stability
 
