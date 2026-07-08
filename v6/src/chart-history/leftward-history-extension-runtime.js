@@ -6,7 +6,10 @@ import {
   PANE_COMMANDS,
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
-import { planCanvasLeftOlderWindow } from '../bar-data/bar-window.js';
+import {
+  makeBarWindowKey,
+  planCanvasLeftOlderWindow,
+} from '../bar-data/bar-window.js';
 import { dispatchCommand, registerCommand } from '../runtime/commands.js';
 
 function cloneBars(bars = []) {
@@ -97,8 +100,14 @@ function cloneExtension(extension) {
   } : null;
 }
 
+function createRequestKey(paneId, plannedWindow) {
+  return `${paneId}|${makeBarWindowKey(plannedWindow)}`;
+}
+
 export function createLeftwardHistoryExtensionRuntime() {
   const unregisterCallbacks = [];
+  const exhaustedRequestKeys = new Set();
+  const inFlightRequestKeys = new Set();
   let state = {
     error: null,
     extension: null,
@@ -177,9 +186,23 @@ export function createLeftwardHistoryExtensionRuntime() {
         return ignore(plannedWindow.reason || 'history-exhausted', paneId, emitEvent);
       }
 
+      const requestKey = createRequestKey(paneId, plannedWindow);
+      if (inFlightRequestKeys.has(requestKey)) {
+        return ignore('older-window-request-in-flight', paneId, emitEvent);
+      }
+      if (exhaustedRequestKeys.has(requestKey)) {
+        return ignore('older-window-exhausted', paneId, emitEvent);
+      }
+
+      inFlightRequestKeys.add(requestKey);
       const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, plannedWindow);
+      inFlightRequestKeys.delete(requestKey);
       const loadedBars = cloneBars(loadedWindow?.bars);
+      if (loadedWindow?.history?.exhaustedBefore === true) {
+        exhaustedRequestKeys.add(requestKey);
+      }
       if (!loadedBars.length) {
+        exhaustedRequestKeys.add(requestKey);
         state = {
           error: null,
           extension: {
@@ -218,6 +241,7 @@ export function createLeftwardHistoryExtensionRuntime() {
       emitEvent?.(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, getState().extension);
       return getState();
     } catch (error) {
+      inFlightRequestKeys.clear();
       state = {
         error: error?.message || String(error),
         extension: null,
@@ -241,6 +265,8 @@ export function createLeftwardHistoryExtensionRuntime() {
     while (unregisterCallbacks.length) {
       unregisterCallbacks.pop()();
     }
+    exhaustedRequestKeys.clear();
+    inFlightRequestKeys.clear();
     state = {
       error: null,
       extension: null,
