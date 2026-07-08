@@ -109,6 +109,16 @@ export const CHART_ENTRY_AUTO_PLAY_EVENTS = Object.freeze({
   TICKED: 'chartEntryAutoPlay:ticked',
 });
 
+export const CHART_HISTORY_COMMANDS = Object.freeze({
+  GET_STATE: 'chartHistory.getState',
+  REQUEST_LEFT_EXTENSION: 'chartHistory.requestLeftExtension',
+});
+
+export const CHART_HISTORY_EVENTS = Object.freeze({
+  LEFT_EXTENSION_IGNORED: 'chartHistory:leftExtensionIgnored',
+  LEFT_EXTENSION_LOADED: 'chartHistory:leftExtensionLoaded',
+});
+
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',

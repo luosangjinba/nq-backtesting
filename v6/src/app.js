@@ -19,6 +19,8 @@ import { connectChartViewportSurfaceBridge } from './chart-engine/chart-viewport
 import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-bridge.js';
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
+import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
+import { createLeftwardHistoryExtensionRuntime } from './chart-history/leftward-history-extension-runtime.js';
 import { createChartViewportRuntime } from './chart-viewport/chart-viewport-runtime.js';
 import { createDisplayTimeframeRuntime } from './display-timeframe/display-timeframe-runtime.js';
 import { createDefaultWallRuntime } from './default-wall/default-wall-runtime.js';
@@ -79,6 +81,7 @@ registry.registerRuntime(createChartEntryProjectionApplyRuntime());
 registry.registerRuntime(createChartEntryManualNextRuntime());
 registry.registerRuntime(createChartEntryAutoPlayRuntime());
 registry.registerRuntime(createChartEntryRestartRuntime());
+registry.registerRuntime(createLeftwardHistoryExtensionRuntime());
 registry.registerRuntime(createDefaultWallRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
 registry.registerRuntime(createPlaybackPeriodRuntime());
@@ -94,6 +97,9 @@ const chartViewportSurfaceBridge = connectChartViewportSurfaceBridge({
   subscribeEvent,
 });
 const manualWallInputBridge = connectManualWallInputBridge({
+  chartSurface: workstationChartSurface,
+});
+const leftwardHistoryInputBridge = connectLeftwardHistoryInputBridge({
   chartSurface: workstationChartSurface,
 });
 const resetViewControl = connectResetViewControl({
@@ -143,6 +149,7 @@ root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;
 root.__v6ChartDataSurfaceBridge = chartDataSurfaceBridge;
 root.__v6ChartViewportSurfaceBridge = chartViewportSurfaceBridge;
+root.__v6LeftwardHistoryInputBridge = leftwardHistoryInputBridge;
 root.__v6ManualWallInputBridge = manualWallInputBridge;
 root.__v6ResetViewControl = resetViewControl;
 root.dataset.booted = 'true';
