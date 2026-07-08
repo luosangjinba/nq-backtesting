@@ -100,6 +100,10 @@ Read this index before working on V6.
   validation helpers, and boundary coverage.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`: selected next
   bounded workstation/chart slice after the account/trading owner contract.
+- `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`: accepted
+  reprioritization from additional workstation chrome owner contracts back to
+  database K-line import, replay K-line flow, reset view, and multi-pane chart
+  foundations.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -220,6 +224,9 @@ Read this index before working on V6.
   surfaces remain disabled and inert.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`: accepted next
   workstation/chart slice selection after the account/trading owner contract.
+- `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`: accepted chart foundation
+  priority reset after Step 142, with Step 144 directed at database K-line
+  import through the bar-data boundary.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
