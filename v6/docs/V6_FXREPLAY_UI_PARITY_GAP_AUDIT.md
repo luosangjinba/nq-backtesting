@@ -8,7 +8,7 @@ The V6 workstation shell is now aligned enough with the FXReplay UI kernel in
 `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md` for the current single-pane replay
 workstation slice. The remaining gaps are either runtime-owned behaviors that
 need explicit owners before interactivity, or shell polish that should be
-selected only after diagnostics are moved out of the normal user surface.
+selected only after explicit owner contracts are chosen.
 
 This audit supersedes the earlier July 5 priority order. The previous
 Session settings panel reservation, left drawing rail reservation, and bottom
@@ -30,17 +30,14 @@ chrome audit directions are complete and should not be selected again.
 | Settings | Centered chart-settings modal shell with left rail tabs, grouped chart controls, Template, Cancel, and Ok footer | Centered chart-settings modal with left tab rail and fixed footer | shell present; only existing settings runtime fields may be interactive | Keep Chart Settings distinct from Session settings; add real chart setting ownership before more controls become active |
 | Chart status/OHLC | Pane-local title/OHLC overlay at chart top-left; reset view is a chart-viewport bridge command; duplicate chart-internal Go to/Layout toolbar removed | Pane-local title/OHLC at chart top-left with commands owned by top toolbar/right rail | shell layout complete; status readout remains read-only and reset view remains viewport-owned | Keep chart surface free of duplicate command toolbar |
 | Multi-pane chrome | Engine host is single default pane in shell; multi-pane test hosts exist in harness | Explicit pane boundaries, pane-local titles/OHLC/scales | deferred UI; pane model and harnesses exist | Preserve pane model; do not introduce primary/non-primary ownership language |
-| Diagnostics | Readiness surface remains visible in the workstation header with runtime/command/gate details | No engineering diagnostics in normal user surface | shell polish gap | Next shell-only candidate is moving readiness diagnostics behind an explicit diagnostics affordance or hiding telemetry from normal view |
+| Diagnostics | Readiness surface remains in the workstation header with compact user-facing status while runtime/command/gate telemetry stays hidden from the default visible path | No engineering diagnostics in normal user surface | shell-only UI complete for current slice; future developer diagnostics affordance remains deferred | Keep telemetry available in DOM/controller state for tests and future tooling, but hidden from normal visible text |
 
 ## Updated Priority Order
 
-1. Diagnostics visibility cleanup: move readiness runtime/command/gate
-   telemetry out of the normal workstation header, or gate it behind an explicit
-   diagnostics affordance, without weakening readiness test coverage.
-2. Owner contract selection for one deferred interactive family, such as
+1. Owner contract selection for one deferred interactive family, such as
    drawing/action-history, indicators, account/trading, screenshot/export, or
    session-settings.
-3. Multi-pane workstation UI selection after diagnostics cleanup and after the
+2. Multi-pane workstation UI selection after owner contract direction and after
    pane model owner path is rechecked.
 
 ## Ownership Constraints
@@ -84,5 +81,5 @@ without implementing those workflows.
 ## Next Direction
 
 Step 130 should select the next bounded workstation/chart slice from the
-updated priority order. Prefer diagnostics visibility cleanup as the next
-shell-only slice unless a newly found regression requires a narrower fix first.
+updated priority order. Prefer selecting one explicit owner contract family
+unless a newly found regression requires a narrower fix first.

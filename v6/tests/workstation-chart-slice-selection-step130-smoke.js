@@ -23,10 +23,9 @@ assert.match(selectionDoc, /keep readiness controller state available for tests/
 assert.match(selectionDoc, /without weakening readiness state or smoke-test coverage/);
 assert.match(selectionDoc, /dashboard visible row actions from Summary, Stats, Copy, and\s+Journal/);
 
-assert.match(reAuditDoc, /readiness\s+diagnostics exposure in the header/);
-assert.match(reAuditDoc, /diagnostics visibility cleanup/);
-assert.match(parityGapDoc, /Diagnostics visibility cleanup/);
-assert.match(parityGapDoc, /Step 130 should select the next bounded workstation\/chart slice/);
+assert.match(reAuditDoc, /Step 131 cleaned up readiness diagnostics visibility|readiness\s+diagnostics exposure in the header/);
+assert.match(parityGapDoc, /future developer diagnostics affordance remains deferred|Diagnostics visibility cleanup/);
+assert.match(parityGapDoc, /Step 130 should select the next bounded workstation\/chart slice|Prefer selecting one explicit owner contract family/);
 assert.match(guardrailsDoc, /Engineering diagnostics[\s\S]*must not appear in the normal user surface/);
 assert.match(topChromeDoc, /product surface, not a diagnostics board/);
 assert.match(topChromeDoc, /Readiness telemetry may remain in DOM\/controller state/);

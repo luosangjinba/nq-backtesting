@@ -17,11 +17,11 @@ const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 assert.equal(indexDoc.includes('V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md'), true);
 assert.match(selectionDoc, /Step 129 should re-audit the current workstation shell/);
 assert.match(reAuditDoc, /No workstation chrome implementation was added/);
-assert.match(reAuditDoc, /readiness\s+diagnostics exposure in the header/);
-assert.match(reAuditDoc, /diagnostics visibility cleanup/);
+assert.match(reAuditDoc, /Step 131 cleaned up readiness diagnostics visibility/);
+assert.match(reAuditDoc, /runtime\/command\/gate\s+telemetry from the default visible path/);
 assert.match(parityGapDoc, /Updated Priority Order/);
-assert.match(parityGapDoc, /Diagnostics visibility cleanup/);
-assert.match(parityGapDoc, /Step 130 should select the next bounded workstation\/chart slice/);
+assert.match(parityGapDoc, /future developer diagnostics affordance remains deferred/);
+assert.match(parityGapDoc, /Prefer selecting one explicit owner contract family/);
 assert.match(guardrailsDoc, /Engineering diagnostics[\s\S]*must not appear in the normal user surface/);
 assert.match(sessionSettingsAuditDoc, /Chart Settings and Session settings remain distinct surfaces/);
 assert.match(bottomChromeAuditDoc, /bottom\s+account\/trading chrome reservation/);
@@ -70,6 +70,7 @@ for (const staleDirection of [
   'Session settings panel reservation: make',
   'Left drawing rail reservation: add',
   'Bottom chrome audit: align',
+  'Diagnostics visibility cleanup: move',
 ]) {
   assert.equal(parityGapDoc.includes(staleDirection), false, `${staleDirection} should not remain active`);
 }

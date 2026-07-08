@@ -282,10 +282,10 @@ export function createWorkstationShellMarkup() {
           <div class="readiness-surface" data-v6-readiness-surface aria-label="V6 workflow readiness" aria-live="polite">
             <span class="readiness-state" data-v6-readiness-state>System starting</span>
             <span class="readiness-detail" data-v6-readiness-missing>Commands pending</span>
-            <span class="readiness-telemetry" data-v6-readiness-runtime-count>0 services active</span>
-            <span class="readiness-telemetry" data-v6-readiness-command-count>Setup pending</span>
-            <span class="readiness-telemetry" data-v6-readiness-gate-count>Core checks pending</span>
-            <ul class="readiness-gates" data-v6-readiness-gates></ul>
+            <span class="readiness-telemetry" data-v6-readiness-runtime-count hidden aria-hidden="true">0 services active</span>
+            <span class="readiness-telemetry" data-v6-readiness-command-count hidden aria-hidden="true">Setup pending</span>
+            <span class="readiness-telemetry" data-v6-readiness-gate-count hidden aria-hidden="true">Core checks pending</span>
+            <ul class="readiness-gates" data-v6-readiness-gates hidden aria-hidden="true"></ul>
           </div>
         </div>
       </header>

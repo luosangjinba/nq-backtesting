@@ -27,8 +27,9 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'Stop Conditions',
   'shell-only UI complete for current slice',
   'Grouped floating interval dropdown',
-  'Diagnostics visibility cleanup',
+  'future developer diagnostics affordance remains deferred',
   'Step 130 should select the next bounded workstation/chart slice',
+  'Prefer selecting one explicit owner contract family',
 ].forEach((needle) => {
   assert.equal(audit.includes(needle), true, `${needle} should be listed in UI parity gap audit`);
 });
@@ -50,6 +51,7 @@ const index = readFileSync(path.join(ROOT, 'v6/docs/INDEX.md'), 'utf8');
   'Session settings panel reservation: make',
   'Left drawing rail reservation: add',
   'Bottom chrome audit: align',
+  'Diagnostics visibility cleanup: move',
 ].forEach((staleNeedle) => {
   assert.equal(audit.includes(staleNeedle), false, `${staleNeedle} should not remain as active stale direction`);
 });

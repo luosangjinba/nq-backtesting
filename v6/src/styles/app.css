@@ -996,7 +996,7 @@ p {
 .top-bar {
   position: relative;
   display: grid;
-  grid-template-columns: auto auto minmax(90px, 1fr) auto;
+  grid-template-columns: auto auto minmax(90px, 1fr) auto auto;
   align-items: center;
   gap: 0;
   min-height: 40px;
@@ -1070,7 +1070,6 @@ p {
   min-height: 38px;
 }
 
-.top-context,
 .top-workflow-hooks {
   position: absolute;
   width: 1px;
@@ -1081,6 +1080,12 @@ p {
   overflow: hidden;
   clip: rect(0 0 0 0);
   white-space: nowrap;
+}
+
+.top-context {
+  justify-content: flex-end;
+  min-height: 38px;
+  padding: 0 8px;
 }
 
 .readiness-surface {

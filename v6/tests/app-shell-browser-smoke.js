@@ -8,6 +8,25 @@ async function main() {
     const value = JSON.parse(await evaluate(page.client, `
       (async () => {
         const commandsModule = await import('/v6/src/runtime/commands.js');
+        const visibleText = (node) => {
+          if (!node) return '';
+          const walker = document.createTreeWalker(node, NodeFilter.SHOW_TEXT, {
+            acceptNode(textNode) {
+              const parent = textNode.parentElement;
+              if (!parent) return NodeFilter.FILTER_REJECT;
+              if (parent.closest('[hidden], [aria-hidden="true"]')) return NodeFilter.FILTER_REJECT;
+              const style = getComputedStyle(parent);
+              if (style.display === 'none' || style.visibility === 'hidden') return NodeFilter.FILTER_REJECT;
+              return NodeFilter.FILTER_ACCEPT;
+            },
+          });
+          const parts = [];
+          while (walker.nextNode()) {
+            const text = walker.currentNode.nodeValue.trim();
+            if (text) parts.push(text);
+          }
+          return parts.join(' ');
+        };
         return JSON.stringify({
         title: document.title,
         booted: document.querySelector('[data-v6-root]')?.dataset.booted || '',
@@ -26,11 +45,19 @@ async function main() {
         readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
         readinessDetail: document.querySelector('[data-v6-readiness-missing]')?.textContent || '',
         readinessRuntimeCount: document.querySelector('[data-v6-readiness-runtime-count]')?.textContent || '',
+        readinessRuntimeCountHidden: document.querySelector('[data-v6-readiness-runtime-count]')?.hidden ?? false,
+        readinessRuntimeCountAriaHidden: document.querySelector('[data-v6-readiness-runtime-count]')?.getAttribute('aria-hidden') || '',
         readinessCommandCount: document.querySelector('[data-v6-readiness-command-count]')?.textContent || '',
+        readinessCommandCountHidden: document.querySelector('[data-v6-readiness-command-count]')?.hidden ?? false,
+        readinessCommandCountAriaHidden: document.querySelector('[data-v6-readiness-command-count]')?.getAttribute('aria-hidden') || '',
         readinessGateCount: document.querySelector('[data-v6-readiness-gate-count]')?.textContent || '',
+        readinessGateCountHidden: document.querySelector('[data-v6-readiness-gate-count]')?.hidden ?? false,
+        readinessGateCountAriaHidden: document.querySelector('[data-v6-readiness-gate-count]')?.getAttribute('aria-hidden') || '',
         readinessGateItems: document.querySelectorAll('[data-v6-readiness-gate]').length,
+        readinessGatesHidden: document.querySelector('[data-v6-readiness-gates]')?.hidden ?? false,
         panelTitles: [...document.querySelectorAll('.panel-copy strong, .settings-modal-header strong')].map((element) => element.textContent),
         bodyText: document.body.textContent || '',
+        visibleBodyText: visibleText(document.body),
         registrySnapshot: document.querySelector('[data-v6-root]')?.__v6RuntimeRegistry?.snapshot?.(),
         playDisabled: document.querySelector('[data-v6-transport-action="play-toggle"]')?.disabled ?? true,
         nextDisabled: document.querySelector('[data-v6-transport-action="next"]')?.disabled ?? true,
@@ -70,9 +97,16 @@ async function main() {
     assert.equal(value.readinessState, 'System ready');
     assert.equal(value.readinessDetail, 'Replay workstation is ready');
     assert.match(value.readinessRuntimeCount, /services active/);
+    assert.equal(value.readinessRuntimeCountHidden, true);
+    assert.equal(value.readinessRuntimeCountAriaHidden, 'true');
     assert.equal(value.readinessCommandCount, 'Commands ready');
+    assert.equal(value.readinessCommandCountHidden, true);
+    assert.equal(value.readinessCommandCountAriaHidden, 'true');
     assert.equal(value.readinessGateCount, 'Core checks passed');
+    assert.equal(value.readinessGateCountHidden, true);
+    assert.equal(value.readinessGateCountAriaHidden, 'true');
     assert.equal(value.readinessGateItems, 0);
+    assert.equal(value.readinessGatesHidden, true);
     assert.deepEqual(value.panelTitles, [
       'Trade Journal',
       'Replay Control',
@@ -82,6 +116,9 @@ async function main() {
     assert.equal(value.bodyText.includes('boundary-smoke.js'), false);
     assert.equal(value.bodyText.includes('Cache-hit latency'), false);
     assert.equal(value.bodyText.includes('mixed-timeframe-visible-latency-browser-smoke.js'), false);
+    assert.equal(value.visibleBodyText.includes('services active'), false);
+    assert.equal(value.visibleBodyText.includes('Commands ready'), false);
+    assert.equal(value.visibleBodyText.includes('Core checks passed'), false);
     assert.equal(value.playDisabled, false);
     assert.equal(value.nextDisabled, false);
     assert.equal(value.speedSliderMounted, true);

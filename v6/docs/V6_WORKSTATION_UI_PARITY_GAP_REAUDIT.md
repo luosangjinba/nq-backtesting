@@ -25,8 +25,9 @@ already been partially completed by later steps.
   fields remain inert until explicit owners exist.
 - Multi-pane UI remains deferred even though pane model and test-host coverage
   exist.
-- The main shell-only gap now visible in normal workstation chrome is readiness
-  diagnostics exposure in the header.
+- Step 131 cleaned up readiness diagnostics visibility by keeping compact
+  user-facing readiness text in the header while hiding runtime/command/gate
+  telemetry from the default visible path.
 
 ## Updated Classification
 
@@ -51,11 +52,11 @@ Runtime-owned/deferred surfaces:
 - Session settings persistence and command/event ownership;
 - multi-pane workstation UI.
 
-Next shell-only candidate:
+Completed shell-only cleanup:
 
-- diagnostics visibility cleanup, moving readiness runtime/command/gate details
-  out of the normal workstation header or behind an explicit diagnostics
-  affordance.
+- diagnostics visibility cleanup keeps readiness controller state available for
+  tests and future tooling while removing runtime/command/gate telemetry from
+  normal visible header text.
 
 ## Boundary Result
 
@@ -75,6 +76,5 @@ session-settings behavior, Order exposure, or Calendar exposure.
 
 ## Next Step
 
-Step 130 should select the next bounded workstation/chart slice from the
-updated priority order. Prefer diagnostics visibility cleanup unless a newly
-found regression requires a narrower fix first.
+Step 132 should select one deferred owner contract family unless a newly found
+regression requires a narrower fix first.
