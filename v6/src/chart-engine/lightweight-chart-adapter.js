@@ -128,7 +128,11 @@ export function createLightweightChartAdapter({
     if (!Number.isFinite(normalizedPrice) || time == null) {
       return snapshot();
     }
-    chart.setCrosshairPosition?.(normalizedPrice, time, series);
+    try {
+      chart.setCrosshairPosition?.(normalizedPrice, time, series);
+    } catch {
+      return snapshot();
+    }
     return snapshot();
   }
 

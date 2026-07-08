@@ -15,25 +15,21 @@ let layoutSnapshot = {
   visiblePaneIds: ['main', 'secondary', 'tertiary'],
 };
 const subscriptions = new Map();
-const appliedProjections = [];
-let visibleRangeHandler = null;
+const appliedCrosshair = [];
 let crosshairHandler = null;
+let visibleRangeHandler = null;
 
 const chartSurface = {
-  applyCrosshairProjection() {
-    return null;
-  },
-  applyViewportProjection(record) {
-    appliedProjections.push(record);
+  applyCrosshairProjection(record) {
+    appliedCrosshair.push(record);
     return record;
+  },
+  applyViewportProjection() {
+    return null;
   },
   getState() {
     return {
-      appliedViewport: appliedProjections.map((record) => ({
-        from: record.projection.from,
-        paneId: record.paneId,
-        to: record.projection.to,
-      })),
+      appliedViewport: [],
       layout: {
         visiblePaneIds: [...layoutSnapshot.visiblePaneIds],
       },
@@ -66,35 +62,57 @@ const bridge = connectLayoutSyncSurfaceBridge({
 });
 
 await bridge.ready;
-assert.equal(bridge.getState().enabled, false);
+assert.equal(bridge.getState().crosshairEnabled, false);
 
-assert.deepEqual(visibleRangeHandler({ paneId: 'main', from: 10, to: 30 }), []);
-assert.equal(appliedProjections.length, 0);
+assert.deepEqual(crosshairHandler({
+  bar: { close: 30542, high: 30545, low: 30539, open: 30540, timestamp: 100 },
+  paneId: 'main',
+  time: 100,
+}), []);
+assert.equal(appliedCrosshair.length, 0);
 
 layoutSnapshot = {
   ...layoutSnapshot,
   sync: {
     ...layoutSnapshot.sync,
-    dateRange: true,
+    crosshair: true,
   },
 };
 subscriptions.get(LAYOUT_EVENTS.SYNC_CHANGED)(layoutSnapshot);
 
-const records = visibleRangeHandler({ paneId: 'main', from: 10, to: 30 });
+const records = crosshairHandler({
+  bar: { close: 30542, high: 30545, low: 30539, open: 30540, timestamp: 100 },
+  paneId: 'main',
+  point: { x: 10, y: 20 },
+  time: 100,
+});
 assert.deepEqual(records.map((record) => record.paneId), ['secondary', 'tertiary']);
-assert.deepEqual(records.map((record) => record.projection.origin), ['layout-sync', 'layout-sync']);
-assert.deepEqual(records.map((record) => record.projection.from), [10, 10]);
-assert.deepEqual(records.map((record) => record.projection.to), [30, 30]);
-assert.equal(bridge.getState().enabled, true);
-assert.equal(bridge.getState().appliedRecords.length, 2);
+assert.deepEqual(records.map((record) => record.price), [30542, 30542]);
+assert.deepEqual(records.map((record) => record.time), [100, 100]);
+assert.deepEqual(records.map((record) => record.origin), ['layout-sync', 'layout-sync']);
+assert.equal(bridge.getState().crosshairEnabled, true);
+assert.equal(bridge.getState().appliedCrosshairRecords.length, 2);
 
-assert.deepEqual(visibleRangeHandler({ paneId: 'main', from: 10.25, to: 29.75 }), []);
+assert.deepEqual(crosshairHandler({
+  bar: { close: 30542, high: 30545, low: 30539, open: 30540, timestamp: 100 },
+  paneId: 'secondary',
+  time: 100,
+}), []);
+
+const clearRecords = crosshairHandler({
+  bar: null,
+  paneId: 'main',
+  point: null,
+  time: null,
+});
+assert.deepEqual(clearRecords.map((record) => [record.paneId, record.clear]), [
+  ['secondary', true],
+  ['tertiary', true],
+]);
 
 bridge.destroy();
-assert.equal(visibleRangeHandler, null);
 assert.equal(crosshairHandler, null);
-assert.equal(subscriptions.has(LAYOUT_EVENTS.MODE_CHANGED), false);
-assert.equal(subscriptions.has(LAYOUT_EVENTS.SYNC_CHANGED), false);
+assert.equal(visibleRangeHandler, null);
 
 const source = fs.readFileSync(new URL('../src/chart-engine/layout-sync-surface-bridge.js', import.meta.url), 'utf8');
 assert.equal(source.includes('BAR_DATA_COMMANDS'), false);
@@ -102,4 +120,4 @@ assert.equal(source.includes('CHART_DATA_COMMANDS'), false);
 assert.equal(source.includes('REPLAY_COMMANDS'), false);
 assert.equal(source.includes('REQUEST_LEFT_EXTENSION'), false);
 
-console.log('v6 layout sync surface bridge step 166 smoke passed');
+console.log('v6 layout sync crosshair bridge step 167 smoke passed');
