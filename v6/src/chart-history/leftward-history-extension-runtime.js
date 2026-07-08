@@ -220,9 +220,10 @@ export function createLeftwardHistoryExtensionRuntime() {
         return getState();
       }
 
+      const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
       const chartAfterPrepend = await dispatchCommand(CHART_DATA_COMMANDS.PREPEND_BARS, {
         bars: loadedBars,
-        cursorTimestamp: replayCursorTimestamp(replayState),
+        cursorTimestamp: replayCursorTimestamp(latestReplayState || replayState),
         paneId,
       });
       state = {
