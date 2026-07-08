@@ -7,6 +7,7 @@ import {
   CHART_VIEWPORT_COMMANDS,
   LAYOUT_COMMANDS,
   PANE_INTENT_RELOAD_COMMANDS,
+  PANE_INTENT_RELOAD_DATA_COMMANDS,
   PANE_INTENT_RELOAD_PLAN_COMMANDS,
   PANE_INTENT_SYNC_COMMANDS,
   PANE_COMMANDS,
@@ -17,6 +18,7 @@ import { createBarDataRuntime } from '../src/bar-data/bar-data-runtime.js';
 import { createChartDataRuntime } from '../src/chart-data/chart-data-runtime.js';
 import { createChartViewportRuntime } from '../src/chart-viewport/chart-viewport-runtime.js';
 import { createLayoutRuntime } from '../src/layout/layout-runtime.js';
+import { createPaneIntentReloadDataRuntime } from '../src/pane-intent-reload/pane-intent-reload-data-runtime.js';
 import { createPaneIntentReloadRuntime } from '../src/pane-intent-reload/pane-intent-reload-runtime.js';
 import { createPaneIntentReloadWindowRuntime } from '../src/pane-intent-reload/pane-intent-reload-window-runtime.js';
 import { createPaneIntentSyncRuntime } from '../src/pane-intent-sync/pane-intent-sync-runtime.js';
@@ -60,9 +62,10 @@ registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createReplayRuntime());
 registry.registerRuntime(createPaneIntentReloadWindowRuntime());
+registry.registerRuntime(createPaneIntentReloadDataRuntime());
 assert.deepEqual(registry.snapshot(), {
   running: false,
-  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.layout', 'runtime.paneIntentSync', 'runtime.paneIntentReload', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay', 'runtime.paneIntentReloadWindow'],
+  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.layout', 'runtime.paneIntentSync', 'runtime.paneIntentReload', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay', 'runtime.paneIntentReloadWindow', 'runtime.paneIntentReloadData'],
   started: [],
 });
 
@@ -104,6 +107,7 @@ assert.deepEqual(listCommands(), [
   PANE_COMMANDS.SET_INTERVAL_INTENT,
   PANE_COMMANDS.SET_SYMBOL_INTENT,
   PANE_INTENT_RELOAD_COMMANDS.GET_STATE,
+  PANE_INTENT_RELOAD_DATA_COMMANDS.GET_STATE,
   PANE_INTENT_RELOAD_PLAN_COMMANDS.GET_STATE,
   PANE_INTENT_SYNC_COMMANDS.GET_STATE,
   REPLAY_COMMANDS.GET_STATE,

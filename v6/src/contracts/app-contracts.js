@@ -191,6 +191,14 @@ export const PANE_INTENT_RELOAD_PLAN_EVENTS = Object.freeze({
   PLANNED: 'paneIntentReloadPlan:planned',
 });
 
+export const PANE_INTENT_RELOAD_DATA_COMMANDS = Object.freeze({
+  GET_STATE: 'paneIntentReloadData.getState',
+});
+
+export const PANE_INTENT_RELOAD_DATA_EVENTS = Object.freeze({
+  LOADED: 'paneIntentReloadData:loaded',
+});
+
 export const CHART_DATA_COMMANDS = Object.freeze({
   APPEND_BARS: 'chartData.appendBars',
   CLEAR_PANE: 'chartData.clearPane',
