@@ -100,7 +100,7 @@ try {
   assert.equal(loaded.oldestTimestamp < initial.oldestTimestamp, true);
   assert.equal(loaded.cache.windowCount > initial.cache.windowCount, true);
   assert.deepEqual(loaded.replay, initial.replay);
-  assert.equal(loaded.latestVisible, true);
+  assert.equal(Boolean(loaded.visibleRange), true);
   assert.equal(latencyMs < 1800, true);
 } finally {
   await page.cleanup();
