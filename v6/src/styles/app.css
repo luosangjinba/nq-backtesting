@@ -1918,6 +1918,34 @@ p {
   color: #b7c8d2;
 }
 
+.symbol-readout[data-status-ohlc="selected"] [data-v6-status-open] {
+  color: #f3c96b;
+}
+
+.symbol-readout[data-status-ohlc="selected"] [data-v6-status-high] {
+  color: #34d399;
+}
+
+.symbol-readout[data-status-ohlc="selected"] [data-v6-status-low] {
+  color: #fb7185;
+}
+
+.symbol-readout[data-status-ohlc="selected"] [data-v6-status-close] {
+  color: #9ee7d6;
+}
+
+.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="up"] [data-v6-status-close] {
+  color: #36b7a8;
+}
+
+.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="down"] [data-v6-status-close] {
+  color: #f25f68;
+}
+
+.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="flat"] [data-v6-status-close] {
+  color: #d7e1e7;
+}
+
 .pane-status-readout {
   position: absolute;
   top: 18px;

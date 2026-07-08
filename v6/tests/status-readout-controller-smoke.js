@@ -103,6 +103,8 @@ assert.equal(root.text('[data-v6-status-low]'), 'L 100.00');
 assert.equal(root.text('[data-v6-status-close]'), 'C 101.50');
 assert.equal(root.text('[data-v6-status-price]'), '101.50');
 assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'selected');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'up');
 
 listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: null,
@@ -112,6 +114,8 @@ assert.equal(root.text('[data-v6-status-open]'), 'O --');
 assert.equal(root.text('[data-v6-status-high]'), 'H --');
 assert.equal(root.text('[data-v6-status-low]'), 'L --');
 assert.equal(root.text('[data-v6-status-close]'), 'C --');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'empty');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'empty');
 
 controller.destroy();
 assert.equal(listeners.size, 0);

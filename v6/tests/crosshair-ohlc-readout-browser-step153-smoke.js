@@ -52,6 +52,10 @@ try {
           nq: (readoutText.match(/NQ/g) || []).length,
           timeframe: (readoutText.match(/1m/g) || []).length,
         },
+        readoutDataset: {
+          direction: document.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection,
+          ohlc: document.querySelector('[data-v6-status-readout]').dataset.statusOhlc,
+        },
         readoutText,
         surfaceState: document.querySelector('[data-v6-root]').__v6WorkstationChartSurface.getState(),
         symbol: text('[data-v6-status-symbol]'),
@@ -66,6 +70,8 @@ try {
   assert.equal(setup.initial.high, 'H --');
   assert.equal(setup.initial.low, 'L --');
   assert.equal(setup.initial.close, 'C --');
+  assert.equal(setup.readoutDataset.ohlc, 'empty');
+  assert.equal(setup.readoutDataset.direction, 'empty');
   assert.equal(setup.labelCounts.nq, 1);
   assert.equal(setup.labelCounts.timeframe, 1);
   assert.equal(setup.symbol, 'NQ');
@@ -92,8 +98,19 @@ try {
       }
       const crosshair = state.crosshair?.[0] || null;
       const readoutText = text('[data-v6-status-readout]');
+      const readout = document.querySelector('[data-v6-status-readout]');
       return {
         crosshair,
+        colors: {
+          close: getComputedStyle(document.querySelector('[data-v6-status-close]')).color,
+          high: getComputedStyle(document.querySelector('[data-v6-status-high]')).color,
+          low: getComputedStyle(document.querySelector('[data-v6-status-low]')).color,
+          open: getComputedStyle(document.querySelector('[data-v6-status-open]')).color,
+        },
+        dataset: {
+          direction: readout.dataset.statusCandleDirection,
+          ohlc: readout.dataset.statusOhlc,
+        },
         ohlc: {
           close: text('[data-v6-status-close]'),
           high: text('[data-v6-status-high]'),
@@ -119,6 +136,9 @@ try {
   assert.equal(value.ohlc.high, `H ${Number(value.crosshair.bar.high).toFixed(2)}`);
   assert.equal(value.ohlc.low, `L ${Number(value.crosshair.bar.low).toFixed(2)}`);
   assert.equal(value.ohlc.close, `C ${Number(value.crosshair.bar.close).toFixed(2)}`);
+  assert.equal(value.dataset.ohlc, 'selected');
+  assert.match(value.dataset.direction, /^(up|down|flat)$/);
+  assert.equal(new Set(Object.values(value.colors)).size > 1, true);
   assert.equal(value.placeholderPresent, false);
   assert.equal(value.textCounts.nq, 1);
   assert.equal(value.textCounts.timeframe, 1);

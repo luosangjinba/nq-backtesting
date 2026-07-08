@@ -20,7 +20,17 @@ function setText(root, selector, value) {
   }
 }
 
+function updateDataset(element, state) {
+  if (!element) return;
+  if (!element.dataset) {
+    element.dataset = {};
+  }
+  element.dataset.statusCandleDirection = state.candleDirection;
+  element.dataset.statusOhlc = state.crosshairBar ? 'selected' : 'empty';
+}
+
 function renderStatusReadout(root, state) {
+  const readout = root.querySelector('[data-v6-status-readout]');
   setText(root, '[data-v6-status-symbol]', state.symbol);
   setText(root, '[data-v6-status-timeframe]', state.timeframe);
   setText(root, '[data-v6-status-title]', state.title);
@@ -39,6 +49,7 @@ function renderStatusReadout(root, state) {
   root.dataset.statusPlayback = state.playback;
   root.dataset.statusSymbol = state.symbol;
   root.dataset.statusTimeframe = state.timeframe;
+  updateDataset(readout, state);
 }
 
 export function mountStatusReadout(root, {

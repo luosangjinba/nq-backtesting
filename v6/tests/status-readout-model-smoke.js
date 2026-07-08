@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {
   createStatusReadoutState,
   statusReadoutStateFromChartDataPayload,
+  statusReadoutStateFromCrosshairPayload,
   statusReadoutStateFromDefaultWallPayload,
   statusReadoutStateFromReplayPayload,
 } from '../src/shell/status-readout-model.js';
@@ -9,6 +10,7 @@ import {
 const initial = createStatusReadoutState();
 assert.equal(initial.title, 'NQ 1m');
 assert.equal(initial.ohlc.open, 'O --');
+assert.equal(initial.candleDirection, 'empty');
 assert.equal(initial.footer.session, 'Session pending');
 assert.equal(initial.footer.noFuture, 'No future pending');
 
@@ -37,11 +39,12 @@ const loaded = statusReadoutStateFromDefaultWallPayload({
 
 assert.equal(loaded.title, 'NQ 1m');
 assert.deepEqual(loaded.ohlc, {
-  close: 'C 100.50',
-  high: 'H 101.00',
-  low: 'L 99.00',
-  open: 'O 100.00',
+  close: 'C --',
+  high: 'H --',
+  low: 'L --',
+  open: 'O --',
 });
+assert.equal(loaded.candleDirection, 'empty');
 assert.equal(loaded.footer.cursor, 'Cursor 09:30');
 assert.equal(loaded.footer.end, 'End 09:33');
 assert.equal(loaded.footer.noFuture, 'No future 3 hidden');
@@ -55,7 +58,7 @@ const playing = statusReadoutStateFromReplayPayload({
   status: 'playing',
 }, loaded);
 assert.equal(playing.footer.playback, 'Playback playing');
-assert.equal(playing.ohlc.close, 'C 100.50');
+assert.equal(playing.ohlc.close, 'C --');
 
 const chartDataChanged = statusReadoutStateFromChartDataPayload({
   record: {
@@ -71,12 +74,29 @@ const chartDataChanged = statusReadoutStateFromChartDataPayload({
   },
 }, playing);
 assert.deepEqual(chartDataChanged.ohlc, {
+  close: 'C --',
+  high: 'H --',
+  low: 'L --',
+  open: 'O --',
+});
+assert.equal(chartDataChanged.footer.playback, 'Playback playing');
+assert.equal(chartDataChanged.timestamp, '09:31');
+
+const crosshairChanged = statusReadoutStateFromCrosshairPayload({
+  bar: {
+    close: 101.5,
+    high: 102,
+    low: 100,
+    open: 101,
+    timestamp: 1780306260,
+  },
+}, chartDataChanged);
+assert.deepEqual(crosshairChanged.ohlc, {
   close: 'C 101.50',
   high: 'H 102.00',
   low: 'L 100.00',
   open: 'O 101.00',
 });
-assert.equal(chartDataChanged.footer.playback, 'Playback playing');
-assert.equal(chartDataChanged.timestamp, '09:31');
+assert.equal(crosshairChanged.candleDirection, 'up');
 
 console.log('v6 status readout model smoke passed');

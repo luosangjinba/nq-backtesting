@@ -34,6 +34,16 @@ function latestBarFromPayload(payload = {}) {
   return payload.state?.latestBar || payload.chartRecord?.bars?.at?.(-1) || null;
 }
 
+function candleDirection(bar) {
+  if (!bar) return 'empty';
+  const open = Number(bar.open);
+  const close = Number(bar.close);
+  if (!Number.isFinite(open) || !Number.isFinite(close)) return 'empty';
+  if (close > open) return 'up';
+  if (close < open) return 'down';
+  return 'flat';
+}
+
 export function createStatusReadoutState({
   crosshairBar = null,
   latestBar = null,
@@ -57,6 +67,7 @@ export function createStatusReadoutState({
       session: replay.sessionId ? `Session ${replay.sessionId}` : 'Session pending',
       start: `Start ${formatTime(replay.startTime)}`,
     }),
+    candleDirection: candleDirection(selectedBar),
     crosshairBar: selectedBar ? Object.freeze(selectedBar) : null,
     latestBar: bar ? Object.freeze(bar) : null,
     ohlc: Object.freeze({
