@@ -15,6 +15,7 @@ import {
 import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
 const V6_ROOT = path.resolve('v6');
+const ACCOUNT_TRADING_ROOT = path.join(V6_ROOT, 'src', 'account-trading');
 const APP_FILE = path.join(V6_ROOT, 'src', 'app.js');
 const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
 const CALENDAR_ROOT = path.join(V6_ROOT, 'src', 'calendar');
@@ -446,6 +447,17 @@ const forbiddenDrawingActionHistoryOwnershipPatterns = [
   },
 ];
 
+const forbiddenAccountTradingOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data|calendar|chart|default-wall|display-timeframe|drawing-action-history|indicators|journal\/|journal-persistence|layout|orders|panes|persistence|replay|screenshot-export|session\/session-|session-settings|settings|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 account-trading modules must stay pure and not import feature runtimes, UI, V4, vendor, chart, data, replay, viewport, drawing, indicators, orders, calendar, journal, settings, persistence, screenshot-export, or session-settings modules.',
+  },
+  {
+    pattern: /\b(ACCOUNT_TRADING_COMMANDS|BAR_DATA_COMMANDS|CALENDAR_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|DRAWING_ACTION_HISTORY_COMMANDS|INDICATORS_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|ORDERS_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SCREENSHOT_EXPORT_COMMANDS|SESSION_COMMANDS|SESSION_SETTINGS_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|addLineSeries|addHistogramSeries|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime|placeOrder|mutatePosition|accountRuntime|ordersRuntime)\b/,
+    reason: 'V6 account-trading modules must not dispatch commands, place orders, or own chart, data, replay, viewport, UI, storage, network, account, or orders state.',
+  },
+];
+
 const forbiddenOrdersOwnershipPatterns = [
   {
     pattern: /from\s+['"][^'"]*(bar-data|calendar|chart|default-wall|display-timeframe|journal\/|journal-persistence|layout|panes|persistence|replay|session\/session-|settings|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
@@ -866,6 +878,19 @@ for (const file of await walkFiles(INDICATORS_ROOT)) {
 for (const file of await walkFiles(DRAWING_ACTION_HISTORY_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenDrawingActionHistoryOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(ACCOUNT_TRADING_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenAccountTradingOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
