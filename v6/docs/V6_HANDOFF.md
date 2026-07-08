@@ -5,19 +5,24 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 159 completed.
-- Next planned step: Step 160 - Layout Menu Owner Binding.
+- Current V6 step state: Step 160 completed.
+- Next planned step: Step 161 - Layout Pane Surface Reflow Boundary.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Chart Foundation Next Slice Selection:
+The latest completed work is Layout Menu Owner Binding:
 
-- `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md` selects Layout Menu
-  Owner Binding as the next bounded chart-facing slice.
-- `chart-foundation-next-slice-selection-step159-smoke.js` verifies the selected
-  owner boundary, non-goals, current inert menu state, and layout-runtime
-  command availability.
-- Step 160 should connect the Page layout menu controls to layout-runtime state
-  without adding chart pane reflow or cross-pane synchronization behavior.
+- `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md` accepts the Page layout menu owner
+  binding through a focused shell UI controller and layout-runtime commands.
+- `layout-menu-control-smoke.js` verifies the controller dispatches layout
+  commands and reflects layout state.
+- `layout-menu-owner-binding-browser-step160-smoke.js` verifies browser-visible
+  layout controls are clickable, layout-runtime state changes, and chart
+  geometry remains stable.
+- Step 161 should connect layout mode changes to chart surface pane host
+  presentation without moving chart ownership into shell code.
+
+Browser tests should be run sequentially because the current smoke harnesses
+share browser/CDP resources.
 
 ## Restart Reading Order
 
@@ -83,60 +88,63 @@ After restarting the server or assistant context, read these first:
 58. `v6/sessions/session_20260708_step157_multi_pane_replay_viewport_projection.md`
 59. `v6/sessions/session_20260708_step158_chart_foundation_integration_reaudit.md`
 60. `v6/sessions/session_20260708_step159_chart_foundation_next_slice_selection.md`
-61. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-62. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-63. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-64. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-65. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-66. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-67. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-68. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-69. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-70. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-71. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-72. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-73. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-74. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-75. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-76. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-77. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-78. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-79. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-80. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-81. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-82. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-83. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-84. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-85. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-86. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
-87. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
-88. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
-89. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
-90. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
-91. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
-92. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
-93. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
-94. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
-95. `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`
-96. `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`
-97. `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`
-98. `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`
-99. `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`
-100. `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`
-101. `v6/docs/V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`
-102. `v6/docs/V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`
-103. `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`
-104. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-105. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-106. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+61. `v6/sessions/session_20260708_step160_layout_menu_owner_binding.md`
+62. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+63. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+64. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+65. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+66. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+67. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+68. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+69. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+70. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+71. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+72. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+73. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+74. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+75. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+76. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+77. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+78. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+79. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+80. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+81. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+82. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+83. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+84. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+85. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+86. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+87. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+88. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
+89. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
+90. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
+91. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
+92. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
+93. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
+94. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
+95. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
+96. `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`
+97. `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`
+98. `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`
+99. `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`
+100. `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`
+101. `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`
+102. `v6/docs/V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`
+103. `v6/docs/V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`
+104. `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`
+105. `v6/docs/V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`
+106. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+107. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+108. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 160 should focus on Layout Menu Owner Binding.
+Step 161 should focus on Layout Pane Surface Reflow Boundary.
 
-Keep Step 160 bounded:
+Keep Step 161 bounded:
 
-- read `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
+- read `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
+  `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
   `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
   `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
   `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
@@ -155,14 +163,13 @@ Keep Step 160 bounded:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
   `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- add a focused shell/UI controller for the Page layout menu that dispatches
-  only `LAYOUT_COMMANDS.SET_MODE`, `LAYOUT_COMMANDS.SET_SYNC`, and
-  `LAYOUT_COMMANDS.GET_SNAPSHOT`;
-- make layout preset buttons and sync switches clickable and reflect
-  layout-runtime state;
-- keep actual chart pane reflow and cross-pane sync behavior out of this step;
-- update browser parity expectations from inert disabled controls to
-  owner-bound clickable controls;
+- define a chart-surface-owned way to present one, two, and three pane hosts
+  from layout mode changes without moving layout ownership into shell code;
+- keep pane host creation/destruction, chart series writes, and visible range
+  writes inside chart-engine/chart-surface boundaries;
+- keep cross-pane symbol, interval, crosshair, time, and date-range sync
+  behavior out of this step;
+- preserve Step 160 layout menu owner binding;
 - preserve Step 159 selected owner boundary and non-goals;
 - preserve Step 158 chart foundation integration audit coverage;
 - preserve Step 157 pane-local replay viewport projection isolation;
@@ -183,17 +190,16 @@ Keep Step 160 bounded:
 
 Expected implementation shape:
 
-- layout menu owner binding through shell UI controller and layout runtime;
-- do not create or destroy chart panes in this step;
+- layout mode to chart surface pane host presentation through layout runtime
+  and chart-engine/chart-surface boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
 - do not mutate viewport intent outside chart-viewport runtime;
-- run drag-triggered history extension smoke, leftward history extension smoke,
-  multi-pane foundation smoke, reset view / KXG smoke, replay K-line chart flow
-  smoke, database K-line import boundary smoke, chart foundation
-  reprioritization smoke, chart reset view browser smoke, chart presentation
-  re-audit, and boundary smoke.
+- do not route pane ownership through workstation route files;
+- run layout pane surface reflow smoke/browser smoke, layout menu owner binding
+  smoke/browser smoke, chart foundation next slice selection smoke, chart
+  foundation integration re-audit smoke, and boundary smoke.
 
 ## Critical Boundaries
 

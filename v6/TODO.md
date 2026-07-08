@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 159 - Chart Foundation Next Slice Selection. V6
-  selected Layout Menu Owner Binding as the next bounded chart-facing slice:
-  connect the currently inert Page layout menu to layout-runtime state without
-  directly mutating chart, replay, bar-data, or viewport owners.
+- Latest completed step: Step 160 - Layout Menu Owner Binding. V6 now connects
+  the Page layout menu controls to layout-runtime state through a shell
+  controller, while keeping chart pane reflow and cross-pane sync behavior out
+  of this step.
 
 ## Next Executable Steps
 
-### Step 160 - Layout Menu Owner Binding
+### Step 161 - Layout Pane Surface Reflow Boundary
 
-Connect the Page layout menu controls to the layout owner boundary.
+Connect layout mode changes to chart surface pane host presentation.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
+- read `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
+  `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
   `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
   `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
   `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
@@ -49,14 +50,13 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- add a focused shell/UI controller for the Page layout menu that dispatches
-  only `LAYOUT_COMMANDS.SET_MODE`, `LAYOUT_COMMANDS.SET_SYNC`, and
-  `LAYOUT_COMMANDS.GET_SNAPSHOT`;
-- make layout preset buttons and sync switches clickable and reflect
-  layout-runtime state;
-- keep actual chart pane reflow and cross-pane sync behavior out of this step;
-- update browser parity expectations from inert disabled controls to
-  owner-bound clickable controls;
+- define a chart-surface-owned way to present one, two, and three pane hosts
+  from layout mode changes without moving layout ownership into shell code;
+- keep pane host creation/destruction, chart series writes, and visible range
+  writes inside chart-engine/chart-surface boundaries;
+- keep cross-pane symbol, interval, crosshair, time, and date-range sync behavior
+  out of this step;
+- preserve Step 160 layout menu owner binding;
 - preserve Step 159 selected owner boundary and non-goals;
 - preserve Step 158 chart foundation integration audit coverage;
 - preserve Step 157 pane-local replay viewport projection isolation;
@@ -77,8 +77,8 @@ Notes for execution:
 
 Scope:
 
-- layout menu owner binding through shell UI controller and layout runtime;
-- do not create or destroy chart panes in this step;
+- layout mode to chart surface pane host presentation through layout runtime and
+  chart-engine/chart-surface boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -87,6 +87,8 @@ Scope:
 
 Acceptance:
 
+- layout pane surface reflow smoke passes;
+- layout pane surface reflow browser smoke passes;
 - layout menu owner binding smoke passes;
 - layout menu owner binding browser smoke passes;
 - chart foundation next slice selection smoke passes;
@@ -115,6 +117,24 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 160 - Layout Menu Owner Binding
+
+Completed in commits:
+
+- `673fc737 feat(v6): bind layout menu to layout runtime`
+- `7c6697fe test(v6): cover layout menu owner binding browser flow`
+
+Verification:
+
+- `node v6/tests/layout-menu-control-smoke.js`
+- `node v6/tests/layout-menu-owner-binding-browser-step160-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/layout-runtime-smoke.js`
+- `node v6/tests/chart-foundation-next-slice-selection-step159-smoke.js`
+- `node v6/tests/chart-foundation-integration-reaudit-step158-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 159 - Chart Foundation Next Slice Selection
 
