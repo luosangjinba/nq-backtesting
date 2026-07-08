@@ -9,6 +9,7 @@ import {
 import {
   makeBarWindowKey,
   planCanvasLeftOlderWindow,
+  windowBoundsMs,
 } from '../bar-data/bar-window.js';
 import { dispatchCommand, registerCommand } from '../runtime/commands.js';
 
@@ -104,8 +105,35 @@ function createRequestKey(paneId, plannedWindow) {
   return `${paneId}|${makeBarWindowKey(plannedWindow)}`;
 }
 
+function createExhaustedScopeKey(paneId, plannedWindow) {
+  return [
+    paneId,
+    plannedWindow.instrument,
+    plannedWindow.timeframe,
+  ].join('|');
+}
+
+function oldestLoadedTimestampMs(bars = []) {
+  const timestamps = cloneBars(bars)
+    .map((bar) => Number(bar.timestamp ?? bar.time))
+    .filter((timestamp) => Number.isFinite(timestamp))
+    .sort((left, right) => left - right);
+  if (!timestamps.length) return null;
+  const oldest = timestamps[0];
+  return oldest > 10_000_000_000 ? oldest : oldest * 1000;
+}
+
+function exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds) {
+  const oldestLoadedMs = oldestLoadedTimestampMs(loadedBars);
+  if (oldestLoadedMs !== null) {
+    return oldestLoadedMs - (stepSeconds * 1000);
+  }
+  return windowBoundsMs(plannedWindow).endMs;
+}
+
 export function createLeftwardHistoryExtensionRuntime() {
   const unregisterCallbacks = [];
+  const exhaustedScopes = new Map();
   const exhaustedRequestKeys = new Set();
   const inFlightRequestKeys = new Set();
   let state = {
@@ -193,6 +221,12 @@ export function createLeftwardHistoryExtensionRuntime() {
       if (exhaustedRequestKeys.has(requestKey)) {
         return ignore('older-window-exhausted', paneId, emitEvent);
       }
+      const exhaustedScopeKey = createExhaustedScopeKey(paneId, plannedWindow);
+      const exhaustedThroughMs = exhaustedScopes.get(exhaustedScopeKey);
+      const plannedBounds = windowBoundsMs(plannedWindow);
+      if (Number.isFinite(exhaustedThroughMs) && plannedBounds.endMs <= exhaustedThroughMs) {
+        return ignore('older-history-exhausted', paneId, emitEvent);
+      }
 
       inFlightRequestKeys.add(requestKey);
       const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, plannedWindow);
@@ -200,6 +234,10 @@ export function createLeftwardHistoryExtensionRuntime() {
       const loadedBars = cloneBars(loadedWindow?.bars);
       if (loadedWindow?.history?.exhaustedBefore === true) {
         exhaustedRequestKeys.add(requestKey);
+        exhaustedScopes.set(
+          exhaustedScopeKey,
+          exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds),
+        );
       }
       if (!loadedBars.length) {
         exhaustedRequestKeys.add(requestKey);
@@ -267,6 +305,7 @@ export function createLeftwardHistoryExtensionRuntime() {
       unregisterCallbacks.pop()();
     }
     exhaustedRequestKeys.clear();
+    exhaustedScopes.clear();
     inFlightRequestKeys.clear();
     state = {
       error: null,
