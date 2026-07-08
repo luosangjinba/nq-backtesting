@@ -87,6 +87,8 @@ Read this index before working on V6.
 - `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`: accepted indicators owner
   contract, built-in indicator id whitelist, read-only intent, validation
   helpers, and boundary coverage.
+- `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`: selected next
+  bounded workstation/chart slice after the indicators owner contract.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -194,6 +196,8 @@ Read this index before working on V6.
   workstation/chart slice selection after the screenshot/export owner contract.
 - `V6_INDICATORS_OWNER_CONTRACT.md`: accepted indicators owner contract while
   the top-toolbar Indicators button remains disabled and inert.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`: accepted next
+  workstation/chart slice selection after the indicators owner contract.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
