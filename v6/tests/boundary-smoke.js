@@ -20,6 +20,7 @@ const APP_FILE = path.join(V6_ROOT, 'src', 'app.js');
 const BAR_DATA_ROOT = path.join(V6_ROOT, 'src', 'bar-data');
 const CALENDAR_ROOT = path.join(V6_ROOT, 'src', 'calendar');
 const CHART_DATA_ROOT = path.join(V6_ROOT, 'src', 'chart-data');
+const CHART_DATA_PROJECTION_ROOT = path.join(V6_ROOT, 'src', 'chart-data-projection');
 const CHART_ENGINE_ROOT = path.join(V6_ROOT, 'src', 'chart-engine');
 const CHART_VIEWPORT_ROOT = path.join(V6_ROOT, 'src', 'chart-viewport');
 const DEFAULT_WALL_ROOT = path.join(V6_ROOT, 'src', 'default-wall');
@@ -191,6 +192,17 @@ const forbiddenChartDataOwnershipPatterns = [
   {
     pattern: /\b(replayCursor|replayRuntime|barDataRuntime|viewportIntent|viewportRuntime|createChart|setData|updateSeries|setVisibleLogicalRange)\b/,
     reason: 'V6 chart-data modules must not own replay cursor, bar-data runtime, viewport intent, or chart engine state.',
+  },
+];
+
+const forbiddenChartDataProjectionOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(chart-engine|replay|bar-data\/bar-data-runtime|viewport|shell|runtime\/app-runtime|session|vendor|lightweight)[^'"]*['"]/i,
+    reason: 'V6 chart-data-projection modules must remain pure and not import runtimes, UI, session, vendor, or chart engine modules.',
+  },
+  {
+    pattern: /\b(document|window|HTMLElement|replayCursor|replayRuntime|barDataRuntime|viewportIntent|viewportRuntime|createChart|setData|updateSeries|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,
+    reason: 'V6 chart-data-projection modules must not own DOM, network, storage, replay, viewport, or chart engine state.',
   },
 ];
 
@@ -579,6 +591,19 @@ for (const file of await walkFiles(VIEWPORT_ROOT)) {
 for (const file of await walkFiles(CHART_DATA_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenChartDataOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(CHART_DATA_PROJECTION_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenChartDataProjectionOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
