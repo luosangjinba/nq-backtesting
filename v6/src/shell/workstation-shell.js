@@ -504,10 +504,6 @@ export function createWorkstationShellMarkup() {
               <span class="candle down"></span>
             </div>
           </div>
-          <div class="chart-placeholder" data-v6-chart-placeholder>
-            <strong data-v6-status-title>NQ 1m</strong>
-            <span data-v6-status-price>--</span>
-          </div>
         </section>
         <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">
           <button type="button" class="rail-button rail-button-icon" data-v6-rail-object-tree disabled aria-label="Show object tree">

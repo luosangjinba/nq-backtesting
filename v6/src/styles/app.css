@@ -2306,22 +2306,6 @@ p {
   pointer-events: none;
 }
 
-.chart-placeholder {
-  position: absolute;
-  top: 14px;
-  left: 14px;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #9fb7c6;
-  font-size: 12px;
-}
-
-.chart-placeholder strong {
-  color: #8ff1df;
-}
-
 .price-scale-placeholder,
 .time-scale-placeholder {
   position: absolute;

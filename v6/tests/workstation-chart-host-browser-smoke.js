@@ -10,6 +10,7 @@ try {
       const host = document.querySelector('[data-v6-chart-engine-host]');
       const fallback = document.querySelector('[data-v6-chart-fallback]');
       const placeholder = document.querySelector('[data-v6-chart-placeholder]');
+      const statusReadout = document.querySelector('[data-v6-status-readout]');
       const surfaceRect = surface.getBoundingClientRect();
       const hostRect = host.getBoundingClientRect();
       return {
@@ -21,7 +22,8 @@ try {
         hostPaneId: host.dataset.v6PaneId || '',
         hostWidth: Math.round(hostRect.width),
         hostZIndex: Number.parseInt(getComputedStyle(host).zIndex, 10),
-        placeholderZIndex: Number.parseInt(getComputedStyle(placeholder).zIndex, 10),
+        placeholderPresent: Boolean(placeholder),
+        statusReadoutZIndex: Number.parseInt(getComputedStyle(statusReadout).zIndex, 10),
         surfaceHeight: Math.round(surfaceRect.height),
         surfaceWidth: Math.round(surfaceRect.width),
       };
@@ -32,7 +34,8 @@ try {
   assert.equal(value.hostWidth, value.surfaceWidth);
   assert.equal(value.hostHeight, value.surfaceHeight);
   assert.equal(value.hostZIndex > value.fallbackZIndex, true);
-  assert.equal(value.placeholderZIndex > value.hostZIndex, true);
+  assert.equal(value.placeholderPresent, false);
+  assert.equal(value.statusReadoutZIndex > value.hostZIndex, true);
   assert.equal(value.fallbackOpacity <= 0.25, true);
   assert.equal(value.fallbackHiddenFromAccessibility, 'true');
   assert.equal(value.candleCount >= 20, true);

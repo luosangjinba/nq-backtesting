@@ -41,7 +41,8 @@ try {
         high: text('[data-v6-status-high]'),
         low: text('[data-v6-status-low]'),
         open: text('[data-v6-status-open]'),
-        price: text('[data-v6-status-price]'),
+        placeholderPresent: Boolean(document.querySelector('[data-v6-chart-placeholder]')),
+        pricePresent: Boolean(document.querySelector('[data-v6-status-price]')),
         rects: {
           close: rect('[data-v6-status-close]'),
           high: rect('[data-v6-status-high]'),
@@ -68,11 +69,12 @@ try {
   assert.match(value.high, /^H \d+\.\d{2}$/);
   assert.match(value.low, /^L \d+\.\d{2}$/);
   assert.match(value.close, /^C \d+\.\d{2}$/);
-  assert.match(value.price, /^\d+\.\d{2}$/);
   assert.equal(value.open.includes('--'), false);
   assert.equal(value.high.includes('--'), false);
   assert.equal(value.low.includes('--'), false);
   assert.equal(value.close.includes('--'), false);
+  assert.equal(value.placeholderPresent, false);
+  assert.equal(value.pricePresent, false);
   assert.notEqual(value.rects.readout, null);
   assert.equal(value.rects.readout.width > 120, true);
   assert.match(value.readoutStyle.backgroundColor, /rgba?\(/);
