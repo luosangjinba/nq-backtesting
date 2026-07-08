@@ -14,29 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 179 - Pane Reload Pipeline End-to-End Coverage.
-  V6 now has runtime and browser coverage for the full pane Symbol/Interval
-  reload pipeline from pane intent through replay-safe planning, bar-data load,
-  chart-data replacement, and viewport projection.
+- Latest completed step: Step 180 - Browser Smoke Harness Reliability. V6
+  browser smokes now allocate isolated Chrome debug ports by default, and a
+  parallel harness smoke verifies concurrent page boot and profile cleanup.
 
 ## Next Executable Steps
 
-### Step 180 - Browser Smoke Harness Reliability
-
-Harden V6 browser smoke execution before adding more browser-heavy chart gates.
+### Step 181 - Chart Browser Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_RELOAD_PIPELINE_E2E_STEP179.md`;
-- preserve all Step 179 reload pipeline coverage;
-- fix or document the fixed `CHROME_DEBUG_PORT` collision risk in
-  `v6/tests/helpers/v6-browser-harness.js`;
-- prefer allocating a free CDP port per browser smoke unless an env override is
-  explicitly provided;
-- ensure cleanup still closes Chrome, the local web server, and profile dirs;
-- run selected browser smokes sequentially after the harness change;
+- read `V6_BROWSER_SMOKE_HARNESS_RELIABILITY_STEP180.md`;
+- add a small selected chart browser regression pack runner, or document the
+  exact selected command list if a runner is unnecessary;
+- include Step 179 reload pipeline browser coverage, layout pane data bootstrap,
+  multi-pane replay append, and multi-pane replay viewport projection;
+- preserve parallel-safe browser harness behavior from Step 180;
 - do not change chart, replay, bar-data, chart-data, viewport, layout, or pane
   ownership behavior in this step.
 
@@ -46,11 +41,29 @@ Acceptance:
 - layout pane data bootstrap browser smoke passes;
 - multi-pane replay append browser smoke passes sequentially;
 - multi-pane replay viewport projection browser smoke passes sequentially;
-- browser harness cleanup leaves no test-owned node/http/chrome process running;
+- selected chart browser regression pack passes as a single command if a runner
+  is added;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 180 - Browser Smoke Harness Reliability
+
+Completed in commits:
+
+- `225411dd test(v6): isolate browser smoke debug ports`
+- `f86e01a9 test(v6): cover parallel browser harness cleanup`
+
+Verification:
+
+- `node v6/tests/browser-harness-parallel-step180-smoke.js`
+- `node v6/tests/pane-reload-pipeline-browser-step179-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/multi-pane-replay-append-browser-step156-smoke.js`
+- `node v6/tests/multi-pane-replay-viewport-projection-browser-step157-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 179 - Pane Reload Pipeline End-to-End Coverage
 
