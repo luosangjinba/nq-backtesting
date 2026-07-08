@@ -123,21 +123,22 @@ assertIncludesAll(architectureDoc, [
   'V6 must model user/chart viewport intent as a',
 ], 'architecture doc');
 assertIncludesAll(todoDoc, [
-  'Latest completed step: Step 157 - Multi-Pane Replay Viewport Projection',
-  'Step 158 - Chart Foundation Integration Re-Audit',
+  'Latest completed step: Step 158 - Chart Foundation Integration Re-Audit',
+  'Step 159 - Chart Foundation Next Slice Selection',
   'do not request/cache bars outside bar-data',
   'do not write chart series outside chart-engine',
   'do not mutate replay cursor outside replay runtime',
   'do not mutate viewport intent outside chart-viewport runtime',
 ], 'todo');
 assertIncludesAll(indexDoc, [
+  'V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md',
   'V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md',
   'V6_MULTI_PANE_REPLAY_APPEND_STEP156.md',
   'V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md',
 ], 'index');
 assertIncludesAll(handoffDoc, [
-  'Current V6 step state: Step 157 completed.',
-  'Next planned step: Step 158 - Chart Foundation Integration Re-Audit.',
+  'Current V6 step state: Step 158 completed.',
+  'Next planned step: Step 159 - Chart Foundation Next Slice Selection.',
   'Browser tests should be run sequentially',
 ], 'handoff');
 

@@ -32,8 +32,9 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Latest completed step: Step 157 - Multi-Pane Replay Viewport Projection\s+Isolation/);
-assert.match(todoDoc, /Step 158 - Chart Foundation Integration Re-Audit/);
+assert.match(todoDoc, /Latest completed step: Step 158 - Chart Foundation Integration Re-Audit/);
+assert.match(todoDoc, /Step 159 - Chart Foundation Next Slice Selection/);
+assert.match(todoDoc, /preserve Step 158 chart foundation integration audit coverage/);
 assert.match(todoDoc, /preserve Step 157 pane-local replay viewport projection isolation/);
 assert.match(todoDoc, /preserve Step 156 pane-local replay append and auto-play isolation/);
 assert.match(todoDoc, /preserve continuous leftward exhaustion stopping and canvas-left request caps/);

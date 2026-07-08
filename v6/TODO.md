@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 157 - Multi-Pane Replay Viewport Projection
-  Isolation. V6 now verifies replay `Next`, auto-play, and post-history replay
-  append projection only affects the intended pane-local chart-viewport record
-  while preserving unrelated pane projection state.
+- Latest completed step: Step 158 - Chart Foundation Integration Re-Audit. V6
+  now has an integration audit gate covering database import, replay chart
+  load, reset view, multi-pane hosts, leftward history, replay speed, crosshair
+  OHLC, replay append, viewport projection, and owner-boundary wiring.
 
 ## Next Executable Steps
 
-### Step 158 - Chart Foundation Integration Re-Audit
+### Step 159 - Chart Foundation Next Slice Selection
 
-Audit the completed chart foundation path before moving into the next feature
-layer.
+Select the next bounded chart-facing implementation slice after the integrated
+foundation audit.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
+- read `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
+  `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
   `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
   `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
   `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
@@ -48,13 +49,14 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- audit database import, replay chart load, reset view / KXG reset, multi-pane
-  chart hosts, leftward extension, replay speed, crosshair OHLC, replay append,
-  and replay viewport projection as one integrated chart foundation;
-- verify there is no route-level or feature-level bypass of bar-data,
-  chart-data, chart-viewport, chart-engine, chart-history, or replay ownership;
-- verify browser regression coverage remains sequential and stable for the chart
-  foundation path;
+- choose exactly one next chart-facing slice that builds on the audited
+  foundation without expanding simulated trading, Order, Calendar, or unrelated
+  workstation chrome;
+- prefer a slice that increases real chart usability while preserving database
+  import, replay, reset view, multi-pane, leftward history, crosshair, append,
+  and viewport projection boundaries;
+- document the selected owner boundary, expected tests, and explicit non-goals;
+- preserve Step 158 chart foundation integration audit coverage;
 - preserve Step 157 pane-local replay viewport projection isolation;
 - preserve Step 156 pane-local replay append and auto-play isolation;
 - preserve pane-local leftward history exhaustion from Step 155;
@@ -73,7 +75,7 @@ Notes for execution:
 
 Scope:
 
-- chart foundation integration audit across existing chart-entry, replay,
+- chart foundation next slice selection across existing chart-entry, replay,
   chart-data, chart-viewport, chart-surface, chart-engine, chart-history,
   bar-data, and pane ownership boundaries;
 - do not request/cache bars outside bar-data;
@@ -84,6 +86,7 @@ Scope:
 
 Acceptance:
 
+- chart foundation next slice selection smoke passes;
 - chart foundation integration re-audit smoke passes;
 - multi-pane replay viewport projection isolation smoke passes;
 - multi-pane replay append / auto-play isolation smoke passes;
@@ -109,6 +112,39 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 158 - Chart Foundation Integration Re-Audit
+
+Completed in commit:
+
+- `2dea5bac test(v6): audit chart foundation integration`
+
+Verification:
+
+- `node v6/tests/chart-foundation-integration-reaudit-step158-smoke.js`
+- `node v6/tests/chart-foundation-reprioritization-step143-smoke.js`
+- `node v6/tests/database-kline-import-boundary-step144-smoke.js`
+- `node v6/tests/replay-kline-chart-flow-step145-smoke.js`
+- `node v6/tests/replay-kline-chart-flow-browser-step145-smoke.js`
+- `node v6/tests/reset-view-kxg-flow-step146-smoke.js`
+- `node v6/tests/reset-view-kxg-flow-browser-step146-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-step147-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/replay-speed-history-inflight-step150-smoke.js`
+- `node v6/tests/continuous-leftward-history-step151-smoke.js`
+- `node v6/tests/auto-play-continuous-history-step152-smoke.js`
+- `node v6/tests/crosshair-ohlc-readout-browser-step153-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-step155-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-browser-step155-smoke.js`
+- `node v6/tests/multi-pane-replay-append-step156-smoke.js`
+- `node v6/tests/multi-pane-replay-append-browser-step156-smoke.js`
+- `node v6/tests/multi-pane-replay-viewport-projection-step157-smoke.js`
+- `node v6/tests/multi-pane-replay-viewport-projection-browser-step157-smoke.js`
+- `node v6/tests/multi-pane-replay-viewport-history-step157-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 157 - Multi-Pane Replay Viewport Projection Isolation
 
