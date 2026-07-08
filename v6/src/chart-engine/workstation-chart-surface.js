@@ -38,11 +38,40 @@ const LAYOUT_PANE_COUNTS = Object.freeze({
   triple: 3,
   twice: 2,
 });
+const LAYOUT_VARIANTS_BY_MODE = Object.freeze({
+  single: Object.freeze(['single']),
+  triple: Object.freeze(['triple-columns', 'triple-rows', 'triple-right-stack', 'triple-left-stack']),
+  twice: Object.freeze(['twice-vertical', 'twice-horizontal']),
+});
+const DEFAULT_LAYOUT_VARIANT_BY_MODE = Object.freeze({
+  single: 'single',
+  triple: 'triple-columns',
+  twice: 'twice-vertical',
+});
+const LAYOUT_GRID_AREAS_BY_VARIANT = Object.freeze({
+  single: Object.freeze(['1 / 1 / 2 / 2']),
+  'triple-columns': Object.freeze(['1 / 1 / 2 / 2', '1 / 2 / 2 / 3', '1 / 3 / 2 / 4']),
+  'triple-left-stack': Object.freeze(['1 / 1 / 2 / 2', '2 / 1 / 3 / 2', '1 / 2 / 3 / 3']),
+  'triple-right-stack': Object.freeze(['1 / 1 / 3 / 2', '1 / 2 / 2 / 3', '2 / 2 / 3 / 3']),
+  'triple-rows': Object.freeze(['1 / 1 / 2 / 2', '2 / 1 / 3 / 2', '3 / 1 / 4 / 2']),
+  'twice-horizontal': Object.freeze(['1 / 1 / 2 / 2', '2 / 1 / 3 / 2']),
+  'twice-vertical': Object.freeze(['1 / 1 / 2 / 2', '1 / 2 / 2 / 3']),
+});
 
 function normalizeLayoutMode(mode = 'single') {
   const normalized = String(mode || '').trim();
   if (!Object.hasOwn(LAYOUT_PANE_COUNTS, normalized)) {
     throw new Error(`Unsupported chart surface layout mode: ${mode}`);
+  }
+  return normalized;
+}
+
+function normalizeLayoutVariant(mode, variant = null) {
+  const normalizedMode = normalizeLayoutMode(mode);
+  const fallback = DEFAULT_LAYOUT_VARIANT_BY_MODE[normalizedMode];
+  const normalized = String(variant || fallback).trim();
+  if (!LAYOUT_VARIANTS_BY_MODE[normalizedMode].includes(normalized)) {
+    throw new Error(`Unsupported chart surface layout variant: ${variant}`);
   }
   return normalized;
 }
@@ -109,6 +138,7 @@ export function mountWorkstationChartSurface(root, {
   let layoutSnapshot = {
     mode: 'single',
     paneCount: 1,
+    variant: 'single',
     visiblePaneIds: hosts.slice(0, 1).map(resolvePaneId),
   };
   let readoutPaneId = null;
@@ -200,13 +230,19 @@ export function mountWorkstationChartSurface(root, {
 
   function applyLayoutSnapshot(snapshot = {}) {
     const mode = normalizeLayoutMode(snapshot.mode);
+    const variant = normalizeLayoutVariant(mode, snapshot.variant);
     const paneCount = LAYOUT_PANE_COUNTS[mode];
+    const gridAreas = LAYOUT_GRID_AREAS_BY_VARIANT[variant];
     const visiblePaneIds = [];
     hosts.forEach((host, index) => {
       const paneId = resolvePaneId(host);
       const visible = index < paneCount;
       host.hidden = !visible;
       host.dataset.v6ChartPaneVisible = String(visible);
+      host.dataset.v6ChartPaneSlot = visible ? String(index + 1) : '';
+      if (host.style) {
+        host.style.gridArea = visible ? gridAreas[index] : '';
+      }
       if (visible) {
         host.removeAttribute?.('aria-hidden');
         visiblePaneIds.push(paneId);
@@ -217,11 +253,13 @@ export function mountWorkstationChartSurface(root, {
     layoutSnapshot = {
       mode,
       paneCount,
+      variant,
       visiblePaneIds,
     };
     if (chartSurfaceElement?.dataset) {
       chartSurfaceElement.dataset.v6ChartLayoutMode = mode;
       chartSurfaceElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
+      chartSurfaceElement.dataset.v6ChartLayoutVariant = variant;
     }
     resize();
     return { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] };
