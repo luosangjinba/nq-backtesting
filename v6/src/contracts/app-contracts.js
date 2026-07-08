@@ -235,6 +235,15 @@ export const LAYOUT_EVENTS = Object.freeze({
   SYNC_CHANGED: 'layout:syncChanged',
 });
 
+export const LAYOUT_PANE_BOOTSTRAP_COMMANDS = Object.freeze({
+  BOOTSTRAP_VISIBLE: 'layoutPaneBootstrap.bootstrapVisible',
+  GET_STATE: 'layoutPaneBootstrap.getState',
+});
+
+export const LAYOUT_PANE_BOOTSTRAP_EVENTS = Object.freeze({
+  BOOTSTRAPPED: 'layoutPaneBootstrap:bootstrapped',
+});
+
 export const SETTINGS_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'settings.getSnapshot',
   RESET: 'settings.reset',
