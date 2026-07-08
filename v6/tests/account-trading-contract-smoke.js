@@ -19,6 +19,8 @@ import {
 import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
 const contractSource = await readFile('v6/src/account-trading/account-trading-contract.js', 'utf8');
+const contractDoc = await readFile('v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md', 'utf8');
+const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
 const selectionDoc = await readFile('v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md', 'utf8');
 const bottomReservationDoc = await readFile('v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md', 'utf8');
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
@@ -222,6 +224,10 @@ assert.deepEqual(createAccountTradingContract(), {
 assert.equal(Object.isFrozen(createAccountTradingContract()), true);
 assert.match(selectionDoc, /Account\/Trading Owner\s+Contract/);
 assert.match(selectionDoc, /distinct from the existing `orders-runtime` dashboard row-action\s+contract/);
+assert.match(contractDoc, /# V6 Account\/Trading Owner Contract/);
+assert.match(contractDoc, /Step 141 establishes the account\/trading owner contract/);
+assert.match(contractDoc, /Lightweight Charts/);
+assert.match(docsIndex, /V6_ACCOUNT_TRADING_OWNER_CONTRACT\.md/);
 assert.match(bottomReservationDoc, /Buy, Sell, quantity, and analytics controls are disabled/);
 assert.match(shellSource, /data-v6-bottom-buy disabled/);
 assert.match(shellSource, /data-v6-bottom-sell disabled/);

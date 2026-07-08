@@ -14,60 +14,54 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 140 - Workstation Chart Slice Selection.
-  Account/Trading Owner Contract is selected as the next bounded
-  workstation/chart slice.
+- Latest completed step: Step 141 - Account/Trading Owner Contract.
+  The account/trading owner contract is in place while the bottom
+  account/trading chrome remains disabled and inert.
 
 ## Next Executable Steps
 
-### Step 141 - Account/Trading Owner Contract
+### Step 142 - Workstation Chart Slice Selection
 
-Establish the account/trading owner contract before the bottom account/trading
-chrome becomes interactive.
+Select the next bounded workstation/chart slice after the account/trading owner
+contract.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`,
-  `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`,
-  `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`,
+- read `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused account/trading contract/domain module;
-- define explicit account readout fields for account id, balance, available
-  balance, equity, realized PnL, unrealized PnL, margin, currency, and
-  metadata;
-- define explicit trade draft fields for side, symbol, quantity, order type,
-  price, stop loss, take profit, time in force, session id, and metadata;
-- define default read-only account/trading intent state and validation helpers
-  for future owner wiring;
-- keep Buy, Sell, quantity, Analytics, balance, and PnL disabled/inert;
-- keep the account/trading owner distinct from the existing `orders-runtime`
-  dashboard row-action contract;
-- do not add order placement, position mutation, account mutation, analytics
-  calculation, chart overlays, replay mutation, bar requests, persistence,
-  browser storage, or runtime command wiring in this step;
+- choose one small next slice from the remaining workstation/chart gaps;
+- prefer docs/test selection only unless the selected slice is already sharply
+  bounded by existing owner contracts;
+- keep bottom trading controls, order placement, position mutation, account
+  mutation, analytics calculation, drawing tools, chart overlays, pane
+  mutation, undo/redo execution, indicator calculation, screenshot capture,
+  session settings editing, and runtime command wiring disabled unless that
+  exact slice is selected;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- contract/domain module plus focused tests;
+- selection doc plus focused smoke;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, indicators,
   drawing/action-history, account/trading, orders, or calendar commands from the
   bottom chrome, toolbar, or rail;
 - do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
-  default-wall, display-timeframe, indicators, drawing-action-history, settings,
-  session-settings, screenshot-export, orders, calendar, account, analytics,
-  persistence, V4, vendor, or Lightweight Charts modules into the
-  account/trading contract.
+  default-wall, display-timeframe, indicators, drawing-action-history,
+  account-trading, settings, session-settings, screenshot-export, orders,
+  calendar, account, analytics, persistence, V4, vendor, or Lightweight Charts
+  modules into any selection test helper.
 
 Acceptance:
 
-- new account/trading contract smoke passes;
+- new Step 142 slice selection smoke passes;
 - Step 140 slice selection smoke passes;
+- account/trading contract smoke passes;
 - new drawing/action-history contract smoke passes;
 - Step 138 slice selection smoke passes;
 - indicators contract smoke passes;
@@ -80,6 +74,27 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 141 - Account/Trading Owner Contract
+
+Completed in commit:
+
+- `28e78e55 feat(v6): add account trading owner contract`
+
+Verification:
+
+- `node v6/tests/account-trading-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step140-smoke.js`
+- `node v6/tests/drawing-action-history-contract-smoke.js`
+- `node v6/tests/indicators-contract-smoke.js`
+- `node v6/tests/screenshot-export-contract-smoke.js`
+- `node v6/tests/session-settings-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/bottom-account-chrome-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `git diff --check`
 
 ### Step 140 - Workstation Chart Slice Selection
 
