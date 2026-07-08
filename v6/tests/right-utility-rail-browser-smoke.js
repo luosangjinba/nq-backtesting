@@ -48,7 +48,6 @@ try {
         '[data-v6-rail-news]',
         '[data-v6-rail-journal]',
         '[data-v6-rail-watch]',
-        '[data-v6-rail-session-settings]',
       ].map((selector) => {
         const button = document.querySelector(selector);
         return {
@@ -58,6 +57,11 @@ try {
           text: button.textContent.trim(),
         };
       });
+      const sessionSettingsDetails = document.querySelector('[data-v6-session-settings-details]');
+      const sessionSettingsSummary = document.querySelector('[data-v6-rail-session-settings]');
+      sessionSettingsSummary.click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const sessionSettingsPanel = document.querySelector('[data-v6-session-settings-panel]');
       return {
         afterChart,
         afterHost,
@@ -72,6 +76,12 @@ try {
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
         menuRect,
         rail,
+        sessionSettingsDisabledControls: [...sessionSettingsPanel.querySelectorAll('input, select, button')]
+          .map((control) => control.disabled),
+        sessionSettingsLabels: [...sessionSettingsPanel.querySelectorAll('legend')]
+          .map((legend) => legend.textContent.trim()),
+        sessionSettingsOpen: sessionSettingsDetails.open,
+        sessionSettingsPanelRect: rectOf('[data-v6-session-settings-panel]'),
         chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
         viewportWidth: window.innerWidth,
       };
@@ -97,15 +107,23 @@ try {
     'Custom Settings',
   ]);
   assert.deepEqual(value.menuOptionsDisabled, [true, true, true, true, true, true]);
-  assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true, true, true, true]);
+  assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true, true, true]);
   assert.deepEqual(value.inertButtons.map((button) => button.label), [
     'Show object tree',
     'Order',
     'News and calendar events',
     'Journal',
     'Watch tool',
-    'Session settings',
   ]);
+  assert.equal(value.sessionSettingsOpen, true);
+  assert.deepEqual(value.sessionSettingsLabels, [
+    'Session Info',
+    'Balance & Assets',
+    'Spreads & Commissions',
+    'Date Range',
+  ]);
+  assert.deepEqual(value.sessionSettingsDisabledControls, [true, true, true, true, true, true, true, true, true, true]);
+  assert.equal(value.sessionSettingsPanelRect.right <= value.rail.left + 1, true);
   assert.deepEqual(value.beforeChart, value.afterChart);
   assert.deepEqual(value.beforeHost, value.afterHost);
 } finally {

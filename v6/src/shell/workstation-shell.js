@@ -547,10 +547,72 @@ export function createWorkstationShellMarkup() {
               ${icon('spark')}
               <span class="sr-only">Watch tool</span>
             </button>
-            <button type="button" class="rail-button rail-button-icon" data-v6-rail-session-settings disabled aria-label="Session settings">
-              ${icon('gear')}
-              <span class="sr-only">Session settings</span>
-            </button>
+            <details class="session-settings-panel-anchor" data-v6-session-settings-details>
+              <summary class="rail-button rail-button-icon" data-v6-rail-session-settings aria-label="Session settings" aria-haspopup="dialog">
+                ${icon('gear')}
+                <span class="sr-only">Session settings</span>
+              </summary>
+              <section class="session-settings-panel" data-v6-session-settings-panel role="dialog" aria-label="Session settings panel">
+                <header>
+                  <strong>Session settings</strong>
+                  <span>Session shell</span>
+                </header>
+                <div class="session-settings-panel-body">
+                  <fieldset>
+                    <legend>Session Info</legend>
+                    <label>
+                      <span>Name</span>
+                      <input type="text" value="Backtesting session" disabled data-v6-session-settings-name>
+                    </label>
+                    <label>
+                      <span>Profile</span>
+                      <select disabled data-v6-session-settings-profile>
+                        <option>Default profile</option>
+                      </select>
+                    </label>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Balance & Assets</legend>
+                    <label>
+                      <span>Balance</span>
+                      <input type="text" value="--" disabled data-v6-session-settings-balance>
+                    </label>
+                    <label>
+                      <span>Asset</span>
+                      <select disabled data-v6-session-settings-asset>
+                        <option>USD</option>
+                      </select>
+                    </label>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Spreads & Commissions</legend>
+                    <label>
+                      <span>Spread</span>
+                      <input type="number" value="0" disabled data-v6-session-settings-spread>
+                    </label>
+                    <label>
+                      <span>Commission</span>
+                      <input type="number" value="0" disabled data-v6-session-settings-commission>
+                    </label>
+                  </fieldset>
+                  <fieldset>
+                    <legend>Date Range</legend>
+                    <label>
+                      <span>Start</span>
+                      <input type="text" value="Session start" disabled data-v6-session-settings-start>
+                    </label>
+                    <label>
+                      <span>End</span>
+                      <input type="text" value="Session end" disabled data-v6-session-settings-end>
+                    </label>
+                  </fieldset>
+                </div>
+                <footer>
+                  <button type="button" disabled data-v6-session-settings-template>Template</button>
+                  <button type="button" disabled data-v6-session-settings-apply>Apply</button>
+                </footer>
+              </section>
+            </details>
           </div>
         </aside>
       </main>
