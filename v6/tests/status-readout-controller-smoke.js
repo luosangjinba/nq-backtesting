@@ -107,6 +107,36 @@ assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 
 assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'up');
 
 listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
+  bar: {
+    close: 98.25,
+    high: 102,
+    low: 98,
+    open: 101,
+    timestamp: 1780306320,
+  },
+  paneId: 'main',
+});
+assert.equal(root.text('[data-v6-status-open]'), 'O 101.00');
+assert.equal(root.text('[data-v6-status-close]'), 'C 98.25');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'selected');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'down');
+
+listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
+  bar: {
+    close: 100,
+    high: 100.5,
+    low: 99.5,
+    open: 100,
+    timestamp: 1780306380,
+  },
+  paneId: 'main',
+});
+assert.equal(root.text('[data-v6-status-open]'), 'O 100.00');
+assert.equal(root.text('[data-v6-status-close]'), 'C 100.00');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'selected');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'flat');
+
+listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: null,
   paneId: 'main',
 });
