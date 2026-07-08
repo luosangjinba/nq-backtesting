@@ -57,12 +57,26 @@ assert.deepEqual(appended.bars.map((bar) => bar.timestamp), [100, 200, 240]);
 assert.equal(events.length, 2);
 assert.equal(events[1].operation, 'append');
 
+const prepended = await dispatchCommand(CHART_DATA_COMMANDS.PREPEND_BARS, {
+  bars: [
+    { timestamp: 40, open: 0.4, high: 1, low: 0.2, close: 0.5 },
+    { timestamp: 100, open: 9, high: 10, low: 8, close: 9.5 },
+  ],
+  cursorTimestamp: 240,
+  paneId: 'pane-default',
+});
+assert.equal(prepended.revision, 3);
+assert.deepEqual(prepended.bars.map((bar) => bar.timestamp), [40, 100, 200, 240]);
+assert.equal(prepended.bars.find((bar) => bar.timestamp === 100).close, 1.5);
+assert.equal(events.length, 3);
+assert.equal(events[2].operation, 'prepend');
+
 const fetched = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, {
   paneId: 'pane-default',
 });
-assert.deepEqual(fetched, appended);
+assert.deepEqual(fetched, prepended);
 fetched.bars[0].close = 0;
-assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-default' })).bars[0].close, 1.5);
+assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-default' })).bars[0].close, 0.5);
 
 await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
   bars: [{ timestamp: 100, open: 10, high: 11, low: 9, close: 10.5 }],
@@ -71,7 +85,7 @@ await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
 assert.deepEqual(await dispatchCommand(CHART_DATA_COMMANDS.GET_SUMMARY), {
   paneCount: 2,
   panes: [
-    { barCount: 3, paneId: 'pane-default', revision: 2 },
+    { barCount: 4, paneId: 'pane-default', revision: 3 },
     { barCount: 1, paneId: 'pane-review', revision: 1 },
   ],
 });

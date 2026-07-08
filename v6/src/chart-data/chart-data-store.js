@@ -55,6 +55,22 @@ export function createChartDataStore() {
     return cloneChartBarsRecord(record);
   }
 
+  function prependBars({
+    bars = [],
+    cursorTimestamp = null,
+    paneId,
+  } = {}) {
+    const id = normalizePaneId(paneId);
+    const current = getRecord(id);
+    const record = createChartBarsRecord({
+      bars: mergeChartBars(current.bars, bars, cursorTimestamp),
+      paneId: id,
+      revision: current.revision + 1,
+    });
+    recordsByPaneId.set(id, record);
+    return cloneChartBarsRecord(record);
+  }
+
   function clearPane(paneId) {
     const id = normalizePaneId(paneId);
     recordsByPaneId.delete(id);
@@ -79,6 +95,7 @@ export function createChartDataStore() {
     appendBars,
     clearPane,
     getRecord,
+    prependBars,
     replaceBars,
     summary,
   };

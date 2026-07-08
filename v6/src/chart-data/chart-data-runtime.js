@@ -25,6 +25,14 @@ export function createChartDataRuntime({
         });
         return record;
       }),
+      registerCommand(CHART_DATA_COMMANDS.PREPEND_BARS, (payload = {}) => {
+        const record = store.prependBars(payload);
+        emitEvent?.(CHART_DATA_EVENTS.BARS_CHANGED, {
+          operation: 'prepend',
+          record,
+        });
+        return record;
+      }),
       registerCommand(CHART_DATA_COMMANDS.GET_BARS, ({ paneId } = {}) => store.getRecord(paneId)),
       registerCommand(CHART_DATA_COMMANDS.CLEAR_PANE, ({ paneId } = {}) => {
         const record = store.clearPane(paneId);

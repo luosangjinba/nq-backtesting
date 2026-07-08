@@ -157,6 +157,7 @@ export const CHART_DATA_COMMANDS = Object.freeze({
   CLEAR_PANE: 'chartData.clearPane',
   GET_BARS: 'chartData.getBars',
   GET_SUMMARY: 'chartData.getSummary',
+  PREPEND_BARS: 'chartData.prependBars',
   REPLACE_BARS: 'chartData.replaceBars',
 });
 
