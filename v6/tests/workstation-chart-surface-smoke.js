@@ -20,6 +20,7 @@ const root = {
 
 function managerFactory(options) {
   calls.push({ method: 'managerFactory', options });
+  let crosshairHandler = null;
   let dataLength = 0;
   let mounted = false;
   let visibleLogicalRange = null;
@@ -89,10 +90,26 @@ function managerFactory(options) {
       });
       return () => calls.push({ method: 'unsubscribeVisibleLogicalRangeChange', paneId });
     },
+    subscribeCrosshairMove(paneId, handler) {
+      calls.push({ method: 'subscribeCrosshairMove', paneId });
+      crosshairHandler = handler;
+      return () => calls.push({ method: 'unsubscribeCrosshairMove', paneId });
+    },
+    triggerCrosshair(payload) {
+      crosshairHandler?.(payload);
+    },
   };
 }
 
-const surface = mountWorkstationChartSurface(root, { managerFactory });
+const emittedEvents = [];
+let managerInstance = null;
+const surface = mountWorkstationChartSurface(root, {
+  emitEvent: (eventName, payload) => emittedEvents.push({ eventName, payload }),
+  managerFactory(options) {
+    managerInstance = managerFactory(options);
+    return managerInstance;
+  },
+});
 const state = surface.getState();
 
 assert.equal(calls[0].method, 'querySelector');
@@ -106,6 +123,7 @@ assert.equal(calls[2].record.paneId, 'default');
 assert.deepEqual(state, {
   appliedChartData: [],
   appliedViewport: [],
+  crosshair: [],
   hostConnected: true,
   hostSelector: '[data-v6-chart-engine-host]',
   measuredVisibleRange: [{
@@ -122,6 +140,29 @@ assert.deepEqual(state, {
     },
   }],
 });
+
+let subscribedCrosshair = null;
+const unsubscribeCrosshair = surface.subscribeCrosshairChange((payload) => {
+  subscribedCrosshair = payload;
+});
+managerInstance.triggerCrosshair({
+  bar: { close: 2, high: 3, low: 1, open: 1.5, timestamp: 200 },
+  paneId: 'default',
+  point: { x: 12, y: 34 },
+  time: 200,
+});
+assert.deepEqual(subscribedCrosshair, {
+  bar: { close: 2, high: 3, low: 1, open: 1.5, timestamp: 200 },
+  paneId: 'default',
+  point: { x: 12, y: 34 },
+  time: 200,
+});
+assert.deepEqual(surface.getState().crosshair, [subscribedCrosshair]);
+assert.deepEqual(emittedEvents, [{
+  eventName: 'chartSurface:crosshairChanged',
+  payload: subscribedCrosshair,
+}]);
+unsubscribeCrosshair();
 
 assert.equal(surface.applyChartDataRecord({
   bars: [
@@ -188,7 +229,8 @@ assert.deepEqual(calls.find((call) => call.method === 'resizePane'), {
 });
 
 surface.destroy();
-assert.deepEqual(calls.slice(-2), [
+assert.deepEqual(calls.slice(-3), [
+  { method: 'unsubscribeCrosshairMove', paneId: 'default' },
   { method: 'unsubscribeVisibleLogicalRangeChange', paneId: 'default' },
   { method: 'destroyAll' },
 ]);

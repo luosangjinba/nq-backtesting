@@ -25,6 +25,36 @@ function normalizeSeriesBar(bar) {
   };
 }
 
+function normalizeCrosshairBar(data = {}, fallbackTime = null) {
+  const timestamp = Number(data.timestamp ?? data.time ?? fallbackTime);
+  const bar = {
+    close: Number(data.close),
+    high: Number(data.high),
+    low: Number(data.low),
+    open: Number(data.open),
+    timestamp,
+  };
+  return Object.values(bar).every(Number.isFinite) ? bar : null;
+}
+
+function normalizeCrosshairEvent(param = {}, seriesApi = null) {
+  const data = seriesApi && typeof param.seriesData?.get === 'function'
+    ? param.seriesData.get(seriesApi)
+    : null;
+  const bar = data ? normalizeCrosshairBar(data, param.time) : null;
+  return {
+    bar,
+    paneIndex: Number.isFinite(Number(param.paneIndex)) ? Number(param.paneIndex) : null,
+    point: param.point
+      ? {
+          x: Number(param.point.x),
+          y: Number(param.point.y),
+        }
+      : null,
+    time: param.time ?? data?.time ?? null,
+  };
+}
+
 function cloneRange(range) {
   return range ? {
     from: normalizeLogicalValue(range.from),
@@ -123,6 +153,23 @@ export function createLightweightChartAdapter({
     };
   }
 
+  function subscribeCrosshairMove(handler) {
+    ensureMounted();
+    if (typeof handler !== 'function') {
+      throw new Error('Lightweight chart adapter crosshair handler is required.');
+    }
+    if (typeof chart.subscribeCrosshairMove !== 'function') {
+      return () => {};
+    }
+    const listener = (param) => {
+      handler(normalizeCrosshairEvent(param, series));
+    };
+    chart.subscribeCrosshairMove(listener);
+    return () => {
+      chart.unsubscribeCrosshairMove?.(listener);
+    };
+  }
+
   function resize({ height, width } = {}) {
     ensureMounted();
     if (typeof chart.resize === 'function') {
@@ -156,6 +203,7 @@ export function createLightweightChartAdapter({
     setData,
     setVisibleLogicalRange,
     snapshot,
+    subscribeCrosshairMove,
     subscribeVisibleLogicalRangeChange,
     update,
   };

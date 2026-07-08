@@ -35,12 +35,14 @@ function latestBarFromPayload(payload = {}) {
 }
 
 export function createStatusReadoutState({
+  crosshairBar = null,
   latestBar = null,
   playback = 'idle',
   replayState = {},
 } = {}) {
   const replay = normalizeReplayState(replayState);
   const bar = latestBar ? { ...latestBar } : null;
+  const selectedBar = crosshairBar ? { ...crosshairBar } : null;
   const revealedCount = Number.isFinite(replay.revealedCount) ? replay.revealedCount : 0;
   const totalBars = Number.isFinite(replay.totalBars) ? replay.totalBars : 0;
   const remaining = Math.max(0, totalBars - revealedCount);
@@ -55,12 +57,13 @@ export function createStatusReadoutState({
       session: replay.sessionId ? `Session ${replay.sessionId}` : 'Session pending',
       start: `Start ${formatTime(replay.startTime)}`,
     }),
+    crosshairBar: selectedBar ? Object.freeze(selectedBar) : null,
     latestBar: bar ? Object.freeze(bar) : null,
     ohlc: Object.freeze({
-      close: `C ${formatPrice(bar?.close)}`,
-      high: `H ${formatPrice(bar?.high)}`,
-      low: `L ${formatPrice(bar?.low)}`,
-      open: `O ${formatPrice(bar?.open)}`,
+      close: `C ${formatPrice(selectedBar?.close)}`,
+      high: `H ${formatPrice(selectedBar?.high)}`,
+      low: `L ${formatPrice(selectedBar?.low)}`,
+      open: `O ${formatPrice(selectedBar?.open)}`,
     }),
     playback: playback || replay.status || 'idle',
     replay,
@@ -73,6 +76,7 @@ export function createStatusReadoutState({
 
 export function statusReadoutStateFromDefaultWallPayload(payload = {}, previousState = createStatusReadoutState()) {
   return createStatusReadoutState({
+    crosshairBar: previousState.crosshairBar,
     latestBar: latestBarFromPayload(payload) || previousState.latestBar,
     playback: payload.replayState?.status || previousState.playback,
     replayState: payload.replayState || previousState.replay,
@@ -81,6 +85,7 @@ export function statusReadoutStateFromDefaultWallPayload(payload = {}, previousS
 
 export function statusReadoutStateFromReplayPayload(payload = {}, previousState = createStatusReadoutState()) {
   return createStatusReadoutState({
+    crosshairBar: previousState.crosshairBar,
     latestBar: previousState.latestBar,
     playback: payload.status || previousState.playback,
     replayState: {
@@ -92,7 +97,17 @@ export function statusReadoutStateFromReplayPayload(payload = {}, previousState 
 
 export function statusReadoutStateFromChartDataPayload(payload = {}, previousState = createStatusReadoutState()) {
   return createStatusReadoutState({
+    crosshairBar: previousState.crosshairBar,
     latestBar: payload.record?.bars?.at?.(-1) || previousState.latestBar,
+    playback: previousState.playback,
+    replayState: previousState.replay,
+  });
+}
+
+export function statusReadoutStateFromCrosshairPayload(payload = {}, previousState = createStatusReadoutState()) {
+  return createStatusReadoutState({
+    crosshairBar: payload.bar || null,
+    latestBar: previousState.latestBar,
     playback: previousState.playback,
     replayState: previousState.replay,
   });

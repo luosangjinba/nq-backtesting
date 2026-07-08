@@ -1,4 +1,6 @@
 import { createChartHostManager } from './chart-host-manager.js';
+import { CHART_SURFACE_EVENTS } from '../contracts/app-contracts.js';
+import { emitEvent as emitRuntimeEvent } from '../runtime/events.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -61,6 +63,7 @@ function rangesNear(left = {}, right = {}) {
 
 export function mountWorkstationChartSurface(root, {
   chartOptions = {},
+  emitEvent = emitRuntimeEvent,
   hostSelector = '[data-v6-chart-engine-host]',
   managerFactory = createChartHostManager,
   seriesOptions = {},
@@ -84,8 +87,10 @@ export function mountWorkstationChartSurface(root, {
   });
   const appliedChartDataByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
+  const crosshairByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
   const programmaticRangeByPaneId = new Map();
+  const crosshairListeners = new Set();
   const visibleRangeListeners = new Set();
   let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
@@ -122,6 +127,19 @@ export function mountWorkstationChartSurface(root, {
           return;
         }
         visibleRangeListeners.forEach((listener) => listener({ ...record }));
+      }))
+    : [];
+  const unsubscribeCrosshairCallbacks = typeof manager.subscribeCrosshairMove === 'function'
+    ? [...hostsByPaneId.keys()].map((paneId) => manager.subscribeCrosshairMove(paneId, (payload = {}) => {
+        const record = {
+          bar: payload.bar ? { ...payload.bar } : null,
+          paneId: String(payload.paneId || paneId),
+          point: payload.point ? { ...payload.point } : null,
+          time: payload.time ?? null,
+        };
+        crosshairByPaneId.set(record.paneId, record);
+        emitEvent(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED, record);
+        crosshairListeners.forEach((listener) => listener({ ...record, bar: record.bar ? { ...record.bar } : null }));
       }))
     : [];
 
@@ -201,6 +219,7 @@ export function mountWorkstationChartSurface(root, {
       return snapshot;
     },
     destroy() {
+      unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       hosts.forEach((host) => {
         userInputEvents.forEach((eventName) => {
@@ -209,6 +228,7 @@ export function mountWorkstationChartSurface(root, {
       });
       resizeObserver?.disconnect();
       manager.destroyAll();
+      crosshairListeners.clear();
       visibleRangeListeners.clear();
     },
     getState() {
@@ -220,6 +240,9 @@ export function mountWorkstationChartSurface(root, {
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         hostConnected: hosts.every((host) => Boolean(host.isConnected)),
         hostSelector,
+        crosshair: [...crosshairByPaneId.values()]
+          .map((record) => ({ ...record, bar: record.bar ? { ...record.bar } : null }))
+          .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         measuredVisibleRange: [...measuredVisibleRangeByPaneId.values()]
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         panes: snapshot.panes,
@@ -233,6 +256,15 @@ export function mountWorkstationChartSurface(root, {
       visibleRangeListeners.add(handler);
       return () => {
         visibleRangeListeners.delete(handler);
+      };
+    },
+    subscribeCrosshairChange(handler) {
+      if (typeof handler !== 'function') {
+        throw new Error('Workstation chart surface crosshair handler is required.');
+      }
+      crosshairListeners.add(handler);
+      return () => {
+        crosshairListeners.delete(handler);
       };
     },
   };

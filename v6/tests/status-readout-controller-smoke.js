@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   CHART_DATA_EVENTS,
+  CHART_SURFACE_EVENTS,
   DEFAULT_WALL_EVENTS,
   REPLAY_EVENTS,
 } from '../src/contracts/app-contracts.js';
@@ -55,17 +56,17 @@ listeners.get(DEFAULT_WALL_EVENTS.LOADED)({
   },
 });
 
-assert.equal(root.text('[data-v6-status-open]'), 'O 100.00');
-assert.equal(root.text('[data-v6-status-high]'), 'H 101.00');
-assert.equal(root.text('[data-v6-status-low]'), 'L 99.00');
-assert.equal(root.text('[data-v6-status-close]'), 'C 100.50');
-assert.equal(root.text('[data-v6-status-price]'), '100.50');
+assert.equal(root.text('[data-v6-status-open]'), 'O --');
+assert.equal(root.text('[data-v6-status-high]'), 'H --');
+assert.equal(root.text('[data-v6-status-low]'), 'L --');
+assert.equal(root.text('[data-v6-status-close]'), 'C --');
+assert.equal(root.text('[data-v6-status-price]'), '--');
 assert.equal(root.text('[data-v6-footer-session]'), 'Session session-status');
 assert.equal(root.text('[data-v6-footer-no-future]'), 'No future 3 hidden');
 
 listeners.get(REPLAY_EVENTS.PLAYBACK_CHANGED)({ status: 'playing' });
 assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
-assert.equal(controller.getState().ohlc.close, 'C 100.50');
+assert.equal(controller.getState().ohlc.close, 'C --');
 
 listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
   record: {
@@ -80,12 +81,37 @@ listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
     ],
   },
 });
+assert.equal(root.text('[data-v6-status-open]'), 'O --');
+assert.equal(root.text('[data-v6-status-high]'), 'H --');
+assert.equal(root.text('[data-v6-status-low]'), 'L --');
+assert.equal(root.text('[data-v6-status-close]'), 'C --');
+assert.equal(root.text('[data-v6-status-price]'), '--');
+
+listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
+  bar: {
+    close: 101.5,
+    high: 102,
+    low: 100,
+    open: 101,
+    timestamp: 1780306260,
+  },
+  paneId: 'main',
+});
 assert.equal(root.text('[data-v6-status-open]'), 'O 101.00');
 assert.equal(root.text('[data-v6-status-high]'), 'H 102.00');
 assert.equal(root.text('[data-v6-status-low]'), 'L 100.00');
 assert.equal(root.text('[data-v6-status-close]'), 'C 101.50');
 assert.equal(root.text('[data-v6-status-price]'), '101.50');
 assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
+
+listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
+  bar: null,
+  paneId: 'main',
+});
+assert.equal(root.text('[data-v6-status-open]'), 'O --');
+assert.equal(root.text('[data-v6-status-high]'), 'H --');
+assert.equal(root.text('[data-v6-status-low]'), 'L --');
+assert.equal(root.text('[data-v6-status-close]'), 'C --');
 
 controller.destroy();
 assert.equal(listeners.size, 0);

@@ -73,12 +73,12 @@ try {
   assert.equal(value.afterLoad.cursor, 'Cursor 09:30');
   assert.equal(value.afterLoad.revealed, 'Revealed 1/4');
   assert.equal(value.afterLoad.noFuture, 'No future 3 hidden');
-  assert.equal(value.afterLoad.close, 'C 100.50');
+  assert.equal(value.afterLoad.close, 'C --');
   assert.equal(value.afterLoad.pricePresent, false);
   assert.equal(value.afterNext.cursor, 'Cursor 09:31');
   assert.equal(value.afterNext.revealed, 'Revealed 2/4');
   assert.equal(value.afterNext.noFuture, 'No future 2 hidden');
-  assert.equal(value.afterNext.close, 'C 101.50');
+  assert.equal(value.afterNext.close, 'C --');
   assert.equal(value.afterNext.pricePresent, false);
   assert.equal(value.afterPlay, 'Playback playing');
   assert.equal(value.afterPause, 'Playback paused');

@@ -66,14 +66,10 @@ try {
   assert.equal(value.applyState.status, 'applied');
   assert.equal(value.symbol, 'NQ');
   assert.equal(value.timeframe, '1m');
-  assert.match(value.open, /^O \d+\.\d{2}$/);
-  assert.match(value.high, /^H \d+\.\d{2}$/);
-  assert.match(value.low, /^L \d+\.\d{2}$/);
-  assert.match(value.close, /^C \d+\.\d{2}$/);
-  assert.equal(value.open.includes('--'), false);
-  assert.equal(value.high.includes('--'), false);
-  assert.equal(value.low.includes('--'), false);
-  assert.equal(value.close.includes('--'), false);
+  assert.equal(value.open, 'O --');
+  assert.equal(value.high, 'H --');
+  assert.equal(value.low, 'L --');
+  assert.equal(value.close, 'C --');
   assert.equal(value.placeholderPresent, false);
   assert.equal(value.pricePresent, false);
   assert.notEqual(value.rects.readout, null);

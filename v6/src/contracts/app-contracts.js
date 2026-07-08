@@ -189,6 +189,10 @@ export const CHART_VIEWPORT_EVENTS = Object.freeze({
   PROJECTED: 'chartViewport:projected',
 });
 
+export const CHART_SURFACE_EVENTS = Object.freeze({
+  CROSSHAIR_CHANGED: 'chartSurface:crosshairChanged',
+});
+
 export const DEFAULT_WALL_COMMANDS = Object.freeze({
   GET_STATE: 'defaultWall.getState',
   LOAD: 'defaultWall.load',

@@ -1,5 +1,6 @@
 import {
   CHART_DATA_EVENTS,
+  CHART_SURFACE_EVENTS,
   DEFAULT_WALL_EVENTS,
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
@@ -7,6 +8,7 @@ import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import {
   createStatusReadoutState,
   statusReadoutStateFromChartDataPayload,
+  statusReadoutStateFromCrosshairPayload,
   statusReadoutStateFromDefaultWallPayload,
   statusReadoutStateFromReplayPayload,
 } from './status-readout-model.js';
@@ -63,6 +65,9 @@ export function mountStatusReadout(root, {
     }),
     subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (payload) => {
       setState(statusReadoutStateFromChartDataPayload(payload, state));
+    }),
+    subscribeEvent(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED, (payload) => {
+      setState(statusReadoutStateFromCrosshairPayload(payload, state));
     }),
     subscribeEvent(REPLAY_EVENTS.LOADED, (payload) => {
       setState(statusReadoutStateFromReplayPayload(payload, state));

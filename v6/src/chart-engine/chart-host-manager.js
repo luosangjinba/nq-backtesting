@@ -17,6 +17,14 @@ function cloneSnapshot(snapshot = {}) {
   };
 }
 
+function cloneCrosshair(crosshair = {}) {
+  return {
+    ...crosshair,
+    bar: crosshair.bar ? { ...crosshair.bar } : null,
+    point: crosshair.point ? { ...crosshair.point } : null,
+  };
+}
+
 export function createChartHostManager({
   adapterFactory = createLightweightChartAdapter,
   chartOptions = {},
@@ -94,6 +102,22 @@ export function createChartHostManager({
     });
   }
 
+  function subscribeCrosshairMove(paneId, handler) {
+    const record = getMountedRecord(paneId);
+    if (typeof handler !== 'function') {
+      throw new Error('Chart host crosshair handler is required.');
+    }
+    if (typeof record.adapter.subscribeCrosshairMove !== 'function') {
+      return () => {};
+    }
+    return record.adapter.subscribeCrosshairMove((crosshair) => {
+      handler({
+        ...cloneCrosshair(crosshair),
+        paneId: record.paneId,
+      });
+    });
+  }
+
   function resizePane(paneId, size) {
     const record = getMountedRecord(paneId);
     record.adapter.resize(size);
@@ -137,6 +161,7 @@ export function createChartHostManager({
     setData,
     setVisibleLogicalRange,
     snapshot,
+    subscribeCrosshairMove,
     subscribeVisibleLogicalRangeChange,
     update,
   };

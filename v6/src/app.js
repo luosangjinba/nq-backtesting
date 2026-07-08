@@ -87,7 +87,7 @@ registry.registerRuntime(createDisplayTimeframeRuntime());
 registry.registerRuntime(createPlaybackPeriodRuntime());
 await registry.start({ root, emitEvent, subscribeEvent });
 const workflowPanelCoordinator = createWorkflowPanelCoordinator();
-const workstationChartSurface = mountWorkstationChartSurface(root);
+const workstationChartSurface = mountWorkstationChartSurface(root, { emitEvent });
 const chartDataSurfaceBridge = connectChartDataSurfaceBridge({
   chartSurface: workstationChartSurface,
   subscribeEvent,
