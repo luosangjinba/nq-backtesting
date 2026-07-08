@@ -155,11 +155,15 @@ export const PANE_COMMANDS = Object.freeze({
   LIST: 'pane.list',
   SET_ACTIVE: 'pane.setActive',
   SET_DISPLAY_TIMEFRAME: 'pane.setDisplayTimeframe',
+  SET_INTERVAL_INTENT: 'pane.setIntervalIntent',
+  SET_SYMBOL_INTENT: 'pane.setSymbolIntent',
 });
 
 export const PANE_EVENTS = Object.freeze({
   ACTIVE_CHANGED: 'pane:activeChanged',
   DISPLAY_TIMEFRAME_CHANGED: 'pane:displayTimeframeChanged',
+  INTERVAL_INTENT_CHANGED: 'pane:intervalIntentChanged',
+  SYMBOL_INTENT_CHANGED: 'pane:symbolIntentChanged',
 });
 
 export const CHART_DATA_COMMANDS = Object.freeze({

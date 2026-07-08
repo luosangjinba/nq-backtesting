@@ -21,11 +21,19 @@ clearEventsForTest();
 
 const activeChangedEvents = [];
 const displayTimeframeEvents = [];
+const intervalIntentEvents = [];
+const symbolIntentEvents = [];
 const unsubscribeActive = subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, (payload) => {
   activeChangedEvents.push(payload);
 });
 const unsubscribeDisplayTimeframe = subscribeEvent(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, (payload) => {
   displayTimeframeEvents.push(payload);
+});
+const unsubscribeIntervalIntent = subscribeEvent(PANE_EVENTS.INTERVAL_INTENT_CHANGED, (payload) => {
+  intervalIntentEvents.push(payload);
+});
+const unsubscribeSymbolIntent = subscribeEvent(PANE_EVENTS.SYMBOL_INTENT_CHANGED, (payload) => {
+  symbolIntentEvents.push(payload);
 });
 
 const defaultPane = createPaneRecord({
@@ -81,7 +89,29 @@ assert.equal(changedTimeframe.active, true);
 assert.equal(changedTimeframe.displayTimeframe, 15);
 assert.equal(displayTimeframeEvents.length, 1);
 assert.deepEqual(displayTimeframeEvents[0], changedTimeframe);
+assert.equal(intervalIntentEvents.length, 1);
+assert.deepEqual(intervalIntentEvents[0], changedTimeframe);
 assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).displayTimeframe, 1);
+
+const changedSymbol = await dispatchCommand(PANE_COMMANDS.SET_SYMBOL_INTENT, {
+  instrument: 'ym',
+  paneId: 'pane-review',
+});
+assert.equal(changedSymbol.instrument, 'YM');
+assert.equal(changedSymbol.displayTimeframe, 15);
+assert.equal(symbolIntentEvents.length, 1);
+assert.deepEqual(symbolIntentEvents[0], changedSymbol);
+assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).instrument, 'NQ');
+
+const changedInterval = await dispatchCommand(PANE_COMMANDS.SET_INTERVAL_INTENT, {
+  displayTimeframe: 30,
+  paneId: 'pane-review',
+});
+assert.equal(changedInterval.instrument, 'YM');
+assert.equal(changedInterval.displayTimeframe, 30);
+assert.equal(intervalIntentEvents.length, 2);
+assert.deepEqual(intervalIntentEvents[1], changedInterval);
+assert.equal(displayTimeframeEvents.length, 1);
 
 await assert.rejects(
   () => dispatchCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
@@ -89,6 +119,14 @@ await assert.rejects(
     paneId: 'pane-review',
   }),
   /displayTimeframe/
+);
+
+await assert.rejects(
+  () => dispatchCommand(PANE_COMMANDS.SET_SYMBOL_INTENT, {
+    instrument: '',
+    paneId: 'pane-review',
+  }),
+  /instrument/
 );
 
 await assert.rejects(
@@ -100,7 +138,11 @@ await registry.stop();
 assert.equal(hasCommand(PANE_COMMANDS.GET_SNAPSHOT), false);
 unsubscribeActive();
 unsubscribeDisplayTimeframe();
+unsubscribeIntervalIntent();
+unsubscribeSymbolIntent();
 assert.equal(listenerCount(PANE_EVENTS.ACTIVE_CHANGED), 0);
 assert.equal(listenerCount(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED), 0);
+assert.equal(listenerCount(PANE_EVENTS.INTERVAL_INTENT_CHANGED), 0);
+assert.equal(listenerCount(PANE_EVENTS.SYMBOL_INTENT_CHANGED), 0);
 
 console.log('v6 pane runtime smoke passed');
