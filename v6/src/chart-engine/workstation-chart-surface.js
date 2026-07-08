@@ -44,6 +44,14 @@ function resolvePaneId(host) {
   return String(host.dataset.v6PaneId || 'default').trim() || 'default';
 }
 
+function findHosts(root, selector) {
+  if (typeof root.querySelectorAll === 'function') {
+    return Array.from(root.querySelectorAll(selector) || []);
+  }
+  const host = root.querySelector?.(selector);
+  return host ? [host] : [];
+}
+
 function rangesNear(left = {}, right = {}) {
   return (
     Math.abs(Number(left.from) - Number(right.from)) <= PROGRAMMATIC_RANGE_EPSILON &&
@@ -61,19 +69,26 @@ export function mountWorkstationChartSurface(root, {
     throw new Error('Workstation chart surface root is required.');
   }
 
-  const host = root.querySelector(hostSelector);
-  if (!host) {
+  const hosts = findHosts(root, hostSelector);
+  if (!hosts.length) {
     throw new Error(`Workstation chart surface host "${hostSelector}" is missing.`);
   }
 
-  const paneId = resolvePaneId(host);
+  const hostsByPaneId = new Map();
+  hosts.forEach((host) => {
+    const paneId = resolvePaneId(host);
+    if (hostsByPaneId.has(paneId)) {
+      throw new Error(`Workstation chart surface pane "${paneId}" host is duplicated.`);
+    }
+    hostsByPaneId.set(paneId, host);
+  });
   const appliedChartDataByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
   const programmaticRangeByPaneId = new Map();
   const visibleRangeListeners = new Set();
   let userRangeInputUntil = 0;
-  const size = measureHost(host);
+  const size = measureHost(hosts[0]);
   const manager = managerFactory({
     chartOptions: {
       ...DEFAULT_CHART_OPTIONS,
@@ -87,9 +102,11 @@ export function mountWorkstationChartSurface(root, {
     },
   });
 
-  manager.mountPane({ host, paneId });
-  const unsubscribeVisibleRange = typeof manager.subscribeVisibleLogicalRangeChange === 'function'
-    ? manager.subscribeVisibleLogicalRangeChange(paneId, ({ paneId: changedPaneId, range } = {}) => {
+  hostsByPaneId.forEach((host, paneId) => {
+    manager.mountPane({ host, paneId });
+  });
+  const unsubscribeVisibleRangeCallbacks = typeof manager.subscribeVisibleLogicalRangeChange === 'function'
+    ? [...hostsByPaneId.keys()].map((paneId) => manager.subscribeVisibleLogicalRangeChange(paneId, ({ paneId: changedPaneId, range } = {}) => {
         if (!range) return;
         const record = {
           from: Number(range.from),
@@ -105,30 +122,36 @@ export function mountWorkstationChartSurface(root, {
           return;
         }
         visibleRangeListeners.forEach((listener) => listener({ ...record }));
-      })
-    : () => {};
+      }))
+    : [];
 
   const markUserRangeInput = () => {
     userRangeInputUntil = Date.now() + USER_RANGE_INPUT_WINDOW_MS;
   };
   const userInputEvents = ['pointerdown', 'mousedown', 'wheel', 'touchstart'];
-  userInputEvents.forEach((eventName) => {
-    host.addEventListener?.(eventName, markUserRangeInput, { passive: true });
+  hosts.forEach((host) => {
+    userInputEvents.forEach((eventName) => {
+      host.addEventListener?.(eventName, markUserRangeInput, { passive: true });
+    });
   });
 
   function resize() {
-    const nextSize = measureHost(host);
-    const record = manager.snapshot().panes.find((pane) => pane.paneId === paneId);
-    if (!record?.snapshot?.mounted) {
-      return null;
-    }
-    return manager.resizePane(paneId, nextSize);
+    const mountedPanes = manager.snapshot().panes;
+    return [...hostsByPaneId.entries()]
+      .map(([paneId, host]) => {
+        const record = mountedPanes.find((pane) => pane.paneId === paneId);
+        if (!record?.snapshot?.mounted) {
+          return null;
+        }
+        return manager.resizePane(paneId, measureHost(host));
+      })
+      .filter(Boolean);
   }
 
   const resizeObserver = typeof ResizeObserver === 'function'
     ? new ResizeObserver(() => resize())
     : null;
-  resizeObserver?.observe(host);
+  hosts.forEach((host) => resizeObserver?.observe(host));
 
   return {
     applyChartDataRecord(record = {}) {
@@ -136,7 +159,7 @@ export function mountWorkstationChartSurface(root, {
       if (!recordPaneId) {
         throw new Error('Workstation chart surface chart-data record requires paneId.');
       }
-      if (recordPaneId !== paneId) {
+      if (!hostsByPaneId.has(recordPaneId)) {
         return null;
       }
       const snapshot = manager.setData(recordPaneId, record.bars || []);
@@ -152,7 +175,7 @@ export function mountWorkstationChartSurface(root, {
       if (!recordPaneId) {
         throw new Error('Workstation chart surface viewport projection requires paneId.');
       }
-      if (recordPaneId !== paneId) {
+      if (!hostsByPaneId.has(recordPaneId)) {
         return null;
       }
       if (!record.projection) {
@@ -178,9 +201,11 @@ export function mountWorkstationChartSurface(root, {
       return snapshot;
     },
     destroy() {
-      unsubscribeVisibleRange();
-      userInputEvents.forEach((eventName) => {
-        host.removeEventListener?.(eventName, markUserRangeInput);
+      unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
+      hosts.forEach((host) => {
+        userInputEvents.forEach((eventName) => {
+          host.removeEventListener?.(eventName, markUserRangeInput);
+        });
       });
       resizeObserver?.disconnect();
       manager.destroyAll();
@@ -193,7 +218,7 @@ export function mountWorkstationChartSurface(root, {
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         appliedViewport: [...appliedViewportByPaneId.values()]
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
-        hostConnected: Boolean(host.isConnected),
+        hostConnected: hosts.every((host) => Boolean(host.isConnected)),
         hostSelector,
         measuredVisibleRange: [...measuredVisibleRangeByPaneId.values()]
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
