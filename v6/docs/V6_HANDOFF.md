@@ -5,19 +5,21 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 132 completed.
-- Next planned step: Step 133 - Session Settings Owner Contract.
+- Current V6 step state: Step 133 completed.
+- Next planned step: Step 134 - Workstation Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Slice Selection:
+The latest completed work is Session Settings Owner Contract:
 
-- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md` selects Session Settings
-  Owner Contract as the next bounded slice.
-- `workstation-chart-slice-selection-step132-smoke.js` locks the selected
-  owner boundary, runtime-command exclusions, and dashboard row-action
-  visibility.
-- Step 133 should define session-settings contract/default/validation helpers
-  while keeping the right-rail panel disabled and inert.
+- `v6/src/session-settings/session-settings-contract.js` defines the
+  session-settings owner, explicit field groups, read-only draft state, and
+  validation helpers.
+- `session-settings-contract-smoke.js` covers contract shape, disabled panel
+  state, docs/index registration, and dashboard row-action visibility.
+- `boundary-smoke.js` now guards the `session-settings` source root against
+  forbidden feature-runtime imports, command tokens, chart APIs, browser APIs,
+  storage, and network usage.
+- The right-rail Session settings panel remains disabled and inert.
 
 ## Restart Reading Order
 
@@ -56,52 +58,55 @@ After restarting the server or assistant context, read these first:
 31. `v6/sessions/session_20260707_step130_workstation_chart_slice_selection.md`
 32. `v6/sessions/session_20260707_step131_diagnostics_visibility_cleanup.md`
 33. `v6/sessions/session_20260707_step132_workstation_chart_slice_selection.md`
-34. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-35. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-36. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-37. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-38. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-39. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-40. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-41. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-42. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-43. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-44. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-45. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-46. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-47. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-48. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-49. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-50. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-51. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-52. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+34. `v6/sessions/session_20260707_step133_session_settings_owner_contract.md`
+35. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+36. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+37. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+38. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+39. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+40. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+41. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+42. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+43. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+44. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+45. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+46. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+47. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+48. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+49. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+50. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+51. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+52. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+53. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+54. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 133 should implement the Session Settings Owner Contract.
+Step 134 should choose the next bounded workstation/chart slice.
 
-Keep Step 133 bounded:
+Keep Step 134 bounded:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`,
-  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`, and
+- read `V6_SESSION_SETTINGS_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`,
+  `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused session-settings contract/domain module;
-- define explicit fields for Session Info, Balance & Assets, Spreads &
-  Commissions, and Date Range;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- keep the selection docs/test only;
 - keep the right-rail Session settings panel disabled and inert;
-- avoid persistence and runtime command wiring in this step;
+- do not add Session settings persistence or runtime command wiring unless that
+  exact slice is selected;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- contract/domain module plus focused tests;
+- docs/test selection only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, orders, or calendar commands from the panel;
-- run the new session-settings contract smoke, Step 132 selection smoke,
-  diagnostics visibility cleanup browser smoke, Session settings panel
-  regression audit, bottom chrome regression audit, chart presentation re-audit,
-  and boundary smoke.
+  viewport, session-settings, orders, or calendar commands from selection code;
+- run the new Step 134 selection smoke, session-settings contract smoke, Step
+  132 selection smoke, Session settings panel regression audit, bottom chrome
+  regression audit, chart presentation re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -130,8 +135,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 133 work:
+Run these before committing Step 134 work:
 
+- `node v6/tests/session-settings-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step132-smoke.js`
 - `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step130-smoke.js`
@@ -214,15 +220,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `3509a8cc feat(v6): add session settings owner contract`
 - `54ee5f10 docs(v6): select session settings contract slice`
 - `a6db00d5 feat(v6): clean up readiness diagnostics visibility`
 - `ff8323f7 docs(v6): select diagnostics visibility cleanup slice`
 - `8ea6b953 test(v6): tighten workstation parity re-audit guards`
-- `290169b5 docs(v6): re-audit workstation ui parity gaps`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-133. The handoff point is intentionally after selecting the Session Settings
-Owner Contract slice.
+134. The handoff point is intentionally after completing the Session Settings
+Owner Contract.

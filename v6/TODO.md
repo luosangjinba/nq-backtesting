@@ -14,49 +14,47 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 132 - Workstation Chart Slice Selection. Session
-  Settings Owner Contract is selected as the next bounded workstation/chart
-  slice.
+- Latest completed step: Step 133 - Session Settings Owner Contract. The pure
+  session-settings owner contract, read-only draft state, validation helpers,
+  and boundary coverage are in place while the right-rail panel remains
+  disabled and inert.
 
 ## Next Executable Steps
 
-### Step 133 - Session Settings Owner Contract
+### Step 134 - Workstation Chart Slice Selection
 
-Establish the session-settings owner contract before any right-rail Session
-settings control becomes interactive.
+Choose the next bounded workstation/chart slice after the Session Settings
+Owner Contract.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`,
-  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`, and
+- read `V6_SESSION_SETTINGS_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`,
+  `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused session-settings contract/domain module;
-- define explicit fields for Session Info, Balance & Assets, Spreads &
-  Commissions, and Date Range;
-- define default/read-only draft state and validation helpers for future owner
-  wiring;
-- keep the right-rail Session settings panel disabled and inert;
-- do not add persistence or runtime command wiring in this step;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- prefer selecting one deferred owner contract family or a narrow audit needed
+  before enabling interactivity;
+- keep the selection docs/test only;
+- do not implement the selected slice in Step 134;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- contract/domain module plus focused tests;
+- docs/test selection only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, orders, or calendar commands from the panel;
-- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
-  default-wall, settings, orders, calendar, account, or analytics owners into
-  the session-settings contract or shell panel.
+  viewport, session-settings, orders, or calendar commands from selection code.
 
 Acceptance:
 
-- new session-settings contract smoke passes;
+- new Step 134 slice selection smoke passes;
+- session-settings contract smoke passes;
 - Step 132 slice selection smoke passes;
 - diagnostics visibility cleanup browser smoke passes;
-- Step 130 slice selection smoke passes;
 - workstation UI parity gap re-audit smoke passes;
 - FXReplay UI parity gap audit smoke passes;
 - right-rail session settings panel regression audit smoke passes;
@@ -65,6 +63,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 133 - Session Settings Owner Contract
+
+Completed in commit:
+
+- `3509a8cc feat(v6): add session settings owner contract`
+
+Verification:
+
+- `node v6/tests/session-settings-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step132-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step130-smoke.js`
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 132 - Workstation Chart Slice Selection
 

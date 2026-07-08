@@ -13,6 +13,8 @@ import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-acti
 
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const contractSource = await readFile('v6/src/session-settings/session-settings-contract.js', 'utf8');
+const contractDoc = await readFile('v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md', 'utf8');
+const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
 
 assert.equal(getSessionSettingsOwner(), 'session-settings-runtime');
 assert.deepEqual(getSessionSettingsFieldGroups(), [
@@ -117,6 +119,10 @@ assert.deepEqual(createSessionSettingsContract(), {
   writeReady: false,
 });
 assert.equal(Object.isFrozen(createSessionSettingsContract()), true);
+assert.match(contractDoc, /Step 133 establishes the session-settings owner contract/);
+assert.match(contractDoc, /right-rail Session settings panel remains a disabled shell-owned\s+placeholder/);
+assert.match(contractDoc, /Dashboard visible row actions remain Summary, Stats, Copy, and Journal/);
+assert.match(docsIndex, /V6_SESSION_SETTINGS_OWNER_CONTRACT\.md/);
 
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',

@@ -75,6 +75,8 @@ Read this index before working on V6.
   bounded workstation/chart slice after workstation UI parity gap re-audit.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`: selected next
   bounded workstation/chart slice after diagnostics visibility cleanup.
+- `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`: accepted session-settings
+  owner contract, read-only draft, validation helpers, and boundary coverage.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -172,6 +174,8 @@ Read this index before working on V6.
   workstation/chart slice selection after workstation UI parity gap re-audit.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`: accepted next
   workstation/chart slice selection after diagnostics visibility cleanup.
+- `V6_SESSION_SETTINGS_OWNER_CONTRACT.md`: accepted session-settings owner
+  contract while the right-rail panel remains disabled and inert.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
