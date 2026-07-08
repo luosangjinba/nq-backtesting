@@ -14,55 +14,67 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 128 - Workstation Chart Slice Selection. The
-  next bounded slice is Workstation UI Parity Gap Re-audit before choosing
-  another workstation chart chrome implementation.
+- Latest completed step: Step 129 - Workstation UI Parity Gap Re-audit. The
+  current parity gap classification is refreshed, and diagnostics visibility
+  cleanup is the leading shell-only candidate for the next slice.
 
 ## Next Executable Steps
 
-### Step 129 - Workstation UI Parity Gap Re-audit
+### Step 130 - Workstation Chart Slice Selection
 
-Re-audit the current workstation shell against the FXReplay UI guardrails and
-refresh stale parity gap classification after Session settings panel
-stabilization.
+Choose the next bounded workstation/chart implementation slice from the updated
+parity gap priority order after Step 129.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`,
-  `V6_FXREPLAY_UI_GUARDRAILS.md`, `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`,
-  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`,
-  `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`, and
-  `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`;
-- re-audit session dashboard separation, top toolbar, timeframe menu, left
-  drawing rail, right utility rail, Session settings panel, floating transport,
-  bottom account/trading chrome, chart status/OHLC, settings modal,
-  diagnostics visibility, and multi-pane readiness;
-- update stale shell-only versus runtime-owned parity classifications;
-- identify the next bounded implementation slice only after current evidence is
-  refreshed;
+- read `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`,
+  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`, `V6_FXREPLAY_UI_GUARDRAILS.md`,
+  `V6_PRODUCT_TOP_CHROME.md`, and recent workstation chrome audits;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- prefer diagnostics visibility cleanup unless a newly found regression
+  requires a narrower fix first;
+- keep the selection docs/test only;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test audit only unless a regression is found;
-- do not implement new workstation chrome in Step 129;
+- docs/test selection only;
+- do not implement the selected slice in Step 130;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, orders, or calendar commands from audit code.
+  viewport, session-settings, orders, or calendar commands from selection code.
 
 Acceptance:
 
-- new workstation UI parity re-audit smoke passes;
-- FXReplay UI guardrails and parity gap audit smoke are updated or superseded
-  with current evidence;
+- new Step 130 slice selection smoke passes;
+- workstation UI parity gap re-audit smoke passes;
+- FXReplay UI parity gap audit smoke passes;
 - right-rail session settings panel regression audit smoke passes;
 - bottom chrome regression audit smoke passes;
 - workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 129 - Workstation UI Parity Gap Re-audit
+
+Completed in commit:
+
+- `290169b5 docs(v6): re-audit workstation ui parity gaps`
+
+Verification:
+
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/fxreplay-ui-guardrails-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 128 - Workstation Chart Slice Selection
 
