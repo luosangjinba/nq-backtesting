@@ -79,6 +79,9 @@ Read this index before working on V6.
   owner contract, read-only draft, validation helpers, and boundary coverage.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`: selected next
   bounded workstation/chart slice after the session-settings owner contract.
+- `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`: accepted screenshot/export
+  owner contract, read-only export intent, validation helpers, and boundary
+  coverage.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -180,6 +183,8 @@ Read this index before working on V6.
   contract while the right-rail panel remains disabled and inert.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`: accepted next
   workstation/chart slice selection after the session-settings owner contract.
+- `V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`: accepted screenshot/export owner
+  contract while the top-toolbar Screenshot button remains disabled and inert.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,

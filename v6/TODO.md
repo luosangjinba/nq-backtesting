@@ -14,50 +14,47 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 134 - Workstation Chart Slice Selection.
-  Screenshot/Export Owner Contract is selected as the next bounded
-  workstation/chart slice.
+- Latest completed step: Step 135 - Screenshot/Export Owner Contract. The pure
+  screenshot/export owner contract, read-only export intent state, validation
+  helpers, and boundary coverage are in place while the top-toolbar Screenshot
+  button remains disabled and inert.
 
 ## Next Executable Steps
 
-### Step 135 - Screenshot/Export Owner Contract
+### Step 136 - Workstation Chart Slice Selection
 
-Establish the screenshot/export owner contract before the top-toolbar
-Screenshot button becomes interactive.
+Choose the next bounded workstation/chart slice after the Screenshot/Export
+Owner Contract.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`,
+- read `V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`,
   `V6_SESSION_SETTINGS_OWNER_CONTRACT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused screenshot/export contract/domain module;
-- define explicit export request fields for source surface, format, filename,
-  dimensions, background, and metadata;
-- define default read-only export intent state and validation helpers for
-  future owner wiring;
-- keep the top-toolbar Screenshot button disabled and inert;
-- do not add screenshot capture, canvas reads, downloads, file writes, browser
-  storage, persistence, or runtime command wiring in this step;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- prefer selecting one deferred owner contract family or a narrow audit needed
+  before enabling interactivity;
+- keep the selection docs/test only;
+- do not implement the selected slice in Step 136;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- contract/domain module plus focused tests;
+- docs/test selection only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, orders, or calendar commands
-  from the toolbar;
-- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
-  default-wall, display-timeframe, settings, session-settings, orders,
-  calendar, account, analytics, persistence, V4, vendor, or Lightweight Charts
-  modules into the screenshot/export contract.
+  from selection code.
 
 Acceptance:
 
-- new screenshot/export contract smoke passes;
+- new Step 136 slice selection smoke passes;
+- screenshot/export contract smoke passes;
 - Step 134 slice selection smoke passes;
 - session-settings contract smoke passes;
 - diagnostics visibility cleanup browser smoke passes;
@@ -69,6 +66,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 135 - Screenshot/Export Owner Contract
+
+Completed in commit:
+
+- `f2be95c9 feat(v6): add screenshot export owner contract`
+
+Verification:
+
+- `node v6/tests/screenshot-export-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step134-smoke.js`
+- `node v6/tests/session-settings-contract-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 134 - Workstation Chart Slice Selection
 

@@ -5,19 +5,22 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 134 completed.
-- Next planned step: Step 135 - Screenshot/Export Owner Contract.
+- Current V6 step state: Step 135 completed.
+- Next planned step: Step 136 - Workstation Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Slice Selection:
+The latest completed work is Screenshot/Export Owner Contract:
 
-- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md` selects
-  Screenshot/Export Owner Contract as the next bounded slice.
-- `workstation-chart-slice-selection-step134-smoke.js` locks the selected
-  owner boundary, capture/download/storage exclusions, top-toolbar Screenshot
-  disabled state, and dashboard row-action visibility.
-- Step 135 should define screenshot/export contract/default/validation helpers
-  while keeping the top-toolbar Screenshot button disabled and inert.
+- `v6/src/screenshot-export/screenshot-export-contract.js` defines the
+  screenshot/export owner, explicit export request fields, read-only intent
+  state, and validation helpers.
+- `screenshot-export-contract-smoke.js` covers contract shape, disabled
+  top-toolbar Screenshot state, docs/index registration, and dashboard
+  row-action visibility.
+- `boundary-smoke.js` now guards the `screenshot-export` source root against
+  forbidden feature-runtime imports, command tokens, chart APIs, browser APIs,
+  capture APIs, storage, and network usage.
+- The top-toolbar Screenshot button remains disabled and inert.
 
 ## Restart Reading Order
 
@@ -58,57 +61,57 @@ After restarting the server or assistant context, read these first:
 33. `v6/sessions/session_20260707_step132_workstation_chart_slice_selection.md`
 34. `v6/sessions/session_20260707_step133_session_settings_owner_contract.md`
 35. `v6/sessions/session_20260707_step134_workstation_chart_slice_selection.md`
-36. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-37. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-38. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-39. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-40. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-41. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-42. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-43. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-44. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-45. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-46. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-47. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-48. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-49. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-50. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-51. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-52. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-53. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-54. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-55. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-56. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+36. `v6/sessions/session_20260707_step135_screenshot_export_owner_contract.md`
+37. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+38. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+39. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+40. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+41. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+42. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+43. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+44. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+45. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+46. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+47. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+48. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+49. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+50. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+51. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+52. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+53. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+54. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+55. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+56. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+57. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+58. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 135 should implement the Screenshot/Export Owner Contract.
+Step 136 should choose the next bounded workstation/chart slice.
 
-Keep Step 135 bounded:
+Keep Step 136 bounded:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`,
+- read `V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`,
   `V6_SESSION_SETTINGS_OWNER_CONTRACT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused screenshot/export contract/domain module;
-- define explicit export request fields for source surface, format, filename,
-  dimensions, background, and metadata;
-- keep the top-toolbar Screenshot button disabled and inert;
-- avoid screenshot capture, canvas reads, downloads, file writes, browser
-  storage, persistence, and runtime command wiring in this step;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- keep the selection docs/test only;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- contract/domain module plus focused tests;
+- docs/test selection only;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, orders, or calendar commands
-  from the toolbar;
-- run the new screenshot/export contract smoke, Step 134 selection smoke,
-  session-settings contract smoke, diagnostics visibility cleanup browser
-  smoke, Session settings panel regression audit, bottom chrome regression
-  audit, chart presentation re-audit, and boundary smoke.
+  from selection code;
+- run the new Step 136 selection smoke, screenshot/export contract smoke, Step
+  134 selection smoke, session-settings contract smoke, Session settings panel
+  regression audit, bottom chrome regression audit, chart presentation re-audit,
+  and boundary smoke.
 
 ## Critical Boundaries
 
@@ -137,8 +140,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 135 work:
+Run these before committing Step 136 work:
 
+- `node v6/tests/screenshot-export-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step134-smoke.js`
 - `node v6/tests/session-settings-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step132-smoke.js`
@@ -223,15 +227,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `f2be95c9 feat(v6): add screenshot export owner contract`
 - `85b02e26 docs(v6): select screenshot export contract slice`
 - `3509a8cc feat(v6): add session settings owner contract`
 - `54ee5f10 docs(v6): select session settings contract slice`
 - `a6db00d5 feat(v6): clean up readiness diagnostics visibility`
-- `ff8323f7 docs(v6): select diagnostics visibility cleanup slice`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-135. The handoff point is intentionally after selecting the Screenshot/Export
-Owner Contract slice.
+136. The handoff point is intentionally after completing the Screenshot/Export
+Owner Contract.
