@@ -1,5 +1,10 @@
-import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
+import {
+  CHART_BOUNDARY_METADATA_COMMANDS,
+  CHART_BOUNDARY_METADATA_EVENTS,
+  SESSION_COMMANDS,
+} from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
+import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { createRecentSessionsView, createSessionDateBoundaryView } from './session-dashboard-model.js';
 import { getVisibleRecentSessionRowActions } from './session-row-action-boundaries.js';
 import { mountSessionAnalyticsSurface } from './session-analytics-surface.js';
@@ -60,13 +65,13 @@ function renderSessionRowActions() {
   `).join('');
 }
 
-function renderSessions(root, view) {
+function renderSessions(root, view, { chartBoundaryMetadata = null } = {}) {
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   const empty = root.querySelector('[data-v6-dashboard-empty]');
   if (!list) return;
   const rows = view?.rows || [];
   list.innerHTML = rows.map((session) => {
-    const boundaryView = createSessionDateBoundaryView(session);
+    const boundaryView = createSessionDateBoundaryView(session, { chartBoundaryMetadata });
     const boundaryLabel = boundaryView.chartDataBoundaryLabel
       ? `<small data-v6-session-chart-boundary="${session.id}">${boundaryView.chartDataBoundaryLabel}</small>`
       : '';
@@ -136,6 +141,7 @@ function setWorkstationHidden(root, hidden) {
 export function mountSessionDashboard(root, {
   dispatchCommand = dispatchRuntimeCommand,
   journalRowAction = null,
+  subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
     throw new Error('Session dashboard root is required.');
@@ -179,6 +185,7 @@ export function mountSessionDashboard(root, {
     sort: 'newest',
   };
   let selectedSymbols = [];
+  let chartBoundaryMetadata = null;
 
   function getRecentSessionsView() {
     return createRecentSessionsView(sessions, recentSessionsControls);
@@ -192,9 +199,19 @@ export function mountSessionDashboard(root, {
       pageSize: view.pageSize,
       sort: view.sort,
     };
-    renderSessions(root, view);
+    renderSessions(root, view, { chartBoundaryMetadata });
     renderPager(root, view);
     return view;
+  }
+
+  async function refreshChartBoundaryMetadata() {
+    try {
+      const boundaryState = await dispatchCommand(CHART_BOUNDARY_METADATA_COMMANDS.GET_STATE);
+      chartBoundaryMetadata = boundaryState?.metadata || null;
+    } catch {
+      chartBoundaryMetadata = null;
+    }
+    return chartBoundaryMetadata;
   }
 
   function renderSelectedAssets() {
@@ -284,6 +301,7 @@ export function mountSessionDashboard(root, {
   }
 
   async function refresh() {
+    await refreshChartBoundaryMetadata();
     sessions = await dispatchCommand(SESSION_COMMANDS.LIST);
     renderRecentSessions();
     return getState();
@@ -519,6 +537,13 @@ export function mountSessionDashboard(root, {
     unsubscriptions.push(() => nextPageButton.removeEventListener('click', listener));
   }
 
+  if (typeof subscribeEvent === 'function') {
+    unsubscriptions.push(subscribeEvent(CHART_BOUNDARY_METADATA_EVENTS.UPDATED, (payload = {}) => {
+      chartBoundaryMetadata = payload.metadata || null;
+      renderRecentSessions();
+    }));
+  }
+
   const list = root.querySelector('[data-v6-dashboard-session-list]');
   if (list) {
     const listener = (event) => {
@@ -566,6 +591,7 @@ export function mountSessionDashboard(root, {
         sort: recentSessionsView.sort,
         visibleCount: recentSessionsView.visibleCount,
       },
+      chartBoundaryMetadata,
       analytics: analyticsSurface.getState(),
       summary: summarySurface.getState(),
     };
