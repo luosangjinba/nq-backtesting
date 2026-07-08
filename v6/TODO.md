@@ -14,39 +14,49 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 180 - Browser Smoke Harness Reliability. V6
-  browser smokes now allocate isolated Chrome debug ports by default, and a
-  parallel harness smoke verifies concurrent page boot and profile cleanup.
+- Latest completed step: Step 181 - Chart Browser Regression Pack. V6 now has a
+  selected chart browser regression pack covering reload pipeline, layout pane
+  bootstrap, multi-pane replay append, multi-pane replay viewport projection,
+  and pane-local reset controls.
 
 ## Next Executable Steps
 
-### Step 181 - Chart Browser Regression Pack
+### Step 182 - Crosshair OHLC Completion
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_BROWSER_SMOKE_HARNESS_RELIABILITY_STEP180.md`;
-- add a small selected chart browser regression pack runner, or document the
-  exact selected command list if a runner is unnecessary;
-- include Step 179 reload pipeline browser coverage, layout pane data bootstrap,
-  multi-pane replay append, and multi-pane replay viewport projection;
-- preserve parallel-safe browser harness behavior from Step 180;
+- read `V6_CHART_BROWSER_REGRESSION_PACK_STEP181.md`;
+- revisit the existing Step 153/154 crosshair OHLC readout behavior;
+- show OHLC only when a selected/crosshair candle is available;
+- color OHLC according to candle direction: up green, down red;
+- preserve the previous visual fixes that prevent symbol/timeframe text overlap;
+- include browser coverage for single-pane and multi-pane hovered-pane readout;
 - do not change chart, replay, bar-data, chart-data, viewport, layout, or pane
   ownership behavior in this step.
 
 Acceptance:
 
-- pane reload pipeline browser smoke passes;
-- layout pane data bootstrap browser smoke passes;
-- multi-pane replay append browser smoke passes sequentially;
-- multi-pane replay viewport projection browser smoke passes sequentially;
-- selected chart browser regression pack passes as a single command if a runner
-  is added;
+- crosshair OHLC browser smoke passes;
+- multi-pane crosshair readout browser smoke passes;
+- chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 181 - Chart Browser Regression Pack
+
+Completed in commit:
+
+- `455b57a5 test(v6): add chart browser regression pack`
+
+Verification:
+
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 180 - Browser Smoke Harness Reliability
 

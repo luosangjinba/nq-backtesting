@@ -186,6 +186,9 @@ Read this index before working on V6.
 - `v6/docs/V6_BROWSER_SMOKE_HARNESS_RELIABILITY_STEP180.md`: accepted browser
   smoke harness reliability hardening with per-run Chrome debug ports,
   parallel browser coverage, and cleanup verification.
+- `v6/docs/V6_CHART_BROWSER_REGRESSION_PACK_STEP181.md`: accepted selected
+  chart browser regression pack for reload, pane bootstrap, multi-pane replay
+  append, viewport projection, and pane-local reset gates.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
