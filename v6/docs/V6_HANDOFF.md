@@ -5,18 +5,19 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 139 completed.
-- Next planned step: Step 140 - Workstation Chart Slice Selection.
+- Current V6 step state: Step 140 completed.
+- Next planned step: Step 141 - Account/Trading Owner Contract.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is the Drawing/Action-History Owner Contract:
+The latest completed work is Workstation Chart Slice Selection:
 
-- `V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md` documents the accepted
-  drawing/action-history owner surface.
-- `drawing-action-history-contract-smoke.js` locks the owner identity, built-in
-  drawing tool whitelist, drawing fields, action-history fields, read-only
-  intent, disabled shell controls, and dashboard row-action visibility.
-- `boundary-smoke.js` now covers the `drawing-action-history` source root.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md` selects
+  Account/Trading Owner Contract as the next bounded slice.
+- `workstation-chart-slice-selection-step140-smoke.js` locks the selected owner
+  boundary, bottom account/trading disabled state, distinction from
+  `orders-runtime`, and dashboard row-action visibility.
+- Step 141 should define account/trading contract/default/validation helpers
+  while keeping the bottom account/trading chrome disabled and inert.
 
 ## Restart Reading Order
 
@@ -62,63 +63,70 @@ After restarting the server or assistant context, read these first:
 38. `v6/sessions/session_20260707_step137_indicators_owner_contract.md`
 39. `v6/sessions/session_20260707_step138_workstation_chart_slice_selection.md`
 40. `v6/sessions/session_20260707_step139_drawing_action_history_owner_contract.md`
-41. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-42. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-43. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-44. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-45. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-46. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-47. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-48. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-49. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-50. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-51. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-52. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-53. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-54. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-56. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-57. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-59. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-61. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-62. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-63. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-64. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-65. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-66. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+41. `v6/sessions/session_20260707_step140_workstation_chart_slice_selection.md`
+42. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+43. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+44. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+45. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+46. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+47. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+48. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+49. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+50. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+51. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+52. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+53. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+54. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+55. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+56. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+57. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+58. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+59. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+60. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+62. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+64. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+65. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+66. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+67. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+68. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 140 should select the next bounded workstation/chart slice.
+Step 141 should implement the Account/Trading Owner Contract.
 
-Keep Step 140 bounded:
+Keep Step 141 bounded:
 
-- read `V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`,
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`,
+  `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`,
+  `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- choose one small next slice from the remaining workstation/chart gaps;
-- prefer docs/test selection only unless the selected slice is sharply bounded
-  by existing owner contracts;
-- keep drawing tools, chart overlays, pane mutation, undo/redo execution,
-  indicator calculation, screenshot capture, session settings editing, and
-  runtime command wiring disabled unless that exact slice is selected;
+- create a focused account/trading contract/domain module;
+- define explicit account readout fields and trade draft fields;
+- define default read-only account/trading intent state and validation helpers;
+- keep Buy, Sell, quantity, Analytics, balance, and PnL disabled/inert;
+- keep this owner distinct from the existing `orders-runtime` row-action
+  contract;
+- avoid order placement, position mutation, account mutation, analytics
+  calculation, chart overlays, replay mutation, bar requests, browser storage,
+  persistence, and runtime command wiring in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- selection doc plus focused smoke;
+- contract/domain module plus focused tests;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, indicators,
-  drawing/action-history, orders, or calendar commands from the toolbar or rail;
-- run the new Step 140 slice selection smoke, drawing/action-history contract
-  smoke, Step 138 selection smoke, indicators contract smoke, diagnostics
-  visibility cleanup browser smoke, left drawing rail browser smoke, Session
-  settings panel regression audit, bottom chrome regression audit, chart
-  presentation re-audit, and boundary smoke.
+  drawing/action-history, account/trading, orders, or calendar commands from
+  bottom chrome, toolbar, or rail;
+- run the new account/trading contract smoke, Step 140 slice selection smoke,
+  drawing/action-history contract smoke, indicators contract smoke, diagnostics
+  visibility cleanup browser smoke, bottom chrome regression audit, bottom
+  account chrome browser smoke, chart presentation re-audit, and boundary
+  smoke.
 
 ## Critical Boundaries
 
@@ -147,8 +155,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 140 selection work:
+Run these before committing Step 141 work:
 
+- `node v6/tests/workstation-chart-slice-selection-step140-smoke.js`
 - `node v6/tests/drawing-action-history-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step138-smoke.js`
 - `node v6/tests/indicators-contract-smoke.js`
@@ -238,16 +247,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `8f958eba docs(v6): select account trading contract slice`
+- `d4c5b0b2 docs(v6): close drawing action history owner contract`
 - `68e8ec7d docs(v6): select drawing action history contract slice`
 - `4c2c992d feat(v6): add drawing action history owner contract`
 - `de6e1b54 feat(v6): add indicators owner contract`
-- `5d2ca49f docs(v6): select indicators contract slice`
-- `f2be95c9 feat(v6): add screenshot export owner contract`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-140. The handoff point is intentionally after establishing the Drawing/Action-
-History Owner Contract and before choosing the next bounded workstation/chart
-slice.
+141. The handoff point is intentionally after selecting the Account/Trading
+Owner Contract slice.
