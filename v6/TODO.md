@@ -14,9 +14,15 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 186 - Pane Maximize / Restore Action Rail Bridge.
-  V6 now has pane-local maximize/restore controls wired into the chart action
-  rail.
+- Latest completed roadmap step: Step 186 - Pane Maximize / Restore Action Rail
+  Bridge. V6 now has pane-local maximize/restore controls wired into the chart
+  action rail.
+- Latest stability work: post-step 186 chart drag / leftward-history stability
+  hotfixes. Native manual drag now prioritizes current K-line stability:
+  manual range input records viewport intent without projecting back into the
+  chart, leftward history requests are delayed/coalesced, oversized history
+  windows are chunked, and prepended bars shift the visible logical range so the
+  current screen remains visually stable.
 
 ## Next Executable Steps
 
@@ -27,25 +33,54 @@ Status: planned.
 Notes for execution:
 
 - read `V6_PANE_MAXIMIZE_RESTORE_CONTROL_STEP186.md`;
+- read `sessions/session_20260708_post_step186_drag_history_stability.md`;
 - build a browser latency gate around leftward historical extension during
   replay;
 - prove history requests are triggered only when the visible range reaches the
   canvas-left request boundary;
-- prove replay Next/Play remains visibly responsive while historical extension
-  is pending or completing;
+- prove replay Next/Play and manual drag remain visibly responsive while
+  historical extension is delayed, pending, chunked, or completing;
 - keep the request/resource-saving behavior from Steps 148-151 intact;
+- keep the post-step 186 current-K-line stability policy intact: do not
+  re-project native manual drag back into Lightweight Charts, and preserve
+  visible-range compensation when prepending older bars;
 - keep chart-engine, bar-data, replay, chart-data, viewport, layout, and pane
   ownership unchanged.
 
 Acceptance:
 
 - new replay-safe leftward history latency smoke passes;
+- fast manual drag stability smoke passes;
 - existing leftward history browser smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Post-Step 186 - Chart Drag / Leftward-History Stability Hotfix
+
+Completed in commits:
+
+- `c75dfe99 fix(v6): stop drag range input after release`
+- `f630e51f fix(v6): avoid native drag projection feedback`
+- `e49cfe2e fix(v6): stabilize drag during history loads`
+
+Verification:
+
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/fast-right-drag-stability-browser-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/workstation-native-manual-wall-input-browser-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/chart-viewport-prepend-manual-stability-smoke.js`
+- `node v6/tests/chart-surface-prepend-visible-range-stability-smoke.js`
+- `node v6/tests/database-bars-adapter-smoke.js`
+- `node v6/tests/chart-control-bridge-contract-smoke.js`
+- `node v6/tests/chart-control-bridge-integration-audit-smoke.js`
+- `node v6/tests/chart-surface-contract-integration-audit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 186 - Pane Maximize / Restore Action Rail Bridge
 
