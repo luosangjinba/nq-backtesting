@@ -14,10 +14,10 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 191 - Chart Boundary Metadata Bridge.
-  V6 now bridges bar-data-owned chart boundary metadata through a dedicated
-  runtime and updates dashboard rows from that bridge, while preserving the
-  static Globex fallback before actual metadata is available.
+- Latest completed roadmap step: Step 192 - Display Timeframe Readiness Audit.
+  V6 now has an explicit TF owner-boundary audit: higher timeframe work should
+  start with a chart-data projection domain, not with UI, replay, bar-data, or
+  chart-engine changes.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -27,33 +27,50 @@
 
 ## Next Executable Steps
 
-### Step 192 - Display Timeframe Readiness Audit
+### Step 193 - Chart Data Projection Domain
 
 Status: planned.
 
 Notes for execution:
 
-- read `session_20260708_step191_chart_boundary_metadata_bridge.md`;
-- audit the current display-timeframe, pane intent reload, chart-data
-  replacement, replay append, leftward-history, and reset-view paths before any
-  TF implementation work;
-- identify where 5m/15m/1h aggregation should live without violating bar-data,
-  chart-data, replay, or pane ownership;
-- keep this as an audit/contract step only unless the required owner boundary is
-  already explicit and testable;
+- read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md`;
+- add pure chart-data projection domain helpers only;
+- cover 1m -> 5m/15m/60m OHLC aggregation, no-future cursor cap, incomplete
+  bucket metadata, sorted unique output, and Globex/session-boundary bucket
+  behavior;
+- do not wire projection into UI, replay, pane reload, leftward history, reset
+  view, chart-data runtime, or chart engine yet;
 - preserve replay-safe leftward history latency and chart regression gates.
 
 Acceptance:
 
-- audit names the owner boundary for TF aggregation and no-future filtering;
-- audit names the tests needed before implementing higher TF bars;
-- no TF feature code is introduced ahead of the boundary;
+- pure projection domain smoke passes;
+- static no-wiring guard proves Step 193 does not change runtime/UI feature
+  behavior;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 192 - Display Timeframe Readiness Audit
+
+Completed in commits:
+
+- `ef729816 docs(v6): define display timeframe readiness audit`
+- `a062020b test(v6): guard display timeframe audit scope`
+
+Verification:
+
+- `node v6/tests/display-timeframe-readiness-audit-step192-smoke.js`
+- `node v6/tests/display-timeframe-no-feature-step192-smoke.js`
+- `node v6/tests/display-timeframe-projection-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 191 - Chart Boundary Metadata Bridge
 
