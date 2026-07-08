@@ -47,8 +47,13 @@ try {
           high: rect('[data-v6-status-high]'),
           low: rect('[data-v6-status-low]'),
           open: rect('[data-v6-status-open]'),
+          readout: rect('[data-v6-status-readout]'),
           symbol: rect('[data-v6-status-symbol]'),
           timeframe: rect('[data-v6-status-timeframe]'),
+        },
+        readoutStyle: {
+          backgroundColor: getComputedStyle(document.querySelector('[data-v6-status-readout]')).backgroundColor,
+          overflow: getComputedStyle(document.querySelector('[data-v6-status-readout]')).overflow,
         },
         symbol: text('[data-v6-status-symbol]'),
         timeframe: text('[data-v6-status-timeframe]'),
@@ -68,6 +73,11 @@ try {
   assert.equal(value.high.includes('--'), false);
   assert.equal(value.low.includes('--'), false);
   assert.equal(value.close.includes('--'), false);
+  assert.notEqual(value.rects.readout, null);
+  assert.equal(value.rects.readout.width > 120, true);
+  assert.match(value.readoutStyle.backgroundColor, /rgba?\(/);
+  assert.notEqual(value.readoutStyle.backgroundColor, 'rgba(0, 0, 0, 0)');
+  assert.equal(value.readoutStyle.overflow, 'hidden');
 
   const ordered = [
     value.rects.symbol,
