@@ -75,7 +75,29 @@ assert.deepEqual(createSessionDateBoundaryView({
   symbols: ['NQ'],
 }), {
   chartDataBoundaryLabel: 'Chart data from prior Globex open: 2026-05-31 18:00',
+  hasActualChartDataBoundary: false,
   hasPriorGlobexOpen: true,
+  tradingDateRangeLabel: '2026-06-01 / 2026-06-05',
+});
+
+assert.deepEqual(createSessionDateBoundaryView({
+  endTime: '2026-06-05T16:00:00.000Z',
+  startTime: '2026-06-01T09:30:00.000Z',
+  symbol: 'NQ',
+  symbols: ['NQ'],
+  timeframe: '1m',
+}, {
+  chartBoundaryMetadata: {
+    scopes: [{
+      earliestLoadedTime: '2026-05-31 18:00',
+      instrument: 'NQ',
+      timeframe: 1,
+    }],
+  },
+}), {
+  chartDataBoundaryLabel: 'Chart data from loaded boundary: 2026-05-31 18:00',
+  hasActualChartDataBoundary: true,
+  hasPriorGlobexOpen: false,
   tradingDateRangeLabel: '2026-06-01 / 2026-06-05',
 });
 
@@ -86,6 +108,7 @@ assert.deepEqual(createSessionDateBoundaryView({
   symbols: ['NQ'],
 }), {
   chartDataBoundaryLabel: '',
+  hasActualChartDataBoundary: false,
   hasPriorGlobexOpen: false,
   tradingDateRangeLabel: '2026-06-02 / 2026-06-05',
 });
@@ -97,6 +120,7 @@ assert.deepEqual(createSessionDateBoundaryView({
   symbols: ['YM'],
 }), {
   chartDataBoundaryLabel: '',
+  hasActualChartDataBoundary: false,
   hasPriorGlobexOpen: false,
   tradingDateRangeLabel: '2026-06-01 / 2026-06-05',
 });

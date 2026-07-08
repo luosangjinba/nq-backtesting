@@ -32,6 +32,22 @@ function hasGlobexPriorOpen(session = {}, startDate) {
   return Boolean(hasSupportedFuture && date && date.getUTCDay() === 1);
 }
 
+function normalizeTimeframe(value) {
+  const match = String(value || '').trim().match(/^(\d+)(m)?$/i);
+  return match ? Number(match[1]) : null;
+}
+
+function chartBoundaryScopeForSession(session = {}, metadata = {}) {
+  const scopes = Array.isArray(metadata?.scopes) ? metadata.scopes : [];
+  const symbols = sessionSymbols(session).map((symbol) => String(symbol || '').toUpperCase());
+  const timeframe = normalizeTimeframe(session.timeframe || session.displayTimeframe || 1);
+  return scopes.find((scope) => (
+    symbols.includes(String(scope.instrument || '').toUpperCase()) &&
+    (!timeframe || Number(scope.timeframe) === timeframe) &&
+    scope.earliestLoadedTime
+  )) || null;
+}
+
 function searchableText(session = {}) {
   return [
     session.id,
@@ -50,19 +66,32 @@ function compareSessionDate(left = {}, right = {}, direction) {
   return direction === 'oldest' ? leftTime - rightTime : rightTime - leftTime;
 }
 
-export function createSessionDateBoundaryView(session = {}) {
+export function createSessionDateBoundaryView(session = {}, {
+  chartBoundaryMetadata = null,
+} = {}) {
   const start = dateLabel(session.startTime, 'Start pending');
   const end = dateLabel(session.endTime, 'End pending');
   const tradingDateRangeLabel = `${start} / ${end}`;
+  const actualBoundary = chartBoundaryScopeForSession(session, chartBoundaryMetadata);
+  if (actualBoundary) {
+    return {
+      chartDataBoundaryLabel: `Chart data from loaded boundary: ${actualBoundary.earliestLoadedTime}`,
+      hasActualChartDataBoundary: true,
+      hasPriorGlobexOpen: false,
+      tradingDateRangeLabel,
+    };
+  }
   if (!hasGlobexPriorOpen(session, start)) {
     return {
       chartDataBoundaryLabel: '',
+      hasActualChartDataBoundary: false,
       hasPriorGlobexOpen: false,
       tradingDateRangeLabel,
     };
   }
   return {
     chartDataBoundaryLabel: `Chart data from prior Globex open: ${previousDateLabel(start)} 18:00`,
+    hasActualChartDataBoundary: false,
     hasPriorGlobexOpen: true,
     tradingDateRangeLabel,
   };
