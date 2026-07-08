@@ -13,6 +13,7 @@ const TESTS = Object.freeze([
   'v6/tests/maximize-restore-control-browser-step186-smoke.js',
   'v6/tests/chart-drag-release-lifecycle-browser-smoke.js',
   'v6/tests/fast-right-drag-stability-browser-smoke.js',
+  'v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js',
 ]);
 
 function runTest(script) {

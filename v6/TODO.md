@@ -14,9 +14,10 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 186 - Pane Maximize / Restore Action Rail
-  Bridge. V6 now has pane-local maximize/restore controls wired into the chart
-  action rail.
+- Latest completed roadmap step: Step 187 - Replay-Safe Leftward History
+  Latency Gate. V6 now has a browser gate proving replay `Next` remains
+  responsive while leftward history is delayed/completing, and that history
+  prepend preserves replay state plus visible-range stability.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -26,37 +27,49 @@
 
 ## Next Executable Steps
 
-### Step 187 - Replay-Safe Leftward History Latency Gate
+### Step 188 - Globex Session Boundary / Chart Data Range Clarity
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_MAXIMIZE_RESTORE_CONTROL_STEP186.md`;
-- read `sessions/session_20260708_post_step186_drag_history_stability.md`;
-- build a browser latency gate around leftward historical extension during
-  replay;
-- prove history requests are triggered only when the visible range reaches the
-  canvas-left request boundary;
-- prove replay Next/Play and manual drag remain visibly responsive while
-  historical extension is delayed, pending, chunked, or completing;
-- keep the request/resource-saving behavior from Steps 148-151 intact;
-- keep the post-step 186 current-K-line stability policy intact: do not
-  re-project native manual drag back into Lightweight Charts, and preserve
-  visible-range compensation when prepending older bars;
-- keep chart-engine, bar-data, replay, chart-data, viewport, layout, and pane
-  ownership unchanged.
+- read `V6_REPLAY_SAFE_LEFTWARD_HISTORY_LATENCY_STEP187.md`;
+- clarify session date display versus tradable chart data boundaries for
+  futures Globex sessions;
+- prove the default `2026-06-01` NQ session can legitimately display the prior
+  Sunday `2026-05-31 18:00` Globex open while still respecting data/session
+  ownership;
+- decide whether the UI should surface "trading day" versus "chart data from"
+  labels so users do not mistake Globex pre-session bars for a left-extension
+  bug;
+- keep chart data loading bounded and keep replay/chart latency gates intact.
 
 Acceptance:
 
-- new replay-safe leftward history latency smoke passes;
-- fast manual drag stability smoke passes;
-- existing leftward history browser smoke passes;
+- new Globex/session-boundary clarity smoke or model test passes;
+- replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 187 - Replay-Safe Leftward History Latency Gate
+
+Completed in commits:
+
+- `e392659e docs(v6): define step 187 latency gate`
+- `39241564 test(v6): gate replay-safe history latency`
+
+Verification:
+
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/fast-right-drag-stability-browser-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/chart-viewport-prepend-manual-stability-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Post-Step 186 - Chart Drag / Leftward-History Stability Hotfix
 
