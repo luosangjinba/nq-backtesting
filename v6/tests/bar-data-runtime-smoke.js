@@ -116,6 +116,19 @@ assert.deepEqual(summary, {
   windowCount: 1,
 });
 
+const boundary = await dispatchCommand(BAR_DATA_COMMANDS.GET_BOUNDARY_METADATA, {
+  instrument: 'NQ',
+  timeframe: 1,
+});
+assert.deepEqual(boundary.scopes.map((scope) => [
+  scope.instrument,
+  scope.earliestLoadedTimestamp,
+  scope.latestLoadedTimestamp,
+  scope.loadedBarCount,
+]), [
+  ['NQ', 1780306200, 1780306320, 3],
+]);
+
 await assert.rejects(
   () => dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, {
     end: '2026-06-01T09:40:00.000Z',

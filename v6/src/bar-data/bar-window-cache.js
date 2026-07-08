@@ -1,4 +1,5 @@
 import {
+  formatApiTime,
   makeBarWindowKey,
   normalizeBarWindow,
   windowBoundsMs,
@@ -26,6 +27,98 @@ function sliceBarsForWindow(bars, planned) {
   return cloneBars(bars)
     .filter((bar) => bar.timestamp >= startTimestamp && bar.timestamp <= endTimestamp)
     .sort((left, right) => left.timestamp - right.timestamp);
+}
+
+function barTimestampMs(bar = {}) {
+  const timestamp = Number(bar.timestamp ?? bar.time);
+  if (!Number.isFinite(timestamp)) return null;
+  return timestamp > 10_000_000_000 ? timestamp : timestamp * 1000;
+}
+
+function boundaryTime(timestampMs) {
+  return Number.isFinite(timestampMs) ? formatApiTime(timestampMs) : null;
+}
+
+function inferStepMs(record) {
+  const timestamps = cloneBars(record.bars)
+    .map(barTimestampMs)
+    .filter((timestamp) => Number.isFinite(timestamp))
+    .sort((left, right) => left - right);
+  for (let index = 1; index < timestamps.length; index += 1) {
+    const diff = timestamps[index] - timestamps[index - 1];
+    if (diff > 0) return diff;
+  }
+  return Number(record.timeframe || 1) * 60_000;
+}
+
+function scopeKey(record) {
+  return `${record.instrument}|${record.timeframe}`;
+}
+
+function createEmptyBoundaryScope(record) {
+  return {
+    earliestLoadedMs: null,
+    emptyWindowCount: 0,
+    exhaustedBefore: false,
+    instrument: record.instrument,
+    knownExhaustedBeforeMs: null,
+    latestLoadedMs: null,
+    loadedBarCount: 0,
+    loadedWindowCount: 0,
+    timeframe: Number(record.timeframe),
+    windowCount: 0,
+  };
+}
+
+function applyBoundaryRecord(scope, record) {
+  const bars = sliceBarsForWindow(record.bars, record);
+  const timestamps = bars
+    .map(barTimestampMs)
+    .filter((timestamp) => Number.isFinite(timestamp))
+    .sort((left, right) => left - right);
+  const hasBars = timestamps.length > 0;
+  scope.windowCount += 1;
+  if (hasBars) {
+    scope.loadedWindowCount += 1;
+    scope.loadedBarCount += timestamps.length;
+    scope.earliestLoadedMs = scope.earliestLoadedMs === null
+      ? timestamps[0]
+      : Math.min(scope.earliestLoadedMs, timestamps[0]);
+    scope.latestLoadedMs = scope.latestLoadedMs === null
+      ? timestamps.at(-1)
+      : Math.max(scope.latestLoadedMs, timestamps.at(-1));
+  } else {
+    scope.emptyWindowCount += 1;
+  }
+
+  if (record.history?.exhaustedBefore === true) {
+    const bounds = windowBoundsMs(record);
+    const exhaustedMs = hasBars ? timestamps[0] - inferStepMs(record) : bounds.endMs;
+    scope.exhaustedBefore = true;
+    scope.knownExhaustedBeforeMs = scope.knownExhaustedBeforeMs === null
+      ? exhaustedMs
+      : Math.max(scope.knownExhaustedBeforeMs, exhaustedMs);
+  }
+}
+
+function serializeBoundaryScope(scope) {
+  return {
+    earliestLoadedTime: boundaryTime(scope.earliestLoadedMs),
+    earliestLoadedTimestamp: scope.earliestLoadedMs === null ? null : Math.floor(scope.earliestLoadedMs / 1000),
+    emptyWindowCount: scope.emptyWindowCount,
+    exhaustedBefore: scope.exhaustedBefore,
+    instrument: scope.instrument,
+    knownExhaustedBeforeTime: boundaryTime(scope.knownExhaustedBeforeMs),
+    knownExhaustedBeforeTimestamp: scope.knownExhaustedBeforeMs === null
+      ? null
+      : Math.floor(scope.knownExhaustedBeforeMs / 1000),
+    latestLoadedTime: boundaryTime(scope.latestLoadedMs),
+    latestLoadedTimestamp: scope.latestLoadedMs === null ? null : Math.floor(scope.latestLoadedMs / 1000),
+    loadedBarCount: scope.loadedBarCount,
+    loadedWindowCount: scope.loadedWindowCount,
+    timeframe: scope.timeframe,
+    windowCount: scope.windowCount,
+  };
 }
 
 export function createBarWindowCache({ maxBarsPerWindow = 500 } = {}) {
@@ -108,12 +201,43 @@ export function createBarWindowCache({ maxBarsPerWindow = 500 } = {}) {
     };
   }
 
+  function boundaryMetadata(payload = {}) {
+    const filters = {
+      instrument: payload.instrument ? String(payload.instrument).trim().toUpperCase() : null,
+      timeframe: payload.timeframe ? Number(payload.timeframe) : null,
+    };
+    const scopes = new Map();
+    for (const record of windows.values()) {
+      if (filters.instrument && record.instrument !== filters.instrument) continue;
+      if (filters.timeframe && Number(record.timeframe) !== filters.timeframe) continue;
+      const key = scopeKey(record);
+      if (!scopes.has(key)) {
+        scopes.set(key, createEmptyBoundaryScope(record));
+      }
+      applyBoundaryRecord(scopes.get(key), record);
+    }
+    const serialized = [...scopes.values()]
+      .map(serializeBoundaryScope)
+      .sort((left, right) => (
+        left.instrument.localeCompare(right.instrument) || left.timeframe - right.timeframe
+      ));
+    return {
+      scope: filters.instrument || filters.timeframe ? {
+        instrument: filters.instrument,
+        timeframe: filters.timeframe,
+      } : null,
+      scopes: serialized,
+      windowCount: serialized.reduce((total, scope) => total + scope.windowCount, 0),
+    };
+  }
+
   function clear() {
     windows.clear();
     accessSequence = 0;
   }
 
   return {
+    boundaryMetadata,
     clear,
     get,
     put,

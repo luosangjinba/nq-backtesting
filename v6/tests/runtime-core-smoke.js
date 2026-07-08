@@ -83,6 +83,7 @@ assert.equal(bootEvents[0].booted, true);
 assert.equal(hasCommand(APP_COMMANDS.GET_STATUS), true);
 assert.deepEqual(listCommands(), [
   APP_COMMANDS.GET_STATUS,
+  BAR_DATA_COMMANDS.GET_BOUNDARY_METADATA,
   BAR_DATA_COMMANDS.GET_CACHE_SUMMARY,
   BAR_DATA_COMMANDS.GET_WINDOW,
   BAR_DATA_COMMANDS.LOAD_WINDOW,

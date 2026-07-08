@@ -80,6 +80,9 @@ export function createBarDataRuntime({
         }
         return result;
       }),
+      registerCommand(BAR_DATA_COMMANDS.GET_BOUNDARY_METADATA, (payload = {}) => (
+        cache.boundaryMetadata(payload)
+      )),
       registerCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY, () => cache.summary())
     );
   }

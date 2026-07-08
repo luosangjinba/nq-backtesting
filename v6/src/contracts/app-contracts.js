@@ -120,6 +120,7 @@ export const CHART_HISTORY_EVENTS = Object.freeze({
 });
 
 export const BAR_DATA_COMMANDS = Object.freeze({
+  GET_BOUNDARY_METADATA: 'barData.getBoundaryMetadata',
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
   GET_WINDOW: 'barData.getWindow',
   LOAD_WINDOW: 'barData.loadWindow',
