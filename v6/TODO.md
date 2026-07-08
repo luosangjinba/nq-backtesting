@@ -14,50 +14,54 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 145 - Replay K-Line Chart Flow.
-  V6 now gates database-backed bounded initial K-line loading, replay `Next`
-  K-line append, chart-viewport wall span projection, and browser-visible
-  latest-candle checks.
+- Latest completed step: Step 146 - Reset View / KXG Reset Flow.
+  V6 now gates reset view / KXG reset behavior after initial replay K-line load
+  and after replay `Next`, while preserving bar-data, chart-data, replay, and
+  chart-engine ownership boundaries.
 
 ## Next Executable Steps
 
-### Step 146 - Reset View / KXG Reset Flow
+### Step 147 - Multi-Pane Chart Foundation
 
-Stabilize reset view / KXG reset behavior through chart-viewport ownership
-before adding multi-pane UI.
+Start the multi-pane chart foundation only after the replay K-line and reset
+view flows are stable.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
+- read `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
+  `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
   `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- keep reset view as a chart-viewport intent operation;
-- verify reset after initial replay K-line load;
-- verify reset after replay `Next`;
-- preserve database/bar-data bounded windows and replay cursor ownership;
-- ensure reset does not request bars, mutate replay cursor, or write chart
-  series outside chart-engine/chart-data bridges;
-- do not add chart overlays, multi-pane UI, simulated trading, comparison
-  symbols, or additional workstation chrome behavior in this step;
+- model panes through the pane-model boundary before adding pane UI controls;
+- keep pane-local bars in chart-data and pane-local viewport intent in
+  chart-viewport;
+- keep chart-engine as the only chart series writer;
+- preserve replay cursor ownership and bounded bar-data windows;
+- verify the primary replay pane stays visible and responsive after a secondary
+  pane is introduced;
+- do not add simulated trading, comparison symbols, overlays, Order, or Calendar
+  behavior in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- reset view / KXG reset flow using existing chart-viewport, chart-data,
+- multi-pane chart foundation using existing chart-data, chart-viewport,
   chart-engine, chart-entry, replay, and bar-data ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
-- do not mutate viewport intent outside chart-viewport runtime.
+- do not mutate viewport intent outside chart-viewport runtime;
+- do not route pane ownership through workstation route files.
 
 Acceptance:
 
+- multi-pane foundation smoke passes;
 - reset view / KXG reset flow smoke passes;
 - replay K-line chart flow smoke passes;
 - database K-line import boundary smoke passes;
@@ -71,6 +75,32 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 146 - Reset View / KXG Reset Flow
+
+Completed in commits:
+
+- `5acd9219 test(v6): verify reset view kxg runtime flow`
+- `bdfec3db test(v6): cover reset view kxg browser flow`
+
+Verification:
+
+- `node v6/tests/reset-view-kxg-flow-step146-smoke.js`
+- `node v6/tests/reset-view-kxg-flow-browser-step146-smoke.js`
+- `node v6/tests/replay-kline-chart-flow-step145-smoke.js`
+- `node v6/tests/replay-kline-chart-flow-browser-step145-smoke.js`
+- `node v6/tests/database-kline-import-boundary-step144-smoke.js`
+- `node v6/tests/chart-foundation-reprioritization-step143-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/chart-entry-initialization-runtime-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 145 - Replay K-Line Chart Flow
 

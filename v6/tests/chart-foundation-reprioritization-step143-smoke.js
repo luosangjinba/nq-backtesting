@@ -32,10 +32,10 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Latest completed step: Step 145 - Replay K-Line Chart Flow/);
-assert.match(todoDoc, /Step 146 - Reset View \/ KXG Reset Flow/);
-assert.match(todoDoc, /verify reset after initial replay K-line load/);
-assert.match(todoDoc, /verify reset after replay `Next`/);
+assert.match(todoDoc, /Latest completed step: Step 146 - Reset View \/ KXG Reset Flow/);
+assert.match(todoDoc, /Step 147 - Multi-Pane Chart Foundation/);
+assert.match(todoDoc, /model panes through the pane-model boundary/);
+assert.match(todoDoc, /primary replay pane stays visible and responsive/);
 
 for (const forbiddenToken of [
   'COMPARISON_SYMBOL_COMMANDS',
