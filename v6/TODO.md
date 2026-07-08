@@ -14,46 +14,52 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 135 - Screenshot/Export Owner Contract. The pure
-  screenshot/export owner contract, read-only export intent state, validation
-  helpers, and boundary coverage are in place while the top-toolbar Screenshot
-  button remains disabled and inert.
+- Latest completed step: Step 136 - Workstation Chart Slice Selection.
+  Indicators Owner Contract is selected as the next bounded workstation/chart
+  slice.
 
 ## Next Executable Steps
 
-### Step 136 - Workstation Chart Slice Selection
+### Step 137 - Indicators Owner Contract
 
-Choose the next bounded workstation/chart slice after the Screenshot/Export
-Owner Contract.
+Establish the indicators owner contract before the top-toolbar Indicators
+button becomes interactive.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`,
-  `V6_SESSION_SETTINGS_OWNER_CONTRACT.md`,
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`,
+  `V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- select one small next slice with explicit owner boundary and acceptance
-  tests;
-- prefer selecting one deferred owner contract family or a narrow audit needed
-  before enabling interactivity;
-- keep the selection docs/test only;
-- do not implement the selected slice in Step 136;
+- create a focused indicators contract/domain module;
+- define explicit indicator request fields for indicator id, source series,
+  pane placement, inputs, style, visibility, and metadata;
+- define default read-only indicator intent state and validation helpers for
+  future owner wiring;
+- keep the top-toolbar Indicators button disabled and inert;
+- do not add indicator calculation, chart series writes, pane creation, browser
+  storage, persistence, or runtime command wiring in this step;
+- keep undo/redo and drawing/action-history behavior deferred;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test selection only;
+- contract/domain module plus focused tests;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, screenshot/export, orders, or calendar commands
-  from selection code.
+  viewport, session-settings, screenshot/export, indicators, orders, or
+  calendar commands from the toolbar;
+- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
+  default-wall, display-timeframe, settings, session-settings,
+  screenshot-export, orders, calendar, account, analytics, persistence, V4,
+  vendor, or Lightweight Charts modules into the indicators contract.
 
 Acceptance:
 
-- new Step 136 slice selection smoke passes;
+- new indicators contract smoke passes;
+- Step 136 slice selection smoke passes;
 - screenshot/export contract smoke passes;
 - Step 134 slice selection smoke passes;
 - session-settings contract smoke passes;
@@ -66,6 +72,27 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 136 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `5d2ca49f docs(v6): select indicators contract slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step136-smoke.js`
+- `node v6/tests/screenshot-export-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step134-smoke.js`
+- `node v6/tests/session-settings-contract-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 135 - Screenshot/Export Owner Contract
 
