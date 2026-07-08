@@ -27,7 +27,8 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Step 143 - Comparison Symbol Owner Contract/);
+assert.match(todoDoc, /Step 144 - Database K-Line Import Boundary/);
+assert.match(todoDoc, /Comparison Symbol Owner Contract direction is superseded/);
 
 for (const forbiddenToken of [
   'COMPARISON_SYMBOL_COMMANDS',

@@ -14,71 +14,84 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 142 - Workstation Chart Slice Selection.
-  Comparison Symbol Owner Contract is selected as the next bounded
-  workstation/chart slice.
+- Latest completed step: Step 143 - Chart Foundation Re-prioritization.
+  The Step 142 Comparison Symbol Owner Contract direction is superseded, and
+  the next phase prioritizes database K-line import, replay K-line flow, reset
+  view, and multi-pane chart foundations.
 
 ## Next Executable Steps
 
-### Step 143 - Comparison Symbol Owner Contract
+### Step 144 - Database K-Line Import Boundary
 
-Establish the comparison symbol owner contract before the top-toolbar Add
-comparison symbol control becomes interactive.
+Establish the database-backed bounded K-line import boundary for V6 before
+adding more workstation chrome owner contracts.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`,
-  `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`,
-  `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
-  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused comparison-symbol contract/domain module;
-- define explicit comparison request fields for base symbol, comparison symbol,
-  display mode, scale mode, color, source series, visibility, session id, and
-  metadata;
-- define supported display modes such as price, percent, indexed, and spread;
-- define supported scale modes such as overlay and separate-scale;
-- define default read-only comparison intent state and validation helpers for
-  future owner wiring;
-- keep the top-toolbar Add comparison symbol button disabled and inert;
-- do not add symbol search, bar requests, comparison series creation, chart
-  series writes, Lightweight Charts primitives/plugins, pane mutation,
-  persistence, browser storage, or runtime command wiring in this step;
+- read `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
+  `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
+  `v6/docs/specs/replay-visible-latency.md`, and
+  `v6/docs/specs/pane-model.md`;
+- inspect the local database source and available schema before designing the
+  adapter;
+- keep bar-data runtime as the only owner that requests and caches bars;
+- define a database bars adapter interface that returns the same normalized
+  bounded window shape expected by the existing bar-data runtime;
+- keep all requests bounded by existing bar window rules and limits;
+- add tests that prove session creation and chart entry do not load a full date
+  range;
+- if the database schema is not ready or cannot be discovered locally, record
+  the gap and select the smallest fixture-backed adapter seam with the same
+  bar-data ownership boundary;
+- do not add chart series writes, chart overlays, replay cursor mutation,
+  viewport mutation, multi-pane UI, simulated trading, comparison symbols, or
+  additional workstation chrome behavior in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- contract/domain module plus focused tests;
-- do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, screenshot/export, indicators,
-  drawing/action-history, account/trading, comparison-symbol, orders, or
-  calendar commands from the top toolbar, bottom chrome, or rail;
-- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
-  default-wall, display-timeframe, indicators, drawing-action-history,
-  account-trading, settings, session-settings, screenshot-export, orders,
-  calendar, account, analytics, persistence, V4, vendor, or Lightweight Charts
-  modules into the comparison-symbol contract.
+- data-source/schema discovery plus a focused adapter or adapter contract;
+- do not request/cache bars outside bar-data;
+- do not write chart series outside chart-engine;
+- do not mutate replay cursor outside replay runtime;
+- do not mutate viewport intent outside chart-viewport runtime.
 
 Acceptance:
 
-- new comparison-symbol contract smoke passes;
-- Step 142 slice selection smoke passes;
-- Step 140 slice selection smoke passes;
-- account/trading contract smoke passes;
-- new drawing/action-history contract smoke passes;
-- Step 138 slice selection smoke passes;
-- indicators contract smoke passes;
-- screenshot/export contract smoke passes;
-- session-settings contract smoke passes;
-- diagnostics visibility cleanup browser smoke passes;
-- bottom chrome regression audit smoke passes;
-- bottom account chrome browser smoke passes;
+- new database K-line import boundary smoke passes;
+- chart foundation reprioritization smoke passes;
+- bar-data runtime smoke passes;
+- chart entry context/window planning smoke passes;
+- replay runtime smoke passes;
+- chart-data no-future filtering smoke passes;
+- chart reset view browser smoke passes;
 - workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 143 - Chart Foundation Re-prioritization
+
+Completed in commit:
+
+- `5ca385bb docs(v6): reprioritize chart foundation`
+
+Verification:
+
+- `node v6/tests/chart-foundation-reprioritization-step143-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step142-smoke.js`
+- `node v6/tests/account-trading-contract-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/chart-entry-context-plan-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 142 - Workstation Chart Slice Selection
 
