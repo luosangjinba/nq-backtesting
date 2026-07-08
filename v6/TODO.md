@@ -14,11 +14,10 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 190 - Bar-Data Owned Chart Boundary
-  Metadata. V6 now exposes owner-side bar-data boundary metadata for loaded
-  windows, verifies multiple real Sunday `18:00` boundaries through a browser
-  smoke, and lets the dashboard model consume explicitly supplied metadata
-  without querying bar-data or chart internals.
+- Latest completed roadmap step: Step 191 - Chart Boundary Metadata Bridge.
+  V6 now bridges bar-data-owned chart boundary metadata through a dedicated
+  runtime and updates dashboard rows from that bridge, while preserving the
+  static Globex fallback before actual metadata is available.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -28,32 +27,55 @@
 
 ## Next Executable Steps
 
-### Step 191 - Chart Boundary Metadata Bridge
+### Step 192 - Display Timeframe Readiness Audit
 
 Status: planned.
 
 Notes for execution:
 
-- read `session_20260708_step190_bar_data_boundary_metadata.md`;
-- bridge `BAR_DATA_COMMANDS.GET_BOUNDARY_METADATA` or owner events into a small
-  shell/session-facing state surface without letting dashboard UI query
-  bar-data directly;
-- decide whether the first visible consumer should be dashboard rows, pane
-  status, or a compact diagnostics-only surface;
-- preserve static Globex fallback until actual metadata exists for a session;
+- read `session_20260708_step191_chart_boundary_metadata_bridge.md`;
+- audit the current display-timeframe, pane intent reload, chart-data
+  replacement, replay append, leftward-history, and reset-view paths before any
+  TF implementation work;
+- identify where 5m/15m/1h aggregation should live without violating bar-data,
+  chart-data, replay, or pane ownership;
+- keep this as an audit/contract step only unless the required owner boundary is
+  already explicit and testable;
 - preserve replay-safe leftward history latency and chart regression gates.
 
 Acceptance:
 
-- actual boundary metadata can be rendered or inspected through an explicit
-  owner bridge rather than direct UI runtime calls;
-- static dashboard fallback remains unchanged before metadata is available;
+- audit names the owner boundary for TF aggregation and no-future filtering;
+- audit names the tests needed before implementing higher TF bars;
+- no TF feature code is introduced ahead of the boundary;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 191 - Chart Boundary Metadata Bridge
+
+Completed in commits:
+
+- `d68e832f feat(v6): add chart boundary metadata bridge runtime`
+- `9411d61a feat(v6): bridge chart boundary metadata to dashboard`
+
+Verification:
+
+- `node v6/tests/chart-boundary-metadata-runtime-step191-smoke.js`
+- `node v6/tests/session-dashboard-boundary-bridge-browser-step191-smoke.js`
+- `node v6/tests/bar-data-boundary-metadata-step190-smoke.js`
+- `node v6/tests/real-date-boundary-metadata-browser-step190-smoke.js`
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/real-date-leftward-gap-browser-step189-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 190 - Bar-Data Owned Chart Boundary Metadata
 
