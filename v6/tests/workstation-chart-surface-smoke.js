@@ -156,6 +156,10 @@ assert.deepEqual(state, {
     variant: 'single',
     visiblePaneIds: ['default'],
   },
+  maximize: {
+    maximizedPaneId: null,
+    restoreLayout: null,
+  },
   paneResize: {
     handles: [],
     ratios: {

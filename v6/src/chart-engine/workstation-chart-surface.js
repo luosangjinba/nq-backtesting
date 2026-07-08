@@ -153,8 +153,10 @@ export function mountWorkstationChartSurface(root, {
     visiblePaneIds: hosts.slice(0, 1).map(resolvePaneId),
   };
   let destroyed = false;
+  let maximizedPaneId = null;
   let pendingLayoutResizeFrame = null;
   let readoutPaneId = null;
+  let restoreLayoutSnapshot = null;
   let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
   const manager = managerFactory({
@@ -345,6 +347,14 @@ export function mountWorkstationChartSurface(root, {
     });
   }
 
+  function clearPaneResizeHandles() {
+    for (const element of paneResizeHandleElements.values()) {
+      element.removeEventListener?.('pointerdown', onPaneResizePointerDown);
+      element.remove?.();
+    }
+    paneResizeHandleElements.clear();
+  }
+
   function endPaneResize() {
     if (!activePaneResize) {
       return;
@@ -411,24 +421,32 @@ export function mountWorkstationChartSurface(root, {
     return pendingLayoutResizeFrame;
   }
 
-  function applyLayoutSnapshot(snapshot = {}) {
+  function normalizeLayoutSnapshot(snapshot = {}) {
     const mode = normalizeLayoutMode(snapshot.mode);
     const variant = normalizeLayoutVariant(mode, snapshot.variant);
     const paneCount = LAYOUT_PANE_COUNTS[mode];
-    const gridAreas = LAYOUT_GRID_AREAS_BY_VARIANT[variant];
-    const visiblePaneIds = [];
-    hosts.forEach((host, index) => {
+    return {
+      mode,
+      paneCount,
+      variant,
+      visiblePaneIds: hosts.slice(0, paneCount).map(resolvePaneId),
+    };
+  }
+
+  function applyVisibleLayout({ gridAreas, mode, paneCount, variant, visiblePaneIds }) {
+    const visiblePaneSet = new Set(visiblePaneIds);
+    hosts.forEach((host) => {
       const paneId = resolvePaneId(host);
-      const visible = index < paneCount;
+      const visibleIndex = visiblePaneIds.indexOf(paneId);
+      const visible = visiblePaneSet.has(paneId);
       host.hidden = !visible;
       host.dataset.v6ChartPaneVisible = String(visible);
-      host.dataset.v6ChartPaneSlot = visible ? String(index + 1) : '';
+      host.dataset.v6ChartPaneSlot = visible ? String(visibleIndex + 1) : '';
       if (host.style) {
-        host.style.gridArea = visible ? gridAreas[index] : '';
+        host.style.gridArea = visible ? gridAreas[visibleIndex] : '';
       }
       if (visible) {
         host.removeAttribute?.('aria-hidden');
-        visiblePaneIds.push(paneId);
       } else {
         host.setAttribute?.('aria-hidden', 'true');
       }
@@ -443,16 +461,84 @@ export function mountWorkstationChartSurface(root, {
       chartSurfaceElement.dataset.v6ChartLayoutMode = mode;
       chartSurfaceElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
       chartSurfaceElement.dataset.v6ChartLayoutVariant = variant;
+      chartSurfaceElement.dataset.v6ChartMaximizedPaneId = maximizedPaneId || '';
     }
     if (chartPaneLayerElement?.dataset) {
       chartPaneLayerElement.dataset.v6ChartLayoutMode = mode;
       chartPaneLayerElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
       chartPaneLayerElement.dataset.v6ChartLayoutVariant = variant;
+      chartPaneLayerElement.dataset.v6ChartMaximizedPaneId = maximizedPaneId || '';
     }
-    applyPaneResizeTemplates(variant);
     resize();
     scheduleLayoutResize();
     return { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] };
+  }
+
+  function applyNormalLayoutSnapshot(snapshot = {}) {
+    const normalized = normalizeLayoutSnapshot(snapshot);
+    applyPaneResizeTemplates(normalized.variant);
+    return applyVisibleLayout({
+      ...normalized,
+      gridAreas: LAYOUT_GRID_AREAS_BY_VARIANT[normalized.variant],
+    });
+  }
+
+  function applyMaximizedPaneLayout(paneId) {
+    if (!hostsByPaneId.has(paneId)) {
+      throw new Error(`Workstation chart surface pane "${paneId}" does not exist.`);
+    }
+    if (chartPaneLayerElement?.style) {
+      chartPaneLayerElement.style.gridTemplateColumns = 'minmax(0, 1fr)';
+      chartPaneLayerElement.style.gridTemplateRows = 'minmax(0, 1fr)';
+    }
+    clearPaneResizeHandles();
+    return applyVisibleLayout({
+      mode: restoreLayoutSnapshot?.mode || layoutSnapshot.mode,
+      paneCount: 1,
+      variant: restoreLayoutSnapshot?.variant || layoutSnapshot.variant,
+      visiblePaneIds: [paneId],
+      gridAreas: ['1 / 1 / 2 / 2'],
+    });
+  }
+
+  function applyLayoutSnapshot(snapshot = {}) {
+    const normalized = normalizeLayoutSnapshot(snapshot);
+    if (maximizedPaneId) {
+      restoreLayoutSnapshot = {
+        ...normalized,
+        visiblePaneIds: [...normalized.visiblePaneIds],
+      };
+      return applyMaximizedPaneLayout(maximizedPaneId);
+    }
+    restoreLayoutSnapshot = null;
+    return applyNormalLayoutSnapshot(normalized);
+  }
+
+  function maximizePane(paneId) {
+    const targetPaneId = String(paneId || '').trim();
+    if (!targetPaneId || !hostsByPaneId.has(targetPaneId)) {
+      throw new Error(`Workstation chart surface pane "${paneId}" does not exist.`);
+    }
+    if (!maximizedPaneId) {
+      restoreLayoutSnapshot = {
+        ...layoutSnapshot,
+        visiblePaneIds: [...layoutSnapshot.visiblePaneIds],
+      };
+    }
+    maximizedPaneId = targetPaneId;
+    return applyMaximizedPaneLayout(targetPaneId);
+  }
+
+  function restorePane() {
+    if (!maximizedPaneId) {
+      return { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] };
+    }
+    const restoreSnapshot = restoreLayoutSnapshot
+      ? { ...restoreLayoutSnapshot, visiblePaneIds: [...restoreLayoutSnapshot.visiblePaneIds] }
+      : normalizeLayoutSnapshot({ mode: layoutSnapshot.mode, variant: layoutSnapshot.variant });
+    maximizedPaneId = null;
+    restoreLayoutSnapshot = null;
+    return applyNormalLayoutSnapshot(restoreSnapshot);
   }
 
   const resizeObserver = typeof ResizeObserver === 'function'
@@ -559,8 +645,14 @@ export function mountWorkstationChartSurface(root, {
         hostConnected: hosts.every((host) => Boolean(host.isConnected)),
         hostSelector,
         layout: { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] },
+        maximize: {
+          maximizedPaneId,
+          restoreLayout: restoreLayoutSnapshot
+            ? { ...restoreLayoutSnapshot, visiblePaneIds: [...restoreLayoutSnapshot.visiblePaneIds] }
+            : null,
+        },
         paneResize: {
-          handles: getPaneResizeHandles(layoutSnapshot.variant, getPaneResizeRatios(layoutSnapshot.variant)),
+          handles: maximizedPaneId ? [] : getPaneResizeHandles(layoutSnapshot.variant, getPaneResizeRatios(layoutSnapshot.variant)),
           ratios: getPaneResizeRatios(layoutSnapshot.variant),
         },
         crosshair: [...crosshairByPaneId.values()]
@@ -572,10 +664,12 @@ export function mountWorkstationChartSurface(root, {
       };
     },
     applyLayoutSnapshot,
+    maximizePane,
     resize,
     resizePaneByHandle(handleId, point) {
       return updatePaneResizeFromPointer(handleId, point);
     },
+    restorePane,
     subscribeVisibleRangeChange(handler) {
       if (typeof handler !== 'function') {
         throw new Error('Workstation chart surface visible range handler is required.');
