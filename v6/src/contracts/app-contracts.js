@@ -171,6 +171,7 @@ export const PANE_INTENT_SYNC_COMMANDS = Object.freeze({
 });
 
 export const PANE_INTENT_SYNC_EVENTS = Object.freeze({
+  APPLIED: 'paneIntentSync:applied',
   PLANNED: 'paneIntentSync:planned',
 });
 

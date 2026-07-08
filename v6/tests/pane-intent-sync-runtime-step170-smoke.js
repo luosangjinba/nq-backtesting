@@ -47,9 +47,23 @@ registry.registerRuntime(createLayoutRuntime({ store: layoutStore }));
 registry.registerRuntime(createPaneIntentSyncRuntime());
 
 const plannedEvents = [];
+const appliedEvents = [];
 const unsubscribePlanned = subscribeEvent(PANE_INTENT_SYNC_EVENTS.PLANNED, (plan) => {
   plannedEvents.push(plan);
 });
+const unsubscribeApplied = subscribeEvent(PANE_INTENT_SYNC_EVENTS.APPLIED, (record) => {
+  appliedEvents.push(record);
+});
+
+async function waitForPlanCount(count) {
+  const deadline = Date.now() + 1000;
+  let state = await dispatchCommand(PANE_INTENT_SYNC_COMMANDS.GET_STATE);
+  while (state.planCount < count && Date.now() < deadline) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    state = await dispatchCommand(PANE_INTENT_SYNC_COMMANDS.GET_STATE);
+  }
+  return state;
+}
 
 await registry.start({ emitEvent, subscribeEvent });
 assert.equal(hasCommand(PANE_INTENT_SYNC_COMMANDS.GET_STATE), true);
@@ -58,9 +72,18 @@ await dispatchCommand(PANE_COMMANDS.SET_SYMBOL_INTENT, {
   instrument: 'YM',
   paneId: 'main',
 });
-await Promise.resolve();
+await waitForPlanCount(1);
 assert.deepEqual(plannedEvents.at(-1), {
   enabled: true,
+  kind: 'symbol',
+  sourcePaneId: 'main',
+  sourceValue: 'YM',
+  targets: [
+    { paneId: 'secondary', value: 'YM' },
+    { paneId: 'tertiary', value: 'YM' },
+  ],
+});
+assert.deepEqual(appliedEvents.at(-1), {
   kind: 'symbol',
   sourcePaneId: 'main',
   sourceValue: 'YM',
@@ -75,7 +98,7 @@ await dispatchCommand(PANE_COMMANDS.SET_SYMBOL_INTENT, {
   instrument: 'NQ',
   paneId: 'main',
 });
-await Promise.resolve();
+await waitForPlanCount(2);
 assert.equal(plannedEvents.at(-1).enabled, false);
 assert.equal(plannedEvents.at(-1).kind, 'symbol');
 assert.deepEqual(plannedEvents.at(-1).targets, []);
@@ -84,7 +107,7 @@ await dispatchCommand(PANE_COMMANDS.SET_INTERVAL_INTENT, {
   displayTimeframe: 15,
   paneId: 'secondary',
 });
-await Promise.resolve();
+await waitForPlanCount(3);
 assert.deepEqual(plannedEvents.at(-1), {
   enabled: true,
   kind: 'interval',
@@ -95,21 +118,33 @@ assert.deepEqual(plannedEvents.at(-1), {
     { paneId: 'tertiary', value: 15 },
   ],
 });
+assert.deepEqual(appliedEvents.at(-1), {
+  kind: 'interval',
+  sourcePaneId: 'secondary',
+  sourceValue: 15,
+  targets: [
+    { paneId: 'main', value: 15 },
+    { paneId: 'tertiary', value: 15 },
+  ],
+});
 
 const state = await dispatchCommand(PANE_INTENT_SYNC_COMMANDS.GET_STATE);
-assert.equal(state.status, 'planned');
+assert.equal(state.status, 'applied');
 assert.equal(state.planCount, 3);
+assert.equal(state.appliedCount, 2);
 assert.equal(state.lastPlan.kind, 'interval');
+assert.equal(state.lastApplied.kind, 'interval');
 
 const paneSnapshot = await dispatchCommand(PANE_COMMANDS.GET_SNAPSHOT);
 assert.deepEqual(paneSnapshot.panes.map((pane) => [pane.id, pane.instrument, pane.displayTimeframe]), [
-  ['main', 'NQ', 1],
-  ['secondary', 'ES', 15],
-  ['tertiary', 'NQ', 1],
+  ['main', 'NQ', 15],
+  ['secondary', 'YM', 15],
+  ['tertiary', 'YM', 15],
 ]);
 
 await registry.stop();
 unsubscribePlanned();
+unsubscribeApplied();
 assert.equal(hasCommand(PANE_INTENT_SYNC_COMMANDS.GET_STATE), false);
 
 const source = fs.readFileSync(

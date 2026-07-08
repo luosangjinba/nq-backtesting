@@ -18,8 +18,6 @@ const forbiddenTokens = [
   'DISPLAY_TIMEFRAME_COMMANDS',
   'REPLAY_COMMANDS',
   'DEFAULT_WALL_COMMANDS',
-  'SET_SYMBOL_INTENT',
-  'SET_INTERVAL_INTENT',
   'LOAD_WINDOW',
   'REPLACE_BARS',
   'APPEND_BARS',
@@ -46,8 +44,11 @@ for (const token of forbiddenTokens) {
 assert.equal(runtimeSource.includes('PANE_COMMANDS.GET_SNAPSHOT'), true);
 assert.equal(runtimeSource.includes('LAYOUT_COMMANDS.GET_SNAPSHOT'), true);
 assert.equal(runtimeSource.includes('PANE_INTENT_SYNC_EVENTS.PLANNED'), true);
+assert.equal(runtimeSource.includes('PANE_INTENT_SYNC_EVENTS.APPLIED'), true);
 assert.equal(runtimeSource.includes('PANE_EVENTS.SYMBOL_INTENT_CHANGED'), true);
 assert.equal(runtimeSource.includes('PANE_EVENTS.INTERVAL_INTENT_CHANGED'), true);
+assert.equal(runtimeSource.includes('PANE_COMMANDS.SET_SYMBOL_INTENT'), true);
+assert.equal(runtimeSource.includes('PANE_COMMANDS.SET_INTERVAL_INTENT'), true);
 
 const appSource = fs.readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
 assert.equal(appSource.includes('createPaneIntentSyncRuntime'), true);

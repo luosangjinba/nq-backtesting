@@ -21,6 +21,8 @@ function clonePlan(plan = null) {
 
 function createInitialState() {
   return {
+    appliedCount: 0,
+    lastApplied: null,
     lastPlan: null,
     planCount: 0,
     status: 'idle',
@@ -33,6 +35,11 @@ export function createPaneIntentSyncRuntime() {
   let emit = () => {};
   let layoutSnapshot = null;
   let state = createInitialState();
+  const suppressedEvents = new Set();
+
+  function suppressionKey(kind, paneId, value) {
+    return `${kind}:${paneId}:${String(value)}`;
+  }
 
   async function refreshLayoutSnapshot(snapshot = null) {
     if (snapshot) {
@@ -43,7 +50,45 @@ export function createPaneIntentSyncRuntime() {
     return layoutSnapshot;
   }
 
+  async function applyPlan(plan = {}) {
+    const appliedTargets = [];
+    for (const target of plan.targets || []) {
+      suppressedEvents.add(suppressionKey(plan.kind, target.paneId, target.value));
+      if (plan.kind === 'symbol') {
+        await dispatchCommand(PANE_COMMANDS.SET_SYMBOL_INTENT, {
+          instrument: target.value,
+          paneId: target.paneId,
+        });
+      } else {
+        await dispatchCommand(PANE_COMMANDS.SET_INTERVAL_INTENT, {
+          displayTimeframe: target.value,
+          paneId: target.paneId,
+        });
+      }
+      appliedTargets.push({ ...target });
+    }
+    const applied = {
+      kind: plan.kind,
+      sourcePaneId: plan.sourcePaneId,
+      sourceValue: plan.sourceValue,
+      targets: appliedTargets,
+    };
+    state = {
+      ...state,
+      appliedCount: state.appliedCount + 1,
+      lastApplied: applied,
+      status: appliedTargets.length ? 'applied' : state.status,
+    };
+    emit(PANE_INTENT_SYNC_EVENTS.APPLIED, applied);
+    return applied;
+  }
+
   async function planFromPaneEvent(kind, pane = {}) {
+    const key = suppressionKey(kind, pane.id, kind === 'symbol' ? pane.instrument : pane.displayTimeframe);
+    if (suppressedEvents.has(key)) {
+      suppressedEvents.delete(key);
+      return null;
+    }
     if (!layoutSnapshot) {
       await refreshLayoutSnapshot();
     }
@@ -60,16 +105,25 @@ export function createPaneIntentSyncRuntime() {
         sourcePane: pane,
       });
     state = {
+      ...state,
       lastPlan: clonePlan(plan),
       planCount: state.planCount + 1,
       status: 'planned',
     };
     emit(PANE_INTENT_SYNC_EVENTS.PLANNED, clonePlan(plan));
+    if (plan.enabled && plan.targets.length) {
+      await applyPlan(plan);
+    }
     return plan;
   }
 
   function getState() {
     return {
+      appliedCount: state.appliedCount,
+      lastApplied: state.lastApplied ? {
+        ...state.lastApplied,
+        targets: state.lastApplied.targets.map((target) => ({ ...target })),
+      } : null,
       lastPlan: clonePlan(state.lastPlan),
       planCount: state.planCount,
       status: state.status,
@@ -105,6 +159,7 @@ export function createPaneIntentSyncRuntime() {
     }
     emit = () => {};
     layoutSnapshot = null;
+    suppressedEvents.clear();
     state = createInitialState();
   }
 
