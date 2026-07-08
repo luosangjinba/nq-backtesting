@@ -164,6 +164,9 @@ Read this index before working on V6.
   state and chart-surface-owned geometry for two-pane and three-pane variants.
 - `v6/docs/V6_PANE_RESIZE_DRAG_STEP165.md`: accepted chart-surface-owned pane
   resize handles and local per-variant resize ratios.
+- `v6/docs/V6_REPLAY_SAFE_RELOAD_WINDOW_PLAN_STEP174.md`: accepted pure
+  replay-safe reload window planning from pane reload-intent records, capped at
+  the replay cursor and not yet issuing bar-data requests.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
