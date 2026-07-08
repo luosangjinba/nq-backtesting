@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 153 - Crosshair OHLC Readout Boundary.
-  V6 now routes Lightweight Charts crosshair-selected candlestick data through
-  chart-surface interaction state and renders OHLC only from that selected bar,
-  keeping chart-data latest-bar updates from acting as a placeholder readout.
+- Latest completed step: Step 154 - Multi-Pane Crosshair Readout Isolation.
+  V6 now keeps crosshair state pane-local while the visible OHLC readout follows
+  the hovered pane, and non-current pane leave/null events cannot clear or
+  overwrite the current readout.
 
 ## Next Executable Steps
 
-### Step 154 - Multi-Pane Crosshair Readout Isolation
+### Step 155 - Multi-Pane Leftward History Extension Isolation
 
-Harden crosshair OHLC readout behavior for multi-pane chart hosts.
+Harden canvas-left historical extension behavior for multi-pane chart hosts.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
+- read `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
+  `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
   `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
   `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
   `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
@@ -43,11 +44,11 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- keep crosshair state pane-local in chart-surface state;
-- define whether the visible readout follows the active pane or the hovered pane
-  and gate that decision with a smoke test;
-- prevent crosshair movement in one pane from overwriting another pane's stored
-  selected bar;
+- keep leftward history requests pane-local in chart-history coordination;
+- verify one pane's canvas-left request does not mutate another pane's chart-data
+  record or exhausted-history memory;
+- verify repeated older-window extension and exhaustion stopping per pane;
+- preserve Step 154 hovered-pane crosshair readout isolation;
 - preserve the Step 153 rule that OHLC is hidden when no selected candle is
   available;
 - preserve continuous leftward exhaustion stopping and canvas-left request caps;
@@ -62,8 +63,9 @@ Notes for execution:
 
 Scope:
 
-- multi-pane crosshair/OHLC readout isolation using existing chart-surface,
-  chart-engine, chart-data, chart-entry, replay, and pane ownership boundaries;
+- multi-pane leftward history extension isolation using existing chart-history,
+  bar-data, chart-data, chart-surface, chart-engine, chart-entry, replay, and
+  pane ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -72,6 +74,7 @@ Scope:
 
 Acceptance:
 
+- multi-pane leftward history extension isolation smoke passes;
 - multi-pane crosshair readout isolation smoke passes;
 - Step 153 crosshair OHLC readout browser smoke passes;
 - auto-play speed under continuous history smoke passes;
@@ -93,6 +96,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 154 - Multi-Pane Crosshair Readout Isolation
+
+Completed in commits:
+
+- `7b33d594 feat(v6): isolate multi-pane crosshair readout`
+- `927f782f test(v6): cover multi-pane crosshair browser readout`
+
+Verification:
+
+- `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-browser-step154-smoke.js`
+- `node v6/tests/crosshair-ohlc-readout-browser-step153-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-chart-surface-multi-pane-step147-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-step147-smoke.js`
+- `node v6/tests/status-readout-model-smoke.js`
+- `node v6/tests/status-readout-controller-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 153 - Crosshair OHLC Readout Boundary
 
