@@ -14,54 +14,49 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 138 - Workstation Chart Slice Selection.
-  Drawing/Action-History Owner Contract is selected as the next bounded
-  workstation/chart slice.
+- Latest completed step: Step 139 - Drawing/Action-History Owner Contract.
+  The drawing/action-history owner contract is in place while the left drawing
+  rail and top-toolbar undo/redo controls remain disabled and inert.
 
 ## Next Executable Steps
 
-### Step 139 - Drawing/Action-History Owner Contract
+### Step 140 - Workstation Chart Slice Selection
 
-Establish the drawing/action-history owner contract before the left drawing rail
-or top-toolbar undo/redo controls become interactive.
+Select the next bounded workstation/chart slice after the drawing/action-history
+owner contract.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`,
-  `V6_INDICATORS_OWNER_CONTRACT.md`,
+- read `V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused drawing/action-history contract/domain module;
-- define explicit drawing request fields for tool id, anchor points, target
-  pane, style, label, visibility, and metadata;
-- define explicit action-history fields for action id, action type, target,
-  timestamp, and metadata;
-- define default read-only drawing intent state and validation helpers for
-  future owner wiring;
-- keep the left drawing rail and top-toolbar undo/redo controls disabled and
-  inert;
-- do not add drawing creation, chart overlays, pane mutation, undo/redo
-  execution, browser storage, persistence, or runtime command wiring in this
-  step;
+- choose one small next slice from the remaining workstation/chart gaps;
+- prefer docs/test selection only unless the selected slice is already sharply
+  bounded by existing owner contracts;
+- keep drawing tools, chart overlays, pane mutation, undo/redo execution,
+  indicator calculation, screenshot capture, session settings editing, and
+  runtime command wiring disabled unless that exact slice is selected;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- contract/domain module plus focused tests;
+- selection doc plus focused smoke;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, indicators,
   drawing/action-history, orders, or calendar commands from the toolbar or rail;
 - do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
-  default-wall, display-timeframe, indicators, settings, session-settings,
-  screenshot-export, orders, calendar, account, analytics, persistence, V4,
-  vendor, or Lightweight Charts modules into the drawing/action-history
-  contract.
+  default-wall, display-timeframe, indicators, drawing/action-history, settings,
+  session-settings, screenshot-export, orders, calendar, account, analytics,
+  persistence, V4, vendor, or Lightweight Charts modules into any selection
+  test helper.
 
 Acceptance:
 
+- new Step 140 slice selection smoke passes;
 - new drawing/action-history contract smoke passes;
 - Step 138 slice selection smoke passes;
 - indicators contract smoke passes;
@@ -79,6 +74,29 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 139 - Drawing/Action-History Owner Contract
+
+Completed in commit:
+
+- `4c2c992d feat(v6): add drawing action history owner contract`
+
+Verification:
+
+- `node v6/tests/drawing-action-history-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step138-smoke.js`
+- `node v6/tests/indicators-contract-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step136-smoke.js`
+- `node v6/tests/screenshot-export-contract-smoke.js`
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/left-drawing-rail-browser-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `git diff --check`
 
 ### Step 138 - Workstation Chart Slice Selection
 

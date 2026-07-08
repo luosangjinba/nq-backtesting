@@ -5,20 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 138 completed.
-- Next planned step: Step 139 - Drawing/Action-History Owner Contract.
+- Current V6 step state: Step 139 completed.
+- Next planned step: Step 140 - Workstation Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Slice Selection:
+The latest completed work is the Drawing/Action-History Owner Contract:
 
-- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md` selects
-  Drawing/Action-History Owner Contract as the next bounded slice.
-- `workstation-chart-slice-selection-step138-smoke.js` locks the selected owner
-  boundary, chart-overlay/pane/undo-redo exclusions, disabled left drawing rail,
-  disabled top-toolbar undo/redo state, and dashboard row-action visibility.
-- Step 139 should define drawing/action-history contract/default/validation
-  helpers while keeping the left drawing rail and top-toolbar undo/redo disabled
-  and inert.
+- `V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md` documents the accepted
+  drawing/action-history owner surface.
+- `drawing-action-history-contract-smoke.js` locks the owner identity, built-in
+  drawing tool whitelist, drawing fields, action-history fields, read-only
+  intent, disabled shell controls, and dashboard row-action visibility.
+- `boundary-smoke.js` now covers the `drawing-action-history` source root.
 
 ## Restart Reading Order
 
@@ -63,63 +61,64 @@ After restarting the server or assistant context, read these first:
 37. `v6/sessions/session_20260707_step136_workstation_chart_slice_selection.md`
 38. `v6/sessions/session_20260707_step137_indicators_owner_contract.md`
 39. `v6/sessions/session_20260707_step138_workstation_chart_slice_selection.md`
-40. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-41. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-42. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-43. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-44. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-45. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-46. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-47. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-48. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-49. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-50. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-51. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-52. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-53. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-54. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-56. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-57. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-58. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-59. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-60. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-62. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-63. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-64. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+40. `v6/sessions/session_20260707_step139_drawing_action_history_owner_contract.md`
+41. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+42. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+43. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+44. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+45. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+46. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+47. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+48. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+49. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+50. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+51. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+52. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+53. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+54. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+56. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+57. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+59. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+61. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+62. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+63. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+64. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+65. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+66. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 139 should implement the Drawing/Action-History Owner Contract.
+Step 140 should select the next bounded workstation/chart slice.
 
-Keep Step 139 bounded:
+Keep Step 140 bounded:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`,
-  `V6_INDICATORS_OWNER_CONTRACT.md`,
+- read `V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`,
   `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
   `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- create a focused drawing/action-history contract/domain module;
-- define explicit drawing request fields for tool id, anchor points, target
-  pane, style, label, visibility, and metadata;
-- define action-history fields for action id, action type, target, timestamp,
-  and metadata;
-- keep the left drawing rail and top-toolbar undo/redo disabled and inert;
-- avoid drawing creation, chart overlays, pane mutation, undo/redo execution,
-  browser storage, persistence, and runtime command wiring in this step;
+- choose one small next slice from the remaining workstation/chart gaps;
+- prefer docs/test selection only unless the selected slice is sharply bounded
+  by existing owner contracts;
+- keep drawing tools, chart overlays, pane mutation, undo/redo execution,
+  indicator calculation, screenshot capture, session settings editing, and
+  runtime command wiring disabled unless that exact slice is selected;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- contract/domain module plus focused tests;
+- selection doc plus focused smoke;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
   viewport, session-settings, screenshot/export, indicators,
   drawing/action-history, orders, or calendar commands from the toolbar or rail;
-- run the new drawing/action-history contract smoke, Step 138 selection smoke,
-  indicators contract smoke, diagnostics visibility cleanup browser smoke, left
-  drawing rail browser smoke, Session settings panel regression audit, bottom
-  chrome regression audit, chart presentation re-audit, and boundary smoke.
+- run the new Step 140 slice selection smoke, drawing/action-history contract
+  smoke, Step 138 selection smoke, indicators contract smoke, diagnostics
+  visibility cleanup browser smoke, left drawing rail browser smoke, Session
+  settings panel regression audit, bottom chrome regression audit, chart
+  presentation re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -148,8 +147,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 139 work:
+Run these before committing Step 140 selection work:
 
+- `node v6/tests/drawing-action-history-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step138-smoke.js`
 - `node v6/tests/indicators-contract-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step136-smoke.js`
@@ -239,14 +239,15 @@ same command with approved escalation.
 ## Recent Commits
 
 - `68e8ec7d docs(v6): select drawing action history contract slice`
+- `4c2c992d feat(v6): add drawing action history owner contract`
 - `de6e1b54 feat(v6): add indicators owner contract`
 - `5d2ca49f docs(v6): select indicators contract slice`
 - `f2be95c9 feat(v6): add screenshot export owner contract`
-- `85b02e26 docs(v6): select screenshot export contract slice`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-139. The handoff point is intentionally after selecting the Drawing/Action-
-History Owner Contract slice.
+140. The handoff point is intentionally after establishing the Drawing/Action-
+History Owner Contract and before choosing the next bounded workstation/chart
+slice.
