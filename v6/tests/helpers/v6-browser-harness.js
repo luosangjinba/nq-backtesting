@@ -9,8 +9,6 @@ import {
 } from '../../../v4/tests/helpers/browser-cdp-client.js';
 
 const CHROME_BIN = process.env.CHROME_BIN || 'google-chrome';
-const DEBUG_PORT = Number(process.env.CHROME_DEBUG_PORT || 9466);
-const PROFILE_DIR = process.env.CHROME_PROFILE_DIR || `/tmp/v6-browser-smoke-${process.pid}`;
 
 function getFreePort() {
   return new Promise((resolve, reject) => {
@@ -55,6 +53,8 @@ export async function openV6Page({
   width = 1440,
 } = {}) {
   const webPort = Number(process.env.V6_WEB_PORT || await getFreePort());
+  const debugPort = Number(process.env.CHROME_DEBUG_PORT || await getFreePort());
+  const profileDir = process.env.CHROME_PROFILE_DIR || `/tmp/v6-browser-smoke-${process.pid}-${debugPort}`;
   const pageUrl = process.env.V6_PAGE_URL || `http://127.0.0.1:${webPort}${pagePath}`;
   const web = spawn('python3', [
     '-m',
@@ -82,7 +82,7 @@ export async function openV6Page({
     web.kill('SIGTERM');
     if (chrome) await waitForProcessExit(chrome).catch(() => {});
     await waitForProcessExit(web).catch(() => {});
-    await rm(PROFILE_DIR, { recursive: true, force: true }).catch(() => {});
+    await rm(profileDir, { recursive: true, force: true }).catch(() => {});
   }
 
   try {
@@ -93,12 +93,12 @@ export async function openV6Page({
       '--no-sandbox',
       '--disable-dev-shm-usage',
       `--window-size=${width},${height}`,
-      `--remote-debugging-port=${DEBUG_PORT}`,
-      `--user-data-dir=${PROFILE_DIR}`,
+      `--remote-debugging-port=${debugPort}`,
+      `--user-data-dir=${profileDir}`,
       pageUrl,
     ], { stdio: 'ignore' });
 
-    const target = await waitForTargets(DEBUG_PORT);
+    const target = await waitForTargets(debugPort);
     client = createCdpClient(target.webSocketDebuggerUrl);
     await client.open();
     await client.send('Runtime.enable');
@@ -110,7 +110,10 @@ export async function openV6Page({
     return {
       client,
       cleanup,
+      debugPort,
       pageUrl,
+      profileDir,
+      webPort,
     };
   } catch (error) {
     await cleanup();
