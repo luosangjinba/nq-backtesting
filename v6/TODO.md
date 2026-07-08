@@ -14,23 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 148 - Leftward Historical K-Line Extension.
-  V6 now gates canvas-left bounded older-window requests through bar-data,
-  chart-data prepend/merge ownership, and browser-visible left extension
-  without replay cursor mutation.
+- Latest completed step: Step 149 - Drag-Triggered History Extension Hardening.
+  V6 now gates in-flight/exhausted older-window suppression and real browser
+  wheel-triggered leftward history extension with visible-latency coverage.
 
 ## Next Executable Steps
 
-### Step 149 - Drag-Triggered History Extension Hardening
+### Step 150 - Replay Speed Under History Extension
 
-Harden actual drag/wheel-triggered historical extension and visible-latency
-behavior on top of the Step 148 bounded left-extension flow.
+Verify replay `Next` and auto-play visible speed while leftward historical
+extension is active or recently loaded.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
+- read `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
+  `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
   `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
   `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
   `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
@@ -39,12 +39,13 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- verify actual chart drag/wheel gestures trigger the leftward history bridge;
-- suppress duplicate in-flight or already-exhausted older-window requests;
-- keep each request capped at the canvas-left timeline boundary and
-  `maxBarsPerWindow`;
-- measure browser-visible latency after an older window is loaded;
-- preserve replay cursor ownership and current replay `Next` speed;
+- run replay `Next` immediately after older-window extension;
+- run replay `Next` while an older-window request is in flight;
+- verify latest replay candle visibility latency stays below the existing
+  browser budget;
+- verify left-extension does not mutate replay cursor or consume replay
+  advancement ownership;
+- preserve duplicate/exhausted older-window suppression;
 - preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - do not add simulated trading, comparison symbols, overlays, Order, or Calendar
   behavior in this step;
@@ -53,7 +54,7 @@ Notes for execution:
 
 Scope:
 
-- drag-triggered historical extension hardening using existing chart-data,
+- replay speed under history extension using existing chart-data,
   chart-viewport, chart-engine, chart-entry, replay, and bar-data ownership
   boundaries;
 - do not request/cache bars outside bar-data;
@@ -64,6 +65,7 @@ Scope:
 
 Acceptance:
 
+- replay speed under history extension smoke passes;
 - drag-triggered history extension browser smoke passes;
 - leftward historical K-line extension smoke passes;
 - multi-pane foundation smoke passes;
@@ -80,6 +82,22 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 149 - Drag-Triggered History Extension Hardening
+
+Completed in commits:
+
+- `fcfb65bb feat(v6): suppress duplicate history extension requests`
+- `1edd0358 test(v6): cover drag-triggered history extension`
+
+Verification:
+
+- `node v6/tests/leftward-history-hardening-step149-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/leftward-history-extension-browser-step148-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 148 - Leftward Historical K-Line Extension
 
