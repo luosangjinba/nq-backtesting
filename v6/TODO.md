@@ -14,37 +14,38 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 125 - Workstation Chart Slice Selection. The next
-  bounded workstation/chart slice is Right Rail Session Settings Panel
-  Reservation.
+- Latest completed step: Step 126 - Right Rail Session Settings Panel
+  Reservation. The workstation now has an inert shell-owned Session settings
+  panel anchored to the right rail.
 
 ## Next Executable Steps
 
-### Step 126 - Right Rail Session Settings Panel Reservation
+### Step 127 - Right Rail Session Settings Panel Regression Audit
 
-Reserve an inert right-rail Session settings panel as a shell-owned
-workstation surface.
+Audit right-rail Session settings panel behavior and workstation chrome
+regression coverage.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md` and FXReplay UI
+- read `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`, and FXReplay UI
   guardrails;
-- add shell markup/CSS only for a right-rail anchored Session settings panel;
+- re-audit right rail, Session settings panel, chart host, rails, pane
+  status/readout, reset view, floating replay transport, bottom account/trading
+  chrome, and footer status bar;
 - keep Chart Settings and Session settings as distinct surfaces;
-- add disabled/inert placeholders for Session Info, Balance & Assets, Spreads
-  & Commissions, and Date Range;
-- preserve chart host, rails, pane status/readout, reset view, floating replay
-  transport, bottom account/trading chrome, and footer status bar placement;
+- keep Session Info, Balance & Assets, Spreads & Commissions, and Date Range
+  placeholders disabled or inert;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- shell markup/CSS plus browser coverage only;
+- docs/test audit only unless a regression is found;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from the Session settings panel;
+  viewport commands from panel audit code;
 - do not dispatch session-settings, orders, or calendar commands;
 - do not import settings, orders, calendar, chart-engine, chart-data,
   chart-viewport, replay, bar-data, default-wall, or account/analytics owner
@@ -52,6 +53,7 @@ Scope:
 
 Acceptance:
 
+- right-rail session settings panel regression audit smoke passes;
 - right-rail session settings panel browser smoke passes;
 - bottom chrome regression audit smoke passes;
 - bottom account/trading chrome browser smoke passes;
@@ -60,6 +62,21 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 126 - Right Rail Session Settings Panel Reservation
+
+Completed in commit:
+
+- `0a4bb82c feat(v6): reserve session settings panel`
+
+Verification:
+
+- `node v6/tests/right-rail-session-settings-panel-browser-smoke.js`
+- `node v6/tests/right-utility-rail-browser-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 125 - Workstation Chart Slice Selection
 
