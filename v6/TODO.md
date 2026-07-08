@@ -14,24 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 152 - Auto-Play Speed Under Continuous History.
-  V6 now verifies that 4x auto-play remains responsive after multiple
-  canvas-left capped older-window extensions and keeps the latest replay candle
-  visible while preserving replay, bar-data, chart-data, chart-engine, and
-  viewport ownership boundaries.
+- Latest completed step: Step 153 - Crosshair OHLC Readout Boundary.
+  V6 now routes Lightweight Charts crosshair-selected candlestick data through
+  chart-surface interaction state and renders OHLC only from that selected bar,
+  keeping chart-data latest-bar updates from acting as a placeholder readout.
 
 ## Next Executable Steps
 
-### Step 153 - Crosshair OHLC Readout Boundary
+### Step 154 - Multi-Pane Crosshair Readout Isolation
 
-Define and gate the chart crosshair OHLC readout owner boundary before
-reintroducing OHLC values in the chart header.
+Harden crosshair OHLC readout behavior for multi-pane chart hosts.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
+- read `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
+  `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
   `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
   `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
   `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
@@ -44,14 +43,13 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- inspect Lightweight Charts crosshair APIs and use the existing chart surface
-  and chart-engine boundaries instead of direct route ownership;
-- define which runtime/surface owns crosshair-selected bar state and which UI
-  module renders the readout;
-- show OHLC only from the crosshair-selected candle, or keep OHLC hidden when no
-  selected candle is available;
-- prevent duplicate symbol/timeframe labels and avoid layered placeholder text
-  behind the real chart header;
+- keep crosshair state pane-local in chart-surface state;
+- define whether the visible readout follows the active pane or the hovered pane
+  and gate that decision with a smoke test;
+- prevent crosshair movement in one pane from overwriting another pane's stored
+  selected bar;
+- preserve the Step 153 rule that OHLC is hidden when no selected candle is
+  available;
 - preserve continuous leftward exhaustion stopping and canvas-left request caps;
 - preserve duplicate/exhausted older-window suppression;
 - preserve replay speed under active and recently loaded history extension and
@@ -64,7 +62,7 @@ Notes for execution:
 
 Scope:
 
-- crosshair/OHLC readout owner contract using existing chart-surface,
+- multi-pane crosshair/OHLC readout isolation using existing chart-surface,
   chart-engine, chart-data, chart-entry, replay, and pane ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
@@ -74,9 +72,8 @@ Scope:
 
 Acceptance:
 
-- crosshair OHLC readout owner-boundary smoke passes;
-- browser smoke proves the chart header does not duplicate labels or render
-  stale layered placeholder text;
+- multi-pane crosshair readout isolation smoke passes;
+- Step 153 crosshair OHLC readout browser smoke passes;
 - auto-play speed under continuous history smoke passes;
 - continuous leftward extension smoke passes;
 - replay speed under history extension smoke passes;
@@ -96,6 +93,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 153 - Crosshair OHLC Readout Boundary
+
+Completed in commits:
+
+- `3e11cc66 feat(v6): gate crosshair ohlc readout boundary`
+- `345fee43 test(v6): cover crosshair ohlc browser readout`
+
+Verification:
+
+- `node v6/tests/status-readout-controller-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/status-readout-browser-smoke.js`
+- `node v6/tests/status-readout-chart-data-browser-smoke.js`
+- `node v6/tests/crosshair-ohlc-readout-browser-step153-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/auto-play-continuous-history-step152-smoke.js`
+- `node v6/tests/continuous-leftward-history-step151-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 152 - Auto-Play Speed Under Continuous History
 

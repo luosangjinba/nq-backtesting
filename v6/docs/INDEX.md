@@ -131,6 +131,9 @@ Read this index before working on V6.
 - `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`: accepted auto-play
   speed under continuous leftward historical extension, including browser-visible
   latest-candle updates after repeated older-window loads.
+- `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`: accepted crosshair-selected
+  OHLC readout ownership through Lightweight Charts crosshair events, chart
+  surface pane-local state, and shell readout rendering.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
