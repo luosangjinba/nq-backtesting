@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 170 - Symbol/Interval Sync Runtime Skeleton. V6
-  now has a dedicated pane-intent sync runtime that plans Symbol/Interval
-  fan-out targets without mutating target panes, requesting bars, writing
-  chart-data, projecting viewport, or touching replay state.
+- Latest completed step: Step 171 - Symbol/Interval Intent Fan-Out. V6 now fans
+  out Symbol/Interval intent changes through the dedicated pane-intent sync
+  runtime, with loop suppression and no bar reloads, chart-data writes, viewport
+  projection, or replay mutation.
 
 ## Next Executable Steps
 
-### Step 171 - Symbol/Interval Intent Fan-Out
+### Step 172 - Synced Intent Reload Boundary
 
-Implement tested Symbol/Interval intent fan-out to target panes without data
-reload behavior.
+Decide and test the reload trigger boundary for synced Symbol/Interval intent
+changes before implementing any bar-data request.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_SYMBOL_INTERVAL_SYNC_RUNTIME_STEP170.md`,
+- read `V6_SYMBOL_INTERVAL_INTENT_FANOUT_STEP171.md`,
+  `V6_SYMBOL_INTERVAL_SYNC_RUNTIME_STEP170.md`,
   `V6_PANE_SYMBOL_INTERVAL_INTENT_STEP169.md`,
   `V6_SYMBOL_INTERVAL_SYNC_BOUNDARY_STEP168.md`,
   `V6_CROSSHAIR_SYNC_EFFECT_STEP167.md`,
@@ -60,9 +61,10 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- extend the dedicated pane-intent sync runtime to dispatch target pane intent
-  commands with loop suppression;
-- do not request bars, replace chart-data, or project viewport in this step;
+- define the owner that will turn pane intent changes into reload requests;
+- do not implement bar-data requests, chart-data writes, or viewport projection
+  before the trigger boundary and no-future behavior are test-covered;
+- preserve Step 171 intent fan-out and loop suppression;
 - preserve Step 170 `paneIntentSync:planned` state and boundary smoke;
 - preserve Step 169 pane intent commands and events;
 - preserve the Step 168 decision that Symbol/Interval sync fan-out belongs to a
@@ -152,6 +154,24 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 171 - Symbol/Interval Intent Fan-Out
+
+Completed in commit:
+
+- `f8ca7f2b feat(v6): fan out pane intent sync`
+
+Verification:
+
+- `node v6/tests/pane-intent-sync-runtime-step170-smoke.js`
+- `node v6/tests/pane-intent-sync-boundary-step170-smoke.js`
+- `node v6/tests/pane-intent-sync-model-step170-smoke.js`
+- `node v6/tests/pane-intent-boundary-step169-smoke.js`
+- `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/symbol-interval-sync-boundary-step168-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 170 - Symbol/Interval Sync Runtime Skeleton
 
