@@ -459,7 +459,9 @@ export function createWorkstationShellMarkup() {
             ${icon('redo')}
             <span class="sr-only">Reset chart view</span>
           </button>
-          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main"></div>
+          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main" data-v6-layout-pane-slot="1" data-v6-chart-pane-visible="true"></div>
+          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="secondary" data-v6-layout-pane-slot="2" data-v6-chart-pane-visible="false" hidden aria-hidden="true"></div>
+          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="tertiary" data-v6-layout-pane-slot="3" data-v6-chart-pane-visible="false" hidden aria-hidden="true"></div>
           <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
             <div class="price-scale-placeholder">
               <span>30520.00</span>

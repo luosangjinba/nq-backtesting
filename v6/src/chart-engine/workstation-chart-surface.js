@@ -33,6 +33,19 @@ const DEFAULT_SERIES_OPTIONS = Object.freeze({
 const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
 const PROGRAMMATIC_RANGE_EPSILON = 2;
 const USER_RANGE_INPUT_WINDOW_MS = 2000;
+const LAYOUT_PANE_COUNTS = Object.freeze({
+  single: 1,
+  triple: 3,
+  twice: 2,
+});
+
+function normalizeLayoutMode(mode = 'single') {
+  const normalized = String(mode || '').trim();
+  if (!Object.hasOwn(LAYOUT_PANE_COUNTS, normalized)) {
+    throw new Error(`Unsupported chart surface layout mode: ${mode}`);
+  }
+  return normalized;
+}
 
 function measureHost(host) {
   const rect = host.getBoundingClientRect?.() ?? {};
@@ -90,8 +103,14 @@ export function mountWorkstationChartSurface(root, {
   const crosshairByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
   const programmaticRangeByPaneId = new Map();
+  const chartSurfaceElement = root.querySelector?.('[data-v6-chart-surface]') || null;
   const crosshairListeners = new Set();
   const visibleRangeListeners = new Set();
+  let layoutSnapshot = {
+    mode: 'single',
+    paneCount: 1,
+    visiblePaneIds: hosts.slice(0, 1).map(resolvePaneId),
+  };
   let readoutPaneId = null;
   let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
@@ -167,6 +186,9 @@ export function mountWorkstationChartSurface(root, {
     const mountedPanes = manager.snapshot().panes;
     return [...hostsByPaneId.entries()]
       .map(([paneId, host]) => {
+        if (host.hidden) {
+          return null;
+        }
         const record = mountedPanes.find((pane) => pane.paneId === paneId);
         if (!record?.snapshot?.mounted) {
           return null;
@@ -174,6 +196,35 @@ export function mountWorkstationChartSurface(root, {
         return manager.resizePane(paneId, measureHost(host));
       })
       .filter(Boolean);
+  }
+
+  function applyLayoutSnapshot(snapshot = {}) {
+    const mode = normalizeLayoutMode(snapshot.mode);
+    const paneCount = LAYOUT_PANE_COUNTS[mode];
+    const visiblePaneIds = [];
+    hosts.forEach((host, index) => {
+      const paneId = resolvePaneId(host);
+      const visible = index < paneCount;
+      host.hidden = !visible;
+      host.dataset.v6ChartPaneVisible = String(visible);
+      if (visible) {
+        host.removeAttribute?.('aria-hidden');
+        visiblePaneIds.push(paneId);
+      } else {
+        host.setAttribute?.('aria-hidden', 'true');
+      }
+    });
+    layoutSnapshot = {
+      mode,
+      paneCount,
+      visiblePaneIds,
+    };
+    if (chartSurfaceElement?.dataset) {
+      chartSurfaceElement.dataset.v6ChartLayoutMode = mode;
+      chartSurfaceElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
+    }
+    resize();
+    return { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] };
   }
 
   const resizeObserver = typeof ResizeObserver === 'function'
@@ -250,6 +301,7 @@ export function mountWorkstationChartSurface(root, {
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         hostConnected: hosts.every((host) => Boolean(host.isConnected)),
         hostSelector,
+        layout: { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] },
         crosshair: [...crosshairByPaneId.values()]
           .map((record) => ({ ...record, bar: record.bar ? { ...record.bar } : null }))
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
@@ -258,6 +310,7 @@ export function mountWorkstationChartSurface(root, {
         panes: snapshot.panes,
       };
     },
+    applyLayoutSnapshot,
     resize,
     subscribeVisibleRangeChange(handler) {
       if (typeof handler !== 'function') {

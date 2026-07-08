@@ -14,7 +14,7 @@ const host = {
 const root = {
   querySelector(selector) {
     calls.push({ method: 'querySelector', selector });
-    return host;
+    return selector === '[data-v6-chart-engine-host]' ? host : null;
   },
 };
 
@@ -114,18 +114,24 @@ const state = surface.getState();
 
 assert.equal(calls[0].method, 'querySelector');
 assert.equal(calls[0].selector, '[data-v6-chart-engine-host]');
-assert.equal(calls[1].method, 'managerFactory');
-assert.equal(calls[1].options.chartOptions.height, 360);
-assert.equal(calls[1].options.chartOptions.width, 640);
-assert.equal(calls[2].method, 'mountPane');
-assert.equal(calls[2].record.host, host);
-assert.equal(calls[2].record.paneId, 'default');
+assert.deepEqual(calls[1], { method: 'querySelector', selector: '[data-v6-chart-surface]' });
+assert.equal(calls[2].method, 'managerFactory');
+assert.equal(calls[2].options.chartOptions.height, 360);
+assert.equal(calls[2].options.chartOptions.width, 640);
+assert.equal(calls[3].method, 'mountPane');
+assert.equal(calls[3].record.host, host);
+assert.equal(calls[3].record.paneId, 'default');
 assert.deepEqual(state, {
   appliedChartData: [],
   appliedViewport: [],
   crosshair: [],
   hostConnected: true,
   hostSelector: '[data-v6-chart-engine-host]',
+  layout: {
+    mode: 'single',
+    paneCount: 1,
+    visiblePaneIds: ['default'],
+  },
   measuredVisibleRange: [{
     from: -9,
     paneId: 'default',
