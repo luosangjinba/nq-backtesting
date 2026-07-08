@@ -48,6 +48,7 @@ import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.
 import { mountJournalSurface } from './shell/journal-surface.js';
 import { createJournalRowActionAdapter } from './shell/journal-row-action-adapter.js';
 import { mountLayoutMenuControl } from './shell/layout-menu-control.js';
+import { mountPaneStatusReadout } from './shell/pane-status-readout.js';
 import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayWorkflowSurface } from './shell/replay-workflow-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
@@ -128,6 +129,7 @@ const leftwardHistoryInputBridge = connectLeftwardHistoryInputBridge({
   chartSurface: workstationChartSurface,
 });
 const layoutMenuControl = mountLayoutMenuControl(root);
+const paneStatusReadout = mountPaneStatusReadout(root);
 const resetViewControls = [...root.querySelectorAll('[data-v6-reset-view]')]
   .map((button) => connectResetViewControl({
     button,
@@ -179,6 +181,7 @@ root.__v6DisplayTimeframeControl = displayTimeframeControl;
 root.__v6JournalSurface = journalSurface;
 root.__v6JournalRowAction = journalRowAction;
 root.__v6LayoutMenuControl = layoutMenuControl;
+root.__v6PaneStatusReadout = paneStatusReadout;
 root.__v6ReadinessSurface = readinessSurface;
 root.__v6ReplayWorkflowSurface = replayWorkflowSurface;
 root.__v6RuntimeRegistry = registry;

@@ -446,29 +446,47 @@ export function createWorkstationShellMarkup() {
           </button>
         </aside>
         <section class="chart-surface" aria-label="Replay chart surface" data-v6-chart-surface>
-          <div class="symbol-readout pane-status-readout" data-v6-status-readout>
-            <span class="status-dot" aria-hidden="true"></span>
-            <strong data-v6-status-symbol>NQ</strong>
-            <span data-v6-status-timeframe>1m</span>
-            <span data-v6-status-open>O --</span>
-            <span data-v6-status-high>H --</span>
-            <span data-v6-status-low>L --</span>
-            <span data-v6-status-close>C --</span>
-          </div>
           <div class="chart-pane-layer" data-v6-chart-pane-layer>
             <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main" data-v6-layout-pane-slot="1" data-v6-chart-pane-visible="true">
+              <div class="symbol-readout pane-status-readout" data-v6-status-readout data-v6-pane-status-readout data-v6-pane-id="main" data-v6-pane-symbol="NQ" data-v6-pane-timeframe="1m">
+                <span class="status-dot" aria-hidden="true"></span>
+                <strong data-v6-status-symbol data-v6-pane-status-field>NQ</strong>
+                <span data-v6-status-timeframe data-v6-pane-status-field>1m</span>
+                <span data-v6-status-open data-v6-pane-status-field>O --</span>
+                <span data-v6-status-high data-v6-pane-status-field>H --</span>
+                <span data-v6-status-low data-v6-pane-status-field>L --</span>
+                <span data-v6-status-close data-v6-pane-status-field>C --</span>
+              </div>
               <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view">
                 ${icon('redo')}
                 <span class="sr-only">Reset main pane view</span>
               </button>
             </div>
             <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="secondary" data-v6-layout-pane-slot="2" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
+              <div class="symbol-readout pane-status-readout" data-v6-status-readout data-v6-pane-status-readout data-v6-pane-id="secondary" data-v6-pane-symbol="NQ" data-v6-pane-timeframe="1m">
+                <span class="status-dot" aria-hidden="true"></span>
+                <strong data-v6-status-symbol data-v6-pane-status-field>NQ</strong>
+                <span data-v6-status-timeframe data-v6-pane-status-field>1m</span>
+                <span data-v6-status-open data-v6-pane-status-field>O --</span>
+                <span data-v6-status-high data-v6-pane-status-field>H --</span>
+                <span data-v6-status-low data-v6-pane-status-field>L --</span>
+                <span data-v6-status-close data-v6-pane-status-field>C --</span>
+              </div>
               <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view">
                 ${icon('redo')}
                 <span class="sr-only">Reset secondary pane view</span>
               </button>
             </div>
             <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="tertiary" data-v6-layout-pane-slot="3" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
+              <div class="symbol-readout pane-status-readout" data-v6-status-readout data-v6-pane-status-readout data-v6-pane-id="tertiary" data-v6-pane-symbol="NQ" data-v6-pane-timeframe="1m">
+                <span class="status-dot" aria-hidden="true"></span>
+                <strong data-v6-status-symbol data-v6-pane-status-field>NQ</strong>
+                <span data-v6-status-timeframe data-v6-pane-status-field>1m</span>
+                <span data-v6-status-open data-v6-pane-status-field>O --</span>
+                <span data-v6-status-high data-v6-pane-status-field>H --</span>
+                <span data-v6-status-low data-v6-pane-status-field>L --</span>
+                <span data-v6-status-close data-v6-pane-status-field>C --</span>
+              </div>
               <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view">
                 ${icon('redo')}
                 <span class="sr-only">Reset tertiary pane view</span>

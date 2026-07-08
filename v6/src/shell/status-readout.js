@@ -30,15 +30,19 @@ function updateDataset(element, state) {
 }
 
 function renderStatusReadout(root, state) {
-  const readout = root.querySelector('[data-v6-status-readout]');
-  setText(root, '[data-v6-status-symbol]', state.symbol);
-  setText(root, '[data-v6-status-timeframe]', state.timeframe);
+  const hasPaneStatusReadouts = Boolean(root.querySelectorAll?.('[data-v6-pane-status-readout]')?.length);
+  const selector = (base, paneLocalAttribute) => (
+    hasPaneStatusReadouts ? `${base}:not([${paneLocalAttribute}])` : base
+  );
+  const readout = root.querySelector(selector('[data-v6-status-readout]', 'data-v6-pane-status-readout'));
+  setText(root, selector('[data-v6-status-symbol]', 'data-v6-pane-status-field'), state.symbol);
+  setText(root, selector('[data-v6-status-timeframe]', 'data-v6-pane-status-field'), state.timeframe);
   setText(root, '[data-v6-status-title]', state.title);
   setText(root, '[data-v6-status-price]', state.ohlc.close.replace(/^C /, ''));
-  setText(root, '[data-v6-status-open]', state.ohlc.open);
-  setText(root, '[data-v6-status-high]', state.ohlc.high);
-  setText(root, '[data-v6-status-low]', state.ohlc.low);
-  setText(root, '[data-v6-status-close]', state.ohlc.close);
+  setText(root, selector('[data-v6-status-open]', 'data-v6-pane-status-field'), state.ohlc.open);
+  setText(root, selector('[data-v6-status-high]', 'data-v6-pane-status-field'), state.ohlc.high);
+  setText(root, selector('[data-v6-status-low]', 'data-v6-pane-status-field'), state.ohlc.low);
+  setText(root, selector('[data-v6-status-close]', 'data-v6-pane-status-field'), state.ohlc.close);
   setText(root, '[data-v6-footer-session]', state.footer.session);
   setText(root, '[data-v6-footer-start]', state.footer.start);
   setText(root, '[data-v6-footer-cursor]', state.footer.cursor);
