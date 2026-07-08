@@ -5,6 +5,8 @@ import {
   assertPaneRecordShape,
   createDefaultPaneRecord,
   createPaneRecord,
+  normalizePaneDisplayTimeframe,
+  normalizePaneInstrument,
 } from '../src/panes/pane-model.js';
 import { createPaneStore } from '../src/panes/pane-store.js';
 
@@ -30,6 +32,8 @@ const inactivePane = createPaneRecord({
 });
 assert.deepEqual(Object.keys(inactivePane).sort(), Object.keys(defaultPane).sort());
 assert.equal(inactivePane.instrument, 'ES');
+assert.equal(normalizePaneInstrument(' nq '), 'NQ');
+assert.equal(normalizePaneDisplayTimeframe('15'), 15);
 
 const store = createPaneStore({
   initialPanes: [defaultPane, inactivePane],
@@ -53,8 +57,26 @@ const cloned = store.getActivePane();
 cloned.instrument = 'MUTATED';
 assert.equal(store.getActivePane().instrument, 'ES');
 
+const changedSymbol = store.setSymbolIntent('pane-review', ' ym ');
+assert.equal(changedSymbol.instrument, 'YM');
+assert.equal(changedSymbol.displayTimeframe, 5);
+assert.equal(store.getPane(DEFAULT_PANE_ID).instrument, 'NQ');
+
+const changedInterval = store.setIntervalIntent('pane-review', 15);
+assert.equal(changedInterval.instrument, 'YM');
+assert.equal(changedInterval.displayTimeframe, 15);
+assert.equal(store.getPane(DEFAULT_PANE_ID).displayTimeframe, 1);
+
 assert.throws(
   () => createPaneRecord({ displayTimeframe: 0 }),
+  /displayTimeframe/
+);
+assert.throws(
+  () => store.setSymbolIntent('pane-review', ''),
+  /instrument/
+);
+assert.throws(
+  () => store.setIntervalIntent('pane-review', 0),
   /displayTimeframe/
 );
 assert.throws(

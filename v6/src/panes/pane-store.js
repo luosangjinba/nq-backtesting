@@ -3,6 +3,8 @@ import {
   assertPaneRecordShape,
   createDefaultPaneRecord,
   createPaneRecord,
+  normalizePaneDisplayTimeframe,
+  normalizePaneInstrument,
 } from './pane-model.js';
 
 function clonePane(pane) {
@@ -15,14 +17,6 @@ function normalizePaneId(paneId) {
     throw new Error('Pane id must be a non-empty string.');
   }
   return normalized;
-}
-
-function normalizeDisplayTimeframe(value) {
-  const timeframe = Number(value);
-  if (!Number.isInteger(timeframe) || timeframe <= 0) {
-    throw new Error('Pane displayTimeframe must be a positive integer.');
-  }
-  return timeframe;
 }
 
 export function createPaneStore({
@@ -80,7 +74,7 @@ export function createPaneStore({
     return getActivePane();
   }
 
-  function setDisplayTimeframe(paneId = activePaneId, displayTimeframe) {
+  function setSymbolIntent(paneId = activePaneId, instrument) {
     const id = normalizePaneId(paneId);
     const existing = panesById.get(id);
     if (!existing) {
@@ -88,10 +82,28 @@ export function createPaneStore({
     }
     const record = createPaneRecord({
       ...existing,
-      displayTimeframe: normalizeDisplayTimeframe(displayTimeframe),
+      instrument: normalizePaneInstrument(instrument),
     });
     panesById.set(id, record);
     return getPane(id);
+  }
+
+  function setIntervalIntent(paneId = activePaneId, displayTimeframe) {
+    const id = normalizePaneId(paneId);
+    const existing = panesById.get(id);
+    if (!existing) {
+      throw new Error(`Pane "${id}" does not exist.`);
+    }
+    const record = createPaneRecord({
+      ...existing,
+      displayTimeframe: normalizePaneDisplayTimeframe(displayTimeframe),
+    });
+    panesById.set(id, record);
+    return getPane(id);
+  }
+
+  function setDisplayTimeframe(paneId = activePaneId, displayTimeframe) {
+    return setIntervalIntent(paneId, displayTimeframe);
   }
 
   function snapshot() {
@@ -110,6 +122,8 @@ export function createPaneStore({
     listPanes,
     setActivePane,
     setDisplayTimeframe,
+    setIntervalIntent,
+    setSymbolIntent,
     snapshot,
   };
 }

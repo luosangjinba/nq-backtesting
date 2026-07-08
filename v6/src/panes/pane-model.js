@@ -34,7 +34,11 @@ function normalizeRevision(value, fieldName) {
   return revision;
 }
 
-function normalizeDisplayTimeframe(value) {
+export function normalizePaneInstrument(value) {
+  return normalizeText(value, null, 'instrument').toUpperCase();
+}
+
+export function normalizePaneDisplayTimeframe(value) {
   const timeframe = Number(value);
   if (!Number.isInteger(timeframe) || timeframe <= 0) {
     throw new Error('Pane displayTimeframe must be a positive integer.');
@@ -49,11 +53,11 @@ export function createPaneRecord(input = {}) {
       input.chartBarsRevision ?? DEFAULT_PANE_INPUT.chartBarsRevision,
       'chartBarsRevision'
     ),
-    displayTimeframe: normalizeDisplayTimeframe(
+    displayTimeframe: normalizePaneDisplayTimeframe(
       input.displayTimeframe ?? DEFAULT_PANE_INPUT.displayTimeframe
     ),
     id: normalizeText(input.id, DEFAULT_PANE_INPUT.id, 'id'),
-    instrument: normalizeText(input.instrument, DEFAULT_PANE_INPUT.instrument, 'instrument').toUpperCase(),
+    instrument: normalizePaneInstrument(input.instrument ?? DEFAULT_PANE_INPUT.instrument),
     viewportIntentRevision: normalizeRevision(
       input.viewportIntentRevision ?? DEFAULT_PANE_INPUT.viewportIntentRevision,
       'viewportIntentRevision'
