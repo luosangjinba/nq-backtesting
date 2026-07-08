@@ -457,10 +457,12 @@ export function createWorkstationShellMarkup() {
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
               </div>
-              <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view">
-                ${icon('redo')}
-                <span class="sr-only">Reset main pane view</span>
-              </button>
+              <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="main">
+                <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view" title="Reset chart view">
+                  ${icon('redo')}
+                  <span class="sr-only">Reset main pane view</span>
+                </button>
+              </div>
             </div>
             <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="secondary" data-v6-layout-pane-slot="2" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
               <div class="symbol-readout pane-status-readout" data-v6-status-readout data-v6-pane-status-readout data-v6-pane-id="secondary" data-v6-pane-symbol="NQ" data-v6-pane-timeframe="1m">
@@ -472,10 +474,12 @@ export function createWorkstationShellMarkup() {
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
               </div>
-              <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view">
-                ${icon('redo')}
-                <span class="sr-only">Reset secondary pane view</span>
-              </button>
+              <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="secondary">
+                <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view" title="Reset chart view">
+                  ${icon('redo')}
+                  <span class="sr-only">Reset secondary pane view</span>
+                </button>
+              </div>
             </div>
             <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="tertiary" data-v6-layout-pane-slot="3" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
               <div class="symbol-readout pane-status-readout" data-v6-status-readout data-v6-pane-status-readout data-v6-pane-id="tertiary" data-v6-pane-symbol="NQ" data-v6-pane-timeframe="1m">
@@ -487,10 +491,12 @@ export function createWorkstationShellMarkup() {
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
               </div>
-              <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view">
-                ${icon('redo')}
-                <span class="sr-only">Reset tertiary pane view</span>
-              </button>
+              <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="tertiary">
+                <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view" title="Reset chart view">
+                  ${icon('redo')}
+                  <span class="sr-only">Reset tertiary pane view</span>
+                </button>
+              </div>
             </div>
           </div>
           <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
