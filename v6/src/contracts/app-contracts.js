@@ -175,6 +175,14 @@ export const PANE_INTENT_SYNC_EVENTS = Object.freeze({
   PLANNED: 'paneIntentSync:planned',
 });
 
+export const PANE_INTENT_RELOAD_COMMANDS = Object.freeze({
+  GET_STATE: 'paneIntentReload.getState',
+});
+
+export const PANE_INTENT_RELOAD_EVENTS = Object.freeze({
+  INTENT_CREATED: 'paneIntentReload:intentCreated',
+});
+
 export const CHART_DATA_COMMANDS = Object.freeze({
   APPEND_BARS: 'chartData.appendBars',
   CLEAR_PANE: 'chartData.clearPane',
