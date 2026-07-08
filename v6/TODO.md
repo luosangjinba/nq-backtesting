@@ -14,43 +14,47 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 131 - Diagnostics Visibility Cleanup. Readiness
-  runtime/command/gate telemetry is hidden from the default visible header path
-  while readiness state remains available to tests and future tooling.
+- Latest completed step: Step 132 - Workstation Chart Slice Selection. Session
+  Settings Owner Contract is selected as the next bounded workstation/chart
+  slice.
 
 ## Next Executable Steps
 
-### Step 132 - Workstation Chart Slice Selection
+### Step 133 - Session Settings Owner Contract
 
-Choose the next bounded workstation/chart slice after diagnostics visibility
-cleanup.
+Establish the session-settings owner contract before any right-rail Session
+settings control becomes interactive.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`,
-  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`, `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`,
-  and recent workstation chrome audits;
-- select one small next slice with explicit owner boundary and acceptance
-  tests;
-- prefer selecting one deferred owner contract family, such as
-  drawing/action-history, indicators, account/trading, screenshot/export, or
-  session-settings, unless a newly found regression requires a narrower fix;
-- keep the selection docs/test only;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`,
+  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`, and
+  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
+- create a focused session-settings contract/domain module;
+- define explicit fields for Session Info, Balance & Assets, Spreads &
+  Commissions, and Date Range;
+- define default/read-only draft state and validation helpers for future owner
+  wiring;
+- keep the right-rail Session settings panel disabled and inert;
+- do not add persistence or runtime command wiring in this step;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test selection only;
-- do not implement the selected slice in Step 132;
+- contract/domain module plus focused tests;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, orders, or calendar commands from selection code.
+  viewport, session-settings, orders, or calendar commands from the panel;
+- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
+  default-wall, settings, orders, calendar, account, or analytics owners into
+  the session-settings contract or shell panel.
 
 Acceptance:
 
-- new Step 132 slice selection smoke passes;
+- new session-settings contract smoke passes;
+- Step 132 slice selection smoke passes;
 - diagnostics visibility cleanup browser smoke passes;
 - Step 130 slice selection smoke passes;
 - workstation UI parity gap re-audit smoke passes;
@@ -61,6 +65,25 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 132 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `54ee5f10 docs(v6): select session settings contract slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step132-smoke.js`
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step130-smoke.js`
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 131 - Diagnostics Visibility Cleanup
 
