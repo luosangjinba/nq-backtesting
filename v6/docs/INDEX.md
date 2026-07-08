@@ -179,6 +179,10 @@ Read this index before working on V6.
 - `v6/docs/V6_RELOAD_REPLACEMENT_VIEWPORT_PROJECTION_STEP178.md`: accepted
   reload chart-data replacement viewport projection through the chart-viewport
   owner without direct chart-engine writes.
+- `v6/docs/V6_PANE_RELOAD_PIPELINE_E2E_STEP179.md`: accepted end-to-end
+  runtime and browser coverage for pane Symbol/Interval reload from pane intent
+  through replay-safe planning, bar-data load, chart-data replacement, and
+  viewport projection.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for

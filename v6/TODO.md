@@ -14,165 +14,63 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 178 - Reload Replacement Viewport Projection
-  Boundary. V6 now projects pane-local viewport after reload chart-data
-  replacement through the chart-viewport owner, without direct chart series
-  writes or replay mutations.
+- Latest completed step: Step 179 - Pane Reload Pipeline End-to-End Coverage.
+  V6 now has runtime and browser coverage for the full pane Symbol/Interval
+  reload pipeline from pane intent through replay-safe planning, bar-data load,
+  chart-data replacement, and viewport projection.
 
 ## Next Executable Steps
 
-### Step 179 - Pane Reload Pipeline End-to-End Coverage
+### Step 180 - Browser Smoke Harness Reliability
 
-Verify the full pane Symbol/Interval reload pipeline end to end, from
-reload-intent through replay-safe planning, bar-data loading, chart-data
-replacement, and viewport projection.
+Harden V6 browser smoke execution before adding more browser-heavy chart gates.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_RELOAD_REPLACEMENT_VIEWPORT_PROJECTION_STEP178.md`,
-  `V6_RELOADED_DATA_CHART_DATA_REPLACEMENT_STEP177.md`,
-  `V6_PLANNED_RELOAD_BAR_DATA_HANDOFF_STEP176.md`,
-  `V6_RELOAD_WINDOW_PLANNING_RUNTIME_STEP175.md`,
-  `V6_REPLAY_SAFE_RELOAD_WINDOW_PLAN_STEP174.md`,
-  `V6_PANE_INTENT_RELOAD_RUNTIME_STEP173.md`,
-  `V6_SYNCED_INTENT_RELOAD_BOUNDARY_STEP172.md`,
-  `V6_SYMBOL_INTERVAL_INTENT_FANOUT_STEP171.md`,
-  `V6_SYMBOL_INTERVAL_SYNC_RUNTIME_STEP170.md`,
-  `V6_PANE_SYMBOL_INTERVAL_INTENT_STEP169.md`,
-  `V6_SYMBOL_INTERVAL_SYNC_BOUNDARY_STEP168.md`,
-  `V6_CROSSHAIR_SYNC_EFFECT_STEP167.md`,
-  `V6_LAYOUT_SYNC_EFFECTS_STEP166.md`,
-  `V6_PANE_RESIZE_DRAG_STEP165.md`,
-  `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
-  `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
-  `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
-  `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
-  `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
-  `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
-  `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
-  `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
-  `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
-  `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
-  `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
-  `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
-  `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
-  `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
-  `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
-  `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
-  `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
-  `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
-  `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
-  `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
-  `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
-  `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
-  `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
-  `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- add smoke and, if practical, browser coverage for the full pane reload
-  pipeline;
-- verify visible chart-data and viewport updates are pane-local;
-- do not add new ownership behavior unless a gap is found and documented;
-- preserve Step 178 reload replacement viewport projection and
-  `paneIntentReloadViewport:projected`;
-- preserve Step 177 chart-data replacement and
-  `paneIntentReloadChartData:replaced`;
-- preserve Step 176 planned reload bar-data handoff and
-  `paneIntentReloadData:loaded`;
-- preserve Step 175 reload planning runtime and `paneIntentReloadPlan:planned`;
-- preserve Step 174 pure reload window planning and no-future caps;
-- preserve Step 173 reload-intent runtime and events;
-- preserve Step 172 reload-intent model and boundary doc;
-- preserve Step 171 intent fan-out and loop suppression;
-- preserve Step 170 `paneIntentSync:planned` state and boundary smoke;
-- preserve Step 169 pane intent commands and events;
-- preserve the Step 168 decision that Symbol/Interval sync fan-out belongs to a
-  future dedicated runtime, not `layout-sync-surface-bridge`;
-- preserve Step 168 boundary smoke;
-- preserve Step 167 Crosshair sync;
-- preserve Step 166 date-range/time visible-range sync;
-- keep resize ratios from Step 165 local to chart presentation;
-- keep persisted layout variant state from Step 164 unchanged;
-- do not implement symbol or interval data reloads unless a separate owner
-  boundary is accepted in this step;
-- preserve Step 165 pane resize drag behavior;
-- preserve Step 164 layout variant geometry;
-- preserve Step 163 pane-local reset controls;
-- preserve Step 162 layout pane data bootstrap;
-- preserve Step 161 layout pane surface reflow;
-- preserve Step 160 layout menu owner binding;
-- preserve Step 159 selected owner boundary and non-goals;
-- preserve Step 158 chart foundation integration audit coverage;
-- preserve Step 157 pane-local replay viewport projection isolation;
-- preserve Step 156 pane-local replay append and auto-play isolation;
-- preserve pane-local leftward history exhaustion from Step 155;
-- preserve Step 154 hovered-pane crosshair readout isolation;
-- preserve the Step 153 rule that OHLC is hidden when no selected candle is
-  available;
-- preserve continuous leftward exhaustion stopping and canvas-left request caps;
-- preserve duplicate/exhausted older-window suppression;
-- preserve replay speed under active and recently loaded history extension and
-  auto-play;
-- preserve pane-local chart-data and viewport intent for multi-pane hosts;
-- do not add simulated trading, comparison symbols, overlays, Order, or Calendar
-  behavior in this step;
-- keep dashboard row-action visibility unchanged;
-- do not expose Order or Calendar.
-
-Scope:
-
-- layout sync effects through layout-runtime state, chart-surface bridges, and
-  chart-viewport/chart-engine owner boundaries;
-- do not move pane resize ownership out of chart-surface;
-- do not move layout variant ownership out of layout-runtime;
-- do not request/cache bars outside bar-data;
-- do not write chart series outside chart-engine;
-- do not mutate replay cursor outside replay runtime;
-- do not mutate viewport intent outside chart-viewport runtime;
-- do not route pane ownership through workstation route files.
+- read `V6_PANE_RELOAD_PIPELINE_E2E_STEP179.md`;
+- preserve all Step 179 reload pipeline coverage;
+- fix or document the fixed `CHROME_DEBUG_PORT` collision risk in
+  `v6/tests/helpers/v6-browser-harness.js`;
+- prefer allocating a free CDP port per browser smoke unless an env override is
+  explicitly provided;
+- ensure cleanup still closes Chrome, the local web server, and profile dirs;
+- run selected browser smokes sequentially after the harness change;
+- do not change chart, replay, bar-data, chart-data, viewport, layout, or pane
+  ownership behavior in this step.
 
 Acceptance:
 
-- layout sync effects smoke passes;
-- layout sync effects browser smoke passes;
-- pane resize drag smoke passes;
-- pane resize drag browser smoke passes;
-- layout variant geometry browser smoke passes;
-- layout pane surface reflow smoke passes;
-- layout pane surface reflow browser smoke passes;
-- pane-local reset controls smoke passes;
-- pane-local reset controls browser smoke passes;
-- layout pane data bootstrap smoke passes;
+- pane reload pipeline browser smoke passes;
 - layout pane data bootstrap browser smoke passes;
-- layout surface bridge smoke passes;
-- layout menu owner binding smoke passes;
-- layout menu owner binding browser smoke passes;
-- chart foundation next slice selection smoke passes;
-- chart foundation integration re-audit smoke passes;
-- multi-pane replay viewport projection isolation smoke passes;
-- multi-pane replay append / auto-play isolation smoke passes;
-- multi-pane leftward history extension isolation smoke passes;
-- multi-pane crosshair readout isolation smoke passes;
-- Step 153 crosshair OHLC readout browser smoke passes;
-- auto-play speed under continuous history smoke passes;
-- continuous leftward extension smoke passes;
-- replay speed under history extension smoke passes;
-- drag-triggered history extension browser smoke passes;
-- leftward historical K-line extension smoke passes;
-- multi-pane foundation smoke passes;
-- reset view / KXG reset flow smoke passes;
-- replay K-line chart flow smoke passes;
-- database K-line import boundary smoke passes;
-- chart foundation reprioritization smoke passes;
-- bar-data runtime smoke passes;
-- chart entry context/window planning smoke passes;
-- replay runtime smoke passes;
-- chart-data no-future filtering smoke passes;
-- chart reset view browser smoke passes;
-- workstation chart presentation re-audit smoke passes;
+- multi-pane replay append browser smoke passes sequentially;
+- multi-pane replay viewport projection browser smoke passes sequentially;
+- browser harness cleanup leaves no test-owned node/http/chrome process running;
 - boundary smoke passes;
+- `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 179 - Pane Reload Pipeline End-to-End Coverage
+
+Completed in commits:
+
+- `e4a5d6f8 test(v6): cover pane reload pipeline end to end`
+- `c1c59251 test(v6): cover pane reload pipeline browser flow`
+
+Verification:
+
+- `node v6/tests/pane-reload-pipeline-step179-smoke.js`
+- `node v6/tests/pane-reload-pipeline-browser-step179-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/pane-intent-reload-viewport-runtime-step178-smoke.js`
+- `node v6/tests/pane-intent-reload-chart-data-runtime-step177-smoke.js`
+- `node v6/tests/pane-intent-reload-data-runtime-step176-smoke.js`
+- `node v6/tests/pane-intent-reload-window-runtime-step175-smoke.js`
+- `node v6/tests/pane-intent-reload-runtime-step173-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 178 - Reload Replacement Viewport Projection Boundary
 
