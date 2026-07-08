@@ -14,48 +14,44 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 130 - Workstation Chart Slice Selection.
-  Diagnostics Visibility Cleanup is selected as the next bounded
-  workstation/chart slice.
+- Latest completed step: Step 131 - Diagnostics Visibility Cleanup. Readiness
+  runtime/command/gate telemetry is hidden from the default visible header path
+  while readiness state remains available to tests and future tooling.
 
 ## Next Executable Steps
 
-### Step 131 - Diagnostics Visibility Cleanup
+### Step 132 - Workstation Chart Slice Selection
 
-Move readiness diagnostics out of the normal workstation header reading path
-while preserving compact user-facing readiness state and test coverage.
+Choose the next bounded workstation/chart slice after diagnostics visibility
+cleanup.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`,
-  `V6_PRODUCT_TOP_CHROME.md`, `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
-  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- keep a compact user-facing readiness summary in top chrome;
-- remove runtime count, command count, gate count, and gate-list telemetry from
-  the default visible header path;
-- keep readiness controller state available for tests and future developer
-  tooling;
-- avoid implementing a broad developer diagnostics mode in this slice;
+- read `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`,
+  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`, `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`,
+  and recent workstation chrome audits;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- prefer selecting one deferred owner contract family, such as
+  drawing/action-history, indicators, account/trading, screenshot/export, or
+  session-settings, unless a newly found regression requires a narrower fix;
+- keep the selection docs/test only;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- shell/readiness UI cleanup plus focused tests;
+- docs/test selection only;
+- do not implement the selected slice in Step 132;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, orders, or calendar commands from readiness
-  cleanup code;
-- do not import chart-engine, chart-data, chart-viewport, replay, bar-data,
-  default-wall, session-settings, orders, or calendar owners into readiness
-  surface code.
+  viewport, session-settings, orders, or calendar commands from selection code.
 
 Acceptance:
 
-- new diagnostics visibility cleanup browser smoke passes;
-- app shell browser smoke passes with updated diagnostics visibility
-  expectations;
+- new Step 132 slice selection smoke passes;
+- diagnostics visibility cleanup browser smoke passes;
 - Step 130 slice selection smoke passes;
 - workstation UI parity gap re-audit smoke passes;
 - FXReplay UI parity gap audit smoke passes;
@@ -65,6 +61,27 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 131 - Diagnostics Visibility Cleanup
+
+Completed in commit:
+
+- `a6db00d5 feat(v6): clean up readiness diagnostics visibility`
+
+Verification:
+
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/readiness-surface-controller-smoke.js`
+- `node v6/tests/workstation-chart-slice-selection-step130-smoke.js`
+- `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
+- `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 130 - Workstation Chart Slice Selection
 

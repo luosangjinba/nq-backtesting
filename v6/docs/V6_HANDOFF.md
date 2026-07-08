@@ -5,19 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 130 completed.
-- Next planned step: Step 131 - Diagnostics Visibility Cleanup.
+- Current V6 step state: Step 131 completed.
+- Next planned step: Step 132 - Workstation Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Workstation Chart Slice Selection:
+The latest completed work is Diagnostics Visibility Cleanup:
 
-- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md` selects Diagnostics
-  Visibility Cleanup as the next bounded slice.
-- `workstation-chart-slice-selection-step130-smoke.js` locks the selected
-  owner boundary, acceptance gates, runtime-command exclusions, and dashboard
-  row-action visibility.
-- Step 131 should keep compact user-facing readiness text while moving
-  runtime/command/gate telemetry out of the normal header reading path.
+- readiness runtime/command/gate telemetry remains in DOM/controller state but
+  is hidden from the default visible header path;
+- `diagnostics-visibility-cleanup-browser-smoke.js` covers visible text,
+  telemetry hiding, controller state, and dashboard row-action visibility;
+- `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md` now points the next direction toward
+  selecting one deferred owner contract family.
 
 ## Restart Reading Order
 
@@ -54,53 +53,53 @@ After restarting the server or assistant context, read these first:
 29. `v6/sessions/session_20260707_step128_workstation_chart_slice_selection.md`
 30. `v6/sessions/session_20260707_step129_workstation_ui_parity_gap_reaudit.md`
 31. `v6/sessions/session_20260707_step130_workstation_chart_slice_selection.md`
-32. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-33. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-34. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-35. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-36. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-37. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-38. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-39. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-40. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-41. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-42. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-43. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-44. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-45. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-46. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-47. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-48. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-49. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+32. `v6/sessions/session_20260707_step131_diagnostics_visibility_cleanup.md`
+33. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+34. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+35. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+36. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+37. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+38. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+39. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+40. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+41. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+42. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+43. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+44. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+45. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+46. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+47. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+48. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+49. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+50. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 131 should implement Diagnostics Visibility Cleanup.
+Step 132 should choose the next bounded workstation/chart implementation slice.
 
-Keep Step 131 bounded:
+Keep Step 132 bounded:
 
-- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`,
-  `V6_PRODUCT_TOP_CHROME.md`, `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`, and
-  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`;
-- keep compact user-facing readiness summary in top chrome;
-- remove runtime count, command count, gate count, and gate-list telemetry from
-  the default visible header path;
-- keep readiness controller state available for tests and future developer
-  tooling;
-- avoid implementing a broad developer diagnostics mode in this slice;
+- read `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`,
+  `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`,
+  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`, and recent workstation
+  chrome audits;
+- select one small next slice with explicit owner boundary and acceptance
+  tests;
+- prefer one deferred owner contract family unless a newly found regression
+  requires a narrower fix first;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- shell/readiness UI cleanup plus focused tests;
+- docs/test selection only;
+- do not implement the selected slice in Step 132;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
-  viewport, session-settings, orders, or calendar commands from readiness
-  cleanup code;
-- run diagnostics visibility cleanup browser smoke, app shell browser smoke,
-  Step 130 selection smoke, parity gap re-audit smoke, parity gap audit smoke,
-  Session settings panel regression audit, bottom chrome regression audit, chart
-  presentation re-audit, and boundary smoke.
+  viewport, session-settings, orders, or calendar commands from selection code;
+- run the new Step 132 selection smoke, diagnostics visibility cleanup browser
+  smoke, Step 130 selection smoke, parity gap re-audit smoke, parity gap audit
+  smoke, Session settings panel regression audit, bottom chrome regression
+  audit, chart presentation re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -129,8 +128,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 131 work:
+Run these before committing Step 132 work:
 
+- `node v6/tests/diagnostics-visibility-cleanup-browser-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step130-smoke.js`
 - `node v6/tests/workstation-ui-parity-gap-reaudit-smoke.js`
 - `node v6/tests/fxreplay-ui-parity-gap-audit-smoke.js`
@@ -211,15 +211,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `a6db00d5 feat(v6): clean up readiness diagnostics visibility`
 - `ff8323f7 docs(v6): select diagnostics visibility cleanup slice`
 - `8ea6b953 test(v6): tighten workstation parity re-audit guards`
 - `290169b5 docs(v6): re-audit workstation ui parity gaps`
 - `4af426eb docs(v6): select workstation parity re-audit slice`
-- `813f550b test(v6): audit session settings panel regression`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-131. The handoff point is intentionally after selecting diagnostics visibility
-cleanup as the next bounded slice.
+132. The handoff point is intentionally after completing diagnostics visibility
+cleanup.
