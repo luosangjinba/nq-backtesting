@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 169 - Pane Symbol/Interval Intent Model. V6 now
-  has explicit pane-local Symbol/Interval intent commands and events without
-  introducing sync fan-out, bar reloads, chart-data writes, viewport projection,
-  or replay cursor mutation.
+- Latest completed step: Step 170 - Symbol/Interval Sync Runtime Skeleton. V6
+  now has a dedicated pane-intent sync runtime that plans Symbol/Interval
+  fan-out targets without mutating target panes, requesting bars, writing
+  chart-data, projecting viewport, or touching replay state.
 
 ## Next Executable Steps
 
-### Step 170 - Symbol/Interval Sync Runtime Skeleton
+### Step 171 - Symbol/Interval Intent Fan-Out
 
-Add the dedicated Symbol/Interval sync runtime skeleton before implementing any
-bar reload behavior.
+Implement tested Symbol/Interval intent fan-out to target panes without data
+reload behavior.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_SYMBOL_INTERVAL_INTENT_STEP169.md`,
+- read `V6_SYMBOL_INTERVAL_SYNC_RUNTIME_STEP170.md`,
+  `V6_PANE_SYMBOL_INTERVAL_INTENT_STEP169.md`,
   `V6_SYMBOL_INTERVAL_SYNC_BOUNDARY_STEP168.md`,
   `V6_CROSSHAIR_SYNC_EFFECT_STEP167.md`,
   `V6_LAYOUT_SYNC_EFFECTS_STEP166.md`,
@@ -59,10 +60,10 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- add a dedicated runtime boundary that listens to pane intent events and layout
-  sync state;
-- fan out intent only in memory/commands if test-covered, but do not request
-  bars, replace chart-data, or project viewport in this step;
+- extend the dedicated pane-intent sync runtime to dispatch target pane intent
+  commands with loop suppression;
+- do not request bars, replace chart-data, or project viewport in this step;
+- preserve Step 170 `paneIntentSync:planned` state and boundary smoke;
 - preserve Step 169 pane intent commands and events;
 - preserve the Step 168 decision that Symbol/Interval sync fan-out belongs to a
   future dedicated runtime, not `layout-sync-surface-bridge`;
@@ -151,6 +152,24 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 170 - Symbol/Interval Sync Runtime Skeleton
+
+Completed in commits:
+
+- `a1fda08d feat(v6): add pane intent sync model`
+- `9bebd625 feat(v6): add pane intent sync runtime`
+- `8c2f12c6 test(v6): guard pane intent sync boundary`
+
+Verification:
+
+- `node v6/tests/pane-intent-sync-model-step170-smoke.js`
+- `node v6/tests/pane-intent-sync-runtime-step170-smoke.js`
+- `node v6/tests/pane-intent-sync-boundary-step170-smoke.js`
+- `node v6/tests/pane-intent-boundary-step169-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 169 - Pane Symbol/Interval Intent Model
 
