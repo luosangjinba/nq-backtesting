@@ -23,6 +23,12 @@ async function readValue() {
           direction: document.querySelector('[data-v6-status-readout]')?.dataset.statusCandleDirection,
           ohlc: document.querySelector('[data-v6-status-readout]')?.dataset.statusOhlc,
         },
+        readoutColors: {
+          close: getComputedStyle(document.querySelector('[data-v6-status-close]')).color,
+          high: getComputedStyle(document.querySelector('[data-v6-status-high]')).color,
+          low: getComputedStyle(document.querySelector('[data-v6-status-low]')).color,
+          open: getComputedStyle(document.querySelector('[data-v6-status-open]')).color,
+        },
       };
     })()))()
   `));
@@ -128,6 +134,9 @@ try {
   assert.equal(paneA.displayReadout, true);
   assert.equal(afterA.header.close, `C ${Number(paneA.bar.close).toFixed(2)}`);
   assert.equal(afterA.readoutDataset.ohlc, 'selected');
+  assert.equal(afterA.readoutDataset.direction, 'up');
+  assert.equal(new Set(Object.values(afterA.readoutColors)).size, 1);
+  assert.equal(afterA.readoutColors.open, 'rgb(54, 183, 168)');
   const paneAClose = afterA.header.close;
 
   const afterB = await moveUntilPane(setup.b, 'pane-b');
@@ -139,6 +148,8 @@ try {
   assert.equal(afterB.header.close, `C ${Number(paneB.bar.close).toFixed(2)}`);
   assert.notEqual(afterB.header.close, paneAClose);
   assert.equal(afterB.readoutDataset.direction, 'down');
+  assert.equal(new Set(Object.values(afterB.readoutColors)).size, 1);
+  assert.equal(afterB.readoutColors.open, 'rgb(242, 95, 104)');
 } finally {
   await evaluate(page.client, `
     (() => {
