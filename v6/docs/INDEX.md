@@ -98,6 +98,8 @@ Read this index before working on V6.
 - `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`: accepted account/trading
   owner contract, account readout fields, trade draft fields, read-only intent,
   validation helpers, and boundary coverage.
+- `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`: selected next
+  bounded workstation/chart slice after the account/trading owner contract.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -216,6 +218,8 @@ Read this index before working on V6.
 - `V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`: accepted account/trading owner
   contract while the bottom Buy, Sell, quantity, Analytics, balance, and PnL
   surfaces remain disabled and inert.
+- `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`: accepted next
+  workstation/chart slice selection after the account/trading owner contract.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
