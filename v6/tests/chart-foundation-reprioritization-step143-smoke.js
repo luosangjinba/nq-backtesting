@@ -32,9 +32,9 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Latest completed step: Step 154 - Multi-Pane Crosshair Readout Isolation/);
-assert.match(todoDoc, /Step 155 - Multi-Pane Leftward History Extension Isolation/);
-assert.match(todoDoc, /verify one pane's canvas-left request does not mutate another pane's chart-data\s+record or exhausted-history memory/);
+assert.match(todoDoc, /Latest completed step: Step 155 - Multi-Pane Leftward History Extension\s+Isolation/);
+assert.match(todoDoc, /Step 156 - Multi-Pane Replay Append \/ Auto-Play Isolation/);
+assert.match(todoDoc, /verify replay `Next` and auto-play appends update the intended pane-local\s+chart-data record without mutating unrelated panes/);
 assert.match(todoDoc, /preserve continuous leftward exhaustion stopping and canvas-left request caps/);
 
 for (const forbiddenToken of [

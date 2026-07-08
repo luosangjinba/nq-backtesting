@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 154 - Multi-Pane Crosshair Readout Isolation.
-  V6 now keeps crosshair state pane-local while the visible OHLC readout follows
-  the hovered pane, and non-current pane leave/null events cannot clear or
-  overwrite the current readout.
+- Latest completed step: Step 155 - Multi-Pane Leftward History Extension
+  Isolation. V6 now verifies pane-local historical extension and exhaustion:
+  one pane can extend or exhaust older history without mutating another pane's
+  chart-data record, while shared bar-data cache can still serve both panes.
 
 ## Next Executable Steps
 
-### Step 155 - Multi-Pane Leftward History Extension Isolation
+### Step 156 - Multi-Pane Replay Append / Auto-Play Isolation
 
-Harden canvas-left historical extension behavior for multi-pane chart hosts.
+Harden replay-driven append and auto-play behavior for multi-pane chart hosts.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
+- read `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
+  `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
   `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
   `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
   `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
@@ -44,10 +45,10 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- keep leftward history requests pane-local in chart-history coordination;
-- verify one pane's canvas-left request does not mutate another pane's chart-data
-  record or exhausted-history memory;
-- verify repeated older-window extension and exhaustion stopping per pane;
+- verify replay `Next` and auto-play appends update the intended pane-local
+  chart-data record without mutating unrelated panes;
+- verify replay appends remain fast after multi-pane historical extension;
+- preserve pane-local leftward history exhaustion from Step 155;
 - preserve Step 154 hovered-pane crosshair readout isolation;
 - preserve the Step 153 rule that OHLC is hidden when no selected candle is
   available;
@@ -63,8 +64,8 @@ Notes for execution:
 
 Scope:
 
-- multi-pane leftward history extension isolation using existing chart-history,
-  bar-data, chart-data, chart-surface, chart-engine, chart-entry, replay, and
+- multi-pane replay append / auto-play isolation using existing chart-entry,
+  replay, chart-data, chart-surface, chart-engine, chart-history, bar-data, and
   pane ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
@@ -74,6 +75,7 @@ Scope:
 
 Acceptance:
 
+- multi-pane replay append / auto-play isolation smoke passes;
 - multi-pane leftward history extension isolation smoke passes;
 - multi-pane crosshair readout isolation smoke passes;
 - Step 153 crosshair OHLC readout browser smoke passes;
@@ -96,6 +98,25 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 155 - Multi-Pane Leftward History Extension Isolation
+
+Completed in commits:
+
+- `cf7b70ce test(v6): cover multi-pane leftward history isolation`
+- `9ad85ee7 test(v6): cover multi-pane leftward history browser flow`
+
+Verification:
+
+- `node v6/tests/multi-pane-leftward-history-step155-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-browser-step155-smoke.js`
+- `node v6/tests/continuous-leftward-history-pane-isolation-step151-smoke.js`
+- `node v6/tests/continuous-leftward-history-step151-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/leftward-history-hardening-step149-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 154 - Multi-Pane Crosshair Readout Isolation
 

@@ -137,6 +137,9 @@ Read this index before working on V6.
 - `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`: accepted multi-pane
   crosshair OHLC readout isolation using hovered-pane readout selection and
   non-current pane null suppression.
+- `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`: accepted multi-pane
+  leftward historical extension isolation using pane-local chart-history
+  requests, exhausted-history memory, and chart-data prepends.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
