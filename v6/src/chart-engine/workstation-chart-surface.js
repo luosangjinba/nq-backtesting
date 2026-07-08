@@ -111,6 +111,10 @@ function rangesNear(left = {}, right = {}) {
   );
 }
 
+function findPaneSnapshot(manager, paneId) {
+  return manager.snapshot().panes.find((pane) => pane.paneId === paneId) || null;
+}
+
 export function mountWorkstationChartSurface(root, {
   chartOptions = {},
   emitEvent = emitRuntimeEvent,
@@ -613,6 +617,10 @@ export function mountWorkstationChartSurface(root, {
         suppressUntil: Date.now() + PROGRAMMATIC_RANGE_SUPPRESSION_MS,
         to: Number(record.projection.to),
       });
+      const measuredRange = measuredVisibleRangeByPaneId.get(recordPaneId);
+      if (record.projection.origin === 'manual' && measuredRange && rangesNear(measuredRange, record.projection)) {
+        return findPaneSnapshot(manager, recordPaneId);
+      }
       const snapshot = manager.setVisibleLogicalRange(recordPaneId, {
         from: record.projection.from,
         to: record.projection.to,
