@@ -176,6 +176,9 @@ Read this index before working on V6.
 - `v6/docs/V6_RELOADED_DATA_CHART_DATA_REPLACEMENT_STEP177.md`: accepted loaded
   reload data replacement into pane-local chart-data with no-future filtering,
   still without viewport projection.
+- `v6/docs/V6_RELOAD_REPLACEMENT_VIEWPORT_PROJECTION_STEP178.md`: accepted
+  reload chart-data replacement viewport projection through the chart-viewport
+  owner without direct chart-engine writes.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
