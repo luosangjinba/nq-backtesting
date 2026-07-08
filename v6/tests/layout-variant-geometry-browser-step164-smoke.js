@@ -4,6 +4,10 @@ import { openV6Page } from './helpers/v6-browser-harness.js';
 
 const page = await openV6Page({ height: 820, width: 1280 });
 
+function normalizeTemplate(template = '') {
+  return String(template).replaceAll('0px', '0');
+}
+
 try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
@@ -75,7 +79,7 @@ try {
     '1 / 2 / 2 / 3',
     'auto',
   ]);
-  assert.match(value.twiceVertical.columns, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
+  assert.equal(normalizeTemplate(value.twiceVertical.columns), 'minmax(0, 50fr) minmax(0, 50fr)');
   assert.deepEqual(value.twiceVertical.hosts.slice(0, 2).map((host) => host.minHeight), ['0px', '0px']);
   assert.notEqual(value.twiceVertical.hosts[0].heightStyle, '100%');
 
@@ -85,7 +89,7 @@ try {
     '2 / 1 / 3 / 2',
     'auto',
   ]);
-  assert.match(value.twiceHorizontal.rows, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
+  assert.equal(normalizeTemplate(value.twiceHorizontal.rows), 'minmax(0, 50fr) minmax(0, 50fr)');
   assert.notEqual(value.twiceHorizontal.rows, value.twiceVertical.rows);
   assert.deepEqual(value.twiceHorizontal.hosts.slice(0, 2).map((host) => host.minHeight), ['0px', '0px']);
   assert.notEqual(value.twiceHorizontal.hosts[0].heightStyle, '100%');
@@ -96,7 +100,7 @@ try {
     '1 / 2 / 2 / 3',
     '1 / 3 / 2 / 4',
   ]);
-  assert.match(value.tripleColumns.columns, /repeat\(3, minmax\(0px, 1fr\)\)|0px 0px 0px/);
+  assert.equal(normalizeTemplate(value.tripleColumns.columns), 'minmax(0, 33.333fr) minmax(0, 33.334fr) minmax(0, 33.333fr)');
 
   assert.equal(value.tripleRows.variant, 'triple-rows');
   assert.deepEqual(value.tripleRows.hosts.map((host) => host.gridArea), [
@@ -104,7 +108,7 @@ try {
     '2 / 1 / 3 / 2',
     '3 / 1 / 4 / 2',
   ]);
-  assert.match(value.tripleRows.rows, /repeat\(3, minmax\(0px, 1fr\)\)|0px 0px 0px/);
+  assert.equal(normalizeTemplate(value.tripleRows.rows), 'minmax(0, 33.333fr) minmax(0, 33.334fr) minmax(0, 33.333fr)');
   assert.notEqual(value.tripleRows.rows, value.tripleColumns.rows);
   assert.deepEqual(value.tripleRows.hosts.map((host) => host.minHeight), ['0px', '0px', '0px']);
 
@@ -114,8 +118,8 @@ try {
     '1 / 2 / 2 / 3',
     '2 / 2 / 3 / 3',
   ]);
-  assert.match(value.tripleRightStack.columns, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
-  assert.match(value.tripleRightStack.rows, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
+  assert.equal(normalizeTemplate(value.tripleRightStack.columns), 'minmax(0, 50fr) minmax(0, 50fr)');
+  assert.equal(normalizeTemplate(value.tripleRightStack.rows), 'minmax(0, 50fr) minmax(0, 50fr)');
   assert.deepEqual(value.tripleRightStack.hosts.map((host) => host.minHeight), ['0px', '0px', '0px']);
 
   assert.equal(value.tripleLeftStack.variant, 'triple-left-stack');

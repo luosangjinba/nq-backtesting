@@ -4,6 +4,10 @@ import { openV6Page } from './helpers/v6-browser-harness.js';
 
 const page = await openV6Page({ height: 820, width: 1280 });
 
+function normalizeTemplate(template = '') {
+  return String(template).replaceAll('0px', '0');
+}
+
 try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
@@ -72,7 +76,7 @@ try {
     ['tertiary', true, 'false'],
   ]);
   assert.deepEqual(value.twice.surfaceState.layout.visiblePaneIds, ['main', 'secondary']);
-  assert.match(value.twice.gridTemplateColumns, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
+  assert.equal(normalizeTemplate(value.twice.gridTemplateColumns), 'minmax(0, 50fr) minmax(0, 50fr)');
   assert.equal(value.twice.hosts[0].display, 'block');
   assert.equal(value.twice.hosts[1].display, 'block');
   assert.equal(value.twice.hosts[2].display, 'none');
@@ -85,7 +89,7 @@ try {
     ['tertiary', false, 'true'],
   ]);
   assert.deepEqual(value.triple.surfaceState.layout.visiblePaneIds, ['main', 'secondary', 'tertiary']);
-  assert.match(value.triple.gridTemplateColumns, /repeat\(3, minmax\(0px, 1fr\)\)|0px 0px 0px/);
+  assert.equal(normalizeTemplate(value.triple.gridTemplateColumns), 'minmax(0, 33.333fr) minmax(0, 33.334fr) minmax(0, 33.333fr)');
   assert.deepEqual(value.triple.hosts.map((host) => host.display), ['block', 'block', 'block']);
 } finally {
   await page.cleanup();

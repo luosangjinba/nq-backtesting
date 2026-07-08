@@ -134,6 +134,13 @@ assert.deepEqual(state, {
     variant: 'single',
     visiblePaneIds: ['default'],
   },
+  paneResize: {
+    handles: [],
+    ratios: {
+      columns: [100],
+      rows: [100],
+    },
+  },
   measuredVisibleRange: [{
     from: -9,
     paneId: 'default',

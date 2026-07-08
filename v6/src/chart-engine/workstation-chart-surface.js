@@ -1,4 +1,11 @@
 import { createChartHostManager } from './chart-host-manager.js';
+import {
+  calculatePaneResizeCoordinatePercent,
+  createGridTemplatesFromRatios,
+  getPaneResizeHandles,
+  normalizePaneResizeRatios,
+  resizePaneRatiosByHandle,
+} from './pane-resize-model.js';
 import { CHART_SURFACE_EVENTS } from '../contracts/app-contracts.js';
 import { emitEvent as emitRuntimeEvent } from '../runtime/events.js';
 
@@ -136,6 +143,9 @@ export function mountWorkstationChartSurface(root, {
   const chartPaneLayerElement = root.querySelector?.('[data-v6-chart-pane-layer]') || null;
   const crosshairListeners = new Set();
   const visibleRangeListeners = new Set();
+  const paneResizeRatiosByVariant = new Map();
+  const paneResizeHandleElements = new Map();
+  let activePaneResize = null;
   let layoutSnapshot = {
     mode: 'single',
     paneCount: 1,
@@ -234,6 +244,157 @@ export function mountWorkstationChartSurface(root, {
       .filter(Boolean);
   }
 
+  function getPaneResizeRatios(variant) {
+    const existing = paneResizeRatiosByVariant.get(variant);
+    const normalized = normalizePaneResizeRatios(variant, existing);
+    paneResizeRatiosByVariant.set(variant, normalized);
+    return normalized;
+  }
+
+  function applyPaneResizeTemplates(variant = layoutSnapshot.variant) {
+    if (!chartPaneLayerElement?.style) {
+      return null;
+    }
+    const templates = createGridTemplatesFromRatios(getPaneResizeRatios(variant));
+    chartPaneLayerElement.style.gridTemplateColumns = templates.columns;
+    chartPaneLayerElement.style.gridTemplateRows = templates.rows;
+    updatePaneResizeHandles(variant);
+    return templates;
+  }
+
+  function positionPaneResizeHandle(element, handle, ratios) {
+    const columns = ratios.columns;
+    const rows = ratios.rows;
+    element.style.left = '';
+    element.style.right = '';
+    element.style.top = '';
+    element.style.bottom = '';
+    element.style.width = '';
+    element.style.height = '';
+    element.style.transform = '';
+    if (handle.orientation === 'vertical') {
+      element.style.left = `${handle.offset}%`;
+      element.style.top = '0';
+      element.style.bottom = '0';
+      element.style.width = '10px';
+      element.style.transform = 'translateX(-5px)';
+      return;
+    }
+    element.style.top = `${handle.offset}%`;
+    element.style.height = '10px';
+    element.style.transform = 'translateY(-5px)';
+    if (handle.region === 'left') {
+      element.style.left = '0';
+      element.style.width = `${columns[0]}%`;
+      return;
+    }
+    if (handle.region === 'right') {
+      element.style.left = `${columns[0]}%`;
+      element.style.right = '0';
+      return;
+    }
+    element.style.left = '0';
+    element.style.right = '0';
+  }
+
+  function createPaneResizeHandleElement(handle) {
+    const ownerDocument = chartSurfaceElement?.ownerDocument || root.ownerDocument || globalThis.document;
+    if (!ownerDocument?.createElement || !chartSurfaceElement?.appendChild) {
+      return null;
+    }
+    const element = ownerDocument.createElement('div');
+    element.className = `chart-pane-resize-handle chart-pane-resize-handle-${handle.orientation}`;
+    element.dataset.v6PaneResizeHandle = handle.id;
+    element.dataset.v6PaneResizeAxis = handle.axis;
+    element.dataset.v6PaneResizeRegion = handle.region;
+    element.setAttribute?.('role', 'separator');
+    element.setAttribute?.('aria-orientation', handle.orientation === 'vertical' ? 'vertical' : 'horizontal');
+    element.addEventListener?.('pointerdown', onPaneResizePointerDown);
+    chartSurfaceElement.appendChild(element);
+    return element;
+  }
+
+  function updatePaneResizeHandles(variant = layoutSnapshot.variant) {
+    const handles = getPaneResizeHandles(variant, getPaneResizeRatios(variant));
+    const nextHandleIds = new Set(handles.map((handle) => handle.id));
+    for (const [handleId, element] of paneResizeHandleElements.entries()) {
+      if (!nextHandleIds.has(handleId)) {
+        element.removeEventListener?.('pointerdown', onPaneResizePointerDown);
+        element.remove?.();
+        paneResizeHandleElements.delete(handleId);
+      }
+    }
+    const ratios = getPaneResizeRatios(variant);
+    handles.forEach((handle) => {
+      let element = paneResizeHandleElements.get(handle.id);
+      if (!element) {
+        element = createPaneResizeHandleElement(handle);
+        if (element) {
+          paneResizeHandleElements.set(handle.id, element);
+        }
+      }
+      if (!element) {
+        return;
+      }
+      element.className = `chart-pane-resize-handle chart-pane-resize-handle-${handle.orientation}`;
+      element.hidden = false;
+      element.dataset.v6PaneResizeAxis = handle.axis;
+      element.dataset.v6PaneResizeRegion = handle.region;
+      element.dataset.v6PaneResizeVariant = variant;
+      positionPaneResizeHandle(element, handle, ratios);
+    });
+  }
+
+  function endPaneResize() {
+    if (!activePaneResize) {
+      return;
+    }
+    const { ownerDocument, moveHandler, upHandler } = activePaneResize;
+    ownerDocument?.removeEventListener?.('pointermove', moveHandler);
+    ownerDocument?.removeEventListener?.('pointerup', upHandler);
+    ownerDocument?.removeEventListener?.('pointercancel', upHandler);
+    chartSurfaceElement?.classList?.remove?.('is-pane-resizing');
+    activePaneResize = null;
+  }
+
+  function updatePaneResizeFromPointer(handleId, point) {
+    const variant = layoutSnapshot.variant;
+    const handle = getPaneResizeHandles(variant, getPaneResizeRatios(variant)).find((candidate) => candidate.id === handleId);
+    const rect = chartPaneLayerElement?.getBoundingClientRect?.();
+    if (!handle || !rect) {
+      return null;
+    }
+    const coordinatePercent = calculatePaneResizeCoordinatePercent(handle, point, rect);
+    const nextRatios = resizePaneRatiosByHandle(variant, getPaneResizeRatios(variant), handleId, coordinatePercent);
+    paneResizeRatiosByVariant.set(variant, nextRatios);
+    const templates = applyPaneResizeTemplates(variant);
+    resize();
+    scheduleLayoutResize();
+    return templates;
+  }
+
+  function onPaneResizePointerDown(event = {}) {
+    const handleId = event.currentTarget?.dataset?.v6PaneResizeHandle;
+    if (!handleId || !chartPaneLayerElement) {
+      return;
+    }
+    event.preventDefault?.();
+    event.stopPropagation?.();
+    const ownerDocument = event.currentTarget?.ownerDocument || chartSurfaceElement?.ownerDocument || root.ownerDocument || globalThis.document;
+    const moveHandler = (moveEvent = {}) => {
+      moveEvent.preventDefault?.();
+      updatePaneResizeFromPointer(handleId, moveEvent);
+    };
+    const upHandler = () => endPaneResize();
+    endPaneResize();
+    activePaneResize = { handleId, moveHandler, ownerDocument, upHandler };
+    chartSurfaceElement?.classList?.add?.('is-pane-resizing');
+    ownerDocument?.addEventListener?.('pointermove', moveHandler);
+    ownerDocument?.addEventListener?.('pointerup', upHandler, { once: true });
+    ownerDocument?.addEventListener?.('pointercancel', upHandler, { once: true });
+    updatePaneResizeFromPointer(handleId, event);
+  }
+
   function scheduleLayoutResize() {
     if (typeof requestAnimationFrame !== 'function') {
       return [];
@@ -288,6 +449,7 @@ export function mountWorkstationChartSurface(root, {
       chartPaneLayerElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
       chartPaneLayerElement.dataset.v6ChartLayoutVariant = variant;
     }
+    applyPaneResizeTemplates(variant);
     resize();
     scheduleLayoutResize();
     return { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] };
@@ -347,6 +509,12 @@ export function mountWorkstationChartSurface(root, {
     },
     destroy() {
       destroyed = true;
+      endPaneResize();
+      for (const element of paneResizeHandleElements.values()) {
+        element.removeEventListener?.('pointerdown', onPaneResizePointerDown);
+        element.remove?.();
+      }
+      paneResizeHandleElements.clear();
       if (pendingLayoutResizeFrame !== null && typeof cancelAnimationFrame === 'function') {
         cancelAnimationFrame(pendingLayoutResizeFrame);
         pendingLayoutResizeFrame = null;
@@ -373,6 +541,10 @@ export function mountWorkstationChartSurface(root, {
         hostConnected: hosts.every((host) => Boolean(host.isConnected)),
         hostSelector,
         layout: { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] },
+        paneResize: {
+          handles: getPaneResizeHandles(layoutSnapshot.variant, getPaneResizeRatios(layoutSnapshot.variant)),
+          ratios: getPaneResizeRatios(layoutSnapshot.variant),
+        },
         crosshair: [...crosshairByPaneId.values()]
           .map((record) => ({ ...record, bar: record.bar ? { ...record.bar } : null }))
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
@@ -383,6 +555,9 @@ export function mountWorkstationChartSurface(root, {
     },
     applyLayoutSnapshot,
     resize,
+    resizePaneByHandle(handleId, point) {
+      return updatePaneResizeFromPointer(handleId, point);
+    },
     subscribeVisibleRangeChange(handler) {
       if (typeof handler !== 'function') {
         throw new Error('Workstation chart surface visible range handler is required.');

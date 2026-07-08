@@ -2333,6 +2333,48 @@ p {
   display: none;
 }
 
+.chart-pane-resize-handle {
+  position: absolute;
+  z-index: 7;
+  border: 0;
+  background: transparent;
+  pointer-events: auto;
+  touch-action: none;
+}
+
+.chart-pane-resize-handle::before {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: rgba(116, 139, 153, 0.18);
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+.chart-pane-resize-handle:hover::before,
+.chart-pane-resize-handle:focus-visible::before,
+.chart-surface.is-pane-resizing .chart-pane-resize-handle::before {
+  opacity: 1;
+}
+
+.chart-pane-resize-handle-vertical {
+  cursor: col-resize;
+}
+
+.chart-pane-resize-handle-vertical::before {
+  left: 4px;
+  right: 4px;
+}
+
+.chart-pane-resize-handle-horizontal {
+  cursor: row-resize;
+}
+
+.chart-pane-resize-handle-horizontal::before {
+  top: 4px;
+  bottom: 4px;
+}
+
 .chart-reset-view-button {
   position: absolute;
   top: 12px;
