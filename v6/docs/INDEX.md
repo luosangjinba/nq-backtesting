@@ -140,6 +140,9 @@ Read this index before working on V6.
 - `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`: accepted multi-pane
   leftward historical extension isolation using pane-local chart-history
   requests, exhausted-history memory, and chart-data prepends.
+- `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`: accepted multi-pane replay
+  append and auto-play isolation using pane-aware manual next dispatch,
+  pane-aware auto-play state, and pane-local chart-data appends.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for

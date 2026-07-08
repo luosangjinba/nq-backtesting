@@ -5,21 +5,22 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 155 completed.
-- Next planned step: Step 156 - Multi-Pane Replay Append / Auto-Play Isolation.
+- Current V6 step state: Step 156 completed.
+- Next planned step: Step 157 - Multi-Pane Replay Viewport Projection
+  Isolation.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Multi-Pane Leftward History Extension Isolation:
+The latest completed work is Multi-Pane Replay Append / Auto-Play Isolation:
 
-- `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md` records pane-local historical
-  extension and exhausted-history isolation.
-- `multi-pane-leftward-history-step155-smoke.js` proves pane-a extension and
-  exhaustion do not mutate pane-b chart-data, while pane-b can still reuse cached
-  older-window data.
-- `multi-pane-leftward-history-browser-step155-smoke.js` proves the same browser
+- `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md` records pane-aware replay `Next` and
+  auto-play append behavior.
+- `multi-pane-replay-append-step156-smoke.js` proves manual next and auto-play
+  append into requested pane-local chart-data records without mutating unrelated
+  panes.
+- `multi-pane-replay-append-browser-step156-smoke.js` proves the same browser
   runtime flow with real multi-pane chart hosts and chart-data surface bridge
   wiring.
-- Step 156 should harden multi-pane replay append and auto-play isolation.
+- Step 157 should harden multi-pane replay viewport projection isolation.
 
 ## Restart Reading Order
 
@@ -81,56 +82,59 @@ After restarting the server or assistant context, read these first:
 54. `v6/sessions/session_20260708_step153_crosshair_ohlc_readout.md`
 55. `v6/sessions/session_20260708_step154_multi_pane_crosshair_readout.md`
 56. `v6/sessions/session_20260708_step155_multi_pane_leftward_history.md`
-57. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-58. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-59. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-61. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-62. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-64. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-65. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-66. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-67. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-68. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-69. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-70. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-71. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-72. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-73. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-74. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-75. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-76. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-77. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-78. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-79. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-80. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-81. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-82. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
-83. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
-84. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
-85. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
-86. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
-87. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
-88. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
-89. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
-90. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
-91. `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`
-92. `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`
-93. `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`
-94. `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`
-95. `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`
-96. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-97. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-98. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+57. `v6/sessions/session_20260708_step156_multi_pane_replay_append.md`
+58. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+59. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+60. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+62. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+63. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+64. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+65. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+66. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+67. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+68. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+69. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+70. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+71. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+72. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+73. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+74. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+75. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+76. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+77. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+78. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+79. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+80. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+81. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+82. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+83. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+84. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
+85. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
+86. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
+87. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
+88. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
+89. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
+90. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
+91. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
+92. `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`
+93. `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`
+94. `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`
+95. `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`
+96. `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`
+97. `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`
+98. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+99. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+100. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 156 should focus on Multi-Pane Replay Append / Auto-Play Isolation.
+Step 157 should focus on Multi-Pane Replay Viewport Projection Isolation.
 
-Keep Step 156 bounded:
+Keep Step 157 bounded:
 
-- read `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
+- read `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
+  `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
   `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
   `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
   `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
@@ -145,9 +149,11 @@ Keep Step 156 bounded:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
   `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- verify replay `Next` and auto-play appends update the intended pane-local
-  chart-data record without mutating unrelated panes;
-- verify replay appends remain fast after multi-pane historical extension;
+- verify replay `Next` and auto-play viewport projection applies only to the
+  intended pane-local chart-viewport record;
+- verify replay append remains visible without shifting unrelated pane viewport
+  intent after multi-pane historical extension;
+- preserve Step 156 pane-local replay append and auto-play isolation;
 - preserve pane-local leftward history exhaustion from Step 155;
 - preserve Step 154 hovered-pane crosshair readout isolation;
 - preserve the Step 153 rule that OHLC is hidden when no selected candle is
@@ -164,9 +170,9 @@ Keep Step 156 bounded:
 
 Expected implementation shape:
 
-- multi-pane replay append / auto-play isolation through existing chart-entry,
-  replay, chart-data, chart-surface, chart-engine, chart-history, bar-data, and
-  pane ownership boundaries;
+- multi-pane replay viewport projection isolation through existing chart-entry,
+  replay, chart-data, chart-viewport, chart-surface, chart-engine,
+  chart-history, bar-data, and pane ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -204,8 +210,10 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 156 work:
+Run these before committing Step 157 work:
 
+- `node v6/tests/multi-pane-replay-append-step156-smoke.js`
+- `node v6/tests/multi-pane-replay-append-browser-step156-smoke.js`
 - `node v6/tests/multi-pane-leftward-history-step155-smoke.js`
 - `node v6/tests/multi-pane-leftward-history-browser-step155-smoke.js`
 - `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
