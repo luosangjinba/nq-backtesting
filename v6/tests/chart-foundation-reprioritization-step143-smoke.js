@@ -32,10 +32,10 @@ assert.match(architectureDoc, /Only bar data runtime requests and caches bars|Ba
 assert.match(architectureDoc, /Only chart runtime writes chart series|Chart Engine Adapter[\s\S]*setData/);
 assert.match(architectureDoc, /Only replay runtime owns replay cursor|Replay Runtime[\s\S]*replay cursor/);
 assert.match(accountTradingDoc, /order placement, position mutation, account mutation/);
-assert.match(todoDoc, /Latest completed step: Step 147 - Multi-Pane Chart Foundation/);
-assert.match(todoDoc, /Step 148 - Leftward Historical K-Line Extension/);
-assert.match(todoDoc, /canvas-left \/ visible-range boundary/);
-assert.match(todoDoc, /cap each request at the canvas-left timeline boundary/);
+assert.match(todoDoc, /Latest completed step: Step 148 - Leftward Historical K-Line Extension/);
+assert.match(todoDoc, /Step 149 - Drag-Triggered History Extension Hardening/);
+assert.match(todoDoc, /actual chart drag\/wheel gestures trigger/);
+assert.match(todoDoc, /suppress duplicate in-flight or already-exhausted older-window requests/);
 
 for (const forbiddenToken of [
   'COMPARISON_SYMBOL_COMMANDS',

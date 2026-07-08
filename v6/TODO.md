@@ -14,22 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 147 - Multi-Pane Chart Foundation.
-  V6 now gates multi-host chart surface mounting and two-pane chart-data /
-  chart-viewport bridge fan-out through the same pane-local ownership paths.
+- Latest completed step: Step 148 - Leftward Historical K-Line Extension.
+  V6 now gates canvas-left bounded older-window requests through bar-data,
+  chart-data prepend/merge ownership, and browser-visible left extension
+  without replay cursor mutation.
 
 ## Next Executable Steps
 
-### Step 148 - Leftward Historical K-Line Extension
+### Step 149 - Drag-Triggered History Extension Hardening
 
-Implement bounded leftward historical K-line extension after replay K-line,
-reset view, and multi-pane chart foundations are stable.
+Harden actual drag/wheel-triggered historical extension and visible-latency
+behavior on top of the Step 148 bounded left-extension flow.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
+- read `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
+  `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
   `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
   `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
   `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
@@ -37,11 +39,12 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- trigger older-window demand only from canvas-left / visible-range boundary;
-- cap each request at the canvas-left timeline boundary and `maxBarsPerWindow`;
-- route all requests and cache writes through bar-data;
-- prepend/merge older bars through chart-data only after bar-data returns;
-- preserve replay cursor ownership and current visible replay speed;
+- verify actual chart drag/wheel gestures trigger the leftward history bridge;
+- suppress duplicate in-flight or already-exhausted older-window requests;
+- keep each request capped at the canvas-left timeline boundary and
+  `maxBarsPerWindow`;
+- measure browser-visible latency after an older window is loaded;
+- preserve replay cursor ownership and current replay `Next` speed;
 - preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - do not add simulated trading, comparison symbols, overlays, Order, or Calendar
   behavior in this step;
@@ -50,7 +53,7 @@ Notes for execution:
 
 Scope:
 
-- leftward historical K-line extension using existing chart-data,
+- drag-triggered historical extension hardening using existing chart-data,
   chart-viewport, chart-engine, chart-entry, replay, and bar-data ownership
   boundaries;
 - do not request/cache bars outside bar-data;
@@ -61,6 +64,7 @@ Scope:
 
 Acceptance:
 
+- drag-triggered history extension browser smoke passes;
 - leftward historical K-line extension smoke passes;
 - multi-pane foundation smoke passes;
 - reset view / KXG reset flow smoke passes;
@@ -76,6 +80,25 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 148 - Leftward Historical K-Line Extension
+
+Completed in commits:
+
+- `9299ea9b feat(v6): add chart data prepend bars command`
+- `796a4e8c feat(v6): add leftward history extension flow`
+- `51c85a57 test(v6): cover leftward history browser flow`
+
+Verification:
+
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-step148-smoke.js`
+- `node v6/tests/leftward-history-extension-browser-step148-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/chart-data-surface-bridge-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 147 - Multi-Pane Chart Foundation
 

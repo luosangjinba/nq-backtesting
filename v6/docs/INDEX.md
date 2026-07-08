@@ -116,6 +116,9 @@ Read this index before working on V6.
 - `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`: accepted multi-pane
   chart foundation using multi-host chart surface mounting and pane-local
   chart-data / chart-viewport bridge fan-out.
+- `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`: accepted bounded
+  leftward historical K-line extension through chart-history coordination,
+  bar-data requests, and chart-data prepend/merge ownership.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -250,6 +253,9 @@ Read this index before working on V6.
 - `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`: accepted multi-pane chart
   foundation using multi-host chart surface mounting and pane-local bridge
   fan-out.
+- `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`: accepted bounded leftward
+  historical K-line extension through chart-history, bar-data, chart-data, and
+  chart-viewport ownership paths.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,
