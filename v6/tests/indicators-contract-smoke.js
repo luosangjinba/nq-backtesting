@@ -16,6 +16,8 @@ import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-acti
 const contractSource = await readFile('v6/src/indicators/indicators-contract.js', 'utf8');
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const selectionDoc = await readFile('v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md', 'utf8');
+const contractDoc = await readFile('v6/docs/V6_INDICATORS_OWNER_CONTRACT.md', 'utf8');
+const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
 
 assert.equal(getIndicatorsOwner(), 'indicators-runtime');
 assert.deepEqual(getIndicatorsAllowedIds(), ['sma', 'ema', 'rsi', 'macd', 'volume', 'vwap', 'atr']);
@@ -123,6 +125,11 @@ assert.deepEqual(createIndicatorsContract(), {
 });
 assert.equal(Object.isFrozen(createIndicatorsContract()), true);
 assert.match(selectionDoc, /Indicators Owner\s+Contract/);
+assert.match(contractDoc, /Step 137 establishes the indicators owner contract/);
+assert.match(contractDoc, /custom indicators and Pine Script execution are not supported/);
+assert.match(contractDoc, /top-toolbar Indicators button remains disabled and inert/);
+assert.match(contractDoc, /Dashboard visible row actions\s+remain Summary, Stats, Copy, and Journal/);
+assert.match(docsIndex, /V6_INDICATORS_OWNER_CONTRACT\.md/);
 assert.match(shellSource, /data-v6-top-indicators disabled/);
 
 for (const forbiddenToken of [
