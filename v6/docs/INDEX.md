@@ -153,6 +153,9 @@ Read this index before working on V6.
   Menu Owner Binding as the next bounded chart-facing implementation slice.
 - `v6/docs/V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`: accepted Page layout menu
   owner binding through shell UI controller and layout-runtime commands.
+- `v6/docs/V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`: accepted layout runtime
+  mode changes flowing into chart-surface-owned one/two/three pane host
+  presentation.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for

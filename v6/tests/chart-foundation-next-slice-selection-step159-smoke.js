@@ -20,8 +20,9 @@ assert.match(selectionDoc, /Do not sync symbol, interval, crosshair, time, or da
 assert.match(selectionDoc, /Do not mutate chart-data, chart-viewport, chart-engine, chart-history,\s+replay, or bar-data state from shell code/);
 assert.match(selectionDoc, /Step 158 chart foundation integration re-audit still passes/);
 
-assert.match(todoDoc, /Latest completed step: Step 160 - Layout Menu Owner Binding/);
-assert.match(todoDoc, /Step 161 - Layout Pane Surface Reflow Boundary/);
+assert.match(todoDoc, /Latest completed step: Step 161 - Layout Pane Surface Reflow Boundary/);
+assert.match(todoDoc, /Step 162 - Layout Pane Data Bootstrap Boundary/);
+assert.match(todoDoc, /preserve Step 161 layout pane surface reflow/);
 assert.match(todoDoc, /preserve Step 160 layout menu owner binding/);
 assert.match(guardrailsDoc, /These controls stay inert until layout\/pane sync ownership exists/);
 assert.match(shellSource, /data-v6-layout-menu-details/);

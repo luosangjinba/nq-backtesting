@@ -123,14 +123,15 @@ assertIncludesAll(architectureDoc, [
   'V6 must model user/chart viewport intent as a',
 ], 'architecture doc');
 assertIncludesAll(todoDoc, [
-  'Latest completed step: Step 160 - Layout Menu Owner Binding',
-  'Step 161 - Layout Pane Surface Reflow Boundary',
+  'Latest completed step: Step 161 - Layout Pane Surface Reflow Boundary',
+  'Step 162 - Layout Pane Data Bootstrap Boundary',
   'do not request/cache bars outside bar-data',
   'do not write chart series outside chart-engine',
   'do not mutate replay cursor outside replay runtime',
   'do not mutate viewport intent outside chart-viewport runtime',
 ], 'todo');
 assertIncludesAll(indexDoc, [
+  'V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md',
   'V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md',
   'V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md',
   'V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md',
@@ -139,8 +140,8 @@ assertIncludesAll(indexDoc, [
   'V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md',
 ], 'index');
 assertIncludesAll(handoffDoc, [
-  'Current V6 step state: Step 160 completed.',
-  'Next planned step: Step 161 - Layout Pane Surface Reflow Boundary.',
+  'Current V6 step state: Step 161 completed.',
+  'Next planned step: Step 162 - Layout Pane Data Bootstrap Boundary.',
   'Browser tests should be run sequentially',
 ], 'handoff');
 

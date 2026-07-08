@@ -14,22 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 160 - Layout Menu Owner Binding. V6 now connects
-  the Page layout menu controls to layout-runtime state through a shell
-  controller, while keeping chart pane reflow and cross-pane sync behavior out
-  of this step.
+- Latest completed step: Step 161 - Layout Pane Surface Reflow Boundary. V6 now
+  routes layout mode changes from layout-runtime into chart-surface-owned pane
+  host presentation for one, two, and three visible chart hosts.
 
 ## Next Executable Steps
 
-### Step 161 - Layout Pane Surface Reflow Boundary
+### Step 162 - Layout Pane Data Bootstrap Boundary
 
-Connect layout mode changes to chart surface pane host presentation.
+Bootstrap visible layout panes through existing pane-local data and viewport
+owners.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
+- read `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
+  `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
   `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
   `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
   `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
@@ -50,12 +51,16 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- define a chart-surface-owned way to present one, two, and three pane hosts
-  from layout mode changes without moving layout ownership into shell code;
-- keep pane host creation/destruction, chart series writes, and visible range
-  writes inside chart-engine/chart-surface boundaries;
+- define how newly visible layout pane hosts receive initial chart-data and
+  chart-viewport state through the existing owners;
+- align layout-visible pane host ids with pane-local chart-data and viewport
+  records without creating primary/non-primary special cases;
+- keep bar requests inside bar-data, chart-data mutation inside chart-data,
+  viewport projection inside chart-viewport, and series writes inside
+  chart-engine;
 - keep cross-pane symbol, interval, crosshair, time, and date-range sync behavior
   out of this step;
+- preserve Step 161 layout pane surface reflow;
 - preserve Step 160 layout menu owner binding;
 - preserve Step 159 selected owner boundary and non-goals;
 - preserve Step 158 chart foundation integration audit coverage;
@@ -77,8 +82,8 @@ Notes for execution:
 
 Scope:
 
-- layout mode to chart surface pane host presentation through layout runtime and
-  chart-engine/chart-surface boundaries;
+- visible layout pane data/bootstrap through existing pane, bar-data,
+  chart-data, chart-viewport, and chart-engine boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -87,6 +92,9 @@ Scope:
 
 Acceptance:
 
+- layout pane data bootstrap smoke passes;
+- layout pane data bootstrap browser smoke passes;
+- layout surface bridge smoke passes;
 - layout pane surface reflow smoke passes;
 - layout pane surface reflow browser smoke passes;
 - layout menu owner binding smoke passes;
@@ -117,6 +125,28 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 161 - Layout Pane Surface Reflow Boundary
+
+Completed in commits:
+
+- `a8e67627 feat(v6): add layout pane surface reflow`
+- `17143f45 feat(v6): connect layout runtime to chart surface`
+
+Verification:
+
+- `node v6/tests/layout-pane-surface-reflow-step161-smoke.js`
+- `node v6/tests/layout-surface-bridge-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-browser-step161-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/workstation-chart-surface-multi-pane-step147-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-step147-smoke.js`
+- `node v6/tests/layout-menu-control-smoke.js`
+- `node v6/tests/layout-menu-owner-binding-browser-step160-smoke.js`
+- `node v6/tests/top-toolbar-parity-browser-smoke.js`
+- `node v6/tests/chart-foundation-integration-reaudit-step158-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 160 - Layout Menu Owner Binding
 
