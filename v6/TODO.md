@@ -14,19 +14,18 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 182 - Crosshair OHLC Completion. V6 now keeps
-  OHLC hidden until crosshair candle selection, colors selected OHLC by candle
-  direction, and covers single-pane plus multi-pane hovered-pane readouts.
+- Latest completed step: Step 183 - Pane-Local Status Readout. V6 now renders
+  symbol, timeframe, and OHLC independently inside each chart pane.
 
 ## Next Executable Steps
 
-### Step 183 - Replay-Safe Leftward History Latency Gate
+### Step 184 - Replay-Safe Leftward History Latency Gate
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CROSSHAIR_OHLC_COMPLETION_STEP182.md`;
+- read `V6_PANE_LOCAL_STATUS_READOUT_STEP183.md`;
 - build a browser latency gate around leftward historical extension during
   replay;
 - prove history requests are triggered only when the visible range reaches the
@@ -46,6 +45,23 @@ Acceptance:
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 183 - Pane-Local Status Readout
+
+Completed in commits:
+
+- `fd4e3443 feat(v6): render pane-local status readouts`
+- `a18866fd test(v6): cover pane-local status readouts in browser`
+
+Verification:
+
+- `node v6/tests/pane-status-readout-step183-smoke.js`
+- `node v6/tests/status-readout-controller-smoke.js`
+- `node v6/tests/pane-status-readout-browser-step183-smoke.js`
+- `node v6/tests/crosshair-ohlc-readout-browser-step153-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 182 - Crosshair OHLC Completion
 
