@@ -7,6 +7,7 @@ const TESTS = Object.freeze([
   'v6/tests/multi-pane-replay-append-browser-step156-smoke.js',
   'v6/tests/multi-pane-replay-viewport-projection-browser-step157-smoke.js',
   'v6/tests/pane-local-reset-controls-browser-step163-smoke.js',
+  'v6/tests/pane-status-readout-browser-step183-smoke.js',
 ]);
 
 function runTest(script) {
