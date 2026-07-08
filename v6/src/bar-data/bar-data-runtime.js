@@ -14,9 +14,15 @@ function filterBarsForWindow(bars = [], planned) {
   ));
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 export function createBarDataRuntime({
   cache = createBarWindowCache(),
   fetchBars = fetchV4Bars,
+  fetchRetryDelayMs = 120,
+  fetchRetryLimit = 2,
   maxBarsPerWindow = 500,
 } = {}) {
   const unregisterCallbacks = [];
@@ -32,7 +38,20 @@ export function createBarDataRuntime({
       return cached;
     }
 
-    const response = await fetchBars(planned);
+    let response = null;
+    let lastError = null;
+    for (let attempt = 0; attempt <= fetchRetryLimit; attempt += 1) {
+      try {
+        response = await fetchBars(planned);
+        lastError = null;
+        break;
+      } catch (error) {
+        lastError = error;
+        if (attempt >= fetchRetryLimit) break;
+        await sleep(fetchRetryDelayMs * (attempt + 1));
+      }
+    }
+    if (lastError) throw lastError;
     return cache.put(planned, {
       bars: filterBarsForWindow(response.bars, planned),
       history: response.history || null,

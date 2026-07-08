@@ -147,7 +147,7 @@ function planPreviousGapScanWindow(plannedWindow, stepSeconds) {
 }
 
 export function createLeftwardHistoryExtensionRuntime({
-  emptyGapScanLimit = 12,
+  emptyGapScanLimit = 24,
 } = {}) {
   const unregisterCallbacks = [];
   const exhaustedScopes = new Map();
