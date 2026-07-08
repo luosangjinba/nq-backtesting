@@ -14,37 +14,55 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 181 - Chart Browser Regression Pack. V6 now has a
-  selected chart browser regression pack covering reload pipeline, layout pane
-  bootstrap, multi-pane replay append, multi-pane replay viewport projection,
-  and pane-local reset controls.
+- Latest completed step: Step 182 - Crosshair OHLC Completion. V6 now keeps
+  OHLC hidden until crosshair candle selection, colors selected OHLC by candle
+  direction, and covers single-pane plus multi-pane hovered-pane readouts.
 
 ## Next Executable Steps
 
-### Step 182 - Crosshair OHLC Completion
+### Step 183 - Replay-Safe Leftward History Latency Gate
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CHART_BROWSER_REGRESSION_PACK_STEP181.md`;
-- revisit the existing Step 153/154 crosshair OHLC readout behavior;
-- show OHLC only when a selected/crosshair candle is available;
-- color OHLC according to candle direction: up green, down red;
-- preserve the previous visual fixes that prevent symbol/timeframe text overlap;
-- include browser coverage for single-pane and multi-pane hovered-pane readout;
-- do not change chart, replay, bar-data, chart-data, viewport, layout, or pane
-  ownership behavior in this step.
+- read `V6_CROSSHAIR_OHLC_COMPLETION_STEP182.md`;
+- build a browser latency gate around leftward historical extension during
+  replay;
+- prove history requests are triggered only when the visible range reaches the
+  canvas-left request boundary;
+- prove replay Next/Play remains visibly responsive while historical extension
+  is pending or completing;
+- keep the request/resource-saving behavior from Steps 148-151 intact;
+- keep chart-engine, bar-data, replay, chart-data, viewport, layout, and pane
+  ownership unchanged.
 
 Acceptance:
 
-- crosshair OHLC browser smoke passes;
-- multi-pane crosshair readout browser smoke passes;
+- new replay-safe leftward history latency smoke passes;
+- existing leftward history browser smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 182 - Crosshair OHLC Completion
+
+Completed in commits:
+
+- `f7f920d7 test(v6): cover OHLC direction readout states`
+- `38a848e8 test(v6): assert multi-pane OHLC readout colors`
+
+Verification:
+
+- `node v6/tests/status-readout-controller-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
+- `node v6/tests/crosshair-ohlc-readout-browser-step153-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-browser-step154-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 181 - Chart Browser Regression Pack
 
