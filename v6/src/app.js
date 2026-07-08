@@ -30,6 +30,7 @@ import { createJournalPersistenceRuntime } from './journal-persistence/journal-p
 import { createLayoutPaneBootstrapRuntime } from './layout/layout-pane-bootstrap-runtime.js';
 import { createLayoutRuntime } from './layout/layout-runtime.js';
 import { createJournalRuntime } from './journal/journal-runtime.js';
+import { createPaneIntentSyncRuntime } from './pane-intent-sync/pane-intent-sync-runtime.js';
 import { createPaneRuntime } from './panes/pane-runtime.js';
 import { createPlaybackPeriodRuntime } from './playback-period/playback-period-runtime.js';
 import { createPersistenceRuntime } from './persistence/persistence-runtime.js';
@@ -71,6 +72,7 @@ registry.registerRuntime(createJournalRuntime());
 registry.registerRuntime(createJournalPersistenceRuntime());
 registry.registerRuntime(createPaneRuntime());
 registry.registerRuntime(createLayoutRuntime());
+registry.registerRuntime(createPaneIntentSyncRuntime());
 registry.registerRuntime(createLayoutPaneBootstrapRuntime());
 registry.registerRuntime(createBarDataRuntime());
 registry.registerRuntime(createChartDataRuntime());

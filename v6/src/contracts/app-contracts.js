@@ -166,6 +166,14 @@ export const PANE_EVENTS = Object.freeze({
   SYMBOL_INTENT_CHANGED: 'pane:symbolIntentChanged',
 });
 
+export const PANE_INTENT_SYNC_COMMANDS = Object.freeze({
+  GET_STATE: 'paneIntentSync.getState',
+});
+
+export const PANE_INTENT_SYNC_EVENTS = Object.freeze({
+  PLANNED: 'paneIntentSync:planned',
+});
+
 export const CHART_DATA_COMMANDS = Object.freeze({
   APPEND_BARS: 'chartData.appendBars',
   CLEAR_PANE: 'chartData.clearPane',

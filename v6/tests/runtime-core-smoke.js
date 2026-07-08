@@ -5,6 +5,8 @@ import {
   BAR_DATA_COMMANDS,
   CHART_DATA_COMMANDS,
   CHART_VIEWPORT_COMMANDS,
+  LAYOUT_COMMANDS,
+  PANE_INTENT_SYNC_COMMANDS,
   PANE_COMMANDS,
   REPLAY_COMMANDS,
   SESSION_COMMANDS,
@@ -12,6 +14,8 @@ import {
 import { createBarDataRuntime } from '../src/bar-data/bar-data-runtime.js';
 import { createChartDataRuntime } from '../src/chart-data/chart-data-runtime.js';
 import { createChartViewportRuntime } from '../src/chart-viewport/chart-viewport-runtime.js';
+import { createLayoutRuntime } from '../src/layout/layout-runtime.js';
+import { createPaneIntentSyncRuntime } from '../src/pane-intent-sync/pane-intent-sync-runtime.js';
 import { createPaneRuntime } from '../src/panes/pane-runtime.js';
 import { createReplayRuntime } from '../src/replay/replay-runtime.js';
 import { createAppRuntime } from '../src/runtime/app-runtime.js';
@@ -42,6 +46,8 @@ const unsubscribeBoot = subscribeEvent(APP_EVENTS.BOOTED, (payload) => {
 registry.registerRuntime(createAppRuntime());
 registry.registerRuntime(createSessionRuntime());
 registry.registerRuntime(createPaneRuntime());
+registry.registerRuntime(createLayoutRuntime());
+registry.registerRuntime(createPaneIntentSyncRuntime());
 registry.registerRuntime(createBarDataRuntime({
   fetchBars: async () => ({ bars: [] }),
 }));
@@ -50,7 +56,7 @@ registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createReplayRuntime());
 assert.deepEqual(registry.snapshot(), {
   running: false,
-  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay'],
+  runtimes: ['runtime.app', 'runtime.session', 'runtime.pane', 'runtime.layout', 'runtime.paneIntentSync', 'runtime.bar-data', 'runtime.chart-data', 'runtime.chart-viewport', 'runtime.replay'],
   started: [],
 });
 
@@ -79,6 +85,10 @@ assert.deepEqual(listCommands(), [
   CHART_VIEWPORT_COMMANDS.GET_SNAPSHOT,
   CHART_VIEWPORT_COMMANDS.RESET_VIEW,
   CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT,
+  LAYOUT_COMMANDS.GET_SNAPSHOT,
+  LAYOUT_COMMANDS.SET_ACTIVE_PANE,
+  LAYOUT_COMMANDS.SET_MODE,
+  LAYOUT_COMMANDS.SET_SYNC,
   PANE_COMMANDS.GET_ACTIVE,
   PANE_COMMANDS.GET_BY_ID,
   PANE_COMMANDS.GET_SNAPSHOT,
@@ -87,6 +97,7 @@ assert.deepEqual(listCommands(), [
   PANE_COMMANDS.SET_DISPLAY_TIMEFRAME,
   PANE_COMMANDS.SET_INTERVAL_INTENT,
   PANE_COMMANDS.SET_SYMBOL_INTENT,
+  PANE_INTENT_SYNC_COMMANDS.GET_STATE,
   REPLAY_COMMANDS.GET_STATE,
   REPLAY_COMMANDS.LOAD_SESSION,
   REPLAY_COMMANDS.NEXT,
