@@ -10,6 +10,7 @@ const TESTS = Object.freeze([
   'v6/tests/pane-status-readout-browser-step183-smoke.js',
   'v6/tests/pane-action-rail-browser-step184-smoke.js',
   'v6/tests/pane-maximize-state-browser-step185-smoke.js',
+  'v6/tests/maximize-restore-control-browser-step186-smoke.js',
 ]);
 
 function runTest(script) {
