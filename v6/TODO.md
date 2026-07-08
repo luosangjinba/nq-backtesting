@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 165 - Pane Resize Drag Boundary. V6 now renders
-  chart-surface-owned pane resize handles and keeps resize ratios local to the
-  active layout variant.
+- Latest completed step: Step 166 - Layout Sync Effects Boundary. V6 now keeps
+  date-range/time layout sync as a chart-surface viewport effect that does not
+  request bars, mutate replay, or write chart series outside chart-engine.
 
 ## Next Executable Steps
 
-### Step 166 - Layout Sync Effects Boundary
+### Step 167 - Crosshair Sync Effect Boundary
 
-Connect selected Page layout sync toggles to bounded multi-pane chart effects.
+Connect the layout Crosshair sync toggle to a bounded multi-pane chart effect.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_RESIZE_DRAG_STEP165.md`,
+- read `V6_LAYOUT_SYNC_EFFECTS_STEP166.md`,
+  `V6_PANE_RESIZE_DRAG_STEP165.md`,
   `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
   `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
   `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
@@ -52,11 +53,11 @@ Notes for execution:
   `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
-  `v6/docs/specs/replay-visible-latency.md`, and
-  `v6/docs/specs/pane-model.md`;
-- connect the already-owned layout sync state to a first bounded chart effect;
-- prefer crosshair and/or time-range sync before symbol/interval sync because
-  symbol and interval affect bar-data loading;
+  `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
+- use the Step 166 layout sync effect model/bridge boundary;
+- keep Crosshair sync chart-only: no bar-data reload, no replay cursor mutation,
+  and no chart-data series writes;
+- preserve Step 166 date-range/time visible-range sync;
 - keep resize ratios from Step 165 local to chart presentation;
 - keep persisted layout variant state from Step 164 unchanged;
 - do not implement symbol or interval data reloads unless a separate owner
@@ -139,6 +140,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 166 - Layout Sync Effects Boundary
+
+Completed in commits:
+
+- `2b86013c feat(v6): add layout sync effect model`
+- `16fddba3 feat(v6): sync layout visible ranges`
+
+Verification:
+
+- `node v6/tests/layout-sync-effects-model-step166-smoke.js`
+- `node v6/tests/layout-sync-surface-bridge-step166-smoke.js`
+- `node v6/tests/layout-sync-visible-range-browser-step166-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-step161-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-browser-step161-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/pane-resize-chart-surface-step165-smoke.js`
+- `node v6/tests/pane-resize-drag-browser-step165-smoke.js`
+- `git diff --check`
 
 ### Step 165 - Pane Resize Drag Boundary
 
