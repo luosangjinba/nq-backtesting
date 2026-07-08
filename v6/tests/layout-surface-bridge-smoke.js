@@ -6,6 +6,7 @@ import {
   CHART_VIEWPORT_COMMANDS,
   LAYOUT_COMMANDS,
   LAYOUT_EVENTS,
+  LAYOUT_PANE_BOOTSTRAP_COMMANDS,
   REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import { connectLayoutSurfaceBridge } from '../src/chart-engine/layout-surface-bridge.js';
@@ -26,6 +27,9 @@ const bridge = connectLayoutSurfaceBridge({
   chartSurface,
   dispatchCommand(commandName) {
     calls.push({ commandName, method: 'dispatchCommand' });
+    if (commandName === LAYOUT_PANE_BOOTSTRAP_COMMANDS.BOOTSTRAP_VISIBLE) {
+      return { status: 'bootstrapped' };
+    }
     assert.equal(commandName, LAYOUT_COMMANDS.GET_SNAPSHOT);
     return { mode: 'single' };
   },
@@ -40,6 +44,7 @@ assert.equal(eventHandlers.has(LAYOUT_EVENTS.MODE_CHANGED), true);
 assert.deepEqual(bridge.getState(), {
   destroyed: false,
   listensTo: [LAYOUT_EVENTS.MODE_CHANGED],
+  bootstrapCommand: LAYOUT_PANE_BOOTSTRAP_COMMANDS.BOOTSTRAP_VISIBLE,
   snapshotCommand: LAYOUT_COMMANDS.GET_SNAPSHOT,
 });
 assert.deepEqual(await bridge.ready, {
@@ -53,9 +58,13 @@ assert.deepEqual(calls.slice(0, 3), [
 ]);
 
 eventHandlers.get(LAYOUT_EVENTS.MODE_CHANGED)({ mode: 'twice' });
-assert.deepEqual(calls.at(-1), {
+assert.deepEqual(calls.at(-2), {
   method: 'applyLayoutSnapshot',
   snapshot: { mode: 'twice' },
+});
+assert.deepEqual(calls.at(-1), {
+  commandName: LAYOUT_PANE_BOOTSTRAP_COMMANDS.BOOTSTRAP_VISIBLE,
+  method: 'dispatchCommand',
 });
 
 bridge.destroy();

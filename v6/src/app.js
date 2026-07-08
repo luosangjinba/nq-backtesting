@@ -26,6 +26,7 @@ import { createChartViewportRuntime } from './chart-viewport/chart-viewport-runt
 import { createDisplayTimeframeRuntime } from './display-timeframe/display-timeframe-runtime.js';
 import { createDefaultWallRuntime } from './default-wall/default-wall-runtime.js';
 import { createJournalPersistenceRuntime } from './journal-persistence/journal-persistence-runtime.js';
+import { createLayoutPaneBootstrapRuntime } from './layout/layout-pane-bootstrap-runtime.js';
 import { createLayoutRuntime } from './layout/layout-runtime.js';
 import { createJournalRuntime } from './journal/journal-runtime.js';
 import { createPaneRuntime } from './panes/pane-runtime.js';
@@ -69,6 +70,7 @@ registry.registerRuntime(createJournalRuntime());
 registry.registerRuntime(createJournalPersistenceRuntime());
 registry.registerRuntime(createPaneRuntime());
 registry.registerRuntime(createLayoutRuntime());
+registry.registerRuntime(createLayoutPaneBootstrapRuntime());
 registry.registerRuntime(createBarDataRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createChartEntryRuntime());

@@ -32,7 +32,8 @@ function normalizePaneIds(paneIds = []) {
 }
 
 function timestampFromReplayState(replayState = {}) {
-  const value = replayState.cursorTimestamp ?? replayState.timestamp ?? replayState.cursorTime;
+  const state = replayState || {};
+  const value = state.cursorTimestamp ?? state.timestamp ?? state.cursorTime;
   const timestamp = typeof value === 'number'
     ? value
     : Math.floor(new Date(value).valueOf() / 1000);
