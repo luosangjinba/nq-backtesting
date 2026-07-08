@@ -138,7 +138,13 @@ try {
   assert.equal(value.ohlc.close, `C ${Number(value.crosshair.bar.close).toFixed(2)}`);
   assert.equal(value.dataset.ohlc, 'selected');
   assert.match(value.dataset.direction, /^(up|down|flat)$/);
-  assert.equal(new Set(Object.values(value.colors)).size > 1, true);
+  assert.equal(new Set(Object.values(value.colors)).size, 1);
+  const expectedColor = {
+    down: 'rgb(242, 95, 104)',
+    flat: 'rgb(215, 225, 231)',
+    up: 'rgb(54, 183, 168)',
+  }[value.dataset.direction];
+  assert.equal(value.colors.open, expectedColor);
   assert.equal(value.placeholderPresent, false);
   assert.equal(value.textCounts.nq, 1);
   assert.equal(value.textCounts.timeframe, 1);
