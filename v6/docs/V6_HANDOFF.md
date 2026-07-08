@@ -115,6 +115,11 @@ Keep Step 144 bounded:
 - include leftward historical extension: dragging the chart toward older bars
   should request older bounded windows through bar-data until the database
   adapter reports exhausted history;
+- cap each triggered historical request at the canvas-left timeline boundary
+  that caused the load, so V6 does not spend resources prefetching farther left
+  than the chart currently needs;
+- preserve replay-visible speed: database import and older-window extension
+  must not introduce obvious candle reveal latency;
 - add tests that prove session creation and chart entry do not load a full date
   range;
 - avoid chart series writes, chart overlays, replay cursor mutation, viewport
@@ -128,6 +133,7 @@ Expected implementation shape:
 - data-source/schema discovery plus a focused adapter or adapter contract;
 - older-window/exhausted-history response semantics for leftward chart
   extension;
+- canvas-left timeline request caps and replay-visible latency acceptance;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;

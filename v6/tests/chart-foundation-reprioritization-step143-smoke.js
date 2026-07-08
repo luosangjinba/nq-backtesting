@@ -17,6 +17,9 @@ assert.match(step142Doc, /Comparison Symbol Owner\s+Contract/);
 assert.match(step143Doc, /database-backed bounded K-line import through the bar-data owner path/);
 assert.match(step143Doc, /leftward historical K-line extension/);
 assert.match(step143Doc, /older bounded window through\s+bar-data and keep extending left until the data source reports no older bars/);
+assert.match(step143Doc, /cap each triggered historical request at the canvas-left timeline boundary/);
+assert.match(step143Doc, /preserve replay-visible speed/);
+assert.match(step143Doc, /must not introduce obvious candle reveal latency/);
 assert.match(step143Doc, /replay K-line chart flow/);
 assert.match(step143Doc, /reset view behavior through chart-viewport ownership/);
 assert.match(step143Doc, /multi-pane chart flow through the existing pane model/);
@@ -32,6 +35,8 @@ assert.match(accountTradingDoc, /order placement, position mutation, account mut
 assert.match(todoDoc, /Step 144 - Database K-Line Import Boundary/);
 assert.match(todoDoc, /Comparison Symbol Owner Contract direction is superseded/);
 assert.match(todoDoc, /dragging the chart toward older bars\s+should request older bounded windows through bar-data until the database\s+adapter reports exhausted history/);
+assert.match(todoDoc, /cap each triggered historical request at the canvas-left timeline boundary/);
+assert.match(todoDoc, /must not introduce obvious candle reveal latency/);
 
 for (const forbiddenToken of [
   'COMPARISON_SYMBOL_COMMANDS',

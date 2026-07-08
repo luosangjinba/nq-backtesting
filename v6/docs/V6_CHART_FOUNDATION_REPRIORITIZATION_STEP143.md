@@ -37,6 +37,12 @@ The slice should:
 - preserve leftward chart extension: when the visible range reaches the oldest
   loaded bars, the chart flow should request an older bounded window through
   bar-data and keep extending left until the data source reports no older bars;
+- cap each triggered historical request at the canvas-left timeline boundary
+  that caused the load, instead of prefetching beyond the visible need;
+- preserve replay-visible speed: database import, normalization, and older
+  window extension must not introduce obvious candle reveal latency, because
+  V5 spent significant time repairing visible K-line delay without reaching an
+  acceptable long-term result;
 - add tests that prove session creation and chart entry do not load a full date
   range;
 - avoid chart series writes, chart overlays, replay cursor mutation, viewport
@@ -69,6 +75,8 @@ Allowed for Step 144:
 - bar-window bounded query planning;
 - an explicit older-window/exhausted-history response shape for leftward chart
   extension;
+- canvas-left timeline request caps for historical extension;
+- replay-visible latency acceptance checks for database-backed bars;
 - bar normalizer compatibility tests;
 - smoke coverage that chart entry remains bounded.
 
@@ -91,6 +99,8 @@ Forbidden for Step 144:
 - chart entry context/window planning smoke passes;
 - older-window/exhausted-history boundary smoke passes or is explicitly scoped
   into the database import boundary smoke;
+- canvas-left request cap and replay-visible latency requirements are covered
+  by the database import boundary smoke or a focused follow-up smoke;
 - replay runtime smoke passes;
 - chart-data no-future filtering smoke passes;
 - chart viewport/reset-view smoke or contract smoke passes;
