@@ -162,6 +162,8 @@ Read this index before working on V6.
   reset view / KXG reset controls that target only the clicked pane viewport.
 - `v6/docs/V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`: accepted Page layout variant
   state and chart-surface-owned geometry for two-pane and three-pane variants.
+- `v6/docs/V6_PANE_RESIZE_DRAG_STEP165.md`: accepted chart-surface-owned pane
+  resize handles and local per-variant resize ratios.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for

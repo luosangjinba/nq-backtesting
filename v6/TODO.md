@@ -14,21 +14,22 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 164 - Layout Variant Geometry Boundary. V6 now
-  persists Page layout variants and applies distinct chart surface geometry for
-  two-pane vertical/horizontal and three-pane columns/rows/stack variants.
+- Latest completed step: Step 165 - Pane Resize Drag Boundary. V6 now renders
+  chart-surface-owned pane resize handles and keeps resize ratios local to the
+  active layout variant.
 
 ## Next Executable Steps
 
-### Step 165 - Pane Resize Drag Boundary
+### Step 166 - Layout Sync Effects Boundary
 
-Make visible chart pane boundaries draggable within the current layout variant.
+Connect selected Page layout sync toggles to bounded multi-pane chart effects.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
+- read `V6_PANE_RESIZE_DRAG_STEP165.md`,
+  `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
   `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
   `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
   `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
@@ -53,14 +54,14 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- add draggable pane resizing through a chart-surface-owned boundary;
+- connect the already-owned layout sync state to a first bounded chart effect;
+- prefer crosshair and/or time-range sync before symbol/interval sync because
+  symbol and interval affect bar-data loading;
+- keep resize ratios from Step 165 local to chart presentation;
 - keep persisted layout variant state from Step 164 unchanged;
-- make drag resizing work per active variant without changing layout mode or
-  visible pane membership;
-- keep resize state local to chart presentation unless a later persistence
-  step explicitly accepts saved layout sizes;
-- keep cross-pane symbol, interval, crosshair, time, and date-range sync behavior
-  out of this step;
+- do not implement symbol or interval data reloads unless a separate owner
+  boundary is accepted in this step;
+- preserve Step 165 pane resize drag behavior;
 - preserve Step 164 layout variant geometry;
 - preserve Step 163 pane-local reset controls;
 - preserve Step 162 layout pane data bootstrap;
@@ -86,8 +87,9 @@ Notes for execution:
 
 Scope:
 
-- pane resize interaction and geometry through chart-engine/chart-surface
-  boundaries;
+- layout sync effects through layout-runtime state, chart-surface bridges, and
+  chart-viewport/chart-engine owner boundaries;
+- do not move pane resize ownership out of chart-surface;
 - do not move layout variant ownership out of layout-runtime;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
@@ -97,6 +99,8 @@ Scope:
 
 Acceptance:
 
+- layout sync effects smoke passes;
+- layout sync effects browser smoke passes;
 - pane resize drag smoke passes;
 - pane resize drag browser smoke passes;
 - layout variant geometry browser smoke passes;
@@ -135,6 +139,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 165 - Pane Resize Drag Boundary
+
+Completed in commits:
+
+- `4e5137eb feat(v6): add pane resize ratio model`
+- `03852f85 feat(v6): add chart pane resize handles`
+
+Verification:
+
+- `node v6/tests/pane-resize-model-step165-smoke.js`
+- `node v6/tests/pane-resize-chart-surface-step165-smoke.js`
+- `node v6/tests/pane-resize-drag-browser-step165-smoke.js`
+- `node v6/tests/layout-variant-geometry-browser-step164-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-step161-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-browser-step161-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/pane-local-reset-controls-browser-step163-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 164 - Layout Variant Geometry Boundary
 

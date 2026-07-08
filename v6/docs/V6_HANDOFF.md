@@ -5,18 +5,17 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 164 completed.
-- Next planned step: Step 165 - Pane Resize Drag Boundary.
+- Current V6 step state: Step 165 completed.
+- Next planned step: Step 166 - Layout Sync Effects Boundary.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Layout Variant Geometry Boundary:
+The latest completed work is Pane Resize Drag Boundary:
 
-- `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md` accepts layout variant state through
-  layout-runtime and chart-surface-owned pane geometry.
-- `layout-variant-geometry-browser-step164-smoke.js` verifies browser-level
-  computed grid templates and per-pane grid areas for all accepted variants.
-- Step 165 should add draggable pane resizing without changing layout variant
-  ownership or pane data/bootstrap ownership.
+- `V6_PANE_RESIZE_DRAG_STEP165.md` accepts chart-surface-owned pane resize
+  handles and local per-variant resize ratios.
+- `pane-resize-drag-browser-step165-smoke.js` verifies browser-level handle
+  creation and grid-template changes.
+- Step 166 should connect selected layout sync toggles to bounded chart effects.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -90,65 +89,68 @@ After restarting the server or assistant context, read these first:
 63. `v6/sessions/session_20260708_step162_layout_pane_data_bootstrap.md`
 64. `v6/sessions/session_20260708_step163_pane_local_reset_view_controls.md`
 65. `v6/sessions/session_20260708_step164_layout_variant_geometry.md`
-66. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-67. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-68. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-69. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-70. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-71. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-72. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-73. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-74. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-75. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-76. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-77. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-78. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-79. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-80. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-81. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-82. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-83. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-84. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-85. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-86. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-87. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-88. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-89. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-90. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-91. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
-92. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
-93. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
-94. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
-95. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
-96. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
-97. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
-98. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
-99. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
-100. `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`
-101. `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`
-102. `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`
-103. `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`
-104. `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`
-105. `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`
-106. `v6/docs/V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`
-107. `v6/docs/V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`
-108. `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`
-109. `v6/docs/V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`
-110. `v6/docs/V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`
-111. `v6/docs/V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`
-112. `v6/docs/V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`
-113. `v6/docs/V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`
-114. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-115. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-116. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+66. `v6/sessions/session_20260708_step165_pane_resize_drag.md`
+67. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+68. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+69. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+70. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+71. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+72. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+73. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+74. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+75. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+76. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+77. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+78. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+79. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+80. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+81. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+82. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+83. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+84. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+85. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+86. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+87. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+88. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+89. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+90. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+91. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+92. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+93. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
+94. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
+95. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
+96. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
+97. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
+98. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
+99. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
+100. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
+101. `v6/docs/V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`
+102. `v6/docs/V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`
+103. `v6/docs/V6_CROSSHAIR_OHLC_READOUT_STEP153.md`
+104. `v6/docs/V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`
+105. `v6/docs/V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`
+106. `v6/docs/V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`
+107. `v6/docs/V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`
+108. `v6/docs/V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`
+109. `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`
+110. `v6/docs/V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`
+111. `v6/docs/V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`
+112. `v6/docs/V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`
+113. `v6/docs/V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`
+114. `v6/docs/V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`
+115. `v6/docs/V6_PANE_RESIZE_DRAG_STEP165.md`
+116. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+117. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+118. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 165 should focus on Pane Resize Drag Boundary.
+Step 166 should focus on Layout Sync Effects Boundary.
 
-Keep Step 165 bounded:
+Keep Step 166 bounded:
 
-- read `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
+- read `V6_PANE_RESIZE_DRAG_STEP165.md`,
+  `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
   `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
   `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
   `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
@@ -172,12 +174,12 @@ Keep Step 165 bounded:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
   `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- add draggable pane resizing through chart-surface-owned DOM behavior;
+- connect selected layout sync toggles to a first bounded chart effect;
+- prefer crosshair and/or time-range sync before symbol/interval sync because
+  symbol and interval affect bar-data loading;
+- keep resize ratios local to chart presentation;
 - preserve selected layout variant state and visible pane membership;
-- keep resize ratios local to chart presentation unless a later persistence
-  step explicitly accepts saved layout sizing;
-- keep cross-pane symbol, interval, crosshair, time, and date-range sync
-  behavior out of this step;
+- preserve Step 165 pane resize drag behavior;
 - preserve Step 164 layout variant geometry;
 - preserve Step 163 pane-local reset controls;
 - preserve Step 162 layout pane data bootstrap;
@@ -203,19 +205,21 @@ Keep Step 165 bounded:
 
 Expected implementation shape:
 
-- pane resize interaction and geometry through chart-engine/chart-surface
-  boundaries;
+- layout sync effects through layout-runtime state, chart-surface bridges, and
+  chart-viewport/chart-engine owner boundaries;
+- do not move pane resize ownership out of chart-surface;
 - do not move layout variant ownership out of layout-runtime;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
 - do not mutate viewport intent outside chart-viewport runtime;
 - do not route pane ownership through workstation route files;
-- run pane resize drag smoke/browser smoke, layout variant geometry browser
-  smoke, pane-local reset controls smoke/browser smoke, layout pane data
-  bootstrap smoke/browser smoke, layout pane surface reflow smoke/browser smoke,
-  layout surface bridge smoke, layout menu owner binding smoke/browser smoke,
-  chart foundation integration re-audit smoke, and boundary smoke.
+- run layout sync effects smoke/browser smoke, pane resize drag smoke/browser
+  smoke, layout variant geometry browser smoke, pane-local reset controls
+  smoke/browser smoke, layout pane data bootstrap smoke/browser smoke, layout
+  pane surface reflow smoke/browser smoke, layout surface bridge smoke, layout
+  menu owner binding smoke/browser smoke, chart foundation integration re-audit
+  smoke, and boundary smoke.
 
 ## Critical Boundaries
 
