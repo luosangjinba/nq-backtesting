@@ -189,6 +189,9 @@ Read this index before working on V6.
 - `v6/docs/V6_CHART_BROWSER_REGRESSION_PACK_STEP181.md`: accepted selected
   chart browser regression pack for reload, pane bootstrap, multi-pane replay
   append, viewport projection, and pane-local reset gates.
+- `v6/docs/V6_REPLAY_SAFE_LEFTWARD_HISTORY_LATENCY_STEP187.md`: accepted
+  replay-safe leftward history latency gate for delayed/coalesced/chunked older
+  history while replay and manual drag remain visually responsive.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
