@@ -5,21 +5,22 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 149 completed.
-- Next planned step: Step 150 - Replay Speed Under History Extension.
+- Current V6 step state: Step 150 completed.
+- Next planned step: Step 151 - Continuous Leftward Extension Until Exhausted.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Drag-Triggered History Extension Hardening:
+The latest completed work is Replay Speed Under History Extension:
 
-- `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md` records drag/wheel-triggered
-  history extension hardening.
-- `leftward-history-hardening-step149-smoke.js` proves duplicate in-flight and
-  exhausted older-window requests are suppressed.
-- `drag-triggered-history-extension-browser-step149-smoke.js` proves real chart
-  wheel input triggers leftward history extension and measures effective
-  latency.
-- Step 150 should verify replay `Next` and auto-play visible speed while
-  historical extension is active or recently loaded.
+- `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md` records replay speed
+  behavior while historical extension is active or recently loaded.
+- `replay-speed-history-inflight-step150-smoke.js` proves replay `Next` can run
+  while an older-window request is pending and that the later history prepend
+  does not remove the newly appended replay candle.
+- `replay-speed-history-extension-browser-step150-smoke.js` proves browser-visible
+  latest-candle latency remains within budget immediately after history
+  extension.
+- Step 151 should extend repeated leftward extension until the bar-data source
+  reports no older bars.
 
 ## Restart Reading Order
 
@@ -75,50 +76,53 @@ After restarting the server or assistant context, read these first:
 48. `v6/sessions/session_20260708_step147_multi_pane_chart_foundation.md`
 49. `v6/sessions/session_20260708_step148_leftward_historical_extension.md`
 50. `v6/sessions/session_20260708_step149_drag_triggered_history_extension.md`
-51. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-52. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-53. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-54. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-55. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-56. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-57. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-58. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-59. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-61. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-62. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-64. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-65. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-66. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-67. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-68. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-69. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-70. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-71. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-72. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-73. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-74. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-75. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-76. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
-77. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
-78. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
-79. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
-80. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
-81. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
-82. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
-83. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
-84. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-85. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-86. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+51. `v6/sessions/session_20260708_step150_replay_speed_under_history_extension.md`
+52. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+53. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+54. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+56. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+57. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+59. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+60. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+62. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+63. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+64. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+65. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+66. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+67. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+68. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+69. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+70. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+71. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+72. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+73. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+74. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+75. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+76. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+77. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+78. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
+79. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
+80. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
+81. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
+82. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
+83. `v6/docs/V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`
+84. `v6/docs/V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`
+85. `v6/docs/V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`
+86. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+87. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+88. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 150 should focus on Replay Speed Under History Extension.
+Step 151 should focus on Continuous Leftward Extension Until Exhausted.
 
-Keep Step 150 bounded:
+Keep Step 151 bounded:
 
-- read `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
+- read `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
+  `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
   `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
   `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
   `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
@@ -127,13 +131,11 @@ Keep Step 150 bounded:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
   `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- run replay `Next` immediately after older-window extension;
-- run replay `Next` while an older-window request is in flight;
-- verify latest replay candle visibility latency stays below the existing
-  browser budget;
-- verify left-extension does not mutate replay cursor or consume replay
-  advancement ownership;
+- repeatedly trigger leftward extension from progressively older visible ranges;
+- stop requesting once bar-data reports exhausted historical coverage;
+- verify each request is capped at the current canvas-left timeline boundary;
 - preserve duplicate/exhausted older-window suppression;
+- preserve replay speed under active and recently loaded history extension;
 - preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - avoid chart overlays, simulated trading, comparison symbols, and additional
   workstation chrome behavior in this step;
@@ -142,7 +144,7 @@ Keep Step 150 bounded:
 
 Expected implementation shape:
 
-- replay speed under history extension using existing chart-viewport,
+- continuous leftward extension using existing chart-history, chart-viewport,
   chart-data, chart-engine, chart-entry, replay, and bar-data ownership
   boundaries;
 - do not request/cache bars outside bar-data;
@@ -182,8 +184,10 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 150 work:
+Run these before committing Step 151 work:
 
+- `node v6/tests/replay-speed-history-inflight-step150-smoke.js`
+- `node v6/tests/replay-speed-history-extension-browser-step150-smoke.js`
 - `node v6/tests/leftward-history-hardening-step149-smoke.js`
 - `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
 - `node v6/tests/leftward-history-extension-step148-smoke.js`

@@ -14,22 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 149 - Drag-Triggered History Extension Hardening.
-  V6 now gates in-flight/exhausted older-window suppression and real browser
-  wheel-triggered leftward history extension with visible-latency coverage.
+- Latest completed step: Step 150 - Replay Speed Under History Extension.
+  V6 now preserves replay `Next` responsiveness and latest-candle visibility
+  while older-window history extension is active or recently loaded.
 
 ## Next Executable Steps
 
-### Step 150 - Replay Speed Under History Extension
+### Step 151 - Continuous Leftward Extension Until Exhausted
 
-Verify replay `Next` and auto-play visible speed while leftward historical
-extension is active or recently loaded.
+Extend the drag-triggered history flow into repeated leftward extension until
+the bar-data source reports no older bars, while preserving canvas-left request
+caps and replay visible speed.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
+- read `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
+  `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
   `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
   `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
   `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
@@ -39,13 +41,11 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- run replay `Next` immediately after older-window extension;
-- run replay `Next` while an older-window request is in flight;
-- verify latest replay candle visibility latency stays below the existing
-  browser budget;
-- verify left-extension does not mutate replay cursor or consume replay
-  advancement ownership;
+- repeatedly trigger leftward extension from progressively older visible ranges;
+- stop requesting once bar-data reports exhausted historical coverage;
+- verify each request is capped at the current canvas-left timeline boundary;
 - preserve duplicate/exhausted older-window suppression;
+- preserve replay speed under active and recently loaded history extension;
 - preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - do not add simulated trading, comparison symbols, overlays, Order, or Calendar
   behavior in this step;
@@ -54,9 +54,9 @@ Notes for execution:
 
 Scope:
 
-- replay speed under history extension using existing chart-data,
-  chart-viewport, chart-engine, chart-entry, replay, and bar-data ownership
-  boundaries;
+- continuous leftward history extension using existing chart-history, bar-data,
+  chart-data, chart-viewport, chart-engine, chart-entry, replay, and pane
+  ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -65,6 +65,7 @@ Scope:
 
 Acceptance:
 
+- continuous leftward extension smoke passes;
 - replay speed under history extension smoke passes;
 - drag-triggered history extension browser smoke passes;
 - leftward historical K-line extension smoke passes;
@@ -82,6 +83,25 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 150 - Replay Speed Under History Extension
+
+Completed in commits:
+
+- `a61053ee fix(v6): preserve replay append during history loads`
+- `268bed4b test(v6): cover replay speed after history extension`
+
+Verification:
+
+- `node v6/tests/replay-speed-history-inflight-step150-smoke.js`
+- `node v6/tests/replay-speed-history-extension-browser-step150-smoke.js`
+- `node v6/tests/leftward-history-hardening-step149-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/leftward-history-extension-browser-step148-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 149 - Drag-Triggered History Extension Hardening
 
