@@ -24,6 +24,8 @@ function createEventTarget() {
 }
 
 const documentTarget = createEventTarget();
+const windowTarget = createEventTarget();
+documentTarget.defaultView = windowTarget;
 const hostTarget = createEventTarget();
 const host = {
   ...hostTarget,
@@ -97,12 +99,24 @@ await new Promise((resolve) => setTimeout(resolve, 120));
 visibleRangeHandler({ paneId: 'main', range: { from: -28, to: 2 } });
 assert.equal(emitted.length, 1);
 
+host.dispatch('mousedown');
+visibleRangeHandler({ paneId: 'main', range: { from: -30, to: 0 } });
+assert.equal(emitted.length, 2);
+documentTarget.dispatch('mousemove', { buttons: 0, target: host });
+await new Promise((resolve) => setTimeout(resolve, 120));
+visibleRangeHandler({ paneId: 'main', range: { from: -32, to: -2 } });
+assert.equal(emitted.length, 2);
+
 assert.equal(host.listenerCount('mousedown'), 1);
 assert.equal(host.listenerCount('wheel'), 1);
 assert.equal(documentTarget.listenerCount('mouseup'), 1);
+assert.equal(documentTarget.listenerCount('mousemove'), 1);
+assert.equal(documentTarget.listenerCount('pointermove'), 1);
 surface.destroy();
 assert.equal(host.listenerCount('mousedown'), 0);
 assert.equal(host.listenerCount('wheel'), 0);
 assert.equal(documentTarget.listenerCount('mouseup'), 0);
+assert.equal(documentTarget.listenerCount('mousemove'), 0);
+assert.equal(documentTarget.listenerCount('pointermove'), 0);
 
 console.log('v6 user range input lifecycle smoke passed');

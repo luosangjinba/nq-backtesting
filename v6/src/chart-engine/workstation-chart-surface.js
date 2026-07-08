@@ -41,6 +41,7 @@ const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
 const PROGRAMMATIC_RANGE_EPSILON = 2;
 const USER_RANGE_DRAG_RELEASE_GRACE_MS = 80;
 const USER_RANGE_WHEEL_WINDOW_MS = 2000;
+const SYNTHETIC_RELEASE_EVENT_TYPES = Object.freeze(['mouseup', 'pointerup']);
 const LAYOUT_PANE_COUNTS = Object.freeze({
   single: 1,
   triple: 3,
@@ -238,8 +239,48 @@ export function mountWorkstationChartSurface(root, {
   const markUserRangeWheelInput = () => {
     userRangeInputUntil = Date.now() + USER_RANGE_WHEEL_WINDOW_MS;
   };
+  function dispatchSyntheticRelease(target, eventName) {
+    if (!target || typeof target.dispatchEvent !== 'function') {
+      return;
+    }
+    const ownerDocument = target.ownerDocument || root.ownerDocument || globalThis.document;
+    const ownerWindow = ownerDocument?.defaultView || globalThis.window;
+    const EventCtor = eventName.startsWith('pointer')
+      ? ownerWindow?.PointerEvent
+      : ownerWindow?.MouseEvent;
+    const FallbackCtor = ownerWindow?.Event || globalThis.Event;
+    try {
+      const event = EventCtor
+        ? new EventCtor(eventName, { bubbles: true, buttons: 0, cancelable: true })
+        : new FallbackCtor(eventName, { bubbles: true, cancelable: true });
+      target.dispatchEvent(event);
+    } catch {
+      try {
+        target.dispatchEvent({ bubbles: true, buttons: 0, type: eventName });
+      } catch {
+        // Release recovery is best-effort; normal document release listeners remain authoritative.
+      }
+    }
+  }
+  function forceUserRangeDragRelease(event = {}) {
+    if (activeUserRangeGestures <= 0) {
+      return;
+    }
+    if (Number(event.buttons ?? 0) !== 0) {
+      return;
+    }
+    markUserRangeDragEnd();
+    const ownerDocument = event.target?.ownerDocument || root.ownerDocument || globalThis.document;
+    const ownerWindow = ownerDocument?.defaultView || globalThis.window;
+    SYNTHETIC_RELEASE_EVENT_TYPES.forEach((eventName) => {
+      hosts.forEach((host) => dispatchSyntheticRelease(host, eventName));
+      dispatchSyntheticRelease(ownerDocument, eventName);
+      dispatchSyntheticRelease(ownerWindow, eventName);
+    });
+  }
   const userInputStartEvents = ['pointerdown', 'mousedown', 'touchstart'];
   const userInputReleaseEvents = ['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchcancel'];
+  const userInputMoveEvents = ['pointermove', 'mousemove'];
   const userInputReleaseTargets = new Set();
   hosts.forEach((host) => {
     userInputStartEvents.forEach((eventName) => {
@@ -254,6 +295,9 @@ export function mountWorkstationChartSurface(root, {
   userInputReleaseTargets.forEach((target) => {
     userInputReleaseEvents.forEach((eventName) => {
       target.addEventListener?.(eventName, markUserRangeDragEnd, { passive: true });
+    });
+    userInputMoveEvents.forEach((eventName) => {
+      target.addEventListener?.(eventName, forceUserRangeDragRelease, { passive: true });
     });
   });
 
@@ -684,6 +728,9 @@ export function mountWorkstationChartSurface(root, {
       userInputReleaseTargets.forEach((target) => {
         userInputReleaseEvents.forEach((eventName) => {
           target.removeEventListener?.(eventName, markUserRangeDragEnd);
+        });
+        userInputMoveEvents.forEach((eventName) => {
+          target.removeEventListener?.(eventName, forceUserRangeDragRelease);
         });
       });
       resizeObserver?.disconnect();
