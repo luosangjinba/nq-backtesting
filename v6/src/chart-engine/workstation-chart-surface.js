@@ -585,12 +585,28 @@ export function mountWorkstationChartSurface(root, {
       if (!hostsByPaneId.has(recordPaneId)) {
         return null;
       }
+      const previousChartData = appliedChartDataByPaneId.get(recordPaneId);
+      const previousVisibleRange = measuredVisibleRangeByPaneId.get(recordPaneId);
       const snapshot = manager.setData(recordPaneId, record.bars || []);
       appliedChartDataByPaneId.set(recordPaneId, {
         barCount: record.bars?.length || 0,
         paneId: recordPaneId,
         revision: Number(record.revision) || 0,
       });
+      const prependedBarCount = (record.operation === 'prepend' && previousVisibleRange && previousChartData)
+        ? Math.max(0, (record.bars?.length || 0) - previousChartData.barCount)
+        : 0;
+      if (prependedBarCount > 0) {
+        const shiftedRange = {
+          from: Number(previousVisibleRange.from) + prependedBarCount,
+          to: Number(previousVisibleRange.to) + prependedBarCount,
+        };
+        programmaticRangeByPaneId.set(recordPaneId, {
+          ...shiftedRange,
+          suppressUntil: Date.now() + PROGRAMMATIC_RANGE_SUPPRESSION_MS,
+        });
+        return manager.setVisibleLogicalRange(recordPaneId, shiftedRange);
+      }
       return snapshot;
     },
     applyViewportProjection(record = {}) {

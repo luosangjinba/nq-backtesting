@@ -15,7 +15,6 @@ const BRIDGE_FILES = new Map([
   ['reset-view-control-bridge', 'v6/src/chart-engine/reset-view-control-bridge.js'],
 ]);
 const COMMAND_TOKENS = new Map([
-  ['chartViewport.applyChartDataRevision', 'CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'],
   ['chartViewport.resetView', 'CHART_VIEWPORT_COMMANDS.RESET_VIEW'],
   ['chartViewport.setManualIntent', 'CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT'],
 ]);
@@ -65,7 +64,6 @@ assert.deepEqual(getChartControlBridges(), [
   'reset-view-control-bridge',
 ]);
 assert.deepEqual(getChartControlAllowedCommands(), [
-  'chartViewport.applyChartDataRevision',
   'chartViewport.resetView',
   'chartViewport.setManualIntent',
 ]);
@@ -91,16 +89,16 @@ assert.deepEqual(await filesContaining("from './chart-engine/manual-wall-input-b
 assert.deepEqual(await filesContaining("from './chart-engine/reset-view-control-bridge.js'"), [
   'v6/src/app.js',
 ]);
-assert.equal(appSource.includes('const workstationChartSurface = mountWorkstationChartSurface(root);'), true);
+assert.equal(appSource.includes('const workstationChartSurface = mountWorkstationChartSurface(root'), true);
 assert.equal(appSource.includes('connectManualWallInputBridge({\n  chartSurface: workstationChartSurface,'), true);
-assert.equal(appSource.includes('connectResetViewControl({\n  button: root.querySelector'), true);
+assert.equal(appSource.includes('connectResetViewControl({\n    button,'), true);
 assert.equal(appSource.includes('chartSurface: workstationChartSurface,'), true);
 
 assert.equal(manualWallBridge.includes('subscribeVisibleRangeChange'), true);
 assert.equal(manualWallBridge.includes('getState'), true);
 assert.equal(manualWallBridge.includes('measureManualWallFromLogicalRange'), true);
 assert.equal(manualWallBridge.includes(COMMAND_TOKENS.get('chartViewport.setManualIntent')), true);
-assert.equal(manualWallBridge.includes(COMMAND_TOKENS.get('chartViewport.applyChartDataRevision')), true);
+assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'), false);
 assert.equal(resetViewBridge.includes('addEventListener'), true);
 assert.equal(resetViewBridge.includes('getState'), true);
 assert.equal(resetViewBridge.includes(COMMAND_TOKENS.get('chartViewport.resetView')), true);

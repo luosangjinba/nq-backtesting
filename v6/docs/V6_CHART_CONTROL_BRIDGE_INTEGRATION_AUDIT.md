@@ -15,8 +15,8 @@ No contract mismatch was found:
   `workstation-chart-surface`.
 - `manual-wall-input-bridge` subscribes to chart surface visible-range changes,
   reads the chart surface snapshot, measures manual wall intent, and dispatches
-  only `chartViewport.setManualIntent` and
-  `chartViewport.applyChartDataRevision`.
+  only `chartViewport.setManualIntent`. Native drag already moved the chart, so
+  the bridge must not project the measured range back into Lightweight Charts.
 - `reset-view-control-bridge` binds the reset-view button, reads the chart
   surface snapshot, and dispatches only `chartViewport.resetView`.
 - The control bridges do not write series data, fetch bars, advance replay, load
@@ -24,7 +24,8 @@ No contract mismatch was found:
 
 ## Boundary Notes
 
-- No runtime behavior changed.
+- Current runtime behavior keeps manual drag chart movement native-first: chart
+  projection is reserved for reset/default/replay data revision paths.
 - The control bridges are not event-only surface bridges. They are explicitly
   viewport-command-only user control bridges.
 - Series writes remain in the chart surface/adapter path.

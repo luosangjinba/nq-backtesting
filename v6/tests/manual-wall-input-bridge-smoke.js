@@ -42,19 +42,6 @@ const bridge = connectManualWallInputBridge({
   chartSurface,
   dispatchCommand(command, payload) {
     calls.push({ command, payload });
-    if (command === CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION) {
-      state = {
-        ...state,
-        appliedViewport: [{
-          chartBarsRevision: payload.chartBarsRevision,
-          from: -18,
-          origin: 'manual',
-          paneId: payload.paneId,
-          projectionRevision: 1,
-          to: 6,
-        }],
-      };
-    }
     return Promise.resolve({ command, payload });
   },
 });
@@ -84,14 +71,6 @@ assert.deepEqual(calls, [
       spanBars: 24,
     },
   },
-  {
-    command: CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION,
-    payload: {
-      chartBarsRevision: 7,
-      latestLogicalIndex: 2,
-      paneId: 'default',
-    },
-  },
 ]);
 
 bridge.destroy();
@@ -102,6 +81,6 @@ listeners.forEach((listener) => listener({
   to: 5,
 }));
 await new Promise((resolve) => setTimeout(resolve, 0));
-assert.equal(calls.length, 2);
+assert.equal(calls.length, 1);
 
 console.log('v6 manual wall input bridge smoke passed');

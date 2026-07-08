@@ -150,21 +150,23 @@ export function planCanvasLeftOlderWindow(payload = {}, options = {}) {
     };
   }
 
-  const estimatedBars = estimateWindowBars(canvasLeftMs, endMs, timeframe);
-  if (estimatedBars > maxBarsPerWindow) {
-    throw new Error(`Canvas-left older window estimates ${estimatedBars} bars, limit ${maxBarsPerWindow}.`);
-  }
+  const uncappedEstimatedBars = estimateWindowBars(canvasLeftMs, endMs, timeframe);
+  const estimatedBars = Math.min(uncappedEstimatedBars, maxBarsPerWindow);
+  const startMs = uncappedEstimatedBars > maxBarsPerWindow
+    ? endMs - ((maxBarsPerWindow - 1) * stepMs)
+    : canvasLeftMs;
 
   return {
     bounded: true,
     canvasLeftBoundary: formatApiTime(canvasLeftMs),
+    chunked: uncappedEstimatedBars > maxBarsPerWindow,
     direction: 'backward',
     end: formatApiTime(endMs),
     estimatedBars,
     historyRequest: 'older-window',
     instrument,
     requestCap: 'canvas-left',
-    start: formatApiTime(canvasLeftMs),
+    start: formatApiTime(startMs),
     timeframe,
   };
 }

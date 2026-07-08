@@ -79,7 +79,11 @@ export function createChartViewportRuntime({
         subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (payload = {}) => {
           const record = payload.record || {};
           const paneId = record.paneId;
-          if (!paneId || !store.getRecord(paneId)) return;
+          const existing = paneId ? store.getRecord(paneId) : null;
+          if (!paneId || !existing) return;
+          if (payload.operation === 'prepend' && existing.intent?.origin === 'manual') {
+            return;
+          }
           const projected = store.applyChartDataRevision(paneId, {
             chartBarsRevision: record.revision,
             latestLogicalIndex: latestLogicalIndexFromChartDataRecord(record),

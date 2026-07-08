@@ -16,11 +16,6 @@ function findPaneSnapshot(chartSurface, paneId) {
     ?.find((pane) => pane.paneId === paneId)?.snapshot || null;
 }
 
-function findAppliedChartData(chartSurface, paneId) {
-  return chartSurface.getState?.().appliedChartData
-    ?.find((record) => record.paneId === paneId) || null;
-}
-
 function findAppliedViewport(chartSurface, paneId) {
   return chartSurface.getState?.().appliedViewport
     ?.find((record) => record.paneId === paneId) || null;
@@ -61,13 +56,8 @@ export function connectManualWallInputBridge({
       latestLogicalIndex,
       range,
     });
-    const appliedChartData = findAppliedChartData(chartSurface, paneId);
     void Promise.resolve(dispatchCommand(CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT, {
       ...measurement,
-      paneId,
-    })).then(() => dispatchCommand(CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION, {
-      chartBarsRevision: Number(appliedChartData?.revision) || 0,
-      latestLogicalIndex,
       paneId,
     }));
   });

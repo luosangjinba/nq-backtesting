@@ -99,8 +99,12 @@ try {
   assert.equal(Number.isFinite(value.manual.intent.latestOffsetBars), true);
   assert.equal(Number.isFinite(value.manual.intent.spanBars), true);
   assert.equal(value.manual.intent.spanBars > 0, true);
-  assert.notDeepEqual(value.manual.projection, setup.beforeProjection);
-  assert.deepEqual(value.manual.appliedViewport.origin, 'manual');
+  assert.equal(value.manual.projection, null);
+  assert.deepEqual(value.manual.appliedViewport.origin, 'default');
+  assert.notDeepEqual(value.manual.visibleLogicalRange, {
+    from: setup.beforeProjection.from,
+    to: setup.beforeProjection.to,
+  });
 } finally {
   await page.cleanup();
 }

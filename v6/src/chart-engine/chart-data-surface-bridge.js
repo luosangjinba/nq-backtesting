@@ -15,7 +15,10 @@ export function connectChartDataSurfaceBridge({
     if (!payload.record) {
       return;
     }
-    chartSurface.applyChartDataRecord(payload.record);
+    chartSurface.applyChartDataRecord({
+      ...payload.record,
+      operation: payload.operation || null,
+    });
   });
 
   return {

@@ -12,6 +12,7 @@ const olderWindow = planCanvasLeftOlderWindow({
 assert.deepEqual(olderWindow, {
   bounded: true,
   canvasLeftBoundary: '2026-06-01 09:27',
+  chunked: false,
   direction: 'backward',
   end: '2026-06-01 09:29',
   estimatedBars: 3,
@@ -38,14 +39,26 @@ assert.deepEqual(
   }
 );
 
-assert.throws(
-  () => planCanvasLeftOlderWindow({
+assert.deepEqual(
+  planCanvasLeftOlderWindow({
     canvasLeftTimestamp: '2026-06-01T09:20:00.000Z',
     instrument: 'NQ',
     oldestLoadedTimestamp: '2026-06-01T09:30:00.000Z',
     timeframe: 1,
   }, { maxBarsPerWindow: 5 }),
-  /Canvas-left older window estimates 10 bars, limit 5/
+  {
+    bounded: true,
+    canvasLeftBoundary: '2026-06-01 09:20',
+    chunked: true,
+    direction: 'backward',
+    end: '2026-06-01 09:29',
+    estimatedBars: 5,
+    historyRequest: 'older-window',
+    instrument: 'NQ',
+    requestCap: 'canvas-left',
+    start: '2026-06-01 09:25',
+    timeframe: 1,
+  }
 );
 
 const queryCalls = [];

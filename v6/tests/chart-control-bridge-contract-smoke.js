@@ -20,7 +20,6 @@ assert.deepEqual(getChartControlBridges(), [
   'reset-view-control-bridge',
 ]);
 assert.deepEqual(getChartControlAllowedCommands(), [
-  'chartViewport.applyChartDataRevision',
   'chartViewport.resetView',
   'chartViewport.setManualIntent',
 ]);
@@ -68,7 +67,7 @@ assert.equal(Object.isFrozen(contract), true);
 assert.equal(manualWallBridge.includes('subscribeVisibleRangeChange'), true);
 assert.equal(manualWallBridge.includes('measureManualWallFromLogicalRange'), true);
 assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT'), true);
-assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'), true);
+assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'), false);
 assert.equal(resetViewBridge.includes('addEventListener'), true);
 assert.equal(resetViewBridge.includes('CHART_VIEWPORT_COMMANDS.RESET_VIEW'), true);
 

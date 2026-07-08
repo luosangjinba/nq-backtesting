@@ -6,7 +6,6 @@ const CHART_CONTROL_BRIDGES = Object.freeze([
 ]);
 
 const CHART_CONTROL_ALLOWED_COMMANDS = Object.freeze([
-  'chartViewport.applyChartDataRevision',
   'chartViewport.resetView',
   'chartViewport.setManualIntent',
 ]);

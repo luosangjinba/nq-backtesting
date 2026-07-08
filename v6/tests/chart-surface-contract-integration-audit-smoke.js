@@ -112,7 +112,7 @@ assert.equal(chartViewportBridge.includes('dispatchCommand'), false);
 assert.equal(chartViewportBridge.includes('subscribeEvent'), true);
 
 assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT'), true);
-assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'), true);
+assert.equal(manualWallBridge.includes('CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION'), false);
 assert.equal(resetViewBridge.includes('CHART_VIEWPORT_COMMANDS.RESET_VIEW'), true);
 for (const source of [manualWallBridge, resetViewBridge]) {
   assert.equal(source.includes('setData'), false);

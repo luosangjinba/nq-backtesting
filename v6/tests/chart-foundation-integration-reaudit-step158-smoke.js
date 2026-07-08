@@ -238,6 +238,8 @@ assertIncludesAll(chartViewportBridgeSource, [
 ], 'chart viewport bridge');
 assertIncludesAll(manualWallBridgeSource, [
   'CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT',
+], 'manual wall bridge');
+assertExcludesAll(manualWallBridgeSource, [
   'CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION',
 ], 'manual wall bridge');
 assertIncludesAll(leftwardHistoryBridgeSource, [

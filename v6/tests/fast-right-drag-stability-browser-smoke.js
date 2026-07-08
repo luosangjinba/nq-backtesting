@@ -17,12 +17,16 @@ async function readState() {
       const commands = await import('/v6/src/runtime/commands.js');
       const contracts = await import('/v6/src/contracts/app-contracts.js');
       const root = document.querySelector('[data-v6-root]');
+      const chart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
+        paneId: 'main',
+      });
       const viewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
         paneId: 'main',
       });
       const surface = root.__v6WorkstationChartSurface.getState();
       return {
         appliedViewport: surface.appliedViewport[0] || null,
+        barCount: chart.bars?.length || 0,
         intent: viewport.intent,
         projection: viewport.projection,
         visibleRange: surface.panes[0]?.snapshot?.visibleLogicalRange || null,
@@ -124,11 +128,17 @@ try {
   assert.equal(afterDrag.intent.origin, 'manual');
   assert.notEqual(afterDrag.intent.revision, setup.initial.intent.revision);
   assert.equal(afterDrag.intent.latestOffsetBars < setup.initial.intent.latestOffsetBars, true);
+  assert.equal(afterDrag.projection, null);
   assert.equal(afterHover.intent.origin, 'manual');
   assert.deepEqual(afterHover.intent, afterDrag.intent);
   assert.deepEqual(afterHover.projection, afterDrag.projection);
-  assert.equal(rangesNear(afterHover.visibleRange, afterDrag.visibleRange), true);
-  assert.equal(afterHover.appliedViewport.origin, 'manual');
+  const prependedBarCount = afterHover.barCount - afterDrag.barCount;
+  assert.equal(prependedBarCount >= 0, true);
+  assert.equal(rangesNear(afterHover.visibleRange, {
+    from: afterDrag.visibleRange.from + prependedBarCount,
+    to: afterDrag.visibleRange.to + prependedBarCount,
+  }), true);
+  assert.equal(afterHover.appliedViewport.origin, 'default');
 } finally {
   await page.cleanup();
 }

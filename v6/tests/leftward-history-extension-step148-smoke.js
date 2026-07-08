@@ -88,6 +88,7 @@ assert.equal(state.extension.prependedBarCount, 3);
 assert.deepEqual(state.extension.plannedWindow, {
   bounded: true,
   canvasLeftBoundary: '2026-06-01 09:27',
+  chunked: false,
   direction: 'backward',
   end: '2026-06-01 09:29',
   estimatedBars: 3,
@@ -98,7 +99,18 @@ assert.deepEqual(state.extension.plannedWindow, {
   timeframe: 1,
 });
 assert.equal(fetchCalls.length, 1);
-assert.deepEqual(fetchCalls[0], state.extension.plannedWindow);
+assert.deepEqual(fetchCalls[0], {
+  bounded: true,
+  canvasLeftBoundary: '2026-06-01 09:27',
+  direction: 'backward',
+  end: '2026-06-01 09:29',
+  estimatedBars: 3,
+  historyRequest: 'older-window',
+  instrument: 'NQ',
+  requestCap: 'canvas-left',
+  start: '2026-06-01 09:27',
+  timeframe: 1,
+});
 
 const chart = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
 assert.deepEqual(chart.bars.map((bar) => bar.timestamp), [
