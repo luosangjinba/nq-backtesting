@@ -16,7 +16,7 @@ function clonePlan(plan) {
   } : null;
 }
 
-export function createChartEntryInitializationRuntime() {
+export function createChartEntryInitializationRuntime({ prefixBars } = {}) {
   const unregisterCallbacks = [];
   const unsubscribeCallbacks = [];
   let state = {
@@ -43,7 +43,7 @@ export function createChartEntryInitializationRuntime() {
       if (!session) {
         throw new Error(`Chart entry initialization session ${sessionId} does not exist.`);
       }
-      const contextPlan = createChartEntryContextPlan(session);
+      const contextPlan = createChartEntryContextPlan(session, { prefixBars });
       const plannedWindow = await dispatchCommand(BAR_DATA_COMMANDS.PLAN_WINDOW, contextPlan.boundedContextWindow);
       state = {
         error: null,

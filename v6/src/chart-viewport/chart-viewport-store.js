@@ -33,6 +33,15 @@ function normalizeRevision(revision = 0) {
   return normalized;
 }
 
+function normalizeSpanBars(spanBars) {
+  if (spanBars === null || spanBars === undefined) return null;
+  const normalized = Number(spanBars);
+  if (!Number.isFinite(normalized) || normalized <= 0) {
+    throw new Error('Chart viewport spanBars must be a positive number.');
+  }
+  return normalized;
+}
+
 function cloneRecord(record) {
   return {
     chartBarsRevision: record.chartBarsRevision,
@@ -58,6 +67,7 @@ export function createChartViewportStore({
   function ensureIntent(paneId, {
     cursorTimestamp,
     latestOffsetBars = defaultRightOffsetBars,
+    spanBars = null,
   } = {}) {
     const id = normalizePaneId(paneId);
     const existing = recordsByPaneId.get(id);
@@ -70,6 +80,7 @@ export function createChartViewportStore({
       intent: createDefaultWallIntent({
         cursorTimestamp: normalizeCursorTimestamp(cursorTimestamp),
         latestOffsetBars,
+        spanBars: normalizeSpanBars(spanBars),
       }),
       paneId: id,
       projection: null,
@@ -96,6 +107,7 @@ export function createChartViewportStore({
   function resetView(paneId, {
     cursorTimestamp,
     latestOffsetBars,
+    spanBars = null,
   } = {}) {
     const id = normalizePaneId(paneId);
     const existing = recordsByPaneId.get(id);
@@ -111,6 +123,7 @@ export function createChartViewportStore({
         latestOffsetBars: latestOffsetBars === undefined
           ? existing.defaultLatestOffsetBars ?? defaultRightOffsetBars
           : latestOffsetBars,
+        spanBars: normalizeSpanBars(spanBars),
       }),
       projection: null,
     };

@@ -110,6 +110,7 @@ assert.equal(state.prepared.sessionId, 'session-prep');
 assert.equal(state.prepared.chartReplacePayload.bars.length, 1);
 assert.equal(state.prepared.chartReplacePayload.cursorTimestamp, bars[0].timestamp);
 assert.equal(state.prepared.viewportIntentPayload.cursorTimestamp, bars[0].timestamp);
+assert.equal(state.prepared.viewportIntentPayload.spanBars, 80);
 assert.equal(state.prepared.source.barCount, 5);
 assert.equal('bars' in state.prepared.source, false);
 assert.equal('bars' in state.prepared.source.window, false);

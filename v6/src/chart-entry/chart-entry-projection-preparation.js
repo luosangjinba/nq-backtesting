@@ -130,6 +130,7 @@ export function createChartEntryProjectionPreparation(plan, cacheRecord, {
       cursorTimestamp: wallState.latestBar?.timestamp ?? null,
       latestOffsetBars: wallState.settings.latestOffsetBars,
       paneId: wallState.paneId,
+      spanBars: wallState.settings.spanBars,
     }),
     wallPlan: Object.freeze({
       anchor: plan.anchor,

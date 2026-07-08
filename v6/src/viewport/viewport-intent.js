@@ -50,13 +50,14 @@ export function createDefaultWallIntent({
   cursorTimestamp,
   latestOffsetBars = 8,
   revision = 0,
+  spanBars = null,
 } = {}) {
   return createReplayWallIntent({
     cursorTimestamp,
     latestOffsetBars,
     origin: 'default',
     revision,
-    spanBars: null,
+    spanBars,
   });
 }
 
@@ -88,11 +89,13 @@ export function updateIntentCursor(intent, cursorTimestamp) {
 export function resetToDefaultWallIntent(intent, {
   cursorTimestamp = intent?.cursorTimestamp,
   latestOffsetBars = intent?.latestOffsetBars ?? 8,
+  spanBars = null,
 } = {}) {
   return createDefaultWallIntent({
     cursorTimestamp,
     latestOffsetBars,
     revision: normalizeRevision(intent?.revision ?? 0) + 1,
+    spanBars,
   });
 }
 
