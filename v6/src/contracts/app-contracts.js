@@ -133,6 +133,15 @@ export const BAR_DATA_EVENTS = Object.freeze({
   WINDOW_RELEASED: 'barData:windowReleased',
 });
 
+export const CHART_BOUNDARY_METADATA_COMMANDS = Object.freeze({
+  GET_STATE: 'chartBoundaryMetadata.getState',
+  REFRESH: 'chartBoundaryMetadata.refresh',
+});
+
+export const CHART_BOUNDARY_METADATA_EVENTS = Object.freeze({
+  UPDATED: 'chartBoundaryMetadata:updated',
+});
+
 export const REPLAY_COMMANDS = Object.freeze({
   GET_STATE: 'replay.getState',
   LOAD_SESSION: 'replay.loadSession',
