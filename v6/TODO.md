@@ -14,50 +14,70 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 127 - Right Rail Session Settings Panel
-  Regression Audit. The right-rail Session settings panel now has regression
-  coverage across panel behavior and workstation chrome geometry.
+- Latest completed step: Step 128 - Workstation Chart Slice Selection. The
+  next bounded slice is Workstation UI Parity Gap Re-audit before choosing
+  another workstation chart chrome implementation.
 
 ## Next Executable Steps
 
-### Step 128 - Workstation Chart Slice Selection
+### Step 129 - Workstation UI Parity Gap Re-audit
 
-Choose the next bounded workstation/chart implementation slice after Session
-settings panel stabilization.
+Re-audit the current workstation shell against the FXReplay UI guardrails and
+refresh stale parity gap classification after Session settings panel
+stabilization.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`,
-  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`, FXReplay UI
-  guardrails, and the parity gap audit;
-- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
-- select one small next slice with explicit owner boundary and acceptance tests;
-- prefer shell-only parity work unless the next slice requires a runtime owner
-  contract first;
+- read `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`,
+  `V6_FXREPLAY_UI_GUARDRAILS.md`, `V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`,
+  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`,
+  `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`, and
+  `V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`;
+- re-audit session dashboard separation, top toolbar, timeframe menu, left
+  drawing rail, right utility rail, Session settings panel, floating transport,
+  bottom account/trading chrome, chart status/OHLC, settings modal,
+  diagnostics visibility, and multi-pane readiness;
+- update stale shell-only versus runtime-owned parity classifications;
+- identify the next bounded implementation slice only after current evidence is
+  refreshed;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Scope:
 
-- docs/test selection only;
-- do not implement the selected slice in Step 128;
-- do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from selection/audit code.
+- docs/test audit only unless a regression is found;
+- do not implement new workstation chrome in Step 129;
+- do not dispatch chart/replay/bar-data/default-wall/display-timeframe,
+  viewport, session-settings, orders, or calendar commands from audit code.
 
 Acceptance:
 
-- new Step 128 slice selection smoke passes;
+- new workstation UI parity re-audit smoke passes;
+- FXReplay UI guardrails and parity gap audit smoke are updated or superseded
+  with current evidence;
 - right-rail session settings panel regression audit smoke passes;
-- right-rail session settings panel browser smoke passes;
 - bottom chrome regression audit smoke passes;
-- bottom account/trading chrome browser smoke passes;
-- workstation rail regression audit browser smoke passes;
 - workstation chart presentation re-audit smoke passes;
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 128 - Workstation Chart Slice Selection
+
+Completed in commit:
+
+- `4af426eb docs(v6): select workstation parity re-audit slice`
+
+Verification:
+
+- `node v6/tests/workstation-chart-slice-selection-step128-smoke.js`
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
+- `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
+- `node v6/tests/workstation-chart-presentation-reaudit-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 127 - Right Rail Session Settings Panel Regression Audit
 
