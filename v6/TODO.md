@@ -14,23 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 172 - Synced Intent Reload Boundary. V6 now has a
-  documented reload trigger boundary and pure reload-intent records for pane
-  Symbol/Interval intent changes, without making bar-data requests, chart-data
-  writes, viewport projections, or replay mutations.
+- Latest completed step: Step 173 - Pane Intent Reload Runtime Skeleton. V6 now
+  emits reload-intent records from pane Symbol/Interval intent changes and
+  synced fan-out events, without making bar-data requests, chart-data writes,
+  viewport projections, or replay mutations.
 
 ## Next Executable Steps
 
-### Step 173 - Pane Intent Reload Runtime Skeleton
+### Step 174 - Replay-Safe Reload Window Planning
 
-Add the reload trigger runtime skeleton that emits reload-intent records without
-implementing bar-data requests.
+Define replay-safe bar-data window planning from reload-intent records before
+implementing any actual bar-data request.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_SYNCED_INTENT_RELOAD_BOUNDARY_STEP172.md`,
+- read `V6_PANE_INTENT_RELOAD_RUNTIME_STEP173.md`,
+  `V6_SYNCED_INTENT_RELOAD_BOUNDARY_STEP172.md`,
   `V6_SYMBOL_INTERVAL_INTENT_FANOUT_STEP171.md`,
   `V6_SYMBOL_INTERVAL_SYNC_RUNTIME_STEP170.md`,
   `V6_PANE_SYMBOL_INTERVAL_INTENT_STEP169.md`,
@@ -62,10 +63,11 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- add a dedicated pane-intent reload runtime that listens to pane intent and
-  pane-intent-sync events and emits reload-intent records;
-- do not implement bar-data requests, chart-data writes, or viewport projection
-  before no-future behavior is test-covered;
+- add pure reload window planning from reload-intent records under replay
+  no-future constraints;
+- do not call `BAR_DATA_COMMANDS.LOAD_WINDOW`, write chart-data, or project
+  viewport in this step;
+- preserve Step 173 reload-intent runtime and events;
 - preserve Step 172 reload-intent model and boundary doc;
 - preserve Step 171 intent fan-out and loop suppression;
 - preserve Step 170 `paneIntentSync:planned` state and boundary smoke;
@@ -157,6 +159,22 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 173 - Pane Intent Reload Runtime Skeleton
+
+Completed in commits:
+
+- `8f6cb482 feat(v6): add pane intent reload runtime`
+- `cb6840cc feat(v6): register pane intent reload runtime`
+
+Verification:
+
+- `node v6/tests/pane-intent-reload-runtime-step173-smoke.js`
+- `node v6/tests/pane-intent-reload-model-step172-smoke.js`
+- `node v6/tests/pane-intent-sync-runtime-step170-smoke.js`
+- `node v6/tests/runtime-core-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 172 - Synced Intent Reload Boundary
 
