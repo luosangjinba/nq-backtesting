@@ -62,7 +62,7 @@ try {
     })()))()
   `));
 
-  assert.equal(value.layoutMenuOpen, true);
+  assert.equal(value.layoutMenuOpen, false);
   assert.equal(value.before.mode, 'single');
   assert.equal(value.afterMode.mode, 'twice');
   assert.equal(value.afterSync.mode, 'twice');

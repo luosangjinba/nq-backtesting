@@ -159,12 +159,14 @@ assert.deepEqual([...root.querySelectorAll('[data-v6-layout-sync]')].map((input)
 assert.equal(root.dataset.layoutMode, 'single');
 assert.equal(root.dataset.layoutVariant, 'single');
 
+root.details.open = true;
 root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].click();
 await new Promise((resolve) => setTimeout(resolve, 0));
 assert.equal(dispatches.at(-1).command, LAYOUT_COMMANDS.SET_MODE);
 assert.deepEqual(dispatches.at(-1).payload, { mode: 'twice', variant: 'twice-horizontal' });
 assert.equal(root.dataset.layoutMode, 'twice');
 assert.equal(root.dataset.layoutVariant, 'twice-horizontal');
+assert.equal(root.details.open, false);
 assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[0].classList.contains('is-selected'), false);
 assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].classList.contains('is-selected'), true);
 assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].getAttribute('aria-checked'), 'true');

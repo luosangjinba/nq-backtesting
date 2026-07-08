@@ -74,11 +74,17 @@ export function mountLayoutMenuControl(root, {
     render(await dispatchCommand(LAYOUT_COMMANDS.GET_SNAPSHOT));
   }
 
+  function closeDetails() {
+    if (details) {
+      details.open = false;
+    }
+  }
+
   function closeDetailsOnExternalTarget(target) {
     if (!details?.open || !target || details.contains?.(target)) {
       return;
     }
-    details.open = false;
+    closeDetails();
   }
 
   const ownerDocument = root.ownerDocument || details?.ownerDocument || globalThis.document;
@@ -98,6 +104,7 @@ export function mountLayoutMenuControl(root, {
         variant: selectedVariantByMode[mode],
         sync: snapshot?.sync || {},
       });
+      closeDetails();
       try {
         render(await dispatchCommand(LAYOUT_COMMANDS.SET_MODE, {
           mode,

@@ -23,11 +23,16 @@ try {
       toggle.click();
       await new Promise((resolve) => requestAnimationFrame(resolve));
       const reopened = details.open;
+      details.querySelector('[data-v6-layout-mode="twice"][data-v6-layout-variant="twice-horizontal"]').click();
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const closedAfterLayoutChoice = !details.open;
+      toggle.click();
+      await new Promise((resolve) => requestAnimationFrame(resolve));
       chartSurface.focus?.();
       chartSurface.dispatchEvent(new FocusEvent('focusin', { bubbles: true }));
       await new Promise((resolve) => requestAnimationFrame(resolve));
       const closedAfterOutsideFocus = !details.open;
-      return { closedAfterOutsideFocus, closedAfterOutsidePointer, opened, reopened, stillOpenAfterInsidePointer };
+      return { closedAfterLayoutChoice, closedAfterOutsideFocus, closedAfterOutsidePointer, opened, reopened, stillOpenAfterInsidePointer };
     })()))()
   `));
 
@@ -35,6 +40,7 @@ try {
   assert.equal(value.stillOpenAfterInsidePointer, true);
   assert.equal(value.closedAfterOutsidePointer, true);
   assert.equal(value.reopened, true);
+  assert.equal(value.closedAfterLayoutChoice, true);
   assert.equal(value.closedAfterOutsideFocus, true);
 } finally {
   await page.cleanup();
