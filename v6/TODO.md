@@ -14,21 +14,24 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 166 - Layout Sync Effects Boundary. V6 now keeps
-  date-range/time layout sync as a chart-surface viewport effect that does not
-  request bars, mutate replay, or write chart series outside chart-engine.
+- Latest completed step: Step 167 - Crosshair Sync Effect Boundary. V6 now keeps
+  Crosshair layout sync as a chart-surface effect using Lightweight Charts'
+  native crosshair API, without requesting bars, mutating replay, or writing
+  chart-data series.
 
 ## Next Executable Steps
 
-### Step 167 - Crosshair Sync Effect Boundary
+### Step 168 - Symbol/Interval Sync Boundary Decision
 
-Connect the layout Crosshair sync toggle to a bounded multi-pane chart effect.
+Decide the owner boundary for Symbol and Interval layout sync before any data
+reload behavior is implemented.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_LAYOUT_SYNC_EFFECTS_STEP166.md`,
+- read `V6_CROSSHAIR_SYNC_EFFECT_STEP167.md`,
+  `V6_LAYOUT_SYNC_EFFECTS_STEP166.md`,
   `V6_PANE_RESIZE_DRAG_STEP165.md`,
   `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
   `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
@@ -54,9 +57,12 @@ Notes for execution:
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and `v6/docs/specs/pane-model.md`;
-- use the Step 166 layout sync effect model/bridge boundary;
-- keep Crosshair sync chart-only: no bar-data reload, no replay cursor mutation,
-  and no chart-data series writes;
+- use Step 166/167 as the chart-only sync baseline;
+- define whether Symbol/Interval sync belongs in layout-runtime fan-out,
+  pane-runtime commands, a dedicated pane instrument/timeframe sync runtime, or
+  a chart-entry orchestration boundary;
+- do not implement reloads before the owner contract is explicit;
+- preserve Step 167 Crosshair sync;
 - preserve Step 166 date-range/time visible-range sync;
 - keep resize ratios from Step 165 local to chart presentation;
 - keep persisted layout variant state from Step 164 unchanged;
@@ -140,6 +146,27 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 167 - Crosshair Sync Effect Boundary
+
+Completed in commits:
+
+- `79dc5080 feat(v6): add crosshair projection api`
+- `986a540f feat(v6): sync layout crosshair effect`
+
+Verification:
+
+- `node v6/tests/chart-host-manager-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/layout-sync-effects-model-step166-smoke.js`
+- `node v6/tests/layout-sync-surface-bridge-step166-smoke.js`
+- `node v6/tests/layout-sync-crosshair-bridge-step167-smoke.js`
+- `node v6/tests/layout-sync-crosshair-browser-step167-smoke.js`
+- `node v6/tests/layout-sync-visible-range-browser-step166-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-step154-smoke.js`
+- `node v6/tests/multi-pane-crosshair-readout-browser-step154-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 166 - Layout Sync Effects Boundary
 
