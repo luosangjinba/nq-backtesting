@@ -14,37 +14,50 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 183 - Pane-Local Status Readout. V6 now renders
-  symbol, timeframe, and OHLC independently inside each chart pane.
+- Latest completed step: Step 184 - Pane Action Rail. V6 now renders each
+  pane's reset control inside a pane-local action rail offset away from the
+  price axis.
 
 ## Next Executable Steps
 
-### Step 184 - Replay-Safe Leftward History Latency Gate
+### Step 185 - Pane Maximize / Restore State Model
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_LOCAL_STATUS_READOUT_STEP183.md`;
-- build a browser latency gate around leftward historical extension during
-  replay;
-- prove history requests are triggered only when the visible range reaches the
-  canvas-left request boundary;
-- prove replay Next/Play remains visibly responsive while historical extension
-  is pending or completing;
-- keep the request/resource-saving behavior from Steps 148-151 intact;
-- keep chart-engine, bar-data, replay, chart-data, viewport, layout, and pane
-  ownership unchanged.
+- read `V6_PANE_ACTION_RAIL_STEP184.md`;
+- add a pane maximize/restore state model in the chart/layout surface boundary;
+- preserve the previous layout mode, variant, resize ratios, and visible pane
+  list while a pane is maximized;
+- show only the selected pane during maximize;
+- restore the original layout without resetting chart data, viewport
+  projection, or replay cursor;
+- keep replay, bar-data, chart-data, viewport, and pane ownership unchanged.
 
 Acceptance:
 
-- new replay-safe leftward history latency smoke passes;
-- existing leftward history browser smoke passes;
+- maximize state smoke passes;
+- restore state smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 184 - Pane Action Rail
+
+Completed in commit:
+
+- `7cdfaffa feat(v6): move pane reset into action rail`
+
+Verification:
+
+- `node v6/tests/pane-action-rail-browser-step184-smoke.js`
+- `node v6/tests/pane-local-reset-controls-browser-step163-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 183 - Pane-Local Status Readout
 
