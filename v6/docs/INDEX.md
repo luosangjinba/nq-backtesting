@@ -113,6 +113,9 @@ Read this index before working on V6.
 - `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`: accepted reset view / KXG reset
   flow gate after initial replay K-line load and after replay `Next`, preserving
   bar-data, replay, chart-data, chart-engine, and chart-viewport ownership.
+- `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`: accepted multi-pane
+  chart foundation using multi-host chart surface mounting and pane-local
+  chart-data / chart-viewport bridge fan-out.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
@@ -244,6 +247,9 @@ Read this index before working on V6.
   and chart-viewport wall span ownership.
 - `V6_RESET_VIEW_KXG_FLOW_STEP146.md`: accepted reset view / KXG reset flow
   gate after initial replay K-line load and after replay `Next`.
+- `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`: accepted multi-pane chart
+  foundation using multi-host chart surface mounting and pane-local bridge
+  fan-out.
 - `V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: accepted chart engine readiness and
   the static placeholder replacement direction.
 - `V6_FXREPLAY_UI_GUARDRAILS.md`: accepted UI parity guardrails for top chrome,

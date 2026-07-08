@@ -14,36 +14,35 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 146 - Reset View / KXG Reset Flow.
-  V6 now gates reset view / KXG reset behavior after initial replay K-line load
-  and after replay `Next`, while preserving bar-data, chart-data, replay, and
-  chart-engine ownership boundaries.
+- Latest completed step: Step 147 - Multi-Pane Chart Foundation.
+  V6 now gates multi-host chart surface mounting and two-pane chart-data /
+  chart-viewport bridge fan-out through the same pane-local ownership paths.
 
 ## Next Executable Steps
 
-### Step 147 - Multi-Pane Chart Foundation
+### Step 148 - Leftward Historical K-Line Extension
 
-Start the multi-pane chart foundation only after the replay K-line and reset
-view flows are stable.
+Implement bounded leftward historical K-line extension after replay K-line,
+reset view, and multi-pane chart foundations are stable.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
+- read `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
+  `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
   `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
   `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- model panes through the pane-model boundary before adding pane UI controls;
-- keep pane-local bars in chart-data and pane-local viewport intent in
-  chart-viewport;
-- keep chart-engine as the only chart series writer;
-- preserve replay cursor ownership and bounded bar-data windows;
-- verify the primary replay pane stays visible and responsive after a secondary
-  pane is introduced;
+- trigger older-window demand only from canvas-left / visible-range boundary;
+- cap each request at the canvas-left timeline boundary and `maxBarsPerWindow`;
+- route all requests and cache writes through bar-data;
+- prepend/merge older bars through chart-data only after bar-data returns;
+- preserve replay cursor ownership and current visible replay speed;
+- preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - do not add simulated trading, comparison symbols, overlays, Order, or Calendar
   behavior in this step;
 - keep dashboard row-action visibility unchanged;
@@ -51,8 +50,9 @@ Notes for execution:
 
 Scope:
 
-- multi-pane chart foundation using existing chart-data, chart-viewport,
-  chart-engine, chart-entry, replay, and bar-data ownership boundaries;
+- leftward historical K-line extension using existing chart-data,
+  chart-viewport, chart-engine, chart-entry, replay, and bar-data ownership
+  boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -61,6 +61,7 @@ Scope:
 
 Acceptance:
 
+- leftward historical K-line extension smoke passes;
 - multi-pane foundation smoke passes;
 - reset view / KXG reset flow smoke passes;
 - replay K-line chart flow smoke passes;
@@ -75,6 +76,26 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 147 - Multi-Pane Chart Foundation
+
+Completed in commits:
+
+- `b370ce80 feat(v6): support multi-pane chart surface hosts`
+- `97cd3df7 test(v6): gate multi-pane chart foundation`
+
+Verification:
+
+- `node v6/tests/workstation-chart-surface-multi-pane-step147-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-step147-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/chart-viewport-pane-manual-isolation-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/chart-data-surface-bridge-smoke.js`
+- `node v6/tests/chart-viewport-surface-bridge-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 146 - Reset View / KXG Reset Flow
 

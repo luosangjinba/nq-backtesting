@@ -5,20 +5,21 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 146 completed.
-- Next planned step: Step 147 - Multi-Pane Chart Foundation.
+- Current V6 step state: Step 147 completed.
+- Next planned step: Step 148 - Leftward Historical K-Line Extension.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Reset View / KXG Reset Flow:
+The latest completed work is Multi-Pane Chart Foundation:
 
-- `V6_RESET_VIEW_KXG_FLOW_STEP146.md` records the reset view / KXG reset gate.
-- `reset-view-kxg-flow-step146-smoke.js` proves reset after initial replay
-  K-line load and after replay `Next` while preserving runtime ownership
-  boundaries.
-- `reset-view-kxg-flow-browser-step146-smoke.js` proves the mounted Reset
-  control returns the browser chart to the default replay wall in both phases.
-- Step 147 should focus on the multi-pane chart foundation through the pane
-  model.
+- `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md` records the multi-pane chart
+  foundation gate.
+- `workstation-chart-surface-multi-pane-step147-smoke.js` proves the chart
+  surface can mount multiple pane hosts and keep pane-local data/projection.
+- `multi-pane-chart-foundation-step147-smoke.js` proves pane runtime,
+  chart-data runtime, chart-viewport runtime, and chart-engine bridges can fan
+  out two panes through the same ownership path.
+- Step 148 should focus on leftward historical K-line extension from the
+  canvas-left / visible-range boundary through bar-data ownership.
 
 ## Restart Reading Order
 
@@ -71,59 +72,61 @@ After restarting the server or assistant context, read these first:
 45. `v6/sessions/session_20260707_step144_database_kline_import_boundary.md`
 46. `v6/sessions/session_20260707_step145_replay_kline_chart_flow.md`
 47. `v6/sessions/session_20260708_step146_reset_view_kxg_flow.md`
-48. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-49. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-50. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-51. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-52. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-53. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-54. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-55. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-56. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-57. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-58. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-59. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
-60. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
-61. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
-62. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
-63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
-64. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
-65. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
-66. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
-67. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
-68. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
-69. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
-70. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
-71. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
-72. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
-73. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
-74. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
-75. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
-76. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
-77. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
-78. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-79. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-80. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+48. `v6/sessions/session_20260708_step147_multi_pane_chart_foundation.md`
+49. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+50. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+51. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+52. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+53. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+54. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+55. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+56. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+57. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+58. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+59. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+60. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+61. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`
+62. `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`
+63. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP130.md`
+64. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP132.md`
+65. `v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md`
+66. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md`
+67. `v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md`
+68. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP136.md`
+69. `v6/docs/V6_INDICATORS_OWNER_CONTRACT.md`
+70. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md`
+71. `v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`
+72. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`
+73. `v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md`
+74. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP142.md`
+75. `v6/docs/V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`
+76. `v6/docs/V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`
+77. `v6/docs/V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`
+78. `v6/docs/V6_RESET_VIEW_KXG_FLOW_STEP146.md`
+79. `v6/docs/V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`
+80. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+81. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+82. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 147 should focus on Multi-Pane Chart Foundation.
+Step 148 should focus on Leftward Historical K-Line Extension.
 
-Keep Step 147 bounded:
+Keep Step 148 bounded:
 
-- read `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
+- read `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
+  `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
   `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
   `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
   `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
   `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
   `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- model panes through the pane-model boundary before adding pane UI controls;
-- keep pane-local bars in chart-data and pane-local viewport intent in
-  chart-viewport;
-- keep chart-engine as the only chart series writer;
-- preserve database/bar-data bounded windows and replay cursor ownership;
-- verify the primary replay pane stays visible and responsive after a secondary
-  pane foundation is introduced;
+- trigger older-window demand only from canvas-left / visible-range boundary;
+- cap each request at the canvas-left timeline boundary and `maxBarsPerWindow`;
+- route requests and cache writes through bar-data only;
+- prepend/merge older bars through chart-data only after bar-data returns;
+- preserve replay cursor ownership and current visible replay speed;
+- preserve pane-local chart-data and viewport intent for multi-pane hosts;
 - avoid chart overlays, simulated trading, comparison symbols, and additional
   workstation chrome behavior in this step;
 - keep dashboard row-action visibility unchanged;
@@ -131,16 +134,16 @@ Keep Step 147 bounded:
 
 Expected implementation shape:
 
-- multi-pane chart foundation using existing chart-viewport, chart-data,
+- leftward historical K-line extension using existing chart-viewport, chart-data,
   chart-engine, chart-entry, replay, and bar-data ownership boundaries;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
 - do not mutate viewport intent outside chart-viewport runtime;
-- run the reset view / KXG smoke, replay K-line chart flow smoke, database
-  K-line import boundary smoke, chart foundation reprioritization smoke,
-  chart reset view browser smoke, chart presentation re-audit, and boundary
-  smoke.
+- run multi-pane foundation smoke, reset view / KXG smoke, replay K-line chart
+  flow smoke, database K-line import boundary smoke, chart foundation
+  reprioritization smoke, chart reset view browser smoke, chart presentation
+  re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -169,8 +172,10 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 147 work:
+Run these before committing Step 148 work:
 
+- `node v6/tests/workstation-chart-surface-multi-pane-step147-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-step147-smoke.js`
 - `node v6/tests/reset-view-kxg-flow-step146-smoke.js`
 - `node v6/tests/reset-view-kxg-flow-browser-step146-smoke.js`
 - `node v6/tests/replay-kline-chart-flow-step145-smoke.js`
