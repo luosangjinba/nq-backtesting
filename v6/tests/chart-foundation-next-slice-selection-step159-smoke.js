@@ -19,8 +19,9 @@ assert.match(selectionDoc, /Do not sync symbol, interval, crosshair, time, or da
 assert.match(selectionDoc, /Do not mutate chart-data, chart-viewport, chart-engine, chart-history,\s+replay, or bar-data state from shell code/);
 assert.match(selectionDoc, /Step 158 chart foundation integration re-audit still passes/);
 
-assert.match(todoDoc, /Step 159 - Chart Foundation Next Slice Selection/);
-assert.match(todoDoc, /choose exactly one next chart-facing slice/);
+assert.match(todoDoc, /Latest completed step: Step 159 - Chart Foundation Next Slice Selection/);
+assert.match(todoDoc, /Step 160 - Layout Menu Owner Binding/);
+assert.match(todoDoc, /add a focused shell\/UI controller for the Page layout menu/);
 assert.match(guardrailsDoc, /These controls stay inert until layout\/pane sync ownership exists/);
 assert.match(shellSource, /data-v6-layout-menu-details/);
 assert.match(shellSource, /class="layout-option[^"]*" disabled/);

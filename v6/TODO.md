@@ -14,23 +14,23 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 158 - Chart Foundation Integration Re-Audit. V6
-  now has an integration audit gate covering database import, replay chart
-  load, reset view, multi-pane hosts, leftward history, replay speed, crosshair
-  OHLC, replay append, viewport projection, and owner-boundary wiring.
+- Latest completed step: Step 159 - Chart Foundation Next Slice Selection. V6
+  selected Layout Menu Owner Binding as the next bounded chart-facing slice:
+  connect the currently inert Page layout menu to layout-runtime state without
+  directly mutating chart, replay, bar-data, or viewport owners.
 
 ## Next Executable Steps
 
-### Step 159 - Chart Foundation Next Slice Selection
+### Step 160 - Layout Menu Owner Binding
 
-Select the next bounded chart-facing implementation slice after the integrated
-foundation audit.
+Connect the Page layout menu controls to the layout owner boundary.
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
+- read `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
+  `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
   `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
   `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
   `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
@@ -49,13 +49,15 @@ Notes for execution:
   `V6_ARCHITECTURE.md`, `v6/docs/specs/replay-viewport-intent.md`,
   `v6/docs/specs/replay-visible-latency.md`, and
   `v6/docs/specs/pane-model.md`;
-- choose exactly one next chart-facing slice that builds on the audited
-  foundation without expanding simulated trading, Order, Calendar, or unrelated
-  workstation chrome;
-- prefer a slice that increases real chart usability while preserving database
-  import, replay, reset view, multi-pane, leftward history, crosshair, append,
-  and viewport projection boundaries;
-- document the selected owner boundary, expected tests, and explicit non-goals;
+- add a focused shell/UI controller for the Page layout menu that dispatches
+  only `LAYOUT_COMMANDS.SET_MODE`, `LAYOUT_COMMANDS.SET_SYNC`, and
+  `LAYOUT_COMMANDS.GET_SNAPSHOT`;
+- make layout preset buttons and sync switches clickable and reflect
+  layout-runtime state;
+- keep actual chart pane reflow and cross-pane sync behavior out of this step;
+- update browser parity expectations from inert disabled controls to
+  owner-bound clickable controls;
+- preserve Step 159 selected owner boundary and non-goals;
 - preserve Step 158 chart foundation integration audit coverage;
 - preserve Step 157 pane-local replay viewport projection isolation;
 - preserve Step 156 pane-local replay append and auto-play isolation;
@@ -75,9 +77,8 @@ Notes for execution:
 
 Scope:
 
-- chart foundation next slice selection across existing chart-entry, replay,
-  chart-data, chart-viewport, chart-surface, chart-engine, chart-history,
-  bar-data, and pane ownership boundaries;
+- layout menu owner binding through shell UI controller and layout runtime;
+- do not create or destroy chart panes in this step;
 - do not request/cache bars outside bar-data;
 - do not write chart series outside chart-engine;
 - do not mutate replay cursor outside replay runtime;
@@ -86,6 +87,8 @@ Scope:
 
 Acceptance:
 
+- layout menu owner binding smoke passes;
+- layout menu owner binding browser smoke passes;
 - chart foundation next slice selection smoke passes;
 - chart foundation integration re-audit smoke passes;
 - multi-pane replay viewport projection isolation smoke passes;
@@ -112,6 +115,21 @@ Acceptance:
 - boundary smoke passes;
 
 ## Completed Steps
+
+### Step 159 - Chart Foundation Next Slice Selection
+
+Completed in commit:
+
+- `5ed2e6d1 docs(v6): select layout menu binding slice`
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step159-smoke.js`
+- `node v6/tests/layout-runtime-smoke.js`
+- `node v6/tests/chart-foundation-integration-reaudit-step158-smoke.js`
+- `node v6/tests/chart-foundation-reprioritization-step143-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 158 - Chart Foundation Integration Re-Audit
 

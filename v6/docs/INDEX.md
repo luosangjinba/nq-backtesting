@@ -149,6 +149,8 @@ Read this index before working on V6.
 - `v6/docs/V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`: accepted chart
   foundation integration re-audit across database import, replay, reset view,
   multi-pane, history, crosshair, append, viewport, and owner-boundary wiring.
+- `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`: selected Layout
+  Menu Owner Binding as the next bounded chart-facing implementation slice.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
