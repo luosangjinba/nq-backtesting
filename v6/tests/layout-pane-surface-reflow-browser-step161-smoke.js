@@ -11,6 +11,7 @@ try {
       const contracts = await import('/v6/src/contracts/app-contracts.js');
       await window.document.querySelector('[data-v6-root]').__v6LayoutSurfaceBridge.ready;
       const chartSurface = document.querySelector('[data-v6-chart-surface]');
+      const chartPaneLayer = document.querySelector('[data-v6-chart-pane-layer]');
       const hosts = () => [...document.querySelectorAll('[data-v6-chart-engine-host]')].map((host) => {
         const rect = host.getBoundingClientRect();
         return {
@@ -23,7 +24,7 @@ try {
         };
       });
       const initial = {
-        gridTemplateColumns: getComputedStyle(chartSurface).gridTemplateColumns,
+        gridTemplateColumns: getComputedStyle(chartPaneLayer).gridTemplateColumns,
         mode: chartSurface.dataset.v6ChartLayoutMode,
         paneCount: chartSurface.dataset.v6ChartLayoutPaneCount,
         hosts: hosts(),
@@ -33,7 +34,7 @@ try {
       await commands.dispatchCommand(contracts.LAYOUT_COMMANDS.SET_MODE, { mode: 'twice' });
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const twice = {
-        gridTemplateColumns: getComputedStyle(chartSurface).gridTemplateColumns,
+        gridTemplateColumns: getComputedStyle(chartPaneLayer).gridTemplateColumns,
         mode: chartSurface.dataset.v6ChartLayoutMode,
         paneCount: chartSurface.dataset.v6ChartLayoutPaneCount,
         hosts: hosts(),
@@ -43,7 +44,7 @@ try {
       await commands.dispatchCommand(contracts.LAYOUT_COMMANDS.SET_MODE, { mode: 'triple' });
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
       const triple = {
-        gridTemplateColumns: getComputedStyle(chartSurface).gridTemplateColumns,
+        gridTemplateColumns: getComputedStyle(chartPaneLayer).gridTemplateColumns,
         mode: chartSurface.dataset.v6ChartLayoutMode,
         paneCount: chartSurface.dataset.v6ChartLayoutPaneCount,
         hosts: hosts(),

@@ -133,6 +133,7 @@ export function mountWorkstationChartSurface(root, {
   const measuredVisibleRangeByPaneId = new Map();
   const programmaticRangeByPaneId = new Map();
   const chartSurfaceElement = root.querySelector?.('[data-v6-chart-surface]') || null;
+  const chartPaneLayerElement = root.querySelector?.('[data-v6-chart-pane-layer]') || null;
   const crosshairListeners = new Set();
   const visibleRangeListeners = new Set();
   let layoutSnapshot = {
@@ -281,6 +282,11 @@ export function mountWorkstationChartSurface(root, {
       chartSurfaceElement.dataset.v6ChartLayoutMode = mode;
       chartSurfaceElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
       chartSurfaceElement.dataset.v6ChartLayoutVariant = variant;
+    }
+    if (chartPaneLayerElement?.dataset) {
+      chartPaneLayerElement.dataset.v6ChartLayoutMode = mode;
+      chartPaneLayerElement.dataset.v6ChartLayoutPaneCount = String(paneCount);
+      chartPaneLayerElement.dataset.v6ChartLayoutVariant = variant;
     }
     resize();
     scheduleLayoutResize();

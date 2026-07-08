@@ -455,23 +455,25 @@ export function createWorkstationShellMarkup() {
             <span data-v6-status-low>L --</span>
             <span data-v6-status-close>C --</span>
           </div>
-          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main" data-v6-layout-pane-slot="1" data-v6-chart-pane-visible="true">
-            <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view">
-              ${icon('redo')}
-              <span class="sr-only">Reset main pane view</span>
-            </button>
-          </div>
-          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="secondary" data-v6-layout-pane-slot="2" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
-            <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view">
-              ${icon('redo')}
-              <span class="sr-only">Reset secondary pane view</span>
-            </button>
-          </div>
-          <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="tertiary" data-v6-layout-pane-slot="3" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
-            <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view">
-              ${icon('redo')}
-              <span class="sr-only">Reset tertiary pane view</span>
-            </button>
+          <div class="chart-pane-layer" data-v6-chart-pane-layer>
+            <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main" data-v6-layout-pane-slot="1" data-v6-chart-pane-visible="true">
+              <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="main" aria-label="Reset main pane view">
+                ${icon('redo')}
+                <span class="sr-only">Reset main pane view</span>
+              </button>
+            </div>
+            <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="secondary" data-v6-layout-pane-slot="2" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
+              <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="secondary" aria-label="Reset secondary pane view">
+                ${icon('redo')}
+                <span class="sr-only">Reset secondary pane view</span>
+              </button>
+            </div>
+            <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="tertiary" data-v6-layout-pane-slot="3" data-v6-chart-pane-visible="false" hidden aria-hidden="true">
+              <button type="button" class="chart-reset-view-button" data-v6-reset-view data-v6-reset-pane-id="tertiary" aria-label="Reset tertiary pane view">
+                ${icon('redo')}
+                <span class="sr-only">Reset tertiary pane view</span>
+              </button>
+            </div>
           </div>
           <div class="chart-fallback" data-v6-chart-fallback aria-hidden="true">
             <div class="price-scale-placeholder">

@@ -27,6 +27,7 @@ function createHost(paneId, { height = 360, width = 900 } = {}) {
 
 const calls = [];
 const chartSurfaceElement = { dataset: {} };
+const chartPaneLayerElement = { dataset: {} };
 const hosts = [
   createHost('main', { height: 420, width: 900 }),
   createHost('secondary', { height: 420, width: 440 }),
@@ -34,6 +35,9 @@ const hosts = [
 ];
 const root = {
   querySelector(selector) {
+    if (selector === '[data-v6-chart-pane-layer]') {
+      return chartPaneLayerElement;
+    }
     return selector === '[data-v6-chart-surface]' ? chartSurfaceElement : null;
   },
   querySelectorAll(selector) {
@@ -118,6 +122,9 @@ assert.deepEqual(twice, {
 assert.equal(chartSurfaceElement.dataset.v6ChartLayoutMode, 'twice');
 assert.equal(chartSurfaceElement.dataset.v6ChartLayoutPaneCount, '2');
 assert.equal(chartSurfaceElement.dataset.v6ChartLayoutVariant, 'twice-vertical');
+assert.equal(chartPaneLayerElement.dataset.v6ChartLayoutMode, 'twice');
+assert.equal(chartPaneLayerElement.dataset.v6ChartLayoutPaneCount, '2');
+assert.equal(chartPaneLayerElement.dataset.v6ChartLayoutVariant, 'twice-vertical');
 assert.deepEqual(hosts.map((host) => host.hidden), [false, false, true]);
 assert.deepEqual(hosts.map((host) => host.dataset.v6ChartPaneVisible), ['true', 'true', 'false']);
 assert.deepEqual(hosts.map((host) => host.dataset.v6ChartPaneSlot), ['1', '2', '']);

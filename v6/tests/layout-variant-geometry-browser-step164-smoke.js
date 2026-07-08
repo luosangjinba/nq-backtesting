@@ -12,12 +12,16 @@ try {
       const root = document.querySelector('[data-v6-root]');
       await root.__v6LayoutSurfaceBridge.ready;
       const chartSurface = document.querySelector('[data-v6-chart-surface]');
+      const chartPaneLayer = document.querySelector('[data-v6-chart-pane-layer]');
       const read = () => {
-        const styles = getComputedStyle(chartSurface);
+        const styles = getComputedStyle(chartPaneLayer);
         return {
           columns: styles.gridTemplateColumns,
           mode: chartSurface.dataset.v6ChartLayoutMode,
           paneCount: chartSurface.dataset.v6ChartLayoutPaneCount,
+          paneLayerMode: chartPaneLayer.dataset.v6ChartLayoutMode,
+          paneLayerPaneCount: chartPaneLayer.dataset.v6ChartLayoutPaneCount,
+          paneLayerVariant: chartPaneLayer.dataset.v6ChartLayoutVariant,
           rows: styles.gridTemplateRows,
           state: root.__v6WorkstationChartSurface.getState().layout,
           variant: chartSurface.dataset.v6ChartLayoutVariant,
@@ -59,6 +63,7 @@ try {
   `));
 
   assert.equal(value.twiceVertical.variant, 'twice-vertical');
+  assert.equal(value.twiceVertical.paneLayerVariant, 'twice-vertical');
   assert.equal(value.twiceVertical.state.variant, 'twice-vertical');
   assert.deepEqual(value.twiceVertical.hosts.map((host) => [host.paneId, host.hidden, host.visible, host.slot]), [
     ['main', false, 'true', '1'],
@@ -72,6 +77,7 @@ try {
   ]);
   assert.match(value.twiceVertical.columns, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
   assert.deepEqual(value.twiceVertical.hosts.slice(0, 2).map((host) => host.minHeight), ['0px', '0px']);
+  assert.notEqual(value.twiceVertical.hosts[0].heightStyle, '100%');
 
   assert.equal(value.twiceHorizontal.variant, 'twice-horizontal');
   assert.deepEqual(value.twiceHorizontal.hosts.map((host) => host.computedGridArea), [
@@ -82,6 +88,7 @@ try {
   assert.match(value.twiceHorizontal.rows, /repeat\(2, minmax\(0px, 1fr\)\)|0px 0px/);
   assert.notEqual(value.twiceHorizontal.rows, value.twiceVertical.rows);
   assert.deepEqual(value.twiceHorizontal.hosts.slice(0, 2).map((host) => host.minHeight), ['0px', '0px']);
+  assert.notEqual(value.twiceHorizontal.hosts[0].heightStyle, '100%');
 
   assert.equal(value.tripleColumns.variant, 'triple-columns');
   assert.deepEqual(value.tripleColumns.hosts.map((host) => host.gridArea), [
