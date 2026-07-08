@@ -5,19 +5,18 @@ Last updated: 2026-07-07
 ## Current State
 
 - Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 126 completed.
-- Next planned step: Step 127 - Right Rail Session Settings Panel Regression Audit.
+- Current V6 step state: Step 127 completed.
+- Next planned step: Step 128 - Workstation Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Right Rail Session Settings Panel Reservation:
+The latest completed work is Right Rail Session Settings Panel Regression Audit:
 
-- `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md` records the inert
-  right-rail Session settings panel boundary and regression coverage.
-- `workstation-shell.js` now reserves a Session settings shell panel opened
-  from the right rail.
-- `right-rail-session-settings-panel-browser-smoke.js` guards disabled controls,
-  distinct Chart Settings/Session settings surfaces, non-overlap, and visible
-  row-action state.
+- `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md` records the
+  accepted Session settings panel regression state.
+- `right-rail-session-settings-panel-regression-audit-smoke.js` covers desktop
+  and compact panel geometry plus disabled placeholders.
+- The panel remains distinct from Chart Settings and does not move chart host,
+  bottom chrome, floating transport, or footer status geometry.
 
 ## Restart Reading Order
 
@@ -50,52 +49,48 @@ After restarting the server or assistant context, read these first:
 25. `v6/sessions/session_20260707_step124_bottom_chrome_regression_audit.md`
 26. `v6/sessions/session_20260707_step125_workstation_chart_slice_selection.md`
 27. `v6/sessions/session_20260707_step126_right_rail_session_settings_panel_reservation.md`
-28. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
-29. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
-30. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
-31. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
-32. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
-33. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
-34. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
-35. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
-36. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
-37. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
-38. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
-39. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
-40. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
-41. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+28. `v6/sessions/session_20260707_step127_right_rail_session_settings_panel_regression_audit.md`
+29. `v6/docs/V6_DASHBOARD_SESSION_BROWSER_REGRESSION_PACK_AUDIT.md`
+30. `v6/docs/V6_DASHBOARD_JOURNAL_ROW_ACTION_REGRESSION_PACK_AUDIT.md`
+31. `v6/docs/V6_WORKSTATION_CHART_PRESENTATION_REAUDIT.md`
+32. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`
+33. `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`
+34. `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`
+35. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`
+36. `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`
+37. `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`
+38. `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`
+39. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`
+40. `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`
+41. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
+42. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
+43. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 
 ## Next Step
 
-Step 127 should audit right-rail Session settings panel behavior and
-workstation chrome regression coverage.
+Step 128 should choose the next bounded workstation/chart implementation slice
+after Session settings panel stabilization.
 
-Keep Step 127 bounded:
+Keep Step 128 bounded:
 
-- read `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`,
-  `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`, and FXReplay UI
-  guardrails;
-- re-audit right rail, Session settings panel, chart host, rails, pane
-  status/readout, reset view, floating replay transport, bottom account/trading
-  chrome, and footer status bar;
-- keep Chart Settings and Session settings as distinct surfaces;
-- keep Session Info, Balance & Assets, Spreads & Commissions, and Date Range
-  placeholders disabled or inert;
+- read `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`,
+  `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`, FXReplay UI
+  guardrails, and the parity gap audit;
+- compare remaining shell-only chart chrome gaps against runtime-owned gaps;
+- select one small next slice with explicit owner boundary and acceptance tests;
+- prefer shell-only parity work unless the next slice requires a runtime owner
+  contract first;
 - keep dashboard row-action visibility unchanged;
 - do not expose Order or Calendar.
 
 Expected implementation shape:
 
-- docs/test audit only unless a regression is found;
+- docs/test selection only;
+- do not implement the selected slice in Step 128;
 - do not dispatch chart/replay/bar-data/default-wall/display-timeframe or
-  viewport commands from panel audit code;
-- do not dispatch session-settings, orders, or calendar commands;
-- do not import settings, orders, calendar, chart-engine, chart-data,
-  chart-viewport, replay, bar-data, default-wall, or account/analytics owner
-  modules into a session-settings panel controller;
-- run right-rail session settings panel regression coverage, panel browser
-  coverage, bottom chrome regression audit, chart presentation re-audit, and
-  boundary smoke.
+  viewport commands from selection/audit code;
+- run Step 128 selection smoke, Session settings panel regression audit, chart
+  presentation re-audit, and boundary smoke.
 
 ## Critical Boundaries
 
@@ -124,8 +119,9 @@ For the current Recent Sessions row actions:
 
 ## Key Tests
 
-Run these before committing Step 127 work:
+Run these before committing Step 128 work:
 
+- `node v6/tests/right-rail-session-settings-panel-regression-audit-smoke.js`
 - `node v6/tests/right-rail-session-settings-panel-browser-smoke.js`
 - `node v6/tests/workstation-chart-slice-selection-step125-smoke.js`
 - `node v6/tests/bottom-chrome-regression-audit-browser-smoke.js`
@@ -201,15 +197,15 @@ same command with approved escalation.
 
 ## Recent Commits
 
+- `813f550b test(v6): audit session settings panel regression`
 - `0a4bb82c feat(v6): reserve session settings panel`
 - `90eaabc1 docs(v6): select session settings panel slice`
 - `763fff26 test(v6): audit bottom chrome regression`
 - `3ef40a84 feat(v6): reserve bottom account chrome`
-- `ba95a9a5 docs(v6): select bottom account chrome slice`
 
 ## Server Restart Note
 
 Restarting the API/HTML service should not require code changes. After restart,
 verify the service state with the normal local V6 page and continue from Step
-127. The handoff point is intentionally after reserving the inert right-rail
-Session settings panel as a shell-owned workstation surface.
+128. The handoff point is intentionally after auditing right-rail Session
+settings panel regression coverage.
