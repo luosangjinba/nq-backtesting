@@ -228,41 +228,41 @@ export function createWorkstationShellMarkup() {
             <div class="layout-menu" data-v6-layout-menu role="menu" aria-label="Page layout">
               <section class="layout-menu-row" aria-label="One pane">
                 <span class="layout-row-index">1</span>
-                <button type="button" class="layout-option is-selected" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 5;'])}</button>
+                <button type="button" class="layout-option is-selected" data-v6-layout-mode="single" data-v6-layout-variant="single" role="menuitem" aria-checked="true">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 5;'])}</button>
               </section>
               <section class="layout-menu-row" aria-label="Two panes">
                 <span class="layout-row-index">2</span>
-                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
-                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 3;', 'grid-column: 1 / 5; grid-row: 3 / 5;'])}</button>
+                <button type="button" class="layout-option" data-v6-layout-mode="twice" data-v6-layout-variant="twice-vertical" role="menuitem" aria-checked="false">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
+                <button type="button" class="layout-option" data-v6-layout-mode="twice" data-v6-layout-variant="twice-horizontal" role="menuitem" aria-checked="false">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 3;', 'grid-column: 1 / 5; grid-row: 3 / 5;'])}</button>
               </section>
               <section class="layout-menu-row" aria-label="Three panes">
                 <span class="layout-row-index">3</span>
-                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 2; grid-row: 1 / 5;', 'grid-column: 2 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
-                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 2;', 'grid-column: 1 / 5; grid-row: 2 / 3;', 'grid-column: 1 / 5; grid-row: 3 / 5;'])}</button>
-                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 3;', 'grid-column: 3 / 5; grid-row: 3 / 5;'])}</button>
-                <button type="button" class="layout-option" disabled role="menuitem">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 3;', 'grid-column: 1 / 3; grid-row: 3 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
+                <button type="button" class="layout-option" data-v6-layout-mode="triple" data-v6-layout-variant="triple-columns" role="menuitem" aria-checked="false">${layoutPreview(['grid-column: 1 / 2; grid-row: 1 / 5;', 'grid-column: 2 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
+                <button type="button" class="layout-option" data-v6-layout-mode="triple" data-v6-layout-variant="triple-rows" role="menuitem" aria-checked="false">${layoutPreview(['grid-column: 1 / 5; grid-row: 1 / 2;', 'grid-column: 1 / 5; grid-row: 2 / 3;', 'grid-column: 1 / 5; grid-row: 3 / 5;'])}</button>
+                <button type="button" class="layout-option" data-v6-layout-mode="triple" data-v6-layout-variant="triple-right-stack" role="menuitem" aria-checked="false">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 3;', 'grid-column: 3 / 5; grid-row: 3 / 5;'])}</button>
+                <button type="button" class="layout-option" data-v6-layout-mode="triple" data-v6-layout-variant="triple-left-stack" role="menuitem" aria-checked="false">${layoutPreview(['grid-column: 1 / 3; grid-row: 1 / 3;', 'grid-column: 1 / 3; grid-row: 3 / 5;', 'grid-column: 3 / 5; grid-row: 1 / 5;'])}</button>
               </section>
               <section class="layout-sync-section" aria-label="Sync in layout">
                 <div class="layout-menu-heading">Sync in layout</div>
                 <label data-v6-layout-sync-row="symbol" title="Symbol changes on all charts within the layout">
                   <span>Symbol <span class="layout-info-icon">${icon('info')}</span></span>
-                  <input type="checkbox" checked disabled aria-label="Sync symbol across panes">
+                  <input type="checkbox" checked data-v6-layout-sync="symbol" aria-label="Sync symbol across panes">
                 </label>
                 <label data-v6-layout-sync-row="interval" title="Interval changes on all charts within the layout">
                   <span>Interval <span class="layout-info-icon">${icon('info')}</span></span>
-                  <input type="checkbox" checked disabled aria-label="Sync interval across panes">
+                  <input type="checkbox" checked data-v6-layout-sync="interval" aria-label="Sync interval across panes">
                 </label>
                 <label data-v6-layout-sync-row="crosshair" title="Crosshair is synced across all charts within the layout">
                   <span>Crosshair <span class="layout-info-icon">${icon('info')}</span></span>
-                  <input type="checkbox" disabled aria-label="Sync crosshair across panes">
+                  <input type="checkbox" data-v6-layout-sync="crosshair" aria-label="Sync crosshair across panes">
                 </label>
                 <label data-v6-layout-sync-row="time" title="When a chart is clicked, all charts within the layout display the same point of time">
                   <span>Time <span class="layout-info-icon">${icon('info')}</span></span>
-                  <input type="checkbox" checked disabled aria-label="Sync clicked time across panes">
+                  <input type="checkbox" checked data-v6-layout-sync="time" aria-label="Sync clicked time across panes">
                 </label>
                 <label data-v6-layout-sync-row="date-range" title="Date range changes on all charts within the layout">
                   <span>Date range <span class="layout-info-icon">${icon('info')}</span></span>
-                  <input type="checkbox" disabled aria-label="Sync date range across panes">
+                  <input type="checkbox" data-v6-layout-sync="dateRange" aria-label="Sync date range across panes">
                 </label>
               </section>
             </div>

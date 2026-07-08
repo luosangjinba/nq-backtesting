@@ -5,6 +5,7 @@ const selectionDoc = await readFile('v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELE
 const todoDoc = await readFile('v6/TODO.md', 'utf8');
 const guardrailsDoc = await readFile('v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md', 'utf8');
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
+const layoutMenuControlSource = await readFile('v6/src/shell/layout-menu-control.js', 'utf8');
 const layoutRuntimeSource = await readFile('v6/src/layout/layout-runtime.js', 'utf8');
 const topToolbarSmoke = await readFile('v6/tests/top-toolbar-parity-browser-smoke.js', 'utf8');
 
@@ -24,8 +25,12 @@ assert.match(todoDoc, /Step 160 - Layout Menu Owner Binding/);
 assert.match(todoDoc, /add a focused shell\/UI controller for the Page layout menu/);
 assert.match(guardrailsDoc, /These controls stay inert until layout\/pane sync ownership exists/);
 assert.match(shellSource, /data-v6-layout-menu-details/);
-assert.match(shellSource, /class="layout-option[^"]*" disabled/);
-assert.match(shellSource, /input type="checkbox" checked disabled aria-label="Sync symbol across panes"/);
+assert.doesNotMatch(shellSource, /class="layout-option[^"]*" disabled/);
+assert.doesNotMatch(shellSource, /data-v6-layout-sync="[^"]+"[^>]*disabled/);
+assert.match(layoutMenuControlSource, /LAYOUT_COMMANDS\.SET_MODE/);
+assert.match(layoutMenuControlSource, /LAYOUT_COMMANDS\.SET_SYNC/);
+assert.match(layoutMenuControlSource, /LAYOUT_COMMANDS\.GET_SNAPSHOT/);
+assert.doesNotMatch(layoutMenuControlSource, /CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|BAR_DATA_COMMANDS|REPLAY_COMMANDS/);
 assert.match(layoutRuntimeSource, /LAYOUT_COMMANDS\.SET_MODE/);
 assert.match(layoutRuntimeSource, /LAYOUT_COMMANDS\.SET_SYNC/);
 assert.match(layoutRuntimeSource, /LAYOUT_COMMANDS\.GET_SNAPSHOT/);
