@@ -1,16 +1,10 @@
 import { SESSION_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
-import { createRecentSessionsView } from './session-dashboard-model.js';
+import { createRecentSessionsView, createSessionDateBoundaryView } from './session-dashboard-model.js';
 import { getVisibleRecentSessionRowActions } from './session-row-action-boundaries.js';
 import { mountSessionAnalyticsSurface } from './session-analytics-surface.js';
 import { mountSessionSummarySurface } from './session-summary-surface.js';
 import { readSessionSetupForm } from './session-setup-model.js';
-
-function formatSessionMeta(session = {}) {
-  const start = session.startTime ? String(session.startTime).slice(0, 10) : 'Start pending';
-  const end = session.endTime ? String(session.endTime).slice(0, 10) : 'End pending';
-  return `${start} / ${end}`;
-}
 
 function formatSessionMoney(value) {
   const amount = Number(value ?? 0);
@@ -71,12 +65,18 @@ function renderSessions(root, view) {
   const empty = root.querySelector('[data-v6-dashboard-empty]');
   if (!list) return;
   const rows = view?.rows || [];
-  list.innerHTML = rows.map((session) => `
+  list.innerHTML = rows.map((session) => {
+    const boundaryView = createSessionDateBoundaryView(session);
+    const boundaryLabel = boundaryView.chartDataBoundaryLabel
+      ? `<small data-v6-session-chart-boundary="${session.id}">${boundaryView.chartDataBoundaryLabel}</small>`
+      : '';
+    return `
     <li data-v6-dashboard-session-row="${session.id}">
       <button class="session-open-button" type="button" data-v6-dashboard-open-session="${session.id}" aria-label="Open ${sessionLabel(session)}">&#9658;</button>
       <div class="session-row-main">
         <strong>${sessionLabel(session)}</strong>
-        <span>${formatSessionMeta(session)} &middot; ${formatSessionMoney(session.accountBalance)}</span>
+        <span>${boundaryView.tradingDateRangeLabel} &middot; ${formatSessionMoney(session.accountBalance)}</span>
+        ${boundaryLabel}
         <div class="session-asset-chips">${sessionSymbols(session).map((symbol) => `<em>${symbol}</em>`).join('')}</div>
       </div>
       <span class="session-progress">Remaining days: --</span>
@@ -85,7 +85,8 @@ function renderSessions(root, view) {
       </div>
       <button class="session-dashboard-delete" type="button" data-v6-dashboard-delete-session="${session.id}" aria-label="Delete ${sessionLabel(session)} session">&times;</button>
     </li>
-  `).join('');
+  `;
+  }).join('');
   if (empty) {
     empty.hidden = rows.length > 0;
     empty.textContent = view?.totalCount && !rows.length ? 'No matching sessions' : 'No replay sessions yet';

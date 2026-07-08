@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { createRecentSessionsView } from '../src/shell/session-dashboard-model.js';
+import {
+  createRecentSessionsView,
+  createSessionDateBoundaryView,
+} from '../src/shell/session-dashboard-model.js';
 
 const sessions = [
   {
@@ -63,6 +66,39 @@ assert.deepEqual(createRecentSessionsView(sessions, { page: 99, pageSize: 2 }), 
   sort: 'newest',
   totalCount: 3,
   visibleCount: 3,
+});
+
+assert.deepEqual(createSessionDateBoundaryView({
+  endTime: '2026-06-05T16:00:00.000Z',
+  startTime: '2026-06-01T09:30:00.000Z',
+  symbol: 'NQ',
+  symbols: ['NQ'],
+}), {
+  chartDataBoundaryLabel: 'Chart data from prior Globex open: 2026-05-31 18:00',
+  hasPriorGlobexOpen: true,
+  tradingDateRangeLabel: '2026-06-01 / 2026-06-05',
+});
+
+assert.deepEqual(createSessionDateBoundaryView({
+  endTime: '2026-06-05T16:00:00.000Z',
+  startTime: '2026-06-02T09:30:00.000Z',
+  symbol: 'NQ',
+  symbols: ['NQ'],
+}), {
+  chartDataBoundaryLabel: '',
+  hasPriorGlobexOpen: false,
+  tradingDateRangeLabel: '2026-06-02 / 2026-06-05',
+});
+
+assert.deepEqual(createSessionDateBoundaryView({
+  endTime: '2026-06-05T16:00:00.000Z',
+  startTime: '2026-06-01T09:30:00.000Z',
+  symbol: 'YM',
+  symbols: ['YM'],
+}), {
+  chartDataBoundaryLabel: '',
+  hasPriorGlobexOpen: false,
+  tradingDateRangeLabel: '2026-06-01 / 2026-06-05',
 });
 
 console.log('v6 session dashboard model smoke passed');

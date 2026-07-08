@@ -8,6 +8,30 @@ function sessionSymbols(session = {}) {
     : [session.symbol || ''];
 }
 
+function dateLabel(value, fallback) {
+  return value ? String(value).slice(0, 10) : fallback;
+}
+
+function parseDateOnly(dateText) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(String(dateText || ''))) return null;
+  const date = new Date(`${dateText}T00:00:00.000Z`);
+  return Number.isNaN(date.valueOf()) ? null : date;
+}
+
+function previousDateLabel(dateText) {
+  const date = parseDateOnly(dateText);
+  if (!date) return '';
+  date.setUTCDate(date.getUTCDate() - 1);
+  return date.toISOString().slice(0, 10);
+}
+
+function hasGlobexPriorOpen(session = {}, startDate) {
+  const symbols = sessionSymbols(session).map((symbol) => String(symbol || '').toUpperCase());
+  const hasSupportedFuture = symbols.some((symbol) => ['NQ', 'ES'].includes(symbol));
+  const date = parseDateOnly(startDate);
+  return Boolean(hasSupportedFuture && date && date.getUTCDay() === 1);
+}
+
 function searchableText(session = {}) {
   return [
     session.id,
@@ -24,6 +48,24 @@ function compareSessionDate(left = {}, right = {}, direction) {
   const leftTime = Date.parse(left.createdAt || left.startTime || 0) || 0;
   const rightTime = Date.parse(right.createdAt || right.startTime || 0) || 0;
   return direction === 'oldest' ? leftTime - rightTime : rightTime - leftTime;
+}
+
+export function createSessionDateBoundaryView(session = {}) {
+  const start = dateLabel(session.startTime, 'Start pending');
+  const end = dateLabel(session.endTime, 'End pending');
+  const tradingDateRangeLabel = `${start} / ${end}`;
+  if (!hasGlobexPriorOpen(session, start)) {
+    return {
+      chartDataBoundaryLabel: '',
+      hasPriorGlobexOpen: false,
+      tradingDateRangeLabel,
+    };
+  }
+  return {
+    chartDataBoundaryLabel: `Chart data from prior Globex open: ${previousDateLabel(start)} 18:00`,
+    hasPriorGlobexOpen: true,
+    tradingDateRangeLabel,
+  };
 }
 
 export function createRecentSessionsView(sessions = [], {

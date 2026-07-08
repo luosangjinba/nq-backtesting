@@ -81,6 +81,7 @@ try {
         mainVisible: visible('[data-v6-workstation-main]'),
         rows: document.querySelectorAll('[data-v6-dashboard-session-row]').length,
         sessionCount: root.__v6SessionDashboard.getState().sessionCount,
+        sessionBoundaryText: document.querySelector('[data-v6-session-chart-boundary]')?.textContent || '',
         sessionId: root.__v6SessionDashboard.getState().sessions[0]?.id || '',
         sessionText: document.querySelector('[data-v6-dashboard-session-row]')?.textContent || '',
         surface: root.dataset.v6Surface,
@@ -186,6 +187,8 @@ try {
   assert.equal(value.afterCreate.workstationHidden, false);
   assert.match(value.afterCreate.sessionText, /test/);
   assert.match(value.afterCreate.sessionText, /NQ/);
+  assert.match(value.afterCreate.sessionText, /2026-06-01 \/ 2026-06-05/);
+  assert.equal(value.afterCreate.sessionBoundaryText, 'Chart data from prior Globex open: 2026-05-31 18:00');
   assert.equal(value.afterOpenSession.dashboardHidden, true);
   assert.equal(value.afterOpenSession.dashboardOpen, false);
   assert.equal(value.afterOpenSession.activeId, value.afterCreate.sessionId);

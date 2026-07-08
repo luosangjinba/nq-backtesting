@@ -762,6 +762,12 @@ p {
   font-size: 13px;
 }
 
+.session-row-main small {
+  color: #8d9aa5;
+  font-size: 11px;
+  line-height: 1.25;
+}
+
 .session-asset-chips {
   display: flex;
   flex-wrap: wrap;
