@@ -14,36 +14,55 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed step: Step 184 - Pane Action Rail. V6 now renders each
-  pane's reset control inside a pane-local action rail offset away from the
-  price axis.
+- Latest completed step: Step 185 - Pane Maximize / Restore State Model. V6 now
+  has chart-surface state for showing one pane and restoring the previous
+  layout without resetting data, viewport, or replay.
 
 ## Next Executable Steps
 
-### Step 185 - Pane Maximize / Restore State Model
+### Step 186 - Pane Maximize / Restore Action Rail Bridge
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_PANE_ACTION_RAIL_STEP184.md`;
-- add a pane maximize/restore state model in the chart/layout surface boundary;
-- preserve the previous layout mode, variant, resize ratios, and visible pane
-  list while a pane is maximized;
-- show only the selected pane during maximize;
-- restore the original layout without resetting chart data, viewport
-  projection, or replay cursor;
+- read `V6_PANE_MAXIMIZE_RESTORE_STATE_STEP185.md`;
+- add a maximize/restore button to each pane action rail;
+- route button clicks to `workstation-chart-surface.maximizePane()` and
+  `restorePane()`;
+- switch the button label/title/state between `Maximize chart` and
+  `Restore chart`;
+- keep reset view in the same pane action rail and preserve its current
+  pane-local routing;
 - keep replay, bar-data, chart-data, viewport, and pane ownership unchanged.
 
 Acceptance:
 
-- maximize state smoke passes;
-- restore state smoke passes;
+- maximize/restore action rail smoke passes;
+- pane action rail browser smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 185 - Pane Maximize / Restore State Model
+
+Completed in commits:
+
+- `1d4bdd5e feat(v6): add pane maximize restore state`
+- `a51bdf90 test(v6): cover pane maximize restore in browser`
+
+Verification:
+
+- `node v6/tests/pane-maximize-state-step185-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/layout-pane-surface-reflow-step161-smoke.js`
+- `node v6/tests/pane-resize-chart-surface-step165-smoke.js`
+- `node v6/tests/pane-maximize-state-browser-step185-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 184 - Pane Action Rail
 
