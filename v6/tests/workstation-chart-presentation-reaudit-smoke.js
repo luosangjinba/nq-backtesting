@@ -30,7 +30,7 @@ assert.match(priorAuditDoc, /The real chart engine path is functional/);
 assert.equal(shellSource.includes('data-v6-chart-engine-host data-v6-pane-id="main"'), true);
 assert.equal(shellSource.includes('data-v6-chart-fallback'), true);
 assert.equal(shellSource.includes('static-chart-visual'), true);
-assert.equal(appSource.includes('mountWorkstationChartSurface(root)'), true);
+assert.equal(appSource.includes('mountWorkstationChartSurface(root'), true);
 assert.equal(appSource.includes('connectChartDataSurfaceBridge'), true);
 assert.equal(appSource.includes('connectChartViewportSurfaceBridge'), true);
 assert.equal(appSource.includes('__v6ChartDataSurfaceBridge'), true);
