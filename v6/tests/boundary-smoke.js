@@ -42,6 +42,7 @@ const JOURNAL_SURFACE_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'journal-surface.js'),
   path.join(V6_ROOT, 'src', 'shell', 'journal-surface-model.js'),
 ];
+const INDICATORS_ROOT = path.join(V6_ROOT, 'src', 'indicators');
 const READINESS_FILES = [
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface.js'),
   path.join(V6_ROOT, 'src', 'shell', 'readiness-surface-model.js'),
@@ -419,6 +420,17 @@ const forbiddenScreenshotExportOwnershipPatterns = [
   {
     pattern: /\b(BAR_DATA_COMMANDS|CALENDAR_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|ORDERS_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SCREENSHOT_EXPORT_COMMANDS|SESSION_COMMANDS|SESSION_SETTINGS_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|captureScreenshot|toDataURL|toBlob|createObjectURL|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime)\b/,
     reason: 'V6 screenshot-export modules must not dispatch commands, capture output, or own chart, data, replay, viewport, UI, storage, or network state.',
+  },
+];
+
+const forbiddenIndicatorsOwnershipPatterns = [
+  {
+    pattern: /from\s+['"][^'"]*(bar-data|calendar|chart|default-wall|display-timeframe|journal\/|journal-persistence|layout|orders|panes|persistence|replay|screenshot-export|session\/session-|session-settings|settings|shell|v4|vendor|lightweight|viewport)[^'"]*['"]/i,
+    reason: 'V6 indicators modules must stay pure and not import feature runtimes, UI, V4, vendor, chart, data, replay, viewport, orders, calendar, journal, settings, persistence, screenshot-export, or session-settings modules.',
+  },
+  {
+    pattern: /\b(BAR_DATA_COMMANDS|CALENDAR_COMMANDS|CHART_DATA_COMMANDS|CHART_VIEWPORT_COMMANDS|DEFAULT_WALL_COMMANDS|DISPLAY_TIMEFRAME_COMMANDS|INDICATORS_COMMANDS|JOURNAL_COMMANDS|JOURNAL_PERSISTENCE_COMMANDS|LAYOUT_COMMANDS|ORDERS_COMMANDS|PANE_COMMANDS|PERSISTENCE_COMMANDS|REPLAY_COMMANDS|SCREENSHOT_EXPORT_COMMANDS|SESSION_COMMANDS|SESSION_SETTINGS_COMMANDS|SETTINGS_COMMANDS|dispatchCommand|registerCommand|subscribeEvent|createChart|setData|setVisibleLogicalRange|addLineSeries|addHistogramSeries|fetch|XMLHttpRequest|localStorage|document|window|HTMLElement|replayCursor|viewportIntent|chartBars|barDataRuntime|replayRuntime|chartViewportRuntime)\b/,
+    reason: 'V6 indicators modules must not dispatch commands, calculate chart output, or own chart, data, replay, viewport, UI, storage, or network state.',
   },
 ];
 
@@ -816,6 +828,19 @@ for (const file of await walkFiles(SESSION_SETTINGS_ROOT)) {
 for (const file of await walkFiles(SCREENSHOT_EXPORT_ROOT)) {
   const text = await readFile(file, 'utf8');
   forbiddenScreenshotExportOwnershipPatterns.forEach(({ pattern, reason }) => {
+    if (pattern.test(text)) {
+      violations.push({
+        file: path.relative(process.cwd(), file),
+        pattern: String(pattern),
+        reason,
+      });
+    }
+  });
+}
+
+for (const file of await walkFiles(INDICATORS_ROOT)) {
+  const text = await readFile(file, 'utf8');
+  forbiddenIndicatorsOwnershipPatterns.forEach(({ pattern, reason }) => {
     if (pattern.test(text)) {
       violations.push({
         file: path.relative(process.cwd(), file),
