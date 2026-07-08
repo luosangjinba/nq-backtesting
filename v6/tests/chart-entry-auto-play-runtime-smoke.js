@@ -102,6 +102,7 @@ assert.deepEqual(await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.GET_STATE)
   error: null,
   lastTick: null,
   paneId: 'main',
+  paneIds: ['main'],
   playing: false,
   speed: 1,
   status: 'idle',
@@ -109,6 +110,7 @@ assert.deepEqual(await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.GET_STATE)
 
 const started = await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.START, { speed: 2 });
 assert.equal(started.playing, true);
+assert.deepEqual(started.paneIds, ['main']);
 assert.equal(started.speed, 2);
 assert.equal(started.status, 'playing');
 assert.equal(fakeTimer.intervalCount(), 1);
@@ -135,7 +137,7 @@ assert.equal(state.lastTick.replayState.cursorIndex, 2);
 assert.equal(fakeTimer.intervalCount(), 0);
 assert.deepEqual(
   calls.filter((call) => call.command === CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT).map((call) => call.payload),
-  [{ paneId: 'main' }, { paneId: 'main' }],
+  [{ paneIds: ['main'] }, { paneIds: ['main'] }],
 );
 assert.equal(events.some((entry) => entry.event === CHART_ENTRY_AUTO_PLAY_EVENTS.TICKED), true);
 assert.equal(events.at(-1).event, CHART_ENTRY_AUTO_PLAY_EVENTS.STOPPED);

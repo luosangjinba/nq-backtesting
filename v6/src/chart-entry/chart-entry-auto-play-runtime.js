@@ -28,6 +28,16 @@ function cloneTick(tick) {
   } : null;
 }
 
+function normalizePaneIds(payload = {}, fallbackPaneId = 'main') {
+  if (Array.isArray(payload.paneIds)) {
+    const ids = payload.paneIds
+      .map((paneId) => String(paneId || '').trim())
+      .filter(Boolean);
+    return [...new Set(ids)];
+  }
+  return [String(payload.paneId || fallbackPaneId || 'main').trim()].filter(Boolean);
+}
+
 export function createChartEntryAutoPlayRuntime({
   timer = globalThis,
 } = {}) {
@@ -39,6 +49,7 @@ export function createChartEntryAutoPlayRuntime({
     error: null,
     lastTick: null,
     paneId: 'main',
+    paneIds: ['main'],
     playing: false,
     speed: 1,
     status: 'idle',
@@ -63,6 +74,7 @@ export function createChartEntryAutoPlayRuntime({
       error: state.error,
       lastTick: cloneTick(state.lastTick),
       paneId: state.paneId,
+      paneIds: [...state.paneIds],
       playing: state.playing,
       speed: state.speed,
       status: state.status,
@@ -85,7 +97,7 @@ export function createChartEntryAutoPlayRuntime({
     ticking = true;
     try {
       const nextState = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, {
-        paneId: state.paneId,
+        paneIds: state.paneIds,
       });
       if (nextState?.status === 'error') {
         throw new Error(nextState.error || 'Chart entry manual next failed during auto play.');
@@ -117,12 +129,14 @@ export function createChartEntryAutoPlayRuntime({
 
   async function start(payload = {}) {
     const speed = normalizeSpeed(payload.speed);
+    const paneIds = normalizePaneIds(payload, state.paneId);
     stopTimer();
     const replayState = await dispatchCommand(REPLAY_COMMANDS.PLAY);
     state = {
       error: null,
       lastTick: null,
-      paneId: String(payload.paneId || state.paneId || 'main'),
+      paneId: paneIds[0] || 'main',
+      paneIds,
       playing: replayState?.status === 'playing',
       speed,
       status: replayState?.status === 'playing' ? 'playing' : String(replayState?.status || 'idle'),
@@ -175,6 +189,7 @@ export function createChartEntryAutoPlayRuntime({
       error: null,
       lastTick: null,
       paneId: 'main',
+      paneIds: ['main'],
       playing: false,
       speed: 1,
       status: 'idle',

@@ -3,6 +3,7 @@ import {
   CHART_DATA_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
+  PANE_COMMANDS,
   PLAYBACK_PERIOD_COMMANDS,
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
@@ -23,6 +24,9 @@ function cloneRecord(record) {
 function cloneAdvanced(advanced) {
   return advanced ? {
     chartRecord: cloneRecord(advanced.chartRecord),
+    chartRecords: Array.isArray(advanced.chartRecords)
+      ? advanced.chartRecords.map(cloneRecord)
+      : [],
     appendedBarCount: advanced.appendedBarCount,
     loadedWindow: advanced.loadedWindow ? { ...advanced.loadedWindow } : null,
     loadedWindows: Array.isArray(advanced.loadedWindows)
@@ -43,6 +47,7 @@ function createEndedAdvanced({
   return {
     appendedBarCount: 0,
     chartRecord: null,
+    chartRecords: [],
     loadedWindow: null,
     loadedWindows: [],
     playbackPeriod,
@@ -64,19 +69,21 @@ function normalizeTimeframeMinutes(timeframe) {
   return minutes;
 }
 
-function createNextWindowPayload(replayState) {
+function createNextWindowPayload(replayState, pane = {}) {
   if (!replayState?.cursorTime) {
     throw new Error('Chart entry manual next requires replay cursor time.');
   }
-  if (!replayState?.symbol) {
+  const instrument = pane.instrument || replayState?.symbol;
+  if (!instrument) {
     throw new Error('Chart entry manual next requires replay symbol.');
   }
+  const timeframe = pane.displayTimeframe || replayState.timeframe;
   return {
     anchor: replayState.cursorTime,
     count: 2,
     direction: 'backward',
-    instrument: String(replayState.symbol).toUpperCase(),
-    timeframe: normalizeTimeframeMinutes(replayState.timeframe),
+    instrument: String(instrument).toUpperCase(),
+    timeframe: normalizeTimeframeMinutes(timeframe),
   };
 }
 
@@ -98,6 +105,22 @@ function normalizePaneId(value = 'main') {
   return paneId;
 }
 
+function normalizePaneIds(payload = {}) {
+  if (Array.isArray(payload.paneIds)) {
+    const ids = payload.paneIds.map(normalizePaneId);
+    return [...new Set(ids)];
+  }
+  return [normalizePaneId(payload.paneId)];
+}
+
+async function getPaneRecord(paneId) {
+  try {
+    return await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
+  } catch {
+    return null;
+  }
+}
+
 export function createChartEntryManualNextRuntime() {
   const unregisterCallbacks = [];
   let state = {
@@ -116,7 +139,7 @@ export function createChartEntryManualNextRuntime() {
 
   async function next(payload = {}, emitEvent) {
     try {
-      const paneId = normalizePaneId(payload.paneId);
+      const paneIds = normalizePaneIds(payload);
       const currentReplayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
       const playbackPeriodState = await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE);
       const stepCount = resolvePlaybackPeriodStepCount({
@@ -136,32 +159,38 @@ export function createChartEntryManualNextRuntime() {
         return getState();
       }
       let replayState = null;
-      let chartRecord = null;
+      const chartRecords = [];
       const loadedWindows = [];
       let appendedBarCount = 0;
       for (let index = 0; index < stepCount; index += 1) {
         replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
-        const windowPayload = createNextWindowPayload(replayState);
-        const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
-        const bars = pickCursorBars(loadedWindow, replayState);
-        const cursorTimestamp = Number(bars.at(-1)?.timestamp ?? bars.at(-1)?.time);
-        chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
-          bars,
-          cursorTimestamp,
-          paneId,
-        });
-        appendedBarCount += bars.length;
-        loadedWindows.push({
-          barCount: Array.isArray(loadedWindow?.bars) ? loadedWindow.bars.length : 0,
-          cacheHit: Boolean(loadedWindow?.cacheHit),
-          key: loadedWindow?.key || null,
-        });
+        for (const paneId of paneIds) {
+          const pane = await getPaneRecord(paneId);
+          const windowPayload = createNextWindowPayload(replayState, pane || {});
+          const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
+          const bars = pickCursorBars(loadedWindow, replayState);
+          const cursorTimestamp = Number(bars.at(-1)?.timestamp ?? bars.at(-1)?.time);
+          const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
+            bars,
+            cursorTimestamp,
+            paneId,
+          });
+          chartRecords.push(chartRecord);
+          appendedBarCount += bars.length;
+          loadedWindows.push({
+            barCount: Array.isArray(loadedWindow?.bars) ? loadedWindow.bars.length : 0,
+            cacheHit: Boolean(loadedWindow?.cacheHit),
+            key: loadedWindow?.key || null,
+            paneId,
+          });
+        }
         if (replayState.status === 'ended') break;
       }
       state = {
         advanced: {
           appendedBarCount,
-          chartRecord,
+          chartRecord: chartRecords.at(0) || null,
+          chartRecords,
           loadedWindow: loadedWindows.at(-1) || null,
           loadedWindows,
           playbackPeriod: playbackPeriodState?.period || '1m',

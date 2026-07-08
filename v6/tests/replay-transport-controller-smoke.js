@@ -240,6 +240,7 @@ const controller = mountReplayTransport(root, {
     }
     return { ok: true };
   },
+  getVisiblePaneIds: () => ['main', 'secondary'],
   subscribeEvent: (eventName, listener) => {
     eventListeners.set(eventName, listener);
     return () => eventListeners.delete(eventName);
@@ -300,7 +301,7 @@ root.click(playButton);
 await Promise.resolve();
 assert.deepEqual(dispatched.at(-1), {
   command: CHART_ENTRY_AUTO_PLAY_COMMANDS.START,
-  payload: { speed: 1 },
+  payload: { paneIds: ['main', 'secondary'], speed: 1 },
 });
 assert.equal(controller.getState().playing, true);
 assert.equal(playButton['aria-pressed'], 'true');
@@ -311,7 +312,7 @@ root.click(nextButton);
 await Promise.resolve();
 assert.deepEqual(dispatched.at(-1), {
   command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
-  payload: undefined,
+  payload: { paneIds: ['main', 'secondary'] },
 });
 assert.equal(controller.getState().playing, true);
 
@@ -352,7 +353,7 @@ fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();
 assert.deepEqual(dispatched.at(-1), {
   command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
-  payload: undefined,
+  payload: { paneIds: ['main', 'secondary'] },
 });
 
 fakeDocument.keydown({ key: ' ', target: root });

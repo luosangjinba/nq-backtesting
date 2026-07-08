@@ -158,6 +158,7 @@ const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('replay'),
 });
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'), {
+  getVisiblePaneIds: () => workstationChartSurface.getState().layout.visiblePaneIds,
   positionPreference: createReplayTransportPositionPreference(),
 });
 const sessionDashboard = mountSessionDashboard(root, {

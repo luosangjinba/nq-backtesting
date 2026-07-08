@@ -112,16 +112,24 @@ assert.equal(nextA.advanced.chartRecord.paneId, 'pane-a');
 assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-a' })).bars.length, 2);
 assert.deepEqual(await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-b' }), paneBBefore);
 
+const nextBoth = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, { paneIds: ['pane-a', 'pane-b'] });
+assert.equal(nextBoth.status, 'advanced');
+assert.deepEqual(nextBoth.advanced.chartRecords.map((record) => record.paneId), ['pane-a', 'pane-b']);
+assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-a' })).bars.length, 3);
+assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-b' })).bars.length, 2);
+assert.equal(nextBoth.advanced.replayState.cursorIndex, 3);
+
 const started = await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.START, {
-  paneId: 'pane-b',
+  paneIds: ['pane-a', 'pane-b'],
   speed: 4,
 });
-assert.equal(started.paneId, 'pane-b');
+assert.equal(started.paneId, 'pane-a');
+assert.deepEqual(started.paneIds, ['pane-a', 'pane-b']);
 await fakeTimer.tick();
 await fakeTimer.tick();
 const paneAAfter = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-a' });
 const paneBAfter = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-b' });
-assert.equal(paneAAfter.bars.length, 2);
+assert.equal(paneAAfter.bars.length, 4);
 assert.equal(paneBAfter.bars.length, 3);
 assert.deepEqual(fetchCalls.map((call) => call.historyRequest || call.direction), [
   'backward',

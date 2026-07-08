@@ -237,6 +237,7 @@ function updateDom(root, state) {
 
 export function mountReplayTransport(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  getVisiblePaneIds = null,
   positionPreference = EMPTY_POSITION_PREFERENCE,
   subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
@@ -255,6 +256,37 @@ export function mountReplayTransport(root, {
     return state;
   }
 
+  function resolveVisiblePanePayload() {
+    if (typeof getVisiblePaneIds !== 'function') {
+      return {};
+    }
+    const paneIds = [...new Set(
+      (getVisiblePaneIds() || [])
+        .map((paneId) => String(paneId || '').trim())
+        .filter(Boolean)
+    )];
+    if (paneIds.length > 1) {
+      return { paneIds };
+    }
+    if (paneIds.length === 1) {
+      return { paneId: paneIds[0] };
+    }
+    return {};
+  }
+
+  function enrichReplayPanePayload(command, payload) {
+    if (
+      command !== CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT &&
+      command !== CHART_ENTRY_AUTO_PLAY_COMMANDS.START
+    ) {
+      return payload;
+    }
+    return {
+      ...(payload || {}),
+      ...resolveVisiblePanePayload(),
+    };
+  }
+
   function dispatchAction(action) {
     const resolved = resolveReplayTransportAction(action, state);
     setState(resolved.nextState);
@@ -263,7 +295,10 @@ export function mountReplayTransport(root, {
       return Promise.resolve(null);
     }
     root.dataset.lastAction = action;
-    return Promise.resolve(dispatchCommand(resolved.command, resolved.payload)).then((result) => {
+    return Promise.resolve(dispatchCommand(
+      resolved.command,
+      enrichReplayPanePayload(resolved.command, resolved.payload),
+    )).then((result) => {
       if (action === 'restart') {
         scheduleReplayStateRefreshAfterRestart();
       }
