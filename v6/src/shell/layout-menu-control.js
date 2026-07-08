@@ -37,6 +37,7 @@ export function mountLayoutMenuControl(root, {
   }
   const options = [...root.querySelectorAll('[data-v6-layout-mode]')];
   const syncInputs = [...root.querySelectorAll('[data-v6-layout-sync]')];
+  const details = root.querySelector('[data-v6-layout-menu-details]');
   if (!options.length || !syncInputs.length) {
     throw new Error('Layout menu control requires layout options and sync inputs.');
   }
@@ -71,6 +72,19 @@ export function mountLayoutMenuControl(root, {
 
   async function refresh() {
     render(await dispatchCommand(LAYOUT_COMMANDS.GET_SNAPSHOT));
+  }
+
+  function closeDetailsOnExternalTarget(target) {
+    if (!details?.open || !target || details.contains?.(target)) {
+      return;
+    }
+    details.open = false;
+  }
+
+  const ownerDocument = root.ownerDocument || details?.ownerDocument || globalThis.document;
+  if (ownerDocument?.addEventListener && details) {
+    ownerDocument.addEventListener('pointerdown', (event) => closeDetailsOnExternalTarget(event.target), { signal });
+    ownerDocument.addEventListener('focusin', (event) => closeDetailsOnExternalTarget(event.target), { signal });
   }
 
   options.forEach((option) => {

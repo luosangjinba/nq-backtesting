@@ -28,6 +28,7 @@ class FakeElement {
     this.disabled = disabled;
     this.listeners = new Map();
     this.attributes = new Map();
+    this.open = false;
   }
 
   addEventListener(name, listener) {
@@ -38,6 +39,10 @@ class FakeElement {
 
   click() {
     this.dispatchEvent({ type: 'click' });
+  }
+
+  contains(target) {
+    return target === this || Boolean(this.children?.includes(target));
   }
 
   dispatchEvent(event = {}) {
@@ -54,6 +59,7 @@ class FakeElement {
 }
 
 function createRoot() {
+  const details = new FakeElement();
   const options = [
     new FakeElement({ classNames: ['layout-option', 'is-selected'], dataset: { v6LayoutMode: 'single', v6LayoutVariant: 'single' }, disabled: true }),
     new FakeElement({ classNames: ['layout-option'], dataset: { v6LayoutMode: 'twice', v6LayoutVariant: 'twice-vertical' }, disabled: true }),
@@ -68,9 +74,23 @@ function createRoot() {
     new FakeElement({ checked: false, dataset: { v6LayoutSync: 'dateRange' }, disabled: true }),
   ];
   const all = [...options, ...syncInputs];
+  details.children = all;
+  const documentListeners = new Map();
+  const ownerDocument = {
+    addEventListener(name, listener) {
+      const listeners = documentListeners.get(name) || [];
+      listeners.push(listener);
+      documentListeners.set(name, listeners);
+    },
+    dispatchEvent(event = {}) {
+      (documentListeners.get(event.type) || []).forEach((listener) => listener(event));
+    },
+  };
   const root = {
     dataset: {},
+    ownerDocument,
     querySelector(selector) {
+      if (selector === '[data-v6-layout-menu-details]') return details;
       return this.querySelectorAll(selector)[0] || null;
     },
     querySelectorAll(selector) {
@@ -83,6 +103,8 @@ function createRoot() {
       return all;
     },
   };
+  root.details = details;
+  root.ownerDocument = ownerDocument;
   return root;
 }
 
@@ -146,6 +168,15 @@ assert.equal(root.dataset.layoutVariant, 'twice-horizontal');
 assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[0].classList.contains('is-selected'), false);
 assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].classList.contains('is-selected'), true);
 assert.equal(root.querySelectorAll('[data-v6-layout-mode="twice"]')[1].getAttribute('aria-checked'), 'true');
+
+root.details.open = true;
+root.ownerDocument.dispatchEvent({ target: root.querySelectorAll('[data-v6-layout-mode="twice"]')[1], type: 'pointerdown' });
+assert.equal(root.details.open, true);
+root.ownerDocument.dispatchEvent({ target: new FakeElement(), type: 'pointerdown' });
+assert.equal(root.details.open, false);
+root.details.open = true;
+root.ownerDocument.dispatchEvent({ target: new FakeElement(), type: 'focusin' });
+assert.equal(root.details.open, false);
 
 const crosshair = root.querySelector('[data-v6-layout-sync="crosshair"]');
 crosshair.checked = true;
