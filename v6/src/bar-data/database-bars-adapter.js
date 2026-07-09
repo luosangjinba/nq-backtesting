@@ -1,4 +1,5 @@
 import { windowBoundsMs } from './bar-window.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 
 export const DATABASE_BAR_SCHEMA = Object.freeze({
   dbPath: 'v4/data/trading_data.duckdb',
@@ -16,7 +17,9 @@ export const DATABASE_BAR_SCHEMA = Object.freeze({
 });
 
 function toEpochSeconds(timestampMs) {
-  return Math.floor(timestampMs / 1000);
+  return normalizeUnixSeconds(timestampMs, {
+    fieldName: 'Database bars adapter timestampMs',
+  });
 }
 
 function normalizeRows(result) {
