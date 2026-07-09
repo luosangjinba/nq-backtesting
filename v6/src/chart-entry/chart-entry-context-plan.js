@@ -1,3 +1,8 @@
+import {
+  normalizeMinuteTimeframe,
+  normalizeUnixMilliseconds,
+} from '../time-domain/time-domain.js';
+
 const DEFAULT_PREFIX_BARS = 120;
 
 function normalizeText(value, fieldName) {
@@ -17,20 +22,27 @@ function normalizePositiveInteger(value, fieldName) {
 }
 
 function normalizeTimeframeMinutes(timeframe) {
-  const match = String(timeframe || '').trim().match(/^(\d+)(m)?$/i);
-  if (!match) {
+  try {
+    return normalizeMinuteTimeframe(timeframe, {
+      fieldName: 'Chart entry context timeframe',
+    });
+  } catch (error) {
+    if (String(error?.message || '').includes('positive minute value')) {
+      throw new Error('Chart entry context timeframe must be a positive integer.');
+    }
     throw new Error('Chart entry context timeframe must be minute-based.');
   }
-  return normalizePositiveInteger(match[1], 'timeframe');
 }
 
 function normalizeIsoTime(value, fieldName) {
   const normalized = normalizeText(value, fieldName);
-  const parsed = new Date(normalized);
-  if (Number.isNaN(parsed.valueOf())) {
+  try {
+    return new Date(normalizeUnixMilliseconds(normalized, {
+      fieldName: `Chart entry context ${fieldName}`,
+    })).toISOString();
+  } catch (_error) {
     throw new Error(`Chart entry context ${fieldName} must be a valid date/time.`);
   }
-  return parsed.toISOString();
 }
 
 export function createChartEntryContextPlan(session, {
