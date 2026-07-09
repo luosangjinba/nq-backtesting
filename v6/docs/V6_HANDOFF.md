@@ -5,19 +5,20 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 209 completed.
-- Next planned step: Step 210 - Pane-Local Symbol/TF/OHLC Header State Sync.
+- Current V6 step state: Step 210 completed.
+- Next planned step: Step 211 - Next Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Next Chart Slice Selection:
+The latest completed work is Pane-Local Symbol/TF/OHLC Header State Sync:
 
-- `V6_NEXT_CHART_SLICE_SELECTION_STEP209.md` selects Pane-Local
-  Symbol/TF/OHLC Header State Sync as the next bounded chart-facing slice.
-- Steps 206-208 completed active-pane display-timeframe targeting and visible
-  toolbar label synchronization.
-- The existing `pane-status-readout` boundary already owns DOM-only per-pane
-  header rendering; Step 210 should strengthen it with browser coverage for
-  real workstation pane isolation.
+- `V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md` records active-pane header
+  state tracking and pane-local symbol/timeframe/OHLC browser isolation.
+- `pane-status-readout` now subscribes to `PANE_EVENTS.ACTIVE_CHANGED` and
+  exposes `data-v6-pane-active`.
+- Active-pane changes render pane headers without clearing or overwriting
+  another pane's symbol, timeframe, or OHLC state.
+- The chart browser regression pack includes
+  `pane-local-header-state-browser-step210-smoke.js` and now runs 24 tests.
 - Custom intervals, interval sync, symbol picker UI, indicators, Pine Script,
   and trading/order behavior remain out of scope.
 
@@ -151,27 +152,29 @@ After restarting the server or assistant context, read these first:
 121. `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_SOURCE_INTEGRATION_STEP207.md`
 122. `v6/docs/V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md`
 123. `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`
-124. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
-125. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
-126. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
-127. `v6/sessions/session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`
-128. `v6/sessions/session_20260708_step209_next_chart_slice_selection.md`
+124. `v6/docs/V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md`
+125. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
+126. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
+127. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
+128. `v6/sessions/session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`
+129. `v6/sessions/session_20260708_step209_next_chart_slice_selection.md`
+130. `v6/sessions/session_20260708_step210_pane_local_header_state_sync.md`
 
 ## Next Step
 
-Step 210 should focus on Pane-Local Symbol/TF/OHLC Header State Sync.
+Step 211 should focus on Next Chart Slice Selection.
 
-Keep Step 210 bounded:
+Keep Step 211 bounded:
 
-- read `V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`,
-  `V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md`, and
-  `session_20260708_step209_next_chart_slice_selection.md`;
-- reinforce `pane-status-readout` as the shell-owned per-pane header
-  presentation boundary;
-- verify symbol, timeframe, and OHLC header state remain pane-scoped in real
-  workstation browser coverage;
-- do not add custom intervals, interval sync, symbol picker UI, indicators,
-  Pine Script, or trading/order behavior.
+- read `V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md`,
+  `V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`, and
+  `session_20260708_step210_pane_local_header_state_sync.md`;
+- review Step 206-210 active-pane display-timeframe and pane-local header
+  presentation work;
+- choose the next bounded chart-facing slice with owner boundaries and
+  non-goals documented before implementation;
+- do not add custom intervals, interval sync, indicators, Pine Script, or
+  trading/order behavior in the selection step.
 
 ## Critical Boundaries
 
