@@ -6,6 +6,7 @@ import {
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand, registerCommand } from '../runtime/commands.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -34,10 +35,13 @@ function normalizePaneIds(paneIds = []) {
 function timestampFromReplayState(replayState = {}) {
   const state = replayState || {};
   const value = state.cursorTimestamp ?? state.timestamp ?? state.cursorTime;
-  const timestamp = typeof value === 'number'
-    ? value
-    : Math.floor(new Date(value).valueOf() / 1000);
-  return Number.isFinite(timestamp) ? timestamp : null;
+  try {
+    return normalizeUnixSeconds(value, {
+      fieldName: 'Layout pane bootstrap replay cursor',
+    });
+  } catch (_error) {
+    return null;
+  }
 }
 
 async function findSourceRecord({ dispatchCommand, paneIds }) {
