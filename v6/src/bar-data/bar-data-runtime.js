@@ -4,11 +4,16 @@ import { normalizeBars } from './bar-normalizer.js';
 import { createBarWindowCache } from './bar-window-cache.js';
 import { normalizeBarWindow, planBarWindow, windowBoundsMs } from './bar-window.js';
 import { fetchV4Bars } from './v4-bars-adapter.js';
+import { unixMillisecondsToSeconds } from '../time-domain/time-domain.js';
 
 function filterBarsForWindow(bars = [], planned) {
   const { startMs, endMs } = windowBoundsMs(planned);
-  const startTimestamp = Math.floor(startMs / 1000);
-  const endTimestamp = Math.floor(endMs / 1000);
+  const startTimestamp = unixMillisecondsToSeconds(startMs, {
+    fieldName: 'Bar data runtime window startMs',
+  });
+  const endTimestamp = unixMillisecondsToSeconds(endMs, {
+    fieldName: 'Bar data runtime window endMs',
+  });
   return normalizeBars(bars).filter((bar) => (
     bar.timestamp >= startTimestamp && bar.timestamp <= endTimestamp
   ));
