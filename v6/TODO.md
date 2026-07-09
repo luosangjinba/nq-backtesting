@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 236 - Replay Previous Domain Command.
-  V6 now has replay-owned previous cursor movement through
-  `REPLAY_COMMANDS.PREVIOUS`, while the transport Previous button remains
-  disabled and chart-entry, chart-data, viewport, bar-data, pane, and shell
-  behavior remain unwired.
+- Latest completed roadmap step: Step 237 - Chart Entry Manual Previous
+  Replacement Contract. V6 selected chart-entry owned pane-local chart-data
+  replacement for future manual Previous chart updates, while the transport
+  Previous button remains disabled and runtime behavior remains unwired above
+  replay-domain/runtime.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,33 +44,60 @@
 
 ## Next Executable Steps
 
-### Step 237 - Chart Entry Manual Previous Replacement Contract
+### Step 238 - Chart Entry Manual Previous Runtime Skeleton
 
 Status: planned.
 
 Notes for execution:
 
-- define the chart-entry owner contract for a manual previous chart action;
-- specify whether chart-entry should derive previous visible bars from current
-  chart-data, request bounded bar-data windows, or combine both;
-- specify pane-local replacement semantics for source TF and display TF panes;
-- specify viewport preservation rules when chart-data replacement moves the
-  cursor backward;
+- add `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS` and events;
+- create a focused chart-entry manual previous runtime module;
+- register `GET_STATE` and `PREVIOUS`;
+- dispatch `REPLAY_COMMANDS.PREVIOUS` through chart-entry only;
+- replace pane-local chart-data through `CHART_DATA_COMMANDS.REPLACE_BARS`;
+- prefer current chart-data filtering and fall back to bounded bar-data windows
+  only when filtering cannot prove no-future visibility;
 - keep `data-v6-transport-step-back` disabled;
-- do not implement chart-entry manual previous behavior yet if the replacement
-  contract is not explicit enough.
+- keep shell transport unwired.
 
 Acceptance:
 
-- a Step 237 contract names the chart-entry, chart-data, bar-data, viewport, and
-  pane responsibilities for manual previous;
-- static smoke proves replay previous exists but chart-entry/shell previous
-  wiring remains absent unless Step 237 explicitly implements it;
+- runtime smoke proves chart-entry previous dispatches replay previous and
+  replaces pane-local chart-data without shell involvement;
+- static/browser smoke proves the transport Previous button remains disabled;
 - transport visual state, product direction, boundary, and relevant replay
   smokes pass;
-- no indicator, trading, or journal behavior changes in Step 237.
+- no viewport reset, indicator, trading, or journal behavior changes in Step
+  238.
 
 ## Completed Steps
+
+### Step 237 - Chart Entry Manual Previous Replacement Contract
+
+Completed in this documentation commit.
+
+Verification:
+
+- `node v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`
+- `node v6/tests/replay-previous-domain-command-step236-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_ENTRY_MANUAL_PREVIOUS_REPLACEMENT_CONTRACT_STEP237.md`.
+- Added `v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`.
+- Chose chart-entry owned pane-local replacement for future manual Previous
+  chart updates.
+- Selected a combined replacement strategy: prefer current chart-data filtering,
+  fall back to bounded bar-data loading only when filtering cannot prove
+  no-future visibility, and project only when display timeframe requires it.
+- Kept `data-v6-transport-step-back` disabled.
+- Did not implement chart-entry manual previous behavior, add chart-data
+  rollback/remove commands, reset viewport, or change bar-data, pane,
+  indicator, trading, or journal behavior.
 
 ### Step 236 - Replay Previous Domain Command
 
