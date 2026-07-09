@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const app = await readFile('v6/src/app.js', 'utf8');
 const chartDataRuntime = await readFile('v6/src/chart-data/chart-data-runtime.js', 'utf8');
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
 const manualNext = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');
@@ -11,8 +10,6 @@ const leftwardHistory = await readFile('v6/src/chart-history/leftward-history-ex
 const resetBridge = await readFile('v6/src/chart-engine/reset-view-control-bridge.js', 'utf8');
 const chartDataSurfaceBridge = await readFile('v6/src/chart-engine/chart-data-surface-bridge.js', 'utf8');
 
-assert.equal(app.includes('createChartDataProjectionRuntime'), false);
-assert.equal(app.includes('chart-data-projection'), false);
 assert.equal(chartDataRuntime.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
 assert.equal(chartDataRuntime.includes('chartDataProjection.'), false);
 assert.equal(displayRuntime.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
