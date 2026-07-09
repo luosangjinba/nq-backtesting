@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 217 - Wrap Remaining TF / Timestamp
-  Consumers. V6 routed replay, panes, chart-viewport, and chart-history
-  TF/timestamp normalization through `time-domain`, leaving bar-data window
-  planning as the remaining audited local time-window boundary.
+- Latest completed roadmap step: Step 218 - Bar-Data Window Time Helper
+  Integration. V6 routed bar-data request-window planning and cache boundary
+  timestamp math through shared time helpers while preserving request ranges,
+  caps, cache keys, and replay latency behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,32 +43,65 @@
 
 ## Next Executable Steps
 
-### Step 218 - Bar-Data Window Time Helper Integration
+### Step 219 - Bar-Data Adapter / Normalizer Time Helper Integration
 
 Status: planned.
 
 Notes for execution:
 
-- route `bar-data/bar-window.js` timestamp formatting/parsing and timeframe
-  normalization through `time-domain` where practical;
-- preserve bar-data ownership: only bar-data should plan API request windows,
-  cache/window keys, bounded chunk size, and canvas-left request caps;
-- keep behavior unchanged for bounded older-window requests, session boundary
-  metadata, HTF left-extension, and replay-safe latency;
-- update the static audit so remaining local time logic is either removed or
-  explicitly justified.
+- route remaining bar-data adapter/normalizer timestamp conversion through
+  shared helpers where practical;
+- preserve adapter ownership of database query shape, requested range metadata,
+  and raw-row normalization handoff;
+- preserve normalizer ownership of OHLC validation, dedupe, and sorted chart bar
+  output;
+- keep behavior unchanged for database imported K-lines, requested ranges,
+  boundary metadata, and chart data bars.
 
 Acceptance:
 
-- bar-data window planning uses shared time helpers without changing request
-  ranges or caps;
-- leftward-history, HTF projection, replay latency, and chart browser smokes
-  still pass;
-- Step 214 audit smoke reflects the reduced local time-domain surface;
-- no new TF, indicator, SMC/ICT overlay, or trading behavior is implemented in
-  Step 218.
+- database adapter and bar normalizer use shared time helpers or explicit
+  bar-window wrappers for timestamp conversion;
+- bar-data adapter/domain/runtime and chart browser smokes still pass;
+- no query shape, requested range, cache key, boundary metadata, TF, indicator,
+  SMC/ICT overlay, or trading behavior changes in Step 219.
 
 ## Completed Steps
+
+### Step 218 - Bar-Data Window Time Helper Integration
+
+Completed in commits:
+
+- `9a99d0a9 refactor(v6): route bar window through time domain`
+- `a24dc5c4 refactor(v6): reuse bar time helpers in cache`
+
+Verification:
+
+- `node v6/tests/bar-data-domain-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/database-bars-adapter-smoke.js`
+- `node v6/tests/leftward-extension-planner-smoke.js`
+- `node v6/tests/chart-boundary-metadata-runtime-step191-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/tf-projection-time-domain-audit-step214-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `bar-window` timeframe normalization through `normalizeMinuteTimeframe`
+  while preserving the existing public `normalizeTimeframe` API and error
+  behavior.
+- Routed `bar-window` timestamp parsing and API minute formatting through
+  `normalizeUnixMilliseconds` and `toApiMinuteTime`.
+- Replaced local minute-millisecond constants with `TIME_DOMAIN_CONSTANTS`.
+- Routed `bar-window-cache` timestamp conversion and inferred fallback step size
+  through bar-window/time-domain helpers.
+- Updated the Step 214 static audit so `bar-window.js` must consume
+  `time-domain` and must not carry a local timeframe normalizer.
+- Step 219 should finish the bar-data timestamp cleanup in adapter/normalizer
+  boundaries without changing database query shape or chart bar output.
 
 ### Step 217 - Wrap Remaining TF / Timestamp Consumers
 
