@@ -30,7 +30,7 @@ assert.match(index, /V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204\.md/);
   preparation,
   leftwardHistory,
 ].forEach((source) => {
-  assert.equal(source.includes('PANE_COMMANDS.GET_ACTIVE'), true);
+  assert.equal(source.includes('PANE_COMMANDS.GET_ACTIVE'), false);
 });
 
 [
