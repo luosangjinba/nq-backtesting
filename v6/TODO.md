@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 222 - Chart Entry Projection Preparation
-  Time Helper Migration. V6 routed projection-preparation domain/runtime cursor
-  and optional session timestamp parsing through `time-domain` while preserving
-  prepared payloads, projection dispatch payloads, cursor lookup, and chart
-  browser behavior.
+- Latest completed roadmap step: Step 223 - Chart Entry Manual-Next Time Helper
+  Migration. V6 routed manual-next TF parsing, replay timestamp parsing, cursor
+  bar picking timestamp parsing, and projection-source summary through
+  `time-domain` while preserving append payloads, projection dispatch payloads,
+  playback-period stepping, and chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,27 +44,59 @@
 
 ## Next Executable Steps
 
-### Step 223 - Chart Entry Manual-Next Time Helper Migration
+### Step 224 - Pane Intent Reload Chart-Data Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- migrate `chart-entry-manual-next-runtime.js` local TF parsing, replay
-  timestamp parsing, and projection-source summary through `time-domain`;
-- preserve manual-next append payloads, projection dispatch payloads, cursor bar
-  picking, playback period stepping, and error text;
-- keep chart-entry ownership of manual-next orchestration;
-- do not migrate pane-intent-reload or layout bootstrap in this step.
+- migrate `pane-intent-reload-chart-data-runtime.js` window cursor parsing,
+  integer timeframe parsing, optional session timestamp parsing, and
+  projection-source summary through `time-domain`;
+- preserve loaded-window cursor selection, projection dispatch payloads,
+  replacement payloads, replacement ordering, and error text;
+- keep pane-intent reload ownership of reload application;
+- do not migrate layout bootstrap in this step.
 
 Acceptance:
 
-- manual-next runtime uses shared time helpers behind local wrappers;
-- existing manual-next, HTF, replay, and chart browser smokes still pass;
-- no pane-intent-reload, layout, TF, indicator, SMC/ICT overlay, or trading
-  behavior changes in Step 223.
+- pane-intent reload chart-data runtime uses shared time helpers behind local
+  wrappers;
+- existing pane-intent reload, HTF reload, chart browser, and audit smokes still
+  pass;
+- no layout, TF, indicator, SMC/ICT overlay, or trading behavior changes in
+  Step 224.
 
 ## Completed Steps
+
+### Step 223 - Chart Entry Manual-Next Time Helper Migration
+
+Completed in commits:
+
+- `47306e4e refactor(v6): share manual next time parsing`
+- `fa9cc76b refactor(v6): share manual next projection summary`
+
+Verification:
+
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/manual-next-htf-visible-latency-browser-step197-smoke.js`
+- `node v6/tests/auto-play-htf-visible-latency-browser-step199-smoke.js`
+- `node v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `chart-entry-manual-next-runtime.js` TF parsing through
+  `normalizeMinuteTimeframe` behind the existing local wrapper.
+- Routed replay cursor/start timestamp parsing and cursor-bar picking through
+  `normalizeUnixSeconds` behind local wrappers.
+- Routed projection-source summary through `summarizeProjectionSource`.
+- Preserved manual-next append payloads, projection dispatch payloads, cursor
+  bar picking, playback-period stepping, and error text.
+- Did not migrate pane-intent-reload or layout bootstrap.
+- Step 224 should migrate `pane-intent-reload-chart-data-runtime.js` only.
 
 ### Step 222 - Chart Entry Projection Preparation Time Helper Migration
 
