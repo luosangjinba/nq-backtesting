@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 234 - Chart Foundation Next Slice
-  Selection. V6 selected Replay Step Back Owner Readiness Audit as the next
-  bounded chart-foundation slice because the transport reserves a disabled
-  Previous replay bar control, but backward replay needs an explicit owner
-  contract before runtime behavior changes.
+- Latest completed roadmap step: Step 235 - Replay Step Back Owner Readiness
+  Audit. V6 selected replay-domain/runtime previous cursor ownership as the
+  first implementation slice, while keeping the transport Previous button
+  disabled and avoiding chart-data, viewport, bar-data, pane, and shell behavior
+  changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,34 +44,61 @@
 
 ## Next Executable Steps
 
-### Step 235 - Replay Step Back Owner Readiness Audit
+### Step 236 - Replay Previous Domain Command
 
 Status: planned.
 
 Notes for execution:
 
-- document the owner contract for backward replay before enabling the
-  transport Previous button;
-- classify whether Step Back should remove the latest visible bar, replace
-  chart-data from a previous cursor, or replay from a cursor snapshot;
-- define replay-domain, chart-entry, chart-data, viewport, bar-data, and
-  multi-pane responsibilities;
-- add static smoke coverage that keeps the Previous button disabled until the
-  owner contract is accepted;
-- do not implement previous replay behavior yet.
+- add a pure replay-domain previous-state helper;
+- expose a replay runtime previous command through `REPLAY_COMMANDS.PREVIOUS`;
+- clamp previous movement at cursor index `0`;
+- preserve replay ownership and event semantics;
+- keep the transport Previous button disabled;
+- do not wire chart-entry, chart-data, viewport, bar-data, shell transport, or
+  multi-pane behavior yet.
 
 Acceptance:
 
-- a Step 235 audit doc names the backward replay owner boundary and first
-  implementation option;
-- static smoke proves no previous replay runtime command is exposed and the
-  transport Previous button remains disabled;
-- transport visual state, product direction, boundary, and relevant chart
-  smokes pass;
-- no replay cursor, chart-data, viewport, bar-data, pane, indicator, trading,
-  or journal behavior changes in Step 235.
+- replay-domain smoke proves previous cursor movement decrements by one step
+  and clamps at the first cursor;
+- replay runtime smoke proves the previous command emits the accepted replay
+  event/state shape;
+- static/browser smoke still proves the transport Previous button remains
+  disabled and no chart-entry manual previous command is exposed;
+- no chart-data, viewport, bar-data, pane, indicator, trading, or journal
+  behavior changes in Step 236.
 
 ## Completed Steps
+
+### Step 235 - Replay Step Back Owner Readiness Audit
+
+Completed in this documentation commit.
+
+Verification:
+
+- `node v6/tests/replay-step-back-owner-readiness-step235-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_REPLAY_STEP_BACK_OWNER_READINESS_AUDIT_STEP235.md`.
+- Added `v6/tests/replay-step-back-owner-readiness-step235-smoke.js`.
+- Rejected direct latest-visible-bar removal as the first Step Back
+  implementation because visible bars are not always one-to-one with replay
+  cursor movement across multi-pane and higher timeframe views.
+- Deferred cursor snapshots until persistence/snapshot ownership becomes a real
+  feature need.
+- Selected replay-domain/runtime previous cursor ownership as Step 236, with
+  chart-entry/chart-data replacement left for a later bounded slice.
+- Kept `data-v6-transport-step-back` disabled.
+- Did not change runtime behavior, data loading, replay cursor movement,
+  chart-data records, viewport intent, bar-data requests, pane state, TFs,
+  indicators, SMC/ICT overlays, trading simulation, order tickets, prop firm
+  rule engines, or journal workflows.
 
 ### Step 234 - Chart Foundation Next Slice Selection
 
