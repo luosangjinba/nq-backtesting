@@ -18,10 +18,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 206 - Pane-Local Display-Timeframe UI
-  Readiness. V6 made the existing shell display-timeframe control dispatch an
-  explicit target `paneId` and added targeted browser coverage for updating
-  only the selected pane.
+- Latest completed roadmap step: Step 207 - Display-Timeframe Target Source
+  Integration. V6 now routes chart pane activation through pane runtime active
+  state and targets the existing display-timeframe control from the real active
+  pane source.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,32 +31,66 @@
 
 ## Next Executable Steps
 
-### Step 207 - Display-Timeframe Target Source Integration
+### Step 208 - Display-Timeframe Active Pane UI State Sync
 
 Status: planned.
 
 Notes for execution:
 
-- connect the shell display-timeframe control's target-pane resolver to the
-  real chart-surface or pane-runtime active/selected pane source through an
-  explicit owner contract;
-- preserve the Step 206 command shape: dispatch
-  `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with `{ displayTimeframe, paneId }`;
+- sync the top-toolbar display-timeframe label/readout to the newly active
+  pane's current `displayTimeframe`;
+- use the Step 207 active-pane target bridge or a small adjacent owner bridge;
+- preserve the command shape `{ displayTimeframe, paneId }` when the user
+  applies a timeframe;
 - keep top-toolbar visual behavior stable;
-- add browser coverage proving selecting `5m` from the visible control updates
-  the active/selected pane, not a hard-coded pane;
+- add browser coverage proving pane switches update the visible TF label without
+  changing chart data until the user chooses a new timeframe;
 - do not add custom intervals, interval sync, indicators, Pine Script, or
   trading/order behavior.
 
 Acceptance:
 
-- target-pane selection is driven by an explicit owner-provided source rather
-  than test-only `setTargetPaneId` wiring or hidden runtime fallback;
+- switching active panes updates the shell display-timeframe label/readout to
+  that pane's existing state;
+- pane switches alone do not project or replace chart-data;
 - pane-local display-timeframe runtime isolation still passes;
-- targeted browser coverage passes for a non-main active/selected pane;
+- active-pane browser coverage from Step 207 still passes;
 - existing chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 207 - Display-Timeframe Target Source Integration
+
+Completed in commits:
+
+- `485551f1 feat(v6): bridge chart pane activation`
+- `d00d2cec feat(v6): target display timeframe from active pane`
+- `dda22aa2 test(v6): add active pane display timeframe regression`
+
+Verification:
+
+- `node v6/tests/workstation-chart-surface-multi-pane-step147-smoke.js`
+- `node v6/tests/pane-active-surface-bridge-step207-smoke.js`
+- `node v6/tests/display-timeframe-pane-target-bridge-step207-smoke.js`
+- `node v6/tests/display-timeframe-active-pane-browser-step207-smoke.js`
+- `node v6/tests/display-timeframe-target-pane-browser-step206-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/chart-surface-contract-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Chart surface now publishes pane activation from host user interaction.
+- `pane-active-surface-bridge` writes the active pane into pane runtime.
+- `display-timeframe-pane-target-bridge` mirrors active pane changes into the
+  display-timeframe control target.
+- The visible top-toolbar `5m` selection now updates the clicked secondary pane
+  without updating `main`.
+- Step 208 should sync the visible TF label/readout to active pane state without
+  adding custom intervals, interval sync, indicators, Pine Script, or
+  trading/order behavior.
 
 ### Step 206 - Pane-Local Display-Timeframe UI Readiness
 

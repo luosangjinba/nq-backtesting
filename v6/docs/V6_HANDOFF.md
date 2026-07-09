@@ -5,20 +5,22 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 206 completed.
-- Next planned step: Step 207 - Display-Timeframe Target Source Integration.
+- Current V6 step state: Step 207 completed.
+- Next planned step: Step 208 - Display-Timeframe Active Pane UI State Sync.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Pane-Local Display-Timeframe UI Readiness:
+The latest completed work is Display-Timeframe Target Source Integration:
 
-- `V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md` records explicit
-  target-pane handling for the existing shell display-timeframe control.
-- The control now dispatches `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with
-  `{ displayTimeframe, paneId }`.
-- Browser coverage proves selecting `5m` updates only the targeted secondary
-  pane and leaves the main pane unchanged.
-- Step 207 should connect the target resolver to the real active/selected pane
-  source through an explicit owner contract.
+- `V6_DISPLAY_TIMEFRAME_TARGET_SOURCE_INTEGRATION_STEP207.md` records the chart
+  surface -> pane runtime -> display-timeframe control target chain.
+- Chart surface publishes pane activation; `pane-active-surface-bridge`
+  dispatches `PANE_COMMANDS.SET_ACTIVE`.
+- `display-timeframe-pane-target-bridge` mirrors `PANE_EVENTS.ACTIVE_CHANGED`
+  into the existing display-timeframe control target.
+- Browser coverage proves clicking the secondary pane and selecting `5m` from
+  the visible top toolbar updates only the secondary pane.
+- Step 208 should sync the visible top-toolbar TF label/readout to the active
+  pane's current `displayTimeframe`.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -147,24 +149,25 @@ After restarting the server or assistant context, read these first:
 118. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
 119. `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP205.md`
 120. `v6/docs/V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md`
-121. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
-122. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
+121. `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_SOURCE_INTEGRATION_STEP207.md`
+122. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
+123. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
+124. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
 
 ## Next Step
 
-Step 207 should focus on Display-Timeframe Target Source Integration.
+Step 208 should focus on Display-Timeframe Active Pane UI State Sync.
 
-Keep Step 207 bounded:
+Keep Step 208 bounded:
 
-- read `V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md` and
-  `session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`;
-- connect the shell display-timeframe control target resolver to the real
-  chart-surface or pane-runtime active/selected pane source through an explicit
-  owner contract;
-- preserve the command shape `{ displayTimeframe, paneId }`;
+- read `V6_DISPLAY_TIMEFRAME_TARGET_SOURCE_INTEGRATION_STEP207.md` and
+  `session_20260708_step207_display_timeframe_target_source_integration.md`;
+- sync the top-toolbar display-timeframe label/readout to the active pane's
+  existing `displayTimeframe`;
+- preserve the apply command shape `{ displayTimeframe, paneId }`;
 - keep the current top-toolbar visual behavior stable;
-- add browser coverage proving the visible control updates a non-main
-  active/selected pane;
+- add browser coverage proving pane switches update the visible label without
+  changing chart data until a timeframe is selected;
 - do not add custom intervals, interval sync, indicators, Pine Script, or
   trading/order behavior.
 
