@@ -5,20 +5,19 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 204 completed.
-- Next planned step: Step 205 - Next Chart Slice Selection.
+- Current V6 step state: Step 205 completed.
+- Next planned step: Step 206 - Pane-Local Display-Timeframe UI Readiness.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Active-Pane Fallback Narrowing:
+The latest completed work is Next Chart Slice Selection:
 
-- `V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md` documents which `GET_ACTIVE`
-  usages were removed and which current-pane semantics remain.
-- Manual-next, initial projection preparation, and leftward-history now use
-  exact pane ids without active-pane compatibility fallback.
-- Display-timeframe and playback-period still use active pane intentionally when
-  no explicit pane id is provided.
-- Step 205 should select the next bounded chart-facing slice after identity and
-  fallback cleanup.
+- `V6_NEXT_CHART_SLICE_SELECTION_STEP205.md` selects pane-local
+  display-timeframe UI readiness as the next bounded chart-facing slice.
+- The selection keeps TF UI readiness separate from custom intervals, interval
+  sync, indicators, Pine Script, and trading/order behavior.
+- Step 206 should make the existing shell display-timeframe control dispatch an
+  explicit `paneId`, with browser coverage proving only the targeted pane is
+  updated.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -148,16 +147,18 @@ After restarting the server or assistant context, read these first:
 
 ## Next Step
 
-Step 205 should focus on Next Chart Slice Selection.
+Step 206 should focus on Pane-Local Display-Timeframe UI Readiness.
 
-Keep Step 205 bounded:
+Keep Step 206 bounded:
 
-- read `V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md` and
-  `session_20260708_step204_active_pane_fallback_narrowing.md`;
-- decide the next bounded chart-facing slice after pane identity cleanup;
-- prefer pane-local display-timeframe UI readiness if no higher-priority chart
-  foundation gap is found;
-- do not combine TF UI and indicator implementation into one step.
+- read `V6_NEXT_CHART_SLICE_SELECTION_STEP205.md` and
+  `session_20260708_step205_next_chart_slice_selection.md`;
+- make shell display-timeframe control resolve an explicit target pane id;
+- dispatch `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with `paneId`;
+- keep the current top-toolbar visual behavior stable;
+- add targeted browser coverage for pane-local display-timeframe selection;
+- do not add custom intervals, interval sync, indicators, Pine Script, or
+  trading/order behavior.
 
 ## Critical Boundaries
 

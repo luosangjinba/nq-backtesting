@@ -18,10 +18,9 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 204 - Active-Pane Fallback Narrowing. V6
-  removed active-pane compatibility fallback from exact-pane chart-facing
-  paths while preserving intentional current-pane semantics in display-timeframe
-  and playback-period runtimes.
+- Latest completed roadmap step: Step 205 - Next Chart Slice Selection. V6
+  selected pane-local display-timeframe UI readiness as the next bounded
+  chart-facing slice after pane identity and active-pane fallback cleanup.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,25 +30,49 @@
 
 ## Next Executable Steps
 
-### Step 205 - Next Chart Slice Selection
+### Step 206 - Pane-Local Display-Timeframe UI Readiness
 
 Status: planned.
 
 Notes for execution:
 
-- select the next bounded chart-facing slice after pane identity and fallback
-  cleanup;
-- prefer pane-local display-timeframe UI readiness if no higher-priority chart
-  foundation gap is found;
-- keep the step as a selection/audit or one small implementation slice, not TF
-  UI plus indicators together.
+- make the shell display-timeframe control resolve an explicit target `paneId`;
+- dispatch `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with `paneId`;
+- keep existing top-toolbar visual behavior stable;
+- add browser coverage proving selecting `5m` updates only the targeted pane;
+- do not add custom intervals, interval sync, or indicators.
 
 Acceptance:
 
-- next slice is documented with owner boundaries and acceptance checks;
+- shell control no longer relies on hidden runtime active-pane fallback for the
+  primary chart target;
+- pane-local display-timeframe runtime isolation still passes;
+- targeted browser coverage passes;
 - existing chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 205 - Next Chart Slice Selection
+
+Completed in commits:
+
+- `682c2662 docs(v6): select next chart slice`
+
+Verification:
+
+- `node v6/tests/next-chart-slice-selection-step205-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Selected Pane-Local Display-Timeframe UI Readiness for Step 206.
+- Step 206 should only prepare explicit pane targeting for the existing
+  display-timeframe UI path.
+- Custom intervals, interval sync, indicators, Pine Script, and trading/order
+  behavior remain out of scope.
 
 ### Step 204 - Active-Pane Fallback Narrowing
 
