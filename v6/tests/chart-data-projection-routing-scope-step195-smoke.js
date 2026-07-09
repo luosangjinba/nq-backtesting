@@ -5,7 +5,6 @@ const app = await readFile('v6/src/app.js', 'utf8');
 const preparationRuntime = await readFile('v6/src/chart-entry/chart-entry-projection-preparation-runtime.js', 'utf8');
 const applyRuntime = await readFile('v6/src/chart-entry/chart-entry-projection-apply-runtime.js', 'utf8');
 const autoPlay = await readFile('v6/src/chart-entry/chart-entry-auto-play-runtime.js', 'utf8');
-const leftwardHistory = await readFile('v6/src/chart-history/leftward-history-extension-runtime.js', 'utf8');
 const resetBridge = await readFile('v6/src/chart-engine/reset-view-control-bridge.js', 'utf8');
 const chartDataRuntime = await readFile('v6/src/chart-data/chart-data-runtime.js', 'utf8');
 const chartDataSurfaceBridge = await readFile('v6/src/chart-engine/chart-data-surface-bridge.js', 'utf8');
@@ -18,7 +17,6 @@ assert.equal(preparationRuntime.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT
 [
   applyRuntime,
   autoPlay,
-  leftwardHistory,
   resetBridge,
   chartDataRuntime,
   chartDataSurfaceBridge,

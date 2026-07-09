@@ -15,6 +15,7 @@ const chartDataSurfaceBridge = await readFile('v6/src/chart-engine/chart-data-su
   preparationRuntime,
   paneReloadChartData,
   manualNext,
+  leftwardHistory,
 ].forEach((text) => {
   assert.equal(text.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT'), true);
 });
@@ -26,7 +27,6 @@ assert.equal(manualNext.includes('resolveTargetTimeframe'), true);
 [
   applyRuntime,
   autoPlay,
-  leftwardHistory,
   resetBridge,
   chartDataRuntime,
   chartDataSurfaceBridge,
