@@ -49,6 +49,7 @@ import { createInMemorySessionRepository } from './session/session-repository.js
 import { createSessionRuntime } from './session/session-runtime.js';
 import { createSettingsRuntime } from './settings/settings-runtime.js';
 import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.js';
+import { connectDisplayTimeframePaneTargetBridge } from './shell/display-timeframe-pane-target-bridge.js';
 import { mountJournalSurface } from './shell/journal-surface.js';
 import { createJournalRowActionAdapter } from './shell/journal-row-action-adapter.js';
 import { mountLayoutMenuControl } from './shell/layout-menu-control.js';
@@ -169,6 +170,9 @@ const resetViewControl = {
   },
 };
 const displayTimeframeControl = mountDisplayTimeframeControl(root);
+const displayTimeframePaneTargetBridge = connectDisplayTimeframePaneTargetBridge({
+  displayTimeframeControl,
+});
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
 });
@@ -199,6 +203,7 @@ workflowPanelCoordinator.register('settings', settingsPanel);
 workflowPanelCoordinator.register('sessions', sessionsSurface);
 const statusReadout = mountStatusReadout(root);
 root.__v6DisplayTimeframeControl = displayTimeframeControl;
+root.__v6DisplayTimeframePaneTargetBridge = displayTimeframePaneTargetBridge;
 root.__v6JournalSurface = journalSurface;
 root.__v6JournalRowAction = journalRowAction;
 root.__v6LayoutMenuControl = layoutMenuControl;
