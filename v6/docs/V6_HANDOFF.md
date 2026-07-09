@@ -5,20 +5,18 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 210 completed.
-- Next planned step: Step 211 - Next Chart Slice Selection.
+- Current V6 step state: Step 211 completed.
+- Next planned step: Step 212 - Top-Toolbar Active-Pane Symbol Presentation Sync.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Pane-Local Symbol/TF/OHLC Header State Sync:
+The latest completed work is Next Chart Slice Selection:
 
-- `V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md` records active-pane header
-  state tracking and pane-local symbol/timeframe/OHLC browser isolation.
-- `pane-status-readout` now subscribes to `PANE_EVENTS.ACTIVE_CHANGED` and
-  exposes `data-v6-pane-active`.
-- Active-pane changes render pane headers without clearing or overwriting
-  another pane's symbol, timeframe, or OHLC state.
-- The chart browser regression pack includes
-  `pane-local-header-state-browser-step210-smoke.js` and now runs 24 tests.
+- `V6_NEXT_CHART_SLICE_SELECTION_STEP211.md` selects Top-Toolbar
+  Active-Pane Symbol Presentation Sync as the next bounded chart-facing slice.
+- Step 206-208 active-pane display-timeframe work and Step 210 pane-local
+  header isolation are acknowledged as the immediate foundation.
+- Step 212 should update `data-v6-top-symbol` from active pane state as
+  read-only shell presentation.
 - Custom intervals, interval sync, symbol picker UI, indicators, Pine Script,
   and trading/order behavior remain out of scope.
 
@@ -153,28 +151,30 @@ After restarting the server or assistant context, read these first:
 122. `v6/docs/V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md`
 123. `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`
 124. `v6/docs/V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md`
-125. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
-126. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
-127. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
-128. `v6/sessions/session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`
-129. `v6/sessions/session_20260708_step209_next_chart_slice_selection.md`
-130. `v6/sessions/session_20260708_step210_pane_local_header_state_sync.md`
+125. `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP211.md`
+126. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
+127. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
+128. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
+129. `v6/sessions/session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`
+130. `v6/sessions/session_20260708_step209_next_chart_slice_selection.md`
+131. `v6/sessions/session_20260708_step210_pane_local_header_state_sync.md`
+132. `v6/sessions/session_20260708_step211_next_chart_slice_selection.md`
 
 ## Next Step
 
-Step 211 should focus on Next Chart Slice Selection.
+Step 212 should focus on Top-Toolbar Active-Pane Symbol Presentation Sync.
 
-Keep Step 211 bounded:
+Keep Step 212 bounded:
 
-- read `V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md`,
-  `V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`, and
-  `session_20260708_step210_pane_local_header_state_sync.md`;
-- review Step 206-210 active-pane display-timeframe and pane-local header
-  presentation work;
-- choose the next bounded chart-facing slice with owner boundaries and
-  non-goals documented before implementation;
-- do not add custom intervals, interval sync, indicators, Pine Script, or
-  trading/order behavior in the selection step.
+- read `V6_NEXT_CHART_SLICE_SELECTION_STEP211.md`,
+  `V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md`, and
+  `session_20260708_step211_next_chart_slice_selection.md`;
+- update `data-v6-top-symbol` from active pane instrument as read-only
+  shell-owned presentation;
+- initialize from `PANE_COMMANDS.GET_ACTIVE` and subscribe to active-pane /
+  active symbol changes;
+- do not add symbol picker UI, comparison symbols, custom intervals, interval
+  sync, indicators, Pine Script, or trading/order behavior.
 
 ## Critical Boundaries
 

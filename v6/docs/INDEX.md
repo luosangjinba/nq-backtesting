@@ -237,6 +237,8 @@ Read this index before working on V6.
 - `v6/docs/V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md`: accepted
   pane-local symbol/timeframe/OHLC header state sync with active-pane header
   presentation state and browser isolation coverage.
+- `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP211.md`: selected top-toolbar
+  active-pane symbol presentation sync as the next bounded chart-facing slice.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
