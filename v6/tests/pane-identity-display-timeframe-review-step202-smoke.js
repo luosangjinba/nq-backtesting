@@ -44,5 +44,6 @@ assert.equal(displayTimeframeRuntime.includes('PANE_COMMANDS.GET_ACTIVE'), true)
 assert.equal(statusReadout.includes('record.displayTimeframe || record.timeframe'), true);
 assert.match(index, /V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202\.md/);
 assert.match(regressionPack, /pane-identity-display-timeframe-browser-step202-smoke\.js/);
+assert.match(regressionPack, /pane-identity-bootstrap-browser-step203-smoke\.js/);
 
 console.log('v6 pane identity display timeframe review step 202 smoke passed');
