@@ -7,6 +7,11 @@ import {
   PANE_INTENT_RELOAD_DATA_EVENTS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
+import {
+  normalizeMinuteTimeframe,
+  normalizeOptionalUnixSeconds,
+  normalizeUnixSeconds,
+} from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -56,31 +61,34 @@ function createInitialState() {
 
 function cursorTimestampFromWindow(window = {}) {
   const value = window.end || window.anchor;
-  const normalized = String(value || '').includes('T')
-    ? String(value)
-    : `${String(value || '').replace(' ', 'T')}Z`;
-  const timestamp = Math.floor(Date.parse(normalized) / 1000);
-  if (!Number.isFinite(timestamp)) {
+  try {
+    return normalizeUnixSeconds(value, {
+      fieldName: 'Pane intent reload chart-data replacement window cursor timestamp',
+    });
+  } catch (_error) {
     throw new Error('Pane intent reload chart-data replacement requires a finite window cursor timestamp.');
   }
-  return timestamp;
 }
 
 function normalizeTimeframe(value = 1, fieldName = 'timeframe') {
-  const timeframe = Number(value);
-  if (!Number.isInteger(timeframe) || timeframe <= 0) {
+  try {
+    return normalizeMinuteTimeframe(value, {
+      allowSuffix: false,
+      fieldName: `Pane intent reload chart-data replacement ${fieldName}`,
+    });
+  } catch (_error) {
     throw new Error(`Pane intent reload chart-data replacement ${fieldName} must be a positive integer.`);
   }
-  return timeframe;
 }
 
 function parseOptionalTimestamp(value, fieldName) {
-  if (value === null || value === undefined || value === '') return null;
-  const timestamp = Math.floor(new Date(String(value)).valueOf() / 1000);
-  if (!Number.isFinite(timestamp)) {
+  try {
+    return normalizeOptionalUnixSeconds(value === '' ? null : value, {
+      fieldName: `Pane intent reload chart-data replacement ${fieldName}`,
+    });
+  } catch (_error) {
     throw new Error(`Pane intent reload chart-data replacement ${fieldName} must be a valid date/time.`);
   }
-  return timestamp;
 }
 
 async function createReplacementBars({
