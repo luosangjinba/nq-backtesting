@@ -44,18 +44,18 @@ try {
       }
 
       function barsForWindow(window = {}) {
-        if (Number(window.timeframe) === 5) {
-          return [
-            { close: 202, high: 203, low: 199, open: 200, timestamp: minuteTimestamp(9, 22) },
-            { close: 205, high: 206, low: 201, open: 202, timestamp: minuteTimestamp(9, 27) },
-            { close: 207, high: 208, low: 204, open: 205, timestamp: minuteTimestamp(9, 32) },
-            { close: 209, high: 210, low: 206, open: 207, timestamp: minuteTimestamp(9, 37) },
-          ];
-        }
         return [
-          { close: 101, high: 102, low: 99, open: 100, timestamp: minuteTimestamp(9, 30) },
-          { close: 102, high: 103, low: 100, open: 101, timestamp: minuteTimestamp(9, 31) },
-          { close: 103, high: 104, low: 101, open: 102, timestamp: minuteTimestamp(9, 32) },
+          { close: 101, high: 102, low: 99, open: 100, timestamp: minuteTimestamp(9, 22) },
+          { close: 102, high: 103, low: 100, open: 101, timestamp: minuteTimestamp(9, 23) },
+          { close: 103, high: 104, low: 101, open: 102, timestamp: minuteTimestamp(9, 24) },
+          { close: 104, high: 105, low: 102, open: 103, timestamp: minuteTimestamp(9, 25) },
+          { close: 105, high: 106, low: 103, open: 104, timestamp: minuteTimestamp(9, 26) },
+          { close: 106, high: 107, low: 104, open: 105, timestamp: minuteTimestamp(9, 27) },
+          { close: 107, high: 108, low: 105, open: 106, timestamp: minuteTimestamp(9, 28) },
+          { close: 108, high: 109, low: 106, open: 107, timestamp: minuteTimestamp(9, 29) },
+          { close: 109, high: 110, low: 107, open: 108, timestamp: minuteTimestamp(9, 30) },
+          { close: 110, high: 111, low: 108, open: 109, timestamp: minuteTimestamp(9, 31) },
+          { close: 111, high: 112, low: 109, open: 110, timestamp: minuteTimestamp(9, 32) },
         ];
       }
 
@@ -80,7 +80,7 @@ try {
       const requests = [];
       const paneStore = createPaneStore({
         initialPanes: [
-          createPaneRecord({ active: true, displayTimeframe: 5, id: 'secondary', instrument: 'ES' }),
+          createPaneRecord({ active: true, displayTimeframe: 1, id: 'secondary', instrument: 'ES' }),
         ],
       });
       const registry = createRuntimeRegistry();
@@ -93,11 +93,12 @@ try {
             bars: barsForWindow(window),
             requestedRange: {
               endTs: minuteTimestamp(9, 32),
-              startTs: Number(window.timeframe) === 5 ? minuteTimestamp(9, 22) : minuteTimestamp(9, 30),
+              startTs: minuteTimestamp(9, 22),
             },
             timing: { durationMs: 3, parseMs: 1, requestMs: 2, source: 'step196-browser-fetch' },
           };
         },
+        maxBarsPerWindow: 2500,
       }));
       registry.registerRuntime(createChartDataProjectionRuntime());
       registry.registerRuntime(createChartDataRuntime());
@@ -164,14 +165,14 @@ try {
 
   assert.equal(value.requests.length, 1);
   assert.deepEqual(value.requests.map((request) => [request.instrument, request.timeframe, request.end, request.requestCap]), [
-    ['ES', 5, '2026-06-01 09:32', 'replay-cursor'],
+    ['ES', 1, '2026-06-01 09:32', 'replay-cursor'],
   ]);
   assert.equal(value.projectionState.projectionRevision, 1);
   assert.equal(value.projectionState.lastProjection.paneId, 'secondary');
   assert.equal(value.projectionState.lastProjection.targetTimeframe, 5);
   assert.equal(value.chartDataState.lastReplaced[0].projectionSource.owner, 'runtime.chart-data-projection');
   assert.equal(value.chartDataState.lastReplaced[0].projectionSource.projectionRevision, 1);
-  assert.deepEqual(value.chartRecord.bars.map((bar) => bar.timestamp), [1780305720, 1780306020, 1780306320]);
+  assert.deepEqual(value.chartRecord.bars.map((bar) => bar.timestamp), [1780305600, 1780305900, 1780306200]);
   assert.equal(value.chartRecord.bars.length, value.projectionState.lastProjection.bars.length);
   assert.equal(value.viewportSnapshot.projectedCount, 1);
   assert.equal(value.cacheSummary.windowCount, 1);

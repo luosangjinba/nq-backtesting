@@ -62,6 +62,15 @@ function parseCursorTimestamp(cursorTime) {
   return timestamp;
 }
 
+function parseOptionalTimestamp(value, fieldName) {
+  if (value === null || value === undefined || value === '') return null;
+  const timestamp = Math.floor(new Date(String(value)).valueOf() / 1000);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error(`Chart entry projection preparation ${fieldName} must be a valid date/time.`);
+  }
+  return timestamp;
+}
+
 async function resolveDisplayTimeframe(plan, optionsDisplayTimeframe) {
   if (optionsDisplayTimeframe !== null && optionsDisplayTimeframe !== undefined) {
     return normalizePositiveInteger(optionsDisplayTimeframe, 'displayTimeframe');
@@ -116,7 +125,9 @@ export function createChartEntryProjectionPreparationRuntime(options = {}) {
           bars: cacheRecord.bars,
           cursorTimestamp: parseCursorTimestamp(plan.cursorTime),
           paneId: plan.paneId,
-          sessionStartTimestamp: cacheRecord.bars?.[0]?.timestamp ?? null,
+          sessionStartTimestamp: parseOptionalTimestamp(plan.sessionStartTime, 'sessionStartTime')
+            ?? cacheRecord.bars?.[0]?.timestamp
+            ?? null,
           sourceTimeframe,
           targetTimeframe: displayTimeframe,
         });

@@ -19,12 +19,13 @@ function sleep(ms) {
 }
 
 export function createBarDataRuntime({
-  cache = createBarWindowCache(),
+  cache = null,
   fetchBars = fetchV4Bars,
   fetchRetryDelayMs = 120,
   fetchRetryLimit = 2,
   maxBarsPerWindow = 500,
 } = {}) {
+  const windowCache = cache || createBarWindowCache({ maxBarsPerWindow });
   const unregisterCallbacks = [];
 
   function normalizeWindow(payload = {}) {
@@ -33,7 +34,7 @@ export function createBarDataRuntime({
 
   async function loadWindow(payload = {}) {
     const planned = normalizeWindow(payload);
-    const cached = cache.get(planned);
+    const cached = windowCache.get(planned);
     if (cached) {
       return cached;
     }
@@ -52,7 +53,7 @@ export function createBarDataRuntime({
       }
     }
     if (lastError) throw lastError;
-    return cache.put(planned, {
+    return windowCache.put(planned, {
       bars: filterBarsForWindow(response.bars, planned),
       history: response.history || null,
       requestedRange: response.requestedRange || null,
@@ -72,18 +73,18 @@ export function createBarDataRuntime({
         }
         return record;
       }),
-      registerCommand(BAR_DATA_COMMANDS.GET_WINDOW, (payload = {}) => cache.get(payload)),
+      registerCommand(BAR_DATA_COMMANDS.GET_WINDOW, (payload = {}) => windowCache.get(payload)),
       registerCommand(BAR_DATA_COMMANDS.RELEASE_WINDOW, (payload = {}) => {
-        const result = cache.release(payload);
+        const result = windowCache.release(payload);
         if (result.released) {
           emitEvent?.(BAR_DATA_EVENTS.WINDOW_RELEASED, result);
         }
         return result;
       }),
       registerCommand(BAR_DATA_COMMANDS.GET_BOUNDARY_METADATA, (payload = {}) => (
-        cache.boundaryMetadata(payload)
+        windowCache.boundaryMetadata(payload)
       )),
-      registerCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY, () => cache.summary())
+      registerCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY, () => windowCache.summary())
     );
   }
 

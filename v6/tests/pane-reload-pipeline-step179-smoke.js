@@ -33,6 +33,7 @@ import {
   emitEvent,
   subscribeEvent,
 } from '../src/runtime/events.js';
+import { createChartDataProjectionRuntime } from '../src/chart-data-projection/chart-data-projection-runtime.js';
 import { createRuntimeRegistry } from '../src/runtime/lifecycle.js';
 
 function minuteTimestamp(hour, minute) {
@@ -40,19 +41,18 @@ function minuteTimestamp(hour, minute) {
 }
 
 function barsForWindow(window = {}) {
-  if (Number(window.timeframe) === 5) {
-    return [
-      { close: 202, high: 203, low: 199, open: 200, timestamp: minuteTimestamp(9, 22) },
-      { close: 205, high: 206, low: 201, open: 202, timestamp: minuteTimestamp(9, 27) },
-      { close: 207, high: 208, low: 204, open: 205, timestamp: minuteTimestamp(9, 32) },
-      { close: 209, high: 210, low: 206, open: 207, timestamp: minuteTimestamp(9, 37) },
-    ];
-  }
   return [
-    { close: 101, high: 102, low: 99, open: 100, timestamp: minuteTimestamp(9, 30) },
-    { close: 102, high: 103, low: 100, open: 101, timestamp: minuteTimestamp(9, 31) },
-    { close: 103, high: 104, low: 101, open: 102, timestamp: minuteTimestamp(9, 32) },
-    { close: 104, high: 105, low: 102, open: 103, timestamp: minuteTimestamp(9, 33) },
+    { close: 101, high: 102, low: 99, open: 100, timestamp: minuteTimestamp(9, 22) },
+    { close: 102, high: 103, low: 100, open: 101, timestamp: minuteTimestamp(9, 23) },
+    { close: 103, high: 104, low: 101, open: 102, timestamp: minuteTimestamp(9, 24) },
+    { close: 104, high: 105, low: 102, open: 103, timestamp: minuteTimestamp(9, 25) },
+    { close: 105, high: 106, low: 103, open: 104, timestamp: minuteTimestamp(9, 26) },
+    { close: 106, high: 107, low: 104, open: 105, timestamp: minuteTimestamp(9, 27) },
+    { close: 107, high: 108, low: 105, open: 106, timestamp: minuteTimestamp(9, 28) },
+    { close: 108, high: 109, low: 106, open: 107, timestamp: minuteTimestamp(9, 29) },
+    { close: 109, high: 110, low: 107, open: 108, timestamp: minuteTimestamp(9, 30) },
+    { close: 110, high: 111, low: 108, open: 109, timestamp: minuteTimestamp(9, 31) },
+    { close: 111, high: 112, low: 109, open: 110, timestamp: minuteTimestamp(9, 32) },
   ];
 }
 
@@ -92,8 +92,9 @@ registry.registerRuntime(createBarDataRuntime({
       timing: { durationMs: 3, parseMs: 1, requestMs: 2, source: 'step179-fetch' },
     };
   },
-  maxBarsPerWindow: 500,
+  maxBarsPerWindow: 2500,
 }));
+registry.registerRuntime(createChartDataProjectionRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createPaneIntentReloadRuntime());
@@ -153,6 +154,14 @@ assert.equal(requests[0].requestCap, 'replay-cursor');
 const mainAfterSymbol = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
 const secondaryAfterSymbol = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'secondary' });
 assert.deepEqual(mainAfterSymbol.bars.map((bar) => bar.timestamp), [
+  minuteTimestamp(9, 22),
+  minuteTimestamp(9, 23),
+  minuteTimestamp(9, 24),
+  minuteTimestamp(9, 25),
+  minuteTimestamp(9, 26),
+  minuteTimestamp(9, 27),
+  minuteTimestamp(9, 28),
+  minuteTimestamp(9, 29),
   minuteTimestamp(9, 30),
   minuteTimestamp(9, 31),
   minuteTimestamp(9, 32),
@@ -167,13 +176,21 @@ await dispatchCommand(PANE_COMMANDS.SET_INTERVAL_INTENT, {
 });
 viewportState = await waitForProjectedCount(2);
 assert.equal(viewportState.status, 'projected');
-assert.equal(projectedEvents.length, 2);
+const intervalDiagnostic = {
+  chartDataState: await dispatchCommand(PANE_INTENT_RELOAD_CHART_DATA_COMMANDS.GET_STATE),
+  dataState: await dispatchCommand(PANE_INTENT_RELOAD_DATA_COMMANDS.GET_STATE),
+  planState: await dispatchCommand(PANE_INTENT_RELOAD_PLAN_COMMANDS.GET_STATE),
+  projectedEvents,
+  requests,
+  viewportState,
+};
+assert.equal(projectedEvents.length, 2, JSON.stringify(intervalDiagnostic));
 assert.equal(projectedEvents[1][0].paneId, 'secondary');
 assert.equal(projectedEvents[1][0].cursorTimestamp, minuteTimestamp(9, 32));
 
 assert.equal(requests.length, 2);
 assert.equal(requests[1].instrument, 'ES');
-assert.equal(requests[1].timeframe, 5);
+assert.equal(requests[1].timeframe, 1);
 assert.equal(requests[1].end, '2026-06-01 09:32');
 assert.equal(requests[1].requestCap, 'replay-cursor');
 
@@ -181,9 +198,9 @@ const mainAfterInterval = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { 
 const secondaryAfterInterval = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'secondary' });
 assert.deepEqual(mainAfterInterval, mainAfterSymbol);
 assert.deepEqual(secondaryAfterInterval.bars.map((bar) => bar.timestamp), [
-  minuteTimestamp(9, 22),
-  minuteTimestamp(9, 27),
-  minuteTimestamp(9, 32),
+  minuteTimestamp(9, 20),
+  minuteTimestamp(9, 25),
+  minuteTimestamp(9, 30),
 ]);
 assert.equal((await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId: 'secondary' })).chartBarsRevision, secondaryAfterInterval.revision);
 
@@ -198,6 +215,9 @@ assert.deepEqual(planState, {
       noFuture: true,
       paneId: 'secondary',
       reason: 'interval',
+      displayTimeframe: 5,
+      sessionStartTime: '2026-06-01T09:30:00.000Z',
+      sourceTimeframe: 1,
       source: 'pane-intent',
       window: {
         anchor: '2026-06-01T09:32:00.000Z',

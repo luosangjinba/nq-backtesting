@@ -86,7 +86,7 @@ registry.registerRuntime(createLayoutRuntime());
 registry.registerRuntime(createPaneIntentSyncRuntime());
 registry.registerRuntime(createPaneIntentReloadRuntime());
 registry.registerRuntime(createLayoutPaneBootstrapRuntime());
-registry.registerRuntime(createBarDataRuntime());
+registry.registerRuntime(createBarDataRuntime({ maxBarsPerWindow: 2500 }));
 registry.registerRuntime(createChartBoundaryMetadataRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createChartDataProjectionRuntime());

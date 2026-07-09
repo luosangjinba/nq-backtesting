@@ -78,6 +78,7 @@ export function createChartEntryDefaultWallPlan(bootstrap, {
     prefixBars: normalizePositiveInteger(prefixBars, 'prefixBars'),
     replayStatus: normalizeText(replayState.status, 'replayStatus'),
     sessionId,
+    sessionStartTime: normalizeIsoTime(replayState.startTime, 'sessionStartTime'),
     spanBars: normalizePositiveInteger(spanBars, 'spanBars'),
     status: 'planned',
     symbol: normalizeText(replayState.symbol, 'symbol'),

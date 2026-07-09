@@ -29,10 +29,13 @@ function cloneReplacement(record = {}) {
     barCount: Number(record.barCount || 0),
     chartRecord: cloneChartRecord(record.chartRecord),
     cursorTimestamp: record.cursorTimestamp ?? null,
+    displayTimeframe: record.displayTimeframe,
     noFuture: Boolean(record.noFuture),
     paneId: record.paneId,
     projectionSource: record.projectionSource ? { ...record.projectionSource } : null,
     reason: record.reason,
+    sessionStartTime: record.sessionStartTime,
+    sourceTimeframe: record.sourceTimeframe,
     source: record.source,
     window: cloneWindow(record.window),
   };
@@ -71,14 +74,30 @@ function normalizeTimeframe(value = 1, fieldName = 'timeframe') {
   return timeframe;
 }
 
+function parseOptionalTimestamp(value, fieldName) {
+  if (value === null || value === undefined || value === '') return null;
+  const timestamp = Math.floor(new Date(String(value)).valueOf() / 1000);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error(`Pane intent reload chart-data replacement ${fieldName} must be a valid date/time.`);
+  }
+  return timestamp;
+}
+
 async function createReplacementBars({
   cursorTimestamp,
+  loadedRecord = {},
   loadedWindow,
   paneId,
   window,
 } = {}) {
-  const targetTimeframe = normalizeTimeframe(window.timeframe, 'targetTimeframe');
-  const sourceTimeframe = normalizeTimeframe(loadedWindow.timeframe ?? window.timeframe, 'sourceTimeframe');
+  const targetTimeframe = normalizeTimeframe(
+    loadedRecord.displayTimeframe ?? window.timeframe,
+    'targetTimeframe',
+  );
+  const sourceTimeframe = normalizeTimeframe(
+    loadedRecord.sourceTimeframe ?? loadedWindow.timeframe ?? window.timeframe,
+    'sourceTimeframe',
+  );
   if (targetTimeframe <= 1 || !hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)) {
     return {
       bars: loadedWindow.bars,
@@ -90,7 +109,9 @@ async function createReplacementBars({
     bars: loadedWindow.bars,
     cursorTimestamp,
     paneId,
-    sessionStartTimestamp: loadedWindow.bars?.[0]?.timestamp ?? null,
+    sessionStartTimestamp: parseOptionalTimestamp(loadedRecord.sessionStartTime, 'sessionStartTime')
+      ?? loadedWindow.bars?.[0]?.timestamp
+      ?? null,
     sourceTimeframe,
     targetTimeframe,
   });
@@ -139,6 +160,7 @@ export function createPaneIntentReloadChartDataRuntime() {
         const cursorTimestamp = cursorTimestampFromWindow(record.window);
         const replacementBars = await createReplacementBars({
           cursorTimestamp,
+          loadedRecord: record,
           loadedWindow,
           paneId: record.paneId,
           window: record.window,
@@ -152,6 +174,7 @@ export function createPaneIntentReloadChartDataRuntime() {
           barCount: chartRecord.bars.length,
           chartRecord,
           cursorTimestamp,
+          displayTimeframe: record.displayTimeframe,
           noFuture: record.noFuture,
           paneId: record.paneId,
           projectionSource: replacementBars.projectionRecord ? {
@@ -163,6 +186,8 @@ export function createPaneIntentReloadChartDataRuntime() {
             targetTimeframe: replacementBars.projectionRecord.targetTimeframe ?? null,
           } : null,
           reason: record.reason,
+          sessionStartTime: record.sessionStartTime,
+          sourceTimeframe: record.sourceTimeframe,
           source: record.source,
           window: record.window,
         });

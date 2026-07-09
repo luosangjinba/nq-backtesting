@@ -26,10 +26,13 @@ function cloneLoadedWindow(record = {}) {
 
 function cloneRecord(record = {}) {
   return {
+    displayTimeframe: record.displayTimeframe,
     loadedWindow: cloneLoadedWindow(record.loadedWindow),
     noFuture: Boolean(record.noFuture),
     paneId: record.paneId,
     reason: record.reason,
+    sessionStartTime: record.sessionStartTime,
+    sourceTimeframe: record.sourceTimeframe,
     source: record.source,
     window: cloneWindow(record.window),
   };
@@ -82,10 +85,13 @@ export function createPaneIntentReloadDataRuntime() {
       for (const plan of plans) {
         const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, plan.window);
         records.push({
+          displayTimeframe: plan.displayTimeframe,
           loadedWindow,
           noFuture: plan.noFuture,
           paneId: plan.paneId,
           reason: plan.reason,
+          sessionStartTime: plan.sessionStartTime,
+          sourceTimeframe: plan.sourceTimeframe,
           source: plan.source,
           window: plan.window,
         });

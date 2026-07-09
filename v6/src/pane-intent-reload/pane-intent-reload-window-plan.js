@@ -1,6 +1,7 @@
 import { planBarWindow } from '../bar-data/bar-window.js';
 
 const DEFAULT_RELOAD_BAR_COUNT = 120;
+const DEFAULT_RELOAD_SOURCE_BAR_LIMIT = 2500;
 
 function normalizeReloadIntent(intent) {
   if (!intent || typeof intent !== 'object') {
@@ -20,6 +21,28 @@ function resolveCursorTime(state) {
   return value;
 }
 
+function normalizeTimeframe(value, fieldName) {
+  const normalized = Number(value);
+  if (!Number.isInteger(normalized) || normalized <= 0) {
+    throw new Error(`Pane intent reload window plan ${fieldName} must be a positive integer.`);
+  }
+  return normalized;
+}
+
+function resolveSourceTimeframe(state = {}) {
+  return normalizeTimeframe(state.timeframe || 1, 'sourceTimeframe');
+}
+
+function resolveSessionStartTime(state = {}) {
+  return String(state.startTime || state.sessionStartTime || '').trim() || null;
+}
+
+function resolveSourceCount({ count, sourceTimeframe, targetTimeframe }) {
+  const targetCount = normalizeTimeframe(count, 'count');
+  const ratio = Math.max(1, Math.ceil(targetTimeframe / sourceTimeframe));
+  return Math.min(DEFAULT_RELOAD_SOURCE_BAR_LIMIT, targetCount * ratio);
+}
+
 function freezeWindow(window) {
   return Object.freeze({
     ...window,
@@ -34,18 +57,28 @@ export function createReplaySafeReloadWindowPlan({
 } = {}) {
   const intent = normalizeReloadIntent(reloadIntent);
   const cursorTime = resolveCursorTime(replayState);
+  const displayTimeframe = normalizeTimeframe(intent.displayTimeframe, 'displayTimeframe');
+  const sourceTimeframe = resolveSourceTimeframe(replayState);
+  const sourceCount = resolveSourceCount({
+    count,
+    sourceTimeframe,
+    targetTimeframe: displayTimeframe,
+  });
   const window = freezeWindow(planBarWindow({
     anchor: cursorTime,
-    count,
+    count: sourceCount,
     direction: 'backward',
     instrument: intent.instrument,
-    timeframe: intent.displayTimeframe,
-  }));
+    timeframe: sourceTimeframe,
+  }, { maxBarsPerWindow: DEFAULT_RELOAD_SOURCE_BAR_LIMIT }));
 
   return Object.freeze({
+    displayTimeframe,
     noFuture: true,
     paneId: intent.paneId,
     reason: intent.reason,
+    sessionStartTime: resolveSessionStartTime(replayState),
+    sourceTimeframe,
     source: intent.source,
     window,
   });

@@ -9,6 +9,7 @@ try {
     (async () => JSON.stringify(await (async () => {
       const { createBarDataRuntime } = await import('/v6/src/bar-data/bar-data-runtime.js');
       const { createChartDataRuntime } = await import('/v6/src/chart-data/chart-data-runtime.js');
+      const { createChartDataProjectionRuntime } = await import('/v6/src/chart-data-projection/chart-data-projection-runtime.js');
       const { connectChartDataSurfaceBridge } = await import('/v6/src/chart-engine/chart-data-surface-bridge.js');
       const { connectChartViewportSurfaceBridge } = await import('/v6/src/chart-engine/chart-viewport-surface-bridge.js');
       const { mountWorkstationChartSurface } = await import('/v6/src/chart-engine/workstation-chart-surface.js');
@@ -44,19 +45,18 @@ try {
       }
 
       function barsForWindow(window = {}) {
-        if (Number(window.timeframe) === 5) {
-          return [
-            { close: 202, high: 203, low: 199, open: 200, timestamp: minuteTimestamp(9, 22) },
-            { close: 205, high: 206, low: 201, open: 202, timestamp: minuteTimestamp(9, 27) },
-            { close: 207, high: 208, low: 204, open: 205, timestamp: minuteTimestamp(9, 32) },
-            { close: 209, high: 210, low: 206, open: 207, timestamp: minuteTimestamp(9, 37) },
-          ];
-        }
         return [
-          { close: 101, high: 102, low: 99, open: 100, timestamp: minuteTimestamp(9, 30) },
-          { close: 102, high: 103, low: 100, open: 101, timestamp: minuteTimestamp(9, 31) },
-          { close: 103, high: 104, low: 101, open: 102, timestamp: minuteTimestamp(9, 32) },
-          { close: 104, high: 105, low: 102, open: 103, timestamp: minuteTimestamp(9, 33) },
+          { close: 101, high: 102, low: 99, open: 100, timestamp: minuteTimestamp(9, 22) },
+          { close: 102, high: 103, low: 100, open: 101, timestamp: minuteTimestamp(9, 23) },
+          { close: 103, high: 104, low: 101, open: 102, timestamp: minuteTimestamp(9, 24) },
+          { close: 104, high: 105, low: 102, open: 103, timestamp: minuteTimestamp(9, 25) },
+          { close: 105, high: 106, low: 103, open: 104, timestamp: minuteTimestamp(9, 26) },
+          { close: 106, high: 107, low: 104, open: 105, timestamp: minuteTimestamp(9, 27) },
+          { close: 107, high: 108, low: 105, open: 106, timestamp: minuteTimestamp(9, 28) },
+          { close: 108, high: 109, low: 106, open: 107, timestamp: minuteTimestamp(9, 29) },
+          { close: 109, high: 110, low: 107, open: 108, timestamp: minuteTimestamp(9, 30) },
+          { close: 110, high: 111, low: 108, open: 109, timestamp: minuteTimestamp(9, 31) },
+          { close: 111, high: 112, low: 109, open: 110, timestamp: minuteTimestamp(9, 32) },
         ];
       }
 
@@ -96,12 +96,14 @@ try {
             bars: barsForWindow(window),
             requestedRange: {
               endTs: minuteTimestamp(9, 32),
-              startTs: Number(window.timeframe) === 5 ? minuteTimestamp(9, 22) : minuteTimestamp(9, 30),
+              startTs: minuteTimestamp(9, 22),
             },
             timing: { durationMs: 3, parseMs: 1, requestMs: 2, source: 'step179-browser-fetch' },
           };
         },
+        maxBarsPerWindow: 2500,
       }));
+      registry.registerRuntime(createChartDataProjectionRuntime());
       registry.registerRuntime(createChartDataRuntime());
       registry.registerRuntime(createChartViewportRuntime());
       registry.registerRuntime(createPaneIntentReloadRuntime());
@@ -186,12 +188,24 @@ try {
   assert.equal(value.cacheSummary.windowCount, 2);
   assert.deepEqual(value.requests.map((request) => [request.instrument, request.timeframe, request.end, request.requestCap]), [
     ['YM', 1, '2026-06-01 09:32', 'replay-cursor'],
-    ['ES', 5, '2026-06-01 09:32', 'replay-cursor'],
+    ['ES', 1, '2026-06-01 09:32', 'replay-cursor'],
   ]);
-  assert.deepEqual(value.mainBars.bars.map((bar) => bar.timestamp), [1780306200, 1780306260, 1780306320]);
-  assert.deepEqual(value.secondaryBars.bars.map((bar) => bar.timestamp), [1780305720, 1780306020, 1780306320]);
+  assert.deepEqual(value.mainBars.bars.map((bar) => bar.timestamp), [
+    1780305720,
+    1780305780,
+    1780305840,
+    1780305900,
+    1780305960,
+    1780306020,
+    1780306080,
+    1780306140,
+    1780306200,
+    1780306260,
+    1780306320,
+  ]);
+  assert.deepEqual(value.secondaryBars.bars.map((bar) => bar.timestamp), [1780305600, 1780305900, 1780306200]);
   assert.deepEqual(value.surfaceLayout.visiblePaneIds, ['main', 'secondary']);
-  assert.equal(value.surfaceAppliedChartData.some((record) => record.paneId === 'main' && record.barCount === 3), true);
+  assert.equal(value.surfaceAppliedChartData.some((record) => record.paneId === 'main' && record.barCount === 11), true);
   assert.equal(value.surfaceAppliedChartData.some((record) => record.paneId === 'secondary' && record.barCount === 3), true);
   assert.equal(value.surfaceAppliedViewport.some((record) => record.paneId === 'main' && record.projectionRevision >= 0), true);
   assert.equal(value.surfaceAppliedViewport.some((record) => record.paneId === 'secondary' && record.projectionRevision >= 0), true);
