@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 215 - Shared TF / Time Domain Helper.
-  V6 added a shared domain helper for minute timeframe, timestamp, display
-  bucket, API minute, and projection-source summary rules, then routed
-  `chart-data-projection-domain.js` through it without changing projection
-  output.
+- Latest completed roadmap step: Step 216 - Retire Independent
+  Display-Timeframe Projection Path. V6 removed the standalone
+  `display-timeframe` HTF bucket implementation, routed display-timeframe
+  runtime through the projection owner command, and routed default-wall
+  projection through the chart-data projection domain.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,30 +44,68 @@
 
 ## Next Executable Steps
 
-### Step 216 - Retire Independent Display-Timeframe Projection Path
+### Step 217 - Wrap Remaining TF / Timestamp Consumers
 
 Status: planned.
 
 Notes for execution:
 
-- route display-timeframe and default-wall projection consumers through the
-  `chart-data-projection` owner/domain path;
-- remove or reduce `display-timeframe/display-timeframe-projection.js` as an
-  independent HTF bucket implementation;
-- preserve existing display-timeframe, default-wall, and HTF browser behavior;
-- keep runtime ownership unchanged: display-timeframe may orchestrate commands,
-  but projection math remains in the projection/domain boundary.
+- route chart-history, replay, panes, and chart-viewport local TF/timestamp
+  normalization through the shared `time-domain` helper;
+- preserve each owner boundary: chart-history still orchestrates history,
+  replay still owns cursor state, panes still own selected display timeframe,
+  and chart-viewport still owns viewport intent;
+- keep behavior unchanged and avoid feature expansion;
+- update static audit coverage to show which local normalizers remain.
 
 Acceptance:
 
-- no independent `projectBarsToDisplayTimeframe` HTF bucket implementation
-  remains outside the projection owner;
-- existing display-timeframe/default-wall projection smokes still pass;
+- chart-history, replay, panes, and chart-viewport use shared TF/time helpers
+  where practical;
+- existing replay, leftward-history, pane, viewport, and chart browser smokes
+  still pass;
 - Step 214 audit smoke still passes;
 - no new TF, indicator, SMC/ICT overlay, or trading behavior is implemented in
-  Step 216.
+  Step 217.
 
 ## Completed Steps
+
+### Step 216 - Retire Independent Display-Timeframe Projection Path
+
+Completed in commits:
+
+- `78237969 refactor(v6): retire display timeframe projection path`
+
+Verification:
+
+- `node v6/tests/display-timeframe-projection-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/default-wall-pane-projection-smoke.js`
+- `node v6/tests/default-wall-mixed-timeframe-runtime-smoke.js`
+- `node v6/tests/tf-projection-time-domain-audit-step214-smoke.js`
+- `node v6/tests/chart-data-projection-no-routing-step194-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step200-smoke.js`
+- `node v6/tests/next-foundation-slice-selection-step213-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Deleted `v6/src/display-timeframe/display-timeframe-projection.js`.
+- `display-timeframe-runtime` now dispatches
+  `CHART_DATA_PROJECTION_COMMANDS.PROJECT` and applies the owner-produced bars.
+- `default-wall-pane-projection` now uses `projectSourceBarsToChartData`
+  directly for pure payload construction instead of the retired display
+  projection helper.
+- Static guards now ensure the retired helper stays gone and that no
+  independent `projectBarsToDisplayTimeframe` path remains in `v6/src`.
+- Step 217 should migrate remaining local TF/timestamp normalization in
+  chart-history, replay, panes, and chart-viewport toward `time-domain`.
 
 ### Step 215 - Shared TF / Time Domain Helper
 
