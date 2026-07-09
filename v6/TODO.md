@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 218 - Bar-Data Window Time Helper
-  Integration. V6 routed bar-data request-window planning and cache boundary
-  timestamp math through shared time helpers while preserving request ranges,
-  caps, cache keys, and replay latency behavior.
+- Latest completed roadmap step: Step 219 - Bar-Data Adapter / Normalizer Time
+  Helper Integration. V6 routed database adapter and bar normalizer epoch-second
+  conversion through shared time helpers while preserving database query shape,
+  requested range metadata, and normalized chart bar output.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,30 +43,62 @@
 
 ## Next Executable Steps
 
-### Step 219 - Bar-Data Adapter / Normalizer Time Helper Integration
+### Step 220 - Bar-Data Runtime / Cache Epoch Serialization Integration
 
 Status: planned.
 
 Notes for execution:
 
-- route remaining bar-data adapter/normalizer timestamp conversion through
+- route remaining bar-data runtime/cache epoch-second serialization through
   shared helpers where practical;
-- preserve adapter ownership of database query shape, requested range metadata,
-  and raw-row normalization handoff;
-- preserve normalizer ownership of OHLC validation, dedupe, and sorted chart bar
-  output;
-- keep behavior unchanged for database imported K-lines, requested ranges,
-  boundary metadata, and chart data bars.
+- preserve runtime ownership of command handling and cache ownership of boundary
+  metadata summaries;
+- keep `GET_BOUNDARY_METADATA`, cache slice filtering, requested range
+  timestamps, and chart bars unchanged;
+- do not expand TF support or alter request windows.
 
 Acceptance:
 
-- database adapter and bar normalizer use shared time helpers or explicit
-  bar-window wrappers for timestamp conversion;
-- bar-data adapter/domain/runtime and chart browser smokes still pass;
+- bar-data runtime/cache use shared helpers for known millisecond-to-second
+  serialization where practical;
+- bar-data domain/runtime, boundary metadata, leftward-history, and chart
+  browser smokes still pass;
 - no query shape, requested range, cache key, boundary metadata, TF, indicator,
-  SMC/ICT overlay, or trading behavior changes in Step 219.
+  SMC/ICT overlay, or trading behavior changes in Step 220.
 
 ## Completed Steps
+
+### Step 219 - Bar-Data Adapter / Normalizer Time Helper Integration
+
+Completed in commits:
+
+- `ab9de1e3 refactor(v6): reuse time helper in database bars adapter`
+- `fbfae5b4 refactor(v6): share millisecond timestamp conversion`
+
+Verification:
+
+- `node v6/tests/database-bars-adapter-smoke.js`
+- `node v6/tests/bar-data-domain-smoke.js`
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/chart-boundary-metadata-runtime-step191-smoke.js`
+- `node v6/tests/time-domain-helper-step215-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Added `unixMillisecondsToSeconds` to `time-domain` for already-normalized
+  millisecond values.
+- Routed database adapter requested range and history timestamps through the
+  shared millisecond-to-second helper.
+- Routed bar normalizer output timestamps through the shared helper while
+  preserving OHLC validation, volume normalization, dedupe, sorting, and ISO
+  `time` output.
+- Added helper coverage for small millisecond values so test fixtures such as
+  `100_999ms -> 100s` remain correct.
+- Step 220 should finish bar-data runtime/cache epoch serialization cleanup
+  without changing cache filtering or boundary metadata output.
 
 ### Step 218 - Bar-Data Window Time Helper Integration
 
