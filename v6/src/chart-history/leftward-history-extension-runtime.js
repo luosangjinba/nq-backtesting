@@ -286,7 +286,8 @@ export function createLeftwardHistoryExtensionRuntime({
       }
 
       const replayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
-      const paneRecord = await optionalCommand(PANE_COMMANDS.GET_BY_ID, paneId);
+      const paneRecord = await optionalCommand(PANE_COMMANDS.GET_BY_ID, paneId)
+        || await optionalCommand(PANE_COMMANDS.GET_ACTIVE);
       const instrument = String(
         payload.instrument ||
         replayState?.symbol ||
