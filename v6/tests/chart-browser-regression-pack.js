@@ -22,6 +22,7 @@ const TESTS = Object.freeze([
   'v6/tests/reset-view-htf-browser-step200-smoke.js',
   'v6/tests/pane-identity-display-timeframe-browser-step202-smoke.js',
   'v6/tests/pane-identity-bootstrap-browser-step203-smoke.js',
+  'v6/tests/display-timeframe-target-pane-browser-step206-smoke.js',
 ]);
 
 function runTest(script) {
