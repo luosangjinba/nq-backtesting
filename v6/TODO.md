@@ -28,11 +28,12 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 229 - Chart Data Bars Cursor Time Helper
-  Migration. V6 routed chart-data cursor timestamp validation through
-  `time-domain` behind the local wrapper while preserving strict numeric
-  seconds cursor semantics, no-future filtering, merge ordering, dedupe, OHLC
-  normalization, and chart browser behavior.
+- Latest completed roadmap step: Step 230 - Chart Entry Context Time Helper
+  Closure. V6 routed chart-entry context ISO/timeframe parsing, default-wall
+  plan ISO time parsing, and playback-period source timeframe parsing through
+  `time-domain` behind local wrappers while preserving plan payloads, default
+  wall behavior, playback period results, error text, and chart browser
+  behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,32 +45,74 @@
 
 ## Next Executable Steps
 
-### Step 230 - Chart Entry Context Time Helper Closure
+### Step 231 - Chart Time Helper Closure Review
 
 Status: planned.
 
 Notes for execution:
 
-- inspect `chart-entry-context-plan.js`,
-  `chart-entry-default-wall-plan.js`, and
-  `chart-entry-playback-period-policy.js` against `time-domain`;
-- migrate only the chart-entry context/default-wall-plan parsing sites that can
-  preserve current ISO/timeframe wrappers and error text;
-- preserve chart-entry plan payloads, default-wall load payloads, playback
-  period policy results, and chart-entry ownership boundaries;
-- do not migrate shell, session, journal, TF menu, indicators, SMC/ICT overlays,
-  trading, or journal workflows in this step.
+- inspect the chart-foundation time/TF helper migration line after Steps
+  215-230;
+- confirm whether any remaining chart-foundation owner still has duplicated
+  chart cursor/projection timeframe logic worth migrating now;
+- classify remaining local shell/session/journal/UI/adapter parsing as keep,
+  later, or migrate only if it directly affects chart foundation behavior;
+- preserve product direction and avoid starting TF expansion, indicators,
+  SMC/ICT overlays, trading simulation, or journal workflows in this step.
 
 Acceptance:
 
-- chart-entry context/default-wall-plan time helper closure is implemented or
-  explicitly documented if a site should stay local;
-- existing chart-entry context, default-wall plan, playback period, chart
-  browser, and audit smokes still pass;
-- no new TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
-  Step 230.
+- a short closure note or session record states whether the time helper line is
+  complete for chart foundation now;
+- any remaining migration candidate has a clear owner boundary and bounded next
+  step, or is explicitly deferred;
+- chart browser regression, product direction, boundary, and audit smokes still
+  pass;
+- no new feature behavior is added.
 
 ## Completed Steps
+
+### Step 230 - Chart Entry Context Time Helper Closure
+
+Completed in commits:
+
+- `dcf29729 refactor(v6): share chart entry context time parsing`
+- `efd009cf refactor(v6): share chart entry default wall time parsing`
+- `76a40667 refactor(v6): share chart entry playback timeframe parsing`
+
+Verification:
+
+- `node v6/tests/chart-entry-context-plan-smoke.js`
+- `node v6/tests/chart-entry-context-runtime-smoke.js`
+- `node v6/tests/database-kline-import-boundary-step144-smoke.js`
+- `node v6/tests/chart-entry-default-wall-plan-smoke.js`
+- `node v6/tests/chart-entry-default-wall-plan-runtime-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/chart-entry-playback-period-policy-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-runtime-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
+- `node v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `chart-entry-context-plan.js` timeframe parsing through
+  `normalizeMinuteTimeframe` and ISO time parsing through
+  `normalizeUnixMilliseconds` behind the existing local wrappers.
+- Routed `chart-entry-default-wall-plan.js` ISO time parsing through
+  `normalizeUnixMilliseconds` behind the existing local wrapper.
+- Updated default-wall plan smokes to provide explicit replay
+  `startTime`, matching the production bootstrap requirement instead of adding
+  a production fallback.
+- Routed `chart-entry-playback-period-policy.js` source timeframe parsing
+  through `normalizeMinuteTimeframe`.
+- Kept playback period parsing local because `30s`, `1m`, and `1h` are playback
+  period DSL values, not chart source timeframe values.
+- Preserved chart-entry plan payloads, default-wall plan state, playback period
+  results, error text, and chart browser behavior.
+- Did not migrate shell, session, journal, TF menu, indicators, SMC/ICT
+  overlays, trading, or journal workflows.
 
 ### Step 229 - Chart Data Bars Cursor Time Helper Migration
 
