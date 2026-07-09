@@ -79,6 +79,19 @@ assert.equal(secondary.text('[data-v6-status-close]'), 'C 208.00');
 assert.equal(secondary.dataset.statusCandleDirection, 'down');
 assert.equal(main.text('[data-v6-status-close]'), 'C 101.00');
 
+listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({
+  displayTimeframe: 15,
+  id: 'secondary',
+  instrument: 'YM',
+});
+assert.equal(main.dataset.v6PaneActive, 'false');
+assert.equal(secondary.dataset.v6PaneActive, 'true');
+assert.equal(main.text('[data-v6-status-symbol]'), 'NQ');
+assert.equal(main.text('[data-v6-status-close]'), 'C 101.00');
+assert.equal(secondary.text('[data-v6-status-symbol]'), 'YM');
+assert.equal(secondary.text('[data-v6-status-timeframe]'), '5m');
+assert.equal(secondary.text('[data-v6-status-close]'), 'C 208.00');
+
 listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: null,
   paneId: 'main',

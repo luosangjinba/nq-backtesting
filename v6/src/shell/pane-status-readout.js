@@ -18,6 +18,7 @@ function normalizePaneRecord(record = {}) {
   const paneId = String(record.id || record.paneId || '').trim();
   if (!paneId) return null;
   return {
+    active: Boolean(record.active),
     id: paneId,
     instrument: String(record.instrument || record.symbol || 'NQ').trim().toUpperCase() || 'NQ',
     timeframe: formatTimeframe(record.displayTimeframe || record.timeframe || '1m'),
@@ -35,12 +36,14 @@ function updateDataset(element, state) {
   if (!element) return;
   element.dataset.statusCandleDirection = state.candleDirection;
   element.dataset.statusOhlc = state.crosshairBar ? 'selected' : 'empty';
+  element.dataset.v6PaneActive = state.active ? 'true' : 'false';
 }
 
 function createPaneState(record = {}) {
   const normalized = normalizePaneRecord(record) || { id: 'main', instrument: 'NQ', timeframe: '1m' };
   return {
     bar: null,
+    active: normalized.active,
     instrument: normalized.instrument,
     paneId: normalized.id,
     timeframe: normalized.timeframe,
@@ -48,13 +51,17 @@ function createPaneState(record = {}) {
 }
 
 function renderPaneReadout(element, paneState) {
-  const state = createStatusReadoutState({
+  const readoutState = createStatusReadoutState({
     crosshairBar: paneState.bar,
     replayState: {
       symbol: paneState.instrument,
       timeframe: paneState.timeframe,
     },
   });
+  const state = {
+    ...readoutState,
+    active: Boolean(paneState.active),
+  };
   element.dataset.v6PaneSymbol = state.symbol;
   element.dataset.v6PaneTimeframe = state.timeframe;
   updateDataset(element, state);
@@ -102,10 +109,25 @@ export function mountPaneStatusReadout(root, {
     const previous = paneStateByPaneId.get(normalized.id) || createPaneState(normalized);
     paneStateByPaneId.set(normalized.id, {
       ...previous,
+      active: normalized.active,
       instrument: normalized.instrument,
       timeframe: normalized.timeframe,
     });
     return renderPane(normalized.id);
+  }
+
+  function updateActivePane(record = {}) {
+    const normalized = normalizePaneRecord(record);
+    if (!normalized || !readoutByPaneId.has(normalized.id)) return null;
+    const rendered = [];
+    paneStateByPaneId.forEach((paneState, paneId) => {
+      paneStateByPaneId.set(paneId, {
+        ...paneState,
+        active: paneId === normalized.id,
+      });
+      rendered.push(renderPane(paneId));
+    });
+    return rendered;
   }
 
   function updatePaneCrosshair(payload = {}) {
@@ -133,6 +155,7 @@ export function mountPaneStatusReadout(root, {
     subscribeEvent(PANE_EVENTS.SYMBOL_INTENT_CHANGED, updatePaneMetadata),
     subscribeEvent(PANE_EVENTS.INTERVAL_INTENT_CHANGED, updatePaneMetadata),
     subscribeEvent(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, updatePaneMetadata),
+    subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, updateActivePane),
     subscribeEvent(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED, updatePaneCrosshair),
     subscribeEvent(REPLAY_EVENTS.LOADED, updateFromReplay),
     subscribeEvent(DEFAULT_WALL_EVENTS.LOADED, (payload = {}) => updateFromReplay(payload.replayState || payload)),
@@ -155,6 +178,7 @@ export function mountPaneStatusReadout(root, {
       };
     },
     updatePaneCrosshair,
+    updateActivePane,
     updatePaneMetadata,
   });
 }
