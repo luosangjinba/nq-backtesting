@@ -18,11 +18,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 199 - Auto-Play HTF Projection Path.
-  V6 confirmed auto-play remains a scheduler over manual-next, added runtime
-  and browser coverage for 5m auto-play, and fixed chart-data duplicate
-  timestamp merging so in-progress HTF candles update instead of freezing.
-  Reset view remains outside projection routing.
+- Latest completed roadmap step: Step 200 - Reset View HTF Projection Gate.
+  V6 confirmed reset view uses pane-local display chart-data surface state for
+  HTF panes, not raw source bars or chart-engine aggregation. Reset view remains
+  projection-owner agnostic and does not mutate replay, chart-data, or bar-data
+  cache.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -32,25 +32,51 @@
 
 ## Next Executable Steps
 
-### Step 200 - Reset View HTF Projection Gate
+### Step 201 - HTF Projection Integration Review
 
 Status: planned.
 
 Notes for execution:
 
-- audit reset view owner boundaries before wiring;
-- route reset view calculations through projected display chart-data summary,
-  not raw source bars;
-- keep replay cursor/source timeframe ownership unchanged;
-- preserve per-pane reset behavior and visible range stability.
+- review Steps 193-200 as a single HTF projection chain;
+- confirm initial entry, pane reload, manual-next, auto-play, leftward history,
+  and reset view all obey V6 ownership rules;
+- identify the next smallest chart foundation gap before adding new TF UI or
+  indicator work.
 
 Acceptance:
 
-- reset-view HTF browser smoke passes;
-- static guard proves reset view does not aggregate in chart engine;
+- review document and guard smoke are added;
 - chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 200 - Reset View HTF Projection Gate
+
+Completed in commits:
+
+- `95533332 docs(v6): audit reset view HTF boundary`
+- `7ed50cbb test(v6): cover reset view HTF display range`
+- `7db017c6 test(v6): add reset view HTF regression guard`
+
+Verification:
+
+- `node v6/tests/reset-view-htf-projection-audit-step200-smoke.js`
+- `node v6/tests/reset-view-htf-browser-step200-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step200-smoke.js`
+- `node v6/tests/chart-reset-view-browser-smoke.js`
+- `node v6/tests/reset-view-kxg-flow-browser-step146-smoke.js`
+- `node v6/tests/pane-local-reset-controls-browser-step163-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Reset view remains projection-owner agnostic.
+- Reset view reads applied display chart-data revision and pane snapshot data
+  length from chart surface state.
+- HTF reset does not mutate replay state, chart-data bars, bar-data cache, or
+  chart-data projection state.
 
 ### Step 199 - Auto-Play HTF Projection Path
 
