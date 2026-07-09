@@ -11,7 +11,9 @@ const bars = Array.from({ length: 8 }, (_, index) => ({
   high: 101 + index,
   low: 99 + index,
   open: 100 + index,
-  timestamp: 1780306200 + (index * 60),
+  ...(index === 0
+    ? { time: '2026-06-01 09:30:00' }
+    : { timestamp: 1780306200 + (index * 60) }),
 })).reverse();
 
 const initial = createDefaultWallReplayState({

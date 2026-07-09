@@ -1,3 +1,5 @@
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
+
 const DEFAULT_PANE_ID = 'main';
 const DEFAULT_PREFIX_BARS = 120;
 const DEFAULT_RIGHT_OFFSET_BARS = 8;
@@ -24,8 +26,12 @@ function normalizePaneId(paneId) {
 }
 
 function normalizeBar(bar) {
-  const timestamp = Number(bar?.timestamp ?? bar?.time);
-  if (!Number.isFinite(timestamp)) {
+  let timestamp;
+  try {
+    timestamp = normalizeUnixSeconds(bar?.timestamp ?? bar?.time, {
+      fieldName: 'Default wall replay bar timestamp',
+    });
+  } catch (_error) {
     throw new Error('Default wall replay bars must include a finite timestamp.');
   }
   return Object.freeze({
