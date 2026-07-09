@@ -5,6 +5,7 @@ const CHART_SURFACE_ALLOWED_OPERATIONS = Object.freeze([
   'expose-readonly-snapshot',
   'measure-user-visible-range',
   'mount-chart-host',
+  'subscribe-pane-activation',
   'subscribe-user-visible-range',
   'write-series-data',
 ]);

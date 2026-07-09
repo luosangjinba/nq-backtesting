@@ -12,6 +12,7 @@ import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-acti
 const contract = createChartSurfaceContract();
 const chartSurface = await readFile('v6/src/chart-engine/workstation-chart-surface.js', 'utf8');
 const chartDataBridge = await readFile('v6/src/chart-engine/chart-data-surface-bridge.js', 'utf8');
+const paneActiveBridge = await readFile('v6/src/chart-engine/pane-active-surface-bridge.js', 'utf8');
 const chartViewportBridge = await readFile('v6/src/chart-engine/chart-viewport-surface-bridge.js', 'utf8');
 
 assert.equal(getChartSurfaceOwner(), 'workstation-chart-surface');
@@ -20,6 +21,7 @@ assert.deepEqual(getChartSurfaceAllowedOperations(), [
   'expose-readonly-snapshot',
   'measure-user-visible-range',
   'mount-chart-host',
+  'subscribe-pane-activation',
   'subscribe-user-visible-range',
   'write-series-data',
 ]);
@@ -60,6 +62,7 @@ assert.equal(Object.isFrozen(contract), true);
 
 assert.equal(chartSurface.includes('applyChartDataRecord'), true);
 assert.equal(chartSurface.includes('applyViewportProjection'), true);
+assert.equal(chartSurface.includes('subscribePaneActivation'), true);
 assert.equal(chartSurface.includes('subscribeVisibleRangeChange'), true);
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',
@@ -77,6 +80,11 @@ for (const forbiddenToken of [
 
 assert.equal(chartDataBridge.includes('CHART_DATA_EVENTS.BARS_CHANGED'), true);
 assert.equal(chartDataBridge.includes('dispatchCommand'), false);
+assert.equal(paneActiveBridge.includes('subscribePaneActivation'), true);
+assert.equal(paneActiveBridge.includes('PANE_COMMANDS.SET_ACTIVE'), true);
+assert.equal(paneActiveBridge.includes('BAR_DATA_COMMANDS'), false);
+assert.equal(paneActiveBridge.includes('REPLAY_COMMANDS'), false);
+assert.equal(paneActiveBridge.includes('SESSION_COMMANDS'), false);
 assert.equal(chartViewportBridge.includes('CHART_VIEWPORT_EVENTS.PROJECTED'), true);
 assert.equal(chartViewportBridge.includes('dispatchCommand'), false);
 assert.deepEqual(
