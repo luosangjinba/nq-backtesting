@@ -7,7 +7,10 @@ import {
   PANE_COMMANDS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand, registerCommand } from '../runtime/commands.js';
-import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
+import {
+  normalizeUnixSeconds,
+  summarizeProjectionSource,
+} from '../time-domain/time-domain.js';
 
 function latestTimestamp(record = {}) {
   const bar = record.bars?.at?.(-1);
@@ -64,14 +67,7 @@ export function createDisplayTimeframeRuntime({
     const result = {
       chartRecord,
       pane,
-      projectionSource: {
-        bucketCount: projectionRecord.buckets?.length ?? 0,
-        owner: 'runtime.chart-data-projection',
-        projectionRevision: projectionRecord.projectionRevision ?? null,
-        sourceBarCount: projectionRecord.sourceBarCount ?? null,
-        sourceTimeframe: projectionRecord.sourceTimeframe ?? null,
-        targetTimeframe: projectionRecord.targetTimeframe ?? null,
-      },
+      projectionSource: summarizeProjectionSource(projectionRecord),
       sourceBarCount: sourceRecord.bars.length,
       targetBarCount: projectionRecord.bars.length,
       viewportRecord,
