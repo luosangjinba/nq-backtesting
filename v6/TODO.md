@@ -18,10 +18,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 202 - Pane Identity / Display Timeframe
-  Consistency Review. V6 documented the current `pane-default` versus
-  `main`/`secondary`/`tertiary` identity split, accepted active-pane fallback as
-  temporary singleton compatibility only, and added static/browser guards.
+- Latest completed roadmap step: Step 203 - Pane Identity Bootstrap
+  Normalization. V6 now bootstraps pane runtime records for `main`,
+  `secondary`, and `tertiary`, with `main` as the default active pane and no
+  primary-chart dependency on `pane-default` fallback.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,28 +31,55 @@
 
 ## Next Executable Steps
 
-### Step 203 - Pane Identity Bootstrap Normalization
+### Step 204 - Active-Pane Fallback Narrowing
 
 Status: planned.
 
 Notes for execution:
 
-- implement the Step 202 identity decision before expanding TF UI or
-  indicators;
-- prefer normalizing pane runtime bootstrap to create `main`, `secondary`, and
-  `tertiary` records because chart-data, viewport, status readout, layout,
-  reset-view, and maximize paths already use those ids;
-- keep existing chart behavior stable while removing the primary-chart need for
-  `main` / `pane-default` fallback.
+- audit the remaining `PANE_COMMANDS.GET_ACTIVE` fallback call sites after Step
+  203;
+- remove or narrow fallback only where exact pane ids are now guaranteed;
+- keep display-timeframe, manual-next, projection preparation, and leftward
+  history behavior stable;
+- do not start TF UI or indicator implementation yet.
 
 Acceptance:
 
-- pane runtime snapshot exposes chart-surface pane ids or an explicit mapping;
-- primary chart display timeframe no longer depends on active-pane fallback;
-- multi-pane status/readout/control sources remain pane-local;
+- remaining active-pane fallback is documented as necessary or removed;
+- exact `main` pane identity remains covered by browser guard;
 - chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 203 - Pane Identity Bootstrap Normalization
+
+Completed in commits:
+
+- `96c2de70 feat(v6): normalize pane bootstrap ids`
+- `2b988b8d test(v6): guard normalized pane identity`
+- `b6eac09a test(v6): add pane bootstrap to chart pack`
+
+Verification:
+
+- `node v6/tests/pane-model-smoke.js`
+- `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/layout-model-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/pane-identity-bootstrap-browser-step203-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Pane runtime now defaults to `main`.
+- Default pane runtime bootstrap now creates `main`, `secondary`, and
+  `tertiary`.
+- Primary chart 5m display timeframe is set directly on `main` in browser
+  coverage.
+- Step 204 should audit and narrow remaining active-pane fallback call sites
+  before TF UI or indicator work.
 
 ### Step 202 - Pane Identity / Display Timeframe Consistency Review
 
@@ -71,8 +98,8 @@ Verification:
 
 Notes:
 
-- Pane runtime still defaults to `pane-default`.
-- Chart-surface hosts still use `main`, `secondary`, and `tertiary`.
+- At the time of Step 202, pane runtime still defaulted to `pane-default`.
+- Chart-surface hosts used `main`, `secondary`, and `tertiary`.
 - The active-pane fallback is now documented and guarded as temporary singleton
   compatibility, not a completed multi-pane model.
 - Step 203 should normalize pane identity at bootstrap or introduce an explicit

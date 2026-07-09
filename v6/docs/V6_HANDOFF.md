@@ -5,20 +5,21 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 202 completed.
-- Next planned step: Step 203 - Pane Identity Bootstrap Normalization.
+- Current V6 step state: Step 203 completed.
+- Next planned step: Step 204 - Active-Pane Fallback Narrowing.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Pane Identity / Display Timeframe Review:
+The latest completed work is Pane Identity Bootstrap Normalization:
 
-- `V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202.md` documents the current
-  `pane-default` versus `main` / `secondary` / `tertiary` split.
-- `pane-identity-display-timeframe-review-step202-smoke.js` guards the static
-  review facts and regression-pack registration.
-- `pane-identity-display-timeframe-browser-step202-smoke.js` proves the real
-  page currently works through active-pane compatibility for the primary chart.
-- Step 203 should normalize pane runtime bootstrap to chart-surface pane ids, or
-  add an explicit mapping, before any further TF UI or indicator work.
+- `V6_PANE_IDENTITY_BOOTSTRAP_NORMALIZATION_STEP203.md` documents the
+  normalized pane runtime bootstrap.
+- Pane runtime now defaults to `main` and creates `main`, `secondary`, and
+  `tertiary` records by default.
+- `pane-identity-bootstrap-browser-step203-smoke.js` proves the real page has no
+  `pane-default` runtime record and renders 5m primary chart data through
+  `main`.
+- Step 204 should audit remaining active-pane fallback call sites and remove or
+  narrow only the ones proven unnecessary.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -148,18 +149,18 @@ After restarting the server or assistant context, read these first:
 
 ## Next Step
 
-Step 203 should focus on Pane Identity Bootstrap Normalization.
+Step 204 should focus on Active-Pane Fallback Narrowing.
 
-Keep Step 203 bounded:
+Keep Step 204 bounded:
 
-- read `V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202.md` and
-  `session_20260708_step202_pane_identity_display_timeframe_review.md`;
-- make pane runtime identity align with chart-surface panes, preferably by
-  bootstrapping `main`, `secondary`, and `tertiary` pane records;
+- read `V6_PANE_IDENTITY_BOOTSTRAP_NORMALIZATION_STEP203.md` and
+  `session_20260708_step203_pane_identity_bootstrap_normalization.md`;
+- audit `PANE_COMMANDS.GET_ACTIVE` fallback in chart-entry manual-next,
+  projection preparation, leftward history, and display-timeframe paths;
+- remove or narrow only fallback proven unnecessary after exact `main` identity
+  exists;
 - keep chart-data, chart-viewport, chart-engine, status readout, reset-view,
-  maximize, and layout behavior stable;
-- remove or narrow the primary-chart need for `pane-default` active-pane
-  fallback only after browser coverage proves equivalent behavior;
+  maximize, layout, and HTF browser coverage stable;
 - do not start TF UI or indicator implementation in this step.
 
 ## Critical Boundaries

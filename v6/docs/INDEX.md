@@ -213,6 +213,9 @@ Read this index before working on V6.
 - `v6/docs/V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202.md`: accepted
   pane runtime id versus chart-surface pane id review and interim active-pane
   fallback contract before future TF UI or indicator work.
+- `v6/docs/V6_PANE_IDENTITY_BOOTSTRAP_NORMALIZATION_STEP203.md`: accepted pane
+  runtime bootstrap normalization to `main`, `secondary`, and `tertiary`, plus
+  the next fallback removal/narrowing recommendation.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
