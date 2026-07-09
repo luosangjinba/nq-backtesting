@@ -1,5 +1,6 @@
 import { createDefaultWallPaneReplacePayload } from '../default-wall/default-wall-pane-projection.js';
 import { createDefaultWallReplayState } from '../default-wall/default-wall-replay.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -30,11 +31,13 @@ function normalizeText(value, fieldName) {
 }
 
 function parseCursorTimestamp(cursorTime) {
-  const timestamp = Math.floor(new Date(normalizeText(cursorTime, 'cursorTime')).valueOf() / 1000);
-  if (!Number.isFinite(timestamp)) {
+  try {
+    return normalizeUnixSeconds(normalizeText(cursorTime, 'cursorTime'), {
+      fieldName: 'Chart entry projection cursorTime',
+    });
+  } catch {
     throw new Error('Chart entry projection cursorTime must be a valid date/time.');
   }
-  return timestamp;
 }
 
 function findCursorBarIndex(bars, cursorTime) {
