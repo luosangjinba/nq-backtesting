@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 220 - Bar-Data Runtime / Cache Epoch
-  Serialization Integration. V6 routed bar-data runtime filtering and cache
-  boundary metadata epoch serialization through shared time helpers while
-  preserving cache filtering, boundary metadata, and chart browser behavior.
+- Latest completed roadmap step: Step 221 - Chart Entry / Reload Time Helper
+  Readiness Audit. V6 documented the remaining chart-entry, pane-intent-reload,
+  and layout-bootstrap timestamp conversion sites and selected a bounded
+  projection-preparation migration for Step 222.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,30 +43,61 @@
 
 ## Next Executable Steps
 
-### Step 221 - Chart Entry / Reload Time Helper Readiness Audit
+### Step 222 - Chart Entry Projection Preparation Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- audit remaining chart-entry, pane-intent-reload, and layout bootstrap
-  timestamp conversion points before changing them;
-- identify which conversions are external text parsing, known millisecond
-  serialization, or chart-bar seconds;
-- preserve owners: chart-entry owns entry orchestration, pane-intent reload owns
-  reload application, layout owns pane bootstrap wiring;
-- do not implement feature changes in the audit step.
+- migrate `chart-entry-projection-preparation.js` and
+  `chart-entry-projection-preparation-runtime.js` timestamp parsing through
+  `time-domain`;
+- preserve prepared payloads, projection dispatch payloads, cursor lookup, and
+  error text;
+- keep chart-entry ownership of entry orchestration and projection preparation;
+- do not migrate manual-next, pane-intent-reload, or layout bootstrap in this
+  step.
 
 Acceptance:
 
-- audit document or TODO notes list remaining timestamp conversion sites and
-  the correct helper/API to use;
-- scope Step 222 as the first bounded migration after the audit;
-- product direction, boundary, and relevant static smokes still pass;
-- no chart entry, reload, TF, indicator, SMC/ICT overlay, or trading behavior
-  changes in Step 221.
+- projection-preparation runtime/domain use shared time helpers behind local
+  wrappers;
+- existing projection preparation, chart-entry, HTF, and chart browser smokes
+  still pass;
+- no manual-next, reload, layout, TF, indicator, SMC/ICT overlay, or trading
+  behavior changes in Step 222.
 
 ## Completed Steps
+
+### Step 221 - Chart Entry / Reload Time Helper Readiness Audit
+
+Completed in commits:
+
+- `bdd06726 docs(v6): audit chart entry reload time helpers`
+
+Verification:
+
+- `node v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/pane-intent-reload-chart-data-runtime-step177-smoke.js`
+- `node v6/tests/layout-pane-bootstrap-runtime-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_ENTRY_RELOAD_TIME_HELPER_AUDIT_STEP221.md`.
+- Added `v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`.
+- Classified timestamp conversions in chart-entry projection preparation,
+  chart-entry manual-next, pane-intent reload chart-data replacement, and layout
+  pane bootstrap.
+- Selected Step 222 as the first bounded migration:
+  `chart-entry-projection-preparation.js` and
+  `chart-entry-projection-preparation-runtime.js` only.
+- No chart-entry, reload, layout, TF, indicator, SMC/ICT overlay, or trading
+  behavior changed in Step 221.
 
 ### Step 220 - Bar-Data Runtime / Cache Epoch Serialization Integration
 
