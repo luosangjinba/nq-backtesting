@@ -5,6 +5,7 @@ import {
   updateIntentCursor,
 } from '../viewport/viewport-intent.js';
 import { projectIntentToLogicalRange } from '../viewport/viewport-projection.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 
 const DEFAULT_RIGHT_OFFSET_BARS = 8;
 const DEFAULT_SPAN_BARS = 120;
@@ -18,11 +19,9 @@ function normalizePaneId(paneId) {
 }
 
 function normalizeCursorTimestamp(cursorTimestamp) {
-  const timestamp = Number(cursorTimestamp);
-  if (!Number.isFinite(timestamp)) {
-    throw new Error('Chart viewport cursorTimestamp must be finite.');
-  }
-  return timestamp;
+  return normalizeUnixSeconds(cursorTimestamp, {
+    fieldName: 'Chart viewport cursorTimestamp',
+  });
 }
 
 function normalizeRevision(revision = 0) {

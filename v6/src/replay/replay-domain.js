@@ -1,24 +1,8 @@
-const MINUTE_MS = 60_000;
-
-function parseIsoMs(value, fieldName) {
-  const date = new Date(value);
-  if (Number.isNaN(date.valueOf())) {
-    throw new Error(`Replay ${fieldName} must be a valid date/time.`);
-  }
-  return date.valueOf();
-}
-
-function normalizeTimeframeMinutes(timeframe) {
-  const match = String(timeframe || '').trim().match(/^(\d+)(m)?$/i);
-  if (!match) {
-    throw new Error('Replay timeframe must be minute-based.');
-  }
-  const minutes = Number(match[1]);
-  if (!Number.isInteger(minutes) || minutes <= 0) {
-    throw new Error('Replay timeframe must be a positive minute value.');
-  }
-  return minutes;
-}
+import {
+  normalizeMinuteTimeframe,
+  normalizeUnixMilliseconds,
+  TIME_DOMAIN_CONSTANTS,
+} from '../time-domain/time-domain.js';
 
 function toIso(ms) {
   return new Date(ms).toISOString();
@@ -56,14 +40,14 @@ export function createReplayStateFromSession(session) {
     throw new Error('Replay session is required.');
   }
 
-  const startMs = parseIsoMs(session.startTime, 'startTime');
-  const endMs = parseIsoMs(session.endTime, 'endTime');
+  const startMs = normalizeUnixMilliseconds(session.startTime, { fieldName: 'Replay startTime' });
+  const endMs = normalizeUnixMilliseconds(session.endTime, { fieldName: 'Replay endTime' });
   if (startMs > endMs) {
     throw new Error('Replay startTime must be before or equal to endTime.');
   }
 
-  const timeframeMinutes = normalizeTimeframeMinutes(session.timeframe);
-  const stepMs = timeframeMinutes * MINUTE_MS;
+  const timeframeMinutes = normalizeMinuteTimeframe(session.timeframe, { fieldName: 'Replay timeframe' });
+  const stepMs = timeframeMinutes * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
   const totalBars = Math.floor((endMs - startMs) / stepMs) + 1;
 
   return buildState({
@@ -89,9 +73,11 @@ export function nextReplayState(state) {
     symbol: state.symbol,
     timeframe: state.timeframe,
   };
-  const startMs = parseIsoMs(state.startTime, 'startTime');
-  const endMs = parseIsoMs(state.endTime, 'endTime');
-  const stepMs = normalizeTimeframeMinutes(state.timeframe) * MINUTE_MS;
+  const startMs = normalizeUnixMilliseconds(state.startTime, { fieldName: 'Replay startTime' });
+  const endMs = normalizeUnixMilliseconds(state.endTime, { fieldName: 'Replay endTime' });
+  const stepMs = normalizeMinuteTimeframe(state.timeframe, {
+    fieldName: 'Replay timeframe',
+  }) * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
   return buildState({
     cursorIndex: state.cursorIndex + 1,
     endMs,

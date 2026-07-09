@@ -5,17 +5,14 @@ import {
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
 import { registerCommand } from '../runtime/commands.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 import { createChartViewportStore } from './chart-viewport-store.js';
 
 function cursorTimestampFromReplayPayload(payload = {}) {
   const value = payload.cursorTimestamp ?? payload.timestamp ?? payload.cursorTime;
-  const timestamp = typeof value === 'number'
-    ? value
-    : Math.floor(new Date(value).valueOf() / 1000);
-  if (!Number.isFinite(timestamp)) {
-    throw new Error('Chart viewport replay cursor payload must include a valid cursor time.');
-  }
-  return timestamp;
+  return normalizeUnixSeconds(value, {
+    fieldName: 'Chart viewport replay cursor payload',
+  });
 }
 
 function latestLogicalIndexFromChartDataRecord(record = {}) {

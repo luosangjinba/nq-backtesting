@@ -1,3 +1,5 @@
+import { normalizeMinuteTimeframe } from '../time-domain/time-domain.js';
+
 export const DEFAULT_PANE_ID = 'main';
 export const CHART_SURFACE_PANE_IDS = Object.freeze(['main', 'secondary', 'tertiary']);
 
@@ -40,11 +42,10 @@ export function normalizePaneInstrument(value) {
 }
 
 export function normalizePaneDisplayTimeframe(value) {
-  const timeframe = Number(value);
-  if (!Number.isInteger(timeframe) || timeframe <= 0) {
-    throw new Error('Pane displayTimeframe must be a positive integer.');
-  }
-  return timeframe;
+  return normalizeMinuteTimeframe(value, {
+    allowSuffix: false,
+    fieldName: 'Pane displayTimeframe',
+  });
 }
 
 export function createPaneRecord(input = {}) {

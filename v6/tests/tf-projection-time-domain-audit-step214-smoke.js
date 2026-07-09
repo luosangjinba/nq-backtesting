@@ -85,11 +85,19 @@ assert.equal(
 );
 
 for (const file of [
+  'v6/src/chart-viewport/chart-viewport-runtime.js',
+  'v6/src/chart-viewport/chart-viewport-store.js',
+  'v6/src/panes/pane-model.js',
+  'v6/src/replay/replay-domain.js',
+]) {
+  assert.equal(sharedTimeDomainConsumers.includes(file), true, `${file} must consume the shared time-domain helper after Step 217.`);
+  assert.match(audit, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+}
+
+for (const file of [
   'v6/src/bar-data/bar-window.js',
   'v6/src/chart-history/leftward-extension-planner.js',
   'v6/src/chart-history/leftward-history-extension-runtime.js',
-  'v6/src/replay/replay-domain.js',
-  'v6/src/panes/pane-model.js',
 ]) {
   assert.equal(localTimeframeNormalizers.includes(file), true, `${file} must remain covered by the audit.`);
   assert.match(audit, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
