@@ -56,14 +56,10 @@ try {
 
       await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
         displayTimeframe: 5,
-        paneId: 'pane-default',
+        paneId: 'main',
       });
       document.querySelector('[data-v6-dashboard-create-session]').click();
       const applyState = await waitForApplied();
-      await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-        displayTimeframe: 5,
-        paneId: 'main',
-      }).catch(() => null);
 
       const before = await readState();
       const speedSlider = document.querySelector('[data-v6-transport-speed-slider]');

@@ -66,7 +66,7 @@ try {
 
       await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
         displayTimeframe: 5,
-        paneId: 'pane-default',
+        paneId: 'main',
       });
       document.querySelector('[data-v6-dashboard-create-session]').click();
       const applyState = await waitForApplied();
@@ -74,11 +74,6 @@ try {
       const beforeProjection = await commands.dispatchCommand(contracts.CHART_DATA_PROJECTION_COMMANDS.GET_STATE);
       const beforeReplay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
       const beforeSurface = root.__v6WorkstationChartSurface.getState();
-
-      await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-        displayTimeframe: 5,
-        paneId: 'main',
-      }).catch(() => null);
 
       const startedAt = performance.now();
       const nextState = await commands.dispatchCommand(contracts.CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, { paneId: 'main' });

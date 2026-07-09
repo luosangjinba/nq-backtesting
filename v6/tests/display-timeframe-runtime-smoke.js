@@ -40,7 +40,7 @@ await registry.start({ emitEvent, subscribeEvent });
 await dispatchCommand(CHART_VIEWPORT_COMMANDS.ENSURE_INTENT, {
   cursorTimestamp: 1780306200,
   latestOffsetBars: 8,
-  paneId: 'pane-default',
+  paneId: 'main',
 });
 await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
   bars: Array.from({ length: 6 }, (_, index) => ({
@@ -51,11 +51,11 @@ await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
     timestamp: 1780306200 + (index * 60),
   })),
   cursorTimestamp: 1780306500,
-  paneId: 'pane-default',
+  paneId: 'main',
 });
 
 const beforeViewport = await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, {
-  paneId: 'pane-default',
+  paneId: 'main',
 });
 assert.equal(beforeViewport.intent.origin, 'default');
 assert.equal(beforeViewport.intent.revision, 0);
@@ -63,7 +63,7 @@ assert.equal(beforeViewport.intent.revision, 0);
 assert.equal(hasCommand(DISPLAY_TIMEFRAME_COMMANDS.APPLY), true);
 const applied = await dispatchCommand(DISPLAY_TIMEFRAME_COMMANDS.APPLY, {
   displayTimeframe: 5,
-  paneId: 'pane-default',
+  paneId: 'main',
 });
 
 assert.equal(applied.pane.displayTimeframe, 5);

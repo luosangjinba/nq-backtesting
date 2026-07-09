@@ -26,7 +26,7 @@ try {
       await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.LOAD, {
         bars,
         latestOffsetBars: 8,
-        paneId: 'pane-default',
+        paneId: 'main',
         prefixBars: 0,
         session,
         spanBars: 120,
@@ -35,7 +35,7 @@ try {
         await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.NEXT);
       }
       const beforeViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-        paneId: 'pane-default',
+        paneId: 'main',
       });
 
       const toggle = document.querySelector('[data-v6-display-timeframe-toggle]');
@@ -45,11 +45,11 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 0));
 
       const chartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
-        paneId: 'pane-default',
+        paneId: 'main',
       });
       const pane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_ACTIVE);
       const viewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
-        paneId: 'pane-default',
+        paneId: 'main',
       });
 
       return {

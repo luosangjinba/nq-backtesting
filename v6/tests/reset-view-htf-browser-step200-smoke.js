@@ -13,7 +13,7 @@ try {
 
       await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
         displayTimeframe: 5,
-        paneId: 'pane-default',
+        paneId: 'main',
       });
       document.querySelector('[data-v6-dashboard-create-session]').click();
 
@@ -23,10 +23,6 @@ try {
         await new Promise((resolve) => setTimeout(resolve, 40));
         applyState = await commands.dispatchCommand(contracts.CHART_ENTRY_PROJECTION_APPLY_COMMANDS.GET_STATE);
       }
-      await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
-        displayTimeframe: 5,
-        paneId: 'main',
-      }).catch(() => null);
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
       const host = document.querySelector('[data-v6-chart-engine-host]');

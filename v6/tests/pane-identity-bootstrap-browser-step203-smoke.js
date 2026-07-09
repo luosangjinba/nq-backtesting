@@ -14,10 +14,11 @@ try {
         .map((host) => host.dataset.v6PaneId);
 
       const initialSnapshot = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_SNAPSHOT);
-      const mainBefore = await commands.dispatchCommand(
+      const legacyPane = await commands.dispatchCommand(
         contracts.PANE_COMMANDS.GET_BY_ID,
-        'main',
+        'pane-default',
       );
+      const mainBefore = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_BY_ID, 'main');
 
       await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
         displayTimeframe: 5,
@@ -35,10 +36,7 @@ try {
 
       const finalSnapshot = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_SNAPSHOT);
       const activePane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_ACTIVE);
-      const mainAfter = await commands.dispatchCommand(
-        contracts.PANE_COMMANDS.GET_BY_ID,
-        'main',
-      );
+      const mainAfter = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_BY_ID, 'main');
       const chart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
         paneId: 'main',
       });
@@ -53,9 +51,10 @@ try {
         finalSnapshot,
         hostPaneIds,
         initialSnapshot,
-        mainSurfacePane,
+        legacyPane,
         mainAfter,
         mainBefore,
+        mainSurfacePane,
         projectionState,
       };
     })()))()
@@ -65,6 +64,8 @@ try {
   assert.equal(state.initialSnapshot.defaultPaneId, 'main');
   assert.equal(state.initialSnapshot.activePaneId, 'main');
   assert.deepEqual(state.initialSnapshot.panes.map((pane) => pane.id), ['main', 'secondary', 'tertiary']);
+  assert.deepEqual(state.initialSnapshot.panes.map((pane) => pane.active), [true, false, false]);
+  assert.equal(state.legacyPane, null);
   assert.equal(state.mainBefore.id, 'main');
   assert.equal(state.applyState.status, 'applied');
   assert.equal(state.activePane.id, 'main');
@@ -74,6 +75,7 @@ try {
   assert.equal(state.mainAfter.displayTimeframe, 5);
   assert.equal(state.chart.paneId, 'main');
   assert.equal(state.chart.bars.length > 0, true);
+  assert.equal(state.projectionState.lastProjection.paneId, 'main');
   assert.equal(state.projectionState.lastProjection.targetTimeframe, 5);
   assert.equal(state.mainSurfacePane.paneId, 'main');
   assert.equal(state.mainSurfacePane.snapshot.dataLength, state.chart.bars.length);
@@ -81,4 +83,4 @@ try {
   await page.cleanup();
 }
 
-console.log('v6 pane identity display timeframe browser step 202 smoke passed');
+console.log('v6 pane identity bootstrap browser step 203 smoke passed');

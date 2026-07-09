@@ -16,7 +16,6 @@ const statusReadout = await read('v6/src/shell/pane-status-readout.js');
 const regressionPack = await read('v6/tests/chart-browser-regression-pack.js');
 
 [
-  'pane-default',
   'main',
   'secondary',
   'tertiary',
@@ -24,7 +23,8 @@ const regressionPack = await read('v6/tests/chart-browser-regression-pack.js');
   'Step 203 Recommendation',
 ].forEach((text) => assert.equal(doc.includes(text), true));
 
-assert.match(paneModel, /DEFAULT_PANE_ID\s*=\s*'pane-default'/);
+assert.match(paneModel, /DEFAULT_PANE_ID\s*=\s*'main'/);
+assert.match(paneModel, /CHART_SURFACE_PANE_IDS\s*=\s*Object\.freeze\(\['main', 'secondary', 'tertiary'\]\)/);
 [
   'data-v6-pane-id="main"',
   'data-v6-pane-id="secondary"',
