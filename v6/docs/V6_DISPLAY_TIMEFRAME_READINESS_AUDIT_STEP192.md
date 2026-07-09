@@ -130,10 +130,12 @@ Non-owners:
      HTF panes.
    - preserve pane-local symbol/timeframe isolation.
 
-5. Route manual next and auto-play through the owner.
+5. Route manual next through the owner and prove auto-play inherits that path.
    - source window planning must fetch enough lower-timeframe data to complete
      or update the target bucket.
    - visible candle latency must be measured on the rendered HTF candle.
+   - auto-play must remain a scheduler and must not directly dispatch
+     projection, bar-data, or chart-data commands.
 
 6. Route leftward history through the owner.
    - prepend source chunks and rebuild affected leading display buckets.
@@ -151,7 +153,8 @@ Non-owners:
 - `pane-reload-htf-projection-browser-step196-smoke.js`
 - `manual-next-htf-visible-latency-browser-step197-smoke.js`
 - `leftward-history-htf-stability-browser-step198-smoke.js`
-- `reset-view-htf-browser-step199-smoke.js`
+- `auto-play-htf-visible-latency-browser-step199-smoke.js`
+- `reset-view-htf-browser-step200-smoke.js`
 - chart browser regression pack update including at least one mixed-TF pane
   path.
 

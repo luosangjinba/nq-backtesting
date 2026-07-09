@@ -18,10 +18,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 198 - Leftward History HTF Stability.
-  V6 now routes leftward-history HTF prepends through the chart-data projection
-  owner while preserving delayed/coalesced/chunked history loading and visible
-  range stability. Auto-play and reset view remain outside projection routing.
+- Latest completed roadmap step: Step 199 - Auto-Play HTF Projection Path.
+  V6 confirmed auto-play remains a scheduler over manual-next, added runtime
+  and browser coverage for 5m auto-play, and fixed chart-data duplicate
+  timestamp merging so in-progress HTF candles update instead of freezing.
+  Reset view remains outside projection routing.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,23 +32,50 @@
 
 ## Next Executable Steps
 
-### Step 199 - Select Next HTF Projection Gate
+### Step 200 - Reset View HTF Projection Gate
 
 Status: planned.
 
 Notes for execution:
 
-- review Step 198 verification results before choosing the next implementation
-  slice;
-- prefer the next missing HTF projection gate over cosmetic UI work;
-- keep auto-play and reset view out of projection routing until their owner
-  boundaries are explicitly audited.
+- audit reset view owner boundaries before wiring;
+- route reset view calculations through projected display chart-data summary,
+  not raw source bars;
+- keep replay cursor/source timeframe ownership unchanged;
+- preserve per-pane reset behavior and visible range stability.
 
 Acceptance:
 
-- Step 199 scope is recorded before implementation starts.
+- reset-view HTF browser smoke passes;
+- static guard proves reset view does not aggregate in chart engine;
+- chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 199 - Auto-Play HTF Projection Path
+
+Completed in commits:
+
+- `a6151f79 docs(v6): audit auto-play HTF projection path`
+- `b5d06177 fix(v6): update HTF candle append merges`
+- `85da4685 test(v6): cover auto-play HTF visible latency`
+- `b6d2408e test(v6): add auto-play HTF to regression pack`
+
+Verification:
+
+- `node v6/tests/auto-play-htf-projection-audit-step199-smoke.js`
+- `node v6/tests/auto-play-htf-projection-step199-smoke.js`
+- `node v6/tests/auto-play-htf-visible-latency-browser-step199-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step199-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Auto-play remains projection-free and delegates every tick to manual-next.
+- HTF auto-play now has runtime and browser coverage.
+- Chart-data append/prepend duplicate timestamp merging now updates
+  in-progress HTF candles while preserving historical prepend order.
 
 ### Step 198 - Leftward History HTF Stability
 
