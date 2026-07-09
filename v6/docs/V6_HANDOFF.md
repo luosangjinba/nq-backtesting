@@ -5,21 +5,20 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 197.5 completed.
-- Next planned step: Step 198 - Leftward History HTF Stability.
+- Current V6 step state: Step 202 completed.
+- Next planned step: Step 203 - Pane Identity Bootstrap Normalization.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is UI Extraction Workflow Audit:
+The latest completed work is Pane Identity / Display Timeframe Review:
 
-- `V6_UI_EXTRACTION_WORKFLOW_AUDIT_STEP197_5.md` accepts a
-  browser/computed-style/spec-first UI audit workflow inspired by
-  `JCodesMore/ai-website-cloner-template`.
-- `ui-extraction-workflow-audit-step197_5-smoke.js` verifies the inserted task
-  remains process-only and does not introduce Next/React/Tailwind/shadcn
-  dependencies into V6.
-- Step 198 remains the next executable implementation step and should route
-  leftward-history prepends through the chart-data projection owner while
-  preserving delayed/coalesced/chunked history stability.
+- `V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202.md` documents the current
+  `pane-default` versus `main` / `secondary` / `tertiary` split.
+- `pane-identity-display-timeframe-review-step202-smoke.js` guards the static
+  review facts and regression-pack registration.
+- `pane-identity-display-timeframe-browser-step202-smoke.js` proves the real
+  page currently works through active-pane compatibility for the primary chart.
+- Step 203 should normalize pane runtime bootstrap to chart-surface pane ids, or
+  add an explicit mapping, before any further TF UI or indicator work.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -149,17 +148,19 @@ After restarting the server or assistant context, read these first:
 
 ## Next Step
 
-Step 198 should focus on Leftward History HTF Stability.
+Step 203 should focus on Pane Identity Bootstrap Normalization.
 
-Keep Step 198 bounded:
+Keep Step 203 bounded:
 
-- read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md` and
-  `session_20260708_step197_manual_next_htf_visible_latency.md`;
-- route leftward-history prepends through the chart-data projection owner for
-  higher display timeframes;
-- preserve delayed/coalesced/chunked loading and current-screen stability;
-- do not route auto-play or reset view yet;
-- keep chart-data and chart-engine projection-free.
+- read `V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202.md` and
+  `session_20260708_step202_pane_identity_display_timeframe_review.md`;
+- make pane runtime identity align with chart-surface panes, preferably by
+  bootstrapping `main`, `secondary`, and `tertiary` pane records;
+- keep chart-data, chart-viewport, chart-engine, status readout, reset-view,
+  maximize, and layout behavior stable;
+- remove or narrow the primary-chart need for `pane-default` active-pane
+  fallback only after browser coverage proves equivalent behavior;
+- do not start TF UI or indicator implementation in this step.
 
 ## Critical Boundaries
 
