@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 216 - Retire Independent
-  Display-Timeframe Projection Path. V6 removed the standalone
-  `display-timeframe` HTF bucket implementation, routed display-timeframe
-  runtime through the projection owner command, and routed default-wall
-  projection through the chart-data projection domain.
+- Latest completed roadmap step: Step 217 - Wrap Remaining TF / Timestamp
+  Consumers. V6 routed replay, panes, chart-viewport, and chart-history
+  TF/timestamp normalization through `time-domain`, leaving bar-data window
+  planning as the remaining audited local time-window boundary.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,31 +43,73 @@
 
 ## Next Executable Steps
 
-### Step 217 - Wrap Remaining TF / Timestamp Consumers
+### Step 218 - Bar-Data Window Time Helper Integration
 
 Status: planned.
 
 Notes for execution:
 
-- route chart-history, replay, panes, and chart-viewport local TF/timestamp
-  normalization through the shared `time-domain` helper;
-- preserve each owner boundary: chart-history still orchestrates history,
-  replay still owns cursor state, panes still own selected display timeframe,
-  and chart-viewport still owns viewport intent;
-- keep behavior unchanged and avoid feature expansion;
-- update static audit coverage to show which local normalizers remain.
+- route `bar-data/bar-window.js` timestamp formatting/parsing and timeframe
+  normalization through `time-domain` where practical;
+- preserve bar-data ownership: only bar-data should plan API request windows,
+  cache/window keys, bounded chunk size, and canvas-left request caps;
+- keep behavior unchanged for bounded older-window requests, session boundary
+  metadata, HTF left-extension, and replay-safe latency;
+- update the static audit so remaining local time logic is either removed or
+  explicitly justified.
 
 Acceptance:
 
-- chart-history, replay, panes, and chart-viewport use shared TF/time helpers
-  where practical;
-- existing replay, leftward-history, pane, viewport, and chart browser smokes
+- bar-data window planning uses shared time helpers without changing request
+  ranges or caps;
+- leftward-history, HTF projection, replay latency, and chart browser smokes
   still pass;
-- Step 214 audit smoke still passes;
+- Step 214 audit smoke reflects the reduced local time-domain surface;
 - no new TF, indicator, SMC/ICT overlay, or trading behavior is implemented in
-  Step 217.
+  Step 218.
 
 ## Completed Steps
+
+### Step 217 - Wrap Remaining TF / Timestamp Consumers
+
+Completed in commits:
+
+- `b9775988 refactor(v6): wrap replay pane viewport time helpers`
+- `6d87ffae refactor(v6): wrap chart history time helpers`
+
+Verification:
+
+- `node v6/tests/replay-domain-smoke.js`
+- `node v6/tests/pane-model-smoke.js`
+- `node v6/tests/chart-viewport-store-smoke.js`
+- `node v6/tests/chart-viewport-runtime-smoke.js`
+- `node v6/tests/chart-viewport-pane-manual-isolation-smoke.js`
+- `node v6/tests/leftward-extension-planner-smoke.js`
+- `node v6/tests/continuous-leftward-history-step151-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-step155-smoke.js`
+- `node v6/tests/leftward-history-gap-scan-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/leftward-history-htf-stability-browser-step198-smoke.js`
+- `node v6/tests/tf-projection-time-domain-audit-step214-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed replay cursor/start timestamp math through `time-domain`.
+- Routed pane display-timeframe normalization through `time-domain`.
+- Routed chart-viewport cursor timestamp normalization through `time-domain`.
+- Routed chart-history source/display timeframe normalization, timestamp
+  parsing, projection-source summaries, and minute-second constants through
+  `time-domain`.
+- Preserved chart-history ownership of leftward extension orchestration and
+  bar-data ownership of request-window planning.
+- Normalized left-boundary planning so same-TF drag extension preserves the
+  canvas-left request cap while higher-TF display extension requests complete
+  source buckets.
+- Step 218 should consolidate `bar-data/bar-window.js` with `time-domain`
+  without changing request windows, caps, or replay latency behavior.
 
 ### Step 216 - Retire Independent Display-Timeframe Projection Path
 
