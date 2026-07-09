@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 221 - Chart Entry / Reload Time Helper
-  Readiness Audit. V6 documented the remaining chart-entry, pane-intent-reload,
-  and layout-bootstrap timestamp conversion sites and selected a bounded
-  projection-preparation migration for Step 222.
+- Latest completed roadmap step: Step 222 - Chart Entry Projection Preparation
+  Time Helper Migration. V6 routed projection-preparation domain/runtime cursor
+  and optional session timestamp parsing through `time-domain` while preserving
+  prepared payloads, projection dispatch payloads, cursor lookup, and chart
+  browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,31 +44,56 @@
 
 ## Next Executable Steps
 
-### Step 222 - Chart Entry Projection Preparation Time Helper Migration
+### Step 223 - Chart Entry Manual-Next Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- migrate `chart-entry-projection-preparation.js` and
-  `chart-entry-projection-preparation-runtime.js` timestamp parsing through
-  `time-domain`;
-- preserve prepared payloads, projection dispatch payloads, cursor lookup, and
-  error text;
-- keep chart-entry ownership of entry orchestration and projection preparation;
-- do not migrate manual-next, pane-intent-reload, or layout bootstrap in this
-  step.
+- migrate `chart-entry-manual-next-runtime.js` local TF parsing, replay
+  timestamp parsing, and projection-source summary through `time-domain`;
+- preserve manual-next append payloads, projection dispatch payloads, cursor bar
+  picking, playback period stepping, and error text;
+- keep chart-entry ownership of manual-next orchestration;
+- do not migrate pane-intent-reload or layout bootstrap in this step.
 
 Acceptance:
 
-- projection-preparation runtime/domain use shared time helpers behind local
-  wrappers;
-- existing projection preparation, chart-entry, HTF, and chart browser smokes
-  still pass;
-- no manual-next, reload, layout, TF, indicator, SMC/ICT overlay, or trading
-  behavior changes in Step 222.
+- manual-next runtime uses shared time helpers behind local wrappers;
+- existing manual-next, HTF, replay, and chart browser smokes still pass;
+- no pane-intent-reload, layout, TF, indicator, SMC/ICT overlay, or trading
+  behavior changes in Step 223.
 
 ## Completed Steps
+
+### Step 222 - Chart Entry Projection Preparation Time Helper Migration
+
+Completed in commits:
+
+- `3e0ca34f refactor(v6): share projection preparation cursor parsing`
+- `a63f9295 refactor(v6): share projection preparation runtime time parsing`
+
+Verification:
+
+- `node v6/tests/chart-entry-projection-preparation-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/initial-htf-chart-entry-browser-step195-smoke.js`
+- `node v6/tests/manual-next-htf-visible-latency-browser-step197-smoke.js`
+- `node v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `chart-entry-projection-preparation.js` cursor timestamp parsing
+  through `normalizeUnixSeconds` behind the existing local wrapper.
+- Routed `chart-entry-projection-preparation-runtime.js` cursor and optional
+  session timestamp parsing through `normalizeUnixSeconds` and
+  `normalizeOptionalUnixSeconds` behind existing local wrappers.
+- Preserved prepared payloads, projection dispatch payloads, cursor lookup, and
+  error text.
+- Did not migrate manual-next, pane-intent-reload, or layout bootstrap.
+- Step 223 should migrate `chart-entry-manual-next-runtime.js` only.
 
 ### Step 221 - Chart Entry / Reload Time Helper Readiness Audit
 
