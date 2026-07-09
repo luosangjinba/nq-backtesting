@@ -62,6 +62,7 @@ import { mountSessionDashboard } from './shell/session-dashboard.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
 import { mountStatusReadout } from './shell/status-readout.js';
+import { connectTopSymbolActivePaneBridge } from './shell/top-symbol-active-pane-bridge.js';
 import { createWorkflowPanelCoordinator } from './shell/workflow-panel-coordinator.js';
 
 const root = document.querySelector('[data-v6-root]');
@@ -174,6 +175,9 @@ const displayTimeframeControl = mountDisplayTimeframeControl(root);
 const displayTimeframePaneTargetBridge = connectDisplayTimeframePaneTargetBridge({
   displayTimeframeControl,
 });
+const topSymbolActivePaneBridge = connectTopSymbolActivePaneBridge({
+  symbolElement: root.querySelector('[data-v6-top-symbol]'),
+});
 const journalSurface = mountJournalSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('journal'),
 });
@@ -205,6 +209,7 @@ workflowPanelCoordinator.register('sessions', sessionsSurface);
 const statusReadout = mountStatusReadout(root);
 root.__v6DisplayTimeframeControl = displayTimeframeControl;
 root.__v6DisplayTimeframePaneTargetBridge = displayTimeframePaneTargetBridge;
+root.__v6TopSymbolActivePaneBridge = topSymbolActivePaneBridge;
 root.__v6JournalSurface = journalSurface;
 root.__v6JournalRowAction = journalRowAction;
 root.__v6LayoutMenuControl = layoutMenuControl;
