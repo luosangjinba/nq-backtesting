@@ -238,6 +238,15 @@ export const CHART_DATA_EVENTS = Object.freeze({
   BARS_CHANGED: 'chartData:barsChanged',
 });
 
+export const CHART_DATA_PROJECTION_COMMANDS = Object.freeze({
+  GET_STATE: 'chartDataProjection.getState',
+  PROJECT: 'chartDataProjection.project',
+});
+
+export const CHART_DATA_PROJECTION_EVENTS = Object.freeze({
+  PROJECTED: 'chartDataProjection:projected',
+});
+
 export const CHART_VIEWPORT_COMMANDS = Object.freeze({
   APPLY_CHART_DATA_REVISION: 'chartViewport.applyChartDataRevision',
   ENSURE_INTENT: 'chartViewport.ensureIntent',
