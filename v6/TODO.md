@@ -18,11 +18,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 200 - Reset View HTF Projection Gate.
-  V6 confirmed reset view uses pane-local display chart-data surface state for
-  HTF panes, not raw source bars or chart-engine aggregation. Reset view remains
-  projection-owner agnostic and does not mutate replay, chart-data, or bar-data
-  cache.
+- Latest completed roadmap step: Step 201 - HTF Projection Integration Review.
+  V6 reviewed the Step 193-200 HTF projection chain, confirmed projection
+  routing scope, and expanded the chart browser regression pack to cover every
+  HTF browser gate from initial entry through reset view.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -32,17 +31,18 @@
 
 ## Next Executable Steps
 
-### Step 201 - HTF Projection Integration Review
+### Step 202 - Pane Identity / Display Timeframe Consistency Review
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 193-200 as a single HTF projection chain;
-- confirm initial entry, pane reload, manual-next, auto-play, leftward history,
-  and reset view all obey V6 ownership rules;
-- identify the next smallest chart foundation gap before adding new TF UI or
-  indicator work.
+- audit the chart pane id and pane runtime id relationship before expanding TF
+  UI or indicators;
+- decide whether `main` / `pane-default` active-pane fallback remains a
+  compatibility behavior or should be normalized at bootstrap;
+- confirm pane-local status/readout/control paths all observe the same display
+  timeframe source.
 
 Acceptance:
 
@@ -50,6 +50,31 @@ Acceptance:
 - chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 201 - HTF Projection Integration Review
+
+Completed in commits:
+
+- `79f800d1 docs(v6): review HTF projection integration`
+- `395beb12 docs(v6): index HTF projection review`
+
+Verification:
+
+- `node v6/tests/htf-projection-integration-review-step201-smoke.js`
+- `node v6/tests/htf-projection-doc-index-step201-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- All HTF browser gates from Step 195 through Step 200 are now included in the
+  chart browser regression pack.
+- Projection routing scope remains explicit: initial preparation, pane reload,
+  manual-next, and leftward history can dispatch projection; auto-play and
+  reset view remain projection-free.
+- The next foundation risk is pane identity consistency, especially the
+  `main` / `pane-default` fallback pattern.
 
 ### Step 200 - Reset View HTF Projection Gate
 
