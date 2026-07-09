@@ -1,6 +1,7 @@
 import {
   BAR_DATA_COMMANDS,
   CHART_DATA_COMMANDS,
+  CHART_DATA_PROJECTION_COMMANDS,
   CHART_HISTORY_COMMANDS,
   CHART_HISTORY_EVENTS,
   PANE_COMMANDS,
@@ -12,7 +13,7 @@ import {
   planCanvasLeftOlderWindow,
   windowBoundsMs,
 } from '../bar-data/bar-window.js';
-import { dispatchCommand, registerCommand } from '../runtime/commands.js';
+import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -64,6 +65,12 @@ function replayCursorTimestamp(replayState = {}) {
   return Number.isFinite(timestamp) ? timestamp : null;
 }
 
+function replayStartTimestamp(replayState = {}) {
+  if (!replayState?.startTime) return null;
+  const timestamp = Math.floor(new Date(replayState.startTime).valueOf() / 1000);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
 async function optionalCommand(command, payload) {
   try {
     return await dispatchCommand(command, payload);
@@ -97,6 +104,7 @@ function cloneExtension(extension) {
     paneId: extension.paneId,
     plannedWindow: cloneWindow(extension.plannedWindow),
     prependedBarCount: extension.prependedBarCount,
+    projectionSource: extension.projectionSource ? { ...extension.projectionSource } : null,
     reason: extension.reason || null,
     status: extension.status,
   } : null;
@@ -124,6 +132,54 @@ function createExhaustedScopeKey(paneId, plannedWindow) {
     plannedWindow.instrument,
     plannedWindow.timeframe,
   ].join('|');
+}
+
+function createProjectionSource(projectionRecord) {
+  return projectionRecord ? {
+    bucketCount: projectionRecord.buckets?.length ?? 0,
+    owner: 'runtime.chart-data-projection',
+    projectionRevision: projectionRecord.projectionRevision ?? null,
+    sourceBarCount: projectionRecord.sourceBarCount ?? null,
+    sourceTimeframe: projectionRecord.sourceTimeframe ?? null,
+    targetTimeframe: projectionRecord.targetTimeframe ?? null,
+  } : null;
+}
+
+async function createPrependBars({
+  loadedBars,
+  loadedWindow,
+  paneId,
+  paneRecord,
+  plannedWindow,
+  replayState,
+} = {}) {
+  const sourceTimeframe = normalizeTimeframeMinutes(
+    loadedWindow?.timeframe ?? plannedWindow?.timeframe ?? replayState?.timeframe ?? 1,
+  );
+  const targetTimeframe = normalizeTimeframeMinutes(
+    paneRecord?.displayTimeframe ?? paneRecord?.timeframe ?? plannedWindow?.timeframe ?? sourceTimeframe,
+  );
+  if (
+    targetTimeframe > sourceTimeframe
+    && hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)
+  ) {
+    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
+      bars: loadedBars,
+      cursorTimestamp: replayCursorTimestamp(replayState),
+      paneId,
+      sessionStartTimestamp: replayStartTimestamp(replayState) ?? loadedBars?.[0]?.timestamp ?? null,
+      sourceTimeframe,
+      targetTimeframe,
+    });
+    return {
+      bars: projectionRecord.bars,
+      projectionRecord,
+    };
+  }
+  return {
+    bars: loadedBars,
+    projectionRecord: null,
+  };
 }
 
 function oldestLoadedTimestampMs(bars = []) {
@@ -327,8 +383,16 @@ export function createLeftwardHistoryExtensionRuntime({
       }
 
       const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
+      const prependBars = await createPrependBars({
+        loadedBars,
+        loadedWindow,
+        paneId,
+        paneRecord,
+        plannedWindow,
+        replayState: latestReplayState || replayState,
+      });
       const chartAfterPrepend = await dispatchCommand(CHART_DATA_COMMANDS.PREPEND_BARS, {
-        bars: loadedBars,
+        bars: prependBars.bars,
         cursorTimestamp: replayCursorTimestamp(latestReplayState || replayState),
         paneId,
       });
@@ -339,7 +403,8 @@ export function createLeftwardHistoryExtensionRuntime({
           loadedWindow: summarizeLoadedWindow(loadedWindow),
           paneId,
           plannedWindow,
-          prependedBarCount: loadedBars.length,
+          prependedBarCount: prependBars.bars.length,
+          projectionSource: createProjectionSource(prependBars.projectionRecord),
           reason: null,
           status: 'loaded',
         },
