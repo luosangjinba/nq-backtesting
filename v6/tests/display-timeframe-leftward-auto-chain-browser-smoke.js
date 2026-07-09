@@ -51,7 +51,10 @@ try {
       const deadline = performance.now() + 7000;
       let after = await snapshot();
       while (
-        after.historyRecentCount <= before.historyRecentCount &&
+        (
+          after.historyRecentCount <= before.historyRecentCount ||
+          Number(after.visibleRange?.from) < 0
+        ) &&
         performance.now() < deadline
       ) {
         await sleep(80);
@@ -71,6 +74,7 @@ try {
   assert.equal(value.after.displayTimeframe, 15);
   assert.equal(value.after.historyRecentCount > value.before.historyRecentCount, true);
   assert.equal(value.after.barCount > 0, true);
+  assert.equal(Number(value.after.visibleRange?.from) >= 0, true);
 } finally {
   await page.cleanup();
 }

@@ -87,7 +87,7 @@ export function connectLeftwardHistoryInputBridge({
   function continueAfterLoaded(extension = {}) {
     const paneId = String(extension.paneId || '').trim();
     if (!active || !paneId || extension.status !== 'loaded') return;
-    scheduleFromSurface(paneId);
+    checkPaneAfterRuntimeUpdate({ paneId });
   }
 
   function checkPaneAfterRuntimeUpdate(payload = {}) {

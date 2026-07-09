@@ -25,6 +25,8 @@
   Programmatic viewport projection, pane reload projection, and display
   timeframe application now trigger delayed left-extension checks, so non-1m
   panes can continue auto-extending without waiting for extra mouse movement.
+  Fractional negative canvas-left ranges now use floor-based boundary math, so
+  `from: -0.x` requests the next older window instead of being rounded to zero.
   Drag stability smokes now allow prepend-driven logical range shifts while
   still guarding against sticky hover-drag behavior.
 

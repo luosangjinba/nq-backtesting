@@ -274,7 +274,7 @@ export function createLeftwardHistoryExtensionRuntime({
     const paneId = normalizePaneId(payload.paneId);
     try {
       const visibleFrom = normalizeVisibleFrom(payload);
-      const leftBoundaryIndex = Math.ceil(visibleFrom);
+      const leftBoundaryIndex = Math.floor(visibleFrom);
       if (leftBoundaryIndex >= 0) {
         return ignore('canvas-left-inside-loaded-window', paneId, emitEvent);
       }

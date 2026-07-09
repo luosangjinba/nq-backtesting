@@ -76,8 +76,11 @@ assert.deepEqual(dispatches, [{
 surfaceRange = { from: -2.5, to: 42 };
 eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({ paneId: 'main', status: 'loaded' });
 assert.equal(timers.length, 3);
-assert.equal(timers[2].delayMs, 500);
+assert.equal(timers[2].delayMs, 0);
 timers[2].callback();
+assert.equal(timers.length, 4);
+assert.equal(timers[3].delayMs, 500);
+timers[3].callback();
 assert.deepEqual(dispatches.at(-1), {
   command: CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
   payload: {
@@ -88,12 +91,12 @@ assert.deepEqual(dispatches.at(-1), {
 
 surfaceRange = { from: -1.5, to: 43 };
 eventListeners.get(CHART_VIEWPORT_EVENTS.PROJECTED)({ paneId: 'main' });
-assert.equal(timers.length, 4);
-assert.equal(timers[3].delayMs, 0);
-timers[3].callback();
 assert.equal(timers.length, 5);
-assert.equal(timers[4].delayMs, 500);
+assert.equal(timers[4].delayMs, 0);
 timers[4].callback();
+assert.equal(timers.length, 6);
+assert.equal(timers[5].delayMs, 500);
+timers[5].callback();
 assert.deepEqual(dispatches.at(-1), {
   command: CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
   payload: {
@@ -104,7 +107,10 @@ assert.deepEqual(dispatches.at(-1), {
 
 surfaceRange = { from: 0.5, to: 45 };
 eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({ paneId: 'main', status: 'loaded' });
-assert.equal(timers.length, 5);
+assert.equal(timers.length, 7);
+assert.equal(timers[6].delayMs, 0);
+timers[6].callback();
+assert.equal(timers.length, 7);
 
 bridge.destroy();
 assert.equal(listener, null);
