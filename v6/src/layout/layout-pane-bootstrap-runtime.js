@@ -44,6 +44,17 @@ function timestampFromReplayState(replayState = {}) {
   }
 }
 
+function timestampFromSourceBar(bar = {}) {
+  const value = bar?.timestamp ?? bar?.time;
+  try {
+    return normalizeUnixSeconds(value, {
+      fieldName: 'Layout pane bootstrap source bar timestamp',
+    });
+  } catch (_error) {
+    return null;
+  }
+}
+
 async function findSourceRecord({ dispatchCommand, paneIds }) {
   for (const paneId of paneIds) {
     const record = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId });
@@ -91,7 +102,7 @@ export function createLayoutPaneBootstrapRuntime({
       }
 
       const replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
-      const cursorTimestamp = timestampFromReplayState(replayState) ?? Number(sourceRecord.bars.at(-1)?.timestamp ?? sourceRecord.bars.at(-1)?.time);
+      const cursorTimestamp = timestampFromReplayState(replayState) ?? timestampFromSourceBar(sourceRecord.bars.at(-1));
       if (!Number.isFinite(cursorTimestamp)) {
         throw new Error('Layout pane bootstrap requires a replay cursor or source bar timestamp.');
       }

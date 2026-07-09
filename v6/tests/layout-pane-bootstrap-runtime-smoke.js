@@ -103,4 +103,84 @@ assert.deepEqual(state.lastResult.visiblePaneIds, ['main', 'secondary']);
 await registry.stop();
 assert.equal(hasCommand(LAYOUT_PANE_BOOTSTRAP_COMMANDS.BOOTSTRAP_VISIBLE), false);
 
+clearCommandsForTest();
+const dispatched = [];
+const directRuntime = createLayoutPaneBootstrapRuntime({
+  async dispatchCommand(commandName, payload) {
+    dispatched.push({ commandName, payload });
+    if (commandName === CHART_DATA_COMMANDS.GET_BARS) {
+      if (payload.paneId === 'source') {
+        return {
+          bars: [
+            { close: 200.5, high: 201, low: 199, open: 200, time: '2026-06-01 16:00:00' },
+          ],
+          paneId: 'source',
+          revision: 1,
+        };
+      }
+      return { bars: [], paneId: payload.paneId, revision: 0 };
+    }
+    if (commandName === REPLAY_COMMANDS.GET_STATE) {
+      return { cursorTime: '2026-06-01 16:00:00' };
+    }
+    if (commandName === CHART_VIEWPORT_COMMANDS.ENSURE_INTENT) {
+      return { paneId: payload.paneId };
+    }
+    if (commandName === CHART_DATA_COMMANDS.REPLACE_BARS) {
+      return { bars: payload.bars, paneId: payload.paneId, revision: 1 };
+    }
+    if (commandName === CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION) {
+      return { paneId: payload.paneId, projection: { latestLogicalIndex: payload.latestLogicalIndex } };
+    }
+    throw new Error(`Unexpected command ${commandName}`);
+  },
+});
+directRuntime.start();
+const directResult = await dispatchCommand(LAYOUT_PANE_BOOTSTRAP_COMMANDS.BOOTSTRAP_VISIBLE, {
+  visiblePaneIds: ['source', 'target'],
+});
+assert.equal(directResult.status, 'bootstrapped');
+assert.equal(dispatched.find((record) => record.commandName === CHART_VIEWPORT_COMMANDS.ENSURE_INTENT).payload.cursorTimestamp, 1780329600);
+directRuntime.stop();
+
+clearCommandsForTest();
+const fallbackDispatched = [];
+const fallbackRuntime = createLayoutPaneBootstrapRuntime({
+  async dispatchCommand(commandName, payload) {
+    fallbackDispatched.push({ commandName, payload });
+    if (commandName === CHART_DATA_COMMANDS.GET_BARS) {
+      if (payload.paneId === 'source') {
+        return {
+          bars: [
+            { close: 300.5, high: 301, low: 299, open: 300, time: '2026-06-01 16:00:00' },
+          ],
+          paneId: 'source',
+          revision: 1,
+        };
+      }
+      return { bars: [], paneId: payload.paneId, revision: 0 };
+    }
+    if (commandName === REPLAY_COMMANDS.GET_STATE) {
+      return { cursorTime: '' };
+    }
+    if (commandName === CHART_VIEWPORT_COMMANDS.ENSURE_INTENT) {
+      return { paneId: payload.paneId };
+    }
+    if (commandName === CHART_DATA_COMMANDS.REPLACE_BARS) {
+      return { bars: payload.bars, paneId: payload.paneId, revision: 1 };
+    }
+    if (commandName === CHART_VIEWPORT_COMMANDS.APPLY_CHART_DATA_REVISION) {
+      return { paneId: payload.paneId, projection: { latestLogicalIndex: payload.latestLogicalIndex } };
+    }
+    throw new Error(`Unexpected command ${commandName}`);
+  },
+});
+fallbackRuntime.start();
+const fallbackResult = await dispatchCommand(LAYOUT_PANE_BOOTSTRAP_COMMANDS.BOOTSTRAP_VISIBLE, {
+  visiblePaneIds: ['source', 'target'],
+});
+assert.equal(fallbackResult.status, 'bootstrapped');
+assert.equal(fallbackDispatched.find((record) => record.commandName === CHART_VIEWPORT_COMMANDS.ENSURE_INTENT).payload.cursorTimestamp, 1780329600);
+fallbackRuntime.stop();
+
 console.log('v6 layout pane bootstrap runtime smoke passed');
