@@ -22,14 +22,15 @@
 - Execution plan: follow `v6/docs/V6_EXECUTION_ROADMAP.md`. The roadmap expands
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
-  into early stop conditions.
+  into early stop conditions. Continue to select the next bounded foundation slice
+  before starting broader feature work.
 - Latest completed inserted step: Step 197.5 - UI Extraction Workflow Audit.
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 212 - Top-Toolbar Active-Pane Symbol
-  Presentation Sync. V6 now mirrors the active pane symbol in the top toolbar
-  through a shell-owned read-only bridge.
+- Latest completed roadmap step: Step 213 - Next Foundation Slice Selection.
+  V6 selected TF / Projection / Time Domain Unification Readiness Audit for
+  Step 214 before broader TF, indicator, or SMC/ICT overlay work.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -41,26 +42,55 @@
 
 ## Next Executable Steps
 
-### Step 213 - Next Chart Slice Selection
+### Step 214 - TF / Projection / Time Domain Unification Readiness Audit
 
 Status: planned.
 
 Notes for execution:
 
-- review the completed active-pane symbol and pane-local header presentation
-  gates against the SMC/ICT backtesting/journal product direction;
-- select the next bounded foundation slice before implementing more toolbar,
-  indicator, or SMC/ICT-specific UI;
-- keep the architecture audit finding in mind: TF/projection/time domain
-  unification is a candidate before broader TF expansion.
+- document the intended owner for timeframe parsing, timestamp parsing, and
+  source-to-display projection;
+- enumerate duplicate implementations and classify each as keep, replace,
+  wrap, or remove;
+- define the smallest public interface needed before implementation;
+- add static smoke coverage that blocks another independent HTF projection
+  implementation.
 
 Acceptance:
 
-- one next slice is documented with explicit non-goals;
-- `boundary-smoke`, the active-pane symbol bridge smoke, and chart browser pack
-  remain passing.
+- audit names owner boundaries for TF/projection/time rules;
+- audit points to current duplicate implementations with file-level evidence;
+- smoke coverage guards the chosen refactor scope and non-goals;
+- no projection rewrite, new TF, indicator, SMC/ICT overlay, or trading behavior
+  is implemented in Step 214.
 
 ## Completed Steps
+
+### Step 213 - Next Foundation Slice Selection
+
+Completed in commits:
+
+- `de9963fa docs(v6): select step 214 foundation slice`
+
+Verification:
+
+- `node v6/tests/next-foundation-slice-selection-step213-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Selected TF / Projection / Time Domain Unification Readiness Audit for Step
+  214.
+- The selection follows the SMC/ICT backtesting/journal product direction by
+  prioritizing chart foundation reliability before indicator, overlay, or
+  strategy-specific UI work.
+- Step 214 should audit duplicate timeframe parsing, timestamp parsing,
+  projection, and projection-source summary logic before implementation.
+- Non-goals remain explicit: no new supported TFs, indicators, Pine Script,
+  SMC/ICT overlays, trading/order tickets, prop firm rule engines, or
+  pseudo-live simulation behavior.
 
 ### Step 212 - Top-Toolbar Active-Pane Symbol Presentation Sync
 
