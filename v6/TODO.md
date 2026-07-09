@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 226 - Remaining Chart Time Helper Closure
-  Audit. V6 classified the remaining chart-foundation timestamp/TF parsing
-  sites by owner after Steps 222-225 and selected display-timeframe runtime as
-  the next bounded migration target.
+- Latest completed roadmap step: Step 227 - Display Timeframe Runtime Time
+  Helper Migration. V6 routed display-timeframe latest source bar timestamp
+  parsing and projection-source summary through `time-domain` while preserving
+  target pane selection, projection dispatch payloads, pane updates, chart
+  replacement payloads, emitted event shape, and chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,32 +44,63 @@
 
 ## Next Executable Steps
 
-### Step 227 - Display Timeframe Runtime Time Helper Migration
+### Step 228 - Default Wall Runtime Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- migrate `display-timeframe-runtime.js` latest source bar timestamp parsing
-  through `time-domain`;
-- migrate display-timeframe projection-source summary through
-  `summarizeProjectionSource`;
-- preserve target pane selection, projection dispatch payloads, pane
-  display-timeframe updates, chart replacement payloads, emitted event shape,
-  and error text;
-- do not migrate default-wall, chart-data bars, chart-entry context, shell,
-  session, journal, TF menu, indicators, SMC/ICT overlays, trading, or journal
-  workflows in this step.
+- migrate default-wall replay bar timestamp parsing through `time-domain`;
+- migrate default-wall display timeframe parsing through
+  `normalizeMinuteTimeframe`;
+- preserve default-wall replay state shape, pane ordering, latest-bar cursor
+  semantics, chart replace/append payloads, viewport intent payloads, and error
+  text;
+- do not migrate chart-data bars, chart-entry context, shell, session, journal,
+  TF menu, indicators, SMC/ICT overlays, trading, or journal workflows in this
+  step.
 
 Acceptance:
 
-- display-timeframe runtime uses shared helpers behind local wrappers;
-- existing display-timeframe, HTF projection, chart browser, and audit smokes
-  still pass;
+- default-wall runtime/domain uses shared helpers behind local wrappers;
+- existing default-wall, mixed-timeframe, chart browser, and audit smokes still
+  pass;
 - no new TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
-  Step 227.
+  Step 228.
 
 ## Completed Steps
+
+### Step 227 - Display Timeframe Runtime Time Helper Migration
+
+Completed in commits:
+
+- `297d6fcf refactor(v6): share display timeframe latest time parsing`
+- `6249a911 refactor(v6): share display timeframe projection summary`
+
+Verification:
+
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `display-timeframe-runtime.js` latest source bar timestamp parsing
+  through `normalizeUnixSeconds` behind the existing `latestTimestamp` wrapper.
+- Extended `display-timeframe-runtime-smoke.js` to cover text `time` parsing for
+  the latest source bar.
+- Routed display-timeframe projection-source summary through
+  `summarizeProjectionSource`.
+- Preserved target pane selection, projection dispatch payloads, pane
+  display-timeframe updates, chart replacement payloads, emitted event shape,
+  and error text.
+- Did not migrate default-wall, chart-data bars, chart-entry context, shell,
+  session, journal, TF menu, indicators, SMC/ICT overlays, trading, or journal
+  workflows.
+- Step 228 should migrate default-wall runtime/domain time helper usage only.
 
 ### Step 226 - Remaining Chart Time Helper Closure Audit
 
