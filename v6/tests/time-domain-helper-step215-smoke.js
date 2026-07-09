@@ -9,6 +9,7 @@ import {
   summarizeProjectionSource,
   TIME_DOMAIN_CONSTANTS,
   toApiMinuteTime,
+  unixMillisecondsToSeconds,
 } from '../src/time-domain/time-domain.js';
 
 const start = Date.parse('2026-05-31T18:00:00Z') / 1000;
@@ -32,6 +33,7 @@ assert.throws(() => normalizeUnixSeconds(''), /valid timestamp/);
 assert.equal(normalizeUnixMilliseconds(start), start * 1000);
 assert.equal(normalizeUnixMilliseconds(start * 1000), start * 1000);
 assert.equal(normalizeUnixMilliseconds('2026-05-31 18:00:00'), start * 1000);
+assert.equal(unixMillisecondsToSeconds(100_999), 100);
 assert.equal(toApiMinuteTime(start * 1000), '2026-05-31 18:00');
 
 assert.deepEqual(

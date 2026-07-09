@@ -1,4 +1,5 @@
 import { parseBarTimeMs } from './bar-window.js';
+import { unixMillisecondsToSeconds } from '../time-domain/time-domain.js';
 
 function normalizeFiniteNumber(value, fieldName) {
   const normalized = Number(value);
@@ -14,13 +15,16 @@ export function normalizeBar(rawBar) {
   }
 
   const timestampMs = parseBarTimeMs(rawBar.timestamp ?? rawBar.time, 'bar timestamp');
+  const timestamp = unixMillisecondsToSeconds(timestampMs, {
+    fieldName: 'Bar data response bar timestamp',
+  });
   const bar = {
     close: normalizeFiniteNumber(rawBar.close, 'close'),
     high: normalizeFiniteNumber(rawBar.high, 'high'),
     low: normalizeFiniteNumber(rawBar.low, 'low'),
     open: normalizeFiniteNumber(rawBar.open, 'open'),
     time: new Date(timestampMs).toISOString(),
-    timestamp: Math.floor(timestampMs / 1000),
+    timestamp,
   };
 
   const volume = Number(rawBar.volume);

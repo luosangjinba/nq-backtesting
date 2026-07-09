@@ -71,6 +71,15 @@ export function normalizeUnixMilliseconds(value, { fieldName = 'time' } = {}) {
   return parsed;
 }
 
+export function unixMillisecondsToSeconds(timestampMs, { fieldName = 'timestampMs' } = {}) {
+  const label = fieldLabel(fieldName);
+  const normalized = Number(timestampMs);
+  if (!Number.isFinite(normalized)) {
+    throw new Error(`${label} must be a valid millisecond timestamp.`);
+  }
+  return Math.floor(normalized / 1000);
+}
+
 export function toApiMinuteTime(timestampMs) {
   const normalized = normalizeUnixMilliseconds(timestampMs, { fieldName: 'timestampMs' });
   return new Date(normalized).toISOString().slice(0, 16).replace('T', ' ');
