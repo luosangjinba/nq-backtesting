@@ -13,6 +13,7 @@ const manualNext = await read('v6/src/chart-entry/chart-entry-manual-next-runtim
 const leftwardHistory = await read('v6/src/chart-history/leftward-history-extension-runtime.js');
 const displayTimeframeRuntime = await read('v6/src/display-timeframe/display-timeframe-runtime.js');
 const statusReadout = await read('v6/src/shell/pane-status-readout.js');
+const regressionPack = await read('v6/tests/chart-browser-regression-pack.js');
 
 [
   'pane-default',
@@ -42,5 +43,6 @@ assert.equal(displayTimeframeRuntime.includes('PANE_COMMANDS.GET_BY_ID'), true);
 assert.equal(displayTimeframeRuntime.includes('PANE_COMMANDS.GET_ACTIVE'), true);
 assert.equal(statusReadout.includes('record.displayTimeframe || record.timeframe'), true);
 assert.match(index, /V6_PANE_IDENTITY_DISPLAY_TIMEFRAME_REVIEW_STEP202\.md/);
+assert.match(regressionPack, /pane-identity-display-timeframe-browser-step202-smoke\.js/);
 
 console.log('v6 pane identity display timeframe review step 202 smoke passed');
