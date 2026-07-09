@@ -28,12 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 224 - Pane Intent Reload Chart-Data Time
-  Helper Migration. V6 routed pane-intent reload window cursor parsing,
-  integer timeframe parsing, optional session timestamp parsing, and
-  projection-source summary through `time-domain` while preserving
-  loaded-window cursor selection, projection dispatch payloads, replacement
-  payloads, replacement ordering, and chart browser behavior.
+- Latest completed roadmap step: Step 225 - Layout Pane Bootstrap Time Helper
+  Migration. V6 routed layout bootstrap replay cursor and source-bar fallback
+  timestamp parsing through `time-domain` while preserving pane bootstrap
+  payloads, pane ordering, replay cursor semantics, fallback behavior, and
+  chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -45,29 +44,63 @@
 
 ## Next Executable Steps
 
-### Step 225 - Layout Pane Bootstrap Time Helper Migration
+### Step 226 - Remaining Chart Time Helper Closure Audit
 
 Status: planned.
 
 Notes for execution:
 
-- migrate `layout-pane-bootstrap-runtime.js` replay-state timestamp parsing and
-  minute timeframe parsing through `time-domain`;
-- preserve pane bootstrap payloads, pane ordering, replay cursor semantics, and
-  error text;
-- keep layout bootstrap ownership limited to layout/pane bootstrap
-  orchestration;
-- do not add TF, indicator, SMC/ICT overlay, trading, or journal behavior in
-  this step.
+- audit remaining chart-foundation timestamp and timeframe parsing sites after
+  Steps 222-225;
+- classify each remaining site by owner: chart viewport, chart bars,
+  display-timeframe, default-wall, shell/session UI, journal, or persistence;
+- identify which sites already use `time-domain`, which should stay local
+  because they are UI formatting or persistence timestamps, and which need a
+  bounded follow-up migration;
+- select the next implementation step from the audit rather than starting a new
+  feature.
 
 Acceptance:
 
-- layout pane bootstrap runtime uses shared time helpers behind local wrappers;
-- existing layout bootstrap, chart browser, and audit smokes still pass;
-- no TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
-  Step 225.
+- add a focused audit document and smoke covering the remaining chart time
+  helper closure plan;
+- `v6/TODO.md` names the next bounded implementation step;
+- no runtime, TF, indicator, SMC/ICT overlay, trading, or journal behavior
+  changes in Step 226.
 
 ## Completed Steps
+
+### Step 225 - Layout Pane Bootstrap Time Helper Migration
+
+Completed in commits:
+
+- `d88772d7 refactor(v6): share layout bootstrap replay time parsing`
+- `3b2d7043 refactor(v6): share layout bootstrap source bar time parsing`
+
+Verification:
+
+- `node v6/tests/layout-pane-bootstrap-runtime-smoke.js`
+- `node v6/tests/layout-pane-data-bootstrap-browser-step162-smoke.js`
+- `node v6/tests/pane-local-reset-controls-browser-step163-smoke.js`
+- `node v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `layout-pane-bootstrap-runtime.js` replay-state timestamp parsing
+  through `normalizeUnixSeconds` behind the existing
+  `timestampFromReplayState` wrapper.
+- Added `timestampFromSourceBar` so source-bar fallback timestamp parsing also
+  uses `normalizeUnixSeconds`.
+- Added runtime smoke coverage for text replay cursor parsing and source-bar
+  fallback parsing when replay cursor state is unavailable.
+- Preserved pane bootstrap payloads, pane ordering, replay cursor semantics,
+  fallback behavior, and error text.
+- `layout-pane-bootstrap-runtime.js` had no actual minute timeframe parser to
+  migrate, so Step 225 did not add one.
+- Step 226 should audit the remaining chart-foundation time/TF parsing sites
+  before selecting another implementation step.
 
 ### Step 224 - Pane Intent Reload Chart-Data Time Helper Migration
 
