@@ -1,4 +1,5 @@
 import { normalizeBar, normalizeBars } from '../bar-data/bar-normalizer.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 
 function normalizePaneId(paneId) {
   const normalized = String(paneId || '').trim();
@@ -16,6 +17,9 @@ function normalizeCursorTimestamp(cursorTimestamp) {
   if (!Number.isFinite(timestamp)) {
     throw new Error('Chart data cursorTimestamp must be finite.');
   }
+  normalizeUnixSeconds(timestamp, {
+    fieldName: 'Chart data cursorTimestamp',
+  });
   return timestamp;
 }
 

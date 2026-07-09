@@ -18,6 +18,16 @@ assert.deepEqual(
 );
 
 assert.deepEqual(
+  filterNoFutureBars(bars, '200').map((bar) => [bar.timestamp, bar.open]),
+  [[100, 1], [200, 2]]
+);
+
+assert.throws(
+  () => filterNoFutureBars(bars, '2026-06-01 09:30:00'),
+  /Chart data cursorTimestamp must be finite/,
+);
+
+assert.deepEqual(
   mergeChartBars(
     [{ timestamp: 100, open: 1, high: 2, low: 0.5, close: 1.5 }],
     [
