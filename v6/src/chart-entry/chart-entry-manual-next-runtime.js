@@ -13,6 +13,7 @@ import { resolvePlaybackPeriodStepCount } from './chart-entry-playback-period-po
 import {
   normalizeMinuteTimeframe,
   normalizeUnixSeconds,
+  summarizeProjectionSource,
 } from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
@@ -176,17 +177,6 @@ async function createAppendBars({
   };
 }
 
-function createProjectionSource(projectionRecord) {
-  return projectionRecord ? {
-    bucketCount: projectionRecord.buckets?.length ?? 0,
-    owner: 'runtime.chart-data-projection',
-    projectionRevision: projectionRecord.projectionRevision ?? null,
-    sourceBarCount: projectionRecord.sourceBarCount ?? null,
-    sourceTimeframe: projectionRecord.sourceTimeframe ?? null,
-    targetTimeframe: projectionRecord.targetTimeframe ?? null,
-  } : null;
-}
-
 function normalizePaneId(value = 'main') {
   const paneId = String(value || 'main').trim();
   if (!paneId) {
@@ -278,7 +268,7 @@ export function createChartEntryManualNextRuntime() {
             cacheHit: Boolean(loadedWindow?.cacheHit),
             key: loadedWindow?.key || null,
             paneId,
-            projectionSource: createProjectionSource(appendBars.projectionRecord),
+            projectionSource: summarizeProjectionSource(appendBars.projectionRecord),
           });
         }
         if (replayState.status === 'ended') break;
