@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 214 - TF / Projection / Time Domain
-  Unification Readiness Audit. V6 documented the owner boundaries, duplicate
-  implementation evidence, and Step 215 shared-domain target before broader TF,
-  indicator, or SMC/ICT overlay work.
+- Latest completed roadmap step: Step 215 - Shared TF / Time Domain Helper.
+  V6 added a shared domain helper for minute timeframe, timestamp, display
+  bucket, API minute, and projection-source summary rules, then routed
+  `chart-data-projection-domain.js` through it without changing projection
+  output.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,30 +44,62 @@
 
 ## Next Executable Steps
 
-### Step 215 - Shared TF / Time Domain Helper
+### Step 216 - Retire Independent Display-Timeframe Projection Path
 
 Status: planned.
 
 Notes for execution:
 
-- add a small shared domain module for minute timeframe and timestamp
-  normalization;
-- include helpers for display/source multiple validation, display bucket start,
-  API minute formatting, and projection-source summary;
-- route the pure `chart-data-projection` domain through the shared helper first;
-- keep behavior unchanged and avoid wiring broad runtime consumers until the
-  helper is covered.
+- route display-timeframe and default-wall projection consumers through the
+  `chart-data-projection` owner/domain path;
+- remove or reduce `display-timeframe/display-timeframe-projection.js` as an
+  independent HTF bucket implementation;
+- preserve existing display-timeframe, default-wall, and HTF browser behavior;
+- keep runtime ownership unchanged: display-timeframe may orchestrate commands,
+  but projection math remains in the projection/domain boundary.
 
 Acceptance:
 
-- shared helper has focused unit smoke coverage;
-- `chart-data-projection-domain.js` uses the helper for TF/time normalization
-  without changing projection output;
+- no independent `projectBarsToDisplayTimeframe` HTF bucket implementation
+  remains outside the projection owner;
+- existing display-timeframe/default-wall projection smokes still pass;
 - Step 214 audit smoke still passes;
-- no display-timeframe runtime rewrite, new TF, indicator, SMC/ICT overlay, or
-  trading behavior is implemented in Step 215.
+- no new TF, indicator, SMC/ICT overlay, or trading behavior is implemented in
+  Step 216.
 
 ## Completed Steps
+
+### Step 215 - Shared TF / Time Domain Helper
+
+Completed in commits:
+
+- `82098198 feat(v6): add shared TF time domain helper`
+- `6e34ef05 refactor(v6): route projection through time domain helper`
+
+Verification:
+
+- `node v6/tests/time-domain-helper-step215-smoke.js`
+- `node v6/tests/display-timeframe-projection-domain-step193-smoke.js`
+- `node v6/tests/tf-projection-time-domain-audit-step214-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/time-domain/time-domain.js` as a small shared domain helper for
+  minute timeframe normalization, Unix seconds/milliseconds normalization, API
+  minute formatting, display/source multiple validation, display bucket start,
+  and projection-source summary.
+- Routed `chart-data-projection-domain.js` through the shared helper while
+  preserving Step 193 projection output and the 27-test chart browser regression
+  pack.
+- Updated the Step 214 static guard so `chart-data-projection-domain.js` must
+  consume the shared helper while remaining duplicate local normalizers stay
+  audit-covered.
+- Step 216 should retire the independent `display-timeframe` projection path by
+  routing display-timeframe/default-wall consumers through the projection owner.
 
 ### Step 214 - TF / Projection / Time Domain Unification Readiness Audit
 
