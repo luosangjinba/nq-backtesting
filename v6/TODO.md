@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 227 - Display Timeframe Runtime Time
-  Helper Migration. V6 routed display-timeframe latest source bar timestamp
-  parsing and projection-source summary through `time-domain` while preserving
-  target pane selection, projection dispatch payloads, pane updates, chart
-  replacement payloads, emitted event shape, and chart browser behavior.
+- Latest completed roadmap step: Step 228 - Default Wall Runtime Time Helper
+  Migration. V6 routed default-wall replay bar timestamp parsing and
+  displayTimeframe parsing through `time-domain` while preserving replay state
+  shape, pane ordering, latest-bar cursor semantics, chart replace/append
+  payloads, viewport intent payloads, and chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,31 +44,66 @@
 
 ## Next Executable Steps
 
-### Step 228 - Default Wall Runtime Time Helper Migration
+### Step 229 - Chart Data Bars Cursor Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- migrate default-wall replay bar timestamp parsing through `time-domain`;
-- migrate default-wall display timeframe parsing through
-  `normalizeMinuteTimeframe`;
-- preserve default-wall replay state shape, pane ordering, latest-bar cursor
-  semantics, chart replace/append payloads, viewport intent payloads, and error
+- migrate `chart-data/chart-bars.js` cursor timestamp validation through
+  `time-domain` behind the existing local wrapper;
+- preserve strict seconds-only chart-data cursor semantics and existing error
   text;
-- do not migrate chart-data bars, chart-entry context, shell, session, journal,
-  TF menu, indicators, SMC/ICT overlays, trading, or journal workflows in this
-  step.
+- preserve no-future filtering, merge ordering, dedupe, OHLC normalization,
+  revision validation, paneId validation, and chart replacement/append behavior;
+- do not migrate chart-entry context, shell, session, journal, TF menu,
+  indicators, SMC/ICT overlays, trading, or journal workflows in this step.
 
 Acceptance:
 
-- default-wall runtime/domain uses shared helpers behind local wrappers;
-- existing default-wall, mixed-timeframe, chart browser, and audit smokes still
-  pass;
+- chart-data bars uses shared helpers behind local wrappers without accepting
+  unintended date strings in chart-data cursor payloads;
+- existing chart-data, default-wall, chart browser, and audit smokes still pass;
 - no new TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
-  Step 228.
+  Step 229.
 
 ## Completed Steps
+
+### Step 228 - Default Wall Runtime Time Helper Migration
+
+Completed in commits:
+
+- `eaf0b836 refactor(v6): share default wall bar time parsing`
+- `3f3898af refactor(v6): share default wall timeframe parsing`
+
+Verification:
+
+- `node v6/tests/default-wall-replay-domain-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/default-wall-mixed-timeframe-runtime-smoke.js`
+- `node v6/tests/default-wall-pane-projection-smoke.js`
+- `node v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `default-wall-replay.js` bar timestamp parsing through
+  `normalizeUnixSeconds` behind the existing `normalizeBar` wrapper.
+- Extended `default-wall-replay-domain-smoke.js` to cover text `time` parsing
+  for replay bars.
+- Routed `default-wall-runtime.js` displayTimeframe parsing through
+  `normalizeMinuteTimeframe` behind the existing `normalizeDisplayTimeframe`
+  wrapper.
+- Extended `default-wall-mixed-timeframe-runtime-smoke.js` to cover explicit
+  string displayTimeframe input.
+- Preserved default-wall replay state shape, pane ordering, latest-bar cursor
+  semantics, chart replace/append payloads, viewport intent payloads, and error
+  text.
+- Did not migrate chart-data bars, chart-entry context, shell, session, journal,
+  TF menu, indicators, SMC/ICT overlays, trading, or journal workflows.
+- Step 229 should migrate `chart-data/chart-bars.js` cursor timestamp handling
+  only.
 
 ### Step 227 - Display Timeframe Runtime Time Helper Migration
 
