@@ -2335,6 +2335,21 @@ p {
   overflow: hidden;
 }
 
+.chart-engine-host::after {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(74, 95, 112, 0.34);
+  content: "";
+}
+
+.chart-engine-host[data-v6-chart-pane-active="true"]::after {
+  box-shadow:
+    inset 0 0 0 2px rgba(90, 171, 255, 0.94),
+    inset 0 0 0 4px rgba(90, 171, 255, 0.18);
+}
+
 .chart-engine-host[hidden] {
   display: none;
 }

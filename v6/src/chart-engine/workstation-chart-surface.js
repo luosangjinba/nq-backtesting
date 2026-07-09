@@ -321,6 +321,7 @@ export function mountWorkstationChartSurface(root, {
       userInputReleaseTargets.add(releaseTarget);
     }
   });
+  activatePane(activePaneId, 'initial');
   userInputReleaseTargets.forEach((target) => {
     userInputReleaseEvents.forEach((eventName) => {
       target.addEventListener?.(eventName, markUserRangeDragEnd, { passive: true });
