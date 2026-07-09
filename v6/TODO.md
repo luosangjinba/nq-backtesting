@@ -28,12 +28,12 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 230 - Chart Entry Context Time Helper
-  Closure. V6 routed chart-entry context ISO/timeframe parsing, default-wall
-  plan ISO time parsing, and playback-period source timeframe parsing through
-  `time-domain` behind local wrappers while preserving plan payloads, default
-  wall behavior, playback period results, error text, and chart browser
-  behavior.
+- Latest completed roadmap step: Step 231 - Chart Time Helper Closure Review.
+  V6 closed the chart-foundation time/TF helper migration line for now after
+  confirming the remaining local logic is current-time metadata,
+  helper-normalized ISO formatting, already-normalized bar comparisons, cache
+  filtering, playback-period DSL parsing, adapter mapping, or non-chart
+  UI/persistence metadata.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -45,32 +45,60 @@
 
 ## Next Executable Steps
 
-### Step 231 - Chart Time Helper Closure Review
+### Step 232 - Chart Foundation Post Time-Helper Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- inspect the chart-foundation time/TF helper migration line after Steps
-  215-230;
-- confirm whether any remaining chart-foundation owner still has duplicated
-  chart cursor/projection timeframe logic worth migrating now;
-- classify remaining local shell/session/journal/UI/adapter parsing as keep,
-  later, or migrate only if it directly affects chart foundation behavior;
-- preserve product direction and avoid starting TF expansion, indicators,
-  SMC/ICT overlays, trading simulation, or journal workflows in this step.
+- inspect the current chart foundation after the time-helper closure line;
+- choose the next bounded implementation slice from chart loading, TF
+  switching, drag/scroll display, date range, replay, multi-pane, or pane-local
+  reset foundations;
+- prefer user-visible stability or workflow gaps over new feature surfaces;
+- avoid indicators, SMC/ICT overlays, trading simulation, order tickets, prop
+  firm rule engines, and journal workflows.
 
 Acceptance:
 
-- a short closure note or session record states whether the time helper line is
-  complete for chart foundation now;
-- any remaining migration candidate has a clear owner boundary and bounded next
-  step, or is explicitly deferred;
-- chart browser regression, product direction, boundary, and audit smokes still
-  pass;
-- no new feature behavior is added.
+- one next bounded chart-foundation slice is selected with owner boundary,
+  stop conditions, and smoke coverage plan;
+- selection stays inside the current foundation priority;
+- no runtime behavior changes unless the selected slice explicitly requires a
+  small readiness harness;
+- product direction, boundary, and relevant audit smokes pass.
 
 ## Completed Steps
+
+### Step 231 - Chart Time Helper Closure Review
+
+Completed in this documentation commit.
+
+Verification:
+
+- `node v6/tests/chart-time-helper-closure-review-step231-smoke.js`
+- `node v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_TIME_HELPER_CLOSURE_REVIEW_STEP231.md`.
+- Added `v6/tests/chart-time-helper-closure-review-step231-smoke.js`.
+- Confirmed the chart-foundation time/TF helper migration line is closed for
+  now after Steps 215-230.
+- Classified remaining local time/TF logic as current-time metadata,
+  helper-normalized ISO formatting, already-normalized bar comparisons, cache
+  filtering, playback-period DSL parsing, adapter mapping, or non-chart
+  UI/persistence metadata.
+- Deferred further helper work unless a concrete chart-foundation bug shows two
+  owners interpreting the same cursor, timeframe, projection bucket, or replay
+  timestamp differently.
+- Did not change runtime behavior, add TFs, indicators, SMC/ICT overlays,
+  trading simulation, order tickets, prop firm rule engines, or journal
+  workflows.
 
 ### Step 230 - Chart Entry Context Time Helper Closure
 
