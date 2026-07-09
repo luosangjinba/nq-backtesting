@@ -72,6 +72,12 @@ async function resolveDisplayTimeframe(plan, optionsDisplayTimeframe) {
       return normalizePositiveInteger(pane.displayTimeframe, 'displayTimeframe');
     }
   }
+  if (hasCommand(PANE_COMMANDS.GET_ACTIVE)) {
+    const pane = await dispatchCommand(PANE_COMMANDS.GET_ACTIVE);
+    if (pane?.displayTimeframe) {
+      return normalizePositiveInteger(pane.displayTimeframe, 'displayTimeframe');
+    }
+  }
   return null;
 }
 
