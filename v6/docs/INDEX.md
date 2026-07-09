@@ -5,6 +5,8 @@ Read this index before working on V6.
 ## Required First Reads
 
 - `v6/README.md`: V6 purpose, hard rules, and V5 usage boundary.
+- `v6/docs/V6_PRODUCT_DIRECTION.md`: current product direction, target users,
+  foundation priorities, and modular/plugin-oriented extension rule.
 - `v6/docs/V6_ARCHITECTURE.md`: runtime boundaries and non-porting rules.
 - `v6/docs/V6_EXECUTION_ROADMAP.md`: detailed execution order based on the
   useful V5 formation sequence, with V6 gates inserted earlier.

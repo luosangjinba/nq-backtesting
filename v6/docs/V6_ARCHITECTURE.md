@@ -2,9 +2,16 @@
 
 ## Decision
 
-V6 starts as a clean frontend/runtime path for FX Replay charting. It reuses
-stable V4 data/API capabilities and selected V5 tests, but it does not port
-V5's replay viewport internals.
+V6 is an open-source-oriented backtesting/journal workstation for personal use,
+designed specifically for SMC/ICT-style discretionary traders, especially prop
+firm traders.
+
+FXReplay remains an interaction reference for chart replay ergonomics, but V6
+is not a generic FXReplay clone. Compatibility with non-SMC/ICT trading styles
+is not a current product goal.
+
+V6 reuses stable V4 data/API capabilities and selected V5 tests, but it does
+not port V5's replay viewport internals.
 
 ## Core Problem To Avoid
 
@@ -153,10 +160,19 @@ chart viewport runtime reapplies the current viewport intent to the adapter.
 
 ## First Milestone
 
-Before multi-pane or Settings work, V6 must implement one single-pane replay
-path with:
+The current foundation phase must prioritize chart infrastructure before
+strategy-specific analytics or indicator work. The foundation includes:
 
 - an FXReplay-like workstation screen, not a placeholder demo;
+- market data loading;
+- timeframe switching;
+- drag/scroll chart display stability;
+- date range handling;
+- replay;
+- multi-pane layout and pane-local chart state.
+
+Earlier single-pane replay gates required:
+
 - initial default wall;
 - user-created temporary wall from native drag and wheel;
 - floating replay transport with Play/Pause/Next/speed;
@@ -172,3 +188,16 @@ V6 should not implement user-facing multi-pane until the single-pane manual wall
 and visible-latency gates pass. When multi-pane starts, it must start from the
 same pane model used by single-pane. There is no "primary implementation first,
 secondary catch-up later" track.
+
+## Product Module Rule
+
+Above the chart foundation, V6 has two primary product modules:
+
+- Backtesting;
+- Journal.
+
+SMC/ICT-specific tools, prop-firm review workflows, statistics, and future
+strategy helpers must attach through explicit module boundaries. New
+capabilities should be plugin-friendly: a feature may register commands,
+events, UI surfaces, persistence contracts, and chart overlays through clear
+public interfaces, but it must not directly control another feature module.

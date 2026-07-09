@@ -1,24 +1,39 @@
 # AGENTS.md
 
-This repository contains V4 legacy work and the new V5 FX Replay rewrite.
+This repository contains V4/V5 legacy work and the new V6 backtesting/journal
+workstation.
 
-## Before Working On V5
+## Before Working On V6
 
 Read these files first:
 
-1. `v5/README.md`
-2. `v5/docs/INDEX.md`
-3. `v5/docs/MVP_ARCHITECTURE.md`
-4. `v5/docs/EXECUTION_FRAMEWORK.md`
-5. `v5/TODO.md`
+1. `v6/docs/INDEX.md`
+2. `v6/docs/V6_PRODUCT_DIRECTION.md`
+3. `v6/docs/V6_ARCHITECTURE.md`
+4. `v6/docs/V6_EXECUTION_ROADMAP.md`
+5. `v6/TODO.md`
 
 Then read only the docs/specs relevant to the current step.
 
 ## Current Direction
 
-V5 is a clean frontend/runtime path for a session-first FX Replay experience.
-V4 remains available as legacy/reference, but V5 must not copy V4's old
-frontend ownership model.
+V6 is an open-source-oriented backtesting/journal system for personal use,
+designed specifically for SMC/ICT-style discretionary traders, especially prop
+firm traders. Compatibility with other trading styles is not a current product
+goal.
+
+The current foundation phase prioritizes chart infrastructure: loading market
+data, switching timeframes, dragging/scrolling the chart, multi-pane layout,
+date range handling, and replay. Indicators and main/sub-pane indicator
+surfaces remain undecided until the chart foundation is stable.
+
+Above the foundation, the two primary product modules are Backtesting and
+Journal. New capabilities should be modular and plugin-friendly so the project
+can later support open-source/community extension without turning the core into
+a tightly coupled monolith.
+
+V4/V5 remain available as legacy/reference, but V6 must not copy old frontend
+ownership models.
 
 ## V5 Hard Rules
 

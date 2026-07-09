@@ -5,11 +5,20 @@
 - Current status: V6 opened because V5 replay viewport/manual-anchor behavior
   proved structurally unreliable. The active decision is documented in
   `v5/docs/specs/v6-rewrite-start-decision.md`.
-- Current direction: do not patch V5 replay viewport behavior further. Build V6
-  around `v6/docs/specs/replay-viewport-intent.md`,
-  `v6/docs/specs/replay-visible-latency.md`,
-  `v6/docs/specs/pane-model.md`, and
-  `v6/docs/specs/fxreplay-baseline.md`.
+- Current product direction: V6 is an open-source-oriented personal
+  backtesting/journal workstation for SMC/ICT-style discretionary traders,
+  especially prop firm traders. FXReplay remains an interaction reference, but
+  V6 is not a generic FXReplay clone and does not currently target other
+  trading styles. See `v6/docs/V6_PRODUCT_DIRECTION.md`.
+- Current foundation priority: stabilize chart data loading, timeframe
+  switching, chart drag/scroll display, date ranges, replay, multi-pane, and
+  pane-local reset behavior before indicators or main/sub-pane indicator work.
+- Current architecture direction: Backtesting and Journal are the two primary
+  modules above the chart foundation. New capabilities should be modular and
+  plugin-friendly, with explicit owner boundaries and command/event contracts.
+  Continue building around `v6/docs/specs/replay-viewport-intent.md`,
+  `v6/docs/specs/replay-visible-latency.md`, and
+  `v6/docs/specs/pane-model.md`.
 - Execution plan: follow `v6/docs/V6_EXECUTION_ROADMAP.md`. The roadmap expands
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
@@ -39,9 +48,9 @@ Status: planned.
 Notes for execution:
 
 - review the completed active-pane symbol and pane-local header presentation
-  gates;
-- select the next bounded chart-facing slice before implementing more toolbar
-  or indicator UI;
+  gates against the SMC/ICT backtesting/journal product direction;
+- select the next bounded foundation slice before implementing more toolbar,
+  indicator, or SMC/ICT-specific UI;
 - keep the architecture audit finding in mind: TF/projection/time domain
   unification is a candidate before broader TF expansion.
 
