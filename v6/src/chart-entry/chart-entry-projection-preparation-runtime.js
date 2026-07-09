@@ -8,6 +8,10 @@ import {
 } from '../contracts/app-contracts.js';
 import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
 import { createChartEntryProjectionPreparation } from './chart-entry-projection-preparation.js';
+import {
+  normalizeOptionalUnixSeconds,
+  normalizeUnixSeconds,
+} from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -55,20 +59,23 @@ function normalizeSourceTimeframe(plan, cacheRecord) {
 }
 
 function parseCursorTimestamp(cursorTime) {
-  const timestamp = Math.floor(new Date(String(cursorTime || '')).valueOf() / 1000);
-  if (!Number.isFinite(timestamp)) {
+  try {
+    return normalizeUnixSeconds(cursorTime, {
+      fieldName: 'Chart entry projection preparation cursorTime',
+    });
+  } catch {
     throw new Error('Chart entry projection preparation cursorTime must be a valid date/time.');
   }
-  return timestamp;
 }
 
 function parseOptionalTimestamp(value, fieldName) {
-  if (value === null || value === undefined || value === '') return null;
-  const timestamp = Math.floor(new Date(String(value)).valueOf() / 1000);
-  if (!Number.isFinite(timestamp)) {
+  try {
+    return normalizeOptionalUnixSeconds(value === '' ? null : value, {
+      fieldName: `Chart entry projection preparation ${fieldName}`,
+    });
+  } catch {
     throw new Error(`Chart entry projection preparation ${fieldName} must be a valid date/time.`);
   }
-  return timestamp;
 }
 
 async function resolveDisplayTimeframe(plan, optionsDisplayTimeframe) {
