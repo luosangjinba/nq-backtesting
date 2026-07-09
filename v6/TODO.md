@@ -17,12 +17,11 @@
 - Latest completed inserted step: Step 197.5 - UI Extraction Workflow Audit.
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
-  Next/React/shadcn/Tailwind adoption. Step 198 remains the next executable
-  implementation step.
-- Latest completed roadmap step: Step 197 - Manual Next HTF Visible Latency.
-  V6 now routes initial chart entry, pane reload, and manual-next HTF display
-  bars through the chart-data projection owner while leaving auto-play,
-  leftward history, and reset view untouched.
+  Next/React/shadcn/Tailwind adoption.
+- Latest completed roadmap step: Step 198 - Leftward History HTF Stability.
+  V6 now routes leftward-history HTF prepends through the chart-data projection
+  owner while preserving delayed/coalesced/chunked history loading and visible
+  range stability. Auto-play and reset view remain outside projection routing.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -32,35 +31,53 @@
 
 ## Next Executable Steps
 
-### Step 198 - Leftward History HTF Stability
+### Step 199 - Select Next HTF Projection Gate
 
 Status: planned.
 
 Notes for execution:
 
-- read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md`;
-- read `session_20260708_step197_manual_next_htf_visible_latency.md`;
-- route leftward history prepends through the chart-data projection owner for
-  higher display timeframes;
-- prepend source chunks and rebuild only the affected leading display buckets;
-- preserve delayed/coalesced/chunked leftward-history loading;
-- keep visible K-line stability as the priority, even if older-bar loading has
-  a small delay;
-- do not route auto-play or reset view yet;
-- preserve manual-next HTF latency and chart regression gates.
+- review Step 198 verification results before choosing the next implementation
+  slice;
+- prefer the next missing HTF projection gate over cosmetic UI work;
+- keep auto-play and reset view out of projection routing until their owner
+  boundaries are explicitly audited.
 
 Acceptance:
 
-- leftward-history HTF stability browser smoke passes;
-- static guard proves Step 198 routes leftward history and still does not route
-  auto-play or reset view;
-- manual-next HTF visible latency browser smoke passes;
-- replay-safe leftward history latency smoke passes;
-- chart browser regression pack passes;
-- boundary smoke passes;
-- `git diff --check` passes;
+- Step 199 scope is recorded before implementation starts.
 
 ## Completed Steps
+
+### Step 198 - Leftward History HTF Stability
+
+Completed in commits:
+
+- `d7fe88d9 feat(v6): route leftward HTF history through projection`
+- `802afa4e test(v6): guard leftward HTF projection routing`
+- `a06f7b2d test(v6): cover leftward HTF browser stability`
+
+Verification:
+
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/leftward-history-htf-stability-browser-step198-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step198-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step197-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step196-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step195-smoke.js`
+- `node v6/tests/chart-data-projection-no-routing-step194-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/multi-pane-leftward-history-step155-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- HTF leftward-history prepends now use the chart-data projection owner when
+  target display timeframe is higher than the source timeframe.
+- The browser smoke guards real-page visible range stability after HTF prepend.
+- The pane lookup now falls back to the active pane when chart pane ids and
+  pane runtime ids differ.
+- Auto-play and reset view still do not route projection.
 
 ### Step 197.5 - UI Extraction Workflow Audit
 
@@ -81,7 +98,7 @@ Decision:
   audits.
 - Do not import its Next.js, React, shadcn/ui, Tailwind, Radix, or build-chain
   assumptions into V6.
-- Keep Step 198 as the next executable chart-data step.
+- Resume roadmap selection after Step 198 completes.
 
 ### Step 197 - Manual Next HTF Visible Latency
 
