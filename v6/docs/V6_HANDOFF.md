@@ -5,19 +5,20 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 205 completed.
-- Next planned step: Step 206 - Pane-Local Display-Timeframe UI Readiness.
+- Current V6 step state: Step 206 completed.
+- Next planned step: Step 207 - Display-Timeframe Target Source Integration.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Next Chart Slice Selection:
+The latest completed work is Pane-Local Display-Timeframe UI Readiness:
 
-- `V6_NEXT_CHART_SLICE_SELECTION_STEP205.md` selects pane-local
-  display-timeframe UI readiness as the next bounded chart-facing slice.
-- The selection keeps TF UI readiness separate from custom intervals, interval
-  sync, indicators, Pine Script, and trading/order behavior.
-- Step 206 should make the existing shell display-timeframe control dispatch an
-  explicit `paneId`, with browser coverage proving only the targeted pane is
-  updated.
+- `V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md` records explicit
+  target-pane handling for the existing shell display-timeframe control.
+- The control now dispatches `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with
+  `{ displayTimeframe, paneId }`.
+- Browser coverage proves selecting `5m` updates only the targeted secondary
+  pane and leaves the main pane unchanged.
+- Step 207 should connect the target resolver to the real active/selected pane
+  source through an explicit owner contract.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -144,19 +145,26 @@ After restarting the server or assistant context, read these first:
 116. `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`
 117. `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`
 118. `v6/docs/V6_FXREPLAY_UI_PARITY_GAP_AUDIT.md`
+119. `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP205.md`
+120. `v6/docs/V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md`
+121. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
+122. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
 
 ## Next Step
 
-Step 206 should focus on Pane-Local Display-Timeframe UI Readiness.
+Step 207 should focus on Display-Timeframe Target Source Integration.
 
-Keep Step 206 bounded:
+Keep Step 207 bounded:
 
-- read `V6_NEXT_CHART_SLICE_SELECTION_STEP205.md` and
-  `session_20260708_step205_next_chart_slice_selection.md`;
-- make shell display-timeframe control resolve an explicit target pane id;
-- dispatch `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with `paneId`;
+- read `V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md` and
+  `session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`;
+- connect the shell display-timeframe control target resolver to the real
+  chart-surface or pane-runtime active/selected pane source through an explicit
+  owner contract;
+- preserve the command shape `{ displayTimeframe, paneId }`;
 - keep the current top-toolbar visual behavior stable;
-- add targeted browser coverage for pane-local display-timeframe selection;
+- add browser coverage proving the visible control updates a non-main
+  active/selected pane;
 - do not add custom intervals, interval sync, indicators, Pine Script, or
   trading/order behavior.
 

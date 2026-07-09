@@ -18,9 +18,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 205 - Next Chart Slice Selection. V6
-  selected pane-local display-timeframe UI readiness as the next bounded
-  chart-facing slice after pane identity and active-pane fallback cleanup.
+- Latest completed roadmap step: Step 206 - Pane-Local Display-Timeframe UI
+  Readiness. V6 made the existing shell display-timeframe control dispatch an
+  explicit target `paneId` and added targeted browser coverage for updating
+  only the selected pane.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -30,27 +31,61 @@
 
 ## Next Executable Steps
 
-### Step 206 - Pane-Local Display-Timeframe UI Readiness
+### Step 207 - Display-Timeframe Target Source Integration
 
 Status: planned.
 
 Notes for execution:
 
-- make the shell display-timeframe control resolve an explicit target `paneId`;
-- dispatch `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with `paneId`;
-- keep existing top-toolbar visual behavior stable;
-- add browser coverage proving selecting `5m` updates only the targeted pane;
-- do not add custom intervals, interval sync, or indicators.
+- connect the shell display-timeframe control's target-pane resolver to the
+  real chart-surface or pane-runtime active/selected pane source through an
+  explicit owner contract;
+- preserve the Step 206 command shape: dispatch
+  `DISPLAY_TIMEFRAME_COMMANDS.APPLY` with `{ displayTimeframe, paneId }`;
+- keep top-toolbar visual behavior stable;
+- add browser coverage proving selecting `5m` from the visible control updates
+  the active/selected pane, not a hard-coded pane;
+- do not add custom intervals, interval sync, indicators, Pine Script, or
+  trading/order behavior.
 
 Acceptance:
 
-- shell control no longer relies on hidden runtime active-pane fallback for the
-  primary chart target;
+- target-pane selection is driven by an explicit owner-provided source rather
+  than test-only `setTargetPaneId` wiring or hidden runtime fallback;
 - pane-local display-timeframe runtime isolation still passes;
-- targeted browser coverage passes;
+- targeted browser coverage passes for a non-main active/selected pane;
 - existing chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 206 - Pane-Local Display-Timeframe UI Readiness
+
+Completed in commits:
+
+- `6eeea7e8 feat(v6): target display timeframe pane`
+- `c7ff5084 test(v6): cover targeted display timeframe pane`
+- `e5a05754 test(v6): add display timeframe target to chart pack`
+
+Verification:
+
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/display-timeframe-target-pane-browser-step206-smoke.js`
+- `node v6/tests/next-chart-slice-selection-step205-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- The existing shell display-timeframe control now resolves and stores an
+  explicit target pane id.
+- `DISPLAY_TIMEFRAME_COMMANDS.APPLY` dispatches include `paneId`.
+- The mounted control exposes `getTargetPaneId()` and
+  `setTargetPaneId(paneId)` for owner wiring and browser tests.
+- Step 207 should connect the target source to real active/selected pane state
+  without expanding into custom TF UI, interval sync, indicators, Pine Script,
+  or trading/order behavior.
 
 ### Step 205 - Next Chart Slice Selection
 
