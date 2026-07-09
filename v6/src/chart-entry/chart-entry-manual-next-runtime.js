@@ -194,7 +194,13 @@ function normalizePaneIds(payload = {}) {
 
 async function getPaneRecord(paneId) {
   try {
-    return await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
+    const pane = await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
+    if (pane) return pane;
+  } catch {
+    // Fall through to the active pane fallback below.
+  }
+  try {
+    return await dispatchCommand(PANE_COMMANDS.GET_ACTIVE);
   } catch {
     return null;
   }
