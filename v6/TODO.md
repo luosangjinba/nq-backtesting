@@ -18,10 +18,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 203 - Pane Identity Bootstrap
-  Normalization. V6 now bootstraps pane runtime records for `main`,
-  `secondary`, and `tertiary`, with `main` as the default active pane and no
-  primary-chart dependency on `pane-default` fallback.
+- Latest completed roadmap step: Step 204 - Active-Pane Fallback Narrowing. V6
+  removed active-pane compatibility fallback from exact-pane chart-facing
+  paths while preserving intentional current-pane semantics in display-timeframe
+  and playback-period runtimes.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,26 +31,53 @@
 
 ## Next Executable Steps
 
-### Step 204 - Active-Pane Fallback Narrowing
+### Step 205 - Next Chart Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- audit the remaining `PANE_COMMANDS.GET_ACTIVE` fallback call sites after Step
-  203;
-- remove or narrow fallback only where exact pane ids are now guaranteed;
-- keep display-timeframe, manual-next, projection preparation, and leftward
-  history behavior stable;
-- do not start TF UI or indicator implementation yet.
+- select the next bounded chart-facing slice after pane identity and fallback
+  cleanup;
+- prefer pane-local display-timeframe UI readiness if no higher-priority chart
+  foundation gap is found;
+- keep the step as a selection/audit or one small implementation slice, not TF
+  UI plus indicators together.
 
 Acceptance:
 
-- remaining active-pane fallback is documented as necessary or removed;
-- exact `main` pane identity remains covered by browser guard;
-- chart browser regression pack and boundary smoke pass.
+- next slice is documented with owner boundaries and acceptance checks;
+- existing chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 204 - Active-Pane Fallback Narrowing
+
+Completed in commits:
+
+- `faeada14 docs(v6): audit active pane fallback`
+- `9090ed79 fix(v6): narrow active pane fallback`
+
+Verification:
+
+- `node v6/tests/active-pane-fallback-audit-step204-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/initial-htf-chart-entry-projection-step195-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/pane-identity-bootstrap-browser-step203-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Manual-next, initial projection preparation, and leftward-history no longer
+  borrow active-pane intent when exact pane lookup misses.
+- Display-timeframe and playback-period still use `GET_ACTIVE` intentionally
+  for current-pane operations.
 
 ### Step 203 - Pane Identity Bootstrap Normalization
 

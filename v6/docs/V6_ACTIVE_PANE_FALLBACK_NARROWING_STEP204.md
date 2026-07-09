@@ -10,10 +10,10 @@ pane controls.
 
 The remaining `PANE_COMMANDS.GET_ACTIVE` usages split into two categories.
 
-### Remove Compatibility Fallback
+### Removed Compatibility Fallback
 
 These paths receive or derive an exact chart-surface `paneId`, so after Step
-203 they should not fall back to the active pane:
+203 they no longer fall back to the active pane:
 
 - `chart-entry-manual-next-runtime.js`: manual-next pane lookup after
   normalized `main` / `secondary` / `tertiary` ids.
@@ -22,9 +22,9 @@ These paths receive or derive an exact chart-surface `paneId`, so after Step
 - `leftward-history-extension-runtime.js`: leftward-history pane lookup for a
   pane-local history request.
 
-If exact lookup fails in those paths, the caller should either proceed with
-explicit payload/replay fallbacks where already supported, or fail/ignore the
-target pane without silently borrowing active-pane intent.
+If exact lookup fails in those paths, the caller either proceeds with explicit
+payload/replay fallbacks where already supported, or fails/ignores the target
+pane without silently borrowing active-pane intent.
 
 ### Keep Current-Pane Semantics
 
@@ -40,7 +40,7 @@ passes explicit pane ids everywhere.
 
 ## Acceptance
 
-- Compatibility fallback is removed from exact-pane chart-facing paths.
+- Compatibility fallback was removed from exact-pane chart-facing paths.
 - Current-pane semantics remain explicit in display-timeframe and playback
   period runtimes.
 - Browser coverage confirms `main` still drives HTF projection after fallback

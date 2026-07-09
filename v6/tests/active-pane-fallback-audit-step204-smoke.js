@@ -14,7 +14,7 @@ const displayTimeframe = await read('v6/src/display-timeframe/display-timeframe-
 const playbackPeriod = await read('v6/src/playback-period/playback-period-runtime.js');
 
 [
-  'Remove Compatibility Fallback',
+  'Removed Compatibility Fallback',
   'Keep Current-Pane Semantics',
   'chart-entry-manual-next-runtime.js',
   'chart-entry-projection-preparation-runtime.js',

@@ -5,21 +5,20 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 203 completed.
-- Next planned step: Step 204 - Active-Pane Fallback Narrowing.
+- Current V6 step state: Step 204 completed.
+- Next planned step: Step 205 - Next Chart Slice Selection.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Pane Identity Bootstrap Normalization:
+The latest completed work is Active-Pane Fallback Narrowing:
 
-- `V6_PANE_IDENTITY_BOOTSTRAP_NORMALIZATION_STEP203.md` documents the
-  normalized pane runtime bootstrap.
-- Pane runtime now defaults to `main` and creates `main`, `secondary`, and
-  `tertiary` records by default.
-- `pane-identity-bootstrap-browser-step203-smoke.js` proves the real page has no
-  `pane-default` runtime record and renders 5m primary chart data through
-  `main`.
-- Step 204 should audit remaining active-pane fallback call sites and remove or
-  narrow only the ones proven unnecessary.
+- `V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md` documents which `GET_ACTIVE`
+  usages were removed and which current-pane semantics remain.
+- Manual-next, initial projection preparation, and leftward-history now use
+  exact pane ids without active-pane compatibility fallback.
+- Display-timeframe and playback-period still use active pane intentionally when
+  no explicit pane id is provided.
+- Step 205 should select the next bounded chart-facing slice after identity and
+  fallback cleanup.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -149,19 +148,16 @@ After restarting the server or assistant context, read these first:
 
 ## Next Step
 
-Step 204 should focus on Active-Pane Fallback Narrowing.
+Step 205 should focus on Next Chart Slice Selection.
 
-Keep Step 204 bounded:
+Keep Step 205 bounded:
 
-- read `V6_PANE_IDENTITY_BOOTSTRAP_NORMALIZATION_STEP203.md` and
-  `session_20260708_step203_pane_identity_bootstrap_normalization.md`;
-- audit `PANE_COMMANDS.GET_ACTIVE` fallback in chart-entry manual-next,
-  projection preparation, leftward history, and display-timeframe paths;
-- remove or narrow only fallback proven unnecessary after exact `main` identity
-  exists;
-- keep chart-data, chart-viewport, chart-engine, status readout, reset-view,
-  maximize, layout, and HTF browser coverage stable;
-- do not start TF UI or indicator implementation in this step.
+- read `V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md` and
+  `session_20260708_step204_active_pane_fallback_narrowing.md`;
+- decide the next bounded chart-facing slice after pane identity cleanup;
+- prefer pane-local display-timeframe UI readiness if no higher-priority chart
+  foundation gap is found;
+- do not combine TF UI and indicator implementation into one step.
 
 ## Critical Boundaries
 
