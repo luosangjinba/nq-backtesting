@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 233 - Dashboard Chart Boundary Label
-  Product Wording. V6 replaced engineering-facing loaded-boundary dashboard
-  text with compact chart-start wording while preserving selected trading date
-  range labels, actual loaded-boundary semantics, prior Globex-open semantics,
-  and bar-data/replay/chart-data/viewport/pane ownership.
+- Latest completed roadmap step: Step 234 - Chart Foundation Next Slice
+  Selection. V6 selected Replay Step Back Owner Readiness Audit as the next
+  bounded chart-foundation slice because the transport reserves a disabled
+  Previous replay bar control, but backward replay needs an explicit owner
+  contract before runtime behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,30 +44,58 @@
 
 ## Next Executable Steps
 
-### Step 234 - Chart Foundation Next Slice Selection
+### Step 235 - Replay Step Back Owner Readiness Audit
 
 Status: planned.
 
 Notes for execution:
 
-- inspect current chart-foundation behavior after Step 233;
-- choose the next bounded implementation slice from chart loading, TF
-  switching, drag/scroll display, date range, replay, multi-pane, or pane-local
-  reset foundations;
-- prefer user-visible stability or workflow gaps over new feature surfaces;
-- avoid indicators, SMC/ICT overlays, trading simulation, order tickets, prop
-  firm rule engines, and journal workflows.
+- document the owner contract for backward replay before enabling the
+  transport Previous button;
+- classify whether Step Back should remove the latest visible bar, replace
+  chart-data from a previous cursor, or replay from a cursor snapshot;
+- define replay-domain, chart-entry, chart-data, viewport, bar-data, and
+  multi-pane responsibilities;
+- add static smoke coverage that keeps the Previous button disabled until the
+  owner contract is accepted;
+- do not implement previous replay behavior yet.
 
 Acceptance:
 
-- one next bounded chart-foundation slice is selected with owner boundary,
-  stop conditions, and smoke coverage plan;
-- selection stays inside the current foundation priority;
-- no runtime behavior changes unless the selected slice explicitly requires a
-  small readiness harness;
-- product direction, boundary, and relevant audit smokes pass.
+- a Step 235 audit doc names the backward replay owner boundary and first
+  implementation option;
+- static smoke proves no previous replay runtime command is exposed and the
+  transport Previous button remains disabled;
+- transport visual state, product direction, boundary, and relevant chart
+  smokes pass;
+- no replay cursor, chart-data, viewport, bar-data, pane, indicator, trading,
+  or journal behavior changes in Step 235.
 
 ## Completed Steps
+
+### Step 234 - Chart Foundation Next Slice Selection
+
+Completed in this documentation commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step234-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP234.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step234-smoke.js`.
+- Selected Step 235 as Replay Step Back Owner Readiness Audit.
+- Confirmed the transport reserves `data-v6-transport-step-back` as disabled,
+  while replay runtime/domain currently expose only forward/reset/play/pause
+  cursor movement.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 233 - Dashboard Chart Boundary Label Product Wording
 
