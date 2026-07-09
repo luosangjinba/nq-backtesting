@@ -40,15 +40,9 @@ clearEventsForTest();
 const fetchCalls = [];
 const fetchBars = async (window) => {
   fetchCalls.push({ ...window });
-  if (window.start === '2026-06-01 09:25' && window.end === '2026-06-01 09:29') {
+  if (window.start === '2026-06-01 09:00' && window.end === '2026-06-01 09:29') {
     return {
-      bars: [
-        makeBar(-5, 95),
-        makeBar(-4, 96),
-        makeBar(-3, 97),
-        makeBar(-2, 98),
-        makeBar(-1, 99),
-      ],
+      bars: Array.from({ length: 30 }, (_, index) => makeBar(index - 30, 70 + index)),
       history: { exhaustedBefore: false },
       timeframe: 1,
     };
@@ -61,7 +55,7 @@ const fetchBars = async (window) => {
 };
 
 const registry = createRuntimeRegistry();
-registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 20 }));
+registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 40 }));
 registry.registerRuntime(createChartDataProjectionRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createLeftwardHistoryExtensionRuntime());
@@ -105,12 +99,12 @@ const projectionState = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.GET
 const cacheSummary = await dispatchCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY);
 
 assert.equal(loaded.status, 'loaded', loaded.error || 'HTF leftward history should load');
-assert.equal(loaded.extension.prependedBarCount, 1);
+assert.equal(loaded.extension.prependedBarCount, 6);
 assert.deepEqual(loaded.extension.projectionSource, {
-  bucketCount: 1,
+  bucketCount: 6,
   owner: 'runtime.chart-data-projection',
   projectionRevision: 1,
-  sourceBarCount: 5,
+  sourceBarCount: 30,
   sourceTimeframe: 1,
   targetTimeframe: 5,
 });
@@ -123,6 +117,41 @@ assert.deepEqual(chartRecord.bars.map((bar) => ({
   open: bar.open,
   timestamp: bar.timestamp,
 })), [
+  {
+    close: 74.5,
+    high: 75,
+    low: 69,
+    open: 70,
+    timestamp: 1780304400,
+  },
+  {
+    close: 79.5,
+    high: 80,
+    low: 74,
+    open: 75,
+    timestamp: 1780304700,
+  },
+  {
+    close: 84.5,
+    high: 85,
+    low: 79,
+    open: 80,
+    timestamp: 1780305000,
+  },
+  {
+    close: 89.5,
+    high: 90,
+    low: 84,
+    open: 85,
+    timestamp: 1780305300,
+  },
+  {
+    close: 94.5,
+    high: 95,
+    low: 89,
+    open: 90,
+    timestamp: 1780305600,
+  },
   {
     close: 99.5,
     high: 100,
@@ -147,15 +176,15 @@ assert.deepEqual(fetchCalls.map((item) => ({
 })), [
   {
     end: '2026-06-01 09:29',
-    estimatedBars: 5,
+    estimatedBars: 30,
     requestCap: 'canvas-left',
-    start: '2026-06-01 09:25',
+    start: '2026-06-01 09:00',
     timeframe: 1,
   },
 ]);
 assert.deepEqual(cacheSummary, {
-  barCount: 5,
-  keys: ['NQ|1|2026-06-01 09:25|2026-06-01 09:29'],
+  barCount: 30,
+  keys: ['NQ|1|2026-06-01 09:00|2026-06-01 09:29'],
   windowCount: 1,
 });
 

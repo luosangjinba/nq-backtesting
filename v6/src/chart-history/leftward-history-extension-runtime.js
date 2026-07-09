@@ -10,10 +10,10 @@ import {
 import {
   formatApiTime,
   makeBarWindowKey,
-  planCanvasLeftOlderWindow,
   windowBoundsMs,
 } from '../bar-data/bar-window.js';
 import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
+import { planLeftwardSourceWindow } from './leftward-extension-planner.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -34,15 +34,6 @@ function normalizePaneId(paneId) {
   const normalized = String(paneId || '').trim();
   if (!normalized) {
     throw new Error('Leftward history extension paneId must be a non-empty string.');
-  }
-  return normalized;
-}
-
-function normalizeVisibleFrom(payload = {}) {
-  const value = payload.visibleRange?.from ?? payload.from;
-  const normalized = Number(value);
-  if (!Number.isFinite(normalized)) {
-    throw new Error('Leftward history extension visible range must include finite from.');
   }
   return normalized;
 }
@@ -77,15 +68,6 @@ async function optionalCommand(command, payload) {
   } catch {
     return null;
   }
-}
-
-function inferStepSeconds(bars = [], fallbackTimeframeMinutes = 1) {
-  const sorted = cloneBars(bars).sort((left, right) => left.timestamp - right.timestamp);
-  for (let index = 1; index < sorted.length; index += 1) {
-    const diff = Number(sorted[index].timestamp) - Number(sorted[index - 1].timestamp);
-    if (Number.isFinite(diff) && diff > 0) return diff;
-  }
-  return normalizeTimeframeMinutes(fallbackTimeframeMinutes) * 60;
 }
 
 function summarizeLoadedWindow(record = {}) {
@@ -273,12 +255,6 @@ export function createLeftwardHistoryExtensionRuntime({
   async function requestLeftExtension(payload = {}, emitEvent) {
     const paneId = normalizePaneId(payload.paneId);
     try {
-      const visibleFrom = normalizeVisibleFrom(payload);
-      const leftBoundaryIndex = Math.floor(visibleFrom);
-      if (leftBoundaryIndex >= 0) {
-        return ignore('canvas-left-inside-loaded-window', paneId, emitEvent);
-      }
-
       const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId });
       const bars = cloneBars(chartRecord?.bars);
       if (!bars.length) {
@@ -296,22 +272,29 @@ export function createLeftwardHistoryExtensionRuntime({
       if (!instrument) {
         throw new Error('Leftward history extension requires an instrument.');
       }
-      const timeframe = normalizeTimeframeMinutes(
-        payload.timeframe ||
+      const sourceTimeframe = normalizeTimeframeMinutes(
+        payload.sourceTimeframe ||
         replayState?.timeframe ||
-        paneRecord?.displayTimeframe ||
+        paneRecord?.timeframe ||
+        payload.timeframe ||
         1
       );
-      const sortedBars = bars.sort((left, right) => left.timestamp - right.timestamp);
-      const oldestLoadedTimestamp = Number(sortedBars[0].timestamp);
-      const stepSeconds = inferStepSeconds(sortedBars, timeframe);
-      const canvasLeftTimestamp = oldestLoadedTimestamp + (leftBoundaryIndex * stepSeconds);
-      let plannedWindow = planCanvasLeftOlderWindow({
-        canvasLeftTimestamp,
+      const displayTimeframe = normalizeTimeframeMinutes(
+        payload.displayTimeframe ||
+        paneRecord?.displayTimeframe ||
+        sourceTimeframe
+      );
+      const plan = planLeftwardSourceWindow({
+        bars,
+        displayTimeframe,
         instrument,
-        oldestLoadedTimestamp,
-        timeframe,
+        sourceTimeframe,
+        visibleRange: payload.visibleRange ?? { from: payload.from },
       });
+      if (plan.status === 'ignored') {
+        return ignore(plan.reason || 'canvas-left-inside-loaded-window', paneId, emitEvent);
+      }
+      let plannedWindow = plan.plannedWindow;
       if (plannedWindow.exhausted) {
         return ignore(plannedWindow.reason || 'history-exhausted', paneId, emitEvent);
       }
@@ -355,7 +338,7 @@ export function createLeftwardHistoryExtensionRuntime({
           exhaustedRequestKeys.add(requestKey);
           exhaustedScopes.set(
             exhaustedScopeKey,
-            exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds),
+            exhaustedThroughTimestampMs(plannedWindow, loadedBars, sourceTimeframe * 60),
           );
         }
         if (loadedBars.length) {
@@ -379,7 +362,7 @@ export function createLeftwardHistoryExtensionRuntime({
           return getState();
         }
         emptyGapScans += 1;
-        plannedWindow = planPreviousGapScanWindow(plannedWindow, stepSeconds);
+        plannedWindow = planPreviousGapScanWindow(plannedWindow, sourceTimeframe * 60);
       }
 
       const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
