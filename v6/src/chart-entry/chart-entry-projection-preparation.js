@@ -91,6 +91,7 @@ function summarizeWallState(wallState) {
 
 export function createChartEntryProjectionPreparation(plan, cacheRecord, {
   displayTimeframe = null,
+  projectionRecord = null,
 } = {}) {
   if (!plan) {
     throw new Error('Chart entry projection plan is required.');
@@ -111,10 +112,16 @@ export function createChartEntryProjectionPreparation(plan, cacheRecord, {
     spanBars: normalizePositiveInteger(plan.spanBars, 'spanBars'),
     startIndex: findCursorBarIndex(bars, plan.cursorTime),
   });
-  const chartReplacePayload = createDefaultWallPaneReplacePayload(wallState, {
-    displayTimeframe: targetTimeframe,
-    sourceTimeframe,
-  });
+  const chartReplacePayload = projectionRecord
+    ? {
+      bars: cloneBars(projectionRecord.bars),
+      cursorTimestamp: wallState.latestBar?.timestamp ?? null,
+      paneId: wallState.paneId,
+    }
+    : createDefaultWallPaneReplacePayload(wallState, {
+      displayTimeframe: targetTimeframe,
+      sourceTimeframe,
+    });
 
   return Object.freeze({
     chartReplacePayload: Object.freeze({
@@ -122,6 +129,21 @@ export function createChartEntryProjectionPreparation(plan, cacheRecord, {
       bars: Object.freeze(cloneBars(chartReplacePayload.bars)),
     }),
     owner: 'runtime.chartEntryProjectionPreparation',
+    projectionSource: projectionRecord ? Object.freeze({
+      bucketCount: projectionRecord.buckets?.length ?? 0,
+      owner: 'runtime.chart-data-projection',
+      projectionRevision: projectionRecord.projectionRevision ?? null,
+      sourceBarCount: projectionRecord.sourceBarCount ?? null,
+      sourceTimeframe: projectionRecord.sourceTimeframe ?? sourceTimeframe,
+      targetTimeframe: projectionRecord.targetTimeframe ?? targetTimeframe,
+    }) : Object.freeze({
+      bucketCount: null,
+      owner: 'runtime.chartEntryProjectionPreparation',
+      projectionRevision: null,
+      sourceBarCount: bars.length,
+      sourceTimeframe,
+      targetTimeframe,
+    }),
     replayCursorTime: plan.cursorTime,
     sessionId: normalizeText(plan.sessionId, 'sessionId'),
     source: Object.freeze(summarizeCacheRecord(cacheRecord)),

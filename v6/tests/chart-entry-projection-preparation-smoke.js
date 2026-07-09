@@ -63,6 +63,7 @@ assert.deepEqual(prepared.viewportIntentPayload, {
   cursorTimestamp: bars.at(-1).timestamp,
   latestOffsetBars: 12,
   paneId: 'main',
+  spanBars: 80,
 });
 assert.equal(prepared.wallState.chartBarCount, 5);
 assert.equal(prepared.wallState.forwardBarCount, 0);
