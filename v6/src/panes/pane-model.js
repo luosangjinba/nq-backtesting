@@ -1,4 +1,5 @@
-export const DEFAULT_PANE_ID = 'pane-default';
+export const DEFAULT_PANE_ID = 'main';
+export const CHART_SURFACE_PANE_IDS = Object.freeze(['main', 'secondary', 'tertiary']);
 
 const DEFAULT_PANE_INPUT = Object.freeze({
   active: true,
@@ -72,6 +73,14 @@ export function createDefaultPaneRecord(input = {}) {
     active: true,
     id: input.id || DEFAULT_PANE_ID,
   });
+}
+
+export function createDefaultPaneRecords() {
+  return CHART_SURFACE_PANE_IDS.map((id, index) => createPaneRecord({
+    ...DEFAULT_PANE_INPUT,
+    active: index === 0,
+    id,
+  }));
 }
 
 export function assertPaneRecordShape(pane) {

@@ -38,7 +38,7 @@ const unsubscribeSymbolIntent = subscribeEvent(PANE_EVENTS.SYMBOL_INTENT_CHANGED
 
 const defaultPane = createPaneRecord({
   active: true,
-  id: 'pane-default',
+  id: 'main',
   instrument: 'NQ',
 });
 const reviewPane = createPaneRecord({
@@ -60,15 +60,15 @@ assert.equal(listenerCount(PANE_EVENTS.ACTIVE_CHANGED), 1);
 
 const snapshot = await dispatchCommand(PANE_COMMANDS.GET_SNAPSHOT);
 assert.deepEqual(snapshot, {
-  activePaneId: 'pane-default',
-  defaultPaneId: 'pane-default',
+  activePaneId: 'main',
+  defaultPaneId: 'main',
   panes: [
     defaultPane,
     reviewPane,
   ],
 });
 
-assert.equal((await dispatchCommand(PANE_COMMANDS.GET_ACTIVE)).id, 'pane-default');
+assert.equal((await dispatchCommand(PANE_COMMANDS.GET_ACTIVE)).id, 'main');
 assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-review')).displayTimeframe, 5);
 assert.equal((await dispatchCommand(PANE_COMMANDS.LIST)).length, 2);
 
@@ -77,7 +77,7 @@ assert.equal(active.id, 'pane-review');
 assert.equal(active.active, true);
 assert.equal(activeChangedEvents.length, 1);
 assert.deepEqual(activeChangedEvents[0], active);
-assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).active, false);
+assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'main')).active, false);
 assert.equal((await dispatchCommand(PANE_COMMANDS.LIST)).filter((pane) => pane.active).length, 1);
 
 const changedTimeframe = await dispatchCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
@@ -91,7 +91,7 @@ assert.equal(displayTimeframeEvents.length, 1);
 assert.deepEqual(displayTimeframeEvents[0], changedTimeframe);
 assert.equal(intervalIntentEvents.length, 1);
 assert.deepEqual(intervalIntentEvents[0], changedTimeframe);
-assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).displayTimeframe, 1);
+assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'main')).displayTimeframe, 1);
 
 const changedSymbol = await dispatchCommand(PANE_COMMANDS.SET_SYMBOL_INTENT, {
   instrument: 'ym',
@@ -101,7 +101,7 @@ assert.equal(changedSymbol.instrument, 'YM');
 assert.equal(changedSymbol.displayTimeframe, 15);
 assert.equal(symbolIntentEvents.length, 1);
 assert.deepEqual(symbolIntentEvents[0], changedSymbol);
-assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'pane-default')).instrument, 'NQ');
+assert.equal((await dispatchCommand(PANE_COMMANDS.GET_BY_ID, 'main')).instrument, 'NQ');
 
 const changedInterval = await dispatchCommand(PANE_COMMANDS.SET_INTERVAL_INTENT, {
   displayTimeframe: 30,

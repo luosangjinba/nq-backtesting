@@ -2,6 +2,7 @@ import {
   DEFAULT_PANE_ID,
   assertPaneRecordShape,
   createDefaultPaneRecord,
+  createDefaultPaneRecords,
   createPaneRecord,
   normalizePaneDisplayTimeframe,
   normalizePaneInstrument,
@@ -20,7 +21,7 @@ function normalizePaneId(paneId) {
 }
 
 export function createPaneStore({
-  initialPanes = [createDefaultPaneRecord()],
+  initialPanes = createDefaultPaneRecords(),
 } = {}) {
   const panesById = new Map();
   let activePaneId = DEFAULT_PANE_ID;
@@ -36,9 +37,8 @@ export function createPaneStore({
       }
     });
     if (!panesById.size) {
-      const defaultPane = createDefaultPaneRecord();
-      panesById.set(defaultPane.id, defaultPane);
-      activePaneId = defaultPane.id;
+      createDefaultPaneRecords().forEach((pane) => panesById.set(pane.id, pane));
+      activePaneId = DEFAULT_PANE_ID;
     }
     if (!panesById.has(activePaneId)) {
       activePaneId = panesById.keys().next().value;

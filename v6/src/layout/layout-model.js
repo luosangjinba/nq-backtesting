@@ -2,6 +2,7 @@ import {
   DEFAULT_PANE_ID,
   assertPaneRecordShape,
   createDefaultPaneRecord,
+  createDefaultPaneRecords,
   createPaneRecord,
 } from '../panes/pane-model.js';
 
@@ -58,8 +59,8 @@ function clonePane(pane, activePaneId) {
   });
 }
 
-function normalizePanes(panes = [createDefaultPaneRecord()], activePaneId = DEFAULT_PANE_ID) {
-  const records = panes.length ? panes.map((pane) => createPaneRecord(pane)) : [createDefaultPaneRecord()];
+function normalizePanes(panes = createDefaultPaneRecords(), activePaneId = DEFAULT_PANE_ID) {
+  const records = panes.length ? panes.map((pane) => createPaneRecord(pane)) : createDefaultPaneRecords();
   records.forEach(assertPaneRecordShape);
   const ids = new Set();
   records.forEach((pane) => {
@@ -78,7 +79,7 @@ function normalizePanes(panes = [createDefaultPaneRecord()], activePaneId = DEFA
 export function createLayoutRecord({
   activePaneId = DEFAULT_PANE_ID,
   mode = 'single',
-  panes = [createDefaultPaneRecord()],
+  panes = createDefaultPaneRecords(),
   sync = {},
   variant = null,
 } = {}) {

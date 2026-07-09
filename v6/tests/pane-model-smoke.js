@@ -4,6 +4,7 @@ import {
   PANE_RECORD_KEYS,
   assertPaneRecordShape,
   createDefaultPaneRecord,
+  createDefaultPaneRecords,
   createPaneRecord,
   normalizePaneDisplayTimeframe,
   normalizePaneInstrument,
@@ -21,6 +22,10 @@ assert.deepEqual(defaultPane, {
   viewportIntentRevision: 0,
 });
 assert.equal(assertPaneRecordShape(defaultPane), true);
+
+const defaultPanes = createDefaultPaneRecords();
+assert.deepEqual(defaultPanes.map((pane) => pane.id), ['main', 'secondary', 'tertiary']);
+assert.deepEqual(defaultPanes.map((pane) => pane.active), [true, false, false]);
 
 const inactivePane = createPaneRecord({
   active: false,
@@ -87,5 +92,10 @@ assert.throws(
   () => assertPaneRecordShape({ ...defaultPane, extra: true }),
   /shape mismatch/
 );
+
+const defaultStore = createPaneStore();
+assert.deepEqual(defaultStore.snapshot().panes.map((pane) => pane.id), ['main', 'secondary', 'tertiary']);
+assert.equal(defaultStore.snapshot().activePaneId, 'main');
+assert.equal(defaultStore.getPane('secondary').active, false);
 
 console.log('v6 pane model smoke passed');

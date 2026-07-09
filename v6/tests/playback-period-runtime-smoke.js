@@ -35,7 +35,7 @@ const store = createPaneStore({
     createPaneRecord({
       active: true,
       displayTimeframe: 1,
-      id: 'pane-default',
+      id: 'main',
     }),
     createPaneRecord({
       active: false,
@@ -71,7 +71,7 @@ const synced = await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.SET_SYNC, {
 });
 assert.deepEqual(synced, {
   activeDisplayTimeframe: 1,
-  activePaneId: 'pane-default',
+  activePaneId: 'main',
   period: '1m',
   sync: true,
 });

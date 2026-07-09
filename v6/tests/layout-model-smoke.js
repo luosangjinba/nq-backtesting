@@ -41,6 +41,7 @@ assert.deepEqual(layout, {
     symbol: false,
     time: false,
   },
+  variant: 'twice-vertical',
 });
 
 const activeRight = setLayoutActivePane(layout, 'pane-right');
