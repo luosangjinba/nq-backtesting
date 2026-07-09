@@ -18,10 +18,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 207 - Display-Timeframe Target Source
-  Integration. V6 now routes chart pane activation through pane runtime active
-  state and targets the existing display-timeframe control from the real active
-  pane source.
+- Latest completed roadmap step: Step 208 - Display-Timeframe Active Pane UI
+  State Sync. V6 now updates the visible top-toolbar display-timeframe text
+  from the active pane's existing `displayTimeframe` without projecting or
+  replacing chart data on pane switch.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,33 +31,54 @@
 
 ## Next Executable Steps
 
-### Step 208 - Display-Timeframe Active Pane UI State Sync
+### Step 209 - Next Chart Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- sync the top-toolbar display-timeframe label/readout to the newly active
-  pane's current `displayTimeframe`;
-- use the Step 207 active-pane target bridge or a small adjacent owner bridge;
-- preserve the command shape `{ displayTimeframe, paneId }` when the user
-  applies a timeframe;
-- keep top-toolbar visual behavior stable;
-- add browser coverage proving pane switches update the visible TF label without
-  changing chart data until the user chooses a new timeframe;
+- review the pane-local chart/top-toolbar foundation completed in Steps 206-208;
+- select the next bounded chart-facing slice before implementation;
+- likely candidates are pane-local symbol/TF/OHLC presentation, minimal
+  pane-local symbol/interval selection owner contract, or a chart foundation
+  re-audit before richer controls;
 - do not add custom intervals, interval sync, indicators, Pine Script, or
-  trading/order behavior.
+  trading/order behavior in this selection step.
 
 Acceptance:
 
-- switching active panes updates the shell display-timeframe label/readout to
-  that pane's existing state;
-- pane switches alone do not project or replace chart-data;
-- pane-local display-timeframe runtime isolation still passes;
-- active-pane browser coverage from Step 207 still passes;
+- the next slice is documented with owner boundaries and non-goals;
+- Step 206-208 display-timeframe active-pane coverage is acknowledged;
 - existing chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 208 - Display-Timeframe Active Pane UI State Sync
+
+Completed in commits:
+
+- `3fbfce50 feat(v6): sync display timeframe UI from active pane`
+- `47d0fcba test(v6): cover active pane timeframe UI state`
+- `50d17dd7 test(v6): add active pane timeframe UI to chart pack`
+
+Verification:
+
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/display-timeframe-pane-target-bridge-step207-smoke.js`
+- `node v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`
+- `node v6/tests/display-timeframe-active-pane-browser-step207-smoke.js`
+- `node v6/tests/display-timeframe-pane-isolation-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- The shell display-timeframe control now has `setDisplayTimeframe(value)` for
+  UI-only state sync.
+- Active pane changes now sync both target pane id and visible timeframe text.
+- Pane switches alone do not project or replace chart data.
+- Step 209 should select the next bounded chart-facing slice before more UI
+  expansion.
 
 ### Step 207 - Display-Timeframe Target Source Integration
 

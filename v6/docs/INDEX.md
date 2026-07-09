@@ -228,6 +228,9 @@ Read this index before working on V6.
 - `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_SOURCE_INTEGRATION_STEP207.md`: accepted
   chart-surface pane activation to pane-runtime active state wiring and
   display-timeframe control targeting from the real active pane source.
+- `v6/docs/V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md`: accepted
+  active-pane display-timeframe label synchronization without projecting or
+  replacing chart data on pane switch.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
