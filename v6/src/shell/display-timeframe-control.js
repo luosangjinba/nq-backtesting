@@ -9,8 +9,18 @@ function normalizeDisplayTimeframe(value) {
   return timeframe;
 }
 
+function normalizePaneId(value, fallback = 'main') {
+  const paneId = String(value || fallback || '').trim();
+  if (!paneId) {
+    throw new Error('Display timeframe control paneId must be a non-empty string.');
+  }
+  return paneId;
+}
+
 export function mountDisplayTimeframeControl(root, {
   dispatchCommand = dispatchRuntimeCommand,
+  getTargetPaneId = null,
+  targetPaneId = 'main',
 } = {}) {
   if (!root) {
     throw new Error('Display timeframe control root is required.');
@@ -26,10 +36,25 @@ export function mountDisplayTimeframeControl(root, {
   }
   const abortController = new AbortController();
   const signal = abortController.signal;
+  const ownerDocument = root.ownerDocument || (typeof document === 'undefined' ? null : document);
   let currentValue = normalizeDisplayTimeframe(select?.value || options.find((option) => option.getAttribute('aria-checked') === 'true')?.dataset.v6DisplayTimeframeOption || 1);
+  let currentTargetPaneId = normalizePaneId(root.dataset.v6DisplayTimeframePaneId || targetPaneId);
 
   function formatTimeframe(value) {
     return `${value}m`;
+  }
+
+  function resolveTargetPaneId() {
+    return normalizePaneId(
+      typeof getTargetPaneId === 'function' ? getTargetPaneId() : currentTargetPaneId,
+      currentTargetPaneId,
+    );
+  }
+
+  function syncTargetPaneId(paneId) {
+    currentTargetPaneId = normalizePaneId(paneId);
+    root.dataset.v6DisplayTimeframePaneId = currentTargetPaneId;
+    return currentTargetPaneId;
   }
 
   function syncDisplayTimeframe(value) {
@@ -63,10 +88,13 @@ export function mountDisplayTimeframeControl(root, {
 
   function applyDisplayTimeframe(value) {
     const displayTimeframe = normalizeDisplayTimeframe(value);
+    const paneId = resolveTargetPaneId();
     syncDisplayTimeframe(displayTimeframe);
     root.dataset.displayTimeframe = String(displayTimeframe);
+    root.dataset.v6DisplayTimeframePaneId = paneId;
     Promise.resolve(dispatchCommand(DISPLAY_TIMEFRAME_COMMANDS.APPLY, {
       displayTimeframe,
+      paneId,
     })).catch((error) => {
         root.dataset.lastDisplayTimeframeError = error?.message || String(error);
       });
@@ -91,26 +119,33 @@ export function mountDisplayTimeframeControl(root, {
     }, { signal });
   });
 
-  document.addEventListener('click', (event) => {
+  ownerDocument?.addEventListener('click', (event) => {
     if (!menu || menu.hidden) return;
     if (menu.contains(event.target) || toggle?.contains(event.target)) return;
     closeMenu();
   }, { signal });
 
-  document.addEventListener('keydown', (event) => {
+  ownerDocument?.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
       closeMenu();
     }
   }, { signal });
 
   syncDisplayTimeframe(currentValue);
+  syncTargetPaneId(currentTargetPaneId);
 
   return Object.freeze({
     destroy() {
       abortController.abort();
     },
+    getTargetPaneId() {
+      return currentTargetPaneId;
+    },
     getValue() {
       return currentValue;
+    },
+    setTargetPaneId(paneId) {
+      return syncTargetPaneId(paneId);
     },
   });
 }
