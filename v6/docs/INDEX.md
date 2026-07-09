@@ -201,6 +201,15 @@ Read this index before working on V6.
 - `v6/docs/V6_UI_EXTRACTION_WORKFLOW_AUDIT_STEP197_5.md`: accepted
   browser/computed-style/spec-first UI audit workflow as a process reference
   while rejecting Next/React/shadcn/Tailwind adoption for V6.
+- `v6/docs/V6_AUTO_PLAY_HTF_PROJECTION_AUDIT_STEP199.md`: accepted auto-play
+  as a projection-free scheduler over manual-next while preserving 5m visible
+  latency coverage.
+- `v6/docs/V6_RESET_VIEW_HTF_PROJECTION_AUDIT_STEP200.md`: accepted reset view
+  as a viewport operation over applied display chart-data state, not a
+  projection-owner or chart-engine aggregation path.
+- `v6/docs/V6_HTF_PROJECTION_INTEGRATION_REVIEW_STEP201.md`: integration
+  review for the Step 193-200 HTF projection chain and next pane identity /
+  display-timeframe consistency review target.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
