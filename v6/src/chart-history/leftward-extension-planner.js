@@ -1,16 +1,10 @@
 import { planCanvasLeftOlderWindow } from '../bar-data/bar-window.js';
-
-function normalizeTimeframeMinutes(value, fieldName = 'timeframe') {
-  const match = String(value || '').trim().match(/^(\d+)(m)?$/i);
-  if (!match) {
-    throw new Error(`Leftward history ${fieldName} must be minute-based.`);
-  }
-  const normalized = Number(match[1]);
-  if (!Number.isInteger(normalized) || normalized <= 0) {
-    throw new Error(`Leftward history ${fieldName} must be a positive minute value.`);
-  }
-  return normalized;
-}
+import {
+  assertDisplayTimeframeMultiple,
+  normalizeMinuteTimeframe,
+  normalizeUnixSeconds,
+  TIME_DOMAIN_CONSTANTS,
+} from '../time-domain/time-domain.js';
 
 function normalizeInstrument(value) {
   const normalized = String(value || '').trim().toUpperCase();
@@ -33,13 +27,22 @@ function cloneBars(bars = []) {
 }
 
 function oldestTimestamp(bars = []) {
-  const sorted = cloneBars(bars)
-    .sort((left, right) => Number(left.timestamp) - Number(right.timestamp));
-  const timestamp = Number(sorted[0]?.timestamp);
-  if (!Number.isFinite(timestamp)) {
+  const timestamps = cloneBars(bars)
+    .map((bar) => {
+      try {
+        return normalizeUnixSeconds(bar.timestamp ?? bar.time, {
+          fieldName: 'Leftward history bar timestamp',
+        });
+      } catch {
+        return null;
+      }
+    })
+    .filter((timestamp) => Number.isFinite(timestamp))
+    .sort((left, right) => left - right);
+  if (!timestamps.length) {
     throw new Error('Leftward history extension requires bars with finite timestamps.');
   }
-  return timestamp;
+  return timestamps[0];
 }
 
 export function planLeftwardSourceWindow({
@@ -50,12 +53,20 @@ export function planLeftwardSourceWindow({
   visibleRange,
 } = {}) {
   const visibleFrom = normalizeVisibleFrom(visibleRange);
-  const leftBoundaryIndex = Math.floor(visibleFrom);
-  const source = normalizeTimeframeMinutes(sourceTimeframe, 'sourceTimeframe');
-  const display = normalizeTimeframeMinutes(displayTimeframe ?? source, 'displayTimeframe');
-  if (display < source || display % source !== 0) {
-    throw new Error('Leftward history displayTimeframe must be a multiple of sourceTimeframe.');
-  }
+  const source = normalizeMinuteTimeframe(sourceTimeframe, {
+    fieldName: 'Leftward history sourceTimeframe',
+  });
+  const display = normalizeMinuteTimeframe(displayTimeframe ?? source, {
+    fieldName: 'Leftward history displayTimeframe',
+  });
+  assertDisplayTimeframeMultiple({
+    message: 'Leftward history displayTimeframe must be a multiple of sourceTimeframe.',
+    sourceTimeframe: source,
+    targetTimeframe: display,
+  });
+  const leftBoundaryIndex = visibleFrom < 0
+    ? Math.min(-1, display > source ? Math.floor(visibleFrom) : Math.ceil(visibleFrom))
+    : Math.floor(visibleFrom);
   if (leftBoundaryIndex >= 0) {
     return {
       leftBoundaryIndex,
@@ -65,7 +76,9 @@ export function planLeftwardSourceWindow({
   }
 
   const oldestDisplayTimestamp = oldestTimestamp(bars);
-  const canvasLeftTimestamp = oldestDisplayTimestamp + (leftBoundaryIndex * display * 60);
+  const canvasLeftTimestamp = oldestDisplayTimestamp + (
+    leftBoundaryIndex * display * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS
+  );
   const plannedWindow = planCanvasLeftOlderWindow({
     canvasLeftTimestamp,
     instrument: normalizeInstrument(instrument),

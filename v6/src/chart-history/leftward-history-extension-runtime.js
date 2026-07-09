@@ -13,6 +13,13 @@ import {
   windowBoundsMs,
 } from '../bar-data/bar-window.js';
 import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
+import {
+  normalizeMinuteTimeframe,
+  normalizeOptionalUnixSeconds,
+  normalizeUnixMilliseconds,
+  summarizeProjectionSource,
+  TIME_DOMAIN_CONSTANTS,
+} from '../time-domain/time-domain.js';
 import { planLeftwardSourceWindow } from './leftward-extension-planner.js';
 
 function cloneBars(bars = []) {
@@ -38,28 +45,26 @@ function normalizePaneId(paneId) {
   return normalized;
 }
 
-function normalizeTimeframeMinutes(value) {
-  const match = String(value || '').trim().match(/^(\d+)(m)?$/i);
-  if (!match) {
-    throw new Error('Leftward history extension timeframe must be minute-based.');
-  }
-  const normalized = Number(match[1]);
-  if (!Number.isInteger(normalized) || normalized <= 0) {
-    throw new Error('Leftward history extension timeframe must be a positive minute value.');
-  }
-  return normalized;
-}
-
 function replayCursorTimestamp(replayState = {}) {
   if (!replayState?.cursorTime) return null;
-  const timestamp = Math.floor(new Date(replayState.cursorTime).valueOf() / 1000);
-  return Number.isFinite(timestamp) ? timestamp : null;
+  try {
+    return normalizeOptionalUnixSeconds(replayState.cursorTime, {
+      fieldName: 'Leftward history replay cursorTime',
+    });
+  } catch {
+    return null;
+  }
 }
 
 function replayStartTimestamp(replayState = {}) {
   if (!replayState?.startTime) return null;
-  const timestamp = Math.floor(new Date(replayState.startTime).valueOf() / 1000);
-  return Number.isFinite(timestamp) ? timestamp : null;
+  try {
+    return normalizeOptionalUnixSeconds(replayState.startTime, {
+      fieldName: 'Leftward history replay startTime',
+    });
+  } catch {
+    return null;
+  }
 }
 
 async function optionalCommand(command, payload) {
@@ -116,17 +121,6 @@ function createExhaustedScopeKey(paneId, plannedWindow) {
   ].join('|');
 }
 
-function createProjectionSource(projectionRecord) {
-  return projectionRecord ? {
-    bucketCount: projectionRecord.buckets?.length ?? 0,
-    owner: 'runtime.chart-data-projection',
-    projectionRevision: projectionRecord.projectionRevision ?? null,
-    sourceBarCount: projectionRecord.sourceBarCount ?? null,
-    sourceTimeframe: projectionRecord.sourceTimeframe ?? null,
-    targetTimeframe: projectionRecord.targetTimeframe ?? null,
-  } : null;
-}
-
 async function createPrependBars({
   loadedBars,
   loadedWindow,
@@ -135,11 +129,13 @@ async function createPrependBars({
   plannedWindow,
   replayState,
 } = {}) {
-  const sourceTimeframe = normalizeTimeframeMinutes(
+  const sourceTimeframe = normalizeMinuteTimeframe(
     loadedWindow?.timeframe ?? plannedWindow?.timeframe ?? replayState?.timeframe ?? 1,
+    { fieldName: 'Leftward history extension sourceTimeframe' },
   );
-  const targetTimeframe = normalizeTimeframeMinutes(
+  const targetTimeframe = normalizeMinuteTimeframe(
     paneRecord?.displayTimeframe ?? paneRecord?.timeframe ?? plannedWindow?.timeframe ?? sourceTimeframe,
+    { fieldName: 'Leftward history extension displayTimeframe' },
   );
   if (
     targetTimeframe > sourceTimeframe
@@ -166,12 +162,19 @@ async function createPrependBars({
 
 function oldestLoadedTimestampMs(bars = []) {
   const timestamps = cloneBars(bars)
-    .map((bar) => Number(bar.timestamp ?? bar.time))
+    .map((bar) => {
+      try {
+        return normalizeUnixMilliseconds(bar.timestamp ?? bar.time, {
+          fieldName: 'Leftward history loaded bar timestamp',
+        });
+      } catch {
+        return null;
+      }
+    })
     .filter((timestamp) => Number.isFinite(timestamp))
     .sort((left, right) => left - right);
   if (!timestamps.length) return null;
-  const oldest = timestamps[0];
-  return oldest > 10_000_000_000 ? oldest : oldest * 1000;
+  return timestamps[0];
 }
 
 function exhaustedThroughTimestampMs(plannedWindow, loadedBars, stepSeconds) {
@@ -272,17 +275,19 @@ export function createLeftwardHistoryExtensionRuntime({
       if (!instrument) {
         throw new Error('Leftward history extension requires an instrument.');
       }
-      const sourceTimeframe = normalizeTimeframeMinutes(
+      const sourceTimeframe = normalizeMinuteTimeframe(
         payload.sourceTimeframe ||
         replayState?.timeframe ||
         paneRecord?.timeframe ||
         payload.timeframe ||
-        1
+        1,
+        { fieldName: 'Leftward history extension sourceTimeframe' },
       );
-      const displayTimeframe = normalizeTimeframeMinutes(
+      const displayTimeframe = normalizeMinuteTimeframe(
         payload.displayTimeframe ||
         paneRecord?.displayTimeframe ||
-        sourceTimeframe
+        sourceTimeframe,
+        { fieldName: 'Leftward history extension displayTimeframe' },
       );
       const plan = planLeftwardSourceWindow({
         bars,
@@ -338,7 +343,11 @@ export function createLeftwardHistoryExtensionRuntime({
           exhaustedRequestKeys.add(requestKey);
           exhaustedScopes.set(
             exhaustedScopeKey,
-            exhaustedThroughTimestampMs(plannedWindow, loadedBars, sourceTimeframe * 60),
+            exhaustedThroughTimestampMs(
+              plannedWindow,
+              loadedBars,
+              sourceTimeframe * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS,
+            ),
           );
         }
         if (loadedBars.length) {
@@ -362,7 +371,10 @@ export function createLeftwardHistoryExtensionRuntime({
           return getState();
         }
         emptyGapScans += 1;
-        plannedWindow = planPreviousGapScanWindow(plannedWindow, sourceTimeframe * 60);
+        plannedWindow = planPreviousGapScanWindow(
+          plannedWindow,
+          sourceTimeframe * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS,
+        );
       }
 
       const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
@@ -387,7 +399,7 @@ export function createLeftwardHistoryExtensionRuntime({
           paneId,
           plannedWindow,
           prependedBarCount: prependBars.bars.length,
-          projectionSource: createProjectionSource(prependBars.projectionRecord),
+          projectionSource: summarizeProjectionSource(prependBars.projectionRecord),
           reason: null,
           status: 'loaded',
         },

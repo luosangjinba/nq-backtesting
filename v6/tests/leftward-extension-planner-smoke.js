@@ -10,18 +10,18 @@ const oneMinute = planLeftwardSourceWindow({
 });
 
 assert.equal(oneMinute.status, 'planned');
-assert.equal(oneMinute.leftBoundaryIndex, -4);
+assert.equal(oneMinute.leftBoundaryIndex, -3);
 assert.deepEqual(oneMinute.plannedWindow, {
   bounded: true,
-  canvasLeftBoundary: '2026-06-01 09:26',
+  canvasLeftBoundary: '2026-06-01 09:27',
   chunked: false,
   direction: 'backward',
   end: '2026-06-01 09:29',
-  estimatedBars: 4,
+  estimatedBars: 3,
   historyRequest: 'older-window',
   instrument: 'NQ',
   requestCap: 'canvas-left',
-  start: '2026-06-01 09:26',
+  start: '2026-06-01 09:27',
   timeframe: 1,
 });
 
