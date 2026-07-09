@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 225 - Layout Pane Bootstrap Time Helper
-  Migration. V6 routed layout bootstrap replay cursor and source-bar fallback
-  timestamp parsing through `time-domain` while preserving pane bootstrap
-  payloads, pane ordering, replay cursor semantics, fallback behavior, and
-  chart browser behavior.
+- Latest completed roadmap step: Step 226 - Remaining Chart Time Helper Closure
+  Audit. V6 classified the remaining chart-foundation timestamp/TF parsing
+  sites by owner after Steps 222-225 and selected display-timeframe runtime as
+  the next bounded migration target.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,31 +43,63 @@
 
 ## Next Executable Steps
 
-### Step 226 - Remaining Chart Time Helper Closure Audit
+### Step 227 - Display Timeframe Runtime Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- audit remaining chart-foundation timestamp and timeframe parsing sites after
-  Steps 222-225;
-- classify each remaining site by owner: chart viewport, chart bars,
-  display-timeframe, default-wall, shell/session UI, journal, or persistence;
-- identify which sites already use `time-domain`, which should stay local
-  because they are UI formatting or persistence timestamps, and which need a
-  bounded follow-up migration;
-- select the next implementation step from the audit rather than starting a new
-  feature.
+- migrate `display-timeframe-runtime.js` latest source bar timestamp parsing
+  through `time-domain`;
+- migrate display-timeframe projection-source summary through
+  `summarizeProjectionSource`;
+- preserve target pane selection, projection dispatch payloads, pane
+  display-timeframe updates, chart replacement payloads, emitted event shape,
+  and error text;
+- do not migrate default-wall, chart-data bars, chart-entry context, shell,
+  session, journal, TF menu, indicators, SMC/ICT overlays, trading, or journal
+  workflows in this step.
 
 Acceptance:
 
-- add a focused audit document and smoke covering the remaining chart time
-  helper closure plan;
-- `v6/TODO.md` names the next bounded implementation step;
-- no runtime, TF, indicator, SMC/ICT overlay, trading, or journal behavior
-  changes in Step 226.
+- display-timeframe runtime uses shared helpers behind local wrappers;
+- existing display-timeframe, HTF projection, chart browser, and audit smokes
+  still pass;
+- no new TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
+  Step 227.
 
 ## Completed Steps
+
+### Step 226 - Remaining Chart Time Helper Closure Audit
+
+Completed in commits:
+
+- `e7d4ad05 docs(v6): audit remaining chart time helpers`
+
+Verification:
+
+- `node v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`
+- `node v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_REMAINING_CHART_TIME_HELPER_AUDIT_STEP226.md`.
+- Added `v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`.
+- Classified remaining chart-foundation time/TF parsing sites by owner.
+- Confirmed chart viewport, projection, leftward history, bar-data planning,
+  pane model, replay, chart-entry/reload/layout high-risk paths already route
+  through shared helpers.
+- Marked shell/session UI, session persistence, journal metadata, and chart
+  engine adapter time handling as local for now because those are not chart
+  cursor/projection ownership paths.
+- Selected Step 227 as a bounded migration for
+  `display-timeframe-runtime.js` latest timestamp parsing and
+  projection-source summary.
+- No runtime, TF, indicator, SMC/ICT overlay, trading, or journal behavior
+  changed in Step 226.
 
 ### Step 225 - Layout Pane Bootstrap Time Helper Migration
 
