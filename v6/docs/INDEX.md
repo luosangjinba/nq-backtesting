@@ -216,6 +216,9 @@ Read this index before working on V6.
 - `v6/docs/V6_PANE_IDENTITY_BOOTSTRAP_NORMALIZATION_STEP203.md`: accepted pane
   runtime bootstrap normalization to `main`, `secondary`, and `tertiary`, plus
   the next fallback removal/narrowing recommendation.
+- `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
+  between removable exact-pane compatibility fallback and intentional
+  current-pane active-pane semantics.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
