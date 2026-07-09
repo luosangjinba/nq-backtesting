@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 235 - Replay Step Back Owner Readiness
-  Audit. V6 selected replay-domain/runtime previous cursor ownership as the
-  first implementation slice, while keeping the transport Previous button
-  disabled and avoiding chart-data, viewport, bar-data, pane, and shell behavior
-  changes.
+- Latest completed roadmap step: Step 236 - Replay Previous Domain Command.
+  V6 now has replay-owned previous cursor movement through
+  `REPLAY_COMMANDS.PREVIOUS`, while the transport Previous button remains
+  disabled and chart-entry, chart-data, viewport, bar-data, pane, and shell
+  behavior remain unwired.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,32 +44,62 @@
 
 ## Next Executable Steps
 
-### Step 236 - Replay Previous Domain Command
+### Step 237 - Chart Entry Manual Previous Replacement Contract
 
 Status: planned.
 
 Notes for execution:
 
-- add a pure replay-domain previous-state helper;
-- expose a replay runtime previous command through `REPLAY_COMMANDS.PREVIOUS`;
-- clamp previous movement at cursor index `0`;
-- preserve replay ownership and event semantics;
-- keep the transport Previous button disabled;
-- do not wire chart-entry, chart-data, viewport, bar-data, shell transport, or
-  multi-pane behavior yet.
+- define the chart-entry owner contract for a manual previous chart action;
+- specify whether chart-entry should derive previous visible bars from current
+  chart-data, request bounded bar-data windows, or combine both;
+- specify pane-local replacement semantics for source TF and display TF panes;
+- specify viewport preservation rules when chart-data replacement moves the
+  cursor backward;
+- keep `data-v6-transport-step-back` disabled;
+- do not implement chart-entry manual previous behavior yet if the replacement
+  contract is not explicit enough.
 
 Acceptance:
 
-- replay-domain smoke proves previous cursor movement decrements by one step
-  and clamps at the first cursor;
-- replay runtime smoke proves the previous command emits the accepted replay
-  event/state shape;
-- static/browser smoke still proves the transport Previous button remains
-  disabled and no chart-entry manual previous command is exposed;
-- no chart-data, viewport, bar-data, pane, indicator, trading, or journal
-  behavior changes in Step 236.
+- a Step 237 contract names the chart-entry, chart-data, bar-data, viewport, and
+  pane responsibilities for manual previous;
+- static smoke proves replay previous exists but chart-entry/shell previous
+  wiring remains absent unless Step 237 explicitly implements it;
+- transport visual state, product direction, boundary, and relevant replay
+  smokes pass;
+- no indicator, trading, or journal behavior changes in Step 237.
 
 ## Completed Steps
+
+### Step 236 - Replay Previous Domain Command
+
+Completed in this implementation commit.
+
+Verification:
+
+- `node v6/tests/replay-domain-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/replay-previous-domain-command-step236-smoke.js`
+- `node v6/tests/replay-step-back-owner-readiness-step235-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `REPLAY_COMMANDS.PREVIOUS` and `REPLAY_EVENTS.REWOUND`.
+- Added `previousReplayState` in replay domain.
+- Registered replay runtime previous handling.
+- Previous cursor movement decrements one replay step, clamps at cursor index
+  `0`, and returns `ready` state.
+- Runtime previous stops internal playback before rewinding and emits
+  `replay:rewound`; leaving `playing` or `ended` also emits
+  `replay:playbackChanged`.
+- Kept `data-v6-transport-step-back` disabled.
+- Did not add chart-entry manual previous orchestration or mutate chart-data,
+  viewport, bar-data, pane, indicator, trading, or journal behavior.
 
 ### Step 235 - Replay Step Back Owner Readiness Audit
 

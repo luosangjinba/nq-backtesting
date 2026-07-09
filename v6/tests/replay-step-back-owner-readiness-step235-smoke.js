@@ -50,9 +50,11 @@ assert.match(shell, /data-v6-transport-step-back disabled/);
 assert.match(shell, /aria-label="Previous replay bar"/);
 
 assert.doesNotMatch(transport, /transport-action="previous"|case 'previous'|case "previous"/);
-assert.doesNotMatch(contracts, /PREVIOUS|STEP_BACK|MANUAL_PREVIOUS/);
-assert.doesNotMatch(replayDomain, /previousReplayState|previousReplay|prevReplay/i);
-assert.doesNotMatch(replayRuntime, /REPLAY_COMMANDS\.PREVIOUS|registerCommand\([^,]*previous/i);
+assert.doesNotMatch(contracts, /STEP_BACK|MANUAL_PREVIOUS/);
+assert.match(contracts, /PREVIOUS: 'replay\.previous'/);
+assert.match(contracts, /REWOUND: 'replay:rewound'/);
+assert.match(replayDomain, /previousReplayState/);
+assert.match(replayRuntime, /REPLAY_COMMANDS\.PREVIOUS/);
 assert.doesNotMatch(chartDataRuntime, /ROLLBACK|REMOVE_BARS|removeBars|rollback/i);
 assert.match(chartEntryManualNext, /REPLAY_COMMANDS\.NEXT/);
 assert.doesNotMatch(chartEntryManualNext, /REPLAY_COMMANDS\.PREVIOUS|MANUAL_PREVIOUS/i);

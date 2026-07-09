@@ -148,6 +148,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   NEXT: 'replay.next',
   PAUSE: 'replay.pause',
   PLAY: 'replay.play',
+  PREVIOUS: 'replay.previous',
   RESET: 'replay.reset',
 });
 
@@ -155,6 +156,7 @@ export const REPLAY_EVENTS = Object.freeze({
   ADVANCED: 'replay:advanced',
   LOADED: 'replay:loaded',
   PLAYBACK_CHANGED: 'replay:playbackChanged',
+  REWOUND: 'replay:rewound',
   RESET: 'replay:reset',
 });
 

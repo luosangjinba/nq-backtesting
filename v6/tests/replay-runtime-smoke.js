@@ -43,10 +43,12 @@ const fakeTimer = createFakeTimer();
 const loadedEvents = [];
 const advancedEvents = [];
 const playbackEvents = [];
+const rewoundEvents = [];
 const resetEvents = [];
 const unsubscribeLoaded = subscribeEvent(REPLAY_EVENTS.LOADED, (payload) => loadedEvents.push(payload));
 const unsubscribeAdvanced = subscribeEvent(REPLAY_EVENTS.ADVANCED, (payload) => advancedEvents.push(payload));
 const unsubscribePlayback = subscribeEvent(REPLAY_EVENTS.PLAYBACK_CHANGED, (payload) => playbackEvents.push(payload));
+const unsubscribeRewound = subscribeEvent(REPLAY_EVENTS.REWOUND, (payload) => rewoundEvents.push(payload));
 const unsubscribeReset = subscribeEvent(REPLAY_EVENTS.RESET, (payload) => resetEvents.push(payload));
 
 const registry = createRuntimeRegistry();
@@ -57,6 +59,7 @@ registry.registerRuntime(createReplayRuntime({
 await registry.start({ emitEvent });
 
 assert.equal(hasCommand(REPLAY_COMMANDS.LOAD_SESSION), true);
+assert.equal(hasCommand(REPLAY_COMMANDS.PREVIOUS), true);
 assert.equal(await dispatchCommand(REPLAY_COMMANDS.GET_STATE), null);
 assert.equal(listenerCount(REPLAY_EVENTS.ADVANCED), 1);
 
@@ -96,6 +99,26 @@ assert.equal(stillEnded.cursorTime, session.endTime);
 assert.equal(stillEnded.revealedCount, 3);
 assert.equal(stillEnded.totalBars, 3);
 
+const previousFromEnded = await dispatchCommand(REPLAY_COMMANDS.PREVIOUS);
+assert.equal(previousFromEnded.cursorTime, '2026-06-01T09:31:00.000Z');
+assert.equal(previousFromEnded.cursorIndex, 1);
+assert.equal(previousFromEnded.revealedCount, 2);
+assert.equal(previousFromEnded.status, 'ready');
+assert.equal(rewoundEvents.length, 1);
+assert.equal(playbackEvents.at(-1).status, 'ready');
+
+const previousToStart = await dispatchCommand(REPLAY_COMMANDS.PREVIOUS);
+assert.equal(previousToStart.cursorTime, session.startTime);
+assert.equal(previousToStart.cursorIndex, 0);
+assert.equal(previousToStart.revealedCount, 1);
+assert.equal(previousToStart.status, 'ready');
+
+const previousAtStart = await dispatchCommand(REPLAY_COMMANDS.PREVIOUS);
+assert.equal(previousAtStart.cursorTime, session.startTime);
+assert.equal(previousAtStart.cursorIndex, 0);
+assert.equal(previousAtStart.revealedCount, 1);
+assert.equal(previousAtStart.status, 'ready');
+
 const reset = await dispatchCommand(REPLAY_COMMANDS.RESET);
 assert.equal(reset.cursorTime, session.startTime);
 assert.equal(reset.revealedCount, 1);
@@ -107,11 +130,21 @@ const paused = await dispatchCommand(REPLAY_COMMANDS.PAUSE);
 assert.equal(paused.status, 'paused');
 assert.equal(fakeTimer.intervalCount(), 0);
 
+await dispatchCommand(REPLAY_COMMANDS.NEXT);
+await dispatchCommand(REPLAY_COMMANDS.PLAY);
+assert.equal(fakeTimer.intervalCount(), 1);
+const previousFromPlaying = await dispatchCommand(REPLAY_COMMANDS.PREVIOUS);
+assert.equal(previousFromPlaying.status, 'ready');
+assert.equal(previousFromPlaying.cursorIndex, 0);
+assert.equal(fakeTimer.intervalCount(), 0);
+
 await registry.stop();
 assert.equal(hasCommand(REPLAY_COMMANDS.LOAD_SESSION), false);
+assert.equal(hasCommand(REPLAY_COMMANDS.PREVIOUS), false);
 unsubscribeLoaded();
 unsubscribeAdvanced();
 unsubscribePlayback();
+unsubscribeRewound();
 unsubscribeReset();
 assert.equal(listenerCount(REPLAY_EVENTS.LOADED), 0);
 

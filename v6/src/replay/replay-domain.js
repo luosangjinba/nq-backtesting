@@ -89,6 +89,34 @@ export function nextReplayState(state) {
   });
 }
 
+export function previousReplayState(state) {
+  if (!state) {
+    throw new Error('Replay state is required.');
+  }
+
+  const session = {
+    endTime: state.endTime,
+    id: state.sessionId,
+    startTime: state.startTime,
+    symbol: state.symbol,
+    timeframe: state.timeframe,
+  };
+  const startMs = normalizeUnixMilliseconds(state.startTime, { fieldName: 'Replay startTime' });
+  const endMs = normalizeUnixMilliseconds(state.endTime, { fieldName: 'Replay endTime' });
+  const stepMs = normalizeMinuteTimeframe(state.timeframe, {
+    fieldName: 'Replay timeframe',
+  }) * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
+  return buildState({
+    cursorIndex: state.cursorIndex - 1,
+    endMs,
+    session,
+    startMs,
+    status: 'ready',
+    stepMs,
+    totalBars: state.totalBars,
+  });
+}
+
 export function resetReplayState(state) {
   if (!state) {
     throw new Error('Replay state is required.');

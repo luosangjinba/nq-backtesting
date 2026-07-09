@@ -5,6 +5,7 @@ import {
   markReplayPaused,
   markReplayPlaying,
   nextReplayState,
+  previousReplayState,
   resetReplayState,
 } from './replay-domain.js';
 
@@ -60,6 +61,17 @@ export function createReplayRuntime({
     return advanced;
   }
 
+  function previous() {
+    const beforeStatus = requireState().status;
+    stopTimer();
+    const rewound = setState(previousReplayState(requireState()));
+    emit(REPLAY_EVENTS.REWOUND, rewound);
+    if (beforeStatus === 'playing' || beforeStatus === 'ended') {
+      emit(REPLAY_EVENTS.PLAYBACK_CHANGED, rewound);
+    }
+    return rewound;
+  }
+
   function reset() {
     stopTimer();
     const resetState = setState(resetReplayState(requireState()));
@@ -92,6 +104,7 @@ export function createReplayRuntime({
       registerCommand(REPLAY_COMMANDS.LOAD_SESSION, loadSession),
       registerCommand(REPLAY_COMMANDS.GET_STATE, () => cloneState(state)),
       registerCommand(REPLAY_COMMANDS.NEXT, next),
+      registerCommand(REPLAY_COMMANDS.PREVIOUS, previous),
       registerCommand(REPLAY_COMMANDS.RESET, reset),
       registerCommand(REPLAY_COMMANDS.PLAY, play),
       registerCommand(REPLAY_COMMANDS.PAUSE, pause)
