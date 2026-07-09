@@ -14,10 +14,10 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 194 - Chart Data Projection Owner
-  Runtime. V6 now has an explicit projection contract and owner runtime that
-  can produce pane-local projected chart bars and metadata without fetching
-  bars, mutating replay, or writing chart/DOM state.
+- Latest completed roadmap step: Step 195 - Initial HTF Chart Entry
+  Projection. V6 now routes initial chart-entry preparation through the
+  chart-data projection owner for higher display timeframes while leaving pane
+  reload, manual next, auto-play, leftward history, and reset view untouched.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -27,34 +27,57 @@
 
 ## Next Executable Steps
 
-### Step 195 - Initial HTF Chart Entry Projection
+### Step 196 - Pane Reload HTF Projection
 
 Status: planned.
 
 Notes for execution:
 
 - read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md`;
-- read `session_20260708_step194_chart_data_projection_owner_runtime.md`;
-- route initial chart-entry projection through the chart-data projection owner
-  for panes whose display timeframe is above source timeframe;
+- read `session_20260708_step195_initial_htf_chart_entry_projection.md`;
+- route pane reload chart-data replacement through the chart-data projection
+  owner for panes whose display timeframe is above source timeframe;
 - keep bar-data requests source-owned and avoid changing replay cursor
   ownership;
-- do not route pane reload, manual next, auto-play, leftward history, or reset
-  view yet;
+- do not route manual next, auto-play, leftward history, or reset view yet;
 - preserve replay-safe leftward history latency and chart regression gates.
 
 Acceptance:
 
-- initial HTF chart-entry browser smoke passes;
+- pane reload HTF projection browser smoke passes;
 - projection owner smoke and contract smoke pass;
-- static guard proves Step 195 only routes initial chart-entry and does not
-  route pane reload, manual next, auto-play, leftward history, or reset view;
+- static guard proves Step 196 only routes initial chart-entry and pane reload,
+  and does not route manual next, auto-play, leftward history, or reset view;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 195 - Initial HTF Chart Entry Projection
+
+Completed in commits:
+
+- `bf4e4053 feat(v6): route initial HTF chart entry projection`
+- `5ceda6b3 test(v6): guard initial projection routing scope`
+- `5f55e964 test(v6): cover initial HTF chart entry browser flow`
+
+Verification:
+
+- `node v6/tests/initial-htf-chart-entry-projection-step195-smoke.js`
+- `node v6/tests/initial-htf-chart-entry-browser-step195-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step195-smoke.js`
+- `node v6/tests/chart-data-projection-no-routing-step194-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-runtime-smoke.js`
+- `node v6/tests/chart-entry-projection-preparation-smoke.js`
+- `node v6/tests/chart-data-projection-owner-step194-smoke.js`
+- `node v6/tests/chart-data-projection-contract-step194-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 194 - Chart Data Projection Owner Runtime
 
