@@ -14,9 +14,9 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 196 - Pane Reload HTF Projection. V6 now
-  routes pane reload chart-data replacement through the chart-data projection
-  owner for higher display timeframes while leaving manual next, auto-play,
+- Latest completed roadmap step: Step 197 - Manual Next HTF Visible Latency.
+  V6 now routes initial chart entry, pane reload, and manual-next HTF display
+  bars through the chart-data projection owner while leaving auto-play,
   leftward history, and reset view untouched.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
@@ -27,36 +27,62 @@
 
 ## Next Executable Steps
 
-### Step 197 - Manual Next HTF Visible Latency
+### Step 198 - Leftward History HTF Stability
 
 Status: planned.
 
 Notes for execution:
 
 - read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md`;
-- read `session_20260708_step196_pane_reload_htf_projection.md`;
-- route manual next through the chart-data projection owner for higher display
-  timeframes;
-- source window planning must fetch enough lower-timeframe data to complete or
-  update the target bucket;
-- measure visible candle latency on the rendered HTF candle;
-- keep bar-data requests source-owned and avoid changing replay cursor
-  ownership;
-- do not route auto-play, leftward history, or reset view yet;
-- preserve replay-safe leftward history latency and chart regression gates.
+- read `session_20260708_step197_manual_next_htf_visible_latency.md`;
+- route leftward history prepends through the chart-data projection owner for
+  higher display timeframes;
+- prepend source chunks and rebuild only the affected leading display buckets;
+- preserve delayed/coalesced/chunked leftward-history loading;
+- keep visible K-line stability as the priority, even if older-bar loading has
+  a small delay;
+- do not route auto-play or reset view yet;
+- preserve manual-next HTF latency and chart regression gates.
 
 Acceptance:
 
+- leftward-history HTF stability browser smoke passes;
+- static guard proves Step 198 routes leftward history and still does not route
+  auto-play or reset view;
 - manual-next HTF visible latency browser smoke passes;
-- projection owner smoke and contract smoke pass;
-- static guard proves Step 197 routes manual next only and still does not route
-  auto-play, leftward history, or reset view;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 197 - Manual Next HTF Visible Latency
+
+Completed in commits:
+
+- `253f9e3a feat(v6): route manual next HTF projection`
+- `3019a121 test(v6): cover manual next HTF projection`
+- `075e3bd2 test(v6): guard manual next projection scope`
+- `360a3d75 test(v6): cover manual next HTF visible latency`
+
+Verification:
+
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/manual-next-htf-visible-latency-browser-step197-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step197-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step196-smoke.js`
+- `node v6/tests/chart-data-projection-routing-scope-step195-smoke.js`
+- `node v6/tests/chart-data-projection-no-routing-step194-smoke.js`
+- `node v6/tests/display-timeframe-no-feature-step192-smoke.js`
+- `node v6/tests/display-timeframe-no-wiring-step193-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/chart-data-projection-owner-step194-smoke.js`
+- `node v6/tests/chart-data-projection-contract-step194-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 196 - Pane Reload HTF Projection
 

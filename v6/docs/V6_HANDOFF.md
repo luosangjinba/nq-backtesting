@@ -4,18 +4,19 @@ Last updated: 2026-07-08
 
 ## Current State
 
-- Branch: `v5/fx-replay-workstation`
-- Current V6 step state: Step 165 completed.
-- Next planned step: Step 166 - Layout Sync Effects Boundary.
+- Branch: `v6/fx-replay-workstation`
+- Current V6 step state: Step 197 completed.
+- Next planned step: Step 198 - Leftward History HTF Stability.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Pane Resize Drag Boundary:
+The latest completed work is Manual Next HTF Visible Latency:
 
-- `V6_PANE_RESIZE_DRAG_STEP165.md` accepts chart-surface-owned pane resize
-  handles and local per-variant resize ratios.
-- `pane-resize-drag-browser-step165-smoke.js` verifies browser-level handle
-  creation and grid-template changes.
-- Step 166 should connect selected layout sync toggles to bounded chart effects.
+- `V6_MANUAL_NEXT_HTF_VISIBLE_LATENCY_STEP197.md` accepts manual-next routing
+  through the chart-data projection owner for higher display timeframes.
+- `manual-next-htf-visible-latency-browser-step197-smoke.js` verifies the
+  rendered HTF candle updates within the visible-latency threshold.
+- Step 198 should route leftward-history prepends through the same projection
+  owner while preserving delayed/coalesced/chunked history stability.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -145,81 +146,17 @@ After restarting the server or assistant context, read these first:
 
 ## Next Step
 
-Step 166 should focus on Layout Sync Effects Boundary.
+Step 198 should focus on Leftward History HTF Stability.
 
-Keep Step 166 bounded:
+Keep Step 198 bounded:
 
-- read `V6_PANE_RESIZE_DRAG_STEP165.md`,
-  `V6_LAYOUT_VARIANT_GEOMETRY_STEP164.md`,
-  `V6_PANE_LOCAL_RESET_VIEW_CONTROLS_STEP163.md`,
-  `V6_LAYOUT_PANE_DATA_BOOTSTRAP_STEP162.md`,
-  `V6_LAYOUT_PANE_SURFACE_REFLOW_STEP161.md`,
-  `V6_LAYOUT_MENU_OWNER_BINDING_STEP160.md`,
-  `V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP159.md`,
-  `V6_CHART_FOUNDATION_INTEGRATION_REAUDIT_STEP158.md`,
-  `V6_MULTI_PANE_REPLAY_VIEWPORT_PROJECTION_STEP157.md`,
-  `V6_MULTI_PANE_REPLAY_APPEND_STEP156.md`,
-  `V6_MULTI_PANE_LEFTWARD_HISTORY_STEP155.md`,
-  `V6_MULTI_PANE_CROSSHAIR_READOUT_STEP154.md`,
-  `V6_CROSSHAIR_OHLC_READOUT_STEP153.md`,
-  `V6_AUTO_PLAY_CONTINUOUS_HISTORY_STEP152.md`,
-  `V6_CONTINUOUS_LEFTWARD_HISTORY_STEP151.md`,
-  `V6_REPLAY_SPEED_UNDER_HISTORY_EXTENSION_STEP150.md`,
-  `V6_DRAG_TRIGGERED_HISTORY_EXTENSION_STEP149.md`,
-  `V6_LEFTWARD_HISTORICAL_EXTENSION_STEP148.md`,
-  `V6_MULTI_PANE_CHART_FOUNDATION_STEP147.md`,
-  `V6_RESET_VIEW_KXG_FLOW_STEP146.md`,
-  `V6_REPLAY_KLINE_CHART_FLOW_STEP145.md`,
-  `V6_DATABASE_KLINE_IMPORT_BOUNDARY_STEP144.md`,
-  `V6_CHART_FOUNDATION_REPRIORITIZATION_STEP143.md`,
-  `V6_ARCHITECTURE.md`, `specs/replay-viewport-intent.md`,
-  `specs/replay-visible-latency.md`, and `specs/pane-model.md`;
-- connect selected layout sync toggles to a first bounded chart effect;
-- prefer crosshair and/or time-range sync before symbol/interval sync because
-  symbol and interval affect bar-data loading;
-- keep resize ratios local to chart presentation;
-- preserve selected layout variant state and visible pane membership;
-- preserve Step 165 pane resize drag behavior;
-- preserve Step 164 layout variant geometry;
-- preserve Step 163 pane-local reset controls;
-- preserve Step 162 layout pane data bootstrap;
-- preserve Step 161 layout pane surface reflow;
-- preserve Step 160 layout menu owner binding;
-- preserve Step 159 selected owner boundary and non-goals;
-- preserve Step 158 chart foundation integration audit coverage;
-- preserve Step 157 pane-local replay viewport projection isolation;
-- preserve Step 156 pane-local replay append and auto-play isolation;
-- preserve pane-local leftward history exhaustion from Step 155;
-- preserve Step 154 hovered-pane crosshair readout isolation;
-- preserve the Step 153 rule that OHLC is hidden when no selected candle is
-  available;
-- preserve continuous leftward exhaustion stopping and canvas-left request caps;
-- preserve duplicate/exhausted older-window suppression;
-- preserve replay speed under active and recently loaded history extension and
-  auto-play;
-- preserve pane-local chart-data and viewport intent for multi-pane hosts;
-- avoid chart overlays, simulated trading, comparison symbols, and additional
-  workstation chrome behavior in this step;
-- keep dashboard row-action visibility unchanged;
-- do not expose Order or Calendar.
-
-Expected implementation shape:
-
-- layout sync effects through layout-runtime state, chart-surface bridges, and
-  chart-viewport/chart-engine owner boundaries;
-- do not move pane resize ownership out of chart-surface;
-- do not move layout variant ownership out of layout-runtime;
-- do not request/cache bars outside bar-data;
-- do not write chart series outside chart-engine;
-- do not mutate replay cursor outside replay runtime;
-- do not mutate viewport intent outside chart-viewport runtime;
-- do not route pane ownership through workstation route files;
-- run layout sync effects smoke/browser smoke, pane resize drag smoke/browser
-  smoke, layout variant geometry browser smoke, pane-local reset controls
-  smoke/browser smoke, layout pane data bootstrap smoke/browser smoke, layout
-  pane surface reflow smoke/browser smoke, layout surface bridge smoke, layout
-  menu owner binding smoke/browser smoke, chart foundation integration re-audit
-  smoke, and boundary smoke.
+- read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md` and
+  `session_20260708_step197_manual_next_htf_visible_latency.md`;
+- route leftward-history prepends through the chart-data projection owner for
+  higher display timeframes;
+- preserve delayed/coalesced/chunked loading and current-screen stability;
+- do not route auto-play or reset view yet;
+- keep chart-data and chart-engine projection-free.
 
 ## Critical Boundaries
 
