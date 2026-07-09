@@ -7,7 +7,10 @@ import {
   windowBoundsMs,
   windowCovers,
 } from './bar-window.js';
-import { TIME_DOMAIN_CONSTANTS } from '../time-domain/time-domain.js';
+import {
+  TIME_DOMAIN_CONSTANTS,
+  unixMillisecondsToSeconds,
+} from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -25,8 +28,12 @@ function cloneRecord(record, extras = {}) {
 
 function sliceBarsForWindow(bars, planned) {
   const { startMs, endMs } = windowBoundsMs(planned);
-  const startTimestamp = Math.floor(startMs / 1000);
-  const endTimestamp = Math.floor(endMs / 1000);
+  const startTimestamp = unixMillisecondsToSeconds(startMs, {
+    fieldName: 'Bar data cache window startMs',
+  });
+  const endTimestamp = unixMillisecondsToSeconds(endMs, {
+    fieldName: 'Bar data cache window endMs',
+  });
   return cloneBars(bars)
     .filter((bar) => bar.timestamp >= startTimestamp && bar.timestamp <= endTimestamp)
     .sort((left, right) => left.timestamp - right.timestamp);
@@ -42,6 +49,12 @@ function barTimestampMs(bar = {}) {
 
 function boundaryTime(timestampMs) {
   return Number.isFinite(timestampMs) ? formatApiTime(timestampMs) : null;
+}
+
+function boundaryTimestamp(timestampMs, fieldName) {
+  return Number.isFinite(timestampMs)
+    ? unixMillisecondsToSeconds(timestampMs, { fieldName })
+    : null;
 }
 
 function inferStepMs(record) {
@@ -109,16 +122,23 @@ function applyBoundaryRecord(scope, record) {
 function serializeBoundaryScope(scope) {
   return {
     earliestLoadedTime: boundaryTime(scope.earliestLoadedMs),
-    earliestLoadedTimestamp: scope.earliestLoadedMs === null ? null : Math.floor(scope.earliestLoadedMs / 1000),
+    earliestLoadedTimestamp: boundaryTimestamp(
+      scope.earliestLoadedMs,
+      'Bar data cache earliestLoadedMs',
+    ),
     emptyWindowCount: scope.emptyWindowCount,
     exhaustedBefore: scope.exhaustedBefore,
     instrument: scope.instrument,
     knownExhaustedBeforeTime: boundaryTime(scope.knownExhaustedBeforeMs),
-    knownExhaustedBeforeTimestamp: scope.knownExhaustedBeforeMs === null
-      ? null
-      : Math.floor(scope.knownExhaustedBeforeMs / 1000),
+    knownExhaustedBeforeTimestamp: boundaryTimestamp(
+      scope.knownExhaustedBeforeMs,
+      'Bar data cache knownExhaustedBeforeMs',
+    ),
     latestLoadedTime: boundaryTime(scope.latestLoadedMs),
-    latestLoadedTimestamp: scope.latestLoadedMs === null ? null : Math.floor(scope.latestLoadedMs / 1000),
+    latestLoadedTimestamp: boundaryTimestamp(
+      scope.latestLoadedMs,
+      'Bar data cache latestLoadedMs',
+    ),
     loadedBarCount: scope.loadedBarCount,
     loadedWindowCount: scope.loadedWindowCount,
     timeframe: scope.timeframe,
