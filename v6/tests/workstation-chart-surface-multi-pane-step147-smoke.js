@@ -109,6 +109,14 @@ assert.deepEqual(
 );
 assert.deepEqual(surface.getState().panes.map((pane) => pane.paneId), ['pane-left', 'pane-right']);
 assert.equal(surface.getState().hostConnected, true);
+assert.equal(surface.getState().activePaneId, 'pane-left');
+
+const paneActivations = [];
+const unsubscribePaneActivation = surface.subscribePaneActivation((event) => paneActivations.push(event));
+rightHost.listeners.find((listener) => listener.eventName === 'pointerdown').handler({ buttons: 1 });
+assert.equal(surface.getState().activePaneId, 'pane-right');
+assert.deepEqual(paneActivations, [{ origin: 'pointerdown', paneId: 'pane-right' }]);
+unsubscribePaneActivation();
 
 surface.applyChartDataRecord({
   bars: [
@@ -194,8 +202,8 @@ assert.deepEqual(calls.slice(-3), [
   { method: 'unsubscribeVisibleLogicalRangeChange', paneId: 'pane-right' },
   { method: 'destroyAll' },
 ]);
-assert.equal(leftHost.listeners.filter((listener) => listener.removed).length, 4);
-assert.equal(rightHost.listeners.filter((listener) => listener.removed).length, 4);
+assert.equal(leftHost.listeners.filter((listener) => listener.removed).length, 5);
+assert.equal(rightHost.listeners.filter((listener) => listener.removed).length, 5);
 
 assert.throws(
   () => mountWorkstationChartSurface({

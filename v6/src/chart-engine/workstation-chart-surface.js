@@ -148,10 +148,14 @@ export function mountWorkstationChartSurface(root, {
   const chartSurfaceElement = root.querySelector?.('[data-v6-chart-surface]') || null;
   const chartPaneLayerElement = root.querySelector?.('[data-v6-chart-pane-layer]') || null;
   const crosshairListeners = new Set();
+  const hostFocusHandlers = new Map();
+  const hostInputStartHandlers = new Map();
+  const paneActivationListeners = new Set();
   const visibleRangeListeners = new Set();
   const paneResizeRatiosByVariant = new Map();
   const paneResizeHandleElements = new Map();
   let activePaneResize = null;
+  let activePaneId = hosts.slice(0, 1).map(resolvePaneId)[0] || null;
   let layoutSnapshot = {
     mode: 'single',
     paneCount: 1,
@@ -239,6 +243,22 @@ export function mountWorkstationChartSurface(root, {
   const markUserRangeWheelInput = () => {
     userRangeInputUntil = Date.now() + USER_RANGE_WHEEL_WINDOW_MS;
   };
+  function activatePane(paneId, origin = 'host-input') {
+    const normalizedPaneId = String(paneId || '').trim();
+    if (!normalizedPaneId || !hostsByPaneId.has(normalizedPaneId)) {
+      return null;
+    }
+    activePaneId = normalizedPaneId;
+    const record = {
+      origin,
+      paneId: normalizedPaneId,
+    };
+    hostsByPaneId.forEach((host, hostPaneId) => {
+      host.dataset.v6ChartPaneActive = String(hostPaneId === normalizedPaneId);
+    });
+    paneActivationListeners.forEach((listener) => listener({ ...record }));
+    return record;
+  }
   function dispatchSyntheticRelease(target, eventName) {
     if (!target || typeof target.dispatchEvent !== 'function') {
       return;
@@ -283,9 +303,18 @@ export function mountWorkstationChartSurface(root, {
   const userInputMoveEvents = ['pointermove', 'mousemove'];
   const userInputReleaseTargets = new Set();
   hosts.forEach((host) => {
+    const paneId = resolvePaneId(host);
     userInputStartEvents.forEach((eventName) => {
-      host.addEventListener?.(eventName, markUserRangeDragStart, { passive: true });
+      const handler = (event) => {
+        activatePane(paneId, eventName);
+        markUserRangeDragStart(event);
+      };
+      hostInputStartHandlers.set(`${paneId}:${eventName}`, handler);
+      host.addEventListener?.(eventName, handler, { passive: true });
     });
+    const focusHandler = () => activatePane(paneId, 'focusin');
+    hostFocusHandlers.set(paneId, focusHandler);
+    host.addEventListener?.('focusin', focusHandler, { passive: true });
     host.addEventListener?.('wheel', markUserRangeWheelInput, { passive: true });
     const releaseTarget = host.ownerDocument || root.ownerDocument || globalThis.document;
     if (releaseTarget) {
@@ -509,6 +538,9 @@ export function mountWorkstationChartSurface(root, {
 
   function applyVisibleLayout({ gridAreas, mode, paneCount, variant, visiblePaneIds }) {
     const visiblePaneSet = new Set(visiblePaneIds);
+    if (!visiblePaneSet.has(activePaneId)) {
+      activePaneId = visiblePaneIds[0] || activePaneId;
+    }
     hosts.forEach((host) => {
       const paneId = resolvePaneId(host);
       const visibleIndex = visiblePaneIds.indexOf(paneId);
@@ -524,6 +556,7 @@ export function mountWorkstationChartSurface(root, {
       } else {
         host.setAttribute?.('aria-hidden', 'true');
       }
+      host.dataset.v6ChartPaneActive = String(paneId === activePaneId);
     });
     layoutSnapshot = {
       mode,
@@ -720,11 +753,15 @@ export function mountWorkstationChartSurface(root, {
       unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       hosts.forEach((host) => {
+        const paneId = resolvePaneId(host);
         userInputStartEvents.forEach((eventName) => {
-          host.removeEventListener?.(eventName, markUserRangeDragStart);
+          host.removeEventListener?.(eventName, hostInputStartHandlers.get(`${paneId}:${eventName}`));
         });
+        host.removeEventListener?.('focusin', hostFocusHandlers.get(paneId));
         host.removeEventListener?.('wheel', markUserRangeWheelInput);
       });
+      hostFocusHandlers.clear();
+      hostInputStartHandlers.clear();
       userInputReleaseTargets.forEach((target) => {
         userInputReleaseEvents.forEach((eventName) => {
           target.removeEventListener?.(eventName, markUserRangeDragEnd);
@@ -736,6 +773,7 @@ export function mountWorkstationChartSurface(root, {
       resizeObserver?.disconnect();
       manager.destroyAll();
       crosshairListeners.clear();
+      paneActivationListeners.clear();
       visibleRangeListeners.clear();
     },
     getState() {
@@ -748,6 +786,7 @@ export function mountWorkstationChartSurface(root, {
         hostConnected: hosts.every((host) => Boolean(host.isConnected)),
         hostSelector,
         layout: { ...layoutSnapshot, visiblePaneIds: [...layoutSnapshot.visiblePaneIds] },
+        activePaneId,
         maximize: {
           maximizedPaneId,
           restoreLayout: restoreLayoutSnapshot
@@ -773,6 +812,15 @@ export function mountWorkstationChartSurface(root, {
       return updatePaneResizeFromPointer(handleId, point);
     },
     restorePane,
+    subscribePaneActivation(handler) {
+      if (typeof handler !== 'function') {
+        throw new Error('Workstation chart surface pane activation handler is required.');
+      }
+      paneActivationListeners.add(handler);
+      return () => {
+        paneActivationListeners.delete(handler);
+      };
+    },
     subscribeVisibleRangeChange(handler) {
       if (typeof handler !== 'function') {
         throw new Error('Workstation chart surface visible range handler is required.');

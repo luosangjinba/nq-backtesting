@@ -22,6 +22,7 @@ import { connectLayoutSyncSurfaceBridge } from './chart-engine/layout-sync-surfa
 import { connectLayoutSurfaceBridge } from './chart-engine/layout-surface-bridge.js';
 import { connectMaximizeRestoreControl } from './chart-engine/maximize-restore-control-bridge.js';
 import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-bridge.js';
+import { connectPaneActiveSurfaceBridge } from './chart-engine/pane-active-surface-bridge.js';
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
@@ -133,6 +134,9 @@ const manualWallInputBridge = connectManualWallInputBridge({
 const leftwardHistoryInputBridge = connectLeftwardHistoryInputBridge({
   chartSurface: workstationChartSurface,
 });
+const paneActiveSurfaceBridge = connectPaneActiveSurfaceBridge({
+  chartSurface: workstationChartSurface,
+});
 const layoutMenuControl = mountLayoutMenuControl(root);
 const paneStatusReadout = mountPaneStatusReadout(root);
 const maximizeRestoreControls = [...root.querySelectorAll('[data-v6-chart-maximize-restore]')]
@@ -215,5 +219,6 @@ root.__v6LayoutSurfaceBridge = layoutSurfaceBridge;
 root.__v6LeftwardHistoryInputBridge = leftwardHistoryInputBridge;
 root.__v6ManualWallInputBridge = manualWallInputBridge;
 root.__v6MaximizeRestoreControl = maximizeRestoreControl;
+root.__v6PaneActiveSurfaceBridge = paneActiveSurfaceBridge;
 root.__v6ResetViewControl = resetViewControl;
 root.dataset.booted = 'true';
