@@ -11,6 +11,7 @@ import {
   normalizeMinuteTimeframe,
   normalizeOptionalUnixSeconds,
   normalizeUnixSeconds,
+  summarizeProjectionSource,
 } from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
@@ -185,14 +186,7 @@ export function createPaneIntentReloadChartDataRuntime() {
           displayTimeframe: record.displayTimeframe,
           noFuture: record.noFuture,
           paneId: record.paneId,
-          projectionSource: replacementBars.projectionRecord ? {
-            bucketCount: replacementBars.projectionRecord.buckets?.length ?? 0,
-            owner: 'runtime.chart-data-projection',
-            projectionRevision: replacementBars.projectionRecord.projectionRevision ?? null,
-            sourceBarCount: replacementBars.projectionRecord.sourceBarCount ?? null,
-            sourceTimeframe: replacementBars.projectionRecord.sourceTimeframe ?? null,
-            targetTimeframe: replacementBars.projectionRecord.targetTimeframe ?? null,
-          } : null,
+          projectionSource: summarizeProjectionSource(replacementBars.projectionRecord),
           reason: record.reason,
           sessionStartTime: record.sessionStartTime,
           sourceTimeframe: record.sourceTimeframe,
