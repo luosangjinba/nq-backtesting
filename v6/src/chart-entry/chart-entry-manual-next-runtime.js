@@ -1,13 +1,14 @@
 import {
   BAR_DATA_COMMANDS,
   CHART_DATA_COMMANDS,
+  CHART_DATA_PROJECTION_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
   PANE_COMMANDS,
   PLAYBACK_PERIOD_COMMANDS,
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
-import { dispatchCommand, registerCommand } from '../runtime/commands.js';
+import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
 import { resolvePlaybackPeriodStepCount } from './chart-entry-playback-period-policy.js';
 
 function cloneBars(bars = []) {
@@ -69,6 +70,22 @@ function normalizeTimeframeMinutes(timeframe) {
   return minutes;
 }
 
+function parseReplayTimestamp(value, fieldName) {
+  const timestamp = Math.floor(new Date(String(value || '')).valueOf() / 1000);
+  if (!Number.isFinite(timestamp)) {
+    throw new Error(`Chart entry manual next ${fieldName} must be a valid date/time.`);
+  }
+  return timestamp;
+}
+
+function resolveSourceTimeframe(replayState = {}) {
+  return normalizeTimeframeMinutes(replayState.timeframe);
+}
+
+function resolveTargetTimeframe(replayState = {}, pane = {}) {
+  return normalizeTimeframeMinutes(pane.displayTimeframe || replayState.timeframe);
+}
+
 function createNextWindowPayload(replayState, pane = {}) {
   if (!replayState?.cursorTime) {
     throw new Error('Chart entry manual next requires replay cursor time.');
@@ -77,13 +94,14 @@ function createNextWindowPayload(replayState, pane = {}) {
   if (!instrument) {
     throw new Error('Chart entry manual next requires replay symbol.');
   }
-  const timeframe = pane.displayTimeframe || replayState.timeframe;
+  const sourceTimeframe = resolveSourceTimeframe(replayState);
+  const targetTimeframe = resolveTargetTimeframe(replayState, pane);
   return {
     anchor: replayState.cursorTime,
-    count: 2,
+    count: Math.max(2, Math.ceil(targetTimeframe / sourceTimeframe)),
     direction: 'backward',
     instrument: String(instrument).toUpperCase(),
-    timeframe: normalizeTimeframeMinutes(timeframe),
+    timeframe: sourceTimeframe,
   };
 }
 
@@ -95,6 +113,67 @@ function pickCursorBars(record, replayState) {
   const cursorTimestamp = Math.floor(new Date(replayState.cursorTime).valueOf() / 1000);
   const exact = bars.filter((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
   return exact.length ? exact : bars.slice(-1);
+}
+
+function pickCursorProjectionBars(record, replayState) {
+  const bars = cloneBars(record?.bars);
+  if (!bars.length) {
+    throw new Error('Chart entry manual next projection did not include bars.');
+  }
+  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
+  const bucket = record?.buckets?.find((item) => (
+    cursorTimestamp >= Number(item.bucketStartTimestamp)
+    && cursorTimestamp <= Number(item.bucketEndTimestamp)
+  ));
+  if (bucket) {
+    const bucketTimestamp = Number(bucket.bucketStartTimestamp);
+    const bucketBar = bars.find((bar) => Number(bar.timestamp ?? bar.time) === bucketTimestamp);
+    if (bucketBar) return [bucketBar];
+  }
+  return bars.slice(-1);
+}
+
+async function createAppendBars({
+  loadedWindow,
+  pane,
+  paneId,
+  replayState,
+} = {}) {
+  const sourceTimeframe = resolveSourceTimeframe(replayState);
+  const targetTimeframe = resolveTargetTimeframe(replayState, pane);
+  if (
+    targetTimeframe > sourceTimeframe
+    && hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)
+  ) {
+    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
+      bars: loadedWindow.bars,
+      cursorTimestamp: parseReplayTimestamp(replayState.cursorTime, 'cursorTime'),
+      paneId,
+      sessionStartTimestamp: parseReplayTimestamp(replayState.startTime, 'startTime'),
+      sourceTimeframe,
+      targetTimeframe,
+    });
+    return {
+      bars: pickCursorProjectionBars(projectionRecord, replayState),
+      projectionRecord,
+    };
+  }
+
+  return {
+    bars: pickCursorBars(loadedWindow, replayState),
+    projectionRecord: null,
+  };
+}
+
+function createProjectionSource(projectionRecord) {
+  return projectionRecord ? {
+    bucketCount: projectionRecord.buckets?.length ?? 0,
+    owner: 'runtime.chart-data-projection',
+    projectionRevision: projectionRecord.projectionRevision ?? null,
+    sourceBarCount: projectionRecord.sourceBarCount ?? null,
+    sourceTimeframe: projectionRecord.sourceTimeframe ?? null,
+    targetTimeframe: projectionRecord.targetTimeframe ?? null,
+  } : null;
 }
 
 function normalizePaneId(value = 'main') {
@@ -168,7 +247,13 @@ export function createChartEntryManualNextRuntime() {
           const pane = await getPaneRecord(paneId);
           const windowPayload = createNextWindowPayload(replayState, pane || {});
           const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
-          const bars = pickCursorBars(loadedWindow, replayState);
+          const appendBars = await createAppendBars({
+            loadedWindow,
+            pane: pane || {},
+            paneId,
+            replayState,
+          });
+          const bars = appendBars.bars;
           const cursorTimestamp = Number(bars.at(-1)?.timestamp ?? bars.at(-1)?.time);
           const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
             bars,
@@ -182,6 +267,7 @@ export function createChartEntryManualNextRuntime() {
             cacheHit: Boolean(loadedWindow?.cacheHit),
             key: loadedWindow?.key || null,
             paneId,
+            projectionSource: createProjectionSource(appendBars.projectionRecord),
           });
         }
         if (replayState.status === 'ended') break;
