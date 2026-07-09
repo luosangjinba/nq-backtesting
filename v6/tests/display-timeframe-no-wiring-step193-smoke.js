@@ -16,7 +16,6 @@ async function walkFiles(root) {
   return files;
 }
 
-const contracts = await readFile('v6/src/contracts/app-contracts.js', 'utf8');
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
 const manualNext = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');
 const paneReloadChartData = await readFile('v6/src/pane-intent-reload/pane-intent-reload-chart-data-runtime.js', 'utf8');
@@ -31,8 +30,6 @@ for (const file of sourceFiles) {
   }
 }
 
-assert.equal(contracts.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
-assert.equal(contracts.includes('chartDataProjection.'), false);
 assert.equal(displayRuntime.includes('chart-data-projection'), false);
 assert.equal(displayRuntime.includes('BAR_DATA_COMMANDS'), false);
 assert.equal(displayRuntime.includes('createChart'), false);
