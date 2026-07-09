@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 219 - Bar-Data Adapter / Normalizer Time
-  Helper Integration. V6 routed database adapter and bar normalizer epoch-second
-  conversion through shared time helpers while preserving database query shape,
-  requested range metadata, and normalized chart bar output.
+- Latest completed roadmap step: Step 220 - Bar-Data Runtime / Cache Epoch
+  Serialization Integration. V6 routed bar-data runtime filtering and cache
+  boundary metadata epoch serialization through shared time helpers while
+  preserving cache filtering, boundary metadata, and chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,30 +43,63 @@
 
 ## Next Executable Steps
 
-### Step 220 - Bar-Data Runtime / Cache Epoch Serialization Integration
+### Step 221 - Chart Entry / Reload Time Helper Readiness Audit
 
 Status: planned.
 
 Notes for execution:
 
-- route remaining bar-data runtime/cache epoch-second serialization through
-  shared helpers where practical;
-- preserve runtime ownership of command handling and cache ownership of boundary
-  metadata summaries;
-- keep `GET_BOUNDARY_METADATA`, cache slice filtering, requested range
-  timestamps, and chart bars unchanged;
-- do not expand TF support or alter request windows.
+- audit remaining chart-entry, pane-intent-reload, and layout bootstrap
+  timestamp conversion points before changing them;
+- identify which conversions are external text parsing, known millisecond
+  serialization, or chart-bar seconds;
+- preserve owners: chart-entry owns entry orchestration, pane-intent reload owns
+  reload application, layout owns pane bootstrap wiring;
+- do not implement feature changes in the audit step.
 
 Acceptance:
 
-- bar-data runtime/cache use shared helpers for known millisecond-to-second
-  serialization where practical;
-- bar-data domain/runtime, boundary metadata, leftward-history, and chart
-  browser smokes still pass;
-- no query shape, requested range, cache key, boundary metadata, TF, indicator,
-  SMC/ICT overlay, or trading behavior changes in Step 220.
+- audit document or TODO notes list remaining timestamp conversion sites and
+  the correct helper/API to use;
+- scope Step 222 as the first bounded migration after the audit;
+- product direction, boundary, and relevant static smokes still pass;
+- no chart entry, reload, TF, indicator, SMC/ICT overlay, or trading behavior
+  changes in Step 221.
 
 ## Completed Steps
+
+### Step 220 - Bar-Data Runtime / Cache Epoch Serialization Integration
+
+Completed in commits:
+
+- `5c25a080 refactor(v6): share runtime window epoch conversion`
+- `c2b8ec59 refactor(v6): share cache epoch serialization`
+
+Verification:
+
+- `node v6/tests/bar-data-runtime-smoke.js`
+- `node v6/tests/bar-data-domain-smoke.js`
+- `node v6/tests/database-bars-adapter-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/chart-boundary-metadata-runtime-step191-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed bar-data runtime window filtering boundaries through
+  `unixMillisecondsToSeconds`.
+- Routed bar-window-cache slice filtering boundaries through
+  `unixMillisecondsToSeconds`.
+- Routed cache boundary metadata serialization for earliest/latest/exhausted
+  timestamps through `unixMillisecondsToSeconds`.
+- Preserved cache filtering, requested range timestamps, boundary metadata
+  values, request windows, and chart browser behavior.
+- Remaining obvious timestamp conversion sites are now outside bar-data,
+  primarily chart-entry, pane-intent-reload, and layout bootstrap; Step 221
+  should audit those before implementation.
 
 ### Step 219 - Bar-Data Adapter / Normalizer Time Helper Integration
 
