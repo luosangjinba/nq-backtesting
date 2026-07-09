@@ -28,12 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 231 - Chart Time Helper Closure Review.
-  V6 closed the chart-foundation time/TF helper migration line for now after
-  confirming the remaining local logic is current-time metadata,
-  helper-normalized ISO formatting, already-normalized bar comparisons, cache
-  filtering, playback-period DSL parsing, adapter mapping, or non-chart
-  UI/persistence metadata.
+- Latest completed roadmap step: Step 232 - Chart Foundation Post Time-Helper
+  Slice Selection. V6 selected Dashboard Chart Boundary Label Product Wording
+  as the next bounded chart-foundation slice so date-range/chart-boundary
+  clarity improves without changing bar-data, replay, chart-data, viewport, or
+  pane ownership.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -45,30 +44,51 @@
 
 ## Next Executable Steps
 
-### Step 232 - Chart Foundation Post Time-Helper Slice Selection
+### Step 233 - Dashboard Chart Boundary Label Product Wording
 
 Status: planned.
 
 Notes for execution:
 
-- inspect the current chart foundation after the time-helper closure line;
-- choose the next bounded implementation slice from chart loading, TF
-  switching, drag/scroll display, date range, replay, multi-pane, or pane-local
-  reset foundations;
-- prefer user-visible stability or workflow gaps over new feature surfaces;
-- avoid indicators, SMC/ICT overlays, trading simulation, order tickets, prop
-  firm rule engines, and journal workflows.
+- update `session-dashboard-model.js` boundary labels from engineering wording
+  to compact product wording;
+- keep selected trading date range labels unchanged;
+- preserve `hasActualChartDataBoundary` and `hasPriorGlobexOpen` semantics;
+- update model/browser smokes that assert dashboard boundary text;
+- do not change bar-data requests, chart entry windows, replay, chart-data,
+  viewport, pane state, or chart adapter behavior.
 
 Acceptance:
 
-- one next bounded chart-foundation slice is selected with owner boundary,
-  stop conditions, and smoke coverage plan;
-- selection stays inside the current foundation priority;
-- no runtime behavior changes unless the selected slice explicitly requires a
-  small readiness harness;
-- product direction, boundary, and relevant audit smokes pass.
+- dashboard model returns product-facing chart boundary wording;
+- browser coverage proves loaded chart boundary text is rendered;
+- Step 188 date-range clarity semantics remain intact;
+- session dashboard model/browser smokes, database import boundary smoke,
+  product direction, boundary, chart browser regression pack, and
+  `git diff --check` pass.
 
 ## Completed Steps
+
+### Step 232 - Chart Foundation Post Time-Helper Slice Selection
+
+Completed in this documentation commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-post-time-helper-slice-selection-step232-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_POST_TIME_HELPER_SLICE_SELECTION_STEP232.md`.
+- Added `v6/tests/chart-foundation-post-time-helper-slice-selection-step232-smoke.js`.
+- Selected Step 233 as Dashboard Chart Boundary Label Product Wording.
+- Kept the next slice inside chart-foundation date-range/chart-boundary clarity.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 231 - Chart Time Helper Closure Review
 
