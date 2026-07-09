@@ -1,3 +1,5 @@
+import { normalizeUnixMilliseconds } from '../time-domain/time-domain.js';
+
 const DEFAULT_PANE_ID = 'main';
 const DEFAULT_PREFIX_BARS = 120;
 const DEFAULT_SPAN_BARS = 80;
@@ -29,11 +31,13 @@ function normalizeNonNegativeInteger(value, fieldName) {
 
 function normalizeIsoTime(value, fieldName) {
   const normalized = normalizeText(value, fieldName);
-  const parsed = new Date(normalized);
-  if (Number.isNaN(parsed.valueOf())) {
+  try {
+    return new Date(normalizeUnixMilliseconds(normalized, {
+      fieldName: `Chart entry default wall ${fieldName}`,
+    })).toISOString();
+  } catch (_error) {
     throw new Error(`Chart entry default wall ${fieldName} must be a valid date/time.`);
   }
-  return parsed.toISOString();
 }
 
 function cloneWindow(window) {

@@ -83,6 +83,7 @@ emitEvent(CHART_ENTRY_REPLAY_BOOTSTRAP_EVENTS.LOADED, {
     cursorIndex: 0,
     cursorTime: '2026-06-01T09:30:00.000Z',
     sessionId: 'session-wall',
+    startTime: '2026-06-01T09:30:00.000Z',
     status: 'ready',
     symbol: 'NQ',
     timeframe: '1m',

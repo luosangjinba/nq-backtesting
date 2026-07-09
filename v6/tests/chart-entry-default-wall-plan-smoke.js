@@ -34,6 +34,7 @@ const bootstrap = {
     cursorIndex: 0,
     cursorTime: '2026-06-01T09:30:00.000Z',
     sessionId: 'session-plan',
+    startTime: '2026-06-01T09:30:00.000Z',
     status: 'ready',
     symbol: 'NQ',
     timeframe: '1m',
