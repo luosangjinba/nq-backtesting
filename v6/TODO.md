@@ -14,10 +14,10 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
-- Latest completed roadmap step: Step 193 - Chart Data Projection Domain.
-  V6 now has a pure chart-data projection domain for source-bar to display-bar
-  aggregation, including no-future cursor caps, bucket metadata, deterministic
-  duplicate merging, and Sunday Globex/session-aligned buckets.
+- Latest completed roadmap step: Step 194 - Chart Data Projection Owner
+  Runtime. V6 now has an explicit projection contract and owner runtime that
+  can produce pane-local projected chart bars and metadata without fetching
+  bars, mutating replay, or writing chart/DOM state.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -27,36 +27,54 @@
 
 ## Next Executable Steps
 
-### Step 194 - Chart Data Projection Owner Runtime
+### Step 195 - Initial HTF Chart Entry Projection
 
 Status: planned.
 
 Notes for execution:
 
 - read `V6_DISPLAY_TIMEFRAME_READINESS_AUDIT_STEP192.md`;
-- read `session_20260708_step193_chart_data_projection_domain.md`;
-- add chart-data projection owner runtime and explicit contract only;
-- expose commands/events for projecting a pane-local source bar set into
-  display chart bars;
-- runtime may call the pure projection domain but must not fetch bars, mutate
-  replay cursor, touch DOM/chart engine, or decide UI interval intent;
-- keep initial load, pane reload, manual next, auto-play, leftward history, and
-  reset view behavior unchanged until their own routing steps;
+- read `session_20260708_step194_chart_data_projection_owner_runtime.md`;
+- route initial chart-entry projection through the chart-data projection owner
+  for panes whose display timeframe is above source timeframe;
+- keep bar-data requests source-owned and avoid changing replay cursor
+  ownership;
+- do not route pane reload, manual next, auto-play, leftward history, or reset
+  view yet;
 - preserve replay-safe leftward history latency and chart regression gates.
 
 Acceptance:
 
-- chart-data projection owner smoke passes;
-- contract smoke proves commands/events are explicit and pane-local;
-- static no-routing guard proves Step 194 does not connect projection owner to
-  UI, replay, pane reload, leftward history, reset view, chart-data runtime, or
-  chart engine;
+- initial HTF chart-entry browser smoke passes;
+- projection owner smoke and contract smoke pass;
+- static guard proves Step 195 only routes initial chart-entry and does not
+  route pane reload, manual next, auto-play, leftward history, or reset view;
 - replay-safe leftward history latency smoke passes;
 - chart browser regression pack passes;
 - boundary smoke passes;
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 194 - Chart Data Projection Owner Runtime
+
+Completed in commits:
+
+- `6ffad2df feat(v6): define chart data projection contract`
+- `57aedc9d feat(v6): add chart data projection owner runtime`
+- `b3d8fe25 test(v6): guard chart data projection routing`
+
+Verification:
+
+- `node v6/tests/chart-data-projection-contract-step194-smoke.js`
+- `node v6/tests/chart-data-projection-owner-step194-smoke.js`
+- `node v6/tests/chart-data-projection-no-routing-step194-smoke.js`
+- `node v6/tests/display-timeframe-no-wiring-step193-smoke.js`
+- `node v6/tests/display-timeframe-projection-domain-step193-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
 
 ### Step 193 - Chart Data Projection Domain
 
