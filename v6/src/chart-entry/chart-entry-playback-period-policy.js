@@ -1,15 +1,18 @@
+import { normalizeMinuteTimeframe } from '../time-domain/time-domain.js';
+
 const MINUTES_PER_HOUR = 60;
 
 function normalizeSourceTimeframeMinutes(timeframe) {
-  const match = String(timeframe || '').trim().match(/^(\d+)(m)?$/i);
-  if (!match) {
+  try {
+    return normalizeMinuteTimeframe(timeframe, {
+      fieldName: 'Chart entry playback period source timeframe',
+    });
+  } catch (error) {
+    if (String(error?.message || '').includes('positive minute value')) {
+      throw new Error('Chart entry playback period source timeframe must be a positive minute value.');
+    }
     throw new Error('Chart entry playback period source timeframe must be minute-based.');
   }
-  const minutes = Number(match[1]);
-  if (!Number.isInteger(minutes) || minutes <= 0) {
-    throw new Error('Chart entry playback period source timeframe must be a positive minute value.');
-  }
-  return minutes;
 }
 
 function normalizePlaybackPeriodMs(period) {
