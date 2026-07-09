@@ -15,6 +15,7 @@ import {
   createDefaultWallPaneNextOperation,
   createDefaultWallPaneReplacePayload,
 } from './default-wall-pane-projection.js';
+import { normalizeMinuteTimeframe } from '../time-domain/time-domain.js';
 
 function cloneState(state) {
   return state ? {
@@ -61,11 +62,14 @@ function normalizePaneIds({ paneId, paneIds } = {}) {
 }
 
 function normalizeDisplayTimeframe(value = 1) {
-  const timeframe = Number(value);
-  if (!Number.isInteger(timeframe) || timeframe <= 0) {
+  try {
+    return normalizeMinuteTimeframe(value, {
+      allowSuffix: false,
+      fieldName: 'Default wall pane displayTimeframe',
+    });
+  } catch (_error) {
     throw new Error('Default wall pane displayTimeframe must be a positive integer.');
   }
-  return timeframe;
 }
 
 async function getViewportRecord(paneId) {

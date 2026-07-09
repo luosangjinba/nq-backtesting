@@ -59,6 +59,9 @@ assert.equal(inactivePane.displayTimeframe, 5);
 const loaded = await dispatchCommand(DEFAULT_WALL_COMMANDS.LOAD, {
   bars,
   latestOffsetBars: 4,
+  paneDisplayTimeframes: {
+    'pane-right': '5',
+  },
   paneIds: ['pane-left', 'pane-right'],
   prefixBars: 0,
   session: {
