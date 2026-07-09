@@ -28,9 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 213 - Next Foundation Slice Selection.
-  V6 selected TF / Projection / Time Domain Unification Readiness Audit for
-  Step 214 before broader TF, indicator, or SMC/ICT overlay work.
+- Latest completed roadmap step: Step 214 - TF / Projection / Time Domain
+  Unification Readiness Audit. V6 documented the owner boundaries, duplicate
+  implementation evidence, and Step 215 shared-domain target before broader TF,
+  indicator, or SMC/ICT overlay work.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -42,29 +43,57 @@
 
 ## Next Executable Steps
 
-### Step 214 - TF / Projection / Time Domain Unification Readiness Audit
+### Step 215 - Shared TF / Time Domain Helper
 
 Status: planned.
 
 Notes for execution:
 
-- document the intended owner for timeframe parsing, timestamp parsing, and
-  source-to-display projection;
-- enumerate duplicate implementations and classify each as keep, replace,
-  wrap, or remove;
-- define the smallest public interface needed before implementation;
-- add static smoke coverage that blocks another independent HTF projection
-  implementation.
+- add a small shared domain module for minute timeframe and timestamp
+  normalization;
+- include helpers for display/source multiple validation, display bucket start,
+  API minute formatting, and projection-source summary;
+- route the pure `chart-data-projection` domain through the shared helper first;
+- keep behavior unchanged and avoid wiring broad runtime consumers until the
+  helper is covered.
 
 Acceptance:
 
-- audit names owner boundaries for TF/projection/time rules;
-- audit points to current duplicate implementations with file-level evidence;
-- smoke coverage guards the chosen refactor scope and non-goals;
-- no projection rewrite, new TF, indicator, SMC/ICT overlay, or trading behavior
-  is implemented in Step 214.
+- shared helper has focused unit smoke coverage;
+- `chart-data-projection-domain.js` uses the helper for TF/time normalization
+  without changing projection output;
+- Step 214 audit smoke still passes;
+- no display-timeframe runtime rewrite, new TF, indicator, SMC/ICT overlay, or
+  trading behavior is implemented in Step 215.
 
 ## Completed Steps
+
+### Step 214 - TF / Projection / Time Domain Unification Readiness Audit
+
+Completed in commits:
+
+- `581aa997 docs(v6): audit TF projection time domain boundaries`
+
+Verification:
+
+- `node v6/tests/tf-projection-time-domain-audit-step214-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Accepted `chart-data-projection` as the projection owner and documented
+  `bar-data`, `chart-history`, `replay`, `chart-viewport`, `panes`, and shell
+  boundaries.
+- Documented duplicate TF/time/projection evidence in
+  `chart-data-projection`, `display-timeframe`, `default-wall`,
+  `chart-history`, `bar-data`, `replay`, and `panes`.
+- Step 215 should create a small shared TF/time domain helper and route the pure
+  projection domain through it first.
+- Non-goals remain explicit: no projection rewrite in Step 214, no new TFs,
+  indicators, Pine Script, SMC/ICT overlays, trading/order tickets, prop firm
+  rule engines, or pseudo-live simulation behavior.
 
 ### Step 213 - Next Foundation Slice Selection
 
