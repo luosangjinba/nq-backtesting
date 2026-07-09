@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 232 - Chart Foundation Post Time-Helper
-  Slice Selection. V6 selected Dashboard Chart Boundary Label Product Wording
-  as the next bounded chart-foundation slice so date-range/chart-boundary
-  clarity improves without changing bar-data, replay, chart-data, viewport, or
-  pane ownership.
+- Latest completed roadmap step: Step 233 - Dashboard Chart Boundary Label
+  Product Wording. V6 replaced engineering-facing loaded-boundary dashboard
+  text with compact chart-start wording while preserving selected trading date
+  range labels, actual loaded-boundary semantics, prior Globex-open semantics,
+  and bar-data/replay/chart-data/viewport/pane ownership.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,30 +44,61 @@
 
 ## Next Executable Steps
 
-### Step 233 - Dashboard Chart Boundary Label Product Wording
+### Step 234 - Chart Foundation Next Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- update `session-dashboard-model.js` boundary labels from engineering wording
-  to compact product wording;
-- keep selected trading date range labels unchanged;
-- preserve `hasActualChartDataBoundary` and `hasPriorGlobexOpen` semantics;
-- update model/browser smokes that assert dashboard boundary text;
-- do not change bar-data requests, chart entry windows, replay, chart-data,
-  viewport, pane state, or chart adapter behavior.
+- inspect current chart-foundation behavior after Step 233;
+- choose the next bounded implementation slice from chart loading, TF
+  switching, drag/scroll display, date range, replay, multi-pane, or pane-local
+  reset foundations;
+- prefer user-visible stability or workflow gaps over new feature surfaces;
+- avoid indicators, SMC/ICT overlays, trading simulation, order tickets, prop
+  firm rule engines, and journal workflows.
 
 Acceptance:
 
-- dashboard model returns product-facing chart boundary wording;
-- browser coverage proves loaded chart boundary text is rendered;
-- Step 188 date-range clarity semantics remain intact;
-- session dashboard model/browser smokes, database import boundary smoke,
-  product direction, boundary, chart browser regression pack, and
-  `git diff --check` pass.
+- one next bounded chart-foundation slice is selected with owner boundary,
+  stop conditions, and smoke coverage plan;
+- selection stays inside the current foundation priority;
+- no runtime behavior changes unless the selected slice explicitly requires a
+  small readiness harness;
+- product direction, boundary, and relevant audit smokes pass.
 
 ## Completed Steps
+
+### Step 233 - Dashboard Chart Boundary Label Product Wording
+
+Completed in commits:
+
+- `1603f810 fix(v6): use product chart boundary labels`
+
+Verification:
+
+- `node v6/tests/session-dashboard-model-smoke.js`
+- `node v6/tests/session-dashboard-boundary-bridge-browser-step191-smoke.js`
+- `node v6/tests/chart-foundation-post-time-helper-slice-selection-step232-smoke.js`
+- `node v6/tests/database-kline-import-boundary-step144-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Replaced `Chart data from loaded boundary: ...` with
+  `Chart starts at: ...`.
+- Replaced the fallback prior Globex-open label with
+  `Chart starts at prior Globex open: ...`.
+- Preserved selected trading date labels, `hasActualChartDataBoundary`, and
+  `hasPriorGlobexOpen` semantics.
+- Updated dashboard model/browser smokes and the Step 232 selection guard.
+- Did not change bar-data requests, chart entry windows, replay, chart-data,
+  viewport, pane state, chart adapter behavior, TFs, indicators, SMC/ICT
+  overlays, trading simulation, order tickets, prop firm rule engines, or
+  journal workflows.
 
 ### Step 232 - Chart Foundation Post Time-Helper Slice Selection
 
