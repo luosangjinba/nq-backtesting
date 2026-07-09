@@ -10,6 +10,10 @@ import {
 } from '../contracts/app-contracts.js';
 import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
 import { resolvePlaybackPeriodStepCount } from './chart-entry-playback-period-policy.js';
+import {
+  normalizeMinuteTimeframe,
+  normalizeUnixSeconds,
+} from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -59,23 +63,30 @@ function createEndedAdvanced({
 }
 
 function normalizeTimeframeMinutes(timeframe) {
-  const match = String(timeframe || '').trim().match(/^(\d+)(m)?$/i);
-  if (!match) {
+  try {
+    return normalizeMinuteTimeframe(timeframe, {
+      fieldName: 'Chart entry manual next timeframe',
+    });
+  } catch (error) {
+    const message = error?.message || '';
+    if (/positive minute value/.test(message)) {
+      throw new Error('Chart entry manual next timeframe must be a positive minute value.');
+    }
+    if (/minute-based/.test(message)) {
+      throw new Error('Chart entry manual next timeframe must be minute-based.');
+    }
     throw new Error('Chart entry manual next timeframe must be minute-based.');
   }
-  const minutes = Number(match[1]);
-  if (!Number.isInteger(minutes) || minutes <= 0) {
-    throw new Error('Chart entry manual next timeframe must be a positive minute value.');
-  }
-  return minutes;
 }
 
 function parseReplayTimestamp(value, fieldName) {
-  const timestamp = Math.floor(new Date(String(value || '')).valueOf() / 1000);
-  if (!Number.isFinite(timestamp)) {
+  try {
+    return normalizeUnixSeconds(value, {
+      fieldName: `Chart entry manual next ${fieldName}`,
+    });
+  } catch {
     throw new Error(`Chart entry manual next ${fieldName} must be a valid date/time.`);
   }
-  return timestamp;
 }
 
 function resolveSourceTimeframe(replayState = {}) {
@@ -110,7 +121,7 @@ function pickCursorBars(record, replayState) {
   if (!bars.length) {
     throw new Error('Chart entry manual next loaded window did not include bars.');
   }
-  const cursorTimestamp = Math.floor(new Date(replayState.cursorTime).valueOf() / 1000);
+  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
   const exact = bars.filter((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
   return exact.length ? exact : bars.slice(-1);
 }
