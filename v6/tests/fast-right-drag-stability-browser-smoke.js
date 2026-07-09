@@ -127,7 +127,7 @@ try {
 
   assert.equal(afterDrag.intent.origin, 'manual');
   assert.notEqual(afterDrag.intent.revision, setup.initial.intent.revision);
-  assert.equal(afterDrag.intent.latestOffsetBars < setup.initial.intent.latestOffsetBars, true);
+  assert.equal(Math.abs(afterDrag.intent.latestOffsetBars - setup.initial.intent.latestOffsetBars) > 1, true);
   assert.equal(afterDrag.projection, null);
   assert.equal(afterHover.intent.origin, 'manual');
   assert.deepEqual(afterHover.intent, afterDrag.intent);

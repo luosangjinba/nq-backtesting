@@ -1,4 +1,10 @@
-import { CHART_HISTORY_COMMANDS, CHART_HISTORY_EVENTS } from '../contracts/app-contracts.js';
+import {
+  CHART_HISTORY_COMMANDS,
+  CHART_HISTORY_EVENTS,
+  CHART_VIEWPORT_EVENTS,
+  DISPLAY_TIMEFRAME_EVENTS,
+  PANE_INTENT_RELOAD_VIEWPORT_EVENTS,
+} from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 
@@ -71,12 +77,34 @@ export function connectLeftwardHistoryInputBridge({
     } : null;
   }
 
-  function continueAfterLoaded(extension = {}) {
-    const paneId = String(extension.paneId || '').trim();
-    if (!active || !paneId || extension.status !== 'loaded') return;
+  function scheduleFromSurface(paneId) {
+    if (!active || !paneId) return;
     const visibleRange = latestSurfaceRange(paneId);
     if (!shouldRequest(visibleRange)) return;
     scheduleRequest(paneId, visibleRange);
+  }
+
+  function continueAfterLoaded(extension = {}) {
+    const paneId = String(extension.paneId || '').trim();
+    if (!active || !paneId || extension.status !== 'loaded') return;
+    scheduleFromSurface(paneId);
+  }
+
+  function checkPaneAfterRuntimeUpdate(payload = {}) {
+    const paneId = String(payload.paneId || payload.pane?.id || '').trim();
+    if (!paneId || typeof setTimeoutFn !== 'function') {
+      scheduleFromSurface(paneId);
+      return;
+    }
+    setTimeoutFn(() => scheduleFromSurface(paneId), 0);
+  }
+
+  function checkPanesAfterRuntimeUpdate(records = []) {
+    if (Array.isArray(records)) {
+      records.forEach(checkPaneAfterRuntimeUpdate);
+      return;
+    }
+    checkPaneAfterRuntimeUpdate(records);
   }
 
   const unsubscribe = chartSurface.subscribeVisibleRangeChange((event = {}) => {
@@ -94,6 +122,15 @@ export function connectLeftwardHistoryInputBridge({
   const unsubscribeLoaded = typeof subscribeEvent === 'function'
     ? subscribeEvent(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, continueAfterLoaded)
     : () => {};
+  const unsubscribeViewportProjected = typeof subscribeEvent === 'function'
+    ? subscribeEvent(CHART_VIEWPORT_EVENTS.PROJECTED, checkPaneAfterRuntimeUpdate)
+    : () => {};
+  const unsubscribePaneReloadViewportProjected = typeof subscribeEvent === 'function'
+    ? subscribeEvent(PANE_INTENT_RELOAD_VIEWPORT_EVENTS.PROJECTED, checkPanesAfterRuntimeUpdate)
+    : () => {};
+  const unsubscribeDisplayTimeframeApplied = typeof subscribeEvent === 'function'
+    ? subscribeEvent(DISPLAY_TIMEFRAME_EVENTS.APPLIED, checkPaneAfterRuntimeUpdate)
+    : () => {};
 
   return {
     destroy() {
@@ -103,6 +140,9 @@ export function connectLeftwardHistoryInputBridge({
       }
       unsubscribe();
       unsubscribeLoaded();
+      unsubscribeViewportProjected();
+      unsubscribePaneReloadViewportProjected();
+      unsubscribeDisplayTimeframeApplied();
       latestVisibleRangeByPaneId.clear();
     },
   };

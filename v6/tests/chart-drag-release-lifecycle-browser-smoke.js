@@ -20,8 +20,12 @@ async function readViewportState() {
       const viewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
         paneId: 'main',
       });
+      const chart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
+        paneId: 'main',
+      });
       const surface = root.__v6WorkstationChartSurface.getState();
       return {
+        barCount: chart.bars?.length || 0,
         intent: viewport.intent,
         projection: viewport.projection,
         visibleRange: surface.panes[0]?.snapshot?.visibleLogicalRange || null,
@@ -115,7 +119,12 @@ try {
   assert.equal(afterHover.intent.origin, released.intent.origin);
   assert.deepEqual(afterHover.intent, released.intent);
   assert.deepEqual(afterHover.projection, released.projection);
-  assert.equal(rangesNear(afterHover.visibleRange, released.visibleRange), true);
+  const prependedBarCount = afterHover.barCount - released.barCount;
+  assert.equal(prependedBarCount >= 0, true);
+  assert.equal(rangesNear(afterHover.visibleRange, {
+    from: released.visibleRange.from + prependedBarCount,
+    to: released.visibleRange.to + prependedBarCount,
+  }), true);
 } finally {
   await page.cleanup();
 }

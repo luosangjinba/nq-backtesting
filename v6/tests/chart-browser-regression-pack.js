@@ -26,6 +26,7 @@ const TESTS = Object.freeze([
   'v6/tests/display-timeframe-target-pane-browser-step206-smoke.js',
   'v6/tests/display-timeframe-active-pane-browser-step207-smoke.js',
   'v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js',
+  'v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js',
   'v6/tests/pane-local-header-state-browser-step210-smoke.js',
 ]);
 

@@ -1,12 +1,16 @@
 import assert from 'node:assert/strict';
-import { CHART_HISTORY_COMMANDS } from '../src/contracts/app-contracts.js';
+import {
+  CHART_HISTORY_COMMANDS,
+  CHART_HISTORY_EVENTS,
+  CHART_VIEWPORT_EVENTS,
+} from '../src/contracts/app-contracts.js';
 import { connectLeftwardHistoryInputBridge } from '../src/chart-history/leftward-history-input-bridge.js';
 
 const dispatches = [];
 const timers = [];
 const clearedTimers = [];
 let listener = null;
-let loadedListener = null;
+const eventListeners = new Map();
 let surfaceRange = { from: -8.5, to: 36 };
 const chartSurface = {
   getState() {
@@ -39,9 +43,9 @@ const bridge = connectLeftwardHistoryInputBridge({
     return timer;
   },
   subscribeEvent(eventName, handler) {
-    loadedListener = handler;
+    eventListeners.set(eventName, handler);
     return () => {
-      loadedListener = null;
+      eventListeners.delete(eventName);
     };
   },
 });
@@ -70,7 +74,7 @@ assert.deepEqual(dispatches, [{
 }]);
 
 surfaceRange = { from: -2.5, to: 42 };
-loadedListener({ paneId: 'main', status: 'loaded' });
+eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({ paneId: 'main', status: 'loaded' });
 assert.equal(timers.length, 3);
 assert.equal(timers[2].delayMs, 500);
 timers[2].callback();
@@ -82,13 +86,29 @@ assert.deepEqual(dispatches.at(-1), {
   },
 });
 
+surfaceRange = { from: -1.5, to: 43 };
+eventListeners.get(CHART_VIEWPORT_EVENTS.PROJECTED)({ paneId: 'main' });
+assert.equal(timers.length, 4);
+assert.equal(timers[3].delayMs, 0);
+timers[3].callback();
+assert.equal(timers.length, 5);
+assert.equal(timers[4].delayMs, 500);
+timers[4].callback();
+assert.deepEqual(dispatches.at(-1), {
+  command: CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
+  payload: {
+    paneId: 'main',
+    visibleRange: { from: -1.5, to: 43 },
+  },
+});
+
 surfaceRange = { from: 0.5, to: 45 };
-loadedListener({ paneId: 'main', status: 'loaded' });
-assert.equal(timers.length, 3);
+eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({ paneId: 'main', status: 'loaded' });
+assert.equal(timers.length, 5);
 
 bridge.destroy();
 assert.equal(listener, null);
-assert.equal(loadedListener, null);
+assert.equal(eventListeners.size, 0);
 
 assert.throws(
   () => connectLeftwardHistoryInputBridge({ dispatchCommand: () => {} }),

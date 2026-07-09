@@ -21,12 +21,12 @@
 - Latest completed roadmap step: Step 211 - Next Chart Slice Selection. V6
   selected Top-Toolbar Active-Pane Symbol Presentation Sync as the next bounded
   chart-facing slice after pane-local header state sync.
-- Latest stability work: post-step 186 chart drag / leftward-history stability
-  hotfixes. Native manual drag now prioritizes current K-line stability:
-  manual range input records viewport intent without projecting back into the
-  chart, leftward history requests are delayed/coalesced, oversized history
-  windows are chunked, and prepended bars shift the visible logical range so the
-  current screen remains visually stable.
+- Latest stability work: 2026-07-09 HTF leftward auto-extension bugfix.
+  Programmatic viewport projection, pane reload projection, and display
+  timeframe application now trigger delayed left-extension checks, so non-1m
+  panes can continue auto-extending without waiting for extra mouse movement.
+  Drag stability smokes now allow prepend-driven logical range shifts while
+  still guarding against sticky hover-drag behavior.
 
 ## Next Executable Steps
 
