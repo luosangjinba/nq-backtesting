@@ -32,11 +32,41 @@ export function filterNoFutureBars(bars = [], cursorTimestamp = null) {
   return normalizedBars.filter((bar) => bar.timestamp <= normalizedCursor);
 }
 
+function mergeOrderedBars(bars = []) {
+  const barsByTimestamp = new Map();
+  bars
+    .map(normalizeBar)
+    .sort((left, right) => left.timestamp - right.timestamp)
+    .forEach((bar) => {
+      const existing = barsByTimestamp.get(bar.timestamp);
+      barsByTimestamp.set(
+        bar.timestamp,
+        existing ? {
+          close: bar.close,
+          high: Math.max(existing.high, bar.high),
+          low: Math.min(existing.low, bar.low),
+          open: existing.open,
+          time: existing.time,
+          timestamp: existing.timestamp,
+          ...(Number.isFinite(Number(bar.volume)) || Number.isFinite(Number(existing.volume))
+            ? { volume: (Number(existing.volume) || 0) + (Number(bar.volume) || 0) }
+            : {}),
+        } : bar,
+      );
+    });
+  return [...barsByTimestamp.values()];
+}
+
 export function mergeChartBars(existingBars = [], appendedBars = [], cursorTimestamp = null) {
-  return filterNoFutureBars([
+  const normalizedCursor = normalizeCursorTimestamp(cursorTimestamp);
+  const mergedBars = mergeOrderedBars([
     ...cloneBars(existingBars),
     ...appendedBars.map(normalizeBar),
-  ], cursorTimestamp);
+  ]);
+  if (normalizedCursor === null) {
+    return mergedBars;
+  }
+  return mergedBars.filter((bar) => bar.timestamp <= normalizedCursor);
 }
 
 export function createEmptyChartBarsRecord(paneId) {

@@ -63,7 +63,7 @@ export function createChartDataStore() {
     const id = normalizePaneId(paneId);
     const current = getRecord(id);
     const record = createChartBarsRecord({
-      bars: mergeChartBars(current.bars, bars, cursorTimestamp),
+      bars: mergeChartBars(bars, current.bars, cursorTimestamp),
       paneId: id,
       revision: current.revision + 1,
     });
