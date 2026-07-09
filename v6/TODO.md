@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 228 - Default Wall Runtime Time Helper
-  Migration. V6 routed default-wall replay bar timestamp parsing and
-  displayTimeframe parsing through `time-domain` while preserving replay state
-  shape, pane ordering, latest-bar cursor semantics, chart replace/append
-  payloads, viewport intent payloads, and chart browser behavior.
+- Latest completed roadmap step: Step 229 - Chart Data Bars Cursor Time Helper
+  Migration. V6 routed chart-data cursor timestamp validation through
+  `time-domain` behind the local wrapper while preserving strict numeric
+  seconds cursor semantics, no-future filtering, merge ordering, dedupe, OHLC
+  normalization, and chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,30 +44,63 @@
 
 ## Next Executable Steps
 
-### Step 229 - Chart Data Bars Cursor Time Helper Migration
+### Step 230 - Chart Entry Context Time Helper Closure
 
 Status: planned.
 
 Notes for execution:
 
-- migrate `chart-data/chart-bars.js` cursor timestamp validation through
-  `time-domain` behind the existing local wrapper;
-- preserve strict seconds-only chart-data cursor semantics and existing error
-  text;
-- preserve no-future filtering, merge ordering, dedupe, OHLC normalization,
-  revision validation, paneId validation, and chart replacement/append behavior;
-- do not migrate chart-entry context, shell, session, journal, TF menu,
-  indicators, SMC/ICT overlays, trading, or journal workflows in this step.
+- inspect `chart-entry-context-plan.js`,
+  `chart-entry-default-wall-plan.js`, and
+  `chart-entry-playback-period-policy.js` against `time-domain`;
+- migrate only the chart-entry context/default-wall-plan parsing sites that can
+  preserve current ISO/timeframe wrappers and error text;
+- preserve chart-entry plan payloads, default-wall load payloads, playback
+  period policy results, and chart-entry ownership boundaries;
+- do not migrate shell, session, journal, TF menu, indicators, SMC/ICT overlays,
+  trading, or journal workflows in this step.
 
 Acceptance:
 
-- chart-data bars uses shared helpers behind local wrappers without accepting
-  unintended date strings in chart-data cursor payloads;
-- existing chart-data, default-wall, chart browser, and audit smokes still pass;
+- chart-entry context/default-wall-plan time helper closure is implemented or
+  explicitly documented if a site should stay local;
+- existing chart-entry context, default-wall plan, playback period, chart
+  browser, and audit smokes still pass;
 - no new TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
-  Step 229.
+  Step 230.
 
 ## Completed Steps
+
+### Step 229 - Chart Data Bars Cursor Time Helper Migration
+
+Completed in commits:
+
+- `2960ee1a refactor(v6): share chart data cursor time validation`
+
+Verification:
+
+- `node v6/tests/chart-data-domain-smoke.js`
+- `node v6/tests/chart-data-runtime-smoke.js`
+- `node v6/tests/default-wall-runtime-smoke.js`
+- `node v6/tests/remaining-chart-time-helper-audit-step226-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `chart-data/chart-bars.js` cursor timestamp validation through
+  `normalizeUnixSeconds` behind the existing local `normalizeCursorTimestamp`
+  wrapper.
+- Preserved strict chart-data cursor payload behavior by accepting finite
+  numeric values and numeric strings, but continuing to reject date/time text.
+- Added `chart-data-domain-smoke.js` coverage for numeric string cursor input
+  and date/time text rejection.
+- Preserved no-future filtering, merge ordering, dedupe, OHLC normalization,
+  revision validation, paneId validation, and chart replacement/append behavior.
+- Did not migrate chart-entry context, shell, session, journal, TF menu,
+  indicators, SMC/ICT overlays, trading, or journal workflows.
+- Step 230 should close or explicitly classify the remaining chart-entry
+  context/default-wall-plan time helper sites.
 
 ### Step 228 - Default Wall Runtime Time Helper Migration
 
