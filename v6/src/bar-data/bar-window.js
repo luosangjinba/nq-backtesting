@@ -1,6 +1,12 @@
+import {
+  normalizeMinuteTimeframe,
+  normalizeUnixMilliseconds,
+  TIME_DOMAIN_CONSTANTS,
+  toApiMinuteTime,
+} from '../time-domain/time-domain.js';
+
 const DEFAULT_BAR_COUNT = 120;
 const DEFAULT_MAX_BARS_PER_WINDOW = 500;
-const MINUTE_MS = 60_000;
 
 function normalizeText(value, fallback, fieldName) {
   const normalized = String(value || fallback || '').trim();
@@ -14,38 +20,33 @@ export function normalizeInstrument(instrument = 'NQ') {
   return normalizeText(instrument, 'NQ', 'instrument').toUpperCase();
 }
 
-export function normalizeTimeframe(timeframe = 1) {
-  const normalized = Number(timeframe);
-  if (!Number.isInteger(normalized) || normalized <= 0) {
+export const normalizeTimeframe = (timeframe = 1) => {
+  try {
+    return normalizeMinuteTimeframe(timeframe, {
+      allowSuffix: false,
+      fieldName: 'Bar data timeframe',
+    });
+  } catch {
     throw new Error('Bar data timeframe must be a positive integer.');
   }
-  return normalized;
-}
+};
 
 export function parseBarTimeMs(value, fieldName = 'time') {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return value > 10_000_000_000 ? value : value * 1000;
-  }
-
-  const text = String(value || '').trim();
-  if (!text) {
+  try {
+    return normalizeUnixMilliseconds(value, { fieldName: `Bar data ${fieldName}` });
+  } catch {
     throw new Error(`Bar data ${fieldName} must be a valid date/time.`);
   }
-
-  const normalized = text.includes('T') ? text : `${text.replace(' ', 'T')}Z`;
-  const parsed = Date.parse(normalized);
-  if (!Number.isFinite(parsed)) {
-    throw new Error(`Bar data ${fieldName} must be a valid date/time.`);
-  }
-  return parsed;
 }
 
 export function formatApiTime(timestampMs) {
-  return new Date(timestampMs).toISOString().slice(0, 16).replace('T', ' ');
+  return toApiMinuteTime(timestampMs);
 }
 
 export function estimateWindowBars(startMs, endMs, timeframe) {
-  return Math.floor((endMs - startMs) / (normalizeTimeframe(timeframe) * MINUTE_MS)) + 1;
+  return Math.floor(
+    (endMs - startMs) / (normalizeTimeframe(timeframe) * TIME_DOMAIN_CONSTANTS.MINUTE_MS)
+  ) + 1;
 }
 
 export function makeBarWindowKey(window) {
@@ -72,7 +73,7 @@ export function planBarWindow(payload = {}, options = {}) {
   }
 
   const anchorMs = parseBarTimeMs(payload.anchor, 'anchor');
-  const stepMs = timeframe * MINUTE_MS;
+  const stepMs = timeframe * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
   const startMs = direction === 'forward' ? anchorMs : anchorMs - ((count - 1) * stepMs);
   const endMs = direction === 'forward' ? anchorMs + ((count - 1) * stepMs) : anchorMs;
 
@@ -137,7 +138,7 @@ export function planCanvasLeftOlderWindow(payload = {}, options = {}) {
   const timeframe = normalizeTimeframe(payload.timeframe);
   const oldestLoadedMs = parseBarTimeMs(payload.oldestLoadedTimestamp, 'oldestLoadedTimestamp');
   const canvasLeftMs = parseBarTimeMs(payload.canvasLeftTimestamp, 'canvasLeftTimestamp');
-  const stepMs = timeframe * MINUTE_MS;
+  const stepMs = timeframe * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
   const endMs = oldestLoadedMs - stepMs;
 
   if (canvasLeftMs >= oldestLoadedMs) {

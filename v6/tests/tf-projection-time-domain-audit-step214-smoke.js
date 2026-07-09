@@ -85,6 +85,7 @@ assert.equal(
 );
 
 for (const file of [
+  'v6/src/bar-data/bar-window.js',
   'v6/src/chart-viewport/chart-viewport-runtime.js',
   'v6/src/chart-viewport/chart-viewport-store.js',
   'v6/src/chart-history/leftward-extension-planner.js',
@@ -96,11 +97,10 @@ for (const file of [
   assert.match(audit, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-for (const file of [
-  'v6/src/bar-data/bar-window.js',
-]) {
-  assert.equal(localTimeframeNormalizers.includes(file), true, `${file} must remain covered by the audit.`);
-  assert.match(audit, new RegExp(file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
-}
+assert.equal(
+  localTimeframeNormalizers.includes('v6/src/bar-data/bar-window.js'),
+  false,
+  'bar-window must not carry a local timeframe normalizer after Step 218.',
+);
 
 console.log('v6 TF projection time domain audit step 214 smoke passed');
