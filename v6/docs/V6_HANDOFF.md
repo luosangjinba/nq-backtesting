@@ -5,22 +5,21 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 208 completed.
-- Next planned step: Step 209 - Next Chart Slice Selection.
+- Current V6 step state: Step 209 completed.
+- Next planned step: Step 210 - Pane-Local Symbol/TF/OHLC Header State Sync.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Display-Timeframe Active Pane UI State Sync:
+The latest completed work is Next Chart Slice Selection:
 
-- `V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md` records active
-  pane display-timeframe label synchronization.
-- The display-timeframe control exposes `setDisplayTimeframe(value)` for
-  UI-only state sync.
-- `display-timeframe-pane-target-bridge` mirrors the active pane's current
-  `displayTimeframe` into the top-toolbar control.
-- Browser coverage proves pane switching updates the visible TF text without
-  changing chart data until the user chooses a new timeframe.
-- Step 209 should select the next bounded chart-facing slice before more UI
-  expansion.
+- `V6_NEXT_CHART_SLICE_SELECTION_STEP209.md` selects Pane-Local
+  Symbol/TF/OHLC Header State Sync as the next bounded chart-facing slice.
+- Steps 206-208 completed active-pane display-timeframe targeting and visible
+  toolbar label synchronization.
+- The existing `pane-status-readout` boundary already owns DOM-only per-pane
+  header rendering; Step 210 should strengthen it with browser coverage for
+  real workstation pane isolation.
+- Custom intervals, interval sync, symbol picker UI, indicators, Pine Script,
+  and trading/order behavior remain out of scope.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.
@@ -151,24 +150,28 @@ After restarting the server or assistant context, read these first:
 120. `v6/docs/V6_PANE_LOCAL_DISPLAY_TIMEFRAME_UI_READINESS_STEP206.md`
 121. `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_SOURCE_INTEGRATION_STEP207.md`
 122. `v6/docs/V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md`
-123. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
-124. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
-125. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
-126. `v6/sessions/session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`
+123. `v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`
+124. `v6/sessions/session_20260708_step205_next_chart_slice_selection.md`
+125. `v6/sessions/session_20260708_step206_pane_local_display_timeframe_ui_readiness.md`
+126. `v6/sessions/session_20260708_step207_display_timeframe_target_source_integration.md`
+127. `v6/sessions/session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`
+128. `v6/sessions/session_20260708_step209_next_chart_slice_selection.md`
 
 ## Next Step
 
-Step 209 should focus on Next Chart Slice Selection.
+Step 210 should focus on Pane-Local Symbol/TF/OHLC Header State Sync.
 
-Keep Step 209 bounded:
+Keep Step 210 bounded:
 
-- read `V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md` and
-  `session_20260708_step208_display_timeframe_active_pane_ui_state_sync.md`;
-- review Steps 206-208 active-pane display-timeframe ownership;
-- choose the next bounded chart-facing slice with owner boundaries and
-  non-goals documented before implementation;
-- do not add custom intervals, interval sync, indicators, Pine Script, or
-  trading/order behavior in the selection step.
+- read `V6_NEXT_CHART_SLICE_SELECTION_STEP209.md`,
+  `V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md`, and
+  `session_20260708_step209_next_chart_slice_selection.md`;
+- reinforce `pane-status-readout` as the shell-owned per-pane header
+  presentation boundary;
+- verify symbol, timeframe, and OHLC header state remain pane-scoped in real
+  workstation browser coverage;
+- do not add custom intervals, interval sync, symbol picker UI, indicators,
+  Pine Script, or trading/order behavior.
 
 ## Critical Boundaries
 

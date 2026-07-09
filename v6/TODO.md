@@ -18,10 +18,9 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 208 - Display-Timeframe Active Pane UI
-  State Sync. V6 now updates the visible top-toolbar display-timeframe text
-  from the active pane's existing `displayTimeframe` without projecting or
-  replacing chart data on pane switch.
+- Latest completed roadmap step: Step 209 - Next Chart Slice Selection. V6
+  selected Pane-Local Symbol/TF/OHLC Header State Sync as the next bounded
+  chart-facing slice after the active-pane display-timeframe work.
 - Latest stability work: post-step 186 chart drag / leftward-history stability
   hotfixes. Native manual drag now prioritizes current K-line stability:
   manual range input records viewport intent without projecting back into the
@@ -31,27 +30,52 @@
 
 ## Next Executable Steps
 
-### Step 209 - Next Chart Slice Selection
+### Step 210 - Pane-Local Symbol/TF/OHLC Header State Sync
 
 Status: planned.
 
 Notes for execution:
 
-- review the pane-local chart/top-toolbar foundation completed in Steps 206-208;
-- select the next bounded chart-facing slice before implementation;
-- likely candidates are pane-local symbol/TF/OHLC presentation, minimal
-  pane-local symbol/interval selection owner contract, or a chart foundation
-  re-audit before richer controls;
-- do not add custom intervals, interval sync, indicators, Pine Script, or
-  trading/order behavior in this selection step.
+- reinforce `pane-status-readout` as the shell-owned DOM presentation boundary
+  for pane-local symbol, timeframe, and OHLC header state;
+- verify pane headers render from pane-scoped runtime/crosshair state rather
+  than a global toolbar assumption;
+- add browser coverage for secondary or tertiary pane header isolation;
+- keep the top toolbar as active-pane UI only, not the owner of pane-local
+  header state;
+- do not add custom intervals, interval sync, symbol picker UI, indicators,
+  Pine Script, or trading/order behavior.
 
 Acceptance:
 
-- the next slice is documented with owner boundaries and non-goals;
-- Step 206-208 display-timeframe active-pane coverage is acknowledged;
+- pane headers keep symbol, timeframe, and OHLC state scoped to their own pane;
+- active-pane changes do not clear or overwrite another pane's header state;
+- secondary or tertiary pane browser coverage proves header isolation;
 - existing chart browser regression pack and boundary smoke pass.
 
 ## Completed Steps
+
+### Step 209 - Next Chart Slice Selection
+
+Completed in commits:
+
+- `90968948 docs(v6): select step 210 chart slice`
+
+Verification:
+
+- `node v6/tests/next-chart-slice-selection-step209-smoke.js`
+- `node v6/tests/pane-status-readout-step183-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Selected Pane-Local Symbol/TF/OHLC Header State Sync for Step 210.
+- Step 210 should strengthen the existing pane-status readout boundary and add
+  browser coverage for real multi-pane header isolation.
+- Custom intervals, interval sync, symbol picker UI, indicators, Pine Script,
+  and trading/order behavior remain out of scope.
 
 ### Step 208 - Display-Timeframe Active Pane UI State Sync
 
