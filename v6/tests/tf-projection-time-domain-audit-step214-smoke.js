@@ -65,6 +65,7 @@ assert.deepEqual(projectionImplementations, [
 ]);
 
 const localTimeframeNormalizers = [];
+const sharedTimeDomainConsumers = [];
 for (const file of jsFiles) {
   const source = await read(file);
   if (
@@ -73,13 +74,21 @@ for (const file of jsFiles) {
   ) {
     localTimeframeNormalizers.push(file);
   }
+  if (/from\s+['"]\.\.\/time-domain\/time-domain\.js['"]/.test(source)) {
+    sharedTimeDomainConsumers.push(file);
+  }
 }
+
+assert.equal(
+  sharedTimeDomainConsumers.includes('v6/src/chart-data-projection/chart-data-projection-domain.js'),
+  true,
+  'chart-data-projection-domain must consume the shared time-domain helper after Step 215.',
+);
 
 for (const file of [
   'v6/src/bar-data/bar-window.js',
   'v6/src/chart-history/leftward-extension-planner.js',
   'v6/src/chart-history/leftward-history-extension-runtime.js',
-  'v6/src/chart-data-projection/chart-data-projection-domain.js',
   'v6/src/display-timeframe/display-timeframe-projection.js',
   'v6/src/replay/replay-domain.js',
   'v6/src/panes/pane-model.js',

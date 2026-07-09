@@ -1,12 +1,10 @@
-const MINUTE_SECONDS = 60;
-
-function normalizePositiveInteger(value, fieldName) {
-  const normalized = Number(value);
-  if (!Number.isInteger(normalized) || normalized <= 0) {
-    throw new Error(`Chart data projection ${fieldName} must be a positive integer.`);
-  }
-  return normalized;
-}
+import {
+  assertDisplayTimeframeMultiple,
+  normalizeMinuteTimeframe,
+  normalizeOptionalUnixSeconds,
+  normalizeUnixSeconds,
+  resolveDisplayBucketStart,
+} from '../time-domain/time-domain.js';
 
 function normalizeFiniteNumber(value, fieldName) {
   const normalized = Number(value);
@@ -14,28 +12,6 @@ function normalizeFiniteNumber(value, fieldName) {
     throw new Error(`Chart data projection bar ${fieldName} must be finite.`);
   }
   return normalized;
-}
-
-function normalizeTimestamp(value, fieldName = 'timestamp') {
-  if (typeof value === 'number' && Number.isFinite(value)) {
-    return Math.floor(value > 10_000_000_000 ? value / 1000 : value);
-  }
-
-  const text = String(value || '').trim();
-  if (!text) {
-    throw new Error(`Chart data projection ${fieldName} must be a valid timestamp.`);
-  }
-  const normalizedText = text.includes('T') ? text : `${text.replace(' ', 'T')}Z`;
-  const parsed = Date.parse(normalizedText);
-  if (!Number.isFinite(parsed)) {
-    throw new Error(`Chart data projection ${fieldName} must be a valid timestamp.`);
-  }
-  return Math.floor(parsed / 1000);
-}
-
-function normalizeOptionalTimestamp(value, fieldName) {
-  if (value === null || value === undefined) return null;
-  return normalizeTimestamp(value, fieldName);
 }
 
 function normalizeProjectionBar(rawBar) {
@@ -47,7 +23,9 @@ function normalizeProjectionBar(rawBar) {
     high: normalizeFiniteNumber(rawBar.high, 'high'),
     low: normalizeFiniteNumber(rawBar.low, 'low'),
     open: normalizeFiniteNumber(rawBar.open, 'open'),
-    timestamp: normalizeTimestamp(rawBar.timestamp ?? rawBar.time, 'bar timestamp'),
+    timestamp: normalizeUnixSeconds(rawBar.timestamp ?? rawBar.time, {
+      fieldName: 'Chart data projection bar timestamp',
+    }),
   };
 }
 
@@ -79,11 +57,6 @@ export function normalizeProjectionBars(rawBars = []) {
     });
 
   return Object.freeze([...byTimestamp.values()]);
-}
-
-function resolveBucketStart(timestamp, targetSeconds, originTimestamp) {
-  const offset = timestamp - originTimestamp;
-  return originTimestamp + (Math.floor(offset / targetSeconds) * targetSeconds);
 }
 
 function buildProjectedBar(bucket) {
@@ -131,19 +104,29 @@ export function projectSourceBarsToChartData({
   sourceTimeframe = 1,
   targetTimeframe = 1,
 } = {}) {
-  const source = normalizePositiveInteger(sourceTimeframe, 'sourceTimeframe');
-  const target = normalizePositiveInteger(targetTimeframe, 'targetTimeframe');
-  if (target < source || target % source !== 0) {
-    throw new Error('Chart data projection targetTimeframe must be a multiple of sourceTimeframe.');
-  }
+  const source = normalizeMinuteTimeframe(sourceTimeframe, {
+    allowSuffix: false,
+    fieldName: 'Chart data projection sourceTimeframe',
+  });
+  const target = normalizeMinuteTimeframe(targetTimeframe, {
+    allowSuffix: false,
+    fieldName: 'Chart data projection targetTimeframe',
+  });
+  const timeframeMultiple = assertDisplayTimeframeMultiple({
+    message: 'Chart data projection targetTimeframe must be a multiple of sourceTimeframe.',
+    sourceTimeframe: source,
+    targetTimeframe: target,
+  });
 
-  const cursor = normalizeOptionalTimestamp(cursorTimestamp, 'cursorTimestamp');
-  const sourceSeconds = source * MINUTE_SECONDS;
-  const targetSeconds = target * MINUTE_SECONDS;
-  const expectedSourceBars = target / source;
+  const cursor = normalizeOptionalUnixSeconds(cursorTimestamp, {
+    fieldName: 'Chart data projection cursorTimestamp',
+  });
+  const { expectedSourceBars, sourceSeconds, targetSeconds } = timeframeMultiple;
   const normalizedBars = normalizeProjectionBars(bars)
     .filter((bar) => cursor === null || bar.timestamp <= cursor);
-  const origin = normalizeOptionalTimestamp(sessionStartTimestamp, 'sessionStartTimestamp')
+  const origin = normalizeOptionalUnixSeconds(sessionStartTimestamp, {
+    fieldName: 'Chart data projection sessionStartTimestamp',
+  })
     ?? normalizedBars[0]?.timestamp
     ?? 0;
   const buckets = new Map();
@@ -151,7 +134,11 @@ export function projectSourceBarsToChartData({
   normalizedBars.forEach((bar) => {
     const timestamp = target === source
       ? bar.timestamp
-      : resolveBucketStart(bar.timestamp, targetSeconds, origin);
+      : resolveDisplayBucketStart({
+        originTimestamp: origin,
+        targetTimeframe: target,
+        timestamp: bar.timestamp,
+      });
     const existing = buckets.get(timestamp);
     if (!existing) {
       buckets.set(timestamp, {
