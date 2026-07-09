@@ -2,9 +2,12 @@ import {
   formatApiTime,
   makeBarWindowKey,
   normalizeBarWindow,
+  normalizeTimeframe,
+  parseBarTimeMs,
   windowBoundsMs,
   windowCovers,
 } from './bar-window.js';
+import { TIME_DOMAIN_CONSTANTS } from '../time-domain/time-domain.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -30,9 +33,11 @@ function sliceBarsForWindow(bars, planned) {
 }
 
 function barTimestampMs(bar = {}) {
-  const timestamp = Number(bar.timestamp ?? bar.time);
-  if (!Number.isFinite(timestamp)) return null;
-  return timestamp > 10_000_000_000 ? timestamp : timestamp * 1000;
+  try {
+    return parseBarTimeMs(bar.timestamp ?? bar.time, 'bar timestamp');
+  } catch {
+    return null;
+  }
 }
 
 function boundaryTime(timestampMs) {
@@ -48,7 +53,7 @@ function inferStepMs(record) {
     const diff = timestamps[index] - timestamps[index - 1];
     if (diff > 0) return diff;
   }
-  return Number(record.timeframe || 1) * 60_000;
+  return normalizeTimeframe(record.timeframe || 1) * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
 }
 
 function scopeKey(record) {
