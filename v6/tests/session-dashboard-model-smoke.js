@@ -74,7 +74,7 @@ assert.deepEqual(createSessionDateBoundaryView({
   symbol: 'NQ',
   symbols: ['NQ'],
 }), {
-  chartDataBoundaryLabel: 'Chart data from prior Globex open: 2026-05-31 18:00',
+  chartDataBoundaryLabel: 'Chart starts at prior Globex open: 2026-05-31 18:00',
   hasActualChartDataBoundary: false,
   hasPriorGlobexOpen: true,
   tradingDateRangeLabel: '2026-06-01 / 2026-06-05',
@@ -95,7 +95,7 @@ assert.deepEqual(createSessionDateBoundaryView({
     }],
   },
 }), {
-  chartDataBoundaryLabel: 'Chart data from loaded boundary: 2026-05-31 18:00',
+  chartDataBoundaryLabel: 'Chart starts at: 2026-05-31 18:00',
   hasActualChartDataBoundary: true,
   hasPriorGlobexOpen: false,
   tradingDateRangeLabel: '2026-06-01 / 2026-06-05',

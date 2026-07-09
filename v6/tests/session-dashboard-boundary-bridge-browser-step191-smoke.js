@@ -40,8 +40,8 @@ try {
     })()))()
   `));
 
-  assert.equal(value.fallbackText, 'Chart data from prior Globex open: 2026-05-31 18:00');
-  assert.equal(value.actualText, 'Chart data from loaded boundary: 2026-05-31 18:00');
+  assert.equal(value.fallbackText, 'Chart starts at prior Globex open: 2026-05-31 18:00');
+  assert.equal(value.actualText, 'Chart starts at: 2026-05-31 18:00');
   assert.equal(value.bridgeEarliest, '2026-05-31 18:00');
   assert.equal(value.stateEarliest, '2026-05-31 18:00');
 } finally {

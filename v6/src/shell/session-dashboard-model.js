@@ -75,7 +75,7 @@ export function createSessionDateBoundaryView(session = {}, {
   const actualBoundary = chartBoundaryScopeForSession(session, chartBoundaryMetadata);
   if (actualBoundary) {
     return {
-      chartDataBoundaryLabel: `Chart data from loaded boundary: ${actualBoundary.earliestLoadedTime}`,
+      chartDataBoundaryLabel: `Chart starts at: ${actualBoundary.earliestLoadedTime}`,
       hasActualChartDataBoundary: true,
       hasPriorGlobexOpen: false,
       tradingDateRangeLabel,
@@ -90,7 +90,7 @@ export function createSessionDateBoundaryView(session = {}, {
     };
   }
   return {
-    chartDataBoundaryLabel: `Chart data from prior Globex open: ${previousDateLabel(start)} 18:00`,
+    chartDataBoundaryLabel: `Chart starts at prior Globex open: ${previousDateLabel(start)} 18:00`,
     hasActualChartDataBoundary: false,
     hasPriorGlobexOpen: true,
     tradingDateRangeLabel,

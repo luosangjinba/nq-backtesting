@@ -35,7 +35,7 @@ assert.match(step188, /Chart data boundary/);
 assert.match(dashboardModel, /chartDataBoundaryLabel/);
 assert.match(dashboardModel, /hasActualChartDataBoundary/);
 assert.match(dashboardModel, /hasPriorGlobexOpen/);
-assert.match(dashboardModelSmoke, /Chart data from loaded boundary/);
-assert.match(boundaryBridgeSmoke, /Chart data from loaded boundary/);
+assert.match(dashboardModelSmoke, /Chart starts at:/);
+assert.match(boundaryBridgeSmoke, /Chart starts at:/);
 
 console.log('v6 chart foundation post time-helper slice selection step 232 smoke passed');
