@@ -14,6 +14,11 @@
   the V5 formation order into smaller V6 gates and moves the known V5 failure
   classes, visible K-line delay and primary/non-primary multi-pane confusion,
   into early stop conditions.
+- Latest completed inserted step: Step 197.5 - UI Extraction Workflow Audit.
+  V6 accepted a browser/computed-style/spec-first UI audit process inspired by
+  `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
+  Next/React/shadcn/Tailwind adoption. Step 198 remains the next executable
+  implementation step.
 - Latest completed roadmap step: Step 197 - Manual Next HTF Visible Latency.
   V6 now routes initial chart entry, pane reload, and manual-next HTF display
   bars through the chart-data projection owner while leaving auto-play,
@@ -56,6 +61,27 @@ Acceptance:
 - `git diff --check` passes;
 
 ## Completed Steps
+
+### Step 197.5 - UI Extraction Workflow Audit
+
+Completed in commits:
+
+- `1dcb67e2 docs(v6): audit UI extraction workflow`
+- `0db98fd7 test(v6): guard UI extraction workflow audit`
+
+Verification:
+
+- `node v6/tests/ui-extraction-workflow-audit-step197_5-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Decision:
+
+- Use the reviewed website-cloner project as a process reference for future UI
+  audits.
+- Do not import its Next.js, React, shadcn/ui, Tailwind, Radix, or build-chain
+  assumptions into V6.
+- Keep Step 198 as the next executable chart-data step.
 
 ### Step 197 - Manual Next HTF Visible Latency
 

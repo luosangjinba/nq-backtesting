@@ -5,18 +5,21 @@ Last updated: 2026-07-08
 ## Current State
 
 - Branch: `v6/fx-replay-workstation`
-- Current V6 step state: Step 197 completed.
+- Current V6 step state: Step 197.5 completed.
 - Next planned step: Step 198 - Leftward History HTF Stability.
 - Worktree expectation at handoff: clean.
 
-The latest completed work is Manual Next HTF Visible Latency:
+The latest completed work is UI Extraction Workflow Audit:
 
-- `V6_MANUAL_NEXT_HTF_VISIBLE_LATENCY_STEP197.md` accepts manual-next routing
-  through the chart-data projection owner for higher display timeframes.
-- `manual-next-htf-visible-latency-browser-step197-smoke.js` verifies the
-  rendered HTF candle updates within the visible-latency threshold.
-- Step 198 should route leftward-history prepends through the same projection
-  owner while preserving delayed/coalesced/chunked history stability.
+- `V6_UI_EXTRACTION_WORKFLOW_AUDIT_STEP197_5.md` accepts a
+  browser/computed-style/spec-first UI audit workflow inspired by
+  `JCodesMore/ai-website-cloner-template`.
+- `ui-extraction-workflow-audit-step197_5-smoke.js` verifies the inserted task
+  remains process-only and does not introduce Next/React/Tailwind/shadcn
+  dependencies into V6.
+- Step 198 remains the next executable implementation step and should route
+  leftward-history prepends through the chart-data projection owner while
+  preserving delayed/coalesced/chunked history stability.
 
 Browser tests should be run sequentially because the current smoke harnesses
 share browser/CDP resources.

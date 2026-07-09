@@ -198,6 +198,9 @@ Read this index before working on V6.
 - `v6/docs/V6_MANUAL_NEXT_HTF_VISIBLE_LATENCY_STEP197.md`: accepted manual-next
   routing through chart-data projection owner for higher display timeframes
   with rendered-candle latency coverage.
+- `v6/docs/V6_UI_EXTRACTION_WORKFLOW_AUDIT_STEP197_5.md`: accepted
+  browser/computed-style/spec-first UI audit workflow as a process reference
+  while rejecting Next/React/shadcn/Tailwind adoption for V6.
 - `v6/docs/V6_CHART_PRESENTATION_SURFACE_AUDIT.md`: real chart host/engine
   presentation status, static placeholder risk, and next chart-surface target.
 - `v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md`: FXReplay UI reference kernel for
