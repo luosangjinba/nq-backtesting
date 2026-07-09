@@ -15,6 +15,7 @@ const TESTS = Object.freeze([
   'v6/tests/fast-right-drag-stability-browser-smoke.js',
   'v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js',
   'v6/tests/auto-play-htf-visible-latency-browser-step199-smoke.js',
+  'v6/tests/reset-view-htf-browser-step200-smoke.js',
 ]);
 
 function runTest(script) {
