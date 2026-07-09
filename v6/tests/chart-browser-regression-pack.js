@@ -14,6 +14,7 @@ const TESTS = Object.freeze([
   'v6/tests/chart-drag-release-lifecycle-browser-smoke.js',
   'v6/tests/fast-right-drag-stability-browser-smoke.js',
   'v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js',
+  'v6/tests/leftward-history-auto-chain-browser-smoke.js',
   'v6/tests/initial-htf-chart-entry-browser-step195-smoke.js',
   'v6/tests/pane-reload-htf-projection-browser-step196-smoke.js',
   'v6/tests/manual-next-htf-visible-latency-browser-step197-smoke.js',

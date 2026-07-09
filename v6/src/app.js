@@ -134,6 +134,7 @@ const manualWallInputBridge = connectManualWallInputBridge({
 });
 const leftwardHistoryInputBridge = connectLeftwardHistoryInputBridge({
   chartSurface: workstationChartSurface,
+  subscribeEvent,
 });
 const paneActiveSurfaceBridge = connectPaneActiveSurfaceBridge({
   chartSurface: workstationChartSurface,
