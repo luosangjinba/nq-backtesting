@@ -28,11 +28,12 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 223 - Chart Entry Manual-Next Time Helper
-  Migration. V6 routed manual-next TF parsing, replay timestamp parsing, cursor
-  bar picking timestamp parsing, and projection-source summary through
-  `time-domain` while preserving append payloads, projection dispatch payloads,
-  playback-period stepping, and chart browser behavior.
+- Latest completed roadmap step: Step 224 - Pane Intent Reload Chart-Data Time
+  Helper Migration. V6 routed pane-intent reload window cursor parsing,
+  integer timeframe parsing, optional session timestamp parsing, and
+  projection-source summary through `time-domain` while preserving
+  loaded-window cursor selection, projection dispatch payloads, replacement
+  payloads, replacement ordering, and chart browser behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,30 +45,59 @@
 
 ## Next Executable Steps
 
-### Step 224 - Pane Intent Reload Chart-Data Time Helper Migration
+### Step 225 - Layout Pane Bootstrap Time Helper Migration
 
 Status: planned.
 
 Notes for execution:
 
-- migrate `pane-intent-reload-chart-data-runtime.js` window cursor parsing,
-  integer timeframe parsing, optional session timestamp parsing, and
-  projection-source summary through `time-domain`;
-- preserve loaded-window cursor selection, projection dispatch payloads,
-  replacement payloads, replacement ordering, and error text;
-- keep pane-intent reload ownership of reload application;
-- do not migrate layout bootstrap in this step.
+- migrate `layout-pane-bootstrap-runtime.js` replay-state timestamp parsing and
+  minute timeframe parsing through `time-domain`;
+- preserve pane bootstrap payloads, pane ordering, replay cursor semantics, and
+  error text;
+- keep layout bootstrap ownership limited to layout/pane bootstrap
+  orchestration;
+- do not add TF, indicator, SMC/ICT overlay, trading, or journal behavior in
+  this step.
 
 Acceptance:
 
-- pane-intent reload chart-data runtime uses shared time helpers behind local
-  wrappers;
-- existing pane-intent reload, HTF reload, chart browser, and audit smokes still
-  pass;
-- no layout, TF, indicator, SMC/ICT overlay, or trading behavior changes in
-  Step 224.
+- layout pane bootstrap runtime uses shared time helpers behind local wrappers;
+- existing layout bootstrap, chart browser, and audit smokes still pass;
+- no TF, indicator, SMC/ICT overlay, trading, or journal behavior changes in
+  Step 225.
 
 ## Completed Steps
+
+### Step 224 - Pane Intent Reload Chart-Data Time Helper Migration
+
+Completed in commits:
+
+- `06e38825 refactor(v6): share pane reload time parsing`
+- `c244699c refactor(v6): share pane reload projection summary`
+
+Verification:
+
+- `node v6/tests/pane-intent-reload-chart-data-runtime-step177-smoke.js`
+- `node v6/tests/pane-reload-htf-projection-browser-step196-smoke.js`
+- `node v6/tests/reset-view-htf-browser-step200-smoke.js`
+- `node v6/tests/chart-entry-reload-time-helper-audit-step221-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Routed `pane-intent-reload-chart-data-runtime.js` window cursor parsing
+  through `normalizeUnixSeconds` behind the existing local wrapper.
+- Routed integer timeframe parsing through `normalizeMinuteTimeframe` behind
+  the existing local wrapper.
+- Routed optional session timestamp parsing through `normalizeOptionalUnixSeconds`
+  behind the existing local wrapper.
+- Routed projection-source summary through `summarizeProjectionSource`.
+- Preserved loaded-window cursor selection, projection dispatch payloads,
+  replacement payloads, replacement ordering, and error text.
+- Did not migrate layout bootstrap.
+- Step 225 should migrate `layout-pane-bootstrap-runtime.js` only.
 
 ### Step 223 - Chart Entry Manual-Next Time Helper Migration
 
