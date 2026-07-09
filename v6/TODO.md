@@ -21,14 +21,14 @@
 - Latest completed roadmap step: Step 211 - Next Chart Slice Selection. V6
   selected Top-Toolbar Active-Pane Symbol Presentation Sync as the next bounded
   chart-facing slice after pane-local header state sync.
-- Latest stability work: 2026-07-09 HTF leftward auto-extension bugfix.
-  Programmatic viewport projection, pane reload projection, and display
-  timeframe application now trigger delayed left-extension checks, so non-1m
-  panes can continue auto-extending without waiting for extra mouse movement.
-  Fractional negative canvas-left ranges now use floor-based boundary math, so
-  `from: -0.x` requests the next older window instead of being rounded to zero.
-  Drag stability smokes now allow prepend-driven logical range shifts while
-  still guarding against sticky hover-drag behavior.
+- Latest stability work: 2026-07-09 unified leftward extension planner.
+  Leftward-history requests now use one planner for all display timeframes. The
+  planner separates display timeframe bucket math from source timeframe bar
+  requests, so 1m, 5m, 15m, and future minute-based TFs share the same
+  canvas-left extension rule instead of per-TF special cases. Programmatic
+  viewport projection, pane reload projection, and display timeframe
+  application still trigger delayed left-extension checks, while drag stability
+  smokes guard against sticky hover-drag behavior.
 
 ## Next Executable Steps
 
