@@ -50,7 +50,9 @@ await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
     high: 101 + index,
     low: 99 + index,
     open: 100 + index,
-    timestamp: 1780306200 + (index * 60),
+    ...(index === 5
+      ? { time: '2026-06-01 09:35:00' }
+      : { timestamp: 1780306200 + (index * 60) }),
   })),
   cursorTimestamp: 1780306500,
   paneId: 'main',

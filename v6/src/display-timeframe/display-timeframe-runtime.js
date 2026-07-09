@@ -7,10 +7,18 @@ import {
   PANE_COMMANDS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand, registerCommand } from '../runtime/commands.js';
+import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
 
 function latestTimestamp(record = {}) {
-  const timestamp = record.bars?.at?.(-1)?.timestamp;
-  return Number.isFinite(Number(timestamp)) ? Number(timestamp) : null;
+  const bar = record.bars?.at?.(-1);
+  const value = bar?.timestamp ?? bar?.time;
+  try {
+    return normalizeUnixSeconds(value, {
+      fieldName: 'Display timeframe latest source bar timestamp',
+    });
+  } catch (_error) {
+    return null;
+  }
 }
 
 export function createDisplayTimeframeRuntime({
