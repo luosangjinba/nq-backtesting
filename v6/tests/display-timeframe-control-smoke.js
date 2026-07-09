@@ -38,6 +38,9 @@ assert.equal(control.getValue(), 1);
 assert.equal(control.getTargetPaneId(), 'main');
 assert.equal(root.dataset.displayTimeframe, '1');
 assert.equal(root.dataset.v6DisplayTimeframePaneId, 'main');
+assert.equal(control.setDisplayTimeframe(30), 30);
+assert.equal(control.getValue(), 30);
+assert.equal(root.dataset.displayTimeframe, '30');
 select.change('5');
 await Promise.resolve();
 assert.deepEqual(dispatched, [
@@ -50,6 +53,7 @@ assert.equal(root.dataset.displayTimeframe, '5');
 assert.equal(root.dataset.v6DisplayTimeframePaneId, 'main');
 
 control.setTargetPaneId('secondary');
+control.setDisplayTimeframe(1);
 select.change('15');
 await Promise.resolve();
 assert.deepEqual(dispatched.at(-1), {

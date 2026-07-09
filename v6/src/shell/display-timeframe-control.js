@@ -144,6 +144,10 @@ export function mountDisplayTimeframeControl(root, {
     getValue() {
       return currentValue;
     },
+    setDisplayTimeframe(value) {
+      syncDisplayTimeframe(value);
+      return currentValue;
+    },
     setTargetPaneId(paneId) {
       return syncTargetPaneId(paneId);
     },

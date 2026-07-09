@@ -6,6 +6,14 @@ function resolvePaneIdFromPane(pane = {}) {
   return String(pane.id || pane.paneId || '').trim();
 }
 
+function resolveDisplayTimeframeFromPane(pane = {}) {
+  const displayTimeframe = Number(pane.displayTimeframe);
+  if (!Number.isInteger(displayTimeframe) || displayTimeframe <= 0) {
+    return null;
+  }
+  return displayTimeframe;
+}
+
 export function connectDisplayTimeframePaneTargetBridge({
   dispatchCommand = dispatchRuntimeCommand,
   displayTimeframeControl,
@@ -29,7 +37,12 @@ export function connectDisplayTimeframePaneTargetBridge({
     if (!paneId) {
       return null;
     }
-    return displayTimeframeControl.setTargetPaneId(paneId);
+    const nextPaneId = displayTimeframeControl.setTargetPaneId(paneId);
+    const displayTimeframe = resolveDisplayTimeframeFromPane(pane);
+    if (displayTimeframe && typeof displayTimeframeControl.setDisplayTimeframe === 'function') {
+      displayTimeframeControl.setDisplayTimeframe(displayTimeframe);
+    }
+    return nextPaneId;
   }
 
   const unsubscribe = subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, applyPane);

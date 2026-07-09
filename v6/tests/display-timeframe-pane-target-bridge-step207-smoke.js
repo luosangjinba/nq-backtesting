@@ -5,6 +5,10 @@ import { connectDisplayTimeframePaneTargetBridge } from '../src/shell/display-ti
 const calls = [];
 const listeners = new Map();
 const control = {
+  setDisplayTimeframe(displayTimeframe) {
+    calls.push({ displayTimeframe, method: 'setDisplayTimeframe' });
+    return displayTimeframe;
+  },
   setTargetPaneId(paneId) {
     calls.push({ method: 'setTargetPaneId', paneId });
     return paneId;
@@ -16,7 +20,7 @@ const bridge = connectDisplayTimeframePaneTargetBridge({
   dispatchCommand(command) {
     calls.push({ command });
     assert.equal(command, PANE_COMMANDS.GET_ACTIVE);
-    return { id: 'main' };
+    return { displayTimeframe: 1, id: 'main' };
   },
   subscribeEvent(eventName, handler) {
     listeners.set(eventName, handler);
@@ -28,14 +32,17 @@ await bridge.ready;
 assert.deepEqual(calls, [
   { command: PANE_COMMANDS.GET_ACTIVE },
   { method: 'setTargetPaneId', paneId: 'main' },
+  { displayTimeframe: 1, method: 'setDisplayTimeframe' },
 ]);
 
-listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({ id: 'secondary' });
-listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({ paneId: 'tertiary' });
+listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({ displayTimeframe: 5, id: 'secondary' });
+listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({ displayTimeframe: 15, paneId: 'tertiary' });
 listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({});
-assert.deepEqual(calls.slice(2), [
+assert.deepEqual(calls.slice(3), [
   { method: 'setTargetPaneId', paneId: 'secondary' },
+  { displayTimeframe: 5, method: 'setDisplayTimeframe' },
   { method: 'setTargetPaneId', paneId: 'tertiary' },
+  { displayTimeframe: 15, method: 'setDisplayTimeframe' },
 ]);
 
 bridge.destroy();
