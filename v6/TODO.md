@@ -18,9 +18,9 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 211 - Next Chart Slice Selection. V6
-  selected Top-Toolbar Active-Pane Symbol Presentation Sync as the next bounded
-  chart-facing slice after pane-local header state sync.
+- Latest completed roadmap step: Step 212 - Top-Toolbar Active-Pane Symbol
+  Presentation Sync. V6 now mirrors the active pane symbol in the top toolbar
+  through a shell-owned read-only bridge.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -32,28 +32,55 @@
 
 ## Next Executable Steps
 
-### Step 212 - Top-Toolbar Active-Pane Symbol Presentation Sync
+### Step 213 - Next Chart Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- add a shell-owned read-only top-toolbar symbol presentation bridge/control;
-- initialize `data-v6-top-symbol` from `PANE_COMMANDS.GET_ACTIVE`;
-- update on `PANE_EVENTS.ACTIVE_CHANGED` and active-pane symbol intent changes;
-- keep pane headers owned by `pane-status-readout`;
-- do not add symbol picker UI, comparison symbols, custom intervals, interval
-  sync, indicators, Pine Script, or trading/order behavior.
+- review the completed active-pane symbol and pane-local header presentation
+  gates;
+- select the next bounded chart-facing slice before implementing more toolbar
+  or indicator UI;
+- keep the architecture audit finding in mind: TF/projection/time domain
+  unification is a candidate before broader TF expansion.
 
 Acceptance:
 
-- top toolbar symbol mirrors the active pane instrument;
-- switching active panes updates only the top-toolbar symbol presentation;
-- active-pane symbol intent changes update the toolbar without chart-data,
-  bar-data, replay, or display-timeframe side effects;
-- existing chart browser regression pack and boundary smoke pass.
+- one next slice is documented with explicit non-goals;
+- `boundary-smoke`, the active-pane symbol bridge smoke, and chart browser pack
+  remain passing.
 
 ## Completed Steps
+
+### Step 212 - Top-Toolbar Active-Pane Symbol Presentation Sync
+
+Completed in commits:
+
+- `f82ffcda feat(v6): add top symbol active pane bridge`
+- `f7932934 test(v6): cover top symbol active pane sync`
+
+Verification:
+
+- `node v6/tests/top-symbol-active-pane-bridge-step212-smoke.js`
+- `node v6/tests/top-symbol-active-pane-browser-step212-smoke.js`
+- `node v6/tests/pane-local-header-state-browser-step210-smoke.js`
+- `node v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `git diff --check`
+
+Notes:
+
+- Added a shell-owned read-only bridge for `data-v6-top-symbol`.
+- The toolbar symbol initializes from `PANE_COMMANDS.GET_ACTIVE`.
+- `PANE_EVENTS.ACTIVE_CHANGED` updates the toolbar symbol to the new active
+  pane instrument.
+- `PANE_EVENTS.SYMBOL_INTENT_CHANGED` updates the toolbar only when the event
+  belongs to the current active pane.
+- No symbol picker UI, comparison symbols, interval sync, indicators, Pine
+  Script, chart-data requests, replay mutation, or trading/order behavior were
+  added.
 
 ### Step 211 - Next Chart Slice Selection
 
