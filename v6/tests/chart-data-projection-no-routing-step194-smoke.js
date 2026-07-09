@@ -9,7 +9,7 @@ const chartDataSurfaceBridge = await readFile('v6/src/chart-engine/chart-data-su
 
 assert.equal(chartDataRuntime.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
 assert.equal(chartDataRuntime.includes('chartDataProjection.'), false);
-assert.equal(displayRuntime.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
+assert.equal(displayRuntime.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT'), true);
 assert.equal(autoPlay.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
 assert.equal(resetBridge.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
 assert.equal(chartDataSurfaceBridge.includes('CHART_DATA_PROJECTION_COMMANDS'), false);

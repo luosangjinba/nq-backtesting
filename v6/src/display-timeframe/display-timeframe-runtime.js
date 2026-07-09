@@ -1,4 +1,5 @@
 import {
+  CHART_DATA_PROJECTION_COMMANDS,
   CHART_DATA_COMMANDS,
   CHART_VIEWPORT_COMMANDS,
   DISPLAY_TIMEFRAME_COMMANDS,
@@ -6,7 +7,6 @@ import {
   PANE_COMMANDS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand, registerCommand } from '../runtime/commands.js';
-import { projectBarsToDisplayTimeframe } from './display-timeframe-projection.js';
 
 function latestTimestamp(record = {}) {
   const timestamp = record.bars?.at?.(-1)?.timestamp;
@@ -33,9 +33,11 @@ export function createDisplayTimeframeRuntime({
       paneId: targetPane.id,
     });
     const cursorTimestamp = latestTimestamp(sourceRecord);
-    const projectedBars = projectBarsToDisplayTimeframe({
+    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
       bars: sourceRecord.bars,
       cursorTimestamp,
+      paneId: targetPane.id,
+      sessionStartTimestamp: 0,
       sourceTimeframe,
       targetTimeframe: displayTimeframe,
     });
@@ -44,7 +46,7 @@ export function createDisplayTimeframeRuntime({
       paneId: targetPane.id,
     });
     const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
-      bars: projectedBars,
+      bars: projectionRecord.bars,
       cursorTimestamp,
       paneId: targetPane.id,
     });
@@ -54,8 +56,16 @@ export function createDisplayTimeframeRuntime({
     const result = {
       chartRecord,
       pane,
+      projectionSource: {
+        bucketCount: projectionRecord.buckets?.length ?? 0,
+        owner: 'runtime.chart-data-projection',
+        projectionRevision: projectionRecord.projectionRevision ?? null,
+        sourceBarCount: projectionRecord.sourceBarCount ?? null,
+        sourceTimeframe: projectionRecord.sourceTimeframe ?? null,
+        targetTimeframe: projectionRecord.targetTimeframe ?? null,
+      },
       sourceBarCount: sourceRecord.bars.length,
-      targetBarCount: projectedBars.length,
+      targetBarCount: projectionRecord.bars.length,
       viewportRecord,
     };
     emit(DISPLAY_TIMEFRAME_EVENTS.APPLIED, result);

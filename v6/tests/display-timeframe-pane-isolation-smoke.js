@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createChartDataProjectionRuntime } from '../src/chart-data-projection/chart-data-projection-runtime.js';
 import {
   CHART_DATA_COMMANDS,
   DISPLAY_TIMEFRAME_COMMANDS,
@@ -33,6 +34,7 @@ const paneStore = createPaneStore({
 const registry = createRuntimeRegistry();
 registry.registerRuntime(createPaneRuntime({ store: paneStore }));
 registry.registerRuntime(createChartDataRuntime());
+registry.registerRuntime(createChartDataProjectionRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
 await registry.start({ emitEvent, subscribeEvent });

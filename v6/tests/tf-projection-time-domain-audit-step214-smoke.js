@@ -61,7 +61,6 @@ for (const file of jsFiles) {
 projectionImplementations.sort();
 assert.deepEqual(projectionImplementations, [
   'v6/src/chart-data-projection/chart-data-projection-domain.js',
-  'v6/src/display-timeframe/display-timeframe-projection.js',
 ]);
 
 const localTimeframeNormalizers = [];
@@ -89,7 +88,6 @@ for (const file of [
   'v6/src/bar-data/bar-window.js',
   'v6/src/chart-history/leftward-extension-planner.js',
   'v6/src/chart-history/leftward-history-extension-runtime.js',
-  'v6/src/display-timeframe/display-timeframe-projection.js',
   'v6/src/replay/replay-domain.js',
   'v6/src/panes/pane-model.js',
 ]) {

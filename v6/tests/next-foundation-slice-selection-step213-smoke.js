@@ -8,7 +8,7 @@ async function read(path) {
 const doc = await read('v6/docs/V6_NEXT_FOUNDATION_SLICE_SELECTION_STEP213.md');
 const productDirection = await read('v6/docs/V6_PRODUCT_DIRECTION.md');
 const chartProjection = await read('v6/src/chart-data-projection/chart-data-projection-domain.js');
-const displayProjection = await read('v6/src/display-timeframe/display-timeframe-projection.js');
+const step214Audit = await read('v6/docs/V6_TF_PROJECTION_TIME_DOMAIN_UNIFICATION_AUDIT_STEP214.md');
 const leftwardPlanner = await read('v6/src/chart-history/leftward-extension-planner.js');
 
 [
@@ -29,9 +29,9 @@ assert.match(productDirection, /Deferred or undecided:[\s\S]*indicators/);
 assert.match(productDirection, /plugin-friendly/);
 
 assert.match(chartProjection, /projectSourceBarsToChartData/);
-assert.match(chartProjection, /resolveBucketStart/);
-assert.match(displayProjection, /projectBarsToDisplayTimeframe/);
-assert.match(displayProjection, /bucketStart/);
+assert.match(chartProjection, /resolveDisplayBucketStart/);
+assert.match(step214Audit, /display-timeframe\/display-timeframe-projection\.js/);
+assert.match(step214Audit, /projectBarsToDisplayTimeframe/);
 assert.match(leftwardPlanner, /planLeftwardSourceWindow/);
 
 assert.match(doc, /display-timeframe\/display-timeframe-projection\.js/);

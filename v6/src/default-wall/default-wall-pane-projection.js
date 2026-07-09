@@ -1,15 +1,15 @@
-import { projectBarsToDisplayTimeframe } from '../display-timeframe/display-timeframe-projection.js';
+import { projectSourceBarsToChartData } from '../chart-data-projection/chart-data-projection-domain.js';
+import { normalizeMinuteTimeframe } from '../time-domain/time-domain.js';
 import {
   createDefaultWallChartAppendPayload,
   createDefaultWallChartReplacePayload,
 } from './default-wall-replay.js';
 
 function normalizeTimeframe(value = 1) {
-  const timeframe = Number(value);
-  if (!Number.isInteger(timeframe) || timeframe <= 0) {
-    throw new Error('Default wall pane displayTimeframe must be a positive integer.');
-  }
-  return timeframe;
+  return normalizeMinuteTimeframe(value, {
+    allowSuffix: false,
+    fieldName: 'Default wall pane displayTimeframe',
+  });
 }
 
 export function createDefaultWallPaneReplacePayload(state, {
@@ -21,13 +21,15 @@ export function createDefaultWallPaneReplacePayload(state, {
   if (targetTimeframe === source) {
     return createDefaultWallChartReplacePayload(state);
   }
+  const projection = projectSourceBarsToChartData({
+    bars: state.chartBars,
+    cursorTimestamp: state.latestBar?.timestamp ?? null,
+    sessionStartTimestamp: 0,
+    sourceTimeframe: source,
+    targetTimeframe,
+  });
   return Object.freeze({
-    bars: projectBarsToDisplayTimeframe({
-      bars: state.chartBars,
-      cursorTimestamp: state.latestBar?.timestamp ?? null,
-      sourceTimeframe: source,
-      targetTimeframe,
-    }),
+    bars: projection.bars,
     cursorTimestamp: state.latestBar?.timestamp ?? null,
     paneId: state.paneId,
   });

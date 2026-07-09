@@ -1,53 +1,23 @@
 import assert from 'node:assert/strict';
-import { projectBarsToDisplayTimeframe } from '../src/display-timeframe/display-timeframe-projection.js';
+import { readFile } from 'node:fs/promises';
 
-const bars = Array.from({ length: 7 }, (_, index) => ({
-  close: 100 + index + 0.5,
-  high: 101 + index,
-  low: 99 + index,
-  open: 100 + index,
-  timestamp: 1780306200 + (index * 60),
-}));
+async function readOptional(path) {
+  try {
+    return await readFile(path, 'utf8');
+  } catch (error) {
+    if (error?.code === 'ENOENT') return null;
+    throw error;
+  }
+}
 
-const projected = projectBarsToDisplayTimeframe({
-  bars,
-  cursorTimestamp: 1780306500,
-  sourceTimeframe: 1,
-  targetTimeframe: 5,
-});
+const retiredProjection = await readOptional('v6/src/display-timeframe/display-timeframe-projection.js');
+const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
+const defaultWallProjection = await readFile('v6/src/default-wall/default-wall-pane-projection.js', 'utf8');
 
-assert.deepEqual(projected, [
-  {
-    close: 104.5,
-    high: 105,
-    low: 99,
-    open: 100,
-    timestamp: 1780306200,
-  },
-  {
-    close: 105.5,
-    high: 106,
-    low: 104,
-    open: 105,
-    timestamp: 1780306500,
-  },
-]);
+assert.equal(retiredProjection, null);
+assert.equal(displayRuntime.includes('projectBarsToDisplayTimeframe'), false);
+assert.equal(displayRuntime.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT'), true);
+assert.equal(defaultWallProjection.includes('projectBarsToDisplayTimeframe'), false);
+assert.equal(defaultWallProjection.includes('projectSourceBarsToChartData'), true);
 
-const sameTimeframe = projectBarsToDisplayTimeframe({
-  bars,
-  cursorTimestamp: 1780306320,
-  sourceTimeframe: 1,
-  targetTimeframe: 1,
-});
-assert.deepEqual(sameTimeframe.map((bar) => bar.timestamp), [
-  1780306200,
-  1780306260,
-  1780306320,
-]);
-
-assert.throws(
-  () => projectBarsToDisplayTimeframe({ bars, sourceTimeframe: 5, targetTimeframe: 1 }),
-  /multiple/
-);
-
-console.log('v6 display timeframe projection smoke passed');
+console.log('v6 display timeframe projection retired smoke passed');

@@ -7,6 +7,7 @@ import {
   PANE_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import { createChartDataRuntime } from '../src/chart-data/chart-data-runtime.js';
+import { createChartDataProjectionRuntime } from '../src/chart-data-projection/chart-data-projection-runtime.js';
 import { createChartViewportRuntime } from '../src/chart-viewport/chart-viewport-runtime.js';
 import { createDisplayTimeframeRuntime } from '../src/display-timeframe/display-timeframe-runtime.js';
 import { createPaneRuntime } from '../src/panes/pane-runtime.js';
@@ -33,6 +34,7 @@ const unsubscribeApplied = subscribeEvent(DISPLAY_TIMEFRAME_EVENTS.APPLIED, (pay
 const registry = createRuntimeRegistry();
 registry.registerRuntime(createPaneRuntime());
 registry.registerRuntime(createChartDataRuntime());
+registry.registerRuntime(createChartDataProjectionRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createDisplayTimeframeRuntime());
 await registry.start({ emitEvent, subscribeEvent });
@@ -67,6 +69,9 @@ const applied = await dispatchCommand(DISPLAY_TIMEFRAME_COMMANDS.APPLY, {
 });
 
 assert.equal(applied.pane.displayTimeframe, 5);
+assert.equal(applied.projectionSource.owner, 'runtime.chart-data-projection');
+assert.equal(applied.projectionSource.sourceTimeframe, 1);
+assert.equal(applied.projectionSource.targetTimeframe, 5);
 assert.equal(applied.sourceBarCount, 6);
 assert.equal(applied.targetBarCount, 2);
 assert.deepEqual(applied.chartRecord.bars.map((bar) => bar.timestamp), [
