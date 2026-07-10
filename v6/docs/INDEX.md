@@ -221,6 +221,9 @@ Read this index before working on V6.
 - `v6/docs/V6_WEEKLY_PROJECTION_INTEGRATION_STEP269.md`: accepted weekly
   projection integration through chart-data projection and session-calendar
   trading week buckets.
+- `v6/docs/V6_MONTHLY_PROJECTION_INTEGRATION_STEP270.md`: accepted monthly
+  projection integration through chart-data projection and session-calendar
+  trading month buckets.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
