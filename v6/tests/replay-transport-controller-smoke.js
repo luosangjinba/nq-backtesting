@@ -4,6 +4,7 @@ import {
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_PROJECTION_APPLY_EVENTS,
   CHART_ENTRY_RESTART_COMMANDS,
+  PLAYBACK_PERIOD_EVENTS,
   REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import {
@@ -14,6 +15,7 @@ import {
   resolveReplayTransportPreviousAvailability,
   syncReplayTransportStateFromReplay,
 } from '../src/shell/replay-transport.js';
+import { resolvePreviousReplayAvailability } from '../src/replay/replay-domain.js';
 
 function createFakeElement({
   dataset = {},
@@ -154,10 +156,12 @@ assert.deepEqual(syncReplayTransportStateFromReplay({ playing: true, speed: 4 },
   replayStatus: 'paused',
   speed: 4,
 });
-assert.equal(resolveReplayTransportPreviousAvailability({ cursorIndex: 0, revealedCount: 1 }), false);
-assert.equal(resolveReplayTransportPreviousAvailability({ cursorIndex: 1, revealedCount: 2 }), true);
-assert.equal(resolveReplayTransportPreviousAvailability({ cursorIndex: 3, status: 'ended' }), true);
-assert.equal(resolveReplayTransportPreviousAvailability({ revealedCount: 2 }), true);
+assert.equal(resolveReplayTransportPreviousAvailability({ previousAvailable: false }), false);
+assert.equal(resolveReplayTransportPreviousAvailability({ previousAvailable: true }), true);
+assert.equal(resolvePreviousReplayAvailability({ cursorIndex: 0, revealedCount: 1 }), false);
+assert.equal(resolvePreviousReplayAvailability({ cursorIndex: 1, revealedCount: 2 }), true);
+assert.equal(resolvePreviousReplayAvailability({ cursorIndex: 3, status: 'ended' }), true);
+assert.equal(resolvePreviousReplayAvailability({ revealedCount: 2 }), true);
 assert.equal(resolveReplayTransportAction('next', createReplayTransportState({ replayStatus: 'ended' })).command, null);
 assert.deepEqual(clampReplayTransportPosition({
   height: 40,
@@ -357,7 +361,12 @@ assert.equal(controller.getState().replayStatus, 'playing');
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Pause replay');
 
-eventListeners.get('replay:advanced')?.({ cursorIndex: 1, revealedCount: 2, status: 'ready' });
+eventListeners.get('replay:advanced')?.({
+  cursorIndex: 1,
+  previousAvailable: true,
+  revealedCount: 2,
+  status: 'ready',
+});
 assert.equal(controller.getState().playing, true);
 assert.equal(controller.getState().replayStatus, 'ready');
 assert.equal(controller.getState().previousAvailable, true);
@@ -367,7 +376,21 @@ assert.equal(previousButton.disabled, true);
 assert.equal(previousButton['aria-disabled'], 'true');
 assert.equal(playButton['aria-label'], 'Pause replay');
 
-eventListeners.get('replay:rewound')?.({ cursorIndex: 0, revealedCount: 1, status: 'ready' });
+controller.setSpeed(4);
+await Promise.resolve();
+assert.equal(controller.getState().speed, 4);
+assert.equal(controller.getState().previousAvailable, true);
+
+eventListeners.get(PLAYBACK_PERIOD_EVENTS.CHANGED)?.({ period: '1m', sync: false });
+assert.equal(controller.getState().period, '1m');
+assert.equal(controller.getState().previousAvailable, true);
+
+eventListeners.get('replay:rewound')?.({
+  cursorIndex: 0,
+  previousAvailable: false,
+  revealedCount: 1,
+  status: 'ready',
+});
 assert.equal(controller.getState().previousAvailable, false);
 assert.equal(root.dataset.previousAvailable, 'false');
 assert.equal(previousButton.dataset.v6TransportPreviousAvailable, 'false');

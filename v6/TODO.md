@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 240 - Manual Previous Viewport
-  Preservation Reaudit. V6 now updates viewport cursor intent on replay rewound
-  events, while browser coverage protects default/manual viewport
-  origin/span/offset preservation during direct chart-entry manual Previous.
+- Latest completed roadmap step: Step 241 - Manual Previous Transport
+  Enablement Readiness. V6 transport now tracks previous availability from
+  replay cursor state and exposes it for the reserved Previous button while
+  keeping the button disabled and actionless.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,29 +43,62 @@
 
 ## Next Executable Steps
 
-### Step 241 - Manual Previous Transport Enablement Readiness
+### Step 242 - Manual Previous Transport Button Wiring
 
 Status: planned.
 
 Notes for execution:
 
-- define enabled/disabled state for the reserved Previous transport button;
-- verify at-start/manual-rewind behavior before wiring the shell button;
-- decide whether transport should dispatch the chart-entry manual Previous
-  command directly or through a small transport bridge helper;
-- keep ownership boundaries intact: shell UI dispatches commands, chart-entry
-  owns chart-data replacement, replay owns cursor movement, viewport owns
-  viewport intent.
+- wire `data-v6-transport-step-back` only when transport
+  `previousAvailable` is true;
+- dispatch `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS` through the existing
+  shell transport action path;
+- keep button disabled at replay start and after rewinding to cursor 0;
+- verify direct button click and keyboard scope if a keyboard shortcut is added;
+- keep replay, chart-entry, chart-data, and viewport ownership unchanged.
 
 Acceptance:
 
-- transport readiness is documented with the chosen owner path;
-- coverage proves the button remains disabled at replay start and is safe to
-  enable only when a previous replay bar exists;
+- browser coverage proves button click rewinds one replay bar, replaces
+  chart-data, preserves viewport intent, and updates button disabled state;
+- at replay start the button is disabled and cannot dispatch;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 241.
+  in Step 242.
 
 ## Completed Steps
+
+### Step 241 - Manual Previous Transport Enablement Readiness
+
+Completed in this transport readiness state and browser coverage commit.
+
+Verification:
+
+- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added replay-owned `previousAvailable` state derived from replay cursor
+  state: `cursorIndex > 0` or fallback `revealedCount > 1`.
+- Shell transport reads the replay-owned boolean instead of interpreting replay
+  cursor fields directly.
+- Transport now subscribes to `REPLAY_EVENTS.REWOUND` so future button enabled
+  state follows manual Previous events.
+- Exposed readiness on the transport root and Previous button datasets while
+  keeping `data-v6-transport-step-back` disabled and without a transport action.
+- Documented that future wiring should dispatch
+  `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS` directly through shell
+  transport.
+- Added browser coverage for at-start unavailable, after-next available,
+  rewind-to-start unavailable, and rewind-to-cursor-1 still available.
+- Did not change viewport reset, indicator, trading simulation, order tickets,
+  prop firm rule engines, or journal workflows.
 
 ### Step 240 - Manual Previous Viewport Preservation Reaudit
 

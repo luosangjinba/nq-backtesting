@@ -25,6 +25,7 @@ function buildState({
     cursorIndex: boundedIndex,
     cursorTime: toIso(cursorMs),
     endTime: toIso(endMs),
+    previousAvailable: boundedIndex > 0,
     revealedCount: boundedIndex + 1,
     sessionId: session.id,
     startTime: toIso(startMs),
@@ -115,6 +116,18 @@ export function previousReplayState(state) {
     stepMs,
     totalBars: state.totalBars,
   });
+}
+
+export function resolvePreviousReplayAvailability(state = {}) {
+  if (typeof state.previousAvailable === 'boolean') {
+    return state.previousAvailable;
+  }
+  const cursorIndex = Number(state.cursorIndex);
+  if (Number.isFinite(cursorIndex)) {
+    return cursorIndex > 0;
+  }
+  const revealedCount = Number(state.revealedCount);
+  return Number.isFinite(revealedCount) && revealedCount > 1;
 }
 
 export function resetReplayState(state) {

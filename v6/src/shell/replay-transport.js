@@ -81,12 +81,7 @@ export function createReplayTransportState({
 }
 
 export function resolveReplayTransportPreviousAvailability(replayState = {}) {
-  const cursorIndex = Number(replayState.cursorIndex);
-  if (Number.isFinite(cursorIndex)) {
-    return cursorIndex > 0;
-  }
-  const revealedCount = Number(replayState.revealedCount);
-  return Number.isFinite(revealedCount) && revealedCount > 1;
+  return Boolean(replayState.previousAvailable);
 }
 
 export function resolveReplayTransportAction(action, state = createReplayTransportState()) {
@@ -330,10 +325,11 @@ export function mountReplayTransport(root, {
     }).catch((error) => {
       root.dataset.lastError = error?.message || String(error);
       if (action === 'play-toggle') {
-      setState({
+        setState({
           period: state.period,
           periodSync: state.periodSync,
           playing: !state.playing,
+          previousAvailable: state.previousAvailable,
           replayStatus: state.replayStatus,
           speed: state.speed,
         });
@@ -347,6 +343,7 @@ export function mountReplayTransport(root, {
       period: state.period,
       periodSync: state.periodSync,
       playing: state.playing,
+      previousAvailable: state.previousAvailable,
       replayStatus: state.replayStatus,
       speed,
     });
@@ -366,6 +363,7 @@ export function mountReplayTransport(root, {
       period: playbackPeriodState.period || state.period,
       periodSync: playbackPeriodState.sync ?? state.periodSync,
       playing: state.playing,
+      previousAvailable: state.previousAvailable,
       replayStatus: state.replayStatus,
       speed: state.speed,
     });
