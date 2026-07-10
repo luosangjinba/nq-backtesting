@@ -66,8 +66,16 @@ assert.equal(markReplayPlaying(ended), ended);
 assert.deepEqual(resetReplayState(ended), initial);
 
 const gapAdjusted = setReplayCursorTime(second, '2026-06-01T09:33:00.000Z');
-assert.equal(gapAdjusted.cursorIndex, second.cursorIndex);
-assert.equal(gapAdjusted.revealedCount, second.revealedCount);
+assert.equal(gapAdjusted.cursorIndex, 3);
+assert.equal(gapAdjusted.cursorTime, '2026-06-01T09:33:00.000Z');
+assert.equal(gapAdjusted.previousAvailable, true);
+assert.equal(gapAdjusted.revealedCount, 4);
+
+const clampedCursor = setReplayCursorTime(second, '2026-06-01T09:35:00.000Z');
+assert.equal(clampedCursor.cursorIndex, 3);
+assert.equal(clampedCursor.cursorTime, '2026-06-01T09:33:00.000Z');
+assert.equal(clampedCursor.revealedCount, 4);
+assert.equal(clampedCursor.status, 'ended');
 assert.equal(gapAdjusted.cursorTime, '2026-06-01T09:33:00.000Z');
 assert.equal(gapAdjusted.status, 'ended');
 

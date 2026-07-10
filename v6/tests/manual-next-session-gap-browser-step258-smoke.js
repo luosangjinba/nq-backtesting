@@ -43,6 +43,7 @@ async function runCase(displayTimeframe) {
 
       let replay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
       let manualNext = null;
+      let crossedReplay = null;
       for (let index = 0; index < 100; index += 1) {
         if (Date.parse(replay.cursorTime) >= Date.parse('2026-06-01T18:00:00.000Z')) break;
         manualNext = await commands.dispatchCommand(contracts.CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, {
@@ -50,6 +51,11 @@ async function runCase(displayTimeframe) {
         });
         replay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
       }
+      crossedReplay = replay;
+      const nextAfterGap = await commands.dispatchCommand(contracts.CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, {
+        paneId: 'main',
+      });
+      replay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
 
       const chart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
       const projection = await commands.dispatchCommand(contracts.CHART_DATA_PROJECTION_COMMANDS.GET_STATE);
@@ -58,9 +64,11 @@ async function runCase(displayTimeframe) {
       return {
         applyState,
         barCount: chart.bars?.length || 0,
+        crossedReplay,
         displayTimeframe: ${displayTimeframe},
         latestIso: latest ? new Date(Number(latest.timestamp ?? latest.time) * 1000).toISOString() : null,
         manualNext,
+        nextAfterGap,
         projectedBucket,
         replay,
       };
@@ -81,14 +89,19 @@ for (const item of cases) {
   assert.equal(item.applyState.status, 'applied', `apply should complete for ${item.displayTimeframe}m`);
   assert.notEqual(item.manualNext, null, `manual next should run for ${item.displayTimeframe}m`);
   assert.equal(item.manualNext.status, 'advanced', item.manualNext.error || `manual next should advance for ${item.displayTimeframe}m`);
-  assert.equal(item.replay.cursorTime, '2026-06-01T18:00:00.000Z', `${item.displayTimeframe}m replay should skip to next session bar`);
+  assert.equal(item.crossedReplay.cursorTime, '2026-06-01T18:00:00.000Z', `${item.displayTimeframe}m replay should skip to next session bar`);
+  assert.equal(item.crossedReplay.cursorIndex, 146, `${item.displayTimeframe}m replay index should align to skipped source time`);
+  assert.equal(item.crossedReplay.revealedCount, 147, `${item.displayTimeframe}m revealed count should align to skipped source time`);
+  assert.equal(item.nextAfterGap.status, 'advanced', item.nextAfterGap.error || `${item.displayTimeframe}m manual next should continue after gap`);
+  assert.equal(item.replay.cursorTime, '2026-06-01T18:01:00.000Z', `${item.displayTimeframe}m replay should continue after gap`);
+  assert.equal(item.replay.cursorIndex, 147, `${item.displayTimeframe}m replay index should continue after gap`);
   if (item.displayTimeframe === 1) {
-    assert.equal(item.latestIso, '2026-06-01T18:00:00.000Z', '1m chart should append the next session bar');
+    assert.equal(item.latestIso, '2026-06-01T18:01:00.000Z', '1m chart should append the bar after the session gap');
   } else {
     assert.equal(
       item.projectedBucket.lastSourceTimestamp,
-      Math.floor(Date.parse('2026-06-01T18:00:00.000Z') / 1000),
-      `${item.displayTimeframe}m projected bucket should include the next session source bar`,
+      Math.floor(Date.parse('2026-06-01T18:01:00.000Z') / 1000),
+      `${item.displayTimeframe}m projected bucket should continue after the next session source bar`,
     );
   }
   assert.equal(item.barCount > 0, true, `${item.displayTimeframe}m chart should keep bars`);

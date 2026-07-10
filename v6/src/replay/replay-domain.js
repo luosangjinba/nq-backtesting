@@ -157,12 +157,22 @@ export function setReplayCursorTime(state, cursorTime) {
   const startMs = normalizeUnixMilliseconds(state.startTime, { fieldName: 'Replay startTime' });
   const endMs = normalizeUnixMilliseconds(state.endTime, { fieldName: 'Replay endTime' });
   const cursorMs = normalizeUnixMilliseconds(cursorTime, { fieldName: 'Replay cursorTime' });
+  const stepMs = normalizeMinuteTimeframe(state.timeframe, {
+    fieldName: 'Replay timeframe',
+  }) * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
   const boundedCursorMs = Math.min(Math.max(cursorMs, startMs), endMs);
+  const cursorIndex = Math.min(
+    Math.max(Math.floor((boundedCursorMs - startMs) / stepMs), 0),
+    state.totalBars - 1,
+  );
   const ended = boundedCursorMs >= endMs;
   return Object.freeze({
     ...state,
+    cursorIndex,
     cursorTime: toIso(boundedCursorMs),
     endTime: session.endTime,
+    previousAvailable: cursorIndex > 0,
+    revealedCount: cursorIndex + 1,
     sessionId: session.id,
     startTime: session.startTime,
     status: ended && state.status !== 'paused' ? 'ended' : state.status,

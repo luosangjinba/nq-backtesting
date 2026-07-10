@@ -63,9 +63,14 @@ registerCommand(REPLAY_COMMANDS.NEXT, () => {
   return { ...replayState };
 });
 registerCommand(REPLAY_COMMANDS.SET_CURSOR_TIME, ({ cursorTime }) => {
+  const startMs = Date.parse(replayState.startTime);
+  const cursorMs = Date.parse(cursorTime);
+  const cursorIndex = Math.floor((cursorMs - startMs) / 60000);
   replayState = {
     ...replayState,
+    cursorIndex,
     cursorTime,
+    revealedCount: cursorIndex + 1,
   };
   calls.push({ command: REPLAY_COMMANDS.SET_CURSOR_TIME, cursorTime });
   return { ...replayState };
@@ -120,6 +125,8 @@ const state = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, { pan
 
 assert.equal(state.status, 'advanced', state.error || 'manual next should cross the session gap');
 assert.equal(state.advanced.replayState.cursorTime, '2026-06-01T18:00:00.000Z');
+assert.equal(state.advanced.replayState.cursorIndex, 146);
+assert.equal(state.advanced.replayState.revealedCount, 147);
 assert.equal(state.advanced.appendedBarCount, 1);
 assert.equal(state.advanced.chartRecord.cursorTimestamp, Math.floor(Date.parse('2026-06-01T18:00:00.000Z') / 1000));
 assert.deepEqual(

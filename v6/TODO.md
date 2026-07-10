@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 257 - Visible K-Line Latency Regression
-  Pack. V6 added a compact pack for cache-hit visible latency,
-  mixed-timeframe visible latency, manual-next HTF visible latency,
-  auto-play HTF visible latency, replay-safe leftward-history latency, and the
-  shared visible-latency domain trace.
+- Latest completed roadmap step: Step 258 - Chart Foundation Next Slice
+  Selection. V6 selected Step 259 as Manual Next Session Gap Regression Pack,
+  focused on preserving manual replay `Next` behavior across no-bar session
+  breaks for source and higher display-timeframe paths.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -56,33 +55,92 @@
   Creating a session at `2026-05-04 09:30` now stores `2026-05-04T09:30:00Z`
   instead of shifting to the operator machine timezone.
 - Latest replay gap fix: 2026-07-10 manual-next replay now skips non-trading
-  gaps to the next available source bar instead of repeatedly appending the
-  last bar before a session break. The fix covers 1m source replay and HTF
+  gaps to the next available source bar and keeps replay cursor index/revealed
+  count aligned to the skipped source time. After crossing a session break from
+  `16:59` to `18:00`, the next manual `Next` continues to `18:01` instead of
+  stopping at the first post-break bar. The fix covers 1m source replay and HTF
   display projection paths such as 5m and 15m.
 
 ## Next Executable Steps
 
-### Step 258 - Chart Foundation Next Slice Selection
+### Step 259 - Manual Next Session Gap Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 245-257 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, chart drag/scroll display,
-  date ranges, replay, multi-pane, pane-local reset, or latency behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- add a compact pack runner for the manual-next session-gap runtime and browser
+  gates;
+- include direct manual-next gap coverage plus browser coverage for 1m, 5m, and
+  15m display paths;
+- include nearby replay/chart-entry/HTF projection gates that prove ordinary
+  manual-next behavior remains intact;
+- document the pack purpose, owner boundaries, and HTF projected-bucket caveat.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
+- Step 259 has one focused manual-next session-gap regression-pack entry;
+- the pack stays inside replay/date-range/display-timeframe chart foundation
+  behavior;
+- no runtime behavior changes unless the pack exposes a specific owner
+  regression;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 258.
+  in Step 259.
 
 ## Completed Steps
+
+### Inserted Replay Gap Continuation Fix - Cursor Index Alignment After Gap Skip
+
+Completed as a bugfix before Step 259.
+
+Verification:
+
+- `node v6/tests/replay-domain-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/manual-next-session-gap-step258-smoke.js`
+- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/auto-play-htf-projection-step199-smoke.js`
+- `node v6/tests/chart-entry-playback-period-boundary-runtime-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Replay domain cursor-time alignment now updates `cursorIndex`,
+  `previousAvailable`, and `revealedCount` together with `cursorTime`.
+- Manual-next session-gap browser coverage now proves that after skipping to
+  `2026-06-01T18:00:00.000Z`, the next manual `Next` advances to
+  `2026-06-01T18:01:00.000Z`.
+- Did not change bar-data ownership, chart-data ownership, viewport intent,
+  display-timeframe projection ownership, indicators, trading simulation,
+  order tickets, prop firm rule engines, or journal workflows.
+
+### Step 258 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step258-smoke.js`
+- `node v6/tests/manual-next-session-gap-step258-smoke.js`
+- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP258.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step258-smoke.js`.
+- Selected Step 259 as Manual Next Session Gap Regression Pack.
+- The next pack should preserve manual `Next` skipping no-bar session breaks to
+  the next available source K-line across 1m, 5m, and 15m display paths.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Inserted Replay Gap Fix - Manual Next Session Break Advance
 
