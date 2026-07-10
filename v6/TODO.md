@@ -68,29 +68,29 @@
 
 ## Next Executable Steps
 
-### Step 271 - Session-Aware HTF Projection Consolidation
+### Step 272 - HTF Replay Gap Regression Pack
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- add one pure helper/contract for session-aware display timeframe values;
-- keep `session-calendar` as the owner of day/week/month bucket boundaries;
-- keep `chart-data-projection` as the owner of OHLC aggregation;
-- consolidate pane/shell/reload normalization for `1D`, `1W`, and `1M`;
-- consolidate daily/weekly/monthly browser projection fixtures;
+- add HTF manual-next regression coverage for `1D`, `1W`, and `1M`;
+- add HTF auto-play regression coverage for `1D`, `1W`, and `1M`;
+- assert replay cursor/revealed state advances by source bars, not HTF bucket
+  timestamps;
+- assert chart-data append payloads remain source-bar payloads;
 - keep replay source-bar driven;
-- do not add seconds, journal, order-ticket, prop-firm, indicator, chart-engine,
-  or viewport behavior.
+- do not add seconds, journal, order-ticket, prop-firm, indicator,
+  chart-engine, viewport, or projection behavior.
 
 Acceptance:
 
-- Step 271 consolidation is documented and statically guarded;
-- `1D`, `1W`, and `1M` share one pure normalization helper;
-- reload source-count estimates for session-aware HTFs flow through one helper;
-- `chart-data-projection` uses one target-to-bucket mapping;
-- daily, weekly, and monthly browser projection smokes share one fixture;
-- existing projection/menu/pane/owner/boundary behavior remains unchanged.
+- Step 272 regression pack is documented and statically guarded;
+- manual next crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M`;
+- auto-play crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M`;
+- replay cursor state and chart-data append payloads remain source-bar based;
+- existing session-gap/projection/pane/owner/boundary behavior remains
+  unchanged.
 
 ## Completed Steps
 

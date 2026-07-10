@@ -227,6 +227,9 @@ Read this index before working on V6.
 - `v6/docs/V6_SESSION_AWARE_HTF_PROJECTION_CONSOLIDATION_STEP271.md`: accepted
   consolidation of `1D`/`1W`/`1M` normalization, reload source-count planning,
   and browser projection fixtures.
+- `v6/docs/V6_HTF_REPLAY_GAP_REGRESSION_PACK_STEP272.md`: accepted regression
+  pack for `1D`/`1W`/`1M` manual-next and auto-play source-bar advancement
+  across replay no-bar gaps.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
