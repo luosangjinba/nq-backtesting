@@ -74,6 +74,10 @@
   `targetHistory.enabled` for high display timeframes through an explicit
   activation policy, with disabled/low-TF source fallback and runtime fallback
   diagnostics.
+- Latest completed target-TF browser step: Step 287 - Activated Target-History
+  Browser Integration. V6 now has browser/runtime coverage proving the real
+  chart surface and leftward input bridge can activate high-TF target history,
+  load target bars, and preserve source bars for `1m` round trips.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -109,7 +113,7 @@
 
 ## Next Executable Steps
 
-### Step 287 - Activated Target-History Browser Integration
+### Step 288 - Activated Target-History Performance Observability
 
 Status: proposed.
 
@@ -117,13 +121,12 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 286 `leftward-target-history-activation.js` and bridge activation;
-- validate target-history activation through the real chart surface/browser
-  route, not just unit-level bridge/runtime calls;
-- prove a high-TF left drag emits target-history payloads and loads/prepends
-  target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`;
-- keep source-window projection fallback observable when activation is disabled
-  or target loading fails;
+- use Step 287 browser integration coverage as the baseline;
+- add timing/diagnostic visibility for high-TF target-history activation versus
+  source-window fallback;
+- prefer runtime state/test output diagnostics before UI controls;
+- keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
+  direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
@@ -131,15 +134,44 @@ Notes for execution:
 
 Acceptance:
 
-- browser/integration coverage proves high-TF leftward extension activates
-  target history through the bridge;
-- disabled/low-TF behavior remains source-window projection;
+- high-TF target-history browser/runtime latency is measurable in smoke output
+  or runtime diagnostics;
+- source-window fallback latency remains observable for comparison;
+- diagnostics identify target-history activation, target load, fallback reason,
+  and prepended bar count;
 - source-bar preservation and TF round-trip behavior remain covered;
-- activation/fallback diagnostics remain visible in runtime state or smoke-test
-  output;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 287 - Activated Target-History Browser Integration
+
+Completed in this activated target-history browser commit series.
+
+Verification:
+
+- `node v6/tests/activated-target-history-browser-step287-smoke.js`
+- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/leftward-history-input-target-activation-step286-smoke.js`
+- `node v6/tests/leftward-history-target-opt-in-step285-smoke.js`
+- `node v6/tests/leftward-history-target-fallback-step285-smoke.js`
+- `node v6/tests/leftward-history-target-default-step285-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/tests/activated-target-history-browser-step287-smoke.js`.
+- The smoke runs the real V6 browser page and mocks only `/v4/bars` and
+  `/v4/target_bars` fetch responses.
+- The smoke proves high-TF display application can trigger the real
+  chart-history input bridge and target-history path.
+- The loaded extension reports `runtime.bar-data` and target timeframe `8h`.
+- Switching back to `1m` preserves source bar counts.
+- Existing low-TF browser auto-chain remains source-window projection.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 286 - High-Timeframe Target-History Activation Policy
 

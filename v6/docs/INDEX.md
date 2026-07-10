@@ -272,6 +272,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_ACTIVATION_STEP286.md`: accepted
   the first high-timeframe chart-history activation policy that emits
   target-history payloads from the leftward input bridge.
+- `v6/docs/V6_ACTIVATED_TARGET_HISTORY_BROWSER_INTEGRATION_STEP287.md`:
+  accepted browser/runtime integration coverage for activated target-history
+  high-timeframe leftward extension.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
