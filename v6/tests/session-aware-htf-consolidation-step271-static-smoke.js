@@ -9,6 +9,10 @@ const chartProjection = await readFile('v6/src/chart-data-projection/chart-data-
 const shellControl = await readFile('v6/src/shell/display-timeframe-control.js', 'utf8');
 const paneModel = await readFile('v6/src/panes/pane-model.js', 'utf8');
 const reloadPlan = await readFile('v6/src/pane-intent-reload/pane-intent-reload-window-plan.js', 'utf8');
+const browserFixture = await readFile('v6/tests/helpers/session-aware-projection-browser-fixture.js', 'utf8');
+const dailyBrowser = await readFile('v6/tests/daily-projection-browser-step268-smoke.js', 'utf8');
+const weeklyBrowser = await readFile('v6/tests/weekly-projection-browser-step269-smoke.js', 'utf8');
+const monthlyBrowser = await readFile('v6/tests/monthly-projection-browser-step270-smoke.js', 'utf8');
 
 assert.match(doc, /consolidates the now-enabled session-aware display timeframe family/);
 assert.match(doc, /`1D`, `1W`, and `1M`/);
@@ -31,5 +35,9 @@ assert.match(reloadPlan, /estimateSessionAwareSourceBarCount/);
 assert.doesNotMatch(reloadPlan, /targetTimeframe === '1D'/);
 assert.doesNotMatch(reloadPlan, /targetTimeframe === '1W'/);
 assert.doesNotMatch(reloadPlan, /targetTimeframe === '1M'/);
+assert.match(browserFixture, /runSessionAwareProjectionBrowserSmoke/);
+assert.match(dailyBrowser, /runSessionAwareProjectionBrowserSmoke/);
+assert.match(weeklyBrowser, /runSessionAwareProjectionBrowserSmoke/);
+assert.match(monthlyBrowser, /runSessionAwareProjectionBrowserSmoke/);
 
 console.log('v6 session-aware HTF consolidation step271 static smoke passed');

@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 270 - Monthly Projection Integration. V6
-  now enables `1M` display projection through chart-data projection consuming
-  `session-calendar` trading month buckets. Seconds remain hidden, and replay
-  remains source-bar driven.
+- Latest completed roadmap step: Step 271 - Session-Aware HTF Projection
+  Consolidation. V6 now centralizes `1D`/`1W`/`1M` normalization, reload
+  source-count estimates, chart-data projection target mapping, and browser
+  projection fixtures. Seconds remain hidden, and replay remains source-bar
+  driven.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -69,7 +70,7 @@
 
 ### Step 271 - Session-Aware HTF Projection Consolidation
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -92,6 +93,42 @@ Acceptance:
 - existing projection/menu/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 271 - Session-Aware HTF Projection Consolidation
+
+Completed in this consolidation commit series.
+
+Verification:
+
+- `node v6/tests/session-aware-htf-consolidation-step271-static-smoke.js`
+- `node v6/tests/session-aware-display-timeframe-domain-step271-smoke.js`
+- `node v6/tests/daily-projection-browser-step268-smoke.js`
+- `node v6/tests/weekly-projection-browser-step269-smoke.js`
+- `node v6/tests/monthly-projection-browser-step270-smoke.js`
+- `node v6/tests/daily-projection-domain-step268-smoke.js`
+- `node v6/tests/weekly-projection-domain-step269-smoke.js`
+- `node v6/tests/monthly-projection-domain-step270-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/pane-model-smoke.js`
+- `node v6/tests/pane-intent-reload-model-step172-smoke.js`
+- `node v6/tests/pane-intent-reload-window-plan-step174-smoke.js`
+- `node v6/tests/session-calendar-owner-step267-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added pure `time-domain` helper coverage for session-aware display timeframe
+  values.
+- Replaced scattered `1D`/`1W`/`1M` normalization in shell, pane, and
+  pane-intent reload code with the shared helper.
+- Replaced separate chart-data projection target branches with one
+  session-aware target-to-bucket resolver mapping.
+- Consolidated daily, weekly, and monthly browser projection smoke behavior into
+  one shared fixture.
+- Did not change seconds, replay ownership, journal, order-ticket, prop-firm,
+  indicator, chart-engine, or viewport behavior.
 
 ### Step 270 - Monthly Projection Integration
 
