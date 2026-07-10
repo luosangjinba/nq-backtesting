@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  CHART_HISTORY_EVENTS,
   CHART_SURFACE_EVENTS,
   PANE_EVENTS,
 } from '../src/contracts/app-contracts.js';
@@ -49,6 +50,7 @@ const controller = mountPaneStatusReadout(root, {
 assert.equal(main.text('[data-v6-status-symbol]'), 'NQ');
 assert.equal(main.text('[data-v6-status-timeframe]'), '1m');
 assert.equal(main.text('[data-v6-status-open]'), 'O --');
+assert.equal(main.text('[data-v6-target-history-diagnostics]'), 'History idle');
 assert.equal(secondary.text('[data-v6-status-symbol]'), 'ES');
 assert.equal(secondary.text('[data-v6-status-timeframe]'), '5m');
 
@@ -79,6 +81,22 @@ assert.equal(secondary.text('[data-v6-status-close]'), 'C 208.00');
 assert.equal(secondary.dataset.statusCandleDirection, 'down');
 assert.equal(main.text('[data-v6-status-close]'), 'C 101.00');
 
+listeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({
+  diagnostics: {
+    durationMs: 25.2,
+    fallbackReason: 'target-history-empty',
+    path: 'target-history-fallback-source-window',
+    prependedBarCount: 8,
+    sourceRequestCount: 1,
+    targetRequestCount: 1,
+  },
+  paneId: 'secondary',
+});
+assert.equal(secondary.text('[data-v6-target-history-diagnostics]'), 'History fallback 25ms T1/S1 +8 target-history-empty');
+assert.equal(secondary.querySelector('[data-v6-target-history-diagnostics]').dataset.v6TargetHistoryDiagnosticsPath, 'fallback');
+assert.equal(secondary.querySelector('[data-v6-target-history-diagnostics]').dataset.v6TargetHistoryDiagnosticsFallbackReason, 'target-history-empty');
+assert.equal(main.text('[data-v6-target-history-diagnostics]'), 'History idle');
+
 listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({
   displayTimeframe: 15,
   id: 'secondary',
@@ -100,6 +118,7 @@ assert.equal(main.text('[data-v6-status-open]'), 'O --');
 assert.equal(main.text('[data-v6-status-close]'), 'C --');
 assert.equal(main.dataset.statusOhlc, 'empty');
 assert.equal(secondary.text('[data-v6-status-close]'), 'C 208.00');
+assert.equal(secondary.text('[data-v6-target-history-diagnostics]'), 'History fallback 25ms T1/S1 +8 target-history-empty');
 
 controller.destroy();
 assert.equal(listeners.size, 0);

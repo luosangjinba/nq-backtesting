@@ -1,11 +1,13 @@
 import {
   CHART_SURFACE_EVENTS,
+  CHART_HISTORY_EVENTS,
   DEFAULT_WALL_EVENTS,
   PANE_EVENTS,
   REPLAY_EVENTS,
 } from '../contracts/app-contracts.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { createStatusReadoutState } from './status-readout-model.js';
+import { createTargetHistoryDiagnosticsReadoutState } from './target-history-diagnostics-readout-model.js';
 
 function formatTimeframe(value) {
   const text = String(value || '').trim();
@@ -39,10 +41,25 @@ function updateDataset(element, state) {
   element.dataset.v6PaneActive = state.active ? 'true' : 'false';
 }
 
+function renderHistoryDiagnostics(element, extension = null) {
+  const readout = element.querySelector('[data-v6-target-history-diagnostics]');
+  if (!readout) return null;
+  const state = createTargetHistoryDiagnosticsReadoutState(extension);
+  readout.dataset.v6TargetHistoryDiagnosticsPath = state.path;
+  readout.dataset.v6TargetHistoryDiagnosticsFallbackReason = state.fallbackReason || 'none';
+  readout.dataset.v6TargetHistoryDiagnosticsPrependedBars = String(state.prependedBarCount);
+  readout.dataset.v6TargetHistoryDiagnosticsSourceRequests = String(state.sourceRequestCount);
+  readout.dataset.v6TargetHistoryDiagnosticsTargetRequests = String(state.targetRequestCount);
+  readout.textContent = state.text;
+  readout.title = state.title;
+  return state;
+}
+
 function createPaneState(record = {}) {
   const normalized = normalizePaneRecord(record) || { id: 'main', instrument: 'NQ', timeframe: '1m' };
   return {
     bar: null,
+    historyExtension: record.historyExtension ? { ...record.historyExtension } : null,
     active: normalized.active,
     instrument: normalized.instrument,
     paneId: normalized.id,
@@ -100,7 +117,9 @@ export function mountPaneStatusReadout(root, {
     const element = readoutByPaneId.get(paneId);
     const paneState = paneStateByPaneId.get(paneId);
     if (!element || !paneState) return null;
-    return renderPaneReadout(element, paneState);
+    const state = renderPaneReadout(element, paneState);
+    renderHistoryDiagnostics(element, paneState.historyExtension);
+    return state;
   }
 
   function updatePaneMetadata(record = {}) {
@@ -141,6 +160,17 @@ export function mountPaneStatusReadout(root, {
     return renderPane(paneId);
   }
 
+  function updateHistoryDiagnostics(extension = {}) {
+    const paneId = String(extension.paneId || '').trim();
+    if (!paneId || !readoutByPaneId.has(paneId)) return null;
+    const previous = paneStateByPaneId.get(paneId) || createPaneState({ id: paneId });
+    paneStateByPaneId.set(paneId, {
+      ...previous,
+      historyExtension: extension ? { ...extension } : null,
+    });
+    return renderPane(paneId);
+  }
+
   function updateFromReplay(payload = {}) {
     const paneId = payload.paneId ? String(payload.paneId) : 'main';
     if (!readoutByPaneId.has(paneId)) return null;
@@ -157,6 +187,7 @@ export function mountPaneStatusReadout(root, {
     subscribeEvent(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, updatePaneMetadata),
     subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, updateActivePane),
     subscribeEvent(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED, updatePaneCrosshair),
+    subscribeEvent(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, updateHistoryDiagnostics),
     subscribeEvent(REPLAY_EVENTS.LOADED, updateFromReplay),
     subscribeEvent(DEFAULT_WALL_EVENTS.LOADED, (payload = {}) => updateFromReplay(payload.replayState || payload)),
   );
@@ -174,11 +205,13 @@ export function mountPaneStatusReadout(root, {
         panes: [...paneStateByPaneId.values()].map((pane) => ({
           ...pane,
           bar: pane.bar ? { ...pane.bar } : null,
+          historyExtension: pane.historyExtension ? { ...pane.historyExtension } : null,
         })),
       };
     },
     updatePaneCrosshair,
     updateActivePane,
+    updateHistoryDiagnostics,
     updatePaneMetadata,
   });
 }

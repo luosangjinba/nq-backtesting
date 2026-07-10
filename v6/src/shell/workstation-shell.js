@@ -445,6 +445,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <span data-v6-status-high data-v6-pane-status-field>H --</span>
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
+                <span class="target-history-diagnostics-readout" data-v6-target-history-diagnostics>History idle</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="main">
                 <button type="button" class="chart-pane-action-button chart-maximize-restore-button" data-v6-chart-maximize-restore data-v6-chart-maximize-pane-id="main" aria-label="Maximize chart" title="Maximize chart">
@@ -466,6 +467,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <span data-v6-status-high data-v6-pane-status-field>H --</span>
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
+                <span class="target-history-diagnostics-readout" data-v6-target-history-diagnostics>History idle</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="secondary">
                 <button type="button" class="chart-pane-action-button chart-maximize-restore-button" data-v6-chart-maximize-restore data-v6-chart-maximize-pane-id="secondary" aria-label="Maximize chart" title="Maximize chart">
@@ -487,6 +489,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <span data-v6-status-high data-v6-pane-status-field>H --</span>
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
+                <span class="target-history-diagnostics-readout" data-v6-target-history-diagnostics>History idle</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="tertiary">
                 <button type="button" class="chart-pane-action-button chart-maximize-restore-button" data-v6-chart-maximize-restore data-v6-chart-maximize-pane-id="tertiary" aria-label="Maximize chart" title="Maximize chart">

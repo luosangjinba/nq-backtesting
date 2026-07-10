@@ -1961,6 +1961,17 @@ p {
   pointer-events: none;
 }
 
+.target-history-diagnostics-readout {
+  flex: 0 1 auto;
+  min-width: 0;
+  max-width: 280px;
+  overflow: hidden;
+  color: #8ea1ad;
+  font-size: 11px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .status-dot {
   flex: 0 0 8px;
   width: 8px;
