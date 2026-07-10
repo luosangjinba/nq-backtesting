@@ -16,7 +16,8 @@ advance by available source bars across no-bar gaps such as `16:59 -> 18:00`.
 - Reuse existing chart-entry/manual-next and auto-play runtimes.
 - Assert replay cursor/revealed state advances to source bar times, not HTF
   bucket start times.
-- Assert chart-data append payloads remain source-bar payloads.
+- Assert chart-data projection receives source-bar payloads before rendering HTF
+  chart bars.
 
 ## Non-Goals
 
@@ -31,6 +32,6 @@ advance by available source bars across no-bar gaps such as `16:59 -> 18:00`.
 - Auto-play crosses the same gap under `1D`, `1W`, and `1M` and continues to the
   next post-gap source bar.
 - The regression pack proves replay state uses source cursor times and indices.
-- The regression pack proves appended chart-data bars include the post-gap
-  source bar, not synthetic HTF bucket timestamps.
+- The regression pack proves HTF projection receives the post-gap source bar
+  and replay state stays aligned to source-bar cursor times.
 - Existing session-gap, projection, pane, and boundary smokes continue to pass.

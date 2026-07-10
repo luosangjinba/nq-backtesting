@@ -17,6 +17,10 @@ import {
   summarizeProjectionSource,
   TIME_DOMAIN_CONSTANTS,
 } from '../time-domain/time-domain.js';
+import {
+  isSessionAwareDisplayTimeframe,
+  normalizeDisplayTimeframeValue,
+} from '../time-domain/htf-display-timeframe-domain.js';
 
 const GAP_SCAN_WINDOW_BARS = 240;
 const GAP_SCAN_LIMIT = 24;
@@ -110,7 +114,11 @@ function resolveSourceTimeframe(replayState = {}) {
 }
 
 function resolveTargetTimeframe(replayState = {}, pane = {}) {
-  return normalizeTimeframeMinutes(pane.displayTimeframe || replayState.timeframe);
+  const value = pane.displayTimeframe || replayState.timeframe;
+  if (isSessionAwareDisplayTimeframe(value)) {
+    return normalizeDisplayTimeframeValue(value);
+  }
+  return normalizeTimeframeMinutes(value);
 }
 
 function createNextWindowPayload(replayState, pane = {}) {
@@ -123,9 +131,12 @@ function createNextWindowPayload(replayState, pane = {}) {
   }
   const sourceTimeframe = resolveSourceTimeframe(replayState);
   const targetTimeframe = resolveTargetTimeframe(replayState, pane);
+  const count = isSessionAwareDisplayTimeframe(targetTimeframe)
+    ? 2
+    : Math.max(2, Math.ceil(targetTimeframe / sourceTimeframe));
   return {
     anchor: replayState.cursorTime,
-    count: Math.max(2, Math.ceil(targetTimeframe / sourceTimeframe)),
+    count,
     direction: 'backward',
     instrument: String(instrument).toUpperCase(),
     timeframe: sourceTimeframe,
@@ -196,12 +207,13 @@ async function createAppendBars({
   const sourceTimeframe = resolveSourceTimeframe(replayState);
   const targetTimeframe = resolveTargetTimeframe(replayState, pane);
   if (
-    targetTimeframe > sourceTimeframe
+    (isSessionAwareDisplayTimeframe(targetTimeframe) || targetTimeframe > sourceTimeframe)
     && hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)
   ) {
     const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
       bars: loadedWindow.bars,
       cursorTimestamp: parseReplayTimestamp(replayState.cursorTime, 'cursorTime'),
+      instrument: pane.instrument || replayState?.symbol || null,
       paneId,
       sessionStartTimestamp: parseReplayTimestamp(replayState.startTime, 'startTime'),
       sourceTimeframe,

@@ -78,7 +78,8 @@ Notes for execution:
 - add HTF auto-play regression coverage for `1D`, `1W`, and `1M`;
 - assert replay cursor/revealed state advances by source bars, not HTF bucket
   timestamps;
-- assert chart-data append payloads remain source-bar payloads;
+- assert chart-data projection receives source-bar payloads before rendering
+  HTF chart bars;
 - keep replay source-bar driven;
 - do not add seconds, journal, order-ticket, prop-firm, indicator,
   chart-engine, viewport, or projection behavior.
@@ -88,7 +89,7 @@ Acceptance:
 - Step 272 regression pack is documented and statically guarded;
 - manual next crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M`;
 - auto-play crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M`;
-- replay cursor state and chart-data append payloads remain source-bar based;
+- replay cursor state and chart-data projection inputs remain source-bar based;
 - existing session-gap/projection/pane/owner/boundary behavior remains
   unchanged.
 
