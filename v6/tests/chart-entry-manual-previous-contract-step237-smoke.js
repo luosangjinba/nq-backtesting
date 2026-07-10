@@ -16,6 +16,7 @@ const replayRuntime = await read('v6/src/replay/replay-runtime.js');
 const shell = await read('v6/src/shell/workstation-shell.js');
 const transport = await read('v6/src/shell/replay-transport.js');
 const chartEntryManualNext = await read('v6/src/chart-entry/chart-entry-manual-next-runtime.js');
+const chartEntryManualPrevious = await read('v6/src/chart-entry/chart-entry-manual-previous-runtime.js');
 const chartDataRuntime = await read('v6/src/chart-data/chart-data-runtime.js');
 const paneReloadChartData = await read('v6/src/pane-intent-reload/pane-intent-reload-chart-data-runtime.js');
 
@@ -55,7 +56,10 @@ assert.match(paneReloadChartData, /CHART_DATA_COMMANDS\.REPLACE_BARS/);
 
 assert.match(shell, /data-v6-transport-step-back disabled/);
 assert.doesNotMatch(transport, /transport-action="previous"|case 'previous'|case "previous"/);
-assert.doesNotMatch(contracts, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS|chartEntryManualPrevious/);
+assert.match(contracts, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS/);
+assert.match(contracts, /chartEntryManualPrevious\.previous/);
+assert.match(chartEntryManualPrevious, /REPLAY_COMMANDS\.PREVIOUS/);
+assert.match(chartEntryManualPrevious, /CHART_DATA_COMMANDS\.REPLACE_BARS/);
 assert.doesNotMatch(chartEntryManualNext, /REPLAY_COMMANDS\.PREVIOUS|MANUAL_PREVIOUS/i);
 assert.doesNotMatch(chartDataRuntime, /ROLLBACK|REMOVE_BARS|removeBars|rollback/i);
 

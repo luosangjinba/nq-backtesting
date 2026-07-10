@@ -11,6 +11,7 @@ import { createChartEntryContextRuntime } from './chart-entry/chart-entry-contex
 import { createChartEntryDefaultWallPlanRuntime } from './chart-entry/chart-entry-default-wall-plan-runtime.js';
 import { createChartEntryInitializationRuntime } from './chart-entry/chart-entry-initialization-runtime.js';
 import { createChartEntryManualNextRuntime } from './chart-entry/chart-entry-manual-next-runtime.js';
+import { createChartEntryManualPreviousRuntime } from './chart-entry/chart-entry-manual-previous-runtime.js';
 import { createChartEntryProjectionApplyRuntime } from './chart-entry/chart-entry-projection-apply-runtime.js';
 import { createChartEntryProjectionPreparationRuntime } from './chart-entry/chart-entry-projection-preparation-runtime.js';
 import { createChartEntryReplayBootstrapRuntime } from './chart-entry/chart-entry-replay-bootstrap-runtime.js';
@@ -105,6 +106,7 @@ registry.registerRuntime(createChartEntryProjectionPreparationRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createChartEntryProjectionApplyRuntime());
 registry.registerRuntime(createChartEntryManualNextRuntime());
+registry.registerRuntime(createChartEntryManualPreviousRuntime());
 registry.registerRuntime(createChartEntryAutoPlayRuntime());
 registry.registerRuntime(createChartEntryRestartRuntime());
 registry.registerRuntime(createLeftwardHistoryExtensionRuntime());

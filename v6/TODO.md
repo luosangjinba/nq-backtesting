@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 237 - Chart Entry Manual Previous
-  Replacement Contract. V6 selected chart-entry owned pane-local chart-data
-  replacement for future manual Previous chart updates, while the transport
-  Previous button remains disabled and runtime behavior remains unwired above
-  replay-domain/runtime.
+- Latest completed roadmap step: Step 238 - Chart Entry Manual Previous Runtime
+  Skeleton. V6 now has a chart-entry owned manual Previous runtime that rewinds
+  replay state and replaces pane-local chart-data, while the transport Previous
+  button remains disabled and shell transport remains unwired.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,33 +43,61 @@
 
 ## Next Executable Steps
 
-### Step 238 - Chart Entry Manual Previous Runtime Skeleton
+### Step 239 - Manual Previous Browser Wiring Guard
 
 Status: planned.
 
 Notes for execution:
 
-- add `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS` and events;
-- create a focused chart-entry manual previous runtime module;
-- register `GET_STATE` and `PREVIOUS`;
-- dispatch `REPLAY_COMMANDS.PREVIOUS` through chart-entry only;
-- replace pane-local chart-data through `CHART_DATA_COMMANDS.REPLACE_BARS`;
-- prefer current chart-data filtering and fall back to bounded bar-data windows
-  only when filtering cannot prove no-future visibility;
-- keep `data-v6-transport-step-back` disabled;
-- keep shell transport unwired.
+- add browser-level coverage that proves the chart-entry manual Previous runtime
+  is registered in the app lifecycle;
+- prove `chartEntryManualPrevious.previous` can replace chart-data from a page
+  command dispatch without shell transport involvement;
+- prove `data-v6-transport-step-back` remains disabled and does not dispatch
+  previous from click or keyboard input;
+- preserve viewport state in the browser harness;
+- do not enable the Previous button yet.
 
 Acceptance:
 
-- runtime smoke proves chart-entry previous dispatches replay previous and
-  replaces pane-local chart-data without shell involvement;
-- static/browser smoke proves the transport Previous button remains disabled;
+- browser smoke proves command registration, chart-data replacement, and
+  disabled transport state together;
 - transport visual state, product direction, boundary, and relevant replay
   smokes pass;
 - no viewport reset, indicator, trading, or journal behavior changes in Step
-  238.
+  239.
 
 ## Completed Steps
+
+### Step 238 - Chart Entry Manual Previous Runtime Skeleton
+
+Completed in this implementation commit.
+
+Verification:
+
+- `node v6/tests/chart-entry-manual-previous-runtime-step238-smoke.js`
+- `node v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`
+- `node v6/tests/replay-previous-domain-command-step236-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS` and
+  `CHART_ENTRY_MANUAL_PREVIOUS_EVENTS`.
+- Added `v6/src/chart-entry/chart-entry-manual-previous-runtime.js`.
+- Registered the runtime in `v6/src/app.js`.
+- Manual Previous dispatches `REPLAY_COMMANDS.PREVIOUS`, resolves target panes,
+  filters current chart-data at or before the new replay cursor, falls back to a
+  bounded bar-data window only when needed, and replaces pane-local chart-data
+  through `CHART_DATA_COMMANDS.REPLACE_BARS`.
+- Kept `data-v6-transport-step-back` disabled and shell transport unwired.
+- Did not reset viewport, mutate chart adapter series directly, or change
+  indicators, trading simulation, order tickets, prop firm rule engines, or
+  journal workflows.
 
 ### Step 237 - Chart Entry Manual Previous Replacement Contract
 

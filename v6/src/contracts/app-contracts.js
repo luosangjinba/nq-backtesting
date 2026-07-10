@@ -96,6 +96,15 @@ export const CHART_ENTRY_MANUAL_NEXT_EVENTS = Object.freeze({
   ADVANCED: 'chartEntryManualNext:advanced',
 });
 
+export const CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS = Object.freeze({
+  GET_STATE: 'chartEntryManualPrevious.getState',
+  PREVIOUS: 'chartEntryManualPrevious.previous',
+});
+
+export const CHART_ENTRY_MANUAL_PREVIOUS_EVENTS = Object.freeze({
+  REWOUND: 'chartEntryManualPrevious:rewound',
+});
+
 export const CHART_ENTRY_AUTO_PLAY_COMMANDS = Object.freeze({
   GET_STATE: 'chartEntryAutoPlay.getState',
   SET_SPEED: 'chartEntryAutoPlay.setSpeed',
