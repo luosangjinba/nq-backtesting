@@ -149,6 +149,7 @@ Verification:
 - `node v6/tests/leftward-history-target-opt-in-step285-smoke.js`
 - `node v6/tests/leftward-history-target-fallback-step285-smoke.js`
 - `node v6/tests/leftward-history-target-default-step285-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
 - `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
 - `node v6/tests/display-target-history-boundary-step283-static-smoke.js`
 - `node v6/tests/display-target-history-opt-in-step284-smoke.js`
