@@ -1,4 +1,5 @@
 import {
+  BAR_DATA_COMMANDS,
   CHART_DATA_PROJECTION_COMMANDS,
   CHART_DATA_COMMANDS,
   CHART_VIEWPORT_COMMANDS,
@@ -11,6 +12,7 @@ import {
   normalizeUnixSeconds,
   summarizeProjectionSource,
 } from '../time-domain/time-domain.js';
+import { planDisplayTargetHistoryWindow } from './display-timeframe-target-history-plan.js';
 
 function latestTimestamp(record = {}) {
   const bar = record.bars?.at?.(-1);
@@ -30,9 +32,91 @@ export function createDisplayTimeframeRuntime({
   const unregisterCallbacks = [];
   let emit = () => {};
 
+  async function resolveDisplayBars({
+    cursorTimestamp,
+    displayTimeframe,
+    sourceRecord,
+    targetHistory = {},
+    targetPane,
+  }) {
+    const plan = planDisplayTargetHistoryWindow({
+      displayTimeframe,
+      enabled: Boolean(targetHistory.enabled),
+      end: targetHistory.end,
+      instrument: targetPane.instrument,
+      paneId: targetPane.id,
+      sourceTimeframe,
+      start: targetHistory.start,
+    });
+    if (plan.command === BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW) {
+      try {
+        const targetRecord = await dispatchCommand(plan.command, plan.window);
+        if (Array.isArray(targetRecord?.bars) && targetRecord.bars.length) {
+          return {
+            bars: targetRecord.bars,
+            projectionSource: {
+              owner: 'runtime.bar-data',
+              sourceTimeframe,
+              targetTimeframe: plan.window.timeframe,
+            },
+            status: 'applied',
+            targetHistory: {
+              barCount: targetRecord.bars.length,
+              reason: plan.reason,
+              status: 'applied',
+              window: plan.window,
+            },
+          };
+        }
+        return {
+          fallbackReason: 'target-history-empty',
+          plan,
+          status: 'fallback',
+        };
+      } catch (error) {
+        return {
+          error,
+          fallbackReason: 'target-history-load-failed',
+          plan,
+          status: 'fallback',
+        };
+      }
+    }
+
+    return {
+      fallbackReason: plan.reason,
+      plan,
+      status: 'fallback',
+    };
+  }
+
+  async function projectSourceBars({
+    cursorTimestamp,
+    displayTimeframe,
+    sourceRecord,
+    targetPane,
+    targetHistoryStatus = null,
+  }) {
+    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
+      bars: sourceRecord.bars,
+      cursorTimestamp,
+      instrument: targetPane.instrument,
+      paneId: targetPane.id,
+      sessionStartTimestamp: 0,
+      sourceTimeframe,
+      targetTimeframe: displayTimeframe,
+    });
+    return {
+      bars: projectionRecord.bars,
+      projectionSource: summarizeProjectionSource(projectionRecord),
+      targetHistory: targetHistoryStatus,
+    };
+  }
+
   async function applyDisplayTimeframe({
     displayTimeframe,
     paneId,
+    targetHistory = {},
   } = {}) {
     const targetPane = paneId
       ? await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId)
@@ -44,21 +128,34 @@ export function createDisplayTimeframeRuntime({
       paneId: targetPane.id,
     });
     const cursorTimestamp = latestTimestamp(sourceRecord);
-    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
-      bars: sourceRecord.bars,
+    const resolved = await resolveDisplayBars({
       cursorTimestamp,
-      instrument: targetPane.instrument,
-      paneId: targetPane.id,
-      sessionStartTimestamp: 0,
-      sourceTimeframe,
-      targetTimeframe: displayTimeframe,
+      displayTimeframe,
+      sourceRecord,
+      targetHistory,
+      targetPane,
     });
+    const displayRecord = resolved.status === 'applied'
+      ? resolved
+      : await projectSourceBars({
+        cursorTimestamp,
+        displayTimeframe,
+        sourceRecord,
+        targetPane,
+        targetHistoryStatus: {
+          errorMessage: resolved.error?.message || null,
+          reason: resolved.fallbackReason,
+          status: resolved.fallbackReason === 'target-history-disabled'
+            ? 'disabled'
+            : 'fallback',
+        },
+      });
     const pane = await dispatchCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
       displayTimeframe,
       paneId: targetPane.id,
     });
     const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
-      bars: projectionRecord.bars,
+      bars: displayRecord.bars,
       cursorTimestamp,
       paneId: targetPane.id,
       preserveSource: true,
@@ -69,9 +166,10 @@ export function createDisplayTimeframeRuntime({
     const result = {
       chartRecord,
       pane,
-      projectionSource: summarizeProjectionSource(projectionRecord),
+      projectionSource: displayRecord.projectionSource,
       sourceBarCount: sourceRecord.bars.length,
-      targetBarCount: projectionRecord.bars.length,
+      targetBarCount: displayRecord.bars.length,
+      targetHistory: displayRecord.targetHistory,
       viewportRecord,
     };
     emit(DISPLAY_TIMEFRAME_EVENTS.APPLIED, result);

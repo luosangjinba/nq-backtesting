@@ -15,7 +15,8 @@ assert.match(plan, /enabled = false/);
 
 assert.doesNotMatch(displayRuntime, /fetchV4TargetBars/);
 assert.doesNotMatch(displayRuntime, /v4-target-bars-adapter/);
-assert.doesNotMatch(displayRuntime, /LOAD_TARGET_WINDOW/);
+assert.match(displayRuntime, /BAR_DATA_COMMANDS\.LOAD_TARGET_WINDOW/);
+assert.match(displayRuntime, /targetHistory = \{\}/);
 assert.match(displayRuntime, /GET_SOURCE_BARS/);
 assert.match(displayRuntime, /preserveSource: true/);
 

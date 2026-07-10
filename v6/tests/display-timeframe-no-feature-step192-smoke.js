@@ -3,7 +3,10 @@ import { readFile } from 'node:fs/promises';
 
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
 
-assert.equal(displayRuntime.includes('BAR_DATA_COMMANDS'), false);
+assert.equal(displayRuntime.includes('fetchV4TargetBars'), false);
+assert.equal(displayRuntime.includes('v4-target-bars-adapter'), false);
+assert.equal(displayRuntime.includes('fetch('), false);
+assert.equal(displayRuntime.includes('XMLHttpRequest'), false);
 assert.equal(displayRuntime.includes('createChart'), false);
 assert.equal(displayRuntime.includes('setData'), false);
 assert.equal(displayRuntime.includes('series.update'), false);
