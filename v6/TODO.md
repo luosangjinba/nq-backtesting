@@ -32,6 +32,10 @@
   Regression Runner. V6 now has one browser command covering display timeframe
   switching, interval menu parity, display-timeframe leftward history,
   daily/weekly/monthly projection, and the Step 274 replay-gap browser pack.
+- Latest completed inserted stability step: Step 277 - HTF Leftward Source
+  Window Policy. High-timeframe leftward history now sizes source requests
+  proportionally to the display timeframe while preserving hard caps for fetch,
+  projection, cache, and chart series replacement work.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -67,7 +71,7 @@
 
 ## Next Executable Steps
 
-### Step 277 - Chart Foundation Next Slice Selection
+### Step 278 - Chart Foundation Next Slice Selection
 
 Status: proposed.
 
@@ -85,12 +89,42 @@ Notes for execution:
 
 Acceptance:
 
-- Step 277 selects exactly one next bounded chart-foundation slice;
-- the selection references current evidence from Steps 264-276;
+- Step 278 selects exactly one next bounded chart-foundation slice;
+- the selection references current evidence from Steps 264-277;
 - the selected slice has clear owner boundaries and verification commands;
 - existing runtime/projection/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 277 - HTF Leftward Source Window Policy
+
+Completed in this high-timeframe leftward-history source-window commit series.
+
+Verification:
+
+- `node v6/tests/leftward-source-window-policy-step277-smoke.js`
+- `node v6/tests/leftward-extension-planner-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/session-aware-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/leftward-history-htf-stability-browser-step198-smoke.js`
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_HTF_LEFTWARD_SOURCE_WINDOW_POLICY_STEP277.md`.
+- Added a chart-history-owned source-window policy for leftward extension.
+- Kept low-minute timeframes lightweight while scaling `1h` through `12h`
+  source windows by target display candles.
+- Expanded session-aware `1D` leftward requests to fetch roughly 12 daily
+  display candles worth of source bars, with hard caps preserved for weekly and
+  monthly requests.
+- Raised the app bar-data runtime cap to the policy hard limit so chart-history
+  plans are not rejected at the bar-data boundary.
+- Did not change replay cursor movement, no-bar gap skipping, auto-play
+  scheduling, chart viewport intent, chart-engine behavior, journal, order
+  ticket, prop-firm, indicator, or seconds behavior.
 
 ### Step 276 - Timeframe/Replay Foundation Regression Runner
 

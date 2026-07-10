@@ -80,11 +80,23 @@ assert.deepEqual({
   timeframe: fourHour.plannedWindow.timeframe,
 }, {
   end: '2026-06-01 09:29',
-  estimatedBars: 2400,
+  estimatedBars: 4800,
   requestCap: 'canvas-left',
-  start: '2026-05-30 17:30',
+  start: '2026-05-29 01:30',
   timeframe: 1,
 });
+
+const eightHour = planLeftwardSourceWindow({
+  bars: [{ timestamp: 1780306200 }],
+  displayTimeframe: 480,
+  instrument: 'NQ',
+  sourceTimeframe: 1,
+  visibleRange: { from: -2, to: 20 },
+});
+
+assert.equal(eightHour.status, 'planned');
+assert.equal(eightHour.plannedWindow.estimatedBars, 9600);
+assert.equal(eightHour.plannedWindow.start, '2026-05-25 17:30');
 
 const daily = planLeftwardSourceWindow({
   bars: [{ timestamp: 1780306200 }],
@@ -96,7 +108,8 @@ const daily = planLeftwardSourceWindow({
 
 assert.equal(daily.status, 'planned');
 assert.equal(daily.displayTimeframe, '1D');
-assert.equal(daily.plannedWindow.estimatedBars, 2500);
+assert.equal(daily.plannedWindow.estimatedBars, 17280);
+assert.equal(daily.plannedWindow.start, '2026-05-20 09:30');
 assert.equal(daily.plannedWindow.requestCap, 'canvas-left');
 
 assert.throws(

@@ -6,12 +6,9 @@ import {
   TIME_DOMAIN_CONSTANTS,
 } from '../time-domain/time-domain.js';
 import {
-  estimateSessionAwareSourceBarCount,
   normalizeSessionAwareDisplayTimeframe,
 } from '../time-domain/htf-display-timeframe-domain.js';
-
-const LEFTWARD_SOURCE_BAR_LIMIT = 2500;
-const HIGH_TF_PREFETCH_BUCKETS = 10;
+import { resolveLeftwardSourceWindowPolicy } from './leftward-source-window-policy.js';
 
 function normalizeInstrument(value) {
   const normalized = String(value || '').trim().toUpperCase();
@@ -86,23 +83,16 @@ export function planLeftwardSourceWindow({
   }
 
   const oldestDisplayTimestamp = oldestTimestamp(bars);
-  const displaySourceBars = sessionAwareDisplay
-    ? estimateSessionAwareSourceBarCount({
-      count: 1,
-      sourceBarLimit: LEFTWARD_SOURCE_BAR_LIMIT,
-      targetTimeframe: sessionAwareDisplay,
-    })
-    : display / source;
+  const windowPolicy = resolveLeftwardSourceWindowPolicy({
+    displayTimeframe: display,
+    sourceTimeframe: source,
+  });
+  const displaySourceBars = windowPolicy.displaySourceBars;
   const displaySeconds = displaySourceBars * source * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS;
   const canvasLeftTimestamp = oldestDisplayTimestamp + (
     leftBoundaryIndex * displaySeconds
   );
-  const prefetchSourceBars = !sessionAwareDisplay && display < 60
-    ? 0
-    : Math.min(
-      LEFTWARD_SOURCE_BAR_LIMIT,
-      Math.max(1, Math.ceil(displaySourceBars)) * HIGH_TF_PREFETCH_BUCKETS,
-    );
+  const prefetchSourceBars = windowPolicy.prefetchSourceBars;
   const prefetchLeftTimestamp = prefetchSourceBars > 0
     ? oldestDisplayTimestamp - (prefetchSourceBars * source * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS)
     : canvasLeftTimestamp;
@@ -115,7 +105,7 @@ export function planLeftwardSourceWindow({
     instrument: normalizeInstrument(instrument),
     oldestLoadedTimestamp: oldestDisplayTimestamp,
     timeframe: source,
-  }, { maxBarsPerWindow: LEFTWARD_SOURCE_BAR_LIMIT });
+  }, { maxBarsPerWindow: windowPolicy.sourceBarLimit });
   if (plannedWindow.exhausted) {
     return {
       leftBoundaryIndex,

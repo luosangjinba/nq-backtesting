@@ -47,9 +47,9 @@ const fetchBars = async (window) => {
       timeframe: 1,
     };
   }
-  if (window.estimatedBars === 2500) {
+  if (window.estimatedBars === 17280) {
     return {
-      bars: Array.from({ length: 2500 }, (_, index) => makeBar(index - 2500, 20 + index)),
+      bars: Array.from({ length: 17280 }, (_, index) => makeBar(index - 17280, 20 + index)),
       history: { exhaustedBefore: false },
       timeframe: 1,
     };
@@ -62,7 +62,7 @@ const fetchBars = async (window) => {
 };
 
 const registry = createRuntimeRegistry();
-registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 2500 }));
+registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 40000 }));
 registry.registerRuntime(createChartDataProjectionRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createLeftwardHistoryExtensionRuntime());
@@ -221,9 +221,9 @@ const dailyProjectionState = await dispatchCommand(CHART_DATA_PROJECTION_COMMAND
 const dailyChartRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-daily' });
 
 assert.equal(dailyLoaded.status, 'loaded', dailyLoaded.error || '1D leftward history should load');
-assert.equal(dailyLoaded.extension.plannedWindow.estimatedBars, 2500);
+assert.equal(dailyLoaded.extension.plannedWindow.estimatedBars, 17280);
 assert.equal(dailyLoaded.extension.projectionSource.targetTimeframe, '1D');
-assert.equal(dailyLoaded.extension.projectionSource.sourceBarCount, 2500);
+assert.equal(dailyLoaded.extension.projectionSource.sourceBarCount, 17280);
 assert.equal(dailyProjectionState.lastProjection.targetTimeframe, '1D');
 assert.equal(dailyChartRecord.bars.length > 1, true);
 

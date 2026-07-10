@@ -28,6 +28,7 @@ import { connectResetViewControl } from './chart-engine/reset-view-control-bridg
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { createLeftwardHistoryExtensionRuntime } from './chart-history/leftward-history-extension-runtime.js';
+import { LEFTWARD_MAX_SOURCE_BAR_LIMIT } from './chart-history/leftward-source-window-policy.js';
 import { createChartViewportRuntime } from './chart-viewport/chart-viewport-runtime.js';
 import { createDisplayTimeframeRuntime } from './display-timeframe/display-timeframe-runtime.js';
 import { createDefaultWallRuntime } from './default-wall/default-wall-runtime.js';
@@ -88,7 +89,7 @@ registry.registerRuntime(createLayoutRuntime());
 registry.registerRuntime(createPaneIntentSyncRuntime());
 registry.registerRuntime(createPaneIntentReloadRuntime());
 registry.registerRuntime(createLayoutPaneBootstrapRuntime());
-registry.registerRuntime(createBarDataRuntime({ maxBarsPerWindow: 2500 }));
+registry.registerRuntime(createBarDataRuntime({ maxBarsPerWindow: LEFTWARD_MAX_SOURCE_BAR_LIMIT }));
 registry.registerRuntime(createChartBoundaryMetadataRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createChartDataProjectionRuntime());
