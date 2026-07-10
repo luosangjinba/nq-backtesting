@@ -68,29 +68,28 @@
 
 ## Next Executable Steps
 
-### Step 266 - Session-Aware Higher Timeframe Selection
+### Step 267 - Session Calendar Boundary
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- select the owner boundary for `1D`, `1W`, and `1M` before enabling those
-  intervals;
-- introduce a planned `session-calendar` boundary for trading day/week/month
+- add a pure `session-calendar` domain boundary for trading day/week/month
   bucket semantics;
-- keep `1D`, `1W`, and `1M` planned/disabled in Step 266;
+- support NQ/ES first with chart-axis UTC trading sessions rolling at `18:00`;
+- cover Monday prior Globex open and `17:59 -> 18:00` day-boundary behavior;
+- fail explicitly for unsupported instruments;
+- keep `1D`, `1W`, and `1M` planned/disabled in Step 267;
 - keep seconds hidden until second-level source data exists;
-- document the later sequence: session calendar boundary, daily projection,
-  weekly projection, monthly projection;
-- do not change replay, bar-data, chart-data projection behavior, journal,
-  order-ticket, prop-firm, indicator, or menu enabled status.
+- do not connect session-calendar to chart-data projection, replay, bar-data,
+  journal, order-ticket, prop-firm, indicator, or menu enabled status.
 
 Acceptance:
 
-- Step 266 selection is documented and statically guarded;
-- `session-calendar` is selected as owner for trading day/week/month boundaries;
-- display-timeframe and shell do not own session-aware aggregation;
-- `1D`, `1W`, and `1M` remain disabled.
+- Step 267 boundary is documented and statically guarded;
+- session-calendar domain helper smoke covers day/week/month boundaries;
+- unsupported instruments reject explicitly;
+- `1D`, `1W`, and `1M` remain disabled and runtime behavior is unchanged.
 
 ## Completed Steps
 
