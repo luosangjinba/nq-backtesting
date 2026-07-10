@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 256 - Chart Foundation Next Slice
-  Selection. V6 selected Visible K-Line Latency Regression Pack as the next
-  bounded chart-foundation slice after date-range/boundary/chart-entry coverage
-  was packed.
+- Latest completed roadmap step: Step 257 - Visible K-Line Latency Regression
+  Pack. V6 added a compact pack for cache-hit visible latency,
+  mixed-timeframe visible latency, manual-next HTF visible latency,
+  auto-play HTF visible latency, replay-safe leftward-history latency, and the
+  shared visible-latency domain trace.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,30 +44,58 @@
 
 ## Next Executable Steps
 
-### Step 257 - Visible K-Line Latency Regression Pack
+### Step 258 - Chart Foundation Next Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- add a compact pack runner for visible latency browser/runtime gates;
-- include cache-hit visible latency, mixed-timeframe visible latency,
-  manual-next HTF visible latency, auto-play HTF visible latency,
-  replay-safe leftward history latency, and the visible-latency domain gate;
-- document pack purpose, membership, and expected use;
-- keep the pack focused enough to run during chart/replay/chart-data/viewport
-  latency-sensitive work;
-- add no runtime behavior unless the pack exposes a specific owner regression.
+- review Steps 245-257 and select the next bounded chart-foundation slice;
+- stay inside chart loading, timeframe switching, chart drag/scroll display,
+  date ranges, replay, multi-pane, pane-local reset, or latency behavior;
+- account for old UX debt without jumping ahead to indicators, trading
+  simulation, prop-firm logic, or journal workflows;
+- list verification before implementation begins.
 
 Acceptance:
 
-- visible K-line latency pack is documented and runnable;
-- pack membership is focused on replay/chart-data/chart-surface/viewport/bar-data
-  latency-sensitive foundation behavior;
+- one next slice is selected with owner boundaries and verification;
+- runtime behavior is unchanged in the selection step;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 257.
+  in Step 258.
 
 ## Completed Steps
+
+### Step 257 - Visible K-Line Latency Regression Pack
+
+Completed in this regression-pack commit.
+
+Verification:
+
+- `node v6/tests/visible-kline-latency-regression-pack-step257-static-smoke.js`
+- `node v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`
+- `node v6/tests/visible-latency-domain-smoke.js`
+- `node v6/tests/visible-latency-cache-hit-browser-smoke.js`
+- `node v6/tests/mixed-timeframe-visible-latency-browser-smoke.js`
+- `node v6/tests/manual-next-htf-visible-latency-browser-step197-smoke.js`
+- `node v6/tests/auto-play-htf-visible-latency-browser-step199-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_VISIBLE_KLINE_LATENCY_REGRESSION_PACK_STEP257.md`.
+- Added `v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`.
+- Added `v6/tests/visible-kline-latency-regression-pack-step257-static-smoke.js`.
+- The pack is a focused browser/runtime regression entry for visible K-line
+  latency across cache-hit replay, mixed timeframe panes, manual-next HTF,
+  auto-play HTF, replay-safe leftward history, and the shared latency domain
+  trace.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 256 - Chart Foundation Next Slice Selection
 
