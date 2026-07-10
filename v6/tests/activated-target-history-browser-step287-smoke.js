@@ -180,6 +180,12 @@ try {
   assert.equal(value.after.history.extension.targetHistory.status, 'applied');
   assert.equal(value.after.history.extension.targetHistory.reason, 'target-history-opt-in');
   assert.equal(value.after.history.extension.prependedBarCount > 0, true);
+  assert.equal(value.after.history.extension.diagnostics.path, 'target-history');
+  assert.equal(value.after.history.extension.diagnostics.targetRequestCount, 1);
+  assert.equal(value.after.history.extension.diagnostics.targetBarCount, value.after.history.extension.targetHistory.barCount);
+  assert.equal(value.after.history.extension.diagnostics.prependedBarCount, value.after.history.extension.prependedBarCount);
+  assert.equal(Number.isFinite(value.after.history.extension.diagnostics.durationMs), true);
+  assert.equal(Number.isFinite(value.after.history.extension.diagnostics.targetLoadMs), true);
   assert.equal(value.after.oldestTimestamp < value.initial.oldestTimestamp, true);
   assert.equal(value.after.latestTimestamp <= value.initial.latestTimestamp, true);
   assert.equal(value.after.sourceOldestTimestamp, value.initial.sourceOldestTimestamp);
