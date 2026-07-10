@@ -22,7 +22,8 @@ assert.match(displayRuntime, /preserveSource: true/);
 
 assert.doesNotMatch(leftwardRuntime, /fetchV4TargetBars/);
 assert.doesNotMatch(leftwardRuntime, /v4-target-bars-adapter/);
-assert.doesNotMatch(leftwardRuntime, /LOAD_TARGET_WINDOW/);
+assert.match(leftwardRuntime, /BAR_DATA_COMMANDS\.LOAD_TARGET_WINDOW/);
+assert.match(leftwardRuntime, /targetHistory/);
 assert.match(leftwardRuntime, /LOAD_WINDOW/);
 
 assert.match(targetAdapter, /\/v4\/target_bars/);

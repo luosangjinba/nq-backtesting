@@ -24,6 +24,7 @@ import {
   isSessionAwareDisplayTimeframe,
   normalizeDisplayTimeframeValue,
 } from '../time-domain/htf-display-timeframe-domain.js';
+import { planDisplayTargetHistoryWindow } from '../display-timeframe/display-timeframe-target-history-plan.js';
 import { planLeftwardSourceWindow } from './leftward-extension-planner.js';
 
 function cloneBars(bars = []) {
@@ -98,6 +99,10 @@ function cloneExtension(extension) {
     projectionSource: extension.projectionSource ? { ...extension.projectionSource } : null,
     reason: extension.reason || null,
     status: extension.status,
+    targetHistory: extension.targetHistory ? {
+      ...extension.targetHistory,
+      window: cloneWindow(extension.targetHistory.window),
+    } : null,
   } : null;
 }
 
@@ -122,6 +127,17 @@ function createExhaustedScopeKey(paneId, plannedWindow) {
     paneId,
     plannedWindow.instrument,
     plannedWindow.timeframe,
+  ].join('|');
+}
+
+function createTargetRequestKey(paneId, window) {
+  return [
+    'target',
+    paneId,
+    window.instrument,
+    window.timeframe,
+    window.start,
+    window.end,
   ].join('|');
 }
 
@@ -169,6 +185,55 @@ async function createPrependBars({
     bars: loadedBars,
     projectionRecord: null,
     sourceBars: loadedBars,
+  };
+}
+
+async function loadTargetPrependBars({
+  displayTimeframe,
+  instrument,
+  paneId,
+  plannedWindow,
+  sourceTimeframe,
+  targetHistory = {},
+} = {}) {
+  const plan = planDisplayTargetHistoryWindow({
+    displayTimeframe,
+    enabled: Boolean(targetHistory.enabled),
+    end: plannedWindow.end,
+    instrument,
+    paneId,
+    sourceTimeframe,
+    start: plannedWindow.start,
+  });
+  if (plan.command !== BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW) {
+    return {
+      reason: plan.reason,
+      status: 'disabled',
+    };
+  }
+
+  const targetWindow = await dispatchCommand(plan.command, plan.window);
+  const targetBars = cloneBars(targetWindow?.bars);
+  if (!targetBars.length) {
+    return {
+      loadedWindow: summarizeLoadedWindow(targetWindow),
+      reason: 'target-history-empty',
+      status: 'fallback',
+      window: plan.window,
+    };
+  }
+
+  return {
+    bars: targetBars,
+    loadedWindow: summarizeLoadedWindow(targetWindow),
+    projectionSource: {
+      owner: 'runtime.bar-data',
+      sourceTimeframe,
+      targetTimeframe: plan.window.timeframe,
+    },
+    reason: plan.reason,
+    status: 'applied',
+    window: plan.window,
   };
 }
 
@@ -320,6 +385,68 @@ export function createLeftwardHistoryExtensionRuntime({
       let loadedWindow = null;
       let loadedBars = [];
       let emptyGapScans = 0;
+
+      if (payload.targetHistory?.enabled) {
+        const targetRequestKey = createTargetRequestKey(paneId, {
+          ...plannedWindow,
+          timeframe: displayTimeframe,
+        });
+        if (inFlightRequestKeys.has(targetRequestKey)) {
+          return ignore('older-window-request-in-flight', paneId, emitEvent);
+        }
+        inFlightRequestKeys.add(targetRequestKey);
+        let targetPrepend = null;
+        try {
+          targetPrepend = await loadTargetPrependBars({
+            displayTimeframe,
+            instrument,
+            paneId,
+            plannedWindow,
+            sourceTimeframe,
+            targetHistory: payload.targetHistory,
+          });
+        } catch (error) {
+          targetPrepend = {
+            errorMessage: error?.message || String(error),
+            reason: 'target-history-load-failed',
+            status: 'fallback',
+          };
+        } finally {
+          inFlightRequestKeys.delete(targetRequestKey);
+        }
+
+        if (targetPrepend.status === 'applied') {
+          const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
+          const chartAfterPrepend = await dispatchCommand(CHART_DATA_COMMANDS.PREPEND_BARS, {
+            bars: targetPrepend.bars,
+            cursorTimestamp: replayCursorTimestamp(latestReplayState || replayState),
+            paneId,
+            preserveSource: true,
+          });
+          state = {
+            error: null,
+            extension: {
+              chartRecord: chartAfterPrepend,
+              loadedWindow: targetPrepend.loadedWindow,
+              paneId,
+              plannedWindow,
+              prependedBarCount: targetPrepend.bars.length,
+              projectionSource: targetPrepend.projectionSource,
+              reason: null,
+              status: 'loaded',
+              targetHistory: {
+                barCount: targetPrepend.bars.length,
+                reason: targetPrepend.reason,
+                status: 'applied',
+                window: targetPrepend.window,
+              },
+            },
+            status: 'loaded',
+          };
+          emitEvent?.(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, getState().extension);
+          return getState();
+        }
+      }
 
       while (true) {
         const requestKey = createRequestKey(paneId, plannedWindow);
