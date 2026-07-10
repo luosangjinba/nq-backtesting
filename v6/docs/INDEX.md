@@ -257,6 +257,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_TIMEFRAME_SERVER_AGGREGATION_STEP281.md`: accepted the
   first backend-only target-timeframe aggregation boundary and V6 adapter
   contract without routing chart runtimes to target bars yet.
+- `v6/docs/V6_BAR_DATA_TARGET_TIMEFRAME_SUPPORT_STEP282.md`: accepted explicit
+  bar-data runtime target-timeframe planning, loading, caching, release, and
+  diagnostics commands while preserving existing source-bar behavior.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

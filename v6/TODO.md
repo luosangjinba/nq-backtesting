@@ -51,6 +51,10 @@
   Aggregation Boundary. V4 now has a backend-only `/v4/target_bars` path and
   V6 has an adapter contract, while existing `/v4/bars` and V6 chart runtimes
   remain unchanged.
+- Latest completed target-TF bar-data step: Step 282 - Bar-Data Runtime
+  Target-Timeframe Support. V6 bar-data can explicitly plan, load, cache,
+  release, and diagnose target-TF windows without changing source-bar callers
+  or routing chart-history/display-timeframe through target bars yet.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -86,40 +90,62 @@
 
 ## Next Executable Steps
 
-### Step 282 - Bar-Data Runtime Target-Timeframe Support
+### Step 283 - Display-Timeframe Historical Path Preparation
 
 Status: proposed.
 
 Notes for execution:
 
-- implement Phase C from
+- begin Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
   contract;
-- use `v6/src/bar-data/v4-target-bars-adapter.js` as the target bars API
-  adapter contract;
-- extend bar-data planning/loading/cache support for explicit target-TF
-  windows without changing default source-bar behavior;
-- keep target-TF cache keys explicit on instrument, canonical timeframe id,
-  start, and end;
-- add diagnostics that distinguish source-bar loads from target-display loads;
-- do not make display-timeframe or leftward-history request target bars by
-  default yet;
+- use Step 282 explicit target bar-data commands instead of direct API calls;
+- design the first opt-in display/history path for target bars without changing
+  default high-TF switching in one jump;
+- choose whether the first opt-in belongs in display-timeframe runtime,
+  chart-history leftward extension, or a small preparation runtime;
+- keep frontend projection as fallback;
+- add tests that prove source bars are still preserved for TF round trips;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- bar-data can plan/load/cache explicit target-TF windows through a dedicated
-  command or option;
-- source `1m` bar-data behavior and existing callers remain unchanged;
-- target-TF diagnostics identify target-display loads separately from source
-  replay loads;
-- V6 display-timeframe and leftward-history owners still do not request
-  target-TF bars by default.
+- target-bar opt-in owner boundary is documented and tested;
+- display-timeframe/chart-history do not directly call the target bars API;
+- source-bar preservation and TF round-trip behavior remain covered;
+- replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 282 - Bar-Data Runtime Target-Timeframe Support
+
+Completed in this target bar-data runtime commit series.
+
+Verification:
+
+- `node v6/tests/target-bar-window-cache-step282-smoke.js`
+- `node v6/tests/bar-data-target-runtime-step282-smoke.js`
+- `node v6/tests/v4-target-bars-adapter-step281-smoke.js`
+- `node v6/tests/target-timeframe-domain-step280-smoke.js`
+- `node v6/tests/database-bars-adapter-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/bar-data/target-bar-window.js`.
+- Added `v6/src/bar-data/target-bar-window-cache.js`.
+- Added explicit bar-data target commands/events for planning, loading,
+  getting, releasing, and summarizing target-TF windows.
+- Wired `createBarDataRuntime` to use the Step 281 target bars adapter only for
+  explicit target-window commands.
+- Existing source `LOAD_WINDOW` behavior, source cache behavior,
+  chart-history, display-timeframe, replay cursor movement, no-bar gap
+  skipping, chart viewport intent, chart-engine behavior, journal,
+  order-ticket, prop-firm, indicator, and seconds behavior remain unchanged.
 
 ### Step 281 - Target-Timeframe Server Aggregation Boundary
 
