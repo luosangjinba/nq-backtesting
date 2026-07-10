@@ -30,12 +30,14 @@ for (const forbidden of [
 
 assert.match(capabilities, /id: '1D'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'/);
 assert.match(capabilities, /id: '1W'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'/);
-assert.match(capabilities, /id: '1M'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'planned'/);
+assert.match(capabilities, /id: '1M'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'/);
 
 assert.match(projectionDomain, /resolveTradingDayBucket/);
 assert.match(projectionDomain, /resolveTradingWeekBucket/);
+assert.match(projectionDomain, /resolveTradingMonthBucket/);
 assert.equal(displayRuntime.includes('session-calendar'), false);
 assert.equal(shell.includes('resolveTradingDayBucket'), false);
 assert.equal(shell.includes('resolveTradingWeekBucket'), false);
+assert.equal(shell.includes('resolveTradingMonthBucket'), false);
 
 console.log('v6 session calendar owner step267 smoke passed');

@@ -41,6 +41,7 @@ assert.equal(normalizePaneInstrument(' nq '), 'NQ');
 assert.equal(normalizePaneDisplayTimeframe('15'), 15);
 assert.equal(normalizePaneDisplayTimeframe('1D'), '1D');
 assert.equal(normalizePaneDisplayTimeframe('1W'), '1W');
+assert.equal(normalizePaneDisplayTimeframe('1M'), '1M');
 
 const store = createPaneStore({
   initialPanes: [defaultPane, inactivePane],

@@ -19,6 +19,6 @@ assert.match(index, /V6_MONTHLY_PROJECTION_INTEGRATION_STEP270/);
 assert.match(sessionCalendar, /resolveTradingMonthBucket/);
 assert.match(projectionDomain, /resolveTradingMonthBucket/);
 assert.match(projectionDomain, /targetTimeframe: '1M'/);
-assert.match(capabilities, /id: '1M'[\s\S]*?status: 'planned'/);
+assert.match(capabilities, /id: '1M'[\s\S]*?status: 'enabled'/);
 
 console.log('v6 monthly projection integration step270 static smoke passed');

@@ -107,6 +107,24 @@ assert.equal(weeklyPlan.sourceTimeframe, 1);
 assert.equal(weeklyPlan.window.estimatedBars, 2500);
 assert.equal(weeklyPlan.window.timeframe, 1);
 
+const monthlyPlan = createReplaySafeReloadWindowPlan({
+  count: 2,
+  reloadIntent: {
+    displayTimeframe: '1M',
+    instrument: 'NQ',
+    paneId: 'main',
+    reason: 'interval',
+    source: 'pane-intent',
+  },
+  replayState: {
+    cursorTime: '2026-06-01T16:30:00.000Z',
+  },
+});
+assert.equal(monthlyPlan.displayTimeframe, '1M');
+assert.equal(monthlyPlan.sourceTimeframe, 1);
+assert.equal(monthlyPlan.window.estimatedBars, 2500);
+assert.equal(monthlyPlan.window.timeframe, 1);
+
 assert.throws(
   () => createReplaySafeReloadWindowPlan({ reloadIntent, replayState: {} }),
   /requires replay cursor time/,

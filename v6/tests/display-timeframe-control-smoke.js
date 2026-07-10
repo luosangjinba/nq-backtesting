@@ -69,6 +69,9 @@ assert.equal(root.dataset.displayTimeframe, '1D');
 assert.equal(control.setDisplayTimeframe('1W'), '1W');
 assert.equal(control.getValue(), '1W');
 assert.equal(root.dataset.displayTimeframe, '1W');
+assert.equal(control.setDisplayTimeframe('1M'), '1M');
+assert.equal(control.getValue(), '1M');
+assert.equal(root.dataset.displayTimeframe, '1M');
 
 control.destroy();
 

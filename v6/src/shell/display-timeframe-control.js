@@ -3,10 +3,10 @@ import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.j
 
 function normalizeDisplayTimeframe(value) {
   const text = String(value ?? '').trim().toUpperCase();
-  if (text === '1D' || text === '1W') return text;
+  if (text === '1D' || text === '1W' || text === '1M') return text;
   const timeframe = Number(value);
   if (!Number.isInteger(timeframe) || timeframe <= 0) {
-    throw new Error('Display timeframe control value must be a positive integer, 1D, or 1W.');
+    throw new Error('Display timeframe control value must be a positive integer, 1D, 1W, or 1M.');
   }
   return timeframe;
 }
@@ -44,7 +44,7 @@ export function mountDisplayTimeframeControl(root, {
 
   function formatTimeframe(value) {
     const text = String(value).toUpperCase();
-    if (text === '1D' || text === '1W') return text;
+    if (text === '1D' || text === '1W' || text === '1M') return text;
     return `${value}m`;
   }
 

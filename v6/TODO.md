@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 269 - Weekly Projection Integration. V6
-  now enables `1W` display projection through chart-data projection consuming
-  `session-calendar` trading week buckets. `1M` remains disabled, seconds
-  remain hidden, and replay remains source-bar driven.
+- Latest completed roadmap step: Step 270 - Monthly Projection Integration. V6
+  now enables `1M` display projection through chart-data projection consuming
+  `session-calendar` trading month buckets. Seconds remain hidden, and replay
+  remains source-bar driven.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -69,7 +69,7 @@
 
 ### Step 270 - Monthly Projection Integration
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -90,6 +90,47 @@ Acceptance:
 - seconds remain hidden.
 
 ## Completed Steps
+
+### Step 270 - Monthly Projection Integration
+
+Completed in this monthly projection commit series.
+
+Verification:
+
+- `node v6/tests/monthly-projection-integration-step270-static-smoke.js`
+- `node v6/tests/monthly-projection-domain-step270-smoke.js`
+- `node v6/tests/monthly-projection-browser-step270-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/pane-model-smoke.js`
+- `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/pane-intent-reload-model-step172-smoke.js`
+- `node v6/tests/pane-intent-reload-window-plan-step174-smoke.js`
+- `node v6/tests/daily-projection-integration-step268-static-smoke.js`
+- `node v6/tests/daily-projection-domain-step268-smoke.js`
+- `node v6/tests/weekly-projection-integration-step269-static-smoke.js`
+- `node v6/tests/weekly-projection-domain-step269-smoke.js`
+- `node v6/tests/minute-hour-timeframe-projection-step265-smoke.js`
+- `node v6/tests/chart-data-projection-owner-step194-smoke.js`
+- `node v6/tests/session-aware-htf-readiness-step266-smoke.js`
+- `node v6/tests/session-calendar-owner-step267-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_MONTHLY_PROJECTION_INTEGRATION_STEP270.md`.
+- Added monthly projection support to `chart-data-projection` via
+  `session-calendar` trading month buckets.
+- Enabled `1M` in the display-timeframe capability/menu model.
+- Kept seconds hidden.
+- Allowed pane/display-timeframe intent plumbing to carry `1M` without treating
+  it as a fixed-minute timeframe.
+- Did not change seconds, journal, order-ticket, prop-firm, or indicator
+  behavior.
 
 ### Step 269 - Weekly Projection Integration
 

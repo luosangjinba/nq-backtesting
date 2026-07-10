@@ -8,7 +8,7 @@ function resolvePaneIdFromPane(pane = {}) {
 
 function resolveDisplayTimeframeFromPane(pane = {}) {
   const text = String(pane.displayTimeframe || '').trim().toUpperCase();
-  if (text === '1D' || text === '1W') {
+  if (text === '1D' || text === '1W' || text === '1M') {
     return text;
   }
   const displayTimeframe = Number(pane.displayTimeframe);

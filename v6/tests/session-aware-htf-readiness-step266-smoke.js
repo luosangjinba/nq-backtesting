@@ -26,14 +26,15 @@ assert.match(
 );
 assert.match(
   capabilities,
-  /id: '1M'[\s\S]*?projectionMode: 'session-aware'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'planned'[\s\S]*?unit: 'month'/,
+  /id: '1M'[\s\S]*?projectionMode: 'session-aware'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'[\s\S]*?unit: 'month'/,
 );
 
-assert.match(menuSmoke, /plannedIds, \['1M'\]/);
+assert.match(menuSmoke, /plannedIds, \[\]/);
 assert.match(projectionDomain, /normalizeMinuteTimeframe\(targetTimeframe/);
 assert.match(projectionDomain, /resolveDisplayBucketStart/);
 assert.match(projectionDomain, /resolveTradingDayBucket/);
 assert.match(projectionDomain, /resolveTradingWeekBucket/);
+assert.match(projectionDomain, /resolveTradingMonthBucket/);
 assert.equal(runtime.includes('session-calendar'), false);
 assert.equal(runtime.includes('targetTimeframe: displayTimeframe'), true);
 

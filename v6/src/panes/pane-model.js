@@ -43,7 +43,7 @@ export function normalizePaneInstrument(value) {
 
 export function normalizePaneDisplayTimeframe(value) {
   const text = String(value ?? '').trim().toUpperCase();
-  if (text === '1D' || text === '1W') return text;
+  if (text === '1D' || text === '1W' || text === '1M') return text;
   return normalizeMinuteTimeframe(value, {
     allowSuffix: false,
     fieldName: 'Pane displayTimeframe',

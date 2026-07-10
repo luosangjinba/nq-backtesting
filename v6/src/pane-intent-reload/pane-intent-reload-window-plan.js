@@ -23,10 +23,10 @@ function resolveCursorTime(state) {
 
 function normalizeTimeframe(value, fieldName) {
   const text = String(value ?? '').trim().toUpperCase();
-  if (text === '1D' || text === '1W') return text;
+  if (text === '1D' || text === '1W' || text === '1M') return text;
   const normalized = Number(value);
   if (!Number.isInteger(normalized) || normalized <= 0) {
-    throw new Error(`Pane intent reload window plan ${fieldName} must be a positive integer, 1D, or 1W.`);
+    throw new Error(`Pane intent reload window plan ${fieldName} must be a positive integer, 1D, 1W, or 1M.`);
   }
   return normalized;
 }
@@ -46,6 +46,9 @@ function resolveSourceCount({ count, sourceTimeframe, targetTimeframe }) {
   }
   if (targetTimeframe === '1W') {
     return Math.min(DEFAULT_RELOAD_SOURCE_BAR_LIMIT, targetCount * 10080);
+  }
+  if (targetTimeframe === '1M') {
+    return DEFAULT_RELOAD_SOURCE_BAR_LIMIT;
   }
   const ratio = Math.max(1, Math.ceil(targetTimeframe / sourceTimeframe));
   return Math.min(DEFAULT_RELOAD_SOURCE_BAR_LIMIT, targetCount * ratio);
