@@ -152,11 +152,13 @@ async function createPrependBars({
     return {
       bars: projectionRecord.bars,
       projectionRecord,
+      sourceBars: loadedBars,
     };
   }
   return {
     bars: loadedBars,
     projectionRecord: null,
+    sourceBars: loadedBars,
   };
 }
 
@@ -390,6 +392,7 @@ export function createLeftwardHistoryExtensionRuntime({
         bars: prependBars.bars,
         cursorTimestamp: replayCursorTimestamp(latestReplayState || replayState),
         paneId,
+        sourceBars: prependBars.sourceBars,
       });
       state = {
         error: null,

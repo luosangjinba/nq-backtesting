@@ -120,6 +120,7 @@ export function createChartEntryProjectionPreparation(plan, cacheRecord, {
       bars: cloneBars(projectionRecord.bars),
       cursorTimestamp: wallState.latestBar?.timestamp ?? null,
       paneId: wallState.paneId,
+      sourceBars: cloneBars(bars),
     }
     : createDefaultWallPaneReplacePayload(wallState, {
       displayTimeframe: targetTimeframe,

@@ -27,6 +27,7 @@ registry.registerRuntime(createChartDataRuntime());
 await registry.start({ emitEvent });
 
 assert.equal(hasCommand(CHART_DATA_COMMANDS.REPLACE_BARS), true);
+assert.equal(hasCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS), true);
 assert.equal(listenerCount(CHART_DATA_EVENTS.BARS_CHANGED), 1);
 
 const replaced = await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
@@ -77,6 +78,30 @@ const fetched = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, {
 assert.deepEqual(fetched, prepended);
 fetched.bars[0].close = 0;
 assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-default' })).bars[0].close, 0.5);
+assert.equal((await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId: 'pane-default' })).bars[0].close, 0.5);
+
+const projectedReplace = await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
+  bars: [{ timestamp: 100, open: 1, high: 3, low: 1, close: 2 }],
+  cursorTimestamp: 240,
+  paneId: 'pane-default',
+  preserveSource: true,
+});
+assert.deepEqual(projectedReplace.bars.map((bar) => bar.timestamp), [100]);
+assert.deepEqual(
+  (await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId: 'pane-default' })).bars.map((bar) => bar.timestamp),
+  [40, 100, 200, 240],
+);
+
+await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
+  bars: [{ timestamp: 300, open: 3, high: 4, low: 2, close: 3.5 }],
+  cursorTimestamp: 300,
+  paneId: 'pane-default',
+  sourceBars: [{ timestamp: 260, open: 2.6, high: 3, low: 2, close: 2.8 }],
+});
+assert.deepEqual(
+  (await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId: 'pane-default' })).bars.map((bar) => bar.timestamp),
+  [40, 100, 200, 240, 260],
+);
 
 await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
   bars: [{ timestamp: 100, open: 10, high: 11, low: 9, close: 10.5 }],
@@ -85,7 +110,7 @@ await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
 assert.deepEqual(await dispatchCommand(CHART_DATA_COMMANDS.GET_SUMMARY), {
   paneCount: 2,
   panes: [
-    { barCount: 4, paneId: 'pane-default', revision: 3 },
+    { barCount: 2, paneId: 'pane-default', revision: 5 },
     { barCount: 1, paneId: 'pane-review', revision: 1 },
   ],
 });

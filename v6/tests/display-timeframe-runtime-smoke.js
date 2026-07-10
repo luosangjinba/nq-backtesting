@@ -88,6 +88,25 @@ assert.equal(appliedEvents.length, 1);
 const pane = await dispatchCommand(PANE_COMMANDS.GET_ACTIVE);
 assert.equal(pane.displayTimeframe, 5);
 
+const restored = await dispatchCommand(DISPLAY_TIMEFRAME_COMMANDS.APPLY, {
+  displayTimeframe: 1,
+  paneId: 'main',
+});
+assert.equal(restored.pane.displayTimeframe, 1);
+assert.equal(restored.projectionSource.sourceTimeframe, 1);
+assert.equal(restored.projectionSource.targetTimeframe, 1);
+assert.equal(restored.sourceBarCount, 6);
+assert.equal(restored.targetBarCount, 6);
+assert.deepEqual(restored.chartRecord.bars.map((bar) => bar.timestamp), [
+  1780306200,
+  1780306260,
+  1780306320,
+  1780306380,
+  1780306440,
+  1780306500,
+]);
+assert.equal(appliedEvents.length, 2);
+
 await registry.stop();
 assert.equal(hasCommand(DISPLAY_TIMEFRAME_COMMANDS.APPLY), false);
 unsubscribeApplied();

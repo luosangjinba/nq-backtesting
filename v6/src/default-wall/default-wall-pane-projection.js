@@ -32,6 +32,7 @@ export function createDefaultWallPaneReplacePayload(state, {
     bars: projection.bars,
     cursorTimestamp: state.latestBar?.timestamp ?? null,
     paneId: state.paneId,
+    sourceBars: state.chartBars,
   });
 }
 

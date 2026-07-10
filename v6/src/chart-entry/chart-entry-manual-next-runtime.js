@@ -222,12 +222,14 @@ async function createAppendBars({
     return {
       bars: pickCursorProjectionBars(projectionRecord, replayState),
       projectionRecord,
+      sourceBars: pickCursorBars(loadedWindow, replayState),
     };
   }
 
   return {
     bars: pickCursorBars(loadedWindow, replayState),
     projectionRecord: null,
+    sourceBars: pickCursorBars(loadedWindow, replayState),
   };
 }
 
@@ -353,6 +355,7 @@ export function createChartEntryManualNextRuntime() {
             bars,
             cursorTimestamp,
             paneId,
+            sourceBars: appendBars.sourceBars,
           });
           chartRecords.push(chartRecord);
           appendedBarCount += bars.length;

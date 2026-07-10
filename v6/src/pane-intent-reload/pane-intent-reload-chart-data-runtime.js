@@ -111,6 +111,7 @@ async function createReplacementBars({
     return {
       bars: loadedWindow.bars,
       projectionRecord: null,
+      sourceBars: loadedWindow.bars,
     };
   }
 
@@ -127,6 +128,7 @@ async function createReplacementBars({
   return {
     bars: projectionRecord.bars,
     projectionRecord,
+    sourceBars: loadedWindow.bars,
   };
 }
 
@@ -178,6 +180,7 @@ export function createPaneIntentReloadChartDataRuntime() {
           bars: replacementBars.bars,
           cursorTimestamp,
           paneId: record.paneId,
+          sourceBars: replacementBars.sourceBars,
         });
         replacements.push({
           barCount: chartRecord.bars.length,

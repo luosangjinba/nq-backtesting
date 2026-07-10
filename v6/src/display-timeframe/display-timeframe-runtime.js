@@ -40,7 +40,7 @@ export function createDisplayTimeframeRuntime({
     if (!targetPane) {
       throw new Error('Display timeframe target pane does not exist.');
     }
-    const sourceRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, {
+    const sourceRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, {
       paneId: targetPane.id,
     });
     const cursorTimestamp = latestTimestamp(sourceRecord);
@@ -61,6 +61,7 @@ export function createDisplayTimeframeRuntime({
       bars: projectionRecord.bars,
       cursorTimestamp,
       paneId: targetPane.id,
+      preserveSource: true,
     });
     const viewportRecord = await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, {
       paneId: targetPane.id,

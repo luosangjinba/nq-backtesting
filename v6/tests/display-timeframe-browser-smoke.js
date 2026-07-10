@@ -47,6 +47,13 @@ try {
       const chartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
         paneId: 'main',
       });
+      document.querySelector('[data-v6-display-timeframe-toggle]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      document.querySelector('[data-v6-display-timeframe-option="1"]').click();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const restoredChartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, {
+        paneId: 'main',
+      });
       const pane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_ACTIVE);
       const viewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, {
         paneId: 'main',
@@ -55,6 +62,7 @@ try {
       return {
         beforeViewport,
         chartBars: chartRecord.bars,
+        restoredChartBars: restoredChartRecord.bars,
         controlMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6DisplayTimeframeControl?.getValue),
         menuOpen: document.querySelector('[data-v6-display-timeframe-toggle]')?.getAttribute('aria-expanded'),
         pane,
@@ -69,18 +77,26 @@ try {
   assert.equal(value.controlMounted, true);
   assert.equal(value.menuOpen, 'false');
   assert.equal(value.selectMissing, true);
-  assert.equal(value.toggleText, '5m');
-  assert.equal(value.rootDataset, '5');
-  assert.equal(value.pane.displayTimeframe, 5);
+  assert.equal(value.toggleText, '1m');
+  assert.equal(value.rootDataset, '1');
+  assert.equal(value.pane.displayTimeframe, 1);
   assert.deepEqual(value.chartBars.map((bar) => bar.timestamp), [1780306200, 1780306500]);
   assert.equal(value.chartBars[0].open, 100);
   assert.equal(value.chartBars[0].close, 104.5);
   assert.equal(value.chartBars[1].open, 105);
   assert.equal(value.chartBars[1].close, 105.5);
+  assert.deepEqual(value.restoredChartBars.map((bar) => bar.timestamp), [
+    1780306200,
+    1780306260,
+    1780306320,
+    1780306380,
+    1780306440,
+    1780306500,
+  ]);
   assert.equal(value.viewport.intent.origin, value.beforeViewport.intent.origin);
   assert.equal(value.viewport.intent.revision, value.beforeViewport.intent.revision);
   assert.equal(value.viewport.intent.latestOffsetBars, value.beforeViewport.intent.latestOffsetBars);
-  assert.equal(value.viewport.projection.latestLogicalIndex, 1);
+  assert.equal(value.viewport.projection.latestLogicalIndex, 5);
 } finally {
   await page.cleanup();
 }

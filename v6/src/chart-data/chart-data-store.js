@@ -15,6 +15,7 @@ function normalizePaneId(paneId) {
 
 export function createChartDataStore() {
   const recordsByPaneId = new Map();
+  const sourceRecordsByPaneId = new Map();
 
   function getRecord(paneId) {
     const id = normalizePaneId(paneId);
@@ -22,10 +23,18 @@ export function createChartDataStore() {
     return cloneChartBarsRecord(record);
   }
 
+  function getSourceRecord(paneId) {
+    const id = normalizePaneId(paneId);
+    const record = sourceRecordsByPaneId.get(id) || recordsByPaneId.get(id) || createEmptyChartBarsRecord(id);
+    return cloneChartBarsRecord(record);
+  }
+
   function replaceBars({
     bars = [],
     cursorTimestamp = null,
     paneId,
+    preserveSource = false,
+    sourceBars = null,
   } = {}) {
     const id = normalizePaneId(paneId);
     const current = getRecord(id);
@@ -36,6 +45,16 @@ export function createChartDataStore() {
       revision: current.revision + 1,
     });
     recordsByPaneId.set(id, record);
+    if (!preserveSource) {
+      const currentSource = getSourceRecord(id);
+      const sourceRecord = createChartBarsRecord({
+        bars: Array.isArray(sourceBars) ? sourceBars : bars,
+        cursorTimestamp,
+        paneId: id,
+        revision: currentSource.revision + 1,
+      });
+      sourceRecordsByPaneId.set(id, sourceRecord);
+    }
     return cloneChartBarsRecord(record);
   }
 
@@ -43,6 +62,8 @@ export function createChartDataStore() {
     bars = [],
     cursorTimestamp = null,
     paneId,
+    preserveSource = false,
+    sourceBars = null,
   } = {}) {
     const id = normalizePaneId(paneId);
     const current = getRecord(id);
@@ -52,6 +73,19 @@ export function createChartDataStore() {
       revision: current.revision + 1,
     });
     recordsByPaneId.set(id, record);
+    if (!preserveSource) {
+      const currentSource = getSourceRecord(id);
+      const sourceRecord = createChartBarsRecord({
+        bars: mergeChartBars(
+          currentSource.bars,
+          Array.isArray(sourceBars) ? sourceBars : bars,
+          cursorTimestamp,
+        ),
+        paneId: id,
+        revision: currentSource.revision + 1,
+      });
+      sourceRecordsByPaneId.set(id, sourceRecord);
+    }
     return cloneChartBarsRecord(record);
   }
 
@@ -59,6 +93,8 @@ export function createChartDataStore() {
     bars = [],
     cursorTimestamp = null,
     paneId,
+    preserveSource = false,
+    sourceBars = null,
   } = {}) {
     const id = normalizePaneId(paneId);
     const current = getRecord(id);
@@ -68,12 +104,26 @@ export function createChartDataStore() {
       revision: current.revision + 1,
     });
     recordsByPaneId.set(id, record);
+    if (!preserveSource) {
+      const currentSource = getSourceRecord(id);
+      const sourceRecord = createChartBarsRecord({
+        bars: mergeChartBars(
+          Array.isArray(sourceBars) ? sourceBars : bars,
+          currentSource.bars,
+          cursorTimestamp,
+        ),
+        paneId: id,
+        revision: currentSource.revision + 1,
+      });
+      sourceRecordsByPaneId.set(id, sourceRecord);
+    }
     return cloneChartBarsRecord(record);
   }
 
   function clearPane(paneId) {
     const id = normalizePaneId(paneId);
     recordsByPaneId.delete(id);
+    sourceRecordsByPaneId.delete(id);
     return createEmptyChartBarsRecord(id);
   }
 
@@ -95,6 +145,7 @@ export function createChartDataStore() {
     appendBars,
     clearPane,
     getRecord,
+    getSourceRecord,
     prependBars,
     replaceBars,
     summary,

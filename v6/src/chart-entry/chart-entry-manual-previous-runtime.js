@@ -159,11 +159,13 @@ async function projectBarsIfNeeded({
     return {
       bars: projectionRecord.bars,
       projectionRecord,
+      sourceBars: bars,
     };
   }
   return {
     bars,
     projectionRecord: null,
+    sourceBars: bars,
   };
 }
 
@@ -180,6 +182,7 @@ async function createReplacementBars({
       bars: currentBars,
       loadedWindow: null,
       projectionRecord: null,
+      sourceBars: currentBars,
       source: 'chart-data-filter',
     };
   }
@@ -202,6 +205,7 @@ async function createReplacementBars({
     bars: projected.bars,
     loadedWindow,
     projectionRecord: projected.projectionRecord,
+    sourceBars: projected.sourceBars,
     source: 'bar-data-window',
   };
 }
@@ -251,6 +255,7 @@ export function createChartEntryManualPreviousRuntime() {
             bars: replacement.bars,
             cursorTimestamp,
             paneId,
+            sourceBars: replacement.sourceBars,
           });
           chartRecords.push(chartRecord);
           replacedBarCount += chartRecord.bars.length;
