@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 245 - Replay/Transport Chain Regression
-  Pack. V6 now has a compact pack covering replay transport, Manual Previous,
-  leftward history, multi-pane bootstrap, pane-local reset view, and display
-  timeframe switching before opening another foundation slice.
+- Latest completed roadmap step: Step 246 - Chart Foundation Next Slice
+  Selection. V6 selected Date-Range Entry Viewport Alignment Audit/Gate as the
+  next bounded chart-foundation slice after the replay/transport regression
+  pack passed.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,30 +43,60 @@
 
 ## Next Executable Steps
 
-### Step 246 - Chart Foundation Next Slice Selection
+### Step 247 - Date-Range Entry Viewport Alignment Audit/Gate
 
 Status: planned.
 
 Notes for execution:
 
-- review the Step 245 pack result and current chart-foundation TODO direction;
-- select one bounded next slice across chart loading, TF switching, drag/scroll
-  display, date ranges, replay, multi-pane, or pane-local reset behavior;
-- explicitly reject indicators, trading simulation, order tickets, prop-firm
-  rules, and journal behavior unless the selected slice requires a contract-only
-  guard;
-- keep the selected slice small enough for implementation and browser coverage
-  in the following step.
+- document the current owner path from session dashboard date range to
+  chart-entry initial window, actual loaded chart boundary metadata, chart-data
+  records, chart viewport projection, and chart surface visible range;
+- add browser coverage for opening a non-default date range where chart data is
+  loaded from an adjusted actual boundary;
+- assert the initial visible logical range includes the loaded/revealed K-line
+  cluster without requiring user drag, click, or wheel input;
+- preserve bounded bar requests and the no-full-date-range-load rule;
+- if the new gate exposes a regression, fix it in the owning module only.
 
 Acceptance:
 
-- next slice is documented in TODO/session notes with owner boundary and stop
-  conditions;
-- selected verification commands are listed before implementation starts;
+- owner-path audit/gate is documented and covered;
+- browser coverage proves date-range entry opens with visible K-lines or logs a
+  bounded owner bug fixed in Step 247;
+- dashboard/session wording still distinguishes selected trading dates from
+  actual chart start metadata;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 246.
+  in Step 247.
 
 ## Completed Steps
+
+### Step 246 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step246-smoke.js`
+- `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP246.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step246-smoke.js`.
+- Selected Step 247 as Date-Range Entry Viewport Alignment Audit/Gate.
+- Chose date-range entry because Step 245 already covers replay/transport,
+  Manual Previous, leftward history, multi-pane bootstrap, reset view, and
+  display-timeframe switching, while date ranges remain a foundation priority.
+- Step 247 should focus on session date range -> actual loaded boundary ->
+  chart-entry initial window -> viewport projection, and should not add date UI
+  or broader feature behavior.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 245 - Replay/Transport Chain Regression Pack
 
