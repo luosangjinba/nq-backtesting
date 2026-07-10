@@ -59,6 +59,11 @@
   Display-Timeframe Historical Path Preparation. V6 now has a disabled-by-
   default display/history target-bars planning boundary and static coverage that
   display-timeframe and chart-history do not directly call target bars yet.
+- Latest completed target-TF display opt-in step: Step 284 - Controlled
+  Display-Timeframe Target-History Opt-In. V6 display-timeframe runtime can
+  explicitly load target bars through bar-data target commands while default TF
+  switching remains source projection and source bars are preserved for `1m`
+  round trips.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -94,7 +99,7 @@
 
 ## Next Executable Steps
 
-### Step 284 - Controlled Display-Timeframe Target-History Opt-In
+### Step 285 - Chart-History Target-Timeframe Leftward Opt-In
 
 Status: proposed.
 
@@ -105,11 +110,13 @@ Notes for execution:
 - use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
   contract;
 - use `v6/src/display-timeframe/display-timeframe-target-history-plan.js` as
-  the opt-in planner;
+  the opt-in planner or split a chart-history-specific planner only if the
+  history window needs a different owner boundary;
 - load target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not direct
   target API calls;
-- implement a controlled display-timeframe target-history path that can be
-  enabled explicitly in tests or by command payload;
+- implement a controlled chart-history leftward target-bars path for high
+  display timeframes that can be enabled explicitly in tests or by command
+  payload;
 - preserve source bars so high-TF-to-`1m` round trips still work;
 - keep frontend projection as fallback when target-history opt-in is disabled
   or target loading fails;
@@ -119,14 +126,43 @@ Notes for execution:
 
 Acceptance:
 
-- explicit opt-in can apply display target bars through bar-data target
-  commands;
-- default display-timeframe behavior remains source projection;
-- source-bar preservation and TF round-trip behavior remain covered for both
-  fallback and target-history paths;
+- explicit opt-in can prepend/apply historical target bars through bar-data
+  target commands;
+- default chart-history leftward behavior remains source-window projection;
+- source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 284 - Controlled Display-Timeframe Target-History Opt-In
+
+Completed in this display target-history runtime commit series.
+
+Verification:
+
+- `node v6/tests/display-target-history-opt-in-step284-smoke.js`
+- `node v6/tests/display-target-history-fallback-step284-smoke.js`
+- `node v6/tests/display-target-history-boundary-step283-static-smoke.js`
+- `node v6/tests/display-timeframe-no-feature-step192-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/bar-data-target-runtime-step282-smoke.js`
+- `node v6/tests/display-target-history-plan-step283-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- `DISPLAY_TIMEFRAME_COMMANDS.APPLY` now accepts an optional `targetHistory`
+  payload.
+- Explicit opt-in loads target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`.
+- Display-timeframe runtime still does not import target adapters, call target
+  APIs, call `fetch`, or mutate chart series.
+- Default display-timeframe switching still uses source projection.
+- Target-history disabled, empty, or failed loads fall back to projection.
+- Source bars remain preserved for high-TF-to-`1m` round trips.
+- Replay cursor movement, no-bar gap skipping, chart-history leftward
+  extension, chart viewport intent, chart-engine behavior, journal,
+  order-ticket, prop-firm, indicator, and seconds behavior remain unchanged.
 
 ### Step 283 - Display-Timeframe Historical Path Preparation
 

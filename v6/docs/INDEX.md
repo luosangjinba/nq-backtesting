@@ -263,6 +263,9 @@ Read this index before working on V6.
 - `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_HISTORY_PREPARATION_STEP283.md`:
   accepted the display/history target-bars opt-in planning boundary without
   routing display-timeframe or chart-history runtime behavior to target bars yet.
+- `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_HISTORY_OPT_IN_STEP284.md`: accepted
+  the first controlled display-timeframe target-history opt-in runtime path via
+  bar-data target commands while preserving default source projection.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
