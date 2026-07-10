@@ -233,6 +233,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HTF_BROWSER_REPLAY_GAP_PACK_STEP273.md`: accepted
   browser-visible replay gap pack for `1D`/`1W`/`1M` manual-next and auto-play
   across `16:59 -> 18:00`.
+- `v6/docs/V6_REPLAY_GAP_BROWSER_REGRESSION_RUNNER_STEP274.md`: accepted
+  compact browser runner for the replay no-bar gap coverage introduced by
+  Steps 258, 263, and 273.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
