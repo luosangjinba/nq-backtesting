@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 265 - Minute/Hour Timeframe Unlock.
-  V6 now enables the target minute/hour display intervals that can be projected
-  from 1m source bars: `2m`, `3m`, `4m`, `10m`, `30m`, `1h`, `2h`, `4h`, `8h`,
-  and `12h`. Seconds stay hidden, and `1D`, `1W`, and `1M` remain disabled until
-  session-aware aggregation is designed.
+- Latest completed roadmap step: Step 266 - Session-Aware Higher Timeframe
+  Selection. V6 selected a future `session-calendar` boundary as owner for
+  `1D`, `1W`, and `1M` trading day/week/month bucket semantics before enabling
+  those intervals. Daily/weekly/monthly remain disabled, seconds remain hidden,
+  and chart-data projection remains the OHLC aggregation owner.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -70,7 +70,7 @@
 
 ### Step 266 - Session-Aware Higher Timeframe Selection
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -93,6 +93,33 @@ Acceptance:
 - `1D`, `1W`, and `1M` remain disabled.
 
 ## Completed Steps
+
+### Step 266 - Session-Aware Higher Timeframe Selection
+
+Completed in this selection/readiness commit series.
+
+Verification:
+
+- `node v6/tests/session-aware-htf-selection-step266-static-smoke.js`
+- `node v6/tests/session-aware-htf-readiness-step266-smoke.js`
+- `node v6/tests/minute-hour-timeframe-unlock-step265-static-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_SESSION_AWARE_HTF_SELECTION_STEP266.md`.
+- Selected a future `session-calendar` boundary as owner for trading day,
+  trading week, and trading month bucket semantics.
+- Kept `display-timeframe` as capability/menu owner and `chart-data-projection`
+  as OHLC aggregation owner.
+- Kept replay source-bar driven.
+- Kept `1D`, `1W`, and `1M` planned/disabled and kept seconds hidden.
+- Did not change runtime projection behavior, menu enabled status, replay,
+  bar-data, journal, order-ticket, prop-firm, or indicator behavior.
 
 ### Step 265 - Minute/Hour Timeframe Unlock
 
