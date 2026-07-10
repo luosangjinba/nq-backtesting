@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 271 - Session-Aware HTF Projection
-  Consolidation. V6 now centralizes `1D`/`1W`/`1M` normalization, reload
-  source-count estimates, chart-data projection target mapping, and browser
-  projection fixtures. Seconds remain hidden, and replay remains source-bar
-  driven.
+- Latest completed roadmap step: Step 272 - HTF Replay Gap Regression Pack. V6
+  now guards `1D`/`1W`/`1M` manual-next and auto-play over no-bar replay gaps,
+  keeping replay cursor state source-bar driven while session-aware HTF chart
+  projection receives source bars with pane instrument context.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -70,7 +69,7 @@
 
 ### Step 272 - HTF Replay Gap Regression Pack
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -94,6 +93,38 @@ Acceptance:
   unchanged.
 
 ## Completed Steps
+
+### Step 272 - HTF Replay Gap Regression Pack
+
+Completed in this regression-pack commit series.
+
+Verification:
+
+- `node v6/tests/htf-replay-gap-regression-pack-step272-static-smoke.js`
+- `node v6/tests/htf-replay-gap-regression-pack-step272-smoke.js`
+- `node v6/tests/manual-next-session-gap-step258-smoke.js`
+- `node v6/tests/auto-play-session-gap-step263-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/auto-play-htf-projection-step199-smoke.js`
+- `node v6/tests/daily-projection-domain-step268-smoke.js`
+- `node v6/tests/weekly-projection-domain-step269-smoke.js`
+- `node v6/tests/monthly-projection-domain-step270-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/session-aware-htf-consolidation-step271-static-smoke.js`
+- `node v6/tests/session-aware-display-timeframe-domain-step271-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_HTF_REPLAY_GAP_REGRESSION_PACK_STEP272.md`.
+- Added a runtime regression pack covering `1D`, `1W`, and `1M` manual-next and
+  auto-play advancement across `16:59 -> 18:00`.
+- Fixed chart-entry manual-next to accept session-aware HTF display values,
+  pass pane instrument context into chart-data projection, and keep source-bar
+  replay cursor advancement intact.
+- Kept seconds hidden and did not change journal, order-ticket, prop-firm,
+  indicator, chart-engine, viewport, or projection ownership.
 
 ### Step 271 - Session-Aware HTF Projection Consolidation
 
