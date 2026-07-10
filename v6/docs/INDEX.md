@@ -278,6 +278,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_PERFORMANCE_OBSERVABILITY_STEP288.md`: accepted
   runtime/browser diagnostics for target-history versus source-window leftward
   extension latency and fallback state.
+- `v6/docs/V6_TARGET_HISTORY_OPTIMIZATION_DECISION_STEP289.md`: accepted the
+  next target-history optimization target as a small diagnostics readout based
+  on Step 288 runtime diagnostics.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

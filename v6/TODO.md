@@ -82,6 +82,10 @@
   Target-History Performance Observability. V6 leftward-history state now
   reports duration, path, target/source request counts, load timings, fallback
   reason, and prepended bars for target-history and source-window paths.
+- Latest completed target-TF decision step: Step 289 - Target-History
+  Optimization Decision. V6 selected a small chart-history diagnostics readout
+  as the next optimization target, using Step 288 diagnostics instead of
+  changing activation thresholds or fallback behavior prematurely.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -117,7 +121,7 @@
 
 ## Next Executable Steps
 
-### Step 289 - Target-History Optimization Decision
+### Step 290 - Target-History Diagnostics Readout
 
 Status: proposed.
 
@@ -126,9 +130,14 @@ Notes for execution:
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - use Step 288 diagnostics as the baseline;
-- compare target-history and source-window timings from smoke/runtime output;
-- decide whether to tune activation threshold/window sizing, add a small
-  diagnostic readout, or harden fallback behavior;
+- use Step 289 decision:
+  `v6/docs/V6_TARGET_HISTORY_OPTIMIZATION_DECISION_STEP289.md`;
+- add a small, non-invasive readout for chart-history leftward extension
+  diagnostics;
+- expose path, duration, target/source request counts, fallback reason, and
+  prepended bar count;
+- prefer existing status/readout surfaces or a focused shell module over
+  changing chart runtime ownership;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -138,13 +147,36 @@ Notes for execution:
 
 Acceptance:
 
-- next optimization target is explicitly selected and documented;
-- selection uses Step 288 diagnostics instead of speculation;
-- any chosen implementation remains behind current ownership boundaries;
+- diagnostics readout is visible in the app or covered by browser/computed
+  state smoke;
+- readout consumes runtime state/events and does not call target APIs;
+- readout remains small and removable; no broad settings/control surface;
 - source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 289 - Target-History Optimization Decision
+
+Completed in this target-history optimization decision commit series.
+
+Verification:
+
+- `node v6/tests/target-history-optimization-decision-step289-smoke.js`
+- `node v6/tests/target-history-observability-closeout-step288-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/chart-history/target-history-optimization-decision.js`.
+- The helper selects among diagnostics readout, activation policy tuning, and
+  fallback hardening based on measured diagnostics.
+- Current representative diagnostics select `add-diagnostic-readout`.
+- Step 290 should add a small chart-history diagnostics readout.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 288 - Activated Target-History Performance Observability
 
