@@ -47,6 +47,10 @@
   And Schema Discovery. V6 now has a canonical target timeframe domain,
   fixed-duration/session-aware classification, V4/DuckDB source schema
   discovery notes, and an initial single-table target-bars storage direction.
+- Latest completed target-TF backend step: Step 281 - Target-Timeframe Server
+  Aggregation Boundary. V4 now has a backend-only `/v4/target_bars` path and
+  V6 has an adapter contract, while existing `/v4/bars` and V6 chart runtimes
+  remain unchanged.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -82,37 +86,69 @@
 
 ## Next Executable Steps
 
-### Step 281 - Target-Timeframe Server Aggregation Boundary
+### Step 282 - Bar-Data Runtime Target-Timeframe Support
 
 Status: proposed.
 
 Notes for execution:
 
-- implement Phase B from
+- implement Phase C from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
   contract;
-- use `v6/docs/V6_TARGET_TIMEFRAME_SCHEMA_DISCOVERY_STEP280.md` as the source
-  schema and storage-direction reference;
-- define a data/API owner boundary for target-TF aggregation from `futures_1m`;
-- start with on-demand aggregation plus in-process cache, not persistent
-  materialization;
-- prove `8h` and `1D` can be returned as target bars without sending thousands
-  of `1m` bars to the frontend;
-- do not change runtime behavior, database schema, API behavior,
-  display-timeframe projection, replay cursor movement, chart viewport intent,
-  chart-engine behavior, journal, order-ticket, prop-firm, indicator, or
-  seconds behavior unless Step 281 explicitly scopes a backend-only endpoint or
-  pure adapter contract.
+- use `v6/src/bar-data/v4-target-bars-adapter.js` as the target bars API
+  adapter contract;
+- extend bar-data planning/loading/cache support for explicit target-TF
+  windows without changing default source-bar behavior;
+- keep target-TF cache keys explicit on instrument, canonical timeframe id,
+  start, and end;
+- add diagnostics that distinguish source-bar loads from target-display loads;
+- do not make display-timeframe or leftward-history request target bars by
+  default yet;
+- do not change replay cursor movement, no-bar gap skipping, chart viewport
+  intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
+  or seconds behavior.
 
 Acceptance:
 
-- target-TF aggregation has a clear data/API owner boundary;
-- `8h` and `1D` aggregation semantics are covered by tests or static fixtures;
-- source `1m` `/v4/bars` behavior remains unchanged;
-- V6 frontend owners still do not request target-TF bars by default.
+- bar-data can plan/load/cache explicit target-TF windows through a dedicated
+  command or option;
+- source `1m` bar-data behavior and existing callers remain unchanged;
+- target-TF diagnostics identify target-display loads separately from source
+  replay loads;
+- V6 display-timeframe and leftward-history owners still do not request
+  target-TF bars by default.
 
 ## Completed Steps
+
+### Step 281 - Target-Timeframe Server Aggregation Boundary
+
+Completed in this backend aggregation boundary commit series.
+
+Verification:
+
+- `python3 v4/tests/target-bars-service-step281-smoke.py`
+- `python3 v4/tests/target-bars-api-boundary-step281-smoke.py`
+- `node v6/tests/v4-target-bars-adapter-step281-smoke.js`
+- `node v6/tests/target-timeframe-domain-step280-smoke.js`
+- `python3 v4/tests/bars-service-boundary-smoke.py`
+- `python3 v4/tests/backend-handler-boundary-smoke.py`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v4/server/target_bars_service.py`.
+- Added backend-only `GET /v4/target_bars`.
+- Added on-demand target-TF aggregation and in-process cache.
+- Added `8h` and `1D` smoke coverage proving the endpoint returns target bars,
+  not the underlying source `1m` bars.
+- Added `v6/src/bar-data/v4-target-bars-adapter.js` as a future adapter
+  contract.
+- Existing `GET /v4/bars`, V6 bar-data runtime, display-timeframe,
+  chart-history, replay cursor movement, no-bar gap skipping, chart viewport
+  intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
+  and seconds behavior remain unchanged.
 
 ### Step 280 - Target-Timeframe Data Contract And Schema Discovery
 
