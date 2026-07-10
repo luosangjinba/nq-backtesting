@@ -28,10 +28,9 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 249 - Drag/Scroll Display Stability
-  Reaudit/Gate. V6 consolidated drag release, fast right-drag, leftward
-  history, replay-safe latency, prepend compensation, and manual projection
-  suppression coverage without changing runtime behavior.
+- Latest completed roadmap step: Step 250 - Chart Foundation Next Slice
+  Selection. V6 selected Multi-Pane Active Focus Chain Gate as the next bounded
+  chart-foundation slice after drag/scroll stability was consolidated.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,27 +42,59 @@
 
 ## Next Executable Steps
 
-### Step 250 - Chart Foundation Next Slice Selection
+### Step 251 - Multi-Pane Active Focus Chain Gate
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 245-249 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, drag/scroll display, date
-  ranges, replay, multi-pane, or pane-local reset behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- document or gate the active-pane focus chain from chart host pointer action
+  through pane runtime and shell readouts;
+- ensure visible active-pane outline/state and pane runtime active id agree;
+- ensure toolbar symbol/timeframe mirrors the active pane only;
+- ensure pane-local OHLC headers remain isolated across panes;
+- ensure display-timeframe command targeting follows the active pane;
+- add a focused browser gate or compact pack if current coverage is too
+  distributed;
+- fix only the owning module if the gate exposes a regression.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
+- multi-pane active focus/readout chain is documented and covered;
+- any runtime change is confined to chart surface, pane runtime, pane active
+  surface bridge, shell toolbar presentation, display-timeframe control, or
+  pane status readout ownership as appropriate;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 250.
+  in Step 251.
 
 ## Completed Steps
+
+### Step 250 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step250-smoke.js`
+- `node v6/tests/drag-scroll-display-stability-reaudit-step249-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP250.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step250-smoke.js`.
+- Selected Step 251 as Multi-Pane Active Focus Chain Gate.
+- Chose active pane focus/readout consistency because Step 249 closed
+  drag/scroll stability while the roadmap still calls out primary/non-primary
+  multi-pane confusion as a foundation stop condition.
+- Step 251 should consolidate visible active-pane outline, pane runtime active
+  id, top toolbar symbol/timeframe presentation, pane-local OHLC headers, and
+  display-timeframe command target selection before feature work expands.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 249 - Drag/Scroll Display Stability Reaudit/Gate
 
