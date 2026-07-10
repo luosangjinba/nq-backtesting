@@ -67,29 +67,29 @@
 
 ## Next Executable Steps
 
-### Step 272 - HTF Replay Gap Regression Pack
+### Step 273 - HTF Browser Replay Gap Pack
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- add HTF manual-next regression coverage for `1D`, `1W`, and `1M`;
-- add HTF auto-play regression coverage for `1D`, `1W`, and `1M`;
-- assert replay cursor/revealed state advances by source bars, not HTF bucket
-  timestamps;
-- assert chart-data projection receives source-bar payloads before rendering
-  HTF chart bars;
+- add browser manual-next coverage for `1D`, `1W`, and `1M`;
+- add browser auto-play coverage for `1D`, `1W`, and `1M`;
+- assert replay cursor/readout state reaches `18:00` and then `18:01`;
+- assert HTF projection bucket metadata includes the final post-gap source bar;
 - keep replay source-bar driven;
 - do not add seconds, journal, order-ticket, prop-firm, indicator,
   chart-engine, viewport, or projection behavior.
 
 Acceptance:
 
-- Step 272 regression pack is documented and statically guarded;
-- manual next crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M`;
-- auto-play crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M`;
-- replay cursor state and chart-data projection inputs remain source-bar based;
-- existing session-gap/projection/pane/owner/boundary behavior remains
+- Step 273 browser pack is documented and statically guarded;
+- manual next crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M` in the
+  browser and continues to `18:01`;
+- auto-play crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M` in the browser
+  and continues to `18:01`;
+- projection metadata for each HTF includes the final post-gap source bar;
+- existing runtime gap/projection/pane/owner/boundary behavior remains
   unchanged.
 
 ## Completed Steps
