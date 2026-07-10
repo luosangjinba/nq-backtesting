@@ -81,12 +81,6 @@ try {
       await next();
       const afterOneNextReplay = await replayState();
       const afterOneNext = await waitForPreviousAvailable(true);
-      const beforeDisabledClick = await replayState();
-      const beforeDisabledClickChart = await chartBars();
-      document.querySelector('[data-v6-transport-step-back]').click();
-      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const afterDisabledClick = await replayState();
-      const afterDisabledClickChart = await chartBars();
 
       const previousToStart = await previous();
       const afterPreviousToStartReplay = await replayState();
@@ -101,8 +95,6 @@ try {
       const afterPreviousToOne = await waitForPreviousAvailable(true);
 
       return {
-        afterDisabledClick,
-        afterDisabledClickBarCount: afterDisabledClickChart.bars.length,
         afterOneNext,
         afterOneNextReplay,
         afterPreviousToOne,
@@ -112,8 +104,6 @@ try {
         afterTwoNext,
         afterTwoNextReplay,
         atStart,
-        beforeDisabledClick,
-        beforeDisabledClickBarCount: beforeDisabledClickChart.bars.length,
         initial,
         previousToOne,
         previousToStart,
@@ -131,11 +121,8 @@ try {
   assert.equal(value.afterOneNextReplay.cursorIndex, 1);
   assert.equal(value.afterOneNext.root.previousAvailable, 'true');
   assert.equal(value.afterOneNext.previous.available, 'true');
-  assert.equal(value.afterOneNext.previous.disabled, true);
-  assert.equal(value.afterOneNext.previous.action, null);
-  assert.equal(value.afterDisabledClick.cursorIndex, value.beforeDisabledClick.cursorIndex);
-  assert.equal(value.afterDisabledClick.revealedCount, value.beforeDisabledClick.revealedCount);
-  assert.equal(value.afterDisabledClickBarCount, value.beforeDisabledClickBarCount);
+  assert.equal(value.afterOneNext.previous.disabled, false);
+  assert.equal(value.afterOneNext.previous.action, 'previous');
 
   assert.equal(value.previousToStart.status, 'rewound');
   assert.equal(value.afterPreviousToStartReplay.cursorIndex, 0);
@@ -149,8 +136,8 @@ try {
   assert.equal(value.afterPreviousToOneReplay.cursorIndex, 1);
   assert.equal(value.afterPreviousToOne.root.previousAvailable, 'true');
   assert.equal(value.afterPreviousToOne.previous.available, 'true');
-  assert.equal(value.afterPreviousToOne.previous.disabled, true);
-  assert.equal(value.afterPreviousToOne.previous.action, null);
+  assert.equal(value.afterPreviousToOne.previous.disabled, false);
+  assert.equal(value.afterPreviousToOne.previous.action, 'previous');
 } finally {
   await page.cleanup();
 }

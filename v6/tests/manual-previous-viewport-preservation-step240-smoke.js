@@ -9,8 +9,6 @@ try {
     (async () => JSON.stringify(await (async () => {
       const commands = await import('/v6/src/runtime/commands.js');
       const contracts = await import('/v6/src/contracts/app-contracts.js');
-      const previousButton = document.querySelector('[data-v6-transport-step-back]');
-
       const waitForReady = async () => {
         const deadline = performance.now() + 5000;
         let replay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
@@ -110,16 +108,9 @@ try {
         manualPrevious,
         manualProjection,
         manualSet,
-        previousButton: {
-          action: previousButton.dataset.v6TransportAction || null,
-          disabled: previousButton.disabled,
-        },
       };
     })()))()
   `));
-
-  assert.equal(value.previousButton.disabled, true);
-  assert.equal(value.previousButton.action, null);
 
   assert.equal(value.initial.replay.cursorIndex, 0);
   assert.equal(value.initial.viewport.intent.origin, 'default');

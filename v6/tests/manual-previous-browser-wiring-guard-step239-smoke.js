@@ -48,14 +48,12 @@ try {
       await commands.dispatchCommand(contracts.CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, { paneId: 'main' });
       const afterNextReplay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
       const afterNextChart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
-      const beforeDisabledViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId: 'main' });
-
-      previousButton.click();
+      const beforePreviousViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId: 'main' });
       document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'ArrowLeft' }));
       document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Backspace' }));
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-      const afterDisabledReplay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
-      const afterDisabledChart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
+      const afterKeyboardReplay = await commands.dispatchCommand(contracts.REPLAY_COMMANDS.GET_STATE);
+      const afterKeyboardChart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
 
       const previousResult = await commands.dispatchCommand(
         contracts.CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS,
@@ -73,15 +71,15 @@ try {
       const cursorTimestamp = Date.parse(afterPreviousReplay.cursorTime) / 1000;
 
       return {
-        afterDisabledChartBarCount: afterDisabledChart.bars.length,
-        afterDisabledReplay,
+        afterKeyboardChartBarCount: afterKeyboardChart.bars.length,
+        afterKeyboardReplay,
         afterNextChartBarCount: afterNextChart.bars.length,
         afterNextReplay,
         afterPreviousChartBarCount: afterPreviousChart.bars.length,
         afterPreviousChartMaxTimestamp: maxTimestamp(afterPreviousChart),
         afterPreviousReplay,
         afterPreviousViewport,
-        beforeDisabledViewport,
+        beforePreviousViewport,
         commandList,
         cursorTimestamp,
         initial,
@@ -105,21 +103,21 @@ try {
   assert.equal(value.afterNextReplay.cursorIndex, 2);
   assert.equal(value.afterNextReplay.status, 'ready');
 
-  assert.equal(value.afterDisabledReplay.cursorIndex, value.afterNextReplay.cursorIndex);
-  assert.equal(value.afterDisabledReplay.cursorTime, value.afterNextReplay.cursorTime);
-  assert.equal(value.afterDisabledChartBarCount, value.afterNextChartBarCount);
+  assert.equal(value.afterKeyboardReplay.cursorIndex, value.afterNextReplay.cursorIndex);
+  assert.equal(value.afterKeyboardReplay.cursorTime, value.afterNextReplay.cursorTime);
+  assert.equal(value.afterKeyboardChartBarCount, value.afterNextChartBarCount);
 
   assert.equal(value.previousResult.status, 'rewound', value.previousResult.error || 'manual previous should rewind');
   assert.equal(value.afterPreviousReplay.cursorIndex, 1);
   assert.equal(value.previousResult.rewound.replayState.cursorIndex, 1);
   assert.equal(value.previousRuntimeState.status, 'rewound');
   assert.equal(value.afterPreviousChartMaxTimestamp <= value.cursorTimestamp, true);
-  assert.equal(value.afterPreviousChartBarCount < value.afterDisabledChartBarCount, true);
+  assert.equal(value.afterPreviousChartBarCount < value.afterKeyboardChartBarCount, true);
 
-  assert.equal(value.beforeDisabledViewport.paneId, 'main');
+  assert.equal(value.beforePreviousViewport.paneId, 'main');
   assert.equal(value.afterPreviousViewport.paneId, 'main');
-  assert.equal(value.afterPreviousViewport.intent.origin, value.beforeDisabledViewport.intent.origin);
-  assert.equal(value.afterPreviousViewport.intent.span, value.beforeDisabledViewport.intent.span);
+  assert.equal(value.afterPreviousViewport.intent.origin, value.beforePreviousViewport.intent.origin);
+  assert.equal(value.afterPreviousViewport.intent.span, value.beforePreviousViewport.intent.span);
 } finally {
   await page.cleanup();
 }

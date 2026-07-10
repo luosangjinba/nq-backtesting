@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 241 - Manual Previous Transport
-  Enablement Readiness. V6 transport now tracks previous availability from
-  replay cursor state and exposes it for the reserved Previous button while
-  keeping the button disabled and actionless.
+- Latest completed roadmap step: Step 242 - Manual Previous Transport Button
+  Wiring. V6 transport now enables the Previous button only when replay reports
+  a previous bar, dispatching chart-entry manual Previous through the shell
+  action path while preserving replay/chart-data/viewport ownership.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,29 +43,62 @@
 
 ## Next Executable Steps
 
-### Step 242 - Manual Previous Transport Button Wiring
+### Step 243 - Manual Previous Transport Multi-Pane Regression
 
 Status: planned.
 
 Notes for execution:
 
-- wire `data-v6-transport-step-back` only when transport
-  `previousAvailable` is true;
-- dispatch `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS` through the existing
-  shell transport action path;
-- keep button disabled at replay start and after rewinding to cursor 0;
-- verify direct button click and keyboard scope if a keyboard shortcut is added;
-- keep replay, chart-entry, chart-data, and viewport ownership unchanged.
+- create a browser smoke with a two-pane layout and visible panes;
+- advance replay enough to enable Previous;
+- click the transport Previous button and verify all visible panes replace
+  chart-data to the rewound cursor;
+- verify each pane keeps its own viewport intent and OHLC/readiness surface;
+- do not add keyboard shortcuts, indicators, trading, order-ticket, prop-firm,
+  or journal behavior.
 
 Acceptance:
 
-- browser coverage proves button click rewinds one replay bar, replaces
-  chart-data, preserves viewport intent, and updates button disabled state;
-- at replay start the button is disabled and cannot dispatch;
+- browser coverage proves shell Previous dispatch sends visible pane ids and
+  rewinds visible panes together;
+- pane-local chart-data and viewport assertions are explicit;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 242.
+  in Step 243.
 
 ## Completed Steps
+
+### Step 242 - Manual Previous Transport Button Wiring
+
+Completed in this transport button wiring and browser coverage commit.
+
+Verification:
+
+- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `previous` action resolution in replay transport.
+- Previous transport dispatches `CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS`
+  through the existing shell action path.
+- Button is enabled and gets `data-v6-transport-action="previous"` only when
+  replay state reports `previousAvailable`.
+- Button is disabled and actionless at replay start and after rewinding to
+  cursor 0.
+- Previous dispatch receives visible pane payload enrichment, matching manual
+  Next.
+- Browser coverage proves button click rewinds replay, replaces chart-data,
+  preserves manual viewport intent, and updates button disabled/action state.
+- Did not add keyboard shortcuts or change viewport reset, indicators, trading
+  simulation, order tickets, prop firm rule engines, or journal workflows.
 
 ### Step 241 - Manual Previous Transport Enablement Readiness
 
