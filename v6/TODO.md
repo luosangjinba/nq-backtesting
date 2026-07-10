@@ -67,29 +67,29 @@
 
 ## Next Executable Steps
 
-### Step 268 - Daily Projection Integration
+### Step 269 - Weekly Projection Integration
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- connect chart-data projection to the Step 267 `session-calendar` daily bucket
+- connect chart-data projection to the Step 267 `session-calendar` weekly bucket
   boundary;
-- enable `1D` only after domain and browser projection coverage exists;
-- keep `1W` and `1M` planned/disabled;
+- enable `1W` only after domain and browser projection coverage exists;
+- keep `1M` planned/disabled;
 - keep seconds hidden until second-level source data exists;
 - keep replay source-bar driven;
-- do not add weekly/monthly projection, seconds, journal, order-ticket,
-  prop-firm, or indicator behavior.
+- do not add monthly projection, seconds, journal, order-ticket, prop-firm, or
+  indicator behavior.
 
 Acceptance:
 
-- Step 268 integration is documented and statically guarded;
-- daily projection groups source bars by session-calendar trading day buckets;
+- Step 269 integration is documented and statically guarded;
+- weekly projection groups source bars by session-calendar trading week buckets;
 - unsupported instruments reject explicitly;
-- selecting `1D` in the menu applies daily projection through the existing
+- selecting `1W` in the menu applies weekly projection through the existing
   display-timeframe command path;
-- `1W` and `1M` remain disabled.
+- `1M` remains disabled.
 
 ## Completed Steps
 
