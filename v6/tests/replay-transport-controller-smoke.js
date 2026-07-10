@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import {
   CHART_ENTRY_AUTO_PLAY_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
+  CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS,
   CHART_ENTRY_PROJECTION_APPLY_EVENTS,
   CHART_ENTRY_RESTART_COMMANDS,
   PLAYBACK_PERIOD_EVENTS,
@@ -98,6 +99,9 @@ function createFakeElement({
     setAttribute(name, value) {
       this[name] = value;
     },
+    removeAttribute(name) {
+      delete this[name];
+    },
   };
 }
 
@@ -134,6 +138,21 @@ const initialState = createReplayTransportState();
 assert.deepEqual(resolveReplayTransportAction('next', initialState), {
   command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
   nextState: initialState,
+});
+assert.deepEqual(resolveReplayTransportAction('previous', initialState), {
+  command: null,
+  nextState: initialState,
+  payload: undefined,
+});
+assert.deepEqual(resolveReplayTransportAction('previous', createReplayTransportState({
+  previousAvailable: true,
+  replayStatus: 'ended',
+})), {
+  command: CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS,
+  nextState: createReplayTransportState({
+    previousAvailable: true,
+    replayStatus: 'ended',
+  }),
 });
 const play = resolveReplayTransportAction('play-toggle', initialState);
 assert.equal(play.command, CHART_ENTRY_AUTO_PLAY_COMMANDS.START);
@@ -372,9 +391,17 @@ assert.equal(controller.getState().replayStatus, 'ready');
 assert.equal(controller.getState().previousAvailable, true);
 assert.equal(root.dataset.previousAvailable, 'true');
 assert.equal(previousButton.dataset.v6TransportPreviousAvailable, 'true');
-assert.equal(previousButton.disabled, true);
-assert.equal(previousButton['aria-disabled'], 'true');
+assert.equal(previousButton.dataset.v6TransportAction, 'previous');
+assert.equal(previousButton.disabled, false);
+assert.equal(previousButton['aria-disabled'], 'false');
 assert.equal(playButton['aria-label'], 'Pause replay');
+
+root.click(previousButton);
+await Promise.resolve();
+assert.deepEqual(dispatched.at(-1), {
+  command: CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS,
+  payload: { paneIds: ['main', 'secondary'] },
+});
 
 controller.setSpeed(4);
 await Promise.resolve();
@@ -394,6 +421,7 @@ eventListeners.get('replay:rewound')?.({
 assert.equal(controller.getState().previousAvailable, false);
 assert.equal(root.dataset.previousAvailable, 'false');
 assert.equal(previousButton.dataset.v6TransportPreviousAvailable, 'false');
+assert.equal(previousButton.dataset.v6TransportAction, undefined);
 assert.equal(previousButton.disabled, true);
 
 fakeDocument.keydown({ key: 'ArrowRight', target: root });

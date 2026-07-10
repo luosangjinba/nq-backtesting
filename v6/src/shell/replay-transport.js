@@ -3,6 +3,7 @@ import {
   CHART_ENTRY_AUTO_PLAY_EVENTS,
   CHART_ENTRY_MANUAL_NEXT_COMMANDS,
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
+  CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS,
   CHART_ENTRY_PROJECTION_APPLY_EVENTS,
   CHART_ENTRY_RESTART_COMMANDS,
   PLAYBACK_PERIOD_COMMANDS,
@@ -98,6 +99,18 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
         command: CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT,
         nextState: state,
       });
+    case 'previous':
+      if (!state.previousAvailable) {
+        return Object.freeze({
+          command: null,
+          nextState: createReplayTransportState(state),
+          payload: undefined,
+        });
+      }
+      return Object.freeze({
+        command: CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS,
+        nextState: state,
+      });
     case 'play-toggle': {
       const playing = !state.playing;
       return Object.freeze({
@@ -176,12 +189,18 @@ function updateDom(root, state) {
   const previousButton = root.querySelector('[data-v6-transport-step-back]');
   if (previousButton) {
     previousButton.dataset.v6TransportPreviousAvailable = String(state.previousAvailable);
-    previousButton.disabled = true;
-    previousButton.setAttribute('aria-disabled', 'true');
+    if (state.previousAvailable) {
+      previousButton.dataset.v6TransportAction = 'previous';
+    } else {
+      delete previousButton.dataset.v6TransportAction;
+      previousButton.removeAttribute?.('data-v6-transport-action');
+    }
+    previousButton.disabled = !state.previousAvailable;
+    previousButton.setAttribute('aria-disabled', String(!state.previousAvailable));
     previousButton.setAttribute('title', state.previousAvailable
-      ? 'Previous replay bar ready for transport wiring'
+      ? 'Previous replay bar'
       : 'Previous replay bar unavailable');
-    previousButton.classList.toggle('is-disabled', true);
+    previousButton.classList.toggle('is-disabled', !state.previousAvailable);
   }
   const playButton = root.querySelector('[data-v6-transport-action="play-toggle"]');
   if (playButton) {
@@ -296,6 +315,7 @@ export function mountReplayTransport(root, {
   function enrichReplayPanePayload(command, payload) {
     if (
       command !== CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT &&
+      command !== CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS.PREVIOUS &&
       command !== CHART_ENTRY_AUTO_PLAY_COMMANDS.START
     ) {
       return payload;
