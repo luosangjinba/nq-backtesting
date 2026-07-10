@@ -7,6 +7,7 @@ async function read(path) {
 
 const doc = await read('v6/docs/V6_TIMEFRAME_REPLAY_FOUNDATION_REGRESSION_PACK_STEP276.md');
 const index = await read('v6/docs/INDEX.md');
+const pack = await read('v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js');
 const selection = await read('v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP275.md');
 const step274Pack = await read('v6/tests/replay-gap-browser-regression-pack-step274-smoke.js');
 const todo = await read('v6/TODO.md');
@@ -23,6 +24,7 @@ const requiredMembers = [
 
 for (const member of requiredMembers) {
   assert.match(doc, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(pack, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
   assert.match(selection, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
@@ -40,6 +42,11 @@ for (const required of [
 assert.match(doc, /node v6\/tests\/timeframe-replay-foundation-regression-pack-step276-smoke\.js/);
 assert.match(index, /V6_TIMEFRAME_REPLAY_FOUNDATION_REGRESSION_PACK_STEP276/);
 assert.match(todo, /Step 276 - Timeframe\/Replay Foundation Regression Runner/);
+assert.match(pack, /const TESTS = Object\.freeze/);
+assert.match(pack, /\[timeframe-replay-foundation-pack\] start/);
+assert.match(pack, /\[timeframe-replay-foundation-pack\] passed/);
+assert.match(pack, /break;/);
+assert.match(pack, /process\.exit\(failed\.code \|\| 1\)/);
 assert.match(step274Pack, /manual-next-session-gap-browser-step258-smoke\.js/);
 assert.match(step274Pack, /htf-auto-play-replay-gap-browser-step273-smoke\.js/);
 
