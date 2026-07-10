@@ -244,6 +244,10 @@ Read this index before working on V6.
   history, session-aware HTF projection, and replay-gap coverage.
 - `v6/docs/V6_HTF_LEFTWARD_SOURCE_WINDOW_POLICY_STEP277.md`: accepted adaptive
   source-window sizing for high-timeframe leftward history extension.
+- `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`: accepted
+  phase-level plan for target-timeframe data infrastructure so high-timeframe
+  chart history can load target bars instead of large frontend `1m`
+  aggregation windows.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

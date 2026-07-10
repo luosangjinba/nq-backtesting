@@ -36,6 +36,10 @@
   Window Policy. High-timeframe leftward history now sizes source requests
   proportionally to the display timeframe while preserving hard caps for fetch,
   projection, cache, and chart series replacement work.
+- Latest completed planning step: Step 278 - Target Timeframe Data Phase Plan.
+  V6 accepted a phase-level target-TF data infrastructure plan so high-timeframe
+  chart browsing can load target bars from the data layer while replay
+  precision remains source-`1m` driven.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -71,15 +75,19 @@
 
 ## Next Executable Steps
 
-### Step 278 - Chart Foundation Next Slice Selection
+### Step 279 - Chart Foundation Next Slice Selection
 
 Status: proposed.
 
 Notes for execution:
 
-- audit current chart-foundation evidence after Step 276 runner stabilization;
+- audit current chart-foundation evidence after Step 278 target-TF data phase
+  planning;
 - choose one bounded next implementation slice based on manual testing friction,
   pack results, and remaining foundation priority;
+- strongly consider selecting Phase A - Target-Timeframe Data Contract And
+  Schema Discovery from
+  `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - prefer a concrete chart interaction/data/replay stability behavior over
   broad product features;
 - document the selected slice, owner boundaries, non-goals, and verification
@@ -89,12 +97,38 @@ Notes for execution:
 
 Acceptance:
 
-- Step 278 selects exactly one next bounded chart-foundation slice;
-- the selection references current evidence from Steps 264-277;
+- Step 279 selects exactly one next bounded chart-foundation slice;
+- the selection references current evidence from Steps 264-278;
 - the selected slice has clear owner boundaries and verification commands;
 - existing runtime/projection/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 278 - Target Timeframe Data Phase Plan
+
+Completed in this architecture planning commit series.
+
+Verification:
+
+- `node v6/tests/target-timeframe-data-phase-plan-step278-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`.
+- Added a phase-level plan for target timeframe data infrastructure.
+- The target architecture separates high-timeframe display/history data from
+  source `1m` replay precision data.
+- The plan breaks work into data contract/schema discovery, data-layer
+  aggregation, bar-data target-TF support, display-timeframe historical routing,
+  replay coordination, and optional materialization/maintenance.
+- Updated `v6/docs/V6_EXECUTION_ROADMAP.md` with Phase 6 - Target Timeframe
+  Data Infrastructure and moved Settings/Polish to Phase 7.
+- Did not change runtime behavior, database schema, API behavior,
+  display-timeframe projection, replay cursor movement, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, or
+  seconds behavior.
 
 ### Step 277 - HTF Leftward Source Window Policy
 

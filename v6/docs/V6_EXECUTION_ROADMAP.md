@@ -259,9 +259,30 @@ Gate:
 - drag/wheel on one pane does not mutate another pane's viewport intent;
 - multi-pane visible latency remains gated.
 
-## Phase 6 - Settings And Polish
+## Phase 6 - Target Timeframe Data Infrastructure
 
-Only after Phase 5 gates pass:
+Only after the existing display-timeframe and replay-gap gates are stable:
+
+- target timeframe data contract and schema discovery;
+- server/data-layer aggregation for supported minute, hour, daily, weekly, and
+  monthly bars;
+- bar-data runtime support for target-TF windows and cache metadata;
+- display-timeframe and leftward-history paths that request target bars for
+  high-timeframe browsing;
+- replay coordination that keeps source `1m` bars as the cursor/no-future/gap
+  authority.
+
+Gate:
+
+- high-timeframe leftward history uses target bars instead of large frontend
+  `1m` aggregation windows;
+- replay cursor movement and no-bar gap skipping remain source-driven;
+- browser-visible chart interactions stay responsive while older high-TF
+  history loads.
+
+## Phase 7 - Settings And Polish
+
+Only after Phase 6 gates pass:
 
 - Settings parity;
 - visual polish;
