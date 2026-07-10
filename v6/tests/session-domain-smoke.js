@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  advanceSessionIdsAfterExistingSessions,
   createReplaySession,
   getDefaultSessionInput,
   resetSessionIdsForTest,
@@ -91,5 +92,15 @@ assert.throws(
 );
 repository.clear();
 assert.equal(repository.getActive(), null);
+
+resetSessionIdsForTest();
+assert.equal(advanceSessionIdsAfterExistingSessions([
+  { id: 'custom-session' },
+  { id: 'v6-session-0002' },
+  { id: 'v6-session-0010' },
+]), 11);
+assert.equal(createReplaySession({
+  createdAt: '2026-07-04T03:00:00.000Z',
+}).id, 'v6-session-0011');
 
 console.log('v6 session domain smoke passed');

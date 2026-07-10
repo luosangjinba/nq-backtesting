@@ -57,6 +57,22 @@ function createSessionId() {
   return `v6-session-${sequence}`;
 }
 
+function parseGeneratedSessionSequence(id) {
+  const match = String(id || '').trim().match(/^v6-session-(\d+)$/);
+  return match ? Number(match[1]) : null;
+}
+
+export function advanceSessionIdsAfterExistingSessions(sessions = []) {
+  const maxSequence = sessions.reduce((maxValue, session) => {
+    const sequence = parseGeneratedSessionSequence(session?.id);
+    return Number.isFinite(sequence) ? Math.max(maxValue, sequence) : maxValue;
+  }, 0);
+  if (maxSequence >= nextSessionSequence) {
+    nextSessionSequence = maxSequence + 1;
+  }
+  return nextSessionSequence;
+}
+
 export function createReplaySession(input = {}) {
   const startTime = normalizeIsoTime(input.startTime, DEFAULT_SESSION_INPUT.startTime, 'startTime');
   const endTime = normalizeIsoTime(input.endTime, DEFAULT_SESSION_INPUT.endTime, 'endTime');

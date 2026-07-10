@@ -1,4 +1,7 @@
-import { createReplaySession } from './session-domain.js';
+import {
+  advanceSessionIdsAfterExistingSessions,
+  createReplaySession,
+} from './session-domain.js';
 import { getSessionCopyAllowedFields } from './session-copy-contract.js';
 
 function cloneSession(session) {
@@ -57,6 +60,7 @@ export function createInMemorySessionRepository({
     typeof store.load === 'function' ? store.load() : null,
   );
   const sessionsById = new Map(storedState.sessions.map((session) => [session.id, cloneSession(session)]));
+  advanceSessionIdsAfterExistingSessions(storedState.sessions);
   let activeSessionId = storedState.activeSessionId && sessionsById.has(storedState.activeSessionId)
     ? storedState.activeSessionId
     : null;

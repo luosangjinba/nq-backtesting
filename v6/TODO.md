@@ -60,6 +60,10 @@
   `16:59` to `18:00`, the next manual `Next` continues to `18:01` instead of
   stopping at the first post-break bar. The fix covers 1m source replay and HTF
   display projection paths such as 5m and 15m.
+- Latest Recent Sessions fix: 2026-07-10 persisted session metadata now advances
+  the generated `v6-session-000N` sequence on app boot, so creating sessions
+  after a reload no longer reuses old IDs and overwrites older Recent Sessions
+  rows.
 
 ## Next Executable Steps
 

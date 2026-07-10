@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { createReplaySession } from '../src/session/session-domain.js';
+import {
+  createReplaySession,
+  resetSessionIdsForTest,
+} from '../src/session/session-domain.js';
 import { createSessionMetadataStorage } from '../src/session/session-metadata-storage.js';
 import { createInMemorySessionRepository } from '../src/session/session-repository.js';
 
@@ -118,5 +121,38 @@ const wrongVersionRepository = createInMemorySessionRepository({
 });
 assert.deepEqual(wrongVersionRepository.list(), []);
 assert.equal(wrongVersionRepository.getActive(), null);
+
+resetSessionIdsForTest();
+const sequenceStorage = createMemoryStorage({
+  [storageKey]: JSON.stringify({
+    activeSessionId: 'v6-session-0002',
+    sessions: [
+      {
+        ...first,
+        id: 'v6-session-0001',
+      },
+      {
+        ...second,
+        id: 'v6-session-0002',
+      },
+    ],
+    version: 1,
+  }),
+});
+const sequenceRepository = createInMemorySessionRepository({
+  metadataStore: createSessionMetadataStorage({ storage: sequenceStorage, storageKey }),
+});
+const third = sequenceRepository.save(createReplaySession({
+  createdAt: '2026-06-03T09:00:00.000Z',
+  endTime: '2026-06-03T16:00:00.000Z',
+  startTime: '2026-06-03T09:30:00.000Z',
+  symbol: 'NQ',
+  timeframe: '1m',
+}));
+assert.equal(third.id, 'v6-session-0003');
+assert.deepEqual(
+  sequenceRepository.list().map((session) => session.id),
+  ['v6-session-0001', 'v6-session-0002', 'v6-session-0003'],
+);
 
 console.log('v6 session metadata storage smoke passed');
