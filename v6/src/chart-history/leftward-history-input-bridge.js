@@ -3,10 +3,12 @@ import {
   CHART_HISTORY_EVENTS,
   CHART_VIEWPORT_EVENTS,
   DISPLAY_TIMEFRAME_EVENTS,
+  PANE_COMMANDS,
   PANE_INTENT_RELOAD_VIEWPORT_EVENTS,
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
+import { planLeftwardTargetHistoryActivation } from './leftward-target-history-activation.js';
 
 export function connectLeftwardHistoryInputBridge({
   chartSurface,
@@ -15,6 +17,7 @@ export function connectLeftwardHistoryInputBridge({
   requestDelayMs = 500,
   setTimeoutFn = globalThis.setTimeout?.bind(globalThis),
   subscribeEvent = subscribeRuntimeEvent,
+  targetHistoryActivation = {},
 } = {}) {
   if (!chartSurface || typeof chartSurface.subscribeVisibleRangeChange !== 'function') {
     throw new Error('Leftward history input bridge requires a chart surface with visible range events.');
@@ -35,14 +38,59 @@ export function connectLeftwardHistoryInputBridge({
     pendingByPaneId.delete(paneId);
   }
 
+  async function paneActivationPayload(paneId) {
+    let pane = null;
+    try {
+      pane = await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
+    } catch {
+      return {};
+    }
+    const displayTimeframe = pane?.displayTimeframe;
+    if (displayTimeframe === null || displayTimeframe === undefined) return {};
+    const activation = planLeftwardTargetHistoryActivation({
+      displayTimeframe,
+      enabled: true,
+      minFixedMinutes: targetHistoryActivation.minFixedMinutes,
+      paneId,
+      sourceTimeframe: pane?.timeframe || targetHistoryActivation.sourceTimeframe || 1,
+    });
+    if (activation.status !== 'enabled') return {};
+    return {
+      displayTimeframe: activation.displayTimeframe,
+      targetHistory: activation.targetHistory,
+    };
+  }
+
+  function baseLeftExtensionPayload(paneId, visibleRange) {
+    return {
+      paneId,
+      visibleRange,
+    };
+  }
+
+  function dispatchLeftExtension(paneId, visibleRange) {
+    if (targetHistoryActivation.enabled === false) {
+      return dispatchCommand(
+        CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
+        baseLeftExtensionPayload(paneId, visibleRange),
+      );
+    }
+    return dispatchLeftExtensionWithActivation(paneId, visibleRange);
+  }
+
+  async function dispatchLeftExtensionWithActivation(paneId, visibleRange) {
+    const activationPayload = await paneActivationPayload(paneId);
+    return dispatchCommand(CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION, {
+      ...baseLeftExtensionPayload(paneId, visibleRange),
+      ...activationPayload,
+    });
+  }
+
   function dispatchPending(paneId) {
     const pending = pendingByPaneId.get(paneId);
     pendingByPaneId.delete(paneId);
     if (!active || !pending) return;
-    void Promise.resolve(dispatchCommand(CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION, {
-      paneId,
-      visibleRange: pending.visibleRange,
-    }));
+    void Promise.resolve(dispatchLeftExtension(paneId, pending.visibleRange));
   }
 
   function shouldRequest(visibleRange) {
@@ -56,10 +104,7 @@ export function connectLeftwardHistoryInputBridge({
     clearPending(paneId);
     const delayMs = Math.max(0, Number(requestDelayMs) || 0);
     if (delayMs === 0 || typeof setTimeoutFn !== 'function') {
-      void Promise.resolve(dispatchCommand(CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION, {
-        paneId,
-        visibleRange,
-      }));
+      void Promise.resolve(dispatchLeftExtension(paneId, visibleRange));
       return;
     }
     const timer = setTimeoutFn(() => dispatchPending(paneId), delayMs);

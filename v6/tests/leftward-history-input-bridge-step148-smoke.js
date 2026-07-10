@@ -48,6 +48,9 @@ const bridge = connectLeftwardHistoryInputBridge({
       eventListeners.delete(eventName);
     };
   },
+  targetHistoryActivation: {
+    enabled: false,
+  },
 });
 
 listener({ from: 2, paneId: 'main', to: 42 });
