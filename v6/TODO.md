@@ -40,6 +40,9 @@
   V6 accepted a phase-level target-TF data infrastructure plan so high-timeframe
   chart browsing can load target bars from the data layer while replay
   precision remains source-`1m` driven.
+- Latest completed selection step: Step 279 - Chart Foundation Next Slice
+  Selection. V6 selected Target-Timeframe Data Contract And Schema Discovery as
+  the next bounded implementation slice.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -75,34 +78,59 @@
 
 ## Next Executable Steps
 
-### Step 279 - Chart Foundation Next Slice Selection
+### Step 280 - Target-Timeframe Data Contract And Schema Discovery
 
 Status: proposed.
 
 Notes for execution:
 
-- audit current chart-foundation evidence after Step 278 target-TF data phase
-  planning;
-- choose one bounded next implementation slice based on manual testing friction,
-  pack results, and remaining foundation priority;
-- strongly consider selecting Phase A - Target-Timeframe Data Contract And
-  Schema Discovery from
+- implement Phase A from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- prefer a concrete chart interaction/data/replay stability behavior over
-  broad product features;
-- document the selected slice, owner boundaries, non-goals, and verification
-  commands before implementation starts;
-- do not add seconds, journal, order-ticket, prop-firm, indicator,
-  chart-engine, viewport, or projection behavior.
+- follow the selection in
+  `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP279.md`;
+- add a pure target-timeframe domain/contract for supported display ids:
+  `1/2/3/4/5/10/15/30m`, `1/2/4/8/12h`, `1D`, `1W`, `1M`;
+- define canonical ids for API/cache/chart-data/test use;
+- classify fixed-duration versus session-aware target timeframes;
+- document futures daily/weekly/monthly bucket semantics at contract level;
+- audit current V4/DuckDB source bars schema and V6 bars adapter inputs;
+- decide the initial target bars storage direction before implementing
+  aggregation;
+- do not change runtime behavior, database schema, API behavior,
+  display-timeframe projection, replay cursor movement, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, or
+  seconds behavior.
 
 Acceptance:
 
-- Step 279 selects exactly one next bounded chart-foundation slice;
-- the selection references current evidence from Steps 264-278;
-- the selected slice has clear owner boundaries and verification commands;
-- existing runtime/projection/pane/owner/boundary behavior remains unchanged.
+- supported target timeframe ids normalize consistently;
+- fixed-duration and session-aware target timeframe classifications are tested;
+- schema discovery notes identify the source bars boundary and initial storage
+  direction;
+- source `1m` replay bars remain the canonical replay cursor source;
+- no frontend owner requests target-TF bars yet.
 
 ## Completed Steps
+
+### Step 279 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit series.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step279-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP279.md`.
+- Selected Step 280 as Target-Timeframe Data Contract And Schema Discovery.
+- The selected slice follows Phase A from
+  `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`.
+- Runtime, API, database, display-timeframe projection, replay cursor movement,
+  chart viewport intent, chart-engine behavior, chart-data behavior, journal,
+  order-ticket, prop-firm, indicator, and seconds behavior remain unchanged.
 
 ### Step 278 - Target Timeframe Data Phase Plan
 

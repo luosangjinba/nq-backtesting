@@ -248,6 +248,9 @@ Read this index before working on V6.
   phase-level plan for target-timeframe data infrastructure so high-timeframe
   chart history can load target bars instead of large frontend `1m`
   aggregation windows.
+- `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP279.md`: selected
+  Target-Timeframe Data Contract And Schema Discovery as the next bounded
+  implementation slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
