@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 253 - Multi-Pane Chart Foundation
-  Regression Pack. V6 added a compact browser pack for pane data bootstrap,
-  replay append, viewport projection, leftward history, pane-local reset,
-  maximize/restore, display-timeframe active-pane targeting, and active
-  focus/readout coverage.
+- Latest completed roadmap step: Step 254 - Chart Foundation Next Slice
+  Selection. V6 selected Date Range / Loaded Boundary / Replay Entry Regression
+  Pack as the next bounded chart-foundation slice after multi-pane foundation
+  coverage was packed.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,27 +43,58 @@
 
 ## Next Executable Steps
 
-### Step 254 - Chart Foundation Next Slice Selection
+### Step 255 - Date Range / Loaded Boundary / Replay Entry Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 245-253 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, chart drag/scroll display,
-  date ranges, replay, multi-pane, or pane-local reset behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- add a compact pack runner for date-range and chart-entry browser/runtime
+  gates;
+- include date-range entry viewport alignment, real-date boundary metadata,
+  chart-entry initial visibility, playback-period boundary behavior, and
+  real-date leftward gap coverage;
+- document pack purpose, membership, and expected use;
+- keep the pack focused enough to run during date-range, boundary metadata,
+  chart-entry, bar-data, viewport, or replay bootstrap work;
+- add no runtime behavior unless the pack exposes a specific owner regression.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
+- date-range/boundary/chart-entry pack is documented and runnable;
+- pack membership is focused on session date range, loaded boundary metadata,
+  initial viewport alignment, replay bootstrap, playback-period boundary, and
+  real-date leftward extension behavior;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 254.
+  in Step 255.
 
 ## Completed Steps
+
+### Step 254 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step254-smoke.js`
+- `node v6/tests/multi-pane-chart-foundation-regression-pack-step253-static-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP254.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step254-smoke.js`.
+- Selected Step 255 as Date Range / Loaded Boundary / Replay Entry Regression
+  Pack.
+- Chose this pack because date-range entry, loaded boundary metadata,
+  chart-entry viewport alignment, replay bootstrap, playback-period boundary,
+  and real-date leftward extension remain the next foundation chain needing a
+  focused regression entry.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 253 - Multi-Pane Chart Foundation Regression Pack
 
