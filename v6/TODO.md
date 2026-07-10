@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 264 - Display Timeframe Capability
-  Registry. V6 now has a display-timeframe capability model for the target
-  minute/hour/day/week/month interval set, renders the top interval menu from
-  that registry, keeps only `1m`, `5m`, and `15m` enabled, and hides seconds by
-  default until second-level source data exists.
+- Latest completed roadmap step: Step 265 - Minute/Hour Timeframe Unlock.
+  V6 now enables the target minute/hour display intervals that can be projected
+  from 1m source bars: `2m`, `3m`, `4m`, `10m`, `30m`, `1h`, `2h`, `4h`, `8h`,
+  and `12h`. Seconds stay hidden, and `1D`, `1W`, and `1M` remain disabled until
+  session-aware aggregation is designed.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -70,7 +70,7 @@
 
 ### Step 265 - Minute/Hour Timeframe Unlock
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -95,6 +95,35 @@ Acceptance:
 - daily/weekly/monthly targets remain disabled.
 
 ## Completed Steps
+
+### Step 265 - Minute/Hour Timeframe Unlock
+
+Completed in this unlock commit series.
+
+Verification:
+
+- `node v6/tests/minute-hour-timeframe-unlock-step265-static-smoke.js`
+- `node v6/tests/minute-hour-timeframe-projection-step265-smoke.js`
+- `node v6/tests/minute-hour-timeframe-browser-step265-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/display-timeframe-projection-domain-step193-smoke.js`
+- `node v6/tests/display-timeframe-capability-registry-step264-static-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_MINUTE_HOUR_TIMEFRAME_UNLOCK_STEP265.md`.
+- Added `v6/tests/minute-hour-timeframe-projection-step265-smoke.js`.
+- Added `v6/tests/minute-hour-timeframe-browser-step265-smoke.js`.
+- Enabled visible minute/hour capability targets that project from 1m source
+  data: `2m`, `3m`, `4m`, `10m`, `30m`, `1h`, `2h`, `4h`, `8h`, `12h`.
+- Kept seconds hidden and kept `1D`, `1W`, `1M` planned/disabled.
+- Did not change replay, bar-data, chart-data ownership, journal,
+  order-ticket, prop-firm, indicator, or daily/weekly/monthly behavior.
 
 ### Step 264 - Display Timeframe Capability Registry
 

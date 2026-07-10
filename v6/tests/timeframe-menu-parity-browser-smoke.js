@@ -33,14 +33,14 @@ try {
         plannedIds,
         secondsHidden: !headings.includes('Seconds') && !menu.textContent.includes('1 second'),
         selectMissing: !document.querySelector('[data-v6-display-timeframe-select]'),
-        unsupportedDisabled: disabledTexts.includes('2 minutes') && disabledTexts.includes('1 hour') && disabledTexts.includes('1 day'),
+        unsupportedDisabled: disabledTexts.includes('1 day') && disabledTexts.includes('1 week') && disabledTexts.includes('1 month'),
       };
     })()))()
   `));
 
   assert.deepEqual(value.headings, ['Minutes', 'Hours', 'Days', 'Weeks', 'Months']);
-  assert.deepEqual(value.enabledValues, ['1', '5', '15']);
-  assert.deepEqual(value.plannedIds, ['2m', '3m', '4m', '10m', '30m', '1h', '2h', '4h', '8h', '12h', '1D', '1W', '1M']);
+  assert.deepEqual(value.enabledValues, ['1', '2', '3', '4', '5', '10', '15', '30', '60', '120', '240', '480', '720']);
+  assert.deepEqual(value.plannedIds, ['1D', '1W', '1M']);
   assert.equal(value.customDisabled, true);
   assert.equal(value.secondsHidden, true);
   assert.equal(value.unsupportedDisabled, true);
