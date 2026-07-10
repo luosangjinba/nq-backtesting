@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 255 - Date Range / Loaded Boundary /
-  Replay Entry Regression Pack. V6 added a compact browser/runtime pack for
-  date-range entry viewport alignment, real-date boundary metadata, chart-entry
-  initial visibility, playback-period boundary behavior, real-date leftward
-  gaps, and bar/chart boundary runtime metadata.
+- Latest completed roadmap step: Step 256 - Chart Foundation Next Slice
+  Selection. V6 selected Visible K-Line Latency Regression Pack as the next
+  bounded chart-foundation slice after date-range/boundary/chart-entry coverage
+  was packed.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -44,27 +43,54 @@
 
 ## Next Executable Steps
 
-### Step 256 - Chart Foundation Next Slice Selection
+### Step 257 - Visible K-Line Latency Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 245-255 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, chart drag/scroll display,
-  date ranges, replay, multi-pane, or pane-local reset behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- add a compact pack runner for visible latency browser/runtime gates;
+- include cache-hit visible latency, mixed-timeframe visible latency,
+  manual-next HTF visible latency, auto-play HTF visible latency,
+  replay-safe leftward history latency, and the visible-latency domain gate;
+- document pack purpose, membership, and expected use;
+- keep the pack focused enough to run during chart/replay/chart-data/viewport
+  latency-sensitive work;
+- add no runtime behavior unless the pack exposes a specific owner regression.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
+- visible K-line latency pack is documented and runnable;
+- pack membership is focused on replay/chart-data/chart-surface/viewport/bar-data
+  latency-sensitive foundation behavior;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 256.
+  in Step 257.
 
 ## Completed Steps
+
+### Step 256 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step256-smoke.js`
+- `node v6/tests/date-range-boundary-entry-regression-pack-step255-static-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP256.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step256-smoke.js`.
+- Selected Step 257 as Visible K-Line Latency Regression Pack.
+- Chose this pack because V6 has focused packs for replay/transport,
+  multi-pane, and date-range chains, while visible K-line delay remains the
+  other roadmap-level V5 failure class requiring a focused regression entry.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 255 - Date Range / Loaded Boundary / Replay Entry Regression Pack
 
