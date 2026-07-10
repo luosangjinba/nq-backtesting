@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 247 - Date-Range Entry Viewport
-  Alignment Audit/Gate. V6 now has a browser gate proving a non-default
-  date-range session opens with chart data inside the initial visible logical
-  range while preserving selected-date versus actual-chart-start wording.
+- Latest completed roadmap step: Step 248 - Chart Foundation Next Slice
+  Selection. V6 selected Drag/Scroll Display Stability Reaudit/Gate as the next
+  bounded chart-foundation slice after replay/transport and date-range entry
+  gates passed.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,29 +43,62 @@
 
 ## Next Executable Steps
 
-### Step 248 - Chart Foundation Next Slice Selection
+### Step 249 - Drag/Scroll Display Stability Reaudit/Gate
 
 Status: planned.
 
 Notes for execution:
 
-- review Step 245-247 results and current chart-foundation TODO direction;
-- select one bounded next slice across chart loading, TF switching, drag/scroll
-  display, date ranges, replay, multi-pane, or pane-local reset behavior;
-- keep the selected slice small enough for implementation and browser coverage
-  in the following step;
-- do not start indicators, trading simulation, order tickets, prop-firm rules,
-  or journal behavior.
+- document the current drag/scroll coverage matrix for drag release, fast right
+  drag, drag-triggered history extension, replay-safe history latency, prepend
+  compensation, and manual projection suppression;
+- identify any missing browser-visible gate for sticky drag, jump-back, or
+  delayed history under quick user input;
+- add a focused gate if the missing behavior can be automated reliably;
+- if a gate exposes a regression, fix it in the owning module only;
+- keep current K-line visual stability ahead of immediate leftward loading.
 
 Acceptance:
 
-- next slice is documented in TODO/session notes with owner boundary and stop
-  conditions;
-- selected verification commands are listed before implementation starts;
+- drag/scroll owner-path audit/gate is documented and covered;
+- existing drag/history smokes are either consolidated by a new gate or listed
+  as sufficient with explicit residual risk;
+- any runtime change is confined to chart surface, manual-wall input,
+  leftward-history input, chart-history, bar-data, chart-data, or chart
+  viewport ownership as appropriate;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 248.
+  in Step 249.
 
 ## Completed Steps
+
+### Step 248 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step248-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP248.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step248-smoke.js`.
+- Selected Step 249 as Drag/Scroll Display Stability Reaudit/Gate.
+- Chose drag/scroll display stability because Steps 245-247 already cover
+  replay/transport, Manual Previous, leftward history, multi-pane bootstrap,
+  reset view, display-timeframe switching, and date-range entry alignment, while
+  sticky/jumpy chart interaction remains the highest-value user-experience old
+  debt inside chart foundation.
+- Step 249 should audit the existing post-Step-186, Step 149, Step 187, and
+  chart-pack drag/history gates before adding any runtime behavior.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 247 - Date-Range Entry Viewport Alignment Audit/Gate
 
