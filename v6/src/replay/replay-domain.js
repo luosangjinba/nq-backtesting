@@ -143,6 +143,34 @@ export function resetReplayState(state) {
   });
 }
 
+export function setReplayCursorTime(state, cursorTime) {
+  if (!state) {
+    throw new Error('Replay state is required.');
+  }
+  const session = {
+    endTime: state.endTime,
+    id: state.sessionId,
+    startTime: state.startTime,
+    symbol: state.symbol,
+    timeframe: state.timeframe,
+  };
+  const startMs = normalizeUnixMilliseconds(state.startTime, { fieldName: 'Replay startTime' });
+  const endMs = normalizeUnixMilliseconds(state.endTime, { fieldName: 'Replay endTime' });
+  const cursorMs = normalizeUnixMilliseconds(cursorTime, { fieldName: 'Replay cursorTime' });
+  const boundedCursorMs = Math.min(Math.max(cursorMs, startMs), endMs);
+  const ended = boundedCursorMs >= endMs;
+  return Object.freeze({
+    ...state,
+    cursorTime: toIso(boundedCursorMs),
+    endTime: session.endTime,
+    sessionId: session.id,
+    startTime: session.startTime,
+    status: ended && state.status !== 'paused' ? 'ended' : state.status,
+    symbol: session.symbol,
+    timeframe: session.timeframe,
+  });
+}
+
 export function markReplayPlaying(state) {
   if (!state) {
     throw new Error('Replay state is required.');

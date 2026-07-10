@@ -35,6 +35,7 @@ try {
           barCount: chart.bars?.length || 0,
           displayTimeframe: pane.displayTimeframe,
           historyRecentCount: history.recentRequests.length,
+          latestTimestamp: chart.bars?.at(-1)?.timestamp || null,
           oldestTimestamp: chart.bars?.[0]?.timestamp || null,
           visibleRange: surface.panes[0]?.snapshot?.visibleLogicalRange || null,
         };
@@ -53,7 +54,7 @@ try {
       while (
         (
           after.historyRecentCount <= before.historyRecentCount ||
-          Number(after.visibleRange?.from) < 0
+          Number(after.oldestTimestamp) >= Number(before.oldestTimestamp)
         ) &&
         performance.now() < deadline
       ) {
@@ -74,7 +75,9 @@ try {
   assert.equal(value.after.displayTimeframe, 15);
   assert.equal(value.after.historyRecentCount > value.before.historyRecentCount, true);
   assert.equal(value.after.barCount > 0, true);
-  assert.equal(Number(value.after.visibleRange?.from) >= 0, true);
+  assert.equal(Number(value.after.oldestTimestamp) < Number(value.before.oldestTimestamp), true);
+  assert.equal(Number(value.after.latestTimestamp) >= Number(value.before.latestTimestamp), true);
+  assert.equal(Number(value.after.visibleRange?.to) > 0, true);
 } finally {
   await page.cleanup();
 }

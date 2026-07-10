@@ -7,6 +7,7 @@ import {
   nextReplayState,
   previousReplayState,
   resetReplayState,
+  setReplayCursorTime,
 } from './replay-domain.js';
 
 function cloneState(state) {
@@ -79,6 +80,15 @@ export function createReplayRuntime({
     return resetState;
   }
 
+  function setCursorTime(payload = {}) {
+    const nextState = setState(setReplayCursorTime(requireState(), payload.cursorTime ?? payload.time));
+    emit(REPLAY_EVENTS.ADVANCED, nextState);
+    if (nextState.status === 'ended') {
+      emit(REPLAY_EVENTS.PLAYBACK_CHANGED, nextState);
+    }
+    return nextState;
+  }
+
   function pause() {
     stopTimer();
     const paused = setState(markReplayPaused(requireState()));
@@ -106,6 +116,7 @@ export function createReplayRuntime({
       registerCommand(REPLAY_COMMANDS.NEXT, next),
       registerCommand(REPLAY_COMMANDS.PREVIOUS, previous),
       registerCommand(REPLAY_COMMANDS.RESET, reset),
+      registerCommand(REPLAY_COMMANDS.SET_CURSOR_TIME, setCursorTime),
       registerCommand(REPLAY_COMMANDS.PLAY, play),
       registerCommand(REPLAY_COMMANDS.PAUSE, pause)
     );

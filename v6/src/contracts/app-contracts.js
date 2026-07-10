@@ -159,6 +159,7 @@ export const REPLAY_COMMANDS = Object.freeze({
   PLAY: 'replay.play',
   PREVIOUS: 'replay.previous',
   RESET: 'replay.reset',
+  SET_CURSOR_TIME: 'replay.setCursorTime',
 });
 
 export const REPLAY_EVENTS = Object.freeze({

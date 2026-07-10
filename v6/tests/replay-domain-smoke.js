@@ -6,6 +6,7 @@ import {
   nextReplayState,
   previousReplayState,
   resetReplayState,
+  setReplayCursorTime,
 } from '../src/replay/replay-domain.js';
 
 const session = {
@@ -21,6 +22,7 @@ assert.deepEqual(initial, {
   cursorIndex: 0,
   cursorTime: '2026-06-01T09:30:00.000Z',
   endTime: '2026-06-01T09:33:00.000Z',
+  previousAvailable: false,
   revealedCount: 1,
   sessionId: 'session-1',
   startTime: '2026-06-01T09:30:00.000Z',
@@ -62,6 +64,12 @@ assert.equal(markReplayPaused(second).status, 'paused');
 assert.equal(markReplayPlaying(ended), ended);
 
 assert.deepEqual(resetReplayState(ended), initial);
+
+const gapAdjusted = setReplayCursorTime(second, '2026-06-01T09:33:00.000Z');
+assert.equal(gapAdjusted.cursorIndex, second.cursorIndex);
+assert.equal(gapAdjusted.revealedCount, second.revealedCount);
+assert.equal(gapAdjusted.cursorTime, '2026-06-01T09:33:00.000Z');
+assert.equal(gapAdjusted.status, 'ended');
 
 assert.throws(
   () => createReplayStateFromSession({ ...session, timeframe: '1h' }),

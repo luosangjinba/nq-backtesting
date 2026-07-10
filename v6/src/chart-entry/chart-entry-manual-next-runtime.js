@@ -13,8 +13,13 @@ import { resolvePlaybackPeriodStepCount } from './chart-entry-playback-period-po
 import {
   normalizeMinuteTimeframe,
   normalizeUnixSeconds,
+  normalizeUnixMilliseconds,
   summarizeProjectionSource,
+  TIME_DOMAIN_CONSTANTS,
 } from '../time-domain/time-domain.js';
+
+const GAP_SCAN_WINDOW_BARS = 240;
+const GAP_SCAN_LIMIT = 24;
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -90,6 +95,16 @@ function parseReplayTimestamp(value, fieldName) {
   }
 }
 
+function parseReplayMilliseconds(value, fieldName) {
+  try {
+    return normalizeUnixMilliseconds(value, {
+      fieldName: `Chart entry manual next ${fieldName}`,
+    });
+  } catch {
+    throw new Error(`Chart entry manual next ${fieldName} must be a valid date/time.`);
+  }
+}
+
 function resolveSourceTimeframe(replayState = {}) {
   return normalizeTimeframeMinutes(replayState.timeframe);
 }
@@ -125,6 +140,33 @@ function pickCursorBars(record, replayState) {
   const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
   const exact = bars.filter((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
   return exact.length ? exact : bars.slice(-1);
+}
+
+function hasExactCursorBar(record, replayState) {
+  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
+  return cloneBars(record?.bars).some((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
+}
+
+function firstBarAfterCursor(record, replayState) {
+  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
+  return cloneBars(record?.bars)
+    .filter((bar) => Number(bar.timestamp ?? bar.time) > cursorTimestamp)
+    .sort((left, right) => Number(left.timestamp ?? left.time) - Number(right.timestamp ?? right.time))
+    .at(0) || null;
+}
+
+function createForwardGapWindowPayload(replayState, pane = {}, anchorMs) {
+  const instrument = pane.instrument || replayState?.symbol;
+  if (!instrument) {
+    throw new Error('Chart entry manual next requires replay symbol.');
+  }
+  return {
+    anchor: new Date(anchorMs).toISOString(),
+    count: GAP_SCAN_WINDOW_BARS,
+    direction: 'forward',
+    instrument: String(instrument).toUpperCase(),
+    timeframe: resolveSourceTimeframe(replayState),
+  };
 }
 
 function pickCursorProjectionBars(record, replayState) {
@@ -175,6 +217,36 @@ async function createAppendBars({
     bars: pickCursorBars(loadedWindow, replayState),
     projectionRecord: null,
   };
+}
+
+async function alignReplayStateToNextAvailableBar(replayState, pane = {}) {
+  if (!hasCommand(REPLAY_COMMANDS.SET_CURSOR_TIME)) {
+    return replayState;
+  }
+  const cursorMs = parseReplayMilliseconds(replayState.cursorTime, 'cursorTime');
+  const endMs = parseReplayMilliseconds(replayState.endTime, 'endTime');
+  if (cursorMs >= endMs) {
+    return replayState;
+  }
+  const sourceTimeframe = resolveSourceTimeframe(replayState);
+  let anchorMs = cursorMs + (sourceTimeframe * TIME_DOMAIN_CONSTANTS.MINUTE_MS);
+  for (let gapScanIndex = 0; gapScanIndex < GAP_SCAN_LIMIT && anchorMs <= endMs; gapScanIndex += 1) {
+    const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, createForwardGapWindowPayload(
+      replayState,
+      pane,
+      anchorMs,
+    ));
+    const nextBar = firstBarAfterCursor(loadedWindow, replayState);
+    if (nextBar) {
+      return dispatchCommand(REPLAY_COMMANDS.SET_CURSOR_TIME, {
+        cursorTime: new Date(Number(nextBar.timestamp ?? nextBar.time) * 1000).toISOString(),
+      });
+    }
+    anchorMs += GAP_SCAN_WINDOW_BARS * sourceTimeframe * TIME_DOMAIN_CONSTANTS.MINUTE_MS;
+  }
+  return dispatchCommand(REPLAY_COMMANDS.SET_CURSOR_TIME, {
+    cursorTime: replayState.endTime,
+  });
 }
 
 function normalizePaneId(value = 'main') {
@@ -244,10 +316,19 @@ export function createChartEntryManualNextRuntime() {
       let appendedBarCount = 0;
       for (let index = 0; index < stepCount; index += 1) {
         replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
+        const firstPane = await getPaneRecord(paneIds[0]);
+        const firstWindowPayload = createNextWindowPayload(replayState, firstPane || {});
+        let firstLoadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, firstWindowPayload);
+        if (!hasExactCursorBar(firstLoadedWindow, replayState)) {
+          replayState = await alignReplayStateToNextAvailableBar(replayState, firstPane || {});
+          firstLoadedWindow = null;
+        }
         for (const paneId of paneIds) {
           const pane = await getPaneRecord(paneId);
           const windowPayload = createNextWindowPayload(replayState, pane || {});
-          const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
+          const loadedWindow = firstLoadedWindow && paneId === paneIds[0]
+            ? firstLoadedWindow
+            : await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
           const appendBars = await createAppendBars({
             loadedWindow,
             pane: pane || {},

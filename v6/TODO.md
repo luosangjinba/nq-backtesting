@@ -55,6 +55,10 @@
   chart/data-axis literal UTC timestamps instead of browser-local timestamps.
   Creating a session at `2026-05-04 09:30` now stores `2026-05-04T09:30:00Z`
   instead of shifting to the operator machine timezone.
+- Latest replay gap fix: 2026-07-10 manual-next replay now skips non-trading
+  gaps to the next available source bar instead of repeatedly appending the
+  last bar before a session break. The fix covers 1m source replay and HTF
+  display projection paths such as 5m and 15m.
 
 ## Next Executable Steps
 
@@ -79,6 +83,33 @@ Acceptance:
   in Step 258.
 
 ## Completed Steps
+
+### Inserted Replay Gap Fix - Manual Next Session Break Advance
+
+Completed as a bugfix before Step 258 selection.
+
+Verification:
+
+- `node v6/tests/replay-domain-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/manual-next-session-gap-step258-smoke.js`
+- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/auto-play-htf-projection-step199-smoke.js`
+- `node v6/tests/manual-next-htf-visible-latency-browser-step197-smoke.js`
+- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`
+
+Notes:
+
+- Replay runtime now exposes a bounded cursor-time setter so chart-entry logic
+  can align replay state to the next real source bar without owning replay
+  internals.
+- Manual next probes the requested cursor first, then scans forward in bounded
+  chunks only when the requested cursor falls inside a no-bar session gap.
+- HTF display charts keep their existing session-origin bucket alignment while
+  the projected bucket must include the next available source bar after the gap.
 
 ### Inserted Stability Fix - Wheel-Zoom Leftward Prepend Range Stability
 
