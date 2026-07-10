@@ -7,6 +7,9 @@ const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const runtimePack = await readFile('v6/tests/htf-replay-gap-regression-pack-step272-smoke.js', 'utf8');
 const manualBrowser = await readFile('v6/tests/manual-next-session-gap-browser-step258-smoke.js', 'utf8');
 const autoBrowser = await readFile('v6/tests/auto-play-session-gap-browser-step263-smoke.js', 'utf8');
+const fixture = await readFile('v6/tests/helpers/htf-replay-gap-browser-fixture.js', 'utf8');
+const htfManualBrowser = await readFile('v6/tests/htf-manual-next-replay-gap-browser-step273-smoke.js', 'utf8');
+const htfAutoBrowser = await readFile('v6/tests/htf-auto-play-replay-gap-browser-step273-smoke.js', 'utf8');
 
 assert.match(doc, /HTF Browser Replay Gap Pack/);
 assert.match(doc, /`1D`, `1W`, and `1M`/);
@@ -17,5 +20,11 @@ assert.match(index, /V6_HTF_BROWSER_REPLAY_GAP_PACK_STEP273/);
 assert.match(runtimePack, /HTF_TARGETS = Object\.freeze\(\['1D', '1W', '1M'\]\)/);
 assert.match(manualBrowser, /manual next session gap browser/);
 assert.match(autoBrowser, /auto-play session gap browser/);
+assert.match(fixture, /const HTF_TARGETS = Object\.freeze\(\['1D', '1W', '1M'\]\)/);
+assert.match(fixture, /CHART_ENTRY_MANUAL_NEXT_COMMANDS\.NEXT/);
+assert.match(fixture, /CHART_ENTRY_AUTO_PLAY_COMMANDS\.START/);
+assert.match(fixture, /lastSourceTimestamp/);
+assert.match(htfManualBrowser, /runHtfReplayGapBrowserPack\(\{ mode: 'manual' \}\)/);
+assert.match(htfAutoBrowser, /runHtfReplayGapBrowserPack\(\{ mode: 'auto' \}\)/);
 
 console.log('v6 HTF browser replay gap pack step273 static smoke passed');
