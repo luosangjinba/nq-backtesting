@@ -67,25 +67,30 @@
 
 ## Next Executable Steps
 
-### Step 264 - Chart Foundation Next Slice Selection
+### Step 264 - Display Timeframe Capability Registry
 
-Status: planned.
+Status: in progress.
 
 Notes for execution:
 
-- review Steps 245-263 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, chart drag/scroll display,
-  date ranges, replay, multi-pane, pane-local reset, or latency behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- establish a display-timeframe capability registry before unlocking more
+  interval options;
+- keep seconds hidden by default until second-level source data exists;
+- target product intervals are minutes `1m`, `2m`, `3m`, `4m`, `5m`, `10m`,
+  `15m`, `30m`; hours `1h`, `2h`, `4h`, `8h`, `12h`; daily `1D`, weekly `1W`,
+  and monthly `1M`;
+- keep runtime behavior unchanged in this registry step: only `1m`, `5m`, and
+  `15m` remain enabled;
+- render the interval menu from the registry in a later substep without changing
+  replay, chart-data, bar-data, pane, journal, order-ticket, prop-firm, or
+  indicator behavior.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
-- no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 264.
+- phase-level interval capability plan is documented;
+- registry contract is guarded by static smoke coverage;
+- menu rendering can consume the registry while seconds stay hidden;
+- no new display timeframe is enabled in Step 264.
 
 ## Completed Steps
 
