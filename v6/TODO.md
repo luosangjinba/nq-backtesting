@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 275 - Chart Foundation Next Slice
-  Selection. V6 selected a Timeframe/Replay Foundation Regression Runner as the
-  next bounded chart-foundation slice, grouping interval switching, projection,
-  leftward history, session-aware HTF projection, and replay-gap browser gates
-  without changing runtime behavior.
+- Latest completed roadmap step: Step 276 - Timeframe/Replay Foundation
+  Regression Runner. V6 now has one browser command covering display timeframe
+  switching, interval menu parity, display-timeframe leftward history,
+  daily/weekly/monthly projection, and the Step 274 replay-gap browser pack.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -68,31 +67,56 @@
 
 ## Next Executable Steps
 
-### Step 276 - Timeframe/Replay Foundation Regression Runner
+### Step 277 - Chart Foundation Next Slice Selection
 
 Status: proposed.
 
 Notes for execution:
 
-- add a compact browser pack runner in `v6/tests/`;
-- include display timeframe switching/menu parity, display-timeframe leftward
-  history, daily/weekly/monthly projection browser gates, and the Step 274
-  replay-gap browser runner;
-- run members sequentially as child Node processes with start/pass/fail logs;
-- stop at the first failure and exit with the failing process code;
-- add a static smoke that guards runner membership and selected scope;
+- audit current chart-foundation evidence after Step 276 runner stabilization;
+- choose one bounded next implementation slice based on manual testing friction,
+  pack results, and remaining foundation priority;
+- prefer a concrete chart interaction/data/replay stability behavior over
+  broad product features;
+- document the selected slice, owner boundaries, non-goals, and verification
+  commands before implementation starts;
 - do not add seconds, journal, order-ticket, prop-firm, indicator,
   chart-engine, viewport, or projection behavior.
 
 Acceptance:
 
-- one command runs the selected timeframe/replay browser foundation gates;
-- static smoke guards runner membership;
-- the runner includes the Step 274 replay-gap browser pack instead of
-  duplicating its member list;
+- Step 277 selects exactly one next bounded chart-foundation slice;
+- the selection references current evidence from Steps 264-276;
+- the selected slice has clear owner boundaries and verification commands;
 - existing runtime/projection/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 276 - Timeframe/Replay Foundation Regression Runner
+
+Completed in this browser regression-pack commit series.
+
+Verification:
+
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-static-smoke.js`
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+- `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_TIMEFRAME_REPLAY_FOUNDATION_REGRESSION_PACK_STEP276.md`.
+- Added `v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+  as a compact browser pack for display timeframe switching, menu parity,
+  display-timeframe leftward history, daily/weekly/monthly projection, and
+  replay-gap coverage.
+- Added static coverage that guards runner membership and requires the Step 274
+  replay-gap browser pack to remain a single reused member rather than copied
+  into Step 276.
+- Did not change display-timeframe, chart-data projection, chart-history,
+  replay, bar-data, chart-engine, viewport, pane, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior.
 
 ### Step 275 - Chart Foundation Next Slice Selection
 
