@@ -269,6 +269,9 @@ Read this index before working on V6.
 - `v6/docs/V6_CHART_HISTORY_TARGET_LEFTWARD_OPT_IN_STEP285.md`: accepted the
   first controlled chart-history leftward target-bars opt-in path while keeping
   default leftward history on source-window projection.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_ACTIVATION_STEP286.md`: accepted
+  the first high-timeframe chart-history activation policy that emits
+  target-history payloads from the leftward input bridge.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

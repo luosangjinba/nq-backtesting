@@ -69,6 +69,11 @@
   explicitly prepend target bars through bar-data target commands while default
   leftward history remains source-window projection and source bars stay clean
   for `1m` round trips.
+- Latest completed target-TF activation step: Step 286 - High-Timeframe
+  Target-History Activation Policy. V6 chart-history input bridge now emits
+  `targetHistory.enabled` for high display timeframes through an explicit
+  activation policy, with disabled/low-TF source fallback and runtime fallback
+  diagnostics.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -104,7 +109,7 @@
 
 ## Next Executable Steps
 
-### Step 286 - High-Timeframe Target-History Activation Policy
+### Step 287 - Activated Target-History Browser Integration
 
 Status: proposed.
 
@@ -112,33 +117,63 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
-  contract;
-- use the Step 284/285 `targetHistory.enabled` payload paths as the runtime
-  activation surface;
-- load target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not direct
-  target API calls;
-- define the first real activation policy for high display timeframes, likely
-  in the chart-history input/bridge path or a small activation planner;
-- keep activation explicit, inspectable, and easy to disable;
+- use Step 286 `leftward-target-history-activation.js` and bridge activation;
+- validate target-history activation through the real chart surface/browser
+  route, not just unit-level bridge/runtime calls;
+- prove a high-TF left drag emits target-history payloads and loads/prepends
+  target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`;
+- keep source-window projection fallback observable when activation is disabled
+  or target loading fails;
 - preserve source bars so high-TF-to-`1m` round trips still work;
-- keep source-window projection as fallback when target-history activation is
-  disabled or target loading fails;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- high-TF chart-history activation can produce `targetHistory.enabled` payloads
-  through an owner boundary without direct target API calls;
-- default/disabled activation remains source-window projection;
+- browser/integration coverage proves high-TF leftward extension activates
+  target history through the bridge;
+- disabled/low-TF behavior remains source-window projection;
 - source-bar preservation and TF round-trip behavior remain covered;
-- target-history activation/fallback diagnostics are visible in runtime state or
-  smoke-test output;
+- activation/fallback diagnostics remain visible in runtime state or smoke-test
+  output;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 286 - High-Timeframe Target-History Activation Policy
+
+Completed in this target-history activation commit series.
+
+Verification:
+
+- `node v6/tests/leftward-target-history-activation-step286-smoke.js`
+- `node v6/tests/leftward-history-input-target-activation-step286-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-step148-smoke.js`
+- `node v6/tests/leftward-history-target-opt-in-step285-smoke.js`
+- `node v6/tests/leftward-history-target-fallback-step285-smoke.js`
+- `node v6/tests/leftward-history-target-default-step285-smoke.js`
+- `node v6/tests/leftward-history-extension-step148-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/display-target-history-boundary-step283-static-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/bar-data-target-runtime-step282-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added high-timeframe activation policy for chart-history leftward requests.
+- `1h` and above fixed timeframes activate target history; `1D`/`1W`/`1M`
+  activate as session-aware target timeframes.
+- Low TF and disabled activation remain source-window projection.
+- Bridge activation reads pane display timeframe via `PANE_COMMANDS.GET_BY_ID`
+  and emits only `CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION` payloads.
+- Runtime fallback diagnostics now expose target-history failure reason on
+  source fallback states.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 285 - Chart-History Target-Timeframe Leftward Opt-In
 
