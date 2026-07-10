@@ -18,7 +18,8 @@ from urllib.parse import urlparse, parse_qs
 
 from server.price_lookup import query_price
 from server import bars_service
-from server.bars_handler import handle_bars_request, handle_price_request
+from server import target_bars_service
+from server.bars_handler import handle_bars_request, handle_price_request, handle_target_bars_request
 from server.economic_calendar_handler import handle_economic_events_request
 from server.maintenance_handler import handle_data_maintenance_post_request
 from server import local_env_service
@@ -423,6 +424,10 @@ def query_v4_bars(db_path, table, instrument, start, end, tf, padding=19):
     return bars_service.query_v4_bars(db_path, table, instrument, start, end, tf, padding)
 
 
+def query_target_bars(db_path, table, instrument, start, end, tf):
+    return target_bars_service.query_target_bars(db_path, table, instrument, start, end, tf)
+
+
 class V4Handler(BaseHTTPRequestHandler):
     def _send_json(self, data, status=200, cors_origin="*"):
         self.send_response(status)
@@ -446,6 +451,8 @@ class V4Handler(BaseHTTPRequestHandler):
             self._send_json({"status": "ok", "version": "4.0"})
         elif path == "/v4/bars":
             self._handle_bars(params)
+        elif path == "/v4/target_bars":
+            self._handle_target_bars(params)
         elif path == "/v4/price":
             self._handle_price(params)
         elif path == "/v4/economic_events":
@@ -522,6 +529,16 @@ class V4Handler(BaseHTTPRequestHandler):
             table_name=TABLE_NAME,
             validate_range=_validate_bars_request_range,
             query_bars=query_v4_bars,
+        )
+
+    def _handle_target_bars(self, params):
+        handle_target_bars_request(
+            params,
+            send_json=self._send_json,
+            send_error=self._send_error,
+            db_path=DB_PATH,
+            table_name=TABLE_NAME,
+            query_target_bars=query_target_bars,
         )
 
     def _handle_price(self, params):

@@ -33,6 +33,28 @@ def handle_bars_request(params, *, send_json, send_error, db_path, table_name, v
         send_error(str(exc), 500)
 
 
+def handle_target_bars_request(params, *, send_json, send_error, db_path, table_name, query_target_bars):
+    start = params.get("start", [None])[0]
+    end = params.get("end", [None])[0]
+    instrument = params.get("instrument", ["NQ"])[0]
+    tf = params.get("tf", [None])[0]
+
+    if not start or not end:
+        send_error("Missing 'start' and/or 'end' parameter (format: YYYY-MM-DD HH:MM)")
+        return
+    if not tf:
+        send_error("Missing 'tf' parameter")
+        return
+
+    try:
+        record = query_target_bars(db_path, table_name, instrument, start, end, tf)
+        send_json(record)
+    except ValueError as exc:
+        send_error(str(exc), 400)
+    except Exception as exc:
+        send_error(str(exc), 500)
+
+
 def handle_price_request(params, *, send_json, send_error, parse_price_request, query_price):
     try:
         timestamp, instrument = parse_price_request(params)
