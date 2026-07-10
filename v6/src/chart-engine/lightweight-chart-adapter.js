@@ -127,6 +127,7 @@ export function createLightweightChartAdapter({
     const priceScale = typeof series.priceScale === 'function'
       ? series.priceScale()
       : chart.priceScale?.('right');
+    priceScale?.applyOptions?.({ autoScale: false });
     priceScale?.applyOptions?.({ autoScale: true });
     return snapshot();
   }

@@ -16,6 +16,9 @@ outside the visible price range until the user moved the chart.
 - Triggered price-scale autoscale reset after non-manual viewport projections,
   covering initial session entry and reset view without resetting during manual
   horizontal drag.
+- Forced autoscale recalculation by toggling `autoScale` off/on and scheduling
+  a second reset after chart layout settles, so opening an existing session from
+  Recent Sessions does not keep the previous session price axis.
 - Added `v6/tests/session-switch-price-scale-browser-smoke.js`.
 
 ## Verification

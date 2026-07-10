@@ -44,8 +44,8 @@
 - Latest session-switch fix: 2026-07-10 price scale reset on non-manual
   viewport projection. Opening a second session or pressing reset view no longer
   inherits the previous session's price axis; chart surface now asks the chart
-  host to autoscale price after default projections while preserving manual
-  horizontal drag behavior.
+  host to autoscale price after default projections, repeats that autoscale
+  after chart layout settles, and preserves manual horizontal drag behavior.
 
 ## Next Executable Steps
 

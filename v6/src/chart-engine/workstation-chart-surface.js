@@ -165,6 +165,7 @@ export function mountWorkstationChartSurface(root, {
   let destroyed = false;
   let maximizedPaneId = null;
   let pendingLayoutResizeFrame = null;
+  const pendingPriceScaleResetFrames = new Map();
   let readoutPaneId = null;
   let restoreLayoutSnapshot = null;
   let activeUserRangeGestures = 0;
@@ -525,6 +526,28 @@ export function mountWorkstationChartSurface(root, {
     return pendingLayoutResizeFrame;
   }
 
+  function resetPriceScale(paneId) {
+    manager.resetPriceScale?.(paneId);
+    if (typeof requestAnimationFrame !== 'function') {
+      return null;
+    }
+    const existingFrame = pendingPriceScaleResetFrames.get(paneId);
+    if (existingFrame !== undefined && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(existingFrame);
+    }
+    const frame = requestAnimationFrame(() => {
+      const nextFrame = requestAnimationFrame(() => {
+        pendingPriceScaleResetFrames.delete(paneId);
+        if (!destroyed && hostsByPaneId.has(paneId)) {
+          manager.resetPriceScale?.(paneId);
+        }
+      });
+      pendingPriceScaleResetFrames.set(paneId, nextFrame);
+    });
+    pendingPriceScaleResetFrames.set(paneId, frame);
+    return frame;
+  }
+
   function normalizeLayoutSnapshot(snapshot = {}) {
     const mode = normalizeLayoutMode(snapshot.mode);
     const variant = normalizeLayoutVariant(mode, snapshot.variant);
@@ -720,7 +743,7 @@ export function mountWorkstationChartSurface(root, {
         to: record.projection.to,
       });
       if (record.projection.origin !== 'manual') {
-        manager.resetPriceScale?.(recordPaneId);
+        resetPriceScale(recordPaneId);
       }
       return snapshot;
     },
@@ -754,6 +777,12 @@ export function mountWorkstationChartSurface(root, {
         cancelAnimationFrame(pendingLayoutResizeFrame);
         pendingLayoutResizeFrame = null;
       }
+      if (typeof cancelAnimationFrame === 'function') {
+        for (const frame of pendingPriceScaleResetFrames.values()) {
+          cancelAnimationFrame(frame);
+        }
+      }
+      pendingPriceScaleResetFrames.clear();
       unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       hosts.forEach((host) => {

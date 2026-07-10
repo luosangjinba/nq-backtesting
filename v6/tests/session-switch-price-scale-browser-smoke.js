@@ -103,6 +103,14 @@ try {
       const secondSurface = root.__v6WorkstationChartSurface.getState();
       const secondSpread = sampleCandleVerticalSpread();
 
+      document.querySelector('[data-v6-dashboard-toggle]').click();
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const rowOpenButton = document.querySelector('[data-v6-dashboard-open-session="' + first.id + '"]');
+      rowOpenButton.click();
+      const reopenedFirstLoaded = await waitForSessionChart(first.id);
+      const reopenedFirstSurface = root.__v6WorkstationChartSurface.getState();
+      const reopenedFirstSpread = sampleCandleVerticalSpread();
+
       document.querySelector('[data-v6-reset-view][data-v6-reset-pane-id="main"]').click();
       const resetDeadline = performance.now() + 3000;
       let resetViewport = await commands.dispatchCommand(contracts.CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId: 'main' });
@@ -134,6 +142,13 @@ try {
           sessionId: second.id,
           spread: secondSpread,
         },
+        reopenedFirst: {
+          appliedSessionId: reopenedFirstLoaded.applyState.applied?.sessionId || null,
+          barCount: reopenedFirstLoaded.chart.bars?.length || 0,
+          latestVisible: latestVisible(reopenedFirstLoaded.chart, reopenedFirstSurface),
+          sessionId: first.id,
+          spread: reopenedFirstSpread,
+        },
       };
     })()))()
   `));
@@ -148,6 +163,11 @@ try {
   assert.equal(value.second.latestVisible, true);
   assert.equal(value.second.spread.candlePixels > 0, true);
   assert.equal(value.second.spread.verticalSpread > 80, true);
+  assert.equal(value.reopenedFirst.appliedSessionId, value.reopenedFirst.sessionId);
+  assert.equal(value.reopenedFirst.barCount > 0, true);
+  assert.equal(value.reopenedFirst.latestVisible, true);
+  assert.equal(value.reopenedFirst.spread.candlePixels > 0, true);
+  assert.equal(value.reopenedFirst.spread.verticalSpread > 80, true);
   assert.equal(value.reset.viewportOrigin, 'default');
   assert.equal(value.reset.latestVisible, true);
   assert.equal(value.reset.spread.verticalSpread > 80, true);
