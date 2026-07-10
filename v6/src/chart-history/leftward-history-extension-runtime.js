@@ -386,6 +386,7 @@ export function createLeftwardHistoryExtensionRuntime({
       let loadedWindow = null;
       let loadedBars = [];
       let emptyGapScans = 0;
+      let targetHistoryFallback = null;
 
       if (payload.targetHistory?.enabled) {
         const targetRequestKey = createTargetRequestKey(paneId, {
@@ -447,6 +448,12 @@ export function createLeftwardHistoryExtensionRuntime({
           emitEvent?.(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, getState().extension);
           return getState();
         }
+        targetHistoryFallback = {
+          errorMessage: targetPrepend.errorMessage || null,
+          reason: targetPrepend.reason || 'target-history-fallback',
+          status: targetPrepend.status || 'fallback',
+          window: targetPrepend.window || null,
+        };
       }
 
       while (true) {
@@ -544,6 +551,7 @@ export function createLeftwardHistoryExtensionRuntime({
           projectionSource: summarizeProjectionSource(prependBars.projectionRecord),
           reason: null,
           status: 'loaded',
+          targetHistory: targetHistoryFallback,
         },
         status: 'loaded',
       };

@@ -91,7 +91,12 @@ assert.deepEqual(sourceFetchCalls[0], {
   start: '2026-06-01 09:10',
   timeframe: 1,
 });
-assert.equal(state.extension.targetHistory, null);
+assert.deepEqual(state.extension.targetHistory, {
+  errorMessage: 'planned target history failure',
+  reason: 'target-history-load-failed',
+  status: 'fallback',
+  window: null,
+});
 assert.equal(state.extension.projectionSource.owner, 'runtime.chart-data-projection');
 assert.equal(state.extension.projectionSource.sourceTimeframe, 1);
 assert.equal(state.extension.projectionSource.targetTimeframe, 5);
