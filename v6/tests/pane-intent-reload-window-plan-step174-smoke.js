@@ -22,20 +22,23 @@ const plan = createReplaySafeReloadWindowPlan({
 });
 
 assert.deepEqual(plan, {
+  displayTimeframe: 5,
   noFuture: true,
   paneId: 'main',
   reason: 'symbol',
+  sessionStartTime: null,
   source: 'pane-intent',
+  sourceTimeframe: 1,
   window: {
     anchor: '2026-06-01T16:30:00.000Z',
     bounded: true,
     direction: 'backward',
     end: '2026-06-01 16:30',
-    estimatedBars: 4,
+    estimatedBars: 20,
     instrument: 'NQ',
     requestCap: 'replay-cursor',
-    start: '2026-06-01 16:15',
-    timeframe: 5,
+    start: '2026-06-01 16:11',
+    timeframe: 1,
   },
 });
 assert.equal(Object.isFrozen(plan), true);
@@ -64,9 +67,27 @@ assert.deepEqual(multiPlans.map((record) => record.window.end), [
   '2026-06-01 09:30',
 ]);
 assert.deepEqual(multiPlans.map((record) => record.window.start), [
-  '2026-06-01 09:25',
+  '2026-06-01 09:21',
   '2026-06-01 09:29',
 ]);
+
+const dailyPlan = createReplaySafeReloadWindowPlan({
+  count: 2,
+  reloadIntent: {
+    displayTimeframe: '1D',
+    instrument: 'NQ',
+    paneId: 'main',
+    reason: 'interval',
+    source: 'pane-intent',
+  },
+  replayState: {
+    cursorTime: '2026-06-01T16:30:00.000Z',
+  },
+});
+assert.equal(dailyPlan.displayTimeframe, '1D');
+assert.equal(dailyPlan.sourceTimeframe, 1);
+assert.equal(dailyPlan.window.estimatedBars, 2500);
+assert.equal(dailyPlan.window.timeframe, 1);
 
 assert.throws(
   () => createReplaySafeReloadWindowPlan({ reloadIntent, replayState: {} }),

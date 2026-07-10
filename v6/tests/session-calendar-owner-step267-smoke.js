@@ -28,12 +28,13 @@ for (const forbidden of [
   assert.equal(domain.includes(forbidden), false, `session-calendar domain must not depend on ${forbidden}`);
 }
 
-for (const id of ['1D', '1W', '1M']) {
+for (const id of ['1W', '1M']) {
   assert.match(
     capabilities,
     new RegExp(`id: '${id}'[\\s\\S]*?sourceRequirement: 'session-calendar'[\\s\\S]*?status: 'planned'`),
   );
 }
+assert.match(capabilities, /id: '1D'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'/);
 
 assert.match(projectionDomain, /resolveTradingDayBucket/);
 assert.equal(displayRuntime.includes('session-calendar'), false);

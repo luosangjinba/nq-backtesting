@@ -113,6 +113,14 @@ assert.equal(intervalIntentEvents.length, 2);
 assert.deepEqual(intervalIntentEvents[1], changedInterval);
 assert.equal(displayTimeframeEvents.length, 1);
 
+const changedDailyInterval = await dispatchCommand(PANE_COMMANDS.SET_INTERVAL_INTENT, {
+  displayTimeframe: '1D',
+  paneId: 'pane-review',
+});
+assert.equal(changedDailyInterval.displayTimeframe, '1D');
+assert.equal(intervalIntentEvents.length, 3);
+assert.deepEqual(intervalIntentEvents[2], changedDailyInterval);
+
 await assert.rejects(
   () => dispatchCommand(PANE_COMMANDS.SET_DISPLAY_TIMEFRAME, {
     displayTimeframe: 0,

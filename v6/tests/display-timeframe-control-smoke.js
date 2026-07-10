@@ -63,6 +63,10 @@ assert.deepEqual(dispatched.at(-1), {
 assert.equal(root.dataset.displayTimeframe, '15');
 assert.equal(root.dataset.v6DisplayTimeframePaneId, 'secondary');
 
+assert.equal(control.setDisplayTimeframe('1D'), '1D');
+assert.equal(control.getValue(), '1D');
+assert.equal(root.dataset.displayTimeframe, '1D');
+
 control.destroy();
 
 console.log('v6 display timeframe control smoke passed');

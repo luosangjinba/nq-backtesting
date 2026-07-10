@@ -2,9 +2,11 @@ import { DISPLAY_TIMEFRAME_COMMANDS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 
 function normalizeDisplayTimeframe(value) {
+  const text = String(value ?? '').trim().toUpperCase();
+  if (text === '1D') return text;
   const timeframe = Number(value);
   if (!Number.isInteger(timeframe) || timeframe <= 0) {
-    throw new Error('Display timeframe control value must be a positive integer.');
+    throw new Error('Display timeframe control value must be a positive integer or 1D.');
   }
   return timeframe;
 }
@@ -41,6 +43,7 @@ export function mountDisplayTimeframeControl(root, {
   let currentTargetPaneId = normalizePaneId(root.dataset.v6DisplayTimeframePaneId || targetPaneId);
 
   function formatTimeframe(value) {
+    if (String(value).toUpperCase() === '1D') return '1D';
     return `${value}m`;
   }
 
@@ -70,7 +73,7 @@ export function mountDisplayTimeframeControl(root, {
       readout.textContent = formatTimeframe(currentValue);
     }
     options.forEach((option) => {
-      option.setAttribute('aria-checked', String(normalizeDisplayTimeframe(option.dataset.v6DisplayTimeframeOption) === currentValue));
+      option.setAttribute('aria-checked', String(String(normalizeDisplayTimeframe(option.dataset.v6DisplayTimeframeOption)) === String(currentValue)));
     });
   }
 

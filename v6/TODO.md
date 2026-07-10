@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 267 - Session Calendar Boundary. V6 added
-  a pure `session-calendar` domain for NQ/ES trading day, week, and month
-  bucket boundaries on the chart-axis UTC `18:00` session roll. `1D`, `1W`, and
-  `1M` remain disabled, seconds remain hidden, and projection/runtime behavior
-  is unchanged.
+- Latest completed roadmap step: Step 268 - Daily Projection Integration. V6
+  now enables `1D` display projection through chart-data projection consuming
+  `session-calendar` trading day buckets. `1W` and `1M` remain disabled, seconds
+  remain hidden, and replay remains source-bar driven.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -70,7 +69,7 @@
 
 ### Step 268 - Daily Projection Integration
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -93,6 +92,42 @@ Acceptance:
 - `1W` and `1M` remain disabled.
 
 ## Completed Steps
+
+### Step 268 - Daily Projection Integration
+
+Completed in this daily projection commit series.
+
+Verification:
+
+- `node v6/tests/daily-projection-integration-step268-static-smoke.js`
+- `node v6/tests/daily-projection-domain-step268-smoke.js`
+- `node v6/tests/daily-projection-browser-step268-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/pane-model-smoke.js`
+- `node v6/tests/pane-runtime-smoke.js`
+- `node v6/tests/pane-intent-reload-model-step172-smoke.js`
+- `node v6/tests/pane-intent-reload-window-plan-step174-smoke.js`
+- `node v6/tests/display-timeframe-projection-domain-step193-smoke.js`
+- `node v6/tests/minute-hour-timeframe-projection-step265-smoke.js`
+- `node v6/tests/chart-data-projection-owner-step194-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_DAILY_PROJECTION_INTEGRATION_STEP268.md`.
+- Added daily projection support to `chart-data-projection` via
+  `session-calendar` trading day buckets.
+- Enabled `1D` in the display-timeframe capability/menu model.
+- Kept `1W` and `1M` planned/disabled and kept seconds hidden.
+- Allowed pane/display-timeframe intent plumbing to carry `1D` without treating
+  it as `1440m`.
+- Did not change weekly/monthly projection, seconds, journal, order-ticket,
+  prop-firm, or indicator behavior.
 
 ### Step 267 - Session Calendar Boundary
 

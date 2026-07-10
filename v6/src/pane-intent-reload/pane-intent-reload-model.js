@@ -25,9 +25,11 @@ function normalizeInstrument(instrument = '') {
 }
 
 function normalizeDisplayTimeframe(displayTimeframe) {
+  const text = String(displayTimeframe ?? '').trim().toUpperCase();
+  if (text === '1D') return text;
   const normalized = Number(displayTimeframe);
   if (!Number.isInteger(normalized) || normalized <= 0) {
-    throw new Error('Pane intent reload displayTimeframe must be a positive integer.');
+    throw new Error('Pane intent reload displayTimeframe must be a positive integer or 1D.');
   }
   return normalized;
 }

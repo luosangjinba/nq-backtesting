@@ -197,8 +197,8 @@ const forbiddenChartDataOwnershipPatterns = [
 
 const forbiddenChartDataProjectionOwnershipPatterns = [
   {
-    pattern: /from\s+['"][^'"]*(chart-engine|replay|bar-data\/bar-data-runtime|viewport|shell|runtime\/app-runtime|session|vendor|lightweight)[^'"]*['"]/i,
-    reason: 'V6 chart-data-projection modules must remain pure and not import runtimes, UI, session, vendor, or chart engine modules.',
+    pattern: /from\s+['"][^'"]*(chart-engine|replay|bar-data\/bar-data-runtime|viewport|shell|runtime\/app-runtime|session(?!-calendar)|vendor|lightweight)[^'"]*['"]/i,
+    reason: 'V6 chart-data-projection modules must remain pure and not import runtimes, UI, session state, vendor, or chart engine modules.',
   },
   {
     pattern: /\b(document|window|HTMLElement|replayCursor|replayRuntime|barDataRuntime|viewportIntent|viewportRuntime|createChart|setData|updateSeries|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,

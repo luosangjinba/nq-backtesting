@@ -17,7 +17,6 @@ for (const helper of [
 }
 
 for (const capability of [
-  ['1D', 'day'],
   ['1W', 'week'],
   ['1M', 'month'],
 ]) {
@@ -27,8 +26,12 @@ for (const capability of [
     new RegExp(`id: '${id}'[\\s\\S]*?projectionMode: 'session-aware'[\\s\\S]*?sourceRequirement: 'session-calendar'[\\s\\S]*?status: 'planned'[\\s\\S]*?unit: '${unit}'`),
   );
 }
+assert.match(
+  capabilities,
+  /id: '1D'[\s\S]*?projectionMode: 'session-aware'[\s\S]*?status: 'enabled'[\s\S]*?unit: 'day'/,
+);
 
-assert.match(menuSmoke, /plannedIds, \['1D', '1W', '1M'\]/);
+assert.match(menuSmoke, /plannedIds, \['1W', '1M'\]/);
 assert.match(projectionDomain, /normalizeMinuteTimeframe\(targetTimeframe/);
 assert.match(projectionDomain, /resolveDisplayBucketStart/);
 assert.match(projectionDomain, /resolveTradingDayBucket/);

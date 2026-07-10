@@ -216,8 +216,9 @@ const DISPLAY_TIMEFRAME_CAPABILITIES = Object.freeze([
     label: '1 day',
     multiplier: 1,
     projectionMode: 'session-aware',
+    runtimeValue: '1D',
     sourceRequirement: 'session-calendar',
-    status: 'planned',
+    status: 'enabled',
     unit: 'day',
     visible: true,
   },
@@ -282,7 +283,8 @@ export function createDisplayTimeframeMenuGroups() {
 }
 
 export function findDisplayTimeframeCapabilityByRuntimeValue(value) {
-  const runtimeValue = Number(value);
+  const text = String(value ?? '').trim().toUpperCase();
+  const runtimeValue = text === '1D' ? text : Number(value);
   return getDisplayTimeframeCapabilities()
-    .find((capability) => capability.runtimeValue === runtimeValue) || null;
+    .find((capability) => String(capability.runtimeValue) === String(runtimeValue)) || null;
 }

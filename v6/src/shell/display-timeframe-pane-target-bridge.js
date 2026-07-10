@@ -7,6 +7,10 @@ function resolvePaneIdFromPane(pane = {}) {
 }
 
 function resolveDisplayTimeframeFromPane(pane = {}) {
+  const text = String(pane.displayTimeframe || '').trim().toUpperCase();
+  if (text === '1D') {
+    return text;
+  }
   const displayTimeframe = Number(pane.displayTimeframe);
   if (!Number.isInteger(displayTimeframe) || displayTimeframe <= 0) {
     return null;

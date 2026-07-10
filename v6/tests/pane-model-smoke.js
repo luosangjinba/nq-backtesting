@@ -39,6 +39,7 @@ assert.deepEqual(Object.keys(inactivePane).sort(), Object.keys(defaultPane).sort
 assert.equal(inactivePane.instrument, 'ES');
 assert.equal(normalizePaneInstrument(' nq '), 'NQ');
 assert.equal(normalizePaneDisplayTimeframe('15'), 15);
+assert.equal(normalizePaneDisplayTimeframe('1D'), '1D');
 
 const store = createPaneStore({
   initialPanes: [defaultPane, inactivePane],

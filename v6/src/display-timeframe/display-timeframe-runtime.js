@@ -47,6 +47,7 @@ export function createDisplayTimeframeRuntime({
     const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
       bars: sourceRecord.bars,
       cursorTimestamp,
+      instrument: targetPane.instrument,
       paneId: targetPane.id,
       sessionStartTimestamp: 0,
       sourceTimeframe,

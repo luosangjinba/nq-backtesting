@@ -51,6 +51,7 @@ assert.deepEqual(
     { id: '4h', runtimeValue: 240 },
     { id: '8h', runtimeValue: 480 },
     { id: '12h', runtimeValue: 720 },
+    { id: '1D', runtimeValue: '1D' },
   ],
 );
 
@@ -74,6 +75,7 @@ assert.equal(findDisplayTimeframeCapabilityByRuntimeValue(15)?.id, '15m');
 assert.equal(findDisplayTimeframeCapabilityByRuntimeValue(30)?.id, '30m');
 assert.equal(findDisplayTimeframeCapabilityByRuntimeValue(60)?.id, '1h');
 assert.equal(findDisplayTimeframeCapabilityByRuntimeValue(720)?.id, '12h');
+assert.equal(findDisplayTimeframeCapabilityByRuntimeValue('1D')?.id, '1D');
 assert.equal(findDisplayTimeframeCapabilityByRuntimeValue(1440), null);
 
 console.log('v6 display timeframe capabilities smoke passed');
