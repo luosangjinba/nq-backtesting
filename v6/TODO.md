@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 274 - Replay Gap Browser Regression
-  Runner. V6 now has one browser regression command for the replay no-bar gap
-  coverage introduced by Steps 258, 263, and 273, spanning 1m, 5m/15m, and
-  `1D`/`1W`/`1M` manual-next and auto-play paths.
+- Latest completed roadmap step: Step 275 - Chart Foundation Next Slice
+  Selection. V6 selected a Timeframe/Replay Foundation Regression Runner as the
+  next bounded chart-foundation slice, grouping interval switching, projection,
+  leftward history, session-aware HTF projection, and replay-gap browser gates
+  without changing runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -67,29 +68,53 @@
 
 ## Next Executable Steps
 
-### Step 275 - Chart Foundation Next Slice Selection
+### Step 276 - Timeframe/Replay Foundation Regression Runner
 
 Status: proposed.
 
 Notes for execution:
 
-- audit the current chart foundation after replay-gap hardening;
-- choose one bounded next implementation slice based on current stability
-  evidence, manual testing friction, and existing open TODO direction;
-- prefer chart-foundation behavior over adding more replay-gap variants unless
-  a concrete uncovered replay gap is found;
-- document the selected slice, acceptance, non-goals, and required smoke gates;
+- add a compact browser pack runner in `v6/tests/`;
+- include display timeframe switching/menu parity, display-timeframe leftward
+  history, daily/weekly/monthly projection browser gates, and the Step 274
+  replay-gap browser runner;
+- run members sequentially as child Node processes with start/pass/fail logs;
+- stop at the first failure and exit with the failing process code;
+- add a static smoke that guards runner membership and selected scope;
 - do not add seconds, journal, order-ticket, prop-firm, indicator,
   chart-engine, viewport, or projection behavior.
 
 Acceptance:
 
-- Step 275 selects exactly one next bounded chart-foundation slice;
-- the selection references current evidence from Steps 258-274;
-- the selected slice has clear owner boundaries and verification commands;
+- one command runs the selected timeframe/replay browser foundation gates;
+- static smoke guards runner membership;
+- the runner includes the Step 274 replay-gap browser pack instead of
+  duplicating its member list;
 - existing runtime/projection/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 275 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit series.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step275-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP275.md`.
+- Selected Step 276 as Timeframe/Replay Foundation Regression Runner.
+- The selected runner should include existing browser gates for display
+  timeframe switching, interval-menu parity, display-timeframe leftward history,
+  daily/weekly/monthly projection, and the Step 274 replay-gap browser pack.
+- Explicitly avoided adding more replay-gap variants, new timeframes, seconds,
+  indicators, trading, prop-firm, journal, chart-engine, viewport, or runtime
+  behavior in Step 275.
 
 ### Step 274 - Replay Gap Browser Regression Runner
 
