@@ -28,9 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 250 - Chart Foundation Next Slice
-  Selection. V6 selected Multi-Pane Active Focus Chain Gate as the next bounded
-  chart-foundation slice after drag/scroll stability was consolidated.
+- Latest completed roadmap step: Step 251 - Multi-Pane Active Focus Chain
+  Gate. V6 added a browser-visible chain gate for active pane visual focus,
+  pane runtime state, top toolbar symbol/timeframe presentation, pane-local
+  OHLC headers, and active-pane display-timeframe command targeting.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -42,32 +43,59 @@
 
 ## Next Executable Steps
 
-### Step 251 - Multi-Pane Active Focus Chain Gate
+### Step 252 - Chart Foundation Next Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- document or gate the active-pane focus chain from chart host pointer action
-  through pane runtime and shell readouts;
-- ensure visible active-pane outline/state and pane runtime active id agree;
-- ensure toolbar symbol/timeframe mirrors the active pane only;
-- ensure pane-local OHLC headers remain isolated across panes;
-- ensure display-timeframe command targeting follows the active pane;
-- add a focused browser gate or compact pack if current coverage is too
-  distributed;
-- fix only the owning module if the gate exposes a regression.
+- review Steps 245-251 and select the next bounded chart-foundation slice;
+- stay inside chart loading, timeframe switching, chart drag/scroll display,
+  date ranges, replay, multi-pane, or pane-local reset behavior;
+- account for old UX debt without jumping ahead to indicators, trading
+  simulation, prop-firm logic, or journal workflows;
+- list verification before implementation begins.
 
 Acceptance:
 
-- multi-pane active focus/readout chain is documented and covered;
-- any runtime change is confined to chart surface, pane runtime, pane active
-  surface bridge, shell toolbar presentation, display-timeframe control, or
-  pane status readout ownership as appropriate;
+- one next slice is selected with owner boundaries and verification;
+- runtime behavior is unchanged in the selection step;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 251.
+  in Step 252.
 
 ## Completed Steps
+
+### Step 251 - Multi-Pane Active Focus Chain Gate
+
+Completed in this browser gate commit.
+
+Verification:
+
+- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/pane-active-visual-outline-browser-smoke.js`
+- `node v6/tests/pane-active-surface-bridge-step207-smoke.js`
+- `node v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`
+- `node v6/tests/pane-local-header-state-browser-step210-smoke.js`
+- `node v6/tests/top-symbol-active-pane-browser-step212-smoke.js`
+- `node v6/tests/chart-browser-regression-pack.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_MULTI_PANE_ACTIVE_FOCUS_CHAIN_STEP251.md`.
+- Added `v6/tests/multi-pane-active-focus-chain-step251-smoke.js`.
+- The gate verifies visible active-pane outline/state, pane runtime active id,
+  top toolbar symbol/timeframe presentation, pane-local OHLC headers, and
+  display-timeframe command targeting in one triple-pane browser flow.
+- Confirmed a toolbar timeframe change targets the active secondary pane only
+  and leaves main/tertiary chart-data records unchanged.
+- Added the Step 251 chain gate to the chart browser regression pack.
+- No runtime fix was needed.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 250 - Chart Foundation Next Slice Selection
 
