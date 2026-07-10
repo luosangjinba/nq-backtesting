@@ -28,11 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 266 - Session-Aware Higher Timeframe
-  Selection. V6 selected a future `session-calendar` boundary as owner for
-  `1D`, `1W`, and `1M` trading day/week/month bucket semantics before enabling
-  those intervals. Daily/weekly/monthly remain disabled, seconds remain hidden,
-  and chart-data projection remains the OHLC aggregation owner.
+- Latest completed roadmap step: Step 267 - Session Calendar Boundary. V6 added
+  a pure `session-calendar` domain for NQ/ES trading day, week, and month
+  bucket boundaries on the chart-axis UTC `18:00` session roll. `1D`, `1W`, and
+  `1M` remain disabled, seconds remain hidden, and projection/runtime behavior
+  is unchanged.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -70,7 +70,7 @@
 
 ### Step 267 - Session Calendar Boundary
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -92,6 +92,35 @@ Acceptance:
 - `1D`, `1W`, and `1M` remain disabled and runtime behavior is unchanged.
 
 ## Completed Steps
+
+### Step 267 - Session Calendar Boundary
+
+Completed in this boundary commit series.
+
+Verification:
+
+- `node v6/tests/session-calendar-boundary-step267-static-smoke.js`
+- `node v6/tests/session-calendar-domain-step267-smoke.js`
+- `node v6/tests/session-calendar-owner-step267-smoke.js`
+- `node v6/tests/session-aware-htf-selection-step266-static-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_SESSION_CALENDAR_BOUNDARY_STEP267.md`.
+- Added `v6/src/session-calendar/session-calendar-domain.js`.
+- Added pure helpers for trading day keys and day/week/month buckets.
+- NQ/ES now share chart-axis UTC `18:00` session roll semantics in the domain
+  helper.
+- Covered Monday prior Globex open, `17:59 -> 18:00` trading day rollover,
+  week/month bucket boundaries, and explicit unsupported-instrument rejection.
+- Did not connect session-calendar to chart-data projection or display-timeframe
+  runtime.
+- Kept `1D`, `1W`, and `1M` planned/disabled.
 
 ### Step 266 - Session-Aware Higher Timeframe Selection
 
