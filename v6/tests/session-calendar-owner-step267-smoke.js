@@ -35,7 +35,7 @@ for (const id of ['1D', '1W', '1M']) {
   );
 }
 
-assert.equal(projectionDomain.includes('session-calendar'), false);
+assert.match(projectionDomain, /resolveTradingDayBucket/);
 assert.equal(displayRuntime.includes('session-calendar'), false);
 assert.equal(shell.includes('resolveTradingDayBucket'), false);
 

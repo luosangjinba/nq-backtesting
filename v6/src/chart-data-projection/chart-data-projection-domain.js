@@ -5,6 +5,7 @@ import {
   normalizeUnixSeconds,
   resolveDisplayBucketStart,
 } from '../time-domain/time-domain.js';
+import { resolveTradingDayBucket } from '../session-calendar/session-calendar-domain.js';
 
 function normalizeFiniteNumber(value, fieldName) {
   const normalized = Number(value);
@@ -97,9 +98,93 @@ function buildBucketMetadata({
   });
 }
 
+function isDailyTarget(value) {
+  return String(value || '').trim().toUpperCase() === '1D';
+}
+
+function buildSessionBucketMetadata({
+  bucket,
+  cursorTimestamp,
+  sourceSeconds,
+}) {
+  const completeThreshold = bucket.bucketEndTimestamp - sourceSeconds + 1;
+  const cursorInBucket = cursorTimestamp !== null
+    && cursorTimestamp >= bucket.timestamp
+    && cursorTimestamp <= bucket.bucketEndTimestamp;
+  const complete = bucket.lastSourceTimestamp >= completeThreshold && !cursorInBucket;
+
+  return Object.freeze({
+    bucketEndTimestamp: bucket.bucketEndTimestamp,
+    bucketStartTimestamp: bucket.timestamp,
+    complete,
+    cursorCapped: cursorInBucket,
+    expectedSourceBars: null,
+    firstSourceTimestamp: bucket.firstSourceTimestamp,
+    inProgress: !complete,
+    key: bucket.key,
+    lastSourceTimestamp: bucket.lastSourceTimestamp,
+    sourceCount: bucket.sourceCount,
+    unit: bucket.unit,
+  });
+}
+
+function projectSessionCalendarDaily({
+  bars,
+  cursorTimestamp,
+  instrument,
+  sourceTimeframe,
+}) {
+  const cursor = normalizeOptionalUnixSeconds(cursorTimestamp, {
+    fieldName: 'Chart data projection cursorTimestamp',
+  });
+  const sourceSeconds = sourceTimeframe * 60;
+  const normalizedBars = normalizeProjectionBars(bars)
+    .filter((bar) => cursor === null || bar.timestamp <= cursor);
+  const buckets = new Map();
+
+  normalizedBars.forEach((bar) => {
+    const sessionBucket = resolveTradingDayBucket(bar.timestamp, { instrument });
+    const existing = buckets.get(sessionBucket.startTimestamp);
+    if (!existing) {
+      buckets.set(sessionBucket.startTimestamp, {
+        bucketEndTimestamp: sessionBucket.endTimestamp,
+        close: bar.close,
+        firstSourceTimestamp: bar.timestamp,
+        high: bar.high,
+        key: sessionBucket.key,
+        lastSourceTimestamp: bar.timestamp,
+        low: bar.low,
+        open: bar.open,
+        sourceCount: 1,
+        timestamp: sessionBucket.startTimestamp,
+        unit: sessionBucket.unit,
+      });
+      return;
+    }
+    existing.close = bar.close;
+    existing.high = Math.max(existing.high, bar.high);
+    existing.lastSourceTimestamp = bar.timestamp;
+    existing.low = Math.min(existing.low, bar.low);
+    existing.sourceCount += 1;
+  });
+
+  const sortedBuckets = [...buckets.values()].sort((left, right) => left.timestamp - right.timestamp);
+  return Object.freeze({
+    bars: Object.freeze(sortedBuckets.map(buildProjectedBar)),
+    buckets: Object.freeze(sortedBuckets.map((bucket) => buildSessionBucketMetadata({
+      bucket,
+      cursorTimestamp: cursor,
+      sourceSeconds,
+    }))),
+    sourceTimeframe,
+    targetTimeframe: '1D',
+  });
+}
+
 export function projectSourceBarsToChartData({
   bars = [],
   cursorTimestamp = null,
+  instrument = null,
   sessionStartTimestamp = null,
   sourceTimeframe = 1,
   targetTimeframe = 1,
@@ -108,6 +193,14 @@ export function projectSourceBarsToChartData({
     allowSuffix: false,
     fieldName: 'Chart data projection sourceTimeframe',
   });
+  if (isDailyTarget(targetTimeframe)) {
+    return projectSessionCalendarDaily({
+      bars,
+      cursorTimestamp,
+      instrument,
+      sourceTimeframe: source,
+    });
+  }
   const target = normalizeMinuteTimeframe(targetTimeframe, {
     allowSuffix: false,
     fieldName: 'Chart data projection targetTimeframe',

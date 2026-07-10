@@ -60,6 +60,7 @@ export function createChartDataProjectionRuntime() {
     const projection = projectSourceBarsToChartData({
       bars: sourceBars,
       cursorTimestamp: payload.cursorTimestamp ?? null,
+      instrument: payload.instrument ?? null,
       sessionStartTimestamp: payload.sessionStartTimestamp ?? null,
       sourceTimeframe: payload.sourceTimeframe ?? 1,
       targetTimeframe: payload.targetTimeframe ?? 1,

@@ -31,7 +31,7 @@ for (const capability of [
 assert.match(menuSmoke, /plannedIds, \['1D', '1W', '1M'\]/);
 assert.match(projectionDomain, /normalizeMinuteTimeframe\(targetTimeframe/);
 assert.match(projectionDomain, /resolveDisplayBucketStart/);
-assert.equal(projectionDomain.includes('session-calendar'), false);
+assert.match(projectionDomain, /resolveTradingDayBucket/);
 assert.equal(runtime.includes('session-calendar'), false);
 assert.equal(runtime.includes('targetTimeframe: displayTimeframe'), true);
 
