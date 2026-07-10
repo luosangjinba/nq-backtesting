@@ -78,6 +78,10 @@
   Browser Integration. V6 now has browser/runtime coverage proving the real
   chart surface and leftward input bridge can activate high-TF target history,
   load target bars, and preserve source bars for `1m` round trips.
+- Latest completed target-TF observability step: Step 288 - Activated
+  Target-History Performance Observability. V6 leftward-history state now
+  reports duration, path, target/source request counts, load timings, fallback
+  reason, and prepended bars for target-history and source-window paths.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -113,7 +117,7 @@
 
 ## Next Executable Steps
 
-### Step 288 - Activated Target-History Performance Observability
+### Step 289 - Target-History Optimization Decision
 
 Status: proposed.
 
@@ -121,10 +125,10 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 287 browser integration coverage as the baseline;
-- add timing/diagnostic visibility for high-TF target-history activation versus
-  source-window fallback;
-- prefer runtime state/test output diagnostics before UI controls;
+- use Step 288 diagnostics as the baseline;
+- compare target-history and source-window timings from smoke/runtime output;
+- decide whether to tune activation threshold/window sizing, add a small
+  diagnostic readout, or harden fallback behavior;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -134,15 +138,41 @@ Notes for execution:
 
 Acceptance:
 
-- high-TF target-history browser/runtime latency is measurable in smoke output
-  or runtime diagnostics;
-- source-window fallback latency remains observable for comparison;
-- diagnostics identify target-history activation, target load, fallback reason,
-  and prepended bar count;
+- next optimization target is explicitly selected and documented;
+- selection uses Step 288 diagnostics instead of speculation;
+- any chosen implementation remains behind current ownership boundaries;
 - source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 288 - Activated Target-History Performance Observability
+
+Completed in this target-history observability commit series.
+
+Verification:
+
+- `node v6/tests/activated-target-history-browser-step287-smoke.js`
+- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/leftward-history-target-opt-in-step285-smoke.js`
+- `node v6/tests/leftward-history-target-fallback-step285-smoke.js`
+- `node v6/tests/leftward-history-target-default-step285-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Leftward-history loaded extensions now expose diagnostics with duration,
+  path, target/source request counts, target/source load timings, fallback
+  reason, target bar count, and prepended bar count.
+- Target-history success, target-history fallback, and default source-window
+  paths are all covered.
+- The activated target-history browser smoke now asserts diagnostics on the
+  real browser integration path.
+- No UI surface was added.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 287 - Activated Target-History Browser Integration
 

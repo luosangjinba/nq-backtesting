@@ -275,6 +275,9 @@ Read this index before working on V6.
 - `v6/docs/V6_ACTIVATED_TARGET_HISTORY_BROWSER_INTEGRATION_STEP287.md`:
   accepted browser/runtime integration coverage for activated target-history
   high-timeframe leftward extension.
+- `v6/docs/V6_TARGET_HISTORY_PERFORMANCE_OBSERVABILITY_STEP288.md`: accepted
+  runtime/browser diagnostics for target-history versus source-window leftward
+  extension latency and fallback state.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
