@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 248 - Chart Foundation Next Slice
-  Selection. V6 selected Drag/Scroll Display Stability Reaudit/Gate as the next
-  bounded chart-foundation slice after replay/transport and date-range entry
-  gates passed.
+- Latest completed roadmap step: Step 249 - Drag/Scroll Display Stability
+  Reaudit/Gate. V6 consolidated drag release, fast right-drag, leftward
+  history, replay-safe latency, prepend compensation, and manual projection
+  suppression coverage without changing runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,33 +43,61 @@
 
 ## Next Executable Steps
 
-### Step 249 - Drag/Scroll Display Stability Reaudit/Gate
+### Step 250 - Chart Foundation Next Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- document the current drag/scroll coverage matrix for drag release, fast right
-  drag, drag-triggered history extension, replay-safe history latency, prepend
-  compensation, and manual projection suppression;
-- identify any missing browser-visible gate for sticky drag, jump-back, or
-  delayed history under quick user input;
-- add a focused gate if the missing behavior can be automated reliably;
-- if a gate exposes a regression, fix it in the owning module only;
-- keep current K-line visual stability ahead of immediate leftward loading.
+- review Steps 245-249 and select the next bounded chart-foundation slice;
+- stay inside chart loading, timeframe switching, drag/scroll display, date
+  ranges, replay, multi-pane, or pane-local reset behavior;
+- account for old UX debt without jumping ahead to indicators, trading
+  simulation, prop-firm logic, or journal workflows;
+- list verification before implementation begins.
 
 Acceptance:
 
-- drag/scroll owner-path audit/gate is documented and covered;
-- existing drag/history smokes are either consolidated by a new gate or listed
-  as sufficient with explicit residual risk;
-- any runtime change is confined to chart surface, manual-wall input,
-  leftward-history input, chart-history, bar-data, chart-data, or chart
-  viewport ownership as appropriate;
+- one next slice is selected with owner boundaries and verification;
+- runtime behavior is unchanged in the selection step;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 249.
+  in Step 250.
 
 ## Completed Steps
+
+### Step 249 - Drag/Scroll Display Stability Reaudit/Gate
+
+Completed in this audit/gate commit.
+
+Verification:
+
+- `node v6/tests/drag-scroll-display-stability-reaudit-step249-smoke.js`
+- `node v6/tests/chart-drag-release-lifecycle-browser-smoke.js`
+- `node v6/tests/fast-right-drag-stability-browser-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js`
+- `node v6/tests/chart-viewport-prepend-manual-stability-smoke.js`
+- `node v6/tests/chart-surface-prepend-visible-range-stability-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_DRAG_SCROLL_DISPLAY_STABILITY_REAUDIT_STEP249.md`.
+- Added `v6/tests/drag-scroll-display-stability-reaudit-step249-smoke.js`.
+- Confirmed existing browser-visible coverage is sufficient for sticky
+  hover-drag after release, fast right-drag jump-back, delayed leftward history
+  extension, replay responsiveness during pending history, visible-range
+  compensation after prepends, and manual projection suppression.
+- Confirmed the intended drag/scroll path stays unified across timeframes:
+  native chart interaction owns immediate movement, while chart surface,
+  leftward-history input, chart-history, bar-data, chart-data, chart viewport,
+  and replay keep their current owner boundaries.
+- No runtime fix was needed.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 248 - Chart Foundation Next Slice Selection
 
