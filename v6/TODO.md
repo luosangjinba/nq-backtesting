@@ -55,6 +55,10 @@
   Target-Timeframe Support. V6 bar-data can explicitly plan, load, cache,
   release, and diagnose target-TF windows without changing source-bar callers
   or routing chart-history/display-timeframe through target bars yet.
+- Latest completed target-TF display preparation step: Step 283 -
+  Display-Timeframe Historical Path Preparation. V6 now has a disabled-by-
+  default display/history target-bars planning boundary and static coverage that
+  display-timeframe and chart-history do not directly call target bars yet.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -90,35 +94,68 @@
 
 ## Next Executable Steps
 
-### Step 283 - Display-Timeframe Historical Path Preparation
+### Step 284 - Controlled Display-Timeframe Target-History Opt-In
 
 Status: proposed.
 
 Notes for execution:
 
-- begin Phase D from
+- continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
   contract;
-- use Step 282 explicit target bar-data commands instead of direct API calls;
-- design the first opt-in display/history path for target bars without changing
-  default high-TF switching in one jump;
-- choose whether the first opt-in belongs in display-timeframe runtime,
-  chart-history leftward extension, or a small preparation runtime;
-- keep frontend projection as fallback;
-- add tests that prove source bars are still preserved for TF round trips;
+- use `v6/src/display-timeframe/display-timeframe-target-history-plan.js` as
+  the opt-in planner;
+- load target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not direct
+  target API calls;
+- implement a controlled display-timeframe target-history path that can be
+  enabled explicitly in tests or by command payload;
+- preserve source bars so high-TF-to-`1m` round trips still work;
+- keep frontend projection as fallback when target-history opt-in is disabled
+  or target loading fails;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- target-bar opt-in owner boundary is documented and tested;
-- display-timeframe/chart-history do not directly call the target bars API;
-- source-bar preservation and TF round-trip behavior remain covered;
+- explicit opt-in can apply display target bars through bar-data target
+  commands;
+- default display-timeframe behavior remains source projection;
+- source-bar preservation and TF round-trip behavior remain covered for both
+  fallback and target-history paths;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 283 - Display-Timeframe Historical Path Preparation
+
+Completed in this display target-history preparation commit series.
+
+Verification:
+
+- `node v6/tests/display-target-history-plan-step283-smoke.js`
+- `node v6/tests/display-target-history-boundary-step283-static-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/bar-data-target-runtime-step282-smoke.js`
+- `node v6/tests/target-timeframe-domain-step280-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/display-timeframe/display-timeframe-target-history-plan.js`.
+- Added a disabled-by-default target-history opt-in planner.
+- The planner emits `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW` payloads only when
+  explicitly enabled.
+- Added static coverage proving display-timeframe and chart-history runtimes do
+  not directly call the target bars API and do not use target bar-data commands
+  by default.
+- Existing display-timeframe runtime source projection, source-bar
+  preservation, high-TF-to-`1m` round trips, chart-history leftward extension,
+  replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 282 - Bar-Data Runtime Target-Timeframe Support
 
