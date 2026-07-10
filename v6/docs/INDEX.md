@@ -251,6 +251,9 @@ Read this index before working on V6.
 - `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP279.md`: selected
   Target-Timeframe Data Contract And Schema Discovery as the next bounded
   implementation slice.
+- `v6/docs/V6_TARGET_TIMEFRAME_SCHEMA_DISCOVERY_STEP280.md`: accepted the
+  current V4/DuckDB source-bars schema discovery and initial target-bars
+  storage direction for the target-timeframe data phase.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

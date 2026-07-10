@@ -43,6 +43,10 @@
 - Latest completed selection step: Step 279 - Chart Foundation Next Slice
   Selection. V6 selected Target-Timeframe Data Contract And Schema Discovery as
   the next bounded implementation slice.
+- Latest completed target-TF step: Step 280 - Target-Timeframe Data Contract
+  And Schema Discovery. V6 now has a canonical target timeframe domain,
+  fixed-duration/session-aware classification, V4/DuckDB source schema
+  discovery notes, and an initial single-table target-bars storage direction.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -78,39 +82,70 @@
 
 ## Next Executable Steps
 
-### Step 280 - Target-Timeframe Data Contract And Schema Discovery
+### Step 281 - Target-Timeframe Server Aggregation Boundary
 
 Status: proposed.
 
 Notes for execution:
 
-- implement Phase A from
+- implement Phase B from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- follow the selection in
-  `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP279.md`;
-- add a pure target-timeframe domain/contract for supported display ids:
-  `1/2/3/4/5/10/15/30m`, `1/2/4/8/12h`, `1D`, `1W`, `1M`;
-- define canonical ids for API/cache/chart-data/test use;
-- classify fixed-duration versus session-aware target timeframes;
-- document futures daily/weekly/monthly bucket semantics at contract level;
-- audit current V4/DuckDB source bars schema and V6 bars adapter inputs;
-- decide the initial target bars storage direction before implementing
-  aggregation;
+- use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
+  contract;
+- use `v6/docs/V6_TARGET_TIMEFRAME_SCHEMA_DISCOVERY_STEP280.md` as the source
+  schema and storage-direction reference;
+- define a data/API owner boundary for target-TF aggregation from `futures_1m`;
+- start with on-demand aggregation plus in-process cache, not persistent
+  materialization;
+- prove `8h` and `1D` can be returned as target bars without sending thousands
+  of `1m` bars to the frontend;
 - do not change runtime behavior, database schema, API behavior,
   display-timeframe projection, replay cursor movement, chart viewport intent,
   chart-engine behavior, journal, order-ticket, prop-firm, indicator, or
-  seconds behavior.
+  seconds behavior unless Step 281 explicitly scopes a backend-only endpoint or
+  pure adapter contract.
 
 Acceptance:
 
-- supported target timeframe ids normalize consistently;
-- fixed-duration and session-aware target timeframe classifications are tested;
-- schema discovery notes identify the source bars boundary and initial storage
-  direction;
-- source `1m` replay bars remain the canonical replay cursor source;
-- no frontend owner requests target-TF bars yet.
+- target-TF aggregation has a clear data/API owner boundary;
+- `8h` and `1D` aggregation semantics are covered by tests or static fixtures;
+- source `1m` `/v4/bars` behavior remains unchanged;
+- V6 frontend owners still do not request target-TF bars by default.
 
 ## Completed Steps
+
+### Step 280 - Target-Timeframe Data Contract And Schema Discovery
+
+Completed in this target-timeframe contract and schema-discovery commit series.
+
+Verification:
+
+- `node v6/tests/target-timeframe-domain-step280-smoke.js`
+- `node v6/tests/target-timeframe-schema-discovery-step280-static-smoke.js`
+- `node v6/tests/session-aware-display-timeframe-domain-step271-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/time-domain/target-timeframe-domain.js`.
+- Added canonical target timeframe ids for
+  `1/2/3/4/5/10/15/30m`, `1/2/4/8/12h`, `1D`, `1W`, and `1M`.
+- Target timeframe ids distinguish lowercase `m` minutes from uppercase `M`
+  month.
+- Added fixed-duration versus session-aware classification.
+- Added `v6/docs/V6_TARGET_TIMEFRAME_SCHEMA_DISCOVERY_STEP280.md`.
+- Discovery confirmed current V4 `/v4/bars` accepts integer-minute `tf`, reads
+  DuckDB `futures_1m`, has existing fixed-minute aggregation, and has a special
+  `tf == 1440` futures daily path.
+- Selected one future `target_bars` table keyed by
+  `(instrument, timeframe, ts)` as the initial storage direction unless later
+  implementation evidence requires per-timeframe tables.
+- Did not change runtime behavior, database schema, API behavior,
+  display-timeframe projection, replay cursor movement, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, or
+  seconds behavior.
 
 ### Step 279 - Chart Foundation Next Slice Selection
 
