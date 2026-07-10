@@ -68,31 +68,29 @@
 
 ## Next Executable Steps
 
-### Step 265 - Minute/Hour Timeframe Unlock
+### Step 266 - Session-Aware Higher Timeframe Selection
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- consume the Step 264 capability registry and unlock minute/hour intervals that
-  can be projected from 1m source bars;
-- enable minutes `2m`, `3m`, `4m`, `10m`, `30m`;
-- enable hours `1h`, `2h`, `4h`, `8h`, `12h`;
-- keep `1m`, `5m`, and `15m` enabled;
+- select the owner boundary for `1D`, `1W`, and `1M` before enabling those
+  intervals;
+- introduce a planned `session-calendar` boundary for trading day/week/month
+  bucket semantics;
+- keep `1D`, `1W`, and `1M` planned/disabled in Step 266;
 - keep seconds hidden until second-level source data exists;
-- keep `1D`, `1W`, and `1M` planned/disabled until session-aware aggregation is
-  designed;
-- do not change replay, bar-data, chart-data ownership, journal, order-ticket,
-  prop-firm, or indicator behavior.
+- document the later sequence: session calendar boundary, daily projection,
+  weekly projection, monthly projection;
+- do not change replay, bar-data, chart-data projection behavior, journal,
+  order-ticket, prop-firm, indicator, or menu enabled status.
 
 Acceptance:
 
-- Step 265 plan is documented and statically guarded;
-- projection coverage proves all new minute/hour targets aggregate through the
-  shared chart-data projection domain;
-- menu coverage proves all new minute/hour targets are selectable and seconds
-  stay hidden;
-- daily/weekly/monthly targets remain disabled.
+- Step 266 selection is documented and statically guarded;
+- `session-calendar` is selected as owner for trading day/week/month boundaries;
+- display-timeframe and shell do not own session-aware aggregation;
+- `1D`, `1W`, and `1M` remain disabled.
 
 ## Completed Steps
 
