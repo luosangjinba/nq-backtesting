@@ -67,27 +67,29 @@
 
 ## Next Executable Steps
 
-### Step 270 - Monthly Projection Integration
+### Step 271 - Session-Aware HTF Projection Consolidation
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- connect chart-data projection to the Step 267 `session-calendar` monthly bucket
-  boundary;
-- enable `1M` only after domain and browser projection coverage exists;
-- keep seconds hidden until second-level source data exists;
+- add one pure helper/contract for session-aware display timeframe values;
+- keep `session-calendar` as the owner of day/week/month bucket boundaries;
+- keep `chart-data-projection` as the owner of OHLC aggregation;
+- consolidate pane/shell/reload normalization for `1D`, `1W`, and `1M`;
+- consolidate daily/weekly/monthly browser projection fixtures;
 - keep replay source-bar driven;
-- do not add seconds, journal, order-ticket, prop-firm, or indicator behavior.
+- do not add seconds, journal, order-ticket, prop-firm, indicator, chart-engine,
+  or viewport behavior.
 
 Acceptance:
 
-- Step 270 integration is documented and statically guarded;
-- monthly projection groups source bars by session-calendar trading month buckets;
-- unsupported instruments reject explicitly;
-- selecting `1M` in the menu applies monthly projection through the existing
-  display-timeframe command path;
-- seconds remain hidden.
+- Step 271 consolidation is documented and statically guarded;
+- `1D`, `1W`, and `1M` share one pure normalization helper;
+- reload source-count estimates for session-aware HTFs flow through one helper;
+- `chart-data-projection` uses one target-to-bucket mapping;
+- daily, weekly, and monthly browser projection smokes share one fixture;
+- existing projection/menu/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
 
