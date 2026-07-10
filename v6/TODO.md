@@ -41,6 +41,11 @@
   viewport projection, pane reload projection, and display timeframe
   application still trigger delayed left-extension checks, while drag stability
   smokes guard against sticky hover-drag behavior.
+- Latest session-switch fix: 2026-07-10 price scale reset on non-manual
+  viewport projection. Opening a second session or pressing reset view no longer
+  inherits the previous session's price axis; chart surface now asks the chart
+  host to autoscale price after default projections while preserving manual
+  horizontal drag behavior.
 
 ## Next Executable Steps
 

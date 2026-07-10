@@ -55,6 +55,17 @@ function managerFactory(options) {
         },
       };
     },
+    resetPriceScale(paneId) {
+      calls.push({ method: 'resetPriceScale', paneId });
+      return {
+        paneId,
+        snapshot: {
+          dataLength,
+          mounted,
+          visibleLogicalRange,
+        },
+      };
+    },
     setData(paneId, bars = []) {
       calls.push({ length: bars.length, method: 'setData', paneId });
       dataLength = bars.length;
@@ -147,6 +158,7 @@ assert.equal(calls[4].record.paneId, 'default');
 assert.deepEqual(state, {
   appliedChartData: [],
   appliedViewport: [],
+  activePaneId: 'default',
   crosshair: [],
   hostConnected: true,
   hostSelector: '[data-v6-chart-engine-host]',
@@ -261,6 +273,10 @@ assert.deepEqual(calls.find((call) => call.method === 'setVisibleLogicalRange'),
   method: 'setVisibleLogicalRange',
   paneId: 'default',
   range: { from: -110, to: 10 },
+});
+assert.deepEqual(calls.find((call) => call.method === 'resetPriceScale'), {
+  method: 'resetPriceScale',
+  paneId: 'default',
 });
 
 assert.equal(surface.applyCrosshairProjection({

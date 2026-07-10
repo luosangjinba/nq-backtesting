@@ -122,6 +122,15 @@ export function createLightweightChartAdapter({
     return snapshot();
   }
 
+  function resetPriceScale() {
+    ensureMounted();
+    const priceScale = typeof series.priceScale === 'function'
+      ? series.priceScale()
+      : chart.priceScale?.('right');
+    priceScale?.applyOptions?.({ autoScale: true });
+    return snapshot();
+  }
+
   function setCrosshairPosition({ price, time } = {}) {
     ensureMounted();
     const normalizedPrice = Number(price);
@@ -221,6 +230,7 @@ export function createLightweightChartAdapter({
     measureVisibleLogicalRange,
     mount,
     resize,
+    resetPriceScale,
     setCrosshairPosition,
     setData,
     setVisibleLogicalRange,

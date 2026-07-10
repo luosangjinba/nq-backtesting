@@ -719,6 +719,9 @@ export function mountWorkstationChartSurface(root, {
         from: record.projection.from,
         to: record.projection.to,
       });
+      if (record.projection.origin !== 'manual') {
+        manager.resetPriceScale?.(recordPaneId);
+      }
       return snapshot;
     },
     applyCrosshairProjection(record = {}) {

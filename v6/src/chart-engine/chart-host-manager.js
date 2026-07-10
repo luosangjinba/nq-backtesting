@@ -80,6 +80,12 @@ export function createChartHostManager({
     return getPaneSnapshot(record.paneId);
   }
 
+  function resetPriceScale(paneId) {
+    const record = getMountedRecord(paneId);
+    record.adapter.resetPriceScale?.();
+    return getPaneSnapshot(record.paneId);
+  }
+
   function setCrosshairPosition(paneId, crosshair = {}) {
     const record = getMountedRecord(paneId);
     record.adapter.setCrosshairPosition?.(crosshair);
@@ -171,6 +177,7 @@ export function createChartHostManager({
     measureVisibleLogicalRange,
     mountPane,
     resizePane,
+    resetPriceScale,
     setCrosshairPosition,
     setData,
     setVisibleLogicalRange,
