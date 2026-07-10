@@ -5,7 +5,10 @@ import {
   normalizeUnixSeconds,
   resolveDisplayBucketStart,
 } from '../time-domain/time-domain.js';
-import { resolveTradingDayBucket } from '../session-calendar/session-calendar-domain.js';
+import {
+  resolveTradingDayBucket,
+  resolveTradingWeekBucket,
+} from '../session-calendar/session-calendar-domain.js';
 
 function normalizeFiniteNumber(value, fieldName) {
   const normalized = Number(value);
@@ -102,6 +105,10 @@ function isDailyTarget(value) {
   return String(value || '').trim().toUpperCase() === '1D';
 }
 
+function isWeeklyTarget(value) {
+  return String(value || '').trim().toUpperCase() === '1W';
+}
+
 function buildSessionBucketMetadata({
   bucket,
   cursorTimestamp,
@@ -128,11 +135,13 @@ function buildSessionBucketMetadata({
   });
 }
 
-function projectSessionCalendarDaily({
+function projectSessionCalendarTarget({
   bars,
   cursorTimestamp,
   instrument,
+  resolveBucket,
   sourceTimeframe,
+  targetTimeframe,
 }) {
   const cursor = normalizeOptionalUnixSeconds(cursorTimestamp, {
     fieldName: 'Chart data projection cursorTimestamp',
@@ -143,7 +152,7 @@ function projectSessionCalendarDaily({
   const buckets = new Map();
 
   normalizedBars.forEach((bar) => {
-    const sessionBucket = resolveTradingDayBucket(bar.timestamp, { instrument });
+    const sessionBucket = resolveBucket(bar.timestamp, { instrument });
     const existing = buckets.get(sessionBucket.startTimestamp);
     if (!existing) {
       buckets.set(sessionBucket.startTimestamp, {
@@ -177,7 +186,7 @@ function projectSessionCalendarDaily({
       sourceSeconds,
     }))),
     sourceTimeframe,
-    targetTimeframe: '1D',
+    targetTimeframe,
   });
 }
 
@@ -194,11 +203,23 @@ export function projectSourceBarsToChartData({
     fieldName: 'Chart data projection sourceTimeframe',
   });
   if (isDailyTarget(targetTimeframe)) {
-    return projectSessionCalendarDaily({
+    return projectSessionCalendarTarget({
       bars,
       cursorTimestamp,
       instrument,
+      resolveBucket: resolveTradingDayBucket,
       sourceTimeframe: source,
+      targetTimeframe: '1D',
+    });
+  }
+  if (isWeeklyTarget(targetTimeframe)) {
+    return projectSessionCalendarTarget({
+      bars,
+      cursorTimestamp,
+      instrument,
+      resolveBucket: resolveTradingWeekBucket,
+      sourceTimeframe: source,
+      targetTimeframe: '1W',
     });
   }
   const target = normalizeMinuteTimeframe(targetTimeframe, {

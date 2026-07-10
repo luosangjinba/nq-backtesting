@@ -18,7 +18,8 @@ assert.match(doc, /`replay` remains source-bar driven/);
 assert.match(todo, /Step 269 - Weekly Projection Integration/);
 assert.match(index, /V6_WEEKLY_PROJECTION_INTEGRATION_STEP269/);
 assert.match(sessionCalendar, /resolveTradingWeekBucket/);
-assert.doesNotMatch(projectionDomain, /targetTimeframe: '1W'/);
+assert.match(projectionDomain, /resolveTradingWeekBucket/);
+assert.match(projectionDomain, /targetTimeframe: '1W'/);
 assert.match(capabilities, /id: '1W'[\s\S]*?status: 'planned'/);
 assert.match(capabilities, /id: '1M'[\s\S]*?status: 'planned'/);
 
