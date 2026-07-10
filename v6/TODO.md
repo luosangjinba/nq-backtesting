@@ -68,30 +68,31 @@
 
 ## Next Executable Steps
 
-### Step 264 - Display Timeframe Capability Registry
+### Step 265 - Minute/Hour Timeframe Unlock
 
-Status: completed.
+Status: in progress.
 
 Notes for execution:
 
-- establish a display-timeframe capability registry before unlocking more
-  interval options;
-- keep seconds hidden by default until second-level source data exists;
-- target product intervals are minutes `1m`, `2m`, `3m`, `4m`, `5m`, `10m`,
-  `15m`, `30m`; hours `1h`, `2h`, `4h`, `8h`, `12h`; daily `1D`, weekly `1W`,
-  and monthly `1M`;
-- keep runtime behavior unchanged in this registry step: only `1m`, `5m`, and
-  `15m` remain enabled;
-- render the interval menu from the registry in a later substep without changing
-  replay, chart-data, bar-data, pane, journal, order-ticket, prop-firm, or
-  indicator behavior.
+- consume the Step 264 capability registry and unlock minute/hour intervals that
+  can be projected from 1m source bars;
+- enable minutes `2m`, `3m`, `4m`, `10m`, `30m`;
+- enable hours `1h`, `2h`, `4h`, `8h`, `12h`;
+- keep `1m`, `5m`, and `15m` enabled;
+- keep seconds hidden until second-level source data exists;
+- keep `1D`, `1W`, and `1M` planned/disabled until session-aware aggregation is
+  designed;
+- do not change replay, bar-data, chart-data ownership, journal, order-ticket,
+  prop-firm, or indicator behavior.
 
 Acceptance:
 
-- phase-level interval capability plan is documented;
-- registry contract is guarded by static smoke coverage;
-- menu rendering can consume the registry while seconds stay hidden;
-- no new display timeframe is enabled in Step 264.
+- Step 265 plan is documented and statically guarded;
+- projection coverage proves all new minute/hour targets aggregate through the
+  shared chart-data projection domain;
+- menu coverage proves all new minute/hour targets are selectable and seconds
+  stay hidden;
+- daily/weekly/monthly targets remain disabled.
 
 ## Completed Steps
 
