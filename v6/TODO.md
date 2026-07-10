@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 244 - Manual Previous Chain Closure
-  Audit. V6 closed the Step Back / Manual Previous chain, fixed stale early
-  static assertions, documented the final owner map, and selected a compact
-  replay/transport regression pack as the next foundation gate.
+- Latest completed roadmap step: Step 245 - Replay/Transport Chain Regression
+  Pack. V6 now has a compact pack covering replay transport, Manual Previous,
+  leftward history, multi-pane bootstrap, pane-local reset view, and display
+  timeframe switching before opening another foundation slice.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,29 +43,56 @@
 
 ## Next Executable Steps
 
-### Step 245 - Replay/Transport Chain Regression Pack
+### Step 246 - Chart Foundation Next Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- run a compact browser/static regression pack around replay transport,
-  leftward history, multi-pane layout, reset view, and display timeframe
-  switching;
-- document any flaky or slow case separately instead of expanding feature scope;
-- avoid new feature behavior unless a blocking regression is found;
-- keep Manual Previous implementation closed unless the pack exposes a specific
-  regression.
+- review the Step 245 pack result and current chart-foundation TODO direction;
+- select one bounded next slice across chart loading, TF switching, drag/scroll
+  display, date ranges, replay, multi-pane, or pane-local reset behavior;
+- explicitly reject indicators, trading simulation, order tickets, prop-firm
+  rules, and journal behavior unless the selected slice requires a contract-only
+  guard;
+- keep the selected slice small enough for implementation and browser coverage
+  in the following step.
 
 Acceptance:
 
-- compact replay/transport foundation pack is documented and passing;
-- any failure is either fixed in its owner module or logged as a bounded next
-  step;
+- next slice is documented in TODO/session notes with owner boundary and stop
+  conditions;
+- selected verification commands are listed before implementation starts;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 245.
+  in Step 246.
 
 ## Completed Steps
+
+### Step 245 - Replay/Transport Chain Regression Pack
+
+Completed in this regression-pack commit.
+
+Verification:
+
+- `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a compact pack runner in
+  `v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`.
+- The pack gates replay runtime, replay transport visual state, Manual Previous
+  closure/readiness/button/multi-pane behavior, unified leftward extension,
+  replay-safe leftward latency, newly visible pane bootstrap, pane-local reset
+  view, HTF reset view, and pane-targeted display timeframe switching.
+- Documented pack purpose, coverage, and flake policy in
+  `v6/docs/V6_REPLAY_TRANSPORT_CHAIN_REGRESSION_PACK_STEP245.md`.
+- Selected Step 246 as a chart foundation next-slice selection step before
+  adding more feature behavior.
+- Did not change runtime feature behavior, indicators, trading simulation,
+  order tickets, prop firm rule engines, or journal workflows.
 
 ### Step 244 - Manual Previous Chain Closure Audit
 
