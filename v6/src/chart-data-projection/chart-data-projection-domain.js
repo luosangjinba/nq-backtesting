@@ -7,6 +7,7 @@ import {
 } from '../time-domain/time-domain.js';
 import {
   resolveTradingDayBucket,
+  resolveTradingMonthBucket,
   resolveTradingWeekBucket,
 } from '../session-calendar/session-calendar-domain.js';
 
@@ -107,6 +108,10 @@ function isDailyTarget(value) {
 
 function isWeeklyTarget(value) {
   return String(value || '').trim().toUpperCase() === '1W';
+}
+
+function isMonthlyTarget(value) {
+  return String(value || '').trim().toUpperCase() === '1M';
 }
 
 function buildSessionBucketMetadata({
@@ -220,6 +225,16 @@ export function projectSourceBarsToChartData({
       resolveBucket: resolveTradingWeekBucket,
       sourceTimeframe: source,
       targetTimeframe: '1W',
+    });
+  }
+  if (isMonthlyTarget(targetTimeframe)) {
+    return projectSessionCalendarTarget({
+      bars,
+      cursorTimestamp,
+      instrument,
+      resolveBucket: resolveTradingMonthBucket,
+      sourceTimeframe: source,
+      targetTimeframe: '1M',
     });
   }
   const target = normalizeMinuteTimeframe(targetTimeframe, {

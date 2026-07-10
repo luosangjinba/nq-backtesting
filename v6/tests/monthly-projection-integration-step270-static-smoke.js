@@ -17,7 +17,8 @@ assert.match(doc, /`replay` remains source-bar driven/);
 assert.match(todo, /Step 270 - Monthly Projection Integration/);
 assert.match(index, /V6_MONTHLY_PROJECTION_INTEGRATION_STEP270/);
 assert.match(sessionCalendar, /resolveTradingMonthBucket/);
-assert.doesNotMatch(projectionDomain, /targetTimeframe: '1M'/);
+assert.match(projectionDomain, /resolveTradingMonthBucket/);
+assert.match(projectionDomain, /targetTimeframe: '1M'/);
 assert.match(capabilities, /id: '1M'[\s\S]*?status: 'planned'/);
 
 console.log('v6 monthly projection integration step270 static smoke passed');
