@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 246 - Chart Foundation Next Slice
-  Selection. V6 selected Date-Range Entry Viewport Alignment Audit/Gate as the
-  next bounded chart-foundation slice after the replay/transport regression
-  pack passed.
+- Latest completed roadmap step: Step 247 - Date-Range Entry Viewport
+  Alignment Audit/Gate. V6 now has a browser gate proving a non-default
+  date-range session opens with chart data inside the initial visible logical
+  range while preserving selected-date versus actual-chart-start wording.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,33 +43,59 @@
 
 ## Next Executable Steps
 
-### Step 247 - Date-Range Entry Viewport Alignment Audit/Gate
+### Step 248 - Chart Foundation Next Slice Selection
 
 Status: planned.
 
 Notes for execution:
 
-- document the current owner path from session dashboard date range to
-  chart-entry initial window, actual loaded chart boundary metadata, chart-data
-  records, chart viewport projection, and chart surface visible range;
-- add browser coverage for opening a non-default date range where chart data is
-  loaded from an adjusted actual boundary;
-- assert the initial visible logical range includes the loaded/revealed K-line
-  cluster without requiring user drag, click, or wheel input;
-- preserve bounded bar requests and the no-full-date-range-load rule;
-- if the new gate exposes a regression, fix it in the owning module only.
+- review Step 245-247 results and current chart-foundation TODO direction;
+- select one bounded next slice across chart loading, TF switching, drag/scroll
+  display, date ranges, replay, multi-pane, or pane-local reset behavior;
+- keep the selected slice small enough for implementation and browser coverage
+  in the following step;
+- do not start indicators, trading simulation, order tickets, prop-firm rules,
+  or journal behavior.
 
 Acceptance:
 
-- owner-path audit/gate is documented and covered;
-- browser coverage proves date-range entry opens with visible K-lines or logs a
-  bounded owner bug fixed in Step 247;
-- dashboard/session wording still distinguishes selected trading dates from
-  actual chart start metadata;
+- next slice is documented in TODO/session notes with owner boundary and stop
+  conditions;
+- selected verification commands are listed before implementation starts;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 247.
+  in Step 248.
 
 ## Completed Steps
+
+### Step 247 - Date-Range Entry Viewport Alignment Audit/Gate
+
+Completed in this browser gate commit.
+
+Verification:
+
+- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/chart-foundation-next-slice-selection-step246-smoke.js`
+- `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_DATE_RANGE_ENTRY_VIEWPORT_ALIGNMENT_STEP247.md`.
+- Added `v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`.
+- The browser gate creates a non-default date-range session through the real
+  session setup form, waits for chart-entry projection apply, and verifies
+  chart-data, replay cursor, chart viewport, chart surface visible range, and
+  dashboard boundary wording.
+- Confirmed the initial visible logical range includes the latest loaded K-line
+  without requiring user drag, click, or wheel input.
+- Confirmed chart-entry context remains bounded and does not load the full
+  selected date range.
+- No runtime fix was needed.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 246 - Chart Foundation Next Slice Selection
 
