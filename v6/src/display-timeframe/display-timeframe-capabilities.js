@@ -1,3 +1,5 @@
+import { normalizeSessionAwareDisplayTimeframe } from '../time-domain/htf-display-timeframe-domain.js';
+
 const DISPLAY_TIMEFRAME_CAPABILITIES = Object.freeze([
   {
     group: 'Seconds',
@@ -286,7 +288,7 @@ export function createDisplayTimeframeMenuGroups() {
 
 export function findDisplayTimeframeCapabilityByRuntimeValue(value) {
   const text = String(value ?? '').trim().toUpperCase();
-  const runtimeValue = text === '1D' || text === '1W' || text === '1M' ? text : Number(value);
+  const runtimeValue = normalizeSessionAwareDisplayTimeframe(text) ?? Number(value);
   return getDisplayTimeframeCapabilities()
     .find((capability) => String(capability.runtimeValue) === String(runtimeValue)) || null;
 }

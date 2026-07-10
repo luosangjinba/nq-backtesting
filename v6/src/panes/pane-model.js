@@ -1,4 +1,5 @@
 import { normalizeMinuteTimeframe } from '../time-domain/time-domain.js';
+import { normalizeSessionAwareDisplayTimeframe } from '../time-domain/htf-display-timeframe-domain.js';
 
 export const DEFAULT_PANE_ID = 'main';
 export const CHART_SURFACE_PANE_IDS = Object.freeze(['main', 'secondary', 'tertiary']);
@@ -42,8 +43,8 @@ export function normalizePaneInstrument(value) {
 }
 
 export function normalizePaneDisplayTimeframe(value) {
-  const text = String(value ?? '').trim().toUpperCase();
-  if (text === '1D' || text === '1W' || text === '1M') return text;
+  const sessionAware = normalizeSessionAwareDisplayTimeframe(value);
+  if (sessionAware) return sessionAware;
   return normalizeMinuteTimeframe(value, {
     allowSuffix: false,
     fieldName: 'Pane displayTimeframe',

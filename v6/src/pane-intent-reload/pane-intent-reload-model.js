@@ -1,3 +1,5 @@
+import { normalizeDisplayTimeframeValue } from '../time-domain/htf-display-timeframe-domain.js';
+
 const RELOAD_REASONS = Object.freeze(['symbol', 'interval']);
 
 function normalizeReason(reason = '') {
@@ -25,13 +27,13 @@ function normalizeInstrument(instrument = '') {
 }
 
 function normalizeDisplayTimeframe(displayTimeframe) {
-  const text = String(displayTimeframe ?? '').trim().toUpperCase();
-  if (text === '1D' || text === '1W' || text === '1M') return text;
-  const normalized = Number(displayTimeframe);
-  if (!Number.isInteger(normalized) || normalized <= 0) {
+  try {
+    return normalizeDisplayTimeframeValue(displayTimeframe, {
+      fieldName: 'Pane intent reload displayTimeframe',
+    });
+  } catch {
     throw new Error('Pane intent reload displayTimeframe must be a positive integer, 1D, 1W, or 1M.');
   }
-  return normalized;
 }
 
 function normalizeSource(source = 'pane-intent') {

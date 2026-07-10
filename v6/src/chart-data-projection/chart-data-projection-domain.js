@@ -5,11 +5,18 @@ import {
   normalizeUnixSeconds,
   resolveDisplayBucketStart,
 } from '../time-domain/time-domain.js';
+import { normalizeSessionAwareDisplayTimeframe } from '../time-domain/htf-display-timeframe-domain.js';
 import {
   resolveTradingDayBucket,
   resolveTradingMonthBucket,
   resolveTradingWeekBucket,
 } from '../session-calendar/session-calendar-domain.js';
+
+const SESSION_AWARE_BUCKET_RESOLVERS = Object.freeze({
+  '1D': resolveTradingDayBucket,
+  '1M': resolveTradingMonthBucket,
+  '1W': resolveTradingWeekBucket,
+});
 
 function normalizeFiniteNumber(value, fieldName) {
   const normalized = Number(value);
@@ -100,18 +107,6 @@ function buildBucketMetadata({
     lastSourceTimestamp: bucket.lastSourceTimestamp,
     sourceCount: bucket.sourceCount,
   });
-}
-
-function isDailyTarget(value) {
-  return String(value || '').trim().toUpperCase() === '1D';
-}
-
-function isWeeklyTarget(value) {
-  return String(value || '').trim().toUpperCase() === '1W';
-}
-
-function isMonthlyTarget(value) {
-  return String(value || '').trim().toUpperCase() === '1M';
 }
 
 function buildSessionBucketMetadata({
@@ -207,34 +202,15 @@ export function projectSourceBarsToChartData({
     allowSuffix: false,
     fieldName: 'Chart data projection sourceTimeframe',
   });
-  if (isDailyTarget(targetTimeframe)) {
+  const sessionAwareTarget = normalizeSessionAwareDisplayTimeframe(targetTimeframe);
+  if (sessionAwareTarget) {
     return projectSessionCalendarTarget({
       bars,
       cursorTimestamp,
       instrument,
-      resolveBucket: resolveTradingDayBucket,
+      resolveBucket: SESSION_AWARE_BUCKET_RESOLVERS[sessionAwareTarget],
       sourceTimeframe: source,
-      targetTimeframe: '1D',
-    });
-  }
-  if (isWeeklyTarget(targetTimeframe)) {
-    return projectSessionCalendarTarget({
-      bars,
-      cursorTimestamp,
-      instrument,
-      resolveBucket: resolveTradingWeekBucket,
-      sourceTimeframe: source,
-      targetTimeframe: '1W',
-    });
-  }
-  if (isMonthlyTarget(targetTimeframe)) {
-    return projectSessionCalendarTarget({
-      bars,
-      cursorTimestamp,
-      instrument,
-      resolveBucket: resolveTradingMonthBucket,
-      sourceTimeframe: source,
-      targetTimeframe: '1M',
+      targetTimeframe: sessionAwareTarget,
     });
   }
   const target = normalizeMinuteTimeframe(targetTimeframe, {

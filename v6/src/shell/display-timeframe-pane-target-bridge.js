@@ -1,16 +1,15 @@
 import { PANE_COMMANDS, PANE_EVENTS } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
+import { normalizeSessionAwareDisplayTimeframe } from '../time-domain/htf-display-timeframe-domain.js';
 
 function resolvePaneIdFromPane(pane = {}) {
   return String(pane.id || pane.paneId || '').trim();
 }
 
 function resolveDisplayTimeframeFromPane(pane = {}) {
-  const text = String(pane.displayTimeframe || '').trim().toUpperCase();
-  if (text === '1D' || text === '1W' || text === '1M') {
-    return text;
-  }
+  const sessionAware = normalizeSessionAwareDisplayTimeframe(pane.displayTimeframe);
+  if (sessionAware) return sessionAware;
   const displayTimeframe = Number(pane.displayTimeframe);
   if (!Number.isInteger(displayTimeframe) || displayTimeframe <= 0) {
     return null;
