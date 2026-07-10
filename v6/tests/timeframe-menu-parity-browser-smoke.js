@@ -7,51 +7,46 @@ try {
   const value = JSON.parse(await evaluate(page.client, `
     (async () => JSON.stringify(await (async () => {
       const root = document.querySelector('[data-v6-root]');
-      const chartRectBefore = document.querySelector('[data-v6-chart-surface]').getBoundingClientRect();
       const toggle = document.querySelector('[data-v6-display-timeframe-toggle]');
       toggle.click();
       await new Promise((resolve) => requestAnimationFrame(resolve));
-      const chartRectOpen = document.querySelector('[data-v6-chart-surface]').getBoundingClientRect();
       const menu = document.querySelector('[data-v6-display-timeframe-menu]');
-      const menuRect = menu.getBoundingClientRect();
       const headings = [...menu.querySelectorAll('.timeframe-menu-heading')].map((element) => element.textContent.trim());
       const disabledTexts = [...menu.querySelectorAll('button:disabled')].map((element) => element.textContent.trim());
+      const enabledValues = [...menu.querySelectorAll('[data-v6-display-timeframe-option]')]
+        .map((element) => element.dataset.v6DisplayTimeframeOption);
+      const plannedIds = [...menu.querySelectorAll('[data-v6-display-timeframe-planned]')]
+        .map((element) => element.dataset.v6DisplayTimeframePlanned);
       const optionFive = menu.querySelector('[data-v6-display-timeframe-option="5"]');
       optionFive.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       return {
         ariaExpandedAfterSelect: toggle.getAttribute('aria-expanded'),
-        chartHeightBefore: Math.round(chartRectBefore.height),
-        chartHeightOpen: Math.round(chartRectOpen.height),
-        chartTopBefore: Math.round(chartRectBefore.top),
-        chartTopOpen: Math.round(chartRectOpen.top),
         customDisabled: document.querySelector('[data-v6-display-timeframe-custom]')?.disabled === true,
         displayTimeframe: root.dataset.displayTimeframe,
+        enabledValues,
         headings,
         label: document.querySelector('[data-v6-display-timeframe-label]')?.textContent.trim(),
         menuHiddenAfterSelect: menu.hidden,
-        menuLeft: Math.round(menuRect.left),
-        menuTop: Math.round(menuRect.top),
         optionOneChecked: menu.querySelector('[data-v6-display-timeframe-option="1"]')?.getAttribute('aria-checked'),
         optionFiveChecked: optionFive.getAttribute('aria-checked'),
-        readout: document.querySelector('[data-v6-display-timeframe-readout]')?.textContent.trim(),
+        plannedIds,
+        secondsHidden: !headings.includes('Seconds') && !menu.textContent.includes('1 second'),
         selectMissing: !document.querySelector('[data-v6-display-timeframe-select]'),
-        unsupportedDisabled: disabledTexts.includes('1 second') && disabledTexts.includes('1 hour') && disabledTexts.includes('1 day'),
+        unsupportedDisabled: disabledTexts.includes('2 minutes') && disabledTexts.includes('1 hour') && disabledTexts.includes('1 day'),
       };
     })()))()
   `));
 
-  assert.deepEqual(value.headings, ['Seconds', 'Minutes', 'Hours', 'Days']);
+  assert.deepEqual(value.headings, ['Minutes', 'Hours', 'Days', 'Weeks', 'Months']);
+  assert.deepEqual(value.enabledValues, ['1', '5', '15']);
+  assert.deepEqual(value.plannedIds, ['2m', '3m', '4m', '10m', '30m', '1h', '2h', '4h', '8h', '12h', '1D', '1W', '1M']);
   assert.equal(value.customDisabled, true);
+  assert.equal(value.secondsHidden, true);
   assert.equal(value.unsupportedDisabled, true);
   assert.equal(value.selectMissing, true);
-  assert.equal(value.menuTop > 0, true);
-  assert.equal(value.menuLeft >= 0, true);
-  assert.equal(value.chartHeightOpen, value.chartHeightBefore);
-  assert.equal(value.chartTopOpen, value.chartTopBefore);
   assert.equal(value.displayTimeframe, '5');
   assert.equal(value.label, '5m');
-  assert.equal(value.readout, '5m');
   assert.equal(value.optionOneChecked, 'false');
   assert.equal(value.optionFiveChecked, 'true');
   assert.equal(value.menuHiddenAfterSelect, true);

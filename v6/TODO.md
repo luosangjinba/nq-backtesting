@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 263 - Auto-Play Session Gap Regression
-  Pack. V6 added a compact pack proving timer-driven replay crosses
-  `16:59 -> 18:00` and continues to `18:01` through manual-next delegation,
-  including 1m source replay and 5m display projection browser coverage.
+- Latest completed roadmap step: Step 264 - Display Timeframe Capability
+  Registry. V6 now has a display-timeframe capability model for the target
+  minute/hour/day/week/month interval set, renders the top interval menu from
+  that registry, keeps only `1m`, `5m`, and `15m` enabled, and hides seconds by
+  default until second-level source data exists.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -69,7 +70,7 @@
 
 ### Step 264 - Display Timeframe Capability Registry
 
-Status: in progress.
+Status: completed.
 
 Notes for execution:
 
@@ -93,6 +94,33 @@ Acceptance:
 - no new display timeframe is enabled in Step 264.
 
 ## Completed Steps
+
+### Step 264 - Display Timeframe Capability Registry
+
+Completed in this registry commit series.
+
+Verification:
+
+- `node v6/tests/display-timeframe-capability-registry-step264-static-smoke.js`
+- `node v6/tests/display-timeframe-capabilities-smoke.js`
+- `node v6/tests/display-timeframe-control-smoke.js`
+- `node v6/tests/timeframe-menu-parity-browser-smoke.js`
+- `node v6/tests/display-timeframe-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_DISPLAY_TIMEFRAME_CAPABILITY_REGISTRY_STEP264.md`.
+- Added `v6/src/display-timeframe/display-timeframe-capabilities.js`.
+- The visible product interval set is minutes `1m`, `2m`, `3m`, `4m`, `5m`,
+  `10m`, `15m`, `30m`; hours `1h`, `2h`, `4h`, `8h`, `12h`; daily `1D`;
+  weekly `1W`; and monthly `1M`.
+- Seconds remain hidden by default rather than visible disabled.
+- Only `1m`, `5m`, and `15m` remain enabled in Step 264.
+- Did not change replay, chart-data, bar-data, pane, journal, order-ticket,
+  prop-firm, indicator, or projection runtime behavior.
 
 ### Step 263 - Auto-Play Session Gap Regression Pack
 

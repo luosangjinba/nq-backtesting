@@ -1,3 +1,5 @@
+import { createDisplayTimeframeMenuGroups } from '../display-timeframe/display-timeframe-capabilities.js';
+
 const ICONS = {
   arrowLeft: '<path d="M15 18l-6-6 6-6"/><path d="M9 12h12"/>',
   arrowRight: '<path d="M9 18l6-6-6-6"/><path d="M3 12h12"/>',
@@ -40,6 +42,22 @@ function icon(name) {
 
 function layoutPreview(cells) {
   return `<span class="layout-preview" aria-hidden="true">${cells.map((cell) => `<span style="${cell}"></span>`).join('')}</span>`;
+}
+
+function renderDisplayTimeframeMenuOption(item) {
+  if (item.status === 'enabled') {
+    return `<button type="button" data-v6-display-timeframe-option="${item.runtimeValue}" data-v6-display-timeframe-capability="${item.id}" role="menuitemradio" aria-checked="${item.runtimeValue === 1 ? 'true' : 'false'}">${item.label}</button>`;
+  }
+  return `<button type="button" disabled data-v6-display-timeframe-planned="${item.id}" role="menuitem" title="${item.sourceRequirement} required">${item.label}</button>`;
+}
+
+function renderDisplayTimeframeMenuSections() {
+  return createDisplayTimeframeMenuGroups().map((group) => `
+              <section class="timeframe-menu-section" aria-label="${group.label}">
+                <div class="timeframe-menu-heading">${group.label}</div>
+                ${group.items.map(renderDisplayTimeframeMenuOption).join('\n                ')}
+              </section>
+  `).join('');
 }
 
 export function createWorkstationShellMarkup() {
@@ -182,36 +200,7 @@ export function createWorkstationShellMarkup() {
             </button>
             <div id="v6-timeframe-menu" class="timeframe-menu" data-v6-display-timeframe-menu hidden role="menu" aria-label="Interval menu">
               <button type="button" class="timeframe-custom" data-v6-display-timeframe-custom disabled role="menuitem">Add custom interval...</button>
-              <section class="timeframe-menu-section" aria-label="Seconds">
-                <div class="timeframe-menu-heading">Seconds</div>
-                <button type="button" disabled role="menuitem">1 second</button>
-                <button type="button" disabled role="menuitem">5 seconds</button>
-                <button type="button" disabled role="menuitem">10 seconds</button>
-                <button type="button" disabled role="menuitem">15 seconds</button>
-                <button type="button" disabled role="menuitem">30 seconds</button>
-              </section>
-              <section class="timeframe-menu-section" aria-label="Minutes">
-                <div class="timeframe-menu-heading">Minutes</div>
-                <button type="button" data-v6-display-timeframe-option="1" role="menuitemradio" aria-checked="true">1 minute</button>
-                <button type="button" data-v6-display-timeframe-option="5" role="menuitemradio" aria-checked="false">5 minutes</button>
-                <button type="button" data-v6-display-timeframe-option="15" role="menuitemradio" aria-checked="false">15 minutes</button>
-                <button type="button" disabled role="menuitem">30 minutes</button>
-                <button type="button" disabled role="menuitem">45 minutes</button>
-              </section>
-              <section class="timeframe-menu-section" aria-label="Hours">
-                <div class="timeframe-menu-heading">Hours</div>
-                <button type="button" disabled role="menuitem">1 hour</button>
-                <button type="button" disabled role="menuitem">2 hours</button>
-                <button type="button" disabled role="menuitem">4 hours</button>
-                <button type="button" disabled role="menuitem">12 hours</button>
-              </section>
-              <section class="timeframe-menu-section" aria-label="Days">
-                <div class="timeframe-menu-heading">Days</div>
-                <button type="button" disabled role="menuitem">1 day</button>
-                <button type="button" disabled role="menuitem">1 week</button>
-                <button type="button" disabled role="menuitem">1 month</button>
-                <button type="button" disabled role="menuitem">12 months</button>
-              </section>
+${renderDisplayTimeframeMenuSections()}
             </div>
           </div>
           <button type="button" class="tool-button tool-button-text" data-v6-top-indicators disabled aria-label="Indicators">${icon('indicators')}<span>Indicators</span></button>
