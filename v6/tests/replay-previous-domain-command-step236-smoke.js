@@ -101,7 +101,8 @@ const chartEntryManualNext = await read('v6/src/chart-entry/chart-entry-manual-n
 const chartDataRuntime = await read('v6/src/chart-data/chart-data-runtime.js');
 
 assert.match(shell, /data-v6-transport-step-back disabled/);
-assert.doesNotMatch(transport, /transport-action="previous"|case 'previous'|case "previous"/);
+assert.match(transport, /case 'previous'/);
+assert.match(transport, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS\.PREVIOUS/);
 assert.doesNotMatch(chartEntryManualNext, /REPLAY_COMMANDS\.PREVIOUS|MANUAL_PREVIOUS/i);
 assert.doesNotMatch(chartDataRuntime, /ROLLBACK|REMOVE_BARS|removeBars|rollback/i);
 

@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 243 - Manual Previous Transport
-  Multi-Pane Regression. V6 browser coverage now proves the Previous transport
-  button rewinds visible `main` and `secondary` panes together while preserving
-  pane-local chart-data and viewport intent.
+- Latest completed roadmap step: Step 244 - Manual Previous Chain Closure
+  Audit. V6 closed the Step Back / Manual Previous chain, fixed stale early
+  static assertions, documented the final owner map, and selected a compact
+  replay/transport regression pack as the next foundation gate.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,26 +43,64 @@
 
 ## Next Executable Steps
 
-### Step 244 - Manual Previous Chain Closure Audit
+### Step 245 - Replay/Transport Chain Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 235-243 as one completed Manual Previous / Step Back chain;
-- check for duplicate owner logic, stale assertions, or documentation drift;
-- confirm the next foundation priority after this chain;
-- do not add feature behavior unless the audit exposes a small blocking fix.
+- run a compact browser/static regression pack around replay transport,
+  leftward history, multi-pane layout, reset view, and display timeframe
+  switching;
+- document any flaky or slow case separately instead of expanding feature scope;
+- avoid new feature behavior unless a blocking regression is found;
+- keep Manual Previous implementation closed unless the pack exposes a specific
+  regression.
 
 Acceptance:
 
-- audit findings are documented in `v6/docs/` or TODO/session notes;
-- relevant Manual Previous smoke set still passes;
-- next foundation step is explicit and bounded;
+- compact replay/transport foundation pack is documented and passing;
+- any failure is either fixed in its owner module or logged as a bounded next
+  step;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 244.
+  in Step 245.
 
 ## Completed Steps
+
+### Step 244 - Manual Previous Chain Closure Audit
+
+Completed in this audit and stale-smoke cleanup commit.
+
+Verification:
+
+- `node v6/tests/manual-previous-chain-closure-step244-smoke.js`
+- `node v6/tests/chart-foundation-next-slice-selection-step234-smoke.js`
+- `node v6/tests/replay-step-back-owner-readiness-step235-smoke.js`
+- `node v6/tests/replay-previous-domain-command-step236-smoke.js`
+- `node v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`
+- `node v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`
+- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Documented the final Manual Previous owner map in
+  `v6/docs/V6_MANUAL_PREVIOUS_CHAIN_CLOSURE_AUDIT_STEP244.md`.
+- Confirmed replay owns previous cursor state and `previousAvailable`;
+  chart-entry owns pane-local chart-data replacement; chart-data owns
+  `REPLACE_BARS`; chart viewport owns cursor/projection preservation; shell
+  transport owns button state and command dispatch only.
+- Fixed stale Step 234-237 static smoke assertions that still rejected current
+  Step 242 transport Previous action wiring.
+- Confirmed no chart-data rollback/remove command path was added.
+- Deferred keyboard Previous shortcuts to a separate UI behavior step.
+- Selected Step 245 as a compact replay/transport regression pack before
+  opening another feature area.
+- Did not change runtime feature behavior, indicators, trading simulation,
+  order tickets, prop firm rule engines, or journal workflows.
 
 ### Step 243 - Manual Previous Transport Multi-Pane Regression
 

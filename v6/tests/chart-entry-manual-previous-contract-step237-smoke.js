@@ -55,7 +55,8 @@ assert.match(chartDataRuntime, /CHART_DATA_COMMANDS\.REPLACE_BARS/);
 assert.match(paneReloadChartData, /CHART_DATA_COMMANDS\.REPLACE_BARS/);
 
 assert.match(shell, /data-v6-transport-step-back disabled/);
-assert.doesNotMatch(transport, /transport-action="previous"|case 'previous'|case "previous"/);
+assert.match(transport, /case 'previous'/);
+assert.match(transport, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS\.PREVIOUS/);
 assert.match(contracts, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS/);
 assert.match(contracts, /chartEntryManualPrevious\.previous/);
 assert.match(chartEntryManualPrevious, /REPLAY_COMMANDS\.PREVIOUS/);

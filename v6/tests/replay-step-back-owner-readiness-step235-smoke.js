@@ -44,13 +44,14 @@ for (const required of [
   assert.match(doc, new RegExp(escaped(required)));
 }
 
-assert.match(todo, /Step 235 - Replay Step Back Owner Readiness Audit/);
-assert.match(todo, /Step 236 - Replay Previous Domain Command/);
+assert.match(todo, /Step 244 - Manual Previous Chain Closure Audit/);
 assert.match(shell, /data-v6-transport-step-back disabled/);
 assert.match(shell, /aria-label="Previous replay bar"/);
 
-assert.doesNotMatch(transport, /transport-action="previous"|case 'previous'|case "previous"/);
-assert.doesNotMatch(contracts, /STEP_BACK|MANUAL_PREVIOUS/);
+assert.match(transport, /case 'previous'/);
+assert.match(transport, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS\.PREVIOUS/);
+assert.doesNotMatch(contracts, /STEP_BACK/);
+assert.match(contracts, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS/);
 assert.match(contracts, /PREVIOUS: 'replay\.previous'/);
 assert.match(contracts, /REWOUND: 'replay:rewound'/);
 assert.match(replayDomain, /previousReplayState/);

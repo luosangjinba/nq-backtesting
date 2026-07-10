@@ -29,12 +29,12 @@ for (const required of [
 }
 
 assert.match(todo, /Step 234 - Chart Foundation Next Slice Selection/);
-assert.match(todo, /Step 235 - Replay Step Back Owner Readiness Audit/);
 assert.match(shell, /data-v6-transport-step-back disabled/);
 assert.match(shell, /aria-label="Previous replay bar"/);
-assert.doesNotMatch(transport, /transport-action="previous"|case 'previous'|case "previous"/);
-assert.doesNotMatch(replayDomain, /previousReplayState|previousReplay|prevReplay/);
-assert.doesNotMatch(replayRuntime, /REPLAY_COMMANDS\.PREVIOUS|registerCommand\([^,]*previous/i);
+assert.match(transport, /case 'previous'/);
+assert.match(transport, /CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS\.PREVIOUS/);
+assert.match(replayDomain, /previousReplayState|resolvePreviousReplayAvailability/);
+assert.match(replayRuntime, /REPLAY_COMMANDS\.PREVIOUS/);
 assert.match(viewportSpec, /Replay cursor movement updates `cursorTimestamp`/);
 assert.match(viewportSpec, /Replay runtime may publish cursor updates/);
 
