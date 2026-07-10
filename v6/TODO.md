@@ -28,11 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 273 - HTF Browser Replay Gap Pack. V6
-  now guards browser-visible `1D`/`1W`/`1M` manual-next and auto-play over
-  `16:59 -> 18:00` no-bar replay gaps, keeping footer/readout cursor state
-  source-bar driven while HTF projection metadata includes the final post-gap
-  source bar.
+- Latest completed roadmap step: Step 274 - Replay Gap Browser Regression
+  Runner. V6 now has one browser regression command for the replay no-bar gap
+  coverage introduced by Steps 258, 263, and 273, spanning 1m, 5m/15m, and
+  `1D`/`1W`/`1M` manual-next and auto-play paths.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -68,28 +67,55 @@
 
 ## Next Executable Steps
 
-### Step 274 - Replay Gap Browser Regression Runner
+### Step 275 - Chart Foundation Next Slice Selection
 
 Status: proposed.
 
 Notes for execution:
 
-- add a bounded replay-gap browser regression runner that executes the existing
-  1m, 5m/15m, and `1D`/`1W`/`1M` browser gap smokes from one command;
-- keep the runner in `v6/tests/` and avoid changing runtime behavior;
-- ensure the runner is documented so future replay fixes have one browser
-  command before commit;
+- audit the current chart foundation after replay-gap hardening;
+- choose one bounded next implementation slice based on current stability
+  evidence, manual testing friction, and existing open TODO direction;
+- prefer chart-foundation behavior over adding more replay-gap variants unless
+  a concrete uncovered replay gap is found;
+- document the selected slice, acceptance, non-goals, and required smoke gates;
 - do not add seconds, journal, order-ticket, prop-firm, indicator,
   chart-engine, viewport, or projection behavior.
 
 Acceptance:
 
-- one command runs the replay-gap browser coverage introduced by Steps 258,
-  263, and 273;
-- static smoke guards the runner membership;
+- Step 275 selects exactly one next bounded chart-foundation slice;
+- the selection references current evidence from Steps 258-274;
+- the selected slice has clear owner boundaries and verification commands;
 - existing runtime/projection/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 274 - Replay Gap Browser Regression Runner
+
+Completed in this browser regression-runner commit series.
+
+Verification:
+
+- `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
+- `node v6/tests/replay-gap-browser-regression-pack-step274-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_REPLAY_GAP_BROWSER_REGRESSION_RUNNER_STEP274.md`.
+- Added `v6/tests/replay-gap-browser-regression-pack-step274-smoke.js` as the
+  single browser command for replay no-bar gap coverage.
+- The runner executes:
+  `manual-next-session-gap-browser-step258-smoke.js`,
+  `auto-play-session-gap-browser-step263-smoke.js`,
+  `htf-manual-next-replay-gap-browser-step273-smoke.js`, and
+  `htf-auto-play-replay-gap-browser-step273-smoke.js`.
+- The runner prints start/pass/fail lines, stops at the first failure, and exits
+  with the failing child process code.
+- Did not change replay, chart-data projection, chart-engine, viewport, pane,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior.
 
 ### Step 273 - HTF Browser Replay Gap Pack
 
