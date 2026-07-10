@@ -46,6 +46,11 @@
   inherits the previous session's price axis; chart surface now asks the chart
   host to autoscale price after default projections, repeats that autoscale
   after chart layout settles, and preserves manual horizontal drag behavior.
+- Latest inserted stability fix: 2026-07-10 wheel-zoom leftward prepend range
+  stabilization. Chart surface now treats recent wheel-initiated leftward
+  history prepends as a short stabilization window, rechecking the measured
+  logical range after Lightweight Charts settles and reapplying the compensated
+  range only when the wheel/prepend path drifted.
 
 ## Next Executable Steps
 
@@ -70,6 +75,27 @@ Acceptance:
   in Step 258.
 
 ## Completed Steps
+
+### Inserted Stability Fix - Wheel-Zoom Leftward Prepend Range Stability
+
+Completed as a bugfix before Step 258 selection.
+
+Verification:
+
+- `node v6/tests/chart-surface-wheel-prepend-range-stability-smoke.js`
+- `node v6/tests/chart-surface-prepend-visible-range-stability-smoke.js`
+- `node v6/tests/workstation-chart-surface-smoke.js`
+- `node v6/tests/chart-viewport-prepend-manual-stability-smoke.js`
+- `node v6/tests/drag-triggered-history-extension-browser-step149-smoke.js`
+- `node v6/tests/leftward-history-htf-stability-browser-step198-smoke.js`
+- `node v6/tests/chart-drag-release-lifecycle-browser-smoke.js`
+
+Notes:
+
+- Preserves the existing immediate prepend compensation for drag/manual
+  leftward history.
+- Adds a wheel-only delayed measured-range check so wheel zoom plus older-bar
+  prepend does not leave visible K-lines jumping after the chart library settles.
 
 ### Step 257 - Visible K-Line Latency Regression Pack
 

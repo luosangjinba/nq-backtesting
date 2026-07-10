@@ -41,6 +41,7 @@ const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
 const PROGRAMMATIC_RANGE_EPSILON = 2;
 const USER_RANGE_DRAG_RELEASE_GRACE_MS = 80;
 const USER_RANGE_WHEEL_WINDOW_MS = 2000;
+const WHEEL_PREPEND_STABILIZE_DELAY_MS = 120;
 const SYNTHETIC_RELEASE_EVENT_TYPES = Object.freeze(['mouseup', 'pointerup']);
 const LAYOUT_PANE_COUNTS = Object.freeze({
   single: 1,
@@ -150,6 +151,8 @@ export function mountWorkstationChartSurface(root, {
   const crosshairListeners = new Set();
   const hostFocusHandlers = new Map();
   const hostInputStartHandlers = new Map();
+  const hostWheelHandlers = new Map();
+  const lastWheelRangeInputByPaneId = new Map();
   const paneActivationListeners = new Set();
   const visibleRangeListeners = new Set();
   const paneResizeRatiosByVariant = new Map();
@@ -166,6 +169,7 @@ export function mountWorkstationChartSurface(root, {
   let maximizedPaneId = null;
   let pendingLayoutResizeFrame = null;
   const pendingPriceScaleResetFrames = new Map();
+  const pendingWheelPrependStabilizationTimers = new Map();
   let readoutPaneId = null;
   let restoreLayoutSnapshot = null;
   let activeUserRangeGestures = 0;
@@ -241,9 +245,66 @@ export function mountWorkstationChartSurface(root, {
     activeUserRangeGestures = 0;
     userRangeInputUntil = Date.now() + USER_RANGE_DRAG_RELEASE_GRACE_MS;
   };
-  const markUserRangeWheelInput = () => {
+  const markUserRangeWheelInput = (paneId = null) => {
     userRangeInputUntil = Date.now() + USER_RANGE_WHEEL_WINDOW_MS;
+    const normalizedPaneId = String(paneId || '').trim();
+    if (normalizedPaneId) {
+      lastWheelRangeInputByPaneId.set(normalizedPaneId, {
+        until: userRangeInputUntil,
+      });
+    }
   };
+  function isRecentWheelRangeInput(paneId) {
+    const record = lastWheelRangeInputByPaneId.get(paneId);
+    if (!record) return false;
+    if (Date.now() <= Number(record.until)) return true;
+    lastWheelRangeInputByPaneId.delete(paneId);
+    return false;
+  }
+  function clearWheelPrependStabilization(paneId) {
+    const timer = pendingWheelPrependStabilizationTimers.get(paneId);
+    if (timer !== undefined && typeof clearTimeout === 'function') {
+      clearTimeout(timer);
+    }
+    pendingWheelPrependStabilizationTimers.delete(paneId);
+  }
+  function applyProgrammaticVisibleRange(paneId, range) {
+    const record = {
+      from: Number(range.from),
+      suppressUntil: Date.now() + PROGRAMMATIC_RANGE_SUPPRESSION_MS,
+      to: Number(range.to),
+    };
+    programmaticRangeByPaneId.set(paneId, record);
+    return manager.setVisibleLogicalRange(paneId, {
+      from: record.from,
+      to: record.to,
+    });
+  }
+  function scheduleWheelPrependStabilization(paneId, range) {
+    if (!isRecentWheelRangeInput(paneId) || typeof setTimeout !== 'function') {
+      return null;
+    }
+    clearWheelPrependStabilization(paneId);
+    const targetRange = {
+      from: Number(range.from),
+      to: Number(range.to),
+    };
+    const timer = setTimeout(() => {
+      pendingWheelPrependStabilizationTimers.delete(paneId);
+      if (destroyed || !hostsByPaneId.has(paneId)) {
+        return;
+      }
+      const measuredRange = typeof manager.measureVisibleLogicalRange === 'function'
+        ? manager.measureVisibleLogicalRange(paneId)
+        : measuredVisibleRangeByPaneId.get(paneId);
+      if (measuredRange && rangesNear(measuredRange, targetRange)) {
+        return;
+      }
+      applyProgrammaticVisibleRange(paneId, targetRange);
+    }, WHEEL_PREPEND_STABILIZE_DELAY_MS);
+    pendingWheelPrependStabilizationTimers.set(paneId, timer);
+    return timer;
+  }
   function activatePane(paneId, origin = 'host-input') {
     const normalizedPaneId = String(paneId || '').trim();
     if (!normalizedPaneId || !hostsByPaneId.has(normalizedPaneId)) {
@@ -316,7 +377,12 @@ export function mountWorkstationChartSurface(root, {
     const focusHandler = () => activatePane(paneId, 'focusin');
     hostFocusHandlers.set(paneId, focusHandler);
     host.addEventListener?.('focusin', focusHandler, { passive: true });
-    host.addEventListener?.('wheel', markUserRangeWheelInput, { passive: true });
+    const wheelHandler = () => {
+      activatePane(paneId, 'wheel');
+      markUserRangeWheelInput(paneId);
+    };
+    hostWheelHandlers.set(paneId, wheelHandler);
+    host.addEventListener?.('wheel', wheelHandler, { passive: true });
     const releaseTarget = host.ownerDocument || root.ownerDocument || globalThis.document;
     if (releaseTarget) {
       userInputReleaseTargets.add(releaseTarget);
@@ -702,11 +768,9 @@ export function mountWorkstationChartSurface(root, {
           from: Number(previousVisibleRange.from) + prependedBarCount,
           to: Number(previousVisibleRange.to) + prependedBarCount,
         };
-        programmaticRangeByPaneId.set(recordPaneId, {
-          ...shiftedRange,
-          suppressUntil: Date.now() + PROGRAMMATIC_RANGE_SUPPRESSION_MS,
-        });
-        return manager.setVisibleLogicalRange(recordPaneId, shiftedRange);
+        const stabilizedSnapshot = applyProgrammaticVisibleRange(recordPaneId, shiftedRange);
+        scheduleWheelPrependStabilization(recordPaneId, shiftedRange);
+        return stabilizedSnapshot;
       }
       return snapshot;
     },
@@ -783,6 +847,10 @@ export function mountWorkstationChartSurface(root, {
         }
       }
       pendingPriceScaleResetFrames.clear();
+      for (const paneId of pendingWheelPrependStabilizationTimers.keys()) {
+        clearWheelPrependStabilization(paneId);
+      }
+      lastWheelRangeInputByPaneId.clear();
       unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       hosts.forEach((host) => {
@@ -791,10 +859,11 @@ export function mountWorkstationChartSurface(root, {
           host.removeEventListener?.(eventName, hostInputStartHandlers.get(`${paneId}:${eventName}`));
         });
         host.removeEventListener?.('focusin', hostFocusHandlers.get(paneId));
-        host.removeEventListener?.('wheel', markUserRangeWheelInput);
+        host.removeEventListener?.('wheel', hostWheelHandlers.get(paneId));
       });
       hostFocusHandlers.clear();
       hostInputStartHandlers.clear();
+      hostWheelHandlers.clear();
       userInputReleaseTargets.forEach((target) => {
         userInputReleaseEvents.forEach((eventName) => {
           target.removeEventListener?.(eventName, markUserRangeDragEnd);
