@@ -76,8 +76,8 @@ try {
     })()))()
   `));
 
-  assert.equal(value.session.startTime, '2026-05-01T16:30:00.000Z');
-  assert.equal(value.session.endTime, '2026-05-05T23:00:00.000Z');
+  assert.equal(value.session.startTime, '2026-05-01T09:30:00.000Z');
+  assert.equal(value.session.endTime, '2026-05-05T16:00:00.000Z');
   assert.match(value.rowText, /2026-05-01 \/ 2026-05-05/);
   assert.match(value.rowBoundaryText, /Chart starts at/);
   assert.equal(value.applyState.status, 'applied');

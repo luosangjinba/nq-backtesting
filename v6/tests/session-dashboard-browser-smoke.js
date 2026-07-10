@@ -188,7 +188,7 @@ try {
   assert.match(value.afterCreate.sessionText, /test/);
   assert.match(value.afterCreate.sessionText, /NQ/);
   assert.match(value.afterCreate.sessionText, /2026-06-01 \/ 2026-06-05/);
-  assert.equal(value.afterCreate.sessionBoundaryText, 'Chart data from prior Globex open: 2026-05-31 18:00');
+  assert.equal(value.afterCreate.sessionBoundaryText, 'Chart starts at prior Globex open: 2026-05-31 18:00');
   assert.equal(value.afterOpenSession.dashboardHidden, true);
   assert.equal(value.afterOpenSession.dashboardOpen, false);
   assert.equal(value.afterOpenSession.activeId, value.afterCreate.sessionId);

@@ -34,9 +34,9 @@ const form = createForm({
 assert.deepEqual(readSessionSetupForm(form), {
   accountBalance: 100000,
   autoUpdateEndDate: false,
-  endTime: '2026-07-05T23:00:00.000Z',
+  endTime: '2026-07-05T16:00:00.000Z',
   name: 'abc',
-  startTime: '2026-07-01T16:30:00.000Z',
+  startTime: '2026-07-01T09:30:00.000Z',
   symbol: 'NQ',
   symbols: ['NQ', 'ES'],
 });
@@ -51,7 +51,7 @@ const autoEndForm = createForm({
 });
 
 assert.equal(readSessionSetupForm(autoEndForm).autoUpdateEndDate, true);
-assert.equal(readSessionSetupForm(autoEndForm).endTime, '2026-07-05T16:30:00.000Z');
+assert.equal(readSessionSetupForm(autoEndForm).endTime, '2026-07-05T09:30:00.000Z');
 
 assert.throws(
   () => readSessionSetupForm(createForm({

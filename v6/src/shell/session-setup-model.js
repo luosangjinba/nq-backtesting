@@ -9,14 +9,22 @@ function readRequiredText(value, fieldName) {
 function readDateTimeLocal(value, fieldName) {
   const normalized = readRequiredText(value, fieldName);
   const match = normalized.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
-  const parsed = match ? new Date(normalized) : null;
+  const parsed = match
+    ? new Date(Date.UTC(
+        Number(match[1]),
+        Number(match[2]) - 1,
+        Number(match[3]),
+        Number(match[4]),
+        Number(match[5]),
+      ))
+    : null;
   const valid = parsed
     && !Number.isNaN(parsed.valueOf())
-    && parsed.getFullYear() === Number(match[1])
-    && parsed.getMonth() + 1 === Number(match[2])
-    && parsed.getDate() === Number(match[3])
-    && parsed.getHours() === Number(match[4])
-    && parsed.getMinutes() === Number(match[5]);
+    && parsed.getUTCFullYear() === Number(match[1])
+    && parsed.getUTCMonth() + 1 === Number(match[2])
+    && parsed.getUTCDate() === Number(match[3])
+    && parsed.getUTCHours() === Number(match[4])
+    && parsed.getUTCMinutes() === Number(match[5]);
   if (!valid) {
     throw new Error(`${fieldName} must be a valid date/time.`);
   }

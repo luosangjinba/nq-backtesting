@@ -51,6 +51,10 @@
   history prepends as a short stabilization window, rechecking the measured
   logical range after Lightweight Charts settles and reapplying the compensated
   range only when the wheel/prepend path drifted.
+- Latest session setup fix: 2026-07-10 `datetime-local` inputs are parsed as
+  chart/data-axis literal UTC timestamps instead of browser-local timestamps.
+  Creating a session at `2026-05-04 09:30` now stores `2026-05-04T09:30:00Z`
+  instead of shifting to the operator machine timezone.
 
 ## Next Executable Steps
 
@@ -96,6 +100,29 @@ Notes:
   leftward history.
 - Adds a wheel-only delayed measured-range check so wheel zoom plus older-bar
   prepend does not leave visible K-lines jumping after the chart library settles.
+
+### Inserted Session Setup Fix - Datetime-Local Chart Axis Semantics
+
+Completed as a bugfix before Step 258 selection.
+
+Verification:
+
+- `node v6/tests/session-setup-model-smoke.js`
+- `node v6/tests/session-setup-datetime-local-browser-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/quick-session-flow-browser-smoke.js`
+- `node v6/tests/session-dashboard-browser-smoke.js`
+- `node v6/tests/session-domain-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
+- `node v6/tests/date-range-boundary-entry-regression-pack-step255-smoke.js`
+
+Notes:
+
+- Quick session form inputs such as `2026-05-04T09:30` now become
+  `2026-05-04T09:30:00.000Z` at the session boundary.
+- The lower-level session domain still accepts explicit ISO offsets and
+  normalizes them through its existing API.
 
 ### Step 257 - Visible K-Line Latency Regression Pack
 
