@@ -40,7 +40,7 @@ for (const required of [
 
 assert.match(todo, /Step 250 - Chart Foundation Next Slice Selection/);
 assert.match(todo, /Step 251 - Multi-Pane Active Focus Chain Gate/);
-assert.match(todo, /multi-pane active focus\/readout chain/i);
+assert.match(todo, /active-pane focus\/readout/i);
 assert.match(roadmap, /primary\/non-primary multi-pane confusion/);
 assert.match(roadmap, /active pane id/);
 assert.match(productDirection, /SMC\/ICT-style discretionary traders/);

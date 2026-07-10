@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 251 - Multi-Pane Active Focus Chain
-  Gate. V6 added a browser-visible chain gate for active pane visual focus,
-  pane runtime state, top toolbar symbol/timeframe presentation, pane-local
-  OHLC headers, and active-pane display-timeframe command targeting.
+- Latest completed roadmap step: Step 252 - Chart Foundation Next Slice
+  Selection. V6 selected Multi-Pane Chart Foundation Regression Pack as the
+  next bounded chart-foundation slice after active-pane focus/readout
+  consistency was gated.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,27 +43,54 @@
 
 ## Next Executable Steps
 
-### Step 252 - Chart Foundation Next Slice Selection
+### Step 253 - Multi-Pane Chart Foundation Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 245-251 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, chart drag/scroll display,
-  date ranges, replay, multi-pane, or pane-local reset behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- add a compact pack runner for core multi-pane foundation browser gates;
+- include data bootstrap, replay append, viewport projection, leftward history,
+  pane-local reset, maximize/restore, display-timeframe active-pane targeting,
+  and active focus chain coverage;
+- document pack purpose, membership, and expected use;
+- keep the pack focused enough to run during multi-pane foundation work;
+- add no runtime behavior unless the pack exposes a specific owner regression.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
+- multi-pane foundation pack is documented and runnable;
+- pack membership is focused on pane/layout/replay/chart-data/viewport/display
+  timeframe/reset/maximize/active-focus foundation behavior;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 252.
+  in Step 253.
 
 ## Completed Steps
+
+### Step 252 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step252-smoke.js`
+- `node v6/tests/chart-foundation-next-slice-selection-step250-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP252.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step252-smoke.js`.
+- Selected Step 253 as Multi-Pane Chart Foundation Regression Pack.
+- Chose a compact multi-pane pack because the full chart browser pack is broad,
+  while pane/layout/replay/chart-data/viewport/display-timeframe/reset/maximize
+  work needs a focused regression entry.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 251 - Multi-Pane Active Focus Chain Gate
 
