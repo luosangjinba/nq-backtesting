@@ -1,6 +1,114 @@
 # V6 Handoff
 
-Last updated: 2026-07-08
+Last updated: 2026-07-10
+
+## 2026-07-10 Restart Handoff Snapshot
+
+Read this block first after restarting the server or assistant context.
+
+### Repository State
+
+- Branch: `v6/fx-replay-workstation`
+- Worktree at handoff: clean
+- Latest commit: `b68404fe fix(v6): skip replay session gaps`
+- Recent relevant commits:
+  - `b68404fe fix(v6): skip replay session gaps`
+  - `a8828499 fix(v6): parse session setup times as chart axis`
+  - `dfc270f1 fix(v6): stabilize wheel prepend range`
+  - `bd226178 fix(v6): defer price scale reset after session open`
+  - `cc853e21 fix(v6): reset price scale on session projection`
+  - `493b7f03 test(v6): add visible kline latency pack`
+
+### Current Product / Engineering Direction
+
+- V6 is now the active foundation for an open-source-oriented personal
+  backtesting/journal workstation for SMC/ICT discretionary traders, especially
+  prop firm traders.
+- Current foundation priority remains chart basics: chart loading, TF switching,
+  leftward history extension, date range entry, replay, multi-pane, pane-local
+  reset, and visible K-line latency.
+- Indicators, main/sub-pane indicator areas, simulated trading/order tickets,
+  prop-firm workflow, and journal workflows remain later work unless a bounded
+  owner contract says otherwise.
+- Keep the modularity rule strict: feature work must land through its owner
+  boundary and public command/event contract.
+
+### Latest Fixes To Preserve
+
+- Session setup datetime fix:
+  `datetime-local` values are parsed as chart/data-axis literal UTC. A user
+  input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
+  browser-local shifted time.
+- Session switch price-scale fix:
+  opening a different price regime or pressing reset view should autoscale the
+  pane instead of inheriting the prior session price axis.
+- Wheel zoom leftward prepend stability:
+  wheel-initiated leftward history prepend has a short stabilization recheck so
+  visible K-lines do not jump after Lightweight Charts settles.
+- Manual-next session gap fix:
+  replay now skips no-bar session breaks to the next available source K-line.
+  The browser smoke covers 1m, 5m, and 15m display paths. HTF chart timestamps
+  may still show bucket starts such as `17:59`; verify the projected bucket's
+  source bar reached `18:00`, not that the HTF bucket timestamp equals `18:00`.
+
+### Runtime / Server At Handoff
+
+- API process was listening at `127.0.0.1:8766`:
+  `/home/leo/miniconda3/bin/python3 /home/leo/myworkspace/trading/backtesting/v4/v4_api.py`
+- Static web process was listening at `127.0.0.1:8002`:
+  `python3 -m http.server 8002 --bind 127.0.0.1`
+- Browser URL:
+  `http://127.0.0.1:8002/v6/index.html`
+- Health URL:
+  `http://127.0.0.1:8766/v4/health`
+- Windows one-click entry remains:
+  `v6/start_windows.bat`
+- Windows PowerShell entry:
+  `powershell -NoProfile -ExecutionPolicy Bypass -File v6/start_windows.ps1 start`
+
+### Restart Checklist
+
+1. Confirm branch and cleanliness:
+   - `git branch --show-current`
+   - `git status --short`
+2. Start or verify services:
+   - API: `http://127.0.0.1:8766/v4/health`
+   - Web: `http://127.0.0.1:8002/v6/index.html`
+3. Open `v6/TODO.md` and this handoff file before selecting the next step.
+4. If continuing from the latest user bug, manually spot-check:
+   - create a session crossing `2026-06-01 17:00`;
+   - replay through the break on 1m, 5m, and 15m display TF;
+   - confirm replay cursor skips to `18:00` instead of sticking at `16:59`.
+
+### Last Verified Commands
+
+- `node v6/tests/replay-domain-smoke.js`
+- `node v6/tests/replay-runtime-smoke.js`
+- `node v6/tests/manual-next-session-gap-step258-smoke.js`
+- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/auto-play-htf-projection-step199-smoke.js`
+- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
+- `node v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+One browser latency smoke had a transient timing failure during verification,
+then the individual test and the full pack both passed. Treat future single
+latency threshold failures the same way: rerun the failing case once, then
+rerun the pack before changing code.
+
+### Next Work Recommendation
+
+- Do not start indicators or trading simulation yet.
+- Recommended next action is to select and document Step 258 as the next bounded
+  chart-foundation slice, unless a fresh manual test after restart exposes a
+  regression in the current replay/date-range/leftward-history foundation.
+- Good candidate area: another small chart-foundation UX/stability debt item
+  around replay/date-range/TF behavior, with smoke coverage before broader
+  feature work.
 
 ## Current State
 
