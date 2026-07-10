@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 261 - Playback Period Session Gap
-  Regression Pack. V6 added a compact pack for 5m and 15m playback-period
-  manual `Next` continuation across no-bar session breaks, including 1m source
-  replay and 5m/15m display projection browser coverage.
+- Latest completed roadmap step: Step 262 - Chart Foundation Next Slice
+  Selection. V6 selected Step 263 as Auto-Play Session Gap Regression Pack,
+  focused on proving timer-driven replay inherits manual-next session-gap
+  continuation without moving ownership into the auto-play runtime.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -63,27 +63,58 @@
 
 ## Next Executable Steps
 
-### Step 262 - Chart Foundation Next Slice Selection
+### Step 263 - Auto-Play Session Gap Regression Pack
 
 Status: planned.
 
 Notes for execution:
 
-- review Steps 245-261 and select the next bounded chart-foundation slice;
-- stay inside chart loading, timeframe switching, chart drag/scroll display,
-  date ranges, replay, multi-pane, pane-local reset, or latency behavior;
-- account for old UX debt without jumping ahead to indicators, trading
-  simulation, prop-firm logic, or journal workflows;
-- list verification before implementation begins.
+- add a compact pack runner for auto-play session-gap runtime and browser
+  gates;
+- prove auto-play crosses the `16:59 -> 18:00` no-bar break and continues
+  beyond the first post-break source bar;
+- verify replay `cursorIndex` and `revealedCount` remain aligned after
+  auto-play crosses the gap;
+- include display-timeframe projection coverage where the projected bucket's
+  last source timestamp, not bucket-start timestamp, proves continuation;
+- include source/static coverage proving auto-play still delegates to
+  manual-next and does not own bar-data/chart-data/projection commands.
 
 Acceptance:
 
-- one next slice is selected with owner boundaries and verification;
-- runtime behavior is unchanged in the selection step;
+- Step 263 has one focused auto-play session-gap regression-pack entry;
+- the pack stays inside replay/auto-play/manual-next/chart-data chart
+  foundation behavior;
+- no runtime behavior changes unless the pack exposes a specific owner
+  regression;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 262.
+  in Step 263.
 
 ## Completed Steps
+
+### Step 262 - Chart Foundation Next Slice Selection
+
+Completed in this selection commit.
+
+Verification:
+
+- `node v6/tests/chart-foundation-next-slice-selection-step262-smoke.js`
+- `node v6/tests/playback-period-session-gap-regression-pack-step261-static-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP262.md`.
+- Added `v6/tests/chart-foundation-next-slice-selection-step262-smoke.js`.
+- Selected Step 263 as Auto-Play Session Gap Regression Pack.
+- The next pack should prove auto-play remains a scheduler over manual-next
+  while inheriting session-gap continuation across source and display-timeframe
+  paths.
+- Did not change runtime behavior, data loading, replay, chart-data, viewport,
+  pane state, TFs, indicators, SMC/ICT overlays, trading simulation, order
+  tickets, prop firm rule engines, or journal workflows.
 
 ### Step 261 - Playback Period Session Gap Regression Pack
 
