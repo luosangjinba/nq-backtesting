@@ -36,19 +36,18 @@ const unsubscribeIgnored = subscribeEvent(CHART_HISTORY_EVENTS.LEFT_EXTENSION_IG
 const fetchCalls = [];
 const fetchBars = async (window) => {
   fetchCalls.push(window);
-  if (window.start === '2026-06-01 09:25' && window.end === '2026-06-01 09:25') {
+  if (window.start === '2026-06-01 09:26' && window.end === '2026-06-01 09:26') {
     return {
       bars: [
-        { close: 95.5, high: 96, low: 95, open: 95, timestamp: 1780305900 },
+        { close: 96.5, high: 97, low: 96, open: 96, timestamp: 1780305960 },
       ],
       history: { exhaustedBefore: false },
       requestedRange: { end: window.end, start: window.start },
     };
   }
-  if (window.start === '2026-06-01 09:26' && window.end === '2026-06-01 09:29') {
+  if (window.start === '2026-06-01 09:27' && window.end === '2026-06-01 09:29') {
     return {
       bars: [
-        { close: 96.5, high: 97, low: 96, open: 96, timestamp: 1780305960 },
         { close: 97.5, high: 98, low: 97, open: 97, timestamp: 1780306020 },
         { close: 98.5, high: 99, low: 98, open: 98, timestamp: 1780306080 },
         { close: 99.5, high: 100, low: 99, open: 99, timestamp: 1780306140 },
@@ -94,37 +93,36 @@ let state = await dispatchCommand(CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
   visibleRange: { from: -3.2, to: 15 },
 });
 assert.equal(state.status, 'loaded');
-assert.equal(state.extension.prependedBarCount, 4);
+assert.equal(state.extension.prependedBarCount, 3);
 assert.deepEqual(state.extension.plannedWindow, {
   bounded: true,
-  canvasLeftBoundary: '2026-06-01 09:26',
+  canvasLeftBoundary: '2026-06-01 09:27',
   chunked: false,
   direction: 'backward',
   end: '2026-06-01 09:29',
-  estimatedBars: 4,
+  estimatedBars: 3,
   historyRequest: 'older-window',
   instrument: 'NQ',
   requestCap: 'canvas-left',
-  start: '2026-06-01 09:26',
+  start: '2026-06-01 09:27',
   timeframe: 1,
 });
 assert.equal(fetchCalls.length, 1);
 assert.deepEqual(fetchCalls[0], {
   bounded: true,
-  canvasLeftBoundary: '2026-06-01 09:26',
+  canvasLeftBoundary: '2026-06-01 09:27',
   direction: 'backward',
   end: '2026-06-01 09:29',
-  estimatedBars: 4,
+  estimatedBars: 3,
   historyRequest: 'older-window',
   instrument: 'NQ',
   requestCap: 'canvas-left',
-  start: '2026-06-01 09:26',
+  start: '2026-06-01 09:27',
   timeframe: 1,
 });
 
 const chart = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
 assert.deepEqual(chart.bars.map((bar) => bar.timestamp), [
-  1780305960,
   1780306020,
   1780306080,
   1780306140,
@@ -136,19 +134,19 @@ assert.equal(chart.revision, 2);
 const viewport = await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, { paneId: 'main' });
 assert.equal(viewport.chartBarsRevision, 2);
 assert.deepEqual(viewport.projection, {
-  from: -26,
-  latestLogicalIndex: 6,
+  from: -27,
+  latestLogicalIndex: 5,
   latestOffsetBars: 8,
   origin: 'default',
   revision: 0,
   spanBars: 40,
-  to: 14,
+  to: 13,
 });
 assert.equal(loadedEvents.length, 1);
 assert.equal(ignoredEvents.length, 0);
 assert.deepEqual(await dispatchCommand(BAR_DATA_COMMANDS.GET_CACHE_SUMMARY), {
-  barCount: 4,
-  keys: ['NQ|1|2026-06-01 09:26|2026-06-01 09:29'],
+  barCount: 3,
+  keys: ['NQ|1|2026-06-01 09:27|2026-06-01 09:29'],
   windowCount: 1,
 });
 
@@ -162,28 +160,28 @@ assert.equal(state.status, 'loaded');
 assert.equal(state.extension.prependedBarCount, 1);
 assert.deepEqual(state.extension.plannedWindow, {
   bounded: true,
-  canvasLeftBoundary: '2026-06-01 09:25',
+  canvasLeftBoundary: '2026-06-01 09:26',
   chunked: false,
   direction: 'backward',
-  end: '2026-06-01 09:25',
+  end: '2026-06-01 09:26',
   estimatedBars: 1,
   historyRequest: 'older-window',
   instrument: 'NQ',
   requestCap: 'canvas-left',
-  start: '2026-06-01 09:25',
+  start: '2026-06-01 09:26',
   timeframe: 1,
 });
 assert.equal(fetchCalls.length, 2);
 assert.deepEqual(fetchCalls[1], {
   bounded: true,
-  canvasLeftBoundary: '2026-06-01 09:25',
+  canvasLeftBoundary: '2026-06-01 09:26',
   direction: 'backward',
-  end: '2026-06-01 09:25',
+  end: '2026-06-01 09:26',
   estimatedBars: 1,
   historyRequest: 'older-window',
   instrument: 'NQ',
   requestCap: 'canvas-left',
-  start: '2026-06-01 09:25',
+  start: '2026-06-01 09:26',
   timeframe: 1,
 });
 assert.equal(loadedEvents.length, 2);
