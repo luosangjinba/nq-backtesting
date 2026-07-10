@@ -20,6 +20,10 @@ import {
   summarizeProjectionSource,
   TIME_DOMAIN_CONSTANTS,
 } from '../time-domain/time-domain.js';
+import {
+  isSessionAwareDisplayTimeframe,
+  normalizeDisplayTimeframeValue,
+} from '../time-domain/htf-display-timeframe-domain.js';
 import { planLeftwardSourceWindow } from './leftward-extension-planner.js';
 
 function cloneBars(bars = []) {
@@ -121,6 +125,11 @@ function createExhaustedScopeKey(paneId, plannedWindow) {
   ].join('|');
 }
 
+function shouldProjectDisplayTimeframe(targetTimeframe, sourceTimeframe) {
+  return isSessionAwareDisplayTimeframe(targetTimeframe)
+    || Number(targetTimeframe) > Number(sourceTimeframe);
+}
+
 async function createPrependBars({
   loadedBars,
   loadedWindow,
@@ -133,17 +142,18 @@ async function createPrependBars({
     loadedWindow?.timeframe ?? plannedWindow?.timeframe ?? replayState?.timeframe ?? 1,
     { fieldName: 'Leftward history extension sourceTimeframe' },
   );
-  const targetTimeframe = normalizeMinuteTimeframe(
+  const targetTimeframe = normalizeDisplayTimeframeValue(
     paneRecord?.displayTimeframe ?? paneRecord?.timeframe ?? plannedWindow?.timeframe ?? sourceTimeframe,
     { fieldName: 'Leftward history extension displayTimeframe' },
   );
   if (
-    targetTimeframe > sourceTimeframe
+    shouldProjectDisplayTimeframe(targetTimeframe, sourceTimeframe)
     && hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)
   ) {
     const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
       bars: loadedBars,
       cursorTimestamp: replayCursorTimestamp(replayState),
+      instrument: paneRecord?.instrument || replayState?.symbol || null,
       paneId,
       sessionStartTimestamp: replayStartTimestamp(replayState) ?? loadedBars?.[0]?.timestamp ?? null,
       sourceTimeframe,
@@ -285,7 +295,7 @@ export function createLeftwardHistoryExtensionRuntime({
         1,
         { fieldName: 'Leftward history extension sourceTimeframe' },
       );
-      const displayTimeframe = normalizeMinuteTimeframe(
+      const displayTimeframe = normalizeDisplayTimeframeValue(
         payload.displayTimeframe ||
         paneRecord?.displayTimeframe ||
         sourceTimeframe,

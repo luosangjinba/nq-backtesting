@@ -5,6 +5,7 @@ const TESTS = Object.freeze([
   'v6/tests/display-timeframe-browser-smoke.js',
   'v6/tests/timeframe-menu-parity-browser-smoke.js',
   'v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js',
+  'v6/tests/session-aware-leftward-auto-chain-browser-smoke.js',
   'v6/tests/daily-projection-browser-step268-smoke.js',
   'v6/tests/weekly-projection-browser-step269-smoke.js',
   'v6/tests/monthly-projection-browser-step270-smoke.js',

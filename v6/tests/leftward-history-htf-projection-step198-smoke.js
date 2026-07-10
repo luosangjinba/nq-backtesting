@@ -47,6 +47,13 @@ const fetchBars = async (window) => {
       timeframe: 1,
     };
   }
+  if (window.estimatedBars === 2500) {
+    return {
+      bars: Array.from({ length: 2500 }, (_, index) => makeBar(index - 2500, 20 + index)),
+      history: { exhaustedBefore: false },
+      timeframe: 1,
+    };
+  }
   return {
     bars: [],
     history: { exhaustedBefore: true },
@@ -55,7 +62,7 @@ const fetchBars = async (window) => {
 };
 
 const registry = createRuntimeRegistry();
-registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 40 }));
+registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 2500 }));
 registry.registerRuntime(createChartDataProjectionRuntime());
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createLeftwardHistoryExtensionRuntime());
@@ -67,8 +74,9 @@ registerCommand(REPLAY_COMMANDS.GET_STATE, () => ({
   symbol: 'NQ',
   timeframe: '1m',
 }));
+let paneDisplayTimeframe = 5;
 registerCommand(PANE_COMMANDS.GET_BY_ID, (paneId) => ({
-  displayTimeframe: 5,
+  displayTimeframe: paneDisplayTimeframe,
   id: paneId,
   instrument: 'NQ',
   timeframe: '1m',
@@ -187,6 +195,37 @@ assert.deepEqual(cacheSummary, {
   keys: ['NQ|1|2026-06-01 09:00|2026-06-01 09:29'],
   windowCount: 1,
 });
+
+paneDisplayTimeframe = '1D';
+await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
+  bars: [
+    {
+      close: 104.5,
+      high: 105,
+      low: 99,
+      open: 100,
+      timestamp: 1780306200,
+    },
+  ],
+  cursorTimestamp: 1780306200,
+  paneId: 'pane-daily',
+});
+
+const dailyLoaded = await dispatchCommand(CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION, {
+  instrument: 'NQ',
+  paneId: 'pane-daily',
+  timeframe: '1m',
+  visibleRange: { from: -1, to: 15 },
+});
+const dailyProjectionState = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.GET_STATE);
+const dailyChartRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'pane-daily' });
+
+assert.equal(dailyLoaded.status, 'loaded', dailyLoaded.error || '1D leftward history should load');
+assert.equal(dailyLoaded.extension.plannedWindow.estimatedBars, 2500);
+assert.equal(dailyLoaded.extension.projectionSource.targetTimeframe, '1D');
+assert.equal(dailyLoaded.extension.projectionSource.sourceBarCount, 2500);
+assert.equal(dailyProjectionState.lastProjection.targetTimeframe, '1D');
+assert.equal(dailyChartRecord.bars.length > 1, true);
 
 await registry.stop();
 

@@ -16,6 +16,7 @@ const requiredMembers = [
   'display-timeframe-browser-smoke.js',
   'timeframe-menu-parity-browser-smoke.js',
   'display-timeframe-leftward-auto-chain-browser-smoke.js',
+  'session-aware-leftward-auto-chain-browser-smoke.js',
   'daily-projection-browser-step268-smoke.js',
   'weekly-projection-browser-step269-smoke.js',
   'monthly-projection-browser-step270-smoke.js',

@@ -37,14 +37,16 @@ Step 276 should include these existing browser gates:
 - `display-timeframe-browser-smoke.js`
 - `timeframe-menu-parity-browser-smoke.js`
 - `display-timeframe-leftward-auto-chain-browser-smoke.js`
+- `session-aware-leftward-auto-chain-browser-smoke.js`
 - `daily-projection-browser-step268-smoke.js`
 - `weekly-projection-browser-step269-smoke.js`
 - `monthly-projection-browser-step270-smoke.js`
 - `replay-gap-browser-regression-pack-step274-smoke.js`
 
 This list covers the product interval menu, active display timeframe switching,
-leftward history under display projection, session-aware daily/weekly/monthly
-projection, and the replay no-bar gap browser pack.
+leftward history under minute/hour and session-aware display projection,
+session-aware daily/weekly/monthly projection, and the replay no-bar gap
+browser pack.
 
 ## Owner Boundaries
 

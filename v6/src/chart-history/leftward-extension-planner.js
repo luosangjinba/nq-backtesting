@@ -5,6 +5,13 @@ import {
   normalizeUnixSeconds,
   TIME_DOMAIN_CONSTANTS,
 } from '../time-domain/time-domain.js';
+import {
+  estimateSessionAwareSourceBarCount,
+  normalizeSessionAwareDisplayTimeframe,
+} from '../time-domain/htf-display-timeframe-domain.js';
+
+const LEFTWARD_SOURCE_BAR_LIMIT = 2500;
+const HIGH_TF_PREFETCH_BUCKETS = 10;
 
 function normalizeInstrument(value) {
   const normalized = String(value || '').trim().toUpperCase();
@@ -56,16 +63,19 @@ export function planLeftwardSourceWindow({
   const source = normalizeMinuteTimeframe(sourceTimeframe, {
     fieldName: 'Leftward history sourceTimeframe',
   });
-  const display = normalizeMinuteTimeframe(displayTimeframe ?? source, {
+  const sessionAwareDisplay = normalizeSessionAwareDisplayTimeframe(displayTimeframe);
+  const display = sessionAwareDisplay || normalizeMinuteTimeframe(displayTimeframe ?? source, {
     fieldName: 'Leftward history displayTimeframe',
   });
-  assertDisplayTimeframeMultiple({
-    message: 'Leftward history displayTimeframe must be a multiple of sourceTimeframe.',
-    sourceTimeframe: source,
-    targetTimeframe: display,
-  });
+  if (!sessionAwareDisplay) {
+    assertDisplayTimeframeMultiple({
+      message: 'Leftward history displayTimeframe must be a multiple of sourceTimeframe.',
+      sourceTimeframe: source,
+      targetTimeframe: display,
+    });
+  }
   const leftBoundaryIndex = visibleFrom < 0
-    ? Math.min(-1, display > source ? Math.floor(visibleFrom) : Math.ceil(visibleFrom))
+    ? Math.min(-1, !sessionAwareDisplay && display > source ? Math.floor(visibleFrom) : Math.ceil(visibleFrom))
     : Math.floor(visibleFrom);
   if (leftBoundaryIndex >= 0) {
     return {
@@ -76,15 +86,36 @@ export function planLeftwardSourceWindow({
   }
 
   const oldestDisplayTimestamp = oldestTimestamp(bars);
+  const displaySourceBars = sessionAwareDisplay
+    ? estimateSessionAwareSourceBarCount({
+      count: 1,
+      sourceBarLimit: LEFTWARD_SOURCE_BAR_LIMIT,
+      targetTimeframe: sessionAwareDisplay,
+    })
+    : display / source;
+  const displaySeconds = displaySourceBars * source * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS;
   const canvasLeftTimestamp = oldestDisplayTimestamp + (
-    leftBoundaryIndex * display * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS
+    leftBoundaryIndex * displaySeconds
+  );
+  const prefetchSourceBars = !sessionAwareDisplay && display < 60
+    ? 0
+    : Math.min(
+      LEFTWARD_SOURCE_BAR_LIMIT,
+      Math.max(1, Math.ceil(displaySourceBars)) * HIGH_TF_PREFETCH_BUCKETS,
+    );
+  const prefetchLeftTimestamp = prefetchSourceBars > 0
+    ? oldestDisplayTimestamp - (prefetchSourceBars * source * TIME_DOMAIN_CONSTANTS.MINUTE_SECONDS)
+    : canvasLeftTimestamp;
+  const requestLeftTimestamp = Math.min(
+    canvasLeftTimestamp,
+    prefetchLeftTimestamp,
   );
   const plannedWindow = planCanvasLeftOlderWindow({
-    canvasLeftTimestamp,
+    canvasLeftTimestamp: requestLeftTimestamp,
     instrument: normalizeInstrument(instrument),
     oldestLoadedTimestamp: oldestDisplayTimestamp,
     timeframe: source,
-  });
+  }, { maxBarsPerWindow: LEFTWARD_SOURCE_BAR_LIMIT });
   if (plannedWindow.exhausted) {
     return {
       leftBoundaryIndex,

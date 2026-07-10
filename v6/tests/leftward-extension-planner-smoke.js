@@ -63,6 +63,42 @@ assert.deepEqual(inside, {
   status: 'ignored',
 });
 
+const fourHour = planLeftwardSourceWindow({
+  bars: [{ timestamp: 1780306200 }],
+  displayTimeframe: 240,
+  instrument: 'NQ',
+  sourceTimeframe: 1,
+  visibleRange: { from: -3, to: 20 },
+});
+
+assert.equal(fourHour.status, 'planned');
+assert.deepEqual({
+  end: fourHour.plannedWindow.end,
+  estimatedBars: fourHour.plannedWindow.estimatedBars,
+  requestCap: fourHour.plannedWindow.requestCap,
+  start: fourHour.plannedWindow.start,
+  timeframe: fourHour.plannedWindow.timeframe,
+}, {
+  end: '2026-06-01 09:29',
+  estimatedBars: 2400,
+  requestCap: 'canvas-left',
+  start: '2026-05-30 17:30',
+  timeframe: 1,
+});
+
+const daily = planLeftwardSourceWindow({
+  bars: [{ timestamp: 1780306200 }],
+  displayTimeframe: '1D',
+  instrument: 'NQ',
+  sourceTimeframe: 1,
+  visibleRange: { from: -1, to: 20 },
+});
+
+assert.equal(daily.status, 'planned');
+assert.equal(daily.displayTimeframe, '1D');
+assert.equal(daily.plannedWindow.estimatedBars, 2500);
+assert.equal(daily.plannedWindow.requestCap, 'canvas-left');
+
 assert.throws(
   () => planLeftwardSourceWindow({
     bars: [{ timestamp: 1780306200 }],
