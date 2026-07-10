@@ -147,6 +147,7 @@ function shouldProjectDisplayTimeframe(targetTimeframe, sourceTimeframe) {
 }
 
 async function createPrependBars({
+  displayTimeframe,
   loadedBars,
   loadedWindow,
   paneId,
@@ -159,7 +160,7 @@ async function createPrependBars({
     { fieldName: 'Leftward history extension sourceTimeframe' },
   );
   const targetTimeframe = normalizeDisplayTimeframeValue(
-    paneRecord?.displayTimeframe ?? paneRecord?.timeframe ?? plannedWindow?.timeframe ?? sourceTimeframe,
+    displayTimeframe ?? paneRecord?.displayTimeframe ?? paneRecord?.timeframe ?? plannedWindow?.timeframe ?? sourceTimeframe,
     { fieldName: 'Leftward history extension displayTimeframe' },
   );
   if (
@@ -518,6 +519,7 @@ export function createLeftwardHistoryExtensionRuntime({
 
       const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
       const prependBars = await createPrependBars({
+        displayTimeframe,
         loadedBars,
         loadedWindow,
         paneId,
