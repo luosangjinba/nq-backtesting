@@ -28,10 +28,11 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 272 - HTF Replay Gap Regression Pack. V6
-  now guards `1D`/`1W`/`1M` manual-next and auto-play over no-bar replay gaps,
-  keeping replay cursor state source-bar driven while session-aware HTF chart
-  projection receives source bars with pane instrument context.
+- Latest completed roadmap step: Step 273 - HTF Browser Replay Gap Pack. V6
+  now guards browser-visible `1D`/`1W`/`1M` manual-next and auto-play over
+  `16:59 -> 18:00` no-bar replay gaps, keeping footer/readout cursor state
+  source-bar driven while HTF projection metadata includes the final post-gap
+  source bar.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -67,32 +68,56 @@
 
 ## Next Executable Steps
 
-### Step 273 - HTF Browser Replay Gap Pack
+### Step 274 - Replay Gap Browser Regression Runner
 
-Status: in progress.
+Status: proposed.
 
 Notes for execution:
 
-- add browser manual-next coverage for `1D`, `1W`, and `1M`;
-- add browser auto-play coverage for `1D`, `1W`, and `1M`;
-- assert replay cursor/readout state reaches `18:00` and then `18:01`;
-- assert HTF projection bucket metadata includes the final post-gap source bar;
-- keep replay source-bar driven;
+- add a bounded replay-gap browser regression runner that executes the existing
+  1m, 5m/15m, and `1D`/`1W`/`1M` browser gap smokes from one command;
+- keep the runner in `v6/tests/` and avoid changing runtime behavior;
+- ensure the runner is documented so future replay fixes have one browser
+  command before commit;
 - do not add seconds, journal, order-ticket, prop-firm, indicator,
   chart-engine, viewport, or projection behavior.
 
 Acceptance:
 
-- Step 273 browser pack is documented and statically guarded;
-- manual next crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M` in the
-  browser and continues to `18:01`;
-- auto-play crosses `16:59 -> 18:00` under `1D`, `1W`, and `1M` in the browser
-  and continues to `18:01`;
-- projection metadata for each HTF includes the final post-gap source bar;
-- existing runtime gap/projection/pane/owner/boundary behavior remains
-  unchanged.
+- one command runs the replay-gap browser coverage introduced by Steps 258,
+  263, and 273;
+- static smoke guards the runner membership;
+- existing runtime/projection/pane/owner/boundary behavior remains unchanged.
 
 ## Completed Steps
+
+### Step 273 - HTF Browser Replay Gap Pack
+
+Completed in this browser regression-pack commit series.
+
+Verification:
+
+- `node v6/tests/htf-browser-replay-gap-pack-step273-static-smoke.js`
+- `node v6/tests/htf-manual-next-replay-gap-browser-step273-smoke.js`
+- `node v6/tests/htf-auto-play-replay-gap-browser-step273-smoke.js`
+- `node v6/tests/htf-replay-gap-regression-pack-step272-smoke.js`
+- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
+- `node v6/tests/auto-play-session-gap-browser-step263-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/docs/V6_HTF_BROWSER_REPLAY_GAP_PACK_STEP273.md`.
+- Added a shared HTF browser replay-gap fixture for `1D`, `1W`, and `1M`.
+- Added manual-next browser coverage proving the cursor/readout continues from
+  `18:00` to `18:01` after the `16:59 -> 18:00` no-bar gap.
+- Added auto-play browser coverage proving the same gap behavior for HTF
+  display projection.
+- Asserted HTF projection bucket metadata includes the final post-gap source
+  bar.
+- Did not change replay, chart-data projection, chart-engine, viewport,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior.
 
 ### Step 272 - HTF Replay Gap Regression Pack
 
