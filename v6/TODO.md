@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 242 - Manual Previous Transport Button
-  Wiring. V6 transport now enables the Previous button only when replay reports
-  a previous bar, dispatching chart-entry manual Previous through the shell
-  action path while preserving replay/chart-data/viewport ownership.
+- Latest completed roadmap step: Step 243 - Manual Previous Transport
+  Multi-Pane Regression. V6 browser coverage now proves the Previous transport
+  button rewinds visible `main` and `secondary` panes together while preserving
+  pane-local chart-data and viewport intent.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,29 +43,55 @@
 
 ## Next Executable Steps
 
-### Step 243 - Manual Previous Transport Multi-Pane Regression
+### Step 244 - Manual Previous Chain Closure Audit
 
 Status: planned.
 
 Notes for execution:
 
-- create a browser smoke with a two-pane layout and visible panes;
-- advance replay enough to enable Previous;
-- click the transport Previous button and verify all visible panes replace
-  chart-data to the rewound cursor;
-- verify each pane keeps its own viewport intent and OHLC/readiness surface;
-- do not add keyboard shortcuts, indicators, trading, order-ticket, prop-firm,
-  or journal behavior.
+- review Steps 235-243 as one completed Manual Previous / Step Back chain;
+- check for duplicate owner logic, stale assertions, or documentation drift;
+- confirm the next foundation priority after this chain;
+- do not add feature behavior unless the audit exposes a small blocking fix.
 
 Acceptance:
 
-- browser coverage proves shell Previous dispatch sends visible pane ids and
-  rewinds visible panes together;
-- pane-local chart-data and viewport assertions are explicit;
+- audit findings are documented in `v6/docs/` or TODO/session notes;
+- relevant Manual Previous smoke set still passes;
+- next foundation step is explicit and bounded;
 - no indicator, trading, order-ticket, prop-firm, or journal behavior changes
-  in Step 243.
+  in Step 244.
 
 ## Completed Steps
+
+### Step 243 - Manual Previous Transport Multi-Pane Regression
+
+Completed in this browser regression coverage commit.
+
+Verification:
+
+- `node v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`
+- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/replay-transport-controller-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a browser smoke that creates a replay session, switches to two-pane
+  layout, waits for secondary pane bootstrap, advances replay, and clicks the
+  real Previous transport button.
+- Proved shell Previous dispatch rewinds both visible `main` and `secondary`
+  pane chart-data to the rewound replay cursor.
+- Proved each visible pane keeps pane-local manual viewport intent and cursor
+  timestamp after the button rewind.
+- Proved both pane status readouts remain visible with the expected NQ/1m
+  surface.
+- Did not change product runtime code, keyboard shortcuts, indicators, trading
+  simulation, order tickets, prop firm rule engines, or journal workflows.
 
 ### Step 242 - Manual Previous Transport Button Wiring
 
