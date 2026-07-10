@@ -8,6 +8,7 @@ async function read(path) {
 const doc = await read('v6/docs/V6_REPLAY_GAP_BROWSER_REGRESSION_RUNNER_STEP274.md');
 const index = await read('v6/docs/INDEX.md');
 const todo = await read('v6/TODO.md');
+const pack = await read('v6/tests/replay-gap-browser-regression-pack-step274-smoke.js');
 
 const requiredMembers = [
   'manual-next-session-gap-browser-step258-smoke.js',
@@ -18,6 +19,7 @@ const requiredMembers = [
 
 for (const member of requiredMembers) {
   assert.match(doc, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(pack, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
 for (const required of [
@@ -34,5 +36,10 @@ for (const required of [
 assert.match(doc, /node v6\/tests\/replay-gap-browser-regression-pack-step274-smoke\.js/);
 assert.match(index, /V6_REPLAY_GAP_BROWSER_REGRESSION_RUNNER_STEP274/);
 assert.match(todo, /Step 274 - Replay Gap Browser Regression Runner/);
+assert.match(pack, /const TESTS = Object\.freeze/);
+assert.match(pack, /\[replay-gap-browser-pack\] start/);
+assert.match(pack, /\[replay-gap-browser-pack\] passed/);
+assert.match(pack, /break;/);
+assert.match(pack, /process\.exit\(failed\.code \|\| 1\)/);
 
 console.log('v6 replay gap browser regression pack step274 static smoke passed');
