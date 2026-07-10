@@ -28,16 +28,14 @@ for (const forbidden of [
   assert.equal(domain.includes(forbidden), false, `session-calendar domain must not depend on ${forbidden}`);
 }
 
-for (const id of ['1W', '1M']) {
-  assert.match(
-    capabilities,
-    new RegExp(`id: '${id}'[\\s\\S]*?sourceRequirement: 'session-calendar'[\\s\\S]*?status: 'planned'`),
-  );
-}
 assert.match(capabilities, /id: '1D'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'/);
+assert.match(capabilities, /id: '1W'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'enabled'/);
+assert.match(capabilities, /id: '1M'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'planned'/);
 
 assert.match(projectionDomain, /resolveTradingDayBucket/);
+assert.match(projectionDomain, /resolveTradingWeekBucket/);
 assert.equal(displayRuntime.includes('session-calendar'), false);
 assert.equal(shell.includes('resolveTradingDayBucket'), false);
+assert.equal(shell.includes('resolveTradingWeekBucket'), false);
 
 console.log('v6 session calendar owner step267 smoke passed');

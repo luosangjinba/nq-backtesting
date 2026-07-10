@@ -19,7 +19,7 @@ assert.match(todo, /Step 268 - Daily Projection Integration/);
 assert.match(projectionDomain, /resolveTradingDayBucket/);
 assert.match(projectionDomain, /targetTimeframe: '1D'/);
 assert.match(capabilities, /id: '1D'[\s\S]*?status: 'enabled'/);
-assert.match(capabilities, /id: '1W'[\s\S]*?status: 'planned'/);
+assert.match(capabilities, /id: '1W'[\s\S]*?status: 'enabled'/);
 assert.match(capabilities, /id: '1M'[\s\S]*?status: 'planned'/);
 
 console.log('v6 daily projection integration step268 static smoke passed');

@@ -20,7 +20,7 @@ assert.match(index, /V6_WEEKLY_PROJECTION_INTEGRATION_STEP269/);
 assert.match(sessionCalendar, /resolveTradingWeekBucket/);
 assert.match(projectionDomain, /resolveTradingWeekBucket/);
 assert.match(projectionDomain, /targetTimeframe: '1W'/);
-assert.match(capabilities, /id: '1W'[\s\S]*?status: 'planned'/);
+assert.match(capabilities, /id: '1W'[\s\S]*?status: 'enabled'/);
 assert.match(capabilities, /id: '1M'[\s\S]*?status: 'planned'/);
 
 console.log('v6 weekly projection integration step269 static smoke passed');

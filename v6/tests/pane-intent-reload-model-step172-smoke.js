@@ -22,13 +22,13 @@ assert.deepEqual(createPaneIntentReloadIntent({
 
 assert.deepEqual(createReloadIntentsFromPaneIntent({
   pane: {
-    displayTimeframe: '1D',
+    displayTimeframe: '1W',
     id: 'secondary',
     instrument: 'ES',
   },
   reason: 'interval',
 }), [{
-  displayTimeframe: '1D',
+  displayTimeframe: '1W',
   instrument: 'ES',
   paneId: 'secondary',
   reason: 'interval',

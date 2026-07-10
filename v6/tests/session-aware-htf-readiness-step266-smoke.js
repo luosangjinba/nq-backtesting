@@ -16,25 +16,24 @@ for (const helper of [
   assert.match(doc, new RegExp(helper));
 }
 
-for (const capability of [
-  ['1W', 'week'],
-  ['1M', 'month'],
-]) {
-  const [id, unit] = capability;
-  assert.match(
-    capabilities,
-    new RegExp(`id: '${id}'[\\s\\S]*?projectionMode: 'session-aware'[\\s\\S]*?sourceRequirement: 'session-calendar'[\\s\\S]*?status: 'planned'[\\s\\S]*?unit: '${unit}'`),
-  );
-}
 assert.match(
   capabilities,
   /id: '1D'[\s\S]*?projectionMode: 'session-aware'[\s\S]*?status: 'enabled'[\s\S]*?unit: 'day'/,
 );
+assert.match(
+  capabilities,
+  /id: '1W'[\s\S]*?projectionMode: 'session-aware'[\s\S]*?status: 'enabled'[\s\S]*?unit: 'week'/,
+);
+assert.match(
+  capabilities,
+  /id: '1M'[\s\S]*?projectionMode: 'session-aware'[\s\S]*?sourceRequirement: 'session-calendar'[\s\S]*?status: 'planned'[\s\S]*?unit: 'month'/,
+);
 
-assert.match(menuSmoke, /plannedIds, \['1W', '1M'\]/);
+assert.match(menuSmoke, /plannedIds, \['1M'\]/);
 assert.match(projectionDomain, /normalizeMinuteTimeframe\(targetTimeframe/);
 assert.match(projectionDomain, /resolveDisplayBucketStart/);
 assert.match(projectionDomain, /resolveTradingDayBucket/);
+assert.match(projectionDomain, /resolveTradingWeekBucket/);
 assert.equal(runtime.includes('session-calendar'), false);
 assert.equal(runtime.includes('targetTimeframe: displayTimeframe'), true);
 
