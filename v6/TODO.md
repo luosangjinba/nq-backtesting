@@ -28,10 +28,10 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 239 - Manual Previous Browser Wiring
-  Guard. V6 browser coverage now proves the chart-entry manual Previous runtime
-  is registered and command-dispatchable while the reserved transport Previous
-  button remains disabled and shell transport remains unwired.
+- Latest completed roadmap step: Step 240 - Manual Previous Viewport
+  Preservation Reaudit. V6 now updates viewport cursor intent on replay rewound
+  events, while browser coverage protects default/manual viewport
+  origin/span/offset preservation during direct chart-entry manual Previous.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -43,33 +43,59 @@
 
 ## Next Executable Steps
 
-### Step 240 - Manual Previous Viewport Preservation Reaudit
+### Step 241 - Manual Previous Transport Enablement Readiness
 
 Status: planned.
 
 Notes for execution:
 
-- audit whether manual Previous should emit or reuse a viewport-specific
-  projection signal before the transport button is enabled;
-- compare source timeframe and display timeframe panes for viewport
-  preservation after chart-data replacement;
-- add or update browser coverage for manual wall/default wall preservation if
-  needed;
-- keep `data-v6-transport-step-back` disabled;
-- do not enable shell transport until viewport preservation is explicit.
+- define enabled/disabled state for the reserved Previous transport button;
+- verify at-start/manual-rewind behavior before wiring the shell button;
+- decide whether transport should dispatch the chart-entry manual Previous
+  command directly or through a small transport bridge helper;
+- keep ownership boundaries intact: shell UI dispatches commands, chart-entry
+  owns chart-data replacement, replay owns cursor movement, viewport owns
+  viewport intent.
 
 Acceptance:
 
-- Step 240 either documents that current chart-data revision projection is
-  sufficient or defines the missing viewport owner work;
-- browser/static smoke protects viewport intent origin/span during manual
-  Previous;
-- transport visual state, product direction, boundary, and relevant replay
-  smokes pass;
-- no viewport reset, indicator, trading, or journal behavior changes in Step
-  240.
+- transport readiness is documented with the chosen owner path;
+- coverage proves the button remains disabled at replay start and is safe to
+  enable only when a previous replay bar exists;
+- no indicator, trading, order-ticket, prop-firm, or journal behavior changes
+  in Step 241.
 
 ## Completed Steps
+
+### Step 240 - Manual Previous Viewport Preservation Reaudit
+
+Completed in this viewport owner fix and browser coverage commit.
+
+Verification:
+
+- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
+- `node v6/tests/chart-entry-manual-previous-runtime-step238-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Reaudited manual Previous viewport preservation before enabling shell
+  transport.
+- Documented that chart-data revision projection is sufficient for
+  projection/latest-logical-index updates after Previous chart-data replacement.
+- Identified and fixed the missing owner event: chart viewport runtime now
+  subscribes to `REPLAY_EVENTS.REWOUND` and updates viewport
+  `intent.cursorTimestamp` through its own cursor update path.
+- Added browser coverage proving direct chart-entry manual Previous preserves
+  default/manual viewport origin/span/latest offset and updates cursor
+  timestamp to the rewound replay cursor.
+- Kept `data-v6-transport-step-back` disabled and unwired.
+- Did not change viewport reset, indicator, trading simulation, order tickets,
+  prop firm rule engines, or journal workflows.
 
 ### Step 239 - Manual Previous Browser Wiring Guard
 

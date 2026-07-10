@@ -72,6 +72,7 @@ export function createChartViewportRuntime({
       unregisterCallbacks.push(
         subscribeEvent(REPLAY_EVENTS.LOADED, updateCursor),
         subscribeEvent(REPLAY_EVENTS.ADVANCED, updateCursor),
+        subscribeEvent(REPLAY_EVENTS.REWOUND, updateCursor),
         subscribeEvent(REPLAY_EVENTS.RESET, updateCursor),
         subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (payload = {}) => {
           const record = payload.record || {};
