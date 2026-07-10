@@ -239,6 +239,9 @@ Read this index before working on V6.
 - `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP275.md`: selected a
   Timeframe/Replay Foundation Regression Runner as the next bounded
   chart-foundation slice after replay-gap hardening.
+- `v6/docs/V6_TIMEFRAME_REPLAY_FOUNDATION_REGRESSION_PACK_STEP276.md`:
+  accepted compact browser pack for timeframe switching, projection, leftward
+  history, session-aware HTF projection, and replay-gap coverage.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
