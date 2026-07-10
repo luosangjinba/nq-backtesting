@@ -92,6 +92,7 @@ function summarizeLoadedWindow(record = {}) {
 function cloneExtension(extension) {
   return extension ? {
     chartRecord: cloneRecord(extension.chartRecord),
+    diagnostics: extension.diagnostics ? { ...extension.diagnostics } : null,
     loadedWindow: extension.loadedWindow ? { ...extension.loadedWindow } : null,
     paneId: extension.paneId,
     plannedWindow: cloneWindow(extension.plannedWindow),
@@ -116,6 +117,32 @@ function cloneRecentRequest(request) {
     reason: request.reason || null,
     status: request.status,
   } : null;
+}
+
+function nowMs() {
+  if (typeof performance !== 'undefined' && typeof performance.now === 'function') {
+    return performance.now();
+  }
+  return Date.now();
+}
+
+function elapsedMs(startedAtMs) {
+  return Math.max(0, Math.round((nowMs() - startedAtMs) * 100) / 100);
+}
+
+function createDiagnostics(startedAtMs, overrides = {}) {
+  return {
+    durationMs: elapsedMs(startedAtMs),
+    fallbackReason: null,
+    path: 'source-window',
+    prependedBarCount: 0,
+    sourceLoadMs: null,
+    sourceRequestCount: 0,
+    targetBarCount: 0,
+    targetLoadMs: null,
+    targetRequestCount: 0,
+    ...overrides,
+  };
 }
 
 function createRequestKey(paneId, plannedWindow) {
@@ -335,6 +362,7 @@ export function createLeftwardHistoryExtensionRuntime({
 
   async function requestLeftExtension(payload = {}, emitEvent) {
     const paneId = normalizePaneId(payload.paneId);
+    const requestStartedAtMs = nowMs();
     try {
       const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId });
       const bars = cloneBars(chartRecord?.bars);
@@ -387,6 +415,11 @@ export function createLeftwardHistoryExtensionRuntime({
       let loadedBars = [];
       let emptyGapScans = 0;
       let targetHistoryFallback = null;
+      let sourceRequestCount = 0;
+      let sourceLoadMs = 0;
+      let targetBarCount = 0;
+      let targetLoadMs = null;
+      let targetRequestCount = 0;
 
       if (payload.targetHistory?.enabled) {
         const targetRequestKey = createTargetRequestKey(paneId, {
@@ -398,7 +431,9 @@ export function createLeftwardHistoryExtensionRuntime({
         }
         inFlightRequestKeys.add(targetRequestKey);
         let targetPrepend = null;
+        const targetStartedAtMs = nowMs();
         try {
+          targetRequestCount = 1;
           targetPrepend = await loadTargetPrependBars({
             displayTimeframe,
             instrument,
@@ -416,6 +451,8 @@ export function createLeftwardHistoryExtensionRuntime({
         } finally {
           inFlightRequestKeys.delete(targetRequestKey);
         }
+        targetLoadMs = elapsedMs(targetStartedAtMs);
+        targetBarCount = Number(targetPrepend?.bars?.length || targetPrepend?.loadedWindow?.barCount || 0);
 
         if (targetPrepend.status === 'applied') {
           const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
@@ -436,6 +473,13 @@ export function createLeftwardHistoryExtensionRuntime({
               projectionSource: targetPrepend.projectionSource,
               reason: null,
               status: 'loaded',
+              diagnostics: createDiagnostics(requestStartedAtMs, {
+                path: 'target-history',
+                prependedBarCount: targetPrepend.bars.length,
+                targetBarCount,
+                targetLoadMs,
+                targetRequestCount,
+              }),
               targetHistory: {
                 barCount: targetPrepend.bars.length,
                 reason: targetPrepend.reason,
@@ -471,10 +515,13 @@ export function createLeftwardHistoryExtensionRuntime({
         }
 
         inFlightRequestKeys.add(requestKey);
+        const sourceStartedAtMs = nowMs();
         try {
+          sourceRequestCount += 1;
           loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, plannedWindow);
         } finally {
           inFlightRequestKeys.delete(requestKey);
+          sourceLoadMs += elapsedMs(sourceStartedAtMs);
         }
         loadedBars = cloneBars(loadedWindow?.bars);
         recordRequestAttempt({
@@ -551,6 +598,16 @@ export function createLeftwardHistoryExtensionRuntime({
           projectionSource: summarizeProjectionSource(prependBars.projectionRecord),
           reason: null,
           status: 'loaded',
+          diagnostics: createDiagnostics(requestStartedAtMs, {
+            fallbackReason: targetHistoryFallback?.reason || null,
+            path: targetHistoryFallback ? 'target-history-fallback-source-window' : 'source-window',
+            prependedBarCount: prependBars.bars.length,
+            sourceLoadMs: Math.round(sourceLoadMs * 100) / 100,
+            sourceRequestCount,
+            targetBarCount,
+            targetLoadMs,
+            targetRequestCount,
+          }),
           targetHistory: targetHistoryFallback,
         },
         status: 'loaded',

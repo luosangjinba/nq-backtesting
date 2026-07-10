@@ -87,6 +87,12 @@ assert.equal(state.extension.projectionSource.targetTimeframe, '8h');
 assert.equal(state.extension.targetHistory.status, 'applied');
 assert.equal(state.extension.targetHistory.reason, 'target-history-opt-in');
 assert.equal(state.extension.targetHistory.barCount, 2);
+assert.equal(state.extension.diagnostics.path, 'target-history');
+assert.equal(state.extension.diagnostics.targetRequestCount, 1);
+assert.equal(state.extension.diagnostics.targetBarCount, 2);
+assert.equal(state.extension.diagnostics.prependedBarCount, 2);
+assert.equal(Number.isFinite(state.extension.diagnostics.durationMs), true);
+assert.equal(Number.isFinite(state.extension.diagnostics.targetLoadMs), true);
 
 const chart = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
 assert.deepEqual(chart.bars.map((bar) => bar.timestamp), [

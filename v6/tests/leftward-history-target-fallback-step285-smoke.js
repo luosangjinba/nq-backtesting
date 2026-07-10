@@ -97,6 +97,13 @@ assert.deepEqual(state.extension.targetHistory, {
   status: 'fallback',
   window: null,
 });
+assert.equal(state.extension.diagnostics.path, 'target-history-fallback-source-window');
+assert.equal(state.extension.diagnostics.fallbackReason, 'target-history-load-failed');
+assert.equal(state.extension.diagnostics.targetRequestCount, 1);
+assert.equal(state.extension.diagnostics.sourceRequestCount, 1);
+assert.equal(state.extension.diagnostics.prependedBarCount, 4);
+assert.equal(Number.isFinite(state.extension.diagnostics.targetLoadMs), true);
+assert.equal(Number.isFinite(state.extension.diagnostics.sourceLoadMs), true);
 assert.equal(state.extension.projectionSource.owner, 'runtime.chart-data-projection');
 assert.equal(state.extension.projectionSource.sourceTimeframe, 1);
 assert.equal(state.extension.projectionSource.targetTimeframe, 5);
