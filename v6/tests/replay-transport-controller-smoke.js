@@ -11,6 +11,7 @@ import {
   createReplayTransportState,
   mountReplayTransport,
   resolveReplayTransportAction,
+  resolveReplayTransportPreviousAvailability,
   syncReplayTransportStateFromReplay,
 } from '../src/shell/replay-transport.js';
 
@@ -61,6 +62,7 @@ function createFakeElement({
       if (selector === '[data-v6-transport-action="play-toggle"]') return this.playButton || null;
       if (selector === '[data-v6-transport-action="next"]') return this.nextButton || null;
       if (selector === '[data-v6-transport-action="restart"]') return this.restartButton || null;
+      if (selector === '[data-v6-transport-step-back]') return this.previousButton || null;
       if (selector === '[data-v6-transport-drag-handle]') return this.dragHandle || null;
       if (selector === '[data-v6-transport-speed-slider]') return this.speedSlider || null;
       if (selector === '[data-v6-transport-period-label]') return this.periodLabel || null;
@@ -140,6 +142,7 @@ assert.deepEqual(syncReplayTransportStateFromReplay({ playing: false, speed: 2 }
   period: '1m',
   periodSync: false,
   playing: true,
+  previousAvailable: false,
   replayStatus: 'playing',
   speed: 2,
 });
@@ -147,9 +150,14 @@ assert.deepEqual(syncReplayTransportStateFromReplay({ playing: true, speed: 4 },
   period: '1m',
   periodSync: false,
   playing: false,
+  previousAvailable: false,
   replayStatus: 'paused',
   speed: 4,
 });
+assert.equal(resolveReplayTransportPreviousAvailability({ cursorIndex: 0, revealedCount: 1 }), false);
+assert.equal(resolveReplayTransportPreviousAvailability({ cursorIndex: 1, revealedCount: 2 }), true);
+assert.equal(resolveReplayTransportPreviousAvailability({ cursorIndex: 3, status: 'ended' }), true);
+assert.equal(resolveReplayTransportPreviousAvailability({ revealedCount: 2 }), true);
 assert.equal(resolveReplayTransportAction('next', createReplayTransportState({ replayStatus: 'ended' })).command, null);
 assert.deepEqual(clampReplayTransportPosition({
   height: 40,
@@ -175,6 +183,7 @@ root.rect = {
 const playButton = createFakeElement({ dataset: { v6TransportAction: 'play-toggle' } });
 const nextButton = createFakeElement({ dataset: { v6TransportAction: 'next' } });
 const restartButton = createFakeElement({ dataset: { v6TransportAction: 'restart' } });
+const previousButton = createFakeElement({});
 const dragHandle = createFakeElement({ tagName: 'button' });
 const speedButton = createFakeElement({ dataset: { v6TransportSpeed: '2' } });
 const speedSlider = createFakeElement({ dataset: { v6TransportSpeedSlider: 'true' }, tagName: 'input' });
@@ -192,6 +201,7 @@ periodSync.parentElement = periodSyncParent;
   playButton,
   nextButton,
   restartButton,
+  previousButton,
   dragHandle,
   speedButton,
   speedSlider,
@@ -210,6 +220,7 @@ periodDetails.children = [periodTrigger, periodButton, periodButton3m, periodBut
 root.playButton = playButton;
 root.nextButton = nextButton;
 root.restartButton = restartButton;
+root.previousButton = previousButton;
 root.dragHandle = dragHandle;
 root.speedSlider = speedSlider;
 root.periodLabel = periodLabel;
@@ -220,6 +231,7 @@ root.children = [
   playButton,
   nextButton,
   restartButton,
+  previousButton,
   dragHandle,
   speedButton,
   speedSlider,
@@ -329,6 +341,7 @@ assert.deepEqual(dispatched.at(-1), {
 eventListeners.get('replay:playbackChanged')?.({ status: 'paused' });
 assert.equal(controller.getState().playing, false);
 assert.equal(controller.getState().replayStatus, 'paused');
+assert.equal(controller.getState().previousAvailable, false);
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Play replay');
 assert.equal(playButton.classList.classes.has('is-active'), false);
@@ -344,10 +357,21 @@ assert.equal(controller.getState().replayStatus, 'playing');
 assert.equal(controller.getState().speed, 2);
 assert.equal(playButton['aria-label'], 'Pause replay');
 
-eventListeners.get('replay:advanced')?.({ status: 'ready' });
+eventListeners.get('replay:advanced')?.({ cursorIndex: 1, revealedCount: 2, status: 'ready' });
 assert.equal(controller.getState().playing, true);
 assert.equal(controller.getState().replayStatus, 'ready');
+assert.equal(controller.getState().previousAvailable, true);
+assert.equal(root.dataset.previousAvailable, 'true');
+assert.equal(previousButton.dataset.v6TransportPreviousAvailable, 'true');
+assert.equal(previousButton.disabled, true);
+assert.equal(previousButton['aria-disabled'], 'true');
 assert.equal(playButton['aria-label'], 'Pause replay');
+
+eventListeners.get('replay:rewound')?.({ cursorIndex: 0, revealedCount: 1, status: 'ready' });
+assert.equal(controller.getState().previousAvailable, false);
+assert.equal(root.dataset.previousAvailable, 'false');
+assert.equal(previousButton.dataset.v6TransportPreviousAvailable, 'false');
+assert.equal(previousButton.disabled, true);
 
 fakeDocument.keydown({ key: 'ArrowRight', target: root });
 await Promise.resolve();

@@ -66,6 +66,7 @@ export function createReplayTransportState({
   period = '1m',
   periodSync = false,
   playing = false,
+  previousAvailable = false,
   replayStatus = 'idle',
   speed = 1,
 } = {}) {
@@ -73,9 +74,19 @@ export function createReplayTransportState({
     period: String(period || '1m'),
     periodSync: Boolean(periodSync),
     playing: Boolean(playing),
+    previousAvailable: Boolean(previousAvailable),
     replayStatus: String(replayStatus || 'idle'),
     speed: normalizeSpeed(speed),
   });
+}
+
+export function resolveReplayTransportPreviousAvailability(replayState = {}) {
+  const cursorIndex = Number(replayState.cursorIndex);
+  if (Number.isFinite(cursorIndex)) {
+    return cursorIndex > 0;
+  }
+  const revealedCount = Number(replayState.revealedCount);
+  return Number.isFinite(revealedCount) && revealedCount > 1;
 }
 
 export function resolveReplayTransportAction(action, state = createReplayTransportState()) {
@@ -100,6 +111,7 @@ export function resolveReplayTransportAction(action, state = createReplayTranspo
           period: state.period,
           periodSync: state.periodSync,
           playing,
+          previousAvailable: state.previousAvailable,
           replayStatus: state.replayStatus,
           speed: state.speed,
         }),
@@ -130,6 +142,7 @@ export function syncReplayTransportStateFromReplay(state, replayState = {}) {
     period: state.period,
     periodSync: state.periodSync,
     playing: status === 'playing' || (status === 'ready' && state.playing),
+    previousAvailable: resolveReplayTransportPreviousAvailability(replayState),
     replayStatus: status,
     speed: state.speed,
   });
@@ -163,7 +176,18 @@ function updateDom(root, state) {
   root.dataset.ended = String(state.replayStatus === 'ended');
   root.dataset.period = state.period;
   root.dataset.periodSync = String(state.periodSync);
+  root.dataset.previousAvailable = String(state.previousAvailable);
   root.dataset.speed = String(state.speed);
+  const previousButton = root.querySelector('[data-v6-transport-step-back]');
+  if (previousButton) {
+    previousButton.dataset.v6TransportPreviousAvailable = String(state.previousAvailable);
+    previousButton.disabled = true;
+    previousButton.setAttribute('aria-disabled', 'true');
+    previousButton.setAttribute('title', state.previousAvailable
+      ? 'Previous replay bar ready for transport wiring'
+      : 'Previous replay bar unavailable');
+    previousButton.classList.toggle('is-disabled', true);
+  }
   const playButton = root.querySelector('[data-v6-transport-action="play-toggle"]');
   if (playButton) {
     const ended = state.replayStatus === 'ended';
@@ -627,6 +651,7 @@ export function mountReplayTransport(root, {
     unsubscribeCallbacks.push(
       subscribeEvent(REPLAY_EVENTS.LOADED, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.ADVANCED, syncFromReplayEvent),
+      subscribeEvent(REPLAY_EVENTS.REWOUND, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.PLAYBACK_CHANGED, syncFromReplayEvent),
       subscribeEvent(REPLAY_EVENTS.RESET, syncFromReplayEvent),
       subscribeEvent(CHART_ENTRY_MANUAL_NEXT_EVENTS.ADVANCED, syncFromManualNextEvent),
