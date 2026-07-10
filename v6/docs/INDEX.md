@@ -236,6 +236,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_GAP_BROWSER_REGRESSION_RUNNER_STEP274.md`: accepted
   compact browser runner for the replay no-bar gap coverage introduced by
   Steps 258, 263, and 273.
+- `v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP275.md`: selected a
+  Timeframe/Replay Foundation Regression Runner as the next bounded
+  chart-foundation slice after replay-gap hardening.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
