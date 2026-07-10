@@ -64,6 +64,11 @@
   explicitly load target bars through bar-data target commands while default TF
   switching remains source projection and source bars are preserved for `1m`
   round trips.
+- Latest completed target-TF chart-history step: Step 285 - Chart-History
+  Target-Timeframe Leftward Opt-In. V6 chart-history leftward extension can
+  explicitly prepend target bars through bar-data target commands while default
+  leftward history remains source-window projection and source bars stay clean
+  for `1m` round trips.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -99,7 +104,7 @@
 
 ## Next Executable Steps
 
-### Step 285 - Chart-History Target-Timeframe Leftward Opt-In
+### Step 286 - High-Timeframe Target-History Activation Policy
 
 Status: proposed.
 
@@ -109,30 +114,64 @@ Notes for execution:
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - use `v6/src/time-domain/target-timeframe-domain.js` as the canonical TF
   contract;
-- use `v6/src/display-timeframe/display-timeframe-target-history-plan.js` as
-  the opt-in planner or split a chart-history-specific planner only if the
-  history window needs a different owner boundary;
+- use the Step 284/285 `targetHistory.enabled` payload paths as the runtime
+  activation surface;
 - load target bars through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not direct
   target API calls;
-- implement a controlled chart-history leftward target-bars path for high
-  display timeframes that can be enabled explicitly in tests or by command
-  payload;
+- define the first real activation policy for high display timeframes, likely
+  in the chart-history input/bridge path or a small activation planner;
+- keep activation explicit, inspectable, and easy to disable;
 - preserve source bars so high-TF-to-`1m` round trips still work;
-- keep frontend projection as fallback when target-history opt-in is disabled
-  or target loading fails;
+- keep source-window projection as fallback when target-history activation is
+  disabled or target loading fails;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- explicit opt-in can prepend/apply historical target bars through bar-data
-  target commands;
-- default chart-history leftward behavior remains source-window projection;
+- high-TF chart-history activation can produce `targetHistory.enabled` payloads
+  through an owner boundary without direct target API calls;
+- default/disabled activation remains source-window projection;
 - source-bar preservation and TF round-trip behavior remain covered;
+- target-history activation/fallback diagnostics are visible in runtime state or
+  smoke-test output;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 285 - Chart-History Target-Timeframe Leftward Opt-In
+
+Completed in this chart-history target leftward commit series.
+
+Verification:
+
+- `node v6/tests/leftward-history-target-opt-in-step285-smoke.js`
+- `node v6/tests/leftward-history-target-fallback-step285-smoke.js`
+- `node v6/tests/leftward-history-target-default-step285-smoke.js`
+- `node v6/tests/leftward-history-htf-projection-step198-smoke.js`
+- `node v6/tests/display-target-history-boundary-step283-static-smoke.js`
+- `node v6/tests/display-target-history-opt-in-step284-smoke.js`
+- `node v6/tests/display-timeframe-runtime-smoke.js`
+- `node v6/tests/bar-data-target-runtime-step282-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- `CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION` now accepts optional
+  `targetHistory.enabled`.
+- Explicit target-history opt-in loads target bars through
+  `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`.
+- Successful target-history prepends use `preserveSource: true`, so target bars
+  do not pollute source bars.
+- Default chart-history leftward extension still uses source-window projection.
+- Target-history failures fall back to source-window projection.
+- Source fallback projection now uses the resolved display timeframe even when
+  no pane runtime is registered.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 284 - Controlled Display-Timeframe Target-History Opt-In
 
