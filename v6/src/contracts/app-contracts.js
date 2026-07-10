@@ -131,13 +131,20 @@ export const CHART_HISTORY_EVENTS = Object.freeze({
 export const BAR_DATA_COMMANDS = Object.freeze({
   GET_BOUNDARY_METADATA: 'barData.getBoundaryMetadata',
   GET_CACHE_SUMMARY: 'barData.getCacheSummary',
+  GET_TARGET_CACHE_SUMMARY: 'barData.getTargetCacheSummary',
+  GET_TARGET_WINDOW: 'barData.getTargetWindow',
   GET_WINDOW: 'barData.getWindow',
+  LOAD_TARGET_WINDOW: 'barData.loadTargetWindow',
   LOAD_WINDOW: 'barData.loadWindow',
+  PLAN_TARGET_WINDOW: 'barData.planTargetWindow',
   PLAN_WINDOW: 'barData.planWindow',
+  RELEASE_TARGET_WINDOW: 'barData.releaseTargetWindow',
   RELEASE_WINDOW: 'barData.releaseWindow',
 });
 
 export const BAR_DATA_EVENTS = Object.freeze({
+  TARGET_WINDOW_LOADED: 'barData:targetWindowLoaded',
+  TARGET_WINDOW_RELEASED: 'barData:targetWindowReleased',
   WINDOW_LOADED: 'barData:windowLoaded',
   WINDOW_RELEASED: 'barData:windowReleased',
 });
