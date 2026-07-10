@@ -28,9 +28,9 @@
   V6 accepted a browser/computed-style/spec-first UI audit process inspired by
   `JCodesMore/ai-website-cloner-template`, while explicitly rejecting
   Next/React/shadcn/Tailwind adoption.
-- Latest completed roadmap step: Step 238 - Chart Entry Manual Previous Runtime
-  Skeleton. V6 now has a chart-entry owned manual Previous runtime that rewinds
-  replay state and replaces pane-local chart-data, while the transport Previous
+- Latest completed roadmap step: Step 239 - Manual Previous Browser Wiring
+  Guard. V6 browser coverage now proves the chart-entry manual Previous runtime
+  is registered and command-dispatchable while the reserved transport Previous
   button remains disabled and shell transport remains unwired.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
@@ -43,31 +43,63 @@
 
 ## Next Executable Steps
 
-### Step 239 - Manual Previous Browser Wiring Guard
+### Step 240 - Manual Previous Viewport Preservation Reaudit
 
 Status: planned.
 
 Notes for execution:
 
-- add browser-level coverage that proves the chart-entry manual Previous runtime
-  is registered in the app lifecycle;
-- prove `chartEntryManualPrevious.previous` can replace chart-data from a page
-  command dispatch without shell transport involvement;
-- prove `data-v6-transport-step-back` remains disabled and does not dispatch
-  previous from click or keyboard input;
-- preserve viewport state in the browser harness;
-- do not enable the Previous button yet.
+- audit whether manual Previous should emit or reuse a viewport-specific
+  projection signal before the transport button is enabled;
+- compare source timeframe and display timeframe panes for viewport
+  preservation after chart-data replacement;
+- add or update browser coverage for manual wall/default wall preservation if
+  needed;
+- keep `data-v6-transport-step-back` disabled;
+- do not enable shell transport until viewport preservation is explicit.
 
 Acceptance:
 
-- browser smoke proves command registration, chart-data replacement, and
-  disabled transport state together;
+- Step 240 either documents that current chart-data revision projection is
+  sufficient or defines the missing viewport owner work;
+- browser/static smoke protects viewport intent origin/span during manual
+  Previous;
 - transport visual state, product direction, boundary, and relevant replay
   smokes pass;
 - no viewport reset, indicator, trading, or journal behavior changes in Step
-  239.
+  240.
 
 ## Completed Steps
+
+### Step 239 - Manual Previous Browser Wiring Guard
+
+Completed in this browser smoke commit.
+
+Verification:
+
+- `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
+- `node v6/tests/chart-entry-manual-previous-runtime-step238-smoke.js`
+- `node v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`
+- `node v6/tests/replay-transport-visual-state-browser-smoke.js`
+- `node v6/tests/product-direction-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`.
+- Proved `runtime.chartEntryManualPrevious` starts in the browser app
+  lifecycle.
+- Proved page commands include `chartEntryManualPrevious.getState` and
+  `chartEntryManualPrevious.previous`.
+- Proved the reserved `data-v6-transport-step-back` remains disabled and has no
+  transport action.
+- Proved disabled Previous click/keyboard attempts do not move replay or
+  chart-data.
+- Proved direct chart-entry manual Previous command dispatch rewinds replay,
+  replaces pane-local chart-data, and preserves viewport intent origin/span.
+- Did not enable shell transport, reset viewport, or change indicators, trading
+  simulation, order tickets, prop firm rule engines, or journal workflows.
 
 ### Step 238 - Chart Entry Manual Previous Runtime Skeleton
 
