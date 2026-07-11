@@ -27,6 +27,6 @@ assert.match(bridge, /runtime-display-timeframe-applied/);
 
 assert.match(bridgeSmoke, /CHART_HISTORY_EVENTS\.LEFT_EXTENSION_LOADED/);
 assert.match(bridgeSmoke, /target-history-high-timeframe-policy/);
-assert.match(browserSmoke, /measurement-boundary-attribution-needed/);
+assert.match(browserSmoke, /assert\.notEqual\(attribution\.status, 'leftward-request-scheduling-attribution-needed'\)/);
 
 console.log('v6 high timeframe target history programmatic leftward fast path closeout step326 static smoke passed');

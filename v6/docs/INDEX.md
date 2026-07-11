@@ -393,6 +393,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PROGRAMMATIC_LEFTWARD_FAST_PATH_STEP326.md`:
   accepted the programmatic leftward request fast path and selected
   high-timeframe responsiveness re-measurement next.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_FAST_PATH_REMEASUREMENT_STEP327.md`:
+  accepted fast-path responsiveness re-measurement and selected replay
+  coordination materialization transition next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -264,6 +264,11 @@
   keeps native visible-range input on `requestDelayMs`, arms a one-shot
   high-timeframe target-history fast path from display-timeframe application,
   and gates duplicate immediate requests per pane until `LEFT_EXTENSION_LOADED`.
+- Latest completed target-TF fast path remeasurement step: Step 327 -
+  High-Timeframe Target-History Fast Path Responsiveness Re-measurement. V6 now
+  re-measures `8h`, `1D`, and `1W` target-history records after the fast path
+  and selects `replay-coordination-materialization-transition` because
+  fast-path target-history responsiveness is within budget.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -299,7 +304,7 @@
 
 ## Next Executable Steps
 
-### Step 327 - High-Timeframe Target-History Fast Path Responsiveness Re-measurement
+### Step 328 - Replay Coordination Materialization Transition Slice Selection
 
 Status: proposed.
 
@@ -307,28 +312,27 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 326 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PROGRAMMATIC_LEFTWARD_FAST_PATH_STEP326.md`;
-- re-run high-timeframe target-history browser responsiveness measurement after
-  the fast path;
-- compare pre-left-extension, target fetch, chart-data application,
-  viewport/readout, and corrected visual-latency summaries;
-- decide whether the next slice is materialization readiness, measurement
-  cleanup, target-history runtime optimization, or another bounded
-  responsiveness fix;
+- use Step 327 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_FAST_PATH_REMEASUREMENT_STEP327.md`;
+- select the first bounded replay-coordination materialization transition
+  slice now that high-timeframe target-history responsiveness is within budget;
+- define the owner boundary and acceptance gates before runtime behavior
+  changes;
+- keep target-history request sizing and chart-history fast-path behavior
+  unchanged unless the selected slice explicitly needs a new gate;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add focused browser/static closeout coverage for the fast-path
-  responsiveness re-measurement;
+- add static closeout coverage for the selected materialization transition
+  slice;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- fast-path responsiveness re-measurement is documented;
+- replay coordination materialization transition slice selection is documented;
 - the next selected path is documented without relying on sub-frame or
   machine-specific timing noise;
 - targeted pack/member controls remain usable during iteration;
@@ -339,6 +343,33 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 327 - High-Timeframe Target-History Fast Path Responsiveness Re-measurement
+
+Completed in this target-history fast path remeasurement commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-fast-path-remeasurement-step327-smoke.js`
+- `node v6/tests/high-timeframe-target-history-fast-path-remeasurement-browser-step327-smoke.js`
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-browser-step324-smoke.js`
+- `node v6/tests/high-timeframe-target-history-programmatic-leftward-fast-path-closeout-step326-static-smoke.js`
+- `node v6/tests/high-timeframe-target-history-fast-path-remeasurement-closeout-step327-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure fast-path responsiveness remeasurement decision helper.
+- Added browser coverage over `8h`, `1D`, and `1W` target-history records after
+  the programmatic leftward request fast path.
+- The current result is `materialization-ready` and selects
+  `replay-coordination-materialization-transition`.
+- No chart-history runtime loading, target-history request sizing, chart
+  viewport intent, chart-engine, replay, shell, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior changed.
 
 ### Step 326 - High-Timeframe Target-History Programmatic Leftward Request Fast Path
 
