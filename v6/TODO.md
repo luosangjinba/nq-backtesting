@@ -125,6 +125,9 @@
   Target-History Sizing Pack Selection. V6 added the daily target-history
   request sizing browser smoke to the compact target-history browser regression
   pack.
+- Latest completed target-TF Phase D selection step: Step 300 -
+  Target-History Phase D Next Slice Selection. V6 selected `1D`
+  target-history fallback browser coverage as the next bounded slice.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -160,7 +163,7 @@
 
 ## Next Executable Steps
 
-### Step 300 - Target-History Phase D Next Slice Selection
+### Step 301 - Daily Target-History Fallback Browser Coverage
 
 Status: proposed.
 
@@ -168,23 +171,23 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 299 pack selection:
-  `v6/docs/V6_DAILY_TARGET_HISTORY_SIZING_PACK_SELECTION_STEP299.md`;
-- select the next target-history Phase D slice;
-- evaluate `1W` request-sizing selection/audit, `1D` fallback browser coverage,
-  and display-history responsiveness as candidates;
-- keep this as a selection/audit step unless one candidate has a clearly
-  bounded browser assertion;
+- use Step 300 selection:
+  `v6/docs/V6_TARGET_HISTORY_PHASE_D_NEXT_SLICE_SELECTION_STEP300.md`;
+- add a focused browser smoke for `1D` target-history fallback;
+- force `/v4/target_bars?tf=1D` to return empty target bars;
+- assert chart-history falls back to source-window projection and readout
+  diagnostics report the fallback reason;
+- preserve source bars so high-TF-to-`1m` round trips still work;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
-- preserve source bars so high-TF-to-`1m` round trips still work;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- next target-history Phase D slice is selected and documented;
+- browser coverage proves `1D` target-history fallback behavior on the real
+  path;
 - Step 293 regression pack remains green;
 - shell code still consumes runtime state/events and does not call target APIs;
 - no broad settings/control surface is added;
@@ -192,6 +195,29 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 300 - Target-History Phase D Next Slice Selection
+
+Completed in this target-history Phase D selection commit series.
+
+Verification:
+
+- `node v6/tests/target-history-phase-d-selection-step300-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/chart-history/target-history-phase-d-selection.js`.
+- The selector chooses `daily-fallback-browser-coverage` when daily success is
+  packed and fixed success/fallback are packed.
+- `1W` request-sizing and display-history responsiveness remain next
+  candidates after daily fallback is covered.
+- No runtime behavior changed.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 299 - Daily Target-History Sizing Pack Selection
 
