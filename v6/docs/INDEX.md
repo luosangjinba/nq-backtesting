@@ -305,6 +305,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_SESSION_AWARE_SIZING_SELECTION_STEP297.md`:
   selected `1D` as the first session-aware target-history request sizing
   browser assertion slice.
+- `v6/docs/V6_DAILY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP298.md`:
+  accepted browser coverage for `1D` target-history request sizing and source
+  preservation.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

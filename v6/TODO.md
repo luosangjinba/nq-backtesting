@@ -117,6 +117,10 @@
   Target-History Session-Aware Sizing Selection. V6 selected `1D` as the first
   session-aware target-history sizing browser assertion slice and deferred
   `1W`/`1M`.
+- Latest completed target-TF daily sizing browser step: Step 298 - Daily
+  Target-History Request Sizing Browser Assertion. V6 now has real browser
+  coverage proving the `1D` target-history path requests daily target bars and
+  preserves source bars for `1m` round trips.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -152,7 +156,7 @@
 
 ## Next Executable Steps
 
-### Step 298 - Daily Target-History Request Sizing Browser Assertion
+### Step 299 - Daily Target-History Sizing Pack Selection
 
 Status: proposed.
 
@@ -160,12 +164,12 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 297 selection:
-  `v6/docs/V6_TARGET_HISTORY_SESSION_AWARE_SIZING_SELECTION_STEP297.md`;
-- add a focused browser assertion for `1D` target-history request sizing;
-- assert the browser path requests daily target bars through the bar-data target
-  command path and preserves source bars for `1m` round trips;
-- keep `1W` and `1M` out of scope for this step;
+- use Step 298 daily browser coverage:
+  `v6/docs/V6_DAILY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP298.md`;
+- decide whether to add the daily sizing smoke to a compact pack or select the
+  next session-aware sizing slice;
+- keep `1W` and `1M` out of runtime changes until daily sizing coverage has a
+  stable pack entry;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -175,8 +179,7 @@ Notes for execution:
 
 Acceptance:
 
-- browser coverage proves `1D` target-history request sizing behavior on the
-  real path;
+- next daily/session-aware sizing packaging or selection slice is documented;
 - Step 293 regression pack remains green;
 - shell code still consumes runtime state/events and does not call target APIs;
 - no broad settings/control surface is added;
@@ -184,6 +187,30 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 298 - Daily Target-History Request Sizing Browser Assertion
+
+Completed in this daily target-history request sizing browser commit series.
+
+Verification:
+
+- `node v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-request-sizing-step295-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added
+  `v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js`.
+- The smoke drives a real browser `1D` target-history leftward path.
+- It asserts `/v4/target_bars` is requested with `tf=1D`.
+- It asserts request sizing is `session-aware-policy-sized`, target display
+  bars are `12`, and daily policy prefetches `17280` source minutes.
+- It confirms switching back to `1m` preserves source bars.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 297 - Target-History Session-Aware Sizing Selection
 
