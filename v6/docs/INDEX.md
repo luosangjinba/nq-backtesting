@@ -284,6 +284,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_STEP290.md`: accepted the
   shell-owned target-history diagnostics readout for pane-local leftward
   extension feedback.
+- `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_BROWSER_STEP291.md`:
+  accepted real browser coverage for the target-history diagnostics readout on
+  the activated high-timeframe target path.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
