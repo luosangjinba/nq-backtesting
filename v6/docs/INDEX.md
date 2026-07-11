@@ -368,6 +368,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_SELECTED_PATH_SLICE_SELECTION_STEP318.md`:
   accepted browser-visible apply-lag optimization planning as the next bounded
   target-history implementation slice from the real-budget report.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_VISIBLE_APPLY_LAG_OPTIMIZATION_PLAN_STEP319.md`:
+  accepted the shell readout observation boundary and selected a focused
+  browser milestone assertion before target-history apply-lag runtime changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
