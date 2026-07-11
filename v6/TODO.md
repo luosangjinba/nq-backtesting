@@ -105,6 +105,10 @@
   Target-History Optimization Re-selection. V6 selected target-history request
   sizing as the next optimization slice now that diagnostics readout success and
   fallback paths are packaged.
+- Latest completed target-TF sizing audit step: Step 295 - Target-History
+  Request Sizing. V6 added a pure audit helper for target-history request
+  sizing and deferred runtime sizing changes because current fixed HTF windows
+  already meet the policy target display bar counts.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -140,7 +144,7 @@
 
 ## Next Executable Steps
 
-### Step 295 - Target-History Request Sizing
+### Step 296 - Target-History Request Sizing Browser Diagnostics
 
 Status: proposed.
 
@@ -148,13 +152,14 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 294 decision:
-  `v6/docs/V6_TARGET_HISTORY_OPTIMIZATION_RESELECTION_STEP294.md`;
-- audit chart-history target window/request sizing for high-timeframe leftward
-  extension;
-- compare requested target bar count, prepended bar count, and viewport needs;
-- implement only a bounded sizing adjustment if the current target-history
-  request window is clearly too small or too broad;
+- use Step 295 audit:
+  `v6/docs/V6_TARGET_HISTORY_REQUEST_SIZING_STEP295.md`;
+- add browser-visible assertions or diagnostics for target-history request
+  sizing on the Step 293 success path;
+- compare requested target bars, prepended bars, and sizing policy targets in
+  the real browser path;
+- do not change runtime sizing unless the browser diagnostics expose a concrete
+  mismatch;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -164,9 +169,8 @@ Notes for execution:
 
 Acceptance:
 
-- target-history request sizing behavior is audited and documented;
-- any implementation remains confined to chart-history/display target-history
-  planning boundaries;
+- browser coverage asserts or exposes target-history request sizing behavior on
+  the real path;
 - Step 293 regression pack remains green;
 - shell code still consumes runtime state/events and does not call target APIs;
 - no broad settings/control surface is added;
@@ -174,6 +178,33 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 295 - Target-History Request Sizing
+
+Completed in this target-history request sizing audit commit series.
+
+Verification:
+
+- `node v6/tests/target-history-request-sizing-step295-smoke.js`
+- `node v6/tests/leftward-source-window-policy-step277-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/src/chart-history/target-history-request-sizing.js`.
+- The audit helper compares estimated fixed-duration target bars against the
+  policy target display bars.
+- Current fixed high-timeframe source-window policy already sizes normal
+  target-history windows to 20 display bars for `4h`, `8h`, and `12h`.
+- Session-aware target-history requests are marked policy-sized because exact
+  target bucket count depends on calendar/session semantics.
+- No runtime sizing change was made.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 294 - Target-History Optimization Re-selection
 
