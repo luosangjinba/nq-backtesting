@@ -213,6 +213,11 @@
   real browser phase-timed `8h`, `1D`, and `1W` target-history records into the
   Step 315 selector with default budgets and reports the selected path without
   changing runtime behavior.
+- Latest completed target-TF selected path step: Step 318 - High-Timeframe
+  Target-History Selected Path Slice Selection. V6 selected
+  `target-history-browser-visible-apply-lag-optimization-plan` as the next
+  bounded implementation-planning slice from the real-budget browser report,
+  while keeping runtime behavior unchanged.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -248,7 +253,7 @@
 
 ## Next Executable Steps
 
-### Step 318 - High-Timeframe Target-History Selected Path Slice Selection
+### Step 319 - High-Timeframe Target-History Browser-Visible Apply-Lag Optimization Plan
 
 Status: proposed.
 
@@ -256,36 +261,64 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 317 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_REAL_BUDGET_BROWSER_PHASE_REPORT_STEP317.md`;
-- select the next concrete implementation slice from the real-budget browser
-  report path;
-- if the selected path is a phase optimization, plan the smallest focused
-  runtime optimization with browser coverage;
-- if the selected path is materialization, plan the replay-coordination
-  materialization transition without changing replay precision;
-- if the selected path is measurement completion, define the missing measurement
-  coverage before any runtime changes;
+- use Step 318 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_SELECTED_PATH_SLICE_SELECTION_STEP318.md`;
+- inspect the browser-visible apply-lag path after target-history data is
+  loaded and chart-history reports completion;
+- identify the owner boundary responsible for the visible delay: chart-history,
+  chart-data replacement notification, chart-viewport reapply scheduling, or
+  chart-surface/readout observation;
+- choose one smallest runtime implementation change, but do not apply it in the
+  planning step unless a focused assertion already proves the boundary;
+- define the focused browser assertion that will prove the apply-lag
+  optimization without depending on machine-specific absolute timings;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static coverage for the selected path and next implementation slice;
+- add static coverage for the selected apply-lag optimization plan;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- the selected path from the real-budget report is documented;
-- the next bounded implementation slice is selected from that path;
+- the browser-visible apply-lag owner boundary is documented;
+- the next bounded implementation change and focused browser assertion are
+  selected;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
-- no runtime target-history behavior changes are made in the selection step;
+- no runtime target-history behavior changes are made in the planning step
+  unless backed by focused apply-lag evidence;
 - shell code still consumes runtime state/events and does not call target APIs;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 318 - High-Timeframe Target-History Selected Path Slice Selection
+
+Completed in this target-history selected path slice selection commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-selected-path-slice-selection-step318-smoke.js`
+- `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
+- `node v6/tests/high-timeframe-target-history-real-budget-browser-phase-report-step317-smoke.js`
+- `node v6/tests/high-timeframe-target-history-selected-path-slice-selection-closeout-step318-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure selected-path planner for Step 315/317 selector outputs.
+- The current real-budget browser sample selected
+  `target-history-browser-visible-apply-lag-optimization`.
+- The next implementation-planning slice is
+  `target-history-browser-visible-apply-lag-optimization-plan`.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 317 - High-Timeframe Target-History Real-Budget Browser Phase Report
 
