@@ -246,6 +246,13 @@
   corrected visual-latency window sits before the left-extension event. The
   next bounded slice is target-history trigger coordination latency
   attribution.
+- Latest completed target-TF trigger coordination attribution step: Step 324 -
+  High-Timeframe Target-History Trigger Coordination Latency Attribution. V6
+  now records display apply, target fetch, chart data, viewport projection, and
+  left-extension event milestones showing the dominant pre-left-extension
+  window is leftward request scheduling in
+  `chart-history.leftward-history-input-bridge`. The next bounded slice is a
+  leftward request scheduling plan before runtime behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -281,7 +288,7 @@
 
 ## Next Executable Steps
 
-### Step 324 - High-Timeframe Target-History Trigger Coordination Latency Attribution
+### Step 325 - High-Timeframe Target-History Leftward Request Scheduling Plan
 
 Status: proposed.
 
@@ -289,28 +296,28 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 323 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_RENDERING_VISIBILITY_ATTRIBUTION_STEP323.md`;
-- attribute the pre-left-extension visual-latency window to target-history
-  triggering, display-timeframe apply coordination, delayed left-extension
-  scheduling, or history runtime event emission;
-- use event-driven browser/runtime milestones without an absolute
-  machine-specific timing gate;
-- keep the work as reporting/attribution only unless a focused assertion proves
-  a concrete runtime owner;
+- use Step 324 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_TRIGGER_COORDINATION_ATTRIBUTION_STEP324.md`;
+- plan a bounded leftward request scheduling change for high-timeframe
+  target-history display application;
+- distinguish programmatic display-timeframe apply from manual drag/wheel
+  leftward-extension stabilization;
+- preserve the existing delayed scheduling behavior for native visible-range
+  input unless the plan proves a narrower safe path;
+- keep the work as planning/reporting only unless a focused assertion proves a
+  concrete safe implementation boundary;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser or static closeout coverage for trigger coordination latency
-  attribution;
+- add browser or static closeout coverage for leftward request scheduling plan;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- trigger coordination latency attribution is documented;
+- leftward request scheduling plan is documented;
 - the next selected path is documented without relying on sub-frame or
   machine-specific timing noise;
 - targeted pack/member controls remain usable during iteration;
@@ -321,6 +328,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 324 - High-Timeframe Target-History Trigger Coordination Latency Attribution
+
+Completed in this target-history trigger coordination attribution commit
+series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-attribution-step324-smoke.js`
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-browser-step324-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-rendering-attribution-browser-step323-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-rendering-attribution-step323-smoke.js`
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-closeout-step324-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure trigger coordination attribution helper for corrected
+  target-history visual-latency records.
+- Added browser integration recording display apply, target fetch, chart data,
+  viewport projection, and left-extension event milestones.
+- The browser smoke classifies the current remaining window as
+  `target-history-leftward-request-scheduling-plan`, owned by
+  `chart-history.leftward-history-input-bridge`.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 323 - High-Timeframe Target-History Browser Rendering Visibility Attribution
 

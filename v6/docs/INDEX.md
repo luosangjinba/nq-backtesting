@@ -384,6 +384,9 @@ Read this index before working on V6.
   accepted browser rendering/readout visibility attribution for corrected
   target-history visual latency and selected trigger coordination latency
   attribution next.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_TRIGGER_COORDINATION_ATTRIBUTION_STEP324.md`:
+  accepted trigger coordination attribution for corrected target-history visual
+  latency and selected leftward request scheduling planning next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
