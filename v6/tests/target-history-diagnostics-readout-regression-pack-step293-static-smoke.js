@@ -9,6 +9,7 @@ const dailyFallbackSmoke = await readFile('v6/tests/daily-target-history-fallbac
 const weeklySmoke = await readFile('v6/tests/weekly-target-history-request-sizing-browser-step303-smoke.js', 'utf8');
 const weeklyFallbackSmoke = await readFile('v6/tests/weekly-target-history-fallback-browser-step304-smoke.js', 'utf8');
 const monthlySmoke = await readFile('v6/tests/monthly-target-history-request-sizing-browser-step306-smoke.js', 'utf8');
+const monthlyFallbackSmoke = await readFile('v6/tests/monthly-target-history-fallback-browser-step307-smoke.js', 'utf8');
 
 const requiredMembers = [
   'target-history-diagnostics-readout-browser-step291-smoke.js',
@@ -18,6 +19,7 @@ const requiredMembers = [
   'weekly-target-history-request-sizing-browser-step303-smoke.js',
   'weekly-target-history-fallback-browser-step304-smoke.js',
   'monthly-target-history-request-sizing-browser-step306-smoke.js',
+  'monthly-target-history-fallback-browser-step307-smoke.js',
 ];
 
 for (const member of requiredMembers) {
@@ -60,5 +62,11 @@ assert.match(monthlySmoke, /session-aware-policy-sized/);
 assert.match(monthlySmoke, /requestSizing\.targetDisplayBars, 1/);
 assert.match(monthlySmoke, /requestSizing\.policy\.prefetchSourceBars, 40000/);
 assert.match(monthlySmoke, /restoredSourceBarCount/);
+assert.match(monthlyFallbackSmoke, /targetFetch\.tf, '1M'/);
+assert.match(monthlyFallbackSmoke, /target-history-empty/);
+assert.match(monthlyFallbackSmoke, /target-history-fallback-source-window/);
+assert.match(monthlyFallbackSmoke, /requestSizing\.targetDisplayBars, 1/);
+assert.match(monthlyFallbackSmoke, /requestSizing\.policy\.prefetchSourceBars, 40000/);
+assert.match(monthlyFallbackSmoke, /restoredSourceBarCount/);
 
 console.log('v6 target history diagnostics readout regression pack step293 static smoke passed');
