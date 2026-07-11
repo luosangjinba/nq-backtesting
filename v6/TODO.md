@@ -168,6 +168,10 @@
   weekly, and monthly target-history success/fallback browser coverage is
   complete and selected target-history browser pack runtime/cost control as the
   next bounded slice.
+- Latest completed target-TF browser pack cost step: Step 309 - Target-History
+  Browser Pack Runtime Cost Control. V6 now has test-only group/member
+  selection and plan logging for the target-history browser pack while
+  preserving the full eight-member pack as the default comprehensive command.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -203,7 +207,7 @@
 
 ## Next Executable Steps
 
-### Step 309 - Target-History Browser Pack Runtime Cost Control
+### Step 310 - High-Timeframe Target-History Responsiveness Audit
 
 Status: proposed.
 
@@ -211,31 +215,61 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 308 selection:
-  `v6/docs/V6_TARGET_HISTORY_PHASE_D_REAUDIT_STEP308.md`;
-- keep the scope to browser pack orchestration, runtime reporting, and
-  optional targeted member selection;
-- preserve the full Step 293 pack as the default comprehensive target-history
-  browser regression command;
-- add static or pure coverage for the pack cost-control contract;
+- use Step 309 closeout:
+  `v6/docs/V6_TARGET_HISTORY_BROWSER_PACK_COST_CONTROL_STEP309.md`;
+- audit high-timeframe target-history responsiveness now that the fixed,
+  daily, weekly, and monthly success/fallback paths are covered;
+- use the Step 309 pack group/member controls for focused iteration instead of
+  running the full browser pack after every local probe;
+- keep the scope to measurement, browser/runtime reporting, and next-slice
+  selection unless a concrete bottleneck justifies a bounded runtime change;
+- preserve the full Step 293 pack as the available comprehensive
+  target-history browser regression command;
+- add static, pure, or browser coverage for the responsiveness audit contract;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser pack runtime/cost controls are documented and test-covered;
+- high-timeframe target-history responsiveness is audited and documented;
+- the audit identifies whether the next slice should be a responsiveness
+  harness, bounded runtime optimization, or materialization transition;
+- targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
-- daily success/fallback pack coverage remains green;
-- weekly sizing pack coverage remains green;
-- weekly fallback pack coverage remains green;
-- monthly sizing pack coverage remains green;
-- monthly fallback pack coverage remains green;
-- no runtime target-history behavior changes;
+- no runtime target-history behavior changes unless backed by a focused audit
+  finding and bounded coverage;
 - shell code still consumes runtime state/events and does not call target APIs;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 309 - Target-History Browser Pack Runtime Cost Control
+
+Completed in this target-history browser pack cost-control commit series.
+
+Verification:
+
+- `node v6/tests/target-history-pack-cost-control-step309-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-browser-pack-cost-control-closeout-step309-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a test-only target-history pack cost-control helper with `all`,
+  `fallback`, `fixed`, `session-aware`, and `sizing` groups.
+- Added comma-separated member selection through
+  `TARGET_HISTORY_PACK_MEMBERS`, which overrides `TARGET_HISTORY_PACK_GROUP`.
+- The Step 293 browser pack now logs its selected plan and still defaults to
+  the full eight-member target-history browser pack.
+- A targeted `monthly-fallback` pack run and the full eight-member pack both
+  pass.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 308 - Target-History Phase D Re-audit And Next Slice Selection
 

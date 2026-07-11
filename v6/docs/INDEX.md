@@ -338,6 +338,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_PHASE_D_REAUDIT_STEP308.md`: re-audited complete
   fixed/daily/weekly/monthly target-history browser coverage and selected
   browser pack runtime/cost control as the next bounded slice.
+- `v6/docs/V6_TARGET_HISTORY_BROWSER_PACK_COST_CONTROL_STEP309.md`: accepted
+  test-only target-history browser pack group/member selection while preserving
+  the full eight-member pack as the default comprehensive command.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
