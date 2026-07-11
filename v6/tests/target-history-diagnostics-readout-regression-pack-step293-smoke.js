@@ -5,6 +5,7 @@ const TESTS = Object.freeze([
   'v6/tests/target-history-diagnostics-readout-browser-step291-smoke.js',
   'v6/tests/target-history-diagnostics-readout-fallback-browser-step292-smoke.js',
   'v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js',
+  'v6/tests/daily-target-history-fallback-browser-step301-smoke.js',
 ]);
 
 function runTest(script) {
