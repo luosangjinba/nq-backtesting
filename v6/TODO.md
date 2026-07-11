@@ -121,6 +121,10 @@
   Target-History Request Sizing Browser Assertion. V6 now has real browser
   coverage proving the `1D` target-history path requests daily target bars and
   preserves source bars for `1m` round trips.
+- Latest completed target-TF daily sizing pack step: Step 299 - Daily
+  Target-History Sizing Pack Selection. V6 added the daily target-history
+  request sizing browser smoke to the compact target-history browser regression
+  pack.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -156,7 +160,7 @@
 
 ## Next Executable Steps
 
-### Step 299 - Daily Target-History Sizing Pack Selection
+### Step 300 - Target-History Phase D Next Slice Selection
 
 Status: proposed.
 
@@ -164,12 +168,13 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 298 daily browser coverage:
-  `v6/docs/V6_DAILY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP298.md`;
-- decide whether to add the daily sizing smoke to a compact pack or select the
-  next session-aware sizing slice;
-- keep `1W` and `1M` out of runtime changes until daily sizing coverage has a
-  stable pack entry;
+- use Step 299 pack selection:
+  `v6/docs/V6_DAILY_TARGET_HISTORY_SIZING_PACK_SELECTION_STEP299.md`;
+- select the next target-history Phase D slice;
+- evaluate `1W` request-sizing selection/audit, `1D` fallback browser coverage,
+  and display-history responsiveness as candidates;
+- keep this as a selection/audit step unless one candidate has a clearly
+  bounded browser assertion;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -179,7 +184,7 @@ Notes for execution:
 
 Acceptance:
 
-- next daily/session-aware sizing packaging or selection slice is documented;
+- next target-history Phase D slice is selected and documented;
 - Step 293 regression pack remains green;
 - shell code still consumes runtime state/events and does not call target APIs;
 - no broad settings/control surface is added;
@@ -187,6 +192,30 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 299 - Daily Target-History Sizing Pack Selection
+
+Completed in this daily target-history sizing pack commit series.
+
+Verification:
+
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added
+  `v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js` to
+  `v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`.
+- Static membership coverage now requires the daily sizing smoke.
+- The pack now covers fixed target-history success, target-history fallback,
+  and daily target-history request sizing.
+- No runtime behavior changed.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 298 - Daily Target-History Request Sizing Browser Assertion
 

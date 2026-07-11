@@ -308,6 +308,9 @@ Read this index before working on V6.
 - `v6/docs/V6_DAILY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP298.md`:
   accepted browser coverage for `1D` target-history request sizing and source
   preservation.
+- `v6/docs/V6_DAILY_TARGET_HISTORY_SIZING_PACK_SELECTION_STEP299.md`: added
+  daily target-history request sizing coverage to the compact target-history
+  browser regression pack.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
