@@ -314,6 +314,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_PHASE_D_NEXT_SLICE_SELECTION_STEP300.md`:
   selected `1D` target-history fallback browser coverage as the next Phase D
   slice.
+- `v6/docs/V6_DAILY_TARGET_HISTORY_FALLBACK_BROWSER_STEP301.md`: accepted
+  browser coverage for `1D` target-history fallback and added it to the compact
+  target-history browser regression pack.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
