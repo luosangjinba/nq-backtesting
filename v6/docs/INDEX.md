@@ -380,6 +380,10 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_VISUAL_LATENCY_PHASE_ATTRIBUTION_STABILIZATION_STEP322.md`:
   accepted sub-frame noise suppression for corrected target-history visual
   latency and selected browser rendering visibility attribution next.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_RENDERING_VISIBILITY_ATTRIBUTION_STEP323.md`:
+  accepted browser rendering/readout visibility attribution for corrected
+  target-history visual latency and selected trigger coordination latency
+  attribution next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -239,6 +239,13 @@
   V6 now suppresses sub-frame chart-data/viewport noise in corrected
   target-history visual-latency attribution and selects browser rendering
   visibility attribution as the next bounded slice.
+- Latest completed target-TF browser-rendering attribution step: Step 323 -
+  High-Timeframe Target-History Browser Rendering Visibility Attribution. V6
+  now records requestAnimationFrame/readout visibility milestones showing
+  `LEFT_EXTENSION_LOADED` to readout visibility is sub-frame, so the remaining
+  corrected visual-latency window sits before the left-extension event. The
+  next bounded slice is target-history trigger coordination latency
+  attribution.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -274,7 +281,7 @@
 
 ## Next Executable Steps
 
-### Step 323 - High-Timeframe Target-History Browser Rendering Visibility Attribution
+### Step 324 - High-Timeframe Target-History Trigger Coordination Latency Attribution
 
 Status: proposed.
 
@@ -282,20 +289,20 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 322 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_VISUAL_LATENCY_PHASE_ATTRIBUTION_STABILIZATION_STEP322.md`;
-- attribute the remaining corrected target-history visual latency to browser
-  rendering, chart-engine paint, screenshot/readout observation, or measurement
-  boundary;
-- use browser milestones such as requestAnimationFrame and chart/readout
-  visibility observations without an absolute machine-specific timing gate;
+- use Step 323 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_RENDERING_VISIBILITY_ATTRIBUTION_STEP323.md`;
+- attribute the pre-left-extension visual-latency window to target-history
+  triggering, display-timeframe apply coordination, delayed left-extension
+  scheduling, or history runtime event emission;
+- use event-driven browser/runtime milestones without an absolute
+  machine-specific timing gate;
 - keep the work as reporting/attribution only unless a focused assertion proves
   a concrete runtime owner;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser or static closeout coverage for browser rendering visibility
+- add browser or static closeout coverage for trigger coordination latency
   attribution;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
@@ -303,7 +310,7 @@ Notes for execution:
 
 Acceptance:
 
-- browser rendering/visibility attribution is documented;
+- trigger coordination latency attribution is documented;
 - the next selected path is documented without relying on sub-frame or
   machine-specific timing noise;
 - targeted pack/member controls remain usable during iteration;
@@ -314,6 +321,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 323 - High-Timeframe Target-History Browser Rendering Visibility Attribution
+
+Completed in this target-history browser rendering attribution commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-browser-rendering-attribution-step323-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-rendering-attribution-browser-step323-smoke.js`
+- `node v6/tests/high-timeframe-target-history-visual-latency-attribution-browser-step322-smoke.js`
+- `node v6/tests/high-timeframe-target-history-visual-latency-attribution-step322-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-rendering-attribution-closeout-step323-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure browser rendering/visibility attribution helper for corrected
+  target-history visual-latency records.
+- Added browser integration recording `requestAnimationFrame` and diagnostics
+  readout visibility milestones after target-history left extension.
+- The browser smoke classifies the current remaining window as
+  `target-history-trigger-coordination-latency-attribution`, not browser
+  rendering or chart-engine paint.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 322 - High-Timeframe Target-History Visual-Latency Phase Attribution Stabilization
 
