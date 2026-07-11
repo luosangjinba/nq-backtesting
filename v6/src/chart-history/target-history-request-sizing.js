@@ -93,3 +93,35 @@ export function selectWeeklyTargetHistorySizingSlice({
     targetTimeframe: null,
   };
 }
+
+export function selectMonthlyTargetHistorySizingSlice({
+  backendSupported = ['1D', '1W'],
+  enabled = ['1D', '1W', '1M'],
+  weeklyFallbackPacked = false,
+  weeklySuccessPacked = false,
+} = {}) {
+  const backendSet = new Set(backendSupported.map((value) => String(value || '').trim().toUpperCase()));
+  const enabledSet = new Set(enabled.map((value) => String(value || '').trim().toUpperCase()));
+  if (!weeklySuccessPacked || !weeklyFallbackPacked) {
+    return {
+      reason: 'weekly-target-history-pack-incomplete',
+      targetTimeframe: null,
+    };
+  }
+  if (backendSet.has('1M') && enabledSet.has('1M')) {
+    return {
+      reason: 'monthly-target-history-backend-supported-after-weekly-pack',
+      targetTimeframe: '1M',
+    };
+  }
+  if (enabledSet.has('1M')) {
+    return {
+      reason: 'monthly-target-history-browser-sizing-audit-needed',
+      targetTimeframe: '1M',
+    };
+  }
+  return {
+    reason: 'monthly-target-history-disabled',
+    targetTimeframe: null,
+  };
+}
