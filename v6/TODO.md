@@ -94,6 +94,10 @@
   Diagnostics Readout Browser Regression. V6 now has real browser coverage for
   the pane-local diagnostics readout on the activated high-timeframe
   target-history path while preserving source bars for `1m` round trips.
+- Latest completed target-TF readout fallback step: Step 292 - Target-History
+  Diagnostics Readout Fallback Browser Regression. V6 now has real browser
+  coverage for the readout fallback path when target-history returns empty and
+  chart-history continues through the source-window path.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -129,7 +133,7 @@
 
 ## Next Executable Steps
 
-### Step 292 - Target-History Diagnostics Readout Fallback Browser Regression
+### Step 293 - Target-History Diagnostics Readout Regression Pack
 
 Status: proposed.
 
@@ -137,16 +141,15 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 291 browser readout coverage:
+- use Step 291 success coverage:
   `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_BROWSER_STEP291.md`;
-- add the matching browser regression for the target-history diagnostics readout
-  fallback path;
-- drive the activated high-timeframe leftward history path while forcing
-  target-history to fall back to the source-window path;
-- assert the visible/computed readout text or dataset reflects
-  `path=fallback`, target/source request counts, fallback reason, and prepended
-  bar count;
-- keep the test focused on shell consumption of chart-history events;
+- use Step 292 fallback coverage:
+  `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_FALLBACK_BROWSER_STEP292.md`;
+- consolidate target-history diagnostics readout browser coverage into a small
+  regression pack or the existing timeframe/replay foundation runner;
+- keep success and fallback paths runnable together before future target-history
+  optimization work;
+- keep the pack focused on shell consumption of chart-history events;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -156,8 +159,8 @@ Notes for execution:
 
 Acceptance:
 
-- browser smoke proves the readout updates on the activated target-history
-  fallback path;
+- one command covers both target-history diagnostics readout success and
+  fallback browser paths;
 - shell code still consumes runtime state/events and does not call target APIs;
 - readout remains small and removable; no broad settings/control surface is
   added;
@@ -165,6 +168,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 292 - Target-History Diagnostics Readout Fallback Browser Regression
+
+Completed in this target-history diagnostics fallback readout browser commit
+series.
+
+Verification:
+
+- `node v6/tests/target-history-diagnostics-readout-fallback-browser-step292-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-browser-step291-smoke.js`
+- `node v6/tests/leftward-history-target-fallback-step285-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-model-step290-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added
+  `v6/tests/target-history-diagnostics-readout-fallback-browser-step292-smoke.js`.
+- The smoke drives real browser activation of the `8h` target-history path and
+  forces target bars to return empty.
+- It asserts the pane-local diagnostics readout reports `path=fallback`,
+  `target-history-empty`, target/source request counts, and prepended bars.
+- It confirms fallback source-window loading extends source bars.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 291 - Target-History Diagnostics Readout Browser Regression
 
