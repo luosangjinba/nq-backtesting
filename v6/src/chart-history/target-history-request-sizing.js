@@ -61,3 +61,35 @@ export function selectSessionAwareTargetHistorySizingSlice({
     targetTimeframe: null,
   };
 }
+
+export function selectWeeklyTargetHistorySizingSlice({
+  backendSupported = ['1D'],
+  dailyFallbackPacked = false,
+  dailySuccessPacked = false,
+  enabled = ['1D', '1W', '1M'],
+} = {}) {
+  const backendSet = new Set(backendSupported.map((value) => String(value || '').trim().toUpperCase()));
+  const enabledSet = new Set(enabled.map((value) => String(value || '').trim().toUpperCase()));
+  if (!dailySuccessPacked || !dailyFallbackPacked) {
+    return {
+      reason: 'daily-target-history-pack-incomplete',
+      targetTimeframe: null,
+    };
+  }
+  if (backendSet.has('1W') && enabledSet.has('1W')) {
+    return {
+      reason: 'weekly-target-history-backend-supported-after-daily-pack',
+      targetTimeframe: '1W',
+    };
+  }
+  if (enabledSet.has('1W')) {
+    return {
+      reason: 'weekly-target-history-browser-sizing-audit-needed',
+      targetTimeframe: '1W',
+    };
+  }
+  return {
+    reason: 'weekly-target-history-disabled',
+    targetTimeframe: null,
+  };
+}

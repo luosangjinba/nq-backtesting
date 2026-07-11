@@ -1,5 +1,8 @@
 import assert from 'node:assert/strict';
-import { auditTargetHistoryRequestSizing } from '../src/chart-history/target-history-request-sizing.js';
+import {
+  auditTargetHistoryRequestSizing,
+  selectWeeklyTargetHistorySizingSlice,
+} from '../src/chart-history/target-history-request-sizing.js';
 
 const eightHour = auditTargetHistoryRequestSizing({
   displayTimeframe: 480,
@@ -60,6 +63,54 @@ assert.equal(daily.status, 'session-aware-policy-sized');
 assert.equal(daily.estimatedTargetBars, null);
 assert.equal(daily.targetDisplayBars, 12);
 assert.equal(daily.policy.prefetchSourceBars, 17280);
+
+const weekly = auditTargetHistoryRequestSizing({
+  displayTimeframe: '1W',
+  plannedWindow: {
+    end: '2026-06-01 17:59',
+    instrument: 'NQ',
+    start: '2026-05-04 18:00',
+    timeframe: 1,
+  },
+  sourceTimeframe: 1,
+});
+assert.equal(weekly.status, 'session-aware-policy-sized');
+assert.equal(weekly.estimatedTargetBars, null);
+assert.equal(weekly.targetDisplayBars, 4);
+assert.equal(weekly.policy.prefetchSourceBars, 40000);
+
+const weeklySelected = selectWeeklyTargetHistorySizingSlice({
+  backendSupported: ['8h', '1D', '1W'],
+  dailyFallbackPacked: true,
+  dailySuccessPacked: true,
+  enabled: ['1D', '1W', '1M'],
+});
+assert.deepEqual(weeklySelected, {
+  reason: 'weekly-target-history-backend-supported-after-daily-pack',
+  targetTimeframe: '1W',
+});
+
+const weeklyAuditNeeded = selectWeeklyTargetHistorySizingSlice({
+  backendSupported: ['8h', '1D'],
+  dailyFallbackPacked: true,
+  dailySuccessPacked: true,
+  enabled: ['1D', '1W', '1M'],
+});
+assert.deepEqual(weeklyAuditNeeded, {
+  reason: 'weekly-target-history-browser-sizing-audit-needed',
+  targetTimeframe: '1W',
+});
+
+const weeklyBlocked = selectWeeklyTargetHistorySizingSlice({
+  backendSupported: ['8h', '1D', '1W'],
+  dailyFallbackPacked: false,
+  dailySuccessPacked: true,
+  enabled: ['1D', '1W', '1M'],
+});
+assert.deepEqual(weeklyBlocked, {
+  reason: 'daily-target-history-pack-incomplete',
+  targetTimeframe: null,
+});
 
 assert.throws(() => auditTargetHistoryRequestSizing({
   displayTimeframe: 480,
