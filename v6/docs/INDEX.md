@@ -377,6 +377,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_MEASUREMENT_BOUNDARY_CORRECTION_STEP321.md`:
   accepted the event-driven apply-lag measurement correction and selected
   visual-latency phase attribution stabilization as the next slice.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_VISUAL_LATENCY_PHASE_ATTRIBUTION_STABILIZATION_STEP322.md`:
+  accepted sub-frame noise suppression for corrected target-history visual
+  latency and selected browser rendering visibility attribution next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
