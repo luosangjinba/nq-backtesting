@@ -27,8 +27,8 @@ assert.equal(plan.sourceReplayCursorAuthority, true);
 assert.equal(plan.ownerSurfaces.some((surface) => surface.commandSurface === 'barData.loadTargetWindow'), true);
 assert.equal(plan.ownerSurfaces.some((surface) => surface.commandSurface === 'chartData.replaceBars'), true);
 assert.equal(plan.forbiddenSurfaces.includes('replay.setCursorTime'), true);
-assert.equal(plan.forbiddenSurfaces.includes('chartEngine.setData'), true);
-assert.equal(plan.forbiddenSurfaces.includes('chartEngine.setVisibleLogicalRange'), true);
+assert.equal(plan.forbiddenSurfaces.includes('chart-render-series-write'), true);
+assert.equal(plan.forbiddenSurfaces.includes('chart-render-range-write'), true);
 
 assert.match(planSource, /display-timeframe-target-materialization-handoff/);
 assert.match(planSource, /source-1m-replay-cursor-available/);

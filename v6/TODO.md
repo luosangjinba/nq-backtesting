@@ -286,6 +286,11 @@
   Selection. V6 now selects
   `replay-coordination-materialization-pure-handoff-plan` as the next bounded
   slice before any runtime materialization wiring.
+- Latest completed replay coordination materialization pure handoff plan step:
+  Step 331 - Replay Coordination Materialization Pure Handoff Plan. V6 now
+  maps display materialization intent to existing bar-data/chart-data owner
+  surfaces and records the first future wiring point preconditions without
+  runtime wiring.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -321,7 +326,7 @@
 
 ## Next Executable Steps
 
-### Step 331 - Replay Coordination Materialization Pure Handoff Plan
+### Step 332 - Replay Coordination Materialization Runtime Wiring Slice Selection
 
 Status: proposed.
 
@@ -329,33 +334,33 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 330 closeout:
-  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_HANDOFF_SELECTION_STEP330.md`;
-- define the pure handoff plan selected in Step 330;
-- map display materialization intent to existing bar-data and chart-data owner
-  command surfaces without runtime wiring;
+- use Step 331 closeout:
+  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_PURE_HANDOFF_PLAN_STEP331.md`;
+- select the first bounded runtime wiring slice for the accepted pure handoff
+  plan;
+- prefer a read-only wiring readiness audit for
+  `display-timeframe-target-materialization-handoff` before behavior wiring;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
-  no-future reveal policy explicit in the plan;
-- identify the first future wiring point and its required preconditions, but do
-  not implement it yet;
+  no-future reveal policy explicit;
+- keep the Step 331 owner-surface mapping explicit;
 - keep target-history request sizing and chart-history fast-path behavior
-  unchanged unless the handoff plan explicitly needs a new gate;
+  unchanged unless the selected runtime wiring slice explicitly needs a new
+  gate;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the pure handoff plan;
+- add static closeout coverage for the selected wiring slice;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- replay coordination materialization pure handoff plan is documented;
-- plan coverage proves display materialization intent maps only to owner
-  surfaces and not directly to chart engine, shell, replay cursor, or viewport
-  mutation;
-- no runtime materialization behavior changes are made in the plan step;
+- replay coordination materialization runtime wiring slice selection is
+  documented;
+- the next selected path is documented without relying on timing noise;
+- no runtime materialization behavior changes are made in the selection step;
 - source `1m` replay remains the cursor authority while target bars may be
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -364,6 +369,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 331 - Replay Coordination Materialization Pure Handoff Plan
+
+Completed in this replay coordination materialization pure handoff plan commit
+series.
+
+Verification:
+
+- `node v6/tests/replay-coordination-materialization-pure-handoff-plan-step331-smoke.js`
+- `node v6/tests/replay-coordination-materialization-pure-handoff-boundary-step331-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-handoff-slice-selection-step330-smoke.js`
+- `node v6/tests/replay-coordination-materialization-handoff-boundary-step330-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-handoff-closeout-step330-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure handoff plan mapping display materialization intent to existing
+  bar-data/chart-data owner surfaces.
+- Recorded `display-timeframe-target-materialization-handoff` as the first
+  future wiring point and listed its preconditions.
+- Added static boundary coverage proving the plan does not expose command bus,
+  event bus, direct chart-engine writes, replay cursor mutation, shell target
+  APIs, or viewport mutation.
+- No replay cursor movement, no-bar gap skipping, bar-data requests,
+  chart-data projection, chart-history runtime loading, target-history request
+  sizing, chart viewport intent, chart-engine, shell, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior changed.
 
 ### Step 330 - Replay Coordination Materialization Runtime Handoff Slice Selection
 

@@ -57,8 +57,8 @@ const HANDOFF_FORBIDDEN_SURFACES = Object.freeze([
   'replay.next',
   'replay.previous',
   'chartViewport.project',
-  'chartEngine.setData',
-  'chartEngine.setVisibleLogicalRange',
+  'chart-render-series-write',
+  'chart-render-range-write',
   'shell.dispatchTargetHistory',
 ]);
 
