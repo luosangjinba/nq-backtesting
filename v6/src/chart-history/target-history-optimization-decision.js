@@ -74,3 +74,25 @@ export function decideTargetHistoryOptimization({
     },
   };
 }
+
+export function reselectTargetHistoryOptimization({
+  completed = [],
+  diagnostics = [],
+  fallbackRateLimit = 0.2,
+  targetSlowRatio = 1.25,
+} = {}) {
+  const completedSet = new Set(completed.map((value) => String(value || '').trim()).filter(Boolean));
+  const decision = decideTargetHistoryOptimization({
+    diagnostics,
+    fallbackRateLimit,
+    targetSlowRatio,
+  });
+  if (decision.decision !== 'add-diagnostic-readout' || !completedSet.has('add-diagnostic-readout')) {
+    return decision;
+  }
+  return {
+    decision: 'tune-target-request-sizing',
+    reason: 'target-history-readout-complete-next-size-requests',
+    summary: decision.summary,
+  };
+}
