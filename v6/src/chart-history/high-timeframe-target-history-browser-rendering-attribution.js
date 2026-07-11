@@ -102,13 +102,14 @@ export function attributeHighTimeframeTargetHistoryBrowserRenderingVisibility({
   }
 
   const postSecondFrame = summary.postLeftExtensionSecondFrameP95Ms;
+  const postReadout = summary.postLeftExtensionReadoutP95Ms;
   const preLeftExtension = summary.preLeftExtensionP95Ms;
-  const postRatio = ratio(postSecondFrame, visualLatency);
+  const postRatio = ratio(postReadout, visualLatency);
   const preRatio = ratio(preLeftExtension, visualLatency);
 
   if (
-    postSecondFrame !== null &&
-    postSecondFrame > resolvedFrameNoise &&
+    postReadout !== null &&
+    postReadout > resolvedFrameNoise &&
     postRatio !== null &&
     postRatio >= resolvedDominanceRatio
   ) {
@@ -126,8 +127,8 @@ export function attributeHighTimeframeTargetHistoryBrowserRenderingVisibility({
     preRatio !== null &&
     preRatio >= resolvedDominanceRatio &&
     (
-      postSecondFrame === null ||
-      postSecondFrame <= Math.max(resolvedFrameNoise, visualLatency - preLeftExtension)
+      postReadout === null ||
+      postReadout <= resolvedFrameNoise
     )
   ) {
     return {
