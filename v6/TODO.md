@@ -163,6 +163,11 @@
   proving empty `1M` target bars fall back to source-window projection, report
   `target-history-empty` in diagnostics/readout, preserve source bars for `1m`
   round trips, and remain in the compact target-history browser regression pack.
+- Latest completed target-TF Phase D re-audit step: Step 308 - Target-History
+  Phase D Re-audit And Next Slice Selection. V6 confirmed fixed, daily,
+  weekly, and monthly target-history success/fallback browser coverage is
+  complete and selected target-history browser pack runtime/cost control as the
+  next bounded slice.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -198,7 +203,7 @@
 
 ## Next Executable Steps
 
-### Step 308 - Target-History Phase D Re-audit And Next Slice Selection
+### Step 309 - Target-History Browser Pack Runtime Cost Control
 
 Status: proposed.
 
@@ -206,34 +211,61 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 307 closeout:
-  `v6/docs/V6_MONTHLY_TARGET_HISTORY_FALLBACK_BROWSER_STEP307.md`;
-- re-audit the completed target-history Phase D coverage across fixed,
-  daily, weekly, and monthly success/fallback browser paths;
-- select the next bounded target-history slice from explicit candidates such as
-  browser pack runtime/cost control, high-timeframe history responsiveness, or
-  transition toward replay coordination/materialization;
-- keep the step bounded to selection/audit and static or pure coverage unless a
-  concrete mismatch is proven;
+- use Step 308 selection:
+  `v6/docs/V6_TARGET_HISTORY_PHASE_D_REAUDIT_STEP308.md`;
+- keep the scope to browser pack orchestration, runtime reporting, and
+  optional targeted member selection;
+- preserve the full Step 293 pack as the default comprehensive target-history
+  browser regression command;
+- add static or pure coverage for the pack cost-control contract;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- completed target-history browser coverage is summarized with explicit gaps;
-- the next bounded target-history slice is selected with explicit reasons;
+- browser pack runtime/cost controls are documented and test-covered;
+- the full eight-member target-history browser pack remains available and green;
 - daily success/fallback pack coverage remains green;
 - weekly sizing pack coverage remains green;
 - weekly fallback pack coverage remains green;
 - monthly sizing pack coverage remains green;
 - monthly fallback pack coverage remains green;
-- no runtime target-history behavior changes unless backed by a focused audit
-  finding;
+- no runtime target-history behavior changes;
 - shell code still consumes runtime state/events and does not call target APIs;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 308 - Target-History Phase D Re-audit And Next Slice Selection
+
+Completed in this target-history Phase D re-audit commit series.
+
+Verification:
+
+- `node v6/tests/target-history-phase-d-reaudit-step308-smoke.js`
+- `node v6/tests/target-history-phase-d-selection-step300-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-phase-d-reaudit-closeout-step308-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `auditTargetHistoryPhaseDCoverage` and
+  `selectTargetHistoryPhaseDPostCoverageSlice`.
+- The audit confirms eight expected target-history browser paths are covered:
+  fixed success/fallback, daily success/fallback, weekly success/fallback, and
+  monthly success/fallback.
+- The selector chooses `target-history-browser-pack-cost-control` as the next
+  bounded slice.
+- High-timeframe responsiveness and replay/materialization transition remain
+  candidates after the browser pack cost is controlled.
+- No runtime behavior changed.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 307 - Monthly Target-History Fallback Browser Coverage
 

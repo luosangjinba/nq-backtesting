@@ -335,6 +335,9 @@ Read this index before working on V6.
 - `v6/docs/V6_MONTHLY_TARGET_HISTORY_FALLBACK_BROWSER_STEP307.md`: accepted
   browser coverage for `1M` target-history fallback and added it to the compact
   target-history browser regression pack.
+- `v6/docs/V6_TARGET_HISTORY_PHASE_D_REAUDIT_STEP308.md`: re-audited complete
+  fixed/daily/weekly/monthly target-history browser coverage and selected
+  browser pack runtime/cost control as the next bounded slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
