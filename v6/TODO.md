@@ -318,6 +318,11 @@
   target materialization, source preservation when returning to `1m`,
   target-data-missing fallback, responsiveness, and shell/runtime boundary
   ownership.
+- Latest completed display-timeframe target materialization replay coordination
+  step: Step 337 - Display-Timeframe Target Materialization Replay
+  Coordination Browser Regression. V6 now verifies manual next, autoplay,
+  source `1m` no-bar gap skipping, target-data-missing fallback, and source
+  cursor append filtering while `8h` target materialization is active.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -353,7 +358,7 @@
 
 ## Next Executable Steps
 
-### Step 337 - Display-Timeframe Target Materialization Replay Coordination Browser Regression
+### Step 338 - Target-Timeframe Materialization Next Slice Reselection
 
 Status: proposed.
 
@@ -361,17 +366,14 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 336 closeout:
-  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_BROWSER_VERIFICATION_STEP336.md`;
-- verify replay manual next while high display timeframe target
-  materialization is active;
-- verify replay autoplay while high display timeframe target materialization is
-  active;
-- include a source `1m` no-bar gap crossing so cursor authority remains clear;
-- prove high-TF visible target bars update from source cursor movement without
-  moving replay from target bars;
-- prove fallback to the current source projection path remains available during
-  replay coordination when target data is unavailable;
+- use Step 337 closeout:
+  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_REPLAY_COORDINATION_STEP337.md`;
+- review the materialization transition path after display apply, manual next,
+  autoplay, and fallback are covered;
+- choose the next bounded target-timeframe materialization slice before making
+  broader runtime changes;
+- consider whether the next slice should be pack integration, diagnostics
+  readout, or a narrow replay-materialization behavior handoff;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -381,22 +383,17 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser/static closeout coverage for replay coordination after
-  materialization;
+- add a pure selection/static closeout smoke for the chosen next slice;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser-visible replay manual next passes with high display timeframe target
-  materialization active;
-- browser-visible replay autoplay passes with high display timeframe target
-  materialization active;
-- target display bars update according to source `1m` replay cursor movement;
-- no-bar gap skipping remains source `1m` driven;
-- target-data-missing fallback remains available during replay coordination;
-- source `1m` replay remains the cursor authority while target bars may be
+- the next target-timeframe materialization slice is explicitly selected;
+- selection records owner boundary, affected runtimes, forbidden actions, and
+  rollback criteria;
+- source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
@@ -404,6 +401,40 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 337 - Display-Timeframe Target Materialization Replay Coordination Browser Regression
+
+Completed in this display-timeframe target materialization replay coordination
+commit series.
+
+Verification:
+
+- `node v6/tests/display-timeframe-target-materialization-replay-coordination-browser-step337-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-replay-coordination-boundary-step337-static-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-browser-step336-smoke.js`
+- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
+- `node v6/tests/auto-play-session-gap-browser-step263-smoke.js`
+- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
+- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-browser-closeout-step336-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser-visible replay coordination coverage with `8h` target
+  materialization active.
+- Confirmed manual next and autoplay remain source `1m` cursor driven through a
+  no-bar gap.
+- Confirmed target-data-missing fallback remains available during replay
+  coordination.
+- Fixed manual-next HTF append filtering by using replay source cursor time as
+  the chart-data append cursor instead of the projected HTF bucket timestamp.
+- Kept target window planning/loading out of replay, manual-next, and autoplay
+  runtimes.
 
 ### Step 336 - Display-Timeframe Target Materialization Browser Verification
 

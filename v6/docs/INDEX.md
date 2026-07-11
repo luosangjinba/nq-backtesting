@@ -424,6 +424,10 @@ Read this index before working on V6.
   accepted browser-visible target materialization verification for `8h`, `1D`,
   and `1W`, including source preservation, fallback, responsiveness, and shell
   boundary coverage.
+- `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_REPLAY_COORDINATION_STEP337.md`:
+  accepted replay coordination coverage after target materialization, including
+  manual next, autoplay, no-bar gap skipping, fallback, and source-cursor append
+  filtering.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

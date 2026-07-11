@@ -9,10 +9,10 @@ const browserSmoke = await readFile('v6/tests/display-timeframe-target-materiali
 const boundarySmoke = await readFile('v6/tests/display-timeframe-target-materialization-browser-boundary-step336-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_BROWSER_VERIFICATION_STEP336\.md/);
-assert.match(todo, /Latest completed display-timeframe target materialization browser\s+verification step: Step 336/);
-assert.match(todo, /### Step 337 - Display-Timeframe Target Materialization Replay Coordination Browser Regression/);
-assert.match(handoff, /Latest completed step: Step 336 - Display-Timeframe Target Materialization\s+Browser Verification/);
-assert.match(handoff, /start with Step 337/);
+assert.match(todo, /### Step 336 - Display-Timeframe Target Materialization Browser Verification/);
+assert.match(todo, /browser-visible verification for `8h`, `1D`, and `1W`/);
+assert.match(handoff, /Step 336 verified browser-visible `8h`, `1D`, and `1W` target\s+materialization/);
+assert.match(handoff, /Step 336 verifies that handoff in browser-visible `8h`, `1D`, and `1W`/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /`8h`/);
