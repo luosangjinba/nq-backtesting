@@ -4,6 +4,7 @@ import {
   CHART_DATA_COMMANDS,
   DISPLAY_TIMEFRAME_COMMANDS,
   PANE_COMMANDS,
+  REPLAY_COMMANDS,
 } from '../src/contracts/app-contracts.js';
 import { createChartDataRuntime } from '../src/chart-data/chart-data-runtime.js';
 import { createChartDataProjectionRuntime } from '../src/chart-data-projection/chart-data-projection-runtime.js';
@@ -13,6 +14,7 @@ import { createPaneRuntime } from '../src/panes/pane-runtime.js';
 import {
   clearCommandsForTest,
   dispatchCommand,
+  registerCommand,
 } from '../src/runtime/commands.js';
 import {
   clearEventsForTest,
@@ -53,6 +55,9 @@ registry.registerRuntime(createBarDataRuntime({
 }));
 registry.registerRuntime(createDisplayTimeframeRuntime());
 await registry.start({ emitEvent, subscribeEvent });
+const unregisterReplayState = registerCommand(REPLAY_COMMANDS.GET_STATE, () => ({
+  cursorTime: '2026-06-01T08:00:00.000Z',
+}));
 
 await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
   bars: sourceBars,
@@ -110,6 +115,7 @@ assert.deepEqual(restored.chartRecord.bars.map((bar) => bar.timestamp), sourceBa
 const pane = await dispatchCommand(PANE_COMMANDS.GET_ACTIVE);
 assert.equal(pane.displayTimeframe, 1);
 
+unregisterReplayState();
 await registry.stop();
 
 console.log('v6 display target history opt-in step284 smoke passed');

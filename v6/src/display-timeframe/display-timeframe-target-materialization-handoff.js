@@ -16,6 +16,9 @@ function normalizeOptionalCursorTimestamp(value) {
 }
 
 export function sourceCursorTimestampFromState(state = {}) {
+  if (!state || typeof state !== 'object') {
+    return null;
+  }
   return normalizeOptionalCursorTimestamp(
     state.cursorTimestamp ?? state.timestamp ?? state.cursorTime,
   );
