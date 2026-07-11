@@ -347,6 +347,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_RESPONSIVENESS_BROWSER_HARNESS_STEP311.md`:
   accepted the focused browser-visible high-timeframe target-history
   responsiveness harness for `8h`, `1D`, and `1W` samples.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_RESPONSIVENESS_BUDGET_DECISION_STEP312.md`:
+  accepted the pure high-timeframe target-history responsiveness budget report
+  and selected bounded runtime optimization as the next implementation slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
