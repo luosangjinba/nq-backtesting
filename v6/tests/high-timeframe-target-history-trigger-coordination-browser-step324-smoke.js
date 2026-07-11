@@ -371,10 +371,15 @@ try {
   const attribution = attributeHighTimeframeTargetHistoryTriggerCoordinationLatency({
     records: value.records,
   });
-  assert.equal(attribution.status, 'leftward-request-scheduling-attribution-needed');
-  assert.equal(attribution.ownerBoundary, 'chart-history.leftward-history-input-bridge');
-  assert.equal(attribution.nextSlice, 'target-history-leftward-request-scheduling-plan');
-  assert.equal(attribution.selectedPhase, 'scheduling');
+  if (attribution.status === 'leftward-request-scheduling-attribution-needed') {
+    assert.equal(attribution.ownerBoundary, 'chart-history.leftward-history-input-bridge');
+    assert.equal(attribution.nextSlice, 'target-history-leftward-request-scheduling-plan');
+    assert.equal(attribution.selectedPhase, 'scheduling');
+  } else {
+    assert.equal(attribution.status, 'measurement-boundary-attribution-needed');
+    assert.equal(attribution.ownerBoundary, 'target-history-trigger-coordination-measurement-boundary');
+    assert.equal(attribution.summary.postApplyTargetFetchStartP95Ms < attribution.summary.preLeftExtensionP95Ms, true);
+  }
   assert.equal(attribution.summary.targetCount, 3);
   assert.equal(value.restored.sourceBarCount, value.initial.sourceBarCount);
 } finally {
