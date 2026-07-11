@@ -350,7 +350,7 @@ export function createChartEntryManualNextRuntime() {
             replayState,
           });
           const bars = appendBars.bars;
-          const cursorTimestamp = Number(bars.at(-1)?.timestamp ?? bars.at(-1)?.time);
+          const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
           const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
             bars,
             cursorTimestamp,
