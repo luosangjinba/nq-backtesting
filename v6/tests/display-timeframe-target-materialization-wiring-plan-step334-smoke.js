@@ -94,8 +94,8 @@ assert.deepEqual(getDisplayTimeframeTargetMaterializationWiringForbiddenActions(
   'dispatch replay.setCursorTime',
   'dispatch chartViewport.resetView',
   'dispatch chartViewport.setManualIntent',
-  'call chart-engine setData directly',
-  'call chart-engine setVisibleLogicalRange directly',
+  'call chart-render series replacement directly',
+  'call chart-render range projection directly',
   'change target-history request sizing',
   'change chart-history fast-path delay policy',
 ]);

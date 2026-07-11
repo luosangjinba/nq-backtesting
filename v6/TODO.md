@@ -301,6 +301,11 @@
   now verifies the display-timeframe, bar-data, chart-data, replay cursor, and
   target-bar reveal owner surfaces required by the pure handoff plan and
   selects `display-timeframe-target-materialization-wiring-plan` next.
+- Latest completed display-timeframe target materialization wiring plan step:
+  Step 334 - Display-Timeframe Target Materialization Wiring Plan. V6 now
+  defines the read-only runtime owner, command/data sequence, fallback gates,
+  rollback criteria, and forbidden actions for the future display-timeframe
+  target materialization handoff.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -336,7 +341,7 @@
 
 ## Next Executable Steps
 
-### Step 334 - Display-Timeframe Target Materialization Wiring Plan
+### Step 335 - Display-Timeframe Target Materialization Runtime Handoff Wiring
 
 Status: proposed.
 
@@ -344,32 +349,39 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 333 closeout:
-  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_READINESS_AUDIT_STEP333.md`;
-- define the minimal
-  `display-timeframe-target-materialization-wiring-plan`;
-- keep the plan read-only: specify the runtime owner, command/event sequence,
-  data handoff, fallback gates, and rollback criteria without behavior wiring;
+- use Step 334 closeout:
+  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_WIRING_PLAN_STEP334.md`;
+- implement the first bounded
+  `display-timeframe-target-materialization-runtime-handoff` wiring slice
+  inside Display-Timeframe Runtime;
+- follow the Step 334 sequence: read `replay.getState`, preserve source bars
+  through `chartData.getSourceBars`, plan/load target window through bar-data,
+  apply Step 329 target-bar reveal policy, then call `chartData.replaceBars`
+  with source preservation;
+- keep fallback to the current source projection path whenever a Step 334
+  fallback gate fails;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
 - keep target-history request sizing and chart-history fast-path behavior
-  unchanged unless the wiring plan explicitly identifies a missing gate;
+  unchanged;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the wiring plan;
+- add runtime and browser/static coverage proving target materialization can be
+  applied without losing source bars or moving replay/viewport ownership;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- display-timeframe target materialization wiring plan is documented;
-- plan coverage proves the future behavior wiring would use only existing owner
-  surfaces and preserve fallback behavior;
-- no runtime materialization behavior changes are made in the plan step;
+- display-timeframe runtime can use target bars as display materialization input
+  when target-history bars are available;
+- fallback to the current projection path remains available and covered;
+- switching back to `1m` still uses preserved source bars;
+- replay cursor movement and no-bar gap skipping remain source `1m` driven;
 - source `1m` replay remains the cursor authority while target bars may be
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -378,6 +390,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 334 - Display-Timeframe Target Materialization Wiring Plan
+
+Completed in this display-timeframe target materialization wiring plan commit
+series.
+
+Verification:
+
+- `node v6/tests/display-timeframe-target-materialization-wiring-plan-step334-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-wiring-boundary-step334-static-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-readiness-audit-step333-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-readiness-boundary-step333-static-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-readiness-closeout-step333-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure display-timeframe target materialization wiring plan.
+- The plan keeps Display-Timeframe Runtime as the future handoff owner and
+  lists the exact command/data sequence through existing replay, bar-data, and
+  chart-data owner surfaces.
+- The plan records fallback gates and rollback criteria before runtime behavior
+  wiring.
+- No replay cursor movement, no-bar gap skipping, bar-data requests,
+  chart-data projection, chart-history runtime loading, target-history request
+  sizing, chart-history fast-path scheduling, chart viewport intent,
+  chart-engine, shell, journal, order-ticket, prop-firm, indicator, or seconds
+  behavior changed.
 
 ### Step 333 - Display-Timeframe Target Materialization Readiness Audit
 
