@@ -374,6 +374,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_BOUNDARY_BROWSER_ASSERTION_STEP320.md`:
   accepted the browser milestone assertion showing target-history apply lag is
   currently a measurement-boundary issue before runtime optimization.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_MEASUREMENT_BOUNDARY_CORRECTION_STEP321.md`:
+  accepted the event-driven apply-lag measurement correction and selected
+  visual-latency phase attribution stabilization as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
