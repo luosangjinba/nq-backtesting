@@ -396,6 +396,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_FAST_PATH_REMEASUREMENT_STEP327.md`:
   accepted fast-path responsiveness re-measurement and selected replay
   coordination materialization transition next.
+- `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_TRANSITION_SELECTION_STEP328.md`:
+  selected replay coordination materialization owner contract as the next
+  bounded slice before runtime materialization changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

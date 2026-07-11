@@ -1,23 +1,24 @@
 # V6 Handoff
 
-Last updated: 2026-07-10
+Last updated: 2026-07-11
 
-## 2026-07-10 Restart Handoff Snapshot
+## 2026-07-11 Restart Handoff Snapshot
 
 Read this block first after restarting the server or assistant context.
 
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean
-- Latest commit: `b68404fe fix(v6): skip replay session gaps`
+- Worktree at handoff: clean after Step 328 closeout
+- Latest completed step: Step 328 - Replay Coordination Materialization
+  Transition Slice Selection
 - Recent relevant commits:
-  - `b68404fe fix(v6): skip replay session gaps`
-  - `a8828499 fix(v6): parse session setup times as chart axis`
-  - `dfc270f1 fix(v6): stabilize wheel prepend range`
-  - `bd226178 fix(v6): defer price scale reset after session open`
-  - `cc853e21 fix(v6): reset price scale on session projection`
-  - `493b7f03 test(v6): add visible kline latency pack`
+  - Step 328 selected
+    `replay-coordination-materialization-owner-contract` as the next bounded
+    slice.
+  - Step 327 re-measured `8h`, `1D`, and `1W` target-history responsiveness
+    after the fast path and reached `materialization-ready`.
+  - Step 326 added the programmatic target-history leftward request fast path.
 
 ### Current Product / Engineering Direction
 
@@ -35,6 +36,10 @@ Read this block first after restarting the server or assistant context.
 
 ### Latest Fixes To Preserve
 
+- Target-history materialization transition boundary:
+  high-timeframe target-history responsiveness is within budget after the
+  fast path, but runtime materialization should not change until the Step 329
+  owner contract is defined. Replay remains source `1m` driven.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -75,7 +80,9 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing from the latest user bug, manually spot-check:
+4. If continuing planned work, start with Step 329:
+   `replay-coordination-materialization-owner-contract`.
+5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
    - confirm replay cursor skips to `18:00` instead of sticking at `16:59`.
