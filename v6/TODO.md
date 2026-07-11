@@ -276,6 +276,11 @@
   slice and keeps replay cursor, source `1m` bars, target-history request
   sizing, chart-history fast path, chart-data, and chart-viewport ownership
   unchanged before runtime materialization behavior changes.
+- Latest completed replay coordination materialization owner contract step:
+  Step 329 - Replay Coordination Materialization Owner Contract. V6 now defines
+  the read-only owner contract, participant read/write responsibilities, and
+  source-cursor target-bar no-future reveal policy before runtime
+  materialization handoff changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -311,7 +316,7 @@
 
 ## Next Executable Steps
 
-### Step 329 - Replay Coordination Materialization Owner Contract
+### Step 330 - Replay Coordination Materialization Runtime Handoff Slice Selection
 
 Status: proposed.
 
@@ -319,39 +324,72 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 328 closeout:
-  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_TRANSITION_SELECTION_STEP328.md`;
-- define the owner contract for
-  `replay-coordination-materialization-owner-contract` before runtime behavior
-  changes;
-- specify the read/write responsibilities among replay runtime, bar-data
-  runtime, chart-data runtime, chart-history, display-timeframe runtime, and
-  chart-viewport runtime;
-- define the no-future target-bar filtering contract against source `1m`
-  replay cursor state without moving the cursor;
+- use Step 329 closeout:
+  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_OWNER_CONTRACT_STEP329.md`;
+- select the first bounded runtime handoff slice for replay coordination
+  materialization;
+- prefer a pure handoff plan first: map display materialization intent to
+  existing bar-data/chart-data command ownership without wiring runtime
+  behavior yet;
+- keep source `1m` replay cursor authority and the Step 329 target-bar
+  no-future reveal policy explicit;
 - keep target-history request sizing and chart-history fast-path behavior
-  unchanged unless the owner contract explicitly needs a new gate;
+  unchanged unless the selected handoff slice explicitly needs a new gate;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the owner contract;
+- add static closeout coverage for the selected handoff slice;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- replay coordination materialization owner contract is documented;
-- contract coverage proves source `1m` replay remains the cursor authority
-  while target bars may be display materialization inputs;
-- no runtime materialization behavior changes are made in the contract step;
+- replay coordination materialization runtime handoff slice selection is
+  documented;
+- the next selected path is documented without relying on timing noise;
+- no runtime materialization behavior changes are made in the selection step;
+- source `1m` replay remains the cursor authority while target bars may be
+  display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
 - shell code still consumes runtime state/events and does not call target APIs;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 329 - Replay Coordination Materialization Owner Contract
+
+Completed in this replay coordination materialization owner contract commit
+series.
+
+Verification:
+
+- `node v6/tests/replay-coordination-materialization-owner-contract-step329-smoke.js`
+- `node v6/tests/replay-coordination-materialization-owner-contract-boundary-step329-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-transition-selection-step328-smoke.js`
+- `node v6/tests/replay-coordination-materialization-transition-boundary-step328-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-transition-closeout-step328-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a replay-owned materialization owner contract module.
+- Defined read/write/forbidden responsibilities for replay runtime, bar-data
+  runtime, chart-data runtime, chart-history, display-timeframe runtime, and
+  chart-viewport runtime.
+- Added a pure target-bar reveal policy that uses source `1m` replay cursor
+  state to distinguish hidden, cursor-capped in-progress, and complete target
+  bars.
+- No replay cursor movement, no-bar gap skipping, bar-data requests,
+  chart-data projection, chart-history runtime loading, target-history request
+  sizing, chart viewport intent, chart-engine, shell, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior changed.
 
 ### Step 328 - Replay Coordination Materialization Transition Slice Selection
 

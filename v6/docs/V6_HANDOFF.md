@@ -9,10 +9,13 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 328 closeout
-- Latest completed step: Step 328 - Replay Coordination Materialization
-  Transition Slice Selection
+- Worktree at handoff: clean after Step 329 closeout
+- Latest completed step: Step 329 - Replay Coordination Materialization Owner
+  Contract
 - Recent relevant commits:
+  - Step 329 defined the replay coordination materialization owner contract,
+    participant read/write boundaries, and source-cursor target-bar no-future
+    reveal policy.
   - Step 328 selected
     `replay-coordination-materialization-owner-contract` as the next bounded
     slice.
@@ -38,8 +41,9 @@ Read this block first after restarting the server or assistant context.
 
 - Target-history materialization transition boundary:
   high-timeframe target-history responsiveness is within budget after the
-  fast path, but runtime materialization should not change until the Step 329
-  owner contract is defined. Replay remains source `1m` driven.
+  fast path. Step 329 now defines the owner contract, but runtime
+  materialization should not change until Step 330 selects the first bounded
+  handoff slice. Replay remains source `1m` driven.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -80,8 +84,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 329:
-   `replay-coordination-materialization-owner-contract`.
+4. If continuing planned work, start with Step 330:
+   replay coordination materialization runtime handoff slice selection.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
