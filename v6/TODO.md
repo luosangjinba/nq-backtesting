@@ -138,6 +138,11 @@
   request sizing browser coverage as the next slice and added pure weekly
   sizing policy coverage: `4` target display bars and `40000` source prefetch
   bars.
+- Latest completed target-TF weekly sizing browser step: Step 303 - Weekly
+  Target-History Request Sizing Browser Assertion. V6 now has real browser
+  coverage proving the `1W` target-history path requests weekly target bars,
+  applies the weekly sizing policy, preserves source bars for `1m` round trips,
+  and remains in the compact target-history browser regression pack.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -173,7 +178,7 @@
 
 ## Next Executable Steps
 
-### Step 303 - Weekly Target-History Request Sizing Browser Assertion
+### Step 304 - Weekly Target-History Fallback Browser Coverage
 
 Status: proposed.
 
@@ -181,13 +186,12 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 302 selection:
-  `v6/docs/V6_WEEKLY_TARGET_HISTORY_REQUEST_SIZING_SELECTION_STEP302.md`;
-- add a focused browser smoke for `1W` target-history request sizing;
-- mirror the daily sizing smoke where possible, but assert weekly policy
-  values: `session-aware-policy-sized`, `targetDisplayBars=4`, and
-  `prefetchSourceBars=40000`;
-- assert `/v4/target_bars` is requested with `tf=1W`;
+- use Step 303 closeout:
+  `v6/docs/V6_WEEKLY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP303.md`;
+- add a focused browser smoke for `1W` target-history fallback;
+- force `/v4/target_bars?tf=1W` to return empty target bars;
+- assert chart-history falls back to source-window projection and readout
+  diagnostics report `target-history-empty`;
 - preserve source bars so high-TF-to-`1m` round trips still work;
 - keep `1M` deferred;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW` in any
@@ -198,15 +202,46 @@ Notes for execution:
 
 Acceptance:
 
-- browser coverage proves `1W` target-history request sizing on the real path;
+- browser coverage proves `1W` target-history fallback behavior on the real
+  path;
 - daily success/fallback pack coverage remains green;
-- no runtime target-history behavior changes unless the browser assertion
+- weekly sizing pack coverage remains green;
+- no runtime target-history behavior changes unless the fallback assertion
   exposes a concrete mismatch;
 - shell code still consumes runtime state/events and does not call target APIs;
 - source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 303 - Weekly Target-History Request Sizing Browser Assertion
+
+Completed in this weekly target-history request sizing browser commit series.
+
+Verification:
+
+- `node v6/tests/weekly-target-history-request-sizing-browser-step303-smoke.js`
+- `node v6/tests/target-history-request-sizing-step295-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/weekly-target-history-request-sizing-browser-closeout-step303-static-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added
+  `v6/tests/weekly-target-history-request-sizing-browser-step303-smoke.js`.
+- The smoke drives a real browser `1W` target-history leftward path.
+- It asserts `/v4/target_bars` is requested with `tf=1W`.
+- It asserts weekly sizing is `session-aware-policy-sized`, target display
+  bars are `4`, and weekly policy prefetches `40000` source minutes.
+- It confirms switching back to `1m` preserves source bars.
+- Added the weekly sizing smoke to the Step 293 target-history browser
+  regression pack.
+- No runtime behavior changed.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 302 - Weekly Target-History Request Sizing Selection
 
