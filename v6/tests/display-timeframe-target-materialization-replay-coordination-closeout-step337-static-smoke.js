@@ -16,10 +16,10 @@ const boundarySmoke = await readFile(
 const manualNextRuntime = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');
 
 assert.match(index, /V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_REPLAY_COORDINATION_STEP337\.md/);
-assert.match(todo, /Latest completed display-timeframe target materialization replay coordination\s+step: Step 337/);
-assert.match(todo, /### Step 338 - Target-Timeframe Materialization Next Slice Reselection/);
-assert.match(handoff, /Latest completed step: Step 337 - Display-Timeframe Target Materialization\s+Replay Coordination Browser Regression/);
-assert.match(handoff, /start with Step 338/);
+assert.match(todo, /### Step 337 - Display-Timeframe Target Materialization Replay Coordination Browser Regression/);
+assert.match(todo, /browser-visible replay coordination coverage with `8h` target\s+materialization active/);
+assert.match(handoff, /Step 337 verified manual next, autoplay, no-bar gap skipping, fallback/);
+assert.match(handoff, /Step 337 verifies manual next\/autoplay replay\s+coordination while target materialization is active/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /manual next advances source `1m` replay cursor/);

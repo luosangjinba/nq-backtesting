@@ -9,10 +9,13 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 337 closeout
-- Latest completed step: Step 337 - Display-Timeframe Target Materialization
-  Replay Coordination Browser Regression
+- Worktree at handoff: clean after Step 338 closeout
+- Latest completed step: Step 338 - Target-Timeframe Materialization Next
+  Slice Reselection
 - Recent relevant commits:
+  - Step 338 selected
+    `target-history-pack-replay-coordination-member` as the next bounded
+    target-timeframe materialization slice before broader runtime changes.
   - Step 337 verified manual next, autoplay, no-bar gap skipping, fallback,
     and source cursor append filtering while `8h` target materialization is
     active.
@@ -78,7 +81,8 @@ Read this block first after restarting the server or assistant context.
   remains source `1m` driven. Step 337 verifies manual next/autoplay replay
   coordination while target materialization is active and fixes HTF append
   filtering to use the replay source cursor instead of the projected bucket
-  timestamp.
+  timestamp. Step 338 selects target-history pack replay coordination member
+  integration as the next bounded slice, keeping runtime behavior unchanged.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -119,8 +123,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 338:
-   target-timeframe materialization next slice reselection.
+4. If continuing planned work, start with Step 339:
+   target-history pack replay coordination member integration.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;

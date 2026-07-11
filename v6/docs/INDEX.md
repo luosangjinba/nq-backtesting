@@ -428,6 +428,9 @@ Read this index before working on V6.
   accepted replay coordination coverage after target materialization, including
   manual next, autoplay, no-bar gap skipping, fallback, and source-cursor append
   filtering.
+- `v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_NEXT_SLICE_SELECTION_STEP338.md`:
+  selected target-history browser regression pack replay-coordination member
+  integration as the next bounded target-timeframe materialization slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
