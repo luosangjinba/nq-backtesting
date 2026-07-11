@@ -296,6 +296,11 @@
   Selection. V6 now selects
   `display-timeframe-target-materialization-readiness-audit` as the next bounded
   slice before runtime materialization behavior wiring.
+- Latest completed display-timeframe target materialization readiness audit
+  step: Step 333 - Display-Timeframe Target Materialization Readiness Audit. V6
+  now verifies the display-timeframe, bar-data, chart-data, replay cursor, and
+  target-bar reveal owner surfaces required by the pure handoff plan and
+  selects `display-timeframe-target-materialization-wiring-plan` next.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -331,7 +336,7 @@
 
 ## Next Executable Steps
 
-### Step 333 - Display-Timeframe Target Materialization Readiness Audit
+### Step 334 - Display-Timeframe Target Materialization Wiring Plan
 
 Status: proposed.
 
@@ -339,34 +344,32 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 332 closeout:
-  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_WIRING_SELECTION_STEP332.md`;
-- implement the read-only
-  `display-timeframe-target-materialization-readiness-audit`;
-- inspect existing display-timeframe, bar-data, chart-data, and replay cursor
-  owner surfaces needed by the Step 331 pure handoff plan;
-- report whether `display-timeframe-target-materialization-handoff` can begin
-  runtime wiring in a later step;
+- use Step 333 closeout:
+  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_READINESS_AUDIT_STEP333.md`;
+- define the minimal
+  `display-timeframe-target-materialization-wiring-plan`;
+- keep the plan read-only: specify the runtime owner, command/event sequence,
+  data handoff, fallback gates, and rollback criteria without behavior wiring;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
 - keep target-history request sizing and chart-history fast-path behavior
-  unchanged unless the readiness audit explicitly identifies a missing gate;
+  unchanged unless the wiring plan explicitly identifies a missing gate;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the readiness audit;
+- add static closeout coverage for the wiring plan;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- display-timeframe target materialization readiness audit is documented;
-- audit coverage proves required owner surfaces exist or reports exact missing
-  gates without relying on timing noise;
-- no runtime materialization behavior changes are made in the audit step;
+- display-timeframe target materialization wiring plan is documented;
+- plan coverage proves the future behavior wiring would use only existing owner
+  surfaces and preserve fallback behavior;
+- no runtime materialization behavior changes are made in the plan step;
 - source `1m` replay remains the cursor authority while target bars may be
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -375,6 +378,37 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 333 - Display-Timeframe Target Materialization Readiness Audit
+
+Completed in this display-timeframe target materialization readiness audit
+commit series.
+
+Verification:
+
+- `node v6/tests/display-timeframe-target-materialization-readiness-audit-step333-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-readiness-boundary-step333-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-wiring-selection-step332-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-wiring-boundary-step332-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-wiring-closeout-step332-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure display-timeframe target materialization readiness audit.
+- Added static source-surface coverage proving the existing display-timeframe,
+  bar-data, chart-data, replay cursor, and target-bar reveal policy surfaces
+  needed by the pure handoff plan exist.
+- The audit resolves to `ready` and selects
+  `display-timeframe-target-materialization-wiring-plan` next.
+- No replay cursor movement, no-bar gap skipping, bar-data requests,
+  chart-data projection, chart-history runtime loading, target-history request
+  sizing, chart viewport intent, chart-engine, shell, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior changed.
 
 ### Step 332 - Replay Coordination Materialization Runtime Wiring Slice Selection
 

@@ -11,9 +11,9 @@ const boundarySmoke = await readFile('v6/tests/replay-coordination-materializati
 
 assert.match(index, /V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_WIRING_SELECTION_STEP332\.md/);
 assert.match(todo, /Latest completed replay coordination materialization runtime wiring selection\s+step: Step 332/);
-assert.match(todo, /### Step 333 - Display-Timeframe Target Materialization Readiness Audit/);
-assert.match(handoff, /Latest completed step: Step 332 - Replay Coordination Materialization Runtime/);
-assert.match(handoff, /start with Step 333/);
+assert.match(todo, /### Step 332 - Replay Coordination Materialization Runtime Wiring Slice Selection/);
+assert.match(handoff, /Step 332 selected/);
+assert.match(handoff, /display-timeframe-target-materialization-readiness-audit/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /display-timeframe-target-materialization-readiness-audit/);

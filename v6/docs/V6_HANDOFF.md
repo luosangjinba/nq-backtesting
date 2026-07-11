@@ -9,10 +9,13 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 332 closeout
-- Latest completed step: Step 332 - Replay Coordination Materialization Runtime
-  Wiring Slice Selection
+- Worktree at handoff: clean after Step 333 closeout
+- Latest completed step: Step 333 - Display-Timeframe Target Materialization
+  Readiness Audit
 - Recent relevant commits:
+  - Step 333 verified the existing display-timeframe, bar-data, chart-data,
+    replay cursor, and target-bar reveal policy surfaces required by the pure
+    handoff plan and selected wiring plan next.
   - Step 332 selected
     `display-timeframe-target-materialization-readiness-audit` as the next
     bounded slice before runtime materialization behavior wiring.
@@ -53,7 +56,8 @@ Read this block first after restarting the server or assistant context.
   fast path. Step 329 defines the owner contract, and Step 330 selects a pure
   handoff plan as the next bounded slice. Step 331 defines that pure handoff
   plan. Step 332 selects a read-only readiness audit as the next bounded slice.
-  Runtime materialization wiring should not change until that audit completes.
+  Step 333 completes that audit and selects a wiring plan next. Runtime
+  materialization behavior should not change until that wiring plan is defined.
   Replay remains source `1m` driven.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
@@ -95,8 +99,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 333:
-   display-timeframe target materialization readiness audit.
+4. If continuing planned work, start with Step 334:
+   display-timeframe target materialization wiring plan.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;

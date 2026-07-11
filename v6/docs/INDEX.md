@@ -411,6 +411,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_WIRING_SELECTION_STEP332.md`:
   selected a read-only display-timeframe target materialization wiring
   readiness audit before runtime behavior wiring.
+- `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_READINESS_AUDIT_STEP333.md`:
+  accepted the read-only display-timeframe target materialization readiness
+  audit and selected a wiring plan next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
