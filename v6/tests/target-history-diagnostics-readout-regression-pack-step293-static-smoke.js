@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const pack = await readFile('v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js', 'utf8');
+const costControl = await readFile('v6/tests/helpers/target-history-pack-cost-control.js', 'utf8');
 const successSmoke = await readFile('v6/tests/target-history-diagnostics-readout-browser-step291-smoke.js', 'utf8');
 const fallbackSmoke = await readFile('v6/tests/target-history-diagnostics-readout-fallback-browser-step292-smoke.js', 'utf8');
 const dailySmoke = await readFile('v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js', 'utf8');
@@ -23,14 +24,20 @@ const requiredMembers = [
 ];
 
 for (const member of requiredMembers) {
-  assert.match(pack, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.match(costControl, new RegExp(member.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.match(pack, /const TESTS = Object\.freeze/);
+assert.match(pack, /createTargetHistoryPackPlanFromEnv/);
+assert.match(pack, /const TESTS = Object\.freeze\(plan\.scripts\)/);
+assert.match(pack, /\[target-history-readout-pack\] plan/);
 assert.match(pack, /\[target-history-readout-pack\] start/);
 assert.match(pack, /\[target-history-readout-pack\] passed/);
 assert.match(pack, /break;/);
 assert.match(pack, /process\.exit\(failed\.code \|\| 1\)/);
+assert.match(costControl, /TARGET_HISTORY_PACK_TESTS/);
+assert.match(costControl, /TARGET_HISTORY_PACK_GROUPS/);
+assert.match(costControl, /TARGET_HISTORY_PACK_MEMBERS/);
+assert.match(costControl, /TARGET_HISTORY_PACK_GROUP/);
 
 assert.match(successSmoke, /v6TargetHistoryDiagnosticsPath/);
 assert.match(successSmoke, /target-history-opt-in/);

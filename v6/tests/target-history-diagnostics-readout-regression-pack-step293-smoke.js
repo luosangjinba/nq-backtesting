@@ -1,16 +1,9 @@
 import { spawn } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
+import { createTargetHistoryPackPlanFromEnv } from './helpers/target-history-pack-cost-control.js';
 
-const TESTS = Object.freeze([
-  'v6/tests/target-history-diagnostics-readout-browser-step291-smoke.js',
-  'v6/tests/target-history-diagnostics-readout-fallback-browser-step292-smoke.js',
-  'v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js',
-  'v6/tests/daily-target-history-fallback-browser-step301-smoke.js',
-  'v6/tests/weekly-target-history-request-sizing-browser-step303-smoke.js',
-  'v6/tests/weekly-target-history-fallback-browser-step304-smoke.js',
-  'v6/tests/monthly-target-history-request-sizing-browser-step306-smoke.js',
-  'v6/tests/monthly-target-history-fallback-browser-step307-smoke.js',
-]);
+const plan = createTargetHistoryPackPlanFromEnv();
+const TESTS = Object.freeze(plan.scripts);
 
 function runTest(script) {
   const startedAt = performance.now();
@@ -32,6 +25,7 @@ function runTest(script) {
 }
 
 const results = [];
+console.log(`[target-history-readout-pack] plan ${plan.group} ${plan.selectedCount}/${plan.totalCount} ${plan.selectedIds.join(',')}`);
 for (const script of TESTS) {
   console.log(`[target-history-readout-pack] start ${script}`);
   const result = await runTest(script);
