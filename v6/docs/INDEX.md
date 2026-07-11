@@ -408,6 +408,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_PURE_HANDOFF_PLAN_STEP331.md`:
   accepted the pure replay coordination materialization handoff plan and first
   future wiring point preconditions.
+- `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_WIRING_SELECTION_STEP332.md`:
+  selected a read-only display-timeframe target materialization wiring
+  readiness audit before runtime behavior wiring.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -11,9 +11,9 @@ const boundarySmoke = await readFile('v6/tests/replay-coordination-materializati
 
 assert.match(index, /V6_REPLAY_COORDINATION_MATERIALIZATION_PURE_HANDOFF_PLAN_STEP331\.md/);
 assert.match(todo, /Latest completed replay coordination materialization pure handoff plan step:\s+Step 331/);
-assert.match(todo, /### Step 332 - Replay Coordination Materialization Runtime Wiring Slice Selection/);
-assert.match(handoff, /Latest completed step: Step 331 - Replay Coordination Materialization Pure/);
-assert.match(handoff, /start with Step 332/);
+assert.match(todo, /### Step 331 - Replay Coordination Materialization Pure Handoff Plan/);
+assert.match(handoff, /Step 331 mapped display materialization intent/);
+assert.match(handoff, /first future wiring point\s+preconditions without runtime wiring/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /barData\.planTargetWindow/);
