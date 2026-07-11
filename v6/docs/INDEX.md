@@ -356,6 +356,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_PHASE_TIMING_STEP314.md`:
   accepted browser-observed target-history phase timing for `8h`, `1D`, and
   `1W` records before any runtime behavior changes.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PHASE_BUDGET_SELECTION_STEP315.md`:
+  accepted the pure phase-budget selector for target-history phase-timed
+  records and selected browser selector integration as the next bounded slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

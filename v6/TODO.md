@@ -198,6 +198,11 @@
   `fetchMs`, `chartDataReplacementMs`, `viewportReapplyMs`, `applyLagMs`, and
   `visualLatencyMs` for `8h`, `1D`, and `1W` target-history records and feeds
   them into the Step 313 probe without changing runtime behavior.
+- Latest completed target-TF phase budget step: Step 315 - High-Timeframe
+  Target-History Phase Budget Selection. V6 now has a pure selector that routes
+  phase-timed target-history records to a concrete optimization phase,
+  materialization transition, or measurement completion path without changing
+  runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -233,7 +238,7 @@
 
 ## Next Executable Steps
 
-### Step 315 - High-Timeframe Target-History Phase Budget Selection
+### Step 316 - High-Timeframe Target-History Browser Phase Budget Selection
 
 Status: proposed.
 
@@ -241,28 +246,29 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 314 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_PHASE_TIMING_STEP314.md`;
-- add a phase-budget selection/report layer over Step 314 records and Step 313
-  probe output;
-- decide whether the next slice should be a concrete phase optimization or
-  replay/materialization transition;
+- use Step 315 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PHASE_BUDGET_SELECTION_STEP315.md`;
+- feed the real Step 314 browser phase-timing records into the Step 315
+  selector;
+- assert and document whether the browser-selected slice is a concrete phase
+  optimization, materialization transition, or measurement completion path;
 - keep selection/reporting separate from runtime behavior unless it proves a
   concrete bottleneck with focused coverage;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static, pure, or browser coverage for the phase-budget selection contract;
+- add browser or static coverage for the browser phase-budget selection
+  integration contract;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- high-timeframe target-history phase-timed records feed a budget selector/report;
-- the selector identifies a concrete optimization phase or materialization
-  readiness;
+- real high-timeframe browser phase-timed records feed the Step 315 selector;
+- the browser selector integration identifies a concrete optimization phase,
+  materialization readiness, or measurement completion path;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
 - no runtime target-history behavior changes unless backed by a focused audit
@@ -271,6 +277,33 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 315 - High-Timeframe Target-History Phase Budget Selection
+
+Completed in this target-history phase budget selection commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-phase-timing-step314-smoke.js`
+- `node v6/tests/high-timeframe-target-history-runtime-optimization-probe-step313-smoke.js`
+- `node v6/tests/high-timeframe-target-history-phase-budget-selection-closeout-step315-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `selectHighTimeframeTargetHistoryPhaseBudget`, a pure selector over
+  Step 314 records and Step 313 probe output.
+- The selector routes to fetch, chart-data replacement, viewport reapply,
+  browser-visible apply-lag optimization, materialization transition, or
+  measurement completion.
+- The next slice is browser selector integration so real Step 314 records can
+  decide the next implementation path.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 314 - High-Timeframe Target-History Browser Phase Timing Probe
 
