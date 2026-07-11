@@ -293,6 +293,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_REGRESSION_PACK_STEP293.md`:
   accepted the compact target-history diagnostics readout browser regression
   pack.
+- `v6/docs/V6_TARGET_HISTORY_OPTIMIZATION_RESELECTION_STEP294.md`: selected
+  target-history request sizing as the next optimization slice after readout
+  coverage was packaged.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
