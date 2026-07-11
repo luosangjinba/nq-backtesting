@@ -8,6 +8,7 @@ const TESTS = Object.freeze([
   'v6/tests/daily-target-history-fallback-browser-step301-smoke.js',
   'v6/tests/weekly-target-history-request-sizing-browser-step303-smoke.js',
   'v6/tests/weekly-target-history-fallback-browser-step304-smoke.js',
+  'v6/tests/monthly-target-history-request-sizing-browser-step306-smoke.js',
 ]);
 
 function runTest(script) {
