@@ -7,6 +7,7 @@ const architecture = await readFile('v6/docs/V6_ARCHITECTURE.md', 'utf8');
 const phasePlan = await readFile('v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md', 'utf8');
 const step328Doc = await readFile('v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_TRANSITION_SELECTION_STEP328.md', 'utf8');
 const contractSource = await readFile('v6/src/replay/replay-coordination-materialization-owner-contract.js', 'utf8');
+const revealPolicySource = await readFile('v6/src/materialization/target-bar-reveal-policy.js', 'utf8');
 const selectorSource = await readFile('v6/src/replay/replay-coordination-materialization-transition-selection.js', 'utf8');
 
 assert.match(step328Doc, /replay-coordination-materialization-owner-contract/);
@@ -40,8 +41,9 @@ assert.equal(contract.acceptanceGates.includes('target-bars-display-materializat
 
 assert.match(selectorSource, /replay-coordination-materialization-owner-contract/);
 assert.match(contractSource, /resolveReplayCoordinationTargetBarRevealState/);
-assert.match(contractSource, /target-bar-complete-before-or-at-source-cursor/);
-assert.match(contractSource, /source-cursor-inside-target-bucket/);
+assert.match(contractSource, /resolveTargetBarRevealState/);
+assert.match(revealPolicySource, /target-bar-complete-before-or-at-source-cursor/);
+assert.match(revealPolicySource, /source-cursor-inside-target-bucket/);
 assert.match(contractSource, /source-1m-replay-cursor-authority/);
 
 for (const forbiddenToken of [

@@ -1,3 +1,5 @@
+import { resolveTargetBarRevealState } from '../materialization/target-bar-reveal-policy.js';
+
 const MATERIALIZATION_OWNER = 'replay-coordination-materialization-contract';
 
 const MATERIALIZATION_ACCEPTANCE_GATES = Object.freeze([
@@ -72,21 +74,6 @@ function cloneParticipant(participant) {
 
 function pushError(errors, field, message) {
   errors.push(Object.freeze({ field, message }));
-}
-
-function normalizeFiniteTimestamp(value, fieldName) {
-  const timestamp = Number(value);
-  if (!Number.isFinite(timestamp)) {
-    throw new Error(`${fieldName} must be finite.`);
-  }
-  return timestamp;
-}
-
-function normalizeOptionalCursorTimestamp(value) {
-  if (value === null || value === undefined) {
-    return null;
-  }
-  return normalizeFiniteTimestamp(value, 'Replay coordination materialization replayCursorTimestamp');
 }
 
 export function getReplayCoordinationMaterializationOwner() {
@@ -167,59 +154,9 @@ export function resolveReplayCoordinationTargetBarRevealState({
   replayCursorTimestamp = null,
   targetBar = {},
 } = {}) {
-  const cursorTimestamp = normalizeOptionalCursorTimestamp(replayCursorTimestamp);
-  const bucketStartTimestamp = normalizeFiniteTimestamp(
-    targetBar.bucketStartTimestamp ?? targetBar.timestamp ?? targetBar.time,
-    'Replay coordination materialization target bar bucketStartTimestamp',
-  );
-  const bucketEndTimestamp = normalizeFiniteTimestamp(
-    targetBar.bucketEndTimestamp ?? bucketStartTimestamp,
-    'Replay coordination materialization target bar bucketEndTimestamp',
-  );
-  if (bucketEndTimestamp < bucketStartTimestamp) {
-    throw new Error('Replay coordination materialization target bar bucketEndTimestamp must be after bucketStartTimestamp.');
-  }
-
-  if (cursorTimestamp === null) {
-    return Object.freeze({
-      bucketEndTimestamp,
-      bucketStartTimestamp,
-      complete: false,
-      cursorCapped: true,
-      reason: 'source-cursor-required-for-target-materialization',
-      visible: false,
-    });
-  }
-
-  if (cursorTimestamp < bucketStartTimestamp) {
-    return Object.freeze({
-      bucketEndTimestamp,
-      bucketStartTimestamp,
-      complete: false,
-      cursorCapped: true,
-      reason: 'target-bar-start-after-source-cursor',
-      visible: false,
-    });
-  }
-
-  if (cursorTimestamp < bucketEndTimestamp) {
-    return Object.freeze({
-      bucketEndTimestamp,
-      bucketStartTimestamp,
-      complete: false,
-      cursorCapped: true,
-      reason: 'source-cursor-inside-target-bucket',
-      visible: true,
-    });
-  }
-
-  return Object.freeze({
-    bucketEndTimestamp,
-    bucketStartTimestamp,
-    complete: true,
-    cursorCapped: false,
-    reason: 'target-bar-complete-before-or-at-source-cursor',
-    visible: true,
+  return resolveTargetBarRevealState({
+    sourceCursorTimestamp: replayCursorTimestamp,
+    targetBar,
   });
 }
 
