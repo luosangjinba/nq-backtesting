@@ -9,6 +9,7 @@ import {
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { planLeftwardTargetHistoryActivation } from './leftward-target-history-activation.js';
+import { resolveLeftwardHistoryRequestSchedule } from './leftward-history-request-schedule.js';
 
 export function connectLeftwardHistoryInputBridge({
   chartSurface,
@@ -68,12 +69,18 @@ export function connectLeftwardHistoryInputBridge({
     };
   }
 
-  function dispatchLeftExtension(paneId, visibleRange) {
+  function dispatchLeftExtension(paneId, visibleRange, activationPayload = null) {
     if (targetHistoryActivation.enabled === false) {
       return dispatchCommand(
         CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
         baseLeftExtensionPayload(paneId, visibleRange),
       );
+    }
+    if (activationPayload) {
+      return dispatchCommand(CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION, {
+        ...baseLeftExtensionPayload(paneId, visibleRange),
+        ...activationPayload,
+      });
     }
     return dispatchLeftExtensionWithActivation(paneId, visibleRange);
   }
@@ -90,7 +97,11 @@ export function connectLeftwardHistoryInputBridge({
     const pending = pendingByPaneId.get(paneId);
     pendingByPaneId.delete(paneId);
     if (!active || !pending) return;
-    void Promise.resolve(dispatchLeftExtension(paneId, pending.visibleRange));
+    void Promise.resolve(dispatchLeftExtension(
+      paneId,
+      pending.visibleRange,
+      pending.activationPayload || null,
+    ));
   }
 
   function shouldRequest(visibleRange) {
@@ -99,16 +110,51 @@ export function connectLeftwardHistoryInputBridge({
     return Number.isFinite(from) && Number.isFinite(to) && from < 0;
   }
 
-  function scheduleRequest(paneId, visibleRange) {
-    if (!shouldRequest(visibleRange)) return;
-    clearPending(paneId);
-    const delayMs = Math.max(0, Number(requestDelayMs) || 0);
+  function scheduleResolvedRequest({
+    activationPayload = null,
+    paneId,
+    schedule,
+    visibleRange,
+  } = {}) {
+    if (!active || !schedule.shouldDispatch) return;
+    const delayMs = schedule.delayMs;
     if (delayMs === 0 || typeof setTimeoutFn !== 'function') {
-      void Promise.resolve(dispatchLeftExtension(paneId, visibleRange));
+      void Promise.resolve(dispatchLeftExtension(paneId, visibleRange, activationPayload));
       return;
     }
     const timer = setTimeoutFn(() => dispatchPending(paneId), delayMs);
-    pendingByPaneId.set(paneId, { timer, visibleRange });
+    pendingByPaneId.set(paneId, { activationPayload, timer, visibleRange });
+  }
+
+  function scheduleRequest(paneId, visibleRange, reason = 'native-visible-range') {
+    if (!shouldRequest(visibleRange)) return;
+    clearPending(paneId);
+    if (targetHistoryActivation.enabled === false) {
+      scheduleResolvedRequest({
+        paneId,
+        schedule: resolveLeftwardHistoryRequestSchedule({
+          reason,
+          requestDelayMs,
+          targetHistoryEnabled: false,
+          visibleRange,
+        }),
+        visibleRange,
+      });
+      return;
+    }
+    void Promise.resolve(paneActivationPayload(paneId)).then((activationPayload) => {
+      scheduleResolvedRequest({
+        activationPayload,
+        paneId,
+        schedule: resolveLeftwardHistoryRequestSchedule({
+          reason,
+          requestDelayMs,
+          targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
+          visibleRange,
+        }),
+        visibleRange,
+      });
+    });
   }
 
   function latestSurfaceRange(paneId) {
@@ -122,34 +168,35 @@ export function connectLeftwardHistoryInputBridge({
     } : null;
   }
 
-  function scheduleFromSurface(paneId) {
+  function scheduleFromSurface(paneId, reason = 'runtime-surface-check') {
     if (!active || !paneId) return;
     const visibleRange = latestSurfaceRange(paneId);
     if (!shouldRequest(visibleRange)) return;
-    scheduleRequest(paneId, visibleRange);
+    void Promise.resolve(scheduleRequest(paneId, visibleRange, reason));
   }
 
   function continueAfterLoaded(extension = {}) {
     const paneId = String(extension.paneId || '').trim();
     if (!active || !paneId || extension.status !== 'loaded') return;
-    checkPaneAfterRuntimeUpdate({ paneId });
+    checkPaneAfterRuntimeUpdate({ paneId, reason: 'runtime-left-extension-loaded' });
   }
 
   function checkPaneAfterRuntimeUpdate(payload = {}) {
     const paneId = String(payload.paneId || payload.pane?.id || '').trim();
+    const reason = String(payload.reason || 'runtime-surface-check');
     if (!paneId || typeof setTimeoutFn !== 'function') {
-      scheduleFromSurface(paneId);
+      scheduleFromSurface(paneId, reason);
       return;
     }
-    setTimeoutFn(() => scheduleFromSurface(paneId), 0);
+    setTimeoutFn(() => scheduleFromSurface(paneId, reason), 0);
   }
 
-  function checkPanesAfterRuntimeUpdate(records = []) {
+  function checkPanesAfterRuntimeUpdate(records = [], reason = 'runtime-pane-reload-viewport-projected') {
     if (Array.isArray(records)) {
-      records.forEach(checkPaneAfterRuntimeUpdate);
+      records.forEach((record) => checkPaneAfterRuntimeUpdate({ ...record, reason }));
       return;
     }
-    checkPaneAfterRuntimeUpdate(records);
+    checkPaneAfterRuntimeUpdate({ ...records, reason });
   }
 
   const unsubscribe = chartSurface.subscribeVisibleRangeChange((event = {}) => {
@@ -162,19 +209,31 @@ export function connectLeftwardHistoryInputBridge({
     }
     const visibleRange = { from, to };
     latestVisibleRangeByPaneId.set(paneId, visibleRange);
-    scheduleRequest(paneId, visibleRange);
+    void Promise.resolve(scheduleRequest(paneId, visibleRange, 'native-visible-range'));
   });
   const unsubscribeLoaded = typeof subscribeEvent === 'function'
     ? subscribeEvent(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, continueAfterLoaded)
     : () => {};
   const unsubscribeViewportProjected = typeof subscribeEvent === 'function'
-    ? subscribeEvent(CHART_VIEWPORT_EVENTS.PROJECTED, checkPaneAfterRuntimeUpdate)
+    ? subscribeEvent(
+      CHART_VIEWPORT_EVENTS.PROJECTED,
+      (payload) => checkPaneAfterRuntimeUpdate({
+        ...payload,
+        reason: 'runtime-viewport-projected',
+      }),
+    )
     : () => {};
   const unsubscribePaneReloadViewportProjected = typeof subscribeEvent === 'function'
     ? subscribeEvent(PANE_INTENT_RELOAD_VIEWPORT_EVENTS.PROJECTED, checkPanesAfterRuntimeUpdate)
     : () => {};
   const unsubscribeDisplayTimeframeApplied = typeof subscribeEvent === 'function'
-    ? subscribeEvent(DISPLAY_TIMEFRAME_EVENTS.APPLIED, checkPaneAfterRuntimeUpdate)
+    ? subscribeEvent(
+      DISPLAY_TIMEFRAME_EVENTS.APPLIED,
+      (payload) => checkPaneAfterRuntimeUpdate({
+        ...payload,
+        reason: 'runtime-display-timeframe-applied',
+      }),
+    )
     : () => {};
 
   return {
