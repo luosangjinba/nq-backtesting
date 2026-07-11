@@ -43,3 +43,21 @@ export function auditTargetHistoryRequestSizing({
     targetDisplayBars,
   };
 }
+
+export function selectSessionAwareTargetHistorySizingSlice({
+  backendSupported = ['1D'],
+  enabled = ['1D', '1W', '1M'],
+} = {}) {
+  const backendSet = new Set(backendSupported.map((value) => String(value || '').trim().toUpperCase()));
+  const enabledSet = new Set(enabled.map((value) => String(value || '').trim().toUpperCase()));
+  if (backendSet.has('1D') && enabledSet.has('1D')) {
+    return {
+      reason: 'daily-target-history-backend-supported',
+      targetTimeframe: '1D',
+    };
+  }
+  return {
+    reason: 'no-session-aware-target-history-backend-ready',
+    targetTimeframe: null,
+  };
+}
