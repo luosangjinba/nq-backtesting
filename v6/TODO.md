@@ -177,6 +177,11 @@
   model for choosing between a responsiveness harness, bounded runtime
   optimization, and materialization transition; the audit selects a focused
   browser-visible responsiveness harness as the next bounded slice.
+- Latest completed target-TF responsiveness harness step: Step 311 -
+  High-Timeframe Target-History Responsiveness Browser Harness. V6 now has a
+  focused browser-visible harness that collects `8h`, `1D`, and `1W`
+  target-history timing records and feeds them into the Step 310 audit model
+  without changing runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -212,7 +217,7 @@
 
 ## Next Executable Steps
 
-### Step 311 - High-Timeframe Target-History Responsiveness Browser Harness
+### Step 312 - High-Timeframe Target-History Responsiveness Budget Decision
 
 Status: proposed.
 
@@ -220,30 +225,29 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 310 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_RESPONSIVENESS_AUDIT_STEP310.md`;
-- add a focused browser harness for high-timeframe target-history
-  responsiveness measurements;
-- use the Step 309 pack group/member controls for focused iteration and keep
-  the full pack available for regression confirmation;
-- collect browser-visible timing, leftward-history diagnostics, target/source
-  path, fallback reason, request counts, and apply/visible latency where the
-  harness can observe them;
-- keep the scope to measurement and reporting unless the captured timings show
-  a concrete bottleneck that justifies a bounded runtime change;
+- use Step 311 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_RESPONSIVENESS_BROWSER_HARNESS_STEP311.md`;
+- add a small budget-decision/reporting layer around the Step 311 harness
+  record shape and the Step 310 default budgets;
+- decide whether the next implementation slice should be bounded runtime
+  optimization or replay/materialization transition;
+- keep the measurement harness separate from runtime behavior;
+- use Step 309 pack group/member controls for focused regression checks and
+  keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static or browser coverage for the responsiveness harness contract;
+- add static, pure, or browser coverage for the budget-decision/reporting
+  contract;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- high-timeframe target-history responsiveness has a focused browser-visible
-  harness;
-- the harness reports enough timing detail to feed the Step 310 pure audit
-  model;
+- high-timeframe target-history responsiveness has a budget decision/report
+  based on the Step 311 harness record shape and Step 310 audit budgets;
+- the next slice is selected as either bounded runtime optimization or
+  replay/materialization transition;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
 - no runtime target-history behavior changes unless backed by a focused audit
@@ -252,6 +256,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 311 - High-Timeframe Target-History Responsiveness Browser Harness
+
+Completed in this target-history responsiveness browser harness commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-responsiveness-browser-step311-smoke.js`
+- `node v6/tests/high-timeframe-target-history-responsiveness-audit-step310-smoke.js`
+- `node v6/tests/target-history-pack-cost-control-step309-smoke.js`
+- `node v6/tests/high-timeframe-target-history-responsiveness-browser-closeout-step311-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a focused browser-visible responsiveness harness for `8h`, `1D`, and
+  `1W` target-history samples.
+- Each sample records browser visibility, extension duration, visual latency,
+  apply lag, path, fallback reason, request counts, prepended bars, and matching
+  target fetch metadata.
+- The harness feeds its records into the Step 310 pure audit model with wide
+  test thresholds so the smoke validates measurement shape without creating a
+  machine-dependent performance gate.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 310 - High-Timeframe Target-History Responsiveness Audit
 
