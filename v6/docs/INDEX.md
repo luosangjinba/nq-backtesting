@@ -417,6 +417,9 @@ Read this index before working on V6.
 - `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_WIRING_PLAN_STEP334.md`:
   accepted the read-only display-timeframe target materialization wiring plan
   and selected runtime handoff wiring next.
+- `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_RUNTIME_HANDOFF_STEP335.md`:
+  accepted Display-Timeframe Runtime target materialization handoff wiring and
+  selected browser verification next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

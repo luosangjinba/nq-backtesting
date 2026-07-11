@@ -306,6 +306,12 @@
   defines the read-only runtime owner, command/data sequence, fallback gates,
   rollback criteria, and forbidden actions for the future display-timeframe
   target materialization handoff.
+- Latest completed display-timeframe target materialization runtime handoff
+  step: Step 335 - Display-Timeframe Target Materialization Runtime Handoff
+  Wiring. V6 now routes Display-Timeframe Runtime target-history application
+  through `replay.getState`, source-bar preservation, bar-data target
+  plan/load, source-cursor target-bar reveal filtering, and
+  `chartData.replaceBars` with `preserveSource: true`.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -341,7 +347,7 @@
 
 ## Next Executable Steps
 
-### Step 335 - Display-Timeframe Target Materialization Runtime Handoff Wiring
+### Step 336 - Display-Timeframe Target Materialization Browser Verification
 
 Status: proposed.
 
@@ -349,17 +355,16 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 334 closeout:
-  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_WIRING_PLAN_STEP334.md`;
-- implement the first bounded
-  `display-timeframe-target-materialization-runtime-handoff` wiring slice
-  inside Display-Timeframe Runtime;
-- follow the Step 334 sequence: read `replay.getState`, preserve source bars
-  through `chartData.getSourceBars`, plan/load target window through bar-data,
-  apply Step 329 target-bar reveal policy, then call `chartData.replaceBars`
-  with source preservation;
-- keep fallback to the current source projection path whenever a Step 334
-  fallback gate fails;
+- use Step 335 closeout:
+  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_RUNTIME_HANDOFF_STEP335.md`;
+- verify the runtime handoff in browser-visible flows for `8h`, `1D`, and
+  `1W`;
+- remeasure high-timeframe target materialization responsiveness after the
+  runtime handoff;
+- prove switching from target-backed high TF back to `1m` still uses preserved
+  source bars;
+- prove fallback to the current source projection path remains available when
+  target data is unavailable or source cursor state is missing;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -369,18 +374,17 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add runtime and browser/static coverage proving target materialization can be
-  applied without losing source bars or moving replay/viewport ownership;
+- add browser/static closeout coverage for the runtime handoff;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- display-timeframe runtime can use target bars as display materialization input
-  when target-history bars are available;
-- fallback to the current projection path remains available and covered;
-- switching back to `1m` still uses preserved source bars;
+- browser-visible `8h`, `1D`, and `1W` target materialization flows pass;
+- responsiveness is measured and either accepted or selects a bounded fix;
+- switching back to `1m` uses preserved source bars in browser coverage;
+- target-data-missing fallback remains available and covered;
 - replay cursor movement and no-bar gap skipping remain source `1m` driven;
 - source `1m` replay remains the cursor authority while target bars may be
   display materialization inputs;
@@ -390,6 +394,41 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 335 - Display-Timeframe Target Materialization Runtime Handoff Wiring
+
+Completed in this display-timeframe target materialization runtime handoff
+commit series.
+
+Verification:
+
+- `node v6/tests/display-timeframe-target-materialization-handoff-step335-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-runtime-step335-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-runtime-boundary-step335-static-smoke.js`
+- `node v6/tests/display-target-history-opt-in-step284-smoke.js`
+- `node v6/tests/replay-coordination-materialization-owner-contract-step329-smoke.js`
+- `node v6/tests/replay-coordination-materialization-owner-contract-boundary-step329-static-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-wiring-boundary-step334-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a neutral target-bar reveal policy and a display-timeframe-owned
+  target materialization handoff helper.
+- Display-Timeframe Runtime now reads source cursor state, preserves source
+  bars, plans/loads target windows through Bar Data Runtime, filters target bars
+  with source-cursor reveal policy, and applies display bars through Chart Data
+  Runtime with `preserveSource: true`.
+- Source cursor missing, target load failure, and no-visible-target-bar cases
+  fall back to source projection.
+- No replay cursor movement, no-bar gap skipping, target-history request
+  sizing, chart-history fast-path scheduling, direct viewport intent mutation,
+  chart-engine, shell, journal, order-ticket, prop-firm, indicator, or seconds
+  behavior changed.
 
 ### Step 334 - Display-Timeframe Target Materialization Wiring Plan
 

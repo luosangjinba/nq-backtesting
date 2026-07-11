@@ -11,9 +11,9 @@ const boundarySmoke = await readFile('v6/tests/display-timeframe-target-material
 
 assert.match(index, /V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_WIRING_PLAN_STEP334\.md/);
 assert.match(todo, /Latest completed display-timeframe target materialization wiring plan step:\s+Step 334/);
-assert.match(todo, /### Step 335 - Display-Timeframe Target Materialization Runtime Handoff Wiring/);
-assert.match(handoff, /Latest completed step: Step 334 - Display-Timeframe Target Materialization/);
-assert.match(handoff, /start with Step 335/);
+assert.match(todo, /### Step 334 - Display-Timeframe Target Materialization Wiring Plan/);
+assert.match(handoff, /Step 334 defined/);
+assert.match(handoff, /runtime handoff wiring next/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /display-timeframe-target-materialization-wiring-plan/);
