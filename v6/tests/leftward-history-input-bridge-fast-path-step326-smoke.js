@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {
   CHART_HISTORY_COMMANDS,
+  CHART_HISTORY_EVENTS,
   CHART_VIEWPORT_EVENTS,
   DISPLAY_TIMEFRAME_EVENTS,
   PANE_COMMANDS,
@@ -96,6 +97,11 @@ assert.deepEqual(dispatches.at(-1), {
     visibleRange: { from: -6, to: 34 },
   },
 });
+eventListeners.get(CHART_VIEWPORT_EVENTS.PROJECTED)({ paneId: 'main' });
+timers.at(-1).callback();
+await flushMicrotasks();
+assert.equal(dispatches.length, 1);
+eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({ paneId: 'main', status: 'loaded' });
 
 dispatches.length = 0;
 timers.length = 0;

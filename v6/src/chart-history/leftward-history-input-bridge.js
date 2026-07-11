@@ -30,6 +30,7 @@ export function connectLeftwardHistoryInputBridge({
   let active = true;
   const latestVisibleRangeByPaneId = new Map();
   const pendingByPaneId = new Map();
+  const programmaticFastInFlightPaneIds = new Set();
 
   function clearPending(paneId) {
     const pending = pendingByPaneId.get(paneId);
@@ -119,6 +120,10 @@ export function connectLeftwardHistoryInputBridge({
     if (!active || !schedule.shouldDispatch) return;
     const delayMs = schedule.delayMs;
     if (delayMs === 0 || typeof setTimeoutFn !== 'function') {
+      if (schedule.mode === 'programmatic-target-history-fast-path') {
+        if (programmaticFastInFlightPaneIds.has(paneId)) return;
+        programmaticFastInFlightPaneIds.add(paneId);
+      }
       void Promise.resolve(dispatchLeftExtension(paneId, visibleRange, activationPayload));
       return;
     }
@@ -178,6 +183,7 @@ export function connectLeftwardHistoryInputBridge({
   function continueAfterLoaded(extension = {}) {
     const paneId = String(extension.paneId || '').trim();
     if (!active || !paneId || extension.status !== 'loaded') return;
+    programmaticFastInFlightPaneIds.delete(paneId);
     checkPaneAfterRuntimeUpdate({ paneId, reason: 'runtime-left-extension-loaded' });
   }
 
@@ -248,6 +254,7 @@ export function connectLeftwardHistoryInputBridge({
       unsubscribePaneReloadViewportProjected();
       unsubscribeDisplayTimeframeApplied();
       latestVisibleRangeByPaneId.clear();
+      programmaticFastInFlightPaneIds.clear();
     },
   };
 }
