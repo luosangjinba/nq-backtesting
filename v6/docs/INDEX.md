@@ -299,6 +299,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_REQUEST_SIZING_STEP295.md`: accepted the
   target-history request sizing audit and deferred runtime sizing changes until
   browser diagnostics show a concrete mismatch.
+- `v6/docs/V6_TARGET_HISTORY_REQUEST_SIZING_BROWSER_DIAGNOSTICS_STEP296.md`:
+  accepted browser-path assertions that `8h` target-history request sizing
+  matches the policy target.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

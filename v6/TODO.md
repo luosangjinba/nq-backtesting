@@ -109,6 +109,10 @@
   Request Sizing. V6 added a pure audit helper for target-history request
   sizing and deferred runtime sizing changes because current fixed HTF windows
   already meet the policy target display bar counts.
+- Latest completed target-TF sizing browser step: Step 296 - Target-History
+  Request Sizing Browser Diagnostics. V6 now asserts on the real `8h`
+  target-history browser path that requested target bars match the policy target
+  display bar count.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -144,7 +148,7 @@
 
 ## Next Executable Steps
 
-### Step 296 - Target-History Request Sizing Browser Diagnostics
+### Step 297 - Target-History Session-Aware Sizing Selection
 
 Status: proposed.
 
@@ -152,14 +156,13 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 295 audit:
-  `v6/docs/V6_TARGET_HISTORY_REQUEST_SIZING_STEP295.md`;
-- add browser-visible assertions or diagnostics for target-history request
-  sizing on the Step 293 success path;
-- compare requested target bars, prepended bars, and sizing policy targets in
-  the real browser path;
-- do not change runtime sizing unless the browser diagnostics expose a concrete
-  mismatch;
+- use Step 296 browser sizing diagnostics:
+  `v6/docs/V6_TARGET_HISTORY_REQUEST_SIZING_BROWSER_DIAGNOSTICS_STEP296.md`;
+- decide whether to extend request-sizing browser assertions to session-aware
+  target history (`1D`, `1W`, `1M`) or return to the next Phase D
+  display-history optimization;
+- keep this as a selection/audit step unless there is a clearly bounded
+  session-aware browser assertion to add;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -169,8 +172,7 @@ Notes for execution:
 
 Acceptance:
 
-- browser coverage asserts or exposes target-history request sizing behavior on
-  the real path;
+- next target-history/session-aware sizing slice is selected and documented;
 - Step 293 regression pack remains green;
 - shell code still consumes runtime state/events and does not call target APIs;
 - no broad settings/control surface is added;
@@ -178,6 +180,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 296 - Target-History Request Sizing Browser Diagnostics
+
+Completed in this target-history request sizing browser diagnostics commit
+series.
+
+Verification:
+
+- `node v6/tests/target-history-diagnostics-readout-browser-step291-smoke.js`
+- `node v6/tests/target-history-request-sizing-step295-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- The Step291 browser smoke now imports
+  `v6/src/chart-history/target-history-request-sizing.js` in the page.
+- The real `8h` target-history path asserts `adequate` sizing, 20 estimated
+  target bars, 20 policy target display bars, and zero difference.
+- The smoke also asserts target response size and `targetHistory.barCount`
+  match the sizing audit.
+- No runtime sizing change was made.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 295 - Target-History Request Sizing
 
