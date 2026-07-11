@@ -203,6 +203,11 @@
   phase-timed target-history records to a concrete optimization phase,
   materialization transition, or measurement completion path without changing
   runtime behavior.
+- Latest completed target-TF browser phase budget step: Step 316 -
+  High-Timeframe Target-History Browser Phase Budget Selection. V6 now feeds
+  real browser phase-timed `8h`, `1D`, and `1W` target-history records into the
+  Step 315 selector with wide budgets, proving browser selector integration
+  without changing runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -238,7 +243,7 @@
 
 ## Next Executable Steps
 
-### Step 316 - High-Timeframe Target-History Browser Phase Budget Selection
+### Step 317 - High-Timeframe Target-History Real-Budget Browser Phase Report
 
 Status: proposed.
 
@@ -246,28 +251,28 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 315 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PHASE_BUDGET_SELECTION_STEP315.md`;
-- feed the real Step 314 browser phase-timing records into the Step 315
-  selector;
-- assert and document whether the browser-selected slice is a concrete phase
-  optimization, materialization transition, or measurement completion path;
+- use Step 316 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_PHASE_BUDGET_SELECTION_STEP316.md`;
+- feed real browser phase-timed target-history records into the Step 315
+  selector using default phase and responsiveness budgets;
+- assert and document the real-budget selected path: concrete phase
+  optimization, materialization transition, or measurement completion;
 - keep selection/reporting separate from runtime behavior unless it proves a
   concrete bottleneck with focused coverage;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser or static coverage for the browser phase-budget selection
-  integration contract;
+- add browser or static coverage for the real-budget phase report contract;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- real high-timeframe browser phase-timed records feed the Step 315 selector;
-- the browser selector integration identifies a concrete optimization phase,
+- real high-timeframe browser phase-timed records feed the Step 315 selector
+  with default budgets;
+- the real-budget report identifies a concrete optimization phase,
   materialization readiness, or measurement completion path;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
@@ -277,6 +282,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 316 - High-Timeframe Target-History Browser Phase Budget Selection
+
+Completed in this target-history browser phase budget selection commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-browser-phase-budget-selection-step316-smoke.js`
+- `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-phase-timing-step314-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-phase-budget-selection-closeout-step316-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser integration for `selectHighTimeframeTargetHistoryPhaseBudget`.
+- The browser smoke feeds real phase-timed `8h`, `1D`, and `1W`
+  target-history records into the selector.
+- The smoke uses wide budgets to verify selector integration without creating a
+  machine-dependent performance gate.
+- The next slice is a real-budget browser phase report using default budgets.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 315 - High-Timeframe Target-History Phase Budget Selection
 
