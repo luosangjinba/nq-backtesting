@@ -223,6 +223,12 @@
   `shell.pane-status-readout` / `chart-surface-readout-observation` as the
   current apply-lag owner boundary and selected a focused browser milestone
   assertion before any runtime behavior change.
+- Latest completed target-TF apply-lag boundary step: Step 320 -
+  High-Timeframe Target-History Browser-Visible Apply-Lag Boundary Browser
+  Assertion. V6 now records browser milestones proving diagnostics readout is
+  visible by the `LEFT_EXTENSION_LOADED` observation point, so the current
+  apply-lag finding is a measurement-boundary issue rather than a runtime
+  optimization target.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -258,7 +264,7 @@
 
 ## Next Executable Steps
 
-### Step 320 - High-Timeframe Target-History Browser-Visible Apply-Lag Boundary Browser Assertion
+### Step 321 - High-Timeframe Target-History Apply-Lag Measurement Boundary Correction
 
 Status: proposed.
 
@@ -266,35 +272,66 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 319 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_VISIBLE_APPLY_LAG_OPTIMIZATION_PLAN_STEP319.md`;
-- add a focused browser assertion that splits target-history apply lag into
-  chart-data-applied, viewport-projected, left-extension-loaded, and diagnostics
-  readout-visible milestones;
-- prove milestone ordering and identify the post-load owner boundary without an
-  absolute machine-specific timing gate;
-- keep the assertion separate from runtime behavior changes;
+- use Step 320 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_BOUNDARY_BROWSER_ASSERTION_STEP320.md`;
+- correct the real-budget browser report's apply-lag measurement boundary or
+  add a replacement event-driven report;
+- derive apply-lag from target-history milestones instead of a coarse polling
+  loop;
+- keep the report free of machine-specific absolute timing gates;
+- re-run the Step 315 selector with the corrected record shape and document the
+  selected path;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser or static closeout coverage for the boundary assertion contract;
+- add browser or static closeout coverage for the corrected measurement
+  boundary;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser milestone records are captured for target-history apply lag;
-- milestone ordering identifies whether the post-load delay is chart-data,
-  viewport, chart-history event, or diagnostics readout visibility;
+- corrected apply-lag records come from event/readout milestones rather than
+  coarse polling;
+- the corrected selector path is documented;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
-- no runtime target-history behavior changes are made in the assertion step;
+- no runtime target-history behavior changes are made in the measurement
+  correction step;
 - shell code still consumes runtime state/events and does not call target APIs;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 320 - High-Timeframe Target-History Browser-Visible Apply-Lag Boundary Browser Assertion
+
+Completed in this target-history apply-lag boundary browser assertion commit
+series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-apply-lag-boundary-browser-step320-smoke.js`
+- `node v6/tests/high-timeframe-target-history-apply-lag-optimization-plan-step319-smoke.js`
+- `node v6/tests/high-timeframe-target-history-selected-path-slice-selection-step318-smoke.js`
+- `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
+- `node v6/tests/high-timeframe-target-history-apply-lag-boundary-browser-closeout-step320-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a focused browser smoke for target-history apply-lag milestones.
+- The smoke records chart-data applied, viewport projected, left-extension
+  loaded, and diagnostics readout visible milestones.
+- The readout is visible by the `LEFT_EXTENSION_LOADED` listener observation,
+  so the current high apply-lag result is a measurement-boundary issue.
+- The next slice is apply-lag measurement boundary correction.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 319 - High-Timeframe Target-History Browser-Visible Apply-Lag Optimization Plan
 

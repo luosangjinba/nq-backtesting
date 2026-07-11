@@ -371,6 +371,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_VISIBLE_APPLY_LAG_OPTIMIZATION_PLAN_STEP319.md`:
   accepted the shell readout observation boundary and selected a focused
   browser milestone assertion before target-history apply-lag runtime changes.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_BOUNDARY_BROWSER_ASSERTION_STEP320.md`:
+  accepted the browser milestone assertion showing target-history apply lag is
+  currently a measurement-boundary issue before runtime optimization.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
