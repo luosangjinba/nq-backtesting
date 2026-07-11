@@ -253,6 +253,12 @@
   window is leftward request scheduling in
   `chart-history.leftward-history-input-bridge`. The next bounded slice is a
   leftward request scheduling plan before runtime behavior changes.
+- Latest completed target-TF leftward request scheduling plan step: Step 325 -
+  High-Timeframe Target-History Leftward Request Scheduling Plan. V6 selected
+  a bridge-owned programmatic fast path that preserves native drag/wheel
+  `requestDelayMs` scheduling while allowing high-timeframe target-history
+  display application to bypass the second delayed request debounce after the
+  zero-delay surface check.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -288,7 +294,7 @@
 
 ## Next Executable Steps
 
-### Step 325 - High-Timeframe Target-History Leftward Request Scheduling Plan
+### Step 326 - High-Timeframe Target-History Programmatic Leftward Request Fast Path
 
 Status: proposed.
 
@@ -296,28 +302,28 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 324 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_TRIGGER_COORDINATION_ATTRIBUTION_STEP324.md`;
-- plan a bounded leftward request scheduling change for high-timeframe
-  target-history display application;
-- distinguish programmatic display-timeframe apply from manual drag/wheel
-  leftward-extension stabilization;
-- preserve the existing delayed scheduling behavior for native visible-range
-  input unless the plan proves a narrower safe path;
-- keep the work as planning/reporting only unless a focused assertion proves a
-  concrete safe implementation boundary;
+- use Step 325 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_LEFTWARD_REQUEST_SCHEDULING_PLAN_STEP325.md`;
+- add a pure scheduling delay resolver for leftward-history input bridge
+  requests before wiring runtime behavior;
+- cover native visible-range input, runtime display-timeframe apply, runtime
+  viewport projection, target-history disabled, and visible-range validation;
+- preserve native drag/wheel `requestDelayMs` scheduling;
+- only allow the fast path for programmatic high-timeframe target-history
+  scheduling after the zero-delay surface check still confirms `from < 0`;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser or static closeout coverage for leftward request scheduling plan;
+- add focused coverage for the programmatic fast-path resolver and bridge
+  integration readiness;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- leftward request scheduling plan is documented;
+- programmatic leftward request fast-path resolver is documented;
 - the next selected path is documented without relying on sub-frame or
   machine-specific timing noise;
 - targeted pack/member controls remain usable during iteration;
@@ -328,6 +334,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 325 - High-Timeframe Target-History Leftward Request Scheduling Plan
+
+Completed in this target-history leftward request scheduling plan commit
+series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-leftward-request-scheduling-plan-step325-smoke.js`
+- `node v6/tests/high-timeframe-target-history-leftward-request-scheduling-boundary-step325-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-step148-smoke.js`
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-attribution-step324-smoke.js`
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-browser-step324-smoke.js`
+- `node v6/tests/high-timeframe-target-history-leftward-request-scheduling-closeout-step325-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure leftward request scheduling planner for the Step 324 attribution
+  result.
+- Added static boundary coverage for the current bridge scheduling behavior.
+- Selected `target-history-programmatic-leftward-request-fast-path` as the next
+  slice.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 324 - High-Timeframe Target-History Trigger Coordination Latency Attribution
 
