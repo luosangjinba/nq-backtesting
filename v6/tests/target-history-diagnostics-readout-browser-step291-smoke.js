@@ -9,6 +9,7 @@ try {
     (async () => JSON.stringify(await (async () => {
       const commands = await import('/v6/src/runtime/commands.js');
       const contracts = await import('/v6/src/contracts/app-contracts.js');
+      const sizing = await import('/v6/src/chart-history/target-history-request-sizing.js');
       const root = document.querySelector('[data-v6-root]');
       const originalFetch = window.fetch.bind(window);
       const fetchLog = [];
@@ -120,6 +121,13 @@ try {
         const source = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId: 'main' });
         const history = await commands.dispatchCommand(contracts.CHART_HISTORY_COMMANDS.GET_STATE);
         const pane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_BY_ID, 'main');
+        const requestSizing = history.extension?.plannedWindow
+          ? sizing.auditTargetHistoryRequestSizing({
+            displayTimeframe: pane.displayTimeframe,
+            plannedWindow: history.extension.plannedWindow,
+            sourceTimeframe: 1,
+          })
+          : null;
         return {
           barCount: chart.bars?.length || 0,
           displayTimeframe: pane.displayTimeframe,
@@ -127,6 +135,7 @@ try {
           latestTimestamp: chart.bars?.at(-1)?.timestamp || null,
           oldestTimestamp: chart.bars?.[0]?.timestamp || null,
           readout: readDiagnosticsReadout(),
+          requestSizing,
           sourceBarCount: source.bars?.length || 0,
           sourceOldestTimestamp: source.bars?.[0]?.timestamp || null,
         };
@@ -194,6 +203,12 @@ try {
   assert.equal(diagnostics.sourceRequestCount, 0);
   assert.equal(diagnostics.fallbackReason, null);
   assert.equal(diagnostics.prependedBarCount, value.after.history.extension.prependedBarCount);
+  assert.equal(value.after.requestSizing.status, 'adequate');
+  assert.equal(value.after.requestSizing.estimatedTargetBars, 20);
+  assert.equal(value.after.requestSizing.targetDisplayBars, 20);
+  assert.equal(value.after.requestSizing.difference, 0);
+  assert.equal(targetFetch.bars, value.after.requestSizing.estimatedTargetBars);
+  assert.equal(value.after.history.extension.targetHistory.barCount, targetFetch.bars);
   assert.equal(value.after.readout.path, 'target');
   assert.equal(value.after.readout.fallbackReason, 'none');
   assert.equal(value.after.readout.targetRequests, '1');
