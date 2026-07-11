@@ -420,6 +420,10 @@ Read this index before working on V6.
 - `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_RUNTIME_HANDOFF_STEP335.md`:
   accepted Display-Timeframe Runtime target materialization handoff wiring and
   selected browser verification next.
+- `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_BROWSER_VERIFICATION_STEP336.md`:
+  accepted browser-visible target materialization verification for `8h`, `1D`,
+  and `1W`, including source preservation, fallback, responsiveness, and shell
+  boundary coverage.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

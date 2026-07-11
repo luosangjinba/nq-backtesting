@@ -12,10 +12,10 @@ const runtimeSmoke = await readFile('v6/tests/display-timeframe-target-materiali
 const boundarySmoke = await readFile('v6/tests/display-timeframe-target-materialization-runtime-boundary-step335-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_RUNTIME_HANDOFF_STEP335\.md/);
-assert.match(todo, /Latest completed display-timeframe target materialization runtime handoff\s+step: Step 335/);
-assert.match(todo, /### Step 336 - Display-Timeframe Target Materialization Browser Verification/);
-assert.match(handoff, /Latest completed step: Step 335 - Display-Timeframe Target Materialization/);
-assert.match(handoff, /start with Step 336/);
+assert.match(todo, /### Step 335 - Display-Timeframe Target Materialization Runtime Handoff Wiring/);
+assert.match(todo, /Display-Timeframe Runtime target-history application\s+through `replay\.getState`/);
+assert.match(handoff, /Step 335 wired Display-Timeframe Runtime target materialization/);
+assert.match(handoff, /Step 335\s+implements the first runtime handoff slice inside Display-Timeframe Runtime/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /Display-Timeframe Runtime now follows/);

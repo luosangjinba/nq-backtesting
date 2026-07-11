@@ -9,10 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 335 closeout
-- Latest completed step: Step 335 - Display-Timeframe Target Materialization
-  Runtime Handoff Wiring
+- Worktree at handoff: clean after Step 336 closeout
+- Latest completed step: Step 336 - Display-Timeframe Target Materialization
+  Browser Verification
 - Recent relevant commits:
+  - Step 336 verified browser-visible `8h`, `1D`, and `1W` target
+    materialization, source preservation when returning to `1m`,
+    target-data-missing fallback, responsiveness, and shell/runtime boundary
+    ownership.
   - Step 335 wired Display-Timeframe Runtime target materialization through
     source cursor read, source-bar preservation, bar-data target plan/load,
     source-cursor target-bar reveal filtering, and chart-data replacement with
@@ -66,8 +70,10 @@ Read this block first after restarting the server or assistant context.
   Step 333 completes that audit and selects a wiring plan next. Step 334
   defines that wiring plan and selects runtime handoff wiring next. Step 335
   implements the first runtime handoff slice inside Display-Timeframe Runtime.
-  Replay remains source `1m` driven, and fallback to the current source
-  projection path must remain available while browser verification proceeds.
+  Step 336 verifies that handoff in browser-visible `8h`, `1D`, and `1W`
+  materialization flows, including source preservation and fallback. Replay
+  remains source `1m` driven; Step 337 should verify manual next/autoplay
+  replay coordination while target materialization is active.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -108,8 +114,9 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 336:
-   display-timeframe target materialization browser verification.
+4. If continuing planned work, start with Step 337:
+   display-timeframe target materialization replay coordination browser
+   regression.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;

@@ -312,6 +312,12 @@
   through `replay.getState`, source-bar preservation, bar-data target
   plan/load, source-cursor target-bar reveal filtering, and
   `chartData.replaceBars` with `preserveSource: true`.
+- Latest completed display-timeframe target materialization browser
+  verification step: Step 336 - Display-Timeframe Target Materialization
+  Browser Verification. V6 now verifies browser-visible `8h`, `1D`, and `1W`
+  target materialization, source preservation when returning to `1m`,
+  target-data-missing fallback, responsiveness, and shell/runtime boundary
+  ownership.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -347,7 +353,7 @@
 
 ## Next Executable Steps
 
-### Step 336 - Display-Timeframe Target Materialization Browser Verification
+### Step 337 - Display-Timeframe Target Materialization Replay Coordination Browser Regression
 
 Status: proposed.
 
@@ -355,16 +361,17 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 335 closeout:
-  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_RUNTIME_HANDOFF_STEP335.md`;
-- verify the runtime handoff in browser-visible flows for `8h`, `1D`, and
-  `1W`;
-- remeasure high-timeframe target materialization responsiveness after the
-  runtime handoff;
-- prove switching from target-backed high TF back to `1m` still uses preserved
-  source bars;
-- prove fallback to the current source projection path remains available when
-  target data is unavailable or source cursor state is missing;
+- use Step 336 closeout:
+  `v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_BROWSER_VERIFICATION_STEP336.md`;
+- verify replay manual next while high display timeframe target
+  materialization is active;
+- verify replay autoplay while high display timeframe target materialization is
+  active;
+- include a source `1m` no-bar gap crossing so cursor authority remains clear;
+- prove high-TF visible target bars update from source cursor movement without
+  moving replay from target bars;
+- prove fallback to the current source projection path remains available during
+  replay coordination when target data is unavailable;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -374,18 +381,21 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser/static closeout coverage for the runtime handoff;
+- add browser/static closeout coverage for replay coordination after
+  materialization;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser-visible `8h`, `1D`, and `1W` target materialization flows pass;
-- responsiveness is measured and either accepted or selects a bounded fix;
-- switching back to `1m` uses preserved source bars in browser coverage;
-- target-data-missing fallback remains available and covered;
-- replay cursor movement and no-bar gap skipping remain source `1m` driven;
+- browser-visible replay manual next passes with high display timeframe target
+  materialization active;
+- browser-visible replay autoplay passes with high display timeframe target
+  materialization active;
+- target display bars update according to source `1m` replay cursor movement;
+- no-bar gap skipping remains source `1m` driven;
+- target-data-missing fallback remains available during replay coordination;
 - source `1m` replay remains the cursor authority while target bars may be
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -394,6 +404,37 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 336 - Display-Timeframe Target Materialization Browser Verification
+
+Completed in this display-timeframe target materialization browser verification
+commit series.
+
+Verification:
+
+- `node v6/tests/display-timeframe-target-materialization-browser-step336-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-browser-boundary-step336-static-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-runtime-step335-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-runtime-closeout-step335-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser-visible verification for `8h`, `1D`, and `1W`
+  display-timeframe target materialization.
+- Confirmed source `1m` bars remain preserved and switching back to `1m`
+  restores source projection.
+- Confirmed target-data-missing fallback reports
+  `target-history-no-visible-bars` and returns to source-window projection
+  without shrinking preserved source bars.
+- Fed browser records into the high-timeframe responsiveness audit and accepted
+  the current runtime handoff as materialization-ready.
+- Kept shell target API calls, replay cursor reads, target window
+  planning/loading, and chart-data replacement out of shell code.
 
 ### Step 335 - Display-Timeframe Target Materialization Runtime Handoff Wiring
 
