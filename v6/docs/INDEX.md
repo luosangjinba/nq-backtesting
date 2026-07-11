@@ -323,6 +323,9 @@ Read this index before working on V6.
 - `v6/docs/V6_WEEKLY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP303.md`:
   accepted browser coverage for `1W` target-history request sizing and added it
   to the compact target-history browser regression pack.
+- `v6/docs/V6_WEEKLY_TARGET_HISTORY_FALLBACK_BROWSER_STEP304.md`: accepted
+  browser coverage for `1W` target-history fallback and added it to the compact
+  target-history browser regression pack.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

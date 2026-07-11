@@ -143,6 +143,11 @@
   coverage proving the `1W` target-history path requests weekly target bars,
   applies the weekly sizing policy, preserves source bars for `1m` round trips,
   and remains in the compact target-history browser regression pack.
+- Latest completed target-TF weekly fallback browser step: Step 304 - Weekly
+  Target-History Fallback Browser Coverage. V6 now has real browser coverage
+  proving empty `1W` target bars fall back to source-window projection, report
+  `target-history-empty` in diagnostics/readout, preserve source bars for `1m`
+  round trips, and remain in the compact target-history browser regression pack.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -178,7 +183,7 @@
 
 ## Next Executable Steps
 
-### Step 304 - Weekly Target-History Fallback Browser Coverage
+### Step 305 - Monthly Target-History Request Sizing Selection
 
 Status: proposed.
 
@@ -186,14 +191,13 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 303 closeout:
-  `v6/docs/V6_WEEKLY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP303.md`;
-- add a focused browser smoke for `1W` target-history fallback;
-- force `/v4/target_bars?tf=1W` to return empty target bars;
-- assert chart-history falls back to source-window projection and readout
-  diagnostics report `target-history-empty`;
-- preserve source bars so high-TF-to-`1m` round trips still work;
-- keep `1M` deferred;
+- use Step 304 closeout:
+  `v6/docs/V6_WEEKLY_TARGET_HISTORY_FALLBACK_BROWSER_STEP304.md`;
+- select or audit the first `1M` target-history request sizing slice after
+  weekly success and fallback are both browser-covered and packed;
+- keep the step bounded to selection/audit and static or pure coverage unless a
+  concrete monthly sizing mismatch is proven;
+- do not add monthly browser runtime coverage yet;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW` in any
   future browser path, not direct shell/API calls;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
@@ -202,17 +206,45 @@ Notes for execution:
 
 Acceptance:
 
-- browser coverage proves `1W` target-history fallback behavior on the real
-  path;
+- the next monthly request-sizing slice is selected with explicit reasons;
 - daily success/fallback pack coverage remains green;
 - weekly sizing pack coverage remains green;
-- no runtime target-history behavior changes unless the fallback assertion
-  exposes a concrete mismatch;
+- weekly fallback pack coverage remains green;
+- no runtime target-history behavior changes unless backed by a focused monthly
+  sizing mismatch;
 - shell code still consumes runtime state/events and does not call target APIs;
-- source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 304 - Weekly Target-History Fallback Browser Coverage
+
+Completed in this weekly target-history fallback browser commit series.
+
+Verification:
+
+- `node v6/tests/weekly-target-history-fallback-browser-step304-smoke.js`
+- `node v6/tests/target-history-request-sizing-step295-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/weekly-target-history-fallback-browser-closeout-step304-static-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/tests/weekly-target-history-fallback-browser-step304-smoke.js`.
+- The smoke drives a real browser `1W` target-history path with empty target
+  bars.
+- It asserts fallback to `target-history-fallback-source-window` and
+  `target-history-empty` diagnostics/readout state.
+- It keeps weekly sizing assertions at `4` display bars and `40000` source
+  minutes.
+- Added the weekly fallback smoke to the Step 293 target-history browser
+  regression pack.
+- No runtime behavior changed.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 303 - Weekly Target-History Request Sizing Browser Assertion
 
