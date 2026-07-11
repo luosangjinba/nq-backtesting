@@ -112,10 +112,9 @@ assert.equal(timers.length, 1);
 assert.equal(timers[0].delayMs, 0);
 timers[0].callback();
 await flushMicrotasks();
-assert.equal(timers.length, 1);
-assert.equal(dispatches.length, 1);
-assert.equal(dispatches.at(-1).payload.displayTimeframe, '1D');
-assert.equal(dispatches.at(-1).payload.targetHistory.enabled, true);
+assert.equal(dispatches.length, 0);
+assert.equal(timers.length, 2);
+assert.equal(timers[1].delayMs, 500);
 
 dispatches.length = 0;
 timers.length = 0;

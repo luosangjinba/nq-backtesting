@@ -30,6 +30,7 @@ export function connectLeftwardHistoryInputBridge({
   let active = true;
   const latestVisibleRangeByPaneId = new Map();
   const pendingByPaneId = new Map();
+  const programmaticFastArmedPaneIds = new Set();
   const programmaticFastInFlightPaneIds = new Set();
 
   function clearPending(paneId) {
@@ -111,6 +112,18 @@ export function connectLeftwardHistoryInputBridge({
     return Number.isFinite(from) && Number.isFinite(to) && from < 0;
   }
 
+  function isProgrammaticFastCandidateReason(reason) {
+    return reason === 'runtime-display-timeframe-applied'
+      || reason === 'runtime-viewport-projected';
+  }
+
+  function resolverReasonForPane(paneId, reason) {
+    if (!isProgrammaticFastCandidateReason(reason)) return reason;
+    return programmaticFastArmedPaneIds.has(paneId)
+      ? reason
+      : 'runtime-surface-check';
+  }
+
   function scheduleResolvedRequest({
     activationPayload = null,
     paneId,
@@ -123,6 +136,7 @@ export function connectLeftwardHistoryInputBridge({
       if (schedule.mode === 'programmatic-target-history-fast-path') {
         if (programmaticFastInFlightPaneIds.has(paneId)) return;
         programmaticFastInFlightPaneIds.add(paneId);
+        programmaticFastArmedPaneIds.delete(paneId);
       }
       void Promise.resolve(dispatchLeftExtension(paneId, visibleRange, activationPayload));
       return;
@@ -132,13 +146,19 @@ export function connectLeftwardHistoryInputBridge({
   }
 
   function scheduleRequest(paneId, visibleRange, reason = 'native-visible-range') {
-    if (!shouldRequest(visibleRange)) return;
+    if (!shouldRequest(visibleRange)) {
+      if (isProgrammaticFastCandidateReason(reason)) {
+        programmaticFastArmedPaneIds.delete(paneId);
+      }
+      return;
+    }
     clearPending(paneId);
+    const resolvedReason = resolverReasonForPane(paneId, reason);
     if (targetHistoryActivation.enabled === false) {
       scheduleResolvedRequest({
         paneId,
         schedule: resolveLeftwardHistoryRequestSchedule({
-          reason,
+          reason: resolvedReason,
           requestDelayMs,
           targetHistoryEnabled: false,
           visibleRange,
@@ -152,13 +172,16 @@ export function connectLeftwardHistoryInputBridge({
         activationPayload,
         paneId,
         schedule: resolveLeftwardHistoryRequestSchedule({
-          reason,
+          reason: resolvedReason,
           requestDelayMs,
           targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
           visibleRange,
         }),
         visibleRange,
       });
+      if (isProgrammaticFastCandidateReason(reason)) {
+        programmaticFastArmedPaneIds.delete(paneId);
+      }
     });
   }
 
@@ -235,10 +258,16 @@ export function connectLeftwardHistoryInputBridge({
   const unsubscribeDisplayTimeframeApplied = typeof subscribeEvent === 'function'
     ? subscribeEvent(
       DISPLAY_TIMEFRAME_EVENTS.APPLIED,
-      (payload) => checkPaneAfterRuntimeUpdate({
-        ...payload,
-        reason: 'runtime-display-timeframe-applied',
-      }),
+      (payload = {}) => {
+        const paneId = String(payload.paneId || payload.pane?.id || '').trim();
+        if (paneId) {
+          programmaticFastArmedPaneIds.add(paneId);
+        }
+        checkPaneAfterRuntimeUpdate({
+          ...payload,
+          reason: 'runtime-display-timeframe-applied',
+        });
+      },
     )
     : () => {};
 
@@ -254,6 +283,7 @@ export function connectLeftwardHistoryInputBridge({
       unsubscribePaneReloadViewportProjected();
       unsubscribeDisplayTimeframeApplied();
       latestVisibleRangeByPaneId.clear();
+      programmaticFastArmedPaneIds.clear();
       programmaticFastInFlightPaneIds.clear();
     },
   };
