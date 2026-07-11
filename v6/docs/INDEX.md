@@ -402,6 +402,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_OWNER_CONTRACT_STEP329.md`:
   accepted the replay coordination materialization owner contract and
   source-cursor target-bar no-future policy before runtime handoff changes.
+- `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_HANDOFF_SELECTION_STEP330.md`:
+  selected a pure replay coordination materialization handoff plan before
+  runtime materialization wiring.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

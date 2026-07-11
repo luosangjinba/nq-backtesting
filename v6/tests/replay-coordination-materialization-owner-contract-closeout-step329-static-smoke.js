@@ -11,9 +11,9 @@ const boundarySmoke = await readFile('v6/tests/replay-coordination-materializati
 
 assert.match(index, /V6_REPLAY_COORDINATION_MATERIALIZATION_OWNER_CONTRACT_STEP329\.md/);
 assert.match(todo, /Latest completed replay coordination materialization owner contract step:\s+Step 329/);
-assert.match(todo, /### Step 330 - Replay Coordination Materialization Runtime Handoff Slice Selection/);
-assert.match(handoff, /Latest completed step: Step 329 - Replay Coordination Materialization Owner/);
-assert.match(handoff, /start with Step 330/);
+assert.match(todo, /### Step 329 - Replay Coordination Materialization Owner Contract/);
+assert.match(handoff, /Step 329 defined the replay coordination materialization owner contract/);
+assert.match(handoff, /source-cursor target-bar no-future\s+reveal policy/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /replay-coordination-materialization-contract/);
