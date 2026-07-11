@@ -158,6 +158,11 @@
   coverage proving the `1M` target-history path requests monthly target bars,
   applies the monthly sizing policy, preserves source bars for `1m` round
   trips, and remains in the compact target-history browser regression pack.
+- Latest completed target-TF monthly fallback browser step: Step 307 - Monthly
+  Target-History Fallback Browser Coverage. V6 now has real browser coverage
+  proving empty `1M` target bars fall back to source-window projection, report
+  `target-history-empty` in diagnostics/readout, preserve source bars for `1m`
+  round trips, and remain in the compact target-history browser regression pack.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -193,7 +198,7 @@
 
 ## Next Executable Steps
 
-### Step 307 - Monthly Target-History Fallback Browser Coverage
+### Step 308 - Target-History Phase D Re-audit And Next Slice Selection
 
 Status: proposed.
 
@@ -201,34 +206,63 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 306 closeout:
-  `v6/docs/V6_MONTHLY_TARGET_HISTORY_REQUEST_SIZING_BROWSER_STEP306.md`;
-- add a focused browser smoke for `1M` target-history fallback;
-- force `/v4/target_bars?tf=1M` to return empty target bars;
-- assert chart-history falls back to source-window projection and readout
-  diagnostics report `target-history-empty`;
-- preserve source bars so high-TF-to-`1m` round trips still work;
-- keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW` in any
-  future browser path, not direct shell/API calls;
+- use Step 307 closeout:
+  `v6/docs/V6_MONTHLY_TARGET_HISTORY_FALLBACK_BROWSER_STEP307.md`;
+- re-audit the completed target-history Phase D coverage across fixed,
+  daily, weekly, and monthly success/fallback browser paths;
+- select the next bounded target-history slice from explicit candidates such as
+  browser pack runtime/cost control, high-timeframe history responsiveness, or
+  transition toward replay coordination/materialization;
+- keep the step bounded to selection/audit and static or pure coverage unless a
+  concrete mismatch is proven;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser coverage proves `1M` target-history fallback behavior on the real
-  path;
+- completed target-history browser coverage is summarized with explicit gaps;
+- the next bounded target-history slice is selected with explicit reasons;
 - daily success/fallback pack coverage remains green;
 - weekly sizing pack coverage remains green;
 - weekly fallback pack coverage remains green;
 - monthly sizing pack coverage remains green;
-- no runtime target-history behavior changes unless the fallback assertion
-  exposes a concrete mismatch;
+- monthly fallback pack coverage remains green;
+- no runtime target-history behavior changes unless backed by a focused audit
+  finding;
 - shell code still consumes runtime state/events and does not call target APIs;
-- source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 307 - Monthly Target-History Fallback Browser Coverage
+
+Completed in this monthly target-history fallback browser commit series.
+
+Verification:
+
+- `node v6/tests/monthly-target-history-fallback-browser-step307-smoke.js`
+- `node v6/tests/target-history-request-sizing-step295-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/monthly-target-history-fallback-browser-closeout-step307-static-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `v6/tests/monthly-target-history-fallback-browser-step307-smoke.js`.
+- The smoke drives a real browser `1M` target-history path with empty target
+  bars.
+- It asserts fallback to `target-history-fallback-source-window` and
+  `target-history-empty` diagnostics/readout state.
+- It keeps monthly sizing assertions at `1` display bar and `40000` source
+  minutes.
+- Added the monthly fallback smoke to the Step 293 target-history browser
+  regression pack.
+- No runtime behavior changed.
+- Replay cursor movement, no-bar gap skipping, chart viewport intent,
+  chart-engine behavior, journal, order-ticket, prop-firm, indicator, and
+  seconds behavior remain unchanged.
 
 ### Step 306 - Monthly Target-History Request Sizing Browser Assertion
 
