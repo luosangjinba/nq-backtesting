@@ -390,6 +390,9 @@ Read this index before working on V6.
 - `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_LEFTWARD_REQUEST_SCHEDULING_PLAN_STEP325.md`:
   accepted the leftward request scheduling plan and selected the programmatic
   leftward request fast path next.
+- `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PROGRAMMATIC_LEFTWARD_FAST_PATH_STEP326.md`:
+  accepted the programmatic leftward request fast path and selected
+  high-timeframe responsiveness re-measurement next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

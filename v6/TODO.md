@@ -259,6 +259,11 @@
   `requestDelayMs` scheduling while allowing high-timeframe target-history
   display application to bypass the second delayed request debounce after the
   zero-delay surface check.
+- Latest completed target-TF programmatic leftward fast path step: Step 326 -
+  High-Timeframe Target-History Programmatic Leftward Request Fast Path. V6 now
+  keeps native visible-range input on `requestDelayMs`, arms a one-shot
+  high-timeframe target-history fast path from display-timeframe application,
+  and gates duplicate immediate requests per pane until `LEFT_EXTENSION_LOADED`.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -294,7 +299,7 @@
 
 ## Next Executable Steps
 
-### Step 326 - High-Timeframe Target-History Programmatic Leftward Request Fast Path
+### Step 327 - High-Timeframe Target-History Fast Path Responsiveness Re-measurement
 
 Status: proposed.
 
@@ -302,28 +307,28 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 325 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_LEFTWARD_REQUEST_SCHEDULING_PLAN_STEP325.md`;
-- add a pure scheduling delay resolver for leftward-history input bridge
-  requests before wiring runtime behavior;
-- cover native visible-range input, runtime display-timeframe apply, runtime
-  viewport projection, target-history disabled, and visible-range validation;
-- preserve native drag/wheel `requestDelayMs` scheduling;
-- only allow the fast path for programmatic high-timeframe target-history
-  scheduling after the zero-delay surface check still confirms `from < 0`;
+- use Step 326 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_PROGRAMMATIC_LEFTWARD_FAST_PATH_STEP326.md`;
+- re-run high-timeframe target-history browser responsiveness measurement after
+  the fast path;
+- compare pre-left-extension, target fetch, chart-data application,
+  viewport/readout, and corrected visual-latency summaries;
+- decide whether the next slice is materialization readiness, measurement
+  cleanup, target-history runtime optimization, or another bounded
+  responsiveness fix;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add focused coverage for the programmatic fast-path resolver and bridge
-  integration readiness;
+- add focused browser/static closeout coverage for the fast-path
+  responsiveness re-measurement;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- programmatic leftward request fast-path resolver is documented;
+- fast-path responsiveness re-measurement is documented;
 - the next selected path is documented without relying on sub-frame or
   machine-specific timing noise;
 - targeted pack/member controls remain usable during iteration;
@@ -334,6 +339,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 326 - High-Timeframe Target-History Programmatic Leftward Request Fast Path
+
+Completed in this target-history programmatic fast path commit series.
+
+Verification:
+
+- `node v6/tests/leftward-history-request-schedule-step326-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-fast-path-step326-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-step148-smoke.js`
+- `node v6/tests/high-timeframe-target-history-trigger-coordination-browser-step324-smoke.js`
+- `node v6/tests/high-timeframe-target-history-programmatic-leftward-fast-path-closeout-step326-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure leftward-history request schedule resolver.
+- Wired a one-shot programmatic target-history fast path into
+  `leftward-history-input-bridge`.
+- Preserved native visible-range drag/wheel `requestDelayMs` scheduling.
+- Added a per-pane fast-path gate to prevent duplicate immediate requests until
+  `LEFT_EXTENSION_LOADED`.
+- No chart-history runtime loading, target-history request sizing, chart
+  viewport intent, chart-engine, replay, shell, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior changed.
 
 ### Step 325 - High-Timeframe Target-History Leftward Request Scheduling Plan
 

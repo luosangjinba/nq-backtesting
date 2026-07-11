@@ -6,12 +6,14 @@ const step324Doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_TRIG
 const plan = await readFile('v6/src/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js', 'utf8');
 
 assert.match(bridge, /requestDelayMs = 500/);
-assert.match(bridge, /subscribeEvent\(DISPLAY_TIMEFRAME_EVENTS\.APPLIED, checkPaneAfterRuntimeUpdate\)/);
-assert.match(bridge, /subscribeEvent\(CHART_VIEWPORT_EVENTS\.PROJECTED, checkPaneAfterRuntimeUpdate\)/);
-assert.match(bridge, /setTimeoutFn\(\(\) => scheduleFromSurface\(paneId\), 0\)/);
+assert.match(bridge, /DISPLAY_TIMEFRAME_EVENTS\.APPLIED/);
+assert.match(bridge, /CHART_VIEWPORT_EVENTS\.PROJECTED/);
+assert.match(bridge, /runtime-display-timeframe-applied/);
+assert.match(bridge, /runtime-viewport-projected/);
+assert.match(bridge, /setTimeoutFn\(\(\) => scheduleFromSurface\(paneId, reason\), 0\)/);
 assert.match(bridge, /const timer = setTimeoutFn\(\(\) => dispatchPending\(paneId\), delayMs\)/);
 assert.match(bridge, /chartSurface\.subscribeVisibleRangeChange/);
-assert.match(bridge, /scheduleRequest\(paneId, visibleRange\)/);
+assert.match(bridge, /scheduleRequest\(paneId, visibleRange, reason\)/);
 assert.match(bridge, /planLeftwardTargetHistoryActivation/);
 
 assert.match(step324Doc, /chart-history\.leftward-history-input-bridge/);
