@@ -193,6 +193,11 @@
   replacement, viewport reapply, browser-visible apply lag, or materialization
   transition, and selected browser phase timing as the next slice before
   runtime behavior changes.
+- Latest completed target-TF phase timing step: Step 314 - High-Timeframe
+  Target-History Browser Phase Timing Probe. V6 now collects browser-observed
+  `fetchMs`, `chartDataReplacementMs`, `viewportReapplyMs`, `applyLagMs`, and
+  `visualLatencyMs` for `8h`, `1D`, and `1W` target-history records and feeds
+  them into the Step 313 probe without changing runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -228,7 +233,7 @@
 
 ## Next Executable Steps
 
-### Step 314 - High-Timeframe Target-History Browser Phase Timing Probe
+### Step 315 - High-Timeframe Target-History Phase Budget Selection
 
 Status: proposed.
 
@@ -236,30 +241,28 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 313 closeout:
-  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_RUNTIME_OPTIMIZATION_PROBE_STEP313.md`;
-- add focused browser phase timing for target-history responsiveness records;
-- extend the Step 311 harness record shape with observed phase timings where
-  possible, such as fetch timing, chart-data replacement timing, viewport
-  reapply timing, and browser-visible apply lag;
-- feed the extended records into the Step 313 probe;
-- keep the phase-timing probe separate from runtime behavior unless it proves a
+- use Step 314 closeout:
+  `v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_PHASE_TIMING_STEP314.md`;
+- add a phase-budget selection/report layer over Step 314 records and Step 313
+  probe output;
+- decide whether the next slice should be a concrete phase optimization or
+  replay/materialization transition;
+- keep selection/reporting separate from runtime behavior unless it proves a
   concrete bottleneck with focused coverage;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static, pure, or browser coverage for the phase timing contract;
+- add static, pure, or browser coverage for the phase-budget selection contract;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- high-timeframe target-history responsiveness records include browser-observed
-  phase timings where possible;
-- the extended records feed the Step 313 probe and can identify a dominant
-  optimization phase or materialization readiness;
+- high-timeframe target-history phase-timed records feed a budget selector/report;
+- the selector identifies a concrete optimization phase or materialization
+  readiness;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
 - no runtime target-history behavior changes unless backed by a focused audit
@@ -268,6 +271,33 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 314 - High-Timeframe Target-History Browser Phase Timing Probe
+
+Completed in this target-history browser phase timing commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-browser-phase-timing-step314-smoke.js`
+- `node v6/tests/high-timeframe-target-history-runtime-optimization-probe-step313-smoke.js`
+- `node v6/tests/high-timeframe-target-history-responsiveness-budget-decision-step312-smoke.js`
+- `node v6/tests/high-timeframe-target-history-browser-phase-timing-closeout-step314-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a browser phase-timing smoke for `8h`, `1D`, and `1W`
+  target-history records.
+- Records now include observed `fetchMs`, `chartDataReplacementMs`,
+  `viewportReapplyMs`, `applyLagMs`, and `visualLatencyMs`.
+- Extended records feed the Step 313 runtime optimization probe.
+- The browser smoke uses wide timing thresholds to verify record shape and
+  probe compatibility without creating a machine-dependent performance gate.
+- No runtime target-history, chart-history, chart-engine, replay, shell,
+  journal, order-ticket, prop-firm, indicator, or seconds behavior changed.
 
 ### Step 313 - High-Timeframe Target-History Bounded Runtime Optimization Probe
 
