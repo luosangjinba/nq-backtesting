@@ -4,10 +4,12 @@ import { readFile } from 'node:fs/promises';
 const pack = await readFile('v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js', 'utf8');
 const successSmoke = await readFile('v6/tests/target-history-diagnostics-readout-browser-step291-smoke.js', 'utf8');
 const fallbackSmoke = await readFile('v6/tests/target-history-diagnostics-readout-fallback-browser-step292-smoke.js', 'utf8');
+const dailySmoke = await readFile('v6/tests/daily-target-history-request-sizing-browser-step298-smoke.js', 'utf8');
 
 const requiredMembers = [
   'target-history-diagnostics-readout-browser-step291-smoke.js',
   'target-history-diagnostics-readout-fallback-browser-step292-smoke.js',
+  'daily-target-history-request-sizing-browser-step298-smoke.js',
 ];
 
 for (const member of requiredMembers) {
@@ -26,5 +28,8 @@ assert.match(successSmoke, /Fallback reason: none/);
 assert.match(fallbackSmoke, /v6TargetHistoryDiagnosticsFallbackReason/);
 assert.match(fallbackSmoke, /target-history-empty/);
 assert.match(fallbackSmoke, /target-history-fallback-source-window/);
+assert.match(dailySmoke, /targetFetch\.tf, '1D'/);
+assert.match(dailySmoke, /session-aware-policy-sized/);
+assert.match(dailySmoke, /restoredSourceBarCount/);
 
 console.log('v6 target history diagnostics readout regression pack step293 static smoke passed');
