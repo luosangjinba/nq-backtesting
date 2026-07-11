@@ -98,6 +98,9 @@
   Diagnostics Readout Fallback Browser Regression. V6 now has real browser
   coverage for the readout fallback path when target-history returns empty and
   chart-history continues through the source-window path.
+- Latest completed target-TF readout pack step: Step 293 - Target-History
+  Diagnostics Readout Regression Pack. V6 now has one compact browser pack that
+  runs target-history diagnostics readout success and fallback paths together.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -133,7 +136,7 @@
 
 ## Next Executable Steps
 
-### Step 293 - Target-History Diagnostics Readout Regression Pack
+### Step 294 - Target-History Optimization Re-selection
 
 Status: proposed.
 
@@ -141,15 +144,17 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 291 success coverage:
-  `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_BROWSER_STEP291.md`;
-- use Step 292 fallback coverage:
-  `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_FALLBACK_BROWSER_STEP292.md`;
-- consolidate target-history diagnostics readout browser coverage into a small
-  regression pack or the existing timeframe/replay foundation runner;
-- keep success and fallback paths runnable together before future target-history
-  optimization work;
-- keep the pack focused on shell consumption of chart-history events;
+- use Step 293 regression pack:
+  `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_REGRESSION_PACK_STEP293.md`;
+- use the Step 289 decision helper:
+  `v6/src/chart-history/target-history-optimization-decision.js`;
+- re-select the next target-history optimization slice now that success and
+  fallback diagnostics readout browser paths are packaged;
+- choose between activation policy tuning, source-window fallback hardening, or
+  target-history request sizing based on diagnostics and current browser pack
+  coverage;
+- keep this as a decision/audit step unless the evidence clearly points to one
+  tiny implementation change;
 - keep target bars loaded through `BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW`, not
   direct API calls;
 - preserve source bars so high-TF-to-`1m` round trips still work;
@@ -159,15 +164,36 @@ Notes for execution:
 
 Acceptance:
 
-- one command covers both target-history diagnostics readout success and
-  fallback browser paths;
+- next target-history optimization slice is selected and documented;
+- decision cites the Step 293 regression pack as the safety net;
 - shell code still consumes runtime state/events and does not call target APIs;
-- readout remains small and removable; no broad settings/control surface is
-  added;
+- no broad settings/control surface is added;
 - source-bar preservation and TF round-trip behavior remain covered;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 293 - Target-History Diagnostics Readout Regression Pack
+
+Completed in this target-history diagnostics readout pack commit series.
+
+Verification:
+
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added
+  `v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`.
+- Added static membership coverage in
+  `v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`.
+- The pack runs the Step291 success browser smoke and Step292 fallback browser
+  smoke sequentially.
+- The pack is test orchestration only and does not change chart-history,
+  bar-data, chart-data, replay, chart-engine, viewport, journal, order-ticket,
+  prop-firm, indicator, or seconds behavior.
 
 ### Step 292 - Target-History Diagnostics Readout Fallback Browser Regression
 

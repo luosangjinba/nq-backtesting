@@ -290,6 +290,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_FALLBACK_BROWSER_STEP292.md`:
   accepted real browser coverage for the target-history diagnostics readout
   fallback path.
+- `v6/docs/V6_TARGET_HISTORY_DIAGNOSTICS_READOUT_REGRESSION_PACK_STEP293.md`:
+  accepted the compact target-history diagnostics readout browser regression
+  pack.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
