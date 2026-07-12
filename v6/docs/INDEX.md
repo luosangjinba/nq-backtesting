@@ -634,6 +634,11 @@ Read this index before working on V6.
   Step 276 foundation pack and Step 377 reduced-delay guard, identified replay
   gap browser pack runtime cost as the weakest current signal, and selected
   Replay Gap Regression Pack Cost Audit as the next slice.
+- `v6/docs/V6_REPLAY_GAP_REGRESSION_PACK_COST_AUDIT_STEP382.md`: accepted
+  replay-gap browser pack cost audit, attributing Step 274 runtime cost to
+  browser harness shape plus manual-step scenario size while preserving replay
+  gap assertions and selecting Replay Gap Manual Path Timing Probe as the next
+  measurement-only slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

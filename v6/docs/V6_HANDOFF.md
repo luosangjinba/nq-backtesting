@@ -9,9 +9,15 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 381 closeout
-- Latest completed step: Step 381 - Chart Foundation Regression Refresh
+- Worktree at handoff: clean after Step 382 closeout
+- Latest completed step: Step 382 - Replay Gap Regression Pack Cost Audit
 - Recent relevant commits:
+  - Step 382 audited the Step 274 replay-gap browser pack cost concentration.
+    The likely cost owner is browser harness shape plus manual-step scenario
+    size: serial child-process member execution, fresh page setup per case,
+    long `15:34 -> 18:00` Manual Next loops, and HTF projection assertions in
+    the three manual HTF cases. Step 383 should add a measurement-only manual
+    path timing probe before any runner split or cost-control change.
   - Step 381 refreshed the chart-foundation regression picture after Step 380.
     `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
     passed `8/8` in `105292ms`, and the Step 377 reduced-delay guard passed
@@ -412,8 +418,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 382:
-   replay gap regression pack cost audit.
+4. If continuing planned work, start with Step 383:
+   replay gap manual path timing probe.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -483,6 +489,7 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
 - `node v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`
 - `node v6/tests/chart-foundation-regression-refresh-step381-static-smoke.js`
+- `node v6/tests/replay-gap-regression-pack-cost-audit-step382-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -497,13 +504,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 382 - Replay Gap Regression Pack Cost Audit.
-- Inspect the Step 274 replay-gap pack cost concentration from Step 381,
-  especially `htf-manual-next-replay-gap-browser-step273-smoke.js` at
-  `50161ms` and `manual-next-session-gap-browser-step258-smoke.js` at
-  `27270ms`; identify whether the cost is wait budgets, repeated browser
-  setup, replay-session setup, or avoidable polling before proposing a bounded
-  runner split or cost-control plan.
+- Recommended next action is Step 383 - Replay Gap Manual Path Timing Probe.
+- Add harness-only timing around low-TF and HTF manual replay-gap browser paths
+  to separate page setup, session/apply, timeframe apply, Manual Next loop,
+  assertion/readout, and cleanup cost before changing Step 274 or Step 276
+  runner membership.
 
 ## Current State
 

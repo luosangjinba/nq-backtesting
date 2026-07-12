@@ -585,6 +585,11 @@
   Step 377 reduced-delay guard; all refreshed coverage passed, and the next
   bounded slice is replay-gap browser pack runtime cost because Step 274
   consumed `90350ms` inside the `105292ms` foundation pack run.
+- Latest completed replay-gap cost audit step: Step 382 - Replay Gap Regression
+  Pack Cost Audit. V6 attributed the Step 274 runtime concentration to browser
+  harness shape plus manual-step scenario size: serial child-process member
+  execution, fresh page setup per case, long `15:34 -> 18:00` Manual Next loops,
+  and HTF projection work in the three manual HTF cases.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -620,24 +625,26 @@
 
 ## Next Executable Steps
 
-### Step 382 - Replay Gap Regression Pack Cost Audit
+### Step 383 - Replay Gap Manual Path Timing Probe
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 381 closeout:
-  `v6/docs/V6_CHART_FOUNDATION_REGRESSION_REFRESH_STEP381.md`;
-- inspect the Step 274 replay-gap browser pack membership and harness setup;
-- explain why `replay-gap-browser-regression-pack-step274-smoke.js` consumed
-  `90350ms` inside the Step 276 foundation refresh;
-- focus first on `htf-manual-next-replay-gap-browser-step273-smoke.js`
-  (`50161ms`) and `manual-next-session-gap-browser-step258-smoke.js`
-  (`27270ms`);
-- identify whether cost comes from intentional wait budgets, repeated browser
-  setup, replay-session data setup, or avoidable polling;
-- propose a bounded cost-control plan or runner split without weakening
-  manual-next, auto-play, or HTF gap assertions;
+- use Step 382 closeout:
+  `v6/docs/V6_REPLAY_GAP_REGRESSION_PACK_COST_AUDIT_STEP382.md`;
+- add harness-only timing probes for the manual replay-gap browser paths;
+- measure low-TF manual gap cases from
+  `manual-next-session-gap-browser-step258-smoke.js`;
+- measure HTF manual gap cases from
+  `htf-manual-next-replay-gap-browser-step273-smoke.js` /
+  `helpers/htf-replay-gap-browser-fixture.js`;
+- report per-case page setup, session creation/apply, timeframe apply,
+  manual-loop duration, Manual Next count, assertion/readout, and cleanup
+  timing where practical;
+- leave Step 274 pack membership unchanged;
+- leave Step 276 foundation pack membership unchanged;
+- do not optimize or split the runner until timing proves the owner;
 - keep `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
   usable as the broad confirmation command;
 - do not modify `v6/src/app.js`;
@@ -666,7 +673,7 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the replay-gap cost audit and next-slice
+- add static closeout coverage for the manual-path timing probe and next-slice
   decision;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
@@ -674,11 +681,12 @@ Notes for execution:
 
 Acceptance:
 
-- audit documents Step 274 member runtimes from the Step 381 refresh;
-- audit identifies the likely cost owner or explicitly states what remains
-  unknown;
-- audit proposes a bounded cost-control plan or runner split;
-- audit does not weaken existing manual-next, auto-play, or HTF replay-gap
+- timing probe reports phase timing for low-TF manual and HTF manual replay-gap
+  cases;
+- probe records Manual Next counts and separates setup/apply from manual-loop
+  time where practical;
+- Step 274 and Step 276 pack membership remain unchanged;
+- probe does not weaken existing manual-next, auto-play, or HTF replay-gap
   assertions;
 - selected next slice remains chart-foundation work and does not return to the
   narrow HTF leftward latency chain unless a concrete uncovered regression is
@@ -729,6 +737,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 382 - Replay Gap Regression Pack Cost Audit
+
+Completed in this replay-gap regression pack cost audit commit series.
+
+Verification:
+
+- `node v6/tests/replay-gap-regression-pack-cost-audit-step382-static-smoke.js`
+- `node v6/tests/chart-foundation-regression-refresh-step381-static-smoke.js`
+- `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Audited the Step 274 replay-gap browser pack cost concentration from the Step
+  381 refresh.
+- Identified the likely cost owner as browser harness shape plus manual-step
+  scenario size, not production replay behavior.
+- Cost contributors are serial child-process member execution, fresh page setup
+  per case, long `15:34 -> 18:00` Manual Next loops, and HTF projection
+  assertions in the three manual HTF cases.
+- Preserved all existing manual-next, auto-play, low-TF, and HTF replay-gap
+  assertions.
+- Selected Step 383 - Replay Gap Manual Path Timing Probe as a measurement-only
+  next slice before any runner split or cost-control change.
+- Did not modify runtime behavior, `v6/src/app.js`, command surfaces, replay
+  cursor movement, no-bar gap skipping, chart viewport, chart engine, or the
+  Step 362 runtime skeleton.
 
 ### Step 381 - Chart Foundation Regression Refresh
 
