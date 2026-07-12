@@ -347,6 +347,17 @@ try {
   assert.equal(value.initial.barCount > 0, true);
   assert.deepEqual(value.records.map((record) => record.label), ['4h', '8h', '1D', '1W']);
 
+  console.log(JSON.stringify({
+    records: value.records.map((record) => ({
+      bottleneckHint: record.bottleneckHint,
+      label: record.label,
+      phaseBreakdown: record.phaseBreakdown,
+      targetFetchBars: record.targetFetches[0]?.bars ?? null,
+      targetFetchTf: record.targetFetches[0]?.tf ?? null,
+    })),
+    step: 367,
+  }, null, 2));
+
   value.records.forEach((record) => {
     assert.equal(record.browserVisible, true);
     assert.equal(record.path, 'target-history');

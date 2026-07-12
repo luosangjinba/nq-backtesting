@@ -558,6 +558,12 @@ Read this index before working on V6.
   `handoff-registration` for the Step 365 app-registration browser smoke while
   preserving the default eight-member pack and selecting HTF leftward-extension
   performance measurement as the next slice.
+- `v6/docs/V6_HTF_LEFTWARD_EXTENSION_PERFORMANCE_AFTER_HANDOFF_STEP367.md`:
+  accepted measurement-only HTF leftward-extension browser coverage for `4h`,
+  `8h`, `1D`, and `1W` after handoff runtime registration, separating source
+  request, target request, chart-data replacement, viewport reapply, visible
+  apply lag, browser paint lag, and runtime duration before selecting the next
+  optimization owner.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

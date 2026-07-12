@@ -9,10 +9,15 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 366 closeout
-- Latest completed step: Step 366 - Replay Coordination Materialization
-  Runtime Handoff Pack Member
+- Worktree at handoff: clean after Step 367 closeout
+- Latest completed step: Step 367 - HTF Leftward Extension Performance
+  Measurement After Runtime Handoff
 - Recent relevant commits:
+  - Step 367 added measurement-only HTF leftward-extension browser coverage
+    for `4h`, `8h`, `1D`, and `1W` after handoff runtime registration,
+    separating source request, target request, chart-data replacement,
+    viewport reapply, visible apply lag, browser paint lag, visual latency,
+    and runtime duration while leaving runtime behavior unchanged.
   - Step 366 added optional target-history diagnostics pack member
     `handoff-registration` for the Step 365 app-registration browser smoke,
     preserving the default eight-member pack and existing optional members
@@ -316,8 +321,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 367:
-   HTF leftward extension performance measurement after runtime handoff.
+4. If continuing planned work, start with Step 368:
+   HTF leftward extension bottleneck owner selection after handoff measurement.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -356,6 +361,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-closeout-step365-static-smoke.js`
 - `node v6/tests/target-history-pack-handoff-registration-member-step366-static-smoke.js`
 - `node v6/tests/replay-coordination-materialization-runtime-handoff-pack-member-closeout-step366-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-performance-after-handoff-step367-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-performance-after-handoff-browser-step367-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -370,12 +377,10 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 367 - HTF Leftward Extension Performance
-  Measurement After Runtime Handoff.
-- Measure `4h`, `8h`, `1D`, and `1W` leftward extension after the handoff
-  runtime registration and identify whether remaining latency sits in
-  source/target request, chart-data replacement, viewport reapply, or browser
-  paint.
+- Recommended next action is Step 368 - HTF Leftward Extension Bottleneck
+  Owner Selection After Handoff Measurement.
+- Consume the Step 367 phase summary for `4h`, `8h`, `1D`, and `1W`, then
+  select the smallest optimization owner before changing runtime behavior.
 
 ## Current State
 

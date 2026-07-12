@@ -21,18 +21,10 @@ assert.match(
 assert.match(index, /handoff-registration/);
 assert.match(index, /HTF leftward-extension\s+performance measurement as the next slice/);
 
-assert.match(
-  todo,
-  /Latest completed replay coordination materialization runtime handoff pack\s+member step:\s+Step 366/,
-);
-assert.match(todo, /### Step 367 - HTF Leftward Extension Performance Measurement After Runtime Handoff/);
 assert.match(todo, /### Step 366 - Replay Coordination Materialization Runtime Handoff Pack Member/);
 assert.match(todo, /handoff-registration/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 366 closeout/);
-assert.match(handoff, /Latest completed step: Step 366 - Replay Coordination Materialization\s+Runtime Handoff Pack Member/);
 assert.match(handoff, /Step 366 added optional target-history diagnostics pack member/);
-assert.match(handoff, /start with Step 367/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /handoff-registration/);

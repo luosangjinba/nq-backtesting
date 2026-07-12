@@ -500,6 +500,12 @@
   smoke as optional target-history diagnostics pack member
   `handoff-registration`, preserving the default eight-member pack and the
   existing optional members.
+- Latest completed HTF leftward extension performance measurement step:
+  Step 367 - HTF Leftward Extension Performance Measurement After Runtime
+  Handoff. V6 now has measurement-only browser coverage for `4h`, `8h`, `1D`,
+  and `1W` after handoff runtime registration, separating source request,
+  target request, chart-data replacement, viewport reapply, visible apply lag,
+  browser paint lag, and runtime duration without changing runtime behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -535,7 +541,7 @@
 
 ## Next Executable Steps
 
-### Step 367 - HTF Leftward Extension Performance Measurement After Runtime Handoff
+### Step 368 - HTF Leftward Extension Bottleneck Owner Selection After Handoff Measurement
 
 Status: proposed.
 
@@ -543,20 +549,16 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 366 closeout:
-  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_HANDOFF_PACK_MEMBER_STEP366.md`;
-- return to the HTF leftward-extension performance thread after the replay
-  coordination materialization runtime handoff is registered;
-- add focused browser measurement for `4h`, `8h`, `1D`, and `1W` leftward
-  extension;
-- measure source request, target request, chart-data replacement, viewport
-  reapply, and browser-visible apply lag separately where existing diagnostics
-  allow it;
-- identify whether remaining perceived slowness is request sizing, sequential
-  target/source loading, chart-data replacement cost, viewport reapply, or
-  browser paint lag;
-- keep this step measurement-only unless the bottleneck is already proven by
-  existing code evidence;
+- use Step 367 closeout:
+  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_PERFORMANCE_AFTER_HANDOFF_STEP367.md`;
+- consume the Step 367 browser phase summary for `4h`, `8h`, `1D`, and `1W`;
+- select the smallest next optimization owner from request sizing/target load,
+  chart-data replacement, viewport reapply, visible apply lag, browser paint,
+  or trigger coordination;
+- keep this step planning/selection-first unless the Step 367 output makes one
+  bottleneck unambiguous;
+- if the selected owner is not explicit, add a narrower measurement/audit slice
+  instead of changing runtime behavior;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -583,18 +585,19 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the measurement harness and selected next
-  owner;
+- add static closeout coverage for the selected next owner and any deferred
+  owner candidates;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- focused HTF leftward-extension browser measurement exists for `4h`, `8h`,
-  `1D`, and `1W`;
-- output separates source/target request, chart-data replacement, viewport
-  reapply, and visible apply lag enough to choose the next optimization owner;
+- Step 367 phase summary is documented or summarized enough to justify the
+  next owner;
+- one next owner is selected, or a narrower follow-up measurement is selected
+  with a clear reason;
+- rejected owners are listed with the measured reason they are deferred;
 - default target-history diagnostics pack membership remains unchanged;
 - optional members `replay-coordination`, `readout-producer-flow`, and
   `handoff-registration` remain unchanged;
@@ -626,6 +629,29 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 367 - HTF Leftward Extension Performance Measurement After Runtime Handoff
+
+Completed in this HTF leftward-extension performance measurement commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-leftward-extension-performance-after-handoff-step367-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-performance-after-handoff-browser-step367-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added focused browser measurement for `4h`, `8h`, `1D`, and `1W`.
+- The measurement separates source request, target request, chart-data
+  replacement, viewport reapply, visible apply lag, browser paint lag, visual
+  latency, and runtime duration.
+- The browser smoke prints a concise Step 367 phase summary for the four TFs.
+- Preserved default and optional target-history diagnostics pack membership.
+- Did not modify runtime behavior, command surfaces, `v6/src/app.js`, shell
+  readout code, or the Step 362 runtime skeleton.
 
 ### Step 366 - Replay Coordination Materialization Runtime Handoff Pack Member
 
