@@ -377,6 +377,13 @@
   Play flows update diagnostics snapshots readable through `getSnapshot`,
   without visible UI, producer runtime changes, target loading, replay cursor,
   chart-data, or viewport behavior changes.
+- Latest completed target materialization diagnostics readout owner step: Step
+  348 - Target Materialization Replay Diagnostics Readout Owner Plan. V6 now
+  has a plan-only `shell.pane-status-readout` developer-collapsed pane-local
+  diagnostics readout owner, first visible fields, internal-only fields,
+  hide/collapse rules, and command/event-only consumption boundary without
+  visible UI, producer runtime changes, target loading, replay cursor,
+  chart-data, viewport, request sizing, or fast-path behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -412,7 +419,7 @@
 
 ## Next Executable Steps
 
-### Step 348 - Target Materialization Replay Diagnostics Readout Owner Plan
+### Step 349 - Target Materialization Replay Diagnostics Readout View Model
 
 Status: proposed.
 
@@ -420,18 +427,19 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 347 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_BROWSER_READ_STEP347.md`;
-- define the diagnostics readout owner and visibility plan before visible UI;
-- decide whether the first visible readout belongs in pane status, footer
-  diagnostics, or a developer-only collapsed readout;
-- select the first fields to show and the fields to keep internal;
-- define hide/collapse rules so diagnostics do not clutter normal replay use;
+- use Step 348 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_OWNER_PLAN_STEP348.md`;
+- build a pure readout view-model or draft model before DOM UI wiring;
+- map diagnostics snapshots into hidden, collapsed, and visible row states;
+- format only the Step 348 first visible fields for a collapsed developer
+  readout;
+- keep Step 348 internal-only fields hidden from the first visible model;
+- keep `shell.pane-status-readout` as the future owner boundary;
 - do not modify Display-Timeframe, Manual Next, or Auto Play runtimes;
 - do not dispatch `updateSnapshot` from producer runtimes;
-- keep shell consumption as command/event snapshot reading only;
-- do not wire visible UI yet unless this step explicitly remains a plan-only
-  owner contract;
+- keep shell consumption as command/event snapshot reading only when the future
+  shell UI consumes the model;
+- do not wire visible DOM UI yet;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -448,12 +456,14 @@ Notes for execution:
 
 Acceptance:
 
-- readout owner and visibility policy are documented;
-- first visible fields and internal-only fields are listed;
-- shell readout command/event consumption is specified without target API access;
+- pure view-model maps empty, normal, target-history-active, and fallback
+  snapshots into stable hidden/collapsed/visible states;
+- first visible fields are formatted from snapshot data without exposing
+  internal-only fields;
+- shell readout consumption remains command/event snapshot reading without
+  direct target API calls;
 - producer runtimes remain unchanged and do not import diagnostics commands;
-- shell consumption path remains command/event snapshot reading without direct
-  target API calls;
+- no DOM UI is wired yet;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -462,6 +472,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 348 - Target Materialization Replay Diagnostics Readout Owner Plan
+
+Completed in this target materialization replay diagnostics readout owner plan
+commit series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-readout-owner-plan-step348-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-owner-boundary-step348-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-owner-closeout-step348-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-browser-read-boundary-step347-static-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Selected `shell.pane-status-readout` as the readout owner.
+- Selected `developer-collapsed-pane-status-readout` as the first placement.
+- Listed first visible fields and internal-only fields.
+- Defined hide/collapse rules for normal replay, target-history active state,
+  fallback state, pane locality, snapshot readiness, and workflow conflicts.
+- Kept shell consumption to `getSnapshot` and `snapshotReady`.
+- Did not wire visible UI or change producer runtimes.
+- Kept target-bar loading, replay cursor movement, chart-data writes, viewport
+  intent, target-history request sizing, and chart-history fast-path behavior
+  unchanged.
 
 ### Step 347 - Target Materialization Replay Diagnostics Browser Read Coverage
 

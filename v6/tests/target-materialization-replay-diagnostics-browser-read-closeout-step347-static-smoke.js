@@ -10,10 +10,8 @@ const boundarySmoke = await readFile('v6/tests/target-materialization-replay-dia
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_BROWSER_READ_STEP347\.md/);
 assert.match(todo, /Latest completed target materialization diagnostics browser read step: Step\s+347/);
-assert.match(todo, /### Step 348 - Target Materialization Replay Diagnostics Readout Owner Plan/);
-assert.match(todo, /do not wire visible UI yet unless this step explicitly remains a plan-only\s+owner contract/);
-assert.match(handoff, /Latest completed step: Step 347 - Target Materialization Replay Diagnostics\s+Browser Read Coverage/);
-assert.match(handoff, /start with Step 348/);
+assert.match(todo, /### Step 347 - Target Materialization Replay Diagnostics Browser Read Coverage/);
+assert.match(handoff, /Step 347 added browser\/runtime-read coverage/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /Display-Timeframe Runtime applies `8h` target materialization/);

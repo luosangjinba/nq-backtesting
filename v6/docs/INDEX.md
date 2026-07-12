@@ -465,6 +465,11 @@ Read this index before working on V6.
   accepted browser/runtime-read coverage proving Display-Timeframe, Manual
   Next, and Auto Play flows update diagnostics snapshots readable through
   `getSnapshot`, without visible UI changes.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_OWNER_PLAN_STEP348.md`:
+  accepted the `shell.pane-status-readout` developer-collapsed pane-local
+  diagnostics readout owner plan, first visible fields, internal-only fields,
+  hide/collapse rules, and command/event-only consumption boundary without
+  visible UI wiring.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

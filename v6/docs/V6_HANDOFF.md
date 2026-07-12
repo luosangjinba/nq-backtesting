@@ -9,10 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 347 closeout
-- Latest completed step: Step 347 - Target Materialization Replay Diagnostics
-  Browser Read Coverage
+- Worktree at handoff: clean after Step 348 closeout
+- Latest completed step: Step 348 - Target Materialization Replay Diagnostics
+  Readout Owner Plan
 - Recent relevant commits:
+  - Step 348 selected `shell.pane-status-readout` as the
+    developer-collapsed pane-local diagnostics readout owner, listed first
+    visible/internal-only fields, defined hide/collapse rules, and kept visible
+    UI unwired.
   - Step 347 added browser/runtime-read coverage proving Display-Timeframe,
     Manual Next, and Auto Play flows update diagnostics snapshots readable
     through `getSnapshot`, without visible UI changes.
@@ -132,7 +136,10 @@ Read this block first after restarting the server or assistant context.
   loading, chart-data writes, viewport behavior, and request sizing changes.
   Step 347 proves that the browser can read diagnostics snapshots after display
   materialization, manual next, and autoplay flows, still without visible UI
-  changes.
+  changes. Step 348 defines the first readout owner and visibility plan as a
+  plan-only `shell.pane-status-readout` developer-collapsed pane-local readout,
+  still without visible UI, producer runtime, target loading, replay cursor,
+  chart-data, viewport, request sizing, or fast-path behavior changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -173,8 +180,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 348:
-   target materialization replay diagnostics readout owner plan.
+4. If continuing planned work, start with Step 349:
+   target materialization replay diagnostics readout view model.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
