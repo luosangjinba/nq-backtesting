@@ -341,6 +341,11 @@
   Target Materialization Replay Coordination Diagnostics Readout Owner
   Contract. V6 now defines read-only diagnostic fields, owner participants, shell
   consumption rules, and forbidden actions before runtime state wiring.
+- Latest completed target materialization diagnostics runtime step: Step 342 -
+  Target Materialization Replay Diagnostics Runtime State Surface. V6 now has a
+  read-only diagnostics runtime snapshot surface, `getSnapshot` command,
+  `snapshotReady` event, and app registration without visible UI, target loading,
+  replay cursor, chart-data, or viewport behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -376,7 +381,7 @@
 
 ## Next Executable Steps
 
-### Step 342 - Target Materialization Replay Diagnostics Runtime State Surface
+### Step 343 - Target Materialization Replay Diagnostics Runtime Wiring Plan
 
 Status: proposed.
 
@@ -384,13 +389,15 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 341 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_CONTRACT_STEP341.md`;
-- implement the smallest diagnostics runtime state surface behind the accepted
-  contract;
-- expose a read-only diagnostic snapshot command or event path;
+- use Step 342 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_RUNTIME_STEP342.md`;
+- define the minimal wiring plan for feeding the diagnostics runtime from
+  existing Display-Timeframe, Manual Next, and Auto Play runtime events;
+- keep the plan explicit about which runtime owns each diagnostic field update;
+- do not implement live runtime handoff until the command/event sequence and
+  rollback criteria are documented;
 - keep shell consumption as command/event snapshot reading only;
-- do not wire visible UI unless the runtime state surface is already stable;
+- do not wire visible UI yet;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -400,24 +407,51 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add runtime/static closeout coverage for the diagnostics state surface;
+- add pure/static closeout coverage for the diagnostics wiring plan;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- diagnostics runtime state surface is read-only and command/event owned;
-- accepted read-only fields can be represented in a snapshot;
-- shell consumption path remains documented without direct target API calls;
+- diagnostics runtime wiring plan names the producer/consumer sequence for each
+  existing owner runtime;
+- update command/event direction is documented before implementation;
+- shell consumption path remains command/event snapshot reading without direct
+  target API calls;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
 - the full eight-member target-history browser pack remains available and green;
-- shell code still consumes runtime state/events and does not call target APIs;
+- shell code remains unchanged and does not call target APIs;
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 342 - Target Materialization Replay Diagnostics Runtime State Surface
+
+Completed in this target materialization replay diagnostics runtime commit
+series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-runtime-step342-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-runtime-boundary-step342-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-contract-step341-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added the read-only diagnostics runtime state surface.
+- Registered `targetMaterializationReplayDiagnostics.getSnapshot` and
+  `targetMaterializationReplayDiagnostics:snapshotReady`.
+- Cloned snapshot payloads before returning or emitting them.
+- Kept visible UI, target-bar loading, replay cursor movement, chart-data
+  writes, viewport intent, target-history request sizing, and chart-history
+  fast-path behavior unchanged.
 
 ### Step 341 - Target Materialization Replay Coordination Diagnostics Readout Owner Contract
 

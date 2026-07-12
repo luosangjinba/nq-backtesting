@@ -10,10 +10,10 @@ const smoke = await readFile('v6/tests/target-materialization-replay-diagnostics
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-boundary-step341-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_CONTRACT_STEP341\.md/);
-assert.match(todo, /Latest completed target materialization diagnostics contract step: Step 341/);
-assert.match(todo, /### Step 342 - Target Materialization Replay Diagnostics Runtime State Surface/);
-assert.match(handoff, /Latest completed step: Step 341 - Target Materialization Replay Coordination\s+Diagnostics Readout Owner Contract/);
-assert.match(handoff, /start with Step 342/);
+assert.match(todo, /### Step 341 - Target Materialization Replay Coordination Diagnostics Readout Owner Contract/);
+assert.match(todo, /Added the read-only diagnostics\/readout owner contract/);
+assert.match(handoff, /Step 341 defined the read-only diagnostics\/readout owner contract/);
+assert.match(handoff, /Step 341 defines that read-only contract/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /target-materialization-replay-diagnostics-contract/);
