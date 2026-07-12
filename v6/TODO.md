@@ -524,6 +524,11 @@
   `1D`, and `1W`, showing the first wheel attempt triggers target fetch
   quickly while the remaining observed window needs low-overhead runtime
   milestone attribution before optimization.
+- Latest completed HTF drag-triggered low-overhead milestone step: Step 371 -
+  HTF Drag-Triggered Low-Overhead Runtime Milestone Attribution. V6 now has
+  low-overhead real wheel-triggered milestone attribution for `4h`, `8h`,
+  `1D`, and `1W`, identifying `inputToTargetFetchStartMs` around the existing
+  `requestDelayMs=500` scheduling window as the dominant remaining delay.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -559,7 +564,7 @@
 
 ## Next Executable Steps
 
-### Step 371 - HTF Drag-Triggered Low-Overhead Runtime Milestone Attribution
+### Step 372 - HTF Target-History Request Scheduling Policy Selection
 
 Status: proposed.
 
@@ -567,20 +572,16 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 370 closeout:
-  `v6/docs/V6_HTF_DRAG_TRIGGERED_LEFTWARD_EXTENSION_INTERACTION_STEP370.md`;
-- implement low-overhead drag-triggered runtime milestone attribution as a
-  browser/harness-only slice;
-- keep real CDP wheel input on `4h`, `8h`, `1D`, and `1W`;
-- do not sample canvas inside target fetch, chart-data, viewport, or
-  left-extension markers;
-- measure target-fetch-ended, chart-data-applied, viewport-projected,
-  left-extension-loaded, and diagnostics-readout-visible with low-overhead
-  timestamps;
-- optionally sample canvas only after timing-critical markers are recorded;
-- preserve `4h`, `8h`, `1D`, and `1W` coverage;
-- keep this step measurement-only unless the low-overhead attribution proves a
-  concrete bottleneck;
+- use Step 371 closeout:
+  `v6/docs/V6_HTF_DRAG_TRIGGERED_LOW_OVERHEAD_RUNTIME_MILESTONES_STEP371.md`;
+- select a bounded HTF target-history request scheduling policy before any
+  runtime behavior change;
+- compare keeping native drag/wheel at `requestDelayMs=500`, reducing the HTF
+  target-history delay, or applying the existing high-timeframe fast path only
+  after a zero-delay surface check;
+- preserve low-TF/native drag stability and existing sticky-drag protections;
+- keep this step planning/selection-only unless the safest policy is already
+  unambiguous and rollback gates are explicit;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -607,21 +608,22 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the low-overhead milestone attribution
-  harness and selected next action;
+- add static closeout coverage for the selected request scheduling policy and
+  rollback gates;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser/harness measurement exists for low-overhead drag-triggered runtime
-  milestones on `4h`, `8h`, `1D`, and `1W`;
-- output separates target-fetch-ended, chart-data-applied, viewport-projected,
-  left-extension-loaded, diagnostics-readout-visible, and optional post-marker
-  canvas observation enough to choose the next owner;
-- runtime behavior remains unchanged unless a concrete paint bottleneck is
-  proven and explicitly scoped;
+- a request scheduling policy is selected or a narrower follow-up measurement
+  is selected with a clear reason;
+- selected policy and rejected alternatives are documented with measured
+  reasons from Step 371;
+- rollback gates preserve low-TF/native drag stability and sticky-drag
+  protections;
+- runtime behavior remains unchanged unless a concrete scheduling change is
+  explicitly scoped;
 - default target-history diagnostics pack membership remains unchanged;
 - optional members `replay-coordination`, `readout-producer-flow`, and
   `handoff-registration` remain unchanged;
@@ -653,6 +655,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 371 - HTF Drag-Triggered Low-Overhead Runtime Milestone Attribution
+
+Completed in this HTF drag-triggered low-overhead runtime milestone attribution
+commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-browser-step371-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-boundary-step371-static-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-leftward-extension-interaction-boundary-step370-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added low-overhead real CDP wheel milestone attribution for `4h`, `8h`,
+  `1D`, and `1W`.
+- The observed run identified `inputToTargetFetchStartMs` around
+  `460-536ms`, matching the existing `requestDelayMs=500` scheduling window.
+- Target fetch, fetch-to-chart-data, and left-extension-to-readout were low.
+- Source requests stayed zero on the target-history path.
+- Selected HTF target-history request scheduling policy selection as Step 372.
+- Preserved default and optional target-history diagnostics pack membership.
+- Did not modify runtime behavior, command surfaces, `v6/src/app.js`, shell
+  readout code, or the Step 362 runtime skeleton.
 
 ### Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement
 

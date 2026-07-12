@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
-const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile(
   'v6/docs/V6_HTF_DRAG_TRIGGERED_LEFTWARD_EXTENSION_INTERACTION_STEP370.md',
   'utf8',
@@ -20,17 +19,7 @@ const boundarySmoke = await readFile(
 assert.match(index, /V6_HTF_DRAG_TRIGGERED_LEFTWARD_EXTENSION_INTERACTION_STEP370\.md/);
 assert.match(index, /low-overhead runtime milestone attribution/);
 
-assert.match(
-  todo,
-  /Latest completed HTF drag-triggered leftward extension measurement step:\s+Step 370/,
-);
-assert.match(todo, /### Step 371 - HTF Drag-Triggered Low-Overhead Runtime Milestone Attribution/);
 assert.match(todo, /### Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement/);
-
-assert.match(handoff, /Worktree at handoff: clean after Step 370 closeout/);
-assert.match(handoff, /Latest completed step: Step 370 - HTF Drag-Triggered Leftward Extension\s+Interaction Measurement/);
-assert.match(handoff, /start with Step 371/);
-assert.match(handoff, /Recommended next action is Step 371/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /inputAttemptIndex/);

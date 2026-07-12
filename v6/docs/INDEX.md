@@ -580,6 +580,11 @@ Read this index before working on V6.
   interaction measurement for `4h`, `8h`, `1D`, and `1W`, showing the first
   wheel attempt triggers target fetch quickly while the remaining observed
   window needs low-overhead runtime milestone attribution before optimization.
+- `v6/docs/V6_HTF_DRAG_TRIGGERED_LOW_OVERHEAD_RUNTIME_MILESTONES_STEP371.md`:
+  accepted low-overhead real wheel-triggered runtime milestone attribution for
+  `4h`, `8h`, `1D`, and `1W`, identifying `inputToTargetFetchStartMs` around
+  the existing `requestDelayMs=500` scheduling window as the dominant remaining
+  delay and selecting request scheduling policy selection as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
