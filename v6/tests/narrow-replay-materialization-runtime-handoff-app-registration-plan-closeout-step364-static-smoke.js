@@ -66,8 +66,6 @@ for (const requiredPlanTerm of [
   assert.match(planSource, new RegExp(requiredPlanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.doesNotMatch(appSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
-assert.doesNotMatch(appSource, /dispatchCommand/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
 

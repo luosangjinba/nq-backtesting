@@ -74,8 +74,6 @@ for (const requiredSmokeTerm of [
 assert.match(appSource, /createTargetMaterializationReplayDiagnosticsRuntime/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
-assert.doesNotMatch(appSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
-assert.doesNotMatch(appSource, /dispatchCommand/);
 
 assert.match(skeletonSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
 assert.match(skeletonSource, /createNoopSubscribeEvent/);

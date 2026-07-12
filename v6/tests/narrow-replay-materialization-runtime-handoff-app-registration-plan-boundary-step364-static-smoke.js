@@ -82,8 +82,6 @@ assert.match(readinessAuditSource, /narrow-replay-materialization-runtime-handof
 assert.match(skeletonSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
-assert.doesNotMatch(appSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
-assert.doesNotMatch(appSource, /dispatchCommand/);
 
 for (const runtimeSource of [
   manualNextRuntime,

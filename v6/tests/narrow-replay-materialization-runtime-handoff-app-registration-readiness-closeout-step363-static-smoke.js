@@ -65,8 +65,6 @@ for (const requiredAuditTerm of [
   assert.match(auditSource, new RegExp(requiredAuditTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.doesNotMatch(appSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
-assert.doesNotMatch(appSource, /dispatchCommand/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
 assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
 

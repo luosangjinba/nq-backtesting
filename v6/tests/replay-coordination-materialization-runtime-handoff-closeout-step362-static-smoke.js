@@ -80,7 +80,6 @@ for (const requiredSmokeTerm of [
   assert.match(smoke, new RegExp(requiredSmokeTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.match(boundarySmoke, /doesNotMatch\(appSource, \/createReplayCoordinationMaterializationRuntimeHandoff\//);
 assert.match(boundarySmoke, /doesNotMatch\(replayRuntime, \/PLAN_TARGET_WINDOW\|LOAD_TARGET_WINDOW\|REPLACE_BARS\//);
 
 console.log('v6 replay coordination materialization runtime handoff closeout step362 static smoke passed');

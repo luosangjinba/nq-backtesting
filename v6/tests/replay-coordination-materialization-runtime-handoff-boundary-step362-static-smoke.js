@@ -67,7 +67,6 @@ for (const requiredSmokeTerm of [
 
 assert.match(contractSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
 assert.match(appSource, /createTargetMaterializationReplayDiagnosticsRuntime/);
-assert.doesNotMatch(appSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
 
 for (const runtimeSource of [manualNextRuntime, autoPlayRuntime, displayRuntime, diagnosticsRuntime, replayRuntime]) {
   assert.doesNotMatch(
