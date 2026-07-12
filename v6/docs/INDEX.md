@@ -521,6 +521,11 @@ Read this index before working on V6.
   replay materialization runtime handoff, identifying app registration, event
   subscription, command dispatch wrapper, rollback surfaces, and runtime plan
   as the next slice.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_RUNTIME_PLAN_STEP360.md`:
+  accepted the plan-only future runtime implementation shape for the narrow
+  replay materialization handoff, defining lifecycle, subscription cleanup,
+  dispatch wrapper order, executor invocation, rollback gates, and runtime
+  contract as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

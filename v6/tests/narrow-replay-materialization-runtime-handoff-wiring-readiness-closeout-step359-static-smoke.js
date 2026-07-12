@@ -26,15 +26,11 @@ assert.match(index, /audit-only live wiring readiness decision/);
 assert.match(index, /runtime plan\s+as the next slice/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff wiring readiness step:\s+Step 359/);
-assert.match(todo, /### Step 360 - Narrow Replay Materialization Runtime Handoff Runtime Plan/);
 assert.match(todo, /### Step 359 - Narrow Replay Materialization Runtime Handoff Wiring Readiness Audit/);
 assert.match(todo, /Identified `v6\/src\/app\.js` runtime registry before lifecycle start/);
 assert.match(todo, /Identified `chartEntryManualNext:advanced` subscription/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 359 closeout/);
-assert.match(handoff, /Latest completed step: Step 359 - Narrow Replay Materialization Runtime\s+Handoff Wiring Readiness Audit/);
 assert.match(handoff, /Step 359 added the pure wiring readiness audit/);
-assert.match(handoff, /start with Step 360/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /runtime\.replay-coordination-materialization-handoff/);
