@@ -9,10 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 353 closeout
-- Latest completed step: Step 353 - Target Materialization Replay Diagnostics
-  Readout Producer Flow Pack Member
+- Worktree at handoff: clean after Step 354 closeout
+- Latest completed step: Step 354 - Target Materialization Replay Diagnostics
+  Readout Pack Combination Verification
 - Recent relevant commits:
+  - Step 354 verified optional target-history diagnostics pack combination
+    `replay-coordination,readout-producer-flow`, confirming Step 337 then Step
+    352 browser smoke execution order while keeping the default pack and
+    standalone optional members unchanged.
   - Step 353 added optional target-history diagnostics regression pack member
     `readout-producer-flow` for the Step 352 producer-flow readout browser
     smoke while keeping the default eight-member pack and existing
@@ -175,6 +179,9 @@ Read this block first after restarting the server or assistant context.
   changes. Step 353 exposes that producer-flow readout browser coverage as
   optional target-history pack member `readout-producer-flow`, keeping the
   default pack and existing `replay-coordination` optional member unchanged.
+  Step 354 verifies the combined optional pack path
+  `replay-coordination,readout-producer-flow`, confirming Step 337 then Step
+  352 execution order without runtime behavior changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -215,9 +222,9 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 354:
-   target materialization replay diagnostics readout pack combination
-   verification.
+4. If continuing planned work, start with Step 355:
+   target materialization diagnostics readout chain closeout and next-slice
+   selection.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;

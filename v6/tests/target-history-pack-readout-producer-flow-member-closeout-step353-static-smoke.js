@@ -14,13 +14,10 @@ assert.match(index, /V6_TARGET_HISTORY_PACK_READOUT_PRODUCER_FLOW_MEMBER_STEP353
 assert.match(index, /`readout-producer-flow`/);
 
 assert.match(todo, /Latest completed target-history pack readout producer-flow member step:\s+Step 353/);
-assert.match(todo, /### Step 354 - Target Materialization Replay Diagnostics Readout Pack Combination Verification/);
 assert.match(todo, /### Step 353 - Target Materialization Replay Diagnostics Readout Producer Flow Pack Member/);
 assert.match(todo, /Added optional target-history pack member `readout-producer-flow`/);
 
-assert.match(handoff, /Latest completed step: Step 353 - Target Materialization Replay Diagnostics\s+Readout Producer Flow Pack Member/);
 assert.match(handoff, /Step 353 added optional target-history diagnostics regression pack member\s+`readout-producer-flow`/);
-assert.match(handoff, /start with Step 354/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /`readout-producer-flow`/);
