@@ -1,0 +1,136 @@
+import {
+  BAR_DATA_COMMANDS,
+  CHART_DATA_COMMANDS,
+  CHART_ENTRY_MANUAL_NEXT_EVENTS,
+  PANE_COMMANDS,
+  REPLAY_COMMANDS,
+} from '../contracts/app-contracts.js';
+import { executeNarrowReplayMaterializationRuntimeHandoffPlan } from './narrow-replay-materialization-runtime-handoff-executor.js';
+
+const RUNTIME_ID = 'runtime.replay-coordination-materialization-handoff';
+
+function createMissingDispatchCommand() {
+  return async (name) => {
+    throw new Error(`Replay coordination materialization handoff dispatch dependency missing for ${name}.`);
+  };
+}
+
+function createNoopSubscribeEvent() {
+  return () => () => {};
+}
+
+function normalizeDependencies(dependencies = {}) {
+  return {
+    dispatchCommand: typeof dependencies.dispatchCommand === 'function'
+      ? dependencies.dispatchCommand
+      : createMissingDispatchCommand(),
+    executor: typeof dependencies.executor === 'function'
+      ? dependencies.executor
+      : executeNarrowReplayMaterializationRuntimeHandoffPlan,
+    subscribeEvent: typeof dependencies.subscribeEvent === 'function'
+      ? dependencies.subscribeEvent
+      : createNoopSubscribeEvent(),
+  };
+}
+
+export async function collectReplayCoordinationMaterializationRuntimeHandoffCommandResults({
+  dispatchCommand,
+  event = {},
+} = {}) {
+  if (typeof dispatchCommand !== 'function') {
+    throw new Error('Replay coordination materialization handoff dispatchCommand dependency is required.');
+  }
+  const paneId = event.paneId ?? event.id ?? 'main';
+  const paneContext = await dispatchCommand(PANE_COMMANDS.GET_BY_ID, { paneId });
+  const replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE, { paneId });
+  const sourceBars = await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId });
+  const targetWindowPlan = await dispatchCommand(BAR_DATA_COMMANDS.PLAN_TARGET_WINDOW, {
+    displayTimeframe: paneContext?.displayTimeframe,
+    instrument: paneContext?.instrument,
+    paneId,
+    replayCursorTimestamp: replayState?.cursorTimestamp ?? replayState?.cursorTime ?? event.replayCursorTimestamp,
+    targetHistoryWindow: paneContext?.targetHistoryWindow,
+  });
+  const targetWindowLoad = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW, targetWindowPlan);
+
+  return Object.freeze({
+    paneContext,
+    replayState,
+    sourceBars,
+    targetWindowLoad,
+    targetWindowPlan,
+  });
+}
+
+export async function buildReplayCoordinationMaterializationRuntimeHandoffResult({
+  commandResults = null,
+  dispatchCommand,
+  event = {},
+  executor = executeNarrowReplayMaterializationRuntimeHandoffPlan,
+} = {}) {
+  const resolvedCommandResults = commandResults || await collectReplayCoordinationMaterializationRuntimeHandoffCommandResults({
+    dispatchCommand,
+    event,
+  });
+  const result = executor({
+    commandResults: resolvedCommandResults,
+    event,
+  });
+  if (result?.replaceIntent) {
+    await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, result.replaceIntent);
+  }
+  return result;
+}
+
+export function createReplayCoordinationMaterializationRuntimeHandoff(dependencies = {}) {
+  const resolvedDependencies = normalizeDependencies(dependencies);
+  const cleanupCallbacks = [];
+  let lastResult = null;
+  let started = false;
+
+  async function handleManualNextAdvanced(event = {}) {
+    lastResult = await buildReplayCoordinationMaterializationRuntimeHandoffResult({
+      dispatchCommand: resolvedDependencies.dispatchCommand,
+      event,
+      executor: resolvedDependencies.executor,
+    });
+    return lastResult;
+  }
+
+  function start() {
+    if (started) return;
+    started = true;
+    cleanupCallbacks.push(
+      resolvedDependencies.subscribeEvent(
+        CHART_ENTRY_MANUAL_NEXT_EVENTS.ADVANCED,
+        (event) => handleManualNextAdvanced(event),
+      ),
+    );
+  }
+
+  function stop() {
+    while (cleanupCallbacks.length) {
+      const cleanup = cleanupCallbacks.pop();
+      if (typeof cleanup === 'function') {
+        cleanup();
+      }
+    }
+    started = false;
+    lastResult = null;
+  }
+
+  function getState() {
+    return {
+      id: RUNTIME_ID,
+      lastResult,
+      started,
+    };
+  }
+
+  return {
+    getState,
+    id: RUNTIME_ID,
+    start,
+    stop,
+  };
+}
