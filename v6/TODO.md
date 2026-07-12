@@ -600,6 +600,11 @@
   browser fixture starting from `2026-06-01T16:58:00.000Z`, preserving
   `1m`/`5m`/`15m` and `1D`/`1W`/`1M` gap assertions while keeping Step 274 and
   Step 276 membership unchanged.
+- Latest completed replay-gap near-gap fixture browser step: Step 385 - Replay
+  Gap Near-Gap Manual Fixture Browser Probe. The standalone browser command
+  passed for `1m`/`5m`/`15m` and `1D`/`1W`/`1M`, proving
+  `16:58 -> 16:59 -> 18:00 -> 18:01` with `2` pre-gap Manual Next calls while
+  keeping Step 274 and Step 276 membership unchanged.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -635,26 +640,25 @@
 
 ## Next Executable Steps
 
-### Step 385 - Replay Gap Near-Gap Manual Fixture Browser Probe
+### Step 386 - Replay Gap Fast Pack Integration Selection
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 384 closeout:
-  `v6/docs/V6_REPLAY_GAP_NEAR_GAP_MANUAL_FIXTURE_PLAN_STEP384.md`;
-- implement standalone command
+- use Step 385 closeout:
+  `v6/docs/V6_REPLAY_GAP_NEAR_GAP_MANUAL_FIXTURE_STEP385.md`;
+- decide how the proven near-gap fixture should participate in replay-gap
+  regression strategy:
+  - keep it standalone;
+  - add it as a fast pack member while preserving one long-path source case;
+  - split Step 274 into fast and full commands;
+- inspect existing Step 274 and Step 276 pack wiring before choosing;
+- keep standalone command
   `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`;
-- create a near-gap manual browser fixture starting at `2026-06-01T16:50`,
-  then setting replay cursor to `2026-06-01T16:58:00.000Z`;
-- cover low-TF `1m`/`5m`/`15m` and HTF `1D`/`1W`/`1M` replay-gap assertions;
-- assert Manual Next path `16:58 -> 16:59 -> 18:00 -> 18:01`;
-- report Manual Next count and verify it is near `2`, not `86`, before the
-  final post-gap next;
 - keep at least one long-path manual source assertion available for confidence;
-- leave Step 274 pack membership unchanged;
-- leave Step 276 foundation pack membership unchanged;
-- do not optimize or split the runner in this implementation step;
+- do not change Step 274 or Step 276 membership in the selection step unless
+  the chosen output explicitly scopes that implementation;
 - keep `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
   usable as the broad confirmation command;
 - do not modify `v6/src/app.js`;
@@ -683,21 +687,22 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the near-gap fixture probe and next-slice
-  decision;
+- add static closeout coverage for the pack-integration selection and next
+  executable step;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- standalone near-gap fixture browser command passes;
-- low-TF and HTF near-gap cases assert `16:58 -> 16:59 -> 18:00 -> 18:01`;
-- fixture reports Manual Next count near `2`, not `86`, before final post-gap
-  next;
-- Step 274 and Step 276 pack membership remain unchanged;
-- probe does not weaken existing manual-next, auto-play, or HTF replay-gap
-  assertions;
+- pack strategy decision is documented with a clear recommended next
+  implementation slice;
+- one long-path manual source assertion remains preserved in the strategy;
+- the Step 385 standalone near-gap fixture remains directly runnable;
+- Step 274 and Step 276 pack membership remain unchanged unless the step
+  explicitly implements the selected wiring;
+- existing manual-next, auto-play, and HTF replay-gap assertions are not
+  weakened;
 - selected next slice remains chart-foundation work and does not return to the
   narrow HTF leftward latency chain unless a concrete uncovered regression is
   identified;
@@ -747,6 +752,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 385 - Replay Gap Near-Gap Manual Fixture Browser Probe
+
+Completed in this replay-gap near-gap manual fixture browser commit series.
+
+Verification:
+
+- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-static-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-plan-step384-static-smoke.js`
+- `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added standalone command
+  `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`.
+- Covered low-TF `1m`/`5m`/`15m` and HTF `1D`/`1W`/`1M`.
+- Proved the path `16:58 -> 16:59 -> 18:00 -> 18:01` in all six cases.
+- Reduced the pre-gap Manual Next count from the long-path `86` loop to `2`
+  before the final post-gap next.
+- Kept Step 274 and Step 276 pack membership unchanged.
+- Did not modify runtime behavior, `v6/src/app.js`, command surfaces, replay
+  cursor movement, no-bar gap skipping, chart viewport, chart engine, or the
+  Step 362 runtime skeleton.
+- Selected Step 386 - Replay Gap Fast Pack Integration Selection as the next
+  bounded chart-foundation slice.
 
 ### Step 384 - Replay Gap Near-Gap Manual Fixture Plan
 

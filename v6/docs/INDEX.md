@@ -648,6 +648,10 @@ Read this index before working on V6.
   `2026-06-01T16:58:00.000Z`, preserving low-TF and HTF gap assertions while
   keeping Step 274 and Step 276 membership unchanged and selecting the browser
   probe as the next slice.
+- `v6/docs/V6_REPLAY_GAP_NEAR_GAP_MANUAL_FIXTURE_STEP385.md`: accepted
+  standalone near-gap manual browser fixture proving the six low-TF/HTF
+  replay-gap paths with `2` pre-gap Manual Next calls while keeping Step 274
+  and Step 276 membership unchanged.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
