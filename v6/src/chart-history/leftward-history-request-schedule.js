@@ -19,12 +19,17 @@ function shouldRequest(visibleRange = {}) {
 }
 
 export function resolveLeftwardHistoryRequestSchedule({
+  nativeTargetHistoryDelayMs = null,
   reason = 'native-visible-range',
   requestDelayMs = 500,
   targetHistoryEnabled = false,
   visibleRange = null,
 } = {}) {
   const delayMs = normalizedDelay(requestDelayMs);
+  const targetHistoryNativeDelayMs = nativeTargetHistoryDelayMs === null
+    || nativeTargetHistoryDelayMs === undefined
+    ? delayMs
+    : normalizedDelay(nativeTargetHistoryDelayMs);
   if (!shouldRequest(visibleRange)) {
     return {
       delayMs: null,
@@ -39,6 +44,19 @@ export function resolveLeftwardHistoryRequestSchedule({
       delayMs: 0,
       mode: 'programmatic-target-history-fast-path',
       reason: 'programmatic-target-history-runtime-event',
+      shouldDispatch: true,
+    };
+  }
+
+  if (reason === 'native-visible-range' && targetHistoryEnabled === true) {
+    return {
+      delayMs: targetHistoryNativeDelayMs,
+      mode: targetHistoryNativeDelayMs === delayMs
+        ? 'delayed'
+        : 'native-target-history-reduced-delay',
+      reason: targetHistoryNativeDelayMs === delayMs
+        ? 'native-visible-range'
+        : 'native-target-history-reduced-delay-with-coalescing',
       shouldDispatch: true,
     };
   }

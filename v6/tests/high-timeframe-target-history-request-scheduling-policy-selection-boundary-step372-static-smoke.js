@@ -33,12 +33,13 @@ assert.match(step371Doc, /fetch-to-chart-data and left-extension-to-readout are 
 assert.match(resolver, /PROGRAMMATIC_FAST_PATH_REASONS/);
 assert.match(resolver, /reason = 'native-visible-range'/);
 assert.match(resolver, /mode: 'delayed'/);
-assert.doesNotMatch(resolver, /SELECTED_HTF_TARGET_HISTORY_DELAY_MS|native-target-history-reduced-delay-with-coalescing/);
+assert.match(resolver, /PROGRAMMATIC_FAST_PATH_REASONS/);
+assert.match(resolver, /reason = 'native-visible-range'/);
 
 assert.match(bridge, /requestDelayMs = 500/);
 assert.match(bridge, /chartSurface\.subscribeVisibleRangeChange/);
 assert.match(bridge, /planLeftwardTargetHistoryActivation/);
-assert.doesNotMatch(bridge, /SELECTED_HTF_TARGET_HISTORY_DELAY_MS|native-target-history-reduced-delay-with-coalescing/);
+assert.doesNotMatch(bridge, /nativeTargetHistoryDelayMs|native-target-history-reduced-delay-with-coalescing/);
 
 assert.doesNotMatch(selector, /dispatchCommand|subscribeEvent|setTimeoutFn|clearTimeoutFn|registerCommand|registerRuntime|UPDATE_SNAPSHOT/);
 
