@@ -40,7 +40,7 @@ for (const fullMember of [
 
 assert.match(step276Pack, /replay-gap-browser-regression-pack-step274-smoke\.js/);
 assert.equal(step274Pack.includes('replay-gap-fast-browser-regression-pack-step387'), false);
-assert.equal(step276Pack.includes('replay-gap-fast-browser-regression-pack-step387'), false);
+assert.match(step276Pack, /replay-gap-fast-browser-regression-pack-step387-smoke\.js/);
 assert.equal(app.includes('replay-gap-fast-browser-regression-pack-step387'), false);
 assert.equal(app.includes('Step 387'), false);
 

@@ -26,8 +26,8 @@ assert.match(step387Doc, /\[replay-gap-fast-browser-pack\] passed 3\/3 in 24532m
 assert.match(step387Doc, /Step 276 remains unchanged/);
 
 assert.match(step276Pack, /replay-gap-browser-regression-pack-step274-smoke\.js/);
-assert.equal(step276Pack.includes('FOUNDATION_REPLAY_GAP_MODE'), false);
-assert.equal(step276Pack.includes('replay-gap-fast-browser-regression-pack-step387'), false);
+assert.match(step276Pack, /FOUNDATION_REPLAY_GAP_MODE/);
+assert.match(step276Pack, /replay-gap-fast-browser-regression-pack-step387-smoke\.js/);
 
 for (const fullMember of [
   'manual-next-session-gap-browser-step258-smoke.js',

@@ -1,7 +1,7 @@
 import { spawn } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 
-const TESTS = Object.freeze([
+const BASE_TESTS = Object.freeze([
   'v6/tests/display-timeframe-browser-smoke.js',
   'v6/tests/timeframe-menu-parity-browser-smoke.js',
   'v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js',
@@ -9,7 +9,29 @@ const TESTS = Object.freeze([
   'v6/tests/daily-projection-browser-step268-smoke.js',
   'v6/tests/weekly-projection-browser-step269-smoke.js',
   'v6/tests/monthly-projection-browser-step270-smoke.js',
-  'v6/tests/replay-gap-browser-regression-pack-step274-smoke.js',
+]);
+
+const REPLAY_GAP_MEMBERS = Object.freeze({
+  fast: 'v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js',
+  full: 'v6/tests/replay-gap-browser-regression-pack-step274-smoke.js',
+});
+
+function resolveReplayGapMember() {
+  const mode = process.env.FOUNDATION_REPLAY_GAP_MODE || 'fast';
+  const member = REPLAY_GAP_MEMBERS[mode];
+  if (!member) {
+    console.error(
+      `[timeframe-replay-foundation-pack] invalid FOUNDATION_REPLAY_GAP_MODE="${mode}"; expected "fast" or "full"`,
+    );
+    process.exit(1);
+  }
+  console.log(`[timeframe-replay-foundation-pack] replay-gap mode ${mode}: ${member}`);
+  return member;
+}
+
+const TESTS = Object.freeze([
+  ...BASE_TESTS,
+  resolveReplayGapMember(),
 ]);
 
 function runTest(script) {
