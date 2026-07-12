@@ -639,6 +639,10 @@ Read this index before working on V6.
   browser harness shape plus manual-step scenario size while preserving replay
   gap assertions and selecting Replay Gap Manual Path Timing Probe as the next
   measurement-only slice.
+- `v6/docs/V6_REPLAY_GAP_MANUAL_PATH_TIMING_PROBE_STEP383.md`: accepted
+  harness-only timing probe for low-TF and HTF manual replay-gap paths,
+  confirming the Manual Next loop dominates cost and selecting Replay Gap
+  Near-Gap Manual Fixture Plan as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

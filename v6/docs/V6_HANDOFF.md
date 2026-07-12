@@ -9,9 +9,15 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 382 closeout
-- Latest completed step: Step 382 - Replay Gap Regression Pack Cost Audit
+- Worktree at handoff: clean after Step 383 closeout
+- Latest completed step: Step 383 - Replay Gap Manual Path Timing Probe
 - Recent relevant commits:
+  - Step 383 added a harness-only browser timing probe for the low-TF and HTF
+    manual replay-gap paths. All six cases used `86` Manual Next calls; the
+    Manual Next loop was the dominant cost, with low-TF loops around
+    `4.4-5.0s`, `1D` at `9083.7ms`, `1W` at `17361.9ms`, and `1M` at
+    `14931.7ms`. Step 384 should plan a near-gap manual fixture before changing
+    Step 274 or Step 276 membership.
   - Step 382 audited the Step 274 replay-gap browser pack cost concentration.
     The likely cost owner is browser harness shape plus manual-step scenario
     size: serial child-process member execution, fresh page setup per case,
@@ -418,8 +424,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 383:
-   replay gap manual path timing probe.
+4. If continuing planned work, start with Step 384:
+   replay gap near-gap manual fixture plan.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -490,6 +496,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`
 - `node v6/tests/chart-foundation-regression-refresh-step381-static-smoke.js`
 - `node v6/tests/replay-gap-regression-pack-cost-audit-step382-static-smoke.js`
+- `node v6/tests/replay-gap-manual-path-timing-probe-step383-smoke.js`
+- `node v6/tests/replay-gap-manual-path-timing-probe-step383-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -504,11 +512,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 383 - Replay Gap Manual Path Timing Probe.
-- Add harness-only timing around low-TF and HTF manual replay-gap browser paths
-  to separate page setup, session/apply, timeframe apply, Manual Next loop,
-  assertion/readout, and cleanup cost before changing Step 274 or Step 276
-  runner membership.
+- Recommended next action is Step 384 - Replay Gap Near-Gap Manual Fixture
+  Plan.
+- Design a near-gap manual fixture that starts close to
+  `2026-06-01T16:58:00.000Z`, preserves low-TF and HTF replay-gap assertions,
+  keeps at least one long-path manual source assertion available, and leaves
+  Step 274/Step 276 membership unchanged during planning.
 
 ## Current State
 
