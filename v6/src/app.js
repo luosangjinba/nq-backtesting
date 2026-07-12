@@ -1,6 +1,7 @@
 import { renderAppShell } from './shell/app-shell.js';
 import { createAppRuntime } from './runtime/app-runtime.js';
 import { createRuntimeRegistry } from './runtime/lifecycle.js';
+import { dispatchCommand } from './runtime/commands.js';
 import { emitEvent, subscribeEvent } from './runtime/events.js';
 import { createBarDataRuntime } from './bar-data/bar-data-runtime.js';
 import { createChartBoundaryMetadataRuntime } from './chart-boundary-metadata/chart-boundary-metadata-runtime.js';
@@ -45,6 +46,7 @@ import { createPaneIntentSyncRuntime } from './pane-intent-sync/pane-intent-sync
 import { createPaneRuntime } from './panes/pane-runtime.js';
 import { createPlaybackPeriodRuntime } from './playback-period/playback-period-runtime.js';
 import { createPersistenceRuntime } from './persistence/persistence-runtime.js';
+import { createReplayCoordinationMaterializationRuntimeHandoff } from './replay/replay-coordination-materialization-runtime-handoff.js';
 import { createReplayRuntime } from './replay/replay-runtime.js';
 import { createTargetMaterializationReplayDiagnosticsRuntime } from './replay/target-materialization-replay-diagnostics-runtime.js';
 import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
@@ -109,6 +111,7 @@ registry.registerRuntime(createChartEntryProjectionPreparationRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createChartEntryProjectionApplyRuntime());
 registry.registerRuntime(createChartEntryManualNextRuntime());
+registry.registerRuntime(createReplayCoordinationMaterializationRuntimeHandoff({ subscribeEvent, dispatchCommand }));
 registry.registerRuntime(createChartEntryManualPreviousRuntime());
 registry.registerRuntime(createChartEntryAutoPlayRuntime());
 registry.registerRuntime(createChartEntryRestartRuntime());
