@@ -662,6 +662,9 @@ Read this index before working on V6.
 - `v6/docs/V6_FOUNDATION_PACK_REPLAY_GAP_FAST_FULL_SELECTION_STEP388.md`:
   accepted Step 276 replay-gap fast/full mode selection with fast default and
   explicit full mode preserving the Step 274 path.
+- `v6/docs/V6_FOUNDATION_PACK_REPLAY_GAP_MODE_STEP389.md`: accepted Step 276
+  replay-gap fast/full mode implementation with default fast pack, explicit
+  full Step 274 mode, and invalid-mode fail-fast behavior.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
