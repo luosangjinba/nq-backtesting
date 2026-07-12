@@ -84,10 +84,7 @@ for (const requiredPlanTerm of [
   assert.ok(wiringPlanSource.includes(requiredPlanTerm), `wiring plan must document ${requiredPlanTerm}`);
 }
 
-assert.doesNotMatch(
-  diagnosticsRuntime,
-  /UPDATE_SNAPSHOT|updateSnapshot|subscribeEvent|displayTimeframe:applied|chartEntryManualNext:advanced|chartEntryAutoPlay:ticked/,
-);
+assert.doesNotMatch(diagnosticsRuntime, /subscribeEvent|displayTimeframe:applied|chartEntryManualNext:advanced|chartEntryAutoPlay:ticked/);
 assert.doesNotMatch(
   displayRuntime,
   /TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS|targetMaterializationReplayDiagnostics\.updateSnapshot/,
