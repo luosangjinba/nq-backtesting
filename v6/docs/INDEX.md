@@ -507,6 +507,10 @@ Read this index before working on V6.
   materialization runtime handoff, selecting new owner boundary
   `runtime.replay-coordination-materialization-handoff` and plan-only handoff
   sequencing next.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_PLAN_STEP357.md`:
+  accepted the plan-only narrow replay materialization runtime handoff
+  sequence, including the Manual Next advanced trigger, exact command order,
+  fallback gates, and pure executor harness as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

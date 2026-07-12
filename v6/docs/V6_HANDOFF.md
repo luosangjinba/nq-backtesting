@@ -9,10 +9,18 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 356 closeout
-- Latest completed step: Step 356 - Narrow Replay Materialization Runtime
-  Handoff Readiness Audit
+- Worktree at handoff: clean after Step 357 closeout
+- Latest completed step: Step 357 - Narrow Replay Materialization Runtime
+  Handoff Plan
 - Recent relevant commits:
+  - Step 357 added the plan-only narrow replay materialization runtime handoff
+    helper for future owner boundary
+    `runtime.replay-coordination-materialization-handoff`, defining
+    `chartEntryManualNext:advanced` as trigger, command order
+    `pane.getById`, `replay.getState`, `chartData.getSourceBars`,
+    `barData.planTargetWindow`, `barData.loadTargetWindow`, and
+    `chartData.replaceBars`, fallback gates, and forbidden surfaces without
+    runtime behavior changes.
   - Step 356 audited the narrow replay materialization runtime handoff
     surfaces, selected future owner boundary
     `runtime.replay-coordination-materialization-handoff`, selected a new
@@ -200,7 +208,9 @@ Read this block first after restarting the server or assistant context.
   selects `runtime.replay-coordination-materialization-handoff` as the future
   owner boundary, selects a new replay-coordination runtime helper, lists the
   exact event/command surfaces, keeps diagnostics read-only, and still avoids
-  runtime behavior changes.
+  runtime behavior changes. Step 357 defines the plan-only trigger, command
+  sequence, fallback gates, and forbidden surfaces for that future helper, still
+  without runtime behavior changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -241,8 +251,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 357:
-   narrow replay materialization runtime handoff plan.
+4. If continuing planned work, start with Step 358:
+   narrow replay materialization runtime handoff pure executor harness.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -253,6 +263,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-step356-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-boundary-step356-static-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-closeout-step356-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-step357-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-boundary-step357-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-closeout-step357-static-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -265,11 +278,10 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 357 - Narrow Replay Materialization Runtime
-  Handoff Plan.
-- Keep Step 357 plan-only: define the future event/command sequence and
-  fallback gates for `runtime.replay-coordination-materialization-handoff`
-  before any runtime wiring.
+- Recommended next action is Step 358 - Narrow Replay Materialization Runtime
+  Handoff Pure Executor Harness.
+- Keep Step 358 pure: evaluate the Step 357 sequence and fallback gates from
+  injected command results before any runtime wiring.
 
 ## Current State
 

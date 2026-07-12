@@ -25,16 +25,12 @@ assert.match(index, /V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_READINESS_
 assert.match(index, /runtime\.replay-coordination-materialization-handoff/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff readiness step:\s+Step\s+356/);
-assert.match(todo, /### Step 357 - Narrow Replay Materialization Runtime Handoff Plan/);
 assert.match(todo, /### Step 356 - Narrow Replay Materialization Runtime Handoff Readiness Audit/);
 assert.match(todo, /Selected future owner boundary\s+`runtime\.replay-coordination-materialization-handoff`/);
 assert.match(todo, /Listed `chartEntryManualNext:advanced` as the future primary trigger/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 356 closeout/);
-assert.match(handoff, /Latest completed step: Step 356 - Narrow Replay Materialization Runtime\s+Handoff Readiness Audit/);
 assert.match(handoff, /Step 356 audited the narrow replay materialization runtime handoff\s+surfaces/);
 assert.match(handoff, /selected future owner boundary\s+`runtime\.replay-coordination-materialization-handoff`/);
-assert.match(handoff, /start with Step 357/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /runtime\.replay-coordination-materialization-handoff/);
