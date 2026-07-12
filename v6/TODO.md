@@ -518,6 +518,12 @@
   `1D`, and `1W`, showing chart signatures already changed by
   `viewport-projected` and selecting real drag-triggered HTF leftward-extension
   interaction measurement as the next slice.
+- Latest completed HTF drag-triggered leftward extension measurement step:
+  Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement. V6
+  now has browser/harness-only real CDP wheel measurement for `4h`, `8h`,
+  `1D`, and `1W`, showing the first wheel attempt triggers target fetch
+  quickly while the remaining observed window needs low-overhead runtime
+  milestone attribution before optimization.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -553,7 +559,7 @@
 
 ## Next Executable Steps
 
-### Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement
+### Step 371 - HTF Drag-Triggered Low-Overhead Runtime Milestone Attribution
 
 Status: proposed.
 
@@ -561,15 +567,19 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 369 closeout:
-  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_REAL_CHART_PAINT_VISIBILITY_STEP369.md`;
-- implement real drag/wheel-triggered HTF leftward-extension interaction
-  measurement as a browser/harness-only slice;
-- distinguish user input to trigger latency from target/source request latency,
-  chart-data replacement, viewport reapply, real chart paint, and harness
-  observation cost;
+- use Step 370 closeout:
+  `v6/docs/V6_HTF_DRAG_TRIGGERED_LEFTWARD_EXTENSION_INTERACTION_STEP370.md`;
+- implement low-overhead drag-triggered runtime milestone attribution as a
+  browser/harness-only slice;
+- keep real CDP wheel input on `4h`, `8h`, `1D`, and `1W`;
+- do not sample canvas inside target fetch, chart-data, viewport, or
+  left-extension markers;
+- measure target-fetch-ended, chart-data-applied, viewport-projected,
+  left-extension-loaded, and diagnostics-readout-visible with low-overhead
+  timestamps;
+- optionally sample canvas only after timing-critical markers are recorded;
 - preserve `4h`, `8h`, `1D`, and `1W` coverage;
-- keep this step measurement-only unless the interaction harness proves a
+- keep this step measurement-only unless the low-overhead attribution proves a
   concrete bottleneck;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
@@ -597,7 +607,7 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the drag-triggered interaction measurement
+- add static closeout coverage for the low-overhead milestone attribution
   harness and selected next action;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
@@ -605,11 +615,11 @@ Notes for execution:
 
 Acceptance:
 
-- browser/harness measurement exists for drag-triggered leftward extension on
-  `4h`, `8h`, `1D`, and `1W`;
-- output separates user input to trigger latency, target/source request
-  latency, chart-data replacement, viewport reapply, real chart paint, and
-  harness observation cost enough to choose the next owner;
+- browser/harness measurement exists for low-overhead drag-triggered runtime
+  milestones on `4h`, `8h`, `1D`, and `1W`;
+- output separates target-fetch-ended, chart-data-applied, viewport-projected,
+  left-extension-loaded, diagnostics-readout-visible, and optional post-marker
+  canvas observation enough to choose the next owner;
 - runtime behavior remains unchanged unless a concrete paint bottleneck is
   proven and explicitly scoped;
 - default target-history diagnostics pack membership remains unchanged;
@@ -643,6 +653,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement
+
+Completed in this HTF drag-triggered leftward-extension interaction measurement
+commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-drag-triggered-leftward-extension-interaction-browser-step370-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-leftward-extension-interaction-boundary-step370-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-boundary-step369-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser/harness-only real CDP wheel measurement for `4h`, `8h`, `1D`,
+  and `1W`.
+- The observed run showed `inputAttemptIndex: 0` and `inputDeltaX: -960` for
+  all four TFs, so the first wheel attempt triggered target-history loading.
+- Target fetch started quickly after input and target request duration was
+  effectively zero in the mocked harness.
+- Source requests stayed zero and chart-data replacement was not the measured
+  cost.
+- The remaining observed window needs low-overhead milestone attribution
+  because Step 370 canvas sampling can contaminate viewport/paint buckets.
+- Preserved default and optional target-history diagnostics pack membership.
+- Did not modify runtime behavior, command surfaces, `v6/src/app.js`, shell
+  readout code, or the Step 362 runtime skeleton.
 
 ### Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement
 

@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
-const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile(
   'v6/docs/V6_HTF_LEFTWARD_EXTENSION_REAL_CHART_PAINT_VISIBILITY_STEP369.md',
   'utf8',
@@ -24,13 +23,7 @@ assert.match(
   todo,
   /Latest completed HTF leftward extension real chart paint visibility step:\s+Step 369/,
 );
-assert.match(todo, /### Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement/);
 assert.match(todo, /### Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement/);
-
-assert.match(handoff, /Worktree at handoff: clean after Step 369 closeout/);
-assert.match(handoff, /Latest completed step: Step 369 - HTF Leftward Extension Real Chart Paint\s+Visibility Measurement/);
-assert.match(handoff, /start with Step 370/);
-assert.match(handoff, /Recommended next action is Step 370/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /first paint stage/);

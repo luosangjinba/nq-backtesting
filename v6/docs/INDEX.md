@@ -575,6 +575,11 @@ Read this index before working on V6.
   `viewport-projected` while the large window came from harness canvas sampling,
   and selected drag-triggered HTF leftward-extension interaction measurement as
   the next slice.
+- `v6/docs/V6_HTF_DRAG_TRIGGERED_LEFTWARD_EXTENSION_INTERACTION_STEP370.md`:
+  accepted browser/harness-only real wheel-triggered HTF leftward-extension
+  interaction measurement for `4h`, `8h`, `1D`, and `1W`, showing the first
+  wheel attempt triggers target fetch quickly while the remaining observed
+  window needs low-overhead runtime milestone attribution before optimization.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

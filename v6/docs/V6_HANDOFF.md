@@ -9,10 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 369 closeout
-- Latest completed step: Step 369 - HTF Leftward Extension Real Chart Paint
-  Visibility Measurement
+- Worktree at handoff: clean after Step 370 closeout
+- Latest completed step: Step 370 - HTF Drag-Triggered Leftward Extension
+  Interaction Measurement
 - Recent relevant commits:
+  - Step 370 added browser/harness-only real CDP wheel measurement for `4h`,
+    `8h`, `1D`, and `1W`. The first wheel attempt triggered target-history
+    loading quickly for all four TFs, target request duration was effectively
+    zero in the mocked harness, and source requests stayed zero. The remaining
+    observed window needs low-overhead milestone attribution because canvas
+    sampling can contaminate viewport/paint buckets.
   - Step 369 added browser/harness-only real chart paint visibility
     measurement for `4h`, `8h`, `1D`, and `1W`. The observed run showed
     chart signatures already changed by `viewport-projected` with
@@ -332,8 +338,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 370:
-   HTF drag-triggered leftward extension interaction measurement.
+4. If continuing planned work, start with Step 371:
+   HTF drag-triggered low-overhead runtime milestone attribution.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -378,6 +384,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-boundary-step368-static-smoke.js`
 - `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-browser-step369-smoke.js`
 - `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-boundary-step369-static-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-leftward-extension-interaction-browser-step370-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-leftward-extension-interaction-boundary-step370-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -392,12 +400,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 370 - HTF Drag-Triggered Leftward Extension
-  Interaction Measurement.
-- Measure the real drag/wheel-triggered HTF leftward-extension path before
-  optimizing runtime code, because Step 367 and Step 369 only covered
-  programmatic target-history paths and did not show request/runtime/chart paint
-  bottlenecks.
+- Recommended next action is Step 371 - HTF Drag-Triggered Low-Overhead
+  Runtime Milestone Attribution.
+- Re-run the real CDP wheel path without canvas sampling inside timing-critical
+  markers, then decide whether the remaining delay belongs to request
+  scheduling, runtime event ordering, viewport projection, or measurement
+  overhead.
 
 ## Current State
 
