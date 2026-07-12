@@ -8,11 +8,13 @@ const smoke = await readFile(
 );
 const app = await readFile('v6/src/app.js', 'utf8');
 
-assert.match(bridge, /shouldPreserveNativeTargetHistoryPending/);
-assert.match(bridge, /pending\.schedule\.mode !== 'native-target-history-reduced-delay'/);
+assert.match(bridge, /isRuntimeTargetHistoryDelayedSchedule/);
 assert.match(bridge, /schedule\.mode !== 'delayed'/);
+assert.match(bridge, /!activationPayload\?\.targetHistory\?\.enabled/);
 assert.match(bridge, /schedule\.reason === 'runtime-surface-check'/);
 assert.match(bridge, /schedule\.reason === 'runtime-left-extension-loaded'/);
+assert.match(bridge, /shouldPreserveNativeTargetHistoryPending/);
+assert.match(bridge, /pending\?\.schedule\?\.mode === 'native-target-history-reduced-delay'/);
 assert.match(bridge, /phase: 'schedule-suppressed'/);
 assert.match(bridge, /pendingByPaneId\.set\(paneId, \{\s+activationPayload,\s+schedule,/);
 assert.match(bridge, /clearPending\(paneId\);\s+const delayMs = schedule\.delayMs/);
@@ -22,6 +24,7 @@ assert.match(smoke, /CHART_HISTORY_EVENTS\.LEFT_EXTENSION_LOADED/);
 assert.match(smoke, /CHART_VIEWPORT_EVENTS\.PROJECTED/);
 assert.match(smoke, /runtime-left-extension-loaded/);
 assert.match(smoke, /runtime-surface-check/);
+assert.match(smoke, /existingMode === null/);
 assert.match(smoke, /displayTimeframe: 5/);
 assert.match(smoke, /targetHistoryActivation: \{ enabled: false \}/);
 assert.match(smoke, /delayMs, 100/);

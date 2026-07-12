@@ -140,15 +140,17 @@ export function connectLeftwardHistoryInputBridge({
     return targetHistoryActivation.nativeTargetHistoryDelayMs ?? DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS;
   }
 
-  function shouldPreserveNativeTargetHistoryPending({ activationPayload = null, pending = null, schedule } = {}) {
-    if (!pending?.schedule || !schedule) return false;
-    if (pending.schedule.mode !== 'native-target-history-reduced-delay') return false;
+  function isRuntimeTargetHistoryDelayedSchedule({ activationPayload = null, schedule } = {}) {
+    if (!schedule) return false;
     if (schedule.mode !== 'delayed') return false;
-    if (!activationPayload?.targetHistory?.enabled || !pending.activationPayload?.targetHistory?.enabled) {
-      return false;
-    }
+    if (!activationPayload?.targetHistory?.enabled) return false;
     return schedule.reason === 'runtime-surface-check'
       || schedule.reason === 'runtime-left-extension-loaded';
+  }
+
+  function shouldPreserveNativeTargetHistoryPending({ pending = null } = {}) {
+    return pending?.schedule?.mode === 'native-target-history-reduced-delay'
+      && pending?.activationPayload?.targetHistory?.enabled;
   }
 
   function scheduleResolvedRequest({
@@ -159,7 +161,21 @@ export function connectLeftwardHistoryInputBridge({
   } = {}) {
     if (!active || !schedule.shouldDispatch) return;
     const pending = pendingByPaneId.get(paneId);
-    if (shouldPreserveNativeTargetHistoryPending({ activationPayload, pending, schedule })) {
+    if (isRuntimeTargetHistoryDelayedSchedule({ activationPayload, schedule })) {
+      if (!shouldPreserveNativeTargetHistoryPending({ pending })) {
+        if (pending) clearPending(paneId);
+        traceBridge({
+          existingDelayMs: pending?.schedule?.delayMs ?? null,
+          existingMode: pending?.schedule?.mode ?? null,
+          existingReason: pending?.schedule?.reason ?? null,
+          mode: schedule.mode,
+          paneId,
+          phase: 'schedule-suppressed',
+          reason: schedule.reason,
+          targetHistoryEnabled: true,
+        });
+        return;
+      }
       traceBridge({
         existingDelayMs: pending.schedule.delayMs,
         existingMode: pending.schedule.mode,

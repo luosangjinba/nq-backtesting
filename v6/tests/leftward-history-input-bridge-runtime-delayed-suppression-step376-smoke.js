@@ -136,6 +136,24 @@ try {
     true,
   );
 
+  traceRecords.length = 0;
+  const runtimeOnly = createHarness();
+  runtimeOnly.eventListeners.get(CHART_VIEWPORT_EVENTS.PROJECTED)({ paneId: 'main' });
+  assert.equal(runtimeOnly.timers.length, 1);
+  assert.equal(runtimeOnly.timers[0].delayMs, 0);
+  runtimeOnly.timers[0].callback();
+  await flushMicrotasks();
+  assert.equal(runtimeOnly.timers.length, 1);
+  assert.equal(runtimeOnly.clearRecords.length, 0);
+  assert.equal(
+    traceRecords.some((record) => (
+      record.phase === 'schedule-suppressed' &&
+      record.reason === 'runtime-surface-check' &&
+      record.existingMode === null
+    )),
+    true,
+  );
+
   const lowTf = createHarness({ displayTimeframe: 5 });
   lowTf.surface.emitVisibleRange({ from: -4, paneId: 'main', to: 30 });
   await flushMicrotasks();
