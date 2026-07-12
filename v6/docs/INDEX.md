@@ -629,6 +629,11 @@ Read this index before working on V6.
   from Steps 367-379, closed HTF target-history leftward-extension latency for
   now, listed the active standalone and pack-based reduced-delay guards, and
   selected chart-foundation regression refresh as the next slice.
+- `v6/docs/V6_CHART_FOUNDATION_REGRESSION_REFRESH_STEP381.md`: accepted
+  chart-foundation regression refresh after Step 380, recorded the passing
+  Step 276 foundation pack and Step 377 reduced-delay guard, identified replay
+  gap browser pack runtime cost as the weakest current signal, and selected
+  Replay Gap Regression Pack Cost Audit as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

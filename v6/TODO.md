@@ -580,6 +580,11 @@
   standalone budget guard, Step 378 optional member, Step 379 combined optional
   pack path, and Step 371 attribution harness protecting the reduced-delay
   behavior.
+- Latest completed chart-foundation regression refresh step: Step 381 - Chart
+  Foundation Regression Refresh. V6 re-ran the Step 276 foundation pack and the
+  Step 377 reduced-delay guard; all refreshed coverage passed, and the next
+  bounded slice is replay-gap browser pack runtime cost because Step 274
+  consumed `90350ms` inside the `105292ms` foundation pack run.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -615,25 +620,26 @@
 
 ## Next Executable Steps
 
-### Step 381 - Chart Foundation Regression Refresh
+### Step 382 - Replay Gap Regression Pack Cost Audit
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 380 closeout:
-  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_PERFORMANCE_CHAIN_REAUDIT_STEP380.md`;
-- run or package a foundation-level chart regression refresh;
-- include display timeframe switching and `1m` round-trip coverage;
-- include interval menu parity for the supported minute/hour/day/week/month
-  set;
-- include display-timeframe leftward history and target-history reduced-delay
-  guard coverage;
-- include daily/weekly/monthly projection and replay gap coverage;
-- use current failures, long runtime, or weakest coverage to choose the next
-  bounded chart-foundation slice;
-- do not continue HTF leftward-extension latency work unless the refresh finds
-  a concrete uncovered regression;
+- use Step 381 closeout:
+  `v6/docs/V6_CHART_FOUNDATION_REGRESSION_REFRESH_STEP381.md`;
+- inspect the Step 274 replay-gap browser pack membership and harness setup;
+- explain why `replay-gap-browser-regression-pack-step274-smoke.js` consumed
+  `90350ms` inside the Step 276 foundation refresh;
+- focus first on `htf-manual-next-replay-gap-browser-step273-smoke.js`
+  (`50161ms`) and `manual-next-session-gap-browser-step258-smoke.js`
+  (`27270ms`);
+- identify whether cost comes from intentional wait budgets, repeated browser
+  setup, replay-session data setup, or avoidable polling;
+- propose a bounded cost-control plan or runner split without weakening
+  manual-next, auto-play, or HTF gap assertions;
+- keep `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+  usable as the broad confirmation command;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -660,22 +666,23 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the selected regression-refresh command set
-  and next-slice decision;
+- add static closeout coverage for the replay-gap cost audit and next-slice
+  decision;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- regression refresh documents the exact commands or pack members selected;
-- refresh includes timeframe switching, interval menu parity,
-  display-timeframe leftward history, daily/weekly/monthly projection, replay
-  gap coverage, and the HTF reduced-delay budget guard;
-- refresh reports pass/fail/runtime observations and uses them to select the
-  next bounded chart-foundation slice;
-- selected next slice is outside the narrow HTF latency chain unless a concrete
-  uncovered regression is identified;
+- audit documents Step 274 member runtimes from the Step 381 refresh;
+- audit identifies the likely cost owner or explicitly states what remains
+  unknown;
+- audit proposes a bounded cost-control plan or runner split;
+- audit does not weaken existing manual-next, auto-play, or HTF replay-gap
+  assertions;
+- selected next slice remains chart-foundation work and does not return to the
+  narrow HTF leftward latency chain unless a concrete uncovered regression is
+  identified;
 - default Step 293 target-history diagnostics pack membership remains
   unchanged;
 - optional members `replay-coordination`, `readout-producer-flow`, and
@@ -722,6 +729,36 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 381 - Chart Foundation Regression Refresh
+
+Completed in this chart-foundation regression refresh commit series.
+
+Verification:
+
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+- `node v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`
+- `node v6/tests/chart-foundation-regression-refresh-step381-static-smoke.js`
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-performance-chain-reaudit-step380-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Step 276 foundation pack passed `8/8` in `105292ms`.
+- Step 377 reduced-delay guard passed with `4h` `114.3ms`, `8h`
+  `128.8ms`, `1D` `132.3ms`, and `1W` `132.5ms`.
+- The refreshed chart-foundation behavior is green.
+- The weakest signal is runtime cost in Step 274 replay-gap coverage:
+  `replay-gap-browser-regression-pack-step274-smoke.js` consumed `90350ms`,
+  with `htf-manual-next-replay-gap-browser-step273-smoke.js` at `50161ms` and
+  `manual-next-session-gap-browser-step258-smoke.js` at `27270ms`.
+- Selected Step 382 - Replay Gap Regression Pack Cost Audit as the next
+  bounded chart-foundation slice.
+- Did not modify runtime behavior, `v6/src/app.js`, command surfaces, shell
+  readout code, target-history request sizing, replay, chart viewport, chart
+  engine, or the Step 362 runtime skeleton.
 
 ### Step 380 - HTF Leftward Extension Performance Chain Re-audit
 

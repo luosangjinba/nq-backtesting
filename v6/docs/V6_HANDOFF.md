@@ -9,10 +9,17 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 380 closeout
-- Latest completed step: Step 380 - HTF Leftward Extension Performance Chain
-  Re-audit
+- Worktree at handoff: clean after Step 381 closeout
+- Latest completed step: Step 381 - Chart Foundation Regression Refresh
 - Recent relevant commits:
+  - Step 381 refreshed the chart-foundation regression picture after Step 380.
+    `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+    passed `8/8` in `105292ms`, and the Step 377 reduced-delay guard passed
+    with `4h` `114.3ms`, `8h` `128.8ms`, `1D` `132.3ms`, and `1W` `132.5ms`.
+    The next bounded slice is Step 382 - Replay Gap Regression Pack Cost Audit,
+    because Step 274 consumed `90350ms` inside the foundation pack, with
+    `htf-manual-next-replay-gap-browser-step273-smoke.js` at `50161ms` and
+    `manual-next-session-gap-browser-step258-smoke.js` at `27270ms`.
   - Step 380 re-audited the HTF leftward-extension performance chain from
     Steps 367-379 and closed HTF target-history leftward-extension latency for
     now. The reduced-delay behavior is protected by the Step 377 standalone
@@ -405,8 +412,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 381:
-   chart foundation regression refresh.
+4. If continuing planned work, start with Step 382:
+   replay gap regression pack cost audit.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -473,6 +480,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/target-history-pack-reduced-delay-optional-combination-step379-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/high-timeframe-leftward-extension-performance-chain-reaudit-step380-static-smoke.js`
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+- `node v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`
+- `node v6/tests/chart-foundation-regression-refresh-step381-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -487,12 +497,13 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 381 - Chart Foundation Regression Refresh.
-- Run or package the foundation-level chart regression set, including timeframe
-  switching, interval menu parity, display-timeframe leftward history,
-  daily/weekly/monthly projection, replay gap coverage, and the HTF
-  reduced-delay budget guard; then choose the next bounded chart-foundation
-  slice from failures, runtime cost, or weakest coverage.
+- Recommended next action is Step 382 - Replay Gap Regression Pack Cost Audit.
+- Inspect the Step 274 replay-gap pack cost concentration from Step 381,
+  especially `htf-manual-next-replay-gap-browser-step273-smoke.js` at
+  `50161ms` and `manual-next-session-gap-browser-step258-smoke.js` at
+  `27270ms`; identify whether the cost is wait budgets, repeated browser
+  setup, replay-session setup, or avoidable polling before proposing a bounded
+  runner split or cost-control plan.
 
 ## Current State
 
