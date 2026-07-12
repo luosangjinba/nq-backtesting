@@ -487,6 +487,13 @@
   Registration Plan. V6 now defines the exact minimal future `v6/src/app.js`
   diff, focused browser smoke, verification order, and rollback gates while
   keeping the runtime unregistered.
+- Latest completed replay coordination materialization runtime handoff app
+  registration step: Step 365 - Replay Coordination Materialization Runtime
+  Handoff App Registration. V6 now registers
+  `runtime.replay-coordination-materialization-handoff` in `v6/src/app.js`
+  after Manual Next and before Manual Previous, injects app-level
+  `subscribeEvent` and `dispatchCommand`, and verifies the registration with a
+  focused browser smoke while keeping replay source `1m` authority explicit.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -522,7 +529,7 @@
 
 ## Next Executable Steps
 
-### Step 365 - Replay Coordination Materialization Runtime Handoff App Registration
+### Step 366 - Replay Coordination Materialization Runtime Handoff Pack Member
 
 Status: proposed.
 
@@ -530,44 +537,29 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 364 closeout:
-  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_APP_REGISTRATION_PLAN_STEP364.md`;
-- implement the smallest live app registration slice for the unwired
-  `replay-coordination-materialization-runtime-handoff` runtime;
-- modify only `v6/src/app.js` plus the focused registration browser smoke and
-  closeout coverage needed for this step;
-- add `dispatchCommand` import from `./runtime/commands.js` after the existing
-  runtime events import;
-- add the runtime import:
-  `createReplayCoordinationMaterializationRuntimeHandoff` from
-  `./replay/replay-coordination-materialization-runtime-handoff.js`;
-- register the runtime after
-  `registry.registerRuntime(createChartEntryManualNextRuntime());` and before
-  `registry.registerRuntime(createChartEntryManualPreviousRuntime());`;
-- inject app-level `subscribeEvent` and `dispatchCommand`;
-- use the skeleton default executor unless a focused test needs an injected
-  override;
-- add focused browser smoke
+- use Step 365 closeout:
+  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_HANDOFF_APP_REGISTRATION_STEP365.md`;
+- add the focused registration browser smoke as an optional target-history
+  diagnostics regression pack member;
+- suggested member id: `handoff-registration`;
+- member script:
   `v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`;
-- focused smoke should assert the runtime registry contains
-  `runtime.replay-coordination-materialization-handoff` and that Manual Next
-  replay coordination remains source `1m` driven with target bars as display
-  materialization input only;
-- preserve rollback gates for removing the import, registration call, and
-  `dispatchCommand` import if unused;
-- keep the registration slice narrow;
+- preserve optional pack members `replay-coordination` and
+  `readout-producer-flow`;
+- preserve the default eight-member target-history diagnostics pack;
+- add static pack member coverage proving the new optional member exists and is
+  not part of the default pack;
+- verify the member can run alone and combined with
+  `replay-coordination,readout-producer-flow`;
+- do not modify `v6/src/app.js`;
 - do not add new command surfaces;
-- do not modify the Step 362 skeleton unless the focused browser smoke exposes
-  a registration-only bug;
+- do not modify the Step 362 skeleton;
 - preserve diagnostics runtime as read-only observability;
 - preserve Display-Timeframe Runtime as the TF-switch owner;
 - keep replay source `1m` authority explicit;
 - keep target bars display materialization input only;
 - do not route target bars through replay runtime;
-- preserve standalone Step 337 and Step 352 browser smoke commands;
-- preserve optional pack members `replay-coordination` and
-  `readout-producer-flow`;
-- preserve the default eight-member target-history diagnostics pack;
+- preserve standalone Step 337, Step 352, and Step 365 browser smoke commands;
 - do not introduce direct `updateSnapshot` usage into producer-flow browser
   tests;
 - keep shell consumption as command/event snapshot reading only through
@@ -584,22 +576,24 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the app registration plan and selected
-  owner;
+- add static closeout coverage for the optional pack member and selected owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- runtime is registered in `v6/src/app.js` at the exact Step 364 insertion
-  point with app-level `subscribeEvent` and `dispatchCommand` injection;
-- focused app-registration browser smoke proves the runtime is present in the
-  registry and Manual Next replay coordination remains source `1m` driven;
+- optional target-history diagnostics pack member `handoff-registration` exists
+  for the Step 365 focused app-registration browser smoke;
+- default target-history diagnostics pack membership remains unchanged;
+- optional members `replay-coordination` and `readout-producer-flow` remain
+  unchanged;
+- combined optional pack execution can include
+  `replay-coordination,readout-producer-flow,handoff-registration`;
 - exact future handoff owner boundary remains
   `runtime.replay-coordination-materialization-handoff`;
-- exact Step 364 minimal app diff, focused browser smoke, verification order,
-  and rollback gates remain consumed as implementation data;
+- Step 365 app registration remains unchanged and covered by the optional
+  member;
 - exact Step 357 command/event surfaces remain preserved as plan evidence;
 - Step 358 pure executor remains the future decision harness;
 - Step 359 wiring readiness audit remains the future wiring surface evidence;
@@ -611,8 +605,7 @@ Acceptance:
   wiring;
 - replay source `1m` authority and target-bars display-only policy are explicit;
 - runtime behavior remains unchanged;
-- default target-history pack membership remains unchanged;
-- standalone Step 337 and Step 352 browser smokes remain runnable;
+- standalone Step 337, Step 352, and Step 365 browser smokes remain runnable;
 - optional pack members remain unchanged;
 - shell readout consumption remains command/event snapshot reading without
   direct target API calls;
@@ -625,6 +618,49 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 365 - Replay Coordination Materialization Runtime Handoff App Registration
+
+Completed in this replay coordination materialization runtime handoff app
+registration commit series.
+
+Verification:
+
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`
+- `node v6/tests/display-timeframe-target-materialization-replay-coordination-browser-step337-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-plan-boundary-step360-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-boundary-step361-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-boundary-step362-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-boundary-step363-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-boundary-step364-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-plan-closeout-step360-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-closeout-step361-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-closeout-step362-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-closeout-step363-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-closeout-step364-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Registered
+  `createReplayCoordinationMaterializationRuntimeHandoff({ subscribeEvent, dispatchCommand })`
+  in `v6/src/app.js`.
+- Added `dispatchCommand` app import from `./runtime/commands.js`.
+- Added runtime factory app import from
+  `./replay/replay-coordination-materialization-runtime-handoff.js`.
+- Preserved registration order after Manual Next and before Manual Previous.
+- Added focused browser smoke proving the runtime is registered and Manual Next
+  remains source `1m` driven while `8h` target materialization is active.
+- Updated historical static tests so older plan/contract/skeleton/readiness
+  checks no longer assert that current `v6/src/app.js` is unregistered.
+- Did not add new command surfaces.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 364 - Narrow Replay Materialization Runtime Handoff App Registration Plan
 

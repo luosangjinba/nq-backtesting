@@ -547,6 +547,12 @@ Read this index before working on V6.
   materialization handoff runtime, defining the exact minimal future
   `v6/src/app.js` diff, dependency injection plan, focused browser smoke,
   rollback gates, and live app registration as the next slice.
+- `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_HANDOFF_APP_REGISTRATION_STEP365.md`:
+  accepted the live app registration for
+  `runtime.replay-coordination-materialization-handoff`, adding the minimal
+  `v6/src/app.js` import/register diff, focused browser coverage, historical
+  static-test alignment, and optional pack-member integration as the next
+  slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

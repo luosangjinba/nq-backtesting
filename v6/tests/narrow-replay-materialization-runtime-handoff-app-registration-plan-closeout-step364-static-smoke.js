@@ -38,10 +38,7 @@ assert.match(todo, /### Step 364 - Narrow Replay Materialization Runtime Handoff
 assert.match(todo, /Did not modify `v6\/src\/app\.js`/);
 assert.match(todo, /Did not register runtime, subscribe to events, dispatch commands/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 364 closeout/);
-assert.match(handoff, /Latest completed step: Step 364 - Narrow Replay Materialization Runtime\s+Handoff App Registration Plan/);
 assert.match(handoff, /Step 364 added the plan-only app registration helper/);
-assert.match(handoff, /start with Step 365/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /Minimal Future App Diff/);
