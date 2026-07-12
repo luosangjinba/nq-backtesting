@@ -457,6 +457,10 @@ Read this index before working on V6.
   accepted pure producer payload mappers from Display-Timeframe, Manual Next,
   and Auto Play events into diagnostics update payloads, still without live
   subscriptions or UI changes.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_EVENT_RUNTIME_STEP346.md`:
+  accepted diagnostics-runtime-owned producer event subscriptions for
+  Display-Timeframe, Manual Next, and Auto Play diagnostics updates, without
+  producer runtime or UI changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

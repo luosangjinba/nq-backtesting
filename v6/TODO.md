@@ -364,6 +364,13 @@
   into diagnostics update payloads, still without live subscriptions, producer
   runtime dispatches, visible UI, target loading, replay cursor, chart-data, or
   viewport behavior changes.
+- Latest completed target materialization diagnostics event wiring step: Step
+  346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring.
+  V6 diagnostics runtime now subscribes to Display-Timeframe, Manual Next, and
+  Auto Play producer events, maps payloads through the Step 345 mappers, and
+  updates snapshots through the Step 344 path, without modifying producer
+  runtimes, visible UI, target loading, replay cursor, chart-data, or viewport
+  behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -399,7 +406,7 @@
 
 ## Next Executable Steps
 
-### Step 346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring
+### Step 347 - Target Materialization Replay Diagnostics Browser Read Coverage
 
 Status: proposed.
 
@@ -407,11 +414,11 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 345 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_PAYLOAD_MAPPERS_STEP345.md`;
-- wire producer event subscriptions inside
-  `runtime.target-materialization-replay-diagnostics`;
-- use the Step 345 mappers and Step 344 update path;
+- use Step 346 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_EVENT_RUNTIME_STEP346.md`;
+- add browser/runtime-read coverage proving real Display-Timeframe, Manual Next,
+  and Auto Play flows produce diagnostics snapshots readable through
+  `targetMaterializationReplayDiagnostics.getSnapshot`;
 - do not modify Display-Timeframe, Manual Next, or Auto Play runtimes;
 - do not dispatch `updateSnapshot` from producer runtimes;
 - keep shell consumption as command/event snapshot reading only;
@@ -425,19 +432,16 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add runtime/static closeout coverage for the producer event subscription
-  wiring;
+- add browser/static closeout coverage for the diagnostics read path;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- diagnostics runtime subscribes to the five accepted producer events;
-- producer payloads update diagnostics snapshots through the existing update
-  path;
-- malformed producer payloads are ignored or rejected without corrupting the
-  current diagnostics snapshot;
+- browser flow can read diagnostics snapshots after display timeframe apply;
+- browser flow can read diagnostics snapshots after manual next;
+- browser flow can read diagnostics snapshots after autoplay tick/start/stop;
 - producer runtimes remain unchanged and do not import diagnostics commands;
 - shell consumption path remains command/event snapshot reading without direct
   target API calls;
@@ -449,6 +453,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring
+
+Completed in this target materialization replay diagnostics producer event
+runtime commit series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-producer-event-runtime-step346-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-producer-event-boundary-step346-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-producer-payload-mappers-boundary-step345-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-producer-payload-mappers-step345-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-update-command-step344-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Diagnostics runtime now subscribes to the five accepted producer events.
+- Producer payloads are mapped through the Step 345 mappers and applied through
+  the Step 344 update path.
+- `null` mapper results are ignored, and invalid update candidates remain
+  rejected without corrupting the current snapshot.
+- Producer runtimes remain unchanged.
+- Kept visible UI, target-bar loading, replay cursor movement, chart-data
+  writes, viewport intent, target-history request sizing, and chart-history
+  fast-path behavior unchanged.
 
 ### Step 345 - Target Materialization Replay Diagnostics Producer Payload Mappers
 

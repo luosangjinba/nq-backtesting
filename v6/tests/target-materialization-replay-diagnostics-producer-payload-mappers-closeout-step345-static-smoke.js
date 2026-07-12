@@ -10,11 +10,10 @@ const mapperSmoke = await readFile('v6/tests/target-materialization-replay-diagn
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-producer-payload-mappers-boundary-step345-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_PAYLOAD_MAPPERS_STEP345\.md/);
-assert.match(todo, /Latest completed target materialization diagnostics mapper step: Step 345/);
-assert.match(todo, /### Step 346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring/);
-assert.match(todo, /do not modify Display-Timeframe, Manual Next, or Auto Play runtimes/);
-assert.match(handoff, /Latest completed step: Step 345 - Target Materialization Replay Diagnostics\s+Producer Payload Mappers/);
-assert.match(handoff, /start with Step 346/);
+assert.match(todo, /### Step 345 - Target Materialization Replay Diagnostics Producer Payload Mappers/);
+assert.match(todo, /Added pure producer payload mappers/);
+assert.match(handoff, /Step 345 added pure producer payload mappers/);
+assert.match(handoff, /Step 345 adds pure\s+producer payload mappers/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /displayTimeframe:applied/);
