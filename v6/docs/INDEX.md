@@ -498,6 +498,10 @@ Read this index before working on V6.
   `replay-coordination,readout-producer-flow`, confirmed Step 337 then Step 352
   execution order, and selected diagnostics/readout chain closeout and
   next-slice selection next.
+- `v6/docs/V6_TARGET_MATERIALIZATION_DIAGNOSTICS_READOUT_CHAIN_SELECTION_STEP355.md`:
+  accepted the target-materialization diagnostics/readout chain closeout,
+  stopped further observability-only pack wiring for now, and selected
+  `narrow-replay-materialization-runtime-handoff-readiness-audit` next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

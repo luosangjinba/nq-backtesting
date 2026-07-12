@@ -9,10 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 354 closeout
-- Latest completed step: Step 354 - Target Materialization Replay Diagnostics
-  Readout Pack Combination Verification
+- Worktree at handoff: clean after Step 355 closeout
+- Latest completed step: Step 355 - Target Materialization Diagnostics
+  Readout Chain Closeout And Next Slice Selection
 - Recent relevant commits:
+  - Step 355 closed the diagnostics/readout observability chain, stopped adding
+    observability-only diagnostics UI or pack wiring for now, and selected
+    `narrow-replay-materialization-runtime-handoff-readiness-audit` as the next
+    bounded target-materialization foundation slice.
   - Step 354 verified optional target-history diagnostics pack combination
     `replay-coordination,readout-producer-flow`, confirming Step 337 then Step
     352 browser smoke execution order while keeping the default pack and
@@ -181,7 +185,10 @@ Read this block first after restarting the server or assistant context.
   default pack and existing `replay-coordination` optional member unchanged.
   Step 354 verifies the combined optional pack path
   `replay-coordination,readout-producer-flow`, confirming Step 337 then Step
-  352 execution order without runtime behavior changes.
+  352 execution order without runtime behavior changes. Step 355 closes this
+  diagnostics/readout observability chain and selects
+  `narrow-replay-materialization-runtime-handoff-readiness-audit` next, still
+  without runtime behavior changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -222,9 +229,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 355:
-   target materialization diagnostics readout chain closeout and next-slice
-   selection.
+4. If continuing planned work, start with Step 356:
+   narrow replay materialization runtime handoff readiness audit.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;

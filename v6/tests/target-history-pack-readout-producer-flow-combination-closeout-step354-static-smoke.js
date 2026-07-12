@@ -15,13 +15,10 @@ assert.match(index, /V6_TARGET_HISTORY_PACK_READOUT_PRODUCER_FLOW_COMBINATION_ST
 assert.match(index, /`replay-coordination,readout-producer-flow`/);
 
 assert.match(todo, /Latest completed target-history pack readout producer-flow combination step:\s+Step 354/);
-assert.match(todo, /### Step 355 - Target Materialization Diagnostics Readout Chain Closeout And Next Slice Selection/);
 assert.match(todo, /### Step 354 - Target Materialization Replay Diagnostics Readout Pack Combination Verification/);
 assert.match(todo, /Step 337 then Step 352 browser smokes in order/);
 
-assert.match(handoff, /Latest completed step: Step 354 - Target Materialization Replay Diagnostics\s+Readout Pack Combination Verification/);
 assert.match(handoff, /Step 354 verified optional target-history diagnostics pack combination\s+`replay-coordination,readout-producer-flow`/);
-assert.match(handoff, /start with Step 355/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow/);

@@ -422,6 +422,12 @@
   `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow` runs
   Step 337 then Step 352 browser smokes in order, while keeping the default
   eight-member pack and standalone optional members unchanged.
+- Latest completed target materialization diagnostics/readout chain selection
+  step: Step 355 - Target Materialization Diagnostics Readout Chain Closeout And
+  Next Slice Selection. V6 now records the Step 337/352/354 evidence chain,
+  stops adding observability-only diagnostics UI or pack wiring for now, and
+  selects `narrow-replay-materialization-runtime-handoff-readiness-audit` as the
+  next bounded target-materialization foundation slice.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -457,7 +463,7 @@
 
 ## Next Executable Steps
 
-### Step 355 - Target Materialization Diagnostics Readout Chain Closeout And Next Slice Selection
+### Step 356 - Narrow Replay Materialization Runtime Handoff Readiness Audit
 
 Status: proposed.
 
@@ -465,15 +471,19 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 354 closeout:
-  `v6/docs/V6_TARGET_HISTORY_PACK_READOUT_PRODUCER_FLOW_COMBINATION_STEP354.md`;
-- perform a compact diagnostics/readout chain closeout using Step 337, Step
-  352, Step 353, and Step 354 evidence;
-- decide whether diagnostics/readout observability is packaged enough to stop
-  adding more diagnostics UI/pack wiring for now;
-- select the next bounded target-materialization foundation slice;
-- keep the selection plan-only unless a narrow static helper is needed for
-  testable decision output;
+- use Step 355 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_DIAGNOSTICS_READOUT_CHAIN_SELECTION_STEP355.md`;
+- audit the exact runtime handoff surfaces needed before any narrow
+  replay/materialization runtime behavior changes;
+- keep this step audit-only unless a small pure readiness helper is needed;
+- identify the owning boundary for the future handoff and the exact command/event
+  surfaces it may consume;
+- confirm whether the future handoff belongs in a new replay-coordination
+  runtime helper, an existing diagnostics runtime helper, or a display-timeframe
+  follow-on helper;
+- keep replay source `1m` authority explicit;
+- keep target bars display materialization input only;
+- do not route target bars through replay runtime;
 - preserve standalone Step 337 and Step 352 browser smoke commands;
 - preserve optional pack members `replay-coordination` and
   `readout-producer-flow`;
@@ -494,16 +504,18 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the chain closeout and next-slice decision;
+- add static closeout coverage for the readiness audit and selected future
+  handoff owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- closeout records that Step 337, Step 352, and Step 354 cover the diagnostics
-  readout chain from replay coordination through pane-status DOM readout;
-- next bounded target-materialization foundation slice is explicitly selected;
+- exact future handoff owner boundary is documented;
+- exact command/event surfaces for the future handoff are listed;
+- replay source `1m` authority and target-bars display-only policy are explicit;
+- runtime behavior remains unchanged;
 - default target-history pack membership remains unchanged;
 - standalone Step 337 and Step 352 browser smokes remain runnable;
 - optional pack members remain unchanged;
@@ -518,6 +530,36 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 355 - Target Materialization Diagnostics Readout Chain Closeout And Next Slice Selection
+
+Completed in this target materialization diagnostics/readout chain selection
+commit series.
+
+Verification:
+
+- `node v6/tests/target-materialization-diagnostics-readout-chain-selection-step355-smoke.js`
+- `node v6/tests/target-materialization-diagnostics-readout-chain-boundary-step355-static-smoke.js`
+- `node v6/tests/target-history-pack-readout-producer-flow-combination-step354-static-smoke.js`
+- `node v6/tests/target-history-pack-readout-producer-flow-combination-closeout-step354-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Recorded that Step 337, Step 352, and Step 354 cover the diagnostics/readout
+  chain from replay coordination through pane-status DOM readout.
+- Selected `narrow-replay-materialization-runtime-handoff-readiness-audit` as
+  the next bounded target-materialization foundation slice.
+- Explicitly stopped adding observability-only diagnostics UI or pack wiring for
+  now.
+- Preserved the default eight-member target-history diagnostics pack.
+- Preserved optional members `replay-coordination` and `readout-producer-flow`.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 354 - Target Materialization Replay Diagnostics Readout Pack Combination Verification
 
