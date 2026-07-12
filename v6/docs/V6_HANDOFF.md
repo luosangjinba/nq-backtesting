@@ -9,10 +9,17 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 377 closeout
-- Latest completed step: Step 377 - HTF Target-History Reduced-Delay Browser
-  Budget Guard
+- Worktree at handoff: clean after Step 378 closeout
+- Latest completed step: Step 378 - Target-History Pack Reduced-Delay Budget
+  Member
 - Recent relevant commits:
+  - Step 378 added optional target-history diagnostics pack member
+    `reduced-delay-budget` for the Step 377 browser budget guard. The default
+    Step 293 pack remains eight tests, existing optional members stay in order,
+    and the observed optional run selected `plan members 1/8
+    reduced-delay-budget` with `4h` `124.8ms`, `8h` `139.5ms`, `1D`
+    `132.8ms`, and `1W` `129.9ms`. Step 379 should verify the combined
+    optional member command including the new member.
   - Step 377 added a focused browser budget guard for HTF target-history
     reduced-delay behavior. The guard fails if `4h`, `8h`, `1D`, or `1W`
     target fetches fall back toward the old `500ms` window; the observed run
@@ -383,8 +390,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 378:
-   target-history pack reduced-delay budget member.
+4. If continuing planned work, start with Step 379:
+   target-history pack reduced-delay optional combination.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -446,6 +453,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/leftward-history-input-bridge-fast-path-step326-smoke.js`
 - `node v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`
 - `node v6/tests/high-timeframe-target-history-reduced-delay-budget-boundary-step377-static-smoke.js`
+- `node v6/tests/target-history-pack-reduced-delay-budget-member-step378-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -460,11 +469,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 378 - Target-History Pack Reduced-Delay
-  Budget Member.
-- Add the Step 377 browser budget guard as an optional Step 293 pack member
-  such as `reduced-delay-budget`, while keeping default pack membership and the
-  existing optional members unchanged.
+- Recommended next action is Step 379 - Target-History Pack Reduced-Delay
+  Optional Combination.
+- Run and document
+  `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget`
+  so all optional members are verified together and the Step 377 budget guard
+  is proven after the other optional browser members.
 
 ## Current State
 

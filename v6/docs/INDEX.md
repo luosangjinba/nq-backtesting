@@ -615,6 +615,10 @@ Read this index before working on V6.
   `1W` reduced-delay target-history fetches, asserting native `100ms`
   scheduling, suppressed runtime delayed reasons when present, zero source
   fetches, and sub-`300ms` target-fetch starts.
+- `v6/docs/V6_TARGET_HISTORY_PACK_REDUCED_DELAY_BUDGET_MEMBER_STEP378.md`:
+  accepted optional target-history diagnostics pack member
+  `reduced-delay-budget` for the Step 377 browser budget guard while preserving
+  the default eight-member pack and existing optional members.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

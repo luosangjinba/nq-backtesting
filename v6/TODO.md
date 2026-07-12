@@ -564,6 +564,10 @@
   browser guard that fails if `4h`, `8h`, `1D`, or `1W` target-history fetch
   timing falls back to the old roughly `500ms` window. The observed run stayed
   between `119.4ms` and `140.1ms`, with native `100ms` scheduling verified.
+- Latest completed target-history pack reduced-delay member step: Step 378 -
+  Target-History Pack Reduced-Delay Budget Member. V6 now exposes the Step 377
+  browser budget guard as optional pack member `reduced-delay-budget`, while
+  preserving the default eight-member pack and existing optional members.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -599,7 +603,7 @@
 
 ## Next Executable Steps
 
-### Step 378 - Target-History Pack Reduced-Delay Budget Member
+### Step 379 - Target-History Pack Reduced-Delay Optional Combination
 
 Status: proposed.
 
@@ -621,14 +625,15 @@ Notes for execution:
   `v6/docs/V6_HTF_TARGET_HISTORY_RUNTIME_DELAYED_SCHEDULE_SUPPRESSION_STEP376.md`;
 - use Step 377 closeout:
   `v6/docs/V6_HTF_TARGET_HISTORY_REDUCED_DELAY_BROWSER_BUDGET_GUARD_STEP377.md`;
-- add the Step 377 browser budget guard as an optional Step 293
-  target-history diagnostics pack member;
+- use Step 378 closeout:
+  `v6/docs/V6_TARGET_HISTORY_PACK_REDUCED_DELAY_BUDGET_MEMBER_STEP378.md`;
+- run and document the combined optional pack member path:
+  `replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget`;
+- confirm all four optional members run in requested order;
 - keep the default Step 293 comprehensive pack membership unchanged;
-- use a focused optional member name such as `reduced-delay-budget`;
-- make the optional member run only
-  `v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`;
-- add static coverage proving the member is discoverable and default members
-  remain unchanged;
+- confirm the Step 377 budget guard still passes when run after the other
+  optional members;
+- add static closeout coverage for the combined optional command;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -662,11 +667,15 @@ Notes for execution:
 
 Acceptance:
 
-- optional pack member `reduced-delay-budget` runs the Step 377 browser guard;
+- combined optional pack member command runs
+  `replay-coordination`, `readout-producer-flow`, `handoff-registration`, and
+  `reduced-delay-budget` in order;
+- Step 377 budget guard passes inside the combined optional run;
 - default Step 293 target-history diagnostics pack membership remains
   unchanged;
 - optional members `replay-coordination`, `readout-producer-flow`, and
   `handoff-registration` remain unchanged;
+- optional pack member `reduced-delay-budget` remains directly runnable;
 - focused browser budget coverage remains directly runnable standalone;
 - low-TF/native source paths, target-history-disabled paths, and programmatic
   fast path remain unchanged;
@@ -708,6 +717,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 378 - Target-History Pack Reduced-Delay Budget Member
+
+Completed in this target-history pack reduced-delay budget member commit
+series.
+
+Verification:
+
+- `node v6/tests/target-history-pack-reduced-delay-budget-member-step378-static-smoke.js`
+- `node v6/tests/target-history-pack-replay-coordination-member-step339-static-smoke.js`
+- `node v6/tests/target-history-pack-readout-producer-flow-member-step353-static-smoke.js`
+- `node v6/tests/target-history-pack-handoff-registration-member-step366-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added optional target-history diagnostics pack member `reduced-delay-budget`.
+- The new member runs only
+  `v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`.
+- Default Step 293 pack membership remains the same eight tests.
+- Existing optional members `replay-coordination`, `readout-producer-flow`, and
+  `handoff-registration` remain available and in the same order.
+- Observed optional member run selected `plan members 1/8 reduced-delay-budget`
+  and measured `4h` `124.8ms`, `8h` `139.5ms`, `1D` `132.8ms`, and `1W`
+  `129.9ms`.
+- Did not modify runtime behavior, `v6/src/app.js`, command surfaces, shell
+  readout code, target-history request sizing, replay, chart viewport, chart
+  engine, or the Step 362 runtime skeleton.
 
 ### Step 377 - HTF Target-History Reduced-Delay Browser Budget Guard
 
