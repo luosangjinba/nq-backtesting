@@ -610,6 +610,11 @@ Read this index before working on V6.
   schedules, bringing real wheel target-fetch timing for `4h`, `8h`, `1D`,
   and `1W` into the reduced-delay window and selecting a smaller budget
   regression guard next.
+- `v6/docs/V6_HTF_TARGET_HISTORY_REDUCED_DELAY_BROWSER_BUDGET_GUARD_STEP377.md`:
+  accepted a focused browser pass/fail budget guard for `4h`, `8h`, `1D`, and
+  `1W` reduced-delay target-history fetches, asserting native `100ms`
+  scheduling, suppressed runtime delayed reasons when present, zero source
+  fetches, and sub-`300ms` target-fetch starts.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
