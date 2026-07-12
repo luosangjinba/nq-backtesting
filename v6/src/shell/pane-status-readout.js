@@ -292,7 +292,13 @@ export function mountPaneStatusReadout(root, {
     ),
   );
 
-  readoutByPaneId.forEach((_, paneId) => renderPane(paneId));
+  readoutByPaneId.forEach((element, paneId) => {
+    renderPane(paneId);
+    renderTargetMaterializationDiagnostics(element, {
+      snapshot: { paneId },
+      status: 'idle',
+    });
+  });
   if (typeof dispatchCommand === 'function') {
     Promise.resolve(dispatchCommand(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.GET_SNAPSHOT))
       .then(renderTargetMaterializationEnvelope)

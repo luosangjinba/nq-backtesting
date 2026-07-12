@@ -89,6 +89,7 @@ export function createTargetMaterializationReplayDiagnosticsReadoutViewModel(inp
   const envelope = normalizeSnapshotEnvelope(input);
   if (!envelope.snapshot || envelope.status !== 'ready') {
     return createHiddenViewModel({
+      paneId: envelope.snapshot?.paneId || 'main',
       reason: 'snapshot-not-ready',
       snapshotReady: false,
     });

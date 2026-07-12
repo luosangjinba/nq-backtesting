@@ -87,6 +87,11 @@ assert.equal(main.text('[data-v6-target-history-diagnostics]'), 'History idle');
 assert.equal(commands.length, 1);
 assert.equal(main.querySelector('[data-v6-target-materialization-diagnostics]').hidden, true);
 assert.equal(main.querySelector('[data-v6-target-materialization-diagnostics]').dataset.v6TargetMaterializationDiagnosticsMode, 'hidden');
+assert.equal(secondary.querySelector('[data-v6-target-materialization-diagnostics]').hidden, true);
+assert.equal(
+  secondary.querySelector('[data-v6-target-materialization-diagnostics]').dataset.v6TargetMaterializationDiagnosticsPaneId,
+  'secondary',
+);
 assert.equal(secondary.text('[data-v6-status-symbol]'), 'ES');
 assert.equal(secondary.text('[data-v6-status-timeframe]'), '5m');
 

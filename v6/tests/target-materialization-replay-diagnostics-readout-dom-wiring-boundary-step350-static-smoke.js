@@ -77,10 +77,8 @@ assert.match(planSmoke, /getSnapshot/);
 assert.match(planSmoke, /snapshotReady/);
 assert.match(planSmoke, /Step 349 view model/);
 
-assert.doesNotMatch(
-  paneStatus,
-  /target-materialization-replay-diagnostics-readout-dom-wiring-plan|target-materialization-replay-diagnostics-readout-view-model|createTargetMaterializationReplayDiagnosticsReadoutViewModel|targetMaterializationReplayDiagnostics|getSnapshot|updateSnapshot|data-v6-target-materialization-diagnostics|\/v4\/target_bars|fetchV4TargetBars/,
-);
+assert.match(paneStatus, /createTargetMaterializationReplayDiagnosticsReadoutViewModel/);
+assert.doesNotMatch(paneStatus, /updateSnapshot|\/v4\/target_bars|fetchV4TargetBars/);
 assert.doesNotMatch(
   workstationShell,
   /data-v6-target-materialization-diagnostics|target-materialization-replay-diagnostics-readout-dom-wiring-plan|targetMaterializationReplayDiagnostics|\/v4\/target_bars|fetchV4TargetBars/,
