@@ -536,6 +536,12 @@ Read this index before working on V6.
   handoff, implementing the contract-shaped factory with injectable
   dependencies, start/stop cleanup, command-result wrapper helpers, and app
   registration readiness audit as the next slice.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_APP_REGISTRATION_READINESS_AUDIT_STEP363.md`:
+  accepted the audit-only app registration readiness surface for the unwired
+  narrow replay materialization handoff runtime, identifying the exact future
+  `v6/src/app.js` import/register position, dependency injection source,
+  rollback plan, focused browser coverage, and app registration plan as the
+  next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

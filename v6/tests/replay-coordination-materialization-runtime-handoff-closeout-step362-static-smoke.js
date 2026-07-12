@@ -26,15 +26,11 @@ assert.match(index, /unwired runtime skeleton/);
 assert.match(index, /app\s+registration readiness audit as the next slice/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff unwired skeleton step:\s+Step 362/);
-assert.match(todo, /### Step 363 - Narrow Replay Materialization Runtime Handoff App Registration Readiness Audit/);
 assert.match(todo, /### Step 362 - Narrow Replay Materialization Runtime Handoff Unwired Runtime Skeleton/);
 assert.match(todo, /Did not add runtime to `v6\/src\/app\.js`/);
 assert.match(todo, /Did not import real runtime command\/event bus helpers/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 362 closeout/);
-assert.match(handoff, /Latest completed step: Step 362 - Narrow Replay Materialization Runtime\s+Handoff Unwired Runtime Skeleton/);
 assert.match(handoff, /Step 362 added the unwired runtime skeleton/);
-assert.match(handoff, /start with Step 363/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /createReplayCoordinationMaterializationRuntimeHandoff\(dependencies\)/);
