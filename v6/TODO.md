@@ -451,6 +451,13 @@
   future-only target bars, and still avoids runtime behavior, producer runtime,
   replay cursor, target loading, chart-data, viewport, request sizing, and
   fast-path behavior changes.
+- Latest completed narrow replay materialization handoff wiring readiness step:
+  Step 359 - Narrow Replay Materialization Runtime Handoff Wiring Readiness
+  Audit. V6 now audits the future app registration point, Manual Next advanced
+  subscription placement, command dispatch wrapper shape, rollback criteria,
+  and confirms the future helper can be registered as a new runtime without
+  modifying Manual Next, Auto Play, Display-Timeframe, diagnostics, replay,
+  viewport, or shell target-bar surfaces.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -486,7 +493,7 @@
 
 ## Next Executable Steps
 
-### Step 359 - Narrow Replay Materialization Runtime Handoff Wiring Readiness Audit
+### Step 360 - Narrow Replay Materialization Runtime Handoff Runtime Plan
 
 Status: proposed.
 
@@ -494,17 +501,16 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 358 closeout:
-  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_EXECUTOR_STEP358.md`;
-- audit live runtime wiring surfaces for
+- use Step 359 closeout:
+  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_WIRING_READINESS_AUDIT_STEP359.md`;
+- create a plan-only runtime implementation plan for
   `replay-coordination-materialization-runtime-handoff`;
-- identify the exact app registration point, event subscription placement,
-  command dispatch wrapper shape, and rollback criteria;
-- consume Step 357 plan and Step 358 pure executor as readiness evidence;
-- decide whether the future wiring can be a new runtime helper registered by
-  app shell without modifying Manual Next, Auto Play, Display-Timeframe, or
-  diagnostics producer runtimes;
-- keep this step audit-only unless a small pure readiness helper is needed;
+- define future start/stop lifecycle, subscription cleanup, command dispatch
+  wrapper order, executor invocation, and rollback gates;
+- consume Step 357 plan, Step 358 pure executor, and Step 359 readiness audit
+  as evidence;
+- keep this step plan-only unless a small pure runtime-plan helper is needed;
+- do not add the runtime to `v6/src/app.js` yet;
 - do not register commands or subscribe to events yet;
 - do not implement live runtime behavior yet;
 - do not dispatch commands from the new helper yet;
@@ -533,20 +539,21 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the wiring readiness audit and selected
-  future owner;
+- add static closeout coverage for the runtime plan and selected future owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- wiring readiness audit exists and validates future live wiring surfaces
-  without implementing them;
+- runtime implementation plan exists and validates start/stop lifecycle,
+  subscription cleanup, dispatch wrapper order, executor invocation, and
+  rollback gates without implementing them;
 - exact future handoff owner boundary remains
   `runtime.replay-coordination-materialization-handoff`;
 - exact Step 357 command/event surfaces remain consumed as plan data;
 - Step 358 pure executor remains the future decision harness;
+- Step 359 wiring readiness audit remains the future wiring surface evidence;
 - fallback gates remain enforced as pure returned decisions before runtime
   wiring;
 - replay source `1m` authority and target-bars display-only policy are explicit;
@@ -565,6 +572,41 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 359 - Narrow Replay Materialization Runtime Handoff Wiring Readiness Audit
+
+Completed in this narrow replay materialization runtime handoff wiring readiness
+audit commit series.
+
+Verification:
+
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-wiring-readiness-step359-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-wiring-readiness-boundary-step359-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-wiring-readiness-closeout-step359-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-closeout-step358-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added the pure wiring readiness audit for
+  `replay-coordination-materialization-runtime-handoff`.
+- Identified `v6/src/app.js` runtime registry before lifecycle start as the
+  future app registration surface.
+- Identified `chartEntryManualNext:advanced` subscription inside the future
+  runtime helper start lifecycle.
+- Identified the future command dispatch wrapper surfaces: `pane.getById`,
+  `replay.getState`, `chartData.getSourceBars`, `barData.planTargetWindow`,
+  `barData.loadTargetWindow`, and `chartData.replaceBars`.
+- Recorded rollback criteria for removing app registration, subscription, and
+  dispatch wrapper while preserving Step 357/358 pure helpers.
+- Did not register commands, subscribe to events, dispatch commands, or change
+  runtime behavior.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 358 - Narrow Replay Materialization Runtime Handoff Pure Executor Harness
 

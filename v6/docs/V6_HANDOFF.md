@@ -9,10 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 358 closeout
-- Latest completed step: Step 358 - Narrow Replay Materialization Runtime
-  Handoff Pure Executor Harness
+- Worktree at handoff: clean after Step 359 closeout
+- Latest completed step: Step 359 - Narrow Replay Materialization Runtime
+  Handoff Wiring Readiness Audit
 - Recent relevant commits:
+  - Step 359 added the pure wiring readiness audit for the future narrow replay
+    materialization runtime handoff. It identifies `v6/src/app.js` runtime
+    registry before lifecycle start as the future registration point,
+    `chartEntryManualNext:advanced` as the subscription surface, the
+    command-dispatch wrapper surfaces, and rollback criteria, while keeping
+    runtime behavior unchanged.
   - Step 358 added the pure executor harness for the future narrow replay
     materialization runtime handoff. It consumes the Step 357 plan and injected
     command results, returns a `chartData.replaceBars` intent on the happy path,
@@ -218,7 +224,8 @@ Read this block first after restarting the server or assistant context.
   sequence, fallback gates, and forbidden surfaces for that future helper, still
   without runtime behavior changes. Step 358 adds a pure executor harness for
   that plan, returning injected-result decisions and fallback gates without
-  runtime wiring.
+  runtime wiring. Step 359 audits the future live wiring surfaces and selects a
+  plan-only runtime implementation plan next, still without runtime wiring.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -259,8 +266,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 359:
-   narrow replay materialization runtime handoff wiring readiness audit.
+4. If continuing planned work, start with Step 360:
+   narrow replay materialization runtime handoff runtime plan.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -277,6 +284,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-step358-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-boundary-step358-static-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-closeout-step358-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-wiring-readiness-step359-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-wiring-readiness-boundary-step359-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-wiring-readiness-closeout-step359-static-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -289,10 +299,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 359 - Narrow Replay Materialization Runtime
-  Handoff Wiring Readiness Audit.
-- Keep Step 359 audit-only: identify app registration, event subscription, and
-  command dispatch wrapper surfaces before live runtime wiring.
+- Recommended next action is Step 360 - Narrow Replay Materialization Runtime
+  Handoff Runtime Plan.
+- Keep Step 360 plan-only: define start/stop lifecycle, subscription cleanup,
+  dispatch wrapper order, executor invocation, and rollback gates before app
+  registration or live runtime wiring.
 
 ## Current State
 

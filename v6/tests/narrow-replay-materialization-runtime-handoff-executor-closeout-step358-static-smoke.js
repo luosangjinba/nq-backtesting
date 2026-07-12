@@ -26,15 +26,11 @@ assert.match(index, /pure executor harness/);
 assert.match(index, /runtime wiring\s+audit as the next slice/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff executor step:\s+Step 358/);
-assert.match(todo, /### Step 359 - Narrow Replay Materialization Runtime Handoff Wiring Readiness Audit/);
 assert.match(todo, /### Step 358 - Narrow Replay Materialization Runtime Handoff Pure Executor Harness/);
 assert.match(todo, /Returned a `chartData\.replaceBars` intent with `preserveSource: true`/);
 assert.match(todo, /Returned named fallback gates for source `1m`/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 358 closeout/);
-assert.match(handoff, /Latest completed step: Step 358 - Narrow Replay Materialization Runtime\s+Handoff Pure Executor Harness/);
 assert.match(handoff, /Step 358 added the pure executor harness/);
-assert.match(handoff, /start with Step 359/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /runtime\.replay-coordination-materialization-handoff/);

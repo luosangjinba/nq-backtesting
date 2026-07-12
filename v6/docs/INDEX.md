@@ -516,6 +516,11 @@ Read this index before working on V6.
   materialization runtime handoff, validating injected command results,
   source-cursor no-future target filtering, fallback gates, and runtime wiring
   audit as the next slice.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_WIRING_READINESS_AUDIT_STEP359.md`:
+  accepted the audit-only live wiring readiness decision for the future narrow
+  replay materialization runtime handoff, identifying app registration, event
+  subscription, command dispatch wrapper, rollback surfaces, and runtime plan
+  as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
