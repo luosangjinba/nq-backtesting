@@ -656,6 +656,9 @@ Read this index before working on V6.
   fast/full replay-gap pack split selection, preserving Step 274 as the full
   confirmation command and selecting a standalone fast pack implementation as
   the next slice.
+- `v6/docs/V6_REPLAY_GAP_FAST_BROWSER_PACK_STEP387.md`: accepted standalone
+  fast replay-gap browser pack implementation using the Step 385 near-gap
+  manual fixture plus existing low-TF and HTF auto-play gap smokes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
