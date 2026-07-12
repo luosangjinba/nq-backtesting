@@ -49,6 +49,14 @@ export const TARGET_HISTORY_PACK_TESTS = Object.freeze([
   }),
 ]);
 
+export const TARGET_HISTORY_PACK_OPTIONAL_TESTS = Object.freeze([
+  Object.freeze({
+    id: 'replay-coordination',
+    script: 'v6/tests/display-timeframe-target-materialization-replay-coordination-browser-step337-smoke.js',
+    tags: Object.freeze(['materialization', 'replay-coordination']),
+  }),
+]);
+
 function splitCsv(value) {
   return String(value || '')
     .split(',')
@@ -71,7 +79,10 @@ function matchesGroup(test, group) {
 }
 
 function selectByMembers({ memberIds, tests }) {
-  const byId = new Map(tests.map((test) => [test.id, test]));
+  const byId = new Map([
+    ...tests,
+    ...TARGET_HISTORY_PACK_OPTIONAL_TESTS,
+  ].map((test) => [test.id, test]));
   const selected = [];
   for (const id of memberIds) {
     const test = byId.get(id);
