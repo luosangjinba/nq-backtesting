@@ -9,10 +9,15 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 360 closeout
-- Latest completed step: Step 360 - Narrow Replay Materialization Runtime
-  Handoff Runtime Plan
+- Worktree at handoff: clean after Step 361 closeout
+- Latest completed step: Step 361 - Narrow Replay Materialization Runtime
+  Handoff Runtime Contract
 - Recent relevant commits:
+  - Step 361 added the contract-only future runtime surface for the narrow
+    replay materialization handoff. It defines factory signature, injected
+    dependencies, wrapper/fallback/no-op diagnostics result shapes, app
+    registration preconditions, and keeps app registration/live runtime wiring
+    deferred.
   - Step 360 added the plan-only future runtime implementation plan for the
     narrow replay materialization handoff. It defines lifecycle, Manual Next
     advanced subscription cleanup, dispatch wrapper order, Step 358 executor
@@ -232,7 +237,9 @@ Read this block first after restarting the server or assistant context.
   runtime wiring. Step 359 audits the future live wiring surfaces and selects a
   plan-only runtime implementation plan next, still without runtime wiring.
   Step 360 defines that runtime plan and selects a runtime contract next, still
-  without app registration or live runtime wiring.
+  without app registration or live runtime wiring. Step 361 defines that
+  runtime contract and selects an unwired runtime skeleton next, still without
+  app registration or live runtime wiring.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -273,8 +280,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 361:
-   narrow replay materialization runtime handoff runtime contract.
+4. If continuing planned work, start with Step 362:
+   narrow replay materialization runtime handoff unwired runtime skeleton.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -297,6 +304,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-plan-step360-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-plan-boundary-step360-static-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-plan-closeout-step360-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-step361-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-boundary-step361-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-closeout-step361-static-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -309,11 +319,10 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 361 - Narrow Replay Materialization Runtime
-  Handoff Runtime Contract.
-- Keep Step 361 contract-only: define factory signature, dependency injection,
-  wrapper result, fallback result, diagnostics/no-op result, and app
-  registration preconditions before live wiring.
+- Recommended next action is Step 362 - Narrow Replay Materialization Runtime
+  Handoff Unwired Runtime Skeleton.
+- Keep Step 362 unwired: implement the contract-shaped factory with injected
+  dependencies and start/stop cleanup tests, but do not add it to `v6/src/app.js`.
 
 ## Current State
 

@@ -526,6 +526,11 @@ Read this index before working on V6.
   replay materialization handoff, defining lifecycle, subscription cleanup,
   dispatch wrapper order, executor invocation, rollback gates, and runtime
   contract as the next slice.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_RUNTIME_CONTRACT_STEP361.md`:
+  accepted the contract-only future runtime surface for the narrow replay
+  materialization handoff, defining factory signature, dependency shape,
+  wrapper/fallback/diagnostics result shapes, app registration preconditions,
+  and unwired runtime skeleton as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

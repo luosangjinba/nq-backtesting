@@ -464,6 +464,11 @@
   subscription cleanup, command dispatch wrapper order, Step 358 executor
   invocation, rollback gates, and keeps app registration/live runtime wiring
   deferred.
+- Latest completed narrow replay materialization handoff runtime contract step:
+  Step 361 - Narrow Replay Materialization Runtime Handoff Runtime Contract. V6
+  now defines the contract-only future factory signature, dependency injection
+  shape, wrapper/fallback/diagnostics result shapes, app registration
+  preconditions, and keeps app registration/live runtime wiring deferred.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -499,7 +504,7 @@
 
 ## Next Executable Steps
 
-### Step 361 - Narrow Replay Materialization Runtime Handoff Runtime Contract
+### Step 362 - Narrow Replay Materialization Runtime Handoff Unwired Runtime Skeleton
 
 Status: proposed.
 
@@ -507,17 +512,18 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 360 closeout:
-  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_RUNTIME_PLAN_STEP360.md`;
-- define a runtime contract for
+- use Step 361 closeout:
+  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_RUNTIME_CONTRACT_STEP361.md`;
+- create an unwired runtime skeleton module for
   `replay-coordination-materialization-runtime-handoff`;
-- specify future factory signature, dependency injection shape, command wrapper
-  result shape, no-op fallback result shape, optional diagnostics event shape,
-  and app registration preconditions;
+- implement the contract shape with injectable `subscribeEvent`,
+  `dispatchCommand`, and executor dependencies;
+- test start/stop cleanup with injected fake subscribe/dispatch functions;
+- the skeleton may expose command wrapper helper functions but must not call
+  real runtime bus APIs by default;
 - consume Step 357 plan, Step 358 pure executor, Step 359 wiring readiness
-  audit, and Step 360 runtime plan as evidence;
-- keep this step contract-only unless a small pure runtime-contract helper is
-  needed;
+  audit, Step 360 runtime plan, and Step 361 runtime contract as evidence;
+- keep this step unwired: do not add the runtime to `v6/src/app.js`;
 - do not add the runtime to `v6/src/app.js` yet;
 - do not register commands or subscribe to events yet;
 - do not implement live runtime behavior yet;
@@ -547,7 +553,7 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the runtime contract and selected future
+- add static closeout coverage for the unwired runtime skeleton and selected
   owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
@@ -555,15 +561,17 @@ Notes for execution:
 
 Acceptance:
 
-- runtime contract exists and validates factory signature, dependency injection,
-  wrapper result shape, fallback result shape, diagnostics/no-op result, and
-  app registration preconditions without implementing live wiring;
+- unwired runtime skeleton exists and validates contract-shaped factory,
+  injectable dependencies, start/stop cleanup, wrapper helper shape, and no app
+  registration without implementing live wiring;
 - exact future handoff owner boundary remains
   `runtime.replay-coordination-materialization-handoff`;
 - exact Step 357 command/event surfaces remain consumed as plan data;
 - Step 358 pure executor remains the future decision harness;
 - Step 359 wiring readiness audit remains the future wiring surface evidence;
 - Step 360 runtime plan remains the future lifecycle/dispatch evidence;
+- Step 361 runtime contract remains the future factory/dependency/result
+  evidence;
 - fallback gates remain enforced as pure returned decisions before runtime
   wiring;
 - replay source `1m` authority and target-bars display-only policy are explicit;
@@ -582,6 +590,39 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 361 - Narrow Replay Materialization Runtime Handoff Runtime Contract
+
+Completed in this narrow replay materialization runtime handoff runtime contract
+commit series.
+
+Verification:
+
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-step361-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-boundary-step361-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-closeout-step361-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-plan-closeout-step360-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added the contract-only
+  `narrow-replay-materialization-runtime-handoff-runtime-contract` helper.
+- Defined future factory signature:
+  `createReplayCoordinationMaterializationRuntimeHandoff(dependencies)`.
+- Defined dependency shape for injected `subscribeEvent`, `dispatchCommand`,
+  and `executeNarrowReplayMaterializationRuntimeHandoffPlan`.
+- Defined wrapper result, fallback result, and no-op diagnostics result shapes.
+- Defined app registration preconditions before live wiring.
+- Did not add runtime to `v6/src/app.js`.
+- Did not register commands, subscribe to events, dispatch commands, emit
+  diagnostics events, or change runtime behavior.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 360 - Narrow Replay Materialization Runtime Handoff Runtime Plan
 

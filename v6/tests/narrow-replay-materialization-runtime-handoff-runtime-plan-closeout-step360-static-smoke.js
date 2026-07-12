@@ -26,15 +26,11 @@ assert.match(index, /plan-only future runtime implementation shape/);
 assert.match(index, /runtime\s+contract as the next slice/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff runtime plan step:\s+Step 360/);
-assert.match(todo, /### Step 361 - Narrow Replay Materialization Runtime Handoff Runtime Contract/);
 assert.match(todo, /### Step 360 - Narrow Replay Materialization Runtime Handoff Runtime Plan/);
 assert.match(todo, /Defined future lifecycle: create helper, subscribe on start/);
 assert.match(todo, /Did not add runtime to `v6\/src\/app\.js`/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 360 closeout/);
-assert.match(handoff, /Latest completed step: Step 360 - Narrow Replay Materialization Runtime\s+Handoff Runtime Plan/);
 assert.match(handoff, /Step 360 added the plan-only future runtime implementation plan/);
-assert.match(handoff, /start with Step 361/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /runtime\.replay-coordination-materialization-handoff/);
