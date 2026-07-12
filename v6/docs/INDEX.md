@@ -483,6 +483,11 @@ Read this index before working on V6.
   pane-local containers, `getSnapshot`/`snapshotReady` consumption, Step 349
   view-model routing, and hidden/collapsed rendering without producer runtime
   or replay/chart behavior changes.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_PRODUCER_FLOW_STEP352.md`:
+  accepted browser regression coverage proving real Display-Timeframe, Manual
+  Next, and Auto Play producer flows update the pane-status materialization
+  diagnostics readout without direct diagnostics update dispatch or producer
+  runtime changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -22,12 +22,9 @@ assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_DOM_WI
 assert.match(index, /controlled pane-status diagnostics readout DOM wiring/);
 
 assert.match(todo, /Latest completed target materialization diagnostics DOM wiring step:\s+Step\s+351/);
-assert.match(todo, /### Step 352 - Target Materialization Replay Diagnostics Readout Producer Flow Browser Regression/);
 assert.match(todo, /### Step 351 - Target Materialization Replay Diagnostics Readout DOM Wiring/);
 
-assert.match(handoff, /Latest completed step: Step 351 - Target Materialization Replay Diagnostics\s+Readout DOM Wiring/);
 assert.match(handoff, /Step 351 implemented controlled pane-status diagnostics readout DOM wiring/);
-assert.match(handoff, /start with Step 352/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /targetMaterializationReplayDiagnostics\.getSnapshot/);

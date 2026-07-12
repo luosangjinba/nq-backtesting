@@ -403,6 +403,13 @@
   `snapshotReady`, routes through the Step 349 view model, and renders
   hidden/collapsed states without producer runtime, target loading, replay
   cursor, chart-data, viewport, request sizing, or fast-path behavior changes.
+- Latest completed target materialization diagnostics readout producer-flow
+  step: Step 352 - Target Materialization Replay Diagnostics Readout Producer
+  Flow Browser Regression. V6 now verifies real Display-Timeframe
+  materialization, Manual Next, and Auto Play producer flows update the
+  pane-status materialization diagnostics readout without direct diagnostics
+  update dispatch, producer runtime changes, target loading, replay cursor,
+  chart-data, viewport, request sizing, or fast-path behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -438,7 +445,7 @@
 
 ## Next Executable Steps
 
-### Step 352 - Target Materialization Replay Diagnostics Readout Producer Flow Browser Regression
+### Step 353 - Target Materialization Replay Diagnostics Readout Producer Flow Pack Member
 
 Status: proposed.
 
@@ -446,20 +453,24 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 351 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_DOM_WIRING_STEP351.md`;
-- verify the Step 351 pane-status readout through real producer flows:
-  Display-Timeframe materialization, Manual Next, and Auto Play;
-- avoid direct `updateSnapshot` in the browser flow regression except for
-  clearly isolated setup that cannot affect the producer-flow assertions;
+- use Step 352 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_PRODUCER_FLOW_STEP352.md`;
+- add the Step 352 producer-flow readout browser smoke as an optional focused
+  target-history diagnostics regression pack member;
+- keep the default target-history pack membership unchanged unless the pack
+  owner already has a narrow inclusion rule for this exact readout producer-flow
+  member;
+- use the existing Step 309 pack group/member control style;
+- preserve the standalone Step 352 browser smoke command;
+- keep pack labels and member names explicit enough to distinguish this from
+  Step 337 replay coordination;
+- do not introduce direct `updateSnapshot` usage into the producer-flow browser
+  test;
 - keep shell consumption as command/event snapshot reading only through
   `getSnapshot` and `snapshotReady`;
-- keep all rendered payloads routed through the Step 349 view model;
 - keep internal-only fields hidden from readout row text;
 - do not call target APIs from shell readout code;
-- do not modify producer runtimes unless the browser test exposes an actual
-  diagnostics-runtime wiring bug; if code changes are needed, route them through
-  the diagnostics runtime owner boundary;
+- do not modify producer runtimes;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -469,24 +480,23 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser/static closeout coverage for producer-flow DOM readout behavior;
+- add static closeout coverage for the pack member registration;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser flow proves target-history-active collapsed rows after real
-  Display-Timeframe materialization;
-- browser flow proves Manual Next and Auto Play rows update through real
-  producer events;
-- fallback and normal replay states remain hidden/collapsed according to the
-  Step 349 view model;
-- internal-only fields are not rendered as rows or row text;
+- `TARGET_HISTORY_PACK_MEMBERS=<new-member>` runs only the Step 352
+  producer-flow readout browser smoke;
+- default target-history pack membership remains unchanged unless explicitly
+  justified by the existing pack owner policy;
+- standalone Step 352 browser smoke remains runnable;
+- static coverage proves the member maps to the Step 352 browser smoke and does
+  not replace the Step 337 replay-coordination member;
 - shell readout consumption remains command/event snapshot reading without
   direct target API calls;
-- producer runtimes remain unchanged unless a diagnostics-runtime wiring bug is
-  found and justified;
+- producer runtimes remain unchanged;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -495,6 +505,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 352 - Target Materialization Replay Diagnostics Readout Producer Flow Browser Regression
+
+Completed in this target materialization replay diagnostics readout producer
+flow regression commit series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-boundary-step352-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-dom-wiring-browser-step351-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-dom-wiring-boundary-step351-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser coverage for real Display-Timeframe materialization updating
+  the pane-status materialization diagnostics readout.
+- Added browser coverage for real Manual Next updating the visible readout row.
+- Added browser coverage for real Auto Play start/tick/stop updating the
+  visible readout row.
+- Verified fallback readout rendering from an empty target-bars response.
+- Verified returning to normal `1m` replay hides the readout with no rows.
+- Verified internal-only fields remain out of row text.
+- Did not dispatch `updateSnapshot` directly from the producer-flow browser
+  smoke.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 351 - Target Materialization Replay Diagnostics Readout DOM Wiring
 
