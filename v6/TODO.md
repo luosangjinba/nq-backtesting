@@ -605,6 +605,11 @@
   passed for `1m`/`5m`/`15m` and `1D`/`1W`/`1M`, proving
   `16:58 -> 16:59 -> 18:00 -> 18:01` with `2` pre-gap Manual Next calls while
   keeping Step 274 and Step 276 membership unchanged.
+- Latest completed replay-gap fast pack selection step: Step 386 - Replay Gap
+  Fast Pack Integration Selection. V6 selected a fast/full replay-gap pack
+  split: keep Step 274 as the full long-path confirmation command, keep Step
+  276 using Step 274 for now, and implement a new standalone fast replay-gap
+  pack next.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -640,25 +645,26 @@
 
 ## Next Executable Steps
 
-### Step 386 - Replay Gap Fast Pack Integration Selection
+### Step 387 - Replay Gap Fast Browser Pack Implementation
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 385 closeout:
-  `v6/docs/V6_REPLAY_GAP_NEAR_GAP_MANUAL_FIXTURE_STEP385.md`;
-- decide how the proven near-gap fixture should participate in replay-gap
-  regression strategy:
-  - keep it standalone;
-  - add it as a fast pack member while preserving one long-path source case;
-  - split Step 274 into fast and full commands;
-- inspect existing Step 274 and Step 276 pack wiring before choosing;
+- use Step 386 closeout:
+  `v6/docs/V6_REPLAY_GAP_FAST_PACK_INTEGRATION_SELECTION_STEP386.md`;
+- implement standalone command
+  `node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js`;
+- run these fast members serially with Step 274-style fail-fast behavior:
+  - `v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`;
+  - `v6/tests/auto-play-session-gap-browser-step263-smoke.js`;
+  - `v6/tests/htf-auto-play-replay-gap-browser-step273-smoke.js`;
 - keep standalone command
   `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`;
 - keep at least one long-path manual source assertion available for confidence;
-- do not change Step 274 or Step 276 membership in the selection step unless
-  the chosen output explicitly scopes that implementation;
+- leave Step 274 full pack membership unchanged;
+- leave Step 276 foundation pack membership unchanged in this implementation
+  step;
 - keep `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
   usable as the broad confirmation command;
 - do not modify `v6/src/app.js`;
@@ -687,20 +693,20 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the pack-integration selection and next
-  executable step;
+- add static coverage proving the fast pack members, Step 274 unchanged, Step
+  276 unchanged, and Step 385 standalone fixture remain directly runnable;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- pack strategy decision is documented with a clear recommended next
-  implementation slice;
+- standalone fast replay-gap browser pack command passes;
+- fast pack runs the Step 385 near-gap manual fixture plus existing low-TF and
+  HTF auto-play gap members;
 - one long-path manual source assertion remains preserved in the strategy;
 - the Step 385 standalone near-gap fixture remains directly runnable;
-- Step 274 and Step 276 pack membership remain unchanged unless the step
-  explicitly implements the selected wiring;
+- Step 274 and Step 276 pack membership remain unchanged;
 - existing manual-next, auto-play, and HTF replay-gap assertions are not
   weakened;
 - selected next slice remains chart-foundation work and does not return to the
@@ -752,6 +758,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 386 - Replay Gap Fast Pack Integration Selection
+
+Completed in this replay-gap fast pack integration selection commit series.
+
+Verification:
+
+- `node v6/tests/replay-gap-fast-pack-integration-selection-step386-static-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-static-smoke.js`
+- `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Selected a fast/full replay-gap pack split.
+- Kept Step 274 as the full replay-gap confirmation command.
+- Kept Step 276 using the full Step 274 command for now.
+- Selected future fast pack command
+  `node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js`.
+- Chose fast members: Step 385 near-gap manual fixture, low-TF auto-play gap
+  smoke, and HTF auto-play gap smoke.
+- Preserved at least one long-path manual source assertion through the full
+  Step 274 command.
+- Did not modify runtime behavior, `v6/src/app.js`, command surfaces, replay
+  cursor movement, no-bar gap skipping, chart viewport, chart engine, Step 274
+  membership, Step 276 membership, or the Step 362 runtime skeleton.
+- Selected Step 387 - Replay Gap Fast Browser Pack Implementation as the next
+  bounded chart-foundation slice.
 
 ### Step 385 - Replay Gap Near-Gap Manual Fixture Browser Probe
 

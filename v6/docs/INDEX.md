@@ -652,6 +652,10 @@ Read this index before working on V6.
   standalone near-gap manual browser fixture proving the six low-TF/HTF
   replay-gap paths with `2` pre-gap Manual Next calls while keeping Step 274
   and Step 276 membership unchanged.
+- `v6/docs/V6_REPLAY_GAP_FAST_PACK_INTEGRATION_SELECTION_STEP386.md`: accepted
+  fast/full replay-gap pack split selection, preserving Step 274 as the full
+  confirmation command and selecting a standalone fast pack implementation as
+  the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
