@@ -118,6 +118,14 @@ export const CHART_ENTRY_AUTO_PLAY_EVENTS = Object.freeze({
   TICKED: 'chartEntryAutoPlay:ticked',
 });
 
+export const TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS = Object.freeze({
+  GET_SNAPSHOT: 'targetMaterializationReplayDiagnostics.getSnapshot',
+});
+
+export const TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS = Object.freeze({
+  SNAPSHOT_READY: 'targetMaterializationReplayDiagnostics:snapshotReady',
+});
+
 export const CHART_HISTORY_COMMANDS = Object.freeze({
   GET_STATE: 'chartHistory.getState',
   REQUEST_LEFT_EXTENSION: 'chartHistory.requestLeftExtension',
