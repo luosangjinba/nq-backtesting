@@ -9,10 +9,13 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 339 closeout
-- Latest completed step: Step 339 - Target-History Pack Replay Coordination
-  Member Integration
+- Worktree at handoff: clean after Step 340 closeout
+- Latest completed step: Step 340 - Target-Timeframe Materialization Post-Pack
+  Reselection
 - Recent relevant commits:
+  - Step 340 selected
+    `target-materialization-replay-coordination-diagnostics-readout` as the
+    next bounded slice before any narrow runtime handoff.
   - Step 339 added optional target-history pack member `replay-coordination`
     for the Step 337 replay coordination browser smoke while preserving the
     default eight-member pack.
@@ -87,7 +90,8 @@ Read this block first after restarting the server or assistant context.
   timestamp. Step 338 selects target-history pack replay coordination member
   integration as the next bounded slice, keeping runtime behavior unchanged.
   Step 339 implements that pack member as optional `replay-coordination` so the
-  default eight-member target-history pack stays unchanged.
+  default eight-member target-history pack stays unchanged. Step 340 selects
+  diagnostics/readout ownership as the next slice before any runtime handoff.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -128,8 +132,9 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 340:
-   target-timeframe materialization post-pack reselection.
+4. If continuing planned work, start with Step 341:
+   target materialization replay coordination diagnostics readout owner
+   contract.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;

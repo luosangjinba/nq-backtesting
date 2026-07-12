@@ -435,6 +435,9 @@ Read this index before working on V6.
   accepted optional target-history browser pack member integration for the
   Step 337 replay coordination browser smoke while preserving the default
   eight-member pack.
+- `v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_POST_PACK_SELECTION_STEP340.md`:
+  selected target materialization replay coordination diagnostics/readout as
+  the next bounded slice after pack member integration.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -9,10 +9,10 @@ const helper = await readFile('v6/tests/helpers/target-history-pack-cost-control
 const smoke = await readFile('v6/tests/target-history-pack-replay-coordination-member-step339-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_HISTORY_PACK_REPLAY_COORDINATION_MEMBER_STEP339\.md/);
-assert.match(todo, /Latest completed target-history pack member step: Step 339/);
-assert.match(todo, /### Step 340 - Target-Timeframe Materialization Post-Pack Reselection/);
-assert.match(handoff, /Latest completed step: Step 339 - Target-History Pack Replay Coordination\s+Member Integration/);
-assert.match(handoff, /start with Step 340/);
+assert.match(todo, /### Step 339 - Target-History Pack Replay Coordination Member Integration/);
+assert.match(todo, /Added optional target-history pack member `replay-coordination`/);
+assert.match(handoff, /Step 339 added optional target-history pack member `replay-coordination`/);
+assert.match(handoff, /Step 339 implements that pack member as optional `replay-coordination`/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /`replay-coordination`/);

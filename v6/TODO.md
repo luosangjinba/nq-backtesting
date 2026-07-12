@@ -333,6 +333,10 @@
   replay coordination browser smoke as optional pack member
   `replay-coordination`, while the default target-history browser pack remains
   the existing eight-member pack.
+- Latest completed target-timeframe materialization post-pack selection step:
+  Step 340 - Target-Timeframe Materialization Post-Pack Reselection. V6
+  selected `target-materialization-replay-coordination-diagnostics-readout` as
+  the next bounded slice before any narrow runtime handoff.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -368,7 +372,7 @@
 
 ## Next Executable Steps
 
-### Step 340 - Target-Timeframe Materialization Post-Pack Reselection
+### Step 341 - Target Materialization Replay Coordination Diagnostics Readout Owner Contract
 
 Status: proposed.
 
@@ -376,14 +380,15 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 339 closeout:
-  `v6/docs/V6_TARGET_HISTORY_PACK_REPLAY_COORDINATION_MEMBER_STEP339.md`;
-- re-select the next bounded target-timeframe materialization slice after pack
-  member integration;
-- consider diagnostics/readout integration for materialized replay coordination
-  before any runtime handoff;
-- only select a narrow runtime handoff if owner boundaries, rollback criteria,
-  and pack coverage remain explicit;
+- use Step 340 closeout:
+  `v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_POST_PACK_SELECTION_STEP340.md`;
+- define the diagnostics/readout owner contract for materialized replay
+  coordination;
+- decide read-only fields for display apply, manual next, autoplay, fallback,
+  source cursor authority, and target-bar display-only state;
+- decide which runtime owns the diagnostic state and how shell reads it;
+- keep this step read-only unless the owner contract explicitly scopes a tiny
+  state surface;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -393,16 +398,17 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add pure selection/static closeout coverage for the chosen next slice;
+- add pure contract/static closeout coverage for the diagnostics/readout owner
+  boundary;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- the next target-timeframe materialization slice is explicitly selected;
-- selection records owner boundary, affected runtimes, forbidden actions, and
-  rollback criteria;
+- diagnostics/readout owner boundary is explicit;
+- accepted read-only fields are documented;
+- shell consumption path is documented without direct target API calls;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -411,6 +417,28 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 340 - Target-Timeframe Materialization Post-Pack Reselection
+
+Completed in this target-timeframe materialization post-pack selection commit
+series.
+
+Verification:
+
+- `node v6/tests/target-timeframe-materialization-post-pack-selection-step340-smoke.js`
+- `node v6/tests/target-timeframe-materialization-post-pack-boundary-step340-static-smoke.js`
+- `node v6/tests/target-history-pack-replay-coordination-member-closeout-step339-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure post-pack materialization selector.
+- Selected `target-materialization-replay-coordination-diagnostics-readout`.
+- Explicitly deferred narrow runtime handoff until diagnostics/readout ownership
+  is defined.
+- Runtime behavior is unchanged.
 
 ### Step 339 - Target-History Pack Replay Coordination Member Integration
 
