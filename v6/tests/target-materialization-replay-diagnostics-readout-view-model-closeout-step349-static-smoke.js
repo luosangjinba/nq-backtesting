@@ -25,13 +25,9 @@ assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_VIEW_M
 assert.match(index, /pure shell readout view model/);
 
 assert.match(todo, /Latest completed target materialization diagnostics readout model step: Step\s+349/);
-assert.match(todo, /### Step 350 - Target Materialization Replay Diagnostics Readout DOM Wiring Plan/);
-assert.match(todo, /do not wire visible DOM UI yet unless this step explicitly remains a\s+plan-only wiring contract/);
 assert.match(todo, /### Step 349 - Target Materialization Replay Diagnostics Readout View Model/);
 
-assert.match(handoff, /Latest completed step: Step 349 - Target Materialization Replay Diagnostics\s+Readout View Model/);
 assert.match(handoff, /Step 349 added a pure shell readout view model/);
-assert.match(handoff, /start with Step 350/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /empty or not-ready snapshots become `hidden`/);

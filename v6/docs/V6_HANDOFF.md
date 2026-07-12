@@ -9,10 +9,13 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 349 closeout
-- Latest completed step: Step 349 - Target Materialization Replay Diagnostics
-  Readout View Model
+- Worktree at handoff: clean after Step 350 closeout
+- Latest completed step: Step 350 - Target Materialization Replay Diagnostics
+  Readout DOM Wiring Plan
 - Recent relevant commits:
+  - Step 350 defined the plan-only pane-status DOM wiring contract, including
+    container placement, dataset attributes, command/event consumption,
+    Step 349 view-model routing, rendering rules, and rollback criteria.
   - Step 349 added a pure shell readout view model that maps diagnostics
     snapshots into hidden/collapsed states and first-visible rows while keeping
     internal-only fields hidden and visible DOM UI unwired.
@@ -145,6 +148,8 @@ Read this block first after restarting the server or assistant context.
   chart-data, viewport, request sizing, or fast-path behavior changes. Step
   349 adds the pure shell readout view model for hidden/collapsed diagnostics
   states and first-visible rows, still without DOM UI wiring or runtime
+  behavior changes. Step 350 defines the plan-only DOM wiring contract for
+  `shell.pane-status-readout`, still without visible UI wiring or runtime
   behavior changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
@@ -186,8 +191,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 350:
-   target materialization replay diagnostics readout DOM wiring plan.
+4. If continuing planned work, start with Step 351:
+   target materialization replay diagnostics readout DOM wiring.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
