@@ -443,6 +443,14 @@
   `runtime.replay-coordination-materialization-handoff` owner without runtime
   behavior, producer runtime, replay cursor, target loading, chart-data,
   viewport, request sizing, or fast-path behavior changes.
+- Latest completed narrow replay materialization handoff executor step:
+  Step 358 - Narrow Replay Materialization Runtime Handoff Pure Executor
+  Harness. V6 now evaluates the Step 357 plan from injected results only,
+  returns a `chartData.replaceBars` intent on the happy path, returns named
+  fallback gates for source `1m`, missing data, target plan/load misses, and
+  future-only target bars, and still avoids runtime behavior, producer runtime,
+  replay cursor, target loading, chart-data, viewport, request sizing, and
+  fast-path behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -478,7 +486,7 @@
 
 ## Next Executable Steps
 
-### Step 358 - Narrow Replay Materialization Runtime Handoff Pure Executor Harness
+### Step 359 - Narrow Replay Materialization Runtime Handoff Wiring Readiness Audit
 
 Status: proposed.
 
@@ -486,23 +494,20 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 357 closeout:
-  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_PLAN_STEP357.md`;
-- create a pure executor harness for
+- use Step 358 closeout:
+  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_EXECUTOR_STEP358.md`;
+- audit live runtime wiring surfaces for
   `replay-coordination-materialization-runtime-handoff`;
-- consume the Step 357 plan from
-  `v6/src/replay/narrow-replay-materialization-runtime-handoff-plan.js`;
-- model the future handoff decision from injected command results only;
-- validate the happy path: Manual Next advanced trigger, pane context, replay
-  state, source bars, target window plan, target window load, and chart-data
-  replacement intent;
-- validate fallback gates for source `1m`, missing pane context, missing replay
-  cursor, missing source bars, target plan miss, target load miss, and all
-  target bars filtered as future;
-- keep the executor pure: return an action plan/result instead of dispatching
-  commands or subscribing to events;
+- identify the exact app registration point, event subscription placement,
+  command dispatch wrapper shape, and rollback criteria;
+- consume Step 357 plan and Step 358 pure executor as readiness evidence;
+- decide whether the future wiring can be a new runtime helper registered by
+  app shell without modifying Manual Next, Auto Play, Display-Timeframe, or
+  diagnostics producer runtimes;
+- keep this step audit-only unless a small pure readiness helper is needed;
 - do not register commands or subscribe to events yet;
 - do not implement live runtime behavior yet;
+- do not dispatch commands from the new helper yet;
 - preserve diagnostics runtime as read-only observability;
 - preserve Display-Timeframe Runtime as the TF-switch owner;
 - keep replay source `1m` authority explicit;
@@ -528,7 +533,7 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the pure executor harness and selected
+- add static closeout coverage for the wiring readiness audit and selected
   future owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
@@ -536,12 +541,14 @@ Notes for execution:
 
 Acceptance:
 
-- pure executor harness exists and validates future handoff decisions from
-  injected results;
+- wiring readiness audit exists and validates future live wiring surfaces
+  without implementing them;
 - exact future handoff owner boundary remains
   `runtime.replay-coordination-materialization-handoff`;
 - exact Step 357 command/event surfaces remain consumed as plan data;
-- fallback gates are enforced as pure returned decisions before runtime wiring;
+- Step 358 pure executor remains the future decision harness;
+- fallback gates remain enforced as pure returned decisions before runtime
+  wiring;
 - replay source `1m` authority and target-bars display-only policy are explicit;
 - runtime behavior remains unchanged;
 - default target-history pack membership remains unchanged;
@@ -558,6 +565,40 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 358 - Narrow Replay Materialization Runtime Handoff Pure Executor Harness
+
+Completed in this narrow replay materialization runtime handoff pure executor
+commit series.
+
+Verification:
+
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-step358-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-boundary-step358-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-closeout-step358-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-closeout-step357-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added the pure
+  `narrow-replay-materialization-runtime-handoff-pure-executor` harness.
+- Consumed the Step 357 plan from
+  `narrow-replay-materialization-runtime-handoff-plan`.
+- Returned a `chartData.replaceBars` intent with `preserveSource: true` on the
+  happy path.
+- Reused the source-cursor target-bar no-future reveal policy.
+- Returned named fallback gates for source `1m`, missing pane context, missing
+  replay cursor, missing source bars, target plan miss, target load miss, and
+  all target bars filtered as future.
+- Did not register commands, subscribe to events, dispatch commands, or change
+  runtime behavior.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 357 - Narrow Replay Materialization Runtime Handoff Plan
 

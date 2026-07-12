@@ -511,6 +511,11 @@ Read this index before working on V6.
   accepted the plan-only narrow replay materialization runtime handoff
   sequence, including the Manual Next advanced trigger, exact command order,
   fallback gates, and pure executor harness as the next slice.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_EXECUTOR_STEP358.md`:
+  accepted the pure executor harness for the future narrow replay
+  materialization runtime handoff, validating injected command results,
+  source-cursor no-future target filtering, fallback gates, and runtime wiring
+  audit as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

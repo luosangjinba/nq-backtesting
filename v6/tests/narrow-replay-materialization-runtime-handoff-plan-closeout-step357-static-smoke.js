@@ -26,15 +26,11 @@ assert.match(index, /Manual Next advanced trigger/);
 assert.match(index, /pure executor harness as the next slice/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff plan step:\s+Step 357/);
-assert.match(todo, /### Step 358 - Narrow Replay Materialization Runtime Handoff Pure Executor Harness/);
 assert.match(todo, /### Step 357 - Narrow Replay Materialization Runtime Handoff Plan/);
 assert.match(todo, /Defined `chartEntryManualNext:advanced` as the future trigger/);
 assert.match(todo, /Defined fallback gates before runtime wiring/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 357 closeout/);
-assert.match(handoff, /Latest completed step: Step 357 - Narrow Replay Materialization Runtime\s+Handoff Plan/);
 assert.match(handoff, /Step 357 added the plan-only narrow replay materialization runtime handoff\s+helper/);
-assert.match(handoff, /start with Step 358/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /runtime\.replay-coordination-materialization-handoff/);

@@ -9,10 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 357 closeout
-- Latest completed step: Step 357 - Narrow Replay Materialization Runtime
-  Handoff Plan
+- Worktree at handoff: clean after Step 358 closeout
+- Latest completed step: Step 358 - Narrow Replay Materialization Runtime
+  Handoff Pure Executor Harness
 - Recent relevant commits:
+  - Step 358 added the pure executor harness for the future narrow replay
+    materialization runtime handoff. It consumes the Step 357 plan and injected
+    command results, returns a `chartData.replaceBars` intent on the happy path,
+    returns named fallback gates for source `1m`, missing context/data,
+    target plan/load misses, and future-only target bars, and keeps runtime
+    behavior unchanged.
   - Step 357 added the plan-only narrow replay materialization runtime handoff
     helper for future owner boundary
     `runtime.replay-coordination-materialization-handoff`, defining
@@ -210,7 +216,9 @@ Read this block first after restarting the server or assistant context.
   exact event/command surfaces, keeps diagnostics read-only, and still avoids
   runtime behavior changes. Step 357 defines the plan-only trigger, command
   sequence, fallback gates, and forbidden surfaces for that future helper, still
-  without runtime behavior changes.
+  without runtime behavior changes. Step 358 adds a pure executor harness for
+  that plan, returning injected-result decisions and fallback gates without
+  runtime wiring.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -251,8 +259,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 358:
-   narrow replay materialization runtime handoff pure executor harness.
+4. If continuing planned work, start with Step 359:
+   narrow replay materialization runtime handoff wiring readiness audit.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -266,6 +274,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-step357-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-boundary-step357-static-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-plan-closeout-step357-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-step358-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-boundary-step358-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-executor-closeout-step358-static-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -278,10 +289,10 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 358 - Narrow Replay Materialization Runtime
-  Handoff Pure Executor Harness.
-- Keep Step 358 pure: evaluate the Step 357 sequence and fallback gates from
-  injected command results before any runtime wiring.
+- Recommended next action is Step 359 - Narrow Replay Materialization Runtime
+  Handoff Wiring Readiness Audit.
+- Keep Step 359 audit-only: identify app registration, event subscription, and
+  command dispatch wrapper surfaces before live runtime wiring.
 
 ## Current State
 
