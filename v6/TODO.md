@@ -630,6 +630,12 @@
   Foundation Replay Gap Mode Documentation Closeout. V6 documented the default
   fast foundation command, explicit full replay-gap foundation command, direct
   Step 387 fast pack, direct Step 274 full pack, and Step 385 near-gap fixture.
+- Latest completed chart-foundation runtime refresh selection step: Step 391 -
+  Chart Foundation Runtime Refresh Selection. V6 compared the current default
+  fast Step 276 runtime `44597ms` against the older full Step 381 runtime
+  `105292ms`, selected no additional immediate browser runtime refresh, and
+  closed the replay-gap pack cost-control chain for now while keeping the full
+  replay-gap command explicit.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -665,18 +671,20 @@
 
 ## Next Executable Steps
 
-### Step 391 - Chart Foundation Runtime Refresh Selection
+### Step 392 - Chart Foundation Post Replay-Gap Cost Control Re-audit
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 390 closeout:
-  `v6/docs/V6_FOUNDATION_REPLAY_GAP_MODE_CLOSEOUT_STEP390.md`;
-- compare the latest Step 276 default fast runtime `44597ms` against the older
-  Step 381 full runtime `105292ms`;
-- decide whether a new browser runtime refresh is needed before returning to
-  feature work;
+- use Step 391 selection:
+  `v6/docs/V6_CHART_FOUNDATION_RUNTIME_REFRESH_SELECTION_STEP391.md`;
+- re-audit the chart-foundation queue after the replay-gap cost-control chain
+  closes;
+- select the next concrete chart-foundation implementation or verification
+  slice;
+- keep the Step 391 decision that no additional immediate browser runtime
+  refresh is required unless a new concrete risk appears;
 - keep the default fast foundation command documented:
   `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`;
 - keep the explicit full replay-gap foundation command documented:
@@ -713,14 +721,14 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static coverage for the refresh decision and next executable step;
+- add static coverage for the re-audit decision and next executable step;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- refresh/next-slice decision is documented;
+- post-cost-control re-audit and next-slice decision are documented;
 - default fast and explicit full foundation commands remain documented;
 - standalone fast replay-gap browser pack remains directly runnable;
 - one long-path manual source assertion remains preserved in the strategy;
@@ -777,6 +785,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 391 - Chart Foundation Runtime Refresh Selection
+
+Completed in this chart-foundation runtime refresh selection commit series.
+
+Verification:
+
+- `node v6/tests/chart-foundation-runtime-refresh-selection-step391-static-smoke.js`
+- `node v6/tests/foundation-replay-gap-mode-closeout-step390-static-smoke.js`
+- `node v6/tests/foundation-pack-replay-gap-fast-full-mode-step389-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Compared the current default fast Step 276 runtime `44597ms` against the older
+  full Step 381 runtime `105292ms`.
+- Recorded Step 274 full replay-gap member cost `90350ms`, Step 387 standalone
+  fast pack runtime `24532ms`, and Step 389 default foundation fast replay-gap
+  member runtime `28243ms`.
+- Selected no additional immediate browser runtime refresh because the current
+  default foundation command was already rerun after the Step 276 fast/full
+  mode split.
+- Closed the replay-gap pack cost-control chain for now.
+- Preserved the explicit full replay-gap foundation command and direct Step 274
+  full pack as the broad long-path confirmation path.
+- Selected Step 392 - Chart Foundation Post Replay-Gap Cost Control Re-audit
+  as the next bounded chart-foundation slice.
+- Did not modify runner behavior, production runtime behavior, `v6/src/app.js`,
+  command surfaces, replay cursor movement, no-bar gap skipping, chart viewport,
+  chart engine, Step 274 membership, Step 276 behavior, Step 387 membership, or
+  the Step 362 runtime skeleton.
 
 ### Step 390 - Foundation Replay Gap Mode Documentation Closeout
 

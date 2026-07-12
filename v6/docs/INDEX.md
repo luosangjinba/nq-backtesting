@@ -668,6 +668,11 @@ Read this index before working on V6.
 - `v6/docs/V6_FOUNDATION_REPLAY_GAP_MODE_CLOSEOUT_STEP390.md`: accepted
   documentation closeout for default fast foundation regression, explicit full
   replay-gap foundation mode, and direct replay-gap pack commands.
+- `v6/docs/V6_CHART_FOUNDATION_RUNTIME_REFRESH_SELECTION_STEP391.md`: accepted
+  runtime refresh selection after the replay-gap fast/full mode split,
+  selecting no additional immediate browser refresh before the next
+  chart-foundation re-audit while preserving explicit full replay-gap
+  confirmation commands.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

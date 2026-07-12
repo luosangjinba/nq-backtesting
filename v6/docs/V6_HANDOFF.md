@@ -9,9 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 390 closeout
-- Latest completed step: Step 390 - Foundation Replay Gap Mode Documentation Closeout
+- Worktree at handoff: clean after Step 391 closeout
+- Latest completed step: Step 391 - Chart Foundation Runtime Refresh Selection
 - Recent relevant commits:
+  - Step 391 compared the current default fast Step 276 runtime `44597ms`
+    against the older full Step 381 runtime `105292ms`, selected no additional
+    immediate browser runtime refresh, and closed the replay-gap pack
+    cost-control chain for now. The explicit full replay-gap foundation command
+    and direct Step 274 full pack remain the broad long-path confirmation
+    paths. Step 392 should re-audit the chart-foundation queue and select the
+    next concrete chart-foundation slice.
   - Step 390 documented the foundation replay-gap mode commands. Routine
     foundation regression uses
     `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
@@ -464,8 +471,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 391:
-   chart foundation runtime refresh selection.
+4. If continuing planned work, start with Step 392:
+   chart foundation post replay-gap cost control re-audit.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -547,6 +554,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/foundation-pack-replay-gap-fast-full-selection-step388-static-smoke.js`
 - `node v6/tests/foundation-pack-replay-gap-fast-full-mode-step389-static-smoke.js`
 - `node v6/tests/foundation-replay-gap-mode-closeout-step390-static-smoke.js`
+- `node v6/tests/chart-foundation-runtime-refresh-selection-step391-static-smoke.js`
+- `node v6/tests/chart-foundation-runtime-refresh-selection-closeout-step391-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -561,11 +570,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 391 - Chart Foundation Runtime Refresh
-  Selection.
-- Compare the latest default fast Step 276 runtime `44597ms` against the older
-  full Step 381 runtime `105292ms`, then decide whether another browser runtime
-  refresh is needed before returning to feature work.
+- Recommended next action is Step 392 - Chart Foundation Post Replay-Gap Cost
+  Control Re-audit.
+- Re-audit the chart-foundation queue after closing the replay-gap pack
+  cost-control chain, then select the next concrete chart-foundation
+  implementation or verification slice.
 
 ## Current State
 
