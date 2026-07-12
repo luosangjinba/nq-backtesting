@@ -488,6 +488,11 @@ Read this index before working on V6.
   Next, and Auto Play producer flows update the pane-status materialization
   diagnostics readout without direct diagnostics update dispatch or producer
   runtime changes.
+- `v6/docs/V6_TARGET_HISTORY_PACK_READOUT_PRODUCER_FLOW_MEMBER_STEP353.md`:
+  accepted optional target-history diagnostics regression pack member
+  `readout-producer-flow` for the Step 352 producer-flow readout browser smoke,
+  while keeping the default eight-member pack and existing `replay-coordination`
+  optional member unchanged.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

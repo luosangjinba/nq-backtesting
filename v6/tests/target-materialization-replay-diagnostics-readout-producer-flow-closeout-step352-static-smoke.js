@@ -21,12 +21,9 @@ assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_PRODUC
 assert.match(index, /real Display-Timeframe, Manual\s+Next, and Auto Play producer flows update the pane-status/);
 
 assert.match(todo, /Latest completed target materialization diagnostics readout producer-flow\s+step:\s+Step 352/);
-assert.match(todo, /### Step 353 - Target Materialization Replay Diagnostics Readout Producer Flow Pack Member/);
 assert.match(todo, /### Step 352 - Target Materialization Replay Diagnostics Readout Producer Flow Browser Regression/);
 
-assert.match(handoff, /Latest completed step: Step 352 - Target Materialization Replay Diagnostics\s+Readout Producer Flow Browser Regression/);
 assert.match(handoff, /Step 352 added browser\/static regression coverage proving real\s+Display-Timeframe materialization, Manual Next, and Auto Play producer/);
-assert.match(handoff, /start with Step 353/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /DISPLAY_TIMEFRAME_COMMANDS\.APPLY/);

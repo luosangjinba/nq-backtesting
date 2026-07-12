@@ -410,6 +410,12 @@
   pane-status materialization diagnostics readout without direct diagnostics
   update dispatch, producer runtime changes, target loading, replay cursor,
   chart-data, viewport, request sizing, or fast-path behavior changes.
+- Latest completed target-history pack readout producer-flow member step:
+  Step 353 - Target Materialization Replay Diagnostics Readout Producer Flow
+  Pack Member. V6 now exposes the Step 352 producer-flow readout browser smoke
+  as optional target-history pack member `readout-producer-flow` while keeping
+  the default eight-member pack and existing `replay-coordination` optional
+  member unchanged.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -445,7 +451,7 @@
 
 ## Next Executable Steps
 
-### Step 353 - Target Materialization Replay Diagnostics Readout Producer Flow Pack Member
+### Step 354 - Target Materialization Replay Diagnostics Readout Pack Combination Verification
 
 Status: proposed.
 
@@ -453,17 +459,18 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 352 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_PRODUCER_FLOW_STEP352.md`;
-- add the Step 352 producer-flow readout browser smoke as an optional focused
-  target-history diagnostics regression pack member;
+- use Step 353 closeout:
+  `v6/docs/V6_TARGET_HISTORY_PACK_READOUT_PRODUCER_FLOW_MEMBER_STEP353.md`;
+- verify the optional target-history pack combination path:
+  `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow`;
 - keep the default target-history pack membership unchanged unless the pack
-  owner already has a narrow inclusion rule for this exact readout producer-flow
-  member;
+  owner already has a narrow inclusion rule for this exact combination;
 - use the existing Step 309 pack group/member control style;
 - preserve the standalone Step 352 browser smoke command;
-- keep pack labels and member names explicit enough to distinguish this from
-  Step 337 replay coordination;
+- preserve the standalone Step 337 replay-coordination browser smoke command;
+- confirm pack output starts Step 337 then Step 352 in member order;
+- keep pack labels and member names explicit enough to distinguish
+  `replay-coordination` from `readout-producer-flow`;
 - do not introduce direct `updateSnapshot` usage into the producer-flow browser
   test;
 - keep shell consumption as command/event snapshot reading only through
@@ -480,20 +487,21 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the pack member registration;
+- add static closeout coverage for combination registration and next-slice
+  decision;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- `TARGET_HISTORY_PACK_MEMBERS=<new-member>` runs only the Step 352
-  producer-flow readout browser smoke;
-- default target-history pack membership remains unchanged unless explicitly
-  justified by the existing pack owner policy;
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow` runs
+  Step 337 and Step 352 browser smokes in that order;
+- default target-history pack membership remains unchanged;
 - standalone Step 352 browser smoke remains runnable;
-- static coverage proves the member maps to the Step 352 browser smoke and does
-  not replace the Step 337 replay-coordination member;
+- standalone Step 337 browser smoke remains runnable through the existing
+  optional member;
+- static coverage proves the combination does not alter default selected ids;
 - shell readout consumption remains command/event snapshot reading without
   direct target API calls;
 - producer runtimes remain unchanged;
@@ -505,6 +513,37 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 353 - Target Materialization Replay Diagnostics Readout Producer Flow Pack Member
+
+Completed in this target-history pack readout producer-flow member commit
+series.
+
+Verification:
+
+- `node v6/tests/target-history-pack-readout-producer-flow-member-step353-static-smoke.js`
+- `node v6/tests/target-history-pack-cost-control-step309-smoke.js`
+- `node v6/tests/target-history-pack-replay-coordination-member-step339-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-boundary-step352-static-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added optional target-history pack member `readout-producer-flow`.
+- Mapped `readout-producer-flow` to the Step 352 producer-flow readout browser
+  smoke.
+- Kept the default target-history pack at eight members.
+- Kept existing optional member `replay-coordination` unchanged.
+- Verified `TARGET_HISTORY_PACK_MEMBERS=readout-producer-flow` runs only the
+  Step 352 browser smoke.
+- Did not modify Step 352 standalone browser behavior.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 352 - Target Materialization Replay Diagnostics Readout Producer Flow Browser Regression
 
