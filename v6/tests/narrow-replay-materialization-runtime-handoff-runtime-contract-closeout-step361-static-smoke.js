@@ -26,15 +26,11 @@ assert.match(index, /contract-only future runtime surface/);
 assert.match(index, /unwired runtime skeleton as the next slice/);
 
 assert.match(todo, /Latest completed narrow replay materialization handoff runtime contract step:\s+Step 361/);
-assert.match(todo, /### Step 362 - Narrow Replay Materialization Runtime Handoff Unwired Runtime Skeleton/);
 assert.match(todo, /### Step 361 - Narrow Replay Materialization Runtime Handoff Runtime Contract/);
 assert.match(todo, /Defined future factory signature/);
 assert.match(todo, /Defined app registration preconditions before live wiring/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 361 closeout/);
-assert.match(handoff, /Latest completed step: Step 361 - Narrow Replay Materialization Runtime\s+Handoff Runtime Contract/);
 assert.match(handoff, /Step 361 added the contract-only future runtime surface/);
-assert.match(handoff, /start with Step 362/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /runtime\.replay-coordination-materialization-handoff/);

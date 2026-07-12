@@ -9,10 +9,15 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 361 closeout
-- Latest completed step: Step 361 - Narrow Replay Materialization Runtime
-  Handoff Runtime Contract
+- Worktree at handoff: clean after Step 362 closeout
+- Latest completed step: Step 362 - Narrow Replay Materialization Runtime
+  Handoff Unwired Runtime Skeleton
 - Recent relevant commits:
+  - Step 362 added the unwired runtime skeleton for the narrow replay
+    materialization handoff. It implements the contract-shaped factory with
+    injectable `subscribeEvent`, `dispatchCommand`, and executor dependencies,
+    command-result wrapper helpers, start/stop cleanup, and still avoids
+    `v6/src/app.js` registration.
   - Step 361 added the contract-only future runtime surface for the narrow
     replay materialization handoff. It defines factory signature, injected
     dependencies, wrapper/fallback/no-op diagnostics result shapes, app
@@ -239,7 +244,9 @@ Read this block first after restarting the server or assistant context.
   Step 360 defines that runtime plan and selects a runtime contract next, still
   without app registration or live runtime wiring. Step 361 defines that
   runtime contract and selects an unwired runtime skeleton next, still without
-  app registration or live runtime wiring.
+  app registration or live runtime wiring. Step 362 adds that unwired runtime
+  skeleton and selects app registration readiness audit next, still without app
+  registration.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -280,8 +287,9 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 362:
-   narrow replay materialization runtime handoff unwired runtime skeleton.
+4. If continuing planned work, start with Step 363:
+   narrow replay materialization runtime handoff app registration readiness
+   audit.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -307,6 +315,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-step361-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-boundary-step361-static-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-closeout-step361-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-step362-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-boundary-step362-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-closeout-step362-static-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -319,10 +330,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 362 - Narrow Replay Materialization Runtime
-  Handoff Unwired Runtime Skeleton.
-- Keep Step 362 unwired: implement the contract-shaped factory with injected
-  dependencies and start/stop cleanup tests, but do not add it to `v6/src/app.js`.
+- Recommended next action is Step 363 - Narrow Replay Materialization Runtime
+  Handoff App Registration Readiness Audit.
+- Keep Step 363 audit-only: identify exact app import/register position,
+  dependency injection source, rollback plan, and focused browser coverage
+  before registering the skeleton.
 
 ## Current State
 

@@ -531,6 +531,11 @@ Read this index before working on V6.
   materialization handoff, defining factory signature, dependency shape,
   wrapper/fallback/diagnostics result shapes, app registration preconditions,
   and unwired runtime skeleton as the next slice.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_UNWIRED_RUNTIME_SKELETON_STEP362.md`:
+  accepted the unwired runtime skeleton for the narrow replay materialization
+  handoff, implementing the contract-shaped factory with injectable
+  dependencies, start/stop cleanup, command-result wrapper helpers, and app
+  registration readiness audit as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

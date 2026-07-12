@@ -469,6 +469,13 @@
   now defines the contract-only future factory signature, dependency injection
   shape, wrapper/fallback/diagnostics result shapes, app registration
   preconditions, and keeps app registration/live runtime wiring deferred.
+- Latest completed narrow replay materialization handoff unwired skeleton step:
+  Step 362 - Narrow Replay Materialization Runtime Handoff Unwired Runtime
+  Skeleton. V6 now adds an unwired
+  `replay-coordination-materialization-runtime-handoff` factory with injectable
+  `subscribeEvent`, `dispatchCommand`, and executor dependencies, start/stop
+  cleanup tests, command-result wrapper helpers, and no `v6/src/app.js`
+  registration.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -504,7 +511,7 @@
 
 ## Next Executable Steps
 
-### Step 362 - Narrow Replay Materialization Runtime Handoff Unwired Runtime Skeleton
+### Step 363 - Narrow Replay Materialization Runtime Handoff App Registration Readiness Audit
 
 Status: proposed.
 
@@ -512,18 +519,20 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 361 closeout:
-  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_RUNTIME_CONTRACT_STEP361.md`;
-- create an unwired runtime skeleton module for
-  `replay-coordination-materialization-runtime-handoff`;
-- implement the contract shape with injectable `subscribeEvent`,
-  `dispatchCommand`, and executor dependencies;
-- test start/stop cleanup with injected fake subscribe/dispatch functions;
-- the skeleton may expose command wrapper helper functions but must not call
-  real runtime bus APIs by default;
+- use Step 362 closeout:
+  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_UNWIRED_RUNTIME_SKELETON_STEP362.md`;
+- audit app registration readiness for the unwired
+  `replay-coordination-materialization-runtime-handoff` runtime;
+- identify exact `v6/src/app.js` import and `registry.registerRuntime`
+  insertion position;
+- define dependency injection source for `subscribeEvent`, `dispatchCommand`,
+  and executor;
+- define rollback plan and focused browser coverage for a future registration
+  step;
 - consume Step 357 plan, Step 358 pure executor, Step 359 wiring readiness
-  audit, Step 360 runtime plan, and Step 361 runtime contract as evidence;
-- keep this step unwired: do not add the runtime to `v6/src/app.js`;
+  audit, Step 360 runtime plan, Step 361 runtime contract, and Step 362 unwired
+  skeleton as evidence;
+- keep this step audit-only;
 - do not add the runtime to `v6/src/app.js` yet;
 - do not register commands or subscribe to events yet;
 - do not implement live runtime behavior yet;
@@ -553,17 +562,17 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the unwired runtime skeleton and selected
-  owner;
+- add static closeout coverage for the app registration readiness audit and
+  selected owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- unwired runtime skeleton exists and validates contract-shaped factory,
-  injectable dependencies, start/stop cleanup, wrapper helper shape, and no app
-  registration without implementing live wiring;
+- app registration readiness audit exists and validates exact import/register
+  position, injected dependencies, rollback plan, and focused browser coverage
+  without implementing live app registration;
 - exact future handoff owner boundary remains
   `runtime.replay-coordination-materialization-handoff`;
 - exact Step 357 command/event surfaces remain consumed as plan data;
@@ -572,6 +581,7 @@ Acceptance:
 - Step 360 runtime plan remains the future lifecycle/dispatch evidence;
 - Step 361 runtime contract remains the future factory/dependency/result
   evidence;
+- Step 362 unwired skeleton remains unregistered in `v6/src/app.js`;
 - fallback gates remain enforced as pure returned decisions before runtime
   wiring;
 - replay source `1m` authority and target-bars display-only policy are explicit;
@@ -590,6 +600,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 362 - Narrow Replay Materialization Runtime Handoff Unwired Runtime Skeleton
+
+Completed in this narrow replay materialization runtime handoff unwired runtime
+skeleton commit series.
+
+Verification:
+
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-step362-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-boundary-step362-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-closeout-step362-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-runtime-contract-closeout-step361-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added unwired runtime skeleton module
+  `v6/src/replay/replay-coordination-materialization-runtime-handoff.js`.
+- Implemented contract-shaped factory
+  `createReplayCoordinationMaterializationRuntimeHandoff(dependencies)`.
+- Used injectable `subscribeEvent`, `dispatchCommand`, and executor
+  dependencies.
+- Added command-result wrapper helper and result builder helper.
+- Verified start/stop cleanup with injected fake dependencies.
+- Did not add runtime to `v6/src/app.js`.
+- Did not import real runtime command/event bus helpers.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 361 - Narrow Replay Materialization Runtime Handoff Runtime Contract
 
