@@ -553,6 +553,11 @@ Read this index before working on V6.
   `v6/src/app.js` import/register diff, focused browser coverage, historical
   static-test alignment, and optional pack-member integration as the next
   slice.
+- `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_HANDOFF_PACK_MEMBER_STEP366.md`:
+  accepted optional target-history diagnostics pack member
+  `handoff-registration` for the Step 365 app-registration browser smoke while
+  preserving the default eight-member pack and selecting HTF leftward-extension
+  performance measurement as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

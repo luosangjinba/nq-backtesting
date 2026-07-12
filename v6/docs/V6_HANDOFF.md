@@ -9,10 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 365 closeout
-- Latest completed step: Step 365 - Replay Coordination Materialization
-  Runtime Handoff App Registration
+- Worktree at handoff: clean after Step 366 closeout
+- Latest completed step: Step 366 - Replay Coordination Materialization
+  Runtime Handoff Pack Member
 - Recent relevant commits:
+  - Step 366 added optional target-history diagnostics pack member
+    `handoff-registration` for the Step 365 app-registration browser smoke,
+    preserving the default eight-member pack and existing optional members
+    `replay-coordination` and `readout-producer-flow`.
   - Step 365 registered the replay coordination materialization handoff runtime
     in `v6/src/app.js`, injecting app-level `subscribeEvent` and
     `dispatchCommand`, preserving registration order after Manual Next and
@@ -270,6 +274,8 @@ Read this block first after restarting the server or assistant context.
   364 defines that app registration plan and selects live app registration
   next, still without app registration. Step 365 registers the runtime in
   `v6/src/app.js` and selects optional regression pack member integration next.
+  Step 366 adds optional pack member `handoff-registration` and selects HTF
+  leftward-extension performance measurement next.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -310,8 +316,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 366:
-   replay coordination materialization runtime handoff pack member.
+4. If continuing planned work, start with Step 367:
+   HTF leftward extension performance measurement after runtime handoff.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -348,6 +354,10 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-closeout-step364-static-smoke.js`
 - `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`
 - `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-closeout-step365-static-smoke.js`
+- `node v6/tests/target-history-pack-handoff-registration-member-step366-static-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-pack-member-closeout-step366-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -360,11 +370,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 366 - Replay Coordination Materialization
-  Runtime Handoff Pack Member.
-- Add the Step 365 focused browser smoke as an optional target-history
-  diagnostics regression pack member. Keep the default eight-member pack
-  unchanged.
+- Recommended next action is Step 367 - HTF Leftward Extension Performance
+  Measurement After Runtime Handoff.
+- Measure `4h`, `8h`, `1D`, and `1W` leftward extension after the handoff
+  runtime registration and identify whether remaining latency sits in
+  source/target request, chart-data replacement, viewport reapply, or browser
+  paint.
 
 ## Current State
 

@@ -29,10 +29,7 @@ assert.match(todo, /### Step 366 - Replay Coordination Materialization Runtime H
 assert.match(todo, /### Step 365 - Replay Coordination Materialization Runtime Handoff App Registration/);
 assert.match(todo, /Registered\s+`createReplayCoordinationMaterializationRuntimeHandoff\(\{ subscribeEvent, dispatchCommand \}\)`/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 365 closeout/);
-assert.match(handoff, /Latest completed step: Step 365 - Replay Coordination Materialization\s+Runtime Handoff App Registration/);
 assert.match(handoff, /Step 365 registered the replay coordination materialization handoff runtime/);
-assert.match(handoff, /start with Step 366/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /App Registration/);

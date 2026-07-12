@@ -494,6 +494,12 @@
   after Manual Next and before Manual Previous, injects app-level
   `subscribeEvent` and `dispatchCommand`, and verifies the registration with a
   focused browser smoke while keeping replay source `1m` authority explicit.
+- Latest completed replay coordination materialization runtime handoff pack
+  member step: Step 366 - Replay Coordination Materialization Runtime Handoff
+  Pack Member. V6 now exposes the Step 365 focused app-registration browser
+  smoke as optional target-history diagnostics pack member
+  `handoff-registration`, preserving the default eight-member pack and the
+  existing optional members.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -529,7 +535,7 @@
 
 ## Next Executable Steps
 
-### Step 366 - Replay Coordination Materialization Runtime Handoff Pack Member
+### Step 367 - HTF Leftward Extension Performance Measurement After Runtime Handoff
 
 Status: proposed.
 
@@ -537,20 +543,20 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 365 closeout:
-  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_HANDOFF_APP_REGISTRATION_STEP365.md`;
-- add the focused registration browser smoke as an optional target-history
-  diagnostics regression pack member;
-- suggested member id: `handoff-registration`;
-- member script:
-  `v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`;
-- preserve optional pack members `replay-coordination` and
-  `readout-producer-flow`;
-- preserve the default eight-member target-history diagnostics pack;
-- add static pack member coverage proving the new optional member exists and is
-  not part of the default pack;
-- verify the member can run alone and combined with
-  `replay-coordination,readout-producer-flow`;
+- use Step 366 closeout:
+  `v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_HANDOFF_PACK_MEMBER_STEP366.md`;
+- return to the HTF leftward-extension performance thread after the replay
+  coordination materialization runtime handoff is registered;
+- add focused browser measurement for `4h`, `8h`, `1D`, and `1W` leftward
+  extension;
+- measure source request, target request, chart-data replacement, viewport
+  reapply, and browser-visible apply lag separately where existing diagnostics
+  allow it;
+- identify whether remaining perceived slowness is request sizing, sequential
+  target/source loading, chart-data replacement cost, viewport reapply, or
+  browser paint lag;
+- keep this step measurement-only unless the bottleneck is already proven by
+  existing code evidence;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -559,7 +565,8 @@ Notes for execution:
 - keep replay source `1m` authority explicit;
 - keep target bars display materialization input only;
 - do not route target bars through replay runtime;
-- preserve standalone Step 337, Step 352, and Step 365 browser smoke commands;
+- preserve standalone Step 337, Step 352, Step 365 browser smoke commands and
+  the optional `handoff-registration` pack member;
 - do not introduce direct `updateSnapshot` usage into producer-flow browser
   tests;
 - keep shell consumption as command/event snapshot reading only through
@@ -576,20 +583,21 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the optional pack member and selected owner;
+- add static closeout coverage for the measurement harness and selected next
+  owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- optional target-history diagnostics pack member `handoff-registration` exists
-  for the Step 365 focused app-registration browser smoke;
+- focused HTF leftward-extension browser measurement exists for `4h`, `8h`,
+  `1D`, and `1W`;
+- output separates source/target request, chart-data replacement, viewport
+  reapply, and visible apply lag enough to choose the next optimization owner;
 - default target-history diagnostics pack membership remains unchanged;
-- optional members `replay-coordination` and `readout-producer-flow` remain
-  unchanged;
-- combined optional pack execution can include
-  `replay-coordination,readout-producer-flow,handoff-registration`;
+- optional members `replay-coordination`, `readout-producer-flow`, and
+  `handoff-registration` remain unchanged;
 - exact future handoff owner boundary remains
   `runtime.replay-coordination-materialization-handoff`;
 - Step 365 app registration remains unchanged and covered by the optional
@@ -618,6 +626,36 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 366 - Replay Coordination Materialization Runtime Handoff Pack Member
+
+Completed in this replay coordination materialization runtime handoff pack
+member commit series.
+
+Verification:
+
+- `node v6/tests/target-history-pack-handoff-registration-member-step366-static-smoke.js`
+- `node v6/tests/target-history-pack-replay-coordination-member-step339-static-smoke.js`
+- `node v6/tests/target-history-pack-readout-producer-flow-member-step353-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added optional target-history diagnostics pack member
+  `handoff-registration`.
+- The member runs
+  `v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`.
+- Preserved default target-history diagnostics pack count at eight.
+- Preserved existing optional members `replay-coordination` and
+  `readout-producer-flow`.
+- Verified the new member alone and combined with the two existing optional
+  members.
+- Did not modify `v6/src/app.js`.
+- Did not add command surfaces or change runtime behavior.
 
 ### Step 365 - Replay Coordination Materialization Runtime Handoff App Registration
 
