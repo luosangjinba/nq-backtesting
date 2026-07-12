@@ -120,6 +120,7 @@ export const CHART_ENTRY_AUTO_PLAY_EVENTS = Object.freeze({
 
 export const TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'targetMaterializationReplayDiagnostics.getSnapshot',
+  UPDATE_SNAPSHOT: 'targetMaterializationReplayDiagnostics.updateSnapshot',
 });
 
 export const TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS = Object.freeze({

@@ -22,10 +22,15 @@ function normalizeInitialSnapshot(initialSnapshot) {
   return snapshot;
 }
 
+function createValidationErrors(validation) {
+  return validation.errors.map((error) => ({ ...error }));
+}
+
 export function createTargetMaterializationReplayDiagnosticsRuntime({
   initialSnapshot = null,
 } = {}) {
   const unregisterCallbacks = [];
+  let emit = () => {};
   let state = {
     snapshot: normalizeInitialSnapshot(initialSnapshot),
     status: initialSnapshot ? 'ready' : 'idle',
@@ -38,11 +43,36 @@ export function createTargetMaterializationReplayDiagnosticsRuntime({
     };
   }
 
+  function updateSnapshot(payload = {}) {
+    const candidate = createTargetMaterializationReplayDiagnosticsSnapshot({
+      ...(state.snapshot || {}),
+      ...(payload || {}),
+    });
+    const validation = validateTargetMaterializationReplayDiagnosticsSnapshot(candidate);
+    if (!validation.valid) {
+      return {
+        errors: createValidationErrors(validation),
+        rejectedSnapshot: cloneSnapshot(candidate),
+        snapshot: cloneSnapshot(state.snapshot),
+        status: 'rejected',
+      };
+    }
+    state = {
+      snapshot: candidate,
+      status: 'ready',
+    };
+    const current = getSnapshot();
+    emit(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY, current);
+    return current;
+  }
+
   function start({ emitEvent } = {}) {
+    emit = emitEvent || (() => {});
     unregisterCallbacks.push(
       registerCommand(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.GET_SNAPSHOT, () => getSnapshot()),
+      registerCommand(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.UPDATE_SNAPSHOT, updateSnapshot),
     );
-    emitEvent?.(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY, getSnapshot());
+    emit(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY, getSnapshot());
   }
 
   function stop() {
@@ -53,6 +83,7 @@ export function createTargetMaterializationReplayDiagnosticsRuntime({
       snapshot: normalizeInitialSnapshot(initialSnapshot),
       status: initialSnapshot ? 'ready' : 'idle',
     };
+    emit = () => {};
   }
 
   return {
