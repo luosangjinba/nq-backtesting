@@ -21,9 +21,17 @@ try {
       const host = document.querySelector('[data-v6-chart-engine-host][data-v6-pane-id="main"]');
       const originalFetch = window.fetch.bind(window);
       const fetchLog = [];
+      const bridgeTraceLog = [];
       let activeMilestones = null;
       let attemptFetchStartIndex = 0;
       let sampleContext = null;
+
+      window.__v6LeftwardHistoryInputBridgeTrace = (record = {}) => {
+        bridgeTraceLog.push({
+          ...record,
+          time: performance.now(),
+        });
+      };
 
       function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
@@ -292,6 +300,7 @@ try {
         },
         beginInputAttempt({ attemptIndex, deltaX }) {
           activeMilestones = [];
+          bridgeTraceLog.length = 0;
           attemptFetchStartIndex = fetchLog.length;
           mark('user-input-dispatched', {
             attemptIndex,
@@ -357,6 +366,8 @@ try {
             inputDeltaX: input?.details?.deltaX ?? null,
             inputToDiagnosticsReadoutMs: delta(readoutVisible, input),
             inputToLeftExtensionLoadedMs: delta(leftExtensionLoaded, input),
+            inputToScheduleResolvedMs: delta(bridgeTraceLog.find((record) => record.phase === 'schedule-resolved'), input),
+            inputToTimerScheduledMs: delta(bridgeTraceLog.find((record) => record.phase === 'timer-scheduled'), input),
             inputToTargetFetchStartMs: delta(targetFetchStarted, input),
             label: sampleContext.label,
             loaded,
@@ -377,6 +388,7 @@ try {
             postMarkerCanvasSignature,
             prependedBarCount: diagnostics.prependedBarCount ?? null,
             readoutObservation: readoutVisible?.details?.observation || null,
+            scheduleTrace: bridgeTraceLog.slice(),
             sourceFetches,
             sourceRequestCount: diagnostics.sourceRequestCount ?? null,
             targetFetches,
@@ -386,6 +398,7 @@ try {
         },
         async restore() {
           activeMilestones = null;
+          delete window.__v6LeftwardHistoryInputBridgeTrace;
           const restored = await commands.dispatchCommand(contracts.DISPLAY_TIMEFRAME_COMMANDS.APPLY, {
             displayTimeframe: 1,
             paneId: 'main',
@@ -451,16 +464,46 @@ try {
   `);
 
   assert.deepEqual(records.map((record) => record.label), ['4h', '8h', '1D', '1W']);
+  assert.equal(
+    records.some((record) => record.scheduleTrace.some((trace) => (
+      trace.phase === 'schedule-resolved' &&
+      trace.mode === 'native-target-history-reduced-delay' &&
+      trace.delayMs === 100
+    ))),
+    true,
+  );
+  assert.equal(
+    records.some((record) => record.scheduleTrace.some((trace) => (
+      trace.phase === 'schedule-resolved' &&
+      trace.mode === 'delayed' &&
+      trace.delayMs === 500
+    ))),
+    true,
+  );
   console.log(JSON.stringify({
     records: records.map((record) => ({
       inputAttemptIndex: record.inputAttemptIndex,
       inputDeltaX: record.inputDeltaX,
       inputToDiagnosticsReadoutMs: record.inputToDiagnosticsReadoutMs,
       inputToLeftExtensionLoadedMs: record.inputToLeftExtensionLoadedMs,
+      inputToScheduleResolvedMs: record.inputToScheduleResolvedMs,
+      inputToTimerScheduledMs: record.inputToTimerScheduledMs,
       inputToTargetFetchStartMs: record.inputToTargetFetchStartMs,
       label: record.label,
       phaseBreakdown: record.phaseBreakdown,
       postMarkerCanvasObservationMs: record.postMarkerCanvasObservationMs,
+      scheduleTrace: record.scheduleTrace.map((trace) => ({
+        activationDisplayTimeframe: trace.activationDisplayTimeframe ?? null,
+        activationStatus: trace.activationStatus ?? null,
+        delayMs: trace.delayMs ?? null,
+        mode: trace.mode ?? null,
+        nativeTargetHistoryDelayMs: trace.nativeTargetHistoryDelayMs ?? null,
+        phase: trace.phase,
+        reason: trace.reason ?? null,
+        requestedReason: trace.requestedReason ?? null,
+        resolvedReason: trace.resolvedReason ?? null,
+        targetHistoryEnabled: trace.targetHistoryEnabled ?? null,
+      })),
       targetFetchBars: record.targetFetches[0]?.bars ?? null,
       targetFetchTf: record.targetFetches[0]?.tf ?? null,
     })),
@@ -481,6 +524,7 @@ try {
     assert.equal(record.targetFetches.some((fetchRecord) => fetchRecord.tf === record.expectedTargetFetchTf), true);
     assert.equal(Number.isInteger(record.inputAttemptIndex), true);
     assert.equal(Number.isFinite(record.inputDeltaX), true);
+    assert.equal(Array.isArray(record.scheduleTrace), true);
 
     for (const key of [
       'fetchEndToChartDataMs',
