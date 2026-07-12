@@ -32,6 +32,8 @@ for (const field of [
   'Input.dispatchMouseEvent',
   "type: 'mouseWheel'",
   'user-input-dispatched',
+  'inputAttemptIndex',
+  'inputDeltaX',
   'inputToTargetFetchStartMs',
   'inputToLeftExtensionLoadedMs',
   'targetRequestMs',

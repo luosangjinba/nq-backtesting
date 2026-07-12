@@ -384,6 +384,8 @@ try {
             harnessObservationWindowMs: readoutVisible && secondFrame
               ? Math.max(0, secondFrame.time - readoutVisible.time)
               : null,
+            inputAttemptIndex: input?.details?.attemptIndex ?? null,
+            inputDeltaX: input?.details?.deltaX ?? null,
             inputToFirstPaintMs: input && firstPaint
               ? Math.max(0, firstPaint.time - input.time)
               : null,
@@ -494,6 +496,8 @@ try {
       inputToFirstPaintMs: record.inputToFirstPaintMs,
       inputToLeftExtensionLoadedMs: record.inputToLeftExtensionLoadedMs,
       inputToTargetFetchStartMs: record.inputToTargetFetchStartMs,
+      inputAttemptIndex: record.inputAttemptIndex,
+      inputDeltaX: record.inputDeltaX,
       label: record.label,
       phaseBreakdown: record.phaseBreakdown,
       targetFetchBars: record.targetFetches[0]?.bars ?? null,
@@ -515,6 +519,8 @@ try {
     assert.equal(record.targetFetches.length >= 1, true);
     assert.equal(record.targetFetches.some((fetchRecord) => fetchRecord.tf === record.expectedTargetFetchTf), true);
     assert.equal(record.realChartPaintObserved, true);
+    assert.equal(Number.isInteger(record.inputAttemptIndex), true);
+    assert.equal(Number.isFinite(record.inputDeltaX), true);
     assert.equal(Number.isFinite(record.inputToTargetFetchStartMs), true);
     assert.equal(Number.isFinite(record.inputToLeftExtensionLoadedMs), true);
     assert.equal(Number.isFinite(record.inputToFirstPaintMs), true);
