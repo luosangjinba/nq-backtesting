@@ -9,10 +9,17 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 378 closeout
-- Latest completed step: Step 378 - Target-History Pack Reduced-Delay Budget
-  Member
+- Worktree at handoff: clean after Step 379 closeout
+- Latest completed step: Step 379 - Target-History Pack Reduced-Delay
+  Optional Combination
 - Recent relevant commits:
+  - Step 379 verified the combined optional target-history diagnostics pack
+    path `replay-coordination,readout-producer-flow,handoff-registration,
+    reduced-delay-budget`. The run executed all four optional members in order,
+    kept the default eight-member pack unchanged, and the Step 377 budget guard
+    passed last with `4h` `116.0ms`, `8h` `132.9ms`, `1D` `134.2ms`, and
+    `1W` `137.5ms`. Step 380 should close the HTF leftward-extension
+    performance chain with a short re-audit and next-slice selection.
   - Step 378 added optional target-history diagnostics pack member
     `reduced-delay-budget` for the Step 377 browser budget guard. The default
     Step 293 pack remains eight tests, existing optional members stay in order,
@@ -390,8 +397,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 379:
-   target-history pack reduced-delay optional combination.
+4. If continuing planned work, start with Step 380:
+   HTF leftward extension performance chain re-audit.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -455,6 +462,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-target-history-reduced-delay-budget-boundary-step377-static-smoke.js`
 - `node v6/tests/target-history-pack-reduced-delay-budget-member-step378-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-pack-reduced-delay-optional-combination-step379-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -469,12 +478,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 379 - Target-History Pack Reduced-Delay
-  Optional Combination.
-- Run and document
-  `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget`
-  so all optional members are verified together and the Step 377 budget guard
-  is proven after the other optional browser members.
+- Recommended next action is Step 380 - HTF Leftward Extension Performance
+  Chain Re-audit.
+- Summarize Steps 367-379, mark whether HTF leftward-extension latency is
+  closed for now, list the active standalone/pack guards, and select the next
+  chart-foundation slice outside this narrow latency chain unless a new
+  uncovered regression is found.
 
 ## Current State
 

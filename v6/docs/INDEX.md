@@ -619,6 +619,11 @@ Read this index before working on V6.
   accepted optional target-history diagnostics pack member
   `reduced-delay-budget` for the Step 377 browser budget guard while preserving
   the default eight-member pack and existing optional members.
+- `v6/docs/V6_TARGET_HISTORY_PACK_REDUCED_DELAY_OPTIONAL_COMBINATION_STEP379.md`:
+  accepted combined optional pack verification for
+  `replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget`,
+  proving the Step 377 budget guard still passes after the other optional
+  browser members.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
