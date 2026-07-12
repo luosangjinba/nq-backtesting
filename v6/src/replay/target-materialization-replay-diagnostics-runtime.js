@@ -1,12 +1,19 @@
 import {
+  CHART_ENTRY_AUTO_PLAY_EVENTS,
+  CHART_ENTRY_MANUAL_NEXT_EVENTS,
+  DISPLAY_TIMEFRAME_EVENTS,
   TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS,
   TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS,
 } from '../contracts/app-contracts.js';
 import { registerCommand } from '../runtime/commands.js';
+import { subscribeEvent } from '../runtime/events.js';
 import {
   createTargetMaterializationReplayDiagnosticsSnapshot,
   validateTargetMaterializationReplayDiagnosticsSnapshot,
 } from './target-materialization-replay-diagnostics-contract.js';
+import {
+  mapTargetMaterializationReplayDiagnosticsProducerPayload,
+} from './target-materialization-replay-diagnostics-producer-payload-mappers.js';
 
 function cloneSnapshot(snapshot) {
   return snapshot ? { ...snapshot } : null;
@@ -25,6 +32,14 @@ function normalizeInitialSnapshot(initialSnapshot) {
 function createValidationErrors(validation) {
   return validation.errors.map((error) => ({ ...error }));
 }
+
+const PRODUCER_EVENTS = Object.freeze([
+  DISPLAY_TIMEFRAME_EVENTS.APPLIED,
+  CHART_ENTRY_MANUAL_NEXT_EVENTS.ADVANCED,
+  CHART_ENTRY_AUTO_PLAY_EVENTS.STARTED,
+  CHART_ENTRY_AUTO_PLAY_EVENTS.TICKED,
+  CHART_ENTRY_AUTO_PLAY_EVENTS.STOPPED,
+]);
 
 export function createTargetMaterializationReplayDiagnosticsRuntime({
   initialSnapshot = null,
@@ -66,11 +81,20 @@ export function createTargetMaterializationReplayDiagnosticsRuntime({
     return current;
   }
 
+  function handleProducerEvent(eventName, payload) {
+    const update = mapTargetMaterializationReplayDiagnosticsProducerPayload(eventName, payload);
+    if (!update) return null;
+    return updateSnapshot(update);
+  }
+
   function start({ emitEvent } = {}) {
     emit = emitEvent || (() => {});
     unregisterCallbacks.push(
       registerCommand(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.GET_SNAPSHOT, () => getSnapshot()),
       registerCommand(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.UPDATE_SNAPSHOT, updateSnapshot),
+      ...PRODUCER_EVENTS.map((eventName) => (
+        subscribeEvent(eventName, (payload) => handleProducerEvent(eventName, payload))
+      )),
     );
     emit(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY, getSnapshot());
   }
