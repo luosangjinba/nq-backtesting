@@ -65,6 +65,11 @@ export const TARGET_HISTORY_PACK_OPTIONAL_TESTS = Object.freeze([
     script: 'v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js',
     tags: Object.freeze(['app-registration', 'handoff-registration', 'materialization']),
   }),
+  Object.freeze({
+    id: 'reduced-delay-budget',
+    script: 'v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js',
+    tags: Object.freeze(['budget', 'performance', 'reduced-delay']),
+  }),
 ]);
 
 function splitCsv(value) {

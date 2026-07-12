@@ -56,13 +56,14 @@ const combinedMembers = selectTargetHistoryPackTests({
 assert.deepEqual(combinedMembers.selectedIds, ['replay-coordination', 'readout-producer-flow']);
 
 assert.equal(TARGET_HISTORY_PACK_TESTS.length, 8);
-assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS.length, 3);
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS.length, 4);
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[0].id, 'replay-coordination');
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[1].id, 'readout-producer-flow');
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[1].tags.includes('producer-flow'), true);
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[1].tags.includes('readout'), true);
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[1].tags.includes('materialization'), true);
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[2].id, 'handoff-registration');
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[3].id, 'reduced-delay-budget');
 
 assert.match(helper, /readout-producer-flow/);
 assert.match(helper, /target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke/);
