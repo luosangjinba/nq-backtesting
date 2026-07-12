@@ -10,11 +10,10 @@ const runtimeSmoke = await readFile('v6/tests/target-materialization-replay-diag
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-producer-event-boundary-step346-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_EVENT_RUNTIME_STEP346\.md/);
-assert.match(todo, /Latest completed target materialization diagnostics event wiring step: Step\s+346/);
-assert.match(todo, /### Step 347 - Target Materialization Replay Diagnostics Browser Read Coverage/);
-assert.match(todo, /browser\/runtime-read coverage proving real Display-Timeframe, Manual Next,\s+and Auto Play flows/);
-assert.match(handoff, /Latest completed step: Step 346 - Target Materialization Replay Diagnostics\s+Producer Event Runtime Wiring/);
-assert.match(handoff, /start with Step 347/);
+assert.match(todo, /### Step 346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring/);
+assert.match(todo, /Diagnostics runtime now subscribes to the five accepted producer events/);
+assert.match(handoff, /Step 346 wired producer event subscriptions inside the diagnostics runtime/);
+assert.match(handoff, /Step 346\s+wires producer event subscriptions inside the diagnostics runtime/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /displayTimeframe:applied/);

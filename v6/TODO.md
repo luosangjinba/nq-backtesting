@@ -371,6 +371,12 @@
   updates snapshots through the Step 344 path, without modifying producer
   runtimes, visible UI, target loading, replay cursor, chart-data, or viewport
   behavior.
+- Latest completed target materialization diagnostics browser read step: Step
+  347 - Target Materialization Replay Diagnostics Browser Read Coverage. V6 now
+  has browser coverage proving real Display-Timeframe, Manual Next, and Auto
+  Play flows update diagnostics snapshots readable through `getSnapshot`,
+  without visible UI, producer runtime changes, target loading, replay cursor,
+  chart-data, or viewport behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -406,7 +412,7 @@
 
 ## Next Executable Steps
 
-### Step 347 - Target Materialization Replay Diagnostics Browser Read Coverage
+### Step 348 - Target Materialization Replay Diagnostics Readout Owner Plan
 
 Status: proposed.
 
@@ -414,15 +420,18 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 346 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_EVENT_RUNTIME_STEP346.md`;
-- add browser/runtime-read coverage proving real Display-Timeframe, Manual Next,
-  and Auto Play flows produce diagnostics snapshots readable through
-  `targetMaterializationReplayDiagnostics.getSnapshot`;
+- use Step 347 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_BROWSER_READ_STEP347.md`;
+- define the diagnostics readout owner and visibility plan before visible UI;
+- decide whether the first visible readout belongs in pane status, footer
+  diagnostics, or a developer-only collapsed readout;
+- select the first fields to show and the fields to keep internal;
+- define hide/collapse rules so diagnostics do not clutter normal replay use;
 - do not modify Display-Timeframe, Manual Next, or Auto Play runtimes;
 - do not dispatch `updateSnapshot` from producer runtimes;
 - keep shell consumption as command/event snapshot reading only;
-- do not wire visible UI yet;
+- do not wire visible UI yet unless this step explicitly remains a plan-only
+  owner contract;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -432,16 +441,16 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add browser/static closeout coverage for the diagnostics read path;
+- add pure/static closeout coverage for the readout owner plan;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser flow can read diagnostics snapshots after display timeframe apply;
-- browser flow can read diagnostics snapshots after manual next;
-- browser flow can read diagnostics snapshots after autoplay tick/start/stop;
+- readout owner and visibility policy are documented;
+- first visible fields and internal-only fields are listed;
+- shell readout command/event consumption is specified without target API access;
 - producer runtimes remain unchanged and do not import diagnostics commands;
 - shell consumption path remains command/event snapshot reading without direct
   target API calls;
@@ -453,6 +462,34 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 347 - Target Materialization Replay Diagnostics Browser Read Coverage
+
+Completed in this target materialization replay diagnostics browser read commit
+series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-browser-read-step347-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-browser-read-boundary-step347-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-producer-event-runtime-step346-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-producer-event-boundary-step346-static-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser coverage for diagnostics snapshots after display timeframe
+  target materialization, manual next, autoplay start, autoplay tick, and
+  autoplay stop.
+- Read path uses `targetMaterializationReplayDiagnostics.getSnapshot`.
+- The browser smoke does not call `updateSnapshot` and does not add visible UI.
+- Producer runtimes remain unchanged.
+- Kept target-bar loading, replay cursor movement, chart-data writes, viewport
+  intent, target-history request sizing, and chart-history fast-path behavior
+  unchanged.
 
 ### Step 346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring
 

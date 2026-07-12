@@ -461,6 +461,10 @@ Read this index before working on V6.
   accepted diagnostics-runtime-owned producer event subscriptions for
   Display-Timeframe, Manual Next, and Auto Play diagnostics updates, without
   producer runtime or UI changes.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_BROWSER_READ_STEP347.md`:
+  accepted browser/runtime-read coverage proving Display-Timeframe, Manual
+  Next, and Auto Play flows update diagnostics snapshots readable through
+  `getSnapshot`, without visible UI changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

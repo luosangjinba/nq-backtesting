@@ -9,10 +9,13 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 346 closeout
-- Latest completed step: Step 346 - Target Materialization Replay Diagnostics
-  Producer Event Runtime Wiring
+- Worktree at handoff: clean after Step 347 closeout
+- Latest completed step: Step 347 - Target Materialization Replay Diagnostics
+  Browser Read Coverage
 - Recent relevant commits:
+  - Step 347 added browser/runtime-read coverage proving Display-Timeframe,
+    Manual Next, and Auto Play flows update diagnostics snapshots readable
+    through `getSnapshot`, without visible UI changes.
   - Step 346 wired producer event subscriptions inside the diagnostics runtime
     for Display-Timeframe, Manual Next, and Auto Play events, using the mapper
     and update path without producer runtime or UI changes.
@@ -127,6 +130,9 @@ Read this block first after restarting the server or assistant context.
   wires producer event subscriptions inside the diagnostics runtime and still
   avoids producer runtime changes, visible UI, replay cursor movement, target
   loading, chart-data writes, viewport behavior, and request sizing changes.
+  Step 347 proves that the browser can read diagnostics snapshots after display
+  materialization, manual next, and autoplay flows, still without visible UI
+  changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -167,8 +173,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 347:
-   target materialization replay diagnostics browser read coverage.
+4. If continuing planned work, start with Step 348:
+   target materialization replay diagnostics readout owner plan.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
