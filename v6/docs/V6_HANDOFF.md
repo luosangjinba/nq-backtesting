@@ -9,10 +9,19 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 374 closeout
-- Latest completed step: Step 374 - HTF Target-History Native Reduced Delay
-  Bridge Wiring
+- Worktree at handoff: clean after Step 375 closeout
+- Latest completed step: Step 375 - HTF Target-History Native Reduced Delay
+  Branch Attribution
 - Recent relevant commits:
+  - Step 375 added harness-only branch attribution for real HTF wheel
+    scheduling. The native `100ms` branch is present with target-history
+    enabled for `4h`, `8h`, `1D`, and `1W`; `8h` reached target fetch at
+    `130.1ms` in the observed run, while `4h`, `1D`, and `1W` still lined up
+    around `462-464ms` because `runtime-surface-check` /
+    `runtime-left-extension-loaded` delayed `500ms` schedules remain active in
+    the interaction window. Step 376 should narrowly suppress those runtime
+    delayed schedules when an HTF native reduced-delay target-history schedule
+    is already active.
   - Step 374 wired `nativeTargetHistoryDelayMs: 100` into
     `leftward-history-input-bridge.js` for native visible-range requests with
     target-history enabled. Browser measurement showed `8h`
@@ -359,8 +368,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 375:
-   HTF target-history native reduced delay branch attribution.
+4. If continuing planned work, start with Step 376:
+   HTF target-history runtime delayed-schedule suppression.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -415,6 +424,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/leftward-history-request-schedule-boundary-step373-static-smoke.js`
 - `node v6/tests/leftward-history-input-bridge-native-target-delay-step374-smoke.js`
 - `node v6/tests/leftward-history-input-bridge-native-target-delay-boundary-step374-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-step375-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-boundary-step375-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -429,11 +440,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 375 - HTF Target-History Native Reduced Delay
-  Branch Attribution.
-- Attribute real wheel scheduling branch selection for `4h`, `8h`, `1D`, and
-  `1W`: report resolved reason, activation state, selected delay, and timer
-  delay so the remaining `4h`/`1D`/`1W` 448-479ms window can be narrowed.
+- Recommended next action is Step 376 - HTF Target-History Runtime
+  Delayed-Schedule Suppression.
+- Narrowly prevent `runtime-surface-check` and `runtime-left-extension-loaded`
+  delayed `500ms` schedules from dominating an already active HTF
+  target-history native reduced-delay schedule, while preserving low-TF/native,
+  target-history-disabled, and programmatic fast-path behavior.
 
 ## Current State
 

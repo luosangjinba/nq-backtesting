@@ -26,15 +26,12 @@ assert.match(
   todo,
   /Latest completed HTF target-history native bridge wiring step:\s+Step 374/,
 );
-assert.match(todo, /### Step 375 - HTF Target-History Native Reduced Delay Branch Attribution/);
+assert.match(todo, /Step 375 - HTF Target-History Native Reduced Delay Branch Attribution/);
 assert.match(todo, /### Step 374 - HTF Target-History Native Reduced Delay Bridge Wiring/);
 assert.match(todo, /132\.1ms/);
 assert.match(todo, /448-479ms/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 374 closeout/);
-assert.match(handoff, /Latest completed step: Step 374 - HTF Target-History Native Reduced Delay\s+Bridge Wiring/);
-assert.match(handoff, /start with Step 375/);
-assert.match(handoff, /Recommended next action is Step 375/);
+assert.match(handoff, /Step 374 wired `nativeTargetHistoryDelayMs: 100`/);
 assert.match(handoff, /132\.1ms/);
 assert.match(handoff, /448-479ms/);
 
@@ -49,7 +46,8 @@ assert.match(doc, /Step 375 should add targeted attribution/);
 
 assert.match(bridge, /DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS = 100/);
 assert.match(bridge, /nativeTargetHistoryDelayFor/);
-assert.match(bridge, /nativeTargetHistoryDelayMs: nativeTargetHistoryDelayFor/);
+assert.match(bridge, /const selectedNativeTargetHistoryDelayMs = nativeTargetHistoryDelayFor/);
+assert.match(bridge, /nativeTargetHistoryDelayMs: selectedNativeTargetHistoryDelayMs/);
 assert.match(bridge, /reason !== 'native-visible-range'/);
 assert.match(bridge, /activationPayload\?\.targetHistory\?\.enabled/);
 

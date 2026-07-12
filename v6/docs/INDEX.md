@@ -599,6 +599,11 @@ Read this index before working on V6.
   target-history visible-range requests, preserving low-TF/disabled/programmatic
   paths and selecting real-wheel branch attribution next after only `8h`
   measured near the reduced-delay window.
+- `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRANCH_ATTRIBUTION_STEP375.md`:
+  accepted harness-only branch attribution for real HTF wheel scheduling,
+  showing Step 374's native `100ms` branch is present for `4h`, `8h`, `1D`,
+  and `1W`, while runtime-originated `500ms` schedules still dominate the slow
+  cases and selecting a narrow runtime delayed-schedule suppression fix next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

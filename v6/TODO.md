@@ -546,6 +546,12 @@
   requests with target-history enabled. Browser measurement improved `8h`
   `inputToTargetFetchStartMs` to `132.1ms`, while `4h`, `1D`, and `1W` still
   measured around `448-479ms`, so the next slice is branch attribution.
+- Latest completed HTF target-history schedule attribution step: Step 375 - HTF
+  Target-History Native Reduced Delay Branch Attribution. V6 now reports real
+  wheel schedule branch selection for `4h`, `8h`, `1D`, and `1W`. The native
+  `100ms` branch is present with target-history enabled, but the slow cases
+  still show runtime-originated `500ms` delayed schedules, so the next slice is
+  a narrow runtime delayed-schedule suppression fix.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -581,7 +587,7 @@
 
 ## Next Executable Steps
 
-### Step 375 - HTF Target-History Native Reduced Delay Branch Attribution
+### Step 376 - HTF Target-History Runtime Delayed-Schedule Suppression
 
 Status: proposed.
 
@@ -597,13 +603,16 @@ Notes for execution:
   `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_VISIBLE_RANGE_REDUCED_DELAY_RESOLVER_STEP373.md`;
 - use Step 374 closeout:
   `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRIDGE_WIRING_STEP374.md`;
-- add targeted attribution for real wheel schedule branch selection;
-- report resolved schedule reason, target-history activation enabled/disabled
-  state, selected delay, and timer delay for `4h`, `8h`, `1D`, and `1W`;
-- explain why `8h` reaches roughly `132ms` while `4h`, `1D`, and `1W` still
-  measure around `448-479ms`;
-- keep bridge wiring behavior unchanged unless attribution identifies a
-  narrowly scoped branch bug;
+- use Step 375 closeout:
+  `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRANCH_ATTRIBUTION_STEP375.md`;
+- fix only the proven scheduling conflict where HTF target-history native
+  reduced-delay schedules can be followed by runtime-originated delayed
+  schedules;
+- prevent `runtime-surface-check` and `runtime-left-extension-loaded` from
+  replacing or dominating an already active native target-history reduced-delay
+  schedule during real wheel interaction windows;
+- preserve native `100ms` behavior for `4h`, `8h`, `1D`, and `1W`;
+- keep bridge trace attribution available for the browser verification;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -637,11 +646,15 @@ Notes for execution:
 
 Acceptance:
 
-- attribution reports schedule reason, activation state, selected delay, and
-  timer delay for `4h`, `8h`, `1D`, and `1W`;
-- attribution explains why `8h` reaches reduced delay while `4h`, `1D`, and
-  `1W` still look delayed, or selects the exact narrower follow-up;
-- bridge wiring remains unchanged unless a narrowly scoped branch bug is proven;
+- browser coverage shows `4h`, `8h`, `1D`, and `1W` use or preserve the
+  reduced-delay native target-history schedule without being dominated by
+  runtime `500ms` delayed schedules;
+- `runtime-surface-check` and `runtime-left-extension-loaded` remain safe for
+  low-TF/native source paths, target-history-disabled paths, and non-native
+  runtime checks;
+- bridge trace attribution still reports schedule reason, activation state,
+  selected delay, and timer delay for the tested HTFs;
+- Step 374 bridge wiring remains narrowly scoped;
 - low-TF/native source paths, target-history disabled paths, and programmatic
   fast path remain unchanged;
 - rollback gates preserve low-TF/native drag stability and sticky-drag
@@ -679,6 +692,40 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 375 - HTF Target-History Native Reduced Delay Branch Attribution
+
+Completed in this HTF target-history native reduced-delay branch attribution
+commit series.
+
+Verification:
+
+- `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-step375-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-boundary-step375-static-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-browser-step371-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-step374-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-boundary-step374-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a harness-only bridge trace hook for `schedule-resolved` and
+  `timer-scheduled` records.
+- Browser attribution showed the native `100ms` target-history branch is
+  present for `4h`, `8h`, `1D`, and `1W`.
+- Browser attribution showed `8h` reaches target fetch near the reduced-delay
+  window (`130.1ms` in the observed run).
+- Browser attribution showed `4h`, `1D`, and `1W` still line up with the old
+  roughly `500ms` window because runtime-originated
+  `runtime-surface-check`/`runtime-left-extension-loaded` delayed schedules
+  remain active in the interaction window.
+- Step 376 should narrowly suppress those runtime delayed schedules only when
+  they would dominate an active HTF target-history native reduced-delay
+  schedule.
+- Did not modify `v6/src/app.js`, command surfaces, shell readout code,
+  target-history request sizing, replay, chart viewport, chart engine, or the
+  Step 362 runtime skeleton.
 
 ### Step 374 - HTF Target-History Native Reduced Delay Bridge Wiring
 
