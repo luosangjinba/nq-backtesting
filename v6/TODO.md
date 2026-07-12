@@ -506,6 +506,12 @@
   and `1W` after handoff runtime registration, separating source request,
   target request, chart-data replacement, viewport reapply, visible apply lag,
   browser paint lag, and runtime duration without changing runtime behavior.
+- Latest completed HTF leftward extension bottleneck owner selection step:
+  Step 368 - HTF Leftward Extension Bottleneck Owner Selection After Handoff
+  Measurement. V6 now has a pure selector for Step 367 phase records and
+  selected `target-history-real-chart-paint-visibility-measurement` as the next
+  slice because the observed largest bucket was the test-only browser paint
+  observation window while request/runtime phases stayed low.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -541,7 +547,7 @@
 
 ## Next Executable Steps
 
-### Step 368 - HTF Leftward Extension Bottleneck Owner Selection After Handoff Measurement
+### Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement
 
 Status: proposed.
 
@@ -549,16 +555,17 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 367 closeout:
-  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_PERFORMANCE_AFTER_HANDOFF_STEP367.md`;
-- consume the Step 367 browser phase summary for `4h`, `8h`, `1D`, and `1W`;
-- select the smallest next optimization owner from request sizing/target load,
-  chart-data replacement, viewport reapply, visible apply lag, browser paint,
-  or trigger coordination;
-- keep this step planning/selection-first unless the Step 367 output makes one
-  bottleneck unambiguous;
-- if the selected owner is not explicit, add a narrower measurement/audit slice
-  instead of changing runtime behavior;
+- use Step 368 closeout:
+  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_BOTTLENECK_OWNER_SELECTION_STEP368.md`;
+- implement `target-history-real-chart-paint-visibility-measurement` as a
+  browser/harness-only measurement slice;
+- distinguish a real chart-surface/browser paint delay from the Step 367
+  harness' intentional two-animation-frame observation window;
+- preserve `4h`, `8h`, `1D`, and `1W` coverage;
+- measure chart host visible state as close as possible to series update /
+  left-extension-loaded, not just delayed animation-frame observation;
+- keep this step measurement-only unless the new harness proves a concrete
+  chart-surface or browser-paint bottleneck;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -585,19 +592,20 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the selected next owner and any deferred
-  owner candidates;
+- add static closeout coverage for the real-paint measurement harness and
+  selected next action;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- Step 367 phase summary is documented or summarized enough to justify the
-  next owner;
-- one next owner is selected, or a narrower follow-up measurement is selected
-  with a clear reason;
-- rejected owners are listed with the measured reason they are deferred;
+- browser/harness measurement exists for real chart paint visibility on `4h`,
+  `8h`, `1D`, and `1W`;
+- output separates harness observation-window delay from real chart-visible
+  update delay enough to choose the next owner;
+- runtime behavior remains unchanged unless a concrete paint bottleneck is
+  proven and explicitly scoped;
 - default target-history diagnostics pack membership remains unchanged;
 - optional members `replay-coordination`, `readout-producer-flow`, and
   `handoff-registration` remain unchanged;
@@ -629,6 +637,31 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 368 - HTF Leftward Extension Bottleneck Owner Selection After Handoff Measurement
+
+Completed in this HTF leftward-extension bottleneck owner selection commit
+series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-step368-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-boundary-step368-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-performance-after-handoff-step367-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure selector for Step 367-style phase records.
+- Consumed the observed Step 367 phase summary and selected
+  `target-history-real-chart-paint-visibility-measurement` as the next slice.
+- Deferred request sizing / target load, chart-data replacement, viewport
+  reapply, and visible apply lag because they were within budget or effectively
+  zero in the observed run.
+- Preserved default and optional target-history diagnostics pack membership.
+- Did not modify runtime behavior, command surfaces, `v6/src/app.js`, shell
+  readout code, or the Step 362 runtime skeleton.
 
 ### Step 367 - HTF Leftward Extension Performance Measurement After Runtime Handoff
 

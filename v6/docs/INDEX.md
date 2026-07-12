@@ -564,6 +564,11 @@ Read this index before working on V6.
   request, target request, chart-data replacement, viewport reapply, visible
   apply lag, browser paint lag, and runtime duration before selecting the next
   optimization owner.
+- `v6/docs/V6_HTF_LEFTWARD_EXTENSION_BOTTLENECK_OWNER_SELECTION_STEP368.md`:
+  accepted pure bottleneck owner selection for the Step 367 phase summary,
+  selected `target-history-real-chart-paint-visibility-measurement` as the next
+  slice because the observed largest bucket was the test-only browser paint
+  observation window while runtime/request phases stayed low.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
