@@ -66,7 +66,7 @@ listener({ from: -2, paneId: 'main', to: 30 });
 await flushMicrotasks();
 assert.equal(dispatches.length, 0);
 assert.equal(timers.length, 1);
-assert.equal(timers[0].delayMs, 500);
+assert.equal(timers[0].delayMs, 100);
 timers[0].callback();
 assert.equal(dispatches.length, 1);
 assert.equal(dispatches.at(-1).command, CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION);

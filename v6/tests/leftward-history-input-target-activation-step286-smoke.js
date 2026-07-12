@@ -50,6 +50,9 @@ connectLeftwardHistoryInputBridge({
   subscribeEvent() {
     return () => {};
   },
+  targetHistoryActivation: {
+    nativeTargetHistoryDelayMs: 0,
+  },
 });
 
 highTfSurface.emitVisibleRange({ from: -4, paneId: 'main', to: 30 });

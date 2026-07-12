@@ -11,6 +11,8 @@ import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { planLeftwardTargetHistoryActivation } from './leftward-target-history-activation.js';
 import { resolveLeftwardHistoryRequestSchedule } from './leftward-history-request-schedule.js';
 
+const DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS = 100;
+
 export function connectLeftwardHistoryInputBridge({
   chartSurface,
   clearTimeoutFn = globalThis.clearTimeout?.bind(globalThis),
@@ -124,6 +126,11 @@ export function connectLeftwardHistoryInputBridge({
       : 'runtime-surface-check';
   }
 
+  function nativeTargetHistoryDelayFor({ activationPayload = null, reason } = {}) {
+    if (reason !== 'native-visible-range' || !activationPayload?.targetHistory?.enabled) return null;
+    return targetHistoryActivation.nativeTargetHistoryDelayMs ?? DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS;
+  }
+
   function scheduleResolvedRequest({
     activationPayload = null,
     paneId,
@@ -172,6 +179,10 @@ export function connectLeftwardHistoryInputBridge({
         activationPayload,
         paneId,
         schedule: resolveLeftwardHistoryRequestSchedule({
+          nativeTargetHistoryDelayMs: nativeTargetHistoryDelayFor({
+            activationPayload,
+            reason: resolvedReason,
+          }),
           reason: resolvedReason,
           requestDelayMs,
           targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
