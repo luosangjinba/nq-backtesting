@@ -3,16 +3,39 @@ import {
   CHART_HISTORY_EVENTS,
   CHART_SURFACE_EVENTS,
   PANE_EVENTS,
+  TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS,
+  TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS,
 } from '../src/contracts/app-contracts.js';
 import { mountPaneStatusReadout } from '../src/shell/pane-status-readout.js';
 
 function createElement(dataset = {}) {
   const children = new Map();
   const element = {
+    children: [],
     dataset: { ...dataset },
+    hidden: false,
+    appendChild(child) {
+      this.children.push(child);
+      this.textContent = [this.textContent, child.textContent].filter(Boolean).join(' ');
+      return child;
+    },
     querySelector(selector) {
       if (!children.has(selector)) {
-        children.set(selector, { dataset: {}, textContent: '' });
+        children.set(selector, {
+          children: [],
+          dataset: {},
+          hidden: false,
+          textContent: '',
+          appendChild(child) {
+            this.children.push(child);
+            this.textContent = [this.textContent, child.textContent].filter(Boolean).join(' ');
+            return child;
+          },
+          replaceChildren() {
+            this.children.length = 0;
+            this.textContent = '';
+          },
+        });
       }
       return children.get(selector);
     },
@@ -34,6 +57,7 @@ const secondary = createElement({
   v6PaneTimeframe: '5m',
 });
 const listeners = new Map();
+const commands = [];
 const root = {
   querySelectorAll(selector) {
     return selector === '[data-v6-pane-status-readout]' ? [main, secondary] : [];
@@ -41,16 +65,28 @@ const root = {
 };
 
 const controller = mountPaneStatusReadout(root, {
+  dispatchCommand(command) {
+    commands.push(command);
+    assert.equal(command, TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.GET_SNAPSHOT);
+    return {
+      snapshot: null,
+      status: 'idle',
+    };
+  },
   subscribeEvent(eventName, listener) {
     listeners.set(eventName, listener);
     return () => listeners.delete(eventName);
   },
 });
+await Promise.resolve();
 
 assert.equal(main.text('[data-v6-status-symbol]'), 'NQ');
 assert.equal(main.text('[data-v6-status-timeframe]'), '1m');
 assert.equal(main.text('[data-v6-status-open]'), 'O --');
 assert.equal(main.text('[data-v6-target-history-diagnostics]'), 'History idle');
+assert.equal(commands.length, 1);
+assert.equal(main.querySelector('[data-v6-target-materialization-diagnostics]').hidden, true);
+assert.equal(main.querySelector('[data-v6-target-materialization-diagnostics]').dataset.v6TargetMaterializationDiagnosticsMode, 'hidden');
 assert.equal(secondary.text('[data-v6-status-symbol]'), 'ES');
 assert.equal(secondary.text('[data-v6-status-timeframe]'), '5m');
 
@@ -96,6 +132,52 @@ assert.equal(secondary.text('[data-v6-target-history-diagnostics]'), 'History fa
 assert.equal(secondary.querySelector('[data-v6-target-history-diagnostics]').dataset.v6TargetHistoryDiagnosticsPath, 'fallback');
 assert.equal(secondary.querySelector('[data-v6-target-history-diagnostics]').dataset.v6TargetHistoryDiagnosticsFallbackReason, 'target-history-empty');
 assert.equal(main.text('[data-v6-target-history-diagnostics]'), 'History idle');
+
+listeners.get(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY)({
+  snapshot: {
+    autoPlayStatus: 'stopped',
+    displayApplyStatus: 'applied',
+    displayTimeframe: '8h',
+    fallbackStatus: 'available',
+    latestDisplayTimestamp: 1780332600,
+    latestSourceTimestamp: 1780332660,
+    manualNextStatus: 'advanced',
+    paneId: 'main',
+    projectionOwner: 'runtime.bar-data',
+    sourceCursorAuthority: true,
+    sourceCursorTime: '2026-06-01T16:51:00.000Z',
+    targetBarsDisplayInputOnly: true,
+    targetHistoryReason: 'target-history-opt-in',
+    targetHistoryStatus: 'applied',
+  },
+  status: 'ready',
+});
+const targetMaterializationReadout = main.querySelector('[data-v6-target-materialization-diagnostics]');
+assert.equal(targetMaterializationReadout.hidden, false);
+assert.equal(targetMaterializationReadout.dataset.v6TargetMaterializationDiagnosticsMode, 'collapsed');
+assert.equal(targetMaterializationReadout.dataset.v6TargetMaterializationDiagnosticsReason, 'target-history-active');
+assert.match(targetMaterializationReadout.textContent, /TF 8h/);
+assert.match(targetMaterializationReadout.textContent, /Target applied/);
+assert.match(targetMaterializationReadout.textContent, /Projection runtime\.bar-data/);
+assert.match(targetMaterializationReadout.textContent, /Next advanced/);
+assert.match(targetMaterializationReadout.textContent, /Auto stopped/);
+assert.match(targetMaterializationReadout.textContent, /Fallback available/);
+assert.doesNotMatch(targetMaterializationReadout.textContent, /sourceCursorAuthority/);
+assert.doesNotMatch(targetMaterializationReadout.textContent, /targetBarsDisplayInputOnly/);
+
+listeners.get(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY)({
+  snapshot: {
+    displayTimeframe: '1m',
+    fallbackStatus: 'target-history-disabled',
+    paneId: 'main',
+    projectionOwner: 'source-projection',
+    targetHistoryStatus: 'disabled',
+  },
+  status: 'ready',
+});
+assert.equal(targetMaterializationReadout.hidden, true);
+assert.equal(targetMaterializationReadout.dataset.v6TargetMaterializationDiagnosticsMode, 'hidden');
+assert.equal(targetMaterializationReadout.textContent, '');
 
 listeners.get(PANE_EVENTS.ACTIVE_CHANGED)({
   displayTimeframe: 15,

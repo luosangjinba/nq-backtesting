@@ -4,10 +4,14 @@ import {
   DEFAULT_WALL_EVENTS,
   PANE_EVENTS,
   REPLAY_EVENTS,
+  TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS,
+  TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS,
 } from '../contracts/app-contracts.js';
+import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { createStatusReadoutState } from './status-readout-model.js';
 import { createTargetHistoryDiagnosticsReadoutState } from './target-history-diagnostics-readout-model.js';
+import { createTargetMaterializationReplayDiagnosticsReadoutViewModel } from './target-materialization-replay-diagnostics-readout-view-model.js';
 
 function formatTimeframe(value) {
   const text = String(value || '').trim();
@@ -55,6 +59,90 @@ function renderHistoryDiagnostics(element, extension = null) {
   return state;
 }
 
+function createElementAfter(referenceElement, tagName) {
+  const doc = referenceElement?.ownerDocument;
+  if (!doc || typeof doc.createElement !== 'function') return null;
+  const element = doc.createElement(tagName);
+  if (typeof referenceElement.after === 'function') {
+    referenceElement.after(element);
+    return element;
+  }
+  if (referenceElement.parentNode && typeof referenceElement.parentNode.insertBefore === 'function') {
+    referenceElement.parentNode.insertBefore(element, referenceElement.nextSibling);
+    return element;
+  }
+  return element;
+}
+
+function ensureTargetMaterializationDiagnosticsReadout(element) {
+  let readout = element.querySelector('[data-v6-target-materialization-diagnostics]');
+  if (readout) return readout;
+  const historyReadout = element.querySelector('[data-v6-target-history-diagnostics]');
+  readout = createElementAfter(historyReadout, 'span');
+  if (!readout) return null;
+  readout.className = 'target-materialization-diagnostics-readout';
+  readout.setAttribute('data-v6-target-materialization-diagnostics', '');
+  readout.hidden = true;
+  return readout;
+}
+
+function clearChildren(element) {
+  if (!element) return;
+  if (typeof element.replaceChildren === 'function') {
+    element.replaceChildren();
+    return;
+  }
+  element.textContent = '';
+  if (Array.isArray(element.children)) {
+    element.children.length = 0;
+  }
+}
+
+function createRowElement(readout, row) {
+  const doc = readout?.ownerDocument;
+  const element = doc?.createElement ? doc.createElement('span') : { dataset: {}, textContent: '' };
+  element.className = 'target-materialization-diagnostics-row';
+  if (typeof element.setAttribute === 'function') {
+    element.setAttribute('data-v6-target-materialization-diagnostics-row', '');
+  } else {
+    element.dataset.v6TargetMaterializationDiagnosticsRow = '';
+  }
+  element.dataset.v6TargetMaterializationDiagnosticsField = row.field;
+  element.dataset.v6TargetMaterializationDiagnosticsValue = row.value;
+  element.textContent = `${row.label} ${row.value}`;
+  return element;
+}
+
+function appendRow(readout, row) {
+  const rowElement = createRowElement(readout, row);
+  if (typeof readout.appendChild === 'function') {
+    readout.appendChild(rowElement);
+    return rowElement;
+  }
+  if (Array.isArray(readout.children)) {
+    readout.children.push(rowElement);
+  }
+  readout.textContent = [readout.textContent, rowElement.textContent].filter(Boolean).join(' ');
+  return rowElement;
+}
+
+function renderTargetMaterializationDiagnostics(element, envelope = {}) {
+  const readout = ensureTargetMaterializationDiagnosticsReadout(element);
+  if (!readout) return null;
+  const state = createTargetMaterializationReplayDiagnosticsReadoutViewModel(envelope);
+  readout.dataset.v6TargetMaterializationDiagnosticsMode = state.mode;
+  readout.dataset.v6TargetMaterializationDiagnosticsReason = state.reason || 'none';
+  readout.dataset.v6TargetMaterializationDiagnosticsPaneId = state.paneId;
+  readout.dataset.v6TargetMaterializationDiagnosticsSnapshotReady = state.snapshotReady ? 'true' : 'false';
+  readout.hidden = !state.visible;
+  readout.title = state.title;
+  clearChildren(readout);
+  if (state.visible) {
+    state.rows.forEach((row) => appendRow(readout, row));
+  }
+  return state;
+}
+
 function createPaneState(record = {}) {
   const normalized = normalizePaneRecord(record) || { id: 'main', instrument: 'NQ', timeframe: '1m' };
   return {
@@ -92,6 +180,7 @@ function renderPaneReadout(element, paneState) {
 }
 
 export function mountPaneStatusReadout(root, {
+  dispatchCommand = dispatchRuntimeCommand,
   subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
@@ -120,6 +209,13 @@ export function mountPaneStatusReadout(root, {
     const state = renderPaneReadout(element, paneState);
     renderHistoryDiagnostics(element, paneState.historyExtension);
     return state;
+  }
+
+  function renderTargetMaterializationEnvelope(envelope = {}) {
+    const paneId = String(envelope?.snapshot?.paneId || 'main').trim() || 'main';
+    const element = readoutByPaneId.get(paneId);
+    if (!element) return null;
+    return renderTargetMaterializationDiagnostics(element, envelope);
   }
 
   function updatePaneMetadata(record = {}) {
@@ -190,9 +286,20 @@ export function mountPaneStatusReadout(root, {
     subscribeEvent(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, updateHistoryDiagnostics),
     subscribeEvent(REPLAY_EVENTS.LOADED, updateFromReplay),
     subscribeEvent(DEFAULT_WALL_EVENTS.LOADED, (payload = {}) => updateFromReplay(payload.replayState || payload)),
+    subscribeEvent(
+      TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_EVENTS.SNAPSHOT_READY,
+      renderTargetMaterializationEnvelope,
+    ),
   );
 
   readoutByPaneId.forEach((_, paneId) => renderPane(paneId));
+  if (typeof dispatchCommand === 'function') {
+    Promise.resolve(dispatchCommand(TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_COMMANDS.GET_SNAPSHOT))
+      .then(renderTargetMaterializationEnvelope)
+      .catch(() => {
+        renderTargetMaterializationEnvelope({ snapshot: null, status: 'idle' });
+      });
+  }
 
   return Object.freeze({
     destroy() {
@@ -212,6 +319,7 @@ export function mountPaneStatusReadout(root, {
     updatePaneCrosshair,
     updateActivePane,
     updateHistoryDiagnostics,
+    updateTargetMaterializationDiagnostics: renderTargetMaterializationEnvelope,
     updatePaneMetadata,
   });
 }
