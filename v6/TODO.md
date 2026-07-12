@@ -626,6 +626,10 @@
   `FOUNDATION_REPLAY_GAP_MODE=full` for the full Step 274 pack, fails invalid
   modes before browser members start, and passed the default fast foundation
   run `8/8` in `44597ms`.
+- Latest completed foundation replay-gap mode documentation step: Step 390 -
+  Foundation Replay Gap Mode Documentation Closeout. V6 documented the default
+  fast foundation command, explicit full replay-gap foundation command, direct
+  Step 387 fast pack, direct Step 274 full pack, and Step 385 near-gap fixture.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -661,20 +665,22 @@
 
 ## Next Executable Steps
 
-### Step 390 - Foundation Replay Gap Mode Documentation Closeout
+### Step 391 - Chart Foundation Runtime Refresh Selection
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 389 closeout:
-  `v6/docs/V6_FOUNDATION_PACK_REPLAY_GAP_MODE_STEP389.md`;
-- document the default fast foundation command and explicit full replay-gap
-  foundation command in TODO/HANDOFF/INDEX surfaces;
-- keep `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
-  documented as the default fast foundation command;
-- keep `FOUNDATION_REPLAY_GAP_MODE=full node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
-  documented as the full replay-gap foundation command;
+- use Step 390 closeout:
+  `v6/docs/V6_FOUNDATION_REPLAY_GAP_MODE_CLOSEOUT_STEP390.md`;
+- compare the latest Step 276 default fast runtime `44597ms` against the older
+  Step 381 full runtime `105292ms`;
+- decide whether a new browser runtime refresh is needed before returning to
+  feature work;
+- keep the default fast foundation command documented:
+  `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`;
+- keep the explicit full replay-gap foundation command documented:
+  `FOUNDATION_REPLAY_GAP_MODE=full node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`;
 - keep standalone fast pack command directly runnable:
   `node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js`;
 - keep standalone command
@@ -707,16 +713,15 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage proving TODO/HANDOFF/INDEX expose both
-  foundation replay-gap modes and the next executable step;
+- add static coverage for the refresh decision and next executable step;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- default fast foundation command is documented;
-- explicit full replay-gap foundation command is documented;
+- refresh/next-slice decision is documented;
+- default fast and explicit full foundation commands remain documented;
 - standalone fast replay-gap browser pack remains directly runnable;
 - one long-path manual source assertion remains preserved in the strategy;
 - the Step 385 standalone near-gap fixture remains directly runnable;
@@ -772,6 +777,37 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 390 - Foundation Replay Gap Mode Documentation Closeout
+
+Completed in this foundation replay-gap mode documentation closeout commit
+series.
+
+Verification:
+
+- `node v6/tests/foundation-replay-gap-mode-closeout-step390-static-smoke.js`
+- `node v6/tests/foundation-pack-replay-gap-fast-full-mode-step389-static-smoke.js`
+- `node v6/tests/foundation-pack-replay-gap-mode-closeout-step389-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Documented default fast foundation command:
+  `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`.
+- Documented explicit full replay-gap foundation command:
+  `FOUNDATION_REPLAY_GAP_MODE=full node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`.
+- Documented direct Step 387 fast replay-gap pack command.
+- Documented direct Step 274 full replay-gap pack command.
+- Documented direct Step 385 near-gap manual fixture command.
+- Preserved Step 274 as the full replay-gap confirmation command.
+- Preserved Step 387 as the standalone fast replay-gap command.
+- Did not modify runner behavior, production runtime behavior, `v6/src/app.js`,
+  command surfaces, replay cursor movement, no-bar gap skipping, chart viewport,
+  chart engine, Step 274 membership, Step 276 behavior, Step 387 membership, or
+  the Step 362 runtime skeleton.
+- Selected Step 391 - Chart Foundation Runtime Refresh Selection as the next
+  bounded chart-foundation slice.
 
 ### Step 389 - Foundation Pack Replay Gap Fast/Full Mode Implementation
 

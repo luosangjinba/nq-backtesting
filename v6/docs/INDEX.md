@@ -665,6 +665,9 @@ Read this index before working on V6.
 - `v6/docs/V6_FOUNDATION_PACK_REPLAY_GAP_MODE_STEP389.md`: accepted Step 276
   replay-gap fast/full mode implementation with default fast pack, explicit
   full Step 274 mode, and invalid-mode fail-fast behavior.
+- `v6/docs/V6_FOUNDATION_REPLAY_GAP_MODE_CLOSEOUT_STEP390.md`: accepted
+  documentation closeout for default fast foundation regression, explicit full
+  replay-gap foundation mode, and direct replay-gap pack commands.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
