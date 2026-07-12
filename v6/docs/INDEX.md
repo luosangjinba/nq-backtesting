@@ -594,6 +594,11 @@ Read this index before working on V6.
   accepted pure resolver support for `nativeTargetHistoryDelayMs`, allowing HTF
   native target-history scheduling to resolve to `100ms` while keeping bridge
   runtime wiring unchanged until a later covered step.
+- `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRIDGE_WIRING_STEP374.md`:
+  accepted bridge wiring for `nativeTargetHistoryDelayMs: 100` on native
+  target-history visible-range requests, preserving low-TF/disabled/programmatic
+  paths and selecting real-wheel branch attribution next after only `8h`
+  measured near the reduced-delay window.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

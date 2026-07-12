@@ -64,7 +64,7 @@ assert.match(selectorSmoke, /highTimeframeTargetHistoryNativeDelayMs: 100/);
 assert.match(selectorSmoke, /lowTimeframeNativeDelayMs: 500/);
 assert.match(selectorSmoke, /targetHistoryDisabledNativeDelayMs: 500/);
 
-assert.match(boundarySmoke, /doesNotMatch\(bridge, \/nativeTargetHistoryDelayMs\|native-target-history-reduced-delay-with-coalescing/);
+assert.match(boundarySmoke, /assert\.match\(bridge, \/requestDelayMs = 500\/\)/);
 assert.match(boundarySmoke, /doesNotMatch\(selector, \/dispatchCommand\|subscribeEvent\|setTimeoutFn\|clearTimeoutFn\|registerCommand\|registerRuntime\|UPDATE_SNAPSHOT/);
 
 console.log('v6 high timeframe target history request scheduling policy selection closeout step372 static smoke passed');

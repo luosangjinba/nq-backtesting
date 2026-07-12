@@ -540,6 +540,12 @@
   pure resolver support for `nativeTargetHistoryDelayMs: 100` on native
   target-history visible-range requests while bridge runtime wiring remains
   unchanged.
+- Latest completed HTF target-history native bridge wiring step: Step 374 - HTF
+  Target-History Native Reduced Delay Bridge Wiring. V6 now passes
+  `nativeTargetHistoryDelayMs: 100` from the bridge for native visible-range
+  requests with target-history enabled. Browser measurement improved `8h`
+  `inputToTargetFetchStartMs` to `132.1ms`, while `4h`, `1D`, and `1W` still
+  measured around `448-479ms`, so the next slice is branch attribution.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -575,7 +581,7 @@
 
 ## Next Executable Steps
 
-### Step 374 - HTF Target-History Native Reduced Delay Bridge Wiring
+### Step 375 - HTF Target-History Native Reduced Delay Branch Attribution
 
 Status: proposed.
 
@@ -589,18 +595,15 @@ Notes for execution:
   `v6/docs/V6_HTF_TARGET_HISTORY_REQUEST_SCHEDULING_POLICY_SELECTION_STEP372.md`;
 - use Step 373 closeout:
   `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_VISIBLE_RANGE_REDUCED_DELAY_RESOLVER_STEP373.md`;
-- wire selected `nativeTargetHistoryDelayMs: 100` into
-  `leftward-history-input-bridge.js` only for native visible-range requests
-  with target-history enabled;
-- keep low-TF/native and target-history-disabled native paths on
-  `requestDelayMs=500`;
-- keep existing programmatic target-history fast path unchanged;
-- keep target-history activation and `shouldRequest` visible-range validation
-  before dispatch;
-- add focused bridge unit coverage before browser measurement;
-- add browser measurement proving real CDP wheel target-history
-  `inputToTargetFetchStartMs` moves toward the selected `100ms` coalescing
-  window;
+- use Step 374 closeout:
+  `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRIDGE_WIRING_STEP374.md`;
+- add targeted attribution for real wheel schedule branch selection;
+- report resolved schedule reason, target-history activation enabled/disabled
+  state, selected delay, and timer delay for `4h`, `8h`, `1D`, and `1W`;
+- explain why `8h` reaches roughly `132ms` while `4h`, `1D`, and `1W` still
+  measure around `448-479ms`;
+- keep bridge wiring behavior unchanged unless attribution identifies a
+  narrowly scoped branch bug;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -634,16 +637,13 @@ Notes for execution:
 
 Acceptance:
 
-- bridge passes `nativeTargetHistoryDelayMs: 100` only for native visible-range
-  requests with target-history enabled;
-- low-TF/native source paths and target-history disabled paths still use
-  `requestDelayMs=500`;
-- existing programmatic target-history fast path remains unchanged;
-- target-history activation and `shouldRequest` validation stay before
-  dispatch;
-- focused real CDP wheel browser smoke shows reduced
-  `inputToTargetFetchStartMs` for HTF target-history native input or documents
-  the next measured bottleneck;
+- attribution reports schedule reason, activation state, selected delay, and
+  timer delay for `4h`, `8h`, `1D`, and `1W`;
+- attribution explains why `8h` reaches reduced delay while `4h`, `1D`, and
+  `1W` still look delayed, or selects the exact narrower follow-up;
+- bridge wiring remains unchanged unless a narrowly scoped branch bug is proven;
+- low-TF/native source paths, target-history disabled paths, and programmatic
+  fast path remain unchanged;
 - rollback gates preserve low-TF/native drag stability and sticky-drag
   protections;
 - runtime behavior remains unchanged unless a concrete scheduling change is
@@ -679,6 +679,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 374 - HTF Target-History Native Reduced Delay Bridge Wiring
+
+Completed in this HTF target-history native reduced-delay bridge wiring commit
+series.
+
+Verification:
+
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-step374-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-boundary-step374-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-fast-path-step326-smoke.js`
+- `node v6/tests/leftward-history-input-target-activation-step286-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-step148-smoke.js`
+- `node v6/tests/leftward-history-request-schedule-boundary-step373-static-smoke.js`
+- `node v6/tests/high-timeframe-target-history-request-scheduling-policy-selection-boundary-step372-static-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-browser-step371-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Wired `nativeTargetHistoryDelayMs: 100` into the bridge only for native
+  visible-range requests with target-history enabled.
+- Low-TF/native and target-history-disabled paths stay on `requestDelayMs=500`.
+- Existing programmatic target-history fast path remains `delayMs: 0`.
+- Browser measurement after wiring showed `8h` improved to `132.1ms`.
+- Browser measurement still showed `4h` at `479.2ms`, `1D` at `462.8ms`, and
+  `1W` at `447.9ms`; Step 375 should attribute the real-wheel branch
+  difference.
+- Did not modify `v6/src/app.js`, command surfaces, shell readout code,
+  target-history request sizing, replay, chart viewport, chart engine, or the
+  Step 362 runtime skeleton.
 
 ### Step 373 - HTF Target-History Native Visible-Range Reduced Delay Resolver
 

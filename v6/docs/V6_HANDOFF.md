@@ -9,10 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 373 closeout
-- Latest completed step: Step 373 - HTF Target-History Native Visible-Range
-  Reduced Delay Resolver
+- Worktree at handoff: clean after Step 374 closeout
+- Latest completed step: Step 374 - HTF Target-History Native Reduced Delay
+  Bridge Wiring
 - Recent relevant commits:
+  - Step 374 wired `nativeTargetHistoryDelayMs: 100` into
+    `leftward-history-input-bridge.js` for native visible-range requests with
+    target-history enabled. Browser measurement showed `8h`
+    `inputToTargetFetchStartMs` at `132.1ms`, while `4h`, `1D`, and `1W` still
+    measured around `448-479ms`, so Step 375 should attribute schedule branch
+    selection for real wheel input.
   - Step 373 added pure resolver support for `nativeTargetHistoryDelayMs`.
     Native target-history visible-range scheduling can now resolve to `100ms`
     with mode `native-target-history-reduced-delay`, while bridge runtime
@@ -353,8 +359,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 374:
-   HTF target-history native reduced delay bridge wiring.
+4. If continuing planned work, start with Step 375:
+   HTF target-history native reduced delay branch attribution.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -407,6 +413,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-target-history-request-scheduling-policy-selection-boundary-step372-static-smoke.js`
 - `node v6/tests/leftward-history-request-schedule-step373-smoke.js`
 - `node v6/tests/leftward-history-request-schedule-boundary-step373-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-step374-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-boundary-step374-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -421,12 +429,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 374 - HTF Target-History Native Reduced Delay
-  Bridge Wiring.
-- Wire `nativeTargetHistoryDelayMs: 100` into the bridge only for native
-  visible-range requests with target-history enabled, then browser-measure real
-  CDP wheel `inputToTargetFetchStartMs`; keep low-TF/native,
-  target-history-disabled, and programmatic fast-path behavior unchanged.
+- Recommended next action is Step 375 - HTF Target-History Native Reduced Delay
+  Branch Attribution.
+- Attribute real wheel scheduling branch selection for `4h`, `8h`, `1D`, and
+  `1W`: report resolved reason, activation state, selected delay, and timer
+  delay so the remaining `4h`/`1D`/`1W` 448-479ms window can be narrowed.
 
 ## Current State
 
