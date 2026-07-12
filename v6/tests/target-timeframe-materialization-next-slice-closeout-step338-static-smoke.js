@@ -10,10 +10,10 @@ const selectionSmoke = await readFile('v6/tests/target-timeframe-materialization
 const boundarySmoke = await readFile('v6/tests/target-timeframe-materialization-next-slice-boundary-step338-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_TIMEFRAME_MATERIALIZATION_NEXT_SLICE_SELECTION_STEP338\.md/);
-assert.match(todo, /Latest completed target-timeframe materialization selection step: Step 338/);
-assert.match(todo, /### Step 339 - Target-History Pack Replay Coordination Member Integration/);
-assert.match(handoff, /Latest completed step: Step 338 - Target-Timeframe Materialization Next\s+Slice Reselection/);
-assert.match(handoff, /start with Step 339/);
+assert.match(todo, /### Step 338 - Target-Timeframe Materialization Next Slice Reselection/);
+assert.match(todo, /Selected `target-history-pack-replay-coordination-member` as the next bounded\s+slice/);
+assert.match(handoff, /Step 338 selected\s+`target-history-pack-replay-coordination-member`/);
+assert.match(handoff, /Step 338 selects target-history pack replay coordination member\s+integration as the next bounded slice/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /target-history-pack-replay-coordination-member/);

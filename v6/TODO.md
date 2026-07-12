@@ -328,6 +328,11 @@
   `target-history-pack-replay-coordination-member` as the next bounded slice so
   the Step 337 replay coordination browser smoke can be run through focused
   target-history pack member controls before broader runtime changes.
+- Latest completed target-history pack member step: Step 339 - Target-History
+  Pack Replay Coordination Member Integration. V6 now exposes the Step 337
+  replay coordination browser smoke as optional pack member
+  `replay-coordination`, while the default target-history browser pack remains
+  the existing eight-member pack.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -363,7 +368,7 @@
 
 ## Next Executable Steps
 
-### Step 339 - Target-History Pack Replay Coordination Member Integration
+### Step 340 - Target-Timeframe Materialization Post-Pack Reselection
 
 Status: proposed.
 
@@ -371,13 +376,14 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 338 closeout:
-  `v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_NEXT_SLICE_SELECTION_STEP338.md`;
-- add the Step 337 replay coordination browser smoke as a focused member of the
-  target-history browser regression pack;
-- keep `TARGET_HISTORY_PACK_MEMBERS` able to run the new member directly;
-- keep the default full pack available and green;
-- keep existing pack group/member controls usable during iteration;
+- use Step 339 closeout:
+  `v6/docs/V6_TARGET_HISTORY_PACK_REPLAY_COORDINATION_MEMBER_STEP339.md`;
+- re-select the next bounded target-timeframe materialization slice after pack
+  member integration;
+- consider diagnostics/readout integration for materialized replay coordination
+  before any runtime handoff;
+- only select a narrow runtime handoff if owner boundaries, rollback criteria,
+  and pack coverage remain explicit;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -387,17 +393,16 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the pack membership change;
+- add pure selection/static closeout coverage for the chosen next slice;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- the target-history pack includes a replay coordination member pointing to the
-  Step 337 browser smoke;
-- `TARGET_HISTORY_PACK_MEMBERS=<new-member>` runs only that browser smoke;
-- existing pack groups remain usable;
+- the next target-timeframe materialization slice is explicitly selected;
+- selection records owner boundary, affected runtimes, forbidden actions, and
+  rollback criteria;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -406,6 +411,30 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 339 - Target-History Pack Replay Coordination Member Integration
+
+Completed in this target-history pack replay coordination member commit series.
+
+Verification:
+
+- `node v6/tests/target-history-pack-cost-control-step309-smoke.js`
+- `node v6/tests/target-history-pack-replay-coordination-member-step339-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=monthly-fallback node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
+- `node v6/tests/target-history-browser-pack-cost-control-closeout-step309-static-smoke.js`
+- `node v6/tests/target-timeframe-materialization-next-slice-closeout-step338-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added optional target-history pack member `replay-coordination`.
+- The optional member points to the Step 337 replay coordination browser smoke.
+- Default `all`, `fallback`, `session-aware`, and `sizing` groups keep their
+  existing member sets.
+- Runtime behavior is unchanged.
 
 ### Step 338 - Target-Timeframe Materialization Next Slice Reselection
 
