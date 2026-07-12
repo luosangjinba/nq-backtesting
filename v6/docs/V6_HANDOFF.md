@@ -9,10 +9,18 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 375 closeout
-- Latest completed step: Step 375 - HTF Target-History Native Reduced Delay
-  Branch Attribution
+- Worktree at handoff: clean after Step 376 closeout
+- Latest completed step: Step 376 - HTF Target-History Runtime
+  Delayed-Schedule Suppression
 - Recent relevant commits:
+  - Step 376 suppressed HTF target-history `runtime-surface-check` and
+    `runtime-left-extension-loaded` delayed `500ms` schedules in the
+    leftward-history input bridge while preserving low-TF/native source,
+    target-history-disabled, and programmatic fast-path behavior. Browser
+    timing now shows `4h` `113.3ms`, `8h` `121.4ms`, `1D` `125.7ms`, and
+    `1W` `120.4ms` from input to target fetch. Step 377 should add a smaller
+    browser budget guard so this does not regress back to the old `500ms`
+    window.
   - Step 375 added harness-only branch attribution for real HTF wheel
     scheduling. The native `100ms` branch is present with target-history
     enabled for `4h`, `8h`, `1D`, and `1W`; `8h` reached target fetch at
@@ -368,8 +376,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 376:
-   HTF target-history runtime delayed-schedule suppression.
+4. If continuing planned work, start with Step 377:
+   HTF target-history reduced-delay browser budget guard.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -426,6 +434,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/leftward-history-input-bridge-native-target-delay-boundary-step374-static-smoke.js`
 - `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-step375-smoke.js`
 - `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-boundary-step375-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-runtime-delayed-suppression-step376-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-runtime-delayed-suppression-boundary-step376-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-fast-path-step326-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -440,12 +451,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 376 - HTF Target-History Runtime
-  Delayed-Schedule Suppression.
-- Narrowly prevent `runtime-surface-check` and `runtime-left-extension-loaded`
-  delayed `500ms` schedules from dominating an already active HTF
-  target-history native reduced-delay schedule, while preserving low-TF/native,
-  target-history-disabled, and programmatic fast-path behavior.
+- Recommended next action is Step 377 - HTF Target-History Reduced-Delay
+  Browser Budget Guard.
+- Add a smaller browser pass/fail guard that fails if `4h`, `8h`, `1D`, or
+  `1W` regresses to the old roughly `500ms` target-fetch window, while keeping
+  the broader Step 371 milestone smoke available for detailed attribution.
 
 ## Current State
 

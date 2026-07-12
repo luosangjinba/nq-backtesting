@@ -604,6 +604,12 @@ Read this index before working on V6.
   showing Step 374's native `100ms` branch is present for `4h`, `8h`, `1D`,
   and `1W`, while runtime-originated `500ms` schedules still dominate the slow
   cases and selecting a narrow runtime delayed-schedule suppression fix next.
+- `v6/docs/V6_HTF_TARGET_HISTORY_RUNTIME_DELAYED_SCHEDULE_SUPPRESSION_STEP376.md`:
+  accepted bridge-local suppression of HTF target-history
+  `runtime-surface-check` and `runtime-left-extension-loaded` delayed `500ms`
+  schedules, bringing real wheel target-fetch timing for `4h`, `8h`, `1D`,
+  and `1W` into the reduced-delay window and selecting a smaller budget
+  regression guard next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

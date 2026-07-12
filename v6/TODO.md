@@ -552,6 +552,13 @@
   `100ms` branch is present with target-history enabled, but the slow cases
   still show runtime-originated `500ms` delayed schedules, so the next slice is
   a narrow runtime delayed-schedule suppression fix.
+- Latest completed HTF target-history runtime suppression step: Step 376 - HTF
+  Target-History Runtime Delayed-Schedule Suppression. V6 now suppresses
+  HTF target-history `runtime-surface-check` and
+  `runtime-left-extension-loaded` delayed `500ms` schedules in the input
+  bridge, while preserving low-TF/native source, target-history-disabled, and
+  programmatic fast-path behavior. Browser timing now shows `4h`, `8h`, `1D`,
+  and `1W` target fetches in the reduced-delay window.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -587,7 +594,7 @@
 
 ## Next Executable Steps
 
-### Step 376 - HTF Target-History Runtime Delayed-Schedule Suppression
+### Step 377 - HTF Target-History Reduced-Delay Browser Budget Guard
 
 Status: proposed.
 
@@ -605,14 +612,15 @@ Notes for execution:
   `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRIDGE_WIRING_STEP374.md`;
 - use Step 375 closeout:
   `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRANCH_ATTRIBUTION_STEP375.md`;
-- fix only the proven scheduling conflict where HTF target-history native
-  reduced-delay schedules can be followed by runtime-originated delayed
-  schedules;
-- prevent `runtime-surface-check` and `runtime-left-extension-loaded` from
-  replacing or dominating an already active native target-history reduced-delay
-  schedule during real wheel interaction windows;
-- preserve native `100ms` behavior for `4h`, `8h`, `1D`, and `1W`;
-- keep bridge trace attribution available for the browser verification;
+- use Step 376 closeout:
+  `v6/docs/V6_HTF_TARGET_HISTORY_RUNTIME_DELAYED_SCHEDULE_SUPPRESSION_STEP376.md`;
+- add a smaller browser pass/fail guard for reduced-delay behavior instead of
+  relying only on the broader Step 371 attribution smoke;
+- assert `4h`, `8h`, `1D`, and `1W` target fetches stay near the reduced-delay
+  branch and away from the old `500ms` window;
+- assert schedule trace includes native `100ms` scheduling and
+  `schedule-suppressed` for runtime delayed reasons where present;
+- keep the Step 371 milestone smoke as the richer attribution harness;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -646,17 +654,16 @@ Notes for execution:
 
 Acceptance:
 
-- browser coverage shows `4h`, `8h`, `1D`, and `1W` use or preserve the
-  reduced-delay native target-history schedule without being dominated by
-  runtime `500ms` delayed schedules;
-- `runtime-surface-check` and `runtime-left-extension-loaded` remain safe for
-  low-TF/native source paths, target-history-disabled paths, and non-native
-  runtime checks;
+- focused browser budget coverage fails if `4h`, `8h`, `1D`, or `1W` falls
+  back to the old roughly `500ms` target-fetch window;
+- focused browser coverage proves native `100ms` scheduling remains active;
+- focused browser coverage proves runtime delayed schedules are suppressed for
+  HTF target-history where present;
+- low-TF/native source paths, target-history-disabled paths, and programmatic
+  fast path remain unchanged;
 - bridge trace attribution still reports schedule reason, activation state,
   selected delay, and timer delay for the tested HTFs;
-- Step 374 bridge wiring remains narrowly scoped;
-- low-TF/native source paths, target-history disabled paths, and programmatic
-  fast path remain unchanged;
+- Step 374 bridge wiring and Step 376 suppression remain narrowly scoped;
 - rollback gates preserve low-TF/native drag stability and sticky-drag
   protections;
 - runtime behavior remains unchanged unless a concrete scheduling change is
@@ -692,6 +699,35 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 376 - HTF Target-History Runtime Delayed-Schedule Suppression
+
+Completed in this HTF target-history runtime delayed-schedule suppression
+commit series.
+
+Verification:
+
+- `node v6/tests/leftward-history-input-bridge-runtime-delayed-suppression-step376-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-runtime-delayed-suppression-boundary-step376-static-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-fast-path-step326-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-schedule-branch-attribution-step375-smoke.js`
+- `node v6/tests/leftward-history-input-bridge-native-target-delay-step374-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-browser-step371-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Suppressed HTF target-history delayed `runtime-surface-check` and
+  `runtime-left-extension-loaded` schedules in the input bridge.
+- Native visible-range target-history remains `100ms`.
+- Low-TF/native source and target-history-disabled paths continue to use the
+  normal delayed schedule.
+- Programmatic target-history fast path remains immediate.
+- Browser timing after suppression: `4h` `113.3ms`, `8h` `121.4ms`,
+  `1D` `125.7ms`, and `1W` `120.4ms` from input to target fetch.
+- Did not modify `v6/src/app.js`, command surfaces, shell readout code,
+  target-history request sizing, replay, chart viewport, chart engine, or the
+  Step 362 runtime skeleton.
 
 ### Step 375 - HTF Target-History Native Reduced Delay Branch Attribution
 
