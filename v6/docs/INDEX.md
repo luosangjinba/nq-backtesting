@@ -449,6 +449,10 @@ Read this index before working on V6.
   accepted the pure diagnostics runtime wiring plan from Display-Timeframe,
   Manual Next, and Auto Play producer events into a future update-snapshot
   surface, without live wiring or UI changes.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_UPDATE_COMMAND_STEP344.md`:
+  accepted the bounded diagnostics `updateSnapshot` command surface with
+  normalization, validation, rejection safety, and no producer subscriptions or
+  UI changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

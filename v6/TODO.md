@@ -352,6 +352,12 @@
   and Auto Play events into a future diagnostics update surface, still without
   live subscriptions, visible UI, target loading, replay cursor, chart-data, or
   viewport behavior changes.
+- Latest completed target materialization diagnostics update command step:
+  Step 344 - Target Materialization Replay Diagnostics Update Command Surface.
+  V6 now exposes `targetMaterializationReplayDiagnostics.updateSnapshot` with
+  normalization, validation, cloned readback, rejected-update safety, and no
+  producer subscriptions, visible UI, target loading, replay cursor, chart-data,
+  or viewport behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -387,7 +393,7 @@
 
 ## Next Executable Steps
 
-### Step 344 - Target Materialization Replay Diagnostics Update Command Surface
+### Step 345 - Target Materialization Replay Diagnostics Producer Payload Mappers
 
 Status: proposed.
 
@@ -395,15 +401,18 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 343 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_WIRING_PLAN_STEP343.md`;
-- implement the smallest diagnostics runtime update command surface behind the
-  Step 343 plan: `targetMaterializationReplayDiagnostics.updateSnapshot`;
-- normalize and validate update payloads through the Step 341 diagnostics
-  snapshot contract;
-- keep `getSnapshot` and `snapshotReady` as the shell read path;
+- use Step 344 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_UPDATE_COMMAND_STEP344.md`;
+- add pure mapper helpers that convert existing Display-Timeframe, Manual Next,
+  and Auto Play event payloads into
+  `targetMaterializationReplayDiagnostics.updateSnapshot` payloads;
+- keep mapper ownership inside the diagnostics/replay diagnostics boundary, not
+  inside producer runtimes;
+- cover applied, fallback, manual next advanced, autoplay started/ticked/stopped,
+  and malformed payload cases;
 - do not subscribe to Display-Timeframe, Manual Next, or Auto Play producer
   events yet;
+- do not dispatch `updateSnapshot` from producer runtimes yet;
 - keep shell consumption as command/event snapshot reading only;
 - do not wire visible UI yet;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
@@ -415,17 +424,17 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add runtime/static closeout coverage for the update command surface;
+- add pure/static closeout coverage for the producer payload mappers;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- diagnostics runtime exposes a bounded update command surface;
-- update payloads are normalized, validated, cloned, and readable through
-  `getSnapshot`;
-- invalid updates do not corrupt the current diagnostics snapshot;
+- mapper helpers return update payloads compatible with `updateSnapshot`;
+- mapper helpers are pure and do not dispatch commands or subscribe to events;
+- malformed producer payloads produce safe partial/null updates without runtime
+  behavior changes;
 - producer-event subscriptions are still not wired;
 - shell consumption path remains command/event snapshot reading without direct
   target API calls;
@@ -437,6 +446,33 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 344 - Target Materialization Replay Diagnostics Update Command Surface
+
+Completed in this target materialization replay diagnostics update command
+commit series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-update-command-step344-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-update-command-boundary-step344-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-wiring-boundary-step343-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-runtime-step342-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added `targetMaterializationReplayDiagnostics.updateSnapshot`.
+- Valid updates are normalized, validated, cloned, readable through
+  `getSnapshot`, and emitted through `snapshotReady`.
+- Invalid updates return `status: rejected` and do not corrupt the current
+  diagnostics snapshot.
+- Kept producer-event subscriptions, visible UI, target-bar loading, replay
+  cursor movement, chart-data writes, viewport intent, target-history request
+  sizing, and chart-history fast-path behavior unchanged.
 
 ### Step 343 - Target Materialization Replay Diagnostics Runtime Wiring Plan
 

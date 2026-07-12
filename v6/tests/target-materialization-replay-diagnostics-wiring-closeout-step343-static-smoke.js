@@ -9,11 +9,10 @@ const plan = await readFile('v6/src/replay/target-materialization-replay-diagnos
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-wiring-boundary-step343-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_WIRING_PLAN_STEP343\.md/);
-assert.match(todo, /Latest completed target materialization diagnostics wiring plan step: Step\s+343/);
-assert.match(todo, /### Step 344 - Target Materialization Replay Diagnostics Update Command Surface/);
-assert.match(todo, /do not subscribe to Display-Timeframe, Manual Next, or Auto Play producer\s+events yet/);
-assert.match(handoff, /Latest completed step: Step 343 - Target Materialization Replay Diagnostics\s+Runtime Wiring Plan/);
-assert.match(handoff, /start with Step 344/);
+assert.match(todo, /### Step 343 - Target Materialization Replay Diagnostics Runtime Wiring Plan/);
+assert.match(todo, /Added the pure diagnostics runtime wiring plan/);
+assert.match(handoff, /Step 343 defined the pure producer\/consumer wiring plan/);
+assert.match(handoff, /Step 343\s+defines the diagnostics producer\/consumer wiring plan/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /displayTimeframe:applied/);
