@@ -396,6 +396,13 @@
   placement, dataset attributes, command/event snapshot consumption, Step 349
   view-model routing, rendering rules, and rollback criteria before visible UI
   wiring.
+- Latest completed target materialization diagnostics DOM wiring step: Step
+  351 - Target Materialization Replay Diagnostics Readout DOM Wiring. V6 now
+  mounts pane-local materialization diagnostics readout containers under
+  `shell.pane-status-readout`, reads `getSnapshot`, refreshes on
+  `snapshotReady`, routes through the Step 349 view model, and renders
+  hidden/collapsed states without producer runtime, target loading, replay
+  cursor, chart-data, viewport, request sizing, or fast-path behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -431,7 +438,7 @@
 
 ## Next Executable Steps
 
-### Step 351 - Target Materialization Replay Diagnostics Readout DOM Wiring
+### Step 352 - Target Materialization Replay Diagnostics Readout Producer Flow Browser Regression
 
 Status: proposed.
 
@@ -439,19 +446,20 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 350 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_DOM_WIRING_PLAN_STEP350.md`;
-- implement the smallest controlled DOM wiring inside
-  `shell.pane-status-readout`;
-- mount pane-local readout containers after
-  `[data-v6-target-history-diagnostics]`;
-- read diagnostics through `targetMaterializationReplayDiagnostics.getSnapshot`;
-- refresh on `targetMaterializationReplayDiagnostics:snapshotReady`;
-- route all snapshot payloads through the Step 349 view model;
-- render hidden and collapsed states using the Step 350 dataset attributes;
-- do not modify Display-Timeframe, Manual Next, or Auto Play runtimes;
-- do not dispatch `updateSnapshot` from producer runtimes;
-- keep shell consumption as command/event snapshot reading only;
+- use Step 351 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_DOM_WIRING_STEP351.md`;
+- verify the Step 351 pane-status readout through real producer flows:
+  Display-Timeframe materialization, Manual Next, and Auto Play;
+- avoid direct `updateSnapshot` in the browser flow regression except for
+  clearly isolated setup that cannot affect the producer-flow assertions;
+- keep shell consumption as command/event snapshot reading only through
+  `getSnapshot` and `snapshotReady`;
+- keep all rendered payloads routed through the Step 349 view model;
+- keep internal-only fields hidden from readout row text;
+- do not call target APIs from shell readout code;
+- do not modify producer runtimes unless the browser test exposes an actual
+  diagnostics-runtime wiring bug; if code changes are needed, route them through
+  the diagnostics runtime owner boundary;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -461,24 +469,24 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add pure/static closeout coverage for the readout owner plan;
+- add browser/static closeout coverage for producer-flow DOM readout behavior;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- pane-local materialization diagnostics containers are mounted under
-  `shell.pane-status-readout`;
-- shell readout consumption is command/event-only and routes through the Step
-  349 view model;
-- hidden/normal snapshots keep the readout hidden with no visible rows;
-- target-history-active and fallback snapshots render collapsed first-visible
-  rows only;
-- internal-only fields are not rendered as rows;
+- browser flow proves target-history-active collapsed rows after real
+  Display-Timeframe materialization;
+- browser flow proves Manual Next and Auto Play rows update through real
+  producer events;
+- fallback and normal replay states remain hidden/collapsed according to the
+  Step 349 view model;
+- internal-only fields are not rendered as rows or row text;
 - shell readout consumption remains command/event snapshot reading without
   direct target API calls;
-- producer runtimes remain unchanged and do not import diagnostics commands;
+- producer runtimes remain unchanged unless a diagnostics-runtime wiring bug is
+  found and justified;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -487,6 +495,38 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 351 - Target Materialization Replay Diagnostics Readout DOM Wiring
+
+Completed in this target materialization replay diagnostics readout DOM wiring
+commit series.
+
+Verification:
+
+- `node v6/tests/pane-status-readout-step183-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-dom-wiring-browser-step351-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-dom-wiring-boundary-step351-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-dom-wiring-boundary-step350-static-smoke.js`
+- `node v6/tests/pane-status-readout-browser-step183-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Mounted pane-local materialization diagnostics containers under
+  `shell.pane-status-readout` after `[data-v6-target-history-diagnostics]`.
+- Read the initial diagnostics snapshot through `getSnapshot`.
+- Refreshed the readout on `snapshotReady`.
+- Routed every snapshot through the Step 349 view model.
+- Rendered hidden/normal snapshots as hidden containers with no rows.
+- Rendered target-history-active and fallback snapshots as collapsed
+  first-visible rows.
+- Kept internal-only fields out of visible rows.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 350 - Target Materialization Replay Diagnostics Readout DOM Wiring Plan
 

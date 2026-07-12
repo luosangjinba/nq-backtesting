@@ -25,13 +25,9 @@ assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_DOM_WI
 assert.match(index, /plan-only pane-status DOM wiring contract/);
 
 assert.match(todo, /Latest completed target materialization diagnostics DOM wiring plan step:\s+Step 350/);
-assert.match(todo, /### Step 351 - Target Materialization Replay Diagnostics Readout DOM Wiring/);
-assert.match(todo, /route all snapshot payloads through the Step 349 view model/);
 assert.match(todo, /### Step 350 - Target Materialization Replay Diagnostics Readout DOM Wiring Plan/);
 
-assert.match(handoff, /Latest completed step: Step 350 - Target Materialization Replay Diagnostics\s+Readout DOM Wiring Plan/);
 assert.match(handoff, /Step 350 defined the plan-only pane-status DOM wiring contract/);
-assert.match(handoff, /start with Step 351/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /\[data-v6-pane-status-readout\]/);
@@ -39,6 +35,7 @@ assert.match(doc, /after `\[data-v6-target-history-diagnostics\]`/);
 assert.match(doc, /data-v6-target-materialization-diagnostics-mode/);
 assert.match(doc, /targetMaterializationReplayDiagnostics\.getSnapshot/);
 assert.match(doc, /targetMaterializationReplayDiagnostics:snapshotReady/);
+assert.match(doc, /Route the snapshot through the Step 349\s+`target-materialization-replay-diagnostics-readout-view-model`/);
 assert.match(doc, /Hidden view models remove row content/);
 assert.match(doc, /Rollback Criteria/);
 assert.match(doc, /This step is plan-only/);

@@ -478,6 +478,11 @@ Read this index before working on V6.
   accepted the plan-only pane-status DOM wiring contract, container placement,
   dataset attributes, command/event consumption sequence, rendering rules, and
   rollback criteria before visible UI wiring.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_DOM_WIRING_STEP351.md`:
+  accepted controlled pane-status diagnostics readout DOM wiring, hidden
+  pane-local containers, `getSnapshot`/`snapshotReady` consumption, Step 349
+  view-model routing, and hidden/collapsed rendering without producer runtime
+  or replay/chart behavior changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
