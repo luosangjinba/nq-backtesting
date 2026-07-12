@@ -140,6 +140,17 @@ export function connectLeftwardHistoryInputBridge({
     return targetHistoryActivation.nativeTargetHistoryDelayMs ?? DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS;
   }
 
+  function shouldPreserveNativeTargetHistoryPending({ activationPayload = null, pending = null, schedule } = {}) {
+    if (!pending?.schedule || !schedule) return false;
+    if (pending.schedule.mode !== 'native-target-history-reduced-delay') return false;
+    if (schedule.mode !== 'delayed') return false;
+    if (!activationPayload?.targetHistory?.enabled || !pending.activationPayload?.targetHistory?.enabled) {
+      return false;
+    }
+    return schedule.reason === 'runtime-surface-check'
+      || schedule.reason === 'runtime-left-extension-loaded';
+  }
+
   function scheduleResolvedRequest({
     activationPayload = null,
     paneId,
@@ -147,6 +158,21 @@ export function connectLeftwardHistoryInputBridge({
     visibleRange,
   } = {}) {
     if (!active || !schedule.shouldDispatch) return;
+    const pending = pendingByPaneId.get(paneId);
+    if (shouldPreserveNativeTargetHistoryPending({ activationPayload, pending, schedule })) {
+      traceBridge({
+        existingDelayMs: pending.schedule.delayMs,
+        existingMode: pending.schedule.mode,
+        existingReason: pending.schedule.reason,
+        mode: schedule.mode,
+        paneId,
+        phase: 'schedule-suppressed',
+        reason: schedule.reason,
+        targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
+      });
+      return;
+    }
+    clearPending(paneId);
     const delayMs = schedule.delayMs;
     if (delayMs === 0 || typeof setTimeoutFn !== 'function') {
       if (schedule.mode === 'programmatic-target-history-fast-path') {
@@ -166,7 +192,12 @@ export function connectLeftwardHistoryInputBridge({
       reason: schedule.reason,
       targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
     });
-    pendingByPaneId.set(paneId, { activationPayload, timer, visibleRange });
+    pendingByPaneId.set(paneId, {
+      activationPayload,
+      schedule,
+      timer,
+      visibleRange,
+    });
   }
 
   function scheduleRequest(paneId, visibleRange, reason = 'native-visible-range') {
@@ -176,7 +207,6 @@ export function connectLeftwardHistoryInputBridge({
       }
       return;
     }
-    clearPending(paneId);
     const resolvedReason = resolverReasonForPane(paneId, reason);
     if (targetHistoryActivation.enabled === false) {
       const schedule = resolveLeftwardHistoryRequestSchedule({
