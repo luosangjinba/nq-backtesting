@@ -13,6 +13,15 @@ import { resolveLeftwardHistoryRequestSchedule } from './leftward-history-reques
 
 const DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS = 100;
 
+function traceBridge(record = {}) {
+  const trace = globalThis.__v6LeftwardHistoryInputBridgeTrace;
+  if (typeof trace !== 'function') return;
+  trace({
+    ...record,
+    source: 'leftward-history-input-bridge',
+  });
+}
+
 export function connectLeftwardHistoryInputBridge({
   chartSurface,
   clearTimeoutFn = globalThis.clearTimeout?.bind(globalThis),
@@ -149,6 +158,14 @@ export function connectLeftwardHistoryInputBridge({
       return;
     }
     const timer = setTimeoutFn(() => dispatchPending(paneId), delayMs);
+    traceBridge({
+      delayMs,
+      mode: schedule.mode,
+      paneId,
+      phase: 'timer-scheduled',
+      reason: schedule.reason,
+      targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
+    });
     pendingByPaneId.set(paneId, { activationPayload, timer, visibleRange });
   }
 
@@ -162,32 +179,59 @@ export function connectLeftwardHistoryInputBridge({
     clearPending(paneId);
     const resolvedReason = resolverReasonForPane(paneId, reason);
     if (targetHistoryActivation.enabled === false) {
+      const schedule = resolveLeftwardHistoryRequestSchedule({
+        reason: resolvedReason,
+        requestDelayMs,
+        targetHistoryEnabled: false,
+        visibleRange,
+      });
+      traceBridge({
+        activationStatus: 'disabled',
+        delayMs: schedule.delayMs,
+        mode: schedule.mode,
+        paneId,
+        phase: 'schedule-resolved',
+        reason: schedule.reason,
+        requestedReason: reason,
+        resolvedReason,
+        targetHistoryEnabled: false,
+      });
       scheduleResolvedRequest({
         paneId,
-        schedule: resolveLeftwardHistoryRequestSchedule({
-          reason: resolvedReason,
-          requestDelayMs,
-          targetHistoryEnabled: false,
-          visibleRange,
-        }),
+        schedule,
         visibleRange,
       });
       return;
     }
     void Promise.resolve(paneActivationPayload(paneId)).then((activationPayload) => {
+      const selectedNativeTargetHistoryDelayMs = nativeTargetHistoryDelayFor({
+        activationPayload,
+        reason: resolvedReason,
+      });
+      const schedule = resolveLeftwardHistoryRequestSchedule({
+        nativeTargetHistoryDelayMs: selectedNativeTargetHistoryDelayMs,
+        reason: resolvedReason,
+        requestDelayMs,
+        targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
+        visibleRange,
+      });
+      traceBridge({
+        activationDisplayTimeframe: activationPayload?.displayTimeframe ?? null,
+        activationStatus: activationPayload?.targetHistory?.enabled ? 'enabled' : 'ignored',
+        delayMs: schedule.delayMs,
+        mode: schedule.mode,
+        nativeTargetHistoryDelayMs: selectedNativeTargetHistoryDelayMs,
+        paneId,
+        phase: 'schedule-resolved',
+        reason: schedule.reason,
+        requestedReason: reason,
+        resolvedReason,
+        targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
+      });
       scheduleResolvedRequest({
         activationPayload,
         paneId,
-        schedule: resolveLeftwardHistoryRequestSchedule({
-          nativeTargetHistoryDelayMs: nativeTargetHistoryDelayFor({
-            activationPayload,
-            reason: resolvedReason,
-          }),
-          reason: resolvedReason,
-          requestDelayMs,
-          targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
-          visibleRange,
-        }),
+        schedule,
         visibleRange,
       });
       if (isProgrammaticFastCandidateReason(reason)) {
