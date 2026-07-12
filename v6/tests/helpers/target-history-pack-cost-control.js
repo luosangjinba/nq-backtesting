@@ -55,6 +55,11 @@ export const TARGET_HISTORY_PACK_OPTIONAL_TESTS = Object.freeze([
     script: 'v6/tests/display-timeframe-target-materialization-replay-coordination-browser-step337-smoke.js',
     tags: Object.freeze(['materialization', 'replay-coordination']),
   }),
+  Object.freeze({
+    id: 'readout-producer-flow',
+    script: 'v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke.js',
+    tags: Object.freeze(['materialization', 'readout', 'producer-flow']),
+  }),
 ]);
 
 function splitCsv(value) {

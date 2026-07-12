@@ -66,8 +66,18 @@ assert.deepEqual(replayCoordination.selectedIds, ['replay-coordination']);
 assert.deepEqual(replayCoordination.scripts, [
   'v6/tests/display-timeframe-target-materialization-replay-coordination-browser-step337-smoke.js',
 ]);
-assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS.length, 1);
+const readoutProducerFlow = selectTargetHistoryPackTests({
+  members: 'readout-producer-flow',
+});
+assert.equal(readoutProducerFlow.group, 'members');
+assert.equal(readoutProducerFlow.selectedCount, 1);
+assert.deepEqual(readoutProducerFlow.selectedIds, ['readout-producer-flow']);
+assert.deepEqual(readoutProducerFlow.scripts, [
+  'v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke.js',
+]);
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS.length, 2);
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[0].id, 'replay-coordination');
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[1].id, 'readout-producer-flow');
 assert.equal(full.selectedCount, 8);
 
 assert.throws(() => selectTargetHistoryPackTests({ group: 'unknown' }), /Unknown target-history pack group/);
