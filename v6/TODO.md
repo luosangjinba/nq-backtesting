@@ -358,6 +358,12 @@
   normalization, validation, cloned readback, rejected-update safety, and no
   producer subscriptions, visible UI, target loading, replay cursor, chart-data,
   or viewport behavior changes.
+- Latest completed target materialization diagnostics mapper step: Step 345 -
+  Target Materialization Replay Diagnostics Producer Payload Mappers. V6 now has
+  pure mappers from Display-Timeframe, Manual Next, and Auto Play event payloads
+  into diagnostics update payloads, still without live subscriptions, producer
+  runtime dispatches, visible UI, target loading, replay cursor, chart-data, or
+  viewport behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -393,7 +399,7 @@
 
 ## Next Executable Steps
 
-### Step 345 - Target Materialization Replay Diagnostics Producer Payload Mappers
+### Step 346 - Target Materialization Replay Diagnostics Producer Event Runtime Wiring
 
 Status: proposed.
 
@@ -401,18 +407,13 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 344 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_UPDATE_COMMAND_STEP344.md`;
-- add pure mapper helpers that convert existing Display-Timeframe, Manual Next,
-  and Auto Play event payloads into
-  `targetMaterializationReplayDiagnostics.updateSnapshot` payloads;
-- keep mapper ownership inside the diagnostics/replay diagnostics boundary, not
-  inside producer runtimes;
-- cover applied, fallback, manual next advanced, autoplay started/ticked/stopped,
-  and malformed payload cases;
-- do not subscribe to Display-Timeframe, Manual Next, or Auto Play producer
-  events yet;
-- do not dispatch `updateSnapshot` from producer runtimes yet;
+- use Step 345 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_PAYLOAD_MAPPERS_STEP345.md`;
+- wire producer event subscriptions inside
+  `runtime.target-materialization-replay-diagnostics`;
+- use the Step 345 mappers and Step 344 update path;
+- do not modify Display-Timeframe, Manual Next, or Auto Play runtimes;
+- do not dispatch `updateSnapshot` from producer runtimes;
 - keep shell consumption as command/event snapshot reading only;
 - do not wire visible UI yet;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
@@ -424,18 +425,20 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add pure/static closeout coverage for the producer payload mappers;
+- add runtime/static closeout coverage for the producer event subscription
+  wiring;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- mapper helpers return update payloads compatible with `updateSnapshot`;
-- mapper helpers are pure and do not dispatch commands or subscribe to events;
-- malformed producer payloads produce safe partial/null updates without runtime
-  behavior changes;
-- producer-event subscriptions are still not wired;
+- diagnostics runtime subscribes to the five accepted producer events;
+- producer payloads update diagnostics snapshots through the existing update
+  path;
+- malformed producer payloads are ignored or rejected without corrupting the
+  current diagnostics snapshot;
+- producer runtimes remain unchanged and do not import diagnostics commands;
 - shell consumption path remains command/event snapshot reading without direct
   target API calls;
 - source `1m` replay remains the cursor authority while target bars remain
@@ -446,6 +449,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 345 - Target Materialization Replay Diagnostics Producer Payload Mappers
+
+Completed in this target materialization replay diagnostics mapper commit
+series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-producer-payload-mappers-step345-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-producer-payload-mappers-boundary-step345-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-update-command-step344-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-update-command-boundary-step344-static-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added pure producer payload mappers for Display-Timeframe, Manual Next, and
+  Auto Play events.
+- Mapper outputs are compatible with the Step 344 `updateSnapshot` command.
+- Malformed payloads produce safe partial updates or `null`.
+- Kept producer-event subscriptions, producer runtime dispatches, visible UI,
+  target-bar loading, replay cursor movement, chart-data writes, viewport
+  intent, target-history request sizing, and chart-history fast-path behavior
+  unchanged.
 
 ### Step 344 - Target Materialization Replay Diagnostics Update Command Surface
 

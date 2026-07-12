@@ -11,11 +11,10 @@ const updateSmoke = await readFile('v6/tests/target-materialization-replay-diagn
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-update-command-boundary-step344-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_UPDATE_COMMAND_STEP344\.md/);
-assert.match(todo, /Latest completed target materialization diagnostics update command step:\s+Step 344/);
-assert.match(todo, /### Step 345 - Target Materialization Replay Diagnostics Producer Payload Mappers/);
-assert.match(todo, /do not dispatch `updateSnapshot` from producer runtimes yet/);
-assert.match(handoff, /Latest completed step: Step 344 - Target Materialization Replay Diagnostics\s+Update Command Surface/);
-assert.match(handoff, /start with Step 345/);
+assert.match(todo, /### Step 344 - Target Materialization Replay Diagnostics Update Command Surface/);
+assert.match(todo, /Added `targetMaterializationReplayDiagnostics\.updateSnapshot`/);
+assert.match(handoff, /Step 344 added `targetMaterializationReplayDiagnostics\.updateSnapshot`/);
+assert.match(handoff, /Step 344 adds the\s+bounded diagnostics update command surface/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /targetMaterializationReplayDiagnostics\.updateSnapshot/);

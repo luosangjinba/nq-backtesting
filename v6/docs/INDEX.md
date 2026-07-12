@@ -453,6 +453,10 @@ Read this index before working on V6.
   accepted the bounded diagnostics `updateSnapshot` command surface with
   normalization, validation, rejection safety, and no producer subscriptions or
   UI changes.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_PRODUCER_PAYLOAD_MAPPERS_STEP345.md`:
+  accepted pure producer payload mappers from Display-Timeframe, Manual Next,
+  and Auto Play events into diagnostics update payloads, still without live
+  subscriptions or UI changes.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.
