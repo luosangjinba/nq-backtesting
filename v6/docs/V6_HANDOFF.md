@@ -9,10 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 363 closeout
-- Latest completed step: Step 363 - Narrow Replay Materialization Runtime
-  Handoff App Registration Readiness Audit
+- Worktree at handoff: clean after Step 364 closeout
+- Latest completed step: Step 364 - Narrow Replay Materialization Runtime
+  Handoff App Registration Plan
 - Recent relevant commits:
+  - Step 364 added the plan-only app registration helper for the unwired narrow
+    replay materialization runtime handoff. It defines the exact future
+    `v6/src/app.js` diff for `dispatchCommand` import, runtime factory import,
+    and runtime registration after Manual Next and before Manual Previous,
+    plus focused Step 365 browser smoke, verification order, and rollback
+    gates while keeping the runtime unregistered.
   - Step 363 added the audit-only app registration readiness helper for the
     unwired narrow replay materialization runtime handoff. It identifies the
     exact future `v6/src/app.js` import path, registration insertion point
@@ -254,7 +260,9 @@ Read this block first after restarting the server or assistant context.
   skeleton and selects app registration readiness audit next, still without app
   registration. Step 363 audits the exact future app import/register position,
   dependency injection source, rollback plan, and focused browser coverage, and
-  selects an app registration plan next, still without app registration.
+  selects an app registration plan next, still without app registration. Step
+  364 defines that app registration plan and selects live app registration
+  next, still without app registration.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -295,8 +303,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 364:
-   narrow replay materialization runtime handoff app registration plan.
+4. If continuing planned work, start with Step 365:
+   replay coordination materialization runtime handoff app registration.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -328,6 +336,9 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-step363-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-boundary-step363-static-smoke.js`
 - `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-closeout-step363-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-step364-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-boundary-step364-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-closeout-step364-static-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/app-shell-browser-smoke.js`
@@ -340,11 +351,10 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 364 - Narrow Replay Materialization Runtime
-  Handoff App Registration Plan.
-- Keep Step 364 plan-only: translate the Step 363 audit into the exact minimal
-  future `v6/src/app.js` diff, focused browser smoke shape, rollback gates, and
-  verification order before registering the skeleton.
+- Recommended next action is Step 365 - Replay Coordination Materialization
+  Runtime Handoff App Registration.
+- Keep Step 365 narrow: apply only the Step 364 `v6/src/app.js` diff, add the
+  focused registration browser smoke, and preserve rollback gates.
 
 ## Current State
 

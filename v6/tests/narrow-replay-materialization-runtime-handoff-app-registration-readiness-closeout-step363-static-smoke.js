@@ -33,15 +33,11 @@ assert.match(
   todo,
   /Latest completed narrow replay materialization handoff app registration\s+readiness step:\s+Step 363/,
 );
-assert.match(todo, /### Step 364 - Narrow Replay Materialization Runtime Handoff App Registration Plan/);
 assert.match(todo, /### Step 363 - Narrow Replay Materialization Runtime Handoff App Registration Readiness Audit/);
 assert.match(todo, /Did not add runtime to `v6\/src\/app\.js`/);
 assert.match(todo, /Did not register commands, subscribe to events, dispatch commands/);
 
-assert.match(handoff, /Worktree at handoff: clean after Step 363 closeout/);
-assert.match(handoff, /Latest completed step: Step 363 - Narrow Replay Materialization Runtime\s+Handoff App Registration Readiness Audit/);
 assert.match(handoff, /Step 363 added the audit-only app registration readiness helper/);
-assert.match(handoff, /start with Step 364/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /Future import surface/);
