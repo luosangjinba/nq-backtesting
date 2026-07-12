@@ -624,6 +624,11 @@ Read this index before working on V6.
   `replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget`,
   proving the Step 377 budget guard still passes after the other optional
   browser members.
+- `v6/docs/V6_HTF_LEFTWARD_EXTENSION_PERFORMANCE_CHAIN_REAUDIT_STEP380.md`:
+  accepted closeout re-audit for the HTF leftward-extension performance chain
+  from Steps 367-379, closed HTF target-history leftward-extension latency for
+  now, listed the active standalone and pack-based reduced-delay guards, and
+  selected chart-foundation regression refresh as the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -9,10 +9,18 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 379 closeout
-- Latest completed step: Step 379 - Target-History Pack Reduced-Delay
-  Optional Combination
+- Worktree at handoff: clean after Step 380 closeout
+- Latest completed step: Step 380 - HTF Leftward Extension Performance Chain
+  Re-audit
 - Recent relevant commits:
+  - Step 380 re-audited the HTF leftward-extension performance chain from
+    Steps 367-379 and closed HTF target-history leftward-extension latency for
+    now. The reduced-delay behavior is protected by the Step 377 standalone
+    budget guard, Step 378 optional member, Step 379 combined optional pack
+    path, and Step 371 attribution harness. Step 381 should run or package a
+    chart-foundation regression refresh covering timeframe switching, interval
+    menu parity, display-timeframe leftward history, daily/weekly/monthly
+    projection, replay gap coverage, and the HTF reduced-delay budget guard.
   - Step 379 verified the combined optional target-history diagnostics pack
     path `replay-coordination,readout-producer-flow,handoff-registration,
     reduced-delay-budget`. The run executed all four optional members in order,
@@ -397,8 +405,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 380:
-   HTF leftward extension performance chain re-audit.
+4. If continuing planned work, start with Step 381:
+   chart foundation regression refresh.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -464,6 +472,7 @@ Read this block first after restarting the server or assistant context.
 - `TARGET_HISTORY_PACK_MEMBERS=reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-history-pack-reduced-delay-optional-combination-step379-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-performance-chain-reaudit-step380-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -478,12 +487,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 380 - HTF Leftward Extension Performance
-  Chain Re-audit.
-- Summarize Steps 367-379, mark whether HTF leftward-extension latency is
-  closed for now, list the active standalone/pack guards, and select the next
-  chart-foundation slice outside this narrow latency chain unless a new
-  uncovered regression is found.
+- Recommended next action is Step 381 - Chart Foundation Regression Refresh.
+- Run or package the foundation-level chart regression set, including timeframe
+  switching, interval menu parity, display-timeframe leftward history,
+  daily/weekly/monthly projection, replay gap coverage, and the HTF
+  reduced-delay budget guard; then choose the next bounded chart-foundation
+  slice from failures, runtime cost, or weakest coverage.
 
 ## Current State
 

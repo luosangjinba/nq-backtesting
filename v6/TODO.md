@@ -574,6 +574,12 @@
   `replay-coordination,readout-producer-flow,handoff-registration,reduced-delay-budget`,
   with the Step 377 budget guard still passing after the other optional browser
   members.
+- Latest completed HTF leftward performance chain re-audit step: Step 380 -
+  HTF Leftward Extension Performance Chain Re-audit. V6 closed HTF
+  target-history leftward-extension latency for now, with the Step 377
+  standalone budget guard, Step 378 optional member, Step 379 combined optional
+  pack path, and Step 371 attribution harness protecting the reduced-delay
+  behavior.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -609,40 +615,25 @@
 
 ## Next Executable Steps
 
-### Step 380 - HTF Leftward Extension Performance Chain Re-audit
+### Step 381 - Chart Foundation Regression Refresh
 
 Status: proposed.
 
 Notes for execution:
 
-- continue Phase D from
-  `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 371 closeout:
-  `v6/docs/V6_HTF_DRAG_TRIGGERED_LOW_OVERHEAD_RUNTIME_MILESTONES_STEP371.md`;
-- use Step 372 closeout:
-  `v6/docs/V6_HTF_TARGET_HISTORY_REQUEST_SCHEDULING_POLICY_SELECTION_STEP372.md`;
-- use Step 373 closeout:
-  `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_VISIBLE_RANGE_REDUCED_DELAY_RESOLVER_STEP373.md`;
-- use Step 374 closeout:
-  `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRIDGE_WIRING_STEP374.md`;
-- use Step 375 closeout:
-  `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_REDUCED_DELAY_BRANCH_ATTRIBUTION_STEP375.md`;
-- use Step 376 closeout:
-  `v6/docs/V6_HTF_TARGET_HISTORY_RUNTIME_DELAYED_SCHEDULE_SUPPRESSION_STEP376.md`;
-- use Step 377 closeout:
-  `v6/docs/V6_HTF_TARGET_HISTORY_REDUCED_DELAY_BROWSER_BUDGET_GUARD_STEP377.md`;
-- use Step 378 closeout:
-  `v6/docs/V6_TARGET_HISTORY_PACK_REDUCED_DELAY_BUDGET_MEMBER_STEP378.md`;
-- use Step 379 closeout:
-  `v6/docs/V6_TARGET_HISTORY_PACK_REDUCED_DELAY_OPTIONAL_COMBINATION_STEP379.md`;
-- summarize the HTF leftward-extension performance work from Steps 367-379;
-- mark the original slow HTF leftward-extension path as addressed if the
-  current evidence still supports it;
-- identify which guards now protect the behavior: Step 377 standalone browser
-  budget smoke, Step 378 optional member, Step 379 combined optional pack path,
-  and the Step 371 attribution harness;
-- select the next chart-foundation slice outside this narrow HTF latency chain
-  unless the re-audit finds an uncovered regression;
+- use Step 380 closeout:
+  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_PERFORMANCE_CHAIN_REAUDIT_STEP380.md`;
+- run or package a foundation-level chart regression refresh;
+- include display timeframe switching and `1m` round-trip coverage;
+- include interval menu parity for the supported minute/hour/day/week/month
+  set;
+- include display-timeframe leftward history and target-history reduced-delay
+  guard coverage;
+- include daily/weekly/monthly projection and replay gap coverage;
+- use current failures, long runtime, or weakest coverage to choose the next
+  bounded chart-foundation slice;
+- do not continue HTF leftward-extension latency work unless the refresh finds
+  a concrete uncovered regression;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -669,18 +660,21 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for bridge wiring scope and preservation gates;
+- add static closeout coverage for the selected regression-refresh command set
+  and next-slice decision;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- re-audit summarizes Steps 367-379 and the current protected behavior;
-- re-audit explicitly states whether HTF leftward-extension slowness is still
-  active work or closed for now;
-- re-audit lists the standalone and pack-based regression guards;
-- next selected slice is outside the narrow HTF latency chain unless a concrete
+- regression refresh documents the exact commands or pack members selected;
+- refresh includes timeframe switching, interval menu parity,
+  display-timeframe leftward history, daily/weekly/monthly projection, replay
+  gap coverage, and the HTF reduced-delay budget guard;
+- refresh reports pass/fail/runtime observations and uses them to select the
+  next bounded chart-foundation slice;
+- selected next slice is outside the narrow HTF latency chain unless a concrete
   uncovered regression is identified;
 - default Step 293 target-history diagnostics pack membership remains
   unchanged;
@@ -728,6 +722,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 380 - HTF Leftward Extension Performance Chain Re-audit
+
+Completed in this HTF leftward extension performance chain re-audit commit
+series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-leftward-extension-performance-chain-reaudit-step380-static-smoke.js`
+- `node v6/tests/target-history-pack-reduced-delay-optional-combination-step379-static-smoke.js`
+- `node v6/tests/target-history-pack-reduced-delay-budget-member-step378-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Re-audited Steps 367-379 and closed HTF target-history leftward-extension
+  latency for now.
+- Current reduced-delay evidence is protected by the Step 377 standalone
+  browser budget guard, Step 378 optional pack member, Step 379 combined
+  optional pack path, and Step 371 attribution harness.
+- Selected Step 381 - Chart Foundation Regression Refresh as the next bounded
+  slice outside the narrow HTF latency chain.
+- Did not modify runtime behavior, `v6/src/app.js`, command surfaces, shell
+  readout code, target-history request sizing, replay, chart viewport, chart
+  engine, or the Step 362 runtime skeleton.
 
 ### Step 379 - Target-History Pack Reduced-Delay Optional Combination
 
