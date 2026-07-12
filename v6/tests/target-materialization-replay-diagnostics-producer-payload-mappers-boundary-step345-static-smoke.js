@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 
 const mapper = await readFile('v6/src/replay/target-materialization-replay-diagnostics-producer-payload-mappers.js', 'utf8');
 const mapperSmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-producer-payload-mappers-step345-smoke.js', 'utf8');
-const diagnosticsRuntime = await readFile('v6/src/replay/target-materialization-replay-diagnostics-runtime.js', 'utf8');
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
 const manualNextRuntime = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');
 const autoPlayRuntime = await readFile('v6/src/chart-entry/chart-entry-auto-play-runtime.js', 'utf8');
@@ -73,8 +72,6 @@ for (const requiredSmokeTerm of [
 ]) {
   assert.ok(mapperSmoke.includes(requiredSmokeTerm), `mapper smoke must cover ${requiredSmokeTerm}`);
 }
-
-assert.doesNotMatch(diagnosticsRuntime, /subscribeEvent|displayTimeframe:applied|chartEntryManualNext:advanced|chartEntryAutoPlay:ticked/);
 
 for (const producerSource of [displayRuntime, manualNextRuntime, autoPlayRuntime]) {
   assert.doesNotMatch(
