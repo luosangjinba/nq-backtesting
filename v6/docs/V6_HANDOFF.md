@@ -9,10 +9,16 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 368 closeout
-- Latest completed step: Step 368 - HTF Leftward Extension Bottleneck Owner
-  Selection After Handoff Measurement
+- Worktree at handoff: clean after Step 369 closeout
+- Latest completed step: Step 369 - HTF Leftward Extension Real Chart Paint
+  Visibility Measurement
 - Recent relevant commits:
+  - Step 369 added browser/harness-only real chart paint visibility
+    measurement for `4h`, `8h`, `1D`, and `1W`. The observed run showed
+    chart signatures already changed by `viewport-projected` with
+    `realChartPaintVisibleLagMs: 0`, so the large observation window came from
+    harness canvas sampling rather than chart-surface paint delay. Step 370
+    should measure the real drag-triggered interaction path.
   - Step 368 added a pure bottleneck owner selector for Step 367 phase
     records, consumed the observed `4h`, `8h`, `1D`, and `1W` measurement, and
     selected `target-history-real-chart-paint-visibility-measurement` as the
@@ -326,8 +332,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 369:
-   HTF leftward extension real chart paint visibility measurement.
+4. If continuing planned work, start with Step 370:
+   HTF drag-triggered leftward extension interaction measurement.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -370,6 +376,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-leftward-extension-performance-after-handoff-browser-step367-smoke.js`
 - `node v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-step368-smoke.js`
 - `node v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-boundary-step368-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-browser-step369-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-boundary-step369-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -384,11 +392,12 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 369 - HTF Leftward Extension Real Chart
-  Paint Visibility Measurement.
-- Implement the narrower browser/harness-only measurement selected by Step 368
-  to distinguish real chart-visible paint delay from the harness'
-  two-animation-frame observation window before changing runtime behavior.
+- Recommended next action is Step 370 - HTF Drag-Triggered Leftward Extension
+  Interaction Measurement.
+- Measure the real drag/wheel-triggered HTF leftward-extension path before
+  optimizing runtime code, because Step 367 and Step 369 only covered
+  programmatic target-history paths and did not show request/runtime/chart paint
+  bottlenecks.
 
 ## Current State
 

@@ -569,6 +569,12 @@ Read this index before working on V6.
   selected `target-history-real-chart-paint-visibility-measurement` as the next
   slice because the observed largest bucket was the test-only browser paint
   observation window while runtime/request phases stayed low.
+- `v6/docs/V6_HTF_LEFTWARD_EXTENSION_REAL_CHART_PAINT_VISIBILITY_STEP369.md`:
+  accepted browser/harness-only real chart paint visibility measurement for
+  `4h`, `8h`, `1D`, and `1W`, showing chart signatures already changed by
+  `viewport-projected` while the large window came from harness canvas sampling,
+  and selected drag-triggered HTF leftward-extension interaction measurement as
+  the next slice.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

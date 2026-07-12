@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
-const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile(
   'v6/docs/V6_HTF_LEFTWARD_EXTENSION_BOTTLENECK_OWNER_SELECTION_STEP368.md',
   'utf8',
@@ -28,13 +27,7 @@ assert.match(
   todo,
   /Latest completed HTF leftward extension bottleneck owner selection step:\s+Step 368/,
 );
-assert.match(todo, /### Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement/);
 assert.match(todo, /### Step 368 - HTF Leftward Extension Bottleneck Owner Selection After Handoff Measurement/);
-
-assert.match(handoff, /Worktree at handoff: clean after Step 368 closeout/);
-assert.match(handoff, /Latest completed step: Step 368 - HTF Leftward Extension Bottleneck Owner\s+Selection After Handoff Measurement/);
-assert.match(handoff, /start with Step 369/);
-assert.match(handoff, /Recommended next action is Step 369/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /narrower-measurement-selected/);

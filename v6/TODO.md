@@ -512,6 +512,12 @@
   selected `target-history-real-chart-paint-visibility-measurement` as the next
   slice because the observed largest bucket was the test-only browser paint
   observation window while request/runtime phases stayed low.
+- Latest completed HTF leftward extension real chart paint visibility step:
+  Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement.
+  V6 now has browser/harness-only canvas-signature measurement for `4h`, `8h`,
+  `1D`, and `1W`, showing chart signatures already changed by
+  `viewport-projected` and selecting real drag-triggered HTF leftward-extension
+  interaction measurement as the next slice.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -547,7 +553,7 @@
 
 ## Next Executable Steps
 
-### Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement
+### Step 370 - HTF Drag-Triggered Leftward Extension Interaction Measurement
 
 Status: proposed.
 
@@ -555,17 +561,16 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 368 closeout:
-  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_BOTTLENECK_OWNER_SELECTION_STEP368.md`;
-- implement `target-history-real-chart-paint-visibility-measurement` as a
-  browser/harness-only measurement slice;
-- distinguish a real chart-surface/browser paint delay from the Step 367
-  harness' intentional two-animation-frame observation window;
+- use Step 369 closeout:
+  `v6/docs/V6_HTF_LEFTWARD_EXTENSION_REAL_CHART_PAINT_VISIBILITY_STEP369.md`;
+- implement real drag/wheel-triggered HTF leftward-extension interaction
+  measurement as a browser/harness-only slice;
+- distinguish user input to trigger latency from target/source request latency,
+  chart-data replacement, viewport reapply, real chart paint, and harness
+  observation cost;
 - preserve `4h`, `8h`, `1D`, and `1W` coverage;
-- measure chart host visible state as close as possible to series update /
-  left-extension-loaded, not just delayed animation-frame observation;
-- keep this step measurement-only unless the new harness proves a concrete
-  chart-surface or browser-paint bottleneck;
+- keep this step measurement-only unless the interaction harness proves a
+  concrete bottleneck;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -592,18 +597,19 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the real-paint measurement harness and
-  selected next action;
+- add static closeout coverage for the drag-triggered interaction measurement
+  harness and selected next action;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- browser/harness measurement exists for real chart paint visibility on `4h`,
-  `8h`, `1D`, and `1W`;
-- output separates harness observation-window delay from real chart-visible
-  update delay enough to choose the next owner;
+- browser/harness measurement exists for drag-triggered leftward extension on
+  `4h`, `8h`, `1D`, and `1W`;
+- output separates user input to trigger latency, target/source request
+  latency, chart-data replacement, viewport reapply, real chart paint, and
+  harness observation cost enough to choose the next owner;
 - runtime behavior remains unchanged unless a concrete paint bottleneck is
   proven and explicitly scoped;
 - default target-history diagnostics pack membership remains unchanged;
@@ -637,6 +643,32 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 369 - HTF Leftward Extension Real Chart Paint Visibility Measurement
+
+Completed in this HTF real chart paint visibility measurement commit series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-browser-step369-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-real-chart-paint-visibility-boundary-step369-static-smoke.js`
+- `node v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-boundary-step368-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added browser/harness-only canvas-signature measurement for `4h`, `8h`,
+  `1D`, and `1W`.
+- The observed run showed `firstPaintStage: viewport-projected` and
+  `realChartPaintVisibleLagMs: 0` for all four TFs.
+- The large observation window came from harness canvas sampling / delayed
+  observation, not chart-surface paint delay.
+- Selected real drag-triggered HTF leftward-extension interaction measurement
+  as Step 370 because the original perceived slowness was tied to dragging.
+- Preserved default and optional target-history diagnostics pack membership.
+- Did not modify runtime behavior, command surfaces, `v6/src/app.js`, shell
+  readout code, or the Step 362 runtime skeleton.
 
 ### Step 368 - HTF Leftward Extension Bottleneck Owner Selection After Handoff Measurement
 
