@@ -470,6 +470,10 @@ Read this index before working on V6.
   diagnostics readout owner plan, first visible fields, internal-only fields,
   hide/collapse rules, and command/event-only consumption boundary without
   visible UI wiring.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_VIEW_MODEL_STEP349.md`:
+  accepted the pure shell readout view model mapping diagnostics snapshots to
+  hidden/collapsed states and first-visible rows while keeping internal-only
+  fields hidden and visible DOM UI unwired.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

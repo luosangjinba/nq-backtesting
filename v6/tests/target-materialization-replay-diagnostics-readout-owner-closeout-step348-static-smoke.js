@@ -22,13 +22,9 @@ assert.match(index, /shell\.pane-status-readout/);
 assert.match(index, /developer-collapsed pane-local/);
 
 assert.match(todo, /Latest completed target materialization diagnostics readout owner step: Step\s+348/);
-assert.match(todo, /### Step 349 - Target Materialization Replay Diagnostics Readout View Model/);
-assert.match(todo, /do not wire visible DOM UI yet/);
 assert.match(todo, /### Step 348 - Target Materialization Replay Diagnostics Readout Owner Plan/);
 
-assert.match(handoff, /Latest completed step: Step 348 - Target Materialization Replay Diagnostics\s+Readout Owner Plan/);
 assert.match(handoff, /Step 348 selected `shell\.pane-status-readout`/);
-assert.match(handoff, /start with Step 349/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /shell\.pane-status-readout/);

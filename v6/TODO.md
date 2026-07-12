@@ -384,6 +384,12 @@
   hide/collapse rules, and command/event-only consumption boundary without
   visible UI, producer runtime changes, target loading, replay cursor,
   chart-data, viewport, request sizing, or fast-path behavior changes.
+- Latest completed target materialization diagnostics readout model step: Step
+  349 - Target Materialization Replay Diagnostics Readout View Model. V6 now
+  has a pure shell readout view model mapping empty, normal,
+  target-history-active, and fallback diagnostics snapshots into stable
+  hidden/collapsed states and first-visible rows while keeping internal-only
+  fields hidden and visible DOM UI unwired.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -419,7 +425,7 @@
 
 ## Next Executable Steps
 
-### Step 349 - Target Materialization Replay Diagnostics Readout View Model
+### Step 350 - Target Materialization Replay Diagnostics Readout DOM Wiring Plan
 
 Status: proposed.
 
@@ -427,19 +433,19 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 348 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_OWNER_PLAN_STEP348.md`;
-- build a pure readout view-model or draft model before DOM UI wiring;
-- map diagnostics snapshots into hidden, collapsed, and visible row states;
-- format only the Step 348 first visible fields for a collapsed developer
-  readout;
-- keep Step 348 internal-only fields hidden from the first visible model;
-- keep `shell.pane-status-readout` as the future owner boundary;
+- use Step 349 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_READOUT_VIEW_MODEL_STEP349.md`;
+- define the controlled DOM wiring plan before enabling visible UI;
+- specify how `shell.pane-status-readout` will consume `getSnapshot` and
+  `snapshotReady` and pass results through the Step 349 view model;
+- select the exact pane-local DOM container and dataset attributes for the
+  collapsed developer readout;
+- specify hidden/collapsed rendering behavior and rollback criteria;
+- do not wire visible DOM UI yet unless this step explicitly remains a
+  plan-only wiring contract;
 - do not modify Display-Timeframe, Manual Next, or Auto Play runtimes;
 - do not dispatch `updateSnapshot` from producer runtimes;
-- keep shell consumption as command/event snapshot reading only when the future
-  shell UI consumes the model;
-- do not wire visible DOM UI yet;
+- keep shell consumption as command/event snapshot reading only;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -456,14 +462,16 @@ Notes for execution:
 
 Acceptance:
 
-- pure view-model maps empty, normal, target-history-active, and fallback
-  snapshots into stable hidden/collapsed/visible states;
-- first visible fields are formatted from snapshot data without exposing
-  internal-only fields;
+- DOM wiring plan is documented before any visible UI is enabled;
+- shell readout consumption sequence is command/event-only and routes through
+  the Step 349 view model;
+- selected DOM container, dataset attributes, hidden/collapsed semantics, and
+  rollback criteria are explicit;
 - shell readout consumption remains command/event snapshot reading without
   direct target API calls;
 - producer runtimes remain unchanged and do not import diagnostics commands;
-- no DOM UI is wired yet;
+- no DOM UI is wired yet unless the step explicitly remains a plan-only
+  contract;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -472,6 +480,36 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 349 - Target Materialization Replay Diagnostics Readout View Model
+
+Completed in this target materialization replay diagnostics readout view model
+commit series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-readout-view-model-step349-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-view-model-boundary-step349-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-view-model-closeout-step349-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-readout-owner-plan-step348-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure `shell` readout view model.
+- Mapped empty/not-ready diagnostics to hidden `snapshot-not-ready`.
+- Mapped normal replay diagnostics to hidden `normal-replay`.
+- Mapped target-history materialization diagnostics to collapsed
+  `target-history-active`.
+- Mapped fallback diagnostics to collapsed `fallback`.
+- Exposed rows only for the Step 348 first visible fields.
+- Kept Step 348 internal-only fields hidden from rows.
+- Did not wire visible DOM UI or change producer runtimes.
+- Kept target-bar loading, replay cursor movement, chart-data writes, viewport
+  intent, target-history request sizing, and chart-history fast-path behavior
+  unchanged.
 
 ### Step 348 - Target Materialization Replay Diagnostics Readout Owner Plan
 
