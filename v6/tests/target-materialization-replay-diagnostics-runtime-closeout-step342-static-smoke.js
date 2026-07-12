@@ -10,11 +10,10 @@ const runtime = await readFile('v6/src/replay/target-materialization-replay-diag
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-runtime-boundary-step342-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_RUNTIME_STEP342\.md/);
-assert.match(todo, /Latest completed target materialization diagnostics runtime step: Step 342/);
-assert.match(todo, /### Step 343 - Target Materialization Replay Diagnostics Runtime Wiring Plan/);
-assert.match(todo, /do not wire visible UI yet/);
-assert.match(handoff, /Latest completed step: Step 342 - Target Materialization Replay Diagnostics\s+Runtime State Surface/);
-assert.match(handoff, /start with Step 343/);
+assert.match(todo, /### Step 342 - Target Materialization Replay Diagnostics Runtime State Surface/);
+assert.match(todo, /Added the read-only diagnostics runtime state surface/);
+assert.match(handoff, /Step 342 added the smallest read-only diagnostics runtime state surface/);
+assert.match(handoff, /Step 342 adds the read-only diagnostics runtime snapshot surface/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /targetMaterializationReplayDiagnostics\.getSnapshot/);

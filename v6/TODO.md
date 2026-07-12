@@ -346,6 +346,12 @@
   read-only diagnostics runtime snapshot surface, `getSnapshot` command,
   `snapshotReady` event, and app registration without visible UI, target loading,
   replay cursor, chart-data, or viewport behavior changes.
+- Latest completed target materialization diagnostics wiring plan step: Step
+  343 - Target Materialization Replay Diagnostics Runtime Wiring Plan. V6 now
+  has a pure producer/consumer wiring plan from Display-Timeframe, Manual Next,
+  and Auto Play events into a future diagnostics update surface, still without
+  live subscriptions, visible UI, target loading, replay cursor, chart-data, or
+  viewport behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -381,7 +387,7 @@
 
 ## Next Executable Steps
 
-### Step 343 - Target Materialization Replay Diagnostics Runtime Wiring Plan
+### Step 344 - Target Materialization Replay Diagnostics Update Command Surface
 
 Status: proposed.
 
@@ -389,13 +395,15 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 342 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_RUNTIME_STEP342.md`;
-- define the minimal wiring plan for feeding the diagnostics runtime from
-  existing Display-Timeframe, Manual Next, and Auto Play runtime events;
-- keep the plan explicit about which runtime owns each diagnostic field update;
-- do not implement live runtime handoff until the command/event sequence and
-  rollback criteria are documented;
+- use Step 343 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_WIRING_PLAN_STEP343.md`;
+- implement the smallest diagnostics runtime update command surface behind the
+  Step 343 plan: `targetMaterializationReplayDiagnostics.updateSnapshot`;
+- normalize and validate update payloads through the Step 341 diagnostics
+  snapshot contract;
+- keep `getSnapshot` and `snapshotReady` as the shell read path;
+- do not subscribe to Display-Timeframe, Manual Next, or Auto Play producer
+  events yet;
 - keep shell consumption as command/event snapshot reading only;
 - do not wire visible UI yet;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
@@ -407,16 +415,18 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add pure/static closeout coverage for the diagnostics wiring plan;
+- add runtime/static closeout coverage for the update command surface;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- diagnostics runtime wiring plan names the producer/consumer sequence for each
-  existing owner runtime;
-- update command/event direction is documented before implementation;
+- diagnostics runtime exposes a bounded update command surface;
+- update payloads are normalized, validated, cloned, and readable through
+  `getSnapshot`;
+- invalid updates do not corrupt the current diagnostics snapshot;
+- producer-event subscriptions are still not wired;
 - shell consumption path remains command/event snapshot reading without direct
   target API calls;
 - source `1m` replay remains the cursor authority while target bars remain
@@ -427,6 +437,31 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 343 - Target Materialization Replay Diagnostics Runtime Wiring Plan
+
+Completed in this target materialization replay diagnostics wiring plan commit
+series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-wiring-plan-step343-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-wiring-boundary-step343-static-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-runtime-step342-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added the pure diagnostics runtime wiring plan.
+- Named Display-Timeframe, Manual Next, and Auto Play producer events.
+- Defined the future `targetMaterializationReplayDiagnostics.updateSnapshot`
+  update surface, but did not implement it yet.
+- Kept shell consumption on `snapshotReady` and `getSnapshot`.
+- Kept visible UI, live subscriptions, target-bar loading, replay cursor
+  movement, chart-data writes, viewport intent, target-history request sizing,
+  and chart-history fast-path behavior unchanged.
 
 ### Step 342 - Target Materialization Replay Diagnostics Runtime State Surface
 

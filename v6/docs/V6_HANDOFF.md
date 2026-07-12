@@ -9,10 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 342 closeout
-- Latest completed step: Step 342 - Target Materialization Replay Diagnostics
-  Runtime State Surface
+- Worktree at handoff: clean after Step 343 closeout
+- Latest completed step: Step 343 - Target Materialization Replay Diagnostics
+  Runtime Wiring Plan
 - Recent relevant commits:
+  - Step 343 defined the pure producer/consumer wiring plan from
+    Display-Timeframe, Manual Next, and Auto Play events into a future
+    diagnostics update-snapshot surface, without live subscriptions or UI
+    changes.
   - Step 342 added the smallest read-only diagnostics runtime state surface,
     `getSnapshot` command, `snapshotReady` event, and app registration without
     visible UI or replay/target-loading behavior changes.
@@ -101,7 +105,10 @@ Read this block first after restarting the server or assistant context.
   Step 341 defines that read-only contract and keeps runtime behavior
   unchanged. Step 342 adds the read-only diagnostics runtime snapshot surface
   and still keeps visible UI, replay cursor movement, target loading,
-  chart-data writes, viewport behavior, and request sizing unchanged.
+  chart-data writes, viewport behavior, and request sizing unchanged. Step 343
+  defines the diagnostics producer/consumer wiring plan and still avoids live
+  subscriptions, visible UI, replay cursor movement, target loading, chart-data
+  writes, viewport behavior, and request sizing changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -142,8 +149,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 343:
-   target materialization replay diagnostics runtime wiring plan.
+4. If continuing planned work, start with Step 344:
+   target materialization replay diagnostics update command surface.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
