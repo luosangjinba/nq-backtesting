@@ -10,10 +10,10 @@ const selectionSmoke = await readFile('v6/tests/target-timeframe-materialization
 const boundarySmoke = await readFile('v6/tests/target-timeframe-materialization-post-pack-boundary-step340-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_TIMEFRAME_MATERIALIZATION_POST_PACK_SELECTION_STEP340\.md/);
-assert.match(todo, /Latest completed target-timeframe materialization post-pack selection step:\s+Step 340/);
-assert.match(todo, /### Step 341 - Target Materialization Replay Coordination Diagnostics Readout Owner Contract/);
-assert.match(handoff, /Latest completed step: Step 340 - Target-Timeframe Materialization Post-Pack\s+Reselection/);
-assert.match(handoff, /start with Step 341/);
+assert.match(todo, /### Step 340 - Target-Timeframe Materialization Post-Pack Reselection/);
+assert.match(todo, /Selected `target-materialization-replay-coordination-diagnostics-readout`/);
+assert.match(handoff, /Step 340 selected\s+`target-materialization-replay-coordination-diagnostics-readout`/);
+assert.match(handoff, /Step 340 selects\s+diagnostics\/readout ownership as the next slice/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /target-materialization-replay-coordination-diagnostics-readout/);

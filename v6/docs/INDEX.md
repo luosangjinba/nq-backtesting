@@ -438,6 +438,9 @@ Read this index before working on V6.
 - `v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_POST_PACK_SELECTION_STEP340.md`:
   selected target materialization replay coordination diagnostics/readout as
   the next bounded slice after pack member integration.
+- `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_CONTRACT_STEP341.md`:
+  accepted the read-only diagnostics/readout owner contract for materialized
+  replay coordination.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

@@ -337,6 +337,10 @@
   Step 340 - Target-Timeframe Materialization Post-Pack Reselection. V6
   selected `target-materialization-replay-coordination-diagnostics-readout` as
   the next bounded slice before any narrow runtime handoff.
+- Latest completed target materialization diagnostics contract step: Step 341 -
+  Target Materialization Replay Coordination Diagnostics Readout Owner
+  Contract. V6 now defines read-only diagnostic fields, owner participants, shell
+  consumption rules, and forbidden actions before runtime state wiring.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -372,7 +376,7 @@
 
 ## Next Executable Steps
 
-### Step 341 - Target Materialization Replay Coordination Diagnostics Readout Owner Contract
+### Step 342 - Target Materialization Replay Diagnostics Runtime State Surface
 
 Status: proposed.
 
@@ -380,15 +384,13 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 340 closeout:
-  `v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_POST_PACK_SELECTION_STEP340.md`;
-- define the diagnostics/readout owner contract for materialized replay
-  coordination;
-- decide read-only fields for display apply, manual next, autoplay, fallback,
-  source cursor authority, and target-bar display-only state;
-- decide which runtime owns the diagnostic state and how shell reads it;
-- keep this step read-only unless the owner contract explicitly scopes a tiny
-  state surface;
+- use Step 341 closeout:
+  `v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_CONTRACT_STEP341.md`;
+- implement the smallest diagnostics runtime state surface behind the accepted
+  contract;
+- expose a read-only diagnostic snapshot command or event path;
+- keep shell consumption as command/event snapshot reading only;
+- do not wire visible UI unless the runtime state surface is already stable;
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
@@ -398,17 +400,16 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add pure contract/static closeout coverage for the diagnostics/readout owner
-  boundary;
+- add runtime/static closeout coverage for the diagnostics state surface;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- diagnostics/readout owner boundary is explicit;
-- accepted read-only fields are documented;
-- shell consumption path is documented without direct target API calls;
+- diagnostics runtime state surface is read-only and command/event owned;
+- accepted read-only fields can be represented in a snapshot;
+- shell consumption path remains documented without direct target API calls;
 - source `1m` replay remains the cursor authority while target bars remain
   display materialization inputs;
 - targeted pack/member controls remain usable during iteration;
@@ -417,6 +418,30 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 341 - Target Materialization Replay Coordination Diagnostics Readout Owner Contract
+
+Completed in this target materialization replay diagnostics contract commit
+series.
+
+Verification:
+
+- `node v6/tests/target-materialization-replay-diagnostics-contract-step341-smoke.js`
+- `node v6/tests/target-materialization-replay-diagnostics-boundary-step341-static-smoke.js`
+- `node v6/tests/target-timeframe-materialization-post-pack-closeout-step340-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added the read-only diagnostics/readout owner contract.
+- Defined accepted diagnostic fields for display apply, manual next, autoplay,
+  fallback, source cursor authority, target bars display-only state, and latest
+  source/display timestamps.
+- Documented shell consumption as diagnostic snapshot reading with no direct
+  target API access.
+- Runtime behavior is unchanged.
 
 ### Step 340 - Target-Timeframe Materialization Post-Pack Reselection
 
