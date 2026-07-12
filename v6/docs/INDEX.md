@@ -590,6 +590,10 @@ Read this index before working on V6.
   HTF native wheel/drag target-history scheduling policy, selecting a future
   `100ms` HTF target-history native delay while preserving low-TF and
   target-history-disabled native paths on `requestDelayMs=500`.
+- `v6/docs/V6_HTF_TARGET_HISTORY_NATIVE_VISIBLE_RANGE_REDUCED_DELAY_RESOLVER_STEP373.md`:
+  accepted pure resolver support for `nativeTargetHistoryDelayMs`, allowing HTF
+  native target-history scheduling to resolve to `100ms` while keeping bridge
+  runtime wiring unchanged until a later covered step.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

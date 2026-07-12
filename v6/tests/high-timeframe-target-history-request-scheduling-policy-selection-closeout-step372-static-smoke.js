@@ -3,7 +3,6 @@ import { readFile } from 'node:fs/promises';
 
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
-const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile(
   'v6/docs/V6_HTF_TARGET_HISTORY_REQUEST_SCHEDULING_POLICY_SELECTION_STEP372.md',
   'utf8',
@@ -30,18 +29,10 @@ assert.match(
   todo,
   /Latest completed HTF target-history request scheduling policy step:\s+Step 372/,
 );
-assert.match(todo, /### Step 373 - HTF Target-History Native Visible-Range Reduced Delay Resolver/);
 assert.match(todo, /### Step 372 - HTF Target-History Request Scheduling Policy Selection/);
 assert.match(todo, /native-target-history-reduced-delay-with-coalescing/);
 assert.match(todo, /100ms/);
 assert.match(todo, /requestDelayMs=500/);
-
-assert.match(handoff, /Worktree at handoff: clean after Step 372 closeout/);
-assert.match(handoff, /Latest completed step: Step 372 - HTF Target-History Request Scheduling\s+Policy Selection/);
-assert.match(handoff, /start with Step 373/);
-assert.match(handoff, /Recommended next action is Step 373/);
-assert.match(handoff, /100ms/);
-assert.match(handoff, /requestDelayMs=500/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /Selected policy:\s+`native-target-history-reduced-delay-with-coalescing`/);
@@ -73,8 +64,7 @@ assert.match(selectorSmoke, /highTimeframeTargetHistoryNativeDelayMs: 100/);
 assert.match(selectorSmoke, /lowTimeframeNativeDelayMs: 500/);
 assert.match(selectorSmoke, /targetHistoryDisabledNativeDelayMs: 500/);
 
-assert.match(boundarySmoke, /doesNotMatch\(resolver, \/SELECTED_HTF_TARGET_HISTORY_DELAY_MS\|native-target-history-reduced-delay-with-coalescing/);
-assert.match(boundarySmoke, /doesNotMatch\(bridge, \/SELECTED_HTF_TARGET_HISTORY_DELAY_MS\|native-target-history-reduced-delay-with-coalescing/);
+assert.match(boundarySmoke, /doesNotMatch\(bridge, \/nativeTargetHistoryDelayMs\|native-target-history-reduced-delay-with-coalescing/);
 assert.match(boundarySmoke, /doesNotMatch\(selector, \/dispatchCommand\|subscribeEvent\|setTimeoutFn\|clearTimeoutFn\|registerCommand\|registerRuntime\|UPDATE_SNAPSHOT/);
 
 console.log('v6 high timeframe target history request scheduling policy selection closeout step372 static smoke passed');
