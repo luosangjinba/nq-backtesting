@@ -9,9 +9,14 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 387 closeout
-- Latest completed step: Step 387 - Replay Gap Fast Browser Pack Implementation
+- Worktree at handoff: clean after Step 388 closeout
+- Latest completed step: Step 388 - Foundation Pack Replay Gap Fast/Full Selection
 - Recent relevant commits:
+  - Step 388 selected Step 276 replay-gap fast/full mode controls with fast
+    default. The future default foundation pack should run the Step 387 fast
+    replay-gap pack, while `FOUNDATION_REPLAY_GAP_MODE=full` should run the
+    full Step 274 replay-gap pack. Step 389 should implement this runner-level
+    mode selection.
   - Step 387 added the standalone fast replay-gap browser pack command. It runs
     the Step 385 near-gap manual fixture plus existing low-TF and HTF auto-play
     gap smokes, and passed `3/3` in `24532ms`. Step 274 remains the full
@@ -447,8 +452,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 388:
-   foundation pack replay gap fast/full selection.
+4. If continuing planned work, start with Step 389:
+   foundation pack replay gap fast/full mode implementation.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -527,6 +532,7 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/replay-gap-fast-pack-integration-selection-step386-static-smoke.js`
 - `node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js`
 - `node v6/tests/replay-gap-fast-browser-regression-pack-step387-static-smoke.js`
+- `node v6/tests/foundation-pack-replay-gap-fast-full-selection-step388-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -541,11 +547,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 388 - Foundation Pack Replay Gap Fast/Full
-  Selection.
-- Decide whether Step 276 should continue using the full Step 274 replay-gap
-  pack, switch to the Step 387 fast pack, or expose fast/full controls while
-  keeping Step 274 directly runnable.
+- Recommended next action is Step 389 - Foundation Pack Replay Gap Fast/Full
+  Mode Implementation.
+- Update Step 276 to default to the Step 387 fast replay-gap pack, support
+  `FOUNDATION_REPLAY_GAP_MODE=full` for the full Step 274 path, and fail early
+  on invalid replay-gap modes.
 
 ## Current State
 
