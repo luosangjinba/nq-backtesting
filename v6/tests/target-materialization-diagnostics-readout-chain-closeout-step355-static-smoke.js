@@ -33,9 +33,7 @@ assert.match(todo, /### Step 356 - Narrow Replay Materialization Runtime Handoff
 assert.match(todo, /### Step 355 - Target Materialization Diagnostics Readout Chain Closeout And Next Slice Selection/);
 assert.match(todo, /Selected `narrow-replay-materialization-runtime-handoff-readiness-audit`/);
 
-assert.match(handoff, /Latest completed step: Step 355 - Target Materialization Diagnostics\s+Readout Chain Closeout And Next Slice Selection/);
 assert.match(handoff, /Step 355 closed the diagnostics\/readout observability chain/);
-assert.match(handoff, /start with Step 356/);
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /Step 337 covers replay coordination/);

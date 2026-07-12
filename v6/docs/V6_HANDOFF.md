@@ -9,10 +9,18 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 355 closeout
-- Latest completed step: Step 355 - Target Materialization Diagnostics
-  Readout Chain Closeout And Next Slice Selection
+- Worktree at handoff: clean after Step 356 closeout
+- Latest completed step: Step 356 - Narrow Replay Materialization Runtime
+  Handoff Readiness Audit
 - Recent relevant commits:
+  - Step 356 audited the narrow replay materialization runtime handoff
+    surfaces, selected future owner boundary
+    `runtime.replay-coordination-materialization-handoff`, selected a new
+    replay-coordination runtime helper, listed allowed
+    `chartEntryManualNext:advanced`, `pane.getById`, `replay.getState`,
+    `chartData.getSourceBars`, `barData.planTargetWindow`,
+    `barData.loadTargetWindow`, and `chartData.replaceBars` surfaces, and kept
+    runtime behavior unchanged.
   - Step 355 closed the diagnostics/readout observability chain, stopped adding
     observability-only diagnostics UI or pack wiring for now, and selected
     `narrow-replay-materialization-runtime-handoff-readiness-audit` as the next
@@ -188,7 +196,11 @@ Read this block first after restarting the server or assistant context.
   352 execution order without runtime behavior changes. Step 355 closes this
   diagnostics/readout observability chain and selects
   `narrow-replay-materialization-runtime-handoff-readiness-audit` next, still
-  without runtime behavior changes.
+  without runtime behavior changes. Step 356 audits that readiness slice,
+  selects `runtime.replay-coordination-materialization-handoff` as the future
+  owner boundary, selects a new replay-coordination runtime helper, lists the
+  exact event/command surfaces, keeps diagnostics read-only, and still avoids
+  runtime behavior changes.
 - Session setup datetime fix:
   `datetime-local` values are parsed as chart/data-axis literal UTC. A user
   input like `2026-05-04T09:30` stores `2026-05-04T09:30:00.000Z`, not the
@@ -229,8 +241,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 356:
-   narrow replay materialization runtime handoff readiness audit.
+4. If continuing planned work, start with Step 357:
+   narrow replay materialization runtime handoff plan.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -238,33 +250,26 @@ Read this block first after restarting the server or assistant context.
 
 ### Last Verified Commands
 
-- `node v6/tests/replay-domain-smoke.js`
-- `node v6/tests/replay-runtime-smoke.js`
-- `node v6/tests/manual-next-session-gap-step258-smoke.js`
-- `node v6/tests/manual-next-session-gap-browser-step258-smoke.js`
-- `node v6/tests/chart-entry-manual-next-runtime-smoke.js`
-- `node v6/tests/manual-next-htf-projection-step197-smoke.js`
-- `node v6/tests/auto-play-htf-projection-step199-smoke.js`
-- `node v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js`
-- `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
-- `node v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-step356-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-boundary-step356-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-closeout-step356-static-smoke.js`
+- `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
 
-One browser latency smoke had a transient timing failure during verification,
-then the individual test and the full pack both passed. Treat future single
-latency threshold failures the same way: rerun the failing case once, then
-rerun the pack before changing code.
+Node emitted the existing typeless package warning for ES module smoke files;
+the commands passed.
 
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is to select and document Step 258 as the next bounded
-  chart-foundation slice, unless a fresh manual test after restart exposes a
-  regression in the current replay/date-range/leftward-history foundation.
-- Good candidate area: another small chart-foundation UX/stability debt item
-  around replay/date-range/TF behavior, with smoke coverage before broader
-  feature work.
+- Recommended next action is Step 357 - Narrow Replay Materialization Runtime
+  Handoff Plan.
+- Keep Step 357 plan-only: define the future event/command sequence and
+  fallback gates for `runtime.replay-coordination-materialization-handoff`
+  before any runtime wiring.
 
 ## Current State
 

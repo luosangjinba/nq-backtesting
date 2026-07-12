@@ -502,6 +502,11 @@ Read this index before working on V6.
   accepted the target-materialization diagnostics/readout chain closeout,
   stopped further observability-only pack wiring for now, and selected
   `narrow-replay-materialization-runtime-handoff-readiness-audit` next.
+- `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_READINESS_AUDIT_STEP356.md`:
+  accepted the audit-only owner/surface decision for the future narrow replay
+  materialization runtime handoff, selecting new owner boundary
+  `runtime.replay-coordination-materialization-handoff` and plan-only handoff
+  sequencing next.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

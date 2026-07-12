@@ -428,6 +428,14 @@
   stops adding observability-only diagnostics UI or pack wiring for now, and
   selects `narrow-replay-materialization-runtime-handoff-readiness-audit` as the
   next bounded target-materialization foundation slice.
+- Latest completed narrow replay materialization handoff readiness step: Step
+  356 - Narrow Replay Materialization Runtime Handoff Readiness Audit. V6 now
+  selects the future owner boundary
+  `runtime.replay-coordination-materialization-handoff`, lists the exact
+  event/command surfaces for the future handoff, keeps diagnostics read-only,
+  keeps Display-Timeframe as TF-switch owner, and still avoids runtime behavior,
+  replay cursor, target loading, chart-data, viewport, request sizing, and
+  fast-path behavior changes.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -463,7 +471,7 @@
 
 ## Next Executable Steps
 
-### Step 356 - Narrow Replay Materialization Runtime Handoff Readiness Audit
+### Step 357 - Narrow Replay Materialization Runtime Handoff Plan
 
 Status: proposed.
 
@@ -471,16 +479,19 @@ Notes for execution:
 
 - continue Phase D from
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
-- use Step 355 closeout:
-  `v6/docs/V6_TARGET_MATERIALIZATION_DIAGNOSTICS_READOUT_CHAIN_SELECTION_STEP355.md`;
-- audit the exact runtime handoff surfaces needed before any narrow
-  replay/materialization runtime behavior changes;
-- keep this step audit-only unless a small pure readiness helper is needed;
-- identify the owning boundary for the future handoff and the exact command/event
-  surfaces it may consume;
-- confirm whether the future handoff belongs in a new replay-coordination
-  runtime helper, an existing diagnostics runtime helper, or a display-timeframe
-  follow-on helper;
+- use Step 356 closeout:
+  `v6/docs/V6_NARROW_REPLAY_MATERIALIZATION_RUNTIME_HANDOFF_READINESS_AUDIT_STEP356.md`;
+- create a plan-only `narrow-replay-materialization-runtime-handoff-plan` for
+  future owner `runtime.replay-coordination-materialization-handoff`;
+- define the event/command sequence for the future handoff using
+  `chartEntryManualNext:advanced` as the trigger;
+- define how Auto Play is covered through Manual Next advanced events;
+- define fallback gates before any runtime wiring;
+- preserve the audit decision that diagnostics runtime remains read-only
+  observability;
+- preserve Display-Timeframe Runtime as the TF-switch owner;
+- do not register commands or subscribe to events yet;
+- do not implement runtime behavior yet;
 - keep replay source `1m` authority explicit;
 - keep target bars display materialization input only;
 - do not route target bars through replay runtime;
@@ -504,16 +515,18 @@ Notes for execution:
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the readiness audit and selected future
-  handoff owner;
+- add static closeout coverage for the handoff plan and selected future owner;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- exact future handoff owner boundary is documented;
-- exact command/event surfaces for the future handoff are listed;
+- plan module exists and validates the future handoff sequence;
+- exact future handoff owner boundary remains
+  `runtime.replay-coordination-materialization-handoff`;
+- exact command/event surfaces for the future handoff remain listed;
+- fallback gates are documented before runtime wiring;
 - replay source `1m` authority and target-bars display-only policy are explicit;
 - runtime behavior remains unchanged;
 - default target-history pack membership remains unchanged;
@@ -530,6 +543,39 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 356 - Narrow Replay Materialization Runtime Handoff Readiness Audit
+
+Completed in this narrow replay materialization runtime handoff readiness audit
+commit series.
+
+Verification:
+
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-step356-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-boundary-step356-static-smoke.js`
+- `node v6/tests/narrow-replay-materialization-runtime-handoff-readiness-closeout-step356-static-smoke.js`
+- `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
+- `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
+- `node v6/tests/app-shell-browser-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Selected future owner boundary
+  `runtime.replay-coordination-materialization-handoff`.
+- Selected a new replay-coordination runtime helper instead of adding behavior
+  to Manual Next, Auto Play, Display-Timeframe, or diagnostics runtime.
+- Listed `chartEntryManualNext:advanced` as the future primary trigger.
+- Listed allowed future command surfaces: `pane.getById`, `replay.getState`,
+  `chartData.getSourceBars`, `barData.planTargetWindow`,
+  `barData.loadTargetWindow`, and `chartData.replaceBars`.
+- Kept Auto Play covered through Manual Next advanced events.
+- Kept diagnostics runtime read-only observability.
+- Did not register commands, subscribe to events, or change runtime behavior.
+- Did not modify producer runtimes.
+- Did not change target loading, replay cursor movement, chart-data writes,
+  viewport behavior, request sizing, or chart-history fast-path behavior.
 
 ### Step 355 - Target Materialization Diagnostics Readout Chain Closeout And Next Slice Selection
 
