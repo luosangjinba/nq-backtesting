@@ -529,6 +529,12 @@
   low-overhead real wheel-triggered milestone attribution for `4h`, `8h`,
   `1D`, and `1W`, identifying `inputToTargetFetchStartMs` around the existing
   `requestDelayMs=500` scheduling window as the dominant remaining delay.
+- Latest completed HTF target-history request scheduling policy step:
+  Step 372 - HTF Target-History Request Scheduling Policy Selection. V6 now
+  selects `native-target-history-reduced-delay-with-coalescing`: future HTF
+  target-history native visible-range requests should use `100ms` coalescing
+  while low-TF/native and target-history-disabled paths keep
+  `requestDelayMs=500`.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -564,7 +570,7 @@
 
 ## Next Executable Steps
 
-### Step 372 - HTF Target-History Request Scheduling Policy Selection
+### Step 373 - HTF Target-History Native Visible-Range Reduced Delay Resolver
 
 Status: proposed.
 
@@ -574,14 +580,17 @@ Notes for execution:
   `v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md`;
 - use Step 371 closeout:
   `v6/docs/V6_HTF_DRAG_TRIGGERED_LOW_OVERHEAD_RUNTIME_MILESTONES_STEP371.md`;
-- select a bounded HTF target-history request scheduling policy before any
-  runtime behavior change;
-- compare keeping native drag/wheel at `requestDelayMs=500`, reducing the HTF
-  target-history delay, or applying the existing high-timeframe fast path only
-  after a zero-delay surface check;
-- preserve low-TF/native drag stability and existing sticky-drag protections;
-- keep this step planning/selection-only unless the safest policy is already
-  unambiguous and rollback gates are explicit;
+- use Step 372 closeout:
+  `v6/docs/V6_HTF_TARGET_HISTORY_REQUEST_SCHEDULING_POLICY_SELECTION_STEP372.md`;
+- add the pure resolver shape for selected policy
+  `native-target-history-reduced-delay-with-coalescing`;
+- extend pure scheduling resolution so HTF target-history native visible-range
+  can resolve to `100ms`;
+- keep low-TF/native and target-history-disabled native paths on
+  `requestDelayMs=500`;
+- keep existing programmatic target-history fast path unchanged;
+- keep `leftward-history-input-bridge.js` behavior unchanged unless this step
+  explicitly remains pure and fully covered;
 - do not modify `v6/src/app.js`;
 - do not add new command surfaces;
 - do not modify the Step 362 skeleton;
@@ -602,24 +611,28 @@ Notes for execution:
 - keep source `1m` replay cursor authority and the Step 329 target-bar
   no-future reveal policy explicit;
 - keep the Step 331 owner-surface mapping explicit;
-- keep target-history request sizing and chart-history fast-path behavior
-  unchanged;
+- keep target-history request sizing unchanged;
+- keep bridge runtime wiring unchanged unless a later wiring step is explicitly
+  selected;
 - use Step 309 pack group/member controls for focused regression checks and
   keep the full pack available for confirmation;
 - preserve the full Step 293 pack as the available comprehensive
   target-history browser regression command;
-- add static closeout coverage for the selected request scheduling policy and
-  rollback gates;
+- add static closeout coverage for the resolver behavior and preservation
+  gates;
 - do not change replay cursor movement, no-bar gap skipping, chart viewport
   intent, chart-engine behavior, journal, order-ticket, prop-firm, indicator,
   or seconds behavior.
 
 Acceptance:
 
-- a request scheduling policy is selected or a narrower follow-up measurement
-  is selected with a clear reason;
-- selected policy and rejected alternatives are documented with measured
-  reasons from Step 371;
+- pure resolver supports the selected HTF target-history native `100ms`
+  coalescing delay;
+- low-TF/native source paths and target-history disabled paths still resolve to
+  `requestDelayMs=500`;
+- existing programmatic target-history fast path remains unchanged;
+- `leftward-history-input-bridge.js` behavior remains unchanged unless this
+  step explicitly becomes a covered wiring step;
 - rollback gates preserve low-TF/native drag stability and sticky-drag
   protections;
 - runtime behavior remains unchanged unless a concrete scheduling change is
@@ -655,6 +668,36 @@ Acceptance:
 - replay remains source `1m` driven.
 
 ## Completed Steps
+
+### Step 372 - HTF Target-History Request Scheduling Policy Selection
+
+Completed in this HTF target-history request scheduling policy selection commit
+series.
+
+Verification:
+
+- `node v6/tests/high-timeframe-target-history-request-scheduling-policy-selection-step372-smoke.js`
+- `node v6/tests/high-timeframe-target-history-request-scheduling-policy-selection-boundary-step372-static-smoke.js`
+- `node v6/tests/leftward-history-request-schedule-step326-smoke.js`
+- `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-boundary-step371-static-smoke.js`
+- `node v6/tests/boundary-smoke.js`
+- `git diff --check`
+
+Notes:
+
+- Added a pure policy selector for HTF target-history native visible-range
+  scheduling.
+- Selected `native-target-history-reduced-delay-with-coalescing`.
+- Future HTF target-history native visible-range delay is `100ms`.
+- Low-TF/native and target-history-disabled native paths stay on
+  `requestDelayMs=500`.
+- Existing programmatic target-history fast path remains unchanged.
+- Rejected keeping native `500ms` because Step 371 showed it is the dominant
+  delay.
+- Rejected native zero-delay fast path for this slice because it risks bypassing
+  drag/wheel coalescing and sticky-drag protections.
+- Did not change bridge/resolver runtime behavior, command surfaces,
+  `v6/src/app.js`, shell readout code, or the Step 362 runtime skeleton.
 
 ### Step 371 - HTF Drag-Triggered Low-Overhead Runtime Milestone Attribution
 

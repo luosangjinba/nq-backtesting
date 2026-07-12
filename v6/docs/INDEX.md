@@ -585,6 +585,11 @@ Read this index before working on V6.
   `4h`, `8h`, `1D`, and `1W`, identifying `inputToTargetFetchStartMs` around
   the existing `requestDelayMs=500` scheduling window as the dominant remaining
   delay and selecting request scheduling policy selection as the next slice.
+- `v6/docs/V6_HTF_TARGET_HISTORY_REQUEST_SCHEDULING_POLICY_SELECTION_STEP372.md`:
+  accepted `native-target-history-reduced-delay-with-coalescing` as the bounded
+  HTF native wheel/drag target-history scheduling policy, selecting a future
+  `100ms` HTF target-history native delay while preserving low-TF and
+  target-history-disabled native paths on `requestDelayMs=500`.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

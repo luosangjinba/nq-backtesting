@@ -9,10 +9,15 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 371 closeout
-- Latest completed step: Step 371 - HTF Drag-Triggered Low-Overhead Runtime
-  Milestone Attribution
+- Worktree at handoff: clean after Step 372 closeout
+- Latest completed step: Step 372 - HTF Target-History Request Scheduling
+  Policy Selection
 - Recent relevant commits:
+  - Step 372 selected `native-target-history-reduced-delay-with-coalescing` as
+    the bounded HTF target-history native wheel/drag scheduling policy. Future
+    HTF target-history native visible-range requests should use `100ms`
+    coalescing, while low-TF/native and target-history-disabled paths keep
+    `requestDelayMs=500`; runtime bridge/resolver behavior is still unchanged.
   - Step 371 added low-overhead real CDP wheel-triggered runtime milestone
     attribution for `4h`, `8h`, `1D`, and `1W`. The observed run identified
     `inputToTargetFetchStartMs` around `460-536ms`, matching the existing
@@ -343,8 +348,8 @@ Read this block first after restarting the server or assistant context.
    - API: `http://127.0.0.1:8766/v4/health`
    - Web: `http://127.0.0.1:8002/v6/index.html`
 3. Open `v6/TODO.md` and this handoff file before selecting the next step.
-4. If continuing planned work, start with Step 372:
-   HTF target-history request scheduling policy selection.
+4. If continuing planned work, start with Step 373:
+   HTF target-history native visible-range reduced delay resolver.
 5. If continuing the replay gap bug, manually spot-check:
    - create a session crossing `2026-06-01 17:00`;
    - replay through the break on 1m, 5m, and 15m display TF;
@@ -393,6 +398,8 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-drag-triggered-leftward-extension-interaction-boundary-step370-static-smoke.js`
 - `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-browser-step371-smoke.js`
 - `node v6/tests/high-timeframe-drag-triggered-low-overhead-runtime-milestones-boundary-step371-static-smoke.js`
+- `node v6/tests/high-timeframe-target-history-request-scheduling-policy-selection-step372-smoke.js`
+- `node v6/tests/high-timeframe-target-history-request-scheduling-policy-selection-boundary-step372-static-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `TARGET_HISTORY_PACK_MEMBERS=replay-coordination,readout-producer-flow,handoff-registration node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js`
 - `node v6/tests/target-materialization-diagnostics-readout-chain-closeout-step355-static-smoke.js`
@@ -407,12 +414,11 @@ the commands passed.
 ### Next Work Recommendation
 
 - Do not start indicators or trading simulation yet.
-- Recommended next action is Step 372 - HTF Target-History Request Scheduling
-  Policy Selection.
-- Select a bounded scheduling policy before runtime changes: keep native
-  drag/wheel at `requestDelayMs=500`, reduce delay for HTF target-history, or
-  apply a zero-delay surface check/fast path while preserving low-TF drag
-  stability.
+- Recommended next action is Step 373 - HTF Target-History Native Visible-Range
+  Reduced Delay Resolver.
+- Add the pure resolver support for the selected `100ms` HTF target-history
+  native delay while keeping low-TF/native and target-history-disabled paths on
+  `requestDelayMs=500`; leave bridge wiring for a later covered step.
 
 ## Current State
 
