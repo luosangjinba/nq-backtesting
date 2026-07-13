@@ -2,16 +2,23 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 Step 397 Handoff Snapshot
+## 2026-07-12 Step 398 Handoff Snapshot
 
 Read this block first after restarting the server or assistant context.
 
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 397 closeout
-- Latest completed step: Step 397 - Replay Transport Presentation Modularization
+- Worktree at handoff: clean after Step 398 closeout
+- Latest completed step: Step 398 - Product/Foundation Gap Re-selection
 - Recent relevant commits:
+  - Step 398 re-audited five foundation journeys. Step 276 passed `8/8` in
+    `45651ms`, Step 253 passed `9/9` in `27520ms`, and Step 255 passed `7/7` in
+    `19151ms`. The only observable gap is post-entry active-pane date/time
+    location. Official Lightweight Charts provides native time/logical-range
+    primitives and awesome-tradingview has no replacement date-locator plugin.
+    Step 399 should implement a visible loaded-window-only Go-to-time control,
+    preserving replay cursor/source state and making zero Bar Data requests.
   - Step 397 extracted command-free Replay Transport DOM presentation.
     `replay-transport.js` fell from 512 to 418 lines and now retains coherent
     state/command/event/shortcut/lifecycle orchestration. The final

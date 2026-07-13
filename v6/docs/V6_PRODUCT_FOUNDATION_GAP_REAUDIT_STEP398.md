@@ -1,6 +1,6 @@
 # Step 398 - Product/Foundation Gap Re-audit
 
-Status: journey verification complete; slice selection pending.
+Status: completed on 2026-07-12.
 
 ## Journey evidence matrix
 
@@ -57,3 +57,10 @@ must not call Lightweight Charts or fetch bars directly.
 These results confirm that the Date Range gap is not broken session entry or
 broken range synchronization. It is the missing post-entry user action for
 locating a date/time in the active workstation chart.
+
+## Selection
+
+Step 399 is selected as Active-Pane Loaded-Window Date Locator. See
+`v6/docs/V6_ACTIVE_PANE_DATE_LOCATOR_SELECTION_STEP398.md` for ownership,
+non-goals, and acceptance gates. Missing-window loading remains a later,
+evidence-gated slice.

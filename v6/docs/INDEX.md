@@ -24,6 +24,11 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_TRANSPORT_PRESENTATION_MODULARIZATION_STEP397.md`: extracted
   command-free DOM presentation, Replay Transport modularization stop condition,
   and the Step 398 product/foundation gap re-selection recommendation.
+- `v6/docs/V6_PRODUCT_FOUNDATION_GAP_REAUDIT_STEP398.md`: five-journey evidence,
+  official Lightweight Charts/awesome-tradingview capability check, regression
+  results, and the selected Date Range gap.
+- `v6/docs/V6_ACTIVE_PANE_DATE_LOCATOR_SELECTION_STEP398.md`: Step 399 loaded-
+  window Go-to-time ownership, non-goals, and browser acceptance gate.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,

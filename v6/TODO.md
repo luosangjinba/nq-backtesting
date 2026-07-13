@@ -2,14 +2,19 @@
 
 ## Current / Next
 
+- Latest completed foundation selection step: Step 398 - Product/Foundation
+  Gap Re-selection. Loading/Timeframe/Replay passed Step 276 `8/8`, Multi-pane
+  passed Step 253 `9/9`, and Date Range boundary entry passed Step 255 `7/7`.
+  The remaining observable gap is post-entry active-pane date/time location.
+- Next step: Step 399 - Active-Pane Loaded-Window Date Locator. Add a visible
+  Go-to-time control that selects the nearest already-loaded real bar and
+  applies a manual viewport projection without fetching bars or mutating replay
+  cursor/source state. Missing-window loading is explicitly deferred.
 - Latest completed shell modularization step: Step 397 - Replay Transport
   Presentation Modularization. Command-free DOM rendering now lives in a
   focused renderer; `replay-transport.js` fell from 512 to 418 lines and the
   final modularization pack passed `5/5`. This Replay Transport split chain is
   closed; do not keep splitting it by line count alone.
-- Next recommended step: Step 398 - Product/Foundation Gap Re-selection.
-  Re-audit chart loading, timeframe, replay, multi-pane, and date-range user
-  journeys and select one observable functional gap before more refactoring.
 - Latest completed shell modularization step: Step 396 - Replay Transport
   Period Menu Modularization. Pure navigation and DOM menu/focus ownership now
   live behind focused modules while playback-period commands/events remain in
