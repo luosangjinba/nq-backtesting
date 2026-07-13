@@ -90,6 +90,7 @@ export async function buildReplayCoordinationMaterializationRuntimeHandoffResult
   dispatchCommand,
   event = {},
   executor = executeNarrowReplayMaterializationRuntimeHandoffPlan,
+  shouldCommit = () => true,
 } = {}) {
   const resolvedCommandResults = commandResults || await collectReplayCoordinationMaterializationRuntimeHandoffCommandResults({
     dispatchCommand,
@@ -99,6 +100,14 @@ export async function buildReplayCoordinationMaterializationRuntimeHandoffResult
     commandResults: resolvedCommandResults,
     event,
   });
+  if (result?.replaceIntent && !(await shouldCommit(result))) {
+    return Object.freeze({
+      ...result,
+      action: 'stale',
+      replaceIntent: null,
+      status: 'stale',
+    });
+  }
   if (result?.replaceIntent) {
     await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, result.replaceIntent);
   }
@@ -109,13 +118,24 @@ export function createReplayCoordinationMaterializationRuntimeHandoff(dependenci
   const resolvedDependencies = normalizeDependencies(dependencies);
   const cleanupCallbacks = [];
   let lastResult = null;
+  let requestRevision = 0;
   let started = false;
 
   async function handleManualNextAdvanced(event = {}) {
+    requestRevision += 1;
+    const revision = requestRevision;
     lastResult = await buildReplayCoordinationMaterializationRuntimeHandoffResult({
       dispatchCommand: resolvedDependencies.dispatchCommand,
       event,
       executor: resolvedDependencies.executor,
+      shouldCommit: async (result) => {
+        if (!started || revision !== requestRevision) return false;
+        const replayState = await resolvedDependencies.dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+        const cursor = replayState?.cursorTimestamp ?? replayState?.cursorTime;
+        const cursorMs = typeof cursor === 'number' ? cursor * 1000 : Date.parse(cursor);
+        return Number.isFinite(cursorMs)
+          && Math.floor(cursorMs / 1000) === Number(result.replayCursorTimestamp);
+      },
     });
     return lastResult;
   }
@@ -139,6 +159,7 @@ export function createReplayCoordinationMaterializationRuntimeHandoff(dependenci
       }
     }
     started = false;
+    requestRevision += 1;
     lastResult = null;
   }
 

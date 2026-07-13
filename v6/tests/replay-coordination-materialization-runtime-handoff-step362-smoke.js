@@ -85,6 +85,16 @@ const fallbackResult = await buildReplayCoordinationMaterializationRuntimeHandof
 assert.equal(fallbackResult.status, 'fallback');
 assert.deepEqual(dispatchCalls, []);
 
+const staleResult = await buildReplayCoordinationMaterializationRuntimeHandoffResult({
+  commandResults,
+  dispatchCommand: fakeDispatch,
+  event: { paneId: 'main', replayCursorTimestamp: 300 },
+  shouldCommit: () => false,
+});
+assert.equal(staleResult.status, 'stale');
+assert.equal(staleResult.replaceIntent, null);
+assert.deepEqual(dispatchCalls, []);
+
 let subscribedEvent = null;
 let subscribedListener = null;
 let cleanupCount = 0;
