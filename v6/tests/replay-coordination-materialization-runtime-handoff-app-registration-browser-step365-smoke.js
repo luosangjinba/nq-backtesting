@@ -182,7 +182,7 @@ try {
       });
       const handoffDeadline = performance.now() + 8000;
       let afterManualNext = await snapshot();
-      while (afterManualNext.latestChartClose >= 900 && performance.now() < handoffDeadline) {
+      while (afterManualNext.latestChartClose < 900 && performance.now() < handoffDeadline) {
         await sleep(40);
         afterManualNext = await snapshot();
       }
@@ -216,7 +216,7 @@ try {
   assert.equal(value.afterManualNext.latestSourceTimestamp, value.afterManualNext.replayCursorTimestamp);
   assert.equal(value.afterManualNext.sourceBarCount, value.afterMaterialization.sourceBarCount + 1);
   assert.equal(value.afterManualNext.latestChartTimestamp >= value.afterMaterialization.latestChartTimestamp, true);
-  assert.equal(value.afterManualNext.latestChartClose < 900, true);
+  assert.equal(value.afterManualNext.latestChartClose >= 900, true);
   assert.equal(value.fetchLog.some((entry) => entry.kind === 'target' && entry.tf === '8h'), true);
   assert.equal(value.fetchLog.some((entry) => entry.kind === 'source' && entry.tf === '1'), true);
 
