@@ -22,6 +22,18 @@ function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
 }
 
+const REPLAY_RANGE_CHUNK_MAX_SOURCE_BARS = 40_000;
+
+function mergeSourceBars(windows = []) {
+  const byTimestamp = new Map();
+  windows.flatMap((record) => cloneBars(record?.bars || []))
+    .sort((left, right) => Number(left.timestamp ?? left.time) - Number(right.timestamp ?? right.time))
+    .forEach((bar) => {
+      byTimestamp.set(Number(bar.timestamp ?? bar.time), bar);
+    });
+  return [...byTimestamp.values()];
+}
+
 function normalizeTimeframeMinutes(timeframe) {
   try {
     return normalizeMinuteTimeframe(timeframe, {
@@ -80,6 +92,37 @@ function createCursorWindowPayload(replayState, pane = {}) {
   };
 }
 
+function createRangeWindowPayloads(replayState, pane = {}, fromCursorTime) {
+  const fromTimestamp = parseReplayTimestamp(fromCursorTime, 'fromCursorTime');
+  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
+  if (fromTimestamp >= cursorTimestamp) {
+    throw new Error('Replay cursor materialization range must advance forward.');
+  }
+  const sourceTimeframe = resolveSourceTimeframe(replayState);
+  const sourceStepSeconds = sourceTimeframe * 60;
+  const instrument = pane.instrument || replayState.symbol;
+  if (!instrument) {
+    throw new Error('Replay cursor materialization requires replay symbol.');
+  }
+  const payloads = [];
+  for (
+    let anchorTimestamp = fromTimestamp + sourceStepSeconds;
+    anchorTimestamp <= cursorTimestamp;
+  ) {
+    const remainingBars = Math.floor((cursorTimestamp - anchorTimestamp) / sourceStepSeconds) + 1;
+    const count = Math.min(remainingBars, REPLAY_RANGE_CHUNK_MAX_SOURCE_BARS);
+    payloads.push({
+      anchor: new Date(anchorTimestamp * 1000).toISOString(),
+      count,
+      direction: 'forward',
+      instrument: String(instrument).toUpperCase(),
+      timeframe: sourceTimeframe,
+    });
+    anchorTimestamp += count * sourceStepSeconds;
+  }
+  return payloads;
+}
+
 function pickCursorBars(record, replayState) {
   const bars = cloneBars(record?.bars);
   if (!bars.length) {
@@ -114,6 +157,7 @@ async function createCursorBars({
   loadedWindow,
   pane,
   paneId,
+  range = false,
   replayState,
 }) {
   const sourceTimeframe = resolveSourceTimeframe(replayState);
@@ -132,13 +176,13 @@ async function createCursorBars({
       targetTimeframe,
     });
     return {
-      bars: pickCursorProjectionBars(projectionRecord, replayState),
+      bars: range ? cloneBars(projectionRecord.bars) : pickCursorProjectionBars(projectionRecord, replayState),
       projectionRecord,
-      sourceBars: pickCursorBars(loadedWindow, replayState),
+      sourceBars: range ? cloneBars(loadedWindow.bars) : pickCursorBars(loadedWindow, replayState),
     };
   }
 
-  const sourceBars = pickCursorBars(loadedWindow, replayState);
+  const sourceBars = range ? cloneBars(loadedWindow.bars) : pickCursorBars(loadedWindow, replayState);
   return {
     bars: sourceBars,
     projectionRecord: null,
@@ -154,8 +198,28 @@ async function getPaneRecord(dispatchCommand, paneId) {
   }
 }
 
+async function loadMaterializationWindow({
+  dispatchCommand,
+  fromCursorTime,
+  pane,
+  replayState,
+}) {
+  const payloads = fromCursorTime
+    ? createRangeWindowPayloads(replayState, pane, fromCursorTime)
+    : [createCursorWindowPayload(replayState, pane)];
+  const windows = [];
+  for (const payload of payloads) {
+    windows.push(await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, payload));
+  }
+  return {
+    bars: mergeSourceBars(windows),
+    windows,
+  };
+}
+
 export async function appendReplayCursorAcrossPanes({
   dispatchCommand = dispatchRuntimeCommand,
+  fromCursorTime = null,
   hasCommand = hasRuntimeCommand,
   paneIds = ['main'],
   replayState,
@@ -166,16 +230,19 @@ export async function appendReplayCursorAcrossPanes({
 
   for (const paneId of paneIds) {
     const pane = await getPaneRecord(dispatchCommand, paneId);
-    const loadedWindow = await dispatchCommand(
-      BAR_DATA_COMMANDS.LOAD_WINDOW,
-      createCursorWindowPayload(replayState, pane || {}),
-    );
+    const loadedWindow = await loadMaterializationWindow({
+      dispatchCommand,
+      fromCursorTime,
+      pane: pane || {},
+      replayState,
+    });
     const cursorBars = await createCursorBars({
       dispatchCommand,
       hasCommand,
       loadedWindow,
       pane: pane || {},
       paneId,
+      range: Boolean(fromCursorTime),
       replayState,
     });
     const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.APPEND_BARS, {
@@ -188,10 +255,11 @@ export async function appendReplayCursorAcrossPanes({
     appendedBarCount += cursorBars.bars.length;
     loadedWindows.push({
       barCount: Array.isArray(loadedWindow?.bars) ? loadedWindow.bars.length : 0,
-      cacheHit: Boolean(loadedWindow?.cacheHit),
-      key: loadedWindow?.key || null,
+      cacheHit: loadedWindow.windows.every((window) => Boolean(window?.cacheHit)),
+      key: loadedWindow.windows.length === 1 ? loadedWindow.windows[0]?.key || null : null,
       paneId,
       projectionSource: summarizeProjectionSource(cursorBars.projectionRecord),
+      windowCount: loadedWindow.windows.length,
     });
   }
 
