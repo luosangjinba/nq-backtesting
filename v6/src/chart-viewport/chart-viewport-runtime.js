@@ -60,6 +60,16 @@ export function createChartViewportRuntime({
         emit(CHART_VIEWPORT_EVENTS.PROJECTED, record);
         return record;
       }),
+      registerCommand(CHART_VIEWPORT_COMMANDS.UPDATE_DEFAULT_RIGHT_OFFSET, (payload = {}) => {
+        const records = store.updateDefaultRightOffset(payload.latestOffsetBars);
+        records.forEach((record) => {
+          emit(CHART_VIEWPORT_EVENTS.INTENT_CHANGED, record);
+          if (record.projection) {
+            emit(CHART_VIEWPORT_EVENTS.PROJECTED, record);
+          }
+        });
+        return records;
+      }),
       registerCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, ({ paneId } = {}) => store.getRecord(paneId)),
       registerCommand(CHART_VIEWPORT_COMMANDS.GET_SNAPSHOT, () => store.snapshot())
     );

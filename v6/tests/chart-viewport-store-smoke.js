@@ -43,6 +43,12 @@ const manualProjected = store.applyChartDataRevision('pane-default', {
   chartBarsRevision: 2,
   latestLogicalIndex: 21,
 });
+
+const manualBeforeDefaultUpdate = structuredClone(manualProjected.intent);
+const updatedManualDefault = store.updateDefaultRightOffset(20)[0];
+assert.equal(updatedManualDefault.defaultLatestOffsetBars, 20);
+assert.deepEqual(updatedManualDefault.intent, manualBeforeDefaultUpdate);
+assert.deepEqual(updatedManualDefault.projection, manualProjected.projection);
 assert.equal(manualProjected.intent.origin, 'manual');
 assert.equal(manualProjected.intent.revision, 1);
 assert.deepEqual(manualProjected.projection, {
@@ -66,7 +72,7 @@ const reset = store.resetView('pane-default');
 assert.equal(reset.intent.cursorTimestamp, 1780306260);
 assert.equal(reset.intent.origin, 'default');
 assert.equal(reset.intent.revision, 2);
-assert.equal(reset.intent.latestOffsetBars, 8);
+assert.equal(reset.intent.latestOffsetBars, 20);
 assert.equal(reset.intent.spanBars, null);
 assert.equal(reset.projection, null);
 
@@ -75,13 +81,13 @@ const resetProjected = store.applyChartDataRevision('pane-default', {
   latestLogicalIndex: 22,
 });
 assert.deepEqual(resetProjected.projection, {
-  from: -70,
+  from: -58,
   latestLogicalIndex: 22,
-  latestOffsetBars: 8,
+  latestOffsetBars: 20,
   origin: 'default',
   revision: 2,
   spanBars: 100,
-  to: 30,
+  to: 42,
 });
 
 assert.throws(
@@ -105,5 +111,19 @@ const customReset = store.resetView('pane-custom-default');
 assert.equal(customReset.defaultLatestOffsetBars, 12);
 assert.equal(customReset.intent.origin, 'default');
 assert.equal(customReset.intent.latestOffsetBars, 12);
+
+const defaultStore = createChartViewportStore({ defaultSpanBars: 100 });
+defaultStore.ensureIntent('pane-live-default', { cursorTimestamp: 1780306200 });
+defaultStore.applyChartDataRevision('pane-live-default', {
+  chartBarsRevision: 1,
+  latestLogicalIndex: 20,
+});
+const [updatedDefault] = defaultStore.updateDefaultRightOffset(16);
+assert.equal(updatedDefault.defaultLatestOffsetBars, 16);
+assert.equal(updatedDefault.intent.latestOffsetBars, 16);
+assert.equal(updatedDefault.projection.to, 36);
+assert.equal(updatedDefault.projection.from, -64);
+
+assert.throws(() => defaultStore.updateDefaultRightOffset(-1), /integer from 0 to 100/);
 
 console.log('v6 chart viewport store smoke passed');

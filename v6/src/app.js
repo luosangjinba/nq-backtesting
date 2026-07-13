@@ -14,6 +14,7 @@ import { connectResetViewControl } from './chart-engine/reset-view-control-bridg
 import { connectSettingsChartSurfaceBridge } from './chart-engine/settings-chart-surface-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
+import { connectSettingsChartViewportBridge } from './chart-viewport/settings-chart-viewport-bridge.js';
 import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
 import { createInMemorySessionRepository } from './session/session-repository.js';
 import {
@@ -68,6 +69,9 @@ const workflowPanelCoordinator = createWorkflowPanelCoordinator();
 const workstationChartSurface = mountWorkstationChartSurface(root, { emitEvent });
 const settingsChartSurfaceBridge = connectSettingsChartSurfaceBridge({
   chartSurface: workstationChartSurface,
+  subscribeEvent,
+});
+const settingsChartViewportBridge = connectSettingsChartViewportBridge({
   subscribeEvent,
 });
 const chartDataSurfaceBridge = connectChartDataSurfaceBridge({
@@ -183,6 +187,7 @@ root.__v6ReplayNavigationSettings = replayNavigationSettings;
 root.__v6SessionDashboard = sessionDashboard;
 root.__v6SettingsPanel = settingsPanel;
 root.__v6SettingsChartSurfaceBridge = settingsChartSurfaceBridge;
+root.__v6SettingsChartViewportBridge = settingsChartViewportBridge;
 root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;

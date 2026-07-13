@@ -75,13 +75,21 @@ assert.deepEqual(record.projection, {
 });
 assert.equal(projectedEvents.length, 1);
 
+const defaultOffsetUpdate = await dispatchCommand(
+  CHART_VIEWPORT_COMMANDS.UPDATE_DEFAULT_RIGHT_OFFSET,
+  { latestOffsetBars: 16 }
+);
+assert.equal(defaultOffsetUpdate[0].intent.latestOffsetBars, 16);
+assert.equal(defaultOffsetUpdate[0].projection.to, 18);
+assert.equal(projectedEvents.at(-1).projection.latestOffsetBars, 16);
+
 const manual = await dispatchCommand(CHART_VIEWPORT_COMMANDS.SET_MANUAL_INTENT, {
   latestOffsetBars: 4,
   paneId: 'pane-default',
   spanBars: 60,
 });
 assert.equal(manual.intent.origin, 'manual');
-assert.equal(manual.intent.revision, 1);
+assert.equal(manual.intent.revision, 2);
 
 emitEvent(REPLAY_EVENTS.ADVANCED, {
   cursorTime: '2026-06-01T09:31:00.000Z',
@@ -91,7 +99,7 @@ record = await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, {
 });
 assert.equal(record.intent.cursorTimestamp, 1780306260);
 assert.equal(record.intent.origin, 'manual');
-assert.equal(record.intent.revision, 1);
+assert.equal(record.intent.revision, 2);
 assert.equal(record.intent.latestOffsetBars, 4);
 assert.equal(record.intent.spanBars, 60);
 
@@ -113,13 +121,13 @@ record = await dispatchCommand(CHART_VIEWPORT_COMMANDS.GET_PANE, {
 });
 assert.equal(record.chartBarsRevision, 2);
 assert.equal(record.intent.origin, 'manual');
-assert.equal(record.intent.revision, 1);
+assert.equal(record.intent.revision, 2);
 assert.deepEqual(record.projection, {
   from: -53,
   latestLogicalIndex: 3,
   latestOffsetBars: 4,
   origin: 'manual',
-  revision: 1,
+  revision: 2,
   spanBars: 60,
   to: 7,
 });
@@ -132,17 +140,17 @@ const reset = await dispatchCommand(CHART_VIEWPORT_COMMANDS.RESET_VIEW, {
 assert.equal(reset.chartBarsRevision, 3);
 assert.equal(reset.intent.cursorTimestamp, 1780306260);
 assert.equal(reset.intent.origin, 'default');
-assert.equal(reset.intent.revision, 2);
-assert.equal(reset.intent.latestOffsetBars, 8);
+assert.equal(reset.intent.revision, 3);
+assert.equal(reset.intent.latestOffsetBars, 16);
 assert.equal(reset.intent.spanBars, null);
 assert.deepEqual(reset.projection, {
-  from: -109,
+  from: -101,
   latestLogicalIndex: 3,
-  latestOffsetBars: 8,
+  latestOffsetBars: 16,
   origin: 'default',
-  revision: 2,
+  revision: 3,
   spanBars: 120,
-  to: 11,
+  to: 19,
 });
 assert.equal(intentEvents.at(-1).intent.origin, 'default');
 assert.equal(projectedEvents.at(-1).projection.origin, 'default');

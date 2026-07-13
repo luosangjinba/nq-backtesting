@@ -304,6 +304,7 @@ export const CHART_VIEWPORT_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'chartViewport.getSnapshot',
   RESET_VIEW: 'chartViewport.resetView',
   SET_MANUAL_INTENT: 'chartViewport.setManualIntent',
+  UPDATE_DEFAULT_RIGHT_OFFSET: 'chartViewport.updateDefaultRightOffset',
 });
 
 export const CHART_VIEWPORT_EVENTS = Object.freeze({

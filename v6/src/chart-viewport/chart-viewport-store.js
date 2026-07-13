@@ -41,6 +41,14 @@ function normalizeSpanBars(spanBars) {
   return normalized;
 }
 
+function normalizeRightOffsetBars(latestOffsetBars) {
+  const normalized = Number(latestOffsetBars);
+  if (!Number.isInteger(normalized) || normalized < 0 || normalized > 100) {
+    throw new Error('Chart viewport latestOffsetBars must be an integer from 0 to 100.');
+  }
+  return normalized;
+}
+
 function cloneRecord(record) {
   return {
     chartBarsRevision: record.chartBarsRevision,
@@ -144,6 +152,37 @@ export function createChartViewportStore({
     return records;
   }
 
+  function updateDefaultRightOffset(latestOffsetBars) {
+    const normalizedOffset = normalizeRightOffsetBars(latestOffsetBars);
+    const records = [];
+    for (const [paneId, existing] of recordsByPaneId.entries()) {
+      let intent = existing.intent;
+      let projection = existing.projection;
+      if (existing.intent.origin === 'default') {
+        intent = resetToDefaultWallIntent(existing.intent, {
+          cursorTimestamp: existing.intent.cursorTimestamp,
+          latestOffsetBars: normalizedOffset,
+          spanBars: existing.intent.spanBars,
+        });
+        projection = existing.projection
+          ? projectIntentToLogicalRange(intent, {
+            defaultSpanBars,
+            latestLogicalIndex: existing.projection.latestLogicalIndex,
+          })
+          : null;
+      }
+      const record = {
+        ...existing,
+        defaultLatestOffsetBars: normalizedOffset,
+        intent,
+        projection,
+      };
+      recordsByPaneId.set(paneId, record);
+      records.push(cloneRecord(record));
+    }
+    return records;
+  }
+
   function applyChartDataRevision(paneId, {
     chartBarsRevision,
     latestLogicalIndex,
@@ -181,5 +220,6 @@ export function createChartViewportStore({
     setManualIntent,
     snapshot,
     updateCursor,
+    updateDefaultRightOffset,
   };
 }
