@@ -164,7 +164,11 @@ try {
   }
 
   assert.equal(nextMeasurement.result.status, 'advanced', nextMeasurement.result.error || 'manual next should advance');
-  assert.equal(nextMeasurement.latencyMs < 160, true);
+  assert.equal(
+    nextMeasurement.latencyMs < 160,
+    true,
+    `manual next command latency ${nextMeasurement.latencyMs.toFixed(1)}ms exceeded 160ms`,
+  );
   assert.equal(afterNext.replay.cursorIndex, initial.replay.cursorIndex + 1);
   assert.equal(afterNext.replay.revealedCount, initial.replay.revealedCount + 1);
   assert.equal(afterNext.barCount >= initial.barCount + 1, true);
@@ -193,6 +197,7 @@ try {
   }
 
   assert.equal(beforeNext.barCount >= initial.barCount, true);
+  console.log(`v6 replay-safe leftward history manual-next latency ${nextMeasurement.latencyMs.toFixed(1)}ms`);
 } finally {
   await page.cleanup();
 }
