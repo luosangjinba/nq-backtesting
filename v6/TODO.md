@@ -636,6 +636,13 @@
   `105292ms`, selected no additional immediate browser runtime refresh, and
   closed the replay-gap pack cost-control chain for now while keeping the full
   replay-gap command explicit.
+- Latest completed architecture remediation step: Step 392 - V6 Architecture
+  Remediation. V6 repaired the registered replay materialization handoff,
+  isolated async listener failures and stale writes, unified target display
+  materialization, made Manual Next source-bar driven before one cursor commit,
+  consolidated active-pane ownership under Pane Runtime, added a V6 package
+  boundary, and extracted runtime composition and chart layout domains. The
+  default foundation pack passed `8/8` in `39103ms`.
 - Latest stability work: 2026-07-09 unified leftward extension planner.
   Leftward-history requests now use one planner for all display timeframes. The
   planner separates display timeframe bucket math from source timeframe bar
@@ -671,18 +678,20 @@
 
 ## Next Executable Steps
 
-### Step 392 - Chart Foundation Post Replay-Gap Cost Control Re-audit
+### Step 393 - Production Complexity Reduction
 
 Status: proposed.
 
 Notes for execution:
 
-- use Step 391 selection:
-  `v6/docs/V6_CHART_FOUNDATION_RUNTIME_REFRESH_SELECTION_STEP391.md`;
-- re-audit the chart-foundation queue after the replay-gap cost-control chain
-  closes;
-- select the next concrete chart-foundation implementation or verification
-  slice;
+- use the accepted Step 392 remediation:
+  `v6/docs/V6_ARCHITECTURE_REMEDIATION_STEP392.md`;
+- split chart input/range stabilization from the chart surface;
+- split target/source orchestration from the leftward-history runtime;
+- identify selection/audit/readiness helpers with no production consumer and
+  move them out of `src` without weakening their tests;
+- move the browser Lightweight Charts asset out of the V5 legacy directory;
+- keep license selection as an explicit owner decision;
 - keep the Step 391 decision that no additional immediate browser runtime
   refresh is required unless a new concrete risk appears;
 - keep the default fast foundation command documented:
@@ -728,63 +737,44 @@ Notes for execution:
 
 Acceptance:
 
-- post-cost-control re-audit and next-slice decision are documented;
-- default fast and explicit full foundation commands remain documented;
-- standalone fast replay-gap browser pack remains directly runnable;
-- one long-path manual source assertion remains preserved in the strategy;
-- the Step 385 standalone near-gap fixture remains directly runnable;
-- Step 274 full pack membership remains unchanged;
-- existing manual-next, auto-play, and HTF replay-gap assertions are not
-  weakened;
-- selected next slice remains chart-foundation work and does not return to the
-  narrow HTF leftward latency chain unless a concrete uncovered regression is
-  identified;
-- default Step 293 target-history diagnostics pack membership remains
-  unchanged;
-- optional members `replay-coordination`, `readout-producer-flow`, and
-  `handoff-registration` remain unchanged;
-- optional pack member `reduced-delay-budget` remains directly runnable;
-- focused browser budget coverage remains directly runnable standalone;
-- low-TF/native source paths, target-history-disabled paths, and programmatic
-  fast path remain unchanged;
-- bridge trace attribution still reports schedule reason, activation state,
-  selected delay, and timer delay for the tested HTFs;
-- Step 374 bridge wiring and Step 376 suppression remain narrowly scoped;
-- rollback gates preserve low-TF/native drag stability and sticky-drag
-  protections;
-- runtime behavior remains unchanged unless a concrete scheduling change is
-  explicitly scoped;
-- default target-history diagnostics pack membership remains unchanged;
-- optional members `replay-coordination`, `readout-producer-flow`, and
-  `handoff-registration` remain unchanged;
-- exact future handoff owner boundary remains
-  `runtime.replay-coordination-materialization-handoff`;
-- Step 365 app registration remains unchanged and covered by the optional
-  member;
-- exact Step 357 command/event surfaces remain preserved as plan evidence;
-- Step 358 pure executor remains the future decision harness;
-- Step 359 wiring readiness audit remains the future wiring surface evidence;
-- Step 360 runtime plan remains the future lifecycle/dispatch evidence;
-- Step 361 runtime contract remains the future factory/dependency/result
-  evidence;
-- Step 362 skeleton remains the registered runtime implementation surface;
-- fallback gates remain enforced as pure returned decisions before runtime
-  wiring;
-- replay source `1m` authority and target-bars display-only policy are explicit;
-- runtime behavior remains unchanged;
-- standalone Step 337, Step 352, and Step 365 browser smokes remain runnable;
-- optional pack members remain unchanged;
-- shell readout consumption remains command/event snapshot reading without
-  direct target API calls;
-- producer runtimes remain unchanged;
-- source `1m` replay remains the cursor authority while target bars remain
-  display materialization inputs;
-- targeted pack/member controls remain usable during iteration;
-- the full eight-member target-history browser pack remains available and green;
-- shell code remains unchanged and does not call target APIs;
-- replay remains source `1m` driven.
+- chart surface and leftward-history runtime each lose at least one durable
+  responsibility through an explicit module boundary;
+- one-time governance helpers no longer inflate the production dependency
+  surface;
+- V6 no longer loads its browser chart asset from the V5 legacy directory;
+- active runtime, replay cursor, target no-future, viewport, and chart-engine
+  ownership remain unchanged;
+- default fast foundation, focused target-history, and boundary gates pass;
+- license choice is documented as accepted or explicitly blocked on the owner.
 
 ## Completed Steps
+
+### Step 392 - V6 Architecture Remediation
+
+Completed in the architecture-remediation commit series.
+
+Verification:
+
+- `node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js`
+  passed `8/8` in `39103ms`;
+- `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`;
+- `node v6/tests/display-timeframe-target-materialization-browser-step336-smoke.js`;
+- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`;
+- `node v6/tests/pane-active-visual-outline-browser-smoke.js`;
+- `node v6/tests/boundary-smoke.js`;
+- `git diff --check`.
+
+Notes:
+
+- Repaired the previously registered but non-functional replay target
+  materialization handoff contracts.
+- Added async listener isolation and stale materialization commit protection.
+- Enforced target-bar no-future and cursor-coverage fallback rules.
+- Changed production Manual Next to resolve a real source bar before one final
+  cursor commit.
+- Consolidated active-pane ownership under Pane Runtime.
+- Added the V6 package boundary and extracted runtime composition and pure
+  chart layout rules.
 
 ### Step 391 - Chart Foundation Runtime Refresh Selection
 

@@ -673,6 +673,10 @@ Read this index before working on V6.
   selecting no additional immediate browser refresh before the next
   chart-foundation re-audit while preserving explicit full replay-gap
   confirmation commands.
+- `v6/docs/V6_ARCHITECTURE_REMEDIATION_STEP392.md`: accepted architecture
+  remediation for replay materialization contracts, async stale-result safety,
+  source-bar cursor advancement, active-pane ownership, target no-future
+  coverage, runtime composition, and chart layout extraction.
 - `v6/docs/V6_ACTIVE_PANE_FALLBACK_NARROWING_STEP204.md`: accepted audit split
   between removable exact-pane compatibility fallback and intentional
   current-pane active-pane semantics.

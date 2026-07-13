@@ -9,9 +9,17 @@ Read this block first after restarting the server or assistant context.
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 391 closeout
-- Latest completed step: Step 391 - Chart Foundation Runtime Refresh Selection
+- Worktree at handoff: clean after Step 392 closeout
+- Latest completed step: Step 392 - V6 Architecture Remediation
 - Recent relevant commits:
+  - Step 392 repaired the registered replay materialization command contracts,
+    added async listener and stale-result safety, unified target display
+    materialization with strict cursor coverage, changed production Manual Next
+    to commit only the next real source-bar cursor, consolidated active-pane
+    ownership under Pane Runtime, added the V6 package boundary, and extracted
+    core runtime composition and chart layout rules. The default foundation
+    pack passed `8/8` in `39103ms`. Step 393 should continue production
+    complexity reduction without changing chart behavior.
   - Step 391 compared the current default fast Step 276 runtime `44597ms`
     against the older full Step 381 runtime `105292ms`, selected no additional
     immediate browser runtime refresh, and closed the replay-gap pack
