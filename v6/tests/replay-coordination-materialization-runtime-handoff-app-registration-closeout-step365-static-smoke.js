@@ -9,6 +9,7 @@ const doc = await readFile(
   'utf8',
 );
 const appSource = await readFile('v6/src/app.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
 const browserSmoke = await readFile(
   'v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js',
   'utf8',
@@ -39,13 +40,14 @@ assert.match(doc, /Step 366 should add the Step 365 focused registration browser
 
 assert.match(appSource, /import \{ dispatchCommand \} from '\.\/runtime\/commands\.js';/);
 assert.match(
-  appSource,
-  /import \{ createReplayCoordinationMaterializationRuntimeHandoff \} from '\.\/replay\/replay-coordination-materialization-runtime-handoff\.js';/,
+  runtimeManifest,
+  /import \{ createReplayCoordinationMaterializationRuntimeHandoff \} from '\.\.\/replay\/replay-coordination-materialization-runtime-handoff\.js';/,
 );
 assert.match(
-  appSource,
-  /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\);\nregistry\.registerRuntime\(createReplayCoordinationMaterializationRuntimeHandoff\(\{ subscribeEvent, dispatchCommand \}\)\);\nregistry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\);/,
+  runtimeManifest,
+  /createChartEntryManualNextRuntime\(\),\n\s+createReplayCoordinationMaterializationRuntimeHandoff\(\{ dispatchCommand, subscribeEvent \}\),\n\s+createChartEntryManualPreviousRuntime\(\),/,
 );
+assert.match(appSource, /createCoreRuntimeContributions\(\{ dispatchCommand, sessionRepository, subscribeEvent \}\)/);
 
 for (const requiredSmokeTerm of [
   "const RUNTIME_ID = 'runtime.replay-coordination-materialization-handoff'",
