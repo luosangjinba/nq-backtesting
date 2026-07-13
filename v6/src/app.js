@@ -25,6 +25,7 @@ import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayWorkflowSurface } from './shell/replay-workflow-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
 import { createReplayTransportPositionPreference } from './shell/replay-transport-position-preference.js';
+import { createReplayNavigationPreferencesStorage } from './replay-navigation/replay-navigation-preferences-storage.js';
 import { mountSessionDashboard } from './shell/session-dashboard.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
@@ -43,7 +44,13 @@ const registry = createRuntimeRegistry();
 const sessionRepository = createInMemorySessionRepository({
   metadataStore: createSessionMetadataStorage(),
 });
-createCoreRuntimeContributions({ dispatchCommand, sessionRepository, subscribeEvent })
+const replayNavigationPreferencesStorage = createReplayNavigationPreferencesStorage();
+createCoreRuntimeContributions({
+  dispatchCommand,
+  replayNavigationPreferencesStorage,
+  sessionRepository,
+  subscribeEvent,
+})
   .forEach((runtime) => registry.registerRuntime(runtime));
 await registry.start({ root, emitEvent, subscribeEvent });
 const workflowPanelCoordinator = createWorkflowPanelCoordinator();

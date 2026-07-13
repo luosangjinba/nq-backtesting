@@ -186,6 +186,17 @@ export const REPLAY_EVENTS = Object.freeze({
   RESET: 'replay:reset',
 });
 
+export const REPLAY_NAVIGATION_PREFERENCES_COMMANDS = Object.freeze({
+  GET_SNAPSHOT: 'replayNavigationPreferences.getSnapshot',
+  RESET: 'replayNavigationPreferences.reset',
+  UPDATE: 'replayNavigationPreferences.update',
+});
+
+export const REPLAY_NAVIGATION_PREFERENCES_EVENTS = Object.freeze({
+  RESET: 'replayNavigationPreferences:reset',
+  UPDATED: 'replayNavigationPreferences:updated',
+});
+
 export const PANE_COMMANDS = Object.freeze({
   GET_ACTIVE: 'pane.getActive',
   GET_BY_ID: 'pane.getById',

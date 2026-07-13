@@ -33,12 +33,18 @@ import { createPaneRuntime } from '../panes/pane-runtime.js';
 import { createPersistenceRuntime } from '../persistence/persistence-runtime.js';
 import { createPlaybackPeriodRuntime } from '../playback-period/playback-period-runtime.js';
 import { createReplayCoordinationMaterializationRuntimeHandoff } from '../replay/replay-coordination-materialization-runtime-handoff.js';
+import { createReplayNavigationPreferencesRuntime } from '../replay-navigation/replay-navigation-preferences-runtime.js';
 import { createReplayRuntime } from '../replay/replay-runtime.js';
 import { createTargetMaterializationReplayDiagnosticsRuntime } from '../replay/target-materialization-replay-diagnostics-runtime.js';
 import { createSessionRuntime } from '../session/session-runtime.js';
 import { createSettingsRuntime } from '../settings/settings-runtime.js';
 
-export function createCoreRuntimeContributions({ dispatchCommand, sessionRepository, subscribeEvent } = {}) {
+export function createCoreRuntimeContributions({
+  dispatchCommand,
+  replayNavigationPreferencesStorage,
+  sessionRepository,
+  subscribeEvent,
+} = {}) {
   return Object.freeze([
     createAppRuntime(),
     createSessionRuntime({ repository: sessionRepository }),
@@ -59,6 +65,7 @@ export function createCoreRuntimeContributions({ dispatchCommand, sessionReposit
     createChartEntryInitializationRuntime(),
     createChartEntryContextRuntime(),
     createReplayRuntime({ enableInternalTimer: false }),
+    createReplayNavigationPreferencesRuntime({ storage: replayNavigationPreferencesStorage }),
     createTargetMaterializationReplayDiagnosticsRuntime(),
     createPaneIntentReloadWindowRuntime(),
     createPaneIntentReloadDataRuntime(),
