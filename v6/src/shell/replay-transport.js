@@ -13,21 +13,11 @@ import {
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
-import {
-  clampReplayTransportPosition,
-  createReplayTransportPositionSnapshot,
-} from './replay-transport-position.js';
+import { mountReplayTransportPositionController } from './replay-transport-position-controller.js';
 
 export { clampReplayTransportPosition } from './replay-transport-position.js';
 
 const SPEEDS = Object.freeze([0.5, 1, 2, 4]);
-
-const EMPTY_POSITION_PREFERENCE = Object.freeze({
-  load() {
-    return null;
-  },
-  save() {},
-});
 
 function normalizeSpeed(value) {
   const speed = Number(value);
@@ -262,7 +252,7 @@ function updateDom(root, state) {
 export function mountReplayTransport(root, {
   dispatchCommand = dispatchRuntimeCommand,
   getVisiblePaneIds = null,
-  positionPreference = EMPTY_POSITION_PREFERENCE,
+  positionPreference,
   subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
@@ -272,7 +262,10 @@ export function mountReplayTransport(root, {
   const abortController = new AbortController();
   const signal = abortController.signal;
   const unsubscribeCallbacks = [];
-  const preference = positionPreference || EMPTY_POSITION_PREFERENCE;
+  const positionController = mountReplayTransportPositionController(root, {
+    positionPreference,
+    signal,
+  });
 
   function setState(nextState) {
     state = createReplayTransportState(nextState);
@@ -438,116 +431,6 @@ export function mountReplayTransport(root, {
     });
   }
 
-  function getViewportSize() {
-    const view = root.ownerDocument?.defaultView;
-    return {
-      height: normalizeFiniteNumber(view?.innerHeight),
-      width: normalizeFiniteNumber(view?.innerWidth),
-    };
-  }
-
-  function getTransportSize(fallback = {}) {
-    const rect = root.getBoundingClientRect?.() || {};
-    return {
-      height: normalizeFiniteNumber(rect.height, normalizeFiniteNumber(fallback.height)),
-      width: normalizeFiniteNumber(rect.width, normalizeFiniteNumber(fallback.width)),
-    };
-  }
-
-  function applyTransportPosition(position) {
-    if (!position) return null;
-    const viewport = getViewportSize();
-    const size = getTransportSize(position);
-    const nextPosition = clampReplayTransportPosition({
-      height: size.height,
-      left: position.left,
-      top: position.top,
-      viewportHeight: viewport.height,
-      viewportWidth: viewport.width,
-      width: size.width,
-    });
-    root.style.left = `${nextPosition.left}px`;
-    root.style.top = `${nextPosition.top}px`;
-    root.style.bottom = 'auto';
-    root.style.transform = 'none';
-    root.dataset.dragged = 'true';
-    root.dataset.positionRestored = 'true';
-    return Object.freeze({
-      ...nextPosition,
-      height: size.height,
-      width: size.width,
-    });
-  }
-
-  function saveTransportPosition(position) {
-    if (typeof preference.save !== 'function') return;
-    try {
-      preference.save(position);
-    } catch (error) {
-      root.dataset.lastError = error?.message || String(error);
-    }
-  }
-
-  function restoreTransportPosition() {
-    if (typeof preference.load !== 'function') return null;
-    try {
-      const restoredPosition = applyTransportPosition(preference.load());
-      if (restoredPosition) {
-        saveTransportPosition(restoredPosition);
-      }
-      return restoredPosition;
-    } catch (error) {
-      root.dataset.lastError = error?.message || String(error);
-      return null;
-    }
-  }
-
-  function startDrag(event) {
-    if (typeof event.clientX !== 'number' || typeof event.clientY !== 'number') return;
-    event.preventDefault?.();
-    const rect = root.getBoundingClientRect?.();
-    if (!rect) return;
-    const origin = {
-      height: rect.height,
-      left: rect.left,
-      offsetX: event.clientX - rect.left,
-      offsetY: event.clientY - rect.top,
-      width: rect.width,
-    };
-
-    const move = (moveEvent) => {
-      const viewportWidth = root.ownerDocument?.defaultView?.innerWidth || 0;
-      const viewportHeight = root.ownerDocument?.defaultView?.innerHeight || 0;
-      const maxLeft = Math.max(0, viewportWidth - origin.width);
-      const maxTop = Math.max(0, viewportHeight - origin.height);
-      const nextLeft = Math.min(maxLeft, Math.max(0, moveEvent.clientX - origin.offsetX));
-      const nextTop = Math.min(maxTop, Math.max(0, moveEvent.clientY - origin.offsetY));
-      root.style.left = `${nextLeft}px`;
-      root.style.top = `${nextTop}px`;
-      root.style.bottom = 'auto';
-      root.style.transform = 'none';
-      root.dataset.dragged = 'true';
-    };
-    const stop = () => {
-      root.ownerDocument?.removeEventListener?.('pointermove', move);
-      root.ownerDocument?.removeEventListener?.('pointerup', stop);
-      const rect = root.getBoundingClientRect?.();
-      if (rect) {
-        saveTransportPosition(createReplayTransportPositionSnapshot({
-          height: rect.height,
-          left: rect.left,
-          top: rect.top,
-          width: rect.width,
-        }));
-      }
-    };
-    root.ownerDocument?.addEventListener?.('pointermove', move);
-    root.ownerDocument?.addEventListener?.('pointerup', stop, { once: true });
-  }
-
-  const dragHandle = root.querySelector('[data-v6-transport-drag-handle]');
-  dragHandle?.addEventListener?.('pointerdown', startDrag, { signal });
-
   function focusPeriodOption(index) {
     const options = getFocusablePeriodOptions(root);
     if (!options.length) return;
@@ -669,11 +552,10 @@ export function mountReplayTransport(root, {
   Promise.resolve(dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE))
     .then(syncFromPlaybackPeriodEvent)
     .catch(() => {});
-  restoreTransportPosition();
-
   return Object.freeze({
     destroy() {
       abortController.abort();
+      positionController.destroy();
       while (unsubscribeCallbacks.length) {
         unsubscribeCallbacks.pop()();
       }
