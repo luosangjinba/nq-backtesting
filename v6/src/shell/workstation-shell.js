@@ -340,12 +340,35 @@ ${renderDisplayTimeframeMenuSections()}
             </nav>
             <div class="settings-modal-content">
               <section class="settings-field-group" aria-label="Canvas">
-                <div class="settings-group-heading">Canvas</div>
+                <div class="settings-group-heading">Chart basic styles</div>
+                <label class="settings-control-row">
+                  <span>Background</span>
+                  <input type="color" data-v6-settings-field="chartBackgroundColor" value="#0f1721" aria-label="Chart background color">
+                </label>
                 <label class="settings-check-row">
                   <input type="checkbox" data-v6-settings-field="chartGrid" checked>
                   <span>Grid lines</span>
+                  <input type="color" data-v6-settings-field="chartGridColor" value="#263441" aria-label="Grid line color">
                 </label>
-                <p class="settings-scope-note">Additional display and time preferences will appear here when their workstation consumers are available.</p>
+                <label class="settings-control-row">
+                  <span>Crosshair</span>
+                  <input type="color" data-v6-settings-field="chartCrosshairColor" value="#758696" aria-label="Crosshair color">
+                </label>
+              </section>
+              <section class="settings-field-group" aria-label="Scales">
+                <div class="settings-group-heading">Scales</div>
+                <label class="settings-control-row">
+                  <span>Text</span>
+                  <span class="settings-inline-controls">
+                    <input type="color" data-v6-settings-field="chartScaleTextColor" value="#c9d6df" aria-label="Scale text color">
+                    <input type="number" min="10" max="20" step="1" data-v6-settings-field="chartScaleFontSize" value="12" aria-label="Scale font size">
+                  </span>
+                </label>
+                <label class="settings-control-row">
+                  <span>Axis lines</span>
+                  <input type="color" data-v6-settings-field="chartAxisBorderColor" value="#163345" aria-label="Axis border color">
+                </label>
+                <p class="settings-scope-note">Changes apply to every chart pane only after Ok.</p>
               </section>
             </div>
           </div>

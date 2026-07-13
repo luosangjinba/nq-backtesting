@@ -13,7 +13,16 @@ const bridge = connectSettingsChartSurfaceBridge({
   },
   dispatchCommand(command) {
     assert.equal(command, SETTINGS_COMMANDS.GET_SNAPSHOT);
-    return Promise.resolve({ chartGrid: true, theme: 'dark' });
+    return Promise.resolve({
+      chartAxisBorderColor: '#111111',
+      chartBackgroundColor: '#222222',
+      chartCrosshairColor: '#333333',
+      chartGrid: true,
+      chartGridColor: '#444444',
+      chartScaleFontSize: 12,
+      chartScaleTextColor: '#555555',
+      theme: 'dark',
+    });
   },
   subscribeEvent(eventName, listener) {
     listeners.set(eventName, listener);
@@ -22,13 +31,27 @@ const bridge = connectSettingsChartSurfaceBridge({
 });
 
 await bridge.ready;
-assert.deepEqual(applied, [{ chartGrid: true }]);
+assert.deepEqual(applied, [{
+  chartAxisBorderColor: '#111111',
+  chartBackgroundColor: '#222222',
+  chartCrosshairColor: '#333333',
+  chartGrid: true,
+  chartGridColor: '#444444',
+  chartScaleFontSize: 12,
+  chartScaleTextColor: '#555555',
+}]);
 listeners.get(SETTINGS_EVENTS.UPDATED)({ chartGrid: false, theme: 'light' });
 listeners.get(SETTINGS_EVENTS.RESET)({ chartGrid: true, theme: 'dark' });
-assert.deepEqual(applied, [
-  { chartGrid: true },
-  { chartGrid: false },
-  { chartGrid: true },
+assert.equal(applied[1].chartGrid, false);
+assert.equal(applied[2].chartGrid, true);
+assert.deepEqual(Object.keys(applied[1]).sort(), [
+  'chartAxisBorderColor',
+  'chartBackgroundColor',
+  'chartCrosshairColor',
+  'chartGrid',
+  'chartGridColor',
+  'chartScaleFontSize',
+  'chartScaleTextColor',
 ]);
 bridge.destroy();
 assert.equal(listeners.size, 0);

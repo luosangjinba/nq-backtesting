@@ -147,7 +147,15 @@ const surface = mountWorkstationChartSurface(root, {
   },
 });
 const state = surface.getState();
-assert.deepEqual(surface.applySettings({ chartGrid: false }), { chartGrid: false });
+assert.deepEqual(surface.applySettings({ chartGrid: false }), {
+  chartAxisBorderColor: '#163345',
+  chartBackgroundColor: '#0f1721',
+  chartCrosshairColor: '#758696',
+  chartGrid: false,
+  chartGridColor: '#263441',
+  chartScaleFontSize: 12,
+  chartScaleTextColor: '#c9d6df',
+});
 assert.equal(calls.some((call) => call.method === 'applyOptions'), true);
 
 assert.equal(calls[0].method, 'querySelector');

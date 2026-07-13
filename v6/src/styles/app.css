@@ -1656,6 +1656,7 @@ p {
 .settings-modal-content {
   min-width: 0;
   padding: 26px 20px;
+  overflow: auto;
 }
 
 .settings-field-group {
@@ -1672,6 +1673,7 @@ p {
 }
 
 .settings-check-row,
+.settings-control-row,
 .settings-swatch-row,
 .settings-select-row {
   display: grid;
@@ -1680,6 +1682,41 @@ p {
   gap: 12px;
   color: #e5e9ed;
   font-size: 14px;
+}
+
+.settings-control-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  color: #e5e9ed;
+  font-size: 14px;
+}
+
+.settings-inline-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.settings-control-row input[type="color"],
+.settings-check-row input[type="color"] {
+  width: 42px;
+  height: 34px;
+  padding: 3px;
+  border: 1px solid #747a82;
+  border-radius: 6px;
+  background: #303133;
+}
+
+.settings-control-row input[type="number"] {
+  width: 72px;
+  height: 34px;
+  padding: 0 8px;
+  border: 1px solid #747a82;
+  border-radius: 6px;
+  background: #303133;
+  color: #f4f7fa;
 }
 
 .settings-select-row {

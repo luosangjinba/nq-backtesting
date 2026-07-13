@@ -23,7 +23,15 @@ assert.match(bridge, /chartGrid: settings\.chartGrid/);
 assert.doesNotMatch(bridge, /localStorage|LightweightCharts|createChart/);
 assert.deepEqual(
   [...shell.matchAll(/data-v6-settings-field="([^"]+)"/g)].map((match) => match[1]),
-  ['chartGrid'],
+  [
+    'chartBackgroundColor',
+    'chartGrid',
+    'chartGridColor',
+    'chartCrosshairColor',
+    'chartScaleTextColor',
+    'chartScaleFontSize',
+    'chartAxisBorderColor',
+  ],
 );
 assert.match(todo, /Step 409 is closed/);
 

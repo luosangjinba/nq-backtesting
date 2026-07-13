@@ -13,28 +13,32 @@ import {
   LAYOUT_GRID_AREAS_BY_VARIANT,
 } from './workstation-chart-layout-model.js';
 import { createChartRangeInputController } from './chart-range-input-controller.js';
+import { createCanvasSettingsChartOptions } from './canvas-settings-options.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
-    horzLines: { color: 'rgba(100, 116, 139, 0.24)' },
-    vertLines: { color: 'rgba(100, 116, 139, 0.24)' },
+    horzLines: { color: '#263441' },
+    vertLines: { color: '#263441' },
   },
   layout: {
     background: { color: '#0f1721', type: 'solid' },
+    fontSize: 12,
     textColor: '#c9d6df',
   },
+  crosshair: {
+    horzLine: { color: '#758696' },
+    vertLine: { color: '#758696' },
+  },
   rightPriceScale: {
-    borderColor: 'rgba(56, 189, 248, 0.2)',
+    borderColor: '#163345',
     visible: true,
   },
   timeScale: {
-    borderColor: 'rgba(56, 189, 248, 0.2)',
+    borderColor: '#163345',
     timeVisible: true,
     visible: true,
   },
 });
-
-const HIDDEN_GRID_COLOR = 'rgba(0, 0, 0, 0)';
 
 const DEFAULT_SERIES_OPTIONS = Object.freeze({
   borderVisible: false,
@@ -604,18 +608,13 @@ export function mountWorkstationChartSurface(root, {
 
   return {
     applySettings(settings = {}) {
-      const chartGrid = settings.chartGrid !== false;
-      const grid = chartGrid
-        ? DEFAULT_CHART_OPTIONS.grid
-        : {
-            horzLines: { color: HIDDEN_GRID_COLOR },
-            vertLines: { color: HIDDEN_GRID_COLOR },
-          };
-      manager.applyOptions?.({ grid });
+      const canvasSettings = createCanvasSettingsChartOptions(settings, DEFAULT_CHART_OPTIONS);
+      manager.applyOptions?.(canvasSettings.options);
       if (chartSurfaceElement?.dataset) {
-        chartSurfaceElement.dataset.v6ChartGrid = String(chartGrid);
+        chartSurfaceElement.dataset.v6ChartGrid = String(canvasSettings.state.chartGrid);
+        chartSurfaceElement.dataset.v6CanvasSettings = JSON.stringify(canvasSettings.state);
       }
-      return { chartGrid };
+      return { ...canvasSettings.state };
     },
     applyChartDataRecord(record = {}) {
       const recordPaneId = String(record.paneId || '').trim();

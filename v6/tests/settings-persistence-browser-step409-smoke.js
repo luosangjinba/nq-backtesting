@@ -37,7 +37,7 @@ try {
   const settingsRecord = committed.find((record) => (
     record.collection === 'workspaceSettings' && record.key === 'global'
   ));
-  assert.equal(settingsRecord.value.version, 1);
+  assert.equal(settingsRecord.value.version, 2);
   assert.equal(settingsRecord.value.settings.chartGrid, false);
 
   await page.client.send('Page.reload', { ignoreCache: true });

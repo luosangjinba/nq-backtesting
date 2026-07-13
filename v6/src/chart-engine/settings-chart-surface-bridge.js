@@ -12,7 +12,13 @@ export function connectSettingsChartSurfaceBridge({
   }
 
   const apply = (settings = {}) => chartSurface.applySettings({
+    chartAxisBorderColor: settings.chartAxisBorderColor,
+    chartBackgroundColor: settings.chartBackgroundColor,
+    chartCrosshairColor: settings.chartCrosshairColor,
     chartGrid: settings.chartGrid,
+    chartGridColor: settings.chartGridColor,
+    chartScaleFontSize: settings.chartScaleFontSize,
+    chartScaleTextColor: settings.chartScaleTextColor,
   });
   const unsubscriptions = [
     subscribeEvent(SETTINGS_EVENTS.UPDATED, apply),
