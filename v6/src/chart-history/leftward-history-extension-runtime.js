@@ -1,7 +1,6 @@
 import {
   BAR_DATA_COMMANDS,
   CHART_DATA_COMMANDS,
-  CHART_DATA_PROJECTION_COMMANDS,
   CHART_HISTORY_COMMANDS,
   CHART_HISTORY_EVENTS,
   PANE_COMMANDS,
@@ -12,20 +11,20 @@ import {
   makeBarWindowKey,
   windowBoundsMs,
 } from '../bar-data/bar-window.js';
-import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
+import { dispatchCommand, registerCommand } from '../runtime/commands.js';
 import {
   normalizeMinuteTimeframe,
-  normalizeOptionalUnixSeconds,
   normalizeUnixMilliseconds,
   summarizeProjectionSource,
   TIME_DOMAIN_CONSTANTS,
 } from '../time-domain/time-domain.js';
-import {
-  isSessionAwareDisplayTimeframe,
-  normalizeDisplayTimeframeValue,
-} from '../time-domain/htf-display-timeframe-domain.js';
-import { planDisplayTargetHistoryWindow } from '../display-timeframe/display-timeframe-target-history-plan.js';
+import { normalizeDisplayTimeframeValue } from '../time-domain/htf-display-timeframe-domain.js';
 import { planLeftwardSourceWindow } from './leftward-extension-planner.js';
+import {
+  createLeftwardSourcePrepend,
+  loadLeftwardTargetPrepend,
+  replayCursorTimestamp,
+} from './leftward-history-data-orchestrator.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -48,28 +47,6 @@ function normalizePaneId(paneId) {
     throw new Error('Leftward history extension paneId must be a non-empty string.');
   }
   return normalized;
-}
-
-function replayCursorTimestamp(replayState = {}) {
-  if (!replayState?.cursorTime) return null;
-  try {
-    return normalizeOptionalUnixSeconds(replayState.cursorTime, {
-      fieldName: 'Leftward history replay cursorTime',
-    });
-  } catch {
-    return null;
-  }
-}
-
-function replayStartTimestamp(replayState = {}) {
-  if (!replayState?.startTime) return null;
-  try {
-    return normalizeOptionalUnixSeconds(replayState.startTime, {
-      fieldName: 'Leftward history replay startTime',
-    });
-  } catch {
-    return null;
-  }
 }
 
 async function optionalCommand(command, payload) {
@@ -166,103 +143,6 @@ function createTargetRequestKey(paneId, window) {
     window.start,
     window.end,
   ].join('|');
-}
-
-function shouldProjectDisplayTimeframe(targetTimeframe, sourceTimeframe) {
-  return isSessionAwareDisplayTimeframe(targetTimeframe)
-    || Number(targetTimeframe) > Number(sourceTimeframe);
-}
-
-async function createPrependBars({
-  displayTimeframe,
-  loadedBars,
-  loadedWindow,
-  paneId,
-  paneRecord,
-  plannedWindow,
-  replayState,
-} = {}) {
-  const sourceTimeframe = normalizeMinuteTimeframe(
-    loadedWindow?.timeframe ?? plannedWindow?.timeframe ?? replayState?.timeframe ?? 1,
-    { fieldName: 'Leftward history extension sourceTimeframe' },
-  );
-  const targetTimeframe = normalizeDisplayTimeframeValue(
-    displayTimeframe ?? paneRecord?.displayTimeframe ?? paneRecord?.timeframe ?? plannedWindow?.timeframe ?? sourceTimeframe,
-    { fieldName: 'Leftward history extension displayTimeframe' },
-  );
-  if (
-    shouldProjectDisplayTimeframe(targetTimeframe, sourceTimeframe)
-    && hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)
-  ) {
-    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
-      bars: loadedBars,
-      cursorTimestamp: replayCursorTimestamp(replayState),
-      instrument: paneRecord?.instrument || replayState?.symbol || null,
-      paneId,
-      sessionStartTimestamp: replayStartTimestamp(replayState) ?? loadedBars?.[0]?.timestamp ?? null,
-      sourceTimeframe,
-      targetTimeframe,
-    });
-    return {
-      bars: projectionRecord.bars,
-      projectionRecord,
-      sourceBars: loadedBars,
-    };
-  }
-  return {
-    bars: loadedBars,
-    projectionRecord: null,
-    sourceBars: loadedBars,
-  };
-}
-
-async function loadTargetPrependBars({
-  displayTimeframe,
-  instrument,
-  paneId,
-  plannedWindow,
-  sourceTimeframe,
-  targetHistory = {},
-} = {}) {
-  const plan = planDisplayTargetHistoryWindow({
-    displayTimeframe,
-    enabled: Boolean(targetHistory.enabled),
-    end: plannedWindow.end,
-    instrument,
-    paneId,
-    sourceTimeframe,
-    start: plannedWindow.start,
-  });
-  if (plan.command !== BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW) {
-    return {
-      reason: plan.reason,
-      status: 'disabled',
-    };
-  }
-
-  const targetWindow = await dispatchCommand(plan.command, plan.window);
-  const targetBars = cloneBars(targetWindow?.bars);
-  if (!targetBars.length) {
-    return {
-      loadedWindow: summarizeLoadedWindow(targetWindow),
-      reason: 'target-history-empty',
-      status: 'fallback',
-      window: plan.window,
-    };
-  }
-
-  return {
-    bars: targetBars,
-    loadedWindow: summarizeLoadedWindow(targetWindow),
-    projectionSource: {
-      owner: 'runtime.bar-data',
-      sourceTimeframe,
-      targetTimeframe: plan.window.timeframe,
-    },
-    reason: plan.reason,
-    status: 'applied',
-    window: plan.window,
-  };
 }
 
 function oldestLoadedTimestampMs(bars = []) {
@@ -434,7 +314,7 @@ export function createLeftwardHistoryExtensionRuntime({
         const targetStartedAtMs = nowMs();
         try {
           targetRequestCount = 1;
-          targetPrepend = await loadTargetPrependBars({
+          targetPrepend = await loadLeftwardTargetPrepend({
             displayTimeframe,
             instrument,
             paneId,
@@ -572,7 +452,7 @@ export function createLeftwardHistoryExtensionRuntime({
       }
 
       const latestReplayState = await optionalCommand(REPLAY_COMMANDS.GET_STATE);
-      const prependBars = await createPrependBars({
+      const prependBars = await createLeftwardSourcePrepend({
         displayTimeframe,
         loadedBars,
         loadedWindow,
