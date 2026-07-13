@@ -82,6 +82,7 @@ try {
       const escapeClosed = dialog.hidden;
       const focusRestored = document.activeElement === gotoSummary;
 
+      const beforeNavigationChart = await commands.dispatchCommand('chartData.getBars', { paneId: 'main' });
       chart.focus?.();
       const shortcutProbe = navigationControlModule.resolveReplayNavigationShortcut({
         key: 'N',
@@ -122,6 +123,7 @@ try {
       return {
         afterModalShortcut,
         beforeModalShortcut,
+        beforeNavigationBarCount: beforeNavigationChart.bars.length,
         dialogFitsViewport: dialogRect.left >= 0 && dialogRect.right <= innerWidth && dialogRect.top >= 0 && dialogRect.bottom <= innerHeight,
         escapeClosed,
         focusRestored,
@@ -181,6 +183,13 @@ try {
   assert.equal(value.navigated.cursorTime, '2026-05-04T08:45:00.000Z');
   assert.equal(value.navigationState.status, 'completed');
   assert.deepEqual(value.navigationState.lastResult.paneIds, value.layoutVisiblePaneIds);
+  assert.equal(value.navigationState.lastResult.appendedBarCount > 500, true);
+  assert.equal(value.navigationState.lastResult.loadedWindows[0].barCount > 500, true);
+  assert.equal(value.navigationState.lastResult.loadedWindows[0].windowCount >= 1, true);
+  assert.equal(value.navigationState.lastResult.chartRecords[0].bars.length > value.beforeNavigationBarCount + 500, true);
+  assert.equal(value.navigationState.lastResult.chartRecords[0].bars.every((bar) => (
+    Number(bar.timestamp ?? bar.time) <= Date.parse(value.navigated.cursorTime) / 1000
+  )), true);
   assert.equal(value.latestChartBar.time, '2026-05-04T08:45:00.000Z');
   assert.equal(value.screenshot.statusText, 'New York Session reached.');
   assert.equal(value.screenshot.statusTone, 'success');

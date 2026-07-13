@@ -142,6 +142,7 @@ export function createReplayNavigationRuntime({
       });
       const materialized = await materializeCursor({
         dispatchCommand,
+        fromCursorTime: replayState.cursorTime,
         hasCommand,
         paneIds,
         replayState: advancedReplayState,

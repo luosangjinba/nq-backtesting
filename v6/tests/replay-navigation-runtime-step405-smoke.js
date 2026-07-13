@@ -59,8 +59,8 @@ function installOwnerCommands(calls) {
   const events = [];
   installOwnerCommands(calls);
   const runtime = createReplayNavigationRuntime({
-    materializeCursor: async ({ paneIds, replayState }) => {
-      calls.push({ command: 'materialize', cursorTime: replayState.cursorTime, paneIds });
+    materializeCursor: async ({ fromCursorTime, paneIds, replayState }) => {
+      calls.push({ command: 'materialize', cursorTime: replayState.cursorTime, fromCursorTime, paneIds });
       return {
         appendedBarCount: paneIds.length,
         chartRecords: paneIds.map((paneId) => ({ bars: [{}], paneId })),
@@ -96,7 +96,12 @@ function installOwnerCommands(calls) {
     CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP,
     REPLAY_COMMANDS.PAUSE,
     { command: REPLAY_COMMANDS.SET_CURSOR_TIME, cursorTime: '2026-05-02T06:02:00.000Z' },
-    { command: 'materialize', cursorTime: '2026-05-02T06:02:00.000Z', paneIds: ['main', 'secondary'] },
+    {
+      command: 'materialize',
+      cursorTime: '2026-05-02T06:02:00.000Z',
+      fromCursorTime: '2026-05-01T20:00:00.000Z',
+      paneIds: ['main', 'secondary'],
+    },
   ]);
   assert.equal(calls.filter((call) => call?.command === REPLAY_COMMANDS.SET_CURSOR_TIME).length, 1);
   unsubscribe();
