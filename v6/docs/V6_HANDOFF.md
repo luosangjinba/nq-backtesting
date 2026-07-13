@@ -2,16 +2,23 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 Step 393 Handoff Snapshot
+## 2026-07-12 Step 394 Handoff Snapshot
 
 Read this block first after restarting the server or assistant context.
 
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 393 closeout
-- Latest completed step: Step 393 - Production Complexity Reduction
+- Worktree at handoff: clean after Step 394 closeout
+- Latest completed step: Step 394 - Historical Static Test Consolidation
 - Recent relevant commits:
+  - Step 394 reduced the static architecture suite from 201 tests with 61 stale
+    failures to 127 tests passing `127/127`. It removed historical latest-step
+    snapshots, superseded file-shape assertions, and chained tests of other
+    tests, replacing them with current project-state, chart-history ownership,
+    materialization ownership, and regression-pack configuration invariants.
+    Step 276 passed `8/8` in `41986ms`; Step 293 passed `8/8` in `19135ms`.
+    Step 395 should extract replay transport floating-position/drag ownership.
   - Step 393 extracted chart range input ownership and leftward-history data
     orchestration, moved 18 governance-only helpers from production into the
     test boundary, and made V6 own its pinned Lightweight Charts 5.2.0 browser

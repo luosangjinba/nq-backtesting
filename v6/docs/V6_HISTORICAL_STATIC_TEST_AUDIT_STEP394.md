@@ -1,6 +1,6 @@
 # Step 394 - Historical Static Test Audit
 
-Status: migration in progress.
+Status: completed on 2026-07-12.
 
 ## Baseline
 
@@ -14,6 +14,11 @@ The 2026-07-12 baseline found `201` static smokes: `140` passed and `61`
 failed. The Step 276 and Step 293 behavioral browser packs remained green, so
 this is a static architecture-test maintenance problem rather than evidence of
 61 product regressions.
+
+After consolidation, the suite contains `127` static smokes and passes
+`127/127`. The migration removed `4212` lines of obsolete snapshot, file-shape,
+and test-of-test assertions while adding four compact current-state/ownership
+invariant smokes.
 
 ## Failure classes
 
@@ -33,3 +38,18 @@ this is a static architecture-test maintenance problem rather than evidence of
 - Remove historical “latest handoff” assertions; the current handoff has one
   latest step by definition.
 - Do not change production behavior merely to satisfy a superseded static test.
+
+## Verification
+
+- static architecture audit: `127/127` passed;
+- V6 boundary smoke passed;
+- Step 276 foundation browser pack: `8/8` in `41986ms`;
+- Step 293 target-history browser pack: `8/8` in `19135ms`;
+- `git diff --check` passed.
+
+## Next recommendation
+
+Step 395 should modularize `shell/replay-transport.js`, beginning with its
+floating-position/drag controller. Keep the public mount API and replay command
+ownership unchanged, add focused controller coverage, and commit each extracted
+subdomain separately.
