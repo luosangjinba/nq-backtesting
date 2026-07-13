@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 
 const bridge = await readFile('v6/src/chart-history/leftward-history-input-bridge.js', 'utf8');
 const step324Doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_TRIGGER_COORDINATION_ATTRIBUTION_STEP324.md', 'utf8');
-const plan = await readFile('v6/src/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js', 'utf8');
+const plan = await readFile('v6/tests/governance/helpers/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js', 'utf8');
 
 assert.match(bridge, /requestDelayMs = 500/);
 assert.match(bridge, /DISPLAY_TIMEFRAME_EVENTS\.APPLIED/);

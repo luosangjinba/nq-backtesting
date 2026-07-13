@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile('v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_RUNTIME_WIRING_SELECTION_STEP332.md', 'utf8');
-const selector = await readFile('v6/src/replay/replay-coordination-materialization-runtime-wiring-selection.js', 'utf8');
+const selector = await readFile('v6/tests/governance/helpers/replay/replay-coordination-materialization-runtime-wiring-selection.js', 'utf8');
 const smoke = await readFile('v6/tests/replay-coordination-materialization-runtime-wiring-selection-step332-smoke.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/replay-coordination-materialization-runtime-wiring-boundary-step332-static-smoke.js', 'utf8');
 

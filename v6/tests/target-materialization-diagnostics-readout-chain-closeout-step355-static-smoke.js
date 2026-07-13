@@ -9,7 +9,7 @@ const doc = await readFile(
   'utf8',
 );
 const selector = await readFile(
-  'v6/src/replay/target-materialization-diagnostics-readout-chain-selection.js',
+  'v6/tests/governance/helpers/replay/target-materialization-diagnostics-readout-chain-selection.js',
   'utf8',
 );
 const selectionSmoke = await readFile(

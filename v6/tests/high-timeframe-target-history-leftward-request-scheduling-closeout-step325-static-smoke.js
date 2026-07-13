@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_LEFTWARD_REQUEST_SCHEDULING_PLAN_STEP325.md', 'utf8');
-const helper = await readFile('v6/src/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js', 'utf8');
+const helper = await readFile('v6/tests/governance/helpers/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/high-timeframe-target-history-leftward-request-scheduling-boundary-step325-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_HIGH_TIMEFRAME_TARGET_HISTORY_LEFTWARD_REQUEST_SCHEDULING_PLAN_STEP325\.md/);

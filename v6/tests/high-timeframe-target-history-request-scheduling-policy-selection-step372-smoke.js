@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { selectHighTimeframeTargetHistoryRequestSchedulingPolicy } from '../src/chart-history/high-timeframe-target-history-request-scheduling-policy-selection.js';
+import { selectHighTimeframeTargetHistoryRequestSchedulingPolicy } from './governance/helpers/chart-history/high-timeframe-target-history-request-scheduling-policy-selection.js';
 
 const step371Measurement = {
   fetchEndToChartDataMsMax: 22.7,

@@ -4,7 +4,7 @@ import {
   CHART_ENTRY_MANUAL_NEXT_EVENTS,
   PANE_COMMANDS,
   REPLAY_COMMANDS,
-} from '../contracts/app-contracts.js';
+} from '../../../../src/contracts/app-contracts.js';
 
 const AUDIT_ID = 'narrow-replay-materialization-runtime-handoff-readiness-audit';
 

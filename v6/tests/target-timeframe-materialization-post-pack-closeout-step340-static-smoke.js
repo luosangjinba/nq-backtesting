@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile('v6/docs/V6_TARGET_TIMEFRAME_MATERIALIZATION_POST_PACK_SELECTION_STEP340.md', 'utf8');
-const selector = await readFile('v6/src/replay/target-timeframe-materialization-post-pack-selection.js', 'utf8');
+const selector = await readFile('v6/tests/governance/helpers/replay/target-timeframe-materialization-post-pack-selection.js', 'utf8');
 const selectionSmoke = await readFile('v6/tests/target-timeframe-materialization-post-pack-selection-step340-smoke.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/target-timeframe-materialization-post-pack-boundary-step340-static-smoke.js', 'utf8');
 

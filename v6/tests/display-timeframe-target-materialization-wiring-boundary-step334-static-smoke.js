@@ -9,7 +9,7 @@ import {
 import {
   createDisplayTimeframeTargetMaterializationWiringPlan,
   validateDisplayTimeframeTargetMaterializationWiringPlan,
-} from '../src/replay/display-timeframe-target-materialization-wiring-plan.js';
+} from './governance/helpers/replay/display-timeframe-target-materialization-wiring-plan.js';
 
 const contracts = await readFile('v6/src/contracts/app-contracts.js', 'utf8');
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
@@ -18,7 +18,7 @@ const chartDataRuntime = await readFile('v6/src/chart-data/chart-data-runtime.js
 const replayRuntime = await readFile('v6/src/replay/replay-runtime.js', 'utf8');
 const chartViewportRuntime = await readFile('v6/src/chart-viewport/chart-viewport-runtime.js', 'utf8');
 const ownerContract = await readFile('v6/src/replay/replay-coordination-materialization-owner-contract.js', 'utf8');
-const wiringPlanSource = await readFile('v6/src/replay/display-timeframe-target-materialization-wiring-plan.js', 'utf8');
+const wiringPlanSource = await readFile('v6/tests/governance/helpers/replay/display-timeframe-target-materialization-wiring-plan.js', 'utf8');
 
 for (const contractSurface of [
   "APPLY: 'displayTimeframe.apply'",

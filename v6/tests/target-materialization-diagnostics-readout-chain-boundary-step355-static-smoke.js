@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const selector = await readFile(
-  'v6/src/replay/target-materialization-diagnostics-readout-chain-selection.js',
+  'v6/tests/governance/helpers/replay/target-materialization-diagnostics-readout-chain-selection.js',
   'utf8',
 );
 const selectionSmoke = await readFile(

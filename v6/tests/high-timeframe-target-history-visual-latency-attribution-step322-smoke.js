@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { selectHighTimeframeTargetHistoryPhaseBudget } from '../src/chart-history/high-timeframe-target-history-phase-budget-selection.js';
+import { selectHighTimeframeTargetHistoryPhaseBudget } from './governance/helpers/chart-history/high-timeframe-target-history-phase-budget-selection.js';
 import { stabilizeHighTimeframeTargetHistoryVisualLatencyAttribution } from '../src/chart-history/high-timeframe-target-history-visual-latency-attribution.js';
 
 const residualVisualLatency = selectHighTimeframeTargetHistoryPhaseBudget({

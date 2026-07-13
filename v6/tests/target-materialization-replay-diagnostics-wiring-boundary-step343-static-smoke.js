@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import {
   createTargetMaterializationReplayDiagnosticsWiringPlan,
   validateTargetMaterializationReplayDiagnosticsWiringPlan,
-} from '../src/replay/target-materialization-replay-diagnostics-wiring-plan.js';
+} from './governance/helpers/replay/target-materialization-replay-diagnostics-wiring-plan.js';
 
 const contracts = await readFile('v6/src/contracts/app-contracts.js', 'utf8');
-const wiringPlanSource = await readFile('v6/src/replay/target-materialization-replay-diagnostics-wiring-plan.js', 'utf8');
+const wiringPlanSource = await readFile('v6/tests/governance/helpers/replay/target-materialization-replay-diagnostics-wiring-plan.js', 'utf8');
 const diagnosticsRuntime = await readFile('v6/src/replay/target-materialization-replay-diagnostics-runtime.js', 'utf8');
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
 const manualNextRuntime = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');

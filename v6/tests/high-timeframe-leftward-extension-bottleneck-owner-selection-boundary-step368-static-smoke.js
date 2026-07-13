@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const selector = await readFile(
-  'v6/src/chart-history/high-timeframe-leftward-extension-bottleneck-owner-selection.js',
+  'v6/tests/governance/helpers/chart-history/high-timeframe-leftward-extension-bottleneck-owner-selection.js',
   'utf8',
 );
 const smoke = await readFile(
   'v6/tests/high-timeframe-leftward-extension-bottleneck-owner-selection-step368-smoke.js',
   'utf8',
 );
-const app = await readFile('v6/src/app.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
 const skeleton = await readFile(
   'v6/src/replay/replay-coordination-materialization-runtime-handoff.js',
   'utf8',
@@ -45,7 +45,7 @@ assert.match(smoke, /within-budget/);
 
 assert.doesNotMatch(selector, /registerCommand|dispatchCommand|subscribeEvent|fetch\(|\/v4\/target_bars|UPDATE_SNAPSHOT/);
 assert.doesNotMatch(selector, /createReplayCoordinationMaterializationRuntimeHandoff/);
-assert.match(app, /registry\.registerRuntime\(createReplayCoordinationMaterializationRuntimeHandoff\(\{ subscribeEvent, dispatchCommand \}\)\)/);
+assert.match(runtimeManifest, /createReplayCoordinationMaterializationRuntimeHandoff\(\{ dispatchCommand, subscribeEvent \}\)/);
 assert.match(skeleton, /const RUNTIME_ID = 'runtime\.replay-coordination-materialization-handoff'/);
 assert.match(skeleton, /id: RUNTIME_ID/);
 

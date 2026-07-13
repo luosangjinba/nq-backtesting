@@ -9,7 +9,7 @@ import {
   getTargetMaterializationReplayDiagnosticsWiringPlanId,
   getTargetMaterializationReplayDiagnosticsWiringRollbackCriteria,
   validateTargetMaterializationReplayDiagnosticsWiringPlan,
-} from '../src/replay/target-materialization-replay-diagnostics-wiring-plan.js';
+} from './governance/helpers/replay/target-materialization-replay-diagnostics-wiring-plan.js';
 
 assert.equal(
   getTargetMaterializationReplayDiagnosticsWiringPlanId(),

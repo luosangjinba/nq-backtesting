@@ -9,10 +9,10 @@ const doc = await readFile(
   'utf8',
 );
 const planSource = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-plan.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-app-registration-plan.js',
   'utf8',
 );
-const appSource = await readFile('v6/src/app.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
 const smoke = await readFile(
   'v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-step364-smoke.js',
   'utf8',
@@ -63,8 +63,8 @@ for (const requiredPlanTerm of [
   assert.match(planSource, new RegExp(requiredPlanTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
+assert.match(runtimeManifest, /createChartEntryManualNextRuntime\(\),/);
+assert.match(runtimeManifest, /createChartEntryManualPreviousRuntime\(\),/);
 
 assert.match(smoke, /selectedNextStep,\s+'replay-coordination-materialization-runtime-handoff-app-registration'/);
 assert.match(boundarySmoke, /Step364 plan must stay pure/);

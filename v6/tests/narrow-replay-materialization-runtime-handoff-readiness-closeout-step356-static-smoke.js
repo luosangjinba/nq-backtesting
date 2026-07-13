@@ -9,7 +9,7 @@ const doc = await readFile(
   'utf8',
 );
 const auditSource = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js',
   'utf8',
 );
 const readinessSmoke = await readFile(

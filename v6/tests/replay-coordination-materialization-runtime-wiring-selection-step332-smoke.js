@@ -3,7 +3,7 @@ import { createReplayCoordinationMaterializationPureHandoffPlan } from '../src/r
 import {
   auditReplayCoordinationMaterializationRuntimeWiringReadiness,
   selectReplayCoordinationMaterializationRuntimeWiringSlice,
-} from '../src/replay/replay-coordination-materialization-runtime-wiring-selection.js';
+} from './governance/helpers/replay/replay-coordination-materialization-runtime-wiring-selection.js';
 
 const plan = createReplayCoordinationMaterializationPureHandoffPlan({
   displayTimeframe: '8h',

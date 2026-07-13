@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   auditNarrowReplayMaterializationRuntimeHandoffReadiness,
   createNarrowReplayMaterializationRuntimeHandoffReadinessReport,
-} from '../src/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js';
+} from './governance/helpers/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js';
 
 const completedEvidence = {
   autoPlayCoveredThroughManualNext: true,

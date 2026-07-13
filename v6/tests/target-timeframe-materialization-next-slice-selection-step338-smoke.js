@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   auditTargetTimeframeMaterializationNextSliceReadiness,
   selectTargetTimeframeMaterializationNextSlice,
-} from '../src/replay/target-timeframe-materialization-next-slice-selection.js';
+} from './governance/helpers/replay/target-timeframe-materialization-next-slice-selection.js';
 
 const completedCoverage = {
   autoPlayCovered: true,

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   auditTargetHistoryPhaseDCoverage,
   selectTargetHistoryPhaseDPostCoverageSlice,
-} from '../src/chart-history/target-history-phase-d-selection.js';
+} from './governance/helpers/chart-history/target-history-phase-d-selection.js';
 
 const completeCoverage = Object.freeze({
   dailyFallback: true,

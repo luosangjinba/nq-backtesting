@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile('v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_HANDOFF_SELECTION_STEP330.md', 'utf8');
-const selector = await readFile('v6/src/replay/replay-coordination-materialization-handoff-slice-selection.js', 'utf8');
+const selector = await readFile('v6/tests/governance/helpers/replay/replay-coordination-materialization-handoff-slice-selection.js', 'utf8');
 const smoke = await readFile('v6/tests/replay-coordination-materialization-handoff-slice-selection-step330-smoke.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/replay-coordination-materialization-handoff-boundary-step330-static-smoke.js', 'utf8');
 

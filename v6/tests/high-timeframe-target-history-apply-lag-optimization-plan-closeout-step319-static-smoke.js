@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_VISIBLE_APPLY_LAG_OPTIMIZATION_PLAN_STEP319.md', 'utf8');
-const planner = await readFile('v6/src/chart-history/high-timeframe-target-history-apply-lag-optimization-plan.js', 'utf8');
+const planner = await readFile('v6/tests/governance/helpers/chart-history/high-timeframe-target-history-apply-lag-optimization-plan.js', 'utf8');
 const plannerSmoke = await readFile('v6/tests/high-timeframe-target-history-apply-lag-optimization-plan-step319-smoke.js', 'utf8');
 const app = await readFile('v6/src/app.js', 'utf8');
 const events = await readFile('v6/src/runtime/events.js', 'utf8');

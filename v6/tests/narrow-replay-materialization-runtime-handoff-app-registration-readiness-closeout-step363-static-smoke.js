@@ -12,7 +12,7 @@ const auditSource = await readFile(
   'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
   'utf8',
 );
-const appSource = await readFile('v6/src/app.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
 const smoke = await readFile(
   'v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-step363-smoke.js',
   'utf8',
@@ -65,8 +65,8 @@ for (const requiredAuditTerm of [
   assert.match(auditSource, new RegExp(requiredAuditTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
+assert.match(runtimeManifest, /createChartEntryManualNextRuntime\(\),/);
+assert.match(runtimeManifest, /createChartEntryManualPreviousRuntime\(\),/);
 
 assert.match(smoke, /nextStep,\s+'narrow-replay-materialization-runtime-handoff-app-registration-plan'/);
 assert.match(boundarySmoke, /Step363 audit must stay pure/);

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { evaluate } from '../../v4/tests/helpers/browser-cdp-client.js';
-import { selectHighTimeframeTargetHistoryPhaseBudget } from '../src/chart-history/high-timeframe-target-history-phase-budget-selection.js';
+import { selectHighTimeframeTargetHistoryPhaseBudget } from './governance/helpers/chart-history/high-timeframe-target-history-phase-budget-selection.js';
 import { openV6Page } from './helpers/v6-browser-harness.js';
 
 const page = await openV6Page({ height: 820, width: 1360 });

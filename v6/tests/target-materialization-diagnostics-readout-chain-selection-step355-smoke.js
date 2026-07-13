@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   auditTargetMaterializationDiagnosticsReadoutChain,
   selectTargetMaterializationDiagnosticsReadoutChainNextSlice,
-} from '../src/replay/target-materialization-diagnostics-readout-chain-selection.js';
+} from './governance/helpers/replay/target-materialization-diagnostics-readout-chain-selection.js';
 
 const completedEvidence = {
   combinationPackCovered: true,

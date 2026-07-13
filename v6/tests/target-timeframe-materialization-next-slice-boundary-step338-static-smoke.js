@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const selector = await readFile('v6/src/replay/target-timeframe-materialization-next-slice-selection.js', 'utf8');
+const selector = await readFile('v6/tests/governance/helpers/replay/target-timeframe-materialization-next-slice-selection.js', 'utf8');
 const selectionSmoke = await readFile('v6/tests/target-timeframe-materialization-next-slice-selection-step338-smoke.js', 'utf8');
 const targetHistoryPackHelper = await readFile('v6/tests/helpers/target-history-pack-cost-control.js', 'utf8');
 const targetHistoryPack = await readFile('v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js', 'utf8');

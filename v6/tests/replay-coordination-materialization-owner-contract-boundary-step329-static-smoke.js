@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createReplayCoordinationMaterializationOwnerContract } from '../src/replay/replay-coordination-materialization-owner-contract.js';
-import { selectReplayCoordinationMaterializationTransitionSlice } from '../src/replay/replay-coordination-materialization-transition-selection.js';
+import { selectReplayCoordinationMaterializationTransitionSlice } from './governance/helpers/replay/replay-coordination-materialization-transition-selection.js';
 
 const architecture = await readFile('v6/docs/V6_ARCHITECTURE.md', 'utf8');
 const phasePlan = await readFile('v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md', 'utf8');
 const step328Doc = await readFile('v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_TRANSITION_SELECTION_STEP328.md', 'utf8');
 const contractSource = await readFile('v6/src/replay/replay-coordination-materialization-owner-contract.js', 'utf8');
 const revealPolicySource = await readFile('v6/src/materialization/target-bar-reveal-policy.js', 'utf8');
-const selectorSource = await readFile('v6/src/replay/replay-coordination-materialization-transition-selection.js', 'utf8');
+const selectorSource = await readFile('v6/tests/governance/helpers/replay/replay-coordination-materialization-transition-selection.js', 'utf8');
 
 assert.match(step328Doc, /replay-coordination-materialization-owner-contract/);
 assert.match(step328Doc, /Replay Runtime owns cursor and reveal state/);

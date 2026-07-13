@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_REAL_BUDGET_BROWSER_PHASE_REPORT_STEP317.md', 'utf8');
 const browserSmoke = await readFile('v6/tests/high-timeframe-target-history-real-budget-browser-phase-report-step317-smoke.js', 'utf8');
-const selector = await readFile('v6/src/chart-history/high-timeframe-target-history-phase-budget-selection.js', 'utf8');
+const selector = await readFile('v6/tests/governance/helpers/chart-history/high-timeframe-target-history-phase-budget-selection.js', 'utf8');
 
 assert.match(index, /V6_HIGH_TIMEFRAME_TARGET_HISTORY_REAL_BUDGET_BROWSER_PHASE_REPORT_STEP317\.md/);
 assert.match(todo, /Latest completed target-TF real-budget browser report step: Step 317/);

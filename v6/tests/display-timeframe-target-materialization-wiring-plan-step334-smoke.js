@@ -10,7 +10,7 @@ import {
   getDisplayTimeframeTargetMaterializationWiringPlanId,
   getDisplayTimeframeTargetMaterializationWiringRollbackCriteria,
   validateDisplayTimeframeTargetMaterializationWiringPlan,
-} from '../src/replay/display-timeframe-target-materialization-wiring-plan.js';
+} from './governance/helpers/replay/display-timeframe-target-materialization-wiring-plan.js';
 
 const readySurfaces = {
   barDataTargetLoadSurface: true,

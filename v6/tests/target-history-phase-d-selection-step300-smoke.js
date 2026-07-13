@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { selectTargetHistoryPhaseDSlice } from '../src/chart-history/target-history-phase-d-selection.js';
+import { selectTargetHistoryPhaseDSlice } from './governance/helpers/chart-history/target-history-phase-d-selection.js';
 
 const selected = selectTargetHistoryPhaseDSlice({
   dailySuccessPacked: true,

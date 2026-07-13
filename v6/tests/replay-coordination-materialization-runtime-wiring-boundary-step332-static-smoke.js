@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createReplayCoordinationMaterializationPureHandoffPlan } from '../src/replay/replay-coordination-materialization-pure-handoff-plan.js';
-import { selectReplayCoordinationMaterializationRuntimeWiringSlice } from '../src/replay/replay-coordination-materialization-runtime-wiring-selection.js';
+import { selectReplayCoordinationMaterializationRuntimeWiringSlice } from './governance/helpers/replay/replay-coordination-materialization-runtime-wiring-selection.js';
 
 const step331Doc = await readFile('v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_PURE_HANDOFF_PLAN_STEP331.md', 'utf8');
-const selectorSource = await readFile('v6/src/replay/replay-coordination-materialization-runtime-wiring-selection.js', 'utf8');
+const selectorSource = await readFile('v6/tests/governance/helpers/replay/replay-coordination-materialization-runtime-wiring-selection.js', 'utf8');
 const planSource = await readFile('v6/src/replay/replay-coordination-materialization-pure-handoff-plan.js', 'utf8');
 
 assert.match(step331Doc, /display-timeframe-target-materialization-handoff/);

@@ -3,7 +3,7 @@ import { createReplayCoordinationMaterializationOwnerContract } from '../src/rep
 import {
   auditReplayCoordinationMaterializationHandoffReadiness,
   selectReplayCoordinationMaterializationHandoffSlice,
-} from '../src/replay/replay-coordination-materialization-handoff-slice-selection.js';
+} from './governance/helpers/replay/replay-coordination-materialization-handoff-slice-selection.js';
 
 const contract = createReplayCoordinationMaterializationOwnerContract();
 const readyAudit = auditReplayCoordinationMaterializationHandoffReadiness({ contract });

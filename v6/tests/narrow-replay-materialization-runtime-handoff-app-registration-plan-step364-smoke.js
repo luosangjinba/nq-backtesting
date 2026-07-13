@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   createNarrowReplayMaterializationRuntimeHandoffAppRegistrationPlan,
   validateNarrowReplayMaterializationRuntimeHandoffAppRegistrationPlan,
-} from '../src/replay/narrow-replay-materialization-runtime-handoff-app-registration-plan.js';
+} from './governance/helpers/replay/narrow-replay-materialization-runtime-handoff-app-registration-plan.js';
 
 const completeEvidence = Object.freeze({
   appDiffDefined: true,

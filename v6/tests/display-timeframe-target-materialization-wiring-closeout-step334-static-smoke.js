@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile('v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_WIRING_PLAN_STEP334.md', 'utf8');
-const plan = await readFile('v6/src/replay/display-timeframe-target-materialization-wiring-plan.js', 'utf8');
+const plan = await readFile('v6/tests/governance/helpers/replay/display-timeframe-target-materialization-wiring-plan.js', 'utf8');
 const smoke = await readFile('v6/tests/display-timeframe-target-materialization-wiring-plan-step334-smoke.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/display-timeframe-target-materialization-wiring-boundary-step334-static-smoke.js', 'utf8');
 

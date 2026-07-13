@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   auditTargetTimeframeMaterializationPostPackReadiness,
   selectTargetTimeframeMaterializationPostPackSlice,
-} from '../src/replay/target-timeframe-materialization-post-pack-selection.js';
+} from './governance/helpers/replay/target-timeframe-materialization-post-pack-selection.js';
 
 const completedCoverage = {
   displayMaterializationCovered: true,

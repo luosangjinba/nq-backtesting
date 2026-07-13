@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { selectHighTimeframeTargetHistorySelectedPathSlice } from '../src/chart-history/high-timeframe-target-history-selected-path-slice-selection.js';
+import { selectHighTimeframeTargetHistorySelectedPathSlice } from './governance/helpers/chart-history/high-timeframe-target-history-selected-path-slice-selection.js';
 
 const applyLag = selectHighTimeframeTargetHistorySelectedPathSlice({
   phaseFindings: [

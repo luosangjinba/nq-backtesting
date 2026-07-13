@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { selectReplayCoordinationMaterializationTransitionSlice } from '../src/replay/replay-coordination-materialization-transition-selection.js';
+import { selectReplayCoordinationMaterializationTransitionSlice } from './governance/helpers/replay/replay-coordination-materialization-transition-selection.js';
 
 const architecture = await readFile('v6/docs/V6_ARCHITECTURE.md', 'utf8');
 const phasePlan = await readFile('v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md', 'utf8');
 const step327Doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_FAST_PATH_REMEASUREMENT_STEP327.md', 'utf8');
-const selector = await readFile('v6/src/replay/replay-coordination-materialization-transition-selection.js', 'utf8');
+const selector = await readFile('v6/tests/governance/helpers/replay/replay-coordination-materialization-transition-selection.js', 'utf8');
 
 assert.match(step327Doc, /status: `materialization-ready`/);
 assert.match(step327Doc, /next slice: `replay-coordination-materialization-transition`/);

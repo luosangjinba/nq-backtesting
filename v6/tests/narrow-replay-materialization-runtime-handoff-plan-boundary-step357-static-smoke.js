@@ -10,7 +10,7 @@ const smoke = await readFile(
   'utf8',
 );
 const readinessAudit = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js',
   'utf8',
 );
 const manualNextRuntime = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');

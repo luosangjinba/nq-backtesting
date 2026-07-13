@@ -2,14 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const planSource = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-plan.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-app-registration-plan.js',
   'utf8',
 );
 const smoke = await readFile(
   'v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-plan-step364-smoke.js',
   'utf8',
 );
-const appSource = await readFile('v6/src/app.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
 const readinessAuditSource = await readFile(
   'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
   'utf8',
@@ -80,8 +80,8 @@ for (const requiredSmokeTerm of [
 
 assert.match(readinessAuditSource, /narrow-replay-materialization-runtime-handoff-app-registration-plan/);
 assert.match(skeletonSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
+assert.match(runtimeManifest, /createChartEntryManualNextRuntime\(\),/);
+assert.match(runtimeManifest, /createChartEntryManualPreviousRuntime\(\),/);
 
 for (const runtimeSource of [
   manualNextRuntime,

@@ -9,7 +9,7 @@ const doc = await readFile(
   'utf8',
 );
 const planSource = await readFile(
-  'v6/src/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js',
+  'v6/tests/governance/helpers/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js',
   'utf8',
 );
 const boundarySmoke = await readFile(

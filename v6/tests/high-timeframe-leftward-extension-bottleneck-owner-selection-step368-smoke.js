@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { selectHighTimeframeLeftwardExtensionBottleneckOwner } from '../src/chart-history/high-timeframe-leftward-extension-bottleneck-owner-selection.js';
+import { selectHighTimeframeLeftwardExtensionBottleneckOwner } from './governance/helpers/chart-history/high-timeframe-leftward-extension-bottleneck-owner-selection.js';
 
 const observedStep367 = selectHighTimeframeLeftwardExtensionBottleneckOwner({
   records: [

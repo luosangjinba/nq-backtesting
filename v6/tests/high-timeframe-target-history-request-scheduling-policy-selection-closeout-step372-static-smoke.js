@@ -8,7 +8,7 @@ const doc = await readFile(
   'utf8',
 );
 const selector = await readFile(
-  'v6/src/chart-history/high-timeframe-target-history-request-scheduling-policy-selection.js',
+  'v6/tests/governance/helpers/chart-history/high-timeframe-target-history-request-scheduling-policy-selection.js',
   'utf8',
 );
 const selectorSmoke = await readFile(

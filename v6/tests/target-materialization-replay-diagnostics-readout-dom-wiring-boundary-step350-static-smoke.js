@@ -3,10 +3,10 @@ import { readFile } from 'node:fs/promises';
 import {
   createTargetMaterializationReplayDiagnosticsReadoutDomWiringPlan,
   validateTargetMaterializationReplayDiagnosticsReadoutDomWiringPlan,
-} from '../src/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js';
+} from './governance/helpers/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js';
 
 const planSource = await readFile(
-  'v6/src/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js',
+  'v6/tests/governance/helpers/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js',
   'utf8',
 );
 const planSmoke = await readFile(

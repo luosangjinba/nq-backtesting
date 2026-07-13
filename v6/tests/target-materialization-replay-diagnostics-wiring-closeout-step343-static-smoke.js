@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile('v6/docs/V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_WIRING_PLAN_STEP343.md', 'utf8');
-const plan = await readFile('v6/src/replay/target-materialization-replay-diagnostics-wiring-plan.js', 'utf8');
+const plan = await readFile('v6/tests/governance/helpers/replay/target-materialization-replay-diagnostics-wiring-plan.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/target-materialization-replay-diagnostics-wiring-boundary-step343-static-smoke.js', 'utf8');
 
 assert.match(index, /V6_TARGET_MATERIALIZATION_REPLAY_DIAGNOSTICS_WIRING_PLAN_STEP343\.md/);

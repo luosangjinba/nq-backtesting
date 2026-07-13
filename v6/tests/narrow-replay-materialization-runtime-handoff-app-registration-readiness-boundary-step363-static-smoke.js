@@ -9,7 +9,7 @@ const smoke = await readFile(
   'v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-step363-smoke.js',
   'utf8',
 );
-const appSource = await readFile('v6/src/app.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
 const skeletonSource = await readFile(
   'v6/src/replay/replay-coordination-materialization-runtime-handoff.js',
   'utf8',
@@ -71,9 +71,9 @@ for (const requiredSmokeTerm of [
   assert.match(smoke, new RegExp(requiredSmokeTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
 }
 
-assert.match(appSource, /createTargetMaterializationReplayDiagnosticsRuntime/);
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualNextRuntime\(\)\)/);
-assert.match(appSource, /registry\.registerRuntime\(createChartEntryManualPreviousRuntime\(\)\)/);
+assert.match(runtimeManifest, /createTargetMaterializationReplayDiagnosticsRuntime/);
+assert.match(runtimeManifest, /createChartEntryManualNextRuntime\(\),/);
+assert.match(runtimeManifest, /createChartEntryManualPreviousRuntime\(\),/);
 
 assert.match(skeletonSource, /createReplayCoordinationMaterializationRuntimeHandoff/);
 assert.match(skeletonSource, /createNoopSubscribeEvent/);

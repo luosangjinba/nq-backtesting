@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHighTimeframeTargetHistoryApplyLagOptimizationPlan } from '../src/chart-history/high-timeframe-target-history-apply-lag-optimization-plan.js';
+import { createHighTimeframeTargetHistoryApplyLagOptimizationPlan } from './governance/helpers/chart-history/high-timeframe-target-history-apply-lag-optimization-plan.js';
 
 const realBudgetShape = createHighTimeframeTargetHistoryApplyLagOptimizationPlan({
   phaseBudgets: {

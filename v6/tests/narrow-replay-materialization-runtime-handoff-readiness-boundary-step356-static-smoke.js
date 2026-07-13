@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const auditSource = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-readiness-audit.js',
   'utf8',
 );
 const smoke = await readFile(
@@ -23,6 +23,10 @@ const ownerContract = await readFile(
 );
 const displayHandoff = await readFile(
   'v6/src/display-timeframe/display-timeframe-target-materialization-handoff.js',
+  'utf8',
+);
+const targetDisplayMaterialization = await readFile(
+  'v6/src/materialization/target-display-materialization.js',
   'utf8',
 );
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
@@ -87,7 +91,7 @@ assert.match(pureHandoffPlan, /display-bars-apply/);
 assert.match(ownerContract, /source-1m-replay-cursor-authority/);
 assert.match(ownerContract, /target-bars-display-materialization-input-only/);
 assert.match(displayHandoff, /resolveDisplayTimeframeTargetMaterializationHandoff/);
-assert.match(displayHandoff, /resolveTargetBarRevealState/);
+assert.match(targetDisplayMaterialization, /resolveTargetBarRevealState/);
 
 assert.match(displayRuntime, /DISPLAY_TIMEFRAME_COMMANDS\.APPLY/);
 assert.match(displayRuntime, /BAR_DATA_COMMANDS\.PLAN_TARGET_WINDOW/);

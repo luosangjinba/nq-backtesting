@@ -10,7 +10,7 @@ import {
   getTargetMaterializationReplayDiagnosticsReadoutDomWiringOwner,
   getTargetMaterializationReplayDiagnosticsReadoutDomWiringPlanId,
   validateTargetMaterializationReplayDiagnosticsReadoutDomWiringPlan,
-} from '../src/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js';
+} from './governance/helpers/shell/target-materialization-replay-diagnostics-readout-dom-wiring-plan.js';
 
 assert.equal(
   getTargetMaterializationReplayDiagnosticsReadoutDomWiringPlanId(),

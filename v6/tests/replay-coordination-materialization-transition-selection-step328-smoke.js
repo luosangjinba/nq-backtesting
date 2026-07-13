@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import {
   auditReplayCoordinationMaterializationOwnership,
   selectReplayCoordinationMaterializationTransitionSlice,
-} from '../src/replay/replay-coordination-materialization-transition-selection.js';
+} from './governance/helpers/replay/replay-coordination-materialization-transition-selection.js';
 
 const ready = selectReplayCoordinationMaterializationTransitionSlice({
   fastPathRemeasurement: {

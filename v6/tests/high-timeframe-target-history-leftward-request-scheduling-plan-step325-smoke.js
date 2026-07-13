@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { planHighTimeframeTargetHistoryLeftwardRequestScheduling } from '../src/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js';
+import { planHighTimeframeTargetHistoryLeftwardRequestScheduling } from './governance/helpers/chart-history/high-timeframe-target-history-leftward-request-scheduling-plan.js';
 
 const ready = planHighTimeframeTargetHistoryLeftwardRequestScheduling({
   attribution: {

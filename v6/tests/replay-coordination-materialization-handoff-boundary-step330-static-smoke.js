@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createReplayCoordinationMaterializationOwnerContract } from '../src/replay/replay-coordination-materialization-owner-contract.js';
-import { selectReplayCoordinationMaterializationHandoffSlice } from '../src/replay/replay-coordination-materialization-handoff-slice-selection.js';
+import { selectReplayCoordinationMaterializationHandoffSlice } from './governance/helpers/replay/replay-coordination-materialization-handoff-slice-selection.js';
 
 const phasePlan = await readFile('v6/docs/V6_TARGET_TIMEFRAME_DATA_PHASE_PLAN_STEP278.md', 'utf8');
 const step329Doc = await readFile('v6/docs/V6_REPLAY_COORDINATION_MATERIALIZATION_OWNER_CONTRACT_STEP329.md', 'utf8');
-const handoffSelector = await readFile('v6/src/replay/replay-coordination-materialization-handoff-slice-selection.js', 'utf8');
+const handoffSelector = await readFile('v6/tests/governance/helpers/replay/replay-coordination-materialization-handoff-slice-selection.js', 'utf8');
 const ownerContract = await readFile('v6/src/replay/replay-coordination-materialization-owner-contract.js', 'utf8');
 
 assert.match(step329Doc, /source `1m` replay state as the cursor authority/);
