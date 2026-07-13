@@ -35,5 +35,6 @@ Date: 2026-07-13
 
 ## Next
 
-Run the five-item Step 410 human visual matrix. After it passes, implement
-Step 411 Canvas View And Controls without bypassing Chart Viewport Intent.
+The user passed the five-item Step 410 human visual matrix. Step 410 is closed;
+implement Step 411 Canvas View And Controls without bypassing Chart Viewport
+Intent.

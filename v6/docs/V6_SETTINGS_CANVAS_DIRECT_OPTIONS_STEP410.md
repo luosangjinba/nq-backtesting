@@ -1,7 +1,6 @@
 # Step 410 - Settings Canvas Direct Chart Options
 
-Status: implemented; automated acceptance passed; human visual acceptance is
-pending.
+Status: completed; automated and human visual acceptance passed.
 
 ## Scope
 
@@ -44,7 +43,7 @@ viewport intent, replay state, or browser storage.
   remain green;
 - `git diff --check` passes.
 
-## Human Visual Matrix
+## Human Visual Acceptance
 
 1. Open Settings and change background, grid color, crosshair, text, font size,
    and axis-line color; chart appearance must not change before OK.
@@ -53,6 +52,8 @@ viewport intent, replay state, or browser storage.
    K-line, replay cursor, timeframe, or viewport movement.
 4. Hard refresh; values and chart appearance must be restored.
 5. Reset then Cancel; the committed customized appearance must remain.
+
+All five checks passed in the real workstation. Step 410 is closed.
 
 ## Next
 

@@ -46,8 +46,8 @@
   Settings schema v2 adds validated background, grid, crosshair, scale-text,
   scale-font, and axis-border preferences with v1 migration. One pure mapping
   feeds the chart-owned multi-pane `applyOptions` path; draft isolation, atomic
-  OK, v2 persistence, and hard reload pass automated browser acceptance. Human
-  visual acceptance remains before Step 411. See
+  OK, v2 persistence, hard reload, and the complete human visual matrix passed.
+  Step 410 is closed and Step 411 may begin. See
   `v6/docs/V6_SETTINGS_CANVAS_DIRECT_OPTIONS_STEP410.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
