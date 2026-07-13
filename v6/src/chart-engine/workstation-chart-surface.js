@@ -8,6 +8,10 @@ import {
 } from './pane-resize-model.js';
 import { CHART_SURFACE_EVENTS } from '../contracts/app-contracts.js';
 import { emitEvent as emitRuntimeEvent } from '../runtime/events.js';
+import {
+  createWorkstationLayoutSnapshot,
+  LAYOUT_GRID_AREAS_BY_VARIANT,
+} from './workstation-chart-layout-model.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -43,48 +47,6 @@ const USER_RANGE_DRAG_RELEASE_GRACE_MS = 80;
 const USER_RANGE_WHEEL_WINDOW_MS = 2000;
 const WHEEL_PREPEND_STABILIZE_DELAY_MS = 120;
 const SYNTHETIC_RELEASE_EVENT_TYPES = Object.freeze(['mouseup', 'pointerup']);
-const LAYOUT_PANE_COUNTS = Object.freeze({
-  single: 1,
-  triple: 3,
-  twice: 2,
-});
-const LAYOUT_VARIANTS_BY_MODE = Object.freeze({
-  single: Object.freeze(['single']),
-  triple: Object.freeze(['triple-columns', 'triple-rows', 'triple-right-stack', 'triple-left-stack']),
-  twice: Object.freeze(['twice-vertical', 'twice-horizontal']),
-});
-const DEFAULT_LAYOUT_VARIANT_BY_MODE = Object.freeze({
-  single: 'single',
-  triple: 'triple-columns',
-  twice: 'twice-vertical',
-});
-const LAYOUT_GRID_AREAS_BY_VARIANT = Object.freeze({
-  single: Object.freeze(['1 / 1 / 2 / 2']),
-  'triple-columns': Object.freeze(['1 / 1 / 2 / 2', '1 / 2 / 2 / 3', '1 / 3 / 2 / 4']),
-  'triple-left-stack': Object.freeze(['1 / 1 / 2 / 2', '2 / 1 / 3 / 2', '1 / 2 / 3 / 3']),
-  'triple-right-stack': Object.freeze(['1 / 1 / 3 / 2', '1 / 2 / 2 / 3', '2 / 2 / 3 / 3']),
-  'triple-rows': Object.freeze(['1 / 1 / 2 / 2', '2 / 1 / 3 / 2', '3 / 1 / 4 / 2']),
-  'twice-horizontal': Object.freeze(['1 / 1 / 2 / 2', '2 / 1 / 3 / 2']),
-  'twice-vertical': Object.freeze(['1 / 1 / 2 / 2', '1 / 2 / 2 / 3']),
-});
-
-function normalizeLayoutMode(mode = 'single') {
-  const normalized = String(mode || '').trim();
-  if (!Object.hasOwn(LAYOUT_PANE_COUNTS, normalized)) {
-    throw new Error(`Unsupported chart surface layout mode: ${mode}`);
-  }
-  return normalized;
-}
-
-function normalizeLayoutVariant(mode, variant = null) {
-  const normalizedMode = normalizeLayoutMode(mode);
-  const fallback = DEFAULT_LAYOUT_VARIANT_BY_MODE[normalizedMode];
-  const normalized = String(variant || fallback).trim();
-  if (!LAYOUT_VARIANTS_BY_MODE[normalizedMode].includes(normalized)) {
-    throw new Error(`Unsupported chart surface layout variant: ${variant}`);
-  }
-  return normalized;
-}
 
 function measureHost(host) {
   const rect = host.getBoundingClientRect?.() ?? {};
@@ -617,15 +579,8 @@ export function mountWorkstationChartSurface(root, {
   }
 
   function normalizeLayoutSnapshot(snapshot = {}) {
-    const mode = normalizeLayoutMode(snapshot.mode);
-    const variant = normalizeLayoutVariant(mode, snapshot.variant);
-    const paneCount = LAYOUT_PANE_COUNTS[mode];
-    return {
-      mode,
-      paneCount,
-      variant,
-      visiblePaneIds: hosts.slice(0, paneCount).map(resolvePaneId),
-    };
+    const normalized = createWorkstationLayoutSnapshot(snapshot, hosts.map(resolvePaneId));
+    return { ...normalized, visiblePaneIds: [...normalized.visiblePaneIds] };
   }
 
   function applyVisibleLayout({ gridAreas, mode, paneCount, variant, visiblePaneIds }) {
