@@ -2,16 +2,16 @@
 
 ## Current / Next
 
-- Latest completed Go-to foundation step: Step 403 - Schedule Domain And
-  Preferences Contract. V6 now owns DST-aware `America/New_York` candidates for
-  Next Day Open, Next Session, Asian, London, and New York, plus four validated,
-  resettable, versioned local preferences. No Replay, Bar Data, Chart Data,
-  viewport, or UI wiring was added.
-- Next step: Step 404 - Shared Cursor Materialization Boundary. Extract the
-  smallest reusable forward real-source-bar resolution and visible-pane
-  materialization path from Manual Next, with no behavior change. Keep the
-  Go-to menu disabled until the shared boundary passes existing Next/Play,
-  session-gap, HTF, multi-pane, viewport, and visible-latency gates.
+- Latest completed Go-to foundation step: Step 404 - Shared Cursor
+  Materialization Boundary. Manual Next and Auto Play now use focused forward
+  real-source cursor resolution and shared multi-pane cursor materialization
+  boundaries. Bar Data, Replay, Chart Data/Projection, Viewport, and Chart
+  Surface ownership remain intact; the Go-to menu is still disabled.
+- Next step: Step 405 - Replay Navigation Coordinator. Consume Step 403
+  schedule candidates and preferences, resolve a candidate-adjacent real source
+  bar through the Step 404 boundary, pause and advance Replay exactly once, and
+  rematerialize every visible pane without future leakage. Add rejection,
+  in-flight, multi-pane, and real-service gates before any UI activation.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

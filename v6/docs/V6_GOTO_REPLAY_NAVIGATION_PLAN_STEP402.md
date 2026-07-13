@@ -136,6 +136,9 @@ Commit after domain tests and `git diff --check` pass.
 
 ### Step 404 - Shared Cursor Materialization Boundary
 
+Status: completed in commits `788bf613` and `cb28f15d`, with closeout evidence
+recorded in `V6_SHARED_CURSOR_MATERIALIZATION_STEP404.md`.
+
 - extract reusable forward source-bar resolution and pane materialization from
   Manual Next;
 - keep Bar Data, Replay, Chart Data, Projection, and Viewport ownership intact;
