@@ -32,6 +32,9 @@ Read this index before working on V6.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.
+- `v6/docs/V6_UNIFIED_TARGET_HISTORY_FULL_TIMEFRAME_STEP400.md`: shared target-
+  history pipeline for `30m` through `1M`, fixed/session-calendar bucket
+  boundaries, real-service/browser matrix evidence, and Step 401 visual gate.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,
