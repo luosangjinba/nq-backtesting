@@ -10,6 +10,7 @@ import {
   isTargetTimeframeSupported,
   normalizeTargetTimeframeId,
   targetTimeframeToApiCacheKey,
+  targetTimeframeToAlignmentOffsetSeconds,
   targetTimeframeToFixedMinutes,
   targetTimeframeToRuntimeValue,
 } from '../src/time-domain/target-timeframe-domain.js';
@@ -75,6 +76,9 @@ assert.equal(targetTimeframeToRuntimeValue('1h'), 60);
 assert.equal(targetTimeframeToRuntimeValue('1D'), '1D');
 assert.equal(targetTimeframeToApiCacheKey(' 8H '), '8h');
 assert.equal(targetTimeframeToApiCacheKey('1m'), '1m');
+assert.equal(targetTimeframeToAlignmentOffsetSeconds('1h'), 0);
+assert.equal(targetTimeframeToAlignmentOffsetSeconds('4h'), 7200);
+assert.equal(targetTimeframeToAlignmentOffsetSeconds('1D'), null);
 assert.equal(targetTimeframeToFixedMinutes('12h'), 720);
 assert.equal(targetTimeframeToFixedMinutes('1W'), null);
 assert.equal(fixedMinutesToTargetTimeframeId(480), '8h');

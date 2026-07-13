@@ -6,6 +6,7 @@ import {
   resolveDisplayBucketStart,
 } from '../time-domain/time-domain.js';
 import { normalizeSessionAwareDisplayTimeframe } from '../time-domain/htf-display-timeframe-domain.js';
+import { targetTimeframeToAlignmentOffsetSeconds } from '../time-domain/target-timeframe-domain.js';
 import {
   resolveTradingDayBucket,
   resolveTradingMonthBucket,
@@ -194,7 +195,6 @@ export function projectSourceBarsToChartData({
   bars = [],
   cursorTimestamp = null,
   instrument = null,
-  sessionStartTimestamp = null,
   sourceTimeframe = 1,
   targetTimeframe = 1,
 } = {}) {
@@ -229,11 +229,7 @@ export function projectSourceBarsToChartData({
   const { expectedSourceBars, sourceSeconds, targetSeconds } = timeframeMultiple;
   const normalizedBars = normalizeProjectionBars(bars)
     .filter((bar) => cursor === null || bar.timestamp <= cursor);
-  const origin = normalizeOptionalUnixSeconds(sessionStartTimestamp, {
-    fieldName: 'Chart data projection sessionStartTimestamp',
-  })
-    ?? normalizedBars[0]?.timestamp
-    ?? 0;
+  const origin = targetTimeframeToAlignmentOffsetSeconds(target);
   const buckets = new Map();
 
   normalizedBars.forEach((bar) => {

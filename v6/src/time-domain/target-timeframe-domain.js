@@ -44,6 +44,12 @@ const FIXED_MINUTES_BY_ID = new Map(
   Array.from(FIXED_ID_BY_MINUTES.entries()).map(([minutes, id]) => [id, minutes])
 );
 
+// Mirrors the target-bars service's canonical fixed-duration bucket grid.
+// Most periods are Unix/clock aligned; 4h uses 02/06/10/14/18/22 UTC.
+const FIXED_ALIGNMENT_OFFSET_SECONDS_BY_ID = new Map([
+  ['4h', 2 * 60 * 60],
+]);
+
 const TARGET_TIMEFRAME_RECORDS = Object.freeze([
   ...FIXED_TARGET_TIMEFRAME_MINUTES.map((minutes) => Object.freeze({
     bucketType: TARGET_TIMEFRAME_BUCKET_TYPES.FIXED_DURATION,
@@ -146,6 +152,12 @@ export function targetTimeframeToFixedMinutes(value) {
   return record?.bucketType === TARGET_TIMEFRAME_BUCKET_TYPES.FIXED_DURATION
     ? record.minutes
     : null;
+}
+
+export function targetTimeframeToAlignmentOffsetSeconds(value) {
+  const record = findTargetTimeframeRecord(value);
+  if (record?.bucketType !== TARGET_TIMEFRAME_BUCKET_TYPES.FIXED_DURATION) return null;
+  return FIXED_ALIGNMENT_OFFSET_SECONDS_BY_ID.get(record.id) ?? 0;
 }
 
 export function fixedMinutesToTargetTimeframeId(value) {
