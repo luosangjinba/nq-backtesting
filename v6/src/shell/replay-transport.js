@@ -13,6 +13,12 @@ import {
 } from '../contracts/app-contracts.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
+import {
+  clampReplayTransportPosition,
+  createReplayTransportPositionSnapshot,
+} from './replay-transport-position.js';
+
+export { clampReplayTransportPosition } from './replay-transport-position.js';
 
 const SPEEDS = Object.freeze([0.5, 1, 2, 4]);
 
@@ -41,26 +47,6 @@ function normalizeSliderSpeed(value) {
 function normalizeFiniteNumber(value, fallback = 0) {
   const numericValue = Number(value);
   return Number.isFinite(numericValue) ? numericValue : fallback;
-}
-
-export function clampReplayTransportPosition({
-  height = 0,
-  left = 0,
-  top = 0,
-  viewportHeight = 0,
-  viewportWidth = 0,
-  width = 0,
-} = {}) {
-  const safeWidth = Math.max(0, normalizeFiniteNumber(width));
-  const safeHeight = Math.max(0, normalizeFiniteNumber(height));
-  const safeViewportWidth = Math.max(0, normalizeFiniteNumber(viewportWidth));
-  const safeViewportHeight = Math.max(0, normalizeFiniteNumber(viewportHeight));
-  const maxLeft = Math.max(0, safeViewportWidth - safeWidth);
-  const maxTop = Math.max(0, safeViewportHeight - safeHeight);
-  return Object.freeze({
-    left: Math.min(maxLeft, Math.max(0, normalizeFiniteNumber(left))),
-    top: Math.min(maxTop, Math.max(0, normalizeFiniteNumber(top))),
-  });
 }
 
 export function createReplayTransportState({
@@ -547,12 +533,12 @@ export function mountReplayTransport(root, {
       root.ownerDocument?.removeEventListener?.('pointerup', stop);
       const rect = root.getBoundingClientRect?.();
       if (rect) {
-        saveTransportPosition({
+        saveTransportPosition(createReplayTransportPositionSnapshot({
           height: rect.height,
           left: rect.left,
           top: rect.top,
           width: rect.width,
-        });
+        }));
       }
     };
     root.ownerDocument?.addEventListener?.('pointermove', move);
