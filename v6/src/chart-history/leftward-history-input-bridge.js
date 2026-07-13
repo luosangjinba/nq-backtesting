@@ -66,7 +66,6 @@ export function connectLeftwardHistoryInputBridge({
     const activation = planLeftwardTargetHistoryActivation({
       displayTimeframe,
       enabled: true,
-      minFixedMinutes: targetHistoryActivation.minFixedMinutes,
       paneId,
       sourceTimeframe: pane?.timeframe || targetHistoryActivation.sourceTimeframe || 1,
     });

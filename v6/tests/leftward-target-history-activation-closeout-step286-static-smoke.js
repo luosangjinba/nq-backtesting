@@ -21,7 +21,7 @@ assert.match(bridge, /planLeftwardTargetHistoryActivation/);
 assert.match(bridge, /targetHistoryActivation\.enabled === false/);
 assert.doesNotMatch(bridge, /fetchV4TargetBars|v4-target-bars-adapter|fetch\(|XMLHttpRequest/);
 
-assert.match(policy, /minFixedMinutes = 60/);
+assert.match(policy, /fixedMinutes > sourceMinutes/);
 assert.match(policy, /target-history-high-timeframe-policy/);
 
 console.log('v6 leftward target history activation closeout step286 static smoke passed');

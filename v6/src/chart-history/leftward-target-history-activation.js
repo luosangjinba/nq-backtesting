@@ -22,7 +22,6 @@ function runtimeMinutes(value) {
 export function planLeftwardTargetHistoryActivation({
   displayTimeframe,
   enabled = true,
-  minFixedMinutes = 60,
   paneId,
   sourceTimeframe = 1,
 } = {}) {
@@ -50,7 +49,6 @@ export function planLeftwardTargetHistoryActivation({
   const targetId = normalizeTargetTimeframeId(displayTimeframe);
   const sessionAware = runtimeValue === '1D' || runtimeValue === '1W' || runtimeValue === '1M';
   const highFixed = fixedMinutes !== null
-    && fixedMinutes >= Number(minFixedMinutes || 60)
     && fixedMinutes > sourceMinutes;
 
   if (!sessionAware && !highFixed) {

@@ -86,13 +86,22 @@ connectLeftwardHistoryInputBridge({
   subscribeEvent() {
     return () => {};
   },
+  targetHistoryActivation: {
+    nativeTargetHistoryDelayMs: 0,
+  },
 });
 lowTfSurface.emitVisibleRange({ from: -4, paneId: 'main', to: 30 });
 await flushMicrotasks();
 assert.deepEqual(lowTfDispatches, [{
   command: CHART_HISTORY_COMMANDS.REQUEST_LEFT_EXTENSION,
   payload: {
+    displayTimeframe: 5,
     paneId: 'main',
+    targetHistory: {
+      enabled: true,
+      policy: 'high-timeframe-leftward-history',
+      reason: 'target-history-high-timeframe-policy',
+    },
     visibleRange: { from: -4, to: 30 },
   },
 }]);

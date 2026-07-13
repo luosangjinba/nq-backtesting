@@ -2,15 +2,20 @@ import assert from 'node:assert/strict';
 import { planLeftwardTargetHistoryActivation } from '../src/chart-history/leftward-target-history-activation.js';
 
 assert.deepEqual(planLeftwardTargetHistoryActivation({
-  displayTimeframe: 5,
+  displayTimeframe: 1,
   paneId: 'main',
 }), {
   paneId: 'main',
   reason: 'target-history-timeframe-below-policy',
   status: 'ignored',
   targetHistory: null,
-  timeframe: '5m',
+  timeframe: '1m',
 });
+
+assert.equal(planLeftwardTargetHistoryActivation({
+  displayTimeframe: 30,
+  paneId: 'main',
+}).status, 'enabled');
 
 assert.deepEqual(planLeftwardTargetHistoryActivation({
   displayTimeframe: 60,

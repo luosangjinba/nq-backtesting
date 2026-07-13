@@ -157,16 +157,16 @@ try {
   const lowTf = createHarness({ displayTimeframe: 5 });
   lowTf.surface.emitVisibleRange({ from: -4, paneId: 'main', to: 30 });
   await flushMicrotasks();
-  assert.equal(lowTf.timers[0].delayMs, 500);
+  assert.equal(lowTf.timers[0].delayMs, 100);
   lowTf.eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({
     paneId: 'main',
     status: 'loaded',
   });
   lowTf.timers[1].callback();
   await flushMicrotasks();
-  assert.equal(lowTf.clearRecords.length, 1);
-  assert.equal(lowTf.timers[0].cleared, true);
-  assert.equal(lowTf.timers.at(-1).delayMs, 500);
+  assert.equal(lowTf.clearRecords.length, 0);
+  assert.equal(lowTf.timers[0].cleared, false);
+  assert.equal(lowTf.timers.at(-1).delayMs, 0);
 
   const disabled = createHarness({
     targetHistoryActivation: { enabled: false },
