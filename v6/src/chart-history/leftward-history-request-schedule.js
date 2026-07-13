@@ -12,14 +12,16 @@ function normalizedDelay(value) {
   return Math.max(0, finiteNumber(value) ?? 0);
 }
 
-function shouldRequest(visibleRange = {}) {
+function shouldRequest(visibleRange = {}, prefetchThresholdBars = 0) {
   const from = finiteNumber(visibleRange.from);
   const to = finiteNumber(visibleRange.to);
-  return from !== null && to !== null && from < 0;
+  const threshold = Math.max(0, finiteNumber(prefetchThresholdBars) ?? 0);
+  return from !== null && to !== null && from < threshold;
 }
 
 export function resolveLeftwardHistoryRequestSchedule({
   nativeTargetHistoryDelayMs = null,
+  prefetchThresholdBars = 0,
   reason = 'native-visible-range',
   requestDelayMs = 500,
   targetHistoryEnabled = false,
@@ -30,7 +32,7 @@ export function resolveLeftwardHistoryRequestSchedule({
     || nativeTargetHistoryDelayMs === undefined
     ? delayMs
     : normalizedDelay(nativeTargetHistoryDelayMs);
-  if (!shouldRequest(visibleRange)) {
+  if (!shouldRequest(visibleRange, prefetchThresholdBars)) {
     return {
       delayMs: null,
       mode: 'ignored',

@@ -12,6 +12,7 @@ import { planLeftwardTargetHistoryActivation } from './leftward-target-history-a
 import { resolveLeftwardHistoryRequestSchedule } from './leftward-history-request-schedule.js';
 
 const DEFAULT_NATIVE_TARGET_HISTORY_DELAY_MS = 100;
+export const DEFAULT_LEFTWARD_HISTORY_PREFETCH_THRESHOLD_BARS = 24;
 
 function traceBridge(record = {}) {
   const trace = globalThis.__v6LeftwardHistoryInputBridgeTrace;
@@ -26,6 +27,7 @@ export function connectLeftwardHistoryInputBridge({
   chartSurface,
   clearTimeoutFn = globalThis.clearTimeout?.bind(globalThis),
   dispatchCommand = dispatchRuntimeCommand,
+  prefetchThresholdBars = DEFAULT_LEFTWARD_HISTORY_PREFETCH_THRESHOLD_BARS,
   requestDelayMs = 500,
   setTimeoutFn = globalThis.setTimeout?.bind(globalThis),
   subscribeEvent = subscribeRuntimeEvent,
@@ -120,7 +122,8 @@ export function connectLeftwardHistoryInputBridge({
   function shouldRequest(visibleRange) {
     const from = Number(visibleRange?.from);
     const to = Number(visibleRange?.to);
-    return Number.isFinite(from) && Number.isFinite(to) && from < 0;
+    const threshold = Math.max(0, Number(prefetchThresholdBars) || 0);
+    return Number.isFinite(from) && Number.isFinite(to) && from < threshold;
   }
 
   function isProgrammaticFastCandidateReason(reason) {
@@ -226,6 +229,7 @@ export function connectLeftwardHistoryInputBridge({
     const resolvedReason = resolverReasonForPane(paneId, reason);
     if (targetHistoryActivation.enabled === false) {
       const schedule = resolveLeftwardHistoryRequestSchedule({
+        prefetchThresholdBars,
         reason: resolvedReason,
         requestDelayMs,
         targetHistoryEnabled: false,
@@ -256,6 +260,7 @@ export function connectLeftwardHistoryInputBridge({
       });
       const schedule = resolveLeftwardHistoryRequestSchedule({
         nativeTargetHistoryDelayMs: selectedNativeTargetHistoryDelayMs,
+        prefetchThresholdBars,
         reason: resolvedReason,
         requestDelayMs,
         targetHistoryEnabled: Boolean(activationPayload?.targetHistory?.enabled),
@@ -334,7 +339,7 @@ export function connectLeftwardHistoryInputBridge({
     const paneId = String(event.paneId || '').trim();
     const from = Number(event.from);
     const to = Number(event.to);
-    if (!paneId || !Number.isFinite(from) || !Number.isFinite(to) || from >= 0) {
+    if (!paneId || !shouldRequest({ from, to })) {
       return;
     }
     const visibleRange = { from, to };

@@ -53,7 +53,7 @@ const bridge = connectLeftwardHistoryInputBridge({
   },
 });
 
-listener({ from: 2, paneId: 'main', to: 42 });
+listener({ from: 30, paneId: 'main', to: 42 });
 listener({ from: Number.NaN, paneId: 'main', to: 42 });
 listener({ from: -3.2, paneId: '', to: 42 });
 assert.deepEqual(dispatches, []);
@@ -108,7 +108,7 @@ assert.deepEqual(dispatches.at(-1), {
   },
 });
 
-surfaceRange = { from: 0.5, to: 45 };
+surfaceRange = { from: 30.5, to: 45 };
 eventListeners.get(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED)({ paneId: 'main', status: 'loaded' });
 assert.equal(timers.length, 7);
 assert.equal(timers[6].delayMs, 0);
