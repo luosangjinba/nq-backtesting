@@ -260,6 +260,12 @@ Settings should use a chart-settings modal, not a full page:
 - Settings UI dispatches settings commands and subscribes to settings state. It
   must not directly mutate chart series, replay state, bar cache, or viewport
   intent.
+- A future global `timeFormat: '24h' | '12h'` preference is owned only by
+  Settings, defaults to `24h`, and changes presentation without changing
+  canonical timestamps or `HH:mm` schedule values. Go-to, Session, Journal,
+  replay, and chart surfaces must not create local time-format preferences.
+- The binding ownership, coverage, input-control, and migration constraints are
+  defined in `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`.
 
 ## Visual Tone
 
