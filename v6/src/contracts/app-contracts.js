@@ -290,16 +290,6 @@ export const CHART_VIEWPORT_EVENTS = Object.freeze({
   PROJECTED: 'chartViewport:projected',
 });
 
-export const LOADED_WINDOW_DATE_LOCATOR_COMMANDS = Object.freeze({
-  GET_STATE: 'loadedWindowDateLocator.getState',
-  LOCATE: 'loadedWindowDateLocator.locate',
-});
-
-export const LOADED_WINDOW_DATE_LOCATOR_EVENTS = Object.freeze({
-  LOCATED: 'loadedWindowDateLocator:located',
-  REJECTED: 'loadedWindowDateLocator:rejected',
-});
-
 export const CHART_SURFACE_EVENTS = Object.freeze({
   CROSSHAIR_CHANGED: 'chartSurface:crosshairChanged',
 });
