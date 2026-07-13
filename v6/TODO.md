@@ -23,14 +23,20 @@
   Manual Next `5/5`, visible latency `6/6`, target-bars matrix, and final chart
   browser `28/28` pass without relaxing latency gates. The post-fix hard-reload
   visual recheck passed; both steps are closed.
-- Next step: select the next bounded Phase 7 foundation-closeout slice before
-  starting the Phase 8/9 product workflows.
-- Accepted future Settings requirement (does not replace the Step 407 gate):
-  add one global `timeFormat: '24h' | '12h'` preference when Settings parity
-  begins. It defaults to `24h`, affects presentation only, remains independent
-  of `displayTimezone`, and must cover chart, Go-to, Session, replay, and
-  Journal surfaces through a shared formatter. Canonical timestamps and
-  persisted `HH:mm` schedule values remain unchanged. See
+- Next selected implementation step: Step 409 - Settings Transaction And
+  Durable Preference Foundation. The current modal publishes every field
+  change immediately, Cancel cannot discard edits, state is memory-only, and
+  active controls have no production Settings-event consumers. Step 409 will
+  establish one versioned/durable Settings owner, panel-local draft semantics,
+  atomic OK, discard-on-close behavior, and an honest active surface while
+  reusing the existing persistence boundary. See
+  `v6/docs/V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409.md`.
+- Ordered follow-up: Step 410 - Global Time Presentation Integration. Add one
+  `timeFormat: '24h' | '12h'` preference after Step 409, keep it independent of
+  `displayTimezone`, preserve canonical timestamps and `HH:mm`, and cover chart,
+  Go-to, Session, replay, and Journal through one shared formatter. Chart
+  axis/crosshair labels must use official Lightweight Charts formatter hooks
+  through the chart adapter. See
   `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was

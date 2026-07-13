@@ -1,6 +1,7 @@
 # V6 Global Time Format Settings Contract
 
-Status: accepted future Settings requirement; runtime and UI implementation are deferred.
+Status: accepted Step 410 Settings requirement; implementation follows the
+Step 409 transaction/durability foundation.
 
 ## Decision
 
@@ -64,9 +65,15 @@ display follows `timeFormat` while its public value remains canonical `HH:mm`.
 ## Deferred Scope
 
 This decision does not yet add `timeFormat` to the production Settings model,
-render a toggle, replace time inputs, or install chart formatters. Those changes
-belong to a bounded Settings-parity step after the current chart/replay
-foundation acceptance gate closes.
+render a toggle, replace time inputs, or install chart formatters. Step 409
+first corrects Settings modal transaction semantics, durable/versioned
+ownership, and disconnected controls. Step 410 then implements this contract
+as a bounded global time-presentation integration.
+
+Chart labels must use the official Lightweight Charts
+`LocalizationOptions.timeFormatter` and `TimeScaleOptions.tickMarkFormatter`
+hooks through the chart adapter. This requirement does not justify a custom
+chart primitive or direct chart access from Settings UI.
 
 The future implementation gate must cover default/migration behavior, both
 formats across the required surfaces, timezone/format independence, canonical

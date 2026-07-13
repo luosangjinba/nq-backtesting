@@ -285,9 +285,12 @@ Gate:
 Only after Phase 6 gates pass:
 
 - configured Next Day Open / Next Session / named-session replay navigation;
-- Settings parity, including the deferred workstation-wide 12/24-hour
-  presentation preference constrained by
-  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`;
+- Settings parity in two ordered slices: Step 409 establishes transactional
+  modal semantics, one durable/versioned Settings owner, and an honest active
+  surface; Step 410 then adds the workstation-wide 12/24-hour presentation
+  preference constrained by
+  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md` and consumes official
+  Lightweight Charts formatter hooks through the chart adapter;
 - visual polish;
 - persistence;
 - preserve V5-quality Free Practice replay ergonomics without importing V5
@@ -298,6 +301,10 @@ Gate:
 - foundation regression packs and human replay acceptance remain green;
 - Go-to advances replay cursor/reveal only through an explicit replay-
   navigation coordinator; chart-only inspection remains a separate concern;
+- Settings Cancel/close/Escape cannot publish or persist a draft, reload
+  restores committed preferences, and no active control lacks a real consumer;
+- time format and display timezone remain independent presentation settings,
+  while canonical timestamps and `HH:mm` navigation values remain unchanged;
 - product work can attach without bypassing chart/replay/bar-data owners.
 
 ## Phase 8 - Free Practice Product Baseline
