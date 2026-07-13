@@ -448,7 +448,15 @@ class V4Handler(BaseHTTPRequestHandler):
         params = parse_qs(parsed.query)
 
         if path == "/v4/health":
-            self._send_json({"status": "ok", "version": "4.0"})
+            self._send_json({
+                "status": "ok",
+                "version": "4.0",
+                "capabilities": {
+                    "bars": True,
+                    "targetBars": True,
+                    "targetTimeframes": list(target_bars_service.SUPPORTED_TARGET_TIMEFRAMES),
+                },
+            })
         elif path == "/v4/bars":
             self._handle_bars(params)
         elif path == "/v4/target_bars":
@@ -598,7 +606,7 @@ def main():
     server = ThreadingHTTPServer((host, port), V4Handler)
     print(f"[V4 API] Running on http://{host}:{port}")
     print(f"[V4 API] DB: {DB_PATH}")
-    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/price, /v4/economic_events, /v4/workspace")
+    print(f"[V4 API] Endpoints: /v4/health, /v4/bars, /v4/target_bars, /v4/price, /v4/economic_events, /v4/workspace")
     try:
         server.serve_forever()
     except KeyboardInterrupt:
