@@ -2,15 +2,18 @@
 
 ## Current / Next
 
+- Latest completed shell modularization step: Step 396 - Replay Transport
+  Period Menu Modularization. Pure navigation and DOM menu/focus ownership now
+  live behind focused modules while playback-period commands/events remain in
+  the main transport; `replay-transport.js` fell from 571 to 512 lines.
+- Next recommended step: Step 397 - Replay Transport Presentation Renderer.
+  Extract dataset and control-state rendering without moving command dispatch,
+  event subscriptions, transport state, or lifecycle ownership.
 - Latest completed shell modularization step: Step 395 - Replay Transport
   Position Modularization. Position clamping/snapshots and DOM drag,
   persistence, restoration, and cleanup now live behind focused modules;
   `replay-transport.js` fell from 703 to 571 lines and its browser pack passed
   `4/4`.
-- Next recommended step: Step 396 - Replay Transport Period Menu Controller.
-  Extract option discovery and keyboard/focus/menu behavior while keeping
-  playback-period command dispatch and event synchronization in the main
-  transport boundary.
 - Latest completed test-architecture step: Step 394 - Historical Static Test
   Consolidation. V6 reduced 201 static smokes with 61 stale failures to 127
   current smokes passing `127/127`, replacing historical handoff snapshots,

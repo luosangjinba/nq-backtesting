@@ -2,16 +2,22 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 Step 395 Handoff Snapshot
+## 2026-07-12 Step 396 Handoff Snapshot
 
 Read this block first after restarting the server or assistant context.
 
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 395 closeout
-- Latest completed step: Step 395 - Replay Transport Position Modularization
+- Worktree at handoff: clean after Step 396 closeout
+- Latest completed step: Step 396 - Replay Transport Period Menu Modularization
 - Recent relevant commits:
+  - Step 396 extracted pure period navigation and the DOM period-menu/focus
+    controller while keeping playback-period commands/events in the main Replay
+    Transport boundary. `replay-transport.js` fell from 571 to 512 lines. The
+    combined browser pack passed `2/2` in `16082ms`, including the Step 395 pack
+    at `4/4` in `14218ms`. Step 397 should extract the command-free Replay
+    Transport DOM presentation renderer.
   - Step 395 extracted replay transport position calculations/snapshots and the
     floating DOM drag/persistence controller. The public mount API, replay
     commands/events, keyboard behavior, and presentation remain unchanged;

@@ -18,6 +18,9 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_TRANSPORT_POSITION_MODULARIZATION_STEP395.md`: extracted
   Replay Transport position domain/controller, regression evidence, and the
   Step 396 period-menu controller recommendation.
+- `v6/docs/V6_REPLAY_TRANSPORT_PERIOD_MENU_MODULARIZATION_STEP396.md`: extracted
+  period navigation/domain controller boundaries, regression evidence, and the
+  Step 397 presentation-renderer recommendation.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,
