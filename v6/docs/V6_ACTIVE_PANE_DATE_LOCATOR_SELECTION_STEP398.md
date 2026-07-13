@@ -1,14 +1,10 @@
 # Step 398 - Active-Pane Date Locator Slice Selection
 
-Status: completed by Step 402.
+Status: selected.
 
 ## Selected next slice
 
-Step 402 - Active-Pane Loaded-Window Date Locator.
-
-Steps 399-401 were inserted for high-timeframe history repair and visual
-acceptance after this selection was written, so the implementation retained the
-selected scope under Step 402.
+Step 399 - Active-Pane Loaded-Window Date Locator.
 
 Add one visible workstation Go-to-time control that accepts a date/time,
 resolves it against the active pane's already-loaded chart data, and applies a
@@ -43,7 +39,7 @@ manual viewport projection centered near the nearest existing bar.
   surface range events, but Step 399 does not add a new sync mechanism.
 - No copy of the V5 Chart Runtime ownership model.
 
-## Step 402 acceptance gate
+## Step 399 acceptance gate
 
 1. Visible control opens, validates, submits, and reports outside-window input.
 2. Loaded-window input selects the nearest real bar; no synthetic timestamp.
@@ -52,6 +48,5 @@ manual viewport projection centered near the nearest existing bar.
 5. Browser coverage proves main/secondary active-pane isolation.
 6. Bar Data receives zero requests for the loaded-window success path.
 
-After Step 402 visual acceptance, re-audit whether a later step should add
-bounded missing-window loading or whether the loaded-window locator already
-solves the common workflow.
+After Step 399, re-audit whether Step 400 should add bounded missing-window
+loading or whether the loaded-window locator already solves the common workflow.
