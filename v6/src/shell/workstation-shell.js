@@ -559,17 +559,17 @@ ${renderDisplayTimeframeMenuSections()}
               <span>Order</span>
             </button>
             <details class="rail-popover-anchor" data-v6-rail-goto-details>
-              <summary class="rail-button" data-v6-rail-goto aria-label="Go to key time">
+              <summary class="rail-button" data-v6-rail-goto aria-label="Go to loaded date and time">
                 ${icon('arrowRight')}
                 <span>Go to</span>
               </summary>
-              <div class="rail-popover" data-v6-rail-goto-menu role="menu" aria-label="Go to key time">
-                <button type="button" disabled role="menuitem">Next Day Open <kbd>Y</kbd></button>
-                <button type="button" disabled role="menuitem">Next Session <kbd>Z</kbd></button>
-                <button type="button" disabled role="menuitem">Asian Session <kbd>I</kbd></button>
-                <button type="button" disabled role="menuitem">London Session <kbd>L</kbd></button>
-                <button type="button" disabled role="menuitem">New York Session <kbd>N</kbd></button>
-                <button type="button" disabled role="menuitem">Custom Settings</button>
+              <div class="rail-popover loaded-window-date-locator" data-v6-rail-goto-menu aria-label="Go to loaded date and time">
+                <form data-v6-loaded-window-date-locator-form>
+                  <label for="v6-loaded-window-date-locator-input">Loaded date/time <span>UTC</span></label>
+                  <input id="v6-loaded-window-date-locator-input" type="datetime-local" step="60" required data-v6-loaded-window-date-locator-input>
+                  <button type="submit">Locate loaded bar</button>
+                  <output aria-live="polite" data-v6-loaded-window-date-locator-status>Uses the active pane’s loaded bars only.</output>
+                </form>
               </div>
             </details>
             <button type="button" class="rail-button" data-v6-rail-news disabled aria-label="News and calendar events">

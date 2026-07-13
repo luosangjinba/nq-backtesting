@@ -18,6 +18,7 @@ import { createInMemorySessionRepository } from './session/session-repository.js
 import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.js';
 import { connectDisplayTimeframePaneTargetBridge } from './shell/display-timeframe-pane-target-bridge.js';
 import { mountJournalSurface } from './shell/journal-surface.js';
+import { mountLoadedWindowDateLocatorControl } from './shell/loaded-window-date-locator-control.js';
 import { createJournalRowActionAdapter } from './shell/journal-row-action-adapter.js';
 import { mountLayoutMenuControl } from './shell/layout-menu-control.js';
 import { mountPaneStatusReadout } from './shell/pane-status-readout.js';
@@ -75,6 +76,7 @@ const paneActiveSurfaceBridge = connectPaneActiveSurfaceBridge({
   chartSurface: workstationChartSurface,
 });
 const layoutMenuControl = mountLayoutMenuControl(root);
+const loadedWindowDateLocatorControl = mountLoadedWindowDateLocatorControl(root);
 const paneStatusReadout = mountPaneStatusReadout(root);
 const maximizeRestoreControls = [...root.querySelectorAll('[data-v6-chart-maximize-restore]')]
   .map((button) => connectMaximizeRestoreControl({
@@ -147,6 +149,7 @@ root.__v6TopSymbolActivePaneBridge = topSymbolActivePaneBridge;
 root.__v6JournalSurface = journalSurface;
 root.__v6JournalRowAction = journalRowAction;
 root.__v6LayoutMenuControl = layoutMenuControl;
+root.__v6LoadedWindowDateLocatorControl = loadedWindowDateLocatorControl;
 root.__v6PaneStatusReadout = paneStatusReadout;
 root.__v6ReadinessSurface = readinessSurface;
 root.__v6ReplayWorkflowSurface = replayWorkflowSurface;

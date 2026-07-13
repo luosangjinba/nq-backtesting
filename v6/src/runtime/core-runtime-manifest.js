@@ -21,6 +21,7 @@ import { createDefaultWallRuntime } from '../default-wall/default-wall-runtime.j
 import { createDisplayTimeframeRuntime } from '../display-timeframe/display-timeframe-runtime.js';
 import { createJournalRuntime } from '../journal/journal-runtime.js';
 import { createJournalPersistenceRuntime } from '../journal-persistence/journal-persistence-runtime.js';
+import { createLoadedWindowDateLocatorRuntime } from '../date-locator/loaded-window-date-locator-runtime.js';
 import { createLayoutPaneBootstrapRuntime } from '../layout/layout-pane-bootstrap-runtime.js';
 import { createLayoutRuntime } from '../layout/layout-runtime.js';
 import { createPaneIntentReloadChartDataRuntime } from '../pane-intent-reload/pane-intent-reload-chart-data-runtime.js';
@@ -68,6 +69,7 @@ export function createCoreRuntimeContributions({ dispatchCommand, sessionReposit
     createChartEntryDefaultWallPlanRuntime(),
     createChartEntryProjectionPreparationRuntime(),
     createChartViewportRuntime(),
+    createLoadedWindowDateLocatorRuntime({ dispatchCommand }),
     createChartEntryProjectionApplyRuntime(),
     createChartEntryManualNextRuntime(),
     createReplayCoordinationMaterializationRuntimeHandoff({ dispatchCommand, subscribeEvent }),
