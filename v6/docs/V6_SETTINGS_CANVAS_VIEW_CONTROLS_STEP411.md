@@ -51,13 +51,12 @@ Passed:
 
 ## Human Gate
 
-Automated acceptance is complete. Step 411 remains open until the user visually
-checks navigation visibility, top/bottom margins, right margin, manual drag,
-Reset, and hard reload on the real chart.
+Passed. The user visually accepted navigation visibility, top/bottom margins,
+right margin, manual-drag preservation, Reset, and hard reload on the real
+chart. Step 411 is closed.
 
 ## Next
 
-After visual acceptance, close Step 411 and implement Step 412 Canvas Session
-Breaks through Session Calendar ownership. It should support `18:00`, `00:00`,
-both, and hidden without embedding calendar calculations in Settings or Chart
-Surface.
+Implement Step 412 Canvas Session Breaks through Session Calendar ownership.
+It should support `18:00`, `00:00`, both, and hidden without embedding calendar
+calculations in Settings or Chart Surface.

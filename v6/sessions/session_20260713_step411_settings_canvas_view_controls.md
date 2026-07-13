@@ -35,5 +35,5 @@ Date: 2026-07-13
 
 ## Next
 
-Run the Step 411 human visual matrix. After it passes, close Step 411 and
-implement Step 412 Canvas Session Breaks through Session Calendar ownership.
+The user passed the Step 411 human visual matrix. Step 411 is closed; implement
+Step 412 Canvas Session Breaks through Session Calendar ownership.

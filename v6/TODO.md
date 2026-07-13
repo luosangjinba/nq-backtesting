@@ -55,8 +55,8 @@
   right margin uses a dedicated Chart Viewport bridge. Default walls reproject,
   manual walls do not jump, and Reset adopts the changed default. Transaction,
   persistence, hard reload, adjacent Settings tests, boundary smoke, and the
-  full chart browser regression pack `28/28` pass. Human visual acceptance is
-  still required before Step 411 closes. See
+  full chart browser regression pack `28/28` pass. The complete human visual
+  matrix also passed; Step 411 is closed. See
   `v6/docs/V6_SETTINGS_CANVAS_VIEW_CONTROLS_STEP411.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
