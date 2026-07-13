@@ -31,6 +31,7 @@ import { createPaneIntentReloadWindowRuntime } from '../pane-intent-reload/pane-
 import { createPaneIntentSyncRuntime } from '../pane-intent-sync/pane-intent-sync-runtime.js';
 import { createPaneRuntime } from '../panes/pane-runtime.js';
 import { createPersistenceRuntime } from '../persistence/persistence-runtime.js';
+import { createPersistenceRepository } from '../persistence/persistence-repository.js';
 import { createPlaybackPeriodRuntime } from '../playback-period/playback-period-runtime.js';
 import { createReplayCoordinationMaterializationRuntimeHandoff } from '../replay/replay-coordination-materialization-runtime-handoff.js';
 import { createReplayNavigationPreferencesRuntime } from '../replay-navigation/replay-navigation-preferences-runtime.js';
@@ -42,6 +43,7 @@ import { createSettingsRuntime } from '../settings/settings-runtime.js';
 
 export function createCoreRuntimeContributions({
   dispatchCommand,
+  persistenceRepository = createPersistenceRepository(),
   replayNavigationPreferencesStorage,
   sessionRepository,
   subscribeEvent,
@@ -49,8 +51,8 @@ export function createCoreRuntimeContributions({
   return Object.freeze([
     createAppRuntime(),
     createSessionRuntime({ repository: sessionRepository }),
-    createSettingsRuntime(),
-    createPersistenceRuntime(),
+    createPersistenceRuntime({ repository: persistenceRepository }),
+    createSettingsRuntime({ persistenceRepository }),
     createJournalRuntime(),
     createJournalPersistenceRuntime(),
     createPaneRuntime(),

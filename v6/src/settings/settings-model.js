@@ -5,6 +5,8 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   theme: 'dark',
 });
 
+export const SETTINGS_RECORD_VERSION = 1;
+
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
 const TIMEZONES = Object.freeze(['exchange', 'local', 'utc']);
@@ -44,5 +46,37 @@ export function updateSettingsRecord(settings, patch = {}) {
   return createSettingsRecord({
     ...settings,
     ...patch,
+  });
+}
+
+export function createSettingsPersistenceValue(settings = {}) {
+  return Object.freeze({
+    settings: createSettingsRecord(settings),
+    version: SETTINGS_RECORD_VERSION,
+  });
+}
+
+export function restoreSettingsPersistenceValue(value) {
+  if (value == null) {
+    return Object.freeze({
+      migrated: false,
+      settings: createSettingsRecord(),
+    });
+  }
+  if (!value || typeof value !== 'object' || Array.isArray(value)) {
+    throw new Error('Settings persistence value must be an object.');
+  }
+  if (!Object.hasOwn(value, 'version')) {
+    return Object.freeze({
+      migrated: true,
+      settings: createSettingsRecord(value),
+    });
+  }
+  if (value.version !== SETTINGS_RECORD_VERSION) {
+    throw new Error(`Unsupported Settings record version: ${value.version}`);
+  }
+  return Object.freeze({
+    migrated: false,
+    settings: createSettingsRecord(value.settings),
   });
 }

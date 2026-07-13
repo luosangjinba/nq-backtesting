@@ -61,11 +61,20 @@ repository.save({
     entries: [],
   },
 });
+repository.save({
+  collection: 'workspaceSettings',
+  key: 'global',
+  value: {
+    settings: {},
+    version: 1,
+  },
+});
 assert.deepEqual(repository.list('workspaceDrafts').map((record) => record.key), ['draft-a']);
 assert.deepEqual(repository.list().map((record) => `${record.collection}:${record.key}`), [
   'journalSnapshots:journal-a',
   'recentSessions:session-a',
   'workspaceDrafts:draft-a',
+  'workspaceSettings:global',
 ]);
 assert.equal(repository.remove('workspaceDrafts', 'missing'), false);
 assert.equal(repository.remove('workspaceDrafts', 'draft-a'), true);

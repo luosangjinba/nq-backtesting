@@ -3,6 +3,7 @@ export const PERSISTENCE_COLLECTIONS = Object.freeze([
   'recentSessions',
   'userNotes',
   'workspaceDrafts',
+  'workspaceSettings',
 ]);
 
 function normalizeCollection(collection) {

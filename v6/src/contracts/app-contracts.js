@@ -373,6 +373,8 @@ export const SETTINGS_COMMANDS = Object.freeze({
 });
 
 export const SETTINGS_EVENTS = Object.freeze({
+  HYDRATED: 'settings:hydrated',
+  PERSISTENCE_FAILED: 'settings:persistenceFailed',
   RESET: 'settings:reset',
   UPDATED: 'settings:updated',
 });

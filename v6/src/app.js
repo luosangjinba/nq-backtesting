@@ -15,6 +15,10 @@ import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-s
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
 import { createInMemorySessionRepository } from './session/session-repository.js';
+import {
+  createPersistenceRepository,
+  createWebStoragePersistenceAdapter,
+} from './persistence/persistence-repository.js';
 import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.js';
 import { connectDisplayTimeframePaneTargetBridge } from './shell/display-timeframe-pane-target-bridge.js';
 import { mountJournalSurface } from './shell/journal-surface.js';
@@ -47,8 +51,12 @@ const sessionRepository = createInMemorySessionRepository({
   metadataStore: createSessionMetadataStorage(),
 });
 const replayNavigationPreferencesStorage = createReplayNavigationPreferencesStorage();
+const persistenceRepository = createPersistenceRepository({
+  adapter: createWebStoragePersistenceAdapter(),
+});
 createCoreRuntimeContributions({
   dispatchCommand,
+  persistenceRepository,
   replayNavigationPreferencesStorage,
   sessionRepository,
   subscribeEvent,
