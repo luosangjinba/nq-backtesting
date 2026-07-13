@@ -2,11 +2,25 @@
 
 ## Current / Next
 
+- Latest completed foundation repair step: Step 399 - Viewport-Filled
+  High-Timeframe History. A stale API process was identified as the real
+  `target-history-load-failed` cause and restarted from current code. Target
+  history now advertises backend capability, sizes its own window to two
+  visible spans, and prefetches before the logical left edge. Browser coverage
+  confirms `4h`, `8h`, `1D`, and `1W` use one target request with zero source
+  fallback requests; the target-history pack passes `8/8`.
+- Next step: Step 400 - Real-Service HTF History Acceptance. Reload the active
+  V6 page against the restarted API and capture 4h/1D switch plus repeated
+  left-drag evidence. Accept only if the first switch fills the viewport,
+  diagnostics stay on `History target` (not `fallback`), and further history
+  appears before blank space. If accepted, resume the deferred Active-Pane
+  Loaded-Window Date Locator.
 - Latest completed foundation selection step: Step 398 - Product/Foundation
   Gap Re-selection. Loading/Timeframe/Replay passed Step 276 `8/8`, Multi-pane
   passed Step 253 `9/9`, and Date Range boundary entry passed Step 255 `7/7`.
   The remaining observable gap is post-entry active-pane date/time location.
-- Next step: Step 399 - Active-Pane Loaded-Window Date Locator. Add a visible
+- Deferred after Step 400 acceptance: Active-Pane Loaded-Window Date Locator.
+  Add a visible
   Go-to-time control that selects the nearest already-loaded real bar and
   applies a manual viewport projection without fetching bars or mutating replay
   cursor/source state. Missing-window loading is explicitly deferred.

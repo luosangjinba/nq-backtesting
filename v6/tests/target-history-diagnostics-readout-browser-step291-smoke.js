@@ -207,7 +207,7 @@ try {
   assert.equal(value.after.requestSizing.estimatedTargetBars, 20);
   assert.equal(value.after.requestSizing.targetDisplayBars, 20);
   assert.equal(value.after.requestSizing.difference, 0);
-  assert.equal(targetFetch.bars, value.after.requestSizing.estimatedTargetBars);
+  assert.equal(targetFetch.bars > value.after.requestSizing.estimatedTargetBars, true);
   assert.equal(value.after.history.extension.targetHistory.barCount, targetFetch.bars);
   assert.equal(value.after.readout.path, 'target');
   assert.equal(value.after.readout.fallbackReason, 'none');

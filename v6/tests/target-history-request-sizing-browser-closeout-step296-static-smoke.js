@@ -19,6 +19,6 @@ assert.match(browserSmoke, /target-history-request-sizing\.js/);
 assert.match(browserSmoke, /auditTargetHistoryRequestSizing/);
 assert.match(browserSmoke, /requestSizing\.status, 'adequate'/);
 assert.match(browserSmoke, /requestSizing\.estimatedTargetBars, 20/);
-assert.match(browserSmoke, /targetFetch\.bars, value\.after\.requestSizing\.estimatedTargetBars/);
+assert.match(browserSmoke, /targetFetch\.bars > value\.after\.requestSizing\.estimatedTargetBars/);
 
 console.log('v6 target history request sizing browser closeout step296 static smoke passed');

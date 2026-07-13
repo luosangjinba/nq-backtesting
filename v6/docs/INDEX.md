@@ -29,6 +29,9 @@ Read this index before working on V6.
   results, and the selected Date Range gap.
 - `v6/docs/V6_ACTIVE_PANE_DATE_LOCATOR_SELECTION_STEP398.md`: Step 399 loaded-
   window Go-to-time ownership, non-goals, and browser acceptance gate.
+- `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
+  stale target-history API deployment, viewport-sized target windows,
+  prefetch-threshold behavior, and Step 400 real-service acceptance gate.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,

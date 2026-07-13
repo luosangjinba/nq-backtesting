@@ -55,8 +55,7 @@ try {
       const deadline = performance.now() + 7000;
       let after = await snapshot();
       while (
-        after.history.recentRequests.length < 2 &&
-        Number(after.visibleRange?.from ?? 0) < 0 &&
+        Number(after.visibleRange?.from ?? 0) < 24 &&
         performance.now() < deadline
       ) {
         await sleep(80);
@@ -75,10 +74,17 @@ try {
   assert.equal(value.applyState.status, 'applied');
   assert.equal(value.initial.barCount > 0, true);
   assert.equal(value.first.status, 'loaded', value.first.error || 'first left extension should load');
-  assert.equal(value.after.history.recentRequests.length >= 2, true);
+  assert.equal(value.after.history.recentRequests.length >= 1, true);
   assert.equal(value.after.barCount > value.initial.barCount, true);
   assert.equal(value.after.oldestTimestamp < value.initial.oldestTimestamp, true);
-  assert.equal(Number(value.after.visibleRange?.from) >= 0, true);
+  assert.equal(
+    Number(value.after.visibleRange?.from) >= 24 || (
+      value.after.history.status === 'ignored' &&
+      value.after.history.extension?.reason === 'no-older-bars-returned'
+    ),
+    true,
+    JSON.stringify({ history: value.after.history, visibleRange: value.after.visibleRange }),
+  );
 } finally {
   await page.cleanup();
 }
