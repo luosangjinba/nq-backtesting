@@ -75,7 +75,10 @@ Read this index before working on V6.
   path, automated evidence, and completed human visual matrix.
 - `v6/docs/V6_SETTINGS_CANVAS_VIEW_CONTROLS_STEP411.md`: schema-v3 navigation
   and chart-margin controls, split Chart Surface/Chart Viewport ownership,
-  manual-wall preservation, Reset semantics, and visual acceptance gate.
+  manual-wall preservation, Reset semantics, and completed visual acceptance.
+- `v6/docs/V6_SETTINGS_SESSION_DAY_SEPARATORS_STEP412.md`: schema-v4 trading-
+  day/ICT separators, shared DST-aware New York wall-clock ownership, batch
+  primitive rendering, HTF gap rules, and visual acceptance gate.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

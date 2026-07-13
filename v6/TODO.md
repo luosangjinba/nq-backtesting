@@ -58,6 +58,15 @@
   full chart browser regression pack `28/28` pass. The complete human visual
   matrix also passed; Step 411 is closed. See
   `v6/docs/V6_SETTINGS_CANVAS_VIEW_CONTROLS_STEP411.md`.
+- Latest implemented Settings step: Step 412 - Session And ICT Day Separators.
+  Settings schema v4 adds hidden/`18:00 ET`/`00:00 ET`/both modes and separate
+  colors/styles. Go-to and Session Calendar now share one New York wall-clock
+  conversion helper. Session Calendar computes DST-aware boundaries and one
+  focused bridge feeds a batch primitive per pane; Chart Engine does not import
+  calendar logic. HTF fractional positions, weekend-gap suppression, daily-TF
+  suppression, persistence, and browser rendering pass automated gates. Human
+  visual acceptance is required before Step 412 closes. See
+  `v6/docs/V6_SETTINGS_SESSION_DAY_SEPARATORS_STEP412.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
