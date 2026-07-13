@@ -55,6 +55,10 @@ Read this index before working on V6.
   shared continuous range materialization, expanded boundary/full-timeframe
   automated acceptance, and defined the remaining visual recheck before Step
   407 closes.
+- `v6/docs/V6_FIXED_TIMEFRAME_BUCKET_ALIGNMENT_STEP408.md`: fixes Go-to and
+  other source-derived projection paths mixing replay-start-aligned `1h`/`4h`
+  bars with canonical target-history buckets, and defines the final visual
+  recheck.
 - `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`: accepted future global
   Settings ownership for 12/24-hour presentation, canonical `HH:mm` storage,
   shared-surface coverage, and the controlled time-input requirement.

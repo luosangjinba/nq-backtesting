@@ -114,6 +114,15 @@ Owns:
 - append/replace application from replay/display data;
 - no-future bar filtering before chart render input.
 
+Projection invariant:
+
+- fixed-duration bucket alignment is selected centrally by the target-
+  timeframe domain and must match target-bars service output;
+- replay start, session start, window start, Go-to anchor, and individual
+  feature modules must not shift a fixed-duration bucket grid;
+- session-calendar `1D`/`1W`/`1M` boundaries remain owned by the session-
+  calendar projection domain.
+
 Forbidden:
 
 - deciding follow/manual viewport mode;

@@ -1,7 +1,8 @@
 # Step 407 - Replay Navigation Continuous Range Correction
 
-Status: implementation and automated regression completed; human visual recheck
-required before Step 407 acceptance closes.
+Status: continuous-range correction completed; the first human recheck exposed
+the fixed-timeframe alignment defect corrected by Step 408. A post-Step-408
+human visual recheck is required before Step 407 acceptance closes.
 
 ## User evidence
 
@@ -89,6 +90,10 @@ five representative timeframe families while preserving ordered unique bars
 and cursor-capped no-future state.
 
 ## Required human recheck
+
+Step 408 supersedes the original fixed-timeframe portion of this matrix. Use
+`v6/docs/V6_FIXED_TIMEFRAME_BUCKET_ALIGNMENT_STEP408.md` for the current `1h`
+and `4h` crosshair/grid checks.
 
 Reload the workstation before retesting so the browser uses the corrected
 modules. Repeat the supplied scenario first on `1m`:
