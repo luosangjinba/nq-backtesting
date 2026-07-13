@@ -66,7 +66,11 @@ const sourceBars = [
 ];
 
 const targetBars = [
-  targetBar('2026-06-01T18:00:00.000Z', 200),
+  {
+    ...targetBar('2026-06-01T18:00:00.000Z', 200),
+    bucketEndTimestamp: t('2026-06-01T18:02:00.000Z'),
+    bucketStartTimestamp: t('2026-06-01T18:00:00.000Z'),
+  },
   targetBar('2026-06-01T18:05:00.000Z', 205),
 ];
 
@@ -107,7 +111,7 @@ assert.equal(materialized.targetHistory.status, 'applied');
 assert.equal(materialized.targetHistory.reason, 'target-history-opt-in');
 assert.equal(materialized.targetHistory.barCount, 1);
 assert.deepEqual(materialized.targetHistory.revealStates.map((state) => state.reason), [
-  'source-cursor-inside-target-bucket',
+  'target-bar-complete-before-or-at-source-cursor',
   'target-bar-start-after-source-cursor',
 ]);
 assert.deepEqual(materialized.chartRecord.bars.map((bar) => bar.timestamp), [

@@ -99,7 +99,7 @@ assert.deepEqual(inProgress, {
   complete: false,
   cursorCapped: true,
   reason: 'source-cursor-inside-target-bucket',
-  visible: true,
+  visible: false,
 });
 
 const complete = resolveReplayCoordinationTargetBarRevealState({

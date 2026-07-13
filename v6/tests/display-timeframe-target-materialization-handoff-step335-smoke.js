@@ -74,6 +74,8 @@ const handoff = resolveDisplayTimeframeTargetMaterializationHandoff({
   sourceTimeframe: 1,
   targetBars: [
     {
+      bucketEndTimestamp: t('2026-06-01T18:02:00.000Z'),
+      bucketStartTimestamp: t('2026-06-01T18:00:00.000Z'),
       close: 101,
       high: 102,
       low: 99,
@@ -96,7 +98,7 @@ assert.deepEqual(handoff.bars.map((bar) => bar.timestamp), [
   t('2026-06-01T18:00:00.000Z'),
 ]);
 assert.deepEqual(handoff.revealStates.map((state) => state.reason), [
-  'source-cursor-inside-target-bucket',
+  'target-bar-complete-before-or-at-source-cursor',
   'target-bar-start-after-source-cursor',
 ]);
 

@@ -54,8 +54,8 @@ assert.equal(ready.replaceIntent.displayTimeframe, '8h');
 assert.equal(ready.replaceIntent.preserveSource, true);
 assert.equal(ready.replaceIntent.targetBarsDisplayMaterializationInputOnly, true);
 assert.equal(ready.replaceIntent.revealPolicy, 'source-cursor-no-future-target-bars');
-assert.deepEqual(ready.replaceIntent.bars.map((bar) => bar.time), [100, 300]);
-assert.deepEqual(ready.revealStates.map((state) => state.visible), [true, true, false]);
+assert.deepEqual(ready.replaceIntent.bars.map((bar) => bar.time), [100]);
+assert.deepEqual(ready.revealStates.map((state) => state.visible), [true, false, false]);
 assert.deepEqual(ready.commandIntents.map((intent) => intent.commandSurface), [
   'pane.getById',
   'replay.getState',

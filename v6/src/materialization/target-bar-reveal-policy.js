@@ -59,7 +59,7 @@ export function resolveTargetBarRevealState({
       complete: false,
       cursorCapped: true,
       reason: 'source-cursor-inside-target-bucket',
-      visible: true,
+      visible: false,
     });
   }
 

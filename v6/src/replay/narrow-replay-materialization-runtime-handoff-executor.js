@@ -1,4 +1,4 @@
-import { resolveTargetBarRevealState } from '../materialization/target-bar-reveal-policy.js';
+import { resolveTargetDisplayMaterialization } from '../materialization/target-display-materialization.js';
 import {
   createNarrowReplayMaterializationRuntimeHandoffPlan,
   validateNarrowReplayMaterializationRuntimeHandoffPlan,
@@ -78,14 +78,6 @@ function resolveLoadedTargetBars(commandResults = {}) {
   const targetWindowLoad = commandResults.targetWindowLoad ?? commandResults.loadTargetWindow ?? {};
   const targetBars = targetWindowLoad.bars ?? targetWindowLoad.targetBars ?? commandResults.targetBars ?? [];
   return Array.isArray(targetBars) ? targetBars : [];
-}
-
-function targetBarForReveal(bar = {}) {
-  return {
-    ...bar,
-    bucketEndTimestamp: bar.bucketEndTimestamp ?? bar.bucketEnd ?? bar.endTimestamp ?? bar.time ?? bar.timestamp,
-    bucketStartTimestamp: bar.bucketStartTimestamp ?? bar.timestamp ?? bar.time,
-  };
 }
 
 function buildCommandIntents(plan, {
@@ -191,15 +183,15 @@ export function executeNarrowReplayMaterializationRuntimeHandoffPlan({
     });
   }
 
-  const revealStates = targetBars.map((bar) => (
-    resolveTargetBarRevealState({
-      sourceCursorTimestamp: replayCursorTimestamp,
-      targetBar: targetBarForReveal(bar),
-    })
-  ));
-  const visibleTargetBars = targetBars
-    .filter((_, index) => revealStates[index].visible)
-    .map(cloneBar);
+  const replayState = commandResults.replayState ?? commandResults.replay ?? {};
+  const materialization = resolveTargetDisplayMaterialization({
+    sourceCursorTimestamp: replayCursorTimestamp,
+    sourceTimeframe: replayState.timeframe ?? 1,
+    targetBars,
+    targetTimeframe: displayTimeframe,
+  });
+  const revealStates = materialization.revealStates;
+  const visibleTargetBars = materialization.bars.map(cloneBar);
 
   if (!visibleTargetBars.length) {
     return resolveFallback(plan, 'target-bars-all-future', {

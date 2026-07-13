@@ -66,6 +66,8 @@ try {
         const first = bucketStart(cursorTimestamp, step);
         const second = first + step;
         return [first, second].map((timestamp, index) => ({
+          bucketEndTimestamp: timestamp,
+          bucketStartTimestamp: timestamp,
           close: 800 + index + 0.5,
           high: 801 + index,
           low: 799 + index,
