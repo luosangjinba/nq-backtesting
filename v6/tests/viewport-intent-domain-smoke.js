@@ -68,8 +68,14 @@ assert.throws(
   () => promoteMeasuredRangeToManualIntent(defaultIntent, { latestOffsetBars: 4 }),
   /spanBars/
 );
+const historicalManualIntent = promoteMeasuredRangeToManualIntent(defaultIntent, {
+  latestOffsetBars: -40,
+  spanBars: 20,
+});
+assert.equal(historicalManualIntent.latestOffsetBars, -40);
+assert.equal(historicalManualIntent.origin, 'manual');
 assert.throws(
-  () => promoteMeasuredRangeToManualIntent(defaultIntent, { latestOffsetBars: -1, spanBars: 10 }),
+  () => createDefaultWallIntent({ cursorTimestamp: 100, latestOffsetBars: -1 }),
   /latestOffsetBars/
 );
 

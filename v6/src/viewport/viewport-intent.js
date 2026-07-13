@@ -1,9 +1,13 @@
 const REPLAY_WALL_MODE = 'replay-wall';
 
-function normalizeNumber(value, fieldName, { allowNull = false, min = 0 } = {}) {
+function normalizeNumber(value, fieldName, {
+  allowNegative = false,
+  allowNull = false,
+  min = 0,
+} = {}) {
   if (allowNull && value === null) return null;
   const number = Number(value);
-  if (!Number.isFinite(number) || number < min) {
+  if (!Number.isFinite(number) || (!allowNegative && number < min)) {
     throw new Error(`Viewport intent ${fieldName} must be a finite number >= ${min}.`);
   }
   return number;
@@ -38,7 +42,9 @@ function createReplayWallIntent({
 
   return Object.freeze({
     cursorTimestamp: normalizeTimestamp(cursorTimestamp, 'cursorTimestamp'),
-    latestOffsetBars: normalizeNumber(latestOffsetBars, 'latestOffsetBars'),
+    latestOffsetBars: normalizeNumber(latestOffsetBars, 'latestOffsetBars', {
+      allowNegative: origin === 'manual',
+    }),
     mode: REPLAY_WALL_MODE,
     origin,
     revision: normalizeRevision(revision),
