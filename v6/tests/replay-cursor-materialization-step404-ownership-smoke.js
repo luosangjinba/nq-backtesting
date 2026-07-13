@@ -8,7 +8,6 @@ const workstationShell = await readFile('v6/src/shell/workstation-shell.js', 'ut
 const doc = await readFile('v6/docs/V6_SHARED_CURSOR_MATERIALIZATION_STEP404.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const plan = await readFile('v6/docs/V6_GOTO_REPLAY_NAVIGATION_PLAN_STEP402.md', 'utf8');
-const todo = await readFile('v6/TODO.md', 'utf8');
 
 assert.match(manualNext, /advanceReplayToNextSourceBar/);
 assert.match(manualNext, /appendReplayCursorAcrossPanes/);
@@ -33,6 +32,5 @@ assert.match(doc, /Status: completed/);
 assert.match(doc, /appendReplayCursorAcrossPanes/);
 assert.match(index, /V6_SHARED_CURSOR_MATERIALIZATION_STEP404/);
 assert.match(plan, /Step 404[\s\S]*Status: completed/);
-assert.match(todo, /Next step: Step 405 - Replay Navigation Coordinator/);
 
 console.log('V6 replay cursor materialization Step 404 ownership smoke passed.');

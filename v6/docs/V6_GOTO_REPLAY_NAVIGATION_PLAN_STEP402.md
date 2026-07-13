@@ -1,6 +1,6 @@
 # Step 402 - Go-to Replay Navigation Semantic Correction And Plan
 
-Status: accepted plan; implementation not started.
+Status: accepted plan; Steps 403-405 completed, Steps 406-407 pending.
 
 ## Correction
 
@@ -55,7 +55,9 @@ Default anchors are expressed in `America/New_York` wall-clock time:
 Rules:
 
 - every action is strictly forward from the current Replay cursor;
-- conversion is DST-correct for `America/New_York`;
+- anchors preserve `America/New_York` wall-clock fields in V6's established
+  ET-wall-clock epoch encoding; Replay `09:30` remains internal `09:30Z` across
+  DST rather than being converted to a real UTC instant;
 - a schedule domain generates candidate anchors; Bar Data verifies a nearby
   real source bar so holidays/weekends are not modeled by a duplicate calendar;
 - an anchor with no nearby source bar is skipped in favor of the next candidate;
@@ -148,6 +150,9 @@ recorded in `V6_SHARED_CURSOR_MATERIALIZATION_STEP404.md`.
 Commit only if behavior is unchanged.
 
 ### Step 405 - Replay Navigation Coordinator
+
+Status: completed in commits `0034b30b`, `b12830e5`, and `5b22a521`, with
+closeout evidence recorded in `V6_REPLAY_NAVIGATION_COORDINATOR_STEP405.md`.
 
 - implement bounded candidate-to-real-bar resolution;
 - pause playback and advance Replay exactly once on success;

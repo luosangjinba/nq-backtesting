@@ -43,6 +43,10 @@ Read this index before working on V6.
   real-source cursor resolution and shared multi-pane cursor materialization,
   preserved Manual Next/Auto Play behavior, and selected the Step 405 replay-
   navigation coordinator.
+- `v6/docs/V6_REPLAY_NAVIGATION_COORDINATOR_STEP405.md`: completed bounded
+  candidate-to-real-bar navigation, pause/single-cursor/multi-pane coordination,
+  ET wall-clock correction, real NQ weekend-skip evidence, and the Step 406 UI
+  recommendation.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

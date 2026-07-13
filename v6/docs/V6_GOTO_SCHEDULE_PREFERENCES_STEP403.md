@@ -20,12 +20,16 @@ The domain owns:
 - default `America/New_York` anchors: day open `18:00`, Asian `19:00`, London
   `02:00`, and New York `09:30`;
 - strict `HH:mm` validation;
-- DST-aware wall-clock-to-instant resolution through `Intl.DateTimeFormat`;
+- a DST-aware wall-clock-to-real-instant utility through
+  `Intl.DateTimeFormat` for external instant use;
+- Replay candidate timestamps that preserve New York wall-clock fields in the
+  existing ET-wall-clock epoch encoding;
 - strictly-forward candidate generation bounded by Replay end and candidate
   count;
 - chronological Next Session merging across Asian, London, and New York.
 
-The conversion does not use a fixed `UTC-4` or `UTC-5` rule. Tests prove:
+The real-instant utility does not use a fixed `UTC-4` or `UTC-5` rule. Tests
+prove:
 
 - `09:30` changes from `14:30Z` to `13:30Z` across the 2026 spring transition;
 - nonexistent spring-forward wall times produce no candidate;
@@ -33,9 +37,15 @@ The conversion does not use a fixed `UTC-4` or `UTC-5` rule. Tests prove:
 - a candidate equal to the cursor is not returned;
 - no candidate exceeds Replay end.
 
+Step 405 corrected the candidate-output boundary after real V4/V6 time-domain
+verification. Replay timestamps are UTC epoch seconds carrying ET wall-clock
+fields, so New York `09:30` must remain internal `09:30Z`; converting it to
+`13:30Z`/`14:30Z` would move the chart four/five hours. The DST-aware utility
+remains valid, but Replay candidate generation no longer calls it.
+
 The domain deliberately does not encode market holidays or weekend calendars.
-Step 405 will ask Bar Data whether each candidate has a nearby real source bar
-and skip empty anchors through a bounded search.
+Step 405 asks Bar Data whether each candidate has a nearby real source bar and
+skips empty anchors through a bounded search.
 
 ## Preferences owner
 
