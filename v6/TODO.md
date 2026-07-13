@@ -2,13 +2,18 @@
 
 ## Current / Next
 
+- Latest completed shell modularization step: Step 397 - Replay Transport
+  Presentation Modularization. Command-free DOM rendering now lives in a
+  focused renderer; `replay-transport.js` fell from 512 to 418 lines and the
+  final modularization pack passed `5/5`. This Replay Transport split chain is
+  closed; do not keep splitting it by line count alone.
+- Next recommended step: Step 398 - Product/Foundation Gap Re-selection.
+  Re-audit chart loading, timeframe, replay, multi-pane, and date-range user
+  journeys and select one observable functional gap before more refactoring.
 - Latest completed shell modularization step: Step 396 - Replay Transport
   Period Menu Modularization. Pure navigation and DOM menu/focus ownership now
   live behind focused modules while playback-period commands/events remain in
   the main transport; `replay-transport.js` fell from 571 to 512 lines.
-- Next recommended step: Step 397 - Replay Transport Presentation Renderer.
-  Extract dataset and control-state rendering without moving command dispatch,
-  event subscriptions, transport state, or lifecycle ownership.
 - Latest completed shell modularization step: Step 395 - Replay Transport
   Position Modularization. Position clamping/snapshots and DOM drag,
   persistence, restoration, and cleanup now live behind focused modules;
