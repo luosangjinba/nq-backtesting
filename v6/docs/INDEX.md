@@ -50,6 +50,10 @@ Read this index before working on V6.
 - `v6/docs/V6_REPLAY_NAVIGATION_UI_STEP406.md`: activated the five Go-to
   actions, scoped shortcuts, New York-time preference draft modal, real NQ UI
   evidence, and the required Step 407 human visual-acceptance matrix.
+- `v6/docs/V6_REPLAY_NAVIGATION_CONTINUOUS_RANGE_STEP407.md`: corrected Go-to
+  jumps that advanced Replay but rendered only the destination K-line, added
+  shared continuous range materialization, and defined the required visual
+  recheck before Step 407 closes.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

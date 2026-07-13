@@ -177,6 +177,10 @@ Commit after controller/accessibility tests pass.
 
 ### Step 407 - Browser And Human Acceptance
 
+Status: in progress. The continuous-range blocker found during human visual
+acceptance is fixed in commits `a3874d0e` and `ad5f183b`; visual recheck and the
+remaining acceptance matrix are still required.
+
 - verify each action from cursor positions before/after every anchor;
 - verify DST, weekend/holiday gaps, replay-end rejection, double-click/in-flight
   suppression, and persistence restore;

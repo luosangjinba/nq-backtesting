@@ -8,11 +8,15 @@
   a validated New York-time draft with Save, Discard, Reset, Escape, focus, and
   persistence behavior. Real NQ UI evidence verified a persisted Friday-to-
   Monday custom-anchor jump without bypassing runtime owners.
-- Next step: Step 407 - Browser And Human Acceptance. Gate every action and
-  anchor boundary, replay-end/double-input behavior, persistence reload,
-  timeframe families, multi-pane agreement, no-future state, viewport intent,
-  and visible latency. Then run the required human visual matrix against the
-  supplied FXReplay references before starting another product feature.
+- Step 407 correction completed, visual recheck pending: user screenshots found
+  that Go-to advanced Replay but appended only the destination K-line. The
+  shared materializer now fills the complete real-source interval through the
+  same `1m`/HTF/session-calendar projection path. Real NQ regression requires
+  more than 500 intermediate K-lines and no-future timestamps.
+- Next step: complete Step 407 Browser And Human Acceptance. First repeat the
+  reported 1m scenario after a hard reload and sample fixed HTF plus
+  `1D`/`1W`/`1M`; then close the remaining action-boundary, replay-end/double-
+  input, persistence, multi-pane, viewport, and visible-latency matrix.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
