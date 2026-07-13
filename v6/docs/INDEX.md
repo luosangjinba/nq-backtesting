@@ -70,6 +70,9 @@ Read this index before working on V6.
 - `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`: binding four-tab
   Settings catalog, scope and owner routing, accepted/deferred/rejected field
   matrix, shared-control rules, and ordered Step 410-417 implementation plan.
+- `v6/docs/V6_SETTINGS_CANVAS_DIRECT_OPTIONS_STEP410.md`: schema-v2 Canvas
+  colors/font controls, pure chart-options mapping, atomic multi-pane consumer
+  path, automated evidence, and remaining human visual matrix.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

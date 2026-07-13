@@ -42,12 +42,13 @@
   transactional shell while Chart Surface, Chart Viewport, Session Calendar,
   Status Readout, symbol metadata, and time presentation retain separate
   ownership. See `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`.
-- Current implementation step: Step 410 - Canvas Direct
-  Chart Options. Add background, grid visibility/color, crosshair color, scale
-  text color/font size, and axis-border color through the existing Settings to
-  Chart Surface bridge. Global timezone and `timeFormat: '24h' | '12h'` move to
-  Step 416, preserving canonical timestamps and `HH:mm`; see
-  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`.
+- Latest implemented Settings step: Step 410 - Canvas Direct Chart Options.
+  Settings schema v2 adds validated background, grid, crosshair, scale-text,
+  scale-font, and axis-border preferences with v1 migration. One pure mapping
+  feeds the chart-owned multi-pane `applyOptions` path; draft isolation, atomic
+  OK, v2 persistence, and hard reload pass automated browser acceptance. Human
+  visual acceptance remains before Step 411. See
+  `v6/docs/V6_SETTINGS_CANVAS_DIRECT_OPTIONS_STEP410.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
