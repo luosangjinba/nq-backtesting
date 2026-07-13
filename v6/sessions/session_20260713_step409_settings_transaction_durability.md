@@ -46,6 +46,7 @@ Commit: documentation/test closeout commit.
 
 ## Next
 
-Run the five-item Step 409 visual matrix in the real workstation. If it passes,
-close Step 409 and implement Step 410 Global Time Presentation Integration in
-bounded surface groups.
+The user completed the real-workstation matrix for draft isolation, Cancel
+restore, atomic grid application, hard-refresh persistence, and draft-only
+Reset. All checks passed; Step 409 is closed. Step 410 now begins with the
+Canvas Direct Chart Options selected by Step 409.5.

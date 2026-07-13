@@ -15,7 +15,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const settingsModel = await readFile('v6/src/settings/settings-model.js', 'utf8');
 
-assert.match(selection, /Status: implemented; automated acceptance passed/);
+assert.match(selection, /Status: completed; automated and human visual acceptance passed/);
 assert.match(selection, /Opening Settings snapshots committed state into a panel-local draft/);
 assert.match(selection, /Persist only normalized committed records/);
 assert.match(selection, /Reuse the existing persistence repository\/Web Storage adapter/);
@@ -28,7 +28,7 @@ assert.match(contract, /accepted Step 416 Settings requirement/);
 assert.match(catalog, /Step 410 - Canvas Direct Chart Options/);
 assert.match(catalog, /Production work remains blocked until Step 409 human visual acceptance/);
 assert.match(todo, /Latest implemented Phase 7 closeout step: Step 409/);
-assert.match(todo, /Human visual acceptance remains/);
+assert.match(todo, /Human visual acceptance passed/);
 assert.match(index, /V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409/);
 assert.doesNotMatch(settingsModel, /timeFormat/);
 

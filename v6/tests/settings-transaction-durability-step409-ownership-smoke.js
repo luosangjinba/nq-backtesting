@@ -11,8 +11,8 @@ const shell = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const bridge = await readFile('v6/src/chart-engine/settings-chart-surface-bridge.js', 'utf8');
 const todo = await readFile('v6/TODO.md', 'utf8');
 
-assert.match(doc, /Status: implemented; automated acceptance passed/);
-assert.match(doc, /human visual acceptance is\s+pending/);
+assert.match(doc, /Status: completed; automated and human visual acceptance passed/);
+assert.match(doc, /All five checks passed/);
 assert.match(model, /SETTINGS_RECORD_VERSION = 1/);
 assert.doesNotMatch(model, /timeFormat/);
 assert.doesNotMatch(panel, /localStorage|LightweightCharts|createChart/);
@@ -25,6 +25,6 @@ assert.deepEqual(
   [...shell.matchAll(/data-v6-settings-field="([^"]+)"/g)].map((match) => match[1]),
   ['chartGrid'],
 );
-assert.match(todo, /Next acceptance gate: visually verify/);
+assert.match(todo, /Step 409 is closed/);
 
 console.log('V6 Settings transaction and durability Step 409 ownership smoke passed.');

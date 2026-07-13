@@ -1,7 +1,6 @@
 # Step 409 - Settings Transaction And Durability Selection
 
-Status: implemented; automated acceptance passed; human visual acceptance is
-pending.
+Status: completed; automated and human visual acceptance passed.
 
 ## Why This Comes Next
 
@@ -148,9 +147,9 @@ once and consumed consistently in the later Step 416.
   output channel truncated.
 - `git diff --check` passed.
 
-## Remaining Human Gate
+## Human Visual Acceptance
 
-Before Step 410, visually verify in the real workstation:
+The real workstation was visually verified with this matrix:
 
 1. open Settings and turn `Grid lines` off; the chart must not change before
    OK;
@@ -160,9 +159,7 @@ Before Step 410, visually verify in the real workstation:
 4. hard refresh; the checkbox and hidden-grid state must remain off;
 5. press Reset, then Cancel; the persisted off state must remain unchanged.
 
-Step 409 closes after that matrix passes. Production Step 410 must not begin
-while this visual gate is open. A planning-only catalog may be accepted without
-activating another control.
+All five checks passed. Step 409 is closed and production Step 410 may begin.
 
 ## Ordered Follow-up
 
