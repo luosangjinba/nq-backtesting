@@ -1,5 +1,5 @@
-import { LAYOUT_COMMANDS, LAYOUT_EVENTS } from '../contracts/app-contracts.js';
-import { registerCommand } from '../runtime/commands.js';
+import { LAYOUT_COMMANDS, LAYOUT_EVENTS, PANE_COMMANDS, PANE_EVENTS } from '../contracts/app-contracts.js';
+import { dispatchCommand, registerCommand } from '../runtime/commands.js';
 import { createLayoutStore } from './layout-store.js';
 
 export function createLayoutRuntime({
@@ -7,25 +7,41 @@ export function createLayoutRuntime({
 } = {}) {
   const unregisterCallbacks = [];
 
-  function start({ emitEvent } = {}) {
+  async function snapshotFromOwners() {
+    const layout = store.snapshot();
+    const paneSnapshot = await dispatchCommand(PANE_COMMANDS.GET_SNAPSHOT);
+    return {
+      ...layout,
+      activePaneId: paneSnapshot.activePaneId,
+      panes: paneSnapshot.panes,
+    };
+  }
+
+  function start({ emitEvent, subscribeEvent } = {}) {
     unregisterCallbacks.push(
-      registerCommand(LAYOUT_COMMANDS.GET_SNAPSHOT, () => store.snapshot()),
-      registerCommand(LAYOUT_COMMANDS.SET_MODE, ({ mode, variant } = {}) => {
-        const snapshot = store.setMode(mode, variant);
+      registerCommand(LAYOUT_COMMANDS.GET_SNAPSHOT, snapshotFromOwners),
+      registerCommand(LAYOUT_COMMANDS.SET_MODE, async ({ mode, variant } = {}) => {
+        store.setMode(mode, variant);
+        const snapshot = await snapshotFromOwners();
         emitEvent?.(LAYOUT_EVENTS.MODE_CHANGED, snapshot);
         return snapshot;
       }),
-      registerCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, ({ paneId } = {}) => {
-        const snapshot = store.setActivePane(paneId);
-        emitEvent?.(LAYOUT_EVENTS.ACTIVE_PANE_CHANGED, snapshot);
-        return snapshot;
+      registerCommand(LAYOUT_COMMANDS.SET_ACTIVE_PANE, async ({ paneId } = {}) => {
+        await dispatchCommand(PANE_COMMANDS.SET_ACTIVE, paneId);
+        return snapshotFromOwners();
       }),
-      registerCommand(LAYOUT_COMMANDS.SET_SYNC, ({ key, value } = {}) => {
-        const snapshot = store.setSync(key, value);
+      registerCommand(LAYOUT_COMMANDS.SET_SYNC, async ({ key, value } = {}) => {
+        store.setSync(key, value);
+        const snapshot = await snapshotFromOwners();
         emitEvent?.(LAYOUT_EVENTS.SYNC_CHANGED, snapshot);
         return snapshot;
       }),
     );
+    if (typeof subscribeEvent === 'function') {
+      unregisterCallbacks.push(subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, async () => {
+        emitEvent?.(LAYOUT_EVENTS.ACTIVE_PANE_CHANGED, await snapshotFromOwners());
+      }));
+    }
   }
 
   function stop() {

@@ -305,7 +305,7 @@ export function mountWorkstationChartSurface(root, {
     pendingWheelPrependStabilizationTimers.set(paneId, timer);
     return timer;
   }
-  function activatePane(paneId, origin = 'host-input') {
+  function activatePane(paneId, origin = 'host-input', notify = true) {
     const normalizedPaneId = String(paneId || '').trim();
     if (!normalizedPaneId || !hostsByPaneId.has(normalizedPaneId)) {
       return null;
@@ -318,7 +318,9 @@ export function mountWorkstationChartSurface(root, {
     hostsByPaneId.forEach((host, hostPaneId) => {
       host.dataset.v6ChartPaneActive = String(hostPaneId === normalizedPaneId);
     });
-    paneActivationListeners.forEach((listener) => listener({ ...record }));
+    if (notify) {
+      paneActivationListeners.forEach((listener) => listener({ ...record }));
+    }
     return record;
   }
   function dispatchSyntheticRelease(target, eventName) {
@@ -908,6 +910,9 @@ export function mountWorkstationChartSurface(root, {
       };
     },
     applyLayoutSnapshot,
+    applyActivePane(paneId) {
+      return activatePane(paneId, 'runtime-pane', false);
+    },
     maximizePane,
     resize,
     resizePaneByHandle(handleId, point) {

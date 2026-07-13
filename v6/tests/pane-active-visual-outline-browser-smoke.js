@@ -39,7 +39,16 @@ try {
         state: document.querySelector('[data-v6-root]').__v6WorkstationChartSurface.getState(),
       };
 
-      return { afterSecondary, initial };
+      await commands.dispatchCommand(contracts.PANE_COMMANDS.SET_ACTIVE, 'main');
+      await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+      const afterProgrammaticMain = {
+        main: readHost('main'),
+        pane: await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_ACTIVE),
+        secondary: readHost('secondary'),
+        state: document.querySelector('[data-v6-root]').__v6WorkstationChartSurface.getState(),
+      };
+
+      return { afterProgrammaticMain, afterSecondary, initial };
     })()))()
   `));
 
@@ -52,6 +61,10 @@ try {
   assert.equal(value.afterSecondary.state.activePaneId, 'secondary');
   assert.doesNotMatch(value.afterSecondary.main.afterBoxShadow, /90, 171, 255/);
   assert.match(value.afterSecondary.secondary.afterBoxShadow, /90, 171, 255/);
+  assert.equal(value.afterProgrammaticMain.pane.id, 'main');
+  assert.equal(value.afterProgrammaticMain.state.activePaneId, 'main');
+  assert.equal(value.afterProgrammaticMain.main.active, 'true');
+  assert.equal(value.afterProgrammaticMain.secondary.active, 'false');
   assert.equal(value.initial.secondary.hidden, false);
   assert.equal(value.afterSecondary.secondary.hidden, false);
   assert.equal(value.initial.main.width, value.afterSecondary.main.width);

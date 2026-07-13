@@ -6,6 +6,8 @@ import {
 import { createLayoutRuntime } from '../src/layout/layout-runtime.js';
 import { createLayoutStore } from '../src/layout/layout-store.js';
 import { createPaneRecord } from '../src/panes/pane-model.js';
+import { createPaneRuntime } from '../src/panes/pane-runtime.js';
+import { createPaneStore } from '../src/panes/pane-store.js';
 import {
   clearCommandsForTest,
   dispatchCommand,
@@ -36,8 +38,9 @@ const unsubscribeActive = subscribeEvent(LAYOUT_EVENTS.ACTIVE_PANE_CHANGED, (pay
 const unsubscribeSync = subscribeEvent(LAYOUT_EVENTS.SYNC_CHANGED, (payload) => syncEvents.push(payload));
 
 const registry = createRuntimeRegistry();
+registry.registerRuntime(createPaneRuntime({ store: createPaneStore({ initialPanes: [left, right] }) }));
 registry.registerRuntime(createLayoutRuntime({ store }));
-await registry.start({ emitEvent });
+await registry.start({ emitEvent, subscribeEvent });
 
 assert.equal(hasCommand(LAYOUT_COMMANDS.GET_SNAPSHOT), true);
 assert.equal((await dispatchCommand(LAYOUT_COMMANDS.GET_SNAPSHOT)).activePaneId, 'pane-left');
