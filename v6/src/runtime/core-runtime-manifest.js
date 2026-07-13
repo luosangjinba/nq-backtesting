@@ -34,6 +34,7 @@ import { createPersistenceRuntime } from '../persistence/persistence-runtime.js'
 import { createPlaybackPeriodRuntime } from '../playback-period/playback-period-runtime.js';
 import { createReplayCoordinationMaterializationRuntimeHandoff } from '../replay/replay-coordination-materialization-runtime-handoff.js';
 import { createReplayNavigationPreferencesRuntime } from '../replay-navigation/replay-navigation-preferences-runtime.js';
+import { createReplayNavigationRuntime } from '../replay-navigation/replay-navigation-runtime.js';
 import { createReplayRuntime } from '../replay/replay-runtime.js';
 import { createTargetMaterializationReplayDiagnosticsRuntime } from '../replay/target-materialization-replay-diagnostics-runtime.js';
 import { createSessionRuntime } from '../session/session-runtime.js';
@@ -66,6 +67,7 @@ export function createCoreRuntimeContributions({
     createChartEntryContextRuntime(),
     createReplayRuntime({ enableInternalTimer: false }),
     createReplayNavigationPreferencesRuntime({ storage: replayNavigationPreferencesStorage }),
+    createReplayNavigationRuntime({ dispatchCommand }),
     createTargetMaterializationReplayDiagnosticsRuntime(),
     createPaneIntentReloadWindowRuntime(),
     createPaneIntentReloadDataRuntime(),

@@ -197,6 +197,16 @@ export const REPLAY_NAVIGATION_PREFERENCES_EVENTS = Object.freeze({
   UPDATED: 'replayNavigationPreferences:updated',
 });
 
+export const REPLAY_NAVIGATION_COMMANDS = Object.freeze({
+  GET_STATE: 'replayNavigation.getState',
+  NAVIGATE: 'replayNavigation.navigate',
+});
+
+export const REPLAY_NAVIGATION_EVENTS = Object.freeze({
+  COMPLETED: 'replayNavigation:completed',
+  REJECTED: 'replayNavigation:rejected',
+});
+
 export const PANE_COMMANDS = Object.freeze({
   GET_ACTIVE: 'pane.getActive',
   GET_BY_ID: 'pane.getById',
