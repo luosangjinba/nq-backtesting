@@ -14,7 +14,7 @@ import {
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { mountReplayTransportPositionController } from './replay-transport-position-controller.js';
-import { resolveReplayTransportPeriodNavigation } from './replay-transport-period-navigation.js';
+import { mountReplayTransportPeriodMenuController } from './replay-transport-period-menu-controller.js';
 
 export { clampReplayTransportPosition } from './replay-transport-position.js';
 
@@ -148,11 +148,6 @@ function isDisabledControl(control) {
     control?.disabled ||
     control?.getAttribute?.('aria-disabled') === 'true',
   );
-}
-
-function getFocusablePeriodOptions(root) {
-  return Array.from(root.querySelectorAll('[data-v6-transport-period-option]'))
-    .filter((option) => !isDisabledControl(option));
 }
 
 function updateDom(root, state) {
@@ -432,36 +427,10 @@ export function mountReplayTransport(root, {
     });
   }
 
-  function focusPeriodOption(index) {
-    const options = getFocusablePeriodOptions(root);
-    if (!options.length) return;
-    const clampedIndex = Math.min(options.length - 1, Math.max(0, index));
-    options[clampedIndex]?.focus?.();
-  }
-
-  function handlePeriodMenuKeydown(event) {
-    const details = root.querySelector('[data-v6-transport-period-details]');
-    if (!details) return false;
-    const targetIsInPeriodMenu = root.contains(event.target) && details.contains?.(event.target);
-    if (!targetIsInPeriodMenu) return false;
-    const options = getFocusablePeriodOptions(root);
-    const activeIndex = options.indexOf(root.ownerDocument?.activeElement);
-    const navigation = resolveReplayTransportPeriodNavigation({
-      activeIndex,
-      key: event.key,
-      open: details.open,
-      optionCount: options.length,
-    });
-    if (!navigation.handled) return false;
-    event.preventDefault();
-    details.open = navigation.open;
-    if (navigation.focusTrigger) {
-      root.querySelector('[data-v6-transport-period-toggle]')?.focus?.();
-    } else if (navigation.focusIndex !== null) {
-      focusPeriodOption(navigation.focusIndex);
-    }
-    return true;
-  }
+  const periodMenuController = mountReplayTransportPeriodMenuController(root, {
+    onSelect: dispatchPeriodChange,
+    signal,
+  });
 
   root.addEventListener('click', (event) => {
     const actionButton = event.target.closest?.('[data-v6-transport-action]');
@@ -474,15 +443,6 @@ export function mountReplayTransport(root, {
     if (speedButton && root.contains(speedButton)) {
       void dispatchSpeedChange(normalizeSpeed(speedButton.dataset.v6TransportSpeed));
       return;
-    }
-    const periodButton = event.target.closest?.('[data-v6-transport-period-option]');
-    if (periodButton && root.contains(periodButton)) {
-      if (isDisabledControl(periodButton)) return;
-      void dispatchPeriodChange(periodButton.dataset.v6TransportPeriodOption);
-      const details = root.querySelector('[data-v6-transport-period-details]');
-      if (details) {
-        details.open = false;
-      }
     }
   }, { signal });
 
@@ -503,8 +463,8 @@ export function mountReplayTransport(root, {
   }, { signal });
 
   root.ownerDocument.addEventListener('keydown', (event) => {
-    if (handlePeriodMenuKeydown(event)) return;
-    if (root.querySelector('[data-v6-transport-period-details]')?.open) return;
+    if (periodMenuController.handleKeydown(event)) return;
+    if (periodMenuController.isOpen()) return;
     if (isEditableTarget(event.target)) return;
     if (event.key === ' ' || event.code === 'Space') {
       event.preventDefault();
