@@ -122,18 +122,32 @@ with tempfile.TemporaryDirectory() as tmpdir:
     assert target_bars_service.normalize_target_timeframe_id("8H") == "8h"
     assert target_bars_service.normalize_target_timeframe_id("1d") == "1D"
     assert target_bars_service.normalize_target_timeframe_id("1M") == "1M"
-    try:
-        target_bars_service.query_target_bars(
-            str(db_path),
-            "futures_1m",
-            "NQ",
-            "2026-06-01 00:00",
-            "2026-06-01 16:00",
-            "1W",
-        )
-    except ValueError as exc:
-        assert "not implemented yet" in str(exc)
-    else:
-        raise AssertionError("1W should not be implemented in Step 281")
+    weekly = target_bars_service.query_target_bars(
+        str(db_path),
+        "futures_1m",
+        "NQ",
+        "2026-06-01 00:00",
+        "2026-06-01 19:00",
+        "1W",
+    )
+    assert weekly["targetTimeframe"] == "1W"
+    assert len(weekly["bars"]) == 1
+    assert weekly["bars"][0]["time"] == "2026-05-31 18:00"
+    assert weekly["bars"][0]["tradingWeek"] == "2026-06-01"
+    assert weekly["bars"][0]["sourceBarCount"] > 3
+
+    monthly = target_bars_service.query_target_bars(
+        str(db_path),
+        "futures_1m",
+        "NQ",
+        "2026-06-01 00:00",
+        "2026-06-01 19:00",
+        "1M",
+    )
+    assert monthly["targetTimeframe"] == "1M"
+    assert len(monthly["bars"]) == 1
+    assert monthly["bars"][0]["time"] == "2026-05-31 18:00"
+    assert monthly["bars"][0]["tradingMonth"] == "2026-06"
+    assert monthly["bars"][0]["sourceBarCount"] > 3
 
 print("target bars service step281 smoke passed")

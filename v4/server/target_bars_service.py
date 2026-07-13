@@ -6,7 +6,6 @@ from typing import Dict, Tuple
 from server.price_lookup import open_db, _parse_datetime
 
 
-DAILY_ANCHOR_OFFSET = 18 * 3600
 FIXED_TARGET_TIMEFRAME_MINUTES = {
     "1m": 1,
     "2m": 2,
@@ -23,6 +22,11 @@ FIXED_TARGET_TIMEFRAME_MINUTES = {
     "12h": 720,
 }
 SESSION_AWARE_TARGET_TIMEFRAMES = {"1D", "1W", "1M"}
+SESSION_AWARE_DATE_TRUNC_UNITS = {
+    "1D": "day",
+    "1W": "week",
+    "1M": "month",
+}
 SUPPORTED_TARGET_TIMEFRAMES = tuple(FIXED_TARGET_TIMEFRAME_MINUTES.keys()) + tuple(
     sorted(SESSION_AWARE_TARGET_TIMEFRAMES)
 )
@@ -141,10 +145,8 @@ order by bucket
     return result
 
 
-def _query_daily_target_bars(db_path, table, instrument, start_dt, end_dt):
-    anchor_epoch = 946684800 + DAILY_ANCHOR_OFFSET
-    tf = 1440
-
+def _query_session_aware_target_bars(db_path, table, instrument, start_dt, end_dt, target_id):
+    trunc_unit = SESSION_AWARE_DATE_TRUNC_UNITS[target_id]
     sql = f"""
 with bars as (
   select
@@ -155,9 +157,14 @@ with bars as (
     and ts >= ?
     and ts < ?
     and not (extract(hour from ts) = 17)
+), bucketed as (
+  select
+    date_trunc('{trunc_unit}', ts + interval '6 hours') - interval '6 hours' as bucket_start,
+    ts, open, high, low, close, volume
+  from bars
 )
 select
-  floor((extract(epoch from ts) - {anchor_epoch}) / (60 * ?)) as bucket,
+  bucket_start,
   first(open order by ts) as open,
   max(high) as high,
   min(low) as low,
@@ -166,24 +173,26 @@ select
   min(ts) as source_start_ts,
   max(ts) as source_end_ts,
   count(*) as source_bar_count
-from bars
-group by bucket
-order by bucket
+from bucketed
+group by bucket_start
+order by bucket_start
 """.strip()
 
     with open_db(db_path) as conn:
-        rows = conn.execute(sql, [instrument, start_dt, end_dt, tf]).fetchall()
+        rows = conn.execute(sql, [instrument, start_dt, end_dt]).fetchall()
 
     result = []
     for row in rows:
-        session_start_epoch = anchor_epoch + int(row[0]) * tf * 60
-        trading_day = datetime.fromtimestamp(session_start_epoch, tz=timezone.utc) + timedelta(days=1)
-        trading_day_str = trading_day.strftime("%Y-%m-%d")
-        result.append({
-            "time": trading_day_str,
-            "timestamp": session_start_epoch,
-            "timeframe": "1D",
-            "tradingDay": trading_day_str,
+        bucket_start = row[0].replace(tzinfo=timezone.utc)
+        bucket_start_epoch = int(bucket_start.timestamp())
+        trading_key_date = bucket_start + timedelta(hours=6)
+        trading_key = trading_key_date.strftime(
+            "%Y-%m" if target_id == "1M" else "%Y-%m-%d"
+        )
+        record = {
+            "time": trading_key if target_id == "1D" else _format_bar_time(bucket_start_epoch),
+            "timestamp": bucket_start_epoch,
+            "timeframe": target_id,
             "open": float(row[1]),
             "high": float(row[2]),
             "low": float(row[3]),
@@ -192,14 +201,19 @@ order by bucket
             "sourceStartTime": row[6].strftime("%Y-%m-%d %H:%M"),
             "sourceEndTime": row[7].strftime("%Y-%m-%d %H:%M"),
             "sourceBarCount": int(row[8]),
-        })
+        }
+        if target_id == "1D":
+            record["tradingDay"] = trading_key
+        elif target_id == "1W":
+            record["tradingWeek"] = trading_key
+        else:
+            record["tradingMonth"] = trading_key
+        result.append(record)
     return result
 
 
 def query_target_bars(db_path, table, instrument, start, end, tf):
     target_id = normalize_target_timeframe_id(tf)
-    if target_id in ("1W", "1M"):
-        raise ValueError(f"{target_id} target bars are not implemented yet")
 
     start_dt = _parse_datetime(start)
     end_dt = _parse_datetime(end)
@@ -215,8 +229,10 @@ def query_target_bars(db_path, table, instrument, start, end, tf):
             "cacheHit": True,
         }
 
-    if target_id == "1D":
-        bars = _query_daily_target_bars(db_path, table, normalized_instrument, start_dt, end_dt)
+    if target_id in SESSION_AWARE_TARGET_TIMEFRAMES:
+        bars = _query_session_aware_target_bars(
+            db_path, table, normalized_instrument, start_dt, end_dt, target_id
+        )
     else:
         bars = _query_fixed_target_bars(db_path, table, normalized_instrument, start_dt, end_dt, target_id)
 
