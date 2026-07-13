@@ -25,6 +25,9 @@ function managerFactory(options) {
   let mounted = false;
   let visibleLogicalRange = null;
   return {
+    applyOptions(options) {
+      calls.push({ method: 'applyOptions', options });
+    },
     destroyAll() {
       calls.push({ method: 'destroyAll' });
       mounted = false;
@@ -144,6 +147,8 @@ const surface = mountWorkstationChartSurface(root, {
   },
 });
 const state = surface.getState();
+assert.deepEqual(surface.applySettings({ chartGrid: false }), { chartGrid: false });
+assert.equal(calls.some((call) => call.method === 'applyOptions'), true);
 
 assert.equal(calls[0].method, 'querySelector');
 assert.equal(calls[0].selector, '[data-v6-chart-engine-host]');

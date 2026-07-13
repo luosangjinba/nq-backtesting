@@ -107,6 +107,12 @@ export function createLightweightChartAdapter({
     return snapshot();
   }
 
+  function applyOptions(options = {}) {
+    ensureMounted();
+    chart.applyOptions?.(options);
+    return snapshot();
+  }
+
   function update(bar) {
     ensureMounted();
     series.update(normalizeSeriesBar(bar));
@@ -226,6 +232,7 @@ export function createLightweightChartAdapter({
   }
 
   return {
+    applyOptions,
     clearCrosshairPosition,
     destroy,
     measureVisibleLogicalRange,

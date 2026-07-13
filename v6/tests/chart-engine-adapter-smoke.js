@@ -3,6 +3,7 @@ import { createLightweightChartAdapter } from '../src/chart-engine/lightweight-c
 
 const calls = {
   addSeries: [],
+  applyOptions: [],
   createChart: [],
   getVisibleLogicalRange: 0,
   remove: 0,
@@ -19,6 +20,9 @@ const fakeEngine = {
   createChart(host, options) {
     calls.createChart.push({ host, options });
     return {
+      applyOptions(options) {
+        calls.applyOptions.push(options);
+      },
       addSeries(seriesType, seriesOptions) {
         calls.addSeries.push({ seriesOptions, seriesType });
         return {
@@ -74,6 +78,8 @@ assert.deepEqual(adapter.snapshot(), {
 adapter.mount(host);
 assert.equal(calls.createChart.length, 1);
 assert.equal(calls.addSeries[0].seriesType, fakeEngine.CandlestickSeries);
+adapter.applyOptions({ grid: { horzLines: { color: 'transparent' } } });
+assert.deepEqual(calls.applyOptions, [{ grid: { horzLines: { color: 'transparent' } } }]);
 
 adapter.setData([
   { timestamp: 100, open: 1, high: 2, low: 0.5, close: 1.5 },

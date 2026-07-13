@@ -1,5 +1,6 @@
-import { SETTINGS_COMMANDS } from '../contracts/app-contracts.js';
+import { SETTINGS_COMMANDS, SETTINGS_EVENTS } from '../contracts/app-contracts.js';
 import { dispatchCommand } from '../runtime/commands.js';
+import { subscribeEvent } from '../runtime/events.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
 import { bindWorkflowPanelClose } from './workflow-panel-close.js';
 
@@ -31,21 +32,49 @@ export function mountSettingsPanel(root, {
   const toggle = root.querySelector('[data-v6-settings-toggle]');
   const panel = root.querySelector('[data-v6-settings-panel]');
   const closeButton = root.querySelector('[data-v6-settings-close]');
-  const secondaryCloseButtons = Array.from(
-    root.querySelectorAll?.('[data-v6-settings-close-secondary], [data-v6-settings-ok]') || [],
-  );
+  const cancelButton = root.querySelector('[data-v6-settings-close-secondary]');
+  const okButton = root.querySelector('[data-v6-settings-ok]');
+  const resetButton = root.querySelector('[data-v6-settings-reset-draft]');
   if (!toggle || !panel) {
     throw new Error('Settings panel controls are required.');
   }
 
   const fieldListeners = [];
+  const unsubscriptions = [];
+  let committedSettings = {};
+  let draftSettings = {};
   let open = false;
 
+  function readDraftFromFields() {
+    return Object.fromEntries([...panel.querySelectorAll('[data-v6-settings-field]')]
+      .map((field) => [field.dataset.v6SettingsField, readFieldValue(field)]));
+  }
+
+  function setCommittedSettings(settings = {}, { updateDraft = !open } = {}) {
+    committedSettings = { ...settings };
+    if (updateDraft) {
+      draftSettings = { ...committedSettings };
+      applySettingsToFields(panel, draftSettings);
+    }
+    return { ...committedSettings };
+  }
+
+  async function refreshCommittedSettings() {
+    const settings = await dispatchCommand(SETTINGS_COMMANDS.GET_SNAPSHOT);
+    return setCommittedSettings(settings, { updateDraft: true });
+  }
+
   function setOpen(nextOpen) {
-    open = Boolean(nextOpen);
+    const normalizedOpen = Boolean(nextOpen);
+    if (!normalizedOpen && open) {
+      draftSettings = { ...committedSettings };
+      applySettingsToFields(panel, draftSettings);
+    }
+    open = normalizedOpen;
     panel.hidden = !open;
     setWorkflowActionOpen(toggle, open);
     if (open) {
+      refreshCommittedSettings();
       onOpen?.();
     }
     return getState();
@@ -54,40 +83,83 @@ export function mountSettingsPanel(root, {
   function getState() {
     return {
       open,
-      settings: Object.fromEntries([...panel.querySelectorAll('[data-v6-settings-field]')]
-        .map((field) => [field.dataset.v6SettingsField, readFieldValue(field)])),
+      committedSettings: { ...committedSettings },
+      settings: { ...draftSettings },
     };
+  }
+
+  function discardAndClose() {
+    draftSettings = { ...committedSettings };
+    applySettingsToFields(panel, draftSettings);
+    return setOpen(false);
+  }
+
+  async function commitAndClose() {
+    draftSettings = {
+      ...committedSettings,
+      ...readDraftFromFields(),
+    };
+    const settings = await dispatchCommand(SETTINGS_COMMANDS.UPDATE, draftSettings);
+    setCommittedSettings(settings, { updateDraft: true });
+    return setOpen(false);
+  }
+
+  async function resetDraft() {
+    const defaults = await dispatchCommand(SETTINGS_COMMANDS.GET_DEFAULTS);
+    draftSettings = { ...defaults };
+    applySettingsToFields(panel, draftSettings);
+    return getState();
   }
 
   const toggleListener = () => setOpen(!open);
   toggle.addEventListener('click', toggleListener);
   const closeUnsubscriptions = [];
   bindWorkflowPanelClose({
-    close: () => setOpen(false),
+    close: discardAndClose,
     closeButton,
     root,
     unsubscriptions: closeUnsubscriptions,
   });
-  secondaryCloseButtons.forEach((button) => {
-    const listener = () => setOpen(false);
-    button.addEventListener('click', listener);
-    closeUnsubscriptions.push(() => button.removeEventListener('click', listener));
-  });
+  if (cancelButton) {
+    const listener = discardAndClose;
+    cancelButton.addEventListener('click', listener);
+    closeUnsubscriptions.push(() => cancelButton.removeEventListener('click', listener));
+  }
+  if (okButton) {
+    const listener = () => commitAndClose();
+    okButton.addEventListener('click', listener);
+    closeUnsubscriptions.push(() => okButton.removeEventListener('click', listener));
+  }
+  if (resetButton) {
+    const listener = () => resetDraft();
+    resetButton.addEventListener('click', listener);
+    closeUnsubscriptions.push(() => resetButton.removeEventListener('click', listener));
+  }
+  const backdropListener = (event) => {
+    if (event.target === panel) {
+      discardAndClose();
+    }
+  };
+  panel.addEventListener('click', backdropListener);
+  closeUnsubscriptions.push(() => panel.removeEventListener('click', backdropListener));
 
   panel.querySelectorAll('[data-v6-settings-field]').forEach((field) => {
-    const listener = async () => {
+    const listener = () => {
       const key = field.dataset.v6SettingsField;
-      const settings = await dispatchCommand(SETTINGS_COMMANDS.UPDATE, {
+      draftSettings = {
+        ...draftSettings,
         [key]: readFieldValue(field),
-      });
-      applySettingsToFields(panel, settings);
+      };
     };
     field.addEventListener('change', listener);
     fieldListeners.push([field, listener]);
   });
 
-  dispatchCommand(SETTINGS_COMMANDS.GET_SNAPSHOT)
-    .then((settings) => applySettingsToFields(panel, settings));
+  refreshCommittedSettings();
+  unsubscriptions.push(
+    subscribeEvent(SETTINGS_EVENTS.UPDATED, (settings) => setCommittedSettings(settings)),
+    subscribeEvent(SETTINGS_EVENTS.RESET, (settings) => setCommittedSettings(settings)),
+  );
 
   return {
     getState,
@@ -100,6 +172,9 @@ export function mountSettingsPanel(root, {
       fieldListeners.forEach(([field, listener]) => {
         field.removeEventListener('change', listener);
       });
+      while (unsubscriptions.length) {
+        unsubscriptions.pop()();
+      }
     },
   };
 }

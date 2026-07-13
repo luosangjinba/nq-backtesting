@@ -34,6 +34,8 @@ const DEFAULT_CHART_OPTIONS = Object.freeze({
   },
 });
 
+const HIDDEN_GRID_COLOR = 'rgba(0, 0, 0, 0)';
+
 const DEFAULT_SERIES_OPTIONS = Object.freeze({
   borderVisible: false,
   downColor: '#f25f68',
@@ -601,6 +603,20 @@ export function mountWorkstationChartSurface(root, {
   hosts.forEach((host) => resizeObserver?.observe(host));
 
   return {
+    applySettings(settings = {}) {
+      const chartGrid = settings.chartGrid !== false;
+      const grid = chartGrid
+        ? DEFAULT_CHART_OPTIONS.grid
+        : {
+            horzLines: { color: HIDDEN_GRID_COLOR },
+            vertLines: { color: HIDDEN_GRID_COLOR },
+          };
+      manager.applyOptions?.({ grid });
+      if (chartSurfaceElement?.dataset) {
+        chartSurfaceElement.dataset.v6ChartGrid = String(chartGrid);
+      }
+      return { chartGrid };
+    },
     applyChartDataRecord(record = {}) {
       const recordPaneId = String(record.paneId || '').trim();
       if (!recordPaneId) {

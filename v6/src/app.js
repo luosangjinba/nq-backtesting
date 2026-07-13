@@ -11,6 +11,7 @@ import { connectMaximizeRestoreControl } from './chart-engine/maximize-restore-c
 import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-bridge.js';
 import { connectPaneActiveSurfaceBridge } from './chart-engine/pane-active-surface-bridge.js';
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
+import { connectSettingsChartSurfaceBridge } from './chart-engine/settings-chart-surface-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
@@ -65,6 +66,10 @@ createCoreRuntimeContributions({
 await registry.start({ root, emitEvent, subscribeEvent });
 const workflowPanelCoordinator = createWorkflowPanelCoordinator();
 const workstationChartSurface = mountWorkstationChartSurface(root, { emitEvent });
+const settingsChartSurfaceBridge = connectSettingsChartSurfaceBridge({
+  chartSurface: workstationChartSurface,
+  subscribeEvent,
+});
 const chartDataSurfaceBridge = connectChartDataSurfaceBridge({
   chartSurface: workstationChartSurface,
   subscribeEvent,
@@ -177,6 +182,7 @@ root.__v6ReplayNavigationControl = replayNavigationControl;
 root.__v6ReplayNavigationSettings = replayNavigationSettings;
 root.__v6SessionDashboard = sessionDashboard;
 root.__v6SettingsPanel = settingsPanel;
+root.__v6SettingsChartSurfaceBridge = settingsChartSurfaceBridge;
 root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;

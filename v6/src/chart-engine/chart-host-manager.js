@@ -68,6 +68,13 @@ export function createChartHostManager({
     return getPaneSnapshot(record.paneId);
   }
 
+  function applyOptions(options = {}) {
+    return [...hostsByPaneId.values()].map((record) => {
+      record.adapter.applyOptions?.(options);
+      return getPaneSnapshot(record.paneId);
+    });
+  }
+
   function update(paneId, bar) {
     const record = getMountedRecord(paneId);
     record.adapter.update(bar);
@@ -171,6 +178,7 @@ export function createChartHostManager({
   }
 
   return {
+    applyOptions,
     clearCrosshairPosition,
     destroyAll,
     destroyPane,

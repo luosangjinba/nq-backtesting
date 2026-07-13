@@ -7,6 +7,9 @@ function createFakeAdapterFactory(calls) {
     let dataLength = 0;
     let visibleLogicalRange = null;
     return {
+      applyOptions(options) {
+        calls.push({ method: 'applyOptions', options });
+      },
       destroy() {
         calls.push({ method: 'destroy' });
         mounted = false;
@@ -81,6 +84,7 @@ manager.setVisibleLogicalRange('pane-left', { from: -3, to: 2 });
 manager.resetPriceScale('pane-left');
 manager.setCrosshairPosition('pane-right', { price: 3, time: 3 });
 manager.clearCrosshairPosition('pane-right');
+manager.applyOptions({ grid: { horzLines: { color: 'transparent' } } });
 const visibleRangeEvents = [];
 const unsubscribeVisibleRange = manager.subscribeVisibleLogicalRangeChange('pane-left', (event) => {
   visibleRangeEvents.push(event);
@@ -96,6 +100,7 @@ assert.deepEqual(calls.find((call) => call.method === 'setCrosshairPosition'), {
   method: 'setCrosshairPosition',
 });
 assert.equal(calls.some((call) => call.method === 'clearCrosshairPosition'), true);
+assert.equal(calls.filter((call) => call.method === 'applyOptions').length, 2);
 assert.deepEqual(visibleRangeEvents, [{
   paneId: 'pane-left',
   range: { from: -4, to: 3 },

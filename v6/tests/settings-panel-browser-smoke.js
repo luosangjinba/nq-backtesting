@@ -12,64 +12,68 @@ try {
       const toggle = document.querySelector('[data-v6-settings-toggle]');
       const panel = document.querySelector('[data-v6-settings-panel]');
       const modal = document.querySelector('.settings-modal');
-      const theme = document.querySelector('[data-v6-settings-field="theme"]');
-      const timezone = document.querySelector('[data-v6-settings-field="displayTimezone"]');
       const grid = document.querySelector('[data-v6-settings-field="chartGrid"]');
+      const cancel = document.querySelector('[data-v6-settings-close-secondary]');
+      const ok = document.querySelector('[data-v6-settings-ok]');
+      const chartSurface = document.querySelector('[data-v6-chart-surface]');
 
+      await root.__v6SettingsChartSurfaceBridge.ready;
       const before = await commands.dispatchCommand(contracts.SETTINGS_COMMANDS.GET_SNAPSHOT);
       toggle.click();
-      theme.value = 'light';
-      theme.dispatchEvent(new Event('change', { bubbles: true }));
-      timezone.value = 'utc';
-      timezone.dispatchEvent(new Event('change', { bubbles: true }));
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const modalRect = (() => {
+        const rect = modal.getBoundingClientRect();
+        return { height: Math.round(rect.height), width: Math.round(rect.width) };
+      })();
       grid.checked = false;
       grid.dispatchEvent(new Event('change', { bubbles: true }));
+      const whileDraft = await commands.dispatchCommand(contracts.SETTINGS_COMMANDS.GET_SNAPSHOT);
+      const gridWhileDraft = chartSurface.dataset.v6ChartGrid;
+      cancel.click();
+
+      toggle.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
+      const restoredAfterCancel = grid.checked;
+      grid.checked = false;
+      grid.dispatchEvent(new Event('change', { bubbles: true }));
+      ok.click();
+      await new Promise((resolve) => setTimeout(resolve, 20));
       const after = await commands.dispatchCommand(contracts.SETTINGS_COMMANDS.GET_SNAPSHOT);
 
       return {
         after,
         before,
         commandNames: commands.listCommands(),
-        mounted: Boolean(root.__v6SettingsPanel?.getState),
+        gridAfterOk: chartSurface.dataset.v6ChartGrid,
+        gridWhileDraft,
         modalTitle: document.querySelector('.settings-modal-header strong')?.textContent || '',
         tabLabels: [...document.querySelectorAll('.settings-tab-rail button span')].map((element) => element.textContent),
-        modalRect: (() => {
-          const rect = modal.getBoundingClientRect();
-          return { height: Math.round(rect.height), width: Math.round(rect.width) };
-        })(),
+        modalRect,
+        mounted: Boolean(root.__v6SettingsPanel?.getState),
         open: !panel.hidden,
+        restoredAfterCancel,
         toggleExpanded: toggle.getAttribute('aria-expanded'),
         uiState: root.__v6SettingsPanel.getState(),
+        whileDraft,
       };
     })()))()
   `));
 
   assert.equal(value.mounted, true);
-  assert.equal(value.open, true);
+  assert.equal(value.open, false);
   assert.equal(value.modalTitle, 'Settings');
-  assert.deepEqual(value.tabLabels, ['Symbol', 'Status line', 'Scales and lines', 'Canvas']);
+  assert.deepEqual(value.tabLabels, ['Canvas']);
   assert.equal(value.modalRect.width >= 560, true);
   assert.equal(value.modalRect.height >= 520, true);
-  assert.equal(value.toggleExpanded, 'true');
-  assert.deepEqual(value.before, {
-    chartGrid: true,
-    displayTimezone: 'exchange',
-    showWatermark: true,
-    theme: 'dark',
-  });
-  assert.deepEqual(value.after, {
-    chartGrid: false,
-    displayTimezone: 'utc',
-    showWatermark: true,
-    theme: 'light',
-  });
-  assert.deepEqual(value.uiState.settings, {
-    chartGrid: false,
-    displayTimezone: 'utc',
-    showWatermark: true,
-    theme: 'light',
-  });
+  assert.equal(value.toggleExpanded, 'false');
+  assert.equal(value.before.chartGrid, true);
+  assert.equal(value.whileDraft.chartGrid, true);
+  assert.equal(value.gridWhileDraft, 'true');
+  assert.equal(value.restoredAfterCancel, true);
+  assert.equal(value.after.chartGrid, false);
+  assert.equal(value.gridAfterOk, 'false');
+  assert.equal(value.uiState.committedSettings.chartGrid, false);
+  assert.equal(value.uiState.settings.chartGrid, false);
   assert.equal(value.commandNames.includes('settings.update'), true);
   assert.equal(value.commandNames.includes('chartData.replaceBars'), true);
 } finally {

@@ -367,6 +367,7 @@ export const LAYOUT_PANE_BOOTSTRAP_EVENTS = Object.freeze({
 });
 
 export const SETTINGS_COMMANDS = Object.freeze({
+  GET_DEFAULTS: 'settings.getDefaults',
   GET_SNAPSHOT: 'settings.getSnapshot',
   RESET: 'settings.reset',
   UPDATE: 'settings.update',

@@ -1711,6 +1711,13 @@ p {
   clip: rect(0 0 0 0);
 }
 
+.settings-scope-note {
+  margin: 4px 0 0;
+  color: #aeb5bd;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .color-swatch {
   width: 34px;
   height: 34px;

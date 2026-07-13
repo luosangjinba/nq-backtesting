@@ -3,6 +3,7 @@ import { registerCommand } from '../runtime/commands.js';
 import { createPersistenceRepository } from '../persistence/persistence-repository.js';
 import { createSettingsPersistence } from './settings-persistence.js';
 import { createSettingsStore } from './settings-store.js';
+import { createSettingsRecord } from './settings-model.js';
 
 export function createSettingsRuntime({
   persistenceRepository = createPersistenceRepository(),
@@ -41,6 +42,7 @@ export function createSettingsRuntime({
     }
     emit(SETTINGS_EVENTS.HYDRATED, hydrated);
     unregisterCallbacks.push(
+      registerCommand(SETTINGS_COMMANDS.GET_DEFAULTS, () => createSettingsRecord()),
       registerCommand(SETTINGS_COMMANDS.GET_SNAPSHOT, () => store.snapshot()),
       registerCommand(SETTINGS_COMMANDS.UPDATE, (patch = {}) => {
         const settings = store.update(patch);
