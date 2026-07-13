@@ -1,15 +1,22 @@
 export const DEFAULT_SETTINGS_INPUT = Object.freeze({
+  chartAxisBorderColor: '#163345',
+  chartBackgroundColor: '#0f1721',
+  chartCrosshairColor: '#758696',
   chartGrid: true,
+  chartGridColor: '#263441',
+  chartScaleFontSize: 12,
+  chartScaleTextColor: '#c9d6df',
   displayTimezone: 'exchange',
   showWatermark: true,
   theme: 'dark',
 });
 
-export const SETTINGS_RECORD_VERSION = 1;
+export const SETTINGS_RECORD_VERSION = 2;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
 const TIMEZONES = Object.freeze(['exchange', 'local', 'utc']);
+const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function normalizeBoolean(value, fallback) {
   return typeof value === 'boolean' ? value : fallback;
@@ -24,9 +31,58 @@ function normalizeChoice(value, choices, fallback, fieldName) {
   return normalized;
 }
 
+function normalizeColor(value, fallback, fieldName) {
+  const normalized = String(value || '').trim().toLowerCase();
+  if (!normalized) return fallback;
+  if (!COLOR_PATTERN.test(normalized)) {
+    throw new Error(`Settings ${fieldName} must be a six-digit hex color: ${value}`);
+  }
+  return normalized;
+}
+
+function normalizeInteger(value, fallback, fieldName, { min, max }) {
+  if (value === '' || value == null) return fallback;
+  const normalized = Number(value);
+  if (!Number.isInteger(normalized) || normalized < min || normalized > max) {
+    throw new Error(`Settings ${fieldName} must be an integer from ${min} to ${max}: ${value}`);
+  }
+  return normalized;
+}
+
 export function createSettingsRecord(input = {}) {
   return Object.freeze({
+    chartAxisBorderColor: normalizeColor(
+      input.chartAxisBorderColor,
+      DEFAULT_SETTINGS_INPUT.chartAxisBorderColor,
+      'chartAxisBorderColor',
+    ),
+    chartBackgroundColor: normalizeColor(
+      input.chartBackgroundColor,
+      DEFAULT_SETTINGS_INPUT.chartBackgroundColor,
+      'chartBackgroundColor',
+    ),
+    chartCrosshairColor: normalizeColor(
+      input.chartCrosshairColor,
+      DEFAULT_SETTINGS_INPUT.chartCrosshairColor,
+      'chartCrosshairColor',
+    ),
     chartGrid: normalizeBoolean(input.chartGrid, DEFAULT_SETTINGS_INPUT.chartGrid),
+    chartGridColor: normalizeColor(
+      input.chartGridColor,
+      DEFAULT_SETTINGS_INPUT.chartGridColor,
+      'chartGridColor',
+    ),
+    chartScaleFontSize: normalizeInteger(
+      input.chartScaleFontSize,
+      DEFAULT_SETTINGS_INPUT.chartScaleFontSize,
+      'chartScaleFontSize',
+      { min: 10, max: 20 },
+    ),
+    chartScaleTextColor: normalizeColor(
+      input.chartScaleTextColor,
+      DEFAULT_SETTINGS_INPUT.chartScaleTextColor,
+      'chartScaleTextColor',
+    ),
     displayTimezone: normalizeChoice(
       input.displayTimezone,
       TIMEZONES,
@@ -72,11 +128,11 @@ export function restoreSettingsPersistenceValue(value) {
       settings: createSettingsRecord(value),
     });
   }
-  if (value.version !== SETTINGS_RECORD_VERSION) {
+  if (value.version !== 1 && value.version !== SETTINGS_RECORD_VERSION) {
     throw new Error(`Unsupported Settings record version: ${value.version}`);
   }
   return Object.freeze({
-    migrated: false,
+    migrated: value.version !== SETTINGS_RECORD_VERSION,
     settings: createSettingsRecord(value.settings),
   });
 }

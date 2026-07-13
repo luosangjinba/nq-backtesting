@@ -13,7 +13,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 
 assert.match(doc, /Status: completed; automated and human visual acceptance passed/);
 assert.match(doc, /All five checks passed/);
-assert.match(model, /SETTINGS_RECORD_VERSION = 1/);
+assert.match(model, /SETTINGS_RECORD_VERSION = 2/);
 assert.doesNotMatch(model, /timeFormat/);
 assert.doesNotMatch(panel, /localStorage|LightweightCharts|createChart/);
 assert.match(panel, /SETTINGS_COMMANDS\.UPDATE, draftSettings/);

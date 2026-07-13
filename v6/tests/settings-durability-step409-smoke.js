@@ -12,6 +12,7 @@ import { emitEvent, clearEventsForTest, subscribeEvent } from '../src/runtime/ev
 import { createRuntimeRegistry } from '../src/runtime/lifecycle.js';
 import {
   createSettingsPersistenceValue,
+  DEFAULT_SETTINGS_INPUT,
   restoreSettingsPersistenceValue,
   SETTINGS_RECORD_VERSION,
 } from '../src/settings/settings-model.js';
@@ -21,12 +22,7 @@ import {
 } from '../src/settings/settings-persistence.js';
 import { createSettingsRuntime } from '../src/settings/settings-runtime.js';
 
-const defaults = {
-  chartGrid: true,
-  displayTimezone: 'exchange',
-  showWatermark: true,
-  theme: 'dark',
-};
+const defaults = DEFAULT_SETTINGS_INPUT;
 
 assert.deepEqual(createSettingsPersistenceValue(defaults), {
   settings: defaults,
@@ -40,6 +36,7 @@ assert.deepEqual(restoreSettingsPersistenceValue({
 }), {
   migrated: true,
   settings: {
+    ...DEFAULT_SETTINGS_INPUT,
     chartGrid: false,
     displayTimezone: 'utc',
     showWatermark: false,
@@ -81,6 +78,7 @@ await registry.start({ emitEvent, subscribeEvent });
 
 const hydrated = await dispatchCommand(SETTINGS_COMMANDS.GET_SNAPSHOT);
 assert.deepEqual(hydrated, {
+  ...DEFAULT_SETTINGS_INPUT,
   chartGrid: false,
   displayTimezone: 'utc',
   showWatermark: true,
@@ -88,7 +86,7 @@ assert.deepEqual(hydrated, {
 });
 assert.deepEqual(hydratedEvents, [hydrated]);
 assert.equal(failureEvents.length, 0);
-assert.equal(repository.get(SETTINGS_PERSISTENCE_COLLECTION, SETTINGS_PERSISTENCE_KEY).value.version, 1);
+assert.equal(repository.get(SETTINGS_PERSISTENCE_COLLECTION, SETTINGS_PERSISTENCE_KEY).value.version, 2);
 
 const updated = await dispatchCommand(SETTINGS_COMMANDS.UPDATE, { chartGrid: true });
 assert.deepEqual(
