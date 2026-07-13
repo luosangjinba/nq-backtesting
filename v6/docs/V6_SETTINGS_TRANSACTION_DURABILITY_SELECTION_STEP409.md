@@ -93,7 +93,7 @@ The mislabeled `showWatermark` control cannot remain as-is.
 Do not add `timeFormat`, replace all workstation time controls, or implement
 chart/session/journal formatting in this step. Step 409 establishes the correct
 owner, transaction, and durability boundary so the preference can be added
-once and consumed consistently in Step 410.
+once and consumed consistently in the later Step 416.
 
 ## Step 409 Acceptance Gate
 
@@ -160,23 +160,18 @@ Before Step 410, visually verify in the real workstation:
 4. hard refresh; the checkbox and hidden-grid state must remain off;
 5. press Reset, then Cancel; the persisted off state must remain unchanged.
 
-Step 409 closes after that matrix passes. Step 410 must not begin while this
-visual gate is open.
+Step 409 closes after that matrix passes. Production Step 410 must not begin
+while this visual gate is open. A planning-only catalog may be accepted without
+activating another control.
 
 ## Ordered Follow-up
 
-Step 410 is **Global Time Presentation Integration**:
-
-- add the accepted `timeFormat: '24h' | '12h'` field and migration;
-- keep it orthogonal to `displayTimezone`;
-- create one shared presentation formatter for shell, Go-to, Session, replay,
-  and Journal surfaces;
-- apply chart axis/crosshair formatting through the official Lightweight
-  Charts option hooks in the chart adapter, not a custom chart primitive;
-- replace native time inputs where deterministic selected-format rendering is
-  promised while preserving canonical `HH:mm` values;
-- verify reload, both formats, timezone independence, DST-sensitive session
-  anchors, canonical navigation values, and multi-pane chart labels.
+Step 409.5 is the planning-only **Settings Catalog And Ownership Architecture**.
+It defines the complete four-tab catalog before more controls become active.
+After the visual gate, Step 410 begins with direct Canvas chart options. Global
+Time Presentation moves to Step 416, after Canvas, Symbol, Status, and Scales
+owners have landed through bounded slices. See
+`V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`.
 
 Phase 8 Free Practice and Phase 9 Validation remain after these Phase 7
 foundation-closeout gates. This ordering is product work: it establishes a
@@ -192,4 +187,4 @@ Stop Step 409 if it:
 - makes Cancel persist or publish a draft;
 - exposes a setting without a real consumer;
 - changes chart/replay/bar-data ownership;
-- begins the broader Step 410 formatting rollout inside the foundation step.
+- begins the broader production Settings rollout inside the foundation step.

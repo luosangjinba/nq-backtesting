@@ -1,7 +1,8 @@
 # V6 Global Time Format Settings Contract
 
-Status: accepted Step 410 Settings requirement; implementation follows the
-Step 409 transaction/durability foundation.
+Status: accepted Step 416 Settings requirement; implementation follows the
+Step 409 transaction/durability foundation and the Step 410-415 visual-setting
+slices selected by the global Settings catalog.
 
 ## Decision
 
@@ -67,7 +68,7 @@ display follows `timeFormat` while its public value remains canonical `HH:mm`.
 This decision does not yet add `timeFormat` to the production Settings model,
 render a toggle, replace time inputs, or install chart formatters. Step 409
 first corrects Settings modal transaction semantics, durable/versioned
-ownership, and disconnected controls. Step 410 then implements this contract
+ownership, and disconnected controls. Step 416 then implements this contract
 as a bounded global time-presentation integration.
 
 Chart labels must use the official Lightweight Charts

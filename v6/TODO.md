@@ -36,13 +36,19 @@
   `v6/docs/V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409.md`.
 - Next acceptance gate: visually verify draft isolation, Cancel restore, atomic
   grid application, hard-refresh persistence, and Reset-then-Cancel behavior in
-  the real workstation. Do not start Step 410 until this passes.
-- Ordered follow-up: Step 410 - Global Time Presentation Integration. Add one
-  `timeFormat: '24h' | '12h'` preference after Step 409, keep it independent of
-  `displayTimezone`, preserve canonical timestamps and `HH:mm`, and cover chart,
-  Go-to, Session, replay, and Journal through one shared formatter. Chart
-  axis/crosshair labels must use official Lightweight Charts formatter hooks
-  through the chart adapter. See
+  the real workstation. Do not start production Step 410 until this passes.
+- Latest planning constraint: Step 409.5 - Settings Catalog And Ownership
+  Architecture. The complete Canvas, Symbol, Status line, and Scales/lines
+  catalog now records scope, owner, consumer routing, and accepted/deferred/
+  rejected behavior before controls become active. The modal stays one
+  transactional shell while Chart Surface, Chart Viewport, Session Calendar,
+  Status Readout, symbol metadata, and time presentation retain separate
+  ownership. See `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`.
+- Ordered follow-up after the Step 409 visual gate: Step 410 - Canvas Direct
+  Chart Options. Add background, grid visibility/color, crosshair color, scale
+  text color/font size, and axis-border color through the existing Settings to
+  Chart Surface bridge. Global timezone and `timeFormat: '24h' | '12h'` move to
+  Step 416, preserving canonical timestamps and `HH:mm`; see
   `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was

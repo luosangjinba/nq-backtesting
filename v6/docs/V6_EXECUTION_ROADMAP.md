@@ -285,12 +285,16 @@ Gate:
 Only after Phase 6 gates pass:
 
 - configured Next Day Open / Next Session / named-session replay navigation;
-- Settings parity in two ordered slices: Step 409 establishes transactional
-  modal semantics, one durable/versioned Settings owner, and an honest active
-  surface; Step 410 then adds the workstation-wide 12/24-hour presentation
-  preference constrained by
-  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md` and consumes official
-  Lightweight Charts formatter hooks through the chart adapter;
+- Settings parity starts with Step 409 transactional modal semantics, one
+  durable/versioned Settings owner, and an honest active surface. The planning-
+  only Step 409.5 then defines the complete four-tab catalog, scopes, owner
+  routing, and accepted/deferred/rejected fields before more controls become
+  active. Production Steps 410-415 implement bounded Canvas, Symbol, Status,
+  and Scales slices; Step 416 adds workstation-wide timezone and 12/24-hour
+  presentation constrained by
+  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`; Step 417 selects
+  templates and optional pane overrides. See
+  `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`;
 - visual polish;
 - persistence;
 - preserve V5-quality Free Practice replay ergonomics without importing V5

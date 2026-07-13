@@ -61,12 +61,15 @@ Read this index before working on V6.
   recheck.
 - `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`: accepted future global
   Settings ownership for 12/24-hour presentation, canonical `HH:mm` storage,
-  shared-surface coverage, and the controlled time-input requirement.
+  shared-surface coverage, and the controlled time-input requirement; its
+  implementation is now sequenced as Step 416 by the global Settings catalog.
 - `v6/docs/V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409.md`: selects
   and records the implemented Phase 7 Settings slice: transactional drafts,
   atomic commit/discard, a versioned durable owner, chart-grid consumer bridge,
-  hard-reload evidence, the remaining visual gate, and the ordered Step 410
-  time-presentation follow-up.
+  hard-reload evidence, and the remaining visual gate.
+- `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`: binding four-tab
+  Settings catalog, scope and owner routing, accepted/deferred/rejected field
+  matrix, shared-control rules, and ordered Step 410-417 implementation plan.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

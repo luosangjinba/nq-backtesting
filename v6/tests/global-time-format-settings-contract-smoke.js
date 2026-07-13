@@ -6,6 +6,7 @@ const guardrails = readFileSync('v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md', 'utf8');
 const index = readFileSync('v6/docs/INDEX.md', 'utf8');
 const settingsModel = readFileSync('v6/src/settings/settings-model.js', 'utf8');
 
+assert.match(contract, /accepted Step 416 Settings requirement/);
 assert.match(contract, /owned by the\s+global Settings runtime/);
 assert.match(contract, /timeFormat: '24h' \| '12h'/);
 assert.match(contract, /default is `24h`/);
