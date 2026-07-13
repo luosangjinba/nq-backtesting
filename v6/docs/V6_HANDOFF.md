@@ -2,16 +2,23 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 Step 394 Handoff Snapshot
+## 2026-07-12 Step 395 Handoff Snapshot
 
 Read this block first after restarting the server or assistant context.
 
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 394 closeout
-- Latest completed step: Step 394 - Historical Static Test Consolidation
+- Worktree at handoff: clean after Step 395 closeout
+- Latest completed step: Step 395 - Replay Transport Position Modularization
 - Recent relevant commits:
+  - Step 395 extracted replay transport position calculations/snapshots and the
+    floating DOM drag/persistence controller. The public mount API, replay
+    commands/events, keyboard behavior, and presentation remain unchanged;
+    `replay-transport.js` fell from 703 to 571 lines. The new Replay Transport
+    browser pack passed `4/4` in `14210ms`. Step 396 should extract period-menu
+    keyboard/focus ownership while leaving period command dispatch in the main
+    transport.
   - Step 394 reduced the static architecture suite from 201 tests with 61 stale
     failures to 127 tests passing `127/127`. It removed historical latest-step
     snapshots, superseded file-shape assertions, and chained tests of other

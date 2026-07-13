@@ -15,6 +15,9 @@ Read this index before working on V6.
   Step 394 static-test consolidation recommendation.
 - `v6/docs/V6_HISTORICAL_STATIC_TEST_AUDIT_STEP394.md`: Step 394 baseline,
   consolidation rules, final `127/127` static suite, and Step 395 recommendation.
+- `v6/docs/V6_REPLAY_TRANSPORT_POSITION_MODULARIZATION_STEP395.md`: extracted
+  Replay Transport position domain/controller, regression evidence, and the
+  Step 396 period-menu controller recommendation.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,

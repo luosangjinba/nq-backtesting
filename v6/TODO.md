@@ -2,15 +2,20 @@
 
 ## Current / Next
 
+- Latest completed shell modularization step: Step 395 - Replay Transport
+  Position Modularization. Position clamping/snapshots and DOM drag,
+  persistence, restoration, and cleanup now live behind focused modules;
+  `replay-transport.js` fell from 703 to 571 lines and its browser pack passed
+  `4/4`.
+- Next recommended step: Step 396 - Replay Transport Period Menu Controller.
+  Extract option discovery and keyboard/focus/menu behavior while keeping
+  playback-period command dispatch and event synchronization in the main
+  transport boundary.
 - Latest completed test-architecture step: Step 394 - Historical Static Test
   Consolidation. V6 reduced 201 static smokes with 61 stale failures to 127
   current smokes passing `127/127`, replacing historical handoff snapshots,
   file-shape assertions, and test-of-test chains with four current ownership
   invariant smokes. Foundation and target-history browser packs remain green.
-- Next recommended step: Step 395 - Replay Transport Modularization. Extract
-  floating position/drag ownership first while preserving the public mount API,
-  replay commands/events, keyboard behavior, and DOM presentation. The V6
-  license choice remains an explicit owner decision.
 - Latest completed architecture step: Step 393 - Production Complexity
   Reduction. V6 extracted chart range input handling and leftward-history data
   orchestration, moved 18 governance-only helpers out of production `src`, and
