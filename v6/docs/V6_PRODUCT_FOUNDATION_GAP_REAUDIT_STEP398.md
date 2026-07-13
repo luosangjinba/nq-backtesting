@@ -1,6 +1,6 @@
 # Step 398 - Product/Foundation Gap Re-audit
 
-Status: evidence collection in progress.
+Status: journey verification complete; slice selection pending.
 
 ## Journey evidence matrix
 
@@ -43,3 +43,17 @@ A future date locator must remain a UI command surface. Bar Data owns any
 missing-window request, Chart Data owns bar replacement/merge, and Chart
 Viewport/Chart Surface owns the final visible-range application. The locator
 must not call Lightweight Charts or fetch bars directly.
+
+## Journey verification
+
+- Step 276 foundation pack passed `8/8` in `45651ms`, covering loading,
+  timeframe switching/projection, leftward history, and replay gaps.
+- Step 253 multi-pane foundation pack passed `9/9` in `27520ms`, covering pane
+  bootstrap, replay append/viewport, history, reset, maximize, and active focus.
+- Step 255 date-range boundary-entry pack passed `7/7` in `19151ms`, covering
+  entry alignment, real boundary metadata, initial visibility, playback-period
+  boundaries, and leftward gaps.
+
+These results confirm that the Date Range gap is not broken session entry or
+broken range synchronization. It is the missing post-entry user action for
+locating a date/time in the active workstation chart.
