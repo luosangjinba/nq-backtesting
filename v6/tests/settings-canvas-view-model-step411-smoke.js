@@ -7,7 +7,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 3);
+assert.equal(SETTINGS_RECORD_VERSION, 4);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   chartBottomMarginPercent: 12,
   chartNavigationVisibility: 'always',
@@ -27,7 +27,7 @@ assert.throws(() => updateSettingsRecord(customized, {
   chartRightMarginBars: -1,
 }), /integer from 0 to 100/);
 
-for (const version of [1, 2]) {
+for (const version of [1, 2, 3]) {
   const restored = restoreSettingsPersistenceValue({
     version,
     settings: { chartGrid: false },

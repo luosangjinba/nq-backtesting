@@ -2,25 +2,32 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   chartAxisBorderColor: '#163345',
   chartBackgroundColor: '#0f1721',
   chartCrosshairColor: '#758696',
+  chartDaySeparators: 'off',
   chartGrid: true,
   chartGridColor: '#263441',
+  chartIctDaySeparatorColor: '#a855f7',
+  chartIctDaySeparatorStyle: 'dotted',
   chartNavigationVisibility: 'hover',
   chartBottomMarginPercent: 8,
   chartRightMarginBars: 8,
   chartScaleFontSize: 12,
   chartScaleTextColor: '#c9d6df',
   chartTopMarginPercent: 10,
+  chartTradingDaySeparatorColor: '#3b82f6',
+  chartTradingDaySeparatorStyle: 'dashed',
   displayTimezone: 'exchange',
   showWatermark: true,
   theme: 'dark',
 });
 
-export const SETTINGS_RECORD_VERSION = 3;
+export const SETTINGS_RECORD_VERSION = 4;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
 const TIMEZONES = Object.freeze(['exchange', 'local', 'utc']);
 const NAVIGATION_VISIBILITY = Object.freeze(['hover', 'always', 'hidden']);
+const DAY_SEPARATORS = Object.freeze(['off', 'trading', 'ict', 'both']);
+const LINE_STYLES = Object.freeze(['solid', 'dashed', 'dotted']);
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function normalizeBoolean(value, fallback) {
@@ -71,11 +78,28 @@ export function createSettingsRecord(input = {}) {
       DEFAULT_SETTINGS_INPUT.chartCrosshairColor,
       'chartCrosshairColor',
     ),
+    chartDaySeparators: normalizeChoice(
+      input.chartDaySeparators,
+      DAY_SEPARATORS,
+      DEFAULT_SETTINGS_INPUT.chartDaySeparators,
+      'chartDaySeparators',
+    ),
     chartGrid: normalizeBoolean(input.chartGrid, DEFAULT_SETTINGS_INPUT.chartGrid),
     chartGridColor: normalizeColor(
       input.chartGridColor,
       DEFAULT_SETTINGS_INPUT.chartGridColor,
       'chartGridColor',
+    ),
+    chartIctDaySeparatorColor: normalizeColor(
+      input.chartIctDaySeparatorColor,
+      DEFAULT_SETTINGS_INPUT.chartIctDaySeparatorColor,
+      'chartIctDaySeparatorColor',
+    ),
+    chartIctDaySeparatorStyle: normalizeChoice(
+      input.chartIctDaySeparatorStyle,
+      LINE_STYLES,
+      DEFAULT_SETTINGS_INPUT.chartIctDaySeparatorStyle,
+      'chartIctDaySeparatorStyle',
     ),
     chartNavigationVisibility: normalizeChoice(
       input.chartNavigationVisibility,
@@ -111,6 +135,17 @@ export function createSettingsRecord(input = {}) {
       DEFAULT_SETTINGS_INPUT.chartTopMarginPercent,
       'chartTopMarginPercent',
       { min: 0, max: 40 },
+    ),
+    chartTradingDaySeparatorColor: normalizeColor(
+      input.chartTradingDaySeparatorColor,
+      DEFAULT_SETTINGS_INPUT.chartTradingDaySeparatorColor,
+      'chartTradingDaySeparatorColor',
+    ),
+    chartTradingDaySeparatorStyle: normalizeChoice(
+      input.chartTradingDaySeparatorStyle,
+      LINE_STYLES,
+      DEFAULT_SETTINGS_INPUT.chartTradingDaySeparatorStyle,
+      'chartTradingDaySeparatorStyle',
     ),
     displayTimezone: normalizeChoice(
       input.displayTimezone,
@@ -157,7 +192,7 @@ export function restoreSettingsPersistenceValue(value) {
       settings: createSettingsRecord(value),
     });
   }
-  if (![1, 2, SETTINGS_RECORD_VERSION].includes(value.version)) {
+  if (![1, 2, 3, SETTINGS_RECORD_VERSION].includes(value.version)) {
     throw new Error(`Unsupported Settings record version: ${value.version}`);
   }
   return Object.freeze({

@@ -355,6 +355,40 @@ ${renderDisplayTimeframeMenuSections()}
                   <input type="color" data-v6-settings-field="chartCrosshairColor" value="#758696" aria-label="Crosshair color">
                 </label>
               </section>
+              <section class="settings-field-group" aria-label="Day separators">
+                <div class="settings-group-heading">Day separators</div>
+                <label class="settings-control-row">
+                  <span>Show</span>
+                  <select data-v6-settings-field="chartDaySeparators" aria-label="Day separators">
+                    <option value="off">Hidden</option>
+                    <option value="trading">Trading day · 18:00 ET</option>
+                    <option value="ict">ICT day · 00:00 ET</option>
+                    <option value="both">Both</option>
+                  </select>
+                </label>
+                <label class="settings-control-row">
+                  <span>Trading day · 18:00 ET</span>
+                  <span class="settings-inline-controls">
+                    <input type="color" data-v6-settings-field="chartTradingDaySeparatorColor" value="#3b82f6" aria-label="Trading day separator color">
+                    <select data-v6-settings-field="chartTradingDaySeparatorStyle" aria-label="Trading day separator style">
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted">Dotted</option>
+                    </select>
+                  </span>
+                </label>
+                <label class="settings-control-row">
+                  <span>ICT day · 00:00 ET</span>
+                  <span class="settings-inline-controls">
+                    <input type="color" data-v6-settings-field="chartIctDaySeparatorColor" value="#a855f7" aria-label="ICT day separator color">
+                    <select data-v6-settings-field="chartIctDaySeparatorStyle" aria-label="ICT day separator style">
+                      <option value="solid">Solid</option>
+                      <option value="dashed">Dashed</option>
+                      <option value="dotted" selected>Dotted</option>
+                    </select>
+                  </span>
+                </label>
+              </section>
               <section class="settings-field-group" aria-label="Scales">
                 <div class="settings-group-heading">Scales</div>
                 <label class="settings-control-row">
