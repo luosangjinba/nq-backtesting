@@ -72,7 +72,10 @@ Read this index before working on V6.
   matrix, shared-control rules, and ordered Step 410-417 implementation plan.
 - `v6/docs/V6_SETTINGS_CANVAS_DIRECT_OPTIONS_STEP410.md`: schema-v2 Canvas
   colors/font controls, pure chart-options mapping, atomic multi-pane consumer
-  path, automated evidence, and remaining human visual matrix.
+  path, automated evidence, and completed human visual matrix.
+- `v6/docs/V6_SETTINGS_CANVAS_VIEW_CONTROLS_STEP411.md`: schema-v3 navigation
+  and chart-margin controls, split Chart Surface/Chart Viewport ownership,
+  manual-wall preservation, Reset semantics, and visual acceptance gate.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

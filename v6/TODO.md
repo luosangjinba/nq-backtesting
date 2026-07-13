@@ -49,6 +49,15 @@
   OK, v2 persistence, hard reload, and the complete human visual matrix passed.
   Step 410 is closed and Step 411 may begin. See
   `v6/docs/V6_SETTINGS_CANVAS_DIRECT_OPTIONS_STEP410.md`.
+- Latest implemented Settings step: Step 411 - Canvas View And Controls.
+  Settings schema v3 adds navigation visibility plus top, bottom, and right
+  chart margins. Navigation and vertical margins use the Chart Surface owner;
+  right margin uses a dedicated Chart Viewport bridge. Default walls reproject,
+  manual walls do not jump, and Reset adopts the changed default. Transaction,
+  persistence, hard reload, adjacent Settings tests, boundary smoke, and the
+  full chart browser regression pack `28/28` pass. Human visual acceptance is
+  still required before Step 411 closes. See
+  `v6/docs/V6_SETTINGS_CANVAS_VIEW_CONTROLS_STEP411.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
