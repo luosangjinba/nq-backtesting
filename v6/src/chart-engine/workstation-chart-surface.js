@@ -12,6 +12,7 @@ import {
   createWorkstationLayoutSnapshot,
   LAYOUT_GRID_AREAS_BY_VARIANT,
 } from './workstation-chart-layout-model.js';
+import { createChartRangeInputController } from './chart-range-input-controller.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -43,10 +44,7 @@ const DEFAULT_SERIES_OPTIONS = Object.freeze({
 
 const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
 const PROGRAMMATIC_RANGE_EPSILON = 2;
-const USER_RANGE_DRAG_RELEASE_GRACE_MS = 80;
-const USER_RANGE_WHEEL_WINDOW_MS = 2000;
 const WHEEL_PREPEND_STABILIZE_DELAY_MS = 120;
-const SYNTHETIC_RELEASE_EVENT_TYPES = Object.freeze(['mouseup', 'pointerup']);
 
 function measureHost(host) {
   const rect = host.getBoundingClientRect?.() ?? {};
@@ -111,10 +109,6 @@ export function mountWorkstationChartSurface(root, {
   const chartSurfaceElement = root.querySelector?.('[data-v6-chart-surface]') || null;
   const chartPaneLayerElement = root.querySelector?.('[data-v6-chart-pane-layer]') || null;
   const crosshairListeners = new Set();
-  const hostFocusHandlers = new Map();
-  const hostInputStartHandlers = new Map();
-  const hostWheelHandlers = new Map();
-  const lastWheelRangeInputByPaneId = new Map();
   const paneActivationListeners = new Set();
   const visibleRangeListeners = new Set();
   const paneResizeRatiosByVariant = new Map();
@@ -132,10 +126,13 @@ export function mountWorkstationChartSurface(root, {
   let pendingLayoutResizeFrame = null;
   const pendingPriceScaleResetFrames = new Map();
   const pendingWheelPrependStabilizationTimers = new Map();
+  let rangeInputController = {
+    destroy() {},
+    isRecentWheelInput: () => false,
+    isUserRangeInputActive: () => false,
+  };
   let readoutPaneId = null;
   let restoreLayoutSnapshot = null;
-  let activeUserRangeGestures = 0;
-  let userRangeInputUntil = 0;
   const size = measureHost(hosts[0]);
   const manager = managerFactory({
     chartOptions: {
@@ -166,7 +163,7 @@ export function mountWorkstationChartSurface(root, {
         if (programmaticRange && Date.now() <= programmaticRange.suppressUntil && rangesNear(record, programmaticRange)) {
           return;
         }
-        if (!isUserRangeInputActive()) {
+        if (!rangeInputController.isUserRangeInputActive()) {
           return;
         }
         visibleRangeListeners.forEach((listener) => listener({ ...record }));
@@ -195,34 +192,6 @@ export function mountWorkstationChartSurface(root, {
       }))
     : [];
 
-  function isUserRangeInputActive() {
-    return activeUserRangeGestures > 0 || Date.now() <= userRangeInputUntil;
-  }
-
-  const markUserRangeDragStart = () => {
-    activeUserRangeGestures += 1;
-    userRangeInputUntil = Date.now() + USER_RANGE_DRAG_RELEASE_GRACE_MS;
-  };
-  const markUserRangeDragEnd = () => {
-    activeUserRangeGestures = 0;
-    userRangeInputUntil = Date.now() + USER_RANGE_DRAG_RELEASE_GRACE_MS;
-  };
-  const markUserRangeWheelInput = (paneId = null) => {
-    userRangeInputUntil = Date.now() + USER_RANGE_WHEEL_WINDOW_MS;
-    const normalizedPaneId = String(paneId || '').trim();
-    if (normalizedPaneId) {
-      lastWheelRangeInputByPaneId.set(normalizedPaneId, {
-        until: userRangeInputUntil,
-      });
-    }
-  };
-  function isRecentWheelRangeInput(paneId) {
-    const record = lastWheelRangeInputByPaneId.get(paneId);
-    if (!record) return false;
-    if (Date.now() <= Number(record.until)) return true;
-    lastWheelRangeInputByPaneId.delete(paneId);
-    return false;
-  }
   function clearWheelPrependStabilization(paneId) {
     const timer = pendingWheelPrependStabilizationTimers.get(paneId);
     if (timer !== undefined && typeof clearTimeout === 'function') {
@@ -243,7 +212,7 @@ export function mountWorkstationChartSurface(root, {
     });
   }
   function scheduleWheelPrependStabilization(paneId, range) {
-    if (!isRecentWheelRangeInput(paneId) || typeof setTimeout !== 'function') {
+    if (!rangeInputController.isRecentWheelInput(paneId) || typeof setTimeout !== 'function') {
       return null;
     }
     clearWheelPrependStabilization(paneId);
@@ -285,82 +254,13 @@ export function mountWorkstationChartSurface(root, {
     }
     return record;
   }
-  function dispatchSyntheticRelease(target, eventName) {
-    if (!target || typeof target.dispatchEvent !== 'function') {
-      return;
-    }
-    const ownerDocument = target.ownerDocument || root.ownerDocument || globalThis.document;
-    const ownerWindow = ownerDocument?.defaultView || globalThis.window;
-    const EventCtor = eventName.startsWith('pointer')
-      ? ownerWindow?.PointerEvent
-      : ownerWindow?.MouseEvent;
-    const FallbackCtor = ownerWindow?.Event || globalThis.Event;
-    try {
-      const event = EventCtor
-        ? new EventCtor(eventName, { bubbles: true, buttons: 0, cancelable: true })
-        : new FallbackCtor(eventName, { bubbles: true, cancelable: true });
-      target.dispatchEvent(event);
-    } catch {
-      try {
-        target.dispatchEvent({ bubbles: true, buttons: 0, type: eventName });
-      } catch {
-        // Release recovery is best-effort; normal document release listeners remain authoritative.
-      }
-    }
-  }
-  function forceUserRangeDragRelease(event = {}) {
-    if (activeUserRangeGestures <= 0) {
-      return;
-    }
-    if (Number(event.buttons ?? 0) !== 0) {
-      return;
-    }
-    markUserRangeDragEnd();
-    const ownerDocument = event.target?.ownerDocument || root.ownerDocument || globalThis.document;
-    const ownerWindow = ownerDocument?.defaultView || globalThis.window;
-    SYNTHETIC_RELEASE_EVENT_TYPES.forEach((eventName) => {
-      hosts.forEach((host) => dispatchSyntheticRelease(host, eventName));
-      dispatchSyntheticRelease(ownerDocument, eventName);
-      dispatchSyntheticRelease(ownerWindow, eventName);
-    });
-  }
-  const userInputStartEvents = ['pointerdown', 'mousedown', 'touchstart'];
-  const userInputReleaseEvents = ['pointerup', 'pointercancel', 'mouseup', 'touchend', 'touchcancel'];
-  const userInputMoveEvents = ['pointermove', 'mousemove'];
-  const userInputReleaseTargets = new Set();
-  hosts.forEach((host) => {
-    const paneId = resolvePaneId(host);
-    userInputStartEvents.forEach((eventName) => {
-      const handler = (event) => {
-        activatePane(paneId, eventName);
-        markUserRangeDragStart(event);
-      };
-      hostInputStartHandlers.set(`${paneId}:${eventName}`, handler);
-      host.addEventListener?.(eventName, handler, { passive: true });
-    });
-    const focusHandler = () => activatePane(paneId, 'focusin');
-    hostFocusHandlers.set(paneId, focusHandler);
-    host.addEventListener?.('focusin', focusHandler, { passive: true });
-    const wheelHandler = () => {
-      activatePane(paneId, 'wheel');
-      markUserRangeWheelInput(paneId);
-    };
-    hostWheelHandlers.set(paneId, wheelHandler);
-    host.addEventListener?.('wheel', wheelHandler, { passive: true });
-    const releaseTarget = host.ownerDocument || root.ownerDocument || globalThis.document;
-    if (releaseTarget) {
-      userInputReleaseTargets.add(releaseTarget);
-    }
+  rangeInputController = createChartRangeInputController({
+    activatePane,
+    hosts,
+    resolvePaneId,
+    root,
   });
   activatePane(activePaneId, 'initial');
-  userInputReleaseTargets.forEach((target) => {
-    userInputReleaseEvents.forEach((eventName) => {
-      target.addEventListener?.(eventName, markUserRangeDragEnd, { passive: true });
-    });
-    userInputMoveEvents.forEach((eventName) => {
-      target.addEventListener?.(eventName, forceUserRangeDragRelease, { passive: true });
-    });
-  });
 
   function resize() {
     if (destroyed) {
@@ -807,28 +707,9 @@ export function mountWorkstationChartSurface(root, {
       for (const paneId of pendingWheelPrependStabilizationTimers.keys()) {
         clearWheelPrependStabilization(paneId);
       }
-      lastWheelRangeInputByPaneId.clear();
+      rangeInputController.destroy();
       unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
-      hosts.forEach((host) => {
-        const paneId = resolvePaneId(host);
-        userInputStartEvents.forEach((eventName) => {
-          host.removeEventListener?.(eventName, hostInputStartHandlers.get(`${paneId}:${eventName}`));
-        });
-        host.removeEventListener?.('focusin', hostFocusHandlers.get(paneId));
-        host.removeEventListener?.('wheel', hostWheelHandlers.get(paneId));
-      });
-      hostFocusHandlers.clear();
-      hostInputStartHandlers.clear();
-      hostWheelHandlers.clear();
-      userInputReleaseTargets.forEach((target) => {
-        userInputReleaseEvents.forEach((eventName) => {
-          target.removeEventListener?.(eventName, markUserRangeDragEnd);
-        });
-        userInputMoveEvents.forEach((eventName) => {
-          target.removeEventListener?.(eventName, forceUserRangeDragRelease);
-        });
-      });
       resizeObserver?.disconnect();
       manager.destroyAll();
       crosshairListeners.clear();
