@@ -1,5 +1,20 @@
 # V6
 
+## Development
+
+V6 owns its JavaScript module boundary and dependency declaration in
+`v6/package.json`. Run commands from `v6/`:
+
+```bash
+npm run test:boundary
+npm run test:foundation
+```
+
+The browser route still uses the checked-in Lightweight Charts 5.2.0 asset
+during the current no-build foundation phase. Moving that asset out of the V5
+legacy directory is tracked as a packaging cleanup and does not change chart
+ownership.
+
 V6 is the clean replay-chart rewrite opened after V5 proved the product shape
 but exposed a hard viewport/manual-anchor architecture blocker.
 

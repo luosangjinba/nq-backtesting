@@ -1,0 +1,15 @@
+{
+  "name": "smc-ict-backtesting-workstation-v6",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test:boundary": "cd .. && node v6/tests/boundary-smoke.js",
+    "test:foundation": "cd .. && node v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js",
+    "test:replay-gap": "cd .. && node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js",
+    "test:target-history": "cd .. && node v6/tests/target-history-diagnostics-readout-regression-pack-step293-smoke.js"
+  },
+  "dependencies": {
+    "lightweight-charts": "5.2.0"
+  }
+}
