@@ -68,6 +68,12 @@ export function createChartHostManager({
     return getPaneSnapshot(record.paneId);
   }
 
+  function setDaySeparators(paneId, lines = []) {
+    const record = getMountedRecord(paneId);
+    record.adapter.setDaySeparators?.(lines);
+    return getPaneSnapshot(record.paneId);
+  }
+
   function applyOptions(options = {}) {
     return [...hostsByPaneId.values()].map((record) => {
       record.adapter.applyOptions?.(options);
@@ -188,6 +194,7 @@ export function createChartHostManager({
     resetPriceScale,
     setCrosshairPosition,
     setData,
+    setDaySeparators,
     setVisibleLogicalRange,
     snapshot,
     subscribeCrosshairMove,

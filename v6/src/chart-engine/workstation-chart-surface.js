@@ -607,6 +607,21 @@ export function mountWorkstationChartSurface(root, {
   hosts.forEach((host) => resizeObserver?.observe(host));
 
   return {
+    applyDaySeparators(paneId, lines = [], { mode = 'off' } = {}) {
+      const normalizedPaneId = String(paneId || '').trim();
+      if (!hostsByPaneId.has(normalizedPaneId)) return null;
+      const snapshot = manager.setDaySeparators?.(normalizedPaneId, lines) || null;
+      if (chartSurfaceElement?.dataset) {
+        chartSurfaceElement.dataset.v6ChartDaySeparators = String(mode);
+        chartSurfaceElement.dataset.v6ChartDaySeparatorCount = String(
+          manager.snapshot().panes.reduce(
+            (total, pane) => total + Number(pane.snapshot.daySeparatorCount || 0),
+            0,
+          ),
+        );
+      }
+      return snapshot;
+    },
     applySettings(settings = {}) {
       const canvasSettings = createCanvasSettingsChartOptions(settings, DEFAULT_CHART_OPTIONS);
       manager.applyOptions?.(canvasSettings.options);

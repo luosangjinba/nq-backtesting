@@ -78,6 +78,7 @@ export function createLightweightChartAdapter({
   let host = null;
   let lastDataLength = 0;
   let lastVisibleLogicalRange = null;
+  let daySeparatorPrimitive = null;
 
   function mount(nextHost) {
     if (!nextHost) {
@@ -90,6 +91,8 @@ export function createLightweightChartAdapter({
     host = nextHost;
     chart = createChart(host, chartOptions);
     series = resolveCandlestickSeries(chart, engine, seriesOptions);
+    daySeparatorPrimitive = createDaySeparatorPrimitive();
+    series.attachPrimitive?.(daySeparatorPrimitive);
     return snapshot();
   }
 
@@ -110,6 +113,12 @@ export function createLightweightChartAdapter({
   function applyOptions(options = {}) {
     ensureMounted();
     chart.applyOptions?.(options);
+    return snapshot();
+  }
+
+  function setDaySeparators(lines = []) {
+    ensureMounted();
+    daySeparatorPrimitive?.setLines(lines);
     return snapshot();
   }
 
@@ -215,17 +224,20 @@ export function createLightweightChartAdapter({
   }
 
   function destroy() {
+    if (daySeparatorPrimitive) series?.detachPrimitive?.(daySeparatorPrimitive);
     chart?.remove?.();
     chart = null;
     series = null;
     host = null;
     lastDataLength = 0;
     lastVisibleLogicalRange = null;
+    daySeparatorPrimitive = null;
   }
 
   function snapshot() {
     return {
       dataLength: lastDataLength,
+      daySeparatorCount: daySeparatorPrimitive?.lines.length || 0,
       mounted: Boolean(chart && series && host),
       visibleLogicalRange: cloneRange(lastVisibleLogicalRange),
     };
@@ -241,6 +253,7 @@ export function createLightweightChartAdapter({
     resetPriceScale,
     setCrosshairPosition,
     setData,
+    setDaySeparators,
     setVisibleLogicalRange,
     snapshot,
     subscribeCrosshairMove,
@@ -248,3 +261,4 @@ export function createLightweightChartAdapter({
     update,
   };
 }
+import { createDaySeparatorPrimitive } from './day-separator-primitive.js';

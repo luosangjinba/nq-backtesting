@@ -16,6 +16,7 @@ import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-s
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { connectSettingsChartViewportBridge } from './chart-viewport/settings-chart-viewport-bridge.js';
 import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
+import { connectSettingsDaySeparatorBridge } from './session-calendar/settings-day-separator-bridge.js';
 import { createInMemorySessionRepository } from './session/session-repository.js';
 import {
   createPersistenceRepository,
@@ -72,6 +73,10 @@ const settingsChartSurfaceBridge = connectSettingsChartSurfaceBridge({
   subscribeEvent,
 });
 const settingsChartViewportBridge = connectSettingsChartViewportBridge({
+  subscribeEvent,
+});
+const settingsDaySeparatorBridge = connectSettingsDaySeparatorBridge({
+  chartSurface: workstationChartSurface,
   subscribeEvent,
 });
 const chartDataSurfaceBridge = connectChartDataSurfaceBridge({
@@ -188,6 +193,7 @@ root.__v6SessionDashboard = sessionDashboard;
 root.__v6SettingsPanel = settingsPanel;
 root.__v6SettingsChartSurfaceBridge = settingsChartSurfaceBridge;
 root.__v6SettingsChartViewportBridge = settingsChartViewportBridge;
+root.__v6SettingsDaySeparatorBridge = settingsDaySeparatorBridge;
 root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;

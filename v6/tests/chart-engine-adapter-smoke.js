@@ -71,6 +71,7 @@ const adapter = createLightweightChartAdapter({
 
 assert.deepEqual(adapter.snapshot(), {
   dataLength: 0,
+  daySeparatorCount: 0,
   mounted: false,
   visibleLogicalRange: null,
 });
@@ -118,6 +119,7 @@ adapter.destroy();
 assert.equal(calls.remove, 1);
 assert.deepEqual(adapter.snapshot(), {
   dataLength: 0,
+  daySeparatorCount: 0,
   mounted: false,
   visibleLogicalRange: null,
 });
