@@ -52,8 +52,9 @@ Read this index before working on V6.
   evidence, and the required Step 407 human visual-acceptance matrix.
 - `v6/docs/V6_REPLAY_NAVIGATION_CONTINUOUS_RANGE_STEP407.md`: corrected Go-to
   jumps that advanced Replay but rendered only the destination K-line, added
-  shared continuous range materialization, and defined the required visual
-  recheck before Step 407 closes.
+  shared continuous range materialization, expanded boundary/full-timeframe
+  automated acceptance, and defined the remaining visual recheck before Step
+  407 closes.
 - `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`: accepted future global
   Settings ownership for 12/24-hour presentation, canonical `HH:mm` storage,
   shared-surface coverage, and the controlled time-input requirement.

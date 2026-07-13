@@ -8,15 +8,18 @@
   a validated New York-time draft with Save, Discard, Reset, Escape, focus, and
   persistence behavior. Real NQ UI evidence verified a persisted Friday-to-
   Monday custom-anchor jump without bypassing runtime owners.
-- Step 407 correction completed, visual recheck pending: user screenshots found
-  that Go-to advanced Replay but appended only the destination K-line. The
-  shared materializer now fills the complete real-source interval through the
-  same `1m`/HTF/session-calendar projection path. Real NQ regression requires
-  more than 500 intermediate K-lines and no-future timestamps.
-- Next step: complete Step 407 Browser And Human Acceptance. First repeat the
-  reported 1m scenario after a hard reload and sample fixed HTF plus
-  `1D`/`1W`/`1M`; then close the remaining action-boundary, replay-end/double-
-  input, persistence, multi-pane, viewport, and visible-latency matrix.
+- Step 407 correction and automated acceptance completed, visual recheck
+  pending: the shared materializer fills the complete real-source interval
+  through the same `1m`/HTF/session-calendar projection path. Real NQ requires
+  more than 500 intermediate K-lines; deterministic acceptance now covers
+  terminal/error/double-input boundaries and one shared `1m`/`4h`/`1D`/`1W`/
+  `1M` multi-pane no-future matrix. Manual Next `5/5`, visible latency `6/6`,
+  HTF gap, and chart browser `28/28` remain green.
+- Next step: complete the remaining Step 407 human acceptance only. Repeat the
+  reported `1m` scenario after a hard reload, then sample one fixed HTF and one
+  of `1D`/`1W`/`1M`; confirm the skipped interval is visually continuous after
+  dragging and the destination K-line agrees with the footer cursor. Do not
+  start a new product feature until this gate closes.
 - Accepted future Settings requirement (does not replace the Step 407 gate):
   add one global `timeFormat: '24h' | '12h'` preference when Settings parity
   begins. It defaults to `24h`, affects presentation only, remains independent

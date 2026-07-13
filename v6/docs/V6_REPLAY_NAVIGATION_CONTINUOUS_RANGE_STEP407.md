@@ -52,6 +52,8 @@ No timeframe-specific Go-to coordinator branch was added.
 ## Verification
 
 - `node v6/tests/replay-cursor-range-materializer-step407-smoke.js`
+- `node v6/tests/replay-navigation-acceptance-boundaries-step407-smoke.js`
+- `node v6/tests/replay-navigation-timeframe-matrix-step407-smoke.js`
 - `node v6/tests/replay-cursor-pane-materializer-step404-smoke.js`
 - `node v6/tests/replay-navigation-runtime-step405-smoke.js`
 - `node v6/tests/replay-navigation-ui-step406-browser-smoke.js`
@@ -70,10 +72,21 @@ Real NQ browser evidence now requires the Friday-to-Monday Go-to path to:
 
 Regression results:
 
+- Replay Navigation terminal/error/in-flight/active-pane boundary matrix:
+  passed;
+- shared `1m`/`4h`/`1D`/`1W`/`1M` multi-pane range and no-future matrix:
+  passed;
 - Manual Next session-gap pack: `5/5`;
 - visible K-line latency pack: `6/6`;
 - chart browser regression pack: `28/28`;
 - HTF replay-gap pack: passed.
+
+The timeframe matrix calls the same range materializer and real Chart Data
+Projection domain for every pane. It intentionally adds no action-specific or
+timeframe-specific branch to Replay Navigation. A roughly seven-week `1m`
+range is split into bounded 40,000-bar source windows and projected across all
+five representative timeframe families while preserving ordered unique bars
+and cursor-capped no-future state.
 
 ## Required human recheck
 
