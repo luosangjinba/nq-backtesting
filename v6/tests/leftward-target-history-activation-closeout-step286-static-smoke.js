@@ -21,6 +21,7 @@ assert.match(bridge, /planLeftwardTargetHistoryActivation/);
 assert.match(bridge, /targetHistoryActivation\.enabled === false/);
 assert.doesNotMatch(bridge, /fetchV4TargetBars|v4-target-bars-adapter|fetch\(|XMLHttpRequest/);
 
+assert.match(policy, /MIN_FIXED_TARGET_HISTORY_MINUTES = 30/);
 assert.match(policy, /fixedMinutes > sourceMinutes/);
 assert.match(policy, /target-history-high-timeframe-policy/);
 

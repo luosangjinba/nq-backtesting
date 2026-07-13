@@ -17,6 +17,11 @@ assert.equal(planLeftwardTargetHistoryActivation({
   paneId: 'main',
 }).status, 'enabled');
 
+assert.equal(planLeftwardTargetHistoryActivation({
+  displayTimeframe: 15,
+  paneId: 'main',
+}).status, 'ignored');
+
 assert.deepEqual(planLeftwardTargetHistoryActivation({
   displayTimeframe: 60,
   paneId: 'main',

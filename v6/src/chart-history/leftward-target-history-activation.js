@@ -19,6 +19,8 @@ function runtimeMinutes(value) {
   return null;
 }
 
+const MIN_FIXED_TARGET_HISTORY_MINUTES = 30;
+
 export function planLeftwardTargetHistoryActivation({
   displayTimeframe,
   enabled = true,
@@ -49,6 +51,7 @@ export function planLeftwardTargetHistoryActivation({
   const targetId = normalizeTargetTimeframeId(displayTimeframe);
   const sessionAware = runtimeValue === '1D' || runtimeValue === '1W' || runtimeValue === '1M';
   const highFixed = fixedMinutes !== null
+    && fixedMinutes >= MIN_FIXED_TARGET_HISTORY_MINUTES
     && fixedMinutes > sourceMinutes;
 
   if (!sessionAware && !highFixed) {

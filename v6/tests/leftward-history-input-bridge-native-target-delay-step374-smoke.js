@@ -102,7 +102,7 @@ const lowTf = createHarness({ displayTimeframe: 5 });
 lowTf.surface.emitVisibleRange({ from: -4, paneId: 'main', to: 30 });
 await flushMicrotasks();
 assert.equal(lowTf.timers.length, 1);
-assert.equal(lowTf.timers[0].delayMs, 100);
+assert.equal(lowTf.timers[0].delayMs, 500);
 
 const disabled = createHarness({
   displayTimeframe: 480,
