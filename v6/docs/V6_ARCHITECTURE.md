@@ -2,9 +2,13 @@
 
 ## Decision
 
-V6 is an open-source-oriented backtesting/journal workstation for personal use,
-designed specifically for SMC/ICT-style discretionary traders, especially prop
-firm traders.
+V6 is an open-source, local-first SMC/ICT trading-system validation and replay-
+practice workstation for personal use, especially for prop-firm traders.
+
+Validation is the product outcome and replay is the shared experiment/practice
+environment. Free Practice and Validation Campaigns must use the same replay,
+chart, viewport, bar-data, and layout owners. V6 must not create a second
+validation chart product.
 
 FXReplay remains an interaction reference for chart replay ergonomics, but V6
 is not a generic FXReplay clone. Compatibility with non-SMC/ICT trading styles
@@ -201,3 +205,29 @@ strategy helpers must attach through explicit module boundaries. New
 capabilities should be plugin-friendly: a feature may register commands,
 events, UI surfaces, persistence contracts, and chart overlays through clear
 public interfaces, but it must not directly control another feature module.
+
+## Validation Workflow Boundaries
+
+Validation is orchestration across product owners, not permission to merge them.
+
+- Playbook/campaign ownership stores hypotheses and immutable rule versions.
+- Observation/evidence ownership stores semantic time-price artifacts plus the
+  replay cursor and no-future boundary at creation.
+- Drawing ownership renders and edits visual geometry but does not own semantic
+  meaning, replay state, or chart-engine instances.
+- Orders ownership stores simulated plans/executions/outcomes and is not mutated
+  directly by Journal or Analytics.
+- Journal ownership stores review narrative and references evidence; it does not
+  advance replay or mutate orders.
+- Analytics reads projections of campaigns, trials, evidence, plans,
+  executions, and outcomes. It does not rewrite source artifacts.
+- A workflow coordinator may dispatch commands and subscribe to events; feature
+  runtimes still may not directly control each other.
+
+Do not collapse playbook version, campaign, trial, observation, trade plan,
+execution, outcome, and evidence into one journal/annotation record. Exact
+schemas may evolve, but their meanings and provenance remain distinct.
+
+The current source dataset is `1m` and remains the first validation baseline.
+It must not be presented as tick-accurate execution. Finer data stays behind a
+future provider boundary rather than forcing a new replay ownership model.

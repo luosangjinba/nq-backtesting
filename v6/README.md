@@ -16,7 +16,10 @@ legacy directory is tracked as a packaging cleanup and does not change chart
 ownership.
 
 V6 is the clean replay-chart rewrite opened after V5 proved the product shape
-but exposed a hard viewport/manual-anchor architecture blocker.
+but exposed a hard viewport/manual-anchor architecture blocker. Its product
+direction is an open-source, local-first SMC/ICT trading-system validation and
+replay-practice workstation: validation is the outcome and replay remains the
+experiment environment.
 
 V6 should reuse stable backend/data services and selected V5 lessons, but it
 must not port V5's chart viewport internals.
@@ -29,18 +32,22 @@ must not port V5's chart viewport internals.
 - Keep replay cursor, data loading, viewport intent, and chart-engine adapter
   responsibilities separate enough that one path cannot silently erase another.
 - Establish executable tests before rebuilding broader workstation features.
+- Preserve high-quality free replay practice while building a future auditable
+  loop from pre-result judgment to semantic evidence and statistics.
 
 ## Required First Reads
 
 1. `v6/docs/INDEX.md`
-2. `v6/docs/V6_ARCHITECTURE.md`
-3. `v6/docs/V6_EXECUTION_ROADMAP.md`
-4. `v6/docs/specs/replay-viewport-intent.md`
-5. `v6/docs/specs/replay-visible-latency.md`
-6. `v6/docs/specs/pane-model.md`
-7. `v6/docs/specs/fxreplay-baseline.md`
-8. `v6/TODO.md`
-9. `v5/docs/specs/v6-rewrite-start-decision.md`
+2. `v6/docs/V6_PRODUCT_DIRECTION.md`
+3. `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`
+4. `v6/docs/V6_ARCHITECTURE.md`
+5. `v6/docs/V6_EXECUTION_ROADMAP.md`
+6. `v6/docs/specs/replay-viewport-intent.md`
+7. `v6/docs/specs/replay-visible-latency.md`
+8. `v6/docs/specs/pane-model.md`
+9. `v6/docs/specs/fxreplay-baseline.md`
+10. `v6/TODO.md`
+11. `v5/docs/specs/v6-rewrite-start-decision.md`
 
 ## Hard Rules
 

@@ -280,14 +280,71 @@ Gate:
 - browser-visible chart interactions stay responsive while older high-TF
   history loads.
 
-## Phase 7 - Settings And Polish
+## Phase 7 - Foundation Closeout And Practice Quality
 
 Only after Phase 6 gates pass:
 
+- loaded-window Go-to-time and deterministic evidence navigation;
 - Settings parity;
 - visual polish;
 - persistence;
-- journal/orders/analytics.
+- preserve V5-quality Free Practice replay ergonomics without importing V5
+  runtime ownership.
+
+Gate:
+
+- foundation regression packs and human replay acceptance remain green;
+- navigation never mutates replay cursor unless an explicit replay command is
+  issued;
+- product work can attach without bypassing chart/replay/bar-data owners.
+
+## Phase 8 - Free Practice Product Baseline
+
+- low-ceremony practice session creation/resume;
+- simulated trade plan/order lifecycle appropriate to `1m` data;
+- optional drawings, notes, and post-session review;
+- journal evidence references back to chart context.
+
+Gate:
+
+- a user can complete a useful replay-practice session without creating a
+  validation campaign;
+- practice artifacts do not mutate replay/chart owners directly;
+- `1m` execution limitations are explicit rather than presented as tick-accurate.
+
+## Phase 9 - Validation Campaign Vertical Slice
+
+Implement one thin loop before a broad ICT ontology or dashboard:
+
+- versioned playbook plus falsifiable campaign hypothesis;
+- blind replay trial;
+- one generic prospective setup observation;
+- one planned entry/stop/target and simulated outcome;
+- R calculation and one small aggregate;
+- result drilldown to the original replay-visible chart evidence.
+
+Gate:
+
+- evidence stores replay cursor/no-future provenance;
+- prospective and retrospective artifacts are distinguishable;
+- aggregate results expose raw trials and sample size;
+- the same replay/chart/runtime owners serve Free Practice and Validation;
+- 30-50 real trials demonstrate useful recording speed and trustworthy
+  drilldown before semantic expansion.
+
+## Phase 10 - Structured SMC/ICT Extension
+
+Only after the Phase 9 gate:
+
+- versioned user-extensible concepts such as FVG, OB, sweep, displacement,
+  bias, session, and liquidity target;
+- richer distributions, filters, rule-adherence and evidence review;
+- plugin surfaces for community taxonomies and overlays;
+- optional fine-grained market-data windows behind the bar-data provider
+  boundary if practice evidence justifies them.
+
+Do not start with automatic concept recognition, AI analysis, or a detached
+analytics dashboard.
 
 ## Permanent Stop Conditions
 
@@ -298,3 +355,8 @@ Do not proceed to the next phase if:
 - any primary/non-primary state split appears;
 - display-window loading changes viewport intent;
 - append/replace owns follow/manual behavior.
+- validation mode forks replay/chart/bar-data ownership;
+- aggregate statistics cannot drill down to immutable raw trials;
+- retrospective annotations are counted as prospective evidence without an
+  explicit distinction;
+- `1m` outcomes are presented as tick-accurate execution.

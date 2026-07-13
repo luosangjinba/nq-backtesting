@@ -10,18 +10,22 @@
   and `1M` each use one target request with zero source fallback requests. The
   complete chart browser regression pack passes `28/28`. Periods below `30m`
   deliberately retain the source-window chain.
-- Next step: Step 401 - Unified Target-History Visual Acceptance. Refresh the
-  active V6 page and visually check representative fixed periods (`30m`, `1h`,
-  `2h`) plus the repaired session-calendar periods (`1W`, `1M`). Accept only if
-  switching immediately fills the visible history, diagnostics remain on
-  `History target`, and repeated left drags reveal history before blank space.
-  This is a human visual gate; automated acceptance does not replace it.
+- Latest completed visual acceptance step: Step 401 - Unified Target-History
+  Visual Acceptance. Human verification confirmed representative fixed periods
+  and repaired `1W`/`1M` history fill, diagnostics, and repeated left-drag
+  behavior all meet expectations.
+- Latest product-direction decision: V6 is an open-source, local-first SMC/ICT
+  trading-system validation and replay-practice workstation. Validation is the
+  product outcome; replay remains the protected experiment/practice environment.
+  Free Practice and Validation Campaigns share one runtime foundation. The
+  binding constraints are in
+  `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`; the research report is
+  non-normative input.
 - Latest completed foundation selection step: Step 398 - Product/Foundation
   Gap Re-selection. Loading/Timeframe/Replay passed Step 276 `8/8`, Multi-pane
   passed Step 253 `9/9`, and Date Range boundary entry passed Step 255 `7/7`.
   The remaining observable gap is post-entry active-pane date/time location.
-- Deferred after Step 401 visual acceptance: Active-Pane Loaded-Window Date Locator.
-  Add a visible
+- Next step: Step 402 - Active-Pane Loaded-Window Date Locator. Add a visible
   Go-to-time control that selects the nearest already-loaded real bar and
   applies a manual viewport projection without fetching bars or mutating replay
   cursor/source state. Missing-window loading is explicitly deferred.
@@ -53,11 +57,12 @@
 - Current status: V6 opened because V5 replay viewport/manual-anchor behavior
   proved structurally unreliable. The active decision is documented in
   `v5/docs/specs/v6-rewrite-start-decision.md`.
-- Current product direction: V6 is an open-source-oriented personal
-  backtesting/journal workstation for SMC/ICT-style discretionary traders,
-  especially prop firm traders. FXReplay remains an interaction reference, but
-  V6 is not a generic FXReplay clone and does not currently target other
-  trading styles. See `v6/docs/V6_PRODUCT_DIRECTION.md`.
+- Current product direction: V6 is an open-source, local-first SMC/ICT trading-
+  system validation and replay-practice workstation. FXReplay remains an
+  interaction reference, but V6 is not a generic clone and does not currently
+  target other trading styles. Validation statistics must remain auditable back
+  to replay-visible chart evidence. See `v6/docs/V6_PRODUCT_DIRECTION.md` and
+  `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`.
 - Current foundation priority: stabilize chart data loading, timeframe
   switching, chart drag/scroll display, date ranges, replay, multi-pane, and
   pane-local reset behavior before indicators or main/sub-pane indicator work.

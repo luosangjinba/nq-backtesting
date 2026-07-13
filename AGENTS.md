@@ -9,18 +9,20 @@ Read these files first:
 
 1. `v6/docs/INDEX.md`
 2. `v6/docs/V6_PRODUCT_DIRECTION.md`
-3. `v6/docs/V6_ARCHITECTURE.md`
-4. `v6/docs/V6_EXECUTION_ROADMAP.md`
-5. `v6/TODO.md`
+3. `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`
+4. `v6/docs/V6_ARCHITECTURE.md`
+5. `v6/docs/V6_EXECUTION_ROADMAP.md`
+6. `v6/TODO.md`
 
 Then read only the docs/specs relevant to the current step.
 
 ## Current Direction
 
-V6 is an open-source-oriented backtesting/journal system for personal use,
-designed specifically for SMC/ICT-style discretionary traders, especially prop
-firm traders. Compatibility with other trading styles is not a current product
-goal.
+V6 is an open-source, local-first SMC/ICT trading-system validation and replay-
+practice workstation for discretionary traders, especially prop-firm traders.
+Validation is the product outcome; high-quality historical replay remains the
+primary experiment and practice environment and must not be abandoned or
+degraded. Compatibility with other trading styles is not a current product goal.
 
 The current foundation phase prioritizes chart infrastructure: loading market
 data, switching timeframes, dragging/scrolling the chart, multi-pane layout,
@@ -28,9 +30,12 @@ date range handling, and replay. Indicators and main/sub-pane indicator
 surfaces remain undecided until the chart foundation is stable.
 
 Above the foundation, the two primary product modules are Backtesting and
-Journal. New capabilities should be modular and plugin-friendly so the project
-can later support open-source/community extension without turning the core into
-a tightly coupled monolith.
+Journal. They support Free Practice and Validation Campaign workflows through
+shared runtime owners; they must not create separate replay/chart products.
+Semantic evidence must preserve replay-visible provenance and drill down from
+statistics to raw chart context. New capabilities should be modular and plugin-
+friendly so the project can later support open-source/community extension
+without turning the core into a tightly coupled monolith.
 
 V4/V5 remain available as legacy/reference, but V6 must not copy old frontend
 ownership models.

@@ -7,6 +7,9 @@ Read this index before working on V6.
 - `v6/README.md`: V6 purpose, hard rules, and V5 usage boundary.
 - `v6/docs/V6_PRODUCT_DIRECTION.md`: current product direction, target users,
   foundation priorities, and modular/plugin-oriented extension rule.
+- `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`: binding decision that
+  validation is the outcome, replay remains the shared experiment/practice
+  environment, and future evidence/statistics must be auditable.
 - `v6/docs/V6_ARCHITECTURE.md`: runtime boundaries and non-porting rules.
 - `v6/docs/V6_EXECUTION_ROADMAP.md`: detailed execution order based on the
   useful V5 formation sequence, with V6 gates inserted earlier.
@@ -35,6 +38,9 @@ Read this index before working on V6.
 - `v6/docs/V6_UNIFIED_TARGET_HISTORY_FULL_TIMEFRAME_STEP400.md`: shared target-
   history pipeline for `30m` through `1M`, fixed/session-calendar bucket
   boundaries, real-service/browser matrix evidence, and Step 401 visual gate.
+- `v6/docs/V6_PRODUCT_RESEARCH.md`: non-normative research input retained for
+  provenance; its competitor matrix and recommendations are not implementation
+  authority.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,
