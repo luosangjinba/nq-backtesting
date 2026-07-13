@@ -196,6 +196,7 @@ export function executeNarrowReplayMaterializationRuntimeHandoffPlan({
   if (!visibleTargetBars.length) {
     return resolveFallback(plan, 'target-bars-all-future', {
       displayTimeframe,
+      materializationFallbackReason: materialization.fallbackReason,
       paneId: paneContext.id ?? event.paneId ?? null,
       replayCursorTimestamp,
       revealStates: freezeArray(revealStates),

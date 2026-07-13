@@ -78,13 +78,18 @@ export function resolveTargetDisplayMaterialization({
     sourceCursorTimestamp: cursorTimestamp,
     targetBar: buildTargetBarRevealInput({ bar, sourceTimeframe, targetTimeframe }),
   }));
+  const requiresSourceProjection = revealStates.some(
+    (state) => state.reason === 'source-cursor-inside-target-bucket',
+  );
   const bars = targetBars.filter((_, index) => revealStates[index].visible).map(cloneBar);
   return Object.freeze({
-    bars: Object.freeze(bars),
+    bars: Object.freeze(requiresSourceProjection ? [] : bars),
     cursorTimestamp,
-    fallbackReason: bars.length ? null : 'target-history-no-visible-bars',
+    fallbackReason: requiresSourceProjection
+      ? 'target-history-in-progress-source-projection'
+      : bars.length ? null : 'target-history-no-visible-bars',
     revealStates: Object.freeze(revealStates),
-    status: bars.length ? 'applied' : 'fallback',
+    status: bars.length && !requiresSourceProjection ? 'applied' : 'fallback',
   });
 }
 

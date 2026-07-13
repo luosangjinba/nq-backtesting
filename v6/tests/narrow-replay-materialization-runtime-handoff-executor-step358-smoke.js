@@ -32,7 +32,7 @@ const baseCommandResults = Object.freeze({
   targetWindowLoad: Object.freeze({
     bars: Object.freeze([
       Object.freeze({ close: 100, bucketEndTimestamp: 200, bucketStartTimestamp: 100, time: 100 }),
-      Object.freeze({ close: 101, bucketEndTimestamp: 420, bucketStartTimestamp: 300, time: 300 }),
+      Object.freeze({ close: 101, bucketEndTimestamp: 300, bucketStartTimestamp: 300, time: 300 }),
       Object.freeze({ close: 102, bucketEndTimestamp: 520, bucketStartTimestamp: 400, time: 400 }),
     ]),
   }),
@@ -54,8 +54,8 @@ assert.equal(ready.replaceIntent.displayTimeframe, '8h');
 assert.equal(ready.replaceIntent.preserveSource, true);
 assert.equal(ready.replaceIntent.targetBarsDisplayMaterializationInputOnly, true);
 assert.equal(ready.replaceIntent.revealPolicy, 'source-cursor-no-future-target-bars');
-assert.deepEqual(ready.replaceIntent.bars.map((bar) => bar.time), [100]);
-assert.deepEqual(ready.revealStates.map((state) => state.visible), [true, false, false]);
+assert.deepEqual(ready.replaceIntent.bars.map((bar) => bar.time), [100, 300]);
+assert.deepEqual(ready.revealStates.map((state) => state.visible), [true, true, false]);
 assert.deepEqual(ready.commandIntents.map((intent) => intent.commandSurface), [
   'pane.getById',
   'replay.getState',

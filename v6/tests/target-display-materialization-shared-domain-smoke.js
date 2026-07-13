@@ -30,4 +30,17 @@ assert.deepEqual(
   atClose,
 );
 
+const mixedWindow = resolveTargetDisplayMaterialization({
+  sourceCursorTimestamp: 350,
+  sourceTimeframe: 1,
+  targetBars: [
+    { bucketEndTimestamp: 300, bucketStartTimestamp: 100, close: 100, timestamp: 100 },
+    { bucketEndTimestamp: 500, bucketStartTimestamp: 300, close: 999, timestamp: 300 },
+  ],
+  targetTimeframe: '5m',
+});
+assert.equal(mixedWindow.status, 'fallback');
+assert.equal(mixedWindow.fallbackReason, 'target-history-in-progress-source-projection');
+assert.deepEqual(mixedWindow.bars, []);
+
 console.log('v6 target display materialization shared domain smoke passed');
