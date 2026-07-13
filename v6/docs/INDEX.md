@@ -36,6 +36,9 @@ Read this index before working on V6.
 - `v6/docs/V6_GOTO_REPLAY_NAVIGATION_PLAN_STEP402.md`: corrected Go-to semantics,
   New York-time session anchors, ownership, shared materialization requirement,
   Step 403-407 execution plan, and stop conditions.
+- `v6/docs/V6_GOTO_SCHEDULE_PREFERENCES_STEP403.md`: completed DST-aware Go-to
+  schedule domain, persisted four-anchor preference owner, ownership gates, and
+  Step 404 shared cursor-materialization recommendation.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

@@ -123,6 +123,9 @@ extraction must preserve current Next/Play latency and session-gap behavior.
 
 ### Step 403 - Schedule Domain And Preferences Contract
 
+Status: completed in commits `3dda58e0` and `be52092f`, with closeout evidence
+recorded in `V6_GOTO_SCHEDULE_PREFERENCES_STEP403.md`.
+
 - implement action/default/preference contracts;
 - implement DST-aware pure candidate generation;
 - add weekend/holiday-as-missing-data, DST transition, equal-anchor, replay-end,
