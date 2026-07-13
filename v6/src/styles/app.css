@@ -2203,6 +2203,26 @@ p {
   background: #101215;
 }
 
+.rail-popover-status {
+  min-height: 18px;
+  margin: 10px 2px 0;
+  color: #8ca5b5;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.rail-popover-status[data-v6-replay-navigation-tone="busy"] {
+  color: #f0c36a;
+}
+
+.rail-popover-status[data-v6-replay-navigation-tone="success"] {
+  color: #77d9c1;
+}
+
+.rail-popover-status[data-v6-replay-navigation-tone="error"] {
+  color: #f28b8b;
+}
+
 .session-settings-panel {
   position: absolute;
   right: calc(100% + 8px);

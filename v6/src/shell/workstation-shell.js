@@ -564,12 +564,13 @@ ${renderDisplayTimeframeMenuSections()}
                 <span>Go to</span>
               </summary>
               <div class="rail-popover" data-v6-rail-goto-menu role="menu" aria-label="Go to key time">
-                <button type="button" disabled role="menuitem">Next Day Open <kbd>Y</kbd></button>
-                <button type="button" disabled role="menuitem">Next Session <kbd>Z</kbd></button>
-                <button type="button" disabled role="menuitem">Asian Session <kbd>I</kbd></button>
-                <button type="button" disabled role="menuitem">London Session <kbd>L</kbd></button>
-                <button type="button" disabled role="menuitem">New York Session <kbd>N</kbd></button>
+                <button type="button" data-v6-replay-navigation-action="next-day-open" role="menuitem">Next Day Open <kbd>Y</kbd></button>
+                <button type="button" data-v6-replay-navigation-action="next-session" role="menuitem">Next Session <kbd>Z</kbd></button>
+                <button type="button" data-v6-replay-navigation-action="asian-session" role="menuitem">Asian Session <kbd>I</kbd></button>
+                <button type="button" data-v6-replay-navigation-action="london-session" role="menuitem">London Session <kbd>L</kbd></button>
+                <button type="button" data-v6-replay-navigation-action="new-york-session" role="menuitem">New York Session <kbd>N</kbd></button>
                 <button type="button" disabled role="menuitem">Custom Settings</button>
+                <p class="rail-popover-status" data-v6-replay-navigation-status role="status" aria-live="polite"></p>
               </div>
             </details>
             <button type="button" class="rail-button" data-v6-rail-news disabled aria-label="News and calendar events">

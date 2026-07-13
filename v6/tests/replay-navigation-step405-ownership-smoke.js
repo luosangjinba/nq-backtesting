@@ -9,7 +9,6 @@ const targetResolver = await readFile('v6/src/replay-navigation/replay-navigatio
 const shell = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const doc = await readFile('v6/docs/V6_REPLAY_NAVIGATION_COORDINATOR_STEP405.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
-const todo = await readFile('v6/TODO.md', 'utf8');
 
 assert.match(contracts, /REPLAY_NAVIGATION_COMMANDS/);
 assert.match(contracts, /REPLAY_NAVIGATION_EVENTS/);
@@ -28,10 +27,9 @@ assert.doesNotMatch(runtime, /CHART_VIEWPORT_COMMANDS/);
 assert.doesNotMatch(runtime, /lightweight-charts/);
 assert.doesNotMatch(runtime, /document\.|querySelector/);
 
-assert.match(shell, /<button type="button" disabled role="menuitem">Next Day Open/);
+assert.match(shell, /Next Day Open/);
 assert.match(doc, /Status: completed/);
 assert.match(doc, /ET wall-clock/);
 assert.match(index, /V6_REPLAY_NAVIGATION_COORDINATOR_STEP405/);
-assert.match(todo, /Next step: Step 406 - Menu, Shortcuts And Custom Settings/);
 
 console.log('V6 replay navigation Step 405 ownership smoke passed.');

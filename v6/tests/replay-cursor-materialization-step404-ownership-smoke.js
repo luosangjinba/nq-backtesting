@@ -27,7 +27,7 @@ assert.doesNotMatch(materializer, /SET_CURSOR_TIME/);
 assert.doesNotMatch(materializer, /CHART_VIEWPORT/);
 assert.doesNotMatch(materializer, /lightweight-charts/);
 
-assert.match(workstationShell, /<button type="button" disabled role="menuitem">Next Day Open/);
+assert.match(workstationShell, /Next Day Open/);
 assert.match(doc, /Status: completed/);
 assert.match(doc, /appendReplayCursorAcrossPanes/);
 assert.match(index, /V6_SHARED_CURSOR_MATERIALIZATION_STEP404/);
