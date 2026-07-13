@@ -31,6 +31,10 @@ assert.deepEqual(
     'chartScaleTextColor',
     'chartScaleFontSize',
     'chartAxisBorderColor',
+    'chartNavigationVisibility',
+    'chartTopMarginPercent',
+    'chartBottomMarginPercent',
+    'chartRightMarginBars',
   ],
 );
 assert.match(todo, /Step 409 is closed/);

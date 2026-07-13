@@ -613,6 +613,7 @@ export function mountWorkstationChartSurface(root, {
       if (chartSurfaceElement?.dataset) {
         chartSurfaceElement.dataset.v6ChartGrid = String(canvasSettings.state.chartGrid);
         chartSurfaceElement.dataset.v6CanvasSettings = JSON.stringify(canvasSettings.state);
+        chartSurfaceElement.dataset.v6ChartNavigationVisibility = canvasSettings.state.chartNavigationVisibility;
       }
       return { ...canvasSettings.state };
     },

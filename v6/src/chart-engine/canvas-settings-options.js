@@ -10,6 +10,11 @@ function resolveFontSize(value, fallback) {
   return Number.isFinite(normalized) ? normalized : fallback;
 }
 
+function resolvePercent(value, fallback) {
+  const normalized = Number(value);
+  return Number.isFinite(normalized) ? normalized : fallback;
+}
+
 export function createCanvasSettingsChartOptions(settings = {}, defaults = {}) {
   const backgroundColor = resolveColor(
     settings.chartBackgroundColor,
@@ -27,6 +32,11 @@ export function createCanvasSettingsChartOptions(settings = {}, defaults = {}) {
     defaults.rightPriceScale?.borderColor,
   );
   const chartGrid = settings.chartGrid !== false;
+  const topMarginPercent = resolvePercent(settings.chartTopMarginPercent, 10);
+  const bottomMarginPercent = resolvePercent(settings.chartBottomMarginPercent, 8);
+  const navigationVisibility = ['always', 'hidden'].includes(settings.chartNavigationVisibility)
+    ? settings.chartNavigationVisibility
+    : 'hover';
 
   return Object.freeze({
     state: Object.freeze({
@@ -35,8 +45,11 @@ export function createCanvasSettingsChartOptions(settings = {}, defaults = {}) {
       chartCrosshairColor: crosshairColor,
       chartGrid,
       chartGridColor: gridColor,
+      chartBottomMarginPercent: bottomMarginPercent,
+      chartNavigationVisibility: navigationVisibility,
       chartScaleFontSize: scaleFontSize,
       chartScaleTextColor: scaleTextColor,
+      chartTopMarginPercent: topMarginPercent,
     }),
     options: Object.freeze({
       crosshair: {
@@ -52,7 +65,13 @@ export function createCanvasSettingsChartOptions(settings = {}, defaults = {}) {
         fontSize: scaleFontSize,
         textColor: scaleTextColor,
       },
-      rightPriceScale: { borderColor: axisBorderColor },
+      rightPriceScale: {
+        borderColor: axisBorderColor,
+        scaleMargins: {
+          bottom: bottomMarginPercent / 100,
+          top: topMarginPercent / 100,
+        },
+      },
       timeScale: { borderColor: axisBorderColor },
     }),
   });

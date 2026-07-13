@@ -1719,6 +1719,22 @@ p {
   color: #f4f7fa;
 }
 
+.settings-control-row select {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid #747a82;
+  border-radius: 6px;
+  background: #303133;
+  color: #f4f7fa;
+}
+
+.settings-number-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #b9c0c7;
+}
+
 .settings-select-row {
   grid-template-columns: 80px 150px;
 }
@@ -2619,6 +2635,25 @@ p {
   flex-direction: column;
   gap: 8px;
   pointer-events: auto;
+}
+
+[data-v6-chart-navigation-visibility="hover"] .chart-pane-action-rail {
+  opacity: 0;
+  transition: opacity 120ms ease;
+}
+
+[data-v6-chart-navigation-visibility="hover"] [data-v6-chart-engine-host]:hover .chart-pane-action-rail,
+[data-v6-chart-navigation-visibility="hover"] .chart-pane-action-rail:focus-within {
+  opacity: 1;
+}
+
+[data-v6-chart-navigation-visibility="hidden"] .chart-pane-action-rail {
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-v6-chart-navigation-visibility="always"] .chart-pane-action-rail {
+  opacity: 1;
 }
 
 .chart-pane-action-button {

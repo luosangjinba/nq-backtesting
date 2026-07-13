@@ -153,8 +153,11 @@ assert.deepEqual(surface.applySettings({ chartGrid: false }), {
   chartCrosshairColor: '#758696',
   chartGrid: false,
   chartGridColor: '#263441',
+  chartBottomMarginPercent: 8,
+  chartNavigationVisibility: 'hover',
   chartScaleFontSize: 12,
   chartScaleTextColor: '#c9d6df',
+  chartTopMarginPercent: 10,
 });
 assert.equal(calls.some((call) => call.method === 'applyOptions'), true);
 

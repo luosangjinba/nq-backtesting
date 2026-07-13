@@ -368,6 +368,29 @@ ${renderDisplayTimeframeMenuSections()}
                   <span>Axis lines</span>
                   <input type="color" data-v6-settings-field="chartAxisBorderColor" value="#163345" aria-label="Axis border color">
                 </label>
+              </section>
+              <section class="settings-field-group" aria-label="Canvas view">
+                <div class="settings-group-heading">View and controls</div>
+                <label class="settings-control-row">
+                  <span>Navigation</span>
+                  <select data-v6-settings-field="chartNavigationVisibility" aria-label="Chart navigation visibility">
+                    <option value="hover">Visible on mouse over</option>
+                    <option value="always">Always visible</option>
+                    <option value="hidden">Always hidden</option>
+                  </select>
+                </label>
+                <label class="settings-control-row">
+                  <span>Top margin</span>
+                  <span class="settings-number-unit"><input type="number" min="0" max="40" step="1" data-v6-settings-field="chartTopMarginPercent" value="10" aria-label="Top margin percent"><span>%</span></span>
+                </label>
+                <label class="settings-control-row">
+                  <span>Bottom margin</span>
+                  <span class="settings-number-unit"><input type="number" min="0" max="40" step="1" data-v6-settings-field="chartBottomMarginPercent" value="8" aria-label="Bottom margin percent"><span>%</span></span>
+                </label>
+                <label class="settings-control-row">
+                  <span>Right margin</span>
+                  <span class="settings-number-unit"><input type="number" min="0" max="100" step="1" data-v6-settings-field="chartRightMarginBars" value="8" aria-label="Right margin bars"><span>bars</span></span>
+                </label>
                 <p class="settings-scope-note">Changes apply to every chart pane only after Ok.</p>
               </section>
             </div>

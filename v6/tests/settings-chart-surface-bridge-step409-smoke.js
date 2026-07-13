@@ -19,8 +19,11 @@ const bridge = connectSettingsChartSurfaceBridge({
       chartCrosshairColor: '#333333',
       chartGrid: true,
       chartGridColor: '#444444',
+      chartBottomMarginPercent: 8,
+      chartNavigationVisibility: 'hover',
       chartScaleFontSize: 12,
       chartScaleTextColor: '#555555',
+      chartTopMarginPercent: 10,
       theme: 'dark',
     });
   },
@@ -37,8 +40,11 @@ assert.deepEqual(applied, [{
   chartCrosshairColor: '#333333',
   chartGrid: true,
   chartGridColor: '#444444',
+  chartBottomMarginPercent: 8,
+  chartNavigationVisibility: 'hover',
   chartScaleFontSize: 12,
   chartScaleTextColor: '#555555',
+  chartTopMarginPercent: 10,
 }]);
 listeners.get(SETTINGS_EVENTS.UPDATED)({ chartGrid: false, theme: 'light' });
 listeners.get(SETTINGS_EVENTS.RESET)({ chartGrid: true, theme: 'dark' });
@@ -47,11 +53,14 @@ assert.equal(applied[2].chartGrid, true);
 assert.deepEqual(Object.keys(applied[1]).sort(), [
   'chartAxisBorderColor',
   'chartBackgroundColor',
+  'chartBottomMarginPercent',
   'chartCrosshairColor',
   'chartGrid',
   'chartGridColor',
+  'chartNavigationVisibility',
   'chartScaleFontSize',
   'chartScaleTextColor',
+  'chartTopMarginPercent',
 ]);
 bridge.destroy();
 assert.equal(listeners.size, 0);

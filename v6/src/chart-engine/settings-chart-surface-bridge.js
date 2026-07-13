@@ -17,8 +17,11 @@ export function connectSettingsChartSurfaceBridge({
     chartCrosshairColor: settings.chartCrosshairColor,
     chartGrid: settings.chartGrid,
     chartGridColor: settings.chartGridColor,
+    chartBottomMarginPercent: settings.chartBottomMarginPercent,
+    chartNavigationVisibility: settings.chartNavigationVisibility,
     chartScaleFontSize: settings.chartScaleFontSize,
     chartScaleTextColor: settings.chartScaleTextColor,
+    chartTopMarginPercent: settings.chartTopMarginPercent,
   });
   const unsubscriptions = [
     subscribeEvent(SETTINGS_EVENTS.UPDATED, apply),
