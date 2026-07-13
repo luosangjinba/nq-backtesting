@@ -25,6 +25,7 @@ import {
   loadLeftwardTargetPrepend,
   replayCursorTimestamp,
 } from './leftward-history-data-orchestrator.js';
+import { resolveViewportTargetHistoryBarCount } from './target-history-request-sizing.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -302,6 +303,11 @@ export function createLeftwardHistoryExtensionRuntime({
       let targetRequestCount = 0;
 
       if (payload.targetHistory?.enabled) {
+        const targetDisplayBars = resolveViewportTargetHistoryBarCount({
+          displayTimeframe,
+          sourceTimeframe,
+          visibleRange: payload.visibleRange,
+        });
         const targetRequestKey = createTargetRequestKey(paneId, {
           ...plannedWindow,
           timeframe: displayTimeframe,
@@ -320,6 +326,7 @@ export function createLeftwardHistoryExtensionRuntime({
             paneId,
             plannedWindow,
             sourceTimeframe,
+            targetDisplayBars,
             targetHistory: payload.targetHistory,
           });
         } catch (error) {

@@ -3,6 +3,7 @@ import { planDisplayTargetHistoryWindow } from '../display-timeframe/display-tim
 import { dispatchCommand, hasCommand } from '../runtime/commands.js';
 import { normalizeMinuteTimeframe, normalizeOptionalUnixSeconds } from '../time-domain/time-domain.js';
 import { isSessionAwareDisplayTimeframe, normalizeDisplayTimeframeValue } from '../time-domain/htf-display-timeframe-domain.js';
+import { planViewportTargetHistoryWindow } from './target-history-window-plan.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -64,16 +65,21 @@ export async function createLeftwardSourcePrepend({
 }
 
 export async function loadLeftwardTargetPrepend({
-  displayTimeframe, instrument, paneId, plannedWindow, sourceTimeframe, targetHistory = {},
+  displayTimeframe, instrument, paneId, plannedWindow, sourceTimeframe, targetDisplayBars, targetHistory = {},
 } = {}) {
+  const targetPlannedWindow = planViewportTargetHistoryWindow({
+    displayTimeframe,
+    plannedSourceWindow: plannedWindow,
+    targetDisplayBars,
+  });
   const plan = planDisplayTargetHistoryWindow({
     displayTimeframe,
     enabled: Boolean(targetHistory.enabled),
-    end: plannedWindow.end,
+    end: targetPlannedWindow.end,
     instrument,
     paneId,
     sourceTimeframe,
-    start: plannedWindow.start,
+    start: targetPlannedWindow.start,
   });
   if (plan.command !== BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW) {
     return { reason: plan.reason, status: 'disabled' };

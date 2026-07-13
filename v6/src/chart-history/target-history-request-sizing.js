@@ -2,6 +2,25 @@ import { windowBoundsMs } from '../bar-data/bar-window.js';
 import { targetTimeframeToFixedMinutes } from '../time-domain/target-timeframe-domain.js';
 import { resolveLeftwardSourceWindowPolicy } from './leftward-source-window-policy.js';
 
+export const TARGET_HISTORY_VIEWPORT_BUFFER_RATIO = 1;
+
+export function resolveViewportTargetHistoryBarCount({
+  displayTimeframe,
+  sourceTimeframe = 1,
+  visibleRange,
+} = {}) {
+  const policy = resolveLeftwardSourceWindowPolicy({ displayTimeframe, sourceTimeframe });
+  const from = Number(visibleRange?.from);
+  const to = Number(visibleRange?.to);
+  const visibleBars = Number.isFinite(from) && Number.isFinite(to) && to > from
+    ? Math.ceil(to - from)
+    : 0;
+  return Math.max(
+    policy.targetDisplayBars,
+    visibleBars + Math.ceil(visibleBars * TARGET_HISTORY_VIEWPORT_BUFFER_RATIO),
+  );
+}
+
 function estimateFixedTargetBars(window, displayTimeframe) {
   const targetMinutes = targetTimeframeToFixedMinutes(displayTimeframe);
   if (!targetMinutes) return null;

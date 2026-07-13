@@ -75,9 +75,9 @@ assert.deepEqual(targetFetchCalls[0], {
   bucketType: 'fixed-duration',
   dataKind: 'target-display',
   end: '2026-06-01 09:29',
-  estimatedBars: 20,
+  estimatedBars: 39,
   instrument: 'NQ',
-  start: '2026-05-25 17:30',
+  start: '2026-05-19 17:29',
   timeframe: '8h',
 });
 assert.equal(state.extension.prependedBarCount, 2);
