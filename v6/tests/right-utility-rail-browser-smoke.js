@@ -106,7 +106,7 @@ try {
     'New York Session N',
     'Custom Settings',
   ]);
-  assert.deepEqual(value.menuOptionsDisabled, [false, false, false, false, false, true]);
+  assert.deepEqual(value.menuOptionsDisabled, [false, false, false, false, false, false]);
   assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true, true, true]);
   assert.deepEqual(value.inertButtons.map((button) => button.label), [
     'Show object tree',

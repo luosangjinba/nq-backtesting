@@ -569,7 +569,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <button type="button" data-v6-replay-navigation-action="asian-session" role="menuitem">Asian Session <kbd>I</kbd></button>
                 <button type="button" data-v6-replay-navigation-action="london-session" role="menuitem">London Session <kbd>L</kbd></button>
                 <button type="button" data-v6-replay-navigation-action="new-york-session" role="menuitem">New York Session <kbd>N</kbd></button>
-                <button type="button" disabled role="menuitem">Custom Settings</button>
+                <button type="button" data-v6-replay-navigation-settings-open aria-expanded="false" aria-haspopup="dialog" role="menuitem">Custom Settings</button>
                 <p class="rail-popover-status" data-v6-replay-navigation-status role="status" aria-live="polite"></p>
               </div>
             </details>
@@ -655,6 +655,43 @@ ${renderDisplayTimeframeMenuSections()}
             </details>
           </div>
         </aside>
+        <section class="replay-navigation-settings-backdrop" data-v6-replay-navigation-settings-dialog hidden role="dialog" aria-modal="true" aria-labelledby="v6-replay-navigation-settings-title">
+          <form class="replay-navigation-settings-modal" data-v6-replay-navigation-settings-form>
+            <header>
+              <strong id="v6-replay-navigation-settings-title">Custom Settings</strong>
+              <button type="button" data-v6-replay-navigation-settings-close aria-label="Close replay navigation settings">×</button>
+            </header>
+            <div class="replay-navigation-settings-body">
+              <p>All session anchors use New York wall-clock time.</p>
+              <fieldset>
+                <legend>Replay navigation sessions</legend>
+                <label>
+                  <span>Next Day Open</span>
+                  <input type="time" required step="60" data-v6-replay-navigation-setting="dayOpen">
+                </label>
+                <label>
+                  <span>Asian Session start</span>
+                  <input type="time" required step="60" data-v6-replay-navigation-setting="asianSession">
+                </label>
+                <label>
+                  <span>London Session start</span>
+                  <input type="time" required step="60" data-v6-replay-navigation-setting="londonSession">
+                </label>
+                <label>
+                  <span>New York Session start</span>
+                  <input type="time" required step="60" data-v6-replay-navigation-setting="newYorkSession">
+                </label>
+              </fieldset>
+              <p class="replay-navigation-settings-error" data-v6-replay-navigation-settings-error role="alert" aria-live="assertive"></p>
+            </div>
+            <footer>
+              <button type="button" data-v6-replay-navigation-settings-reset>Reset to defaults</button>
+              <span></span>
+              <button type="button" data-v6-replay-navigation-settings-close>Discard</button>
+              <button type="submit" class="is-primary" data-v6-replay-navigation-settings-save>Save</button>
+            </footer>
+          </form>
+        </section>
       </main>
       <section class="bottom-account-chrome" data-v6-bottom-account-chrome aria-label="Account and trading chrome">
         <div class="bottom-trade-actions" aria-label="Trade placeholders">
