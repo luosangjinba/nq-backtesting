@@ -85,6 +85,51 @@ function createForwardWindowPayload({
   };
 }
 
+export async function resolveReplaySourceBarNearAnchor({
+  anchorTimestamp,
+  dispatchCommand = dispatchRuntimeCommand,
+  maxDistanceMinutes = 15,
+  pane = {},
+  replayState,
+} = {}) {
+  const anchorMs = parseReplayMilliseconds(anchorTimestamp, 'anchorTimestamp');
+  const cursorMs = parseReplayMilliseconds(replayState?.cursorTime, 'cursorTime');
+  const endMs = parseReplayMilliseconds(replayState?.endTime, 'endTime');
+  const distanceMinutes = Number(maxDistanceMinutes);
+  if (!Number.isFinite(distanceMinutes) || distanceMinutes < 0) {
+    throw new Error('Replay forward source cursor maxDistanceMinutes must be zero or greater.');
+  }
+  if (anchorMs <= cursorMs || anchorMs > endMs) return null;
+
+  const sourceTimeframe = normalizeSourceTimeframe(replayState?.timeframe);
+  const count = Math.max(2, Math.ceil(distanceMinutes / sourceTimeframe) + 1);
+  const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, createForwardWindowPayload({
+    anchorMs,
+    gapScanWindowBars: count,
+    pane,
+    replayState,
+    sourceTimeframe,
+  }));
+  const latestAcceptedMs = Math.min(
+    anchorMs + (distanceMinutes * TIME_DOMAIN_CONSTANTS.MINUTE_MS),
+    endMs,
+  );
+  const bar = cloneBars(loadedWindow?.bars)
+    .filter((item) => {
+      const timestampMs = Number(item.timestamp ?? item.time) * 1000;
+      return timestampMs >= anchorMs && timestampMs <= latestAcceptedMs;
+    })
+    .sort((left, right) => Number(left.timestamp ?? left.time) - Number(right.timestamp ?? right.time))
+    .at(0) || null;
+  if (!bar) return null;
+  const barTimestampMs = Number(bar.timestamp ?? bar.time) * 1000;
+  return {
+    bar,
+    distanceMs: barTimestampMs - anchorMs,
+    loadedWindow,
+  };
+}
+
 export async function resolveNextReplaySourceBar({
   dispatchCommand = dispatchRuntimeCommand,
   gapScanLimit = REPLAY_FORWARD_SOURCE_CURSOR_DEFAULTS.gapScanLimit,
