@@ -2338,60 +2338,6 @@ p {
   font: 700 12px/1 Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
-.loaded-window-date-locator form {
-  display: grid;
-  gap: 10px;
-}
-
-.loaded-window-date-locator label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  color: #dce5eb;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.loaded-window-date-locator label span {
-  color: #7f9aaa;
-  font-size: 10px;
-}
-
-.loaded-window-date-locator input {
-  min-width: 0;
-  height: 34px;
-  padding: 0 8px;
-  border: 1px solid #2b3c48;
-  border-radius: 6px;
-  background: #05090d;
-  color: #dce5eb;
-  color-scheme: dark;
-}
-
-.rail-popover.loaded-window-date-locator button {
-  justify-content: center;
-  border: 1px solid #27526a;
-  border-radius: 6px;
-  background: #102b3a;
-  color: #dff7ff;
-  font-size: 12px;
-}
-
-.loaded-window-date-locator output {
-  min-height: 30px;
-  color: #8fa8b7;
-  font-size: 11px;
-  line-height: 1.35;
-}
-
-.loaded-window-date-locator output[data-status="located"] {
-  color: #7ed9bd;
-}
-
-.loaded-window-date-locator output[data-status="rejected"] {
-  color: #f2a7a7;
-}
-
 .chart-engine-host {
   position: relative;
   z-index: 2;
