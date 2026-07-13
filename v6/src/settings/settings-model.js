@@ -4,18 +4,23 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   chartCrosshairColor: '#758696',
   chartGrid: true,
   chartGridColor: '#263441',
+  chartNavigationVisibility: 'hover',
+  chartBottomMarginPercent: 8,
+  chartRightMarginBars: 8,
   chartScaleFontSize: 12,
   chartScaleTextColor: '#c9d6df',
+  chartTopMarginPercent: 10,
   displayTimezone: 'exchange',
   showWatermark: true,
   theme: 'dark',
 });
 
-export const SETTINGS_RECORD_VERSION = 2;
+export const SETTINGS_RECORD_VERSION = 3;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
 const TIMEZONES = Object.freeze(['exchange', 'local', 'utc']);
+const NAVIGATION_VISIBILITY = Object.freeze(['hover', 'always', 'hidden']);
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function normalizeBoolean(value, fallback) {
@@ -72,6 +77,24 @@ export function createSettingsRecord(input = {}) {
       DEFAULT_SETTINGS_INPUT.chartGridColor,
       'chartGridColor',
     ),
+    chartNavigationVisibility: normalizeChoice(
+      input.chartNavigationVisibility,
+      NAVIGATION_VISIBILITY,
+      DEFAULT_SETTINGS_INPUT.chartNavigationVisibility,
+      'chartNavigationVisibility',
+    ),
+    chartBottomMarginPercent: normalizeInteger(
+      input.chartBottomMarginPercent,
+      DEFAULT_SETTINGS_INPUT.chartBottomMarginPercent,
+      'chartBottomMarginPercent',
+      { min: 0, max: 40 },
+    ),
+    chartRightMarginBars: normalizeInteger(
+      input.chartRightMarginBars,
+      DEFAULT_SETTINGS_INPUT.chartRightMarginBars,
+      'chartRightMarginBars',
+      { min: 0, max: 100 },
+    ),
     chartScaleFontSize: normalizeInteger(
       input.chartScaleFontSize,
       DEFAULT_SETTINGS_INPUT.chartScaleFontSize,
@@ -82,6 +105,12 @@ export function createSettingsRecord(input = {}) {
       input.chartScaleTextColor,
       DEFAULT_SETTINGS_INPUT.chartScaleTextColor,
       'chartScaleTextColor',
+    ),
+    chartTopMarginPercent: normalizeInteger(
+      input.chartTopMarginPercent,
+      DEFAULT_SETTINGS_INPUT.chartTopMarginPercent,
+      'chartTopMarginPercent',
+      { min: 0, max: 40 },
     ),
     displayTimezone: normalizeChoice(
       input.displayTimezone,
@@ -128,7 +157,7 @@ export function restoreSettingsPersistenceValue(value) {
       settings: createSettingsRecord(value),
     });
   }
-  if (value.version !== 1 && value.version !== SETTINGS_RECORD_VERSION) {
+  if (![1, 2, SETTINGS_RECORD_VERSION].includes(value.version)) {
     throw new Error(`Unsupported Settings record version: ${value.version}`);
   }
   return Object.freeze({

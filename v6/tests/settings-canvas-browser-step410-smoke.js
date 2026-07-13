@@ -69,7 +69,7 @@ try {
   const record = committed.records.find((item) => (
     item.collection === 'workspaceSettings' && item.key === 'global'
   ));
-  assert.equal(record.value.version, 2);
+  assert.equal(record.value.version, 3);
 
   await page.client.send('Page.reload', { ignoreCache: true });
   await waitForExpression(
