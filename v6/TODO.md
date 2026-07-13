@@ -2,17 +2,17 @@
 
 ## Current / Next
 
-- Latest completed Go-to foundation step: Step 405 - Replay Navigation
-  Coordinator. V6 now resolves bounded schedule candidates against real source
-  bars, suppresses overlapping requests, stops Auto Play, pauses and advances
-  Replay once, and materializes supplied visible panes through the Step 404
-  boundary. Real NQ data verified weekend skipping and exact Monday 09:30 ET
-  wall-clock landing. The Go-to menu remains disabled.
-- Next step: Step 406 - Menu, Shortcuts And Custom Settings. Add a focused
-  shell controller for the five visible actions and scoped `Y/Z/I/L/N`
-  shortcuts, pass current visible pane ids to the coordinator, and build the
-  persisted preference draft/modal with Save, Discard, Reset, validation, and
-  busy/rejection feedback. Keep Silver Bullet deferred.
+- Latest completed Go-to foundation step: Step 406 - Menu, Shortcuts And Custom
+  Settings. The five actions and scoped `Y/Z/I/L/N` keys now dispatch through
+  the Step 405 coordinator with current visible pane ids. Custom Settings owns
+  a validated New York-time draft with Save, Discard, Reset, Escape, focus, and
+  persistence behavior. Real NQ UI evidence verified a persisted Friday-to-
+  Monday custom-anchor jump without bypassing runtime owners.
+- Next step: Step 407 - Browser And Human Acceptance. Gate every action and
+  anchor boundary, replay-end/double-input behavior, persistence reload,
+  timeframe families, multi-pane agreement, no-future state, viewport intent,
+  and visible latency. Then run the required human visual matrix against the
+  supplied FXReplay references before starting another product feature.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

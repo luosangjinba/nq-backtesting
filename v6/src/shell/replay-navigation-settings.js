@@ -50,6 +50,7 @@ export function mountReplayNavigationSettings(root, {
   const saveButton = root.querySelector('[data-v6-replay-navigation-settings-save]');
   const errorReadout = root.querySelector('[data-v6-replay-navigation-settings-error]');
   const gotoDetails = root.querySelector('[data-v6-rail-goto-details]');
+  const gotoToggle = root.querySelector('[data-v6-rail-goto]');
   if (
     !openButton
     || !dialog
@@ -113,7 +114,7 @@ export function mountReplayNavigationSettings(root, {
       renderDraft(current);
       fields[0]?.focus();
     } else if (restoreFocus) {
-      openButton.focus();
+      gotoToggle?.focus();
     }
     return getState();
   }

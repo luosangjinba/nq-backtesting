@@ -3,6 +3,9 @@ import { readFile } from 'node:fs/promises';
 
 const app = await readFile('v6/src/app.js', 'utf8');
 const control = await readFile('v6/src/shell/replay-navigation-control.js', 'utf8');
+const doc = await readFile('v6/docs/V6_REPLAY_NAVIGATION_UI_STEP406.md', 'utf8');
+const index = await readFile('v6/docs/INDEX.md', 'utf8');
+const plan = await readFile('v6/docs/V6_GOTO_REPLAY_NAVIGATION_PLAN_STEP402.md', 'utf8');
 const settings = await readFile('v6/src/shell/replay-navigation-settings.js', 'utf8');
 const shell = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 
@@ -28,5 +31,9 @@ assert.doesNotMatch(settings, /REPLAY_COMMANDS/);
 assert.doesNotMatch(settings, /BAR_DATA_COMMANDS/);
 assert.doesNotMatch(settings, /CHART_DATA_COMMANDS/);
 assert.doesNotMatch(settings, /lightweight-charts/);
+assert.match(doc, /Status: completed/);
+assert.match(doc, /human visual acceptance remains required/);
+assert.match(index, /V6_REPLAY_NAVIGATION_UI_STEP406/);
+assert.match(plan, /Step 406[\s\S]*Status: completed/);
 
 console.log('V6 replay navigation control Step 406 ownership smoke passed.');

@@ -1,6 +1,6 @@
 # Step 402 - Go-to Replay Navigation Semantic Correction And Plan
 
-Status: accepted plan; Steps 403-405 completed, Steps 406-407 pending.
+Status: accepted plan; Steps 403-406 completed, Step 407 pending.
 
 ## Correction
 
@@ -162,6 +162,9 @@ closeout evidence recorded in `V6_REPLAY_NAVIGATION_COORDINATOR_STEP405.md`.
 Commit after runtime and real-service tests pass.
 
 ### Step 406 - Menu, Shortcuts And Custom Settings
+
+Status: completed in commits `af200d3d` and `3419d2a0`, with closeout evidence
+recorded in `V6_REPLAY_NAVIGATION_UI_STEP406.md`.
 
 - activate the existing right-rail menu;
 - implement `Y/Z/I/L/N` only when chart/workstation focus permits and no text

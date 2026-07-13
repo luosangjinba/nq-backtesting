@@ -48,7 +48,12 @@ function isEditableTarget(target) {
 
 function hasOpenDialog(root) {
   return [...root.querySelectorAll('[role="dialog"]')]
-    .some((dialog) => !dialog.hidden);
+    .some((dialog) => (
+      !dialog.hidden
+      && !dialog.closest?.('[hidden]')
+      && !dialog.closest?.('details:not([open])')
+      && (typeof dialog.getClientRects !== 'function' || dialog.getClientRects().length > 0)
+    ));
 }
 
 export function resolveReplayNavigationShortcut(event, {
@@ -97,7 +102,7 @@ export function mountReplayNavigationControl(root, {
   function setStatus(message, tone = 'idle') {
     status.textContent = message;
     status.dataset.v6ReplayNavigationTone = tone;
-    root.dataset.v6ReplayNavigationStatus = tone;
+    root.dataset.v6ReplayNavigationState = tone;
   }
 
   function setBusy(nextBusy, action = null) {
