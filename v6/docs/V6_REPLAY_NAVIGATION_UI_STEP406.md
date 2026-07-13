@@ -40,6 +40,9 @@ draft state only. It reads and saves through the Step 403 preference commands.
 
 - all four inputs are labeled as New York wall-clock time;
 - values use strict `HH:mm` validation;
+- `HH:mm` remains the canonical command/persistence value. A future global
+  Settings `timeFormat` preference may change the controls' presentation, but
+  Go-to must not own or persist a separate 12/24-hour choice;
 - Reset to defaults changes the draft but does not persist;
 - Save validates and persists the whole draft;
 - Discard, close, backdrop click, and Escape restore the persisted snapshot;

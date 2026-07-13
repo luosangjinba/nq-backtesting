@@ -17,6 +17,13 @@
   reported 1m scenario after a hard reload and sample fixed HTF plus
   `1D`/`1W`/`1M`; then close the remaining action-boundary, replay-end/double-
   input, persistence, multi-pane, viewport, and visible-latency matrix.
+- Accepted future Settings requirement (does not replace the Step 407 gate):
+  add one global `timeFormat: '24h' | '12h'` preference when Settings parity
+  begins. It defaults to `24h`, affects presentation only, remains independent
+  of `displayTimezone`, and must cover chart, Go-to, Session, replay, and
+  Journal surfaces through a shared formatter. Canonical timestamps and
+  persisted `HH:mm` schedule values remain unchanged. See
+  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

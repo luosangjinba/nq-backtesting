@@ -285,7 +285,9 @@ Gate:
 Only after Phase 6 gates pass:
 
 - configured Next Day Open / Next Session / named-session replay navigation;
-- Settings parity;
+- Settings parity, including the deferred workstation-wide 12/24-hour
+  presentation preference constrained by
+  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`;
 - visual polish;
 - persistence;
 - preserve V5-quality Free Practice replay ergonomics without importing V5
