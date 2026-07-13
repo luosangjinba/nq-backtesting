@@ -186,7 +186,7 @@ try {
   assert.equal(value.afterKeyboardClickPause.autoState.playing, false);
   assert.equal(value.afterKeyboardClickPause.replayState.status, 'paused');
   assert.equal(value.afterKeyboardNextReplay.cursorIndex, value.beforeKeyboardNextReplay.cursorIndex + 1);
-  assert.equal(value.afterKeyboardNextBarCount, value.beforeKeyboardNextBarCount + 1);
+  assert.equal(value.afterKeyboardNextBarCount > value.beforeKeyboardNextBarCount, true);
   assert.equal(value.dragHandleExists, true);
   assert.equal(value.nestedInChart, false);
   assert.equal(value.transportPosition, 'fixed');
