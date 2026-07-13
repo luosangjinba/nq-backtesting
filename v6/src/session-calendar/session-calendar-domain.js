@@ -1,9 +1,11 @@
 import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
+import { resolveNewYorkWallClockInstants } from '../time-domain/new-york-wall-clock.js';
 
 const SUPPORTED_FUTURES = Object.freeze(['NQ', 'ES']);
 const SESSION_ROLL_HOUR_UTC = 18;
 const DAY_SECONDS = 86_400;
 const WEEK_SECONDS = 7 * DAY_SECONDS;
+const DAY_SEPARATOR_MODES = Object.freeze(['off', 'trading', 'ict', 'both']);
 
 function normalizeInstrument(value) {
   const instrument = String(value || '').trim().toUpperCase();
@@ -116,4 +118,56 @@ export function resolveTradingMonthBucket(timestamp, { instrument } = {}) {
     startTimestamp,
     unit: 'month',
   });
+}
+
+export function resolveDaySeparatorInstants({
+  fromTimestamp,
+  mode = 'off',
+  toTimestamp,
+} = {}) {
+  const normalizedMode = String(mode || '').trim();
+  if (!DAY_SEPARATOR_MODES.includes(normalizedMode)) {
+    throw new Error(`Session calendar day separator mode is unsupported: ${mode}`);
+  }
+  if (normalizedMode === 'off') return [];
+  const from = normalizeUnixSeconds(fromTimestamp, {
+    fieldName: 'Session calendar separator fromTimestamp',
+  });
+  const to = normalizeUnixSeconds(toTimestamp, {
+    fieldName: 'Session calendar separator toTimestamp',
+  });
+  if (from > to) throw new Error('Session calendar separator range must be ordered.');
+
+  const firstDate = new Date((from - DAY_SECONDS) * 1000);
+  const lastDate = new Date((to + DAY_SECONDS) * 1000);
+  const cursor = new Date(Date.UTC(
+    firstDate.getUTCFullYear(),
+    firstDate.getUTCMonth(),
+    firstDate.getUTCDate(),
+    12,
+  ));
+  const end = Date.UTC(
+    lastDate.getUTCFullYear(),
+    lastDate.getUTCMonth(),
+    lastDate.getUTCDate(),
+    12,
+  );
+  const types = normalizedMode === 'both'
+    ? ['trading', 'ict']
+    : [normalizedMode];
+  const separators = [];
+  while (cursor.getTime() <= end) {
+    const date = dateKeyFromParts(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate());
+    types.forEach((type) => {
+      const time = type === 'trading' ? '18:00' : '00:00';
+      resolveNewYorkWallClockInstants({ date, time }).forEach((timestampMs) => {
+        const timestamp = Math.floor(timestampMs / 1000);
+        if (timestamp >= from && timestamp <= to) {
+          separators.push(Object.freeze({ date, time, timestamp, type }));
+        }
+      });
+    });
+    cursor.setUTCDate(cursor.getUTCDate() + 1);
+  }
+  return separators.sort((left, right) => left.timestamp - right.timestamp);
 }

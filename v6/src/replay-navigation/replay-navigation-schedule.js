@@ -1,6 +1,10 @@
 import { normalizeUnixMilliseconds } from '../time-domain/time-domain.js';
+import {
+  NEW_YORK_TIME_ZONE,
+  resolveNewYorkWallClockInstants as resolveSharedNewYorkWallClockInstants,
+} from '../time-domain/new-york-wall-clock.js';
 
-export const REPLAY_NAVIGATION_TIME_ZONE = 'America/New_York';
+export const REPLAY_NAVIGATION_TIME_ZONE = NEW_YORK_TIME_ZONE;
 
 export const REPLAY_NAVIGATION_ACTIONS = Object.freeze({
   ASIAN_SESSION: 'asian-session',
@@ -25,31 +29,6 @@ const ACTION_ANCHORS = Object.freeze({
   [REPLAY_NAVIGATION_ACTIONS.NEXT_SESSION]: ['asianSession', 'londonSession', 'newYorkSession'],
 });
 
-const formatter = new Intl.DateTimeFormat('en-US', {
-  day: '2-digit',
-  hour: '2-digit',
-  hour12: false,
-  minute: '2-digit',
-  month: '2-digit',
-  second: '2-digit',
-  timeZone: REPLAY_NAVIGATION_TIME_ZONE,
-  year: 'numeric',
-});
-
-function getNewYorkParts(timestampMs) {
-  const values = Object.fromEntries(formatter.formatToParts(new Date(timestampMs))
-    .filter((part) => part.type !== 'literal')
-    .map((part) => [part.type, Number(part.value)]));
-  return {
-    day: values.day,
-    hour: values.hour === 24 ? 0 : values.hour,
-    minute: values.minute,
-    month: values.month,
-    second: values.second,
-    year: values.year,
-  };
-}
-
 function getReplayWallClockParts(timestampMs) {
   const date = new Date(timestampMs);
   return {
@@ -64,15 +43,6 @@ function getReplayWallClockParts(timestampMs) {
 
 function partsUtcMs(parts) {
   return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
-}
-
-function sameWallClock(left, right) {
-  return left.year === right.year
-    && left.month === right.month
-    && left.day === right.day
-    && left.hour === right.hour
-    && left.minute === right.minute
-    && left.second === right.second;
 }
 
 function addCalendarDays(dateParts, days) {
@@ -120,44 +90,12 @@ export function resolveNewYorkWallClockInstants({
   date,
   time,
 } = {}) {
-  const dateMatch = String(date || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const normalizedTime = normalizeReplayNavigationAnchorTime(time);
-  if (!dateMatch) {
-    throw new Error('Replay navigation local date must use YYYY-MM-DD format.');
+  try {
+    return resolveSharedNewYorkWallClockInstants({ date, time: normalizedTime });
+  } catch (error) {
+    throw new Error(String(error.message).replace('New York wall-clock', 'Replay navigation local'));
   }
-  const [hour, minute] = normalizedTime.split(':').map(Number);
-  const target = {
-    day: Number(dateMatch[3]),
-    hour,
-    minute,
-    month: Number(dateMatch[2]),
-    second: 0,
-    year: Number(dateMatch[1]),
-  };
-  const targetWallMs = partsUtcMs(target);
-  const normalizedDate = new Date(Date.UTC(target.year, target.month - 1, target.day, 12));
-  if (
-    normalizedDate.getUTCFullYear() !== target.year
-    || normalizedDate.getUTCMonth() + 1 !== target.month
-    || normalizedDate.getUTCDate() !== target.day
-  ) {
-    throw new Error('Replay navigation local date must be valid.');
-  }
-
-  let estimateMs = targetWallMs;
-  for (let iteration = 0; iteration < 4; iteration += 1) {
-    const displayedWallMs = partsUtcMs(getNewYorkParts(estimateMs));
-    estimateMs += targetWallMs - displayedWallMs;
-  }
-
-  const matches = [];
-  for (let offsetMinutes = -180; offsetMinutes <= 180; offsetMinutes += 15) {
-    const candidateMs = estimateMs + (offsetMinutes * 60_000);
-    if (sameWallClock(getNewYorkParts(candidateMs), target)) {
-      matches.push(candidateMs);
-    }
-  }
-  return [...new Set(matches)].sort((left, right) => left - right);
 }
 
 export function resolveReplayWallClockTimestamp({
