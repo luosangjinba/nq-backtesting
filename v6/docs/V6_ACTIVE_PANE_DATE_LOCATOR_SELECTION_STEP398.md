@@ -1,6 +1,10 @@
 # Step 398 - Active-Pane Date Locator Slice Selection
 
-Status: selected.
+Status: rejected and superseded by Step 402.
+
+This document records a discarded interpretation. The workstation `Go to`
+surface is forward replay navigation to configured day/session anchors, not an
+active-pane loaded-window viewport locator. Do not implement this selection.
 
 ## Selected next slice
 

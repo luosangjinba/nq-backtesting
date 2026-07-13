@@ -8,7 +8,7 @@ const agents = await readFile('AGENTS.md', 'utf8');
 
 for (const text of [direction, todo, architecture, agents]) {
   assert.match(text, /SMC\/ICT/);
-  assert.match(text, /prop\s+firm/i);
+  assert.match(text, /prop(?:\s+|-)firm/i);
 }
 
 assert.match(direction, /Backtesting/);

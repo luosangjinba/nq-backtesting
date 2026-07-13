@@ -2,6 +2,16 @@
 
 ## Current / Next
 
+- Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
+  Correction And Plan. The mistaken active-pane loaded-window date locator was
+  reverted. `Go to` is now constrained as session-global forward replay
+  navigation for Next Day Open, Next Session, Asian, London, and New York
+  anchors, with configurable New York wall-clock times. Arbitrary chart-date
+  inspection is a separate possible future feature.
+- Next step: Step 403 - Go-to Schedule Domain And Preferences Contract. Add
+  DST-correct `America/New_York` candidate generation, strict-forward action
+  semantics, four validated anchor preferences, reset/persistence contracts,
+  and pure boundary tests. Do not wire Replay, Bar Data, Chart Data, or UI yet.
 - Latest completed foundation repair step: Step 400 - Unified Target-History
   Full-Timeframe Matrix. Fixed-duration `30m` through `12h` and session-calendar
   `1D`/`1W`/`1M` now use one target-history request/apply/fallback pipeline;
@@ -21,14 +31,9 @@
   binding constraints are in
   `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`; the research report is
   non-normative input.
-- Latest completed foundation selection step: Step 398 - Product/Foundation
-  Gap Re-selection. Loading/Timeframe/Replay passed Step 276 `8/8`, Multi-pane
-  passed Step 253 `9/9`, and Date Range boundary entry passed Step 255 `7/7`.
-  The remaining observable gap is post-entry active-pane date/time location.
-- Next step: Step 402 - Active-Pane Loaded-Window Date Locator. Add a visible
-  Go-to-time control that selects the nearest already-loaded real bar and
-  applies a manual viewport projection without fetching bars or mutating replay
-  cursor/source state. Missing-window loading is explicitly deferred.
+- Superseded foundation selection: Step 398's journey evidence remains valid,
+  but its active-pane date-locator conclusion was rejected by Step 402 after
+  product-reference clarification.
 - Latest completed shell modularization step: Step 397 - Replay Transport
   Presentation Modularization. Command-free DOM rendering now lives in a
   focused renderer; `replay-transport.js` fell from 512 to 418 lines and the

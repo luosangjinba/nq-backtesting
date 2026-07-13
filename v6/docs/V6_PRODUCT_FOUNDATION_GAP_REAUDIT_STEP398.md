@@ -1,6 +1,12 @@
 # Step 398 - Product/Foundation Gap Re-audit
 
-Status: completed on 2026-07-12.
+Status: superseded by the Step 402 Go-to semantic correction.
+
+The journey evidence remains useful, but the conclusion below incorrectly
+treated the right-rail `Go to` surface as an arbitrary chart date locator. User
+acceptance evidence later established that this surface means forward replay
+navigation to configured day/session anchors. See
+`V6_GOTO_REPLAY_NAVIGATION_PLAN_STEP402.md`.
 
 ## Journey evidence matrix
 
@@ -60,7 +66,6 @@ locating a date/time in the active workstation chart.
 
 ## Selection
 
-Step 399 is selected as Active-Pane Loaded-Window Date Locator. See
-`v6/docs/V6_ACTIVE_PANE_DATE_LOCATOR_SELECTION_STEP398.md` for ownership,
-non-goals, and acceptance gates. Missing-window loading remains a later,
-evidence-gated slice.
+The former Active-Pane Loaded-Window Date Locator selection is rejected. Date-
+range inspection may be reconsidered later under a distinct name and surface;
+it must not redefine the replay-semantic `Go to` control.

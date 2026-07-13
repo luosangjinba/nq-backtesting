@@ -31,7 +31,11 @@ Read this index before working on V6.
   official Lightweight Charts/awesome-tradingview capability check, regression
   results, and the selected Date Range gap.
 - `v6/docs/V6_ACTIVE_PANE_DATE_LOCATOR_SELECTION_STEP398.md`: Step 399 loaded-
-  window Go-to-time ownership, non-goals, and browser acceptance gate.
+  window Go-to-time selection retained as a rejected interpretation; do not
+  implement it.
+- `v6/docs/V6_GOTO_REPLAY_NAVIGATION_PLAN_STEP402.md`: corrected Go-to semantics,
+  New York-time session anchors, ownership, shared materialization requirement,
+  Step 403-407 execution plan, and stop conditions.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

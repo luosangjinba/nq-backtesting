@@ -284,7 +284,7 @@ Gate:
 
 Only after Phase 6 gates pass:
 
-- loaded-window Go-to-time and deterministic evidence navigation;
+- configured Next Day Open / Next Session / named-session replay navigation;
 - Settings parity;
 - visual polish;
 - persistence;
@@ -294,8 +294,8 @@ Only after Phase 6 gates pass:
 Gate:
 
 - foundation regression packs and human replay acceptance remain green;
-- navigation never mutates replay cursor unless an explicit replay command is
-  issued;
+- Go-to advances replay cursor/reveal only through an explicit replay-
+  navigation coordinator; chart-only inspection remains a separate concern;
 - product work can attach without bypassing chart/replay/bar-data owners.
 
 ## Phase 8 - Free Practice Product Baseline

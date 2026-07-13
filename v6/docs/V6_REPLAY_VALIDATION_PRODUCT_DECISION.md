@@ -34,7 +34,8 @@ session model and the same runtime owners support two workflows.
 ### Free Practice
 
 - fast session creation and V5-quality replay ergonomics;
-- Play, Pause, Next, Previous, Go-to-time, timeframe and multi-pane work;
+- Play, Pause, Next, Previous, configured day/session Go-to navigation,
+  timeframe and multi-pane work;
 - optional drawings, simulated orders, notes, and post-session review;
 - low ceremony and no mandatory experiment taxonomy.
 
@@ -155,8 +156,10 @@ database.
 ## Delivery Sequence And Gate
 
 Finish the selected chart-foundation work before starting semantic validation
-features. Go-to-time is foundation work because both practice and validation
-need deterministic evidence navigation.
+features. Configured day/session Go-to navigation is foundation work because
+both practice and validation need deterministic replay progression. Arbitrary
+chart-date inspection, if added later, is a separate chart navigation feature
+and must not reuse the replay-semantic `Go to` surface.
 
 The first post-foundation product slice must be one thin end-to-end loop:
 

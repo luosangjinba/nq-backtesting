@@ -3,7 +3,7 @@
 ## Decision
 
 V6 is an open-source, local-first SMC/ICT trading-system validation and replay-
-practice workstation for personal use, especially for prop-firm traders.
+practice workstation for personal use, especially for prop firm traders.
 
 Validation is the product outcome and replay is the shared experiment/practice
 environment. Free Practice and Validation Campaigns must use the same replay,
