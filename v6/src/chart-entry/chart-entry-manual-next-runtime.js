@@ -153,11 +153,6 @@ function pickCursorBars(record, replayState) {
   return exact.length ? exact : bars.slice(-1);
 }
 
-function hasExactCursorBar(record, replayState) {
-  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
-  return cloneBars(record?.bars).some((bar) => Number(bar.timestamp ?? bar.time) === cursorTimestamp);
-}
-
 function firstBarAfterCursor(record, replayState) {
   const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
   return cloneBars(record?.bars)
@@ -233,9 +228,9 @@ async function createAppendBars({
   };
 }
 
-async function alignReplayStateToNextAvailableBar(replayState, pane = {}) {
+async function advanceReplayStateToNextAvailableBar(replayState, pane = {}) {
   if (!hasCommand(REPLAY_COMMANDS.SET_CURSOR_TIME)) {
-    return replayState;
+    return dispatchCommand(REPLAY_COMMANDS.NEXT);
   }
   const cursorMs = parseReplayMilliseconds(replayState.cursorTime, 'cursorTime');
   const endMs = parseReplayMilliseconds(replayState.endTime, 'endTime');
@@ -324,25 +319,17 @@ export function createChartEntryManualNextRuntime() {
         };
         return getState();
       }
-      let replayState = null;
+      let replayState = currentReplayState;
       const chartRecords = [];
       const loadedWindows = [];
       let appendedBarCount = 0;
       for (let index = 0; index < stepCount; index += 1) {
-        replayState = await dispatchCommand(REPLAY_COMMANDS.NEXT);
         const firstPane = await getPaneRecord(paneIds[0]);
-        const firstWindowPayload = createNextWindowPayload(replayState, firstPane || {});
-        let firstLoadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, firstWindowPayload);
-        if (!hasExactCursorBar(firstLoadedWindow, replayState)) {
-          replayState = await alignReplayStateToNextAvailableBar(replayState, firstPane || {});
-          firstLoadedWindow = null;
-        }
+        replayState = await advanceReplayStateToNextAvailableBar(replayState, firstPane || {});
         for (const paneId of paneIds) {
           const pane = await getPaneRecord(paneId);
           const windowPayload = createNextWindowPayload(replayState, pane || {});
-          const loadedWindow = firstLoadedWindow && paneId === paneIds[0]
-            ? firstLoadedWindow
-            : await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
+          const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
           const appendBars = await createAppendBars({
             loadedWindow,
             pane: pane || {},

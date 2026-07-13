@@ -62,6 +62,13 @@ async function runPeriodCase({
   registerCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, (payload) => {
     loadPayloads.push({ ...payload });
     if (payload.direction === 'forward') {
+      if (!isNoBarGap(new Date(payload.anchor).toISOString())) {
+        return {
+          bars: [sourceBarForAnchor(payload.anchor)],
+          cacheHit: false,
+          key: `forward|${payload.anchor}`,
+        };
+      }
       return {
         bars: [
           bar('2026-06-01T18:00:00.000Z', 30600),
@@ -126,7 +133,7 @@ async function runPeriodCase({
     `${period} should append the final post-gap source bar`,
   );
   assert.equal(
-    loadPayloads.some((payload) => payload.direction === 'forward' && payload.anchor === '2026-06-01T17:01:00.000Z'),
+    loadPayloads.some((payload) => payload.direction === 'forward' && payload.anchor === '2026-06-01T17:00:00.000Z'),
     true,
     `${period} should scan forward across the no-bar gap`,
   );

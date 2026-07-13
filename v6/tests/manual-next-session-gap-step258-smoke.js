@@ -137,11 +137,11 @@ assert.deepEqual(
       direction: call.payload.direction,
     })),
   [
-    { anchor: '2026-06-01T17:00:00.000Z', direction: 'backward' },
-    { anchor: '2026-06-01T17:01:00.000Z', direction: 'forward' },
+    { anchor: '2026-06-01T17:00:00.000Z', direction: 'forward' },
     { anchor: '2026-06-01T18:00:00.000Z', direction: 'backward' },
   ],
 );
+assert.deepEqual(calls.filter((call) => call.command === REPLAY_COMMANDS.NEXT), []);
 assert.deepEqual(
   calls.filter((call) => call.command === REPLAY_COMMANDS.SET_CURSOR_TIME),
   [{ command: REPLAY_COMMANDS.SET_CURSOR_TIME, cursorTime: '2026-06-01T18:00:00.000Z' }],

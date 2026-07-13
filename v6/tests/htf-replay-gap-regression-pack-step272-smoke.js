@@ -88,6 +88,14 @@ function installGapDataCommands({
   registerCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, (payload) => {
     loadPayloads.push({ ...payload });
     if (payload.direction === 'forward') {
+      const anchorIso = new Date(payload.anchor).toISOString();
+      if (anchorIso < '2026-06-01T17:00:00.000Z' || anchorIso >= '2026-06-01T18:00:00.000Z') {
+        return {
+          bars: [bar(anchorIso, anchorIso >= '2026-06-01T18:00:00.000Z' ? 30600 : 30580)],
+          cacheHit: false,
+          key: `forward|${payload.anchor}`,
+        };
+      }
       return {
         bars: [
           bar('2026-06-01T18:00:00.000Z', 30600),
@@ -193,9 +201,9 @@ async function runManualNextCase(displayTimeframe) {
   assert.equal(projectionPayloads.at(-1).targetTimeframe, displayTimeframe);
   assert.equal(projectionPayloads.at(-1).instrument, 'NQ');
   assert.deepEqual(projectionPayloads.at(-1).bars.map(isoFromBar), ['2026-06-01T18:00:00.000Z']);
-  assert.equal(appendPayloads.at(-1).cursorTimestamp, ts('2026-05-31T18:00:00.000Z'));
+  assert.equal(appendPayloads.at(-1).cursorTimestamp, ts('2026-06-01T18:00:00.000Z'));
   assert.equal(
-    loadPayloads.some((payload) => payload.direction === 'forward' && payload.anchor === '2026-06-01T17:01:00.000Z'),
+    loadPayloads.some((payload) => payload.direction === 'forward' && payload.anchor === '2026-06-01T17:00:00.000Z'),
     true,
     `manual next should scan forward across gap for ${displayTimeframe}`,
   );
@@ -283,7 +291,7 @@ async function runAutoPlayCase(displayTimeframe) {
   assert.equal(projectionPayloads.at(-1).targetTimeframe, displayTimeframe);
   assert.deepEqual(projectionPayloads.at(-1).bars.map(isoFromBar), ['2026-06-01T18:01:00.000Z']);
   assert.equal(
-    loadPayloads.some((payload) => payload.direction === 'forward' && payload.anchor === '2026-06-01T17:01:00.000Z'),
+    loadPayloads.some((payload) => payload.direction === 'forward' && payload.anchor === '2026-06-01T17:00:00.000Z'),
     true,
     `auto-play should scan forward across gap for ${displayTimeframe}`,
   );
