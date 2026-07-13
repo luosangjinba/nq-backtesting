@@ -2,6 +2,17 @@
 
 ## Current / Next
 
+- Latest completed foundation navigation step: Step 402 - Active-Pane Loaded-
+  Window Date Locator. The visible right-rail UTC control now resolves the
+  nearest real bar through one timeframe-independent loaded-data path and
+  applies a manual viewport only to the active pane. Browser coverage proves
+  main/secondary isolation, zero fetches, unchanged Bar Data cache, unchanged
+  Replay state/source bars, and explicit outside-window rejection.
+- Next step: Step 403 - Loaded-Window Date Locator Visual Acceptance. Verify
+  control readability, active-pane centering, drag continuity, and rejection
+  feedback on representative `1m`, `4h`, `1D`, `1W`, and `1M` panes. Then close
+  the foundation gap audit and decide from real friction whether bounded
+  missing-window loading deserves a later slice.
 - Latest completed foundation repair step: Step 400 - Unified Target-History
   Full-Timeframe Matrix. Fixed-duration `30m` through `12h` and session-calendar
   `1D`/`1W`/`1M` now use one target-history request/apply/fallback pipeline;
@@ -25,10 +36,6 @@
   Gap Re-selection. Loading/Timeframe/Replay passed Step 276 `8/8`, Multi-pane
   passed Step 253 `9/9`, and Date Range boundary entry passed Step 255 `7/7`.
   The remaining observable gap is post-entry active-pane date/time location.
-- Next step: Step 402 - Active-Pane Loaded-Window Date Locator. Add a visible
-  Go-to-time control that selects the nearest already-loaded real bar and
-  applies a manual viewport projection without fetching bars or mutating replay
-  cursor/source state. Missing-window loading is explicitly deferred.
 - Latest completed shell modularization step: Step 397 - Replay Transport
   Presentation Modularization. Command-free DOM rendering now lives in a
   focused renderer; `replay-transport.js` fell from 512 to 418 lines and the

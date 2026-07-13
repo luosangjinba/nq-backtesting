@@ -74,6 +74,8 @@ try {
         main,
         menuOptionLabels: [...menu.querySelectorAll('button')].map((button) => button.textContent.trim()),
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
+        gotoInputType: menu.querySelector('[data-v6-loaded-window-date-locator-input]')?.type || '',
+        gotoStatusText: menu.querySelector('[data-v6-loaded-window-date-locator-status]')?.textContent || '',
         menuRect,
         rail,
         sessionSettingsDisabledControls: [...sessionSettingsPanel.querySelectorAll('input, select, button')]
@@ -98,15 +100,10 @@ try {
   assert.equal(Math.abs(value.rail.height - value.main.height) <= 2, true);
   assert.equal(value.gotoOpen, true);
   assert.equal(value.menuRect.right <= value.rail.left, true);
-  assert.deepEqual(value.menuOptionLabels, [
-    'Next Day Open Y',
-    'Next Session Z',
-    'Asian Session I',
-    'London Session L',
-    'New York Session N',
-    'Custom Settings',
-  ]);
-  assert.deepEqual(value.menuOptionsDisabled, [true, true, true, true, true, true]);
+  assert.deepEqual(value.menuOptionLabels, ['Locate loaded bar']);
+  assert.deepEqual(value.menuOptionsDisabled, [false]);
+  assert.equal(value.gotoInputType, 'datetime-local');
+  assert.match(value.gotoStatusText, /active pane’s loaded bars only/);
   assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true, true, true]);
   assert.deepEqual(value.inertButtons.map((button) => button.label), [
     'Show object tree',

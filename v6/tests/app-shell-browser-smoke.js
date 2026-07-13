@@ -86,6 +86,7 @@ async function main() {
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryDefaultWallPlan'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryProjectionPreparation'), true);
     assert.equal(value.registrySnapshot.started.includes('runtime.chartEntryProjectionApply'), true);
+    assert.equal(value.registrySnapshot.started.includes('runtime.loaded-window-date-locator'), true);
     assert.equal(value.transportMounted, true);
     assert.equal(value.replayWorkflowMounted, true);
     assert.equal(value.journalMounted, true);
@@ -133,6 +134,7 @@ async function main() {
     assert.equal(value.commands.includes('journal.analyzeRecords'), true);
     assert.equal(value.commands.includes('journalPersistence.saveSnapshot'), true);
     assert.equal(value.commands.includes('journalPersistence.loadSnapshot'), true);
+    assert.equal(value.commands.includes('loadedWindowDateLocator.locate'), true);
 
     const sessionFlow = JSON.parse(await evaluate(page.client, `
       (async () => {
