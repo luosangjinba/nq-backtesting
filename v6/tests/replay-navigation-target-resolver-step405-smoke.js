@@ -29,8 +29,8 @@ const replayState = {
 
   assert.equal(resolved.status, 'resolved');
   assert.equal(resolved.attemptedCandidates, 2, 'empty first anchor advances to the next candidate');
-  assert.equal(resolved.candidate.timestampIso, '2026-05-02T22:00:00.000Z');
-  assert.equal(resolved.sourceCursorTime, '2026-05-02T22:02:00.000Z');
+  assert.equal(resolved.candidate.timestampIso, '2026-05-03T18:00:00.000Z');
+  assert.equal(resolved.sourceCursorTime, '2026-05-03T18:02:00.000Z');
   assert.equal(resolved.distanceMs, 120_000);
   assert.deepEqual(calls.map((call) => call.payload.instrument), ['ES', 'ES']);
   assert.deepEqual(calls.map((call) => call.payload.count), [16, 16]);

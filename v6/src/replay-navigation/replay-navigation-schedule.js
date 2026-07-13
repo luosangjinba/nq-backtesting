@@ -50,6 +50,18 @@ function getNewYorkParts(timestampMs) {
   };
 }
 
+function getReplayWallClockParts(timestampMs) {
+  const date = new Date(timestampMs);
+  return {
+    day: date.getUTCDate(),
+    hour: date.getUTCHours(),
+    minute: date.getUTCMinutes(),
+    month: date.getUTCMonth() + 1,
+    second: date.getUTCSeconds(),
+    year: date.getUTCFullYear(),
+  };
+}
+
 function partsUtcMs(parts) {
   return Date.UTC(parts.year, parts.month - 1, parts.day, parts.hour || 0, parts.minute || 0, parts.second || 0);
 }
@@ -148,6 +160,31 @@ export function resolveNewYorkWallClockInstants({
   return [...new Set(matches)].sort((left, right) => left - right);
 }
 
+export function resolveReplayWallClockTimestamp({
+  date,
+  time,
+} = {}) {
+  const dateMatch = String(date || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const normalizedTime = normalizeReplayNavigationAnchorTime(time);
+  if (!dateMatch) {
+    throw new Error('Replay navigation local date must use YYYY-MM-DD format.');
+  }
+  const [hour, minute] = normalizedTime.split(':').map(Number);
+  const year = Number(dateMatch[1]);
+  const month = Number(dateMatch[2]);
+  const day = Number(dateMatch[3]);
+  const timestampMs = Date.UTC(year, month - 1, day, hour, minute);
+  const normalized = new Date(timestampMs);
+  if (
+    normalized.getUTCFullYear() !== year
+    || normalized.getUTCMonth() + 1 !== month
+    || normalized.getUTCDate() !== day
+  ) {
+    throw new Error('Replay navigation local date must be valid.');
+  }
+  return timestampMs;
+}
+
 export function createReplayNavigationCandidates({
   action,
   anchors = DEFAULT_REPLAY_NAVIGATION_ANCHORS,
@@ -169,14 +206,14 @@ export function createReplayNavigationCandidates({
   }
   if (cursorMs >= endMs) return [];
 
-  const cursorDate = getNewYorkParts(cursorMs);
+  const cursorDate = getReplayWallClockParts(cursorMs);
   const candidates = [];
   for (let dayOffset = 0; dayOffset <= 370 && candidates.length < limit; dayOffset += 1) {
     const localDate = addCalendarDays(cursorDate, dayOffset);
     const date = localDateText(localDate);
     const dayCandidates = ACTION_ANCHORS[normalizedAction].flatMap((anchor) => {
       const localTime = normalizedAnchors[anchor];
-      return resolveNewYorkWallClockInstants({ date, time: localTime }).map((timestampMs) => ({
+      return [resolveReplayWallClockTimestamp({ date, time: localTime })].map((timestampMs) => ({
         action: normalizedAction,
         anchor,
         localDate: date,

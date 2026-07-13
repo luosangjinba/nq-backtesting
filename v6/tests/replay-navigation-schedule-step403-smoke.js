@@ -4,6 +4,7 @@ import {
   DEFAULT_REPLAY_NAVIGATION_ANCHORS,
   normalizeReplayNavigationAnchorTime,
   REPLAY_NAVIGATION_ACTIONS,
+  resolveReplayWallClockTimestamp,
   resolveNewYorkWallClockInstants,
 } from '../src/replay-navigation/replay-navigation-schedule.js';
 
@@ -21,6 +22,11 @@ assert.deepEqual(
   resolveNewYorkWallClockInstants({ date: '2026-03-06', time: '09:30' })
     .map((timestamp) => new Date(timestamp).toISOString()),
   ['2026-03-06T14:30:00.000Z'],
+);
+assert.equal(
+  new Date(resolveReplayWallClockTimestamp({ date: '2026-03-09', time: '09:30' })).toISOString(),
+  '2026-03-09T09:30:00.000Z',
+  'Replay uses UTC epoch seconds to carry New York wall-clock fields',
 );
 assert.deepEqual(
   resolveNewYorkWallClockInstants({ date: '2026-03-09', time: '09:30' })
@@ -46,26 +52,26 @@ const nextSessions = createReplayNavigationCandidates({
   maxCandidates: 4,
 });
 assert.deepEqual(nextSessions.map(({ anchor, timestampIso }) => ({ anchor, timestampIso })), [
-  { anchor: 'londonSession', timestampIso: '2026-05-04T06:00:00.000Z' },
-  { anchor: 'newYorkSession', timestampIso: '2026-05-04T13:30:00.000Z' },
-  { anchor: 'asianSession', timestampIso: '2026-05-04T23:00:00.000Z' },
-  { anchor: 'londonSession', timestampIso: '2026-05-05T06:00:00.000Z' },
+  { anchor: 'newYorkSession', timestampIso: '2026-05-04T09:30:00.000Z' },
+  { anchor: 'asianSession', timestampIso: '2026-05-04T19:00:00.000Z' },
+  { anchor: 'londonSession', timestampIso: '2026-05-05T02:00:00.000Z' },
+  { anchor: 'newYorkSession', timestampIso: '2026-05-05T09:30:00.000Z' },
 ]);
 
 const named = createReplayNavigationCandidates({
   action: REPLAY_NAVIGATION_ACTIONS.NEW_YORK_SESSION,
-  cursorTimestamp: '2026-05-04T13:30:00.000Z',
-  endTimestamp: '2026-05-06T13:30:00.000Z',
+  cursorTimestamp: '2026-05-04T09:30:00.000Z',
+  endTimestamp: '2026-05-06T09:30:00.000Z',
 });
 assert.deepEqual(named.map(({ timestampIso }) => timestampIso), [
-  '2026-05-05T13:30:00.000Z',
-  '2026-05-06T13:30:00.000Z',
+  '2026-05-05T09:30:00.000Z',
+  '2026-05-06T09:30:00.000Z',
 ]);
 
 const dayOpen = createReplayNavigationCandidates({
   action: REPLAY_NAVIGATION_ACTIONS.NEXT_DAY_OPEN,
   cursorTimestamp: '2026-05-04T12:00:00.000Z',
-  endTimestamp: '2026-05-04T21:59:00.000Z',
+  endTimestamp: '2026-05-04T17:59:00.000Z',
 });
 assert.deepEqual(dayOpen, [], 'session end bounds every generated candidate');
 
