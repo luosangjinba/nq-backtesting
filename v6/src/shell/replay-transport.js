@@ -14,6 +14,7 @@ import {
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import { mountReplayTransportPositionController } from './replay-transport-position-controller.js';
+import { resolveReplayTransportPeriodNavigation } from './replay-transport-period-navigation.js';
 
 export { clampReplayTransportPosition } from './replay-transport-position.js';
 
@@ -444,42 +445,22 @@ export function mountReplayTransport(root, {
     const targetIsInPeriodMenu = root.contains(event.target) && details.contains?.(event.target);
     if (!targetIsInPeriodMenu) return false;
     const options = getFocusablePeriodOptions(root);
-    if (!options.length) return false;
     const activeIndex = options.indexOf(root.ownerDocument?.activeElement);
-    if (event.key === 'Escape') {
-      if (details.open) {
-        event.preventDefault();
-        details.open = false;
-        root.querySelector('[data-v6-transport-period-toggle]')?.focus?.();
-        return true;
-      }
-      return false;
+    const navigation = resolveReplayTransportPeriodNavigation({
+      activeIndex,
+      key: event.key,
+      open: details.open,
+      optionCount: options.length,
+    });
+    if (!navigation.handled) return false;
+    event.preventDefault();
+    details.open = navigation.open;
+    if (navigation.focusTrigger) {
+      root.querySelector('[data-v6-transport-period-toggle]')?.focus?.();
+    } else if (navigation.focusIndex !== null) {
+      focusPeriodOption(navigation.focusIndex);
     }
-    if (event.key === 'ArrowDown') {
-      event.preventDefault();
-      details.open = true;
-      focusPeriodOption(activeIndex < 0 ? 0 : (activeIndex + 1) % options.length);
-      return true;
-    }
-    if (event.key === 'ArrowUp') {
-      event.preventDefault();
-      details.open = true;
-      focusPeriodOption(activeIndex < 0 ? options.length - 1 : (activeIndex - 1 + options.length) % options.length);
-      return true;
-    }
-    if (event.key === 'Home') {
-      event.preventDefault();
-      details.open = true;
-      focusPeriodOption(0);
-      return true;
-    }
-    if (event.key === 'End') {
-      event.preventDefault();
-      details.open = true;
-      focusPeriodOption(options.length - 1);
-      return true;
-    }
-    return false;
+    return true;
   }
 
   root.addEventListener('click', (event) => {
