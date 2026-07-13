@@ -28,6 +28,6 @@ mixing with `09:30`-anchored bars after Asian Session Go-to.
 
 ## Next
 
-Hard reload and repeat the user's `1h` New York and `4h` Asian paths. Step
-407/408 remains open until crosshair inspection confirms one stable canonical
-grid across old and newly appended bars.
+The user completed the hard-reload `1h` New York and `4h` Asian crosshair/grid
+matrix and confirmed it passed. Step 407/408 is closed. Select the next bounded
+Phase 7 foundation-closeout slice.

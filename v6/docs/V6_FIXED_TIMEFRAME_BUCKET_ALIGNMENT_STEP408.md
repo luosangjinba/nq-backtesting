@@ -1,7 +1,7 @@
 # Step 408 - Fixed Timeframe Bucket Alignment
 
-Status: correction and automated regression completed; human visual recheck
-required before Step 407/408 acceptance closes.
+Status: accepted. Correction, automated regression, and human visual recheck
+completed on 2026-07-13.
 
 ## User evidence
 
@@ -86,7 +86,7 @@ limit was not relaxed, and the final full pack passed at `133.9ms`. The test now
 reports its measured latency so a recurrence is diagnosable rather than only
 printing a boolean mismatch.
 
-## Required visual recheck
+## Human visual acceptance
 
 Hard reload the workstation, then repeat the reported paths:
 
@@ -98,4 +98,6 @@ Hard reload the workstation, then repeat the reported paths:
    boundary never switches grid;
 4. drag left/right and confirm the full range remains continuous.
 
-Step 407/408 remains open until this human visual gate passes.
+The user completed this matrix after a hard reload and confirmed the retest
+passed. Step 407 continuous-range rendering and Step 408 fixed-timeframe bucket
+alignment are therefore accepted together.

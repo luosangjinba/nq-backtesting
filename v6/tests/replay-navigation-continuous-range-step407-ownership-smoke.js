@@ -14,11 +14,11 @@ assert.match(materializer, /range \? cloneBars\(projectionRecord\.bars\)/);
 assert.match(materializer, /CHART_DATA_COMMANDS\.APPEND_BARS/);
 assert.doesNotMatch(materializer, /CHART_VIEWPORT_COMMANDS/);
 assert.doesNotMatch(materializer, /lightweight-charts/);
-assert.match(doc, /Status: continuous-range correction completed/);
-assert.match(doc, /fixed-timeframe alignment defect corrected by Step 408/);
-assert.match(doc, /human visual recheck/);
+assert.match(doc, /Status: accepted/);
+assert.match(doc, /fixed-timeframe alignment\s+defect corrected by Step 408/);
+assert.match(doc, /post-Step-408 human recheck passed/);
 assert.match(alignmentDoc, /target-timeframe-domain/);
-assert.match(alignmentDoc, /Step 407\/408 remains open/);
+assert.match(alignmentDoc, /Step 407 continuous-range rendering and Step 408 fixed-timeframe bucket\s+alignment are therefore accepted/);
 assert.match(index, /V6_REPLAY_NAVIGATION_CONTINUOUS_RANGE_STEP407/);
 
 console.log('V6 replay navigation continuous range Step 407 ownership smoke passed.');

@@ -1,8 +1,8 @@
 # Step 407 - Replay Navigation Continuous Range Correction
 
-Status: continuous-range correction completed; the first human recheck exposed
-the fixed-timeframe alignment defect corrected by Step 408. A post-Step-408
-human visual recheck is required before Step 407 acceptance closes.
+Status: accepted. The first human recheck exposed the fixed-timeframe alignment
+defect corrected by Step 408; the post-Step-408 human recheck passed on
+2026-07-13.
 
 ## User evidence
 
@@ -89,7 +89,7 @@ range is split into bounded 40,000-bar source windows and projected across all
 five representative timeframe families while preserving ordered unique bars
 and cursor-capped no-future state.
 
-## Required human recheck
+## Human acceptance closeout
 
 Step 408 supersedes the original fixed-timeframe portion of this matrix. Use
 `v6/docs/V6_FIXED_TIMEFRAME_BUCKET_ALIGNMENT_STEP408.md` for the current `1h`
@@ -105,5 +105,5 @@ modules. Repeat the supplied scenario first on `1m`:
 4. verify the destination K-line and footer cursor agree;
 5. drag the chart left/right to confirm the filled range remains continuous.
 
-Then sample one fixed HTF and one session-calendar timeframe. Step 407 remains
-open until this human visual recheck passes.
+The user confirmed the corrected continuous range and fixed-timeframe grid pass
+visual acceptance. Step 407 is closed together with Step 408.

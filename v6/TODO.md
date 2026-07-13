@@ -8,26 +8,23 @@
   a validated New York-time draft with Save, Discard, Reset, Escape, focus, and
   persistence behavior. Real NQ UI evidence verified a persisted Friday-to-
   Monday custom-anchor jump without bypassing runtime owners.
-- Step 407 continuous-range correction remains valid, but its first visual
-  recheck exposed Step 408 fixed-timeframe bucket misalignment. The shared
+- Step 407/408 correction and human acceptance completed: the shared
   materializer fills the complete real-source interval
   through the same `1m`/HTF/session-calendar projection path. Real NQ requires
   more than 500 intermediate K-lines; deterministic acceptance now covers
   terminal/error/double-input boundaries and one shared `1m`/`4h`/`1D`/`1W`/
   `1M` multi-pane no-future matrix. Manual Next `5/5`, visible latency `6/6`,
-  HTF gap, and chart browser `28/28` remain green.
-- Step 408 correction and automated acceptance completed, visual recheck
-  pending: Chart Data Projection now gets fixed-duration bucket alignment only
+  HTF gap, and chart browser `28/28` remain green. The first visual recheck
+  exposed fixed-timeframe bucket misalignment; Chart Data Projection now gets
+  fixed-duration bucket alignment only
   from `target-timeframe-domain`. `1h` stays on whole hours; `4h` matches the
   target-bars `02/06/10/14/18/22` grid; replay/session/Go-to starts cannot shift
   it. Real NQ verifies `09:30 → 09:00` on `1h` and `19:00 → 18:00` on `4h`.
   Manual Next `5/5`, visible latency `6/6`, target-bars matrix, and final chart
-  browser `28/28` pass without relaxing latency gates.
-- Next step: complete the remaining Step 407/408 human acceptance only. Hard
-  reload, repeat `1h → New York Session` and `4h → Asian Session`, move the
-  crosshair across old/new bars, and confirm the bucket grid never changes and
-  the range remains continuous after dragging. Do not start a new product
-  feature until this gate closes.
+  browser `28/28` pass without relaxing latency gates. The post-fix hard-reload
+  visual recheck passed; both steps are closed.
+- Next step: select the next bounded Phase 7 foundation-closeout slice before
+  starting the Phase 8/9 product workflows.
 - Accepted future Settings requirement (does not replace the Step 407 gate):
   add one global `timeFormat: '24h' | '12h'` preference when Settings parity
   begins. It defaults to `24h`, affects presentation only, remains independent

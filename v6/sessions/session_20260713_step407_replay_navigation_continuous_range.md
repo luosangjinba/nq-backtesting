@@ -32,7 +32,5 @@ Data skipped the intermediate K-lines and rendered a large blank interval.
 
 ## Next
 
-Only the human visual gate remains. Repeat the user's exact `1m` scenario after
-a hard reload, then sample one fixed HTF and one of `1D`/`1W`/`1M`. Confirm the
-filled interval remains continuous while dragging and that the destination
-K-line agrees with the footer cursor. Step 407 remains open until this passes.
+The post-Step-408 human visual recheck passed on 2026-07-13. Step 407 is closed.
+Select the next bounded Phase 7 foundation-closeout slice.
