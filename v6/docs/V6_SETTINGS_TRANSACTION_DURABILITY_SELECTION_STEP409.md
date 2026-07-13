@@ -1,7 +1,7 @@
 # Step 409 - Settings Transaction And Durability Selection
 
-Status: selected as the next bounded Phase 7 implementation slice; production
-implementation has not started.
+Status: implemented; automated acceptance passed; human visual acceptance is
+pending.
 
 ## Why This Comes Next
 
@@ -109,6 +109,59 @@ once and consumed consistently in Step 410.
   claimed behavior;
 - Settings UI has no direct storage or chart-engine access;
 - foundation and workflow-panel regression packs remain green.
+
+## Implemented Result
+
+- Settings records use the existing Persistence repository under the
+  `workspaceSettings:global` record id with schema version `1`.
+- Settings runtime hydrates before serving snapshots, migrates legacy unversioned
+  values, persists normalized committed records, and emits an observable failure
+  while retaining usable in-memory state when storage fails.
+- The composition root supplies the existing Web Storage adapter; Settings UI
+  contains no browser-storage access.
+- The modal owns a local draft. Field changes do not dispatch mutations; OK
+  submits one complete update. Cancel, close, repeat-toggle, Escape, backdrop,
+  and workflow-coordinator closure restore committed state.
+- Reset updates the draft to model defaults and remains non-persistent until OK.
+- The active modal now exposes only `Grid lines`. The previous mislabeled and
+  disconnected controls are no longer active UI.
+- A focused Settings-to-Chart Surface bridge maps committed `chartGrid` state
+  into chart-owned `applyOptions` calls for every pane. Settings UI and runtime
+  never access Lightweight Charts.
+- Hard reload restores the committed grid preference and reapplies it to the
+  chart before interaction.
+
+## Automated Evidence
+
+- Settings durability/model/runtime smoke passed, including legacy migration,
+  unsupported versions, malformed values, and unavailable write storage.
+- Settings controller smoke passed for atomic OK, Cancel, Reset, and Escape.
+- Settings browser smoke passed for draft isolation, Cancel restore, atomic OK,
+  and real chart-grid application.
+- Settings persistence browser smoke passed for the versioned Web Storage
+  record, hard-reload hydration, chart reapplication, and draft-only Reset.
+- Settings/Chart Surface bridge, chart adapter, chart host manager, workstation
+  chart surface, persistence repository/runtime, app shell, ownership boundary,
+  and workflow-panel smokes passed.
+- The chart browser regression pack passed all `28/28` members. The final five
+  timeframe/multi-pane members were also rerun directly after the long pack
+  output channel truncated.
+- `git diff --check` passed.
+
+## Remaining Human Gate
+
+Before Step 410, visually verify in the real workstation:
+
+1. open Settings and turn `Grid lines` off; the chart must not change before
+   OK;
+2. Cancel and reopen; the checkbox and chart must remain on;
+3. turn it off and press OK; grid lines must disappear without chart/replay
+   movement;
+4. hard refresh; the checkbox and hidden-grid state must remain off;
+5. press Reset, then Cancel; the persisted off state must remain unchanged.
+
+Step 409 closes after that matrix passes. Step 410 must not begin while this
+visual gate is open.
 
 ## Ordered Follow-up
 

@@ -11,7 +11,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const settingsModel = await readFile('v6/src/settings/settings-model.js', 'utf8');
 
-assert.match(selection, /Status: selected as the next bounded Phase 7 implementation slice/);
+assert.match(selection, /Status: implemented; automated acceptance passed/);
 assert.match(selection, /Opening Settings snapshots committed state into a panel-local draft/);
 assert.match(selection, /Persist only normalized committed records/);
 assert.match(selection, /Reuse the existing persistence repository\/Web Storage adapter/);
@@ -21,7 +21,8 @@ assert.match(selection, /not a custom chart primitive/);
 assert.match(selection, /Step 410 is \*\*Global Time Presentation Integration\*\*/);
 assert.ok(roadmap.indexOf('Step 409 establishes') < roadmap.indexOf('Step 410 then adds'));
 assert.match(contract, /accepted Step 410 Settings requirement/);
-assert.match(todo, /Next selected implementation step: Step 409/);
+assert.match(todo, /Latest implemented Phase 7 closeout step: Step 409/);
+assert.match(todo, /Human visual acceptance remains/);
 assert.match(index, /V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409/);
 assert.doesNotMatch(settingsModel, /timeFormat/);
 

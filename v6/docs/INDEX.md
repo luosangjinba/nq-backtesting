@@ -63,9 +63,10 @@ Read this index before working on V6.
   Settings ownership for 12/24-hour presentation, canonical `HH:mm` storage,
   shared-surface coverage, and the controlled time-input requirement.
 - `v6/docs/V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409.md`: selects
-  the next Phase 7 slice: transactional Settings drafts, atomic commit/discard,
-  a versioned durable owner, honest active controls, existing-persistence reuse,
-  and the ordered Step 410 time-presentation follow-up.
+  and records the implemented Phase 7 Settings slice: transactional drafts,
+  atomic commit/discard, a versioned durable owner, chart-grid consumer bridge,
+  hard-reload evidence, the remaining visual gate, and the ordered Step 410
+  time-presentation follow-up.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

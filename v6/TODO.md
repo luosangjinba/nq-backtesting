@@ -23,14 +23,20 @@
   Manual Next `5/5`, visible latency `6/6`, target-bars matrix, and final chart
   browser `28/28` pass without relaxing latency gates. The post-fix hard-reload
   visual recheck passed; both steps are closed.
-- Next selected implementation step: Step 409 - Settings Transaction And
-  Durable Preference Foundation. The current modal publishes every field
-  change immediately, Cancel cannot discard edits, state is memory-only, and
-  active controls have no production Settings-event consumers. Step 409 will
-  establish one versioned/durable Settings owner, panel-local draft semantics,
-  atomic OK, discard-on-close behavior, and an honest active surface while
-  reusing the existing persistence boundary. See
+- Latest implemented Phase 7 closeout step: Step 409 - Settings Transaction And
+  Durable Preference Foundation. Settings now hydrates and persists one
+  versioned `workspaceSettings:global` record through the existing Persistence
+  repository. The modal uses a panel-local draft: only OK submits one atomic
+  update; Cancel, close, repeat-toggle, Escape, backdrop, and coordinator close
+  discard it; Reset is draft-only until OK. The active surface contains only
+  `Grid lines`, which is connected through a focused bridge to chart-owned
+  `applyOptions` for every pane. Hard-reload browser recovery, failure fallback,
+  workflow panels, ownership boundaries, and chart pack `28/28` pass.
+  Human visual acceptance remains before the step closes. See
   `v6/docs/V6_SETTINGS_TRANSACTION_DURABILITY_SELECTION_STEP409.md`.
+- Next acceptance gate: visually verify draft isolation, Cancel restore, atomic
+  grid application, hard-refresh persistence, and Reset-then-Cancel behavior in
+  the real workstation. Do not start Step 410 until this passes.
 - Ordered follow-up: Step 410 - Global Time Presentation Integration. Add one
   `timeFormat: '24h' | '12h'` preference after Step 409, keep it independent of
   `displayTimezone`, preserve canonical timestamps and `HH:mm`, and cover chart,

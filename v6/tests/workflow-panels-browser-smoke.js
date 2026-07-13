@@ -25,6 +25,9 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 0));
       document.querySelector('[data-v6-dashboard-open-session]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
+      const baselineMainHeight = Math.round(
+        document.querySelector('[data-v6-workstation-main]').getBoundingClientRect().height,
+      );
 
       function closedState(toggle, panel) {
         return {
@@ -72,6 +75,7 @@ try {
           pressed: openedState.pressed,
           panelHeight: Math.round(panelRect.height),
           mainHeight: Math.round(mainRect.height),
+          baselineMainHeight,
           panelId: panel.id,
           title: panel.querySelector('.panel-copy strong, .settings-modal-header strong')?.textContent || '',
         });
@@ -133,7 +137,12 @@ try {
     } else {
       assert.ok(result.panelHeight <= 96, `${result.name} panel should stay compact: ${result.panelHeight}px`);
     }
-    assert.ok(result.mainHeight >= 460, `${result.name} panel should not crowd the chart: ${result.mainHeight}px`);
+    assert.ok(result.mainHeight >= 400, `${result.name} should preserve a usable chart: ${result.mainHeight}px`);
+    const allowedMainHeightChange = result.name === 'Settings' ? 1 : 24;
+    assert.ok(
+      Math.abs(result.mainHeight - result.baselineMainHeight) <= allowedMainHeightChange,
+      `${result.name} panel should not crowd the chart: ${result.baselineMainHeight}px -> ${result.mainHeight}px`,
+    );
   });
   value.exclusivity.forEach((result) => {
     assert.deepEqual(result.openNames, [result.name], `${result.name} should be the only open panel`);
