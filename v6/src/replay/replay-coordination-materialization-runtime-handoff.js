@@ -9,6 +9,29 @@ import { executeNarrowReplayMaterializationRuntimeHandoffPlan } from './narrow-r
 
 const RUNTIME_ID = 'runtime.replay-coordination-materialization-handoff';
 
+function barTimestamp(bar = {}) {
+  const timestamp = Number(bar.timestamp ?? bar.time);
+  return Number.isFinite(timestamp) ? timestamp : null;
+}
+
+function targetWindowFromContext({ paneContext, replayState, sourceRecord } = {}) {
+  const bars = Array.isArray(sourceRecord?.bars) ? sourceRecord.bars : [];
+  const timestamps = bars.map(barTimestamp).filter(Number.isFinite);
+  const cursorValue = replayState?.cursorTimestamp ?? replayState?.cursorTime;
+  const cursorMs = typeof cursorValue === 'number'
+    ? cursorValue * 1000
+    : Date.parse(cursorValue);
+  if (!timestamps.length || !Number.isFinite(cursorMs)) {
+    return null;
+  }
+  return {
+    end: new Date(cursorMs).toISOString(),
+    instrument: paneContext?.instrument,
+    start: new Date(Math.min(...timestamps) * 1000).toISOString(),
+    timeframe: paneContext?.displayTimeframe,
+  };
+}
+
 function createMissingDispatchCommand() {
   return async (name) => {
     throw new Error(`Replay coordination materialization handoff dispatch dependency missing for ${name}.`);
@@ -41,17 +64,17 @@ export async function collectReplayCoordinationMaterializationRuntimeHandoffComm
     throw new Error('Replay coordination materialization handoff dispatchCommand dependency is required.');
   }
   const paneId = event.paneId ?? event.id ?? 'main';
-  const paneContext = await dispatchCommand(PANE_COMMANDS.GET_BY_ID, { paneId });
+  const paneContext = await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
   const replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE, { paneId });
-  const sourceBars = await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId });
-  const targetWindowPlan = await dispatchCommand(BAR_DATA_COMMANDS.PLAN_TARGET_WINDOW, {
-    displayTimeframe: paneContext?.displayTimeframe,
-    instrument: paneContext?.instrument,
-    paneId,
-    replayCursorTimestamp: replayState?.cursorTimestamp ?? replayState?.cursorTime ?? event.replayCursorTimestamp,
-    targetHistoryWindow: paneContext?.targetHistoryWindow,
-  });
-  const targetWindowLoad = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW, targetWindowPlan);
+  const sourceRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_SOURCE_BARS, { paneId });
+  const sourceBars = Array.isArray(sourceRecord) ? sourceRecord : sourceRecord?.bars || [];
+  const targetWindow = targetWindowFromContext({ paneContext, replayState, sourceRecord: { bars: sourceBars } });
+  const targetWindowPlan = targetWindow
+    ? await dispatchCommand(BAR_DATA_COMMANDS.PLAN_TARGET_WINDOW, targetWindow)
+    : null;
+  const targetWindowLoad = targetWindowPlan
+    ? await dispatchCommand(BAR_DATA_COMMANDS.LOAD_TARGET_WINDOW, targetWindowPlan)
+    : null;
 
   return Object.freeze({
     paneContext,

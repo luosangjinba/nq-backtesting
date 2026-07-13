@@ -19,8 +19,12 @@ function normalizeTimestamp(value) {
   if (value === null || value === undefined || value === '') {
     return null;
   }
-  const timestamp = Number(value);
-  return Number.isFinite(timestamp) ? timestamp : null;
+  const numeric = Number(value);
+  if (Number.isFinite(numeric)) {
+    return numeric > 10000000000 ? Math.floor(numeric / 1000) : numeric;
+  }
+  const milliseconds = Date.parse(value);
+  return Number.isFinite(milliseconds) ? Math.floor(milliseconds / 1000) : null;
 }
 
 function cloneBar(bar = {}) {

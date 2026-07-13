@@ -138,6 +138,7 @@ try {
         return {
           chartBarCount: chart.bars?.length || 0,
           displayTimeframe: pane.displayTimeframe,
+          latestChartClose: latest ? Number(latest.close) : null,
           latestChartTimestamp: latest ? Number(latest.timestamp ?? latest.time) : null,
           latestSourceTimestamp: latestSource ? Number(latestSource.timestamp ?? latestSource.time) : null,
           replayCursorTime: replay.cursorTime,
@@ -174,12 +175,17 @@ try {
       });
       await animationFrames(3);
       const afterMaterialization = await snapshot();
-
       await commands.dispatchCommand(contracts.CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT, {
         paneId: 'main',
       });
+      const handoffDeadline = performance.now() + 8000;
+      let afterManualNext = await snapshot();
+      while (afterManualNext.latestChartClose >= 900 && performance.now() < handoffDeadline) {
+        await sleep(40);
+        afterManualNext = await snapshot();
+      }
       await animationFrames(2);
-      const afterManualNext = await snapshot();
+      afterManualNext = await snapshot();
       const handoffState = registrySnapshot.started.includes('${RUNTIME_ID}')
         ? root.__v6RuntimeRegistry.snapshot()
         : registrySnapshot;
@@ -208,6 +214,7 @@ try {
   assert.equal(value.afterManualNext.latestSourceTimestamp, value.afterManualNext.replayCursorTimestamp);
   assert.equal(value.afterManualNext.sourceBarCount, value.afterMaterialization.sourceBarCount + 1);
   assert.equal(value.afterManualNext.latestChartTimestamp >= value.afterMaterialization.latestChartTimestamp, true);
+  assert.equal(value.afterManualNext.latestChartClose < 900, true);
   assert.equal(value.fetchLog.some((entry) => entry.kind === 'target' && entry.tf === '8h'), true);
   assert.equal(value.fetchLog.some((entry) => entry.kind === 'source' && entry.tf === '1'), true);
 

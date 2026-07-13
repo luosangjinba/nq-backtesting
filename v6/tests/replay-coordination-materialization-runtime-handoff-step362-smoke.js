@@ -9,7 +9,7 @@ const dispatchCalls = [];
 const fakeCommandResults = new Map([
   ['pane.getById', { displayTimeframe: '8h', id: 'main', instrument: 'NQ', targetHistoryWindow: { end: 300, start: 0 } }],
   ['replay.getState', { cursorTimestamp: 300 }],
-  ['chartData.getSourceBars', [{ close: 100, time: 240 }, { close: 101, time: 300 }]],
+  ['chartData.getSourceBars', { bars: [{ close: 100, time: 240 }, { close: 101, time: 300 }] }],
   ['barData.planTargetWindow', { displayTimeframe: '8h', end: 300, start: 0 }],
   ['barData.loadTargetWindow', { bars: [{ bucketEndTimestamp: 300, bucketStartTimestamp: 0, close: 101, time: 0 }] }],
   ['chartData.replaceBars', { status: 'replaced' }],
@@ -39,6 +39,18 @@ assert.deepEqual(dispatchCalls.map((call) => call.command), [
   'barData.planTargetWindow',
   'barData.loadTargetWindow',
 ]);
+assert.equal(dispatchCalls[0].payload, 'main');
+
+const isoCursorResult = await buildReplayCoordinationMaterializationRuntimeHandoffResult({
+  commandResults: {
+    ...commandResults,
+    replayState: { cursorTime: '1970-01-01T00:05:00.000Z' },
+  },
+  dispatchCommand: fakeDispatch,
+  event: { paneId: 'main' },
+});
+assert.equal(isoCursorResult.status, 'ready');
+assert.equal(isoCursorResult.replayCursorTimestamp, 300);
 
 dispatchCalls.length = 0;
 const readyResult = await buildReplayCoordinationMaterializationRuntimeHandoffResult({
