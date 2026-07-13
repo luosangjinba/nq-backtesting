@@ -2,16 +2,23 @@
 
 Last updated: 2026-07-12
 
-## 2026-07-12 Restart Handoff Snapshot
+## 2026-07-12 Step 393 Handoff Snapshot
 
 Read this block first after restarting the server or assistant context.
 
 ### Repository State
 
 - Branch: `v6/fx-replay-workstation`
-- Worktree at handoff: clean after Step 392 closeout
-- Latest completed step: Step 392 - V6 Architecture Remediation
+- Worktree at handoff: clean after Step 393 closeout
+- Latest completed step: Step 393 - Production Complexity Reduction
 - Recent relevant commits:
+  - Step 393 extracted chart range input ownership and leftward-history data
+    orchestration, moved 18 governance-only helpers from production into the
+    test boundary, and made V6 own its pinned Lightweight Charts 5.2.0 browser
+    asset. The Step 276 foundation pack passed `8/8` in `44914ms`; the Step 293
+    target-history pack passed `8/8` in `18903ms`. Step 394 should consolidate
+    historical static closeout tests that encode superseded implementation
+    shapes into smaller current-invariant packs.
   - Step 392 repaired the registered replay materialization command contracts,
     added async listener and stale-result safety, unified target display
     materialization with strict cursor coverage, changed production Manual Next

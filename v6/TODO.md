@@ -2,6 +2,17 @@
 
 ## Current / Next
 
+- Latest completed architecture step: Step 393 - Production Complexity
+  Reduction. V6 extracted chart range input handling and leftward-history data
+  orchestration, moved 18 governance-only helpers out of production `src`, and
+  now owns its pinned Lightweight Charts browser asset instead of loading it
+  through V5. Foundation and target-history browser packs both passed.
+- Next recommended step: Step 394 - Historical Static Closeout Test
+  Consolidation. Inventory assertions that encode superseded file locations or
+  temporary non-wiring states, then replace them with compact current-invariant
+  packs while retaining behavioral/browser protection. The V6 license choice
+  remains an explicit owner decision and is not inferred by this step.
+
 - Current status: V6 opened because V5 replay viewport/manual-anchor behavior
   proved structurally unreliable. The active decision is documented in
   `v5/docs/specs/v6-rewrite-start-decision.md`.

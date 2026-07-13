@@ -10,6 +10,9 @@ Read this index before working on V6.
 - `v6/docs/V6_ARCHITECTURE.md`: runtime boundaries and non-porting rules.
 - `v6/docs/V6_EXECUTION_ROADMAP.md`: detailed execution order based on the
   useful V5 formation sequence, with V6 gates inserted earlier.
+- `v6/docs/V6_PRODUCTION_COMPLEXITY_REDUCTION_STEP393.md`: Step 393 extraction
+  results, production/test boundary cleanup, V6-owned browser asset, and the
+  Step 394 static-test consolidation recommendation.
 - `v6/docs/V6_PRODUCT_TOP_CHROME.md`: top chrome product-surface rules,
   diagnostics visibility limits, and UI reference handling.
 - `v6/docs/V6_WORKFLOW_SHELL_AUDIT.md`: audit of workflow shell chrome,
