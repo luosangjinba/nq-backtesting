@@ -25,10 +25,15 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   symbolUpBodyColor: '#36b7a8',
   symbolUpBorderColor: '#36b7a8',
   symbolUpWickColor: '#2a958b',
+  statusBackgroundColor: '#0f1721',
+  statusBackgroundOpacityPercent: 0,
+  statusBarChangeVisible: true,
+  statusOhlcVisible: true,
+  statusTitleMode: 'ticker',
   theme: 'dark',
 });
 
-export const SETTINGS_RECORD_VERSION = 5;
+export const SETTINGS_RECORD_VERSION = 6;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
@@ -37,6 +42,7 @@ const NAVIGATION_VISIBILITY = Object.freeze(['hover', 'always', 'hidden']);
 const DAY_SEPARATORS = Object.freeze(['off', 'trading', 'ict', 'both']);
 const LINE_STYLES = Object.freeze(['solid', 'dashed', 'dotted']);
 const PRICE_PRECISIONS = Object.freeze(['auto', '0', '1', '2', '3', '4', '5', '6']);
+const STATUS_TITLE_MODES = Object.freeze(['hidden', 'ticker']);
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function normalizeBoolean(value, fallback) {
@@ -203,6 +209,31 @@ export function createSettingsRecord(input = {}) {
       DEFAULT_SETTINGS_INPUT.symbolUpWickColor,
       'symbolUpWickColor',
     ),
+    statusBackgroundColor: normalizeColor(
+      input.statusBackgroundColor,
+      DEFAULT_SETTINGS_INPUT.statusBackgroundColor,
+      'statusBackgroundColor',
+    ),
+    statusBackgroundOpacityPercent: normalizeInteger(
+      input.statusBackgroundOpacityPercent,
+      DEFAULT_SETTINGS_INPUT.statusBackgroundOpacityPercent,
+      'statusBackgroundOpacityPercent',
+      { min: 0, max: 100 },
+    ),
+    statusBarChangeVisible: normalizeBoolean(
+      input.statusBarChangeVisible,
+      DEFAULT_SETTINGS_INPUT.statusBarChangeVisible,
+    ),
+    statusOhlcVisible: normalizeBoolean(
+      input.statusOhlcVisible,
+      DEFAULT_SETTINGS_INPUT.statusOhlcVisible,
+    ),
+    statusTitleMode: normalizeChoice(
+      input.statusTitleMode,
+      STATUS_TITLE_MODES,
+      DEFAULT_SETTINGS_INPUT.statusTitleMode,
+      'statusTitleMode',
+    ),
     theme: normalizeChoice(input.theme, THEMES, DEFAULT_SETTINGS_INPUT.theme, 'theme'),
   });
 }
@@ -241,7 +272,7 @@ export function restoreSettingsPersistenceValue(value) {
       settings: createSettingsRecord(value),
     });
   }
-  if (![1, 2, 3, 4, SETTINGS_RECORD_VERSION].includes(value.version)) {
+  if (![1, 2, 3, 4, 5, SETTINGS_RECORD_VERSION].includes(value.version)) {
     throw new Error(`Unsupported Settings record version: ${value.version}`);
   }
   return Object.freeze({

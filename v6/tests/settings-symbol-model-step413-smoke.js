@@ -7,7 +7,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 5);
+assert.equal(SETTINGS_RECORD_VERSION, 6);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   symbolBordersVisible: true,
   symbolDownBodyColor: '#112233',

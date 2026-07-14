@@ -62,7 +62,7 @@ try {
   assert.equal(value.mounted, true);
   assert.equal(value.open, false);
   assert.equal(value.modalTitle, 'Settings');
-  assert.deepEqual(value.tabLabels, ['Canvas', 'Symbol']);
+  assert.deepEqual(value.tabLabels, ['Canvas', 'Symbol', 'Status line']);
   assert.equal(value.modalRect.width >= 560, true);
   assert.equal(value.modalRect.height >= 520, true);
   assert.equal(value.toggleExpanded, 'false');

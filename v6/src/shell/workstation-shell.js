@@ -338,6 +338,7 @@ ${renderDisplayTimeframeMenuSections()}
             <nav class="settings-tab-rail" aria-label="Settings sections">
               <button type="button" class="is-active" data-v6-settings-tab="canvas" aria-selected="true">${icon('camera')}<span>Canvas</span></button>
               <button type="button" data-v6-settings-tab="symbol" aria-selected="false">${icon('indicators')}<span>Symbol</span></button>
+              <button type="button" data-v6-settings-tab="status" aria-selected="false">${icon('menu')}<span>Status line</span></button>
             </nav>
             <div class="settings-modal-content">
               <div data-v6-settings-tab-panel="canvas">
@@ -468,6 +469,38 @@ ${renderDisplayTimeframeMenuSections()}
                     </select>
                   </label>
                   <p class="settings-scope-note">Auto uses the current series default until symbol tick metadata is available.</p>
+                </section>
+              </div>
+              <div data-v6-settings-tab-panel="status" hidden>
+                <section class="settings-field-group" aria-label="Status line content">
+                  <div class="settings-group-heading">Content</div>
+                  <label class="settings-control-row">
+                    <span>Title</span>
+                    <select data-v6-settings-field="statusTitleMode" aria-label="Status line title">
+                      <option value="ticker">Ticker</option>
+                      <option value="hidden">Hidden</option>
+                    </select>
+                  </label>
+                  <label class="settings-check-row">
+                    <input type="checkbox" data-v6-settings-field="statusOhlcVisible" checked>
+                    <span>Chart values (OHLC)</span>
+                  </label>
+                  <label class="settings-check-row">
+                    <input type="checkbox" data-v6-settings-field="statusBarChangeVisible" checked>
+                    <span>Bar change values</span>
+                  </label>
+                  <p class="settings-scope-note">Market status waits for exchange-calendar truth. Volume waits for verified source provenance.</p>
+                </section>
+                <section class="settings-field-group" aria-label="Status line background">
+                  <div class="settings-group-heading">Background</div>
+                  <label class="settings-control-row">
+                    <span>Color</span>
+                    <input type="color" data-v6-settings-field="statusBackgroundColor" value="#0f1721" aria-label="Status line background color">
+                  </label>
+                  <label class="settings-control-row">
+                    <span>Opacity</span>
+                    <span class="settings-number-unit"><input type="number" min="0" max="100" step="5" data-v6-settings-field="statusBackgroundOpacityPercent" value="0" aria-label="Status line background opacity"><span>%</span></span>
+                  </label>
                 </section>
               </div>
             </div>
