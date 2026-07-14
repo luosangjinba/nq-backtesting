@@ -2091,7 +2091,7 @@ p {
   display: flex;
   align-items: center;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   gap: 10px;
   width: 48px;
   min-height: 100%;
@@ -2158,16 +2158,6 @@ p {
   color: #f4f8fb;
   width: 17px;
   height: 17px;
-}
-
-.rail-button-icon {
-  min-height: 40px;
-}
-
-.rail-button:disabled {
-  color: #eef5fa;
-  opacity: 0.86;
-  cursor: default;
 }
 
 .rail-popover-anchor {

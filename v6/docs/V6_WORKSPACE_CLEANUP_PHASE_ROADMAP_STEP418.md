@@ -264,12 +264,20 @@ Drawing entry surface or plugin API was selected.
 
 ### Step 427 - Remove Reserved Right-Rail Tools
 
+Status: completed on 2026-07-14.
+
 - remove Object tree, Order, and News placeholders;
 - collapse the right utility rail completely if no functional entry remains;
 - retain Orders and other owner/domain contracts;
 - update chart-host width, pane resize, and pointer-boundary expectations.
 
 Commit intent: `refactor(v6): remove reserved right rail tools`
+
+Removed Object tree, Order, and News placeholder entries together with three
+now-unused SVG definitions and the orphan icon-only rail style. The right rail
+was deliberately retained because Go-to is a functional accepted surface; it
+is now the rail's sole entry and remains vertically centered. Orders and other
+owner/domain contracts remain intact. Phase 3 production cleanup is complete.
 
 ### Phase 3 Gate
 

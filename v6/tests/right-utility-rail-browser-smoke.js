@@ -42,19 +42,11 @@ try {
       const afterHost = rectOf('[data-v6-chart-engine-host]');
       const menu = document.querySelector('[data-v6-rail-goto-menu]');
       const menuRect = rectOf('[data-v6-rail-goto-menu]');
-      const inertButtons = [
+      const removedEntries = [
         '[data-v6-rail-object-tree]',
         '[data-v6-rail-order]',
         '[data-v6-rail-news]',
-      ].map((selector) => {
-        const button = document.querySelector(selector);
-        return {
-          disabled: button.disabled,
-          label: button.getAttribute('aria-label') || '',
-          selector,
-          text: button.textContent.trim(),
-        };
-      });
+      ].map((selector) => Boolean(document.querySelector(selector)));
       return {
         afterChart,
         afterHost,
@@ -63,7 +55,7 @@ try {
         chart,
         gotoOpen: gotoDetails.open,
         host,
-        inertButtons,
+        removedEntries,
         main,
         menuOptionLabels: [...menu.querySelectorAll('button')].map((button) => button.textContent.trim()),
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
@@ -96,12 +88,7 @@ try {
     'Custom Settings',
   ]);
   assert.deepEqual(value.menuOptionsDisabled, [false, false, false, false, false, false]);
-  assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true]);
-  assert.deepEqual(value.inertButtons.map((button) => button.label), [
-    'Show object tree',
-    'Order',
-    'News and calendar events',
-  ]);
+  assert.deepEqual(value.removedEntries, [false, false, false]);
   assert.equal(value.sessionSettingsExists, false);
   assert.equal(value.sessionSettingsTriggerExists, false);
   assert.deepEqual(value.beforeChart, value.afterChart);

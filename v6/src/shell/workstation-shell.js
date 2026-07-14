@@ -3,7 +3,6 @@ import { createDisplayTimeframeMenuGroups } from '../display-timeframe/display-t
 const ICONS = {
   arrowLeft: '<path d="M15 18l-6-6 6-6"/><path d="M9 12h12"/>',
   arrowRight: '<path d="M9 18l6-6-6-6"/><path d="M3 12h12"/>',
-  calendar: '<path d="M7 3v4"/><path d="M17 3v4"/><path d="M4 9h16"/><rect x="4" y="5" width="16" height="16" rx="2"/>',
   camera: '<path d="M7 7l1.8-2h6.4L17 7h3v12H4V7z"/><circle cx="12" cy="13" r="3"/>',
   chevronDown: '<path d="M6 9l6 6 6-6"/>',
   close: '<path d="M18 6L6 18"/><path d="M6 6l12 12"/>',
@@ -13,13 +12,11 @@ const ICONS = {
   grip: '<circle cx="8" cy="5" r="1"/><circle cx="16" cy="5" r="1"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><circle cx="8" cy="19" r="1"/><circle cx="16" cy="19" r="1"/>',
   indicators: '<path d="M4 18V6"/><path d="M10 18V10"/><path d="M16 18V4"/><path d="M21 18H3"/>',
   info: '<circle cx="12" cy="12" r="8"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
-  layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
   listFilter: '<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>',
   minus: '<path d="M5 12h14"/>',
   pause: '<path d="M9 5v14"/><path d="M15 5v14"/>',
   play: '<path d="M8 5l11 7-11 7z"/>',
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
-  plusCircle: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/>',
   redo: '<path d="M21 7v6h-6"/><path d="M20 13a7 7 0 1 0-2 5"/>',
   restart: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 8v5l3 2"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
@@ -630,15 +627,7 @@ ${renderDisplayTimeframeMenuSections()}
           </div>
         </section>
         <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">
-          <button type="button" class="rail-button rail-button-icon" data-v6-rail-object-tree disabled aria-label="Show object tree">
-            ${icon('layers')}
-            <span class="sr-only">Show object tree</span>
-          </button>
           <div class="rail-main-actions">
-            <button type="button" class="rail-button" data-v6-rail-order disabled aria-label="Order">
-              ${icon('plusCircle')}
-              <span>Order</span>
-            </button>
             <details class="rail-popover-anchor" data-v6-rail-goto-details>
               <summary class="rail-button" data-v6-rail-goto aria-label="Go to key time">
                 ${icon('arrowRight')}
@@ -654,10 +643,6 @@ ${renderDisplayTimeframeMenuSections()}
                 <p class="rail-popover-status" data-v6-replay-navigation-status role="status" aria-live="polite"></p>
               </div>
             </details>
-            <button type="button" class="rail-button" data-v6-rail-news disabled aria-label="News and calendar events">
-              ${icon('calendar')}
-              <span>News</span>
-            </button>
           </div>
         </aside>
         <section class="replay-navigation-settings-backdrop" data-v6-replay-navigation-settings-dialog hidden role="dialog" aria-modal="true" aria-labelledby="v6-replay-navigation-settings-title">

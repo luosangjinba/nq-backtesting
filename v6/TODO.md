@@ -33,9 +33,13 @@
   the traditional six-button Drawing rail, its orphan styles, and four unused
   SVG definitions are removed; the chart now owns the reclaimed left column
   while the drawing/action-history contract remains intact. The future
-  Semantic Drawing entry remains undecided. The next bounded step is Step 427:
-  remove reserved Object tree, Order, and News right-rail tools and collapse
-  the rail if no functional entry remains. See
+  Semantic Drawing entry remains undecided. Step 427 is complete: Object tree,
+  Order, and News placeholders plus their orphan icons are removed. The right
+  rail remains because Go-to is an active, accepted feature and is now its sole
+  entry; Orders and related owner contracts remain intact. Phase 3 production
+  cleanup is complete. The next bounded step is Step 428: remove bottom Buy,
+  Sell, Qty, account readouts, and Analytics placeholders without touching the
+  functional Replay transport or status surface. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
