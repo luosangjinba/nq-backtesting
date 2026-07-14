@@ -83,17 +83,23 @@ export function resolveNewYorkWallClockInstants({ date, time } = {}) {
 }
 
 export function resolveNewYorkChartWallClockTimestamp({ date, time } = {}) {
-  const matches = resolveNewYorkWallClockInstants({ date, time });
-  if (!matches.length) {
-    throw new Error('New York wall-clock value does not exist on this calendar date.');
+  const dateMatch = String(date || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const timeMatch = String(time || '').trim().match(/^(\d{2}):(\d{2})$/);
+  if (!dateMatch) throw new Error('New York wall-clock date must use YYYY-MM-DD format.');
+  if (!timeMatch || Number(timeMatch[1]) > 23 || Number(timeMatch[2]) > 59) {
+    throw new Error('New York wall-clock time must use valid HH:mm time.');
   }
-  const dateMatch = String(date).match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  const timeMatch = String(time).match(/^(\d{2}):(\d{2})$/);
-  return Date.UTC(
-    Number(dateMatch[1]),
-    Number(dateMatch[2]) - 1,
-    Number(dateMatch[3]),
-    Number(timeMatch[1]),
-    Number(timeMatch[2]),
-  );
+  const year = Number(dateMatch[1]);
+  const month = Number(dateMatch[2]);
+  const day = Number(dateMatch[3]);
+  const timestampMs = Date.UTC(year, month - 1, day, Number(timeMatch[1]), Number(timeMatch[2]));
+  const normalized = new Date(timestampMs);
+  if (
+    normalized.getUTCFullYear() !== year
+    || normalized.getUTCMonth() + 1 !== month
+    || normalized.getUTCDate() !== day
+  ) {
+    throw new Error('New York wall-clock date must be valid.');
+  }
+  return timestampMs;
 }
