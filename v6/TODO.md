@@ -80,8 +80,10 @@
   focused bridge feed native candlestick `applyOptions` through Chart Surface,
   host manager, and Chart Engine adapter to every pane. Draft isolation,
   Cancel, tab-scoped Reset, OK, hard reload, and multi-pane propagation pass
-  automated gates. Human visual acceptance remains required before Step 413
-  closes. See `v6/docs/V6_SETTINGS_SYMBOL_PRESENTATION_STEP413.md`.
+  automated gates. The first visual pass found misaligned color controls and an
+  unwanted Wick visibility toggle; both were corrected, and the final human
+  visual matrix passed. Step 413 is closed. See
+  `v6/docs/V6_SETTINGS_SYMBOL_PRESENTATION_STEP413.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

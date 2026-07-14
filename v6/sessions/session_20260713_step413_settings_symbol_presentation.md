@@ -34,5 +34,10 @@ Date: 2026-07-13
 
 ## Next
 
-Complete the human Symbol visual matrix. After acceptance, implement Step 414
-Status Line Presentation through the Status Readout owner.
+Implement Step 414 Status Line Presentation through the Status Readout owner.
+
+## Visual Acceptance
+
+The first pass found color swatches in different columns and an invalid Wick
+visibility control. Commits `3755d37d` and `e03fde14` corrected both findings.
+The final human visual recheck passed; Step 413 is closed.

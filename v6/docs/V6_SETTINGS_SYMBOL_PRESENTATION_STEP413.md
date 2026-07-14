@@ -63,12 +63,12 @@ Automated gates cover:
 - draft isolation, Cancel, tab-scoped Reset, OK, and hard-reload recovery;
 - adjacent Settings/browser behavior and the full chart regression pack.
 
-Human visual acceptance must verify candle body/border/wick colors, border
-visibility, price-axis precision, Cancel, Reset, OK, and persistence before
-this step is closed. Wicks are deliberately not optional.
+Human visual acceptance verified candle body/border/wick colors, aligned color
+columns, border visibility, always-visible wicks, price-axis precision, Cancel,
+Reset, OK, and persistence. Step 413 is closed.
 
 ## Next
 
-After visual acceptance, implement Step 414 Status Line Presentation through
-the existing Status Readout owner rather than adding status rendering to the
-Settings panel or Chart Engine adapter.
+Implement Step 414 Status Line Presentation through the existing Status
+Readout owner rather than adding status rendering to the Settings panel or
+Chart Engine adapter.
