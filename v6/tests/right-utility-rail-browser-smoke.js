@@ -46,8 +46,6 @@ try {
         '[data-v6-rail-object-tree]',
         '[data-v6-rail-order]',
         '[data-v6-rail-news]',
-        '[data-v6-rail-journal]',
-        '[data-v6-rail-watch]',
       ].map((selector) => {
         const button = document.querySelector(selector);
         return {
@@ -107,13 +105,11 @@ try {
     'Custom Settings',
   ]);
   assert.deepEqual(value.menuOptionsDisabled, [false, false, false, false, false, false]);
-  assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true, true, true]);
+  assert.deepEqual(value.inertButtons.map((button) => button.disabled), [true, true, true]);
   assert.deepEqual(value.inertButtons.map((button) => button.label), [
     'Show object tree',
     'Order',
     'News and calendar events',
-    'Journal',
-    'Watch tool',
   ]);
   assert.equal(value.sessionSettingsOpen, true);
   assert.deepEqual(value.sessionSettingsLabels, [

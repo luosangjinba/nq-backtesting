@@ -14,7 +14,6 @@ const ICONS = {
   grip: '<circle cx="8" cy="5" r="1"/><circle cx="16" cy="5" r="1"/><circle cx="8" cy="12" r="1"/><circle cx="16" cy="12" r="1"/><circle cx="8" cy="19" r="1"/><circle cx="16" cy="19" r="1"/>',
   indicators: '<path d="M4 18V6"/><path d="M10 18V10"/><path d="M16 18V4"/><path d="M21 18H3"/>',
   info: '<circle cx="12" cy="12" r="8"/><path d="M12 11v5"/><path d="M12 8h.01"/>',
-  journal: '<path d="M7 4h10a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/><path d="M9 9h6"/><path d="M9 13h6"/>',
   layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
   listFilter: '<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>',
   minus: '<path d="M5 12h14"/>',
@@ -29,7 +28,6 @@ const ICONS = {
   rectangle: '<rect x="5" y="6" width="14" height="12" rx="1"/>',
   restart: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 8v5l3 2"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
-  spark: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
   sort: '<path d="M7 4v16"/><path d="M4 7l3-3 3 3"/><path d="M17 20V4"/><path d="M14 17l3 3 3-3"/>',
   stepBack: '<path d="M19 5v14"/><path d="M15 6l-8 6 8 6"/>',
   stepForward: '<path d="M5 5v14"/><path d="M9 6l8 6-8 6"/>',
@@ -701,16 +699,8 @@ ${renderDisplayTimeframeMenuSections()}
               ${icon('calendar')}
               <span>News</span>
             </button>
-            <button type="button" class="rail-button" data-v6-rail-journal disabled aria-label="Journal">
-              ${icon('journal')}
-              <span>Journal</span>
-            </button>
           </div>
           <div class="rail-bottom-actions">
-            <button type="button" class="rail-button rail-button-icon" data-v6-rail-watch disabled aria-label="Watch tool">
-              ${icon('spark')}
-              <span class="sr-only">Watch tool</span>
-            </button>
             <details class="session-settings-panel-anchor" data-v6-session-settings-details>
               <summary class="rail-button rail-button-icon" data-v6-rail-session-settings aria-label="Session settings" aria-haspopup="dialog">
                 ${icon('gear')}

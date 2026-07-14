@@ -18,8 +18,11 @@
   Phase 0 is closed. Step 421 is complete: generic top Search and the static/
   session-derived layout-name artifact are removed, their CSS and dashboard
   write path are gone, and the cleanup manifest is advanced through Step 421.
-  The next bounded step is Step 422: remove only the duplicate disabled
-  right-rail Journal and undefined Watch/spark entries. See
+  Step 422 is complete: the duplicate disabled right-rail Journal and undefined
+  Watch/spark entries and their unused icons are removed; the functional top
+  Journal and Go-to remain green. Phase 1 implementation and automated gates
+  are complete. The next bounded step is Step 423: remove only the Session
+  Settings production trigger/panel while preserving its owner contract. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

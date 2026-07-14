@@ -119,12 +119,23 @@ Settings, Replay, and Journal remain protected by the Step 419 baseline.
 
 ### Step 422 - Remove Duplicate Right-Rail Artifacts
 
+Status: completed on 2026-07-14.
+
 - remove the disabled duplicate Journal entry;
 - remove the undefined Watch/spark entry;
 - preserve the functional top Journal entry;
 - update right-rail spacing and placeholder tests.
 
 Commit intent: `refactor(v6): remove duplicate right rail artifacts`
+
+Removed the disabled right-rail Journal duplicate and undefined Watch/spark
+entry, including their now-unused SVG icon definitions. The functional top
+Journal surface and Go-to remain protected. The cleanup manifest is advanced
+through Step 422.
+
+Phase 1 implementation is complete. Automated and screenshot gates show no top
+toolbar or right-rail overlap; final user visual acceptance may be combined
+with the next running workstation review if desired.
 
 ### Phase 1 Gate
 
