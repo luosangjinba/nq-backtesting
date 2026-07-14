@@ -75,8 +75,8 @@
   relaxing the `160ms` gate. Full chart regression passes `28/28`; visual
   revalidation passed; Step 412 is closed.
 - Latest implemented Settings step: Step 413 - Symbol Presentation. Settings
-  schema v5 adds a dedicated Symbol tab for body/border/wick colors and
-  visibility plus Auto/0-6 decimal price precision. One pure mapper and a
+  schema v5 adds a dedicated Symbol tab for body/border/wick colors, border
+  visibility, always-visible wicks, and Auto/0-6 decimal price precision. One pure mapper and a
   focused bridge feed native candlestick `applyOptions` through Chart Surface,
   host manager, and Chart Engine adapter to every pane. Draft isolation,
   Cancel, tab-scoped Reset, OK, hard reload, and multi-pane propagation pass

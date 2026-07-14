@@ -13,7 +13,6 @@ const settings = {
   symbolUpBodyColor: '#aaaaaa',
   symbolUpBorderColor: '#bbbbbb',
   symbolUpWickColor: '#cccccc',
-  symbolWicksVisible: false,
 };
 const bridge = connectSettingsSymbolChartSurfaceBridge({
   chartSurface: { applySymbolSettings: (value) => applied.push(value) },

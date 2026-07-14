@@ -10,7 +10,6 @@ const mapped = createSymbolSettingsSeriesOptions({
   symbolUpBodyColor: '#aaaaaa',
   symbolUpBorderColor: '#bbbbbb',
   symbolUpWickColor: '#cccccc',
-  symbolWicksVisible: false,
 });
 assert.deepEqual(mapped.options, {
   borderDownColor: '#222222',
@@ -21,10 +20,10 @@ assert.deepEqual(mapped.options, {
   upColor: '#aaaaaa',
   wickDownColor: '#333333',
   wickUpColor: '#cccccc',
-  wickVisible: false,
+  wickVisible: true,
 });
 assert.equal(mapped.state.symbolBordersVisible, true);
-assert.equal(mapped.state.symbolWicksVisible, false);
+assert.equal(mapped.options.wickVisible, true);
 assert.equal(mapped.state.symbolPricePrecision, '4');
 
 const automatic = createSymbolSettingsSeriesOptions({ symbolPricePrecision: 'auto' }, {

@@ -445,8 +445,8 @@ ${renderDisplayTimeframeMenuSections()}
                     <input type="color" data-v6-settings-field="symbolUpBorderColor" value="#36b7a8" aria-label="Up candle border color">
                     <input type="color" data-v6-settings-field="symbolDownBorderColor" value="#f25f68" aria-label="Down candle border color">
                   </label>
-                  <label class="settings-check-row settings-symbol-candle-row">
-                    <input type="checkbox" data-v6-settings-field="symbolWicksVisible" checked>
+                  <label class="settings-symbol-candle-row">
+                    <span class="settings-symbol-candle-spacer" aria-hidden="true"></span>
                     <span>Wicks</span>
                     <input type="color" data-v6-settings-field="symbolUpWickColor" value="#2a958b" aria-label="Up candle wick color">
                     <input type="color" data-v6-settings-field="symbolDownWickColor" value="#c94c58" aria-label="Down candle wick color">

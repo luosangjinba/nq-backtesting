@@ -12,7 +12,6 @@ const expected = {
   symbolUpBodyColor: '#aabbcc',
   symbolUpBorderColor: '#bbccdd',
   symbolUpWickColor: '#ccddee',
-  symbolWicksVisible: false,
 };
 
 const page = await openV6Page({ height: 820, width: 1280 });
@@ -52,6 +51,9 @@ try {
       });
 
       await openSymbol();
+      const candleColorLefts = [...document.querySelectorAll('.settings-symbol-candle-row')]
+        .map((row) => [...row.querySelectorAll('input[type="color"]')]
+          .map((field) => Math.round(field.getBoundingClientRect().left)));
       const tabState = {
         active: root.__v6SettingsPanel.getState().activeTab,
         canvasHidden: document.querySelector('[data-v6-settings-tab-panel="canvas"]').hidden,
@@ -78,6 +80,7 @@ try {
         afterSettings: await commands.dispatchCommand(contracts.SETTINGS_COMMANDS.GET_SNAPSHOT),
         afterState: JSON.parse(surface.dataset.v6SymbolSettings),
         beforeState,
+        candleColorLefts,
         draftState,
         resetState,
         restoredAfterCancel,
@@ -86,6 +89,11 @@ try {
     })()))()
   `));
   assert.deepEqual(committed.draftState, committed.beforeState);
+  assert.deepEqual(committed.candleColorLefts, [
+    committed.candleColorLefts[0],
+    committed.candleColorLefts[0],
+    committed.candleColorLefts[0],
+  ]);
   assert.equal(committed.tabState.active, 'symbol');
   assert.equal(committed.tabState.canvasHidden, true);
   assert.equal(committed.tabState.symbolHidden, false);

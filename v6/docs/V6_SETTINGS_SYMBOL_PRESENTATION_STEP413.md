@@ -22,7 +22,7 @@ presentation layer than the native series API for this bounded slice.
 
 - up/down body colors;
 - border visibility and up/down border colors;
-- wick visibility and up/down wick colors;
+- always-visible wicks with up/down wick colors;
 - price precision: `Auto` or zero through six decimal places.
 
 `Color bars based on previous close`, fractional tick formats, and symbol-
@@ -63,9 +63,9 @@ Automated gates cover:
 - draft isolation, Cancel, tab-scoped Reset, OK, and hard-reload recovery;
 - adjacent Settings/browser behavior and the full chart regression pack.
 
-Human visual acceptance must verify candle body/border/wick changes, visibility
-toggles, price-axis precision, Cancel, Reset, OK, and persistence before this
-step is closed.
+Human visual acceptance must verify candle body/border/wick colors, border
+visibility, price-axis precision, Cancel, Reset, OK, and persistence before
+this step is closed. Wicks are deliberately not optional.
 
 ## Next
 

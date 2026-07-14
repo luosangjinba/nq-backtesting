@@ -19,7 +19,6 @@ export function connectSettingsSymbolChartSurfaceBridge({
     symbolUpBodyColor: settings.symbolUpBodyColor,
     symbolUpBorderColor: settings.symbolUpBorderColor,
     symbolUpWickColor: settings.symbolUpWickColor,
-    symbolWicksVisible: settings.symbolWicksVisible,
   });
   const unsubscriptions = [
     subscribeEvent(SETTINGS_EVENTS.UPDATED, apply),

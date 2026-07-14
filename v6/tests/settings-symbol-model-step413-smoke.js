@@ -13,11 +13,14 @@ const customized = updateSettingsRecord(createSettingsRecord(), {
   symbolDownBodyColor: '#112233',
   symbolPricePrecision: '4',
   symbolUpWickColor: '#abcdef',
-  symbolWicksVisible: false,
 });
 assert.equal(customized.symbolBordersVisible, true);
 assert.equal(customized.symbolPricePrecision, '4');
-assert.equal(customized.symbolWicksVisible, false);
+assert.equal('symbolWicksVisible' in customized, false);
+assert.throws(
+  () => updateSettingsRecord(customized, { symbolWicksVisible: false }),
+  /Unsupported settings keys/,
+);
 assert.throws(
   () => updateSettingsRecord(customized, { symbolPricePrecision: '7' }),
   /symbolPricePrecision/,

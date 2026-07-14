@@ -10,6 +10,8 @@ Date: 2026-07-13
 - routed committed preferences through a focused bridge and the chart-owned
   multi-pane series path;
 - covered active-tab Reset, Cancel, OK, persistence, and hard reload.
+- corrected the visual acceptance findings by aligning all candle color columns
+  and making wicks an always-visible, color-only setting.
 
 ## Commits
 

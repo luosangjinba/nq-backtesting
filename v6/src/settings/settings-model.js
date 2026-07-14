@@ -25,7 +25,6 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   symbolUpBodyColor: '#36b7a8',
   symbolUpBorderColor: '#36b7a8',
   symbolUpWickColor: '#2a958b',
-  symbolWicksVisible: true,
   theme: 'dark',
 });
 
@@ -203,10 +202,6 @@ export function createSettingsRecord(input = {}) {
       input.symbolUpWickColor,
       DEFAULT_SETTINGS_INPUT.symbolUpWickColor,
       'symbolUpWickColor',
-    ),
-    symbolWicksVisible: normalizeBoolean(
-      input.symbolWicksVisible,
-      DEFAULT_SETTINGS_INPUT.symbolWicksVisible,
     ),
     theme: normalizeChoice(input.theme, THEMES, DEFAULT_SETTINGS_INPUT.theme, 'theme'),
   });

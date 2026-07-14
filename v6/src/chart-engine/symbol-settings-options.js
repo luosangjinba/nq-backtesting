@@ -24,7 +24,6 @@ export function createSymbolSettingsSeriesOptions(settings = {}, defaults = {}) 
     symbolUpBodyColor: resolveColor(settings.symbolUpBodyColor, defaults.upColor),
     symbolUpBorderColor: resolveColor(settings.symbolUpBorderColor, defaults.borderUpColor),
     symbolUpWickColor: resolveColor(settings.symbolUpWickColor, defaults.wickUpColor),
-    symbolWicksVisible: settings.symbolWicksVisible !== false,
   });
   return Object.freeze({
     options: Object.freeze({
@@ -36,7 +35,7 @@ export function createSymbolSettingsSeriesOptions(settings = {}, defaults = {}) 
       upColor: state.symbolUpBodyColor,
       wickDownColor: state.symbolDownWickColor,
       wickUpColor: state.symbolUpWickColor,
-      wickVisible: state.symbolWicksVisible,
+      wickVisible: true,
     }),
     state,
   });
