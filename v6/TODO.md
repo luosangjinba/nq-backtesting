@@ -73,7 +73,7 @@
   `18:00`; the absolute DST solver was also removed from the synchronous chart-
   data path, restoring Manual Next latency from `205.7ms` to `123.6ms` without
   relaxing the `160ms` gate. Full chart regression passes `28/28`; visual
-  revalidation remains open.
+  revalidation passed; Step 412 is closed.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

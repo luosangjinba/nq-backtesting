@@ -41,9 +41,9 @@ Date: 2026-07-13
 
 ## Next
 
-Revalidate `00:00` and `18:00` placement after the wall-clock coordinate fix,
-including one EDT and one EST date plus `4h`. After the complete visual matrix
-passes, close Step 412 and implement Step 413 Symbol Presentation.
+The user passed the corrected `00:00` and `18:00` visual matrix after the wall-
+clock coordinate fix. Step 412 is closed; implement Step 413 Symbol
+Presentation.
 
 ## Visual Correction
 
@@ -54,3 +54,5 @@ axis. The correction separates New York calendar semantics from chart-axis
 encoding. It also removes the absolute DST solver from the synchronous Chart
 Data path; the unchanged Manual Next `160ms` gate now passes at `123.6ms`, and
 the complete chart pack passes `28/28`.
+
+The corrected visual revalidation passed.

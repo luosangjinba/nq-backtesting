@@ -74,17 +74,17 @@ Passed:
 
 ## Human Gate
 
-Step 412 remains open until visual acceptance confirms hidden, trading, ICT,
-and both modes; distinct colors/styles; correct `18:00` and `00:00` placement;
-HTF positioning; pan/zoom stability; and hard reload.
+Passed. The user visually accepted the corrected hidden, trading, ICT, and both
+modes; distinct colors/styles; `18:00` and `00:00` placement; HTF positioning;
+pan/zoom stability; and hard reload. Step 412 is closed.
 
 The first visual pass found a four-hour offset at the ICT boundary. The cause
 was an absolute New York instant being sent to V6's naive wall-clock chart
 axis. Commits `1eeca731` and `26455014` correct the coordinate domain and keep
 the wall-clock conversion off the chart-data latency hot path. Visual
-revalidation is required.
+revalidation passed.
 
 ## Next
 
-After visual acceptance, close Step 412 and implement Step 413 Symbol
-Presentation: candle body/border/wick colors and simplified price precision.
+Implement Step 413 Symbol Presentation: candle body/border/wick colors and
+simplified price precision.
