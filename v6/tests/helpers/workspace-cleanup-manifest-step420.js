@@ -1,4 +1,4 @@
-export const WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP = 419;
+export const WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP = 421;
 
 export const WORKSPACE_PLACEHOLDER_REMOVALS = Object.freeze([
   Object.freeze({ step: 421, family: 'top clone artifacts', selector: 'data-v6-top-search' }),
@@ -45,4 +45,3 @@ export const WORKSPACE_PRESERVED_CONTRACT_FILES = Object.freeze([
   'v6/src/screenshot-export/screenshot-export-contract.js',
   'v6/src/session-settings/session-settings-contract.js',
 ]);
-

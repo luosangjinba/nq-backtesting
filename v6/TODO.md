@@ -15,9 +15,11 @@
   state-disabled Previous/Restart controls from placeholders. Step 420 is also
   complete: one step-indexed absence manifest now owns planned selector removal,
   and owner contract tests no longer depend on disabled production buttons.
-  Phase 0 is closed. The next bounded step is Step 421 top clone artifacts;
-  remove only generic top Search and static `NQ-2018`, then advance the manifest
-  through Step 421. See
+  Phase 0 is closed. Step 421 is complete: generic top Search and the static/
+  session-derived layout-name artifact are removed, their CSS and dashboard
+  write path are gone, and the cleanup manifest is advanced through Step 421.
+  The next bounded step is Step 422: remove only the duplicate disabled
+  right-rail Journal and undefined Watch/spark entries. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

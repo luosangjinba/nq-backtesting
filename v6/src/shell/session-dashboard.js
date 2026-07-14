@@ -269,13 +269,10 @@ export function mountSessionDashboard(root, {
   function updateSessionChrome(session = {}) {
     const name = session.name || 'test';
     const symbol = session.symbol || 'NQ';
-    const layoutName = `${name}-${String(session.id || '').slice(-6) || symbol}`;
     const sessionName = root.querySelector('[data-v6-session-name]');
     const topSymbol = root.querySelector('[data-v6-top-symbol]');
-    const layout = root.querySelector('[data-v6-top-layout-name]');
     if (sessionName) sessionName.textContent = name;
     if (topSymbol) topSymbol.textContent = symbol;
-    if (layout) layout.textContent = layoutName;
   }
 
   function setSurface(nextSurface) {

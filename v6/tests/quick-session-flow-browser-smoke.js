@@ -65,7 +65,6 @@ try {
         rowText: document.querySelector('[data-v6-dashboard-session-row]')?.textContent || '',
         session,
         stored,
-        topLayout: document.querySelector('[data-v6-top-layout-name]')?.textContent || '',
         topName: document.querySelector('[data-v6-session-name]')?.textContent || '',
         topSymbol: document.querySelector('[data-v6-top-symbol]')?.textContent || '',
       };
@@ -95,7 +94,6 @@ try {
   assert.match(value.rowText, /ES/);
   assert.equal(value.topName, 'abc');
   assert.equal(value.topSymbol, 'NQ');
-  assert.match(value.topLayout, /abc-/);
 } finally {
   await page.cleanup();
 }

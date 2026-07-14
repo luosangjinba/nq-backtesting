@@ -103,12 +103,19 @@ ownership and layout risk.
 
 ### Step 421 - Remove Top Clone Artifacts
 
+Status: completed on 2026-07-14.
+
 - remove generic top Search;
 - remove static `NQ-2018` layout-name text;
 - remove dedicated CSS and obsolete parity assertions for those entries;
 - preserve active symbol, timeframe, layout/sync, Settings, Replay, and Journal.
 
 Commit intent: `refactor(v6): remove top clone artifacts`
+
+Removed the generic Search button and static/session-derived layout-name text,
+including their dedicated CSS and session-dashboard write path. The cleanup
+manifest is advanced through Step 421; active symbol, timeframe, layout/sync,
+Settings, Replay, and Journal remain protected by the Step 419 baseline.
 
 ### Step 422 - Remove Duplicate Right-Rail Artifacts
 

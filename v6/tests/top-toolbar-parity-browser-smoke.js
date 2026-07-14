@@ -31,7 +31,7 @@ try {
         intervalExpanded: document.querySelector('[data-v6-top-interval]')?.getAttribute('aria-expanded'),
         layoutLabel: document.querySelector('[data-v6-top-page-layout]')?.getAttribute('aria-label') || '',
         layoutDisabled: disabled('[data-v6-top-page-layout]'),
-        layoutName: textOf('[data-v6-top-layout-name]'),
+        layoutNameExists: exists('[data-v6-top-layout-name]'),
         layoutMenuOpen: layoutDetails.open,
         layoutRows: [...document.querySelectorAll('.layout-menu-row')].map((row) => row.getAttribute('aria-label')),
         layoutOptions: document.querySelectorAll('.layout-option').length,
@@ -44,7 +44,7 @@ try {
         rightIconCount: document.querySelectorAll('.top-tool-group-right .tool-button .tool-icon').length,
         readinessInHeader: exists('[data-v6-workstation-header] [data-v6-readiness-surface]'),
         redoDisabled: disabled('[data-v6-top-redo]'),
-        searchDisabled: disabled('[data-v6-top-search]'),
+        searchExists: exists('[data-v6-top-search]'),
         symbolSearchDisabled: disabled('[data-v6-top-search-symbol]'),
         sessionDashboardToggleExists: exists('[data-v6-dashboard-toggle]'),
         sessionsWorkflowStillPresent: exists('[data-v6-sessions-toggle]'),
@@ -68,7 +68,7 @@ try {
   assert.equal(value.indicators, 'Indicators');
   assert.equal(value.profile, 'test');
   assert.equal(value.account, 'ETH');
-  assert.equal(value.layoutName, 'NQ-2018');
+  assert.equal(value.layoutNameExists, false);
   assert.equal(value.layoutMenuOpen, true);
   assert.deepEqual(value.layoutRows, ['One pane', 'Two panes', 'Three panes']);
   assert.equal(value.layoutOptions, 7);
@@ -87,8 +87,9 @@ try {
   assert.equal(value.sessionDashboardToggleExists, true);
   assert.equal(value.sessionsWorkflowStillPresent, false);
   assert.equal(value.readinessInHeader, true);
-  assert.equal(value.toolIconCount >= 12, true);
-  assert.equal(value.rightIconCount >= 5, true);
+  assert.equal(value.toolIconCount >= 11, true);
+  assert.equal(value.rightIconCount >= 4, true);
+  assert.equal(value.searchExists, false);
 
   [
     value.accountDisabled,
@@ -96,7 +97,6 @@ try {
     value.fullscreenDisabled,
     value.indicatorsDisabled,
     value.redoDisabled,
-    value.searchDisabled,
     value.symbolSearchDisabled,
     value.themeDisabled,
     value.undoDisabled,

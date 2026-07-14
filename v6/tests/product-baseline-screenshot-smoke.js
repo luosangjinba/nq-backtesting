@@ -65,7 +65,6 @@ try {
         landingLike: Boolean(document.querySelector('.hero, [data-landing-page], .marketing-page')),
         status,
         title: document.querySelector('.top-bar h1')?.textContent || '',
-        topCommandCount: document.querySelectorAll('[data-v6-workstation-header] .tool-button').length,
         transport,
         transportInsideChart: Boolean(document.querySelector('[data-v6-chart-surface] [data-v6-transport]')),
         transportPosition: getComputedStyle(transportElement).position,
@@ -76,7 +75,6 @@ try {
 
   assert.equal(layout.title, 'FX Session Replay');
   assert.equal(layout.landingLike, false);
-  assert.equal(layout.topCommandCount >= 12, true);
   assert.equal(layout.candleCount >= 20, true);
   assert.equal(layout.chartHost.width, layout.chart.width);
   assert.equal(layout.chartHost.height, layout.chart.height);

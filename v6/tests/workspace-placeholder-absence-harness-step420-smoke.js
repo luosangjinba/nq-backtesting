@@ -8,7 +8,11 @@ import {
 
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 
-assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 419);
+function shellHasSelector(selector) {
+  return new RegExp(`${selector}(?=[\\s=>])`).test(shellSource);
+}
+
+assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 421);
 assert.equal(WORKSPACE_PLACEHOLDER_REMOVALS.length > 0, true);
 assert.equal(new Set(WORKSPACE_PLACEHOLDER_REMOVALS.map((item) => item.selector)).size, WORKSPACE_PLACEHOLDER_REMOVALS.length);
 
@@ -17,7 +21,7 @@ for (const item of WORKSPACE_PLACEHOLDER_REMOVALS) {
   assert.equal(Boolean(item.family), true, `${item.selector} must have a cleanup family`);
   const shouldBeRemoved = item.step <= WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP;
   assert.equal(
-    shellSource.includes(item.selector),
+    shellHasSelector(item.selector),
     !shouldBeRemoved,
     `${item.selector} must be ${shouldBeRemoved ? 'absent after' : 'present until'} Step ${item.step}`,
   );
@@ -45,4 +49,3 @@ for (const source of contractTests) {
 }
 
 console.log('v6 workspace placeholder absence harness Step 420 smoke passed');
-
