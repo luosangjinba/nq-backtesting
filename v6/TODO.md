@@ -101,6 +101,13 @@
   gates pass. Checkbox changes now preview immediately while discard paths
   restore committed values; the final human visual matrix passed. Step 415 is
   closed. See `v6/docs/V6_SETTINGS_CURRENT_PRICE_PRESENTATION_STEP415.md`.
+- Latest implemented Settings step: Step 416 - Global Time Presentation.
+  Settings schema v8 adds Exchange/New York, UTC, and Local display plus global
+  12/24-hour format. One shared domain feeds Lightweight Charts axis/crosshair,
+  replay footer, and controlled Go-to inputs while runtime and persistence keep
+  canonical New York wall-clock values. Focused model/browser regressions pass;
+  human visual acceptance remains required. See
+  `v6/docs/V6_SETTINGS_GLOBAL_TIME_PRESENTATION_STEP416.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
