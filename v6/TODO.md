@@ -84,6 +84,14 @@
   unwanted Wick visibility toggle; both were corrected, and the final human
   visual matrix passed. Step 413 is closed. See
   `v6/docs/V6_SETTINGS_SYMBOL_PRESENTATION_STEP413.md`.
+- Latest implemented Settings step: Step 414 - Status Line Presentation.
+  Settings schema v6 adds Ticker/Hidden title, OHLC and previous-close bar-change
+  visibility, plus background color/opacity. One focused bridge feeds the
+  existing multi-pane Status Readout owner; market state waits for exchange-
+  calendar truth, Volume waits for verified provenance, and Description waits
+  for symbol metadata. Transaction, tab-scoped Reset, persistence, and browser
+  gates pass. Human visual acceptance remains required before Step 414 closes.
+  See `v6/docs/V6_SETTINGS_STATUS_LINE_PRESENTATION_STEP414.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

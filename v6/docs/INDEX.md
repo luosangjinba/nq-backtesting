@@ -82,7 +82,10 @@ Read this index before working on V6.
   and completed visual acceptance.
 - `v6/docs/V6_SETTINGS_SYMBOL_PRESENTATION_STEP413.md`: schema-v5 Symbol tab,
   native candlestick-series presentation and precision mapping, transactional
-  multi-pane ownership path, automated gates, and remaining visual matrix.
+  multi-pane ownership path, and completed visual matrix.
+- `v6/docs/V6_SETTINGS_STATUS_LINE_PRESENTATION_STEP414.md`: schema-v6 Status
+  line tab, application-owned multi-pane presentation, previous-close change
+  semantics, deferred market/volume boundaries, and visual acceptance gate.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.
