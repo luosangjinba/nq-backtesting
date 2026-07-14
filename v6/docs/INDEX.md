@@ -916,6 +916,10 @@ Read this index before working on V6.
 - `V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md`: accepted
   drawing/action-history owner contract while the left drawing rail and
   top-toolbar undo/redo controls remain disabled and inert.
+- `V6_SEMANTIC_DRAWING_PLUGIN_SPEC_DRAFT.md`: draft for product-owner review of
+  semantic-first chart marking, three-mode shared artifacts, constrained plugin
+  extension, legacy PDA lessons, and the proposed replacement boundary for the
+  traditional drawing-tool model; it does not authorize implementation.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md`: accepted next
   workstation/chart slice selection after the drawing/action-history owner
   contract.
