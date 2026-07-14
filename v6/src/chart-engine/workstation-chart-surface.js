@@ -16,6 +16,7 @@ import { createChartRangeInputController } from './chart-range-input-controller.
 import { createCanvasSettingsChartOptions } from './canvas-settings-options.js';
 import { createSymbolSettingsSeriesOptions } from './symbol-settings-options.js';
 import { createCurrentPriceSeriesOptions } from './current-price-settings-options.js';
+import { createTimePresentationChartOptions } from './time-presentation-options.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -641,6 +642,14 @@ export function mountWorkstationChartSurface(root, {
         chartSurfaceElement.dataset.v6ChartNavigationVisibility = canvasSettings.state.chartNavigationVisibility;
       }
       return { ...canvasSettings.state };
+    },
+    applyTimePresentationSettings(settings = {}) {
+      const timePresentation = createTimePresentationChartOptions(settings);
+      manager.applyOptions?.(timePresentation.options);
+      if (chartSurfaceElement?.dataset) {
+        chartSurfaceElement.dataset.v6TimePresentation = JSON.stringify(timePresentation.state);
+      }
+      return { ...timePresentation.state };
     },
     applySymbolSettings(settings = {}) {
       const symbolSettings = createSymbolSettingsSeriesOptions(settings, DEFAULT_SERIES_OPTIONS);
