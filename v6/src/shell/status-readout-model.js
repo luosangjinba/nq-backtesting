@@ -44,10 +44,28 @@ function candleDirection(bar) {
   return 'flat';
 }
 
+function formatBarChange(bar, previousClose) {
+  const close = Number(bar?.close);
+  const baseline = Number(previousClose);
+  if (!Number.isFinite(close) || !Number.isFinite(baseline) || baseline === 0) {
+    return Object.freeze({ absolute: '--', percent: '--', text: '--' });
+  }
+  const absolute = close - baseline;
+  const percent = (absolute / baseline) * 100;
+  const prefix = absolute > 0 ? '+' : '';
+  const percentPrefix = percent > 0 ? '+' : '';
+  return Object.freeze({
+    absolute: `${prefix}${absolute.toFixed(2)}`,
+    percent: `${percentPrefix}${percent.toFixed(2)}%`,
+    text: `${prefix}${absolute.toFixed(2)} (${percentPrefix}${percent.toFixed(2)}%)`,
+  });
+}
+
 export function createStatusReadoutState({
   crosshairBar = null,
   latestBar = null,
   playback = 'idle',
+  previousClose = null,
   replayState = {},
 } = {}) {
   const replay = normalizeReplayState(replayState);
@@ -68,6 +86,7 @@ export function createStatusReadoutState({
       start: `Start ${formatTime(replay.startTime)}`,
     }),
     candleDirection: candleDirection(selectedBar),
+    barChange: formatBarChange(selectedBar, previousClose),
     crosshairBar: selectedBar ? Object.freeze(selectedBar) : null,
     latestBar: bar ? Object.freeze(bar) : null,
     ohlc: Object.freeze({
@@ -123,6 +142,7 @@ export function statusReadoutStateFromCrosshairPayload(payload = {}, previousSta
     crosshairBar: payload.bar || null,
     latestBar: previousState.latestBar,
     playback: previousState.playback,
+    previousClose: payload.previousClose,
     replayState: previousState.replay,
   });
 }

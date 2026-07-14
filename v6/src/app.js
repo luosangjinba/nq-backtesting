@@ -40,6 +40,7 @@ import { mountSessionDashboard } from './shell/session-dashboard.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
 import { mountStatusReadout } from './shell/status-readout.js';
+import { connectSettingsStatusReadoutBridge } from './shell/settings-status-readout-bridge.js';
 import { connectTopSymbolActivePaneBridge } from './shell/top-symbol-active-pane-bridge.js';
 import { createWorkflowPanelCoordinator } from './shell/workflow-panel-coordinator.js';
 
@@ -112,6 +113,10 @@ const paneActiveSurfaceBridge = connectPaneActiveSurfaceBridge({
 });
 const layoutMenuControl = mountLayoutMenuControl(root);
 const paneStatusReadout = mountPaneStatusReadout(root);
+const settingsStatusReadoutBridge = connectSettingsStatusReadoutBridge({
+  statusReadout: paneStatusReadout,
+  subscribeEvent,
+});
 const maximizeRestoreControls = [...root.querySelectorAll('[data-v6-chart-maximize-restore]')]
   .map((button) => connectMaximizeRestoreControl({
     button,
@@ -200,6 +205,7 @@ root.__v6SettingsChartSurfaceBridge = settingsChartSurfaceBridge;
 root.__v6SettingsSymbolChartSurfaceBridge = settingsSymbolChartSurfaceBridge;
 root.__v6SettingsChartViewportBridge = settingsChartViewportBridge;
 root.__v6SettingsDaySeparatorBridge = settingsDaySeparatorBridge;
+root.__v6SettingsStatusReadoutBridge = settingsStatusReadoutBridge;
 root.__v6SessionsSurface = sessionsSurface;
 root.__v6StatusReadout = statusReadout;
 root.__v6WorkstationChartSurface = workstationChartSurface;

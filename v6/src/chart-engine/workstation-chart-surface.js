@@ -110,6 +110,7 @@ export function mountWorkstationChartSurface(root, {
     hostsByPaneId.set(paneId, host);
   });
   const appliedChartDataByPaneId = new Map();
+  const barsByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
   const crosshairByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
@@ -181,6 +182,11 @@ export function mountWorkstationChartSurface(root, {
     ? [...hostsByPaneId.keys()].map((paneId) => manager.subscribeCrosshairMove(paneId, (payload = {}) => {
         const recordPaneId = String(payload.paneId || paneId);
         const hasSelectedBar = Boolean(payload.bar);
+        const paneBars = barsByPaneId.get(recordPaneId) || [];
+        const selectedIndex = hasSelectedBar
+          ? paneBars.findIndex((bar) => Number(bar.timestamp) === Number(payload.bar.timestamp ?? payload.time))
+          : -1;
+        const previousClose = selectedIndex > 0 ? Number(paneBars[selectedIndex - 1]?.close) : null;
         const displayReadout = hasSelectedBar || recordPaneId === readoutPaneId;
         if (hasSelectedBar) {
           readoutPaneId = recordPaneId;
@@ -192,6 +198,7 @@ export function mountWorkstationChartSurface(root, {
           displayReadout,
           paneId: recordPaneId,
           point: payload.point ? { ...payload.point } : null,
+          ...(Number.isFinite(previousClose) ? { previousClose } : {}),
           time: payload.time ?? null,
         };
         crosshairByPaneId.set(record.paneId, record);
@@ -653,6 +660,7 @@ export function mountWorkstationChartSurface(root, {
       const previousChartData = appliedChartDataByPaneId.get(recordPaneId);
       const previousVisibleRange = measuredVisibleRangeByPaneId.get(recordPaneId);
       const snapshot = manager.setData(recordPaneId, record.bars || []);
+      barsByPaneId.set(recordPaneId, (record.bars || []).map((bar) => ({ ...bar })));
       appliedChartDataByPaneId.set(recordPaneId, {
         barCount: record.bars?.length || 0,
         paneId: recordPaneId,

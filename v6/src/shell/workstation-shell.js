@@ -553,6 +553,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <span data-v6-status-high data-v6-pane-status-field>H --</span>
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
+                <span data-v6-status-change data-v6-pane-status-field>--</span>
                 <span class="target-history-diagnostics-readout" data-v6-target-history-diagnostics>History idle</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="main">
@@ -575,6 +576,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <span data-v6-status-high data-v6-pane-status-field>H --</span>
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
+                <span data-v6-status-change data-v6-pane-status-field>--</span>
                 <span class="target-history-diagnostics-readout" data-v6-target-history-diagnostics>History idle</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="secondary">
@@ -597,6 +599,7 @@ ${renderDisplayTimeframeMenuSections()}
                 <span data-v6-status-high data-v6-pane-status-field>H --</span>
                 <span data-v6-status-low data-v6-pane-status-field>L --</span>
                 <span data-v6-status-close data-v6-pane-status-field>C --</span>
+                <span data-v6-status-change data-v6-pane-status-field>--</span>
                 <span class="target-history-diagnostics-readout" data-v6-target-history-diagnostics>History idle</span>
               </div>
               <div class="chart-pane-action-rail" data-v6-chart-pane-action-rail data-v6-pane-id="tertiary">

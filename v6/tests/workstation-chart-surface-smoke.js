@@ -214,6 +214,14 @@ let subscribedCrosshair = null;
 const unsubscribeCrosshair = surface.subscribeCrosshairChange((payload) => {
   subscribedCrosshair = payload;
 });
+surface.applyChartDataRecord({
+  bars: [
+    { close: 1.75, high: 2, low: 1, open: 1.25, timestamp: 100 },
+    { close: 2, high: 3, low: 1, open: 1.5, timestamp: 200 },
+  ],
+  paneId: 'default',
+  revision: 1,
+});
 managerInstance.triggerCrosshair({
   bar: { close: 2, high: 3, low: 1, open: 1.5, timestamp: 200 },
   paneId: 'default',
@@ -225,6 +233,7 @@ assert.deepEqual(subscribedCrosshair, {
   displayReadout: true,
   paneId: 'default',
   point: { x: 12, y: 34 },
+  previousClose: 1.75,
   time: 200,
 });
 assert.deepEqual(surface.getState().crosshair, [subscribedCrosshair]);

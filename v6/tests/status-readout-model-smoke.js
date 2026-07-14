@@ -90,6 +90,7 @@ const crosshairChanged = statusReadoutStateFromCrosshairPayload({
     open: 101,
     timestamp: 1780306260,
   },
+  previousClose: 100.5,
 }, chartDataChanged);
 assert.deepEqual(crosshairChanged.ohlc, {
   close: 'C 101.50',
@@ -98,5 +99,10 @@ assert.deepEqual(crosshairChanged.ohlc, {
   open: 'O 101.00',
 });
 assert.equal(crosshairChanged.candleDirection, 'up');
+assert.deepEqual(crosshairChanged.barChange, {
+  absolute: '+1.00',
+  percent: '+1.00%',
+  text: '+1.00 (+1.00%)',
+});
 
 console.log('v6 status readout model smoke passed');

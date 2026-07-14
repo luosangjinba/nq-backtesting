@@ -38,6 +38,13 @@ function setText(root, selector, value) {
   }
 }
 
+function statusBackground(color, opacityPercent) {
+  const match = /^#([0-9a-f]{2})([0-9a-f]{2})([0-9a-f]{2})$/i.exec(color);
+  if (!match) return 'transparent';
+  const [, red, green, blue] = match;
+  return `rgba(${parseInt(red, 16)}, ${parseInt(green, 16)}, ${parseInt(blue, 16)}, ${opacityPercent / 100})`;
+}
+
 function updateDataset(element, state) {
   if (!element) return;
   element.dataset.statusCandleDirection = state.candleDirection;
@@ -151,6 +158,7 @@ function createPaneState(record = {}) {
     active: normalized.active,
     instrument: normalized.instrument,
     paneId: normalized.id,
+    previousClose: null,
     timeframe: normalized.timeframe,
   };
 }
@@ -158,6 +166,7 @@ function createPaneState(record = {}) {
 function renderPaneReadout(element, paneState) {
   const readoutState = createStatusReadoutState({
     crosshairBar: paneState.bar,
+    previousClose: paneState.previousClose,
     replayState: {
       symbol: paneState.instrument,
       timeframe: paneState.timeframe,
@@ -176,6 +185,7 @@ function renderPaneReadout(element, paneState) {
   setText(element, '[data-v6-status-high]', state.ohlc.high);
   setText(element, '[data-v6-status-low]', state.ohlc.low);
   setText(element, '[data-v6-status-close]', state.ohlc.close);
+  setText(element, '[data-v6-status-change]', state.barChange.text);
   return state;
 }
 
@@ -252,6 +262,7 @@ export function mountPaneStatusReadout(root, {
     paneStateByPaneId.set(paneId, {
       ...previous,
       bar: payload.bar ? { ...payload.bar } : null,
+      previousClose: payload.previousClose ?? null,
     });
     return renderPane(paneId);
   }
@@ -327,5 +338,26 @@ export function mountPaneStatusReadout(root, {
     updateHistoryDiagnostics,
     updateTargetMaterializationDiagnostics: renderTargetMaterializationEnvelope,
     updatePaneMetadata,
+    applySettings(settings = {}) {
+      const normalized = {
+        statusBackgroundColor: String(settings.statusBackgroundColor || '#0f1721'),
+        statusBackgroundOpacityPercent: Math.max(0, Math.min(100, Number(settings.statusBackgroundOpacityPercent) || 0)),
+        statusBarChangeVisible: settings.statusBarChangeVisible !== false,
+        statusOhlcVisible: settings.statusOhlcVisible !== false,
+        statusTitleMode: settings.statusTitleMode === 'hidden' ? 'hidden' : 'ticker',
+      };
+      readoutByPaneId.forEach((element) => {
+        element.dataset.v6StatusTitleMode = normalized.statusTitleMode;
+        element.dataset.v6StatusOhlcVisible = String(normalized.statusOhlcVisible);
+        element.dataset.v6StatusBarChangeVisible = String(normalized.statusBarChangeVisible);
+        if (element.style) {
+          element.style.backgroundColor = statusBackground(
+            normalized.statusBackgroundColor,
+            normalized.statusBackgroundOpacityPercent,
+          );
+        }
+      });
+      return { ...normalized };
+    },
   });
 }
