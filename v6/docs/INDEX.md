@@ -109,6 +109,9 @@ Read this index before working on V6.
 - `v6/docs/V6_WORKSPACE_CLEANUP_PHASE_ROADMAP_STEP418.md`: executable Phase
   0-6 roadmap with Steps 419-435, per-step commit boundaries, automated gates,
   human visual checkpoints, rollback scope, and Semantic Drawing isolation.
+- `v6/docs/V6_COMPACT_REPLAY_STATUS_PRESENTATION_STEP430.md`: binding compact
+  Replay lifecycle/protection copy, versioned diagnostic snapshot, placement,
+  and Step 431 ownership boundary.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

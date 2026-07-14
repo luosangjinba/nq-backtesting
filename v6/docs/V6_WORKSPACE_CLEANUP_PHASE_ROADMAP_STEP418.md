@@ -365,6 +365,8 @@ footer with concise, user-facing status.
 
 ### Step 430 - Freeze Replay Status Presentation Contract
 
+Status: completed on 2026-07-14.
+
 - classify which states require visible user communication: loading, ready,
   exceptional/error, and active no-future protection;
 - classify internal session ID, raw revealed/total counts, hidden-bar counts,
@@ -374,6 +376,13 @@ footer with concise, user-facing status.
 - approve exact user-facing copy and placement before implementation.
 
 Commit intent: `docs(v6): define compact replay status presentation`
+
+The accepted contract replaces seven engineering badges with one compact
+lifecycle message plus an optional `Future data hidden` assurance. Internal
+session/time/count/runtime values remain available through a versioned
+`data-v6-replay-diagnostics` JSON snapshot rather than visible text. Placement
+stays in the Step 429 bottom row, Replay Runtime remains authoritative, and
+Step 431 is constrained to presentation implementation.
 
 ### Step 431 - Implement Compact Replay Status
 

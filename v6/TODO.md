@@ -43,13 +43,18 @@
   contracts remain intact. Step 429 is complete: the empty grid row is removed,
   chart height is reclaimed, the status surface now owns row 7, and Replay
   transport default/drag/restored positions are bounded above the visible
-  status bar. Phase 4 is closed. The next bounded step is Step 430: audit the
-  current full-width Replay status semantics and define the compact user-facing
-  presentation contract before changing its wording or density. See
+  status bar. Phase 4 is closed. Step 430 is complete: the compact status
+  contract defines `Preparing replay…`, `Replay ready`, `Replay complete`, and
+  `Replay unavailable` lifecycle copy plus conditional `Future data hidden`
+  assurance. Internal identifiers, times, counts, and raw runtime status move
+  to a versioned machine-readable diagnostic snapshot rather than permanent
+  badges. The next bounded step is Step 431: implement this presentation
+  contract without changing Replay Runtime ownership or semantics. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
-  `v6/docs/V6_WORKSPACE_CLEANUP_PHASE_ROADMAP_STEP418.md`.
+  `v6/docs/V6_WORKSPACE_CLEANUP_PHASE_ROADMAP_STEP418.md` and
+  `v6/docs/V6_COMPACT_REPLAY_STATUS_PRESENTATION_STEP430.md`.
 - Latest completed Go-to foundation step: Step 406 - Menu, Shortcuts And Custom
   Settings. The five actions and scoped `Y/Z/I/L/N` keys now dispatch through
   the Step 405 coordinator with current visible pane ids. Custom Settings owns
