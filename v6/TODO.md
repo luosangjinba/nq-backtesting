@@ -26,9 +26,12 @@
   independent `session-settings` owner contract remains green. Step 424 is
   complete: orphan Session Settings panel CSS is removed, the two
   reservation-only tests are retired, and the generic cleanup harness now
-  guards both markup and styling absence. Phase 2 is closed. The next bounded
-  step is Step 425: remove the selected reserved top controls while preserving
-  active symbol, timeframe, layout/sync, Settings, Replay, and Journal. See
+  guards both markup and styling absence. Phase 2 is closed. Step 425 is
+  complete: nine inert top-toolbar controls and their orphan styles are gone,
+  while active symbol, timeframe, layout/sync, Settings, Replay, Journal, and
+  the future feature-owner contracts remain protected. The next bounded step
+  is Step 426: remove the traditional inert left Drawing rail and reclaim its
+  chart space without selecting a future Semantic Drawing entry surface. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

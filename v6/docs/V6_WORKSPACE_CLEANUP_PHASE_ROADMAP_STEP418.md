@@ -221,6 +221,8 @@ contracts and leaving future entry design open.
 
 ### Step 425 - Remove Reserved Top-Toolbar Controls
 
+Status: completed on 2026-07-14.
+
 - remove symbol search and comparison symbol placeholders;
 - remove Indicators, Undo/Redo, ETH/session hours, Screenshot, Theme, and
   Fullscreen placeholders;
@@ -229,6 +231,14 @@ contracts and leaving future entry design open.
 - update top-toolbar CSS and obsolete selector assertions.
 
 Commit intent: `refactor(v6): remove reserved top toolbar controls`
+
+Removed Symbol Search, Compare, Indicators, Undo, Redo, session-hours/ETH,
+Screenshot, Theme, and Fullscreen placeholders together with their orphan
+account/text/redo styling. The cleanup manifest is advanced through Step 425;
+top-toolbar coverage now protects the remaining functional controls and
+requires all nine placeholder selectors to stay absent. Indicators,
+drawing/action-history, screenshot/export, comparison-symbol, and other owner
+contracts remain intact.
 
 ### Step 426 - Remove Traditional Left Drawing Rail
 

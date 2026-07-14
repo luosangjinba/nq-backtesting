@@ -1186,16 +1186,6 @@ p {
   color: #f7fbff;
 }
 
-.top-tool-group [data-v6-top-account] {
-  min-width: 58px;
-  height: 28px;
-  margin: 0 8px;
-  padding: 0 9px;
-  border: 1px solid #263d5a;
-  border-radius: 7px;
-  background: #0f1e34;
-}
-
 .timeframe-menu-anchor {
   position: relative;
 }
@@ -1428,12 +1418,6 @@ p {
   min-width: 36px;
 }
 
-.tool-button-text {
-  min-width: 92px;
-  padding: 0 11px;
-  color: #f4f8fb;
-}
-
 .tool-icon {
   width: 17px;
   height: 17px;
@@ -1461,10 +1445,6 @@ p {
 .rail-button:hover:not(:disabled),
 .rail-popover-anchor summary:hover {
   background: #171b20;
-}
-
-.top-tool-group [data-v6-top-redo]:disabled {
-  color: #6a747d;
 }
 
 .top-tool-group button.is-active,

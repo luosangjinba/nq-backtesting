@@ -26,7 +26,7 @@ assert.match(reAuditDoc, /screenshot\/export/);
 assert.match(parityGapDoc, /Owner contract selection for one deferred interactive family/);
 assert.match(parityGapDoc, /screenshot\/export/);
 assert.match(guardrailsDoc, /Screenshot[\s\S]*export\/screenshot owner exists/);
-assert.match(shellSource, /data-v6-top-screenshot disabled/);
+assert.doesNotMatch(shellSource, /data-v6-top-screenshot/);
 
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',

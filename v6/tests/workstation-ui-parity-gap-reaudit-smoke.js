@@ -29,7 +29,6 @@ assert.match(presentationAuditDoc, /chart-data-surface-bridge\.js` is still the 
 
 for (const requiredSelector of [
   'data-v6-top-interval',
-  'data-v6-top-indicators',
   'data-v6-settings-toggle',
   'data-v6-settings-panel',
   'data-v6-left-drawing-rail',

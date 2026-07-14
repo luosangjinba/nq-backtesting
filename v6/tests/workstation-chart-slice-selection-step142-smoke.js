@@ -29,8 +29,8 @@ assert.match(reAuditDoc, /comparison symbol/);
 assert.match(parityGapDoc, /comparison, indicators, undo\/redo, session hours, screenshot, theme, fullscreen need owners/);
 assert.match(parityGapDoc, /Comparison symbols, RTH\/ETH, page layout, theme, and fullscreen controls/);
 assert.match(guardrailsDoc, /Add comparison symbol[\s\S]*explicit comparison\/multi-symbol owner/);
-assert.match(shellSource, /data-v6-top-compare disabled/);
-assert.match(shellSource, /aria-label="Add comparison symbol"/);
+assert.doesNotMatch(shellSource, /data-v6-top-compare/);
+assert.doesNotMatch(shellSource, /aria-label="Add comparison symbol"/);
 
 for (const forbiddenToken of [
   'ACCOUNT_TRADING_COMMANDS',

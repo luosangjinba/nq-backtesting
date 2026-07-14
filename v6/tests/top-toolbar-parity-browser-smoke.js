@@ -14,18 +14,12 @@ try {
       document.querySelector('[data-v6-top-page-layout]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       return {
-        account: textOf('[data-v6-top-account]'),
-        accountDisabled: disabled('[data-v6-top-account]'),
         backLabel: document.querySelector('[data-v6-top-back]')?.getAttribute('aria-label') || '',
         backDisabled: disabled('[data-v6-top-back]'),
-        compareDisabled: disabled('[data-v6-top-compare]'),
         editorExists: exists('[data-v6-top-editor]'),
         forwardExists: exists('[data-v6-top-session-forward]'),
-        fullscreenDisabled: disabled('[data-v6-top-fullscreen]'),
         hasHeader: exists('[data-v6-workstation-header]'),
         headerHeight: Math.round(headerRect.height),
-        indicators: textOf('[data-v6-top-indicators]'),
-        indicatorsDisabled: disabled('[data-v6-top-indicators]'),
         interval: textOf('[data-v6-top-interval]'),
         intervalDisabled: disabled('[data-v6-top-interval]'),
         intervalExpanded: document.querySelector('[data-v6-top-interval]')?.getAttribute('aria-expanded'),
@@ -43,15 +37,22 @@ try {
         profile: textOf('[data-v6-top-profile]'),
         rightIconCount: document.querySelectorAll('.top-tool-group-right .tool-button .tool-icon').length,
         readinessInHeader: exists('[data-v6-workstation-header] [data-v6-readiness-surface]'),
-        redoDisabled: disabled('[data-v6-top-redo]'),
-        searchExists: exists('[data-v6-top-search]'),
-        symbolSearchDisabled: disabled('[data-v6-top-search-symbol]'),
+        removedControls: [
+          'search-symbol',
+          'compare',
+          'indicators',
+          'undo',
+          'redo',
+          'session-hours',
+          'screenshot',
+          'theme',
+          'fullscreen',
+        ].map((name) => exists('[data-v6-top-' + name + ']')),
         sessionDashboardToggleExists: exists('[data-v6-dashboard-toggle]'),
         sessionsWorkflowStillPresent: exists('[data-v6-sessions-toggle]'),
         symbol: textOf('[data-v6-top-symbol]'),
-        themeDisabled: disabled('[data-v6-top-theme]'),
         toolIconCount: document.querySelectorAll('[data-v6-workstation-header] .tool-button .tool-icon').length,
-        undoDisabled: disabled('[data-v6-top-undo]'),
+        settingsExists: exists('[data-v6-settings-toggle]'),
       };
     })()))()
   `));
@@ -65,9 +66,7 @@ try {
   assert.equal(value.intervalDisabled, false);
   assert.equal(value.intervalExpanded, 'false');
   assert.equal(value.layoutLabel, 'Page layout');
-  assert.equal(value.indicators, 'Indicators');
   assert.equal(value.profile, 'test');
-  assert.equal(value.account, 'ETH');
   assert.equal(value.layoutNameExists, false);
   assert.equal(value.layoutMenuOpen, true);
   assert.deepEqual(value.layoutRows, ['One pane', 'Two panes', 'Three panes']);
@@ -87,22 +86,10 @@ try {
   assert.equal(value.sessionDashboardToggleExists, true);
   assert.equal(value.sessionsWorkflowStillPresent, false);
   assert.equal(value.readinessInHeader, true);
-  assert.equal(value.toolIconCount >= 11, true);
-  assert.equal(value.rightIconCount >= 4, true);
-  assert.equal(value.searchExists, false);
-
-  [
-    value.accountDisabled,
-    value.compareDisabled,
-    value.fullscreenDisabled,
-    value.indicatorsDisabled,
-    value.redoDisabled,
-    value.symbolSearchDisabled,
-    value.themeDisabled,
-    value.undoDisabled,
-  ].forEach((isDisabled) => {
-    assert.equal(isDisabled, true);
-  });
+  assert.equal(value.toolIconCount >= 3, true);
+  assert.equal(value.rightIconCount, 2);
+  assert.equal(value.settingsExists, true);
+  assert.deepEqual(value.removedControls, [false, false, false, false, false, false, false, false, false]);
 } finally {
   await page.cleanup();
 }

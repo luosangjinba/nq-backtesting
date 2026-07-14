@@ -29,7 +29,7 @@ assert.match(reAuditDoc, /indicators, undo, redo, drawing\/action history/);
 assert.match(parityGapDoc, /Owner contract selection for one deferred interactive family/);
 assert.match(parityGapDoc, /indicators/);
 assert.match(guardrailsDoc, /Indicators[\s\S]*Keep inert until an indicators owner exists/);
-assert.match(shellSource, /data-v6-top-indicators disabled/);
+assert.doesNotMatch(shellSource, /data-v6-top-indicators/);
 
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',

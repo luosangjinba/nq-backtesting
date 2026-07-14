@@ -17,7 +17,6 @@ const ICONS = {
   layers: '<path d="M12 3l9 5-9 5-9-5z"/><path d="M3 12l9 5 9-5"/><path d="M3 16l9 5 9-5"/>',
   listFilter: '<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>',
   minus: '<path d="M5 12h14"/>',
-  moon: '<path d="M21 14.8A8 8 0 0 1 9.2 3a7 7 0 1 0 11.8 11.8z"/>',
   pause: '<path d="M9 5v14"/><path d="M15 5v14"/>',
   pencil: '<path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10z"/><path d="M14 6l4 4"/>',
   play: '<path d="M8 5l11 7-11 7z"/>',
@@ -31,7 +30,6 @@ const ICONS = {
   sort: '<path d="M7 4v16"/><path d="M4 7l3-3 3 3"/><path d="M17 20V4"/><path d="M14 17l3 3 3-3"/>',
   stepBack: '<path d="M19 5v14"/><path d="M15 6l-8 6 8 6"/>',
   stepForward: '<path d="M5 5v14"/><path d="M9 6l8 6-8 6"/>',
-  undo: '<path d="M3 7v6h6"/><path d="M4 13a7 7 0 1 1 2 5"/>',
 };
 
 function icon(name) {
@@ -186,10 +184,8 @@ export function createWorkstationShellMarkup() {
       <header class="top-bar" data-v6-workstation-header>
         <div class="top-tool-group top-tool-group-left" aria-label="Session and symbol tools">
           <button type="button" class="tool-button tool-button-icon" data-v6-top-back data-v6-dashboard-toggle aria-controls="v6-session-dashboard" aria-expanded="false" aria-pressed="false" aria-label="Back to session dashboard">${icon('arrowLeft')}<span class="sr-only">Back to session dashboard</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-search-symbol disabled aria-label="Search symbol">${icon('search')}<span class="sr-only">Search symbol</span></button>
           <h1>FX Session Replay</h1>
           <span class="top-symbol" data-v6-top-symbol>NQ</span>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-compare disabled aria-label="Add comparison symbol">${icon('plusCircle')}<span class="sr-only">Add comparison symbol</span></button>
         </div>
         <div class="top-tool-group top-tool-group-main" aria-label="Chart tools">
           <div class="timeframe-menu-anchor">
@@ -201,15 +197,11 @@ export function createWorkstationShellMarkup() {
 ${renderDisplayTimeframeMenuSections()}
             </div>
           </div>
-          <button type="button" class="tool-button tool-button-text" data-v6-top-indicators disabled aria-label="Indicators">${icon('indicators')}<span>Indicators</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-undo disabled aria-label="Undo">${icon('undo')}<span class="sr-only">Undo</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-redo disabled aria-label="Redo">${icon('redo')}<span class="sr-only">Redo</span></button>
         </div>
         <div class="top-session-group" aria-label="Session identity">
           <span class="profile-chip" data-v6-top-profile data-v6-session-name>test</span>
         </div>
         <div class="top-tool-group top-tool-group-right" aria-label="Account and utility tools">
-          <button type="button" data-v6-top-account data-v6-top-session-hours disabled aria-label="Trading hours">ETH</button>
           <details class="layout-menu-anchor" data-v6-layout-menu-details>
             <summary class="tool-button tool-button-icon" data-v6-top-page-layout aria-label="Page layout" aria-haspopup="true">${icon('grid')}<span class="sr-only">Page layout</span></summary>
             <div class="layout-menu" data-v6-layout-menu role="menu" aria-label="Page layout">
@@ -255,9 +247,6 @@ ${renderDisplayTimeframeMenuSections()}
             </div>
           </details>
           <button type="button" class="tool-button tool-button-icon" data-v6-settings-toggle aria-controls="v6-settings-panel" aria-expanded="false" aria-pressed="false" aria-label="Settings">${icon('gear')}<span class="sr-only">Settings</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-screenshot disabled aria-label="Screenshot">${icon('camera')}<span class="sr-only">Screenshot</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-theme disabled aria-label="Theme">${icon('moon')}<span class="sr-only">Theme</span></button>
-          <button type="button" class="tool-button tool-button-icon" data-v6-top-fullscreen disabled aria-label="Fullscreen">${icon('fullscreen')}<span class="sr-only">Fullscreen</span></button>
         </div>
         <div class="top-workflow-hooks" aria-label="Workflow panels">
           <button type="button" data-v6-replay-workflow-toggle aria-controls="v6-replay-workflow-panel" aria-expanded="false" aria-pressed="false">Replay</button>

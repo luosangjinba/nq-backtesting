@@ -30,8 +30,8 @@ assert.match(parityGapDoc, /drawing\/action-history/);
 assert.match(guardrailsDoc, /Undo and redo[\s\S]*drawing runtime/);
 assert.match(leftRailDoc, /all drawing\/tool placeholder buttons are disabled/);
 assert.match(shellSource, /data-v6-left-drawing-tool="cursor" disabled/);
-assert.match(shellSource, /data-v6-top-undo disabled/);
-assert.match(shellSource, /data-v6-top-redo disabled/);
+assert.doesNotMatch(shellSource, /data-v6-top-undo/);
+assert.doesNotMatch(shellSource, /data-v6-top-redo/);
 
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',
