@@ -74,6 +74,14 @@
   data path, restoring Manual Next latency from `205.7ms` to `123.6ms` without
   relaxing the `160ms` gate. Full chart regression passes `28/28`; visual
   revalidation passed; Step 412 is closed.
+- Latest implemented Settings step: Step 413 - Symbol Presentation. Settings
+  schema v5 adds a dedicated Symbol tab for body/border/wick colors and
+  visibility plus Auto/0-6 decimal price precision. One pure mapper and a
+  focused bridge feed native candlestick `applyOptions` through Chart Surface,
+  host manager, and Chart Engine adapter to every pane. Draft isolation,
+  Cancel, tab-scoped Reset, OK, hard reload, and multi-pane propagation pass
+  automated gates. Human visual acceptance remains required before Step 413
+  closes. See `v6/docs/V6_SETTINGS_SYMBOL_PRESENTATION_STEP413.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
