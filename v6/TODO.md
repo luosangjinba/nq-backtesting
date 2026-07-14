@@ -2,6 +2,16 @@
 
 ## Current / Next
 
+- Latest planning step: Step 418 - Workspace Placeholder And FXReplay Shell
+  Audit. The chart workstation inventory separates functional state-disabled
+  Replay controls from ownerless production chrome. Clone-only duplicates are
+  selected for deletion; future Drawing/Order/Evidence-related capabilities
+  lose their fake production entries but retain owner contracts. Earlier rules
+  requiring visible inert placeholders are superseded. Production cleanup has
+  not started; the recommended next bounded change is Batch 1 clone artifacts
+  only. See `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
+  `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
+  `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`.
 - Latest completed Go-to foundation step: Step 406 - Menu, Shortcuts And Custom
   Settings. The five actions and scoped `Y/Z/I/L/N` keys now dispatch through
   the Step 405 coordinator with current visible pane ids. Custom Settings owns

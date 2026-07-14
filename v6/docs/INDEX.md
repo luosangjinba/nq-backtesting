@@ -98,6 +98,13 @@ Read this index before working on V6.
 - `v6/docs/V6_POST_SETTINGS_PRODUCT_GAP_REAUDIT_STEP417.md`: post-Settings gap
   matrix, official chart-capability check, and selection of the prospective
   Trade Plan owner boundary for Step 418.
+- `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`: evidence-backed
+  inventory separating empty FXReplay shells from state-disabled functional
+  Replay controls.
+- `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`: binding
+  delete/remove/keep classification that supersedes visible-placeholder parity.
+- `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`: five reversible
+  production cleanup batches, regression gates, and explicit exclusions.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.
