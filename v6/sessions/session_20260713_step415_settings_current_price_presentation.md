@@ -8,6 +8,8 @@ Date: 2026-07-13
 - upgraded Settings to schema v7 and activated Scales and lines;
 - added Pane-scoped series option application for independent symbols;
 - covered transaction, multi-pane identity, and hard reload.
+- added immediate checkbox preview with committed-state restoration on Cancel
+  and other discard paths; OK remains the persistence boundary.
 
 ## Commits
 

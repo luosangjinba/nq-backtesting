@@ -28,6 +28,7 @@ try {
       }
       const whileDraft = states();
       document.querySelector('[data-v6-settings-close-secondary]').click();
+      const afterCancelPresentation = states();
       document.querySelector('[data-v6-settings-toggle]').click();
       document.querySelector('[data-v6-settings-tab="scales"]').click();
       const afterCancel = root.__v6SettingsPanel.getState().settings;
@@ -38,11 +39,12 @@ try {
       }
       document.querySelector('[data-v6-settings-ok]').click();
       await new Promise((resolve) => setTimeout(resolve, 30));
-      return { after: states(), afterCancel, before, committed: await commands.dispatchCommand(contracts.SETTINGS_COMMANDS.GET_SNAPSHOT), whileDraft };
+      return { after: states(), afterCancel, afterCancelPresentation, before, committed: await commands.dispatchCommand(contracts.SETTINGS_COMMANDS.GET_SNAPSHOT), whileDraft };
     })()))()
   `));
-  assert.deepEqual(value.whileDraft, value.before);
+  assert.equal(value.whileDraft.every((state) => !state.currentPriceLineVisible && !state.currentPriceNameVisible && !state.currentPriceValueVisible), true);
   assert.equal(value.afterCancel.currentPriceLineVisible, true);
+  assert.deepEqual(value.afterCancelPresentation, value.before);
   assert.deepEqual(value.before.map((state) => state.symbol), ['NQ', 'ES', 'YM']);
   assert.equal(value.after.every((state) => !state.currentPriceLineVisible && !state.currentPriceNameVisible && !state.currentPriceValueVisible), true);
   assert.equal(value.committed.currentPriceLineVisible, false);

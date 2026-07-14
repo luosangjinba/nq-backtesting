@@ -1,6 +1,6 @@
 import { SETTINGS_COMMANDS, SETTINGS_EVENTS } from '../contracts/app-contracts.js';
 import { dispatchCommand } from '../runtime/commands.js';
-import { subscribeEvent } from '../runtime/events.js';
+import { emitEvent, subscribeEvent } from '../runtime/events.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
 import { bindWorkflowPanelClose } from './workflow-panel-close.js';
 
@@ -89,6 +89,7 @@ export function mountSettingsPanel(root, {
     if (!normalizedOpen && open) {
       draftSettings = { ...committedSettings };
       applySettingsToFields(panel, draftSettings);
+      emitEvent(SETTINGS_EVENTS.DRAFT_PREVIEWED, { ...committedSettings });
     }
     open = normalizedOpen;
     panel.hidden = !open;
@@ -137,6 +138,7 @@ export function mountSettingsPanel(root, {
       ...Object.fromEntries(activeKeys.map((key) => [key, defaults[key]])),
     };
     applySettingsToFields(panel, draftSettings);
+    emitEvent(SETTINGS_EVENTS.DRAFT_PREVIEWED, { ...draftSettings });
     return getState();
   }
 
@@ -184,6 +186,7 @@ export function mountSettingsPanel(root, {
         ...draftSettings,
         [key]: readFieldValue(field),
       };
+      emitEvent(SETTINGS_EVENTS.DRAFT_PREVIEWED, { ...draftSettings });
     };
     field.addEventListener('change', listener);
     fieldListeners.push([field, listener]);

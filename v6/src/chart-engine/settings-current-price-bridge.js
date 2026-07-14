@@ -37,6 +37,7 @@ export function connectSettingsCurrentPriceBridge({
   const unsubscriptions = [
     subscribeEvent(SETTINGS_EVENTS.UPDATED, applySettings),
     subscribeEvent(SETTINGS_EVENTS.RESET, applySettings),
+    subscribeEvent(SETTINGS_EVENTS.DRAFT_PREVIEWED, applySettings),
     subscribeEvent(PANE_EVENTS.SYMBOL_INTENT_CHANGED, applySymbol),
     subscribeEvent(REPLAY_EVENTS.LOADED, applySymbol),
   ];

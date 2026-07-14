@@ -375,6 +375,7 @@ export const SETTINGS_COMMANDS = Object.freeze({
 });
 
 export const SETTINGS_EVENTS = Object.freeze({
+  DRAFT_PREVIEWED: 'settings:draftPreviewed',
   HYDRATED: 'settings:hydrated',
   PERSISTENCE_FAILED: 'settings:persistenceFailed',
   RESET: 'settings:reset',

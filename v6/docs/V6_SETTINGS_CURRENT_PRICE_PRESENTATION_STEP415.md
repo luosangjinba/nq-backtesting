@@ -24,6 +24,10 @@ combines them with each Pane's symbol and calls a Pane-scoped Chart Surface API;
 only the Chart Engine adapter mutates the series. Multi-pane labels therefore
 retain NQ/ES/YM identity instead of sharing one global title.
 
+Checkbox changes publish a draft-preview event and update every Pane
+immediately. OK remains the only persistence action; Cancel, close, Escape, and
+backdrop restore the committed presentation, while Reset previews tab defaults.
+
 ## Acceptance
 
 Automated gates cover v7 migration, native-option mapping, draft/Cancel/Reset/
