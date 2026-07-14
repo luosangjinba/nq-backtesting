@@ -15,6 +15,7 @@ import {
 import { createChartRangeInputController } from './chart-range-input-controller.js';
 import { createCanvasSettingsChartOptions } from './canvas-settings-options.js';
 import { createSymbolSettingsSeriesOptions } from './symbol-settings-options.js';
+import { createCurrentPriceSeriesOptions } from './current-price-settings-options.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -648,6 +649,13 @@ export function mountWorkstationChartSurface(root, {
         chartSurfaceElement.dataset.v6SymbolSettings = JSON.stringify(symbolSettings.state);
       }
       return { ...symbolSettings.state };
+    },
+    applyPaneCurrentPriceSettings(paneId, settings = {}, symbol = '') {
+      const mapped = createCurrentPriceSeriesOptions(settings, symbol);
+      manager.applyPaneSeriesOptions?.(paneId, mapped.options);
+      const host = hostsByPaneId.get(String(paneId));
+      if (host?.dataset) host.dataset.v6CurrentPriceSettings = JSON.stringify(mapped.state);
+      return { ...mapped.state };
     },
     applyChartDataRecord(record = {}) {
       const recordPaneId = String(record.paneId || '').trim();

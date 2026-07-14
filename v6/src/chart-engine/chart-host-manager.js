@@ -88,6 +88,12 @@ export function createChartHostManager({
     });
   }
 
+  function applyPaneSeriesOptions(paneId, options = {}) {
+    const record = getMountedRecord(paneId);
+    record.adapter.applySeriesOptions?.(options);
+    return getPaneSnapshot(record.paneId);
+  }
+
   function update(paneId, bar) {
     const record = getMountedRecord(paneId);
     record.adapter.update(bar);
@@ -192,6 +198,7 @@ export function createChartHostManager({
 
   return {
     applyOptions,
+    applyPaneSeriesOptions,
     applySeriesOptions,
     clearCrosshairPosition,
     destroyAll,

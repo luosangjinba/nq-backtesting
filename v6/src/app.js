@@ -13,6 +13,7 @@ import { connectPaneActiveSurfaceBridge } from './chart-engine/pane-active-surfa
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
 import { connectSettingsChartSurfaceBridge } from './chart-engine/settings-chart-surface-bridge.js';
 import { connectSettingsSymbolChartSurfaceBridge } from './chart-engine/settings-symbol-chart-surface-bridge.js';
+import { connectSettingsCurrentPriceBridge } from './chart-engine/settings-current-price-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { connectSettingsChartViewportBridge } from './chart-viewport/settings-chart-viewport-bridge.js';
@@ -76,6 +77,11 @@ const settingsChartSurfaceBridge = connectSettingsChartSurfaceBridge({
 });
 const settingsSymbolChartSurfaceBridge = connectSettingsSymbolChartSurfaceBridge({
   chartSurface: workstationChartSurface,
+  subscribeEvent,
+});
+const settingsCurrentPriceBridge = connectSettingsCurrentPriceBridge({
+  chartSurface: workstationChartSurface,
+  root,
   subscribeEvent,
 });
 const settingsChartViewportBridge = connectSettingsChartViewportBridge({
@@ -203,6 +209,7 @@ root.__v6SessionDashboard = sessionDashboard;
 root.__v6SettingsPanel = settingsPanel;
 root.__v6SettingsChartSurfaceBridge = settingsChartSurfaceBridge;
 root.__v6SettingsSymbolChartSurfaceBridge = settingsSymbolChartSurfaceBridge;
+root.__v6SettingsCurrentPriceBridge = settingsCurrentPriceBridge;
 root.__v6SettingsChartViewportBridge = settingsChartViewportBridge;
 root.__v6SettingsDaySeparatorBridge = settingsDaySeparatorBridge;
 root.__v6SettingsStatusReadoutBridge = settingsStatusReadoutBridge;
