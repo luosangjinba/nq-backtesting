@@ -32,9 +32,11 @@ backdrop restore the committed presentation, while Reset previews tab defaults.
 
 Automated gates cover v7 migration, native-option mapping, draft/Cancel/Reset/
 OK, Pane symbol changes, multi-pane application, and hard-reload persistence.
-Human visual acceptance is required before Step 415 closes.
+Human visual acceptance verified independent Name/Value/Line changes,
+immediate preview, Cancel restoration, multi-pane identity, and reload
+persistence. Step 415 is closed.
 
 ## Next
 
-After visual acceptance, implement Step 416 Global Time Presentation:
-timezone, 12/24-hour format, one shared formatter, and controlled time inputs.
+Implement Step 416 Global Time Presentation: timezone, 12/24-hour format, one
+shared formatter, and controlled time inputs.

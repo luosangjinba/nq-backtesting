@@ -19,5 +19,10 @@ Date: 2026-07-13
 
 ## Next
 
-Complete human visual acceptance, then implement Step 416 Global Time
-Presentation.
+Implement Step 416 Global Time Presentation.
+
+## Visual Acceptance
+
+The first pass required checkbox changes to affect the chart immediately.
+Commit `e1e3a45b` added draft preview plus committed-state restoration on all
+discard paths. The final human visual recheck passed; Step 415 is closed.

@@ -98,8 +98,9 @@
   visibility. A focused bridge combines global preferences with each Pane's
   symbol and applies native `title`, `lastValueVisible`, and `priceLineVisible`
   options through Chart Surface. Transaction, multi-pane identity, and reload
-  gates pass. Human visual acceptance remains required before Step 415 closes.
-  See `v6/docs/V6_SETTINGS_CURRENT_PRICE_PRESENTATION_STEP415.md`.
+  gates pass. Checkbox changes now preview immediately while discard paths
+  restore committed values; the final human visual matrix passed. Step 415 is
+  closed. See `v6/docs/V6_SETTINGS_CURRENT_PRICE_PRESENTATION_STEP415.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay
