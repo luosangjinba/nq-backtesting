@@ -23,7 +23,6 @@ const contractDoc = await readFile('v6/docs/V6_ACCOUNT_TRADING_OWNER_CONTRACT.md
 const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
 const selectionDoc = await readFile('v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP140.md', 'utf8');
 const bottomReservationDoc = await readFile('v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md', 'utf8');
-const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 
 assert.equal(getAccountTradingOwner(), 'account-trading-runtime');
 assert.deepEqual(getAccountReadoutAllowedFields(), [
@@ -229,13 +228,6 @@ assert.match(contractDoc, /Step 141 establishes the account\/trading owner contr
 assert.match(contractDoc, /Lightweight Charts/);
 assert.match(docsIndex, /V6_ACCOUNT_TRADING_OWNER_CONTRACT\.md/);
 assert.match(bottomReservationDoc, /Buy, Sell, quantity, and analytics controls are disabled/);
-assert.match(shellSource, /data-v6-bottom-buy disabled/);
-assert.match(shellSource, /data-v6-bottom-sell disabled/);
-assert.match(shellSource, /data-v6-bottom-quantity/);
-assert.match(shellSource, /data-v6-bottom-analytics disabled/);
-assert.match(shellSource, /data-v6-bottom-account-balance>Balance --/);
-assert.match(shellSource, /data-v6-bottom-realized-pnl>Realized --/);
-assert.match(shellSource, /data-v6-bottom-unrealized-pnl>Unrealized --/);
 
 for (const forbiddenToken of [
   'ACCOUNT_TRADING_COMMANDS',

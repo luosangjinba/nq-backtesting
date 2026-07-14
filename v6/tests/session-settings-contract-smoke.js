@@ -11,7 +11,6 @@ import {
 } from '../src/session-settings/session-settings-contract.js';
 import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
-const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const contractSource = await readFile('v6/src/session-settings/session-settings-contract.js', 'utf8');
 const contractDoc = await readFile('v6/docs/V6_SESSION_SETTINGS_OWNER_CONTRACT.md', 'utf8');
 const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
@@ -145,18 +144,6 @@ for (const forbiddenToken of [
   assert.equal(contractSource.includes(forbiddenToken), false, `session settings contract must not expose ${forbiddenToken}`);
 }
 
-const panelSource = shellSource.slice(
-  shellSource.indexOf('data-v6-session-settings-details'),
-  shellSource.indexOf('</details>', shellSource.indexOf('data-v6-session-settings-details')),
-);
-assert.match(panelSource, /disabled data-v6-session-settings-name/);
-assert.match(panelSource, /disabled data-v6-session-settings-profile/);
-assert.match(panelSource, /disabled data-v6-session-settings-balance/);
-assert.match(panelSource, /disabled data-v6-session-settings-asset/);
-assert.match(panelSource, /disabled data-v6-session-settings-spread/);
-assert.match(panelSource, /disabled data-v6-session-settings-commission/);
-assert.match(panelSource, /disabled data-v6-session-settings-start/);
-assert.match(panelSource, /disabled data-v6-session-settings-end/);
 assert.deepEqual(getVisibleRecentSessionRowActions().map((action) => action.id), ['summary', 'analytics', 'copy', 'journal']);
 
 console.log('v6 session settings contract smoke passed');

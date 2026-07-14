@@ -64,12 +64,25 @@ input without asserting that placeholder rails must survive.
 
 ### Step 420 - Establish Placeholder Absence Harness
 
+Status: completed on 2026-07-14.
+
 - add or adapt one focused cleanup harness that can assert removed production
   selectors are absent;
 - keep domain contract tests independent from production-button presence;
 - record the expected removal families without changing production markup.
 
 Commit intent: `test(v6): establish workspace cleanup harness`
+
+Implemented by
+`v6/tests/workspace-placeholder-absence-harness-step420-smoke.js` and its
+step-indexed cleanup manifest. The manifest remains at completed-through Step
+419 until the first production-removal commit. Contract smoke tests for Session
+Settings, Indicators, Drawing/Action History, Screenshot Export, and
+Account/Trading no longer assert that their disabled production selectors
+exist.
+
+Phase 0 is complete. Its two harnesses now separately protect functional
+survival and planned placeholder absence.
 
 ### Phase 0 Gate
 

@@ -12,9 +12,12 @@
   419-435. Step 419 is complete: the functional-survival browser baseline now
   protects Journal, Replay, Settings, timeframe, layout/sync, Go-to, Pane
   actions, transport, chart geometry, and pointer input while distinguishing
-  state-disabled Previous/Restart controls from placeholders. The next bounded
-  step is Step 420 placeholder-absence harness; production markup must still not
-  be removed. See
+  state-disabled Previous/Restart controls from placeholders. Step 420 is also
+  complete: one step-indexed absence manifest now owns planned selector removal,
+  and owner contract tests no longer depend on disabled production buttons.
+  Phase 0 is closed. The next bounded step is Step 421 top clone artifacts;
+  remove only generic top Search and static `NQ-2018`, then advance the manifest
+  through Step 421. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

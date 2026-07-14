@@ -16,7 +16,6 @@ import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-acti
 const contractSource = await readFile('v6/src/drawing-action-history/drawing-action-history-contract.js', 'utf8');
 const contractDoc = await readFile('v6/docs/V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT.md', 'utf8');
 const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
-const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const selectionDoc = await readFile('v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP138.md', 'utf8');
 
 assert.equal(getDrawingActionHistoryOwner(), 'drawing-action-history-runtime');
@@ -130,9 +129,6 @@ assert.match(selectionDoc, /Drawing\/Action-History Owner\s+Contract/);
 assert.match(contractDoc, /# V6 Drawing\/Action-History Owner Contract/);
 assert.match(contractDoc, /Step 139 establishes the drawing\/action-history owner contract/);
 assert.match(docsIndex, /V6_DRAWING_ACTION_HISTORY_OWNER_CONTRACT\.md/);
-assert.match(shellSource, /data-v6-left-drawing-tool="cursor" disabled/);
-assert.match(shellSource, /data-v6-top-undo disabled/);
-assert.match(shellSource, /data-v6-top-redo disabled/);
 
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',

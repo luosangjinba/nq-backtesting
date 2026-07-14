@@ -13,7 +13,6 @@ import {
 import { getVisibleRecentSessionRowActions } from '../src/shell/session-row-action-boundaries.js';
 
 const contractSource = await readFile('v6/src/screenshot-export/screenshot-export-contract.js', 'utf8');
-const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
 const selectionDoc = await readFile('v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP134.md', 'utf8');
 const contractDoc = await readFile('v6/docs/V6_SCREENSHOT_EXPORT_OWNER_CONTRACT.md', 'utf8');
 const docsIndex = await readFile('v6/docs/INDEX.md', 'utf8');
@@ -119,7 +118,6 @@ assert.match(contractDoc, /Step 135 establishes the screenshot\/export owner con
 assert.match(contractDoc, /top-toolbar Screenshot button remains disabled and inert/);
 assert.match(contractDoc, /Dashboard visible\s+row actions remain Summary, Stats, Copy, and Journal/);
 assert.match(docsIndex, /V6_SCREENSHOT_EXPORT_OWNER_CONTRACT\.md/);
-assert.match(shellSource, /data-v6-top-screenshot disabled/);
 
 for (const forbiddenToken of [
   'BAR_DATA_COMMANDS',
