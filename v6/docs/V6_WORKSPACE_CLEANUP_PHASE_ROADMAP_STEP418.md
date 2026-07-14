@@ -325,12 +325,21 @@ reflow and transport-bound recalculation remain deliberately scoped to Step
 
 ### Step 429 - Reflow Chart And Replay Transport
 
+Status: completed on 2026-07-14.
+
 - reclaim bottom workspace height;
 - recalculate floating Replay transport drag bounds and default placement;
 - verify persisted transport positions are clamped into the new viewport;
 - prevent overlap among chart scales, transport, and remaining status surface.
 
 Commit intent: `fix(v6): reflow chart after bottom cleanup`
+
+Collapsed the workstation grid from eight rows to seven, moved the remaining
+status surface to row 7, and changed the default Replay transport offset from
+118px to 58px. The transport position controller now treats the visible status
+bar top minus an 8px clearance as its effective vertical boundary for drag and
+persisted-position restore. Browser coverage verifies the new grid, default
+non-overlap, restored clamp, and supported desktop sizes. Phase 4 is complete.
 
 ### Phase 4 Gate
 

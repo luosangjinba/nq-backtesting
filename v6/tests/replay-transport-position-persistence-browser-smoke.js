@@ -59,6 +59,7 @@ try {
       await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
 
       const afterRect = transport.getBoundingClientRect();
+      const statusRect = document.querySelector('[data-v6-status-bar]').getBoundingClientRect();
       const replayAfterDrag = await commands.dispatchCommand('replay.getState');
       const viewportAfterDrag = await commands.dispatchCommand('chartViewport.getPane', { paneId: 'main' });
       const stored = JSON.parse(localStorage.getItem(storageKey));
@@ -79,6 +80,7 @@ try {
         replayAfterDrag,
         replayBeforeDrag,
         stored,
+        statusTop: statusRect.top,
         transportDragged: transport.dataset.dragged,
         viewportAfterDrag,
         viewportBeforeDrag,
@@ -102,6 +104,7 @@ try {
   assert.equal(initial.afterRect.top >= 0, true);
   assert.equal(initial.afterRect.right <= initial.windowSize.width, true);
   assert.equal(initial.afterRect.bottom <= initial.windowSize.height, true);
+  assert.equal(initial.afterRect.bottom <= initial.statusTop - 8, true);
 
   await reloadAndWait();
   const restored = JSON.parse(await evaluate(page.client, `
@@ -121,8 +124,10 @@ try {
       await waitForReady();
       const transport = document.querySelector('[data-v6-transport]');
       const rect = transport.getBoundingClientRect();
+      const statusRect = document.querySelector('[data-v6-status-bar]').getBoundingClientRect();
       return {
         positionRestored: transport.dataset.positionRestored,
+        statusTop: statusRect.top,
         rect: {
           bottom: rect.bottom,
           left: rect.left,
@@ -142,6 +147,7 @@ try {
   assert.equal(restored.rect.top, initial.afterRect.top);
   assert.equal(restored.rect.right <= restored.windowSize.width, true);
   assert.equal(restored.rect.bottom <= restored.windowSize.height, true);
+  assert.equal(restored.rect.bottom <= restored.statusTop - 8, true);
 
   await evaluate(page.client, `
     localStorage.setItem(${JSON.stringify(STORAGE_KEY)}, JSON.stringify({
@@ -169,6 +175,7 @@ try {
       await waitForReady();
       const transport = document.querySelector('[data-v6-transport]');
       const rect = transport.getBoundingClientRect();
+      const statusRect = document.querySelector('[data-v6-status-bar]').getBoundingClientRect();
       const stored = JSON.parse(localStorage.getItem(${JSON.stringify(STORAGE_KEY)}));
       return {
         rect: {
@@ -178,6 +185,7 @@ try {
           top: rect.top,
         },
         stored,
+        statusTop: statusRect.top,
         windowSize: {
           height: window.innerHeight,
           width: window.innerWidth,
@@ -188,6 +196,7 @@ try {
 
   assert.equal(clamped.rect.right <= clamped.windowSize.width, true);
   assert.equal(clamped.rect.bottom <= clamped.windowSize.height, true);
+  assert.equal(clamped.rect.bottom <= clamped.statusTop - 8, true);
   assert.equal(clamped.rect.left, clamped.stored.left);
   assert.equal(clamped.rect.top, clamped.stored.top);
 } finally {

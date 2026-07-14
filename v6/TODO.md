@@ -40,9 +40,12 @@
   cleanup is complete. Step 428 is complete: bottom Buy, Sell, Qty, Balance,
   Realized, Unrealized, and Analytics placeholders and their dedicated CSS are
   removed while Replay transport, status, session account facts, and owner
-  contracts remain intact. The next bounded step is Step 429: remove the empty
-  grid row, reclaim vertical chart space, and recalculate/clamp Replay transport
-  placement and drag persistence. See
+  contracts remain intact. Step 429 is complete: the empty grid row is removed,
+  chart height is reclaimed, the status surface now owns row 7, and Replay
+  transport default/drag/restored positions are bounded above the visible
+  status bar. Phase 4 is closed. The next bounded step is Step 430: audit the
+  current full-width Replay status semantics and define the compact user-facing
+  presentation contract before changing its wording or density. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

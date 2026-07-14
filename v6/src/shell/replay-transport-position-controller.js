@@ -10,6 +10,8 @@ const EMPTY_POSITION_PREFERENCE = Object.freeze({
   save() {},
 });
 
+const STATUS_BAR_CLEARANCE = 8;
+
 function normalizeFiniteNumber(value, fallback = 0) {
   const numericValue = Number(value);
   return Number.isFinite(numericValue) ? numericValue : fallback;
@@ -26,8 +28,14 @@ export function mountReplayTransportPositionController(root, {
 
   function viewportSize() {
     const view = root.ownerDocument?.defaultView;
+    const viewportHeight = normalizeFiniteNumber(view?.innerHeight);
+    const statusRect = root.ownerDocument?.querySelector?.('[data-v6-status-bar]')?.getBoundingClientRect?.();
+    const statusTop = normalizeFiniteNumber(statusRect?.top, viewportHeight);
+    const availableHeight = statusTop > 0 && statusTop < viewportHeight
+      ? Math.max(0, statusTop - STATUS_BAR_CLEARANCE)
+      : viewportHeight;
     return {
-      height: normalizeFiniteNumber(view?.innerHeight),
+      height: availableHeight,
       width: normalizeFiniteNumber(view?.innerWidth),
     };
   }

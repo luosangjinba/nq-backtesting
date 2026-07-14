@@ -13,7 +13,7 @@ function shellHasSelector(selector) {
   return new RegExp(`${selector}(?=[\\s=>])`).test(shellSource);
 }
 
-assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 428);
+assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 429);
 assert.equal(WORKSPACE_PLACEHOLDER_REMOVALS.length > 0, true);
 assert.equal(new Set(WORKSPACE_PLACEHOLDER_REMOVALS.map((item) => item.selector)).size, WORKSPACE_PLACEHOLDER_REMOVALS.length);
 
@@ -51,8 +51,15 @@ for (const orphanSelector of [
   '.bottom-analytics-button',
   '.bottom-quantity-field',
 ]) {
-  assert.equal(appStyles.includes(orphanSelector), false, `${orphanSelector} must be absent after Step 424`);
+  assert.equal(appStyles.includes(orphanSelector), false, `${orphanSelector} must be absent after the completed cleanup step`);
 }
+
+assert.match(
+  appStyles,
+  /grid-template-rows: auto auto auto auto auto minmax\(420px, 1fr\) auto;/,
+  'workstation shell must use the seven-row post-bottom-cleanup grid',
+);
+assert.match(appStyles, /\.status-bar \{[\s\S]*?grid-row: 7;/);
 
 const contractTests = await Promise.all([
   'v6/tests/account-trading-contract-smoke.js',
