@@ -2,6 +2,12 @@
 
 Date: 2026-07-05
 
+> **Step 418 supersession:** FXReplay remains an interaction reference, but
+> production V6 no longer keeps inert controls visible merely to reserve future
+> parity. `V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md` governs
+> placeholder visibility and cleanup. Functional ownership rules below remain
+> binding.
+
 ## Purpose
 
 These guardrails capture the FXReplay UI kernel V6 should preserve while

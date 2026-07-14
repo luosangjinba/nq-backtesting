@@ -2,6 +2,11 @@
 
 Date: 2026-07-07
 
+> **Superseded for placeholder visibility by Step 418.** Historical evidence
+> and ownership constraints remain useful, but instructions to keep inert
+> placeholder chrome visible are no longer current product direction. See
+> `V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`.
+
 ## Decision
 
 The V6 workstation shell is now aligned enough with the FXReplay UI kernel in
