@@ -71,14 +71,14 @@ V6 uses these scopes and does not create a separate store per tab:
 | --- | --- | --- |
 | `workstation` | User-wide presentation preference | Durable global record |
 | `workspace-chart` | Visual defaults for every current pane | Initial Canvas/Symbol/Status/Scales scope |
-| `pane` | Explicit active-pane override | Deferred until a proven multi-pane need |
+| `pane` | Explicit active-pane override | Rejected by Step 417 for current product |
 | `symbol` | Instrument metadata/default such as tick precision | Data/symbol owner, optional user override later |
 | `session` | Replay-session behavior or schedule | Existing Session or Replay Navigation owner, not copied into global Settings |
 
-`Apply to all` is therefore not part of the first implementation. Initial chart
-presentation commits already target all panes through one workspace-chart
-bridge. A future pane override may add `Apply to all`, but only after an
-inheritance/reset contract is selected.
+`Apply to all` is not part of V6 Settings. Chart-presentation commits already
+target all panes through one workspace-chart bridge. Step 417 rejects a Pane
+override/inheritance layer, so there is no partial scope that needs an Apply-to-
+all repair action.
 
 ### Owner routing
 
@@ -227,6 +227,6 @@ Stop a Settings step if it:
 - stores a replay/session value in the workspace Settings record;
 - lets a chart adapter become the durable owner of viewport intent;
 - stores a fixed UTC offset for a DST-aware timezone;
-- introduces pane overrides before reset/inheritance/Apply-to-all semantics;
-- lets templates capture replay, data, or validation state;
+- introduces Settings templates, Apply to all, or Pane overrides without a new
+  product decision backed by a concrete user journey;
 - bypasses the Step 409 transactional draft or versioned persistence boundary.
