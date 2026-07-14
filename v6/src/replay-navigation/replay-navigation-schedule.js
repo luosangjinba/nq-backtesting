@@ -1,6 +1,7 @@
 import { normalizeUnixMilliseconds } from '../time-domain/time-domain.js';
 import {
   NEW_YORK_TIME_ZONE,
+  resolveNewYorkChartWallClockTimestamp,
   resolveNewYorkWallClockInstants as resolveSharedNewYorkWallClockInstants,
 } from '../time-domain/new-york-wall-clock.js';
 
@@ -102,25 +103,12 @@ export function resolveReplayWallClockTimestamp({
   date,
   time,
 } = {}) {
-  const dateMatch = String(date || '').trim().match(/^(\d{4})-(\d{2})-(\d{2})$/);
   const normalizedTime = normalizeReplayNavigationAnchorTime(time);
-  if (!dateMatch) {
-    throw new Error('Replay navigation local date must use YYYY-MM-DD format.');
+  try {
+    return resolveNewYorkChartWallClockTimestamp({ date, time: normalizedTime });
+  } catch (error) {
+    throw new Error(String(error.message).replace('New York wall-clock', 'Replay navigation local'));
   }
-  const [hour, minute] = normalizedTime.split(':').map(Number);
-  const year = Number(dateMatch[1]);
-  const month = Number(dateMatch[2]);
-  const day = Number(dateMatch[3]);
-  const timestampMs = Date.UTC(year, month - 1, day, hour, minute);
-  const normalized = new Date(timestampMs);
-  if (
-    normalized.getUTCFullYear() !== year
-    || normalized.getUTCMonth() + 1 !== month
-    || normalized.getUTCDate() !== day
-  ) {
-    throw new Error('Replay navigation local date must be valid.');
-  }
-  return timestampMs;
 }
 
 export function createReplayNavigationCandidates({

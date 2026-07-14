@@ -12,16 +12,16 @@ const settings = {
 };
 const lines = createDaySeparatorOverlayLines(bars, settings);
 assert.deepEqual(lines.map(({ logical, style, type }) => ({ logical, style, type })), [
-  { logical: 5, style: 'dotted', type: 'ict' },
-  { logical: 22, style: 'dashed', type: 'trading' },
-  { logical: 28, style: 'dotted', type: 'ict' },
-  { logical: 46, style: 'dashed', type: 'trading' },
+  { logical: 0, style: 'dotted', type: 'ict' },
+  { logical: 18, style: 'dashed', type: 'trading' },
+  { logical: 24, style: 'dotted', type: 'ict' },
+  { logical: 42, style: 'dashed', type: 'trading' },
 ]);
 
 const fourHourBars = Array.from({ length: 12 }, (_, index) => ({ timestamp: start + (index * 14_400) }));
 const fourHourLines = createDaySeparatorOverlayLines(fourHourBars, settings);
-assert.equal(fourHourLines[0].logical, 1.25);
-assert.equal(fourHourLines[1].logical, 5.5);
+assert.equal(fourHourLines[0].logical, 0);
+assert.equal(fourHourLines[1].logical, 4.5);
 
 const weekendGapBars = [
   { timestamp: Date.parse('2026-03-06T20:00:00Z') / 1000 },
@@ -29,7 +29,7 @@ const weekendGapBars = [
   { timestamp: Date.parse('2026-03-09T04:00:00Z') / 1000 },
   { timestamp: Date.parse('2026-03-09T05:00:00Z') / 1000 },
 ];
-assert.equal(createDaySeparatorOverlayLines(weekendGapBars, settings).length, 1);
+assert.equal(createDaySeparatorOverlayLines(weekendGapBars, settings).length, 0);
 assert.deepEqual(createDaySeparatorOverlayLines(bars, {
   ...settings,
   chartDaySeparators: 'off',

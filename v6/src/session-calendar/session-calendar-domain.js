@@ -1,5 +1,5 @@
 import { normalizeUnixSeconds } from '../time-domain/time-domain.js';
-import { resolveNewYorkWallClockInstants } from '../time-domain/new-york-wall-clock.js';
+import { resolveNewYorkChartWallClockTimestamp } from '../time-domain/new-york-wall-clock.js';
 
 const SUPPORTED_FUTURES = Object.freeze(['NQ', 'ES']);
 const SESSION_ROLL_HOUR_UTC = 18;
@@ -160,12 +160,10 @@ export function resolveDaySeparatorInstants({
     const date = dateKeyFromParts(cursor.getUTCFullYear(), cursor.getUTCMonth(), cursor.getUTCDate());
     types.forEach((type) => {
       const time = type === 'trading' ? '18:00' : '00:00';
-      resolveNewYorkWallClockInstants({ date, time }).forEach((timestampMs) => {
-        const timestamp = Math.floor(timestampMs / 1000);
-        if (timestamp >= from && timestamp <= to) {
-          separators.push(Object.freeze({ date, time, timestamp, type }));
-        }
-      });
+      const timestamp = Math.floor(resolveNewYorkChartWallClockTimestamp({ date, time }) / 1000);
+      if (timestamp >= from && timestamp <= to) {
+        separators.push(Object.freeze({ date, time, timestamp, type }));
+      }
     });
     cursor.setUTCDate(cursor.getUTCDate() + 1);
   }

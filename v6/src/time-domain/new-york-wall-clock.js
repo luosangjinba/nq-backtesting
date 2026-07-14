@@ -81,3 +81,19 @@ export function resolveNewYorkWallClockInstants({ date, time } = {}) {
   }
   return [...new Set(matches)].sort((left, right) => left - right);
 }
+
+export function resolveNewYorkChartWallClockTimestamp({ date, time } = {}) {
+  const matches = resolveNewYorkWallClockInstants({ date, time });
+  if (!matches.length) {
+    throw new Error('New York wall-clock value does not exist on this calendar date.');
+  }
+  const dateMatch = String(date).match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  const timeMatch = String(time).match(/^(\d{2}):(\d{2})$/);
+  return Date.UTC(
+    Number(dateMatch[1]),
+    Number(dateMatch[2]) - 1,
+    Number(dateMatch[3]),
+    Number(timeMatch[1]),
+    Number(timeMatch[2]),
+  );
+}

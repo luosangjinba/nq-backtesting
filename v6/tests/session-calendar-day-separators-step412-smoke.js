@@ -8,10 +8,10 @@ const spring = resolveDaySeparatorInstants({
   toTimestamp: seconds('2026-03-09T23:59:59Z'),
 });
 assert.deepEqual(spring.map(({ timestamp, type }) => ({ timestamp, type })), [
-  { timestamp: seconds('2026-03-08T05:00:00Z'), type: 'ict' },
-  { timestamp: seconds('2026-03-08T22:00:00Z'), type: 'trading' },
-  { timestamp: seconds('2026-03-09T04:00:00Z'), type: 'ict' },
-  { timestamp: seconds('2026-03-09T22:00:00Z'), type: 'trading' },
+  { timestamp: seconds('2026-03-08T00:00:00Z'), type: 'ict' },
+  { timestamp: seconds('2026-03-08T18:00:00Z'), type: 'trading' },
+  { timestamp: seconds('2026-03-09T00:00:00Z'), type: 'ict' },
+  { timestamp: seconds('2026-03-09T18:00:00Z'), type: 'trading' },
 ]);
 
 const fall = resolveDaySeparatorInstants({
@@ -20,10 +20,10 @@ const fall = resolveDaySeparatorInstants({
   toTimestamp: seconds('2026-11-02T23:59:59Z'),
 });
 assert.deepEqual(fall.map(({ timestamp, type }) => ({ timestamp, type })), [
-  { timestamp: seconds('2026-11-01T04:00:00Z'), type: 'ict' },
-  { timestamp: seconds('2026-11-01T23:00:00Z'), type: 'trading' },
-  { timestamp: seconds('2026-11-02T05:00:00Z'), type: 'ict' },
-  { timestamp: seconds('2026-11-02T23:00:00Z'), type: 'trading' },
+  { timestamp: seconds('2026-11-01T00:00:00Z'), type: 'ict' },
+  { timestamp: seconds('2026-11-01T18:00:00Z'), type: 'trading' },
+  { timestamp: seconds('2026-11-02T00:00:00Z'), type: 'ict' },
+  { timestamp: seconds('2026-11-02T18:00:00Z'), type: 'trading' },
 ]);
 
 assert.deepEqual(resolveDaySeparatorInstants({
