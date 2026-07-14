@@ -1,6 +1,8 @@
 import {
   REPLAY_NAVIGATION_PREFERENCES_COMMANDS,
   REPLAY_NAVIGATION_PREFERENCES_EVENTS,
+  SETTINGS_COMMANDS,
+  SETTINGS_EVENTS,
 } from '../contracts/app-contracts.js';
 import {
   createReplayNavigationPreferences,
@@ -10,6 +12,7 @@ import {
 } from '../replay-navigation/replay-navigation-schedule.js';
 import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
+import { formatCanonicalTime, parseDisplayedTime } from '../time-domain/time-presentation.js';
 
 const FIELD_LABELS = Object.freeze({
   asianSession: 'Asian Session start',
@@ -71,12 +74,16 @@ export function mountReplayNavigationSettings(root, {
   let draft = { ...current };
   let open = false;
   let saving = false;
+  let timeFormat = '24h';
 
   function renderDraft(nextDraft = draft) {
     draft = { ...nextDraft };
     fields.forEach((field) => {
       const key = field.dataset.v6ReplayNavigationSetting;
-      field.value = String(draft[key] || '');
+      const canonical = String(draft[key] || '');
+      field.value = formatCanonicalTime(canonical, timeFormat);
+      field.dataset.v6CanonicalTime = canonical;
+      field.placeholder = timeFormat === '12h' ? '9:30 AM' : '09:30';
     });
     validateDraft();
   }
@@ -84,7 +91,7 @@ export function mountReplayNavigationSettings(root, {
   function readDraft() {
     return Object.fromEntries(fields.map((field) => [
       field.dataset.v6ReplayNavigationSetting,
-      field.value,
+      parseDisplayedTime(field.value, timeFormat) || field.value,
     ]));
   }
 
@@ -95,7 +102,7 @@ export function mountReplayNavigationSettings(root, {
       const key = field.dataset.v6ReplayNavigationSetting;
       const fieldValid = /^([01]\d|2[0-3]):[0-5]\d$/.test(String(draft[key] || ''));
       field.setAttribute('aria-invalid', String(!fieldValid));
-      field.setCustomValidity(fieldValid ? '' : `${FIELD_LABELS[key]} must use HH:mm.`);
+      field.setCustomValidity(fieldValid ? '' : `${FIELD_LABELS[key]} must use ${timeFormat === '12h' ? 'h:mm AM/PM' : 'HH:mm'}.`);
     });
     errorReadout.textContent = result.error || '';
     saveButton.disabled = saving || !result.valid;
@@ -167,6 +174,14 @@ export function mountReplayNavigationSettings(root, {
     if (!open) renderDraft(current);
   }
 
+  function syncTimePresentation(settings = {}) {
+    const nextFormat = settings.timeFormat === '12h' ? '12h' : '24h';
+    if (timeFormat === nextFormat) return;
+    const nextDraft = validateDraft().valid ? { ...draft } : { ...current };
+    timeFormat = nextFormat;
+    renderDraft(nextDraft);
+  }
+
   function getState() {
     return {
       current: { ...current },
@@ -215,12 +230,20 @@ export function mountReplayNavigationSettings(root, {
     unsubscribeCallbacks.push(
       subscribeEvent(REPLAY_NAVIGATION_PREFERENCES_EVENTS.UPDATED, syncPreferences),
       subscribeEvent(REPLAY_NAVIGATION_PREFERENCES_EVENTS.RESET, syncPreferences),
+      subscribeEvent(SETTINGS_EVENTS.UPDATED, syncTimePresentation),
+      subscribeEvent(SETTINGS_EVENTS.RESET, syncTimePresentation),
+      subscribeEvent(SETTINGS_EVENTS.DRAFT_PREVIEWED, syncTimePresentation),
     );
   }
 
   renderDraft(current);
   Promise.resolve(dispatchCommand(REPLAY_NAVIGATION_PREFERENCES_COMMANDS.GET_SNAPSHOT))
     .then(syncPreferences)
+    .catch((error) => {
+      root.dataset.v6ReplayNavigationSettingsError = error?.message || String(error);
+    });
+  Promise.resolve(dispatchCommand(SETTINGS_COMMANDS.GET_SNAPSHOT))
+    .then(syncTimePresentation)
     .catch((error) => {
       root.dataset.v6ReplayNavigationSettingsError = error?.message || String(error);
     });

@@ -793,19 +793,19 @@ ${renderDisplayTimeframeMenuSections()}
                 <legend>Replay navigation sessions</legend>
                 <label>
                   <span>Next Day Open</span>
-                  <input type="time" required step="60" data-v6-replay-navigation-setting="dayOpen">
+                  <input type="text" inputmode="text" autocomplete="off" required data-v6-replay-navigation-setting="dayOpen">
                 </label>
                 <label>
                   <span>Asian Session start</span>
-                  <input type="time" required step="60" data-v6-replay-navigation-setting="asianSession">
+                  <input type="text" inputmode="text" autocomplete="off" required data-v6-replay-navigation-setting="asianSession">
                 </label>
                 <label>
                   <span>London Session start</span>
-                  <input type="time" required step="60" data-v6-replay-navigation-setting="londonSession">
+                  <input type="text" inputmode="text" autocomplete="off" required data-v6-replay-navigation-setting="londonSession">
                 </label>
                 <label>
                   <span>New York Session start</span>
-                  <input type="time" required step="60" data-v6-replay-navigation-setting="newYorkSession">
+                  <input type="text" inputmode="text" autocomplete="off" required data-v6-replay-navigation-setting="newYorkSession">
                 </label>
               </fieldset>
               <p class="replay-navigation-settings-error" data-v6-replay-navigation-settings-error role="alert" aria-live="assertive"></p>

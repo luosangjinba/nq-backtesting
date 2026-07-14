@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { formatCanonicalTime, formatChartTime, formatHourMinute } from '../src/time-domain/time-presentation.js';
+import { formatCanonicalTime, formatChartTime, formatHourMinute, parseDisplayedTime } from '../src/time-domain/time-presentation.js';
 import { createSettingsRecord, SETTINGS_RECORD_VERSION, updateSettingsRecord } from '../src/settings/settings-model.js';
 
 assert.equal(SETTINGS_RECORD_VERSION, 8);
@@ -11,6 +11,10 @@ assert.equal(formatHourMinute(0, 5, '24h'), '00:05');
 assert.equal(formatHourMinute(0, 5, '12h'), '12:05 AM');
 assert.equal(formatHourMinute(19, 0, '12h'), '7:00 PM');
 assert.equal(formatCanonicalTime('19:00', '12h'), '7:00 PM');
+assert.equal(parseDisplayedTime('7:00 PM', '12h'), '19:00');
+assert.equal(parseDisplayedTime('12:05 AM', '12h'), '00:05');
+assert.equal(parseDisplayedTime('08:45', '12h'), '08:45');
+assert.equal(parseDisplayedTime('7:00 PM', '24h'), null);
 const summerChart = Date.UTC(2026, 6, 13, 0, 0) / 1000;
 assert.equal(formatChartTime(summerChart, { displayTimezone: 'exchange', timeFormat: '24h' }), '00:00');
 assert.equal(formatChartTime(summerChart, { displayTimezone: 'utc', timeFormat: '24h' }), '04:00');

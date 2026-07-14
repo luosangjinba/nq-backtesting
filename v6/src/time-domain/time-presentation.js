@@ -25,6 +25,18 @@ export function formatCanonicalTime(value, timeFormat = '24h') {
   return formatHourMinute(Number(match[1]), Number(match[2]), timeFormat);
 }
 
+export function parseDisplayedTime(value, timeFormat = '24h') {
+  const normalized = String(value || '').trim().toUpperCase();
+  const canonical = normalized.match(/^([01]\d|2[0-3]):([0-5]\d)$/);
+  if (canonical) return `${canonical[1]}:${canonical[2]}`;
+  if (timeFormat !== '12h') return null;
+  const twelveHour = normalized.match(/^(0?[1-9]|1[0-2]):([0-5]\d)\s*(AM|PM)$/);
+  if (!twelveHour) return null;
+  let hour = Number(twelveHour[1]) % 12;
+  if (twelveHour[3] === 'PM') hour += 12;
+  return `${String(hour).padStart(2, '0')}:${twelveHour[2]}`;
+}
+
 export function formatChartTime(timestamp, { displayTimezone = 'exchange', timeFormat = '24h' } = {}) {
   const wall = partsFromChartTimestamp(timestamp);
   if (displayTimezone === 'exchange') return formatHourMinute(wall.hour, wall.minute, timeFormat);

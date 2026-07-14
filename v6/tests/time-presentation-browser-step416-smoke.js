@@ -17,13 +17,23 @@ try {
       field.value = '12h';
       field.dispatchEvent(new Event('change', { bubbles: true }));
       const preview = JSON.parse(surface.dataset.v6TimePresentation);
+      root.__v6ReplayNavigationSettings.setOpen(true, { restoreFocus: false });
+      const gotoTwelveHour = Object.fromEntries([...document.querySelectorAll('[data-v6-replay-navigation-setting]')]
+        .map((input) => [input.dataset.v6ReplayNavigationSetting, input.value]));
+      root.__v6ReplayNavigationSettings.setOpen(false, { restoreFocus: false });
       document.querySelector('[data-v6-settings-close-secondary]').click();
       await new Promise((resolve) => setTimeout(resolve, 0));
-      return { before, preview, restored: JSON.parse(surface.dataset.v6TimePresentation) };
+      return { before, gotoTwelveHour, preview, restored: JSON.parse(surface.dataset.v6TimePresentation) };
     })()))()
   `));
   assert.equal(result.before.timeFormat, '24h');
   assert.equal(result.preview.timeFormat, '12h');
+  assert.deepEqual(result.gotoTwelveHour, {
+    asianSession: '7:00 PM',
+    dayOpen: '6:00 PM',
+    londonSession: '2:00 AM',
+    newYorkSession: '9:30 AM',
+  });
   assert.deepEqual(result.restored, result.before);
 } finally {
   await page.cleanup();
