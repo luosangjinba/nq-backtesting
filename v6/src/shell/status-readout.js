@@ -3,7 +3,10 @@ import {
   CHART_SURFACE_EVENTS,
   DEFAULT_WALL_EVENTS,
   REPLAY_EVENTS,
+  SETTINGS_COMMANDS,
+  SETTINGS_EVENTS,
 } from '../contracts/app-contracts.js';
+import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 import {
   createStatusReadoutState,
@@ -11,6 +14,7 @@ import {
   statusReadoutStateFromCrosshairPayload,
   statusReadoutStateFromDefaultWallPayload,
   statusReadoutStateFromReplayPayload,
+  statusReadoutStateWithTimePresentation,
 } from './status-readout-model.js';
 
 function setText(root, selector, value) {
@@ -57,6 +61,7 @@ function renderStatusReadout(root, state) {
 }
 
 export function mountStatusReadout(root, {
+  dispatchCommand = dispatchRuntimeCommand,
   subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
@@ -96,9 +101,21 @@ export function mountStatusReadout(root, {
     subscribeEvent(REPLAY_EVENTS.PLAYBACK_CHANGED, (payload) => {
       setState(statusReadoutStateFromReplayPayload(payload, state));
     }),
+    subscribeEvent(SETTINGS_EVENTS.UPDATED, (settings) => {
+      setState(statusReadoutStateWithTimePresentation(state, settings));
+    }),
+    subscribeEvent(SETTINGS_EVENTS.RESET, (settings) => {
+      setState(statusReadoutStateWithTimePresentation(state, settings));
+    }),
+    subscribeEvent(SETTINGS_EVENTS.DRAFT_PREVIEWED, (settings) => {
+      setState(statusReadoutStateWithTimePresentation(state, settings));
+    }),
   );
 
   setState(state);
+  Promise.resolve(dispatchCommand(SETTINGS_COMMANDS.GET_SNAPSHOT))
+    .then((settings) => setState(statusReadoutStateWithTimePresentation(state, settings)))
+    .catch(() => {});
 
   return Object.freeze({
     destroy() {

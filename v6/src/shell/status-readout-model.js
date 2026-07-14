@@ -1,19 +1,21 @@
+import { formatChartTime } from '../time-domain/time-presentation.js';
+
 function formatPrice(value) {
   const price = Number(value);
   return Number.isFinite(price) ? price.toFixed(2) : '--';
 }
 
-function formatTime(value) {
+function formatTime(value, timePresentation) {
   if (!value) return 'pending';
   const date = new Date(value);
   if (Number.isNaN(date.valueOf())) return 'pending';
-  return date.toISOString().slice(11, 16);
+  return formatChartTime(date.valueOf() / 1000, timePresentation);
 }
 
-function formatTimestamp(value) {
+function formatTimestamp(value, timePresentation) {
   const timestamp = Number(value);
   if (!Number.isFinite(timestamp)) return 'pending';
-  return formatTime(timestamp * 1000);
+  return formatChartTime(timestamp, timePresentation);
 }
 
 function normalizeReplayState(replayState = {}) {
@@ -67,6 +69,7 @@ export function createStatusReadoutState({
   playback = 'idle',
   previousClose = null,
   replayState = {},
+  timePresentation = {},
 } = {}) {
   const replay = normalizeReplayState(replayState);
   const bar = latestBar ? { ...latestBar } : null;
@@ -77,13 +80,13 @@ export function createStatusReadoutState({
 
   return Object.freeze({
     footer: Object.freeze({
-      cursor: `Cursor ${formatTime(replay.cursorTime)}`,
-      end: `End ${formatTime(replay.endTime)}`,
+      cursor: `Cursor ${formatTime(replay.cursorTime, timePresentation)}`,
+      end: `End ${formatTime(replay.endTime, timePresentation)}`,
       noFuture: totalBars > 0 ? `No future ${remaining} hidden` : 'No future pending',
       playback: `Playback ${playback || replay.status || 'idle'}`,
       revealed: `Revealed ${revealedCount}/${totalBars || '--'}`,
       session: replay.sessionId ? `Session ${replay.sessionId}` : 'Session pending',
-      start: `Start ${formatTime(replay.startTime)}`,
+      start: `Start ${formatTime(replay.startTime, timePresentation)}`,
     }),
     candleDirection: candleDirection(selectedBar),
     barChange: formatBarChange(selectedBar, previousClose),
@@ -100,7 +103,13 @@ export function createStatusReadoutState({
     symbol: replay.symbol,
     timeframe: replay.timeframe,
     title: `${replay.symbol} ${replay.timeframe}`,
-    timestamp: formatTimestamp(bar?.timestamp),
+    timePresentation: Object.freeze({
+      displayTimezone: ['utc', 'local'].includes(timePresentation.displayTimezone)
+        ? timePresentation.displayTimezone
+        : 'exchange',
+      timeFormat: timePresentation.timeFormat === '12h' ? '12h' : '24h',
+    }),
+    timestamp: formatTimestamp(bar?.timestamp, timePresentation),
   });
 }
 
@@ -110,6 +119,7 @@ export function statusReadoutStateFromDefaultWallPayload(payload = {}, previousS
     latestBar: latestBarFromPayload(payload) || previousState.latestBar,
     playback: payload.replayState?.status || previousState.playback,
     replayState: payload.replayState || previousState.replay,
+    timePresentation: previousState.timePresentation,
   });
 }
 
@@ -122,6 +132,7 @@ export function statusReadoutStateFromReplayPayload(payload = {}, previousState 
       ...previousState.replay,
       ...payload,
     },
+    timePresentation: previousState.timePresentation,
   });
 }
 
@@ -131,6 +142,7 @@ export function statusReadoutStateFromChartDataPayload(payload = {}, previousSta
     latestBar: payload.record?.bars?.at?.(-1) || previousState.latestBar,
     playback: previousState.playback,
     replayState: previousState.replay,
+    timePresentation: previousState.timePresentation,
   });
 }
 
@@ -144,5 +156,16 @@ export function statusReadoutStateFromCrosshairPayload(payload = {}, previousSta
     playback: previousState.playback,
     previousClose: payload.previousClose,
     replayState: previousState.replay,
+    timePresentation: previousState.timePresentation,
+  });
+}
+
+export function statusReadoutStateWithTimePresentation(previousState, timePresentation = {}) {
+  return createStatusReadoutState({
+    crosshairBar: previousState.crosshairBar,
+    latestBar: previousState.latestBar,
+    playback: previousState.playback,
+    replayState: previousState.replay,
+    timePresentation,
   });
 }

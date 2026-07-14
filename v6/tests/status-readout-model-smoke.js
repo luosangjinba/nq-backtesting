@@ -5,6 +5,7 @@ import {
   statusReadoutStateFromCrosshairPayload,
   statusReadoutStateFromDefaultWallPayload,
   statusReadoutStateFromReplayPayload,
+  statusReadoutStateWithTimePresentation,
 } from '../src/shell/status-readout-model.js';
 
 const initial = createStatusReadoutState();
@@ -53,6 +54,13 @@ assert.equal(loaded.footer.revealed, 'Revealed 1/4');
 assert.equal(loaded.footer.session, 'Session session-1');
 assert.equal(loaded.footer.start, 'Start 09:30');
 assert.equal(loaded.timestamp, '09:30');
+const twelveHour = statusReadoutStateWithTimePresentation(loaded, {
+  displayTimezone: 'exchange',
+  timeFormat: '12h',
+});
+assert.equal(twelveHour.footer.cursor, 'Cursor 9:30 AM');
+assert.equal(twelveHour.footer.end, 'End 9:33 AM');
+assert.equal(twelveHour.timestamp, '9:30 AM');
 
 const playing = statusReadoutStateFromReplayPayload({
   status: 'playing',
