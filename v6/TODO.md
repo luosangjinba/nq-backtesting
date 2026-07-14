@@ -8,10 +8,13 @@
   selected for deletion; future Drawing/Order/Evidence-related capabilities
   lose their fake production entries but retain owner contracts. Earlier rules
   requiring visible inert placeholders are superseded. Production cleanup has
-  not started; the recommended next bounded change is Batch 1 clone artifacts
-  only. See `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
+  not started. The accepted execution roadmap contains Phase 0-6 and Steps
+  419-435; the next bounded step is Step 419 functional-surface baseline, before
+  any production markup is removed. See
+  `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
-  `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`.
+  `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
+  `v6/docs/V6_WORKSPACE_CLEANUP_PHASE_ROADMAP_STEP418.md`.
 - Latest completed Go-to foundation step: Step 406 - Menu, Shortcuts And Custom
   Settings. The five actions and scoped `Y/Z/I/L/N` keys now dispatch through
   the Step 405 coordinator with current visible pane ids. Custom Settings owns

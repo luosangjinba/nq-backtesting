@@ -8,6 +8,10 @@ Execute the accepted placeholder cleanup without mixing product architecture,
 runtime changes, or unrelated visual redesign. Every production batch is a
 separate commit and can be reverted independently.
 
+The phase-level execution order, numbered Steps 419-435, commit boundaries,
+and phase regression gates are defined in
+`V6_WORKSPACE_CLEANUP_PHASE_ROADMAP_STEP418.md`.
+
 ## Batch 1 - Clone Artifacts And Duplicate Entries
 
 Remove:
