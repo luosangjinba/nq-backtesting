@@ -44,6 +44,8 @@ testable without relying only on screenshots.
 
 ### Step 419 - Freeze Functional-Surface Baseline
 
+Status: completed on 2026-07-14.
+
 - record selectors and user flows that must survive all cleanup phases;
 - cover top Journal, Replay panel, Settings, timeframe, layouts/sync, Go-to,
   pane actions, Reset View, Replay transport, and chart pointer input;
@@ -52,6 +54,13 @@ testable without relying only on screenshots.
   regressions.
 
 Commit intent: `test(v6): freeze workspace cleanup baseline`
+
+Implemented by
+`v6/tests/workspace-cleanup-functional-baseline-step419-browser-smoke.js`.
+The browser baseline protects functional workflow panels and controls,
+single/two-Pane chart geometry, Pane maximize/restore and Reset, layout sync,
+Replay transport, state-disabled Previous/Restart semantics, and chart pointer
+input without asserting that placeholder rails must survive.
 
 ### Step 420 - Establish Placeholder Absence Harness
 
@@ -368,4 +377,3 @@ code.
 Start with Step 419 only. Do not begin deleting markup until Phase 0 proves the
 functional-survival and placeholder-absence harnesses can distinguish real
 controls from empty shells.
-

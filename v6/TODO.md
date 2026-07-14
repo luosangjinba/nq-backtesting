@@ -9,8 +9,12 @@
   lose their fake production entries but retain owner contracts. Earlier rules
   requiring visible inert placeholders are superseded. Production cleanup has
   not started. The accepted execution roadmap contains Phase 0-6 and Steps
-  419-435; the next bounded step is Step 419 functional-surface baseline, before
-  any production markup is removed. See
+  419-435. Step 419 is complete: the functional-survival browser baseline now
+  protects Journal, Replay, Settings, timeframe, layout/sync, Go-to, Pane
+  actions, transport, chart geometry, and pointer input while distinguishing
+  state-disabled Previous/Restart controls from placeholders. The next bounded
+  step is Step 420 placeholder-absence harness; production markup must still not
+  be removed. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
