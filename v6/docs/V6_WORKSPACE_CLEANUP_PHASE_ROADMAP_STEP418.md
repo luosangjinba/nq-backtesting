@@ -161,6 +161,8 @@ future capability boundary.
 
 ### Step 423 - Remove Session Settings Production Entry
 
+Status: completed on 2026-07-14.
+
 - remove the right-rail Session Settings trigger;
 - remove panel markup, disabled fields, Template, and Apply controls;
 - preserve the `session-settings` owner contract and pure contract tests;
@@ -168,6 +170,12 @@ future capability boundary.
   assertions.
 
 Commit intent: `refactor(v6): remove session settings placeholder`
+
+Removed the right-rail trigger and the complete disabled panel family,
+including its fields, Template, and Apply controls. Cleanup tests now require
+the production selectors to be absent, while the independent
+`session-settings` owner contract remains covered. Dedicated panel styling and
+reservation-only test consolidation remain intentionally scoped to Step 424.
 
 ### Step 424 - Consolidate Session Settings Styling And Tests
 

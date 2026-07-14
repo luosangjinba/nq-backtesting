@@ -19,7 +19,7 @@ assert.match(selectionDoc, /keep Chart Settings and Session settings distinct su
 assert.match(bottomAuditDoc, /left rail and lower workstation chrome are both reserved and regression-audited/);
 assert.match(guardrailsDoc, /Chart settings and Session settings must remain distinct surfaces/);
 assert.match(parityGapDoc, /Session settings panel reservation/);
-assert.equal(shellSource.includes('data-v6-rail-session-settings'), true);
+assert.equal(shellSource.includes('data-v6-rail-session-settings'), false);
 
 for (const forbiddenToken of [
   'ORDERS_COMMANDS',

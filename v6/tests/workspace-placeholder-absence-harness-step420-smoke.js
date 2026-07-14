@@ -12,7 +12,7 @@ function shellHasSelector(selector) {
   return new RegExp(`${selector}(?=[\\s=>])`).test(shellSource);
 }
 
-assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 422);
+assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 423);
 assert.equal(WORKSPACE_PLACEHOLDER_REMOVALS.length > 0, true);
 assert.equal(new Set(WORKSPACE_PLACEHOLDER_REMOVALS.map((item) => item.selector)).size, WORKSPACE_PLACEHOLDER_REMOVALS.length);
 

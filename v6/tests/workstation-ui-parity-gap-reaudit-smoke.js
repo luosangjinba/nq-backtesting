@@ -34,8 +34,6 @@ for (const requiredSelector of [
   'data-v6-settings-panel',
   'data-v6-left-drawing-rail',
   'data-v6-right-utility-rail',
-  'data-v6-rail-session-settings',
-  'data-v6-session-settings-panel',
   'data-v6-bottom-account-chrome',
   'data-v6-transport',
   'data-v6-status-readout',

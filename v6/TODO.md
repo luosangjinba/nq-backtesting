@@ -21,8 +21,11 @@
   Step 422 is complete: the duplicate disabled right-rail Journal and undefined
   Watch/spark entries and their unused icons are removed; the functional top
   Journal and Go-to remain green. Phase 1 implementation and automated gates
-  are complete. The next bounded step is Step 423: remove only the Session
-  Settings production trigger/panel while preserving its owner contract. See
+  are complete. Step 423 is complete: the Session Settings production trigger,
+  panel, disabled fields, Template, and Apply controls are removed while the
+  independent `session-settings` owner contract remains green. The next bounded
+  step is Step 424: remove only the orphan panel styling and consolidate tests
+  whose former purpose was reserving that placeholder. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

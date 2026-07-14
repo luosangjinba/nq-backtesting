@@ -55,11 +55,6 @@ try {
           text: button.textContent.trim(),
         };
       });
-      const sessionSettingsDetails = document.querySelector('[data-v6-session-settings-details]');
-      const sessionSettingsSummary = document.querySelector('[data-v6-rail-session-settings]');
-      sessionSettingsSummary.click();
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      const sessionSettingsPanel = document.querySelector('[data-v6-session-settings-panel]');
       return {
         afterChart,
         afterHost,
@@ -74,12 +69,8 @@ try {
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
         menuRect,
         rail,
-        sessionSettingsDisabledControls: [...sessionSettingsPanel.querySelectorAll('input, select, button')]
-          .map((control) => control.disabled),
-        sessionSettingsLabels: [...sessionSettingsPanel.querySelectorAll('legend')]
-          .map((legend) => legend.textContent.trim()),
-        sessionSettingsOpen: sessionSettingsDetails.open,
-        sessionSettingsPanelRect: rectOf('[data-v6-session-settings-panel]'),
+        sessionSettingsExists: Boolean(document.querySelector('[data-v6-session-settings-panel]')),
+        sessionSettingsTriggerExists: Boolean(document.querySelector('[data-v6-rail-session-settings]')),
         chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
         viewportWidth: window.innerWidth,
       };
@@ -111,15 +102,8 @@ try {
     'Order',
     'News and calendar events',
   ]);
-  assert.equal(value.sessionSettingsOpen, true);
-  assert.deepEqual(value.sessionSettingsLabels, [
-    'Session Info',
-    'Balance & Assets',
-    'Spreads & Commissions',
-    'Date Range',
-  ]);
-  assert.deepEqual(value.sessionSettingsDisabledControls, [true, true, true, true, true, true, true, true, true, true]);
-  assert.equal(value.sessionSettingsPanelRect.right <= value.rail.left + 1, true);
+  assert.equal(value.sessionSettingsExists, false);
+  assert.equal(value.sessionSettingsTriggerExists, false);
   assert.deepEqual(value.beforeChart, value.afterChart);
   assert.deepEqual(value.beforeHost, value.afterHost);
 } finally {
