@@ -17,10 +17,19 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   chartTradingDaySeparatorStyle: 'dashed',
   displayTimezone: 'exchange',
   showWatermark: true,
+  symbolBordersVisible: false,
+  symbolDownBodyColor: '#f25f68',
+  symbolDownBorderColor: '#f25f68',
+  symbolDownWickColor: '#c94c58',
+  symbolPricePrecision: 'auto',
+  symbolUpBodyColor: '#36b7a8',
+  symbolUpBorderColor: '#36b7a8',
+  symbolUpWickColor: '#2a958b',
+  symbolWicksVisible: true,
   theme: 'dark',
 });
 
-export const SETTINGS_RECORD_VERSION = 4;
+export const SETTINGS_RECORD_VERSION = 5;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
@@ -28,6 +37,7 @@ const TIMEZONES = Object.freeze(['exchange', 'local', 'utc']);
 const NAVIGATION_VISIBILITY = Object.freeze(['hover', 'always', 'hidden']);
 const DAY_SEPARATORS = Object.freeze(['off', 'trading', 'ict', 'both']);
 const LINE_STYLES = Object.freeze(['solid', 'dashed', 'dotted']);
+const PRICE_PRECISIONS = Object.freeze(['auto', '0', '1', '2', '3', '4', '5', '6']);
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function normalizeBoolean(value, fallback) {
@@ -154,6 +164,50 @@ export function createSettingsRecord(input = {}) {
       'displayTimezone',
     ),
     showWatermark: normalizeBoolean(input.showWatermark, DEFAULT_SETTINGS_INPUT.showWatermark),
+    symbolBordersVisible: normalizeBoolean(
+      input.symbolBordersVisible,
+      DEFAULT_SETTINGS_INPUT.symbolBordersVisible,
+    ),
+    symbolDownBodyColor: normalizeColor(
+      input.symbolDownBodyColor,
+      DEFAULT_SETTINGS_INPUT.symbolDownBodyColor,
+      'symbolDownBodyColor',
+    ),
+    symbolDownBorderColor: normalizeColor(
+      input.symbolDownBorderColor,
+      DEFAULT_SETTINGS_INPUT.symbolDownBorderColor,
+      'symbolDownBorderColor',
+    ),
+    symbolDownWickColor: normalizeColor(
+      input.symbolDownWickColor,
+      DEFAULT_SETTINGS_INPUT.symbolDownWickColor,
+      'symbolDownWickColor',
+    ),
+    symbolPricePrecision: normalizeChoice(
+      input.symbolPricePrecision,
+      PRICE_PRECISIONS,
+      DEFAULT_SETTINGS_INPUT.symbolPricePrecision,
+      'symbolPricePrecision',
+    ),
+    symbolUpBodyColor: normalizeColor(
+      input.symbolUpBodyColor,
+      DEFAULT_SETTINGS_INPUT.symbolUpBodyColor,
+      'symbolUpBodyColor',
+    ),
+    symbolUpBorderColor: normalizeColor(
+      input.symbolUpBorderColor,
+      DEFAULT_SETTINGS_INPUT.symbolUpBorderColor,
+      'symbolUpBorderColor',
+    ),
+    symbolUpWickColor: normalizeColor(
+      input.symbolUpWickColor,
+      DEFAULT_SETTINGS_INPUT.symbolUpWickColor,
+      'symbolUpWickColor',
+    ),
+    symbolWicksVisible: normalizeBoolean(
+      input.symbolWicksVisible,
+      DEFAULT_SETTINGS_INPUT.symbolWicksVisible,
+    ),
     theme: normalizeChoice(input.theme, THEMES, DEFAULT_SETTINGS_INPUT.theme, 'theme'),
   });
 }
@@ -192,7 +246,7 @@ export function restoreSettingsPersistenceValue(value) {
       settings: createSettingsRecord(value),
     });
   }
-  if (![1, 2, 3, SETTINGS_RECORD_VERSION].includes(value.version)) {
+  if (![1, 2, 3, 4, SETTINGS_RECORD_VERSION].includes(value.version)) {
     throw new Error(`Unsupported Settings record version: ${value.version}`);
   }
   return Object.freeze({

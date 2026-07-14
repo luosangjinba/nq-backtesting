@@ -35,6 +35,8 @@ export function mountSettingsPanel(root, {
   const cancelButton = root.querySelector('[data-v6-settings-close-secondary]');
   const okButton = root.querySelector('[data-v6-settings-ok]');
   const resetButton = root.querySelector('[data-v6-settings-reset-draft]');
+  const tabButtons = [...root.querySelectorAll('[data-v6-settings-tab]')];
+  const tabPanels = [...root.querySelectorAll('[data-v6-settings-tab-panel]')];
   if (!toggle || !panel) {
     throw new Error('Settings panel controls are required.');
   }
@@ -44,6 +46,24 @@ export function mountSettingsPanel(root, {
   let committedSettings = {};
   let draftSettings = {};
   let open = false;
+  let activeTab = 'canvas';
+
+  function setActiveTab(tabId) {
+    const normalized = String(tabId || '').trim();
+    if (!tabPanels.some((panelElement) => panelElement.dataset.v6SettingsTabPanel === normalized)) {
+      return activeTab;
+    }
+    activeTab = normalized;
+    tabButtons.forEach((button) => {
+      const selected = button.dataset.v6SettingsTab === activeTab;
+      button.classList.toggle('is-active', selected);
+      button.setAttribute('aria-selected', String(selected));
+    });
+    tabPanels.forEach((panelElement) => {
+      panelElement.hidden = panelElement.dataset.v6SettingsTabPanel !== activeTab;
+    });
+    return activeTab;
+  }
 
   function readDraftFromFields() {
     return Object.fromEntries([...panel.querySelectorAll('[data-v6-settings-field]')]
@@ -85,6 +105,7 @@ export function mountSettingsPanel(root, {
       open,
       committedSettings: { ...committedSettings },
       settings: { ...draftSettings },
+      activeTab,
     };
   }
 
@@ -106,7 +127,15 @@ export function mountSettingsPanel(root, {
 
   async function resetDraft() {
     const defaults = await dispatchCommand(SETTINGS_COMMANDS.GET_DEFAULTS);
-    draftSettings = { ...defaults };
+    const activePanel = tabPanels.find(
+      (panelElement) => panelElement.dataset.v6SettingsTabPanel === activeTab,
+    );
+    const activeKeys = [...(activePanel?.querySelectorAll('[data-v6-settings-field]') || [])]
+      .map((field) => field.dataset.v6SettingsField);
+    draftSettings = {
+      ...draftSettings,
+      ...Object.fromEntries(activeKeys.map((key) => [key, defaults[key]])),
+    };
     applySettingsToFields(panel, draftSettings);
     return getState();
   }
@@ -142,6 +171,11 @@ export function mountSettingsPanel(root, {
   };
   panel.addEventListener('click', backdropListener);
   closeUnsubscriptions.push(() => panel.removeEventListener('click', backdropListener));
+  tabButtons.forEach((button) => {
+    const listener = () => setActiveTab(button.dataset.v6SettingsTab);
+    button.addEventListener('click', listener);
+    closeUnsubscriptions.push(() => button.removeEventListener('click', listener));
+  });
 
   panel.querySelectorAll('[data-v6-settings-field]').forEach((field) => {
     const listener = () => {
@@ -156,6 +190,7 @@ export function mountSettingsPanel(root, {
   });
 
   refreshCommittedSettings();
+  setActiveTab(activeTab);
   unsubscriptions.push(
     subscribeEvent(SETTINGS_EVENTS.UPDATED, (settings) => setCommittedSettings(settings)),
     subscribeEvent(SETTINGS_EVENTS.RESET, (settings) => setCommittedSettings(settings)),

@@ -7,7 +7,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 4);
+assert.equal(SETTINGS_RECORD_VERSION, 5);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   chartDaySeparators: 'both',
   chartIctDaySeparatorColor: '#123456',
@@ -27,7 +27,7 @@ assert.throws(
   /chartIctDaySeparatorStyle/,
 );
 
-for (const version of [1, 2, 3]) {
+for (const version of [1, 2, 3, 4]) {
   const restored = restoreSettingsPersistenceValue({
     version,
     settings: { chartGrid: false },

@@ -336,9 +336,11 @@ ${renderDisplayTimeframeMenuSections()}
           </header>
           <div class="settings-modal-body">
             <nav class="settings-tab-rail" aria-label="Settings sections">
-              <button type="button" class="is-active" disabled>${icon('camera')}<span>Canvas</span></button>
+              <button type="button" class="is-active" data-v6-settings-tab="canvas" aria-selected="true">${icon('camera')}<span>Canvas</span></button>
+              <button type="button" data-v6-settings-tab="symbol" aria-selected="false">${icon('indicators')}<span>Symbol</span></button>
             </nav>
             <div class="settings-modal-content">
+              <div data-v6-settings-tab-panel="canvas">
               <section class="settings-field-group" aria-label="Canvas">
                 <div class="settings-group-heading">Chart basic styles</div>
                 <label class="settings-control-row">
@@ -427,6 +429,48 @@ ${renderDisplayTimeframeMenuSections()}
                 </label>
                 <p class="settings-scope-note">Changes apply to every chart pane only after Ok.</p>
               </section>
+              </div>
+              <div data-v6-settings-tab-panel="symbol" hidden>
+                <section class="settings-field-group" aria-label="Candles">
+                  <div class="settings-group-heading">Candles</div>
+                  <label class="settings-control-row">
+                    <span>Body</span>
+                    <span class="settings-inline-controls">
+                      <input type="color" data-v6-settings-field="symbolUpBodyColor" value="#36b7a8" aria-label="Up candle body color">
+                      <input type="color" data-v6-settings-field="symbolDownBodyColor" value="#f25f68" aria-label="Down candle body color">
+                    </span>
+                  </label>
+                  <label class="settings-check-row">
+                    <input type="checkbox" data-v6-settings-field="symbolBordersVisible">
+                    <span>Borders</span>
+                    <input type="color" data-v6-settings-field="symbolUpBorderColor" value="#36b7a8" aria-label="Up candle border color">
+                    <input type="color" data-v6-settings-field="symbolDownBorderColor" value="#f25f68" aria-label="Down candle border color">
+                  </label>
+                  <label class="settings-check-row">
+                    <input type="checkbox" data-v6-settings-field="symbolWicksVisible" checked>
+                    <span>Wicks</span>
+                    <input type="color" data-v6-settings-field="symbolUpWickColor" value="#2a958b" aria-label="Up candle wick color">
+                    <input type="color" data-v6-settings-field="symbolDownWickColor" value="#c94c58" aria-label="Down candle wick color">
+                  </label>
+                </section>
+                <section class="settings-field-group" aria-label="Price format">
+                  <div class="settings-group-heading">Data modification</div>
+                  <label class="settings-control-row">
+                    <span>Precision</span>
+                    <select data-v6-settings-field="symbolPricePrecision" aria-label="Price precision">
+                      <option value="auto">Auto</option>
+                      <option value="0">0 decimals</option>
+                      <option value="1">1 decimal</option>
+                      <option value="2">2 decimals</option>
+                      <option value="3">3 decimals</option>
+                      <option value="4">4 decimals</option>
+                      <option value="5">5 decimals</option>
+                      <option value="6">6 decimals</option>
+                    </select>
+                  </label>
+                  <p class="settings-scope-note">Auto uses the current series default until symbol tick metadata is available.</p>
+                </section>
+              </div>
             </div>
           </div>
           <footer class="settings-modal-footer">
