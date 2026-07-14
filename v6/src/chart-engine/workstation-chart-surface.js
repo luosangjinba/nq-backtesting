@@ -44,6 +44,7 @@ const DEFAULT_CHART_OPTIONS = Object.freeze({
 const DEFAULT_SERIES_OPTIONS = Object.freeze({
   borderVisible: false,
   downColor: '#f25f68',
+  priceFormat: { minMove: 0.01, precision: 2, type: 'price' },
   upColor: '#36b7a8',
   wickDownColor: '#c94c58',
   wickUpColor: '#2a958b',

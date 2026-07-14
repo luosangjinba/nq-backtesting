@@ -9,6 +9,7 @@ const settings = {
   symbolDownBodyColor: '#111111',
   symbolDownBorderColor: '#222222',
   symbolDownWickColor: '#333333',
+  symbolPricePrecision: '3',
   symbolUpBodyColor: '#aaaaaa',
   symbolUpBorderColor: '#bbbbbb',
   symbolUpWickColor: '#cccccc',

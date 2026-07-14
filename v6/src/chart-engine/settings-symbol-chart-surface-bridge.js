@@ -15,6 +15,7 @@ export function connectSettingsSymbolChartSurfaceBridge({
     symbolDownBodyColor: settings.symbolDownBodyColor,
     symbolDownBorderColor: settings.symbolDownBorderColor,
     symbolDownWickColor: settings.symbolDownWickColor,
+    symbolPricePrecision: settings.symbolPricePrecision,
     symbolUpBodyColor: settings.symbolUpBodyColor,
     symbolUpBorderColor: settings.symbolUpBorderColor,
     symbolUpWickColor: settings.symbolUpWickColor,
