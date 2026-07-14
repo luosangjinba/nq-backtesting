@@ -67,6 +67,13 @@
   suppression, persistence, and browser rendering pass automated gates. Human
   visual acceptance is required before Step 412 closes. See
   `v6/docs/V6_SETTINGS_SESSION_DAY_SEPARATORS_STEP412.md`.
+  First visual acceptance found `00:00` rendered at `04:00`: the implementation
+  mixed an absolute EDT instant with V6's naive New York wall-clock chart axis.
+  The corrected mapping now pins both EDT and EST fixtures to chart `00:00`/
+  `18:00`; the absolute DST solver was also removed from the synchronous chart-
+  data path, restoring Manual Next latency from `205.7ms` to `123.6ms` without
+  relaxing the `160ms` gate. Full chart regression passes `28/28`; visual
+  revalidation remains open.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

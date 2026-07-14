@@ -21,6 +21,8 @@ Date: 2026-07-13
 - `afa78206 feat(v6): resolve DST-aware day separators`
 - `572d6b5c feat(v6): render session day separator overlays`
 - final Step 412 browser/governance commit
+- `1eeca731 fix(v6): align separators to chart wall clock`
+- `26455014 perf(v6): keep separator wall-clock mapping off DST solver`
 
 ## Verification
 
@@ -39,5 +41,16 @@ Date: 2026-07-13
 
 ## Next
 
-Run the Step 412 visual matrix. After it passes, close Step 412 and implement
-Step 413 Symbol Presentation.
+Revalidate `00:00` and `18:00` placement after the wall-clock coordinate fix,
+including one EDT and one EST date plus `4h`. After the complete visual matrix
+passes, close Step 412 and implement Step 413 Symbol Presentation.
+
+## Visual Correction
+
+The first visual pass showed the ICT line at `04:00` instead of `00:00`.
+V6 market bars carry New York wall-clock fields in naive UTC epoch values, but
+the separator initially sent the absolute EDT instant (`04:00Z`) into that
+axis. The correction separates New York calendar semantics from chart-axis
+encoding. It also removes the absolute DST solver from the synchronous Chart
+Data path; the unchanged Manual Next `160ms` gate now passes at `123.6ms`, and
+the complete chart pack passes `28/28`.
