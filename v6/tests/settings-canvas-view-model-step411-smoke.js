@@ -7,7 +7,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 7);
+assert.equal(SETTINGS_RECORD_VERSION, 8);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   chartBottomMarginPercent: 12,
   chartNavigationVisibility: 'always',

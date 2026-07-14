@@ -512,6 +512,11 @@ ${renderDisplayTimeframeMenuSections()}
                   <label class="settings-check-row"><input type="checkbox" data-v6-settings-field="currentPriceLineVisible" checked><span>Price line</span></label>
                   <p class="settings-scope-note">Applies to the current-price label and line on every pane.</p>
                 </section>
+                <section class="settings-field-group" aria-label="Time presentation">
+                  <div class="settings-group-heading">Time presentation</div>
+                  <label class="settings-control-row"><span>Timezone</span><select data-v6-settings-field="displayTimezone" aria-label="Display timezone"><option value="exchange">Exchange · New York</option><option value="utc">UTC</option><option value="local">Local</option></select></label>
+                  <label class="settings-control-row"><span>Hours format</span><select data-v6-settings-field="timeFormat" aria-label="Time hours format"><option value="24h">24-hour</option><option value="12h">12-hour</option></select></label>
+                </section>
               </div>
             </div>
           </div>

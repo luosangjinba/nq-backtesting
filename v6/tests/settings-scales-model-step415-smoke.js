@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { createSettingsRecord, restoreSettingsPersistenceValue, SETTINGS_RECORD_VERSION, updateSettingsRecord } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 7);
+assert.equal(SETTINGS_RECORD_VERSION, 8);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   currentPriceLineVisible: false,
   currentPriceNameVisible: false,
