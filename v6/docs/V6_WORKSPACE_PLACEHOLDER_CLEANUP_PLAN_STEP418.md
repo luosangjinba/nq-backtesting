@@ -78,7 +78,35 @@ Gate:
 - chart height and resize behavior update correctly;
 - account/trading domain contracts remain owner-only and inactive.
 
-## Batch 5 - Consolidation And Visual Acceptance
+## Batch 5 - Replay Status Presentation
+
+Replace the full-width engineering status row with a compact user-facing Replay
+status while preserving the underlying runtime state and diagnostic access.
+
+Candidate production information:
+
+- a human-readable session label only when it helps orientation;
+- current replay time or bounded session progress when it is not already clear
+  from the chart/transport;
+- a concise no-future/blind-replay assurance when that mode is active;
+- exceptional loading, exhausted-history, or error state when user action may
+  be required.
+
+Do not permanently display internal session IDs, raw revealed/total counts,
+hidden-bar counts, or duplicate Play/Pause wording. Exact wording and placement
+must be visually reviewed before acceptance.
+
+Gate:
+
+- Replay cursor, reveal, no-future, and playback semantics are unchanged;
+- browser tests can still inspect authoritative state without depending on
+  engineering badges being visible;
+- the user can distinguish ready, loading, paused/playing where necessary, and
+  no-future protection without reading implementation counters;
+- the reclaimed vertical space improves the chart workspace and does not
+  collide with the floating transport.
+
+## Batch 6 - Consolidation And Visual Acceptance
 
 - remove orphan CSS and obsolete placeholder-only tests;
 - update app-shell, product-baseline, multi-pane, and supported-resolution

@@ -57,8 +57,24 @@ Keep currently functional chart-workstation surfaces:
 - Settings, top Replay, and top Journal;
 - Pane readouts, maximize, Reset View, and chart interactions;
 - Go-to and its Custom Settings;
-- complete Replay transport, including state-disabled controls;
-- replay footer.
+- complete Replay transport, including state-disabled controls.
+
+### Class D - Preserve state, simplify production presentation
+
+The Replay status footer carries real state and is not eligible for placeholder
+deletion. Replace its engineering-oriented full-row presentation with a compact
+user-facing session/replay status.
+
+- do not expose the internal session id by default;
+- do not make raw revealed/hidden counters permanent chart chrome;
+- avoid duplicating Play/Pause state already visible in the transport;
+- retain no-future protection as a clear user concept when it provides useful
+  assurance;
+- keep detailed cursor, coverage, and hidden-bar diagnostics available to tests
+  and development diagnostics without requiring visible production badges.
+
+Exact copy and placement require a bounded UI decision during the execution
+batch; this cleanup decision does not authorize changes to Replay semantics.
 
 ## CSS And Test Policy
 
@@ -77,7 +93,8 @@ Keep currently functional chart-workstation surfaces:
 2. Session Settings placeholder family.
 3. Class B top and side reserved tools.
 4. Bottom account/trading chrome.
-5. CSS/static/browser test consolidation and visual acceptance.
+5. Replay footer presentation simplification.
+6. CSS/static/browser test consolidation and visual acceptance.
 
 Each batch must be independently committed and leave Replay, Go-to, layouts,
 Settings, Journal, and chart regressions green.

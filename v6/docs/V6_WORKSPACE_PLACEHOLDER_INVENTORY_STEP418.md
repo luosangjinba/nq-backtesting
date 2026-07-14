@@ -26,7 +26,29 @@ These are not cleanup targets:
 - Pane status/OHLC, maximize, Reset View, and chart interactions;
 - Go-to actions and Go-to Custom Settings;
 - Replay transport, including state-dependent Restart/Previous;
-- replay status footer.
+- replay status footer state (the current presentation is audited separately
+  below).
+
+## Functional But User-Unfriendly Surface
+
+The Replay status footer is not an empty shell: it exposes real session,
+cursor, reveal, playback, and no-future state. It must therefore not be deleted
+as placeholder markup.
+
+Its current production wording is nevertheless engineering-facing and consumes
+a full persistent row:
+
+- `Session v6-session-...` exposes an internal identifier;
+- `Start`, `Cursor`, and `End` repeat information that is more naturally
+  expressed by the replay controls or a compact session summary;
+- `Revealed x/y` and `No future n hidden` expose implementation counters rather
+  than user intent;
+- `Playback paused/ready` duplicates transport state.
+
+Step 418 should preserve the underlying diagnostic state while replacing the
+default production presentation with a compact user-facing status. Detailed
+counters may remain available through a development/diagnostic surface rather
+than occupying the main chart workspace.
 
 ## Empty-Shell Inventory
 
@@ -85,6 +107,8 @@ Affected families include:
 - Session Settings reservation;
 - indicators, drawing/action-history, screenshot, and account/trading contract
   tests that assert disabled production selectors.
+- replay-footer browser assertions that encode the current engineering labels
+  or full-width footer layout.
 
 The domain/owner contracts themselves are not empty-shell code and should not
 be deleted merely because their current production entry is hidden or removed.
