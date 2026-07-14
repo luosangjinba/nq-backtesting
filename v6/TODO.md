@@ -23,9 +23,12 @@
   Journal and Go-to remain green. Phase 1 implementation and automated gates
   are complete. Step 423 is complete: the Session Settings production trigger,
   panel, disabled fields, Template, and Apply controls are removed while the
-  independent `session-settings` owner contract remains green. The next bounded
-  step is Step 424: remove only the orphan panel styling and consolidate tests
-  whose former purpose was reserving that placeholder. See
+  independent `session-settings` owner contract remains green. Step 424 is
+  complete: orphan Session Settings panel CSS is removed, the two
+  reservation-only tests are retired, and the generic cleanup harness now
+  guards both markup and styling absence. Phase 2 is closed. The next bounded
+  step is Step 425: remove the selected reserved top controls while preserving
+  active symbol, timeframe, layout/sync, Settings, Replay, and Journal. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

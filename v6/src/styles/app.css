@@ -2159,8 +2159,7 @@ p {
   background: #020406;
 }
 
-.rail-main-actions,
-.rail-bottom-actions {
+.rail-main-actions {
   display: flex;
   align-items: center;
   flex-direction: column;
@@ -2234,16 +2233,7 @@ p {
   position: relative;
 }
 
-.session-settings-panel-anchor {
-  position: relative;
-}
-
 .rail-popover-anchor summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.session-settings-panel-anchor summary {
   list-style: none;
   cursor: pointer;
 }
@@ -2252,15 +2242,7 @@ p {
   display: none;
 }
 
-.session-settings-panel-anchor summary::-webkit-details-marker {
-  display: none;
-}
-
 .rail-popover-anchor[open] summary {
-  background: #1b232b;
-}
-
-.session-settings-panel-anchor[open] summary {
   background: #1b232b;
 }
 
@@ -2433,110 +2415,6 @@ p {
 
 .replay-navigation-settings-modal footer button:disabled {
   opacity: 0.5;
-}
-
-.session-settings-panel {
-  position: absolute;
-  right: calc(100% + 8px);
-  bottom: 0;
-  width: 328px;
-  max-height: min(640px, calc(100vh - 132px));
-  display: grid;
-  grid-template-rows: auto minmax(0, 1fr) auto;
-  border: 1px solid #343c43;
-  border-radius: 8px;
-  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
-  background: #101215;
-  color: #dce5eb;
-  overflow: hidden;
-}
-
-.session-settings-panel header,
-.session-settings-panel footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 12px 14px;
-  border-bottom: 1px solid #242d35;
-}
-
-.session-settings-panel header {
-  min-height: 52px;
-}
-
-.session-settings-panel header span {
-  color: #7f9aaa;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.session-settings-panel footer {
-  border-top: 1px solid #242d35;
-  border-bottom: 0;
-}
-
-.session-settings-panel-body {
-  display: grid;
-  gap: 10px;
-  padding: 12px;
-  overflow: auto;
-}
-
-.session-settings-panel fieldset {
-  min-width: 0;
-  display: grid;
-  gap: 8px;
-  margin: 0;
-  padding: 10px;
-  border: 1px solid #26333d;
-  border-radius: 7px;
-  background: #0b1117;
-}
-
-.session-settings-panel legend {
-  padding: 0 4px;
-  color: #9ee7d6;
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.session-settings-panel label {
-  display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
-  align-items: center;
-  gap: 8px;
-  color: #9fb7c6;
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.session-settings-panel input,
-.session-settings-panel select {
-  min-width: 0;
-  height: 30px;
-  padding: 0 8px;
-  border: 1px solid #243440;
-  border-radius: 5px;
-  background: #05090d;
-  color: #dce5eb;
-}
-
-.session-settings-panel button {
-  min-height: 30px;
-  padding: 0 12px;
-  border: 1px solid #263743;
-  border-radius: 6px;
-  background: #101820;
-  color: #dce5eb;
-  font-weight: 800;
-}
-
-.session-settings-panel input:disabled,
-.session-settings-panel select:disabled,
-.session-settings-panel button:disabled {
-  opacity: 0.72;
-  cursor: default;
 }
 
 .rail-popover button {

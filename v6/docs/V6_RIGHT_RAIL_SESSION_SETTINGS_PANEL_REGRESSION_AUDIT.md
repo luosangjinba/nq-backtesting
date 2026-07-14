@@ -1,5 +1,9 @@
 # V6 Right Rail Session Settings Panel Regression Audit
 
+> Historical record only. The visible panel and its dedicated regression test
+> were retired by Steps 423-424. Current absence coverage is owned by the
+> generic workspace cleanup harness; the owner contract remains current.
+
 Date: 2026-07-07
 
 ## Outcome

@@ -7,12 +7,13 @@ import {
 } from './helpers/workspace-cleanup-manifest-step420.js';
 
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
+const appStyles = await readFile('v6/src/styles/app.css', 'utf8');
 
 function shellHasSelector(selector) {
   return new RegExp(`${selector}(?=[\\s=>])`).test(shellSource);
 }
 
-assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 423);
+assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 424);
 assert.equal(WORKSPACE_PLACEHOLDER_REMOVALS.length > 0, true);
 assert.equal(new Set(WORKSPACE_PLACEHOLDER_REMOVALS.map((item) => item.selector)).size, WORKSPACE_PLACEHOLDER_REMOVALS.length);
 
@@ -29,6 +30,15 @@ for (const item of WORKSPACE_PLACEHOLDER_REMOVALS) {
 
 for (const contractFile of WORKSPACE_PRESERVED_CONTRACT_FILES) {
   await access(contractFile);
+}
+
+for (const orphanSelector of [
+  '.rail-bottom-actions',
+  '.session-settings-panel-anchor',
+  '.session-settings-panel',
+  '.session-settings-panel-body',
+]) {
+  assert.equal(appStyles.includes(orphanSelector), false, `${orphanSelector} must be absent after Step 424`);
 }
 
 const contractTests = await Promise.all([

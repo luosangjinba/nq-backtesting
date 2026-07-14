@@ -1,5 +1,9 @@
 # V6 Right Rail Session Settings Panel Reservation
 
+> Historical record only. The visible reservation was removed by Steps
+> 423-424 under the Step 418 workspace cleanup decision. The independent
+> `session-settings` owner contract remains current.
+
 Date: 2026-07-07
 
 ## Outcome

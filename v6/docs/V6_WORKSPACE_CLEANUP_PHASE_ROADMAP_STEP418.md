@@ -179,6 +179,8 @@ reservation-only test consolidation remain intentionally scoped to Step 424.
 
 ### Step 424 - Consolidate Session Settings Styling And Tests
 
+Status: completed on 2026-07-14.
+
 - remove dedicated panel CSS only after confirming no shared selector consumer;
 - retire reservation/regression tests whose sole purpose was keeping the panel
   visible;
@@ -186,6 +188,15 @@ reservation-only test consolidation remain intentionally scoped to Step 424.
 - verify Chart Settings and Go-to Custom Settings remain distinct.
 
 Commit intent: `test(v6): consolidate session settings cleanup`
+
+Removed the orphan `rail-bottom-actions` and Session Settings panel style
+family after confirming that no production selector consumed it. Retired the
+two panel reservation/regression tests whose only responsibility was the old
+shell; the generic cleanup harness now verifies both markup and CSS absence.
+The independent owner contract, Chart Settings, and Go-to Custom Settings all
+remain covered and green.
+
+Phase 2 is complete.
 
 ### Phase 2 Gate
 

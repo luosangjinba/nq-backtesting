@@ -173,10 +173,10 @@ Read this index before working on V6.
   chrome regression audit after adding bottom account/trading chrome.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`: selected next
   bounded workstation/chart slice after lower chrome stabilization.
-- `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`: accepted
-  inert right-rail Session settings panel reservation.
+- `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`: historical
+  reservation record, superseded by the Step 418 cleanup decision and Step 424.
 - `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`:
-  accepted right-rail Session settings panel regression audit.
+  historical regression record, superseded by the generic cleanup harness.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`: selected next
   bounded workstation/chart slice after Session settings panel stabilization.
 - `v6/docs/V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`: accepted workstation UI
@@ -893,10 +893,10 @@ Read this index before working on V6.
   regression state after bottom account/trading chrome reservation.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`: accepted next
   workstation/chart slice selection after lower chrome stabilization.
-- `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`: accepted inert
-  right-rail Session settings panel reservation and browser coverage.
-- `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`: accepted
-  right-rail Session settings panel regression state.
+- `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`: historical Session
+  Settings reservation, superseded by the Step 418 cleanup decision.
+- `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_REGRESSION_AUDIT.md`: historical
+  regression record, superseded by the Step 420/424 cleanup harness.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP128.md`: accepted next
   workstation/chart slice selection after Session settings panel stabilization.
 - `V6_WORKSTATION_UI_PARITY_GAP_REAUDIT.md`: accepted workstation UI parity
