@@ -15,6 +15,9 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   chartTopMarginPercent: 10,
   chartTradingDaySeparatorColor: '#3b82f6',
   chartTradingDaySeparatorStyle: 'dashed',
+  currentPriceLineVisible: true,
+  currentPriceNameVisible: true,
+  currentPriceValueVisible: true,
   displayTimezone: 'exchange',
   showWatermark: true,
   symbolBordersVisible: false,
@@ -33,7 +36,7 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   theme: 'dark',
 });
 
-export const SETTINGS_RECORD_VERSION = 6;
+export const SETTINGS_RECORD_VERSION = 7;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
@@ -162,6 +165,18 @@ export function createSettingsRecord(input = {}) {
       DEFAULT_SETTINGS_INPUT.chartTradingDaySeparatorStyle,
       'chartTradingDaySeparatorStyle',
     ),
+    currentPriceLineVisible: normalizeBoolean(
+      input.currentPriceLineVisible,
+      DEFAULT_SETTINGS_INPUT.currentPriceLineVisible,
+    ),
+    currentPriceNameVisible: normalizeBoolean(
+      input.currentPriceNameVisible,
+      DEFAULT_SETTINGS_INPUT.currentPriceNameVisible,
+    ),
+    currentPriceValueVisible: normalizeBoolean(
+      input.currentPriceValueVisible,
+      DEFAULT_SETTINGS_INPUT.currentPriceValueVisible,
+    ),
     displayTimezone: normalizeChoice(
       input.displayTimezone,
       TIMEZONES,
@@ -272,7 +287,7 @@ export function restoreSettingsPersistenceValue(value) {
       settings: createSettingsRecord(value),
     });
   }
-  if (![1, 2, 3, 4, 5, SETTINGS_RECORD_VERSION].includes(value.version)) {
+  if (![1, 2, 3, 4, 5, 6, SETTINGS_RECORD_VERSION].includes(value.version)) {
     throw new Error(`Unsupported Settings record version: ${value.version}`);
   }
   return Object.freeze({

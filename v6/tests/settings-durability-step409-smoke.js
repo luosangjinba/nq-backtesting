@@ -86,7 +86,7 @@ assert.deepEqual(hydrated, {
 });
 assert.deepEqual(hydratedEvents, [hydrated]);
 assert.equal(failureEvents.length, 0);
-assert.equal(repository.get(SETTINGS_PERSISTENCE_COLLECTION, SETTINGS_PERSISTENCE_KEY).value.version, 6);
+assert.equal(repository.get(SETTINGS_PERSISTENCE_COLLECTION, SETTINGS_PERSISTENCE_KEY).value.version, 7);
 
 const updated = await dispatchCommand(SETTINGS_COMMANDS.UPDATE, { chartGrid: true });
 assert.deepEqual(

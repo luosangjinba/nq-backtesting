@@ -7,7 +7,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 6);
+assert.equal(SETTINGS_RECORD_VERSION, 7);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   chartDaySeparators: 'both',
   chartIctDaySeparatorColor: '#123456',

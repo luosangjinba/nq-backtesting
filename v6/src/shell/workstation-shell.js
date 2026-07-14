@@ -339,6 +339,7 @@ ${renderDisplayTimeframeMenuSections()}
               <button type="button" class="is-active" data-v6-settings-tab="canvas" aria-selected="true">${icon('camera')}<span>Canvas</span></button>
               <button type="button" data-v6-settings-tab="symbol" aria-selected="false">${icon('indicators')}<span>Symbol</span></button>
               <button type="button" data-v6-settings-tab="status" aria-selected="false">${icon('menu')}<span>Status line</span></button>
+              <button type="button" data-v6-settings-tab="scales" aria-selected="false">${icon('arrow-right')}<span>Scales and lines</span></button>
             </nav>
             <div class="settings-modal-content">
               <div data-v6-settings-tab-panel="canvas">
@@ -501,6 +502,15 @@ ${renderDisplayTimeframeMenuSections()}
                     <span>Opacity</span>
                     <span class="settings-number-unit"><input type="number" min="0" max="100" step="5" data-v6-settings-field="statusBackgroundOpacityPercent" value="0" aria-label="Status line background opacity"><span>%</span></span>
                   </label>
+                </section>
+              </div>
+              <div data-v6-settings-tab-panel="scales" hidden>
+                <section class="settings-field-group" aria-label="Current price">
+                  <div class="settings-group-heading">Current price</div>
+                  <label class="settings-check-row"><input type="checkbox" data-v6-settings-field="currentPriceNameVisible" checked><span>Symbol name</span></label>
+                  <label class="settings-check-row"><input type="checkbox" data-v6-settings-field="currentPriceValueVisible" checked><span>Price value</span></label>
+                  <label class="settings-check-row"><input type="checkbox" data-v6-settings-field="currentPriceLineVisible" checked><span>Price line</span></label>
+                  <p class="settings-scope-note">Applies to the current-price label and line on every pane.</p>
                 </section>
               </div>
             </div>
