@@ -92,6 +92,12 @@ Read this index before working on V6.
 - `v6/docs/V6_SETTINGS_GLOBAL_TIME_PRESENTATION_STEP416.md`: schema-v8 global
   Exchange/UTC/Local and 12/24-hour presentation, shared chart/status formatter,
   controlled Go-to inputs, canonical-value invariants, and visual gate.
+- `v6/docs/V6_SETTINGS_SCOPE_CLOSEOUT_STEP417.md`: binding rejection of
+  Settings templates, Apply to all, and per-Pane visual overrides for the
+  lightweight product.
+- `v6/docs/V6_POST_SETTINGS_PRODUCT_GAP_REAUDIT_STEP417.md`: post-Settings gap
+  matrix, official chart-capability check, and selection of the prospective
+  Trade Plan owner boundary for Step 418.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.

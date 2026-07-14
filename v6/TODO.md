@@ -108,6 +108,13 @@
   canonical New York wall-clock values. Focused model/browser regressions and
   final human visual acceptance pass; Step 416 is closed. See
   `v6/docs/V6_SETTINGS_GLOBAL_TIME_PRESENTATION_STEP416.md`.
+- Latest completed Settings closeout: Step 417 rejects templates, Apply to all,
+  and per-Pane visual overrides. The accepted Settings sequence ends at one
+  global workspace preference record; no schema or production UI was added.
+  The post-Settings gap re-audit selects a prospective Trade Plan owner boundary
+  as Step 418, before simulated execution or validation analytics. See
+  `v6/docs/V6_SETTINGS_SCOPE_CLOSEOUT_STEP417.md` and
+  `v6/docs/V6_POST_SETTINGS_PRODUCT_GAP_REAUDIT_STEP417.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

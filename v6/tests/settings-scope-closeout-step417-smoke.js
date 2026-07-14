@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
-const [decision, catalog, model, shell] = await Promise.all([
+const [decision, gapAudit, catalog, model, shell] = await Promise.all([
   readFile('v6/docs/V6_SETTINGS_SCOPE_CLOSEOUT_STEP417.md', 'utf8'),
+  readFile('v6/docs/V6_POST_SETTINGS_PRODUCT_GAP_REAUDIT_STEP417.md', 'utf8'),
   readFile('v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md', 'utf8'),
   readFile('v6/src/settings/settings-model.js', 'utf8'),
   readFile('v6/src/shell/workstation-shell.js', 'utf8'),
@@ -15,6 +16,10 @@ assert.match(decision, /per-Pane Settings overrides/);
 assert.match(decision, /workspaceSettings:global/);
 assert.match(catalog, /Rejected by Step 417 for current product/);
 assert.match(catalog, /there is no partial scope that needs an Apply-to-/);
+assert.match(gapAudit, /Prospective Trade Plan\nOwner Boundary/);
+assert.match(gapAudit, /Orders\/execution must remain a later distinct owner/);
+assert.match(gapAudit, /Replay remains the sole cursor\/reveal owner/);
+assert.match(gapAudit, /Chart Surface\/adapter remains the sole chart mutation path/);
 
 assert.doesNotMatch(model, /paneOverrides|settingsTemplates|applyToAll/);
 const settingsStart = shell.indexOf('data-v6-settings-panel');
