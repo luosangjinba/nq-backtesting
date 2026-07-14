@@ -433,20 +433,19 @@ ${renderDisplayTimeframeMenuSections()}
               <div data-v6-settings-tab-panel="symbol" hidden>
                 <section class="settings-field-group" aria-label="Candles">
                   <div class="settings-group-heading">Candles</div>
-                  <label class="settings-control-row">
+                  <label class="settings-symbol-candle-row">
+                    <span class="settings-symbol-candle-spacer" aria-hidden="true"></span>
                     <span>Body</span>
-                    <span class="settings-inline-controls">
-                      <input type="color" data-v6-settings-field="symbolUpBodyColor" value="#36b7a8" aria-label="Up candle body color">
-                      <input type="color" data-v6-settings-field="symbolDownBodyColor" value="#f25f68" aria-label="Down candle body color">
-                    </span>
+                    <input type="color" data-v6-settings-field="symbolUpBodyColor" value="#36b7a8" aria-label="Up candle body color">
+                    <input type="color" data-v6-settings-field="symbolDownBodyColor" value="#f25f68" aria-label="Down candle body color">
                   </label>
-                  <label class="settings-check-row">
+                  <label class="settings-check-row settings-symbol-candle-row">
                     <input type="checkbox" data-v6-settings-field="symbolBordersVisible">
                     <span>Borders</span>
                     <input type="color" data-v6-settings-field="symbolUpBorderColor" value="#36b7a8" aria-label="Up candle border color">
                     <input type="color" data-v6-settings-field="symbolDownBorderColor" value="#f25f68" aria-label="Down candle border color">
                   </label>
-                  <label class="settings-check-row">
+                  <label class="settings-check-row settings-symbol-candle-row">
                     <input type="checkbox" data-v6-settings-field="symbolWicksVisible" checked>
                     <span>Wicks</span>
                     <input type="color" data-v6-settings-field="symbolUpWickColor" value="#2a958b" aria-label="Up candle wick color">

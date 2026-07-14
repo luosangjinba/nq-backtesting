@@ -1700,13 +1700,28 @@ p {
 }
 
 .settings-control-row input[type="color"],
-.settings-check-row input[type="color"] {
+.settings-check-row input[type="color"],
+.settings-symbol-candle-row input[type="color"] {
   width: 42px;
   height: 34px;
   padding: 3px;
   border: 1px solid #747a82;
   border-radius: 6px;
   background: #303133;
+}
+
+.settings-symbol-candle-row {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) 42px 42px;
+  align-items: center;
+  gap: 12px;
+  color: #e5e9ed;
+  font-size: 14px;
+}
+
+.settings-symbol-candle-spacer {
+  width: 18px;
+  height: 18px;
 }
 
 .settings-control-row input[type="number"] {
