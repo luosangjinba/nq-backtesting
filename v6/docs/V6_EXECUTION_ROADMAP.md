@@ -292,8 +292,9 @@ Only after Phase 6 gates pass:
   active. Production Steps 410-415 implement bounded Canvas, Symbol, Status,
   and Scales slices; Step 416 adds workstation-wide timezone and 12/24-hour
   presentation constrained by
-  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`; Step 417 selects
-  templates and optional pane overrides. See
+  `v6/docs/V6_GLOBAL_TIME_FORMAT_SETTINGS_CONTRACT.md`; Step 417 closes the
+  Settings expansion sequence by rejecting templates, Apply to all, and
+  per-Pane Settings overrides. See
   `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`;
 - visual polish;
 - persistence;

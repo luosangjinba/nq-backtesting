@@ -187,16 +187,14 @@ Reusing controls does not merge feature owners. Color parsing may be shared;
 applying candle colors and applying crosshair colors still travel through their
 own consumer mappings.
 
-## Templates And Reset
+## Reset And Rejected Configuration Management
 
 - `Reset` remains draft-only and resolves defaults for the currently visible
   tab; it persists only through OK.
-- A future chart template may contain implemented visual fields from Canvas,
-  Symbol, Status, and Scales.
-- Templates must not contain replay cursor, revealed range, symbol/timeframe,
-  session schedule, journal data, validation artifacts, or bar-data state.
-- Template import must pass the same Settings normalization and migration path
-  as manual edits.
+- Step 417 rejects Settings templates, Apply to all, and per-Pane Settings
+  overrides for the lightweight V6 product.
+- These capabilities may be reconsidered only through a new product decision
+  backed by a concrete user journey; competitor parity is insufficient.
 
 ## Ordered Implementation Plan
 
@@ -213,7 +211,8 @@ After that gate:
 6. Step 415 - Scales And Current Price Presentation.
 7. Step 416 - Global Time Presentation: timezone, 12/24-hour format, shared
    formatter, and controlled time inputs.
-8. Step 417 - Templates, optional pane overrides, and Apply-to-all selection.
+8. Step 417 - Settings Scope Closeout: reject templates, Apply to all, and
+   per-Pane Settings overrides; close the expansion sequence without code.
 
 Each step activates only controls with a real consumer, adds migration only for
 its own fields, preserves atomic modal commits, and runs multi-pane/reload

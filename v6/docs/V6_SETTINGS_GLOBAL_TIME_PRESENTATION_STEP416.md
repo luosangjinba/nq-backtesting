@@ -59,6 +59,6 @@ that display changes do not alter Go-to behavior. Step 416 is closed.
 
 ## Next
 
-Re-audit Step 417 before implementing templates and pane overrides. Do not
-introduce overrides until a concrete multi-pane use case justifies the
-additional precedence and persistence rules.
+Execute the Step 417 Settings scope closeout. Templates, Apply to all, and Pane
+overrides are rejected for the current lightweight product; return selection to
+the primary replay/validation/Journal loop.
