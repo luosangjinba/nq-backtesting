@@ -80,7 +80,9 @@ async function runNearGapCase({ displayTimeframe, kind }) {
         const pane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_ACTIVE);
         const latest = chart.bars?.at(-1) || null;
         const projectedBucket = projection.lastProjection?.buckets?.at(-1) || null;
-        const footerCursor = document.querySelector('[data-v6-footer-cursor]')?.textContent.trim() || '';
+        const footerCursor = JSON.parse(
+          document.querySelector('[data-v6-status-bar]')?.getAttribute('data-v6-replay-diagnostics') || '{}',
+        ).cursorTime || null;
 
         return {
           applyState,
@@ -160,7 +162,7 @@ for (const item of cases) {
     assert.equal(item.displayTimeframe, item.requestedDisplayTimeframe);
     assert.equal(item.projection.targetTimeframe, item.requestedDisplayTimeframe);
     assert.equal(item.projectedBucket.cursorCapped, true);
-    assert.equal(item.footerCursor, 'Cursor 18:01');
+    assert.equal(item.footerCursor, '2026-06-01T18:01:00.000Z');
   }
 }
 

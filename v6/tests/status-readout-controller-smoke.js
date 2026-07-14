@@ -13,7 +13,15 @@ function createFakeRoot() {
     dataset: {},
     querySelector(selector) {
       if (!elements.has(selector)) {
-        elements.set(selector, { textContent: '' });
+        elements.set(selector, {
+          attributes: {},
+          dataset: {},
+          hidden: false,
+          setAttribute(name, value) {
+            this.attributes[name] = value;
+          },
+          textContent: '',
+        });
       }
       return elements.get(selector);
     },
@@ -61,11 +69,16 @@ assert.equal(root.text('[data-v6-status-high]'), 'H --');
 assert.equal(root.text('[data-v6-status-low]'), 'L --');
 assert.equal(root.text('[data-v6-status-close]'), 'C --');
 assert.equal(root.text('[data-v6-status-price]'), '--');
-assert.equal(root.text('[data-v6-footer-session]'), 'Session session-status');
-assert.equal(root.text('[data-v6-footer-no-future]'), 'No future 3 hidden');
+assert.equal(root.text('[data-v6-replay-status]'), 'Replay ready');
+assert.equal(root.text('[data-v6-replay-protection]'), 'Future data hidden');
+assert.equal(root.querySelector('[data-v6-replay-protection]').hidden, false);
+assert.deepEqual(
+  JSON.parse(root.querySelector('[data-v6-status-bar]').attributes['data-v6-replay-diagnostics']),
+  controller.getState().replayDiagnostics,
+);
 
 listeners.get(REPLAY_EVENTS.PLAYBACK_CHANGED)({ status: 'playing' });
-assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
+assert.equal(root.text('[data-v6-replay-status]'), 'Replay ready');
 assert.equal(controller.getState().ohlc.close, 'C --');
 
 listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
@@ -102,7 +115,7 @@ assert.equal(root.text('[data-v6-status-high]'), 'H 102.00');
 assert.equal(root.text('[data-v6-status-low]'), 'L 100.00');
 assert.equal(root.text('[data-v6-status-close]'), 'C 101.50');
 assert.equal(root.text('[data-v6-status-price]'), '101.50');
-assert.equal(root.text('[data-v6-footer-playback]'), 'Playback playing');
+assert.equal(root.text('[data-v6-replay-status]'), 'Replay ready');
 assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'selected');
 assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'up');
 

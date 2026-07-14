@@ -386,12 +386,21 @@ Step 431 is constrained to presentation implementation.
 
 ### Step 431 - Implement Compact Replay Status
 
+Status: completed on 2026-07-14.
+
 - update the status view model without changing Replay runtime ownership;
 - replace the full-row engineering badges with the approved compact status;
 - keep exceptional and no-future assurance states understandable;
 - preserve diagnostic inspection for automated tests and development.
 
 Commit intent: `feat(v6): simplify replay status presentation`
+
+The Status Readout model now owns a compact lifecycle/protection projection and
+a versioned structured diagnostic snapshot. Production markup contains one
+polite lifecycle region and a conditional `Future data hidden` assurance; the
+seven engineering badges are removed. Existing Replay gap fixtures inspect the
+diagnostic cursor rather than visible English text. Replay Runtime, commands,
+events, and transport behavior are unchanged.
 
 ### Step 432 - Verify Status Semantics And Layout
 

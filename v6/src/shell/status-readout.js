@@ -47,13 +47,17 @@ function renderStatusReadout(root, state) {
   setText(root, selector('[data-v6-status-high]', 'data-v6-pane-status-field'), state.ohlc.high);
   setText(root, selector('[data-v6-status-low]', 'data-v6-pane-status-field'), state.ohlc.low);
   setText(root, selector('[data-v6-status-close]', 'data-v6-pane-status-field'), state.ohlc.close);
-  setText(root, '[data-v6-footer-session]', state.footer.session);
-  setText(root, '[data-v6-footer-start]', state.footer.start);
-  setText(root, '[data-v6-footer-cursor]', state.footer.cursor);
-  setText(root, '[data-v6-footer-end]', state.footer.end);
-  setText(root, '[data-v6-footer-revealed]', state.footer.revealed);
-  setText(root, '[data-v6-footer-playback]', state.footer.playback);
-  setText(root, '[data-v6-footer-no-future]', state.footer.noFuture);
+  const statusBar = root.querySelector('[data-v6-status-bar]');
+  const protection = root.querySelector('[data-v6-replay-protection]');
+  setText(root, '[data-v6-replay-status]', state.compactReplayStatus.message);
+  setText(root, '[data-v6-replay-protection]', state.compactReplayStatus.protectionMessage);
+  if (statusBar) {
+    statusBar.dataset.replayStatusKind = state.compactReplayStatus.kind;
+    statusBar.setAttribute?.('data-v6-replay-diagnostics', JSON.stringify(state.replayDiagnostics));
+  }
+  if (protection) {
+    protection.hidden = !state.compactReplayStatus.protectionVisible;
+  }
   root.dataset.statusPlayback = state.playback;
   root.dataset.statusSymbol = state.symbol;
   root.dataset.statusTimeframe = state.timeframe;

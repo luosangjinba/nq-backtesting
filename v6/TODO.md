@@ -48,8 +48,13 @@
   `Replay unavailable` lifecycle copy plus conditional `Future data hidden`
   assurance. Internal identifiers, times, counts, and raw runtime status move
   to a versioned machine-readable diagnostic snapshot rather than permanent
-  badges. The next bounded step is Step 431: implement this presentation
-  contract without changing Replay Runtime ownership or semantics. See
+  badges. Step 431 is complete: the Status Readout model and renderer now
+  provide one compact lifecycle message, a conditional future-data assurance,
+  and the versioned diagnostic JSON snapshot; all seven engineering badges are
+  absent from production. Replay Runtime, commands, events, and transport are
+  unchanged. The next bounded step is Step 432: verify the compact semantics
+  across Replay flows and supported layouts, then perform mandatory human
+  visual acceptance. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

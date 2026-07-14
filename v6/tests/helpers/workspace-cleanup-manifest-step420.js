@@ -1,4 +1,4 @@
-export const WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP = 429;
+export const WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP = 431;
 
 export const WORKSPACE_PLACEHOLDER_REMOVALS = Object.freeze([
   Object.freeze({ step: 421, family: 'top clone artifacts', selector: 'data-v6-top-search' }),
@@ -35,6 +35,14 @@ export const WORKSPACE_PLACEHOLDER_REMOVALS = Object.freeze([
   Object.freeze({ step: 428, family: 'bottom trading shell', selector: 'data-v6-bottom-account-balance' }),
   Object.freeze({ step: 428, family: 'bottom trading shell', selector: 'data-v6-bottom-realized-pnl' }),
   Object.freeze({ step: 428, family: 'bottom trading shell', selector: 'data-v6-bottom-unrealized-pnl' }),
+
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-session' }),
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-start' }),
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-cursor' }),
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-end' }),
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-revealed' }),
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-playback' }),
+  Object.freeze({ step: 431, family: 'engineering replay footer', selector: 'data-v6-footer-no-future' }),
 ]);
 
 export const WORKSPACE_PRESERVED_CONTRACT_FILES = Object.freeze([

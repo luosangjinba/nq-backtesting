@@ -15,7 +15,7 @@ function assertCase(item, mode) {
   assert.equal(item.projection.targetTimeframe, item.displayTimeframe);
   assert.equal(item.projectedBucket.lastSourceTimestamp, FINAL_SOURCE_TIMESTAMP);
   assert.equal(item.projectedBucket.cursorCapped, true);
-  assert.equal(item.footerCursor, 'Cursor 18:01', `${mode} ${item.displayTimeframe} footer cursor should show source cursor`);
+  assert.equal(item.footerCursor, '2026-06-01T18:01:00.000Z', `${mode} ${item.displayTimeframe} diagnostics should preserve source cursor`);
 }
 
 async function runBrowserCase({ displayTimeframe, mode }) {
@@ -102,7 +102,9 @@ async function runBrowserCase({ displayTimeframe, mode }) {
         const projection = await commands.dispatchCommand(contracts.CHART_DATA_PROJECTION_COMMANDS.GET_STATE);
         const pane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_ACTIVE);
         const projectedBucket = projection.lastProjection?.buckets?.at(-1) || null;
-        const footerCursor = document.querySelector('[data-v6-footer-cursor]')?.textContent.trim() || '';
+        const footerCursor = JSON.parse(
+          document.querySelector('[data-v6-status-bar]')?.getAttribute('data-v6-replay-diagnostics') || '{}',
+        ).cursorTime || null;
         return {
           applyState,
           barCount: chart.bars?.length || 0,

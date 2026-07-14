@@ -716,14 +716,9 @@ ${renderDisplayTimeframeMenuSections()}
         </label>
       </div>
 
-      <footer class="status-bar" data-v6-status-bar>
-        <span data-v6-footer-session>Session pending</span>
-        <span data-v6-footer-start>Start pending</span>
-        <span data-v6-footer-cursor>Cursor pending</span>
-        <span data-v6-footer-end>End pending</span>
-        <span data-v6-footer-revealed>Revealed 0/--</span>
-        <span data-v6-footer-playback>Playback idle</span>
-        <span data-v6-footer-no-future>No future pending</span>
+      <footer class="status-bar" data-v6-status-bar aria-live="polite" aria-atomic="true">
+        <span class="replay-status-primary" data-v6-replay-status>Preparing replay…</span>
+        <span class="replay-status-protection" data-v6-replay-protection hidden>Future data hidden</span>
       </footer>
     </section>
   `;

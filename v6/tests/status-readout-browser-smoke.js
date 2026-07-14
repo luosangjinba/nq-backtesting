@@ -33,27 +33,25 @@ try {
       });
       const afterLoad = {
         close: document.querySelector('[data-v6-status-close]')?.textContent,
-        cursor: document.querySelector('[data-v6-footer-cursor]')?.textContent,
-        noFuture: document.querySelector('[data-v6-footer-no-future]')?.textContent,
-        playback: document.querySelector('[data-v6-footer-playback]')?.textContent,
+        diagnostics: JSON.parse(document.querySelector('[data-v6-status-bar]')?.getAttribute('data-v6-replay-diagnostics')),
         pricePresent: Boolean(document.querySelector('[data-v6-status-price]')),
-        revealed: document.querySelector('[data-v6-footer-revealed]')?.textContent,
-        session: document.querySelector('[data-v6-footer-session]')?.textContent,
+        protection: document.querySelector('[data-v6-replay-protection]')?.textContent,
+        protectionHidden: document.querySelector('[data-v6-replay-protection]')?.hidden,
+        status: document.querySelector('[data-v6-replay-status]')?.textContent,
       };
 
       await commands.dispatchCommand(contracts.DEFAULT_WALL_COMMANDS.NEXT);
       const afterNext = {
         close: document.querySelector('[data-v6-status-close]')?.textContent,
-        cursor: document.querySelector('[data-v6-footer-cursor]')?.textContent,
-        noFuture: document.querySelector('[data-v6-footer-no-future]')?.textContent,
+        diagnostics: JSON.parse(document.querySelector('[data-v6-status-bar]')?.getAttribute('data-v6-replay-diagnostics')),
         pricePresent: Boolean(document.querySelector('[data-v6-status-price]')),
-        revealed: document.querySelector('[data-v6-footer-revealed]')?.textContent,
+        status: document.querySelector('[data-v6-replay-status]')?.textContent,
       };
 
       await commands.dispatchCommand(contracts.REPLAY_COMMANDS.PLAY);
-      const afterPlay = document.querySelector('[data-v6-footer-playback]')?.textContent;
+      const afterPlay = document.querySelector('[data-v6-replay-status]')?.textContent;
       await commands.dispatchCommand(contracts.REPLAY_COMMANDS.PAUSE);
-      const afterPause = document.querySelector('[data-v6-footer-playback]')?.textContent;
+      const afterPause = document.querySelector('[data-v6-replay-status]')?.textContent;
 
       const statusBar = document.querySelector('[data-v6-status-bar]');
       return {
@@ -69,19 +67,21 @@ try {
 
   assert.equal(value.mounted, true);
   assert.equal(value.statusInteractiveCount, 0);
-  assert.equal(value.afterLoad.session, 'Session status-browser-session');
-  assert.equal(value.afterLoad.cursor, 'Cursor 09:30');
-  assert.equal(value.afterLoad.revealed, 'Revealed 1/4');
-  assert.equal(value.afterLoad.noFuture, 'No future 3 hidden');
+  assert.equal(value.afterLoad.status, 'Replay ready');
+  assert.equal(value.afterLoad.protection, 'Future data hidden');
+  assert.equal(value.afterLoad.protectionHidden, false);
+  assert.equal(value.afterLoad.diagnostics.sessionId, 'status-browser-session');
+  assert.equal(value.afterLoad.diagnostics.revealedCount, 1);
+  assert.equal(value.afterLoad.diagnostics.hiddenCount, 3);
   assert.equal(value.afterLoad.close, 'C --');
   assert.equal(value.afterLoad.pricePresent, false);
-  assert.equal(value.afterNext.cursor, 'Cursor 09:31');
-  assert.equal(value.afterNext.revealed, 'Revealed 2/4');
-  assert.equal(value.afterNext.noFuture, 'No future 2 hidden');
+  assert.equal(value.afterNext.status, 'Replay ready');
+  assert.equal(value.afterNext.diagnostics.revealedCount, 2);
+  assert.equal(value.afterNext.diagnostics.hiddenCount, 2);
   assert.equal(value.afterNext.close, 'C --');
   assert.equal(value.afterNext.pricePresent, false);
-  assert.equal(value.afterPlay, 'Playback playing');
-  assert.equal(value.afterPause, 'Playback paused');
+  assert.equal(value.afterPlay, 'Replay ready');
+  assert.equal(value.afterPause, 'Replay ready');
 } finally {
   await page.cleanup();
 }

@@ -12,8 +12,12 @@ const initial = createStatusReadoutState();
 assert.equal(initial.title, 'NQ 1m');
 assert.equal(initial.ohlc.open, 'O --');
 assert.equal(initial.candleDirection, 'empty');
-assert.equal(initial.footer.session, 'Session pending');
-assert.equal(initial.footer.noFuture, 'No future pending');
+assert.deepEqual(initial.compactReplayStatus, {
+  kind: 'preparing',
+  message: 'Preparing replay…',
+  protectionMessage: 'Future data hidden',
+  protectionVisible: false,
+});
 
 const loaded = statusReadoutStateFromDefaultWallPayload({
   replayState: {
@@ -46,26 +50,35 @@ assert.deepEqual(loaded.ohlc, {
   open: 'O --',
 });
 assert.equal(loaded.candleDirection, 'empty');
-assert.equal(loaded.footer.cursor, 'Cursor 09:30');
-assert.equal(loaded.footer.end, 'End 09:33');
-assert.equal(loaded.footer.noFuture, 'No future 3 hidden');
-assert.equal(loaded.footer.playback, 'Playback ready');
-assert.equal(loaded.footer.revealed, 'Revealed 1/4');
-assert.equal(loaded.footer.session, 'Session session-1');
-assert.equal(loaded.footer.start, 'Start 09:30');
+assert.deepEqual(loaded.compactReplayStatus, {
+  kind: 'ready',
+  message: 'Replay ready',
+  protectionMessage: 'Future data hidden',
+  protectionVisible: true,
+});
+assert.deepEqual(loaded.replayDiagnostics, {
+  version: 1,
+  sessionId: 'session-1',
+  startTime: '2026-06-01T09:30:00.000Z',
+  cursorTime: '2026-06-01T09:30:00.000Z',
+  endTime: '2026-06-01T09:33:00.000Z',
+  revealedCount: 1,
+  totalBars: 4,
+  hiddenCount: 3,
+  runtimeStatus: 'ready',
+});
 assert.equal(loaded.timestamp, '09:30');
 const twelveHour = statusReadoutStateWithTimePresentation(loaded, {
   displayTimezone: 'exchange',
   timeFormat: '12h',
 });
-assert.equal(twelveHour.footer.cursor, 'Cursor 9:30 AM');
-assert.equal(twelveHour.footer.end, 'End 9:33 AM');
 assert.equal(twelveHour.timestamp, '9:30 AM');
 
 const playing = statusReadoutStateFromReplayPayload({
   status: 'playing',
 }, loaded);
-assert.equal(playing.footer.playback, 'Playback playing');
+assert.equal(playing.compactReplayStatus.message, 'Replay ready');
+assert.equal(playing.replayDiagnostics.runtimeStatus, 'playing');
 assert.equal(playing.ohlc.close, 'C --');
 
 const chartDataChanged = statusReadoutStateFromChartDataPayload({
@@ -87,8 +100,21 @@ assert.deepEqual(chartDataChanged.ohlc, {
   low: 'L --',
   open: 'O --',
 });
-assert.equal(chartDataChanged.footer.playback, 'Playback playing');
+assert.equal(chartDataChanged.compactReplayStatus.message, 'Replay ready');
 assert.equal(chartDataChanged.timestamp, '09:31');
+
+const completed = statusReadoutStateFromReplayPayload({
+  cursorTime: '2026-06-01T09:33:00.000Z',
+  revealedCount: 4,
+  status: 'ended',
+}, chartDataChanged);
+assert.equal(completed.compactReplayStatus.message, 'Replay complete');
+assert.equal(completed.compactReplayStatus.protectionVisible, false);
+assert.equal(completed.replayDiagnostics.hiddenCount, 0);
+
+const unavailable = statusReadoutStateFromReplayPayload({ status: 'broken' }, loaded);
+assert.equal(unavailable.compactReplayStatus.message, 'Replay unavailable');
+assert.equal(unavailable.compactReplayStatus.kind, 'unavailable');
 
 const crosshairChanged = statusReadoutStateFromCrosshairPayload({
   bar: {

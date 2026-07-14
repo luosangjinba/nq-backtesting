@@ -5,13 +5,6 @@ function formatPrice(value) {
   return Number.isFinite(price) ? price.toFixed(2) : '--';
 }
 
-function formatTime(value, timePresentation) {
-  if (!value) return 'pending';
-  const date = new Date(value);
-  if (Number.isNaN(date.valueOf())) return 'pending';
-  return formatChartTime(date.valueOf() / 1000, timePresentation);
-}
-
 function formatTimestamp(value, timePresentation) {
   const timestamp = Number(value);
   if (!Number.isFinite(timestamp)) return 'pending';
@@ -30,6 +23,19 @@ function normalizeReplayState(replayState = {}) {
     timeframe: replayState.timeframe || '1m',
     totalBars: Number(replayState.totalBars || 0),
   };
+}
+
+function replayLifecycle(status, totalBars) {
+  if (!totalBars || status === 'idle') {
+    return Object.freeze({ kind: 'preparing', message: 'Preparing replay…' });
+  }
+  if (['ready', 'playing', 'paused'].includes(status)) {
+    return Object.freeze({ kind: 'ready', message: 'Replay ready' });
+  }
+  if (status === 'ended') {
+    return Object.freeze({ kind: 'complete', message: 'Replay complete' });
+  }
+  return Object.freeze({ kind: 'unavailable', message: 'Replay unavailable' });
 }
 
 function latestBarFromPayload(payload = {}) {
@@ -77,16 +83,25 @@ export function createStatusReadoutState({
   const revealedCount = Number.isFinite(replay.revealedCount) ? replay.revealedCount : 0;
   const totalBars = Number.isFinite(replay.totalBars) ? replay.totalBars : 0;
   const remaining = Math.max(0, totalBars - revealedCount);
+  const lifecycle = replayLifecycle(replay.status, totalBars);
 
   return Object.freeze({
-    footer: Object.freeze({
-      cursor: `Cursor ${formatTime(replay.cursorTime, timePresentation)}`,
-      end: `End ${formatTime(replay.endTime, timePresentation)}`,
-      noFuture: totalBars > 0 ? `No future ${remaining} hidden` : 'No future pending',
-      playback: `Playback ${playback || replay.status || 'idle'}`,
-      revealed: `Revealed ${revealedCount}/${totalBars || '--'}`,
-      session: replay.sessionId ? `Session ${replay.sessionId}` : 'Session pending',
-      start: `Start ${formatTime(replay.startTime, timePresentation)}`,
+    compactReplayStatus: Object.freeze({
+      kind: lifecycle.kind,
+      message: lifecycle.message,
+      protectionMessage: 'Future data hidden',
+      protectionVisible: totalBars > 0 && remaining > 0,
+    }),
+    replayDiagnostics: Object.freeze({
+      version: 1,
+      sessionId: replay.sessionId,
+      startTime: replay.startTime,
+      cursorTime: replay.cursorTime,
+      endTime: replay.endTime,
+      revealedCount,
+      totalBars,
+      hiddenCount: remaining,
+      runtimeStatus: replay.status,
     }),
     candleDirection: candleDirection(selectedBar),
     barChange: formatBarChange(selectedBar, previousClose),

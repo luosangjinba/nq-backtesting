@@ -2774,19 +2774,32 @@ p {
 .status-bar {
   grid-row: 7;
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
-  min-height: 38px;
-  padding: 8px 10px;
+  min-height: 30px;
+  padding: 4px 10px;
   color: #9fb7c6;
   font-size: 12px;
 }
 
 .status-bar span {
-  padding: 4px 8px;
+  padding: 3px 8px;
   border: 1px solid #1d303a;
   border-radius: 5px;
   background: #101a22;
+}
+
+.status-bar[data-replay-status-kind="unavailable"] .replay-status-primary {
+  border-color: #8e454d;
+  color: #ff9aa3;
+}
+
+.replay-status-protection {
+  color: #8fcfc5;
+}
+
+.replay-status-protection[hidden] {
+  display: none;
 }
 
 @media (max-width: 820px) {
