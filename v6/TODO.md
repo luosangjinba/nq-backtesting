@@ -90,8 +90,9 @@
   existing multi-pane Status Readout owner; market state waits for exchange-
   calendar truth, Volume waits for verified provenance, and Description waits
   for symbol metadata. Transaction, tab-scoped Reset, persistence, and browser
-  gates pass. Human visual acceptance remains required before Step 414 closes.
-  See `v6/docs/V6_SETTINGS_STATUS_LINE_PRESENTATION_STEP414.md`.
+  gates pass. The final visual matrix, including Bar Change following OHLC
+  up/down/flat colors, passed. Step 414 is closed. See
+  `v6/docs/V6_SETTINGS_STATUS_LINE_PRESENTATION_STEP414.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was
   reverted. `Go to` is now constrained as session-global forward replay

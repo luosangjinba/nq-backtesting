@@ -20,5 +20,10 @@ Date: 2026-07-13
 
 ## Next
 
-Complete the human visual matrix. After acceptance, implement Step 415 Scales
-And Current Price Presentation.
+Implement Step 415 Scales And Current Price Presentation.
+
+## Visual Acceptance
+
+The first pass requested Bar Change to share OHLC direction colors. Commit
+`558e43d4` added the rule and browser coverage for both rising and falling
+panes. The final human visual recheck passed; Step 414 is closed.

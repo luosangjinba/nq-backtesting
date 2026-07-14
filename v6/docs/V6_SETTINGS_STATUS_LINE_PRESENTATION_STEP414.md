@@ -46,11 +46,11 @@ data or move replay state.
 
 Automated gates cover schema-v6 migration, draft/Cancel/tab-scoped Reset/OK,
 multi-pane application, previous-close change math, background opacity, and
-hard-reload restoration. Human visual acceptance is required before Step 414
-closes.
+hard-reload restoration. Human visual acceptance verified title/OHLC/change
+visibility, background opacity, persistence, and Bar Change sharing OHLC
+up/down/flat colors. Step 414 is closed.
 
 ## Next
 
-After visual acceptance, implement Step 415 Scales And Current Price
-Presentation through native series options and the established Chart Surface
-path.
+Implement Step 415 Scales And Current Price Presentation through native series
+options and the established Chart Surface path.
