@@ -37,9 +37,12 @@
   Order, and News placeholders plus their orphan icons are removed. The right
   rail remains because Go-to is an active, accepted feature and is now its sole
   entry; Orders and related owner contracts remain intact. Phase 3 production
-  cleanup is complete. The next bounded step is Step 428: remove bottom Buy,
-  Sell, Qty, account readouts, and Analytics placeholders without touching the
-  functional Replay transport or status surface. See
+  cleanup is complete. Step 428 is complete: bottom Buy, Sell, Qty, Balance,
+  Realized, Unrealized, and Analytics placeholders and their dedicated CSS are
+  removed while Replay transport, status, session account facts, and owner
+  contracts remain intact. The next bounded step is Step 429: remove the empty
+  grid row, reclaim vertical chart space, and recalculate/clamp Replay transport
+  placement and drag persistence. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

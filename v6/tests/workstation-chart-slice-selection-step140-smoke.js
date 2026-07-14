@@ -33,14 +33,7 @@ assert.match(reAuditDoc, /account\/trading, analytics, Order, and Calendar behav
 assert.match(parityGapDoc, /Owner contract selection for one deferred interactive family/);
 assert.match(parityGapDoc, /account\/trading/);
 assert.match(guardrailsDoc, /Trading\/account chrome stays along the bottom edge/);
-assert.match(shellSource, /data-v6-bottom-account-chrome/);
-assert.match(shellSource, /data-v6-bottom-buy disabled/);
-assert.match(shellSource, /data-v6-bottom-sell disabled/);
-assert.match(shellSource, /data-v6-bottom-quantity/);
-assert.match(shellSource, /data-v6-bottom-analytics disabled/);
-assert.match(shellSource, /data-v6-bottom-account-balance>Balance --/);
-assert.match(shellSource, /data-v6-bottom-realized-pnl>Realized --/);
-assert.match(shellSource, /data-v6-bottom-unrealized-pnl>Unrealized --/);
+assert.doesNotMatch(shellSource, /data-v6-bottom-(account-chrome|buy|sell|quantity|analytics|account-balance|realized-pnl|unrealized-pnl)/);
 
 for (const forbiddenToken of [
   'ACCOUNT_TRADING_COMMANDS',

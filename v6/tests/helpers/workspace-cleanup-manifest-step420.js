@@ -1,4 +1,4 @@
-export const WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP = 427;
+export const WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP = 428;
 
 export const WORKSPACE_PLACEHOLDER_REMOVALS = Object.freeze([
   Object.freeze({ step: 421, family: 'top clone artifacts', selector: 'data-v6-top-search' }),

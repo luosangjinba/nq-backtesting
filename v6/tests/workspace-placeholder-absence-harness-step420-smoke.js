@@ -13,7 +13,7 @@ function shellHasSelector(selector) {
   return new RegExp(`${selector}(?=[\\s=>])`).test(shellSource);
 }
 
-assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 427);
+assert.equal(WORKSPACE_CLEANUP_COMPLETED_THROUGH_STEP, 428);
 assert.equal(WORKSPACE_PLACEHOLDER_REMOVALS.length > 0, true);
 assert.equal(new Set(WORKSPACE_PLACEHOLDER_REMOVALS.map((item) => item.selector)).size, WORKSPACE_PLACEHOLDER_REMOVALS.length);
 
@@ -44,6 +44,12 @@ for (const orphanSelector of [
   '.drawing-rail-button',
   '.rail-button-icon',
   '.rail-button:disabled',
+  '.bottom-account-chrome',
+  '.bottom-trade-actions',
+  '.bottom-account-readouts',
+  '.bottom-trade-button',
+  '.bottom-analytics-button',
+  '.bottom-quantity-field',
 ]) {
   assert.equal(appStyles.includes(orphanSelector), false, `${orphanSelector} must be absent after Step 424`);
 }

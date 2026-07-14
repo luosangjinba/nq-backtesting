@@ -1,5 +1,9 @@
 # V6 Bottom Chrome Regression Audit
 
+> Historical record only. Step 428 removed the bottom placeholder family and
+> replaced presence assertions with cleanup absence coverage. Step 429 owns
+> reclaimed-height and Replay transport placement regression.
+
 Date: 2026-07-07
 
 ## Outcome

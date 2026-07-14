@@ -683,22 +683,6 @@ ${renderDisplayTimeframeMenuSections()}
           </form>
         </section>
       </main>
-      <section class="bottom-account-chrome" data-v6-bottom-account-chrome aria-label="Account and trading chrome">
-        <div class="bottom-trade-actions" aria-label="Trade placeholders">
-          <button type="button" class="bottom-trade-button bottom-trade-button-buy" data-v6-bottom-buy disabled aria-label="Buy placeholder">Buy</button>
-          <button type="button" class="bottom-trade-button bottom-trade-button-sell" data-v6-bottom-sell disabled aria-label="Sell placeholder">Sell</button>
-          <label class="bottom-quantity-field" aria-label="Quantity placeholder">
-            <span>Qty</span>
-            <input type="number" value="1" min="1" disabled data-v6-bottom-quantity>
-          </label>
-        </div>
-        <div class="bottom-account-readouts" aria-label="Account readouts">
-          <span data-v6-bottom-account-balance>Balance --</span>
-          <span data-v6-bottom-realized-pnl>Realized --</span>
-          <span data-v6-bottom-unrealized-pnl>Unrealized --</span>
-          <button type="button" class="bottom-analytics-button" data-v6-bottom-analytics disabled aria-label="Analytics placeholder">Analytics</button>
-        </div>
-      </section>
       <div class="transport-placeholder" aria-label="Replay transport" data-v6-transport>
         <button type="button" class="transport-grip" data-v6-transport-drag-handle aria-label="Drag replay controls">${icon('grip')}</button>
         <button type="button" class="transport-icon-button" data-v6-transport-action="restart" data-v6-transport-restart disabled aria-label="Restart available after replay ends" title="Restart replay">${icon('restart')}</button>

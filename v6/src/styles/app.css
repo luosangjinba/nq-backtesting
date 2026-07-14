@@ -81,7 +81,6 @@ p {
 .replay-workflow-panel,
 .sessions-panel,
 .session-dashboard,
-.bottom-account-chrome,
 .status-bar,
 .transport-placeholder {
   border: 1px solid #1c2a33;
@@ -1832,101 +1831,6 @@ p {
   border-radius: 8px;
   overflow: hidden;
   background: #0c141d;
-}
-
-.bottom-account-chrome {
-  grid-row: 7;
-  min-height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 6px 10px;
-  border-color: #1d303a;
-  border-radius: 8px;
-  background: #070b10;
-  color: #dce5eb;
-  font-size: 12px;
-  overflow: hidden;
-}
-
-.bottom-trade-actions,
-.bottom-account-readouts {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.bottom-account-readouts {
-  justify-content: flex-end;
-}
-
-.bottom-trade-button,
-.bottom-analytics-button,
-.bottom-quantity-field {
-  min-height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 6px;
-  font-weight: 800;
-  white-space: nowrap;
-}
-
-.bottom-trade-button,
-.bottom-analytics-button {
-  padding: 0 14px;
-  border: 1px solid #263743;
-  background: #101820;
-  color: #f0f6f8;
-}
-
-.bottom-trade-button-buy {
-  border-color: rgba(44, 207, 131, 0.38);
-  color: #9ee7d6;
-}
-
-.bottom-trade-button-sell {
-  border-color: rgba(255, 116, 116, 0.36);
-  color: #ffb6b6;
-}
-
-.bottom-trade-button:disabled,
-.bottom-analytics-button:disabled,
-.bottom-quantity-field input:disabled {
-  opacity: 0.76;
-  cursor: default;
-}
-
-.bottom-quantity-field {
-  padding: 0 8px;
-  border: 1px solid #263743;
-  background: #0c141d;
-  color: #9fb7c6;
-}
-
-.bottom-quantity-field input {
-  width: 54px;
-  height: 24px;
-  padding: 0 6px;
-  border: 1px solid #243440;
-  border-radius: 5px;
-  background: #05090d;
-  color: #dce5eb;
-}
-
-.bottom-account-readouts span {
-  min-height: 30px;
-  display: inline-flex;
-  align-items: center;
-  padding: 0 10px;
-  border: 1px solid #1d303a;
-  border-radius: 6px;
-  background: #101820;
-  color: #9fb7c6;
-  white-space: nowrap;
 }
 
 .symbol-readout {

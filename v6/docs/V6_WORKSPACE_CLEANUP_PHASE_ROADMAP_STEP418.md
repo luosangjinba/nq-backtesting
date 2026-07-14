@@ -305,6 +305,8 @@ reflow the real Replay surfaces into the reclaimed space.
 
 ### Step 428 - Remove Bottom Trading And Account Placeholders
 
+Status: completed on 2026-07-14.
+
 - remove Buy, Sell, Qty, Balance, Realized, Unrealized, and Analytics markup;
 - remove dedicated placeholder CSS and obsolete presence assertions;
 - retain account/trading, Orders, session-summary, and analytics contracts;
@@ -312,6 +314,14 @@ reflow the real Replay surfaces into the reclaimed space.
   chrome.
 
 Commit intent: `refactor(v6): remove bottom trading placeholders`
+
+Removed Buy, Sell, Qty, Balance, Realized, Unrealized, and Analytics markup and
+the complete dedicated style family. The generic cleanup harness now protects
+both markup and CSS absence. Account/trading, Orders, session-summary, and
+analytics contracts remain intact, as do Replay transport, the status surface,
+and session account facts outside the removed workstation chrome. Grid-row
+reflow and transport-bound recalculation remain deliberately scoped to Step
+429.
 
 ### Step 429 - Reflow Chart And Replay Transport
 

@@ -167,10 +167,10 @@ Read this index before working on V6.
   audit; current reclaimed-space coverage lives in the cleanup harnesses.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`: selected next
   bounded workstation/chart slice after rail regression.
-- `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: accepted inert
-  bottom account/trading chrome reservation.
-- `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`: accepted lower workstation
-  chrome regression audit after adding bottom account/trading chrome.
+- `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: historical bottom
+  account/trading reservation, superseded by Step 428.
+- `v6/docs/V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`: historical lower-chrome
+  audit; current absence/reflow coverage is owned by Steps 428-429.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`: selected next
   bounded workstation/chart slice after lower chrome stabilization.
 - `v6/docs/V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`: historical
@@ -887,10 +887,10 @@ Read this index before working on V6.
   current geometry is protected by workspace cleanup coverage.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`: accepted next
   workstation/chart slice selection after rail regression.
-- `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: accepted inert bottom
-  account/trading chrome reservation and browser coverage.
-- `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`: accepted lower workstation chrome
-  regression state after bottom account/trading chrome reservation.
+- `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: historical bottom account/trading
+  reservation, superseded by Step 428 while owner contracts remain current.
+- `V6_BOTTOM_CHROME_REGRESSION_AUDIT.md`: historical lower-chrome state;
+  current absence and reflow coverage is owned by Steps 428-429.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP125.md`: accepted next
   workstation/chart slice selection after lower chrome stabilization.
 - `V6_RIGHT_RAIL_SESSION_SETTINGS_PANEL_RESERVATION.md`: historical Session

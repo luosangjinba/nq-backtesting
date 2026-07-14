@@ -1,5 +1,9 @@
 # V6 Bottom Account/Trading Chrome Reservation
 
+> Historical record only. The visible placeholder strip was removed by Step
+> 428. Account/trading and Orders owner contracts remain current; chart/Replay
+> vertical reflow is owned separately by Step 429.
+
 Date: 2026-07-07
 
 ## Outcome
