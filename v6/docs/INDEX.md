@@ -161,10 +161,10 @@ Read this index before working on V6.
   presentation boundary re-audit after dashboard row-action work.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md`: selected next bounded
   workstation/chart implementation slice.
-- `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`: accepted inert shell-owned
-  left drawing/tool rail reservation for the workstation chart surface.
-- `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`: accepted workstation
-  rail/chrome regression audit after adding the left drawing rail.
+- `v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md`: historical left drawing/tool
+  rail reservation, superseded by the Step 418 decision and Step 426.
+- `v6/docs/V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`: historical rail/chrome
+  audit; current reclaimed-space coverage lives in the cleanup harnesses.
 - `v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`: selected next
   bounded workstation/chart slice after rail regression.
 - `v6/docs/V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: accepted inert
@@ -881,10 +881,10 @@ Read this index before working on V6.
   presentation boundary after dashboard row-action work.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION.md`: accepted next bounded
   workstation/chart implementation slice.
-- `V6_LEFT_DRAWING_RAIL_RESERVATION.md`: accepted inert left drawing/tool rail
-  reservation and browser coverage.
-- `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`: accepted workstation rail/chrome
-  regression state after left rail reservation.
+- `V6_LEFT_DRAWING_RAIL_RESERVATION.md`: historical inert left-rail record,
+  superseded by Step 426 while its owner contract remains current.
+- `V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md`: historical rail/chrome state;
+  current geometry is protected by workspace cleanup coverage.
 - `V6_WORKSTATION_CHART_SLICE_SELECTION_STEP122.md`: accepted next
   workstation/chart slice selection after rail regression.
 - `V6_BOTTOM_ACCOUNT_CHROME_RESERVATION.md`: accepted inert bottom

@@ -1,5 +1,9 @@
 # V6 Workstation Rail Regression Audit
 
+> Historical record only. Step 426 removed the left rail and updated current
+> geometry coverage to protect reclaimed chart space. Step 427 separately owns
+> the remaining right-rail cleanup.
+
 Date: 2026-07-07
 
 ## Outcome

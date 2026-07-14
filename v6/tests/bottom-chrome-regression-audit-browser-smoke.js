@@ -77,7 +77,6 @@ async function inspectChrome({ height, label, width }) {
           bottomButtonDisabled: [...bottom.querySelectorAll('button')].map((button) => button.disabled),
           chart: rectOf('[data-v6-chart-surface]'),
           host: rectOf('[data-v6-chart-engine-host]'),
-          leftRail: rectOf('[data-v6-left-drawing-rail]'),
           main: rectOf('[data-v6-workstation-main]'),
           quantityDisabled: document.querySelector('[data-v6-bottom-quantity]').disabled,
           reset: rectOf('[data-v6-reset-view]'),
@@ -102,7 +101,7 @@ for (const value of [
   assert.deepEqual(value.bottomButtonDisabled, [true, true, true]);
   assert.equal(value.quantityDisabled, true);
   assert.deepEqual(value.accountReadouts, ['Balance --', 'Realized --', 'Unrealized --']);
-  assert.equal(value.leftRail.right <= value.chart.left + 1, true);
+  assert.equal(value.chart.left <= value.main.left + 2, true);
   assert.equal(value.chart.right <= value.rightRail.left + 1, true);
   assert.equal(value.host.left, value.chart.left);
   assert.equal(value.host.top, value.chart.top);

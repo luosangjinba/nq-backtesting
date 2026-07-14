@@ -10,10 +10,7 @@ const leftRailDoc = await readFile('v6/docs/V6_LEFT_DRAWING_RAIL_RESERVATION.md'
 const sliceDoc = await readFile('v6/docs/V6_WORKSTATION_CHART_SLICE_SELECTION.md', 'utf8');
 const guardrailsDoc = await readFile('v6/docs/V6_FXREPLAY_UI_GUARDRAILS.md', 'utf8');
 const shellSource = await readFile('v6/src/shell/workstation-shell.js', 'utf8');
-const leftRailSource = shellSource.slice(
-  shellSource.indexOf('data-v6-left-drawing-rail'),
-  shellSource.indexOf('<section class="chart-surface"'),
-);
+assert.doesNotMatch(shellSource, /data-v6-left-drawing-rail|data-v6-left-drawing-tool/);
 
 assert.equal(indexDoc.includes('V6_WORKSTATION_RAIL_REGRESSION_AUDIT.md'), true);
 assert.match(auditDoc, /left drawing rail is shell-owned, 48px wide, and inert/);
@@ -23,20 +20,6 @@ assert.match(auditDoc, /dashboard visible row actions remain Summary, Stats, Cop
 assert.match(leftRailDoc, /all drawing\/tool placeholder buttons are disabled/);
 assert.match(sliceDoc, /preserve existing top toolbar, right rail, bottom transport, status\/OHLC/);
 assert.match(guardrailsDoc, /The left toolbar is a vertical drawing\/tool strip using icon buttons/);
-
-for (const forbiddenToken of [
-  'CHART_DATA_COMMANDS',
-  'CHART_VIEWPORT_COMMANDS',
-  'REPLAY_COMMANDS',
-  'BAR_DATA_COMMANDS',
-  'DEFAULT_WALL_COMMANDS',
-  'DISPLAY_TIMEFRAME_COMMANDS',
-  'dispatch',
-  'Order',
-  'Calendar',
-]) {
-  assert.equal(leftRailSource.includes(forbiddenToken), false, `left rail must not expose ${forbiddenToken}`);
-}
 
 assert.deepEqual(
   getVisibleRecentSessionRowActions().map((action) => action.id),
@@ -77,10 +60,7 @@ try {
         chartButtonLabels: labelsOf('[data-v6-chart-surface] button'),
         chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
         host: rectOf('[data-v6-chart-engine-host]'),
-        leftButtonDisabled: [...document.querySelectorAll('[data-v6-left-drawing-tool]')]
-          .map((button) => button.disabled),
-        leftButtonLabels: labelsOf('[data-v6-left-drawing-tool]'),
-        leftRail: rectOf('[data-v6-left-drawing-rail]'),
+        drawingEntryCount: document.querySelectorAll('[data-v6-left-drawing-rail], [data-v6-left-drawing-tool]').length,
         main: rectOf('[data-v6-workstation-main]'),
         reset: rectOf('[data-v6-reset-view]'),
         rightRail: rectOf('[data-v6-right-utility-rail]'),
@@ -94,21 +74,13 @@ try {
   `));
 
   assert.equal(value.chartToolbarExists, false);
-  assert.deepEqual(value.chartButtonLabels, ['Reset chart view']);
-  assert.deepEqual(value.leftButtonDisabled, [true, true, true, true, true, true]);
-  assert.deepEqual(value.leftButtonLabels, [
-    'Cursor tool',
-    'Trend line tool',
-    'Horizontal line tool',
-    'Rectangle tool',
-    'Measure tool',
-    'Text note tool',
-  ]);
-  assert.equal(value.leftRail.width, 48);
+  assert.equal(value.chartButtonLabels.length > 0, true);
+  assert.equal(value.chartButtonLabels.every((label) => /^(Maximize chart|Reset .+ pane view)$/.test(label)), true);
+  assert.equal(value.chartButtonLabels.some((label) => /Cursor|Trend|Horizontal|Rectangle|Measure|Text/.test(label)), false);
+  assert.equal(value.drawingEntryCount, 0);
   assert.equal(value.rightRail.width, 48);
-  assert.equal(Math.abs(value.leftRail.height - value.main.height) <= 2, true);
   assert.equal(Math.abs(value.rightRail.height - value.main.height) <= 2, true);
-  assert.equal(value.leftRail.right <= value.chart.left + 1, true);
+  assert.equal(value.chart.left <= value.main.left + 2, true);
   assert.equal(value.chart.right <= value.rightRail.left + 1, true);
   assert.equal(value.host.left, value.chart.left);
   assert.equal(value.host.top, value.chart.top);

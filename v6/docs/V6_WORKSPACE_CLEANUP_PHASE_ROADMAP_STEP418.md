@@ -242,6 +242,8 @@ contracts remain intact.
 
 ### Step 426 - Remove Traditional Left Drawing Rail
 
+Status: completed on 2026-07-14.
+
 - remove Cursor, Trend Line, Horizontal Line, Rectangle, Measure, and Text
   production buttons as one shell family;
 - reclaim left chart space and update chart-host sizing;
@@ -251,6 +253,14 @@ contracts remain intact.
   cleanup work.
 
 Commit intent: `refactor(v6): remove inert drawing rail`
+
+Removed the Cursor, Trend Line, Horizontal Line, Rectangle, Measure, and Text
+production buttons as one family, deleted their orphan styling and four unused
+SVG definitions, and moved the chart surface into the reclaimed left grid
+column. Browser coverage now requires traditional Drawing entries to remain
+absent while allowing Pane-local Maximize/Reset controls for any active layout.
+The drawing/action-history contract remains intact and no future Semantic
+Drawing entry surface or plugin API was selected.
 
 ### Step 427 - Remove Reserved Right-Rail Tools
 

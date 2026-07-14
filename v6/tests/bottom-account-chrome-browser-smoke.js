@@ -84,7 +84,6 @@ try {
         buttonLabels: labelsOf('[data-v6-bottom-account-chrome] button'),
         chart: rectOf('[data-v6-chart-surface]'),
         host: rectOf('[data-v6-chart-engine-host]'),
-        leftRail: rectOf('[data-v6-left-drawing-rail]'),
         main: rectOf('[data-v6-workstation-main]'),
         quantityDisabled: document.querySelector('[data-v6-bottom-quantity]').disabled,
         reset: rectOf('[data-v6-reset-view]'),
@@ -107,7 +106,7 @@ try {
   assert.deepEqual(value.accountReadouts, ['Balance --', 'Realized --', 'Unrealized --']);
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);
-  assert.equal(value.leftRail.right <= value.chart.left + 1, true);
+  assert.equal(value.chart.left <= value.main.left + 2, true);
   assert.equal(value.chart.right <= value.rightRail.left + 1, true);
   assert.equal(value.main.bottom <= value.bottom.top, true);
   assert.equal(value.bottom.bottom <= value.statusBar.top, true);

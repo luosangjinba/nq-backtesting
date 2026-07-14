@@ -23,7 +23,7 @@ assert.match(gapAudit, /Chart Surface\/adapter remains the sole chart mutation p
 
 assert.doesNotMatch(model, /paneOverrides|settingsTemplates|applyToAll/);
 const settingsStart = shell.indexOf('data-v6-settings-panel');
-const settingsEnd = shell.indexOf('data-v6-left-drawing-rail', settingsStart);
+const settingsEnd = shell.indexOf('<main class="workstation-main"', settingsStart);
 const settingsModal = shell.slice(settingsStart, settingsEnd);
 assert.ok(settingsModal, 'Settings modal markup must remain present.');
 assert.doesNotMatch(settingsModal, /data-v6-settings-template|Apply to all|Pane override/);

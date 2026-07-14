@@ -29,7 +29,7 @@ assert.match(parityGapDoc, /Owner contract selection for one deferred interactiv
 assert.match(parityGapDoc, /drawing\/action-history/);
 assert.match(guardrailsDoc, /Undo and redo[\s\S]*drawing runtime/);
 assert.match(leftRailDoc, /all drawing\/tool placeholder buttons are disabled/);
-assert.match(shellSource, /data-v6-left-drawing-tool="cursor" disabled/);
+assert.doesNotMatch(shellSource, /data-v6-left-drawing-tool/);
 assert.doesNotMatch(shellSource, /data-v6-top-undo/);
 assert.doesNotMatch(shellSource, /data-v6-top-redo/);
 

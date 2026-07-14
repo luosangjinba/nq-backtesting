@@ -29,9 +29,13 @@
   guards both markup and styling absence. Phase 2 is closed. Step 425 is
   complete: nine inert top-toolbar controls and their orphan styles are gone,
   while active symbol, timeframe, layout/sync, Settings, Replay, Journal, and
-  the future feature-owner contracts remain protected. The next bounded step
-  is Step 426: remove the traditional inert left Drawing rail and reclaim its
-  chart space without selecting a future Semantic Drawing entry surface. See
+  the future feature-owner contracts remain protected. Step 426 is complete:
+  the traditional six-button Drawing rail, its orphan styles, and four unused
+  SVG definitions are removed; the chart now owns the reclaimed left column
+  while the drawing/action-history contract remains intact. The future
+  Semantic Drawing entry remains undecided. The next bounded step is Step 427:
+  remove reserved Object tree, Order, and News right-rail tools and collapse
+  the rail if no functional entry remains. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

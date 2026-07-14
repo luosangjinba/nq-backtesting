@@ -7,7 +7,6 @@ const ICONS = {
   camera: '<path d="M7 7l1.8-2h6.4L17 7h3v12H4V7z"/><circle cx="12" cy="13" r="3"/>',
   chevronDown: '<path d="M6 9l6 6 6-6"/>',
   close: '<path d="M18 6L6 18"/><path d="M6 6l12 12"/>',
-  crosshair: '<path d="M12 3v18"/><path d="M3 12h18"/><circle cx="12" cy="12" r="3"/>',
   fullscreen: '<path d="M8 3H3v5"/><path d="M16 3h5v5"/><path d="M21 16v5h-5"/><path d="M3 16v5h5"/>',
   gear: '<circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a7 7 0 0 0-1.7-1L14.5 3h-5l-.4 3.1a7 7 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7 7 0 0 0 1.7 1l.4 3.1h5l.4-3.1a7 7 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1z"/>',
   grid: '<rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/>',
@@ -18,13 +17,10 @@ const ICONS = {
   listFilter: '<path d="M4 6h16"/><path d="M7 12h10"/><path d="M10 18h4"/>',
   minus: '<path d="M5 12h14"/>',
   pause: '<path d="M9 5v14"/><path d="M15 5v14"/>',
-  pencil: '<path d="M4 20l4.5-1 10-10a2.1 2.1 0 0 0-3-3l-10 10z"/><path d="M14 6l4 4"/>',
   play: '<path d="M8 5l11 7-11 7z"/>',
   plus: '<path d="M12 5v14"/><path d="M5 12h14"/>',
   plusCircle: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8"/><path d="M8 12h8"/>',
-  ruler: '<path d="M4 17L17 4l3 3L7 20z"/><path d="M8 16l-2-2"/><path d="M11 13l-2-2"/><path d="M14 10l-2-2"/>',
   redo: '<path d="M21 7v6h-6"/><path d="M20 13a7 7 0 1 0-2 5"/>',
-  rectangle: '<rect x="5" y="6" width="14" height="12" rx="1"/>',
   restart: '<path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v6h6"/><path d="M12 8v5l3 2"/>',
   search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
   sort: '<path d="M7 4v16"/><path d="M4 7l3-3 3 3"/><path d="M17 20V4"/><path d="M14 17l3 3 3-3"/>',
@@ -516,32 +512,6 @@ ${renderDisplayTimeframeMenuSections()}
       </section>
 
       <main class="workstation-main" data-v6-workstation-main>
-        <aside class="left-drawing-rail" data-v6-left-drawing-rail aria-label="Drawing tool rail">
-          <button type="button" class="drawing-rail-button" data-v6-left-drawing-tool="cursor" disabled aria-label="Cursor tool" title="Cursor tool">
-            ${icon('crosshair')}
-            <span class="sr-only">Cursor tool</span>
-          </button>
-          <button type="button" class="drawing-rail-button" data-v6-left-drawing-tool="trend-line" disabled aria-label="Trend line tool" title="Trend line tool">
-            ${icon('arrowRight')}
-            <span class="sr-only">Trend line tool</span>
-          </button>
-          <button type="button" class="drawing-rail-button" data-v6-left-drawing-tool="horizontal-line" disabled aria-label="Horizontal line tool" title="Horizontal line tool">
-            ${icon('minus')}
-            <span class="sr-only">Horizontal line tool</span>
-          </button>
-          <button type="button" class="drawing-rail-button" data-v6-left-drawing-tool="rectangle" disabled aria-label="Rectangle tool" title="Rectangle tool">
-            ${icon('rectangle')}
-            <span class="sr-only">Rectangle tool</span>
-          </button>
-          <button type="button" class="drawing-rail-button" data-v6-left-drawing-tool="measure" disabled aria-label="Measure tool" title="Measure tool">
-            ${icon('ruler')}
-            <span class="sr-only">Measure tool</span>
-          </button>
-          <button type="button" class="drawing-rail-button" data-v6-left-drawing-tool="text" disabled aria-label="Text note tool" title="Text note tool">
-            ${icon('pencil')}
-            <span class="sr-only">Text note tool</span>
-          </button>
-        </aside>
         <section class="chart-surface" aria-label="Replay chart surface" data-v6-chart-surface>
           <div class="chart-pane-layer" data-v6-chart-pane-layer>
             <div class="chart-engine-host" data-v6-chart-engine-host data-v6-pane-id="main" data-v6-layout-pane-slot="1" data-v6-chart-pane-visible="true">

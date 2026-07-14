@@ -1,5 +1,9 @@
 # V6 Left Drawing Rail Reservation
 
+> Historical record only. The traditional visible rail was removed by Step
+> 426 under the Step 418 cleanup decision. The drawing/action-history owner
+> contract remains current; no Semantic Drawing entry surface is selected.
+
 Date: 2026-07-07
 
 ## Outcome
