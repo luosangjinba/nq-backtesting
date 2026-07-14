@@ -14,6 +14,7 @@ import {
 } from './workstation-chart-layout-model.js';
 import { createChartRangeInputController } from './chart-range-input-controller.js';
 import { createCanvasSettingsChartOptions } from './canvas-settings-options.js';
+import { createSymbolSettingsSeriesOptions } from './symbol-settings-options.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -631,6 +632,14 @@ export function mountWorkstationChartSurface(root, {
         chartSurfaceElement.dataset.v6ChartNavigationVisibility = canvasSettings.state.chartNavigationVisibility;
       }
       return { ...canvasSettings.state };
+    },
+    applySymbolSettings(settings = {}) {
+      const symbolSettings = createSymbolSettingsSeriesOptions(settings, DEFAULT_SERIES_OPTIONS);
+      manager.applySeriesOptions?.(symbolSettings.options);
+      if (chartSurfaceElement?.dataset) {
+        chartSurfaceElement.dataset.v6SymbolSettings = JSON.stringify(symbolSettings.state);
+      }
+      return { ...symbolSettings.state };
     },
     applyChartDataRecord(record = {}) {
       const recordPaneId = String(record.paneId || '').trim();

@@ -12,6 +12,7 @@ import { connectManualWallInputBridge } from './chart-engine/manual-wall-input-b
 import { connectPaneActiveSurfaceBridge } from './chart-engine/pane-active-surface-bridge.js';
 import { connectResetViewControl } from './chart-engine/reset-view-control-bridge.js';
 import { connectSettingsChartSurfaceBridge } from './chart-engine/settings-chart-surface-bridge.js';
+import { connectSettingsSymbolChartSurfaceBridge } from './chart-engine/settings-symbol-chart-surface-bridge.js';
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { connectSettingsChartViewportBridge } from './chart-viewport/settings-chart-viewport-bridge.js';
@@ -69,6 +70,10 @@ await registry.start({ root, emitEvent, subscribeEvent });
 const workflowPanelCoordinator = createWorkflowPanelCoordinator();
 const workstationChartSurface = mountWorkstationChartSurface(root, { emitEvent });
 const settingsChartSurfaceBridge = connectSettingsChartSurfaceBridge({
+  chartSurface: workstationChartSurface,
+  subscribeEvent,
+});
+const settingsSymbolChartSurfaceBridge = connectSettingsSymbolChartSurfaceBridge({
   chartSurface: workstationChartSurface,
   subscribeEvent,
 });
@@ -192,6 +197,7 @@ root.__v6ReplayNavigationSettings = replayNavigationSettings;
 root.__v6SessionDashboard = sessionDashboard;
 root.__v6SettingsPanel = settingsPanel;
 root.__v6SettingsChartSurfaceBridge = settingsChartSurfaceBridge;
+root.__v6SettingsSymbolChartSurfaceBridge = settingsSymbolChartSurfaceBridge;
 root.__v6SettingsChartViewportBridge = settingsChartViewportBridge;
 root.__v6SettingsDaySeparatorBridge = settingsDaySeparatorBridge;
 root.__v6SessionsSurface = sessionsSurface;

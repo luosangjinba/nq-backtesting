@@ -116,6 +116,12 @@ export function createLightweightChartAdapter({
     return snapshot();
   }
 
+  function applySeriesOptions(options = {}) {
+    ensureMounted();
+    series.applyOptions?.(options);
+    return snapshot();
+  }
+
   function setDaySeparators(lines = []) {
     ensureMounted();
     daySeparatorPrimitive?.setLines(lines);
@@ -245,6 +251,7 @@ export function createLightweightChartAdapter({
 
   return {
     applyOptions,
+    applySeriesOptions,
     clearCrosshairPosition,
     destroy,
     measureVisibleLogicalRange,
