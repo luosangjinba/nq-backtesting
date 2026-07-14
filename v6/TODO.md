@@ -105,8 +105,8 @@
   Settings schema v8 adds Exchange/New York, UTC, and Local display plus global
   12/24-hour format. One shared domain feeds Lightweight Charts axis/crosshair,
   replay footer, and controlled Go-to inputs while runtime and persistence keep
-  canonical New York wall-clock values. Focused model/browser regressions pass;
-  human visual acceptance remains required. See
+  canonical New York wall-clock values. Focused model/browser regressions and
+  final human visual acceptance pass; Step 416 is closed. See
   `v6/docs/V6_SETTINGS_GLOBAL_TIME_PRESENTATION_STEP416.md`.
 - Latest completed correction step: Step 402 - Go-to Replay Navigation Semantic
   Correction And Plan. The mistaken active-pane loaded-window date locator was

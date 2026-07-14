@@ -20,11 +20,12 @@ Date: 2026-07-13
 - `e05ac154 feat(v6): format replay status times globally`
 - final Step 416 documentation/governance commit
 
-## Remaining
+## Visual Acceptance
 
-Human visual acceptance for 12/24-hour and Exchange/UTC presentation.
+Human visual acceptance passed for the chart, replay footer, and Go-to time
+surfaces. Step 416 is closed.
 
 ## Next
 
-After visual acceptance, re-audit Step 417 templates and pane overrides against
-real multi-pane requirements before implementation.
+Re-audit Step 417 templates and pane overrides against real multi-pane
+requirements before implementation.

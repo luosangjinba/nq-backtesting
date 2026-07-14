@@ -51,14 +51,14 @@ Official reference:
 - replay status Start/Cursor/End formatting;
 - existing Canvas, Settings, Status Readout, and Go-to browser regressions.
 
-## Remaining Gate
+## Visual Acceptance
 
-Human visual acceptance must verify chart axis/crosshair, footer, and Go-to in
-24-hour and 12-hour modes, plus at least Exchange and UTC timezone modes. Step
-416 remains visually pending until that matrix passes.
+Human visual acceptance passed for chart axis/crosshair, footer, and Go-to time
+presentation. The accepted matrix covers 24-hour and 12-hour modes and confirms
+that display changes do not alter Go-to behavior. Step 416 is closed.
 
 ## Next
 
-After visual acceptance, re-audit Step 417 before implementing templates and
-pane overrides. Do not introduce overrides until a concrete multi-pane use case
-justifies the additional precedence and persistence rules.
+Re-audit Step 417 before implementing templates and pane overrides. Do not
+introduce overrides until a concrete multi-pane use case justifies the
+additional precedence and persistence rules.
