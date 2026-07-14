@@ -37,7 +37,8 @@ forwards committed fields. Pane Status Readout alone owns status DOM and applies
 the same workspace-chart preferences to every pane.
 
 Bar change means selected-bar close versus the previous bar close, matching the
-reference product's absolute and percent values. Chart Surface enriches its
+reference product's absolute and percent values. It shares the selected
+candle's up/down/flat color with OHLC. Chart Surface enriches its
 existing crosshair event from the bounded pane-bar window; it does not request
 data or move replay state.
 

@@ -8,6 +8,7 @@ Date: 2026-07-13
 - upgraded Settings to schema v6 and activated the Status line tab;
 - routed committed preferences through a focused bridge to Pane Status Readout;
 - added previous-close absolute/percent bar change without a data request;
+- aligned Bar Change color with the selected candle's OHLC direction;
 - deferred market state, Volume, and Description until their truth owners exist;
 - covered transaction, multi-pane application, and hard reload.
 

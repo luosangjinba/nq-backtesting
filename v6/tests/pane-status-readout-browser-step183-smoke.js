@@ -43,6 +43,7 @@ try {
         const readout = document.querySelector('[data-v6-pane-status-readout][data-v6-pane-id="' + paneId + '"]');
         const text = (selector) => readout?.querySelector(selector)?.textContent?.trim() || '';
         const colors = {
+          change: getComputedStyle(readout.querySelector('[data-v6-status-change]')).color,
           close: getComputedStyle(readout.querySelector('[data-v6-status-close]')).color,
           high: getComputedStyle(readout.querySelector('[data-v6-status-high]')).color,
           low: getComputedStyle(readout.querySelector('[data-v6-status-low]')).color,
