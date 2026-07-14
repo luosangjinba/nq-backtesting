@@ -85,7 +85,10 @@ Read this index before working on V6.
   multi-pane ownership path, and completed visual matrix.
 - `v6/docs/V6_SETTINGS_STATUS_LINE_PRESENTATION_STEP414.md`: schema-v6 Status
   line tab, application-owned multi-pane presentation, previous-close change
-  semantics, deferred market/volume boundaries, and visual acceptance gate.
+  semantics, deferred market/volume boundaries, and completed visual matrix.
+- `v6/docs/V6_SETTINGS_CURRENT_PRICE_PRESENTATION_STEP415.md`: schema-v7
+  Scales/current-price controls, native series options, Pane-local symbol names,
+  transactional persistence, and remaining visual gate.
 - `v6/docs/V6_VIEWPORT_FILLED_HTF_HISTORY_STEP399.md`: production diagnosis of
   stale target-history API deployment, viewport-sized target windows,
   prefetch-threshold behavior, and Step 400 real-service acceptance gate.
