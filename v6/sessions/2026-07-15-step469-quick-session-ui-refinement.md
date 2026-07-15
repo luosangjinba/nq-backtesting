@@ -16,6 +16,8 @@ after focus moved elsewhere and obscured the date controls.
 - Replaced the circular pseudo-element remove glyph with a compact accessible
   chip button.
 - Added click-outside, focus-out, and Escape dismissal for the asset menu.
+- Removed the disabled session-layout placeholder; layout remains a workstation
+  action until session-level layout selection has a real owner and contract.
 - Added a responsive single-column layout for narrow screens.
 
 ## Verification

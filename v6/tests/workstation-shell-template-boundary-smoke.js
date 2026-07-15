@@ -14,6 +14,8 @@ assert.match(template, /data-v6-transport/);
 assert.match(template, /data-v6-settings-panel/);
 
 const markup = createWorkstationShellMarkup();
+assert.equal(markup.includes('Select Chart Layout'), false);
+assert.equal(markup.includes('layout-placeholder'), false);
 assert.match(markup, /data-v6-workstation-shell/);
 assert.match(markup, /data-v6-status-bar/);
 

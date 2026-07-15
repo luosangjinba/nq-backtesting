@@ -101,10 +101,6 @@ export function createWorkstationShellMarkup() {
                     <button type="button" class="asset-option" data-v6-asset-option="ES"><span class="asset-option-symbol">ES</span><span class="asset-option-name">E-mini S&amp;P 500 Futures</span><span class="asset-option-market">CME</span><i aria-hidden="true"></i></button>
                   </div>
                 </section>
-                <label class="quick-session-field">
-                  <span>Select Chart Layout (Optional) ${icon('info')}</span>
-                  <button type="button" class="layout-placeholder" disabled>${icon('chevronDown')}</button>
-                </label>
                 <div class="quick-session-date-grid">
                   <div class="quick-session-date-fields">
                     <label class="quick-session-field">
