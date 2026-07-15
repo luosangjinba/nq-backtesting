@@ -23,9 +23,9 @@ The pack runs:
 - `replay-transport-controller-smoke.js`
 - `replay-transport-visual-state-browser-smoke.js`
 - `manual-previous-chain-closure-step244-smoke.js`
-- `manual-previous-transport-readiness-step241-smoke.js`
-- `manual-previous-transport-button-step242-smoke.js`
-- `manual-previous-transport-multi-pane-step243-smoke.js`
+- `manual-previous-transport-readiness-browser-step241-smoke.js`
+- `manual-previous-transport-button-browser-step242-smoke.js`
+- `manual-previous-transport-multi-pane-browser-step243-smoke.js`
 - `leftward-extension-planner-smoke.js`
 - `display-timeframe-leftward-auto-chain-browser-smoke.js`
 - `replay-safe-leftward-history-latency-browser-step187-smoke.js`

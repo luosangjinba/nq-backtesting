@@ -8,7 +8,7 @@
 
 ## Changes
 
-- Created `v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`.
+- Created `v6/tests/manual-previous-transport-multi-pane-browser-step243-smoke.js`.
 - The smoke creates a replay session, switches to a two-pane layout, waits for
   secondary pane bootstrap, advances replay, and clicks the real transport
   Previous button.
@@ -17,9 +17,9 @@
 
 ## Verification
 
-- `node v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`
-- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-multi-pane-browser-step243-smoke.js`
+- `node v6/tests/manual-previous-transport-button-browser-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`

@@ -9,7 +9,7 @@ Accepted.
 Step 321 added an event-driven replacement browser report for target-history
 apply-lag measurement:
 
-`v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-step321-smoke.js`
+`v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-browser-step321-smoke.js`
 
 The smoke collects `8h`, `1D`, and `1W` target-history samples and derives
 `applyLagMs` from browser milestones:
@@ -57,7 +57,7 @@ indicator, or seconds behavior. Replay remains source `1m` driven.
 
 ## Verification
 
-- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-step321-smoke.js`
+- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-browser-step321-smoke.js`
 - `node v6/tests/high-timeframe-target-history-apply-lag-boundary-browser-step320-smoke.js`
 - `node v6/tests/high-timeframe-target-history-apply-lag-optimization-plan-step319-smoke.js`
 - `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`

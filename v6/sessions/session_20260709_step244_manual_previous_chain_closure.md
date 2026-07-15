@@ -22,9 +22,9 @@
 - `node v6/tests/replay-step-back-owner-readiness-step235-smoke.js`
 - `node v6/tests/replay-previous-domain-command-step236-smoke.js`
 - `node v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`
-- `node v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`
-- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-multi-pane-browser-step243-smoke.js`
+- `node v6/tests/manual-previous-transport-button-browser-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`

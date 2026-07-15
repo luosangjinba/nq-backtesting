@@ -77,7 +77,7 @@ Implement Date Range / Loaded Boundary / Replay Entry Regression Pack:
 ## Suggested Verification For Step 255
 
 - `node v6/tests/date-range-boundary-entry-regression-pack-step255-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/real-date-boundary-metadata-browser-step190-smoke.js`
 - `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`

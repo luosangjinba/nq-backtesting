@@ -26,7 +26,7 @@ state directly.
 
 ## Coverage
 
-`v6/tests/manual-previous-viewport-preservation-step240-smoke.js` verifies:
+`v6/tests/manual-previous-viewport-preservation-browser-step240-smoke.js` verifies:
 
 - the transport Previous button remains disabled and has no transport action;
 - default-wall intent preserves origin/span/latest offset after direct manual

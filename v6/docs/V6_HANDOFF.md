@@ -591,10 +591,10 @@ Read this block first after restarting the server or assistant context.
 - `node v6/tests/high-timeframe-target-history-reduced-delay-budget-browser-step377-smoke.js`
 - `node v6/tests/chart-foundation-regression-refresh-step381-static-smoke.js`
 - `node v6/tests/replay-gap-regression-pack-cost-audit-step382-static-smoke.js`
-- `node v6/tests/replay-gap-manual-path-timing-probe-step383-smoke.js`
+- `node v6/tests/replay-gap-manual-path-timing-probe-browser-step383-smoke.js`
 - `node v6/tests/replay-gap-manual-path-timing-probe-step383-static-smoke.js`
 - `node v6/tests/replay-gap-near-gap-manual-fixture-plan-step384-static-smoke.js`
-- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`
 - `node v6/tests/replay-gap-near-gap-manual-fixture-step385-static-smoke.js`
 - `node v6/tests/replay-gap-fast-pack-integration-selection-step386-static-smoke.js`
 - `node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js`

@@ -39,7 +39,7 @@ for (const fullMember of [
 }
 
 for (const fastMember of [
-  'replay-gap-near-gap-manual-fixture-step385-smoke.js',
+  'replay-gap-near-gap-manual-fixture-browser-step385-smoke.js',
   'auto-play-session-gap-browser-step263-smoke.js',
   'htf-auto-play-replay-gap-browser-step273-smoke.js',
 ]) {

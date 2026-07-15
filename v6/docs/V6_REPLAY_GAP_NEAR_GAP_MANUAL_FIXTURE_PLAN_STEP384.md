@@ -98,7 +98,7 @@ equivalent no-bar gap assertions for all six display timeframe cases.
 Step 385 should add a focused command rather than immediately replacing pack
 membership:
 
-- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`
 
 Initial placement:
 

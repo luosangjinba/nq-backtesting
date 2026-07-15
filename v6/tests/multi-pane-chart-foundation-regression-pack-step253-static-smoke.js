@@ -19,7 +19,7 @@ const requiredMembers = [
   'pane-maximize-state-browser-step185-smoke.js',
   'maximize-restore-control-browser-step186-smoke.js',
   'display-timeframe-active-pane-ui-state-browser-step208-smoke.js',
-  'multi-pane-active-focus-chain-step251-smoke.js',
+  'multi-pane-active-focus-chain-browser-step251-smoke.js',
 ];
 
 for (const member of requiredMembers) {

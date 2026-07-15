@@ -57,7 +57,7 @@ indicator, or seconds behavior. Replay remains source `1m` driven.
 
 - `node v6/tests/high-timeframe-target-history-visual-latency-attribution-step322-smoke.js`
 - `node v6/tests/high-timeframe-target-history-visual-latency-attribution-browser-step322-smoke.js`
-- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-step321-smoke.js`
+- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-browser-step321-smoke.js`
 - `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
 - `node v6/tests/high-timeframe-target-history-visual-latency-attribution-closeout-step322-static-smoke.js`
 - `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`

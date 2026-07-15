@@ -17,7 +17,7 @@ or real-date leftward extension.
 `v6/tests/date-range-boundary-entry-regression-pack-step255-smoke.js`
 runs these gates in sequence:
 
-- `v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `v6/tests/real-date-boundary-metadata-browser-step190-smoke.js`
 - `v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `v6/tests/chart-entry-playback-period-boundary-browser-smoke.js`
@@ -70,7 +70,7 @@ runs these gates in sequence:
 
 - `node v6/tests/date-range-boundary-entry-regression-pack-step255-static-smoke.js`
 - `node v6/tests/date-range-boundary-entry-regression-pack-step255-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/real-date-boundary-metadata-browser-step190-smoke.js`
 - `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`

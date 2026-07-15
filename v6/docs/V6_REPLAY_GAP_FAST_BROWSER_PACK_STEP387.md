@@ -31,7 +31,7 @@ with a separate log prefix:
 
 The fast pack runs three members:
 
-- `v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`;
+- `v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`;
 - `v6/tests/auto-play-session-gap-browser-step263-smoke.js`;
 - `v6/tests/htf-auto-play-replay-gap-browser-step273-smoke.js`.
 

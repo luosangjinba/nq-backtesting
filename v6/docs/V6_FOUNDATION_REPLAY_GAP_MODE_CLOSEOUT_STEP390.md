@@ -58,7 +58,7 @@ node v6/tests/replay-gap-browser-regression-pack-step274-smoke.js
 Near-gap manual fixture:
 
 ```bash
-node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js
+node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js
 ```
 
 ## Coverage Preservation

@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 
 const doc386 = readFileSync('v6/docs/V6_REPLAY_GAP_FAST_PACK_INTEGRATION_SELECTION_STEP386.md', 'utf8');
 const fastPack = readFileSync('v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js', 'utf8');
-const step385Fixture = readFileSync('v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js', 'utf8');
+const step385Fixture = readFileSync('v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js', 'utf8');
 const step274Pack = readFileSync('v6/tests/replay-gap-browser-regression-pack-step274-smoke.js', 'utf8');
 const step276Pack = readFileSync('v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js', 'utf8');
 const app = readFileSync('v6/src/app.js', 'utf8');
@@ -12,7 +12,7 @@ assert.match(doc386, /Replay Gap Fast Browser Pack Implementation/);
 assert.match(doc386, /replay-gap-fast-browser-regression-pack-step387-smoke\.js/);
 
 for (const member of [
-  'replay-gap-near-gap-manual-fixture-step385-smoke.js',
+  'replay-gap-near-gap-manual-fixture-browser-step385-smoke.js',
   'auto-play-session-gap-browser-step263-smoke.js',
   'htf-auto-play-replay-gap-browser-step273-smoke.js',
 ]) {

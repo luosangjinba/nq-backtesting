@@ -22,7 +22,7 @@ action attribute is removed.
 
 ## Coverage
 
-`v6/tests/manual-previous-transport-button-step242-smoke.js` verifies:
+`v6/tests/manual-previous-transport-button-browser-step242-smoke.js` verifies:
 
 - at replay start, Previous is disabled/actionless and clicking it does not move
   replay or chart-data;

@@ -29,7 +29,7 @@ const TESTS = Object.freeze([
   'v6/tests/display-timeframe-leftward-auto-chain-browser-smoke.js',
   'v6/tests/pane-local-header-state-browser-step210-smoke.js',
   'v6/tests/top-symbol-active-pane-browser-step212-smoke.js',
-  'v6/tests/multi-pane-active-focus-chain-step251-smoke.js',
+  'v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js',
 ]);
 
 function runTest(script) {

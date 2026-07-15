@@ -35,6 +35,12 @@
   longer treats availability of older source rows as a latency invariant. It
   returns from quarantine to the canonical browser gates.
 
+- Step 444 makes browser requirements discoverable from test names. Nine real
+  CDP/harness entrypoints now include `browser`; the screenshot entrypoint keeps
+  its already-explicit name. A naming/environment contract guards Chrome,
+  loopback HTTP/debug ports, and cleanup requirements so Node-only discovery no
+  longer silently executes browser infrastructure tests.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
@@ -1001,7 +1007,7 @@ Notes for execution:
 - keep standalone fast pack command directly runnable:
   `node v6/tests/replay-gap-fast-browser-regression-pack-step387-smoke.js`;
 - keep standalone command
-  `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`;
+  `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`;
 - keep at least one long-path manual source assertion available for confidence;
 - leave Step 274 full pack membership unchanged;
 - do not modify `v6/src/app.js`;
@@ -1059,7 +1065,7 @@ Verification:
   passed `8/8` in `39103ms`;
 - `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`;
 - `node v6/tests/display-timeframe-target-materialization-browser-step336-smoke.js`;
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`;
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`;
 - `node v6/tests/pane-active-visual-outline-browser-smoke.js`;
 - `node v6/tests/boundary-smoke.js`;
 - `git diff --check`.
@@ -1266,7 +1272,7 @@ Completed in this replay-gap near-gap manual fixture browser commit series.
 
 Verification:
 
-- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`
 - `node v6/tests/replay-gap-near-gap-manual-fixture-step385-static-smoke.js`
 - `node v6/tests/replay-gap-near-gap-manual-fixture-plan-step384-static-smoke.js`
 - `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
@@ -1276,7 +1282,7 @@ Verification:
 Notes:
 
 - Added standalone command
-  `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`.
+  `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`.
 - Covered low-TF `1m`/`5m`/`15m` and HTF `1D`/`1W`/`1M`.
 - Proved the path `16:58 -> 16:59 -> 18:00 -> 18:01` in all six cases.
 - Reduced the pre-gap Manual Next count from the long-path `86` loop to `2`
@@ -1319,7 +1325,7 @@ Completed in this replay-gap manual path timing probe commit series.
 
 Verification:
 
-- `node v6/tests/replay-gap-manual-path-timing-probe-step383-smoke.js`
+- `node v6/tests/replay-gap-manual-path-timing-probe-browser-step383-smoke.js`
 - `node v6/tests/replay-gap-manual-path-timing-probe-step383-static-smoke.js`
 - `node v6/tests/replay-gap-regression-pack-cost-audit-step382-static-smoke.js`
 - `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`
@@ -3136,7 +3142,7 @@ Verification:
 
 - `node v6/tests/high-timeframe-target-history-visual-latency-attribution-step322-smoke.js`
 - `node v6/tests/high-timeframe-target-history-visual-latency-attribution-browser-step322-smoke.js`
-- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-step321-smoke.js`
+- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-browser-step321-smoke.js`
 - `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
 - `node v6/tests/high-timeframe-target-history-visual-latency-attribution-closeout-step322-static-smoke.js`
 - `node v6/tests/target-history-diagnostics-readout-regression-pack-step293-static-smoke.js`
@@ -3162,7 +3168,7 @@ commit series.
 
 Verification:
 
-- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-step321-smoke.js`
+- `node v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-browser-step321-smoke.js`
 - `node v6/tests/high-timeframe-target-history-apply-lag-boundary-browser-step320-smoke.js`
 - `node v6/tests/high-timeframe-target-history-apply-lag-optimization-plan-step319-smoke.js`
 - `node v6/tests/high-timeframe-target-history-phase-budget-selection-step315-smoke.js`
@@ -5030,7 +5036,7 @@ Verification:
 
 - `node v6/tests/session-setup-model-smoke.js`
 - `node v6/tests/session-setup-datetime-local-browser-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/quick-session-flow-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/session-domain-smoke.js`
@@ -5108,7 +5114,7 @@ Verification:
 
 - `node v6/tests/date-range-boundary-entry-regression-pack-step255-static-smoke.js`
 - `node v6/tests/date-range-boundary-entry-regression-pack-step255-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/real-date-boundary-metadata-browser-step190-smoke.js`
 - `node v6/tests/chart-entry-initial-visibility-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
@@ -5162,7 +5168,7 @@ Verification:
 
 - `node v6/tests/multi-pane-chart-foundation-regression-pack-step253-static-smoke.js`
 - `node v6/tests/multi-pane-chart-foundation-regression-pack-step253-smoke.js`
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`
@@ -5189,7 +5195,7 @@ Verification:
 
 - `node v6/tests/chart-foundation-next-slice-selection-step252-smoke.js`
 - `node v6/tests/chart-foundation-next-slice-selection-step250-smoke.js`
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
@@ -5212,7 +5218,7 @@ Completed in this browser gate commit.
 
 Verification:
 
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/pane-active-visual-outline-browser-smoke.js`
 - `node v6/tests/pane-active-surface-bridge-step207-smoke.js`
 - `node v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`
@@ -5226,7 +5232,7 @@ Verification:
 Notes:
 
 - Added `v6/docs/V6_MULTI_PANE_ACTIVE_FOCUS_CHAIN_STEP251.md`.
-- Added `v6/tests/multi-pane-active-focus-chain-step251-smoke.js`.
+- Added `v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`.
 - The gate verifies visible active-pane outline/state, pane runtime active id,
   top toolbar symbol/timeframe presentation, pane-local OHLC headers, and
   display-timeframe command targeting in one triple-pane browser flow.
@@ -5306,7 +5312,7 @@ Completed in this selection commit.
 Verification:
 
 - `node v6/tests/chart-foundation-next-slice-selection-step248-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`
@@ -5334,7 +5340,7 @@ Completed in this browser gate commit.
 
 Verification:
 
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/chart-foundation-next-slice-selection-step246-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
@@ -5344,7 +5350,7 @@ Verification:
 Notes:
 
 - Added `v6/docs/V6_DATE_RANGE_ENTRY_VIEWPORT_ALIGNMENT_STEP247.md`.
-- Added `v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`.
+- Added `v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`.
 - The browser gate creates a non-default date-range session through the real
   session setup form, waits for chart-entry projection apply, and verifies
   chart-data, replay cursor, chart viewport, chart surface visible range, and
@@ -5422,9 +5428,9 @@ Verification:
 - `node v6/tests/replay-step-back-owner-readiness-step235-smoke.js`
 - `node v6/tests/replay-previous-domain-command-step236-smoke.js`
 - `node v6/tests/chart-entry-manual-previous-contract-step237-smoke.js`
-- `node v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`
-- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-multi-pane-browser-step243-smoke.js`
+- `node v6/tests/manual-previous-transport-button-browser-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`
@@ -5452,9 +5458,9 @@ Completed in this browser regression coverage commit.
 
 Verification:
 
-- `node v6/tests/manual-previous-transport-multi-pane-step243-smoke.js`
-- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-multi-pane-browser-step243-smoke.js`
+- `node v6/tests/manual-previous-transport-button-browser-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
@@ -5481,10 +5487,10 @@ Completed in this transport button wiring and browser coverage commit.
 
 Verification:
 
-- `node v6/tests/manual-previous-transport-button-step242-smoke.js`
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-button-browser-step242-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
-- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-browser-step240-smoke.js`
 - `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`
 - `node v6/tests/replay-runtime-smoke.js`
@@ -5514,9 +5520,9 @@ Completed in this transport readiness state and browser coverage commit.
 
 Verification:
 
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
-- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-browser-step240-smoke.js`
 - `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
@@ -5547,7 +5553,7 @@ Completed in this viewport owner fix and browser coverage commit.
 
 Verification:
 
-- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-browser-step240-smoke.js`
 - `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
 - `node v6/tests/chart-entry-manual-previous-runtime-step238-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`

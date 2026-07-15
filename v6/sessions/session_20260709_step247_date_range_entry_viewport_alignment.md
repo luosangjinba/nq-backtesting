@@ -11,12 +11,12 @@ Date: 2026-07-09
 ## Changes
 
 - Added `v6/docs/V6_DATE_RANGE_ENTRY_VIEWPORT_ALIGNMENT_STEP247.md`.
-- Added `v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`.
+- Added `v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`.
 - Updated `v6/TODO.md` with Step 247 completion and Step 248 recommendation.
 
 ## Verification
 
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/chart-foundation-next-slice-selection-step246-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`

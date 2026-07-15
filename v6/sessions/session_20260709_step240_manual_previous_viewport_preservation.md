@@ -17,7 +17,7 @@
 
 ## Verification
 
-- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-browser-step240-smoke.js`
 - `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
 - `node v6/tests/chart-entry-manual-previous-runtime-step238-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`

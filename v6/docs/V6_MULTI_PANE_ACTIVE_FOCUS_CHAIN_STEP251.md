@@ -33,7 +33,7 @@ command targeting.
 
 ## Gate
 
-`v6/tests/multi-pane-active-focus-chain-step251-smoke.js` opens the real V6
+`v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js` opens the real V6
 browser surface, creates a triple-pane layout, assigns different symbol and
 timeframe state to each pane, emits pane-local OHLC values, focuses the
 secondary pane, and then applies a toolbar timeframe change.
@@ -58,7 +58,7 @@ It verifies:
 
 ## Verification
 
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/pane-active-visual-outline-browser-smoke.js`
 - `node v6/tests/pane-active-surface-bridge-step207-smoke.js`
 - `node v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`

@@ -32,7 +32,7 @@ assert.match(doc, /projection metadata includes the final source timestamp/);
 assert.match(doc, /footer cursor reads `Cursor 18:01`/);
 assert.match(doc, /Do not delete the existing long-path coverage/);
 assert.match(doc, /existing `1m`\s+`manual-next-session-gap-browser-step258-smoke\.js` path/);
-assert.match(doc, /replay-gap-near-gap-manual-fixture-step385-smoke\.js/);
+assert.match(doc, /replay-gap-near-gap-manual-fixture-browser-step385-smoke\.js/);
 assert.match(doc, /not a Step 274 member yet/);
 assert.match(doc, /not a Step 276 member yet/);
 assert.match(doc, /Replay Gap Near-Gap Manual Fixture Browser Probe/);

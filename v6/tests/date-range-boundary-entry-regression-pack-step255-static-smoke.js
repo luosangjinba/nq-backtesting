@@ -11,7 +11,7 @@ const todo = await read('v6/TODO.md');
 const selection = await read('v6/docs/V6_CHART_FOUNDATION_NEXT_SLICE_SELECTION_STEP254.md');
 
 const requiredMembers = [
-  'date-range-entry-viewport-alignment-step247-smoke.js',
+  'date-range-entry-viewport-alignment-browser-step247-smoke.js',
   'real-date-boundary-metadata-browser-step190-smoke.js',
   'chart-entry-initial-visibility-browser-smoke.js',
   'chart-entry-playback-period-boundary-browser-smoke.js',

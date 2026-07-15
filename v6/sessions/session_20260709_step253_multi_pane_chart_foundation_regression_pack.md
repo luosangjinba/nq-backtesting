@@ -21,7 +21,7 @@ This step did not change runtime behavior.
 
 - `node v6/tests/multi-pane-chart-foundation-regression-pack-step253-static-smoke.js`
 - `node v6/tests/multi-pane-chart-foundation-regression-pack-step253-smoke.js`
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`

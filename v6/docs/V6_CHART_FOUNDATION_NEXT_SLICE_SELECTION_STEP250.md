@@ -77,7 +77,7 @@ Implement Multi-Pane Active Focus Chain Gate:
 
 ## Suggested Verification For Step 251
 
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/pane-active-visual-outline-browser-smoke.js`
 - `node v6/tests/pane-active-surface-bridge-step207-smoke.js`
 - `node v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`

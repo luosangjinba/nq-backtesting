@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { performance } from 'node:perf_hooks';
 
 const TESTS = Object.freeze([
-  'v6/tests/date-range-entry-viewport-alignment-step247-smoke.js',
+  'v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js',
   'v6/tests/real-date-boundary-metadata-browser-step190-smoke.js',
   'v6/tests/chart-entry-initial-visibility-browser-smoke.js',
   'v6/tests/chart-entry-playback-period-boundary-browser-smoke.js',

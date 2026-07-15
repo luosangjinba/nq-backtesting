@@ -43,7 +43,7 @@ Completed corrections:
   passed `8/8` in `39103ms` using the default fast replay-gap mode.
 - `node v6/tests/replay-coordination-materialization-runtime-handoff-app-registration-browser-step365-smoke.js`
 - `node v6/tests/display-timeframe-target-materialization-browser-step336-smoke.js`
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/pane-active-visual-outline-browser-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`

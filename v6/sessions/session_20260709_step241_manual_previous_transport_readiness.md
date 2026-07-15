@@ -21,9 +21,9 @@
 
 ## Verification
 
-- `node v6/tests/manual-previous-transport-readiness-step241-smoke.js`
+- `node v6/tests/manual-previous-transport-readiness-browser-step241-smoke.js`
 - `node v6/tests/replay-transport-controller-smoke.js`
-- `node v6/tests/manual-previous-viewport-preservation-step240-smoke.js`
+- `node v6/tests/manual-previous-viewport-preservation-browser-step240-smoke.js`
 - `node v6/tests/manual-previous-browser-wiring-guard-step239-smoke.js`
 - `node v6/tests/replay-transport-visual-state-browser-smoke.js`
 - `node v6/tests/product-direction-smoke.js`

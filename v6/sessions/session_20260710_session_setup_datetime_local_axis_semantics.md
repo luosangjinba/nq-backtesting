@@ -29,7 +29,7 @@ than the visible form value.
 
 - `node v6/tests/session-setup-model-smoke.js`
 - `node v6/tests/session-setup-datetime-local-browser-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/quick-session-flow-browser-smoke.js`
 - `node v6/tests/session-dashboard-browser-smoke.js`
 - `node v6/tests/session-domain-smoke.js`

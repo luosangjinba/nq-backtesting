@@ -24,7 +24,7 @@ cursor mutation, or viewport projection.
 
 ## Gate
 
-`date-range-entry-viewport-alignment-step247-smoke.js` creates a non-default
+`date-range-entry-viewport-alignment-browser-step247-smoke.js` creates a non-default
 date-range session through the real session setup form and verifies:
 
 - selected trading dates remain visible in the session row;
@@ -53,7 +53,7 @@ after the recent leftward-history and replay/transport stabilization work.
 
 ## Verification
 
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/chart-foundation-next-slice-selection-step246-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`

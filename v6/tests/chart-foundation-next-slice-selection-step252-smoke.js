@@ -50,7 +50,7 @@ for (const filename of [
   'pane-maximize-state-browser-step185-smoke.js',
   'maximized-restore-control-browser-step186-smoke.js',
   'display-timeframe-active-pane-ui-state-browser-step208-smoke.js',
-  'multi-pane-active-focus-chain-step251-smoke.js',
+  'multi-pane-active-focus-chain-browser-step251-smoke.js',
 ]) {
   const expected = filename === 'maximized-restore-control-browser-step186-smoke.js'
     ? 'maximize-restore-control-browser-step186-smoke.js'
@@ -59,7 +59,7 @@ for (const filename of [
 }
 
 for (const filename of [
-  'manual-previous-transport-multi-pane-step243-smoke.js',
+  'manual-previous-transport-multi-pane-browser-step243-smoke.js',
   'display-timeframe-leftward-auto-chain-browser-smoke.js',
   'layout-pane-data-bootstrap-browser-step162-smoke.js',
   'pane-local-reset-controls-browser-step163-smoke.js',

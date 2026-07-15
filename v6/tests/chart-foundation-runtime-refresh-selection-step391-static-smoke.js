@@ -24,7 +24,7 @@ for (const source of [doc, step390Doc]) {
   assert.match(source, /FOUNDATION_REPLAY_GAP_MODE=full node v6\/tests\/timeframe-replay-foundation-regression-pack-step276-smoke\.js/);
   assert.match(source, /node v6\/tests\/replay-gap-fast-browser-regression-pack-step387-smoke\.js/);
   assert.match(source, /node v6\/tests\/replay-gap-browser-regression-pack-step274-smoke\.js/);
-  assert.match(source, /node v6\/tests\/replay-gap-near-gap-manual-fixture-step385-smoke\.js/);
+  assert.match(source, /node v6\/tests\/replay-gap-near-gap-manual-fixture-browser-step385-smoke\.js/);
 }
 
 assert.match(step381Doc, /105292ms/);
@@ -35,7 +35,7 @@ assert.match(step276Pack, /full: 'v6\/tests\/replay-gap-browser-regression-pack-
 assert.match(step276Pack, /process\.env\.FOUNDATION_REPLAY_GAP_MODE \|\| 'fast'/);
 assert.match(step274Pack, /manual-next-session-gap-browser-step258-smoke\.js/);
 assert.match(step274Pack, /htf-manual-next-replay-gap-browser-step273-smoke\.js/);
-assert.match(step387Pack, /replay-gap-near-gap-manual-fixture-step385-smoke\.js/);
+assert.match(step387Pack, /replay-gap-near-gap-manual-fixture-browser-step385-smoke\.js/);
 assert.match(step387Pack, /auto-play-session-gap-browser-step263-smoke\.js/);
 assert.match(step387Pack, /htf-auto-play-replay-gap-browser-step273-smoke\.js/);
 assert.equal(app.includes('FOUNDATION_REPLAY_GAP_MODE'), false);

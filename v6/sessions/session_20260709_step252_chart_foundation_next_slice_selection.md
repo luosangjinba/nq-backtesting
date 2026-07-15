@@ -25,7 +25,7 @@ focus/readout consistency.
 
 - `node v6/tests/chart-foundation-next-slice-selection-step252-smoke.js`
 - `node v6/tests/chart-foundation-next-slice-selection-step250-smoke.js`
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`
 - `git diff --check`

@@ -33,7 +33,7 @@ assert.match(step276Pack, /FOUNDATION_REPLAY_GAP_MODE/);
 assert.match(step276Pack, /replay-gap-fast-browser-regression-pack-step387-smoke\.js/);
 assert.match(step276Pack, /replay-gap-browser-regression-pack-step274-smoke\.js/);
 assert.match(step274Pack, /manual-next-session-gap-browser-step258-smoke\.js/);
-assert.match(step387Pack, /replay-gap-near-gap-manual-fixture-step385-smoke\.js/);
+assert.match(step387Pack, /replay-gap-near-gap-manual-fixture-browser-step385-smoke\.js/);
 assert.equal(app.includes('FOUNDATION_REPLAY_GAP_MODE=full'), false);
 assert.match(index, /V6_FOUNDATION_PACK_REPLAY_GAP_MODE_STEP389\.md/);
 

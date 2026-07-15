@@ -9,7 +9,7 @@ const [
   app,
 ] = await Promise.all([
   readFile('v6/docs/V6_REPLAY_GAP_MANUAL_PATH_TIMING_PROBE_STEP383.md', 'utf8'),
-  readFile('v6/tests/replay-gap-manual-path-timing-probe-step383-smoke.js', 'utf8'),
+  readFile('v6/tests/replay-gap-manual-path-timing-probe-browser-step383-smoke.js', 'utf8'),
   readFile('v6/tests/replay-gap-browser-regression-pack-step274-smoke.js', 'utf8'),
   readFile('v6/tests/timeframe-replay-foundation-regression-pack-step276-smoke.js', 'utf8'),
   readFile('v6/src/app.js', 'utf8'),
@@ -17,7 +17,7 @@ const [
 
 assert.match(doc, /Status\s*\n\s*Accepted/);
 assert.match(doc, /No runtime behavior changed in this step/);
-assert.match(doc, /replay-gap-manual-path-timing-probe-step383-smoke\.js/);
+assert.match(doc, /replay-gap-manual-path-timing-probe-browser-step383-smoke\.js/);
 assert.match(doc, /low-TF manual cases: `1m`, `5m`, `15m`/);
 assert.match(doc, /HTF manual cases: `1D`, `1W`, `1M`/);
 assert.match(doc, /dominant cost is the Manual Next loop/);

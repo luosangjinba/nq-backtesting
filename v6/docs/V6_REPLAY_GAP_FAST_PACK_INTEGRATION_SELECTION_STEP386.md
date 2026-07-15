@@ -28,7 +28,7 @@ Step 276 currently includes the full Step 274 pack as its replay-gap member.
 
 Step 385 added a standalone near-gap manual fixture:
 
-- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`
 
 It covers `1m`/`5m`/`15m` and `1D`/`1W`/`1M`, proving:
 
@@ -86,7 +86,7 @@ Recommended future command:
 
 Recommended Step 387 fast pack members:
 
-- `v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`;
+- `v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`;
 - `v6/tests/auto-play-session-gap-browser-step263-smoke.js`;
 - `v6/tests/htf-auto-play-replay-gap-browser-step273-smoke.js`.
 

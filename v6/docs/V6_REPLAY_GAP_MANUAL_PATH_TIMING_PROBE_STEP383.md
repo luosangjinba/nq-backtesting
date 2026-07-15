@@ -17,7 +17,7 @@ or the Step 362 runtime skeleton.
 
 ## Probe Command
 
-- `node v6/tests/replay-gap-manual-path-timing-probe-step383-smoke.js`
+- `node v6/tests/replay-gap-manual-path-timing-probe-browser-step383-smoke.js`
 
 The probe keeps the existing replay-gap assertions and adds harness-local
 timing around:
@@ -110,7 +110,7 @@ Step 384 should:
 
 ## Verification
 
-- `node v6/tests/replay-gap-manual-path-timing-probe-step383-smoke.js`
+- `node v6/tests/replay-gap-manual-path-timing-probe-browser-step383-smoke.js`
 - `node v6/tests/replay-gap-manual-path-timing-probe-step383-static-smoke.js`
 - `node v6/tests/replay-gap-regression-pack-cost-audit-step382-static-smoke.js`
 - `node v6/tests/replay-gap-browser-regression-pack-step274-static-smoke.js`

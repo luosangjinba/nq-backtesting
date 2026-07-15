@@ -36,7 +36,7 @@ Step 249 should implement **Drag/Scroll Display Stability Reaudit/Gate**.
 ## Verification
 
 - `node v6/tests/chart-foundation-next-slice-selection-step248-smoke.js`
-- `node v6/tests/date-range-entry-viewport-alignment-step247-smoke.js`
+- `node v6/tests/date-range-entry-viewport-alignment-browser-step247-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`

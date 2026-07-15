@@ -24,7 +24,7 @@ runs these browser gates in sequence:
 - `v6/tests/pane-maximize-state-browser-step185-smoke.js`
 - `v6/tests/maximize-restore-control-browser-step186-smoke.js`
 - `v6/tests/display-timeframe-active-pane-ui-state-browser-step208-smoke.js`
-- `v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 
 ## Coverage
 
@@ -64,7 +64,7 @@ runs these browser gates in sequence:
 ## Verification
 
 - `node v6/tests/multi-pane-chart-foundation-regression-pack-step253-smoke.js`
-- `node v6/tests/multi-pane-active-focus-chain-step251-smoke.js`
+- `node v6/tests/multi-pane-active-focus-chain-browser-step251-smoke.js`
 - `node v6/tests/replay-transport-chain-regression-pack-step245-smoke.js`
 - `node v6/tests/product-direction-smoke.js`
 - `node v6/tests/boundary-smoke.js`

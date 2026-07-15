@@ -16,7 +16,7 @@ membership, or Step 276 foundation pack membership.
 
 Command:
 
-- `node v6/tests/replay-gap-near-gap-manual-fixture-step385-smoke.js`
+- `node v6/tests/replay-gap-near-gap-manual-fixture-browser-step385-smoke.js`
 
 The fixture creates a manual browser replay session:
 

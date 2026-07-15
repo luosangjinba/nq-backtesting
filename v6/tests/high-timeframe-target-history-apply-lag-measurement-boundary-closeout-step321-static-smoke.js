@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_MEASUREMENT_BOUNDARY_CORRECTION_STEP321.md', 'utf8');
-const browserSmoke = await readFile('v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-step321-smoke.js', 'utf8');
+const browserSmoke = await readFile('v6/tests/high-timeframe-target-history-apply-lag-measurement-boundary-browser-step321-smoke.js', 'utf8');
 
 assert.match(index, /V6_HIGH_TIMEFRAME_TARGET_HISTORY_APPLY_LAG_MEASUREMENT_BOUNDARY_CORRECTION_STEP321\.md/);
 assert.match(todo, /Latest completed target-TF apply-lag measurement step: Step 321/);
