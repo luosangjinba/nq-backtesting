@@ -105,6 +105,7 @@ export function createValidationRepository({
   }
 
   return Object.freeze({
+    close: () => adapter.close?.(),
     createCampaign,
     createPlaybookVersion: createPlaybook,
     createTrial,

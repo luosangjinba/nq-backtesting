@@ -110,7 +110,9 @@ export function createMemoryValidationPersistenceAdapter({
     };
   }
 
-  return { inspect, open, transaction };
+  async function close() {}
+
+  return { close, inspect, open, transaction };
 }
 
 function requestResult(request) {
@@ -198,5 +200,12 @@ export function createIndexedDbValidationPersistenceAdapter({
     }
   }
 
-  return { open, transaction };
+  async function close() {
+    if (!databasePromise) return;
+    const database = await databasePromise;
+    database.close();
+    databasePromise = null;
+  }
+
+  return { close, open, transaction };
 }
