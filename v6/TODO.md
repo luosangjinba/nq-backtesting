@@ -2,6 +2,13 @@
 
 ## Current / Next
 
+- Step 437 automated implementation is complete: the workstation outer inset
+  is reduced from 10px (8px at narrow width) to a consistent 4px, while the
+  Session Dashboard height contract is updated from `100vh - 20px` to
+  `100vh - 8px`. Dedicated `1024x720`, `1440x900`, and `1920x1080` browser
+  coverage plus single/two/three-Pane layout and screenshot regressions pass.
+  Remaining gate: Windows human visual acceptance.
+
 - Step 436 implementation and automated acceptance are complete. The existing
   global time-presentation owner now provides four unambiguous date formats and
   an independent weekday toggle. The default crosshair target is
