@@ -43,6 +43,11 @@ try {
       const afterHost = rectOf('[data-v6-chart-engine-host]');
       const menu = document.querySelector('[data-v6-rail-goto-menu]');
       const menuRect = rectOf('[data-v6-rail-goto-menu]');
+      const firstActionRect = menu.querySelector('button').getBoundingClientRect();
+      const menuHit = document.elementFromPoint(
+        firstActionRect.left + firstActionRect.width / 2,
+        firstActionRect.top + firstActionRect.height / 2,
+      );
       return {
         afterChart,
         afterHost,
@@ -55,6 +60,7 @@ try {
         main,
         menuOptionLabels: [...menu.querySelectorAll('button')].map((button) => button.textContent.trim()),
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
+        menuHitInside: Boolean(menuHit?.closest('[data-v6-rail-goto-menu]')),
         menuRect,
         topBar,
         chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
@@ -72,6 +78,7 @@ try {
   assert.equal(value.gotoOpen, true);
   assert.equal(value.menuRect.top >= value.gotoRect.bottom, true);
   assert.equal(value.menuRect.right <= value.viewportWidth, true);
+  assert.equal(value.menuHitInside, true);
   assert.deepEqual(value.menuOptionLabels, [
     'Next Day Open Y',
     'Next Session Z',

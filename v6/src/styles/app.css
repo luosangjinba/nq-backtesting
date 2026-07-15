@@ -1000,6 +1000,7 @@ p {
 
 .top-bar {
   position: relative;
+  z-index: 40;
   display: grid;
   grid-template-columns: auto auto minmax(90px, 1fr) auto auto;
   align-items: center;
@@ -2006,6 +2007,7 @@ p {
 
 .rail-popover {
   position: absolute;
+  z-index: 36;
   right: calc(100% + 8px);
   bottom: 0;
   width: 232px;
