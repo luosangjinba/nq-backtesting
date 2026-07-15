@@ -35,6 +35,8 @@ mandatory `1m` within-minute ordering disclosure without tick-accuracy claims.
 Step 468 added a read-only campaign summary and stable evidence drillback
 descriptor. Automatic backward chart repositioning remains gated on a safe
 navigation-owner contract; Analytics does not mutate Replay or source truth.
+Cross-slice gates passed: canonical 14/14, exhaustive Node 411/411, and static
+architecture 59/59. Replay/history measured 150.1 ms against the 160 ms gate.
 
 ## Current Foundation Gates
 

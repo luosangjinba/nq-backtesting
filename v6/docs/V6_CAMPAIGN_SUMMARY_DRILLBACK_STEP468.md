@@ -15,3 +15,8 @@ automatic chart repositioning.
 
 No aggregate store or write path exists; summaries always derive from source
 truth. No broad dashboard, filters, Semantic Drawing, or mode shell was added.
+
+Cross-slice verification passed: real IndexedDB v4 reload, production app-shell
+startup, canonical 14/14, exhaustive offline Node 411/411, and static
+architecture 59/59. The final canonical Replay/history sample was 150.1 ms
+against the unchanged 160 ms gate and should be remeasured during Step 469.
