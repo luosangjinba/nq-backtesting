@@ -10,6 +10,7 @@ export const EXPLICIT_SUPPORT_FILES = Object.freeze([
   'v6/tests/test-role-manifest.js',
   'v6/tests/test-role-migration-step457.js',
   'v6/tests/test-runner-migration-step458.js',
+  'v6/tests/test-process-runner.js',
   'v6/tests/test-triage-manifest-step456.js',
 ]);
 

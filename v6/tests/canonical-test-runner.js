@@ -1,36 +1,11 @@
-import { spawn } from 'node:child_process';
-import { performance } from 'node:perf_hooks';
 import { CANONICAL_TEST_MANIFEST } from './canonical-test-manifest.js';
 import { selectCanonicalGateScripts } from './canonical-test-runner-domain.js';
+import { runTestScript } from './test-process-runner.js';
 
 function readOption(name, fallback) {
   const prefix = `${name}=`;
   const argument = process.argv.slice(2).find((value) => value.startsWith(prefix));
   return argument ? argument.slice(prefix.length) : fallback;
-}
-
-function runScript(entry) {
-  const startedAt = performance.now();
-  return new Promise((resolve) => {
-    const child = spawn(process.execPath, [entry.script], {
-      cwd: process.cwd(),
-      env: process.env,
-      stdio: 'inherit',
-    });
-    child.on('close', (code, signal) => resolve({
-      ...entry,
-      code,
-      durationMs: Math.round(performance.now() - startedAt),
-      signal,
-    }));
-    child.on('error', (error) => resolve({
-      ...entry,
-      code: 1,
-      durationMs: Math.round(performance.now() - startedAt),
-      error: error.message,
-      signal: null,
-    }));
-  });
 }
 
 const environment = readOption('--environment', 'all');
@@ -44,7 +19,7 @@ if (process.argv.includes('--list')) {
 const results = [];
 for (const entry of entries) {
   console.log(`[canonical-test-runner] start ${entry.suiteId} ${entry.script}`);
-  const result = await runScript(entry);
+  const result = await runTestScript(entry);
   results.push(result);
   const status = result.code === 0 ? 'pass' : 'fail';
   console.log(`[canonical-test-runner] ${status} ${entry.script} ${result.durationMs}ms`);

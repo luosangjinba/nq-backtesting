@@ -8,9 +8,9 @@ import {
   hasExplicitSupportRole,
 } from './test-role-manifest.js';
 
-assert.equal(EXPLICIT_SUPPORT_FILES.length, 10);
+assert.equal(EXPLICIT_SUPPORT_FILES.length, 11);
 assert.equal(EXPLICIT_SUPPORT_PREFIXES.length, 2);
-assert.equal(EXPLICIT_RUNNER_FILES.length, 17);
+assert.equal(EXPLICIT_RUNNER_FILES.length, 18);
 for (const path of EXPLICIT_SUPPORT_FILES) {
   await access(path);
   assert.equal(hasExplicitSupportRole(path), true);

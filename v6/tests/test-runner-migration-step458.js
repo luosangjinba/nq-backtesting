@@ -3,6 +3,7 @@ export const STEP458_EXPLICIT_RUNNERS = Object.freeze([
   'v6/tests/canonical-test-runner.js',
   'v6/tests/chart-browser-regression-pack.js',
   'v6/tests/date-range-boundary-entry-regression-pack-step255-smoke.js',
+  'v6/tests/exhaustive-test-runner.js',
   'v6/tests/manual-next-session-gap-regression-pack-step259-smoke.js',
   'v6/tests/multi-pane-chart-foundation-regression-pack-step253-smoke.js',
   'v6/tests/playback-period-session-gap-regression-pack-step261-smoke.js',
