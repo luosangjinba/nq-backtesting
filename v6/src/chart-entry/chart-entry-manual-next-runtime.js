@@ -27,6 +27,7 @@ function cloneAdvanced(advanced) {
     chartRecords: Array.isArray(advanced.chartRecords)
       ? advanced.chartRecords.map(cloneRecord)
       : [],
+    diagnostics: advanced.diagnostics ? { ...advanced.diagnostics } : null,
     appendedBarCount: advanced.appendedBarCount,
     loadedWindow: advanced.loadedWindow ? { ...advanced.loadedWindow } : null,
     loadedWindows: Array.isArray(advanced.loadedWindows)
@@ -81,7 +82,9 @@ async function getPaneRecord(paneId) {
   }
 }
 
-export function createChartEntryManualNextRuntime() {
+export function createChartEntryManualNextRuntime({
+  now = () => performance.now(),
+} = {}) {
   const unregisterCallbacks = [];
   let state = {
     advanced: null,
@@ -98,10 +101,12 @@ export function createChartEntryManualNextRuntime() {
   }
 
   async function next(payload = {}, emitEvent) {
+    const startedAt = now();
     try {
       const paneIds = normalizePaneIds(payload);
       const currentReplayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
       const playbackPeriodState = await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE);
+      const setupCompletedAt = now();
       const stepCount = resolvePlaybackPeriodStepCount({
         playbackPeriod: playbackPeriodState?.period,
         sourceTimeframe: currentReplayState?.timeframe,
@@ -122,16 +127,22 @@ export function createChartEntryManualNextRuntime() {
       const chartRecords = [];
       const loadedWindows = [];
       let appendedBarCount = 0;
+      let materializationMs = 0;
+      let sourceAdvanceMs = 0;
       for (let index = 0; index < stepCount; index += 1) {
         const firstPane = await getPaneRecord(paneIds[0]);
+        const sourceAdvanceStartedAt = now();
         replayState = await advanceReplayToNextSourceBar({
           pane: firstPane || {},
           replayState,
         });
+        sourceAdvanceMs += now() - sourceAdvanceStartedAt;
+        const materializationStartedAt = now();
         const materialized = await appendReplayCursorAcrossPanes({
           paneIds,
           replayState,
         });
+        materializationMs += now() - materializationStartedAt;
         chartRecords.push(...materialized.chartRecords);
         appendedBarCount += materialized.appendedBarCount;
         loadedWindows.push(...materialized.loadedWindows);
@@ -142,6 +153,12 @@ export function createChartEntryManualNextRuntime() {
           appendedBarCount,
           chartRecord: chartRecords.at(0) || null,
           chartRecords,
+          diagnostics: {
+            materializationMs,
+            setupMs: setupCompletedAt - startedAt,
+            sourceAdvanceMs,
+            totalMs: now() - startedAt,
+          },
           loadedWindow: loadedWindows.at(-1) || null,
           loadedWindows,
           playbackPeriod: playbackPeriodState?.period || '1m',

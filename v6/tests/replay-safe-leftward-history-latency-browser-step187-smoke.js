@@ -133,6 +133,7 @@ try {
       const startedAt = performance.now();
       const result = await commands.dispatchCommand(contracts.CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
       return {
+        diagnostics: result.advanced?.diagnostics || null,
         latencyMs: performance.now() - startedAt,
         result,
       };
@@ -145,7 +146,7 @@ try {
   assert.equal(
     nextMeasurement.latencyMs < 160,
     true,
-    `manual next command latency ${nextMeasurement.latencyMs.toFixed(1)}ms exceeded 160ms`,
+    `manual next command latency ${nextMeasurement.latencyMs.toFixed(1)}ms exceeded 160ms; ${JSON.stringify(nextMeasurement.diagnostics)}`,
   );
   assert.equal(afterNext.replay.cursorIndex, initial.replay.cursorIndex + 1);
   assert.equal(afterNext.replay.revealedCount, initial.replay.revealedCount + 1);
@@ -158,7 +159,7 @@ try {
   );
 
   assert.equal(beforeNext.barCount >= initial.barCount, true);
-  console.log(`v6 replay-safe leftward history manual-next latency ${nextMeasurement.latencyMs.toFixed(1)}ms`);
+  console.log(`v6 replay-safe leftward history manual-next latency ${nextMeasurement.latencyMs.toFixed(1)}ms ${JSON.stringify(nextMeasurement.diagnostics)}`);
 } finally {
   await page.cleanup();
 }

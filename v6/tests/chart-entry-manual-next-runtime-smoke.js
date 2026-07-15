@@ -118,6 +118,11 @@ assert.equal(state.advanced.loadedWindows.length, 3);
 assert.equal(state.advanced.playbackPeriod, '3m');
 assert.equal(state.advanced.stepCount, 3);
 assert.equal(state.advanced.appendedBarCount, 3);
+assert.equal(Number.isFinite(state.advanced.diagnostics.setupMs), true);
+assert.equal(Number.isFinite(state.advanced.diagnostics.sourceAdvanceMs), true);
+assert.equal(Number.isFinite(state.advanced.diagnostics.materializationMs), true);
+assert.equal(Number.isFinite(state.advanced.diagnostics.totalMs), true);
+assert.equal(state.advanced.diagnostics.totalMs >= state.advanced.diagnostics.setupMs, true);
 assert.equal(advancedEvents.length, 1);
 assert.deepEqual(calls.map((call) => call.command), [
   REPLAY_COMMANDS.GET_STATE,
