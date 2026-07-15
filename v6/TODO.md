@@ -9,6 +9,10 @@
   Semantic Drawing, and new business features are frozen until this sequence
   closes. See `v6/docs/V6_MILESTONE_STABILIZATION_PLAN_STEP438.md`.
 
+- Step 439 defines the auxiliary time-axis scaffold Series contract: it is an
+  invisible chart-engine-owned Series accepting only finite, time-only
+  whitespace points. Production integration remains Step 440.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
