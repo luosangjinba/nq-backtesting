@@ -26,7 +26,7 @@ try {
       };
 
       const openedState = {
-        analyticsText: document.querySelector('[data-v6-dashboard-analytics]')?.textContent || '',
+        analyticsPlaceholderExists: Boolean(document.querySelector('[data-v6-dashboard-analytics]')),
         backtestingTitle: document.querySelector('[data-v6-quick-session-open] strong')?.textContent.trim() || '',
         createButtonLabel: document.querySelector('[data-v6-dashboard-create-session]')?.textContent.trim() || '',
         dashboardHidden: document.querySelector('[data-v6-session-dashboard]').hidden,
@@ -36,8 +36,7 @@ try {
         primaryLabels: [
           document.querySelector('[data-v6-quick-session-open] strong')?.textContent.trim() || '',
           document.querySelector('.session-dashboard-list-section header strong')?.textContent.trim() || '',
-          document.querySelector('[data-v6-dashboard-analytics] header')?.textContent.trim() || '',
-        ],
+        ].filter(Boolean),
         tabCount: document.querySelectorAll('.session-dashboard-tabs button').length,
         text: document.querySelector('[data-v6-session-dashboard]').textContent || '',
         surface: root.dataset.v6Surface,
@@ -146,12 +145,11 @@ try {
   assert.equal(value.openedState.dashboardHidden, false);
   assert.equal(value.openedState.dashboardOpen, true);
   assert.equal(value.openedState.tabCount, 0);
-  assert.deepEqual(value.openedState.primaryLabels, ['Backtesting session', 'Recent Sessions', 'Analytics']);
-  assert.equal(value.openedState.backtestingTitle, 'Backtesting session');
+  assert.deepEqual(value.openedState.primaryLabels, ['Create replay session', 'Recent sessions']);
+  assert.equal(value.openedState.backtestingTitle, 'Create replay session');
   assert.equal(value.openedState.createButtonLabel, 'Create session');
   assert.equal(value.openedState.setupStatus, 'No bars are loaded on create.');
-  assert.match(value.openedState.analyticsText, /replay orders/);
-  assert.match(value.openedState.analyticsText, /live orders/);
+  assert.equal(value.openedState.analyticsPlaceholderExists, false);
   assert.equal(value.openedState.text.includes('Dashboard'), false);
   assert.equal(value.openedState.text.includes('Tutorials'), false);
   assert.equal(value.openedState.text.includes('Prop Firm Session'), false);

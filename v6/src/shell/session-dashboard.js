@@ -99,7 +99,6 @@ function renderSessions(root, view, { chartBoundaryMetadata = null } = {}) {
     replaceNodeChildren(row, [
       open,
       main,
-      createTextElement(documentRef, { className: 'session-progress', tagName: 'span', text: 'Remaining days: --' }),
       actions,
       remove,
     ]);

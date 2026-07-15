@@ -30,3 +30,12 @@ after focus moved elsewhere and obscured the date controls.
 - `git diff --check` passed.
 
 Human visual confirmation remains part of Step 469 acceptance.
+
+## Session Home Follow-up
+
+The same visual system now covers Session Home. It has a clearer workspace
+header, primary Create Session card, aligned search/sort toolbar, quieter session
+rows, responsive row actions, and a compact pager. The ownerless bottom
+Analytics placeholder and fake `Remaining days: --` values were removed. The
+row-level Stats action remains because it opens the real Session Analytics
+surface and preserves its existing owner contract.

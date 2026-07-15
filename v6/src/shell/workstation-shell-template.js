@@ -55,8 +55,9 @@ export function createWorkstationShellMarkup() {
       <section class="session-dashboard" data-v6-session-dashboard hidden aria-label="Session dashboard">
         <header class="session-dashboard-header">
           <div>
-            <strong>Testing</strong>
-            <span>Replay sessions</span>
+            <span>Practice workspace</span>
+            <strong>Replay sessions</strong>
+            <p>Create, resume, and review historical market practice.</p>
           </div>
         </header>
         <main class="session-dashboard-main">
@@ -64,8 +65,8 @@ export function createWorkstationShellMarkup() {
             <button type="button" class="quick-session-card" data-v6-quick-session-open>
               ${icon('plus')}
               <span>
-                <strong>Backtesting session</strong>
-                <em>Start a session</em>
+                <strong>Create replay session</strong>
+                <em>Choose a market and historical range</em>
               </span>
             </button>
             <div class="quick-session-backdrop" data-v6-quick-session-modal hidden>
@@ -137,13 +138,13 @@ export function createWorkstationShellMarkup() {
           </section>
           <section class="session-dashboard-list-section" aria-label="Recent Sessions">
             <header>
-              <strong><span>Recent Sessions</span></strong>
+              <div><strong>Recent sessions</strong><span>Continue where you left off or review prior work.</span></div>
               <button type="button" data-v6-dashboard-refresh>${icon('redo')}<span>Refresh</span></button>
             </header>
             <div class="session-dashboard-list-tools">
               <label>
                 ${icon('search')}
-                <input type="search" placeholder="Search Here" data-v6-dashboard-search>
+                <input type="search" placeholder="Search sessions" data-v6-dashboard-search>
               </label>
               <button type="button" data-v6-dashboard-sort aria-label="Sort recent sessions">${icon('sort')}<span data-v6-dashboard-sort-label>Newest to oldest</span>${icon('chevronDown')}</button>
             </div>
@@ -163,10 +164,6 @@ export function createWorkstationShellMarkup() {
                 <button type="button" data-v6-dashboard-page-next aria-label="Next recent sessions page">${icon('arrowRight')}</button>
               </div>
             </footer>
-          </section>
-          <section class="session-dashboard-analytics" data-v6-dashboard-analytics aria-label="Analytics">
-            <header>${icon('indicators')}<strong>Analytics</strong></header>
-            <p>Session segment analysis placeholder for replay orders, live orders, and review statistics.</p>
           </section>
         </main>
       </section>

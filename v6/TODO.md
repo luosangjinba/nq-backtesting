@@ -50,8 +50,8 @@ remains pending.
 Step 469 human acceptance exposed a legacy Restart semantic mismatch. Restart now
 enters an FXReplay-style Bar Replay selection mode, shows a blue marker, rejects
 points outside the revealed session range, and truncates the selected candle plus
-later candles through Replay rewind/shared replacement. Quick Session also received
-a focused UI/accessibility pass. Human visual confirmation remains.
+later candles through Replay rewind/shared replacement. Quick Session received a UI
+pass; Session Home shed placeholder Analytics/fake progress. Visual review remains.
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
