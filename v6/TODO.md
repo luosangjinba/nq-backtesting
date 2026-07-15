@@ -17,6 +17,13 @@
   real OHLC bars, future time-only points live in an invisible Line Series, and
   single-bar Replay updates again use the native candlestick `update()` path.
 
+- Step 441 closes the dual-Series performance gate: 1,000 incremental bars
+  produce 1,000 native candle updates and no additional candle `setData()`.
+  Current cache-hit, mixed-timeframe, manual-next HTF, auto-play HTF, scaffold,
+  drag, and multi-Pane browser gates pass. The Step 187 harness still couples
+  latency to a non-deterministic older-window append and is queued for the
+  historical-assertion decision in Step 443 rather than weakening its limit.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
