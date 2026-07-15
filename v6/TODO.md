@@ -24,6 +24,12 @@ gate and 154 completed-phase snapshots are explicitly quarantined. The catalog
 now classifies 751/751 JavaScript files, while root Node gates pass 371/371 and
 the named canonical suite passes 14/14.
 
+Step 458 audited the 22 tests previously inferred as runners from filenames.
+Seventeen genuine orchestration entry points now use explicit metadata, while
+five ordinary assertion tests returned to the gate set and passed. The catalog
+now classifies 753/753 JavaScript files, root Node gates pass 375/375, static
+architecture gates pass 51/51, and the named canonical suite passes 14/14.
+
 The product freeze used by this milestone is now released for planning only.
 Implementation of the three operating modes, Semantic Drawing, or other new
 business capability still requires an explicit reviewed decision; it is not an
@@ -56,9 +62,12 @@ Do not start a mode or plugin implementation from this TODO alone.
 
 - The canonical manifest is intentionally a named milestone gate set, while the
   catalog is exhaustive classification. Step 457 established explicit role
-  metadata for infrastructure support, orchestration runners, and every
-  TODO/INDEX historical snapshot; future non-gate roles must extend that
-  metadata rather than add source or filename heuristics.
+  metadata for infrastructure support and every TODO/INDEX historical snapshot;
+  Step 458 completed explicit orchestration-runner metadata. Future non-gate
+  roles must extend metadata rather than add source or filename heuristics.
+- Environment classification still uses filename/source signals for browser
+  and real-service tests. Audit and replace those signals with explicit
+  environment metadata before claiming the catalog is inference-free.
 - Historical static/readiness/selection tests remain available for targeted
   archaeology but are not product direction documents.
 

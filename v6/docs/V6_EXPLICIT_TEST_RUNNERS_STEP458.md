@@ -24,3 +24,16 @@ only run their own assertions and must return to gate classification.
 2. Route all genuine runners through explicit metadata.
 3. Remove filename-based runner inference.
 4. Execute the five restored gates and all root Node/canonical gates.
+
+## Closeout
+
+Step 458 is complete:
+
+- all 17 genuine orchestration entry points use explicit runner metadata;
+- all five filename false positives returned to gate classification and passed;
+- filename-based runner inference is removed from the catalog;
+- the catalog classifies 753/753 JavaScript files as 544 gates, 159
+  quarantines, 17 runners, and 33 support files;
+- root Node gates passed 375/375 on a clean full rerun;
+- static architecture gates passed 51/51;
+- the named canonical suite passed 14/14.
