@@ -3,11 +3,16 @@ import { SETTINGS_COMMANDS, SETTINGS_EVENTS } from '../src/contracts/app-contrac
 import { connectSettingsChartSurfaceBridge } from '../src/chart-engine/settings-chart-surface-bridge.js';
 
 const applied = [];
+const timePresentationApplied = [];
 const listeners = new Map();
 const bridge = connectSettingsChartSurfaceBridge({
   chartSurface: {
     applySettings(settings) {
       applied.push(settings);
+      return settings;
+    },
+    applyTimePresentationSettings(settings) {
+      timePresentationApplied.push(settings);
       return settings;
     },
   },
@@ -34,6 +39,7 @@ const bridge = connectSettingsChartSurfaceBridge({
 });
 
 await bridge.ready;
+assert.equal(timePresentationApplied.length, 1);
 assert.deepEqual(applied, [{
   chartAxisBorderColor: '#111111',
   chartBackgroundColor: '#222222',
@@ -45,22 +51,17 @@ assert.deepEqual(applied, [{
   chartScaleFontSize: 12,
   chartScaleTextColor: '#555555',
   chartTopMarginPercent: 10,
+  theme: 'dark',
 }]);
 listeners.get(SETTINGS_EVENTS.UPDATED)({ chartGrid: false, theme: 'light' });
 listeners.get(SETTINGS_EVENTS.RESET)({ chartGrid: true, theme: 'dark' });
+listeners.get(SETTINGS_EVENTS.DRAFT_PREVIEWED)({ timeFormat: '12h' });
 assert.equal(applied[1].chartGrid, false);
 assert.equal(applied[2].chartGrid, true);
+assert.equal(timePresentationApplied.at(-1).timeFormat, '12h');
 assert.deepEqual(Object.keys(applied[1]).sort(), [
-  'chartAxisBorderColor',
-  'chartBackgroundColor',
-  'chartBottomMarginPercent',
-  'chartCrosshairColor',
   'chartGrid',
-  'chartGridColor',
-  'chartNavigationVisibility',
-  'chartScaleFontSize',
-  'chartScaleTextColor',
-  'chartTopMarginPercent',
+  'theme',
 ]);
 bridge.destroy();
 assert.equal(listeners.size, 0);

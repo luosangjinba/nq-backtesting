@@ -143,7 +143,9 @@ const fetchBars = createDatabaseBarsAdapter({
   },
   queryBars: async ({ schema, window }) => {
     queryCalls.push({ schema, window });
-    const rows = databaseRows.get(`${window.start}|${window.end}`) || [];
+    const rows = databaseRows.get(`${window.start}|${window.end}`)
+      || (window.start === '2026-06-01 09:31' ? databaseRows.get('2026-06-01 09:30|2026-06-01 09:31') : [])
+      || [];
     return { rows };
   },
 });
@@ -159,7 +161,7 @@ const unsubscribeChartData = subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (pay
 
 registry.registerRuntime(createSessionRuntime());
 registry.registerRuntime(createReplayRuntime());
-registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 20 }));
+registry.registerRuntime(createBarDataRuntime({ fetchBars, maxBarsPerWindow: 300 }));
 registry.registerRuntime(createChartDataRuntime());
 registry.registerRuntime(createChartViewportRuntime());
 registry.registerRuntime(createPlaybackPeriodRuntime());
@@ -206,7 +208,7 @@ await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.SET_PERIOD, { period: '1m' });
 const next = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
 assert.equal(next.status, 'advanced');
 assert.equal(next.error, null);
-assert.equal(queryCalls.length, 2);
+assert.equal(queryCalls.length, 3);
 assert.equal(chartDataEvents.length, 2);
 
 const afterNext = await snapshotBoundaryState();
@@ -218,7 +220,7 @@ await assertResetKeepsRuntimeBoundaries({
   chartDataEventCount: 2,
   expectedLatestOffsetBars: 8,
   label: 'after next replay k-line reset',
-  queryCallCount: 2,
+  queryCallCount: 3,
 });
 
 await registry.stop();

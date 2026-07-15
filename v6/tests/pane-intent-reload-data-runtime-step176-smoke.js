@@ -85,6 +85,7 @@ assert.deepEqual(requests[0], {
 });
 assert.equal(loadedEvents.length, 1);
 assert.deepEqual(loadedEvents[0], [{
+  displayTimeframe: undefined,
   loadedWindow: {
     barCount: 2,
     cacheHit: false,
@@ -97,7 +98,9 @@ assert.deepEqual(loadedEvents[0], [{
   noFuture: true,
   paneId: 'main',
   reason: 'symbol',
+  sessionStartTime: undefined,
   source: 'pane-intent',
+  sourceTimeframe: undefined,
   window: {
     anchor: '2026-06-01T09:31:00.000Z',
     bounded: true,

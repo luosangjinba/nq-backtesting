@@ -64,11 +64,11 @@ listeners.get(DEFAULT_WALL_EVENTS.LOADED)({
   },
 });
 
-assert.equal(root.text('[data-v6-status-open]'), 'O --');
-assert.equal(root.text('[data-v6-status-high]'), 'H --');
-assert.equal(root.text('[data-v6-status-low]'), 'L --');
-assert.equal(root.text('[data-v6-status-close]'), 'C --');
-assert.equal(root.text('[data-v6-status-price]'), '--');
+assert.equal(root.text('[data-v6-status-open]'), 'O 100.00');
+assert.equal(root.text('[data-v6-status-high]'), 'H 101.00');
+assert.equal(root.text('[data-v6-status-low]'), 'L 99.00');
+assert.equal(root.text('[data-v6-status-close]'), 'C 100.50');
+assert.equal(root.text('[data-v6-status-price]'), '100.50');
 assert.equal(root.text('[data-v6-replay-status]'), 'Replay ready');
 assert.equal(root.text('[data-v6-replay-protection]'), 'Future data hidden');
 assert.equal(root.querySelector('[data-v6-replay-protection]').hidden, false);
@@ -79,7 +79,7 @@ assert.deepEqual(
 
 listeners.get(REPLAY_EVENTS.PLAYBACK_CHANGED)({ status: 'playing' });
 assert.equal(root.text('[data-v6-replay-status]'), 'Replay ready');
-assert.equal(controller.getState().ohlc.close, 'C --');
+assert.equal(controller.getState().ohlc.close, 'C 100.50');
 
 listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
   record: {
@@ -94,11 +94,11 @@ listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
     ],
   },
 });
-assert.equal(root.text('[data-v6-status-open]'), 'O --');
-assert.equal(root.text('[data-v6-status-high]'), 'H --');
-assert.equal(root.text('[data-v6-status-low]'), 'L --');
-assert.equal(root.text('[data-v6-status-close]'), 'C --');
-assert.equal(root.text('[data-v6-status-price]'), '--');
+assert.equal(root.text('[data-v6-status-open]'), 'O 101.00');
+assert.equal(root.text('[data-v6-status-high]'), 'H 102.00');
+assert.equal(root.text('[data-v6-status-low]'), 'L 100.00');
+assert.equal(root.text('[data-v6-status-close]'), 'C 101.50');
+assert.equal(root.text('[data-v6-status-price]'), '101.50');
 
 listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: {
@@ -153,12 +153,12 @@ listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: null,
   paneId: 'main',
 });
-assert.equal(root.text('[data-v6-status-open]'), 'O --');
-assert.equal(root.text('[data-v6-status-high]'), 'H --');
-assert.equal(root.text('[data-v6-status-low]'), 'L --');
-assert.equal(root.text('[data-v6-status-close]'), 'C --');
-assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'empty');
-assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'empty');
+assert.equal(root.text('[data-v6-status-open]'), 'O 101.00');
+assert.equal(root.text('[data-v6-status-high]'), 'H 102.00');
+assert.equal(root.text('[data-v6-status-low]'), 'L 100.00');
+assert.equal(root.text('[data-v6-status-close]'), 'C 101.50');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusOhlc, 'latest');
+assert.equal(root.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection, 'up');
 
 controller.destroy();
 assert.equal(listeners.size, 0);

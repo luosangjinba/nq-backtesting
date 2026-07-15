@@ -67,14 +67,18 @@ emitEvent(PANE_INTENT_RELOAD_EVENTS.INTENT_CREATED, [
     instrument: 'NQ',
     paneId: 'main',
     reason: 'symbol',
+    sessionStartTime: '2026-06-01T09:30:00.000Z',
     source: 'pane-intent',
+    sourceTimeframe: 1,
   },
   {
     displayTimeframe: 5,
     instrument: 'ES',
     paneId: 'secondary',
     reason: 'interval',
+    sessionStartTime: '2026-06-01T09:30:00.000Z',
     source: 'pane-intent-sync',
+    sourceTimeframe: 1,
   },
 ]);
 await Promise.resolve();
@@ -82,10 +86,13 @@ await Promise.resolve();
 assert.equal(plannedEvents.length, 1);
 assert.deepEqual(plannedEvents[0], [
   {
+    displayTimeframe: 1,
     noFuture: true,
     paneId: 'main',
     reason: 'symbol',
+    sessionStartTime: '2026-06-01T09:30:00.000Z',
     source: 'pane-intent',
+    sourceTimeframe: 1,
     window: {
       anchor: '2026-06-01T09:32:00.000Z',
       bounded: true,
@@ -99,20 +106,23 @@ assert.deepEqual(plannedEvents[0], [
     },
   },
   {
+    displayTimeframe: 5,
     noFuture: true,
     paneId: 'secondary',
     reason: 'interval',
+    sessionStartTime: '2026-06-01T09:30:00.000Z',
     source: 'pane-intent-sync',
+    sourceTimeframe: 1,
     window: {
       anchor: '2026-06-01T09:32:00.000Z',
       bounded: true,
       direction: 'backward',
       end: '2026-06-01 09:32',
-      estimatedBars: 120,
+      estimatedBars: 600,
       instrument: 'ES',
       requestCap: 'replay-cursor',
-      start: '2026-05-31 23:37',
-      timeframe: 5,
+      start: '2026-05-31 23:33',
+      timeframe: 1,
     },
   },
 ]);

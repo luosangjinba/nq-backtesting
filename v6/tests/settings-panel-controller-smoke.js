@@ -82,13 +82,20 @@ const close = createElement();
 const cancel = createElement();
 const ok = createElement();
 const reset = createElement();
+const canvasTab = createElement({ dataset: { v6SettingsTab: 'canvas' } });
+const canvasPanel = createElement({ dataset: { v6SettingsTabPanel: 'canvas' } });
 const grid = createElement({
   checked: true,
   dataset: { v6SettingsField: 'chartGrid' },
   type: 'checkbox',
 });
 panel.querySelectorAll = (selector) => (selector === '[data-v6-settings-field]' ? [grid] : []);
+canvasPanel.querySelectorAll = (selector) => (selector === '[data-v6-settings-field]' ? [grid] : []);
 const root = createElement();
+root.querySelectorAll = (selector) => ({
+  '[data-v6-settings-tab]': [canvasTab],
+  '[data-v6-settings-tab-panel]': [canvasPanel],
+}[selector] || []);
 root.querySelector = (selector) => ({
   '[data-v6-settings-toggle]': toggle,
   '[data-v6-settings-panel]': panel,
