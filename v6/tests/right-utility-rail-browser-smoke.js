@@ -30,12 +30,13 @@ try {
       };
       const chart = rectOf('[data-v6-chart-surface]');
       const host = rectOf('[data-v6-chart-engine-host]');
-      const rail = rectOf('[data-v6-right-utility-rail]');
       const main = rectOf('[data-v6-workstation-main]');
+      const topBar = rectOf('[data-v6-workstation-header]');
       const beforeChart = rectOf('[data-v6-chart-surface]');
       const beforeHost = rectOf('[data-v6-chart-engine-host]');
       const gotoDetails = document.querySelector('[data-v6-rail-goto-details]');
       const gotoSummary = document.querySelector('[data-v6-rail-goto]');
+      const gotoRect = rectOf('[data-v6-rail-goto]');
       gotoSummary.click();
       await new Promise((resolve) => setTimeout(resolve, 0));
       const afterChart = rectOf('[data-v6-chart-surface]');
@@ -49,12 +50,13 @@ try {
         beforeHost,
         chart,
         gotoOpen: gotoDetails.open,
+        gotoRect,
         host,
         main,
         menuOptionLabels: [...menu.querySelectorAll('button')].map((button) => button.textContent.trim()),
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
         menuRect,
-        rail,
+        topBar,
         chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
         viewportWidth: window.innerWidth,
       };
@@ -64,13 +66,12 @@ try {
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);
   assert.equal(value.chartToolbarExists, false);
-  assert.equal(value.chart.right <= value.rail.left + 1, true);
-  assert.equal(value.rail.right <= value.viewportWidth - 8, true);
-  assert.equal(value.rail.right >= value.viewportWidth - 16, true);
-  assert.equal(value.rail.width, 48);
-  assert.equal(Math.abs(value.rail.height - value.main.height) <= 2, true);
+  assert.equal(Math.abs(value.chart.width - value.main.width) <= 2, true);
+  assert.equal(value.gotoRect.top >= value.topBar.top, true);
+  assert.equal(value.gotoRect.bottom <= value.topBar.bottom, true);
   assert.equal(value.gotoOpen, true);
-  assert.equal(value.menuRect.right <= value.rail.left, true);
+  assert.equal(value.menuRect.top >= value.gotoRect.bottom, true);
+  assert.equal(value.menuRect.right <= value.viewportWidth, true);
   assert.deepEqual(value.menuOptionLabels, [
     'Next Day Open Y',
     'Next Session Z',

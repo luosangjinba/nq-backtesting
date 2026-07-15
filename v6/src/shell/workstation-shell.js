@@ -195,6 +195,20 @@ ${renderDisplayTimeframeMenuSections()}
           <span class="profile-chip" data-v6-top-profile data-v6-session-name>test</span>
         </div>
         <div class="top-tool-group top-tool-group-right" aria-label="Account and utility tools">
+          <details class="rail-popover-anchor top-goto-anchor" data-v6-rail-goto-details>
+            <summary class="tool-button tool-button-icon" data-v6-rail-goto aria-label="Go to key time" aria-haspopup="menu">
+              ${icon('arrowRight')}<span class="sr-only">Go to key time</span>
+            </summary>
+            <div class="rail-popover" data-v6-rail-goto-menu role="menu" aria-label="Go to key time">
+              <button type="button" data-v6-replay-navigation-action="next-day-open" role="menuitem">Next Day Open <kbd>Y</kbd></button>
+              <button type="button" data-v6-replay-navigation-action="next-session" role="menuitem">Next Session <kbd>Z</kbd></button>
+              <button type="button" data-v6-replay-navigation-action="asian-session" role="menuitem">Asian Session <kbd>I</kbd></button>
+              <button type="button" data-v6-replay-navigation-action="london-session" role="menuitem">London Session <kbd>L</kbd></button>
+              <button type="button" data-v6-replay-navigation-action="new-york-session" role="menuitem">New York Session <kbd>N</kbd></button>
+              <button type="button" data-v6-replay-navigation-settings-open aria-expanded="false" aria-haspopup="dialog" role="menuitem">Custom Settings</button>
+              <p class="rail-popover-status" data-v6-replay-navigation-status role="status" aria-live="polite"></p>
+            </div>
+          </details>
           <details class="layout-menu-anchor" data-v6-layout-menu-details>
             <summary class="tool-button tool-button-icon" data-v6-top-page-layout aria-label="Page layout" aria-haspopup="true">${icon('grid')}<span class="sr-only">Page layout</span></summary>
             <div class="layout-menu" data-v6-layout-menu role="menu" aria-label="Page layout">
@@ -626,25 +640,6 @@ ${renderDisplayTimeframeMenuSections()}
             </div>
           </div>
         </section>
-        <aside class="right-utility-rail" data-v6-right-utility-rail aria-label="Right utility rail">
-          <div class="rail-main-actions">
-            <details class="rail-popover-anchor" data-v6-rail-goto-details>
-              <summary class="rail-button" data-v6-rail-goto aria-label="Go to key time">
-                ${icon('arrowRight')}
-                <span>Go to</span>
-              </summary>
-              <div class="rail-popover" data-v6-rail-goto-menu role="menu" aria-label="Go to key time">
-                <button type="button" data-v6-replay-navigation-action="next-day-open" role="menuitem">Next Day Open <kbd>Y</kbd></button>
-                <button type="button" data-v6-replay-navigation-action="next-session" role="menuitem">Next Session <kbd>Z</kbd></button>
-                <button type="button" data-v6-replay-navigation-action="asian-session" role="menuitem">Asian Session <kbd>I</kbd></button>
-                <button type="button" data-v6-replay-navigation-action="london-session" role="menuitem">London Session <kbd>L</kbd></button>
-                <button type="button" data-v6-replay-navigation-action="new-york-session" role="menuitem">New York Session <kbd>N</kbd></button>
-                <button type="button" data-v6-replay-navigation-settings-open aria-expanded="false" aria-haspopup="dialog" role="menuitem">Custom Settings</button>
-                <p class="rail-popover-status" data-v6-replay-navigation-status role="status" aria-live="polite"></p>
-              </div>
-            </details>
-          </div>
-        </aside>
         <section class="replay-navigation-settings-backdrop" data-v6-replay-navigation-settings-dialog hidden role="dialog" aria-modal="true" aria-labelledby="v6-replay-navigation-settings-title">
           <form class="replay-navigation-settings-modal" data-v6-replay-navigation-settings-form>
             <header>

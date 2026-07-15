@@ -30,7 +30,6 @@ async function inspectChrome({ height, width }) {
         chart: rectOf('[data-v6-chart-surface]'),
         host: rectOf('[data-v6-chart-engine-host]'),
         statusGridRow: getComputedStyle(document.querySelector('[data-v6-status-bar]')).gridRowStart,
-        rightRail: rectOf('[data-v6-right-utility-rail]'),
         statusBar: rectOf('[data-v6-status-bar]'),
         transport: rectOf('[data-v6-transport]'),
         viewportHeight: window.innerHeight,
@@ -49,7 +48,7 @@ for (const value of [
   assert.equal(value.statusGridRow, '7');
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);
-  assert.equal(value.chart.right <= value.rightRail.left + 1, true);
+  assert.equal(value.chart.right >= value.viewportWidth - 12, true);
   assert.equal(value.transport.width > 0, true);
   assert.equal(value.transport.height > 0, true);
   assert.equal(value.transport.bottom <= value.statusBar.top, true);

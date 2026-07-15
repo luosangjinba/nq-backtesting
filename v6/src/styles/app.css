@@ -1824,7 +1824,7 @@ p {
 .workstation-main {
   grid-row: 6;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 48px;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-rows: minmax(420px, 1fr);
   min-height: 0;
   border: 1px solid #183746;
@@ -1987,83 +1987,6 @@ p {
   grid-template-rows: repeat(2, minmax(0, 1fr));
 }
 
-.right-utility-rail {
-  grid-column: 2;
-  grid-row: 1;
-  position: relative;
-  z-index: 8;
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  gap: 10px;
-  width: 48px;
-  min-height: 100%;
-  padding: 8px 3px;
-  border-left: 1px solid #232b31;
-  background: #020406;
-}
-
-.rail-main-actions {
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.rail-button,
-.rail-popover-anchor summary {
-  width: 42px;
-  min-height: 46px;
-  display: inline-flex;
-  align-items: center;
-  flex-direction: column;
-  justify-content: center;
-  gap: 3px;
-  padding: 5px 3px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: #e6edf2;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1.12;
-  text-align: center;
-}
-
-.rail-button span:not([aria-hidden="true"]):not(.sr-only),
-.rail-popover-anchor summary span:not([aria-hidden="true"]):not(.sr-only) {
-  position: static;
-  width: auto;
-  height: auto;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  overflow: visible;
-  clip: auto;
-  white-space: nowrap;
-}
-
-.rail-button .sr-only,
-.rail-popover-anchor summary .sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  border: 0;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-}
-
-.rail-button .tool-icon,
-.rail-popover-anchor summary .tool-icon {
-  color: #f4f8fb;
-  width: 17px;
-  height: 17px;
-}
-
 .rail-popover-anchor {
   position: relative;
 }
@@ -2091,6 +2014,12 @@ p {
   border-radius: 14px;
   box-shadow: 0 18px 44px rgba(0, 0, 0, 0.5);
   background: #101215;
+}
+
+.top-goto-anchor .rail-popover {
+  top: calc(100% + 7px);
+  right: 0;
+  bottom: auto;
 }
 
 .rail-popover-status {

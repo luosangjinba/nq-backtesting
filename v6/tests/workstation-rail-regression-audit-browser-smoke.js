@@ -38,7 +38,7 @@ try {
         host: rectOf('[data-v6-chart-engine-host]'),
         main: rectOf('[data-v6-workstation-main]'),
         reset: rectOf('[data-v6-reset-view]'),
-        rightRail: rectOf('[data-v6-right-utility-rail]'),
+        goTo: rectOf('[data-v6-rail-goto]'),
         status: rectOf('[data-v6-status-readout]'),
         topBar: rectOf('[data-v6-workstation-header]'),
         transport: rectOf('[data-v6-transport]'),
@@ -52,15 +52,15 @@ try {
   assert.equal(value.chartButtonLabels.length > 0, true);
   assert.equal(value.chartButtonLabels.every((label) => /^(Maximize chart|Reset .+ pane view)$/.test(label)), true);
   assert.equal(value.chartButtonLabels.some((label) => /Cursor|Trend|Horizontal|Rectangle|Measure|Text/.test(label)), false);
-  assert.equal(value.rightRail.width, 48);
-  assert.equal(Math.abs(value.rightRail.height - value.main.height) <= 2, true);
   assert.equal(value.chart.left <= value.main.left + 2, true);
-  assert.equal(value.chart.right <= value.rightRail.left + 1, true);
+  assert.equal(value.chart.right >= value.main.right - 2, true);
   assert.equal(value.host.left, value.chart.left);
   assert.equal(value.host.top, value.chart.top);
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);
   assert.equal(value.topBar.bottom <= value.main.top, true);
+  assert.equal(value.goTo.top >= value.topBar.top, true);
+  assert.equal(value.goTo.bottom <= value.topBar.bottom, true);
   assert.equal(value.status.left >= value.chart.left, true);
   assert.equal(value.status.top >= value.chart.top, true);
   assert.equal(value.status.right < value.reset.left, true);
