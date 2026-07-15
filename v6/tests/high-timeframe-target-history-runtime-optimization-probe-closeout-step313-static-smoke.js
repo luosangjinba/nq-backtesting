@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises';
 const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_RUNTIME_OPTIMIZATION_PROBE_STEP313.md', 'utf8');
-const probe = await readFile('v6/src/chart-history/high-timeframe-target-history-runtime-optimization-probe.js', 'utf8');
+const probe = await readFile('v6/tests/governance/helpers/chart-history/high-timeframe-target-history-runtime-optimization-probe.js', 'utf8');
 const smoke = await readFile('v6/tests/high-timeframe-target-history-runtime-optimization-probe-step313-smoke.js', 'utf8');
 
 assert.match(index, /V6_HIGH_TIMEFRAME_TARGET_HISTORY_RUNTIME_OPTIMIZATION_PROBE_STEP313\.md/);

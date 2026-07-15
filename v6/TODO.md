@@ -77,6 +77,12 @@
   composes both frozen groups; exact count, uniqueness, boundary IDs, and
   original order are regression protected.
 
+- Step 452 removes three zero-production-reference governance helpers from
+  `src`: the HTF optimization probe, display-timeframe materialization
+  readiness audit, and handoff app-registration readiness audit. Historical
+  tests import them from `v6/tests/governance/helpers`; production App/runtime
+  manifests are guarded against importing them.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
@@ -1964,7 +1970,7 @@ Verification:
 Notes:
 
 - Added audit-only helper
-  `v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js`.
+  `v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js`.
 - Identified the future `v6/src/app.js` runtime import path and placement.
 - Identified the future runtime registry insertion point after Manual Next and
   before Manual Previous.

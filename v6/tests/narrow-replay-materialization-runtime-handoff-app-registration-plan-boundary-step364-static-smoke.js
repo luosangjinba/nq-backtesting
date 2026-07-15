@@ -11,7 +11,7 @@ const smoke = await readFile(
 );
 const runtimeManifest = await readFile('v6/src/runtime/replay-pipeline-runtime-contributions.js', 'utf8');
 const readinessAuditSource = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
   'utf8',
 );
 const skeletonSource = await readFile(

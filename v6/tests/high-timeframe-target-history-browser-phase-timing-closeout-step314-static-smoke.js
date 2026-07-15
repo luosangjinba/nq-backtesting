@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const doc = await readFile('v6/docs/V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_PHASE_TIMING_STEP314.md', 'utf8');
 const browserSmoke = await readFile('v6/tests/high-timeframe-target-history-browser-phase-timing-step314-smoke.js', 'utf8');
-const probe = await readFile('v6/src/chart-history/high-timeframe-target-history-runtime-optimization-probe.js', 'utf8');
+const probe = await readFile('v6/tests/governance/helpers/chart-history/high-timeframe-target-history-runtime-optimization-probe.js', 'utf8');
 
 assert.match(index, /V6_HIGH_TIMEFRAME_TARGET_HISTORY_BROWSER_PHASE_TIMING_STEP314\.md/);
 assert.match(todo, /Latest completed target-TF phase timing step: Step 314/);

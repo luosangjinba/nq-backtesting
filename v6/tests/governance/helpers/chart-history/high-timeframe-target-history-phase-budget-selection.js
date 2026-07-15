@@ -1,4 +1,4 @@
-import { createHighTimeframeTargetHistoryRuntimeOptimizationProbe } from '../../../../src/chart-history/high-timeframe-target-history-runtime-optimization-probe.js';
+import { createHighTimeframeTargetHistoryRuntimeOptimizationProbe } from './high-timeframe-target-history-runtime-optimization-probe.js';
 
 const DEFAULT_PHASE_BUDGETS = Object.freeze({
   'browser-visible-apply-lag': 80,

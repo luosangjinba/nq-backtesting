@@ -8,7 +8,7 @@ Accepted.
 
 Step 313 added a pure bounded runtime optimization probe/report:
 
-`v6/src/chart-history/high-timeframe-target-history-runtime-optimization-probe.js`
+`v6/tests/governance/helpers/chart-history/high-timeframe-target-history-runtime-optimization-probe.js`
 
 The probe consumes the Step 311 browser record shape and the Step 312 budget
 report, then returns:

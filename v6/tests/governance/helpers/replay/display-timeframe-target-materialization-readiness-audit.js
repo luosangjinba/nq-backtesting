@@ -1,4 +1,4 @@
-import { validateReplayCoordinationMaterializationPureHandoffPlan } from './replay-coordination-materialization-pure-handoff-plan.js';
+import { validateReplayCoordinationMaterializationPureHandoffPlan } from '../../../../src/replay/replay-coordination-materialization-pure-handoff-plan.js';
 
 const REQUIRED_SURFACES = Object.freeze([
   'displayTimeframeApplySurface',

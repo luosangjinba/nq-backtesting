@@ -3,7 +3,7 @@ import { createReplayCoordinationMaterializationPureHandoffPlan } from '../src/r
 import {
   auditDisplayTimeframeTargetMaterializationReadiness,
   createDisplayTimeframeTargetMaterializationReadinessReport,
-} from '../src/replay/display-timeframe-target-materialization-readiness-audit.js';
+} from './governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js';
 
 const readySurfaces = {
   barDataTargetLoadSurface: true,

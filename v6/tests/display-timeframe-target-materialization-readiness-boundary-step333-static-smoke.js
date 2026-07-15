@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { createReplayCoordinationMaterializationPureHandoffPlan } from '../src/replay/replay-coordination-materialization-pure-handoff-plan.js';
-import { createDisplayTimeframeTargetMaterializationReadinessReport } from '../src/replay/display-timeframe-target-materialization-readiness-audit.js';
+import { createDisplayTimeframeTargetMaterializationReadinessReport } from './governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js';
 
 const appContracts = await readFile('v6/src/contracts/app-contracts.js', 'utf8');
 const displayRuntime = await readFile('v6/src/display-timeframe/display-timeframe-runtime.js', 'utf8');
@@ -9,7 +9,7 @@ const barDataRuntime = await readFile('v6/src/bar-data/bar-data-runtime.js', 'ut
 const chartDataRuntime = await readFile('v6/src/chart-data/chart-data-runtime.js', 'utf8');
 const replayRuntime = await readFile('v6/src/replay/replay-runtime.js', 'utf8');
 const targetRevealPolicy = await readFile('v6/src/replay/replay-coordination-materialization-owner-contract.js', 'utf8');
-const readinessAudit = await readFile('v6/src/replay/display-timeframe-target-materialization-readiness-audit.js', 'utf8');
+const readinessAudit = await readFile('v6/tests/governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js', 'utf8');
 
 assert.match(appContracts, /APPLY: 'displayTimeframe\.apply'/);
 assert.match(appContracts, /PLAN_TARGET_WINDOW: 'barData\.planTargetWindow'/);

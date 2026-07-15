@@ -5,7 +5,7 @@ const todo = await readFile('v6/TODO.md', 'utf8');
 const index = await readFile('v6/docs/INDEX.md', 'utf8');
 const handoff = await readFile('v6/docs/V6_HANDOFF.md', 'utf8');
 const doc = await readFile('v6/docs/V6_DISPLAY_TIMEFRAME_TARGET_MATERIALIZATION_READINESS_AUDIT_STEP333.md', 'utf8');
-const audit = await readFile('v6/src/replay/display-timeframe-target-materialization-readiness-audit.js', 'utf8');
+const audit = await readFile('v6/tests/governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js', 'utf8');
 const smoke = await readFile('v6/tests/display-timeframe-target-materialization-readiness-audit-step333-smoke.js', 'utf8');
 const boundarySmoke = await readFile('v6/tests/display-timeframe-target-materialization-readiness-boundary-step333-static-smoke.js', 'utf8');
 

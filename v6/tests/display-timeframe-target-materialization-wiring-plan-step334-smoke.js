@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createReplayCoordinationMaterializationPureHandoffPlan } from '../src/replay/replay-coordination-materialization-pure-handoff-plan.js';
-import { createDisplayTimeframeTargetMaterializationReadinessReport } from '../src/replay/display-timeframe-target-materialization-readiness-audit.js';
+import { createDisplayTimeframeTargetMaterializationReadinessReport } from './governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js';
 import {
   createDisplayTimeframeTargetMaterializationWiringPlan,
   getDisplayTimeframeTargetMaterializationWiringCommandSequence,

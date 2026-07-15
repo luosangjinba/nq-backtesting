@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHighTimeframeTargetHistoryRuntimeOptimizationProbe } from '../src/chart-history/high-timeframe-target-history-runtime-optimization-probe.js';
+import { createHighTimeframeTargetHistoryRuntimeOptimizationProbe } from './governance/helpers/chart-history/high-timeframe-target-history-runtime-optimization-probe.js';
 
 const ready = createHighTimeframeTargetHistoryRuntimeOptimizationProbe({
   records: [

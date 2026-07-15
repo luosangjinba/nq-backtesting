@@ -5,7 +5,7 @@ import {
 } from '../src/replay/replay-coordination-materialization-pure-handoff-plan.js';
 import {
   createDisplayTimeframeTargetMaterializationReadinessReport,
-} from '../src/replay/display-timeframe-target-materialization-readiness-audit.js';
+} from './governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js';
 import {
   createDisplayTimeframeTargetMaterializationWiringPlan,
   validateDisplayTimeframeTargetMaterializationWiringPlan,

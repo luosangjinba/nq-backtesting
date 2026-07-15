@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const auditSource = await readFile(
-  'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
+  'v6/tests/governance/helpers/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
   'utf8',
 );
 const smoke = await readFile(

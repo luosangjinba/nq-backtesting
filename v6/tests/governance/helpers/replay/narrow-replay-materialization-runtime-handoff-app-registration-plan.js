@@ -1,4 +1,4 @@
-import { createNarrowReplayMaterializationRuntimeHandoffAppRegistrationReadinessAudit } from '../../../../src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js';
+import { createNarrowReplayMaterializationRuntimeHandoffAppRegistrationReadinessAudit } from './narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js';
 
 const PLAN_ID = 'narrow-replay-materialization-runtime-handoff-app-registration-plan';
 const OWNER_BOUNDARY = 'runtime.replay-coordination-materialization-handoff';

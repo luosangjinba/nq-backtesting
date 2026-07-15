@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { evaluate } from '../../v4/tests/helpers/browser-cdp-client.js';
-import { createHighTimeframeTargetHistoryRuntimeOptimizationProbe } from '../src/chart-history/high-timeframe-target-history-runtime-optimization-probe.js';
+import { createHighTimeframeTargetHistoryRuntimeOptimizationProbe } from './governance/helpers/chart-history/high-timeframe-target-history-runtime-optimization-probe.js';
 import { openV6Page } from './helpers/v6-browser-harness.js';
 
 const page = await openV6Page({ height: 820, width: 1360 });

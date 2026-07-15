@@ -1,4 +1,4 @@
-import { createHighTimeframeTargetHistoryResponsivenessBudgetReport } from './high-timeframe-target-history-responsiveness-budget-decision.js';
+import { createHighTimeframeTargetHistoryResponsivenessBudgetReport } from '../../../../src/chart-history/high-timeframe-target-history-responsiveness-budget-decision.js';
 
 const PHASES = Object.freeze([
   'fetch',

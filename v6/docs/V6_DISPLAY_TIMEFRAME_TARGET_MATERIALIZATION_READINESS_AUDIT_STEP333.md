@@ -11,7 +11,7 @@ Step 333 implements the read-only
 
 New audit helper:
 
-`v6/src/replay/display-timeframe-target-materialization-readiness-audit.js`
+`v6/tests/governance/helpers/replay/display-timeframe-target-materialization-readiness-audit.js`
 
 New coverage:
 

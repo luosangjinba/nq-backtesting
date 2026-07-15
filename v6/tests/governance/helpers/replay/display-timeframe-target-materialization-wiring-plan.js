@@ -1,4 +1,4 @@
-import { createDisplayTimeframeTargetMaterializationReadinessReport } from '../../../../src/replay/display-timeframe-target-materialization-readiness-audit.js';
+import { createDisplayTimeframeTargetMaterializationReadinessReport } from './display-timeframe-target-materialization-readiness-audit.js';
 
 const WIRING_PLAN_ID = 'display-timeframe-target-materialization-wiring-plan';
 const WIRING_OWNER = 'display-timeframe-runtime';
