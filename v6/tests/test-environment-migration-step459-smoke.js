@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
-import { access } from 'node:fs/promises';
+import { access, readFile, readdir } from 'node:fs/promises';
+import path from 'node:path';
 import {
   STEP459_BROWSER_LOCAL_FILES,
   STEP459_BROWSER_SERVICE_FILES,
@@ -56,5 +57,58 @@ assert.equal(
   ),
   true,
 );
+
+async function listJavaScriptFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+  for (const entry of entries) {
+    const child = `${directory}/${entry.name}`;
+    if (entry.isDirectory()) files.push(...await listJavaScriptFiles(child));
+    else if (entry.name.endsWith('.js')) files.push(child);
+  }
+  return files;
+}
+
+const importCache = new Map();
+async function readModule(pathname) {
+  if (importCache.has(pathname)) return importCache.get(pathname);
+  const source = await readFile(pathname, 'utf8');
+  const imports = [];
+  for (const match of source.matchAll(/(?:from|import)\s*['"]([^'"]+)['"]/g)) {
+    if (!match[1].startsWith('.')) continue;
+    let importedPath = path.normalize(`${path.dirname(pathname)}/${match[1]}`).replaceAll('\\', '/');
+    if (!path.extname(importedPath)) importedPath += '.js';
+    try {
+      await access(importedPath);
+      imports.push(importedPath);
+    } catch {
+      // Non-JavaScript or optional imports do not participate in this audit.
+    }
+  }
+  const module = { imports, source };
+  importCache.set(pathname, module);
+  return module;
+}
+
+async function reachesBrowserHarness(pathname, visited = new Set()) {
+  if (visited.has(pathname)) return false;
+  visited.add(pathname);
+  if (/(?:browser-cdp-client|v6-browser-harness)\.js$/.test(pathname)) return true;
+  const module = await readModule(pathname);
+  for (const importedPath of module.imports) {
+    if (await reachesBrowserHarness(importedPath, visited)) return true;
+  }
+  return false;
+}
+
+for (const pathname of await listJavaScriptFiles('v6/tests')) {
+  if (!await reachesBrowserHarness(pathname)) continue;
+  const environment = findExplicitTestEnvironment(pathname);
+  assert.equal(
+    environment === 'browser-local' || environment === 'browser-service',
+    true,
+    `${pathname} reaches the browser harness without explicit browser environment metadata`,
+  );
+}
 
 console.log('v6 explicit test environment audit Step 459 smoke passed');
