@@ -8,33 +8,17 @@ persisted-data DOM rendering, reduced App/Shell/Chart Surface/runtime
 composition pressure, moved governance probes out of production, centralized
 time-presentation validation, and archived the historical working ledger.
 
-Post-stabilization Step 455 made the named milestone manifest executable as one
-canonical runner. The manifest now truthfully declares named milestone gates,
-while the catalog separately declares exhaustive classification rather than
-implying exhaustive execution.
+Post-stabilization Steps 455-459 made the named milestone manifest executable,
+triaged all failing root Node gates, and replaced role/environment inference
+with explicit metadata. Historical snapshots, runners, browser tests, and
+service-dependent tests now have reviewable classifications; detailed evidence
+remains in the corresponding session records.
 
-Step 456 then audited all 27 failing root Node gate tests outside that named
-manifest: 22 current contracts were refreshed without production changes, five
-superseded phase assertions were explicitly quarantined with successor
-coverage, and the remaining root Node gate set passed 366/366.
-
-Step 457 replaced the remaining TODO/INDEX source-text support heuristic with
-explicit role metadata. Of 155 affected tests, one remains the current-ledger
-gate and 154 completed-phase snapshots are explicitly quarantined. The catalog
-now classifies 751/751 JavaScript files, while root Node gates pass 371/371 and
-the named canonical suite passes 14/14.
-
-Step 458 audited the 22 tests previously inferred as runners from filenames.
-Seventeen genuine orchestration entry points now use explicit metadata, while
-five ordinary assertion tests returned to the gate set and passed. The catalog
-now classifies 753/753 JavaScript files, root Node gates pass 375/375, static
-architecture gates pass 51/51, and the named canonical suite passes 14/14.
-
-Step 459 replaced filename/source environment inference with explicit metadata.
-The catalog now separates 580 offline Node files, one node-service file, 173
-local-browser files, and one browser-service file. Offline root Node gates pass
-378/378, both service gates pass, static gates pass 51/51, and the named
-canonical suite passes 14/14.
+Step 460 made exhaustive catalog gates executable through a checked-in runner.
+The catalog now classifies 761/761 files; exhaustive offline Node gates pass
+380/380, both service environments pass 1/1, static gates pass 52/52, and the
+named canonical suite passes 14/14. The 165 browser-local catalog gates remain
+available as an explicit long-form run rather than an implicit routine gate.
 
 The product freeze used by this milestone is now released for planning only.
 Implementation of the three operating modes, Semantic Drawing, or other new
@@ -46,6 +30,7 @@ automatic next Step.
 - `node v6/tests/canonical-test-catalog-smoke.js`
 - `node v6/tests/canonical-test-manifest-smoke.js`
 - `node v6/tests/canonical-test-runner.js` (executes every named manifest gate)
+- `node v6/tests/exhaustive-test-runner.js --environment=node`
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/static-architecture-audit-step394.js`
 - `node v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`
@@ -71,10 +56,12 @@ Do not start a mode or plugin implementation from this TODO alone.
   metadata for infrastructure support and every TODO/INDEX historical snapshot;
   Step 458 completed explicit orchestration-runner metadata. Future non-gate
   roles must extend metadata rather than add source or filename heuristics.
-- Test role and environment classification are now metadata-driven. The named
-  canonical runner remains intentionally smaller than the exhaustive catalog;
-  root/environment gate execution is still assembled with audit commands
-  rather than one checked-in exhaustive runner.
+- Test role/environment classification and exhaustive gate execution are now
+  checked-in and metadata-driven. The named canonical runner remains
+  intentionally smaller than the exhaustive catalog.
+- The browser-local exhaustive environment contains 165 gates and is too costly
+  for an implicit routine run. Use it deliberately until future work defines
+  reviewed shards or budgets; do not weaken the canonical visible-latency gate.
 - Historical static/readiness/selection tests remain available for targeted
   archaeology but are not product direction documents.
 

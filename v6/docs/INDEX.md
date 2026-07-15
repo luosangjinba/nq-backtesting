@@ -43,6 +43,8 @@ router, not a chronological ledger.
 - `v6/tests/canonical-test-manifest.js`: named milestone suites.
 - `v6/tests/canonical-test-runner.js`: executable runner for every named
   manifest gate; use `--list` or `--environment=<name>` for audit/scope.
+- `v6/tests/exhaustive-test-runner.js`: exhaustive catalog gate runner; defaults
+  to offline Node and supports explicit environment/list selection.
 - `v6/tests/test-catalog-domain.js`: exhaustive environment/role classification.
 - `v6/docs/V6_TEST_TRIAGE_STEP456.md`: explicit disposition rules and closeout
   gate for the post-stabilization failing Node tests.
@@ -54,6 +56,8 @@ router, not a chronological ledger.
   closeout of filename-based runner inference.
 - `v6/docs/V6_EXPLICIT_TEST_ENVIRONMENTS_STEP459.md`: explicit execution
   environment inventory, service dependency contract, and migration closeout.
+- `v6/docs/V6_EXHAUSTIVE_TEST_RUNNER_STEP460.md`: two-runner decision,
+  exhaustive CLI contract, and verification closeout.
 
 ## Historical Lookup
 
