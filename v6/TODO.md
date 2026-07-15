@@ -2,11 +2,13 @@
 
 ## Current / Next
 
-- Step 436 is selected as the next bounded visual-foundation refinement. It
-  extends the existing global time-presentation owner with four unambiguous
-  date formats and an independent weekday toggle. The crosshair target is
+- Step 436 implementation and automated acceptance are complete. The existing
+  global time-presentation owner now provides four unambiguous date formats and
+  an independent weekday toggle. The default crosshair target is
   `Tue 2026/07/14 22:26`; time-axis ticks remain compact, and canonical chart,
-  Replay, and Go-to values remain unchanged. See
+  Replay, and Go-to values remain unchanged. Settings schema v9 migrates older
+  records with deterministic defaults. Remaining gate: Windows human visual
+  acceptance across date/timezone/hour combinations. See
   `v6/docs/V6_GLOBAL_DATE_PRESENTATION_STEP436.md`.
 
 - Latest planning step: Step 418 - Workspace Placeholder And FXReplay Shell
