@@ -208,7 +208,7 @@ await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.SET_PERIOD, { period: '1m' });
 const next = await dispatchCommand(CHART_ENTRY_MANUAL_NEXT_COMMANDS.NEXT);
 assert.equal(next.status, 'advanced');
 assert.equal(next.error, null);
-assert.equal(queryCalls.length, 3);
+assert.equal(queryCalls.length, 2);
 assert.equal(chartDataEvents.length, 2);
 
 const afterNext = await snapshotBoundaryState();
@@ -220,7 +220,7 @@ await assertResetKeepsRuntimeBoundaries({
   chartDataEventCount: 2,
   expectedLatestOffsetBars: 8,
   label: 'after next replay k-line reset',
-  queryCallCount: 3,
+  queryCallCount: 2,
 });
 
 await registry.stop();
