@@ -2,6 +2,13 @@
 
 ## Current / Next
 
+- Step 438 execution baseline is accepted. Steps 438-454 are restricted to
+  chart-scaffold performance, test-catalog repair, safe persisted-data DOM
+  rendering, composition/module boundary extraction, governance-probe cleanup,
+  canonical time validation, and documentation archive closeout. Three modes,
+  Semantic Drawing, and new business features are frozen until this sequence
+  closes. See `v6/docs/V6_MILESTONE_STABILIZATION_PLAN_STEP438.md`.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to

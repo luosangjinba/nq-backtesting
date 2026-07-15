@@ -13,6 +13,9 @@ Read this index before working on V6.
 - `v6/docs/V6_ARCHITECTURE.md`: runtime boundaries and non-porting rules.
 - `v6/docs/V6_EXECUTION_ROADMAP.md`: detailed execution order based on the
   useful V5 formation sequence, with V6 gates inserted earlier.
+- `v6/docs/V6_MILESTONE_STABILIZATION_PLAN_STEP438.md`: binding Step 438-454
+  stabilization order, audit baseline, feature freeze, independent gates, and
+  stop conditions after the workspace-cleanup milestone.
 - `v6/docs/V6_PRODUCTION_COMPLEXITY_REDUCTION_STEP393.md`: Step 393 extraction
   results, production/test boundary cleanup, V6-owned browser asset, and the
   Step 394 static-test consolidation recommendation.
