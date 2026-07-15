@@ -30,8 +30,13 @@ direction is accepted with changes, while its UI/write path remains frozen.
 
 The first post-foundation delivery order is now fixed by
 `V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md`. Product implementation is
-held until Step 462 restores the latency gate; later Steps remain independently
-reviewed and committed.
+released in bounded order after Step 462 restored the latency gate; later Steps
+remain independently reviewed and committed.
+
+Step 462 attributed the canonical Manual Next failure to two near-serial window
+loads. Same-timeframe cursor materialization now requests one exact bar and
+reuses the source advance's forward cache. Five focused runs passed at
+55.9–99.0 ms; canonical passed 14/14 with a 98.5 ms concurrency sample.
 
 ## Current Foundation Gates
 
@@ -45,18 +50,19 @@ reviewed and committed.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 462
+## Next Step — 463
 
-Restore the Replay/leftward-history Manual Next latency gate only:
+Implement the validation domain spine only:
 
-- reproduce and phase-time the repeated 219.2 ms / 188.3 ms failures;
-- identify the owning hot path before editing;
-- preserve Replay truth, no-future behavior, and the 160 ms threshold;
-- rerun the focused latency gate and full canonical suite;
-- no product UI, mode shell, Semantic Drawing, or validation-domain work.
+- minimal versioned contracts and lifecycle invariants for `playbookVersion`,
+  `validationCampaign`, and `trial`;
+- an explicit repository interface and migration-backed local persistence;
+- create/get/list/reload and architecture gates;
+- no production UI, mode shell, Semantic Drawing, order/outcome, or analytics.
 
-After Step 462 passes, Step 463 may begin the validation domain/persistence
-spine described in the selected plan.
+Inspect existing persistence owners and contracts before choosing the
+module/database boundary. Do not place this logic in App, Shell, Replay, chart,
+or adapter entry files.
 
 ## Known Catalog Debt
 

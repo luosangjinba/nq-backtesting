@@ -77,6 +77,11 @@ This is a P0 foundation gate for starting product work. Step 462 must diagnose
 and restore the Replay/leftward-history concurrency latency without weakening
 the 160 ms threshold or changing Replay truth.
 
+Step 462 resolution: the same-timeframe cursor materializer now reuses the
+freshly cached forward window through an exact one-bar request. Five focused
+runs passed at 55.9–99.0 ms and the full canonical suite passed 14/14 with a
+98.5 ms concurrency sample. The blocker is closed.
+
 ### Product Infrastructure, Not Foundation Repair
 
 - validation campaign/playbook/trial contracts and persistence;
@@ -91,14 +96,13 @@ files under the label of finishing the foundation.
 
 ## Decision
 
-The chart/replay foundation is **architecturally ready but currently gate
-blocked** from one thin product slice. The repeated Manual Next latency failure
-is a bounded P0 repair, not justification for another broad cleanup milestone.
+The chart/replay foundation is **architecturally and operationally ready** for
+one thin product slice after Step 462 closed the bounded Manual Next latency
+blocker. No broad cleanup milestone is required first.
 
 The condition is architectural: the next slice must establish its own domain
 owner and public contracts, reuse the existing chart/replay/data/layout owners,
 and keep every new chart visual behind a chart-owned projection interface.
 
-This decision releases planning of the first slice. Product implementation is
-held until Step 462 restores the named latency gate and the full canonical suite
-passes.
+The named entry gate is restored. Product implementation may proceed only in
+the bounded order selected by the Step 461 thin-slice plan.

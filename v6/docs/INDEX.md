@@ -65,6 +65,8 @@ router, not a chronological ledger.
   environment inventory, service dependency contract, and migration closeout.
 - `v6/docs/V6_EXHAUSTIVE_TEST_RUNNER_STEP460.md`: two-runner decision,
   exhaustive CLI contract, and verification closeout.
+- `v6/docs/V6_REPLAY_HISTORY_LATENCY_REPAIR_STEP462.md`: Manual Next phase
+  attribution, exact cursor-window cache repair, and restored 160 ms gate.
 
 ## Historical Lookup
 

@@ -30,10 +30,9 @@ building three mode shells first.
 
 ## Entry Gate
 
-The product sequence is selected but cannot start while the repeated Manual
-Next/leftward-history latency regression remains. Step 462 is a bounded
-foundation repair; it must restore the existing 160 ms gate without weakening
-the threshold or changing Replay truth.
+Step 462 restored the repeated Manual Next/leftward-history latency regression
+without weakening the 160 ms threshold or changing Replay truth. The product
+sequence may now enter Step 463.
 
 ## Ordered Steps
 
@@ -42,6 +41,8 @@ the threshold or changing Replay truth.
 Diagnose the repeated 219.2 ms / 188.3 ms Manual Next failures in the canonical
 Replay/leftward-history concurrency gate. Fix only the owning hot path, retain
 the 160 ms limit, and rerun the full canonical suite.
+
+Status: complete; focused samples 55.9–99.0 ms and canonical 14/14.
 
 ### Step 463 — Validation Domain Spine
 
@@ -103,7 +104,7 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Step 461 authorizes Step 462 as the next bounded foundation repair. It does not
-pre-authorize product Steps 463-469: each Step requires focused inspection,
+Step 462 completed the bounded foundation repair. Step 463 is now the next
+authorized target. This does not pre-authorize product Steps 464-469: each Step requires focused inspection,
 verification, and an independent commit, and may revise later detail without
 breaking the accepted product/ownership invariants.

@@ -8,11 +8,12 @@ const document = await readFile(
 const normalizedDocument = document.replaceAll(/\s+/g, ' ');
 
 for (const required of [
-  'architecturally ready but currently gate blocked',
+  'architecturally and operationally ready',
   'Manual Next at 219.2 ms against the 160 ms limit',
   'Step 462 must diagnose and restore',
+  'The blocker is closed',
   'Product Infrastructure, Not Foundation Repair',
-  'Product implementation is held',
+  'Product implementation may proceed only',
   'chart-owned projection interface',
 ]) {
   assert.equal(normalizedDocument.includes(required), true, required);
