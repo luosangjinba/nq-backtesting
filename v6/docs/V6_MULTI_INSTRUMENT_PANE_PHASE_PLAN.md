@@ -10,9 +10,9 @@ The capability must use one shared Replay clock and pane-local instrument
 intent. It must not create a Replay runtime, cursor, session, or order timeline
 per pane.
 
-This plan records the accepted delivery shape. It does not preempt Step 469
-human acceptance or the Step 470 modularity audit, and it does not authorize
-arbitrary out-of-session instruments.
+This plan records the accepted delivery shape. It does not preempt the Step 470
+modularity audit, and it does not authorize arbitrary out-of-session
+instruments.
 
 ## Product Contract
 

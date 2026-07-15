@@ -20,8 +20,8 @@ for (const required of [
   assert.equal(decision.includes(required), true, required);
 }
 
-assert.equal(plan.includes('Step 469 is now the next authorized target'), true);
-assert.equal(todo.includes('## Next Gate — Step 469 Human Acceptance'), true);
+assert.equal(plan.includes('Step 470 is the next authorized target'), true);
+assert.equal(todo.includes('## Next Gate — Step 470 Modularity Audit'), true);
 assert.equal(session.includes('It never rewrites start provenance or navigates Replay'), true);
 assert.equal(session.includes('Step 465 may add one generic prospective observation'), true);
 

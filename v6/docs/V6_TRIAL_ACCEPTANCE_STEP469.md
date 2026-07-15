@@ -1,6 +1,7 @@
 # V6 Trial Acceptance — Step 469
 
-Status: automated acceptance complete; human workflow acceptance pending (2026-07-15)
+Status: technical vertical-slice acceptance complete; product UI pending a
+later authorized phase (2026-07-15)
 
 ## Outcome
 
@@ -46,24 +47,31 @@ The recovered projection proves:
 - Replay/history visible latency measured `85.8 ms` against the unchanged
   `160 ms` threshold.
 
-## Human Acceptance Gate
+## Product UI Boundary
 
-Automation cannot establish recording friction. Before Step 469 is declared
-fully accepted, the user must exercise the actual workflow and confirm:
+Step 469 validates domain, persistence, projection, and navigation behavior
+through repositories, runtime commands, and automated browser harnesses. The
+current workstation does not provide a complete user-facing flow for recording
+an observation, evidence, plan, execution, and outcome and then reviewing
+Campaign sample size, wins/losses, and R statistics.
 
-1. recording observation, evidence, plan, execution, and outcome is clear and
-   does not interrupt Replay practice unacceptably;
-2. summary sample size and R agree with the entered trials;
-3. selecting a result returns the same Replay session to the original evidence
-   time with no future candles left visible;
-4. all visible panes remain coherent after drillback and ordinary
-   Previous/Next/Play still work;
-5. rejection of a result from another Replay session is understandable.
+Consequently:
 
-No claim of low recording friction is made until this gate is confirmed.
+- the automated sample size and `+2R/-1R` result proves calculation and
+  persistence behavior, not an available end-user workflow;
+- the Session Home Summary/Stats surface is separate Session Analytics and is
+  not the Validation Campaign Summary described here;
+- recording friction, field clarity, Campaign Summary usability, and human
+  drillback comprehension cannot be accepted yet;
+- those product claims require a separately authorized UI phase with real
+  workflow acceptance after its implementation.
+
+Step 469 is complete as a technical vertical slice. It must not be described as
+a completed user-facing Validation Campaign feature.
 
 ## Scope Preserved
 
 No ontology expansion, Semantic Drawing, broad dashboard, three-mode shell, or
-new business feature was added. After human acceptance, the next authorized
-work is the user-requested modularity/large-file audit before milestone close.
+new business feature was added. The next authorized work is the user-requested
+modularity/large-file audit before deciding the next product implementation
+phase.

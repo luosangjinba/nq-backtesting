@@ -112,15 +112,17 @@ repositioning remains gated on a safe owner-level navigation contract in Step
 
 ### Step 469 — Trial Acceptance
 
-Run focused regression packs and human use on real trials. Semantic vocabulary,
-plugin UI, and broader analytics may be reconsidered only after the thin loop
-demonstrates trustworthy provenance and low recording friction.
+Run focused regression packs over the technical trial chain. Semantic
+vocabulary, plugin UI, and broader analytics may be reconsidered only after the
+thin loop demonstrates trustworthy provenance. Recording-friction claims
+require a later user-facing workflow and human acceptance.
 
-Status: automated acceptance complete. Owner-safe evidence drillback, real
+Status: technical acceptance complete. Owner-safe evidence drillback, real
 IndexedDB recovery, raw provenance, sample size/R integrity, canonical,
-exhaustive Node, architecture, and app-shell gates pass. Human workflow and
-recording-friction acceptance remains pending and must not be inferred from the
-automated result.
+exhaustive Node, architecture, and app-shell gates pass. These gates use domain,
+repository, runtime, and browser-harness calls; the complete recording and
+Campaign Summary UI does not yet exist. Human workflow and recording-friction
+acceptance belongs to a later authorized product phase.
 
 ## Not In This Sequence
 
@@ -134,7 +136,8 @@ automated result.
 
 ## Authorization Boundary
 
-Steps 462-468 completed the first trial source-artifact and read-projection
-chain. Step 469 is now the next authorized target and requires focused
-inspection, verification, and an independent commit, and may revise later
-detail without breaking the accepted product/ownership invariants.
+Steps 462-469 completed and technically accepted the first trial
+source-artifact, persistence, projection, and navigation chain. Step 470 is the
+next authorized target: a modularity/large-file audit before selecting another
+product implementation phase. The technical slice must not be presented as a
+complete end-user Validation Campaign workflow.

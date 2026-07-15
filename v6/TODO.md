@@ -38,20 +38,22 @@ navigation-owner contract; Analytics does not mutate Replay or source truth.
 Cross-slice gates passed: canonical 14/14, exhaustive Node 411/411, and static
 architecture 59/59. Replay/history measured 150.1 ms against the 160 ms gate.
 
-Step 469 automated acceptance is complete. Campaign Summary now hands evidence
+Step 469 technical acceptance is complete. Campaign Summary now hands evidence
 drillback to Replay Navigation, which safely rewinds all panes and removes
 future bars through one shared replacement boundary. A real IndexedDB v4
 two-trial recovery proved provenance, sample size, `+2R/-1R`, total/average R,
 and raw drillback integrity. Canonical passed 14/14, exhaustive Node 413/413,
 static architecture 59/59, app-shell browser passed, and Replay/history measured
-85.8 ms against the unchanged 160 ms gate. Human workflow/friction acceptance
-remains pending.
+85.8 ms against the unchanged 160 ms gate. The acceptance harness writes the
+domain chain directly; the workstation does not yet expose a complete Campaign
+recording or R-statistics UI, so no human workflow/friction claim is made.
 
-Step 469 human acceptance exposed a legacy Restart semantic mismatch. Restart now
+Exploratory Replay use exposed a legacy Restart semantic mismatch. Restart now
 enters an FXReplay-style Bar Replay selection mode, shows a blue marker, rejects
-points outside the revealed session range, and truncates the selected candle plus
-later candles through Replay rewind/shared replacement. Quick Session/Home received
-a UI pass; Summary/Stats now expand inline and dismiss outside. Visual review remains.
+points outside the revealed session range, and truncates the selected candle
+plus later candles through Replay rewind/shared replacement. Quick Session/Home
+received a UI pass; its Session Summary/Stats surface is not Validation Campaign
+analytics.
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -64,22 +66,22 @@ a UI pass; Summary/Stats now expand inline and dismiss outside. Visual review re
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Gate — Step 469 Human Acceptance
+## Next Gate — Step 470 Modularity Audit
 
-Use the real workflow to confirm recording friction, summary/R correctness,
-same-session evidence return, no-future chart state across panes, and clear
-cross-session rejection. Do not mark Step 469 fully accepted from automation.
+Audit large and mixed-responsibility V6 files before selecting the next product
+implementation phase. Record ownership risks and bounded split candidates; do
+not infer authorization for new modes, Semantic Drawing, Campaign UI, or other
+business features from this audit.
 
-After confirmation, Step 470 is the requested modularity/large-file audit before
-the Validation Campaign Thin Slice milestone closes. It is an audit/planning
-step, not authorization for new modes, Semantic Drawing, or business features.
+The future Validation Campaign UI phase must implement the real recording and
+summary workflow before recording friction, sample/R presentation, or human
+drillback comprehension can be accepted.
 
 ## Planned Capability — Multi-Instrument Panes
 
 `v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md` records the accepted delivery
 shape for pane-local Session instruments over one shared Replay clock. It is
-valuable for NQ/ES intermarket and SMT review, but does not preempt Step 469
-human acceptance or Step 470.
+valuable for NQ/ES intermarket and SMT review, but does not preempt Step 470.
 
 When the current milestone gates permit new chart-foundation work, begin with
 Phase A contract/gap semantics. Do not start from the symbol picker, do not
