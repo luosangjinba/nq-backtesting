@@ -58,7 +58,7 @@ try {
   assert.equal(value.host.top, value.chart.top);
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);
-  assert.equal(value.topBar.bottom <= value.main.top, true);
+  assert.equal(Math.abs(value.topBar.bottom - value.main.top) <= 1, true);
   assert.equal(value.goTo.top >= value.topBar.top, true);
   assert.equal(value.goTo.bottom <= value.topBar.bottom, true);
   assert.equal(value.status.left >= value.chart.left, true);

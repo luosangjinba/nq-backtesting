@@ -71,7 +71,7 @@ p {
 .workstation-shell {
   display: grid;
   grid-template-rows: auto auto auto auto auto minmax(420px, 1fr) auto;
-  gap: 6px;
+  gap: 0;
   padding: 10px;
   background: #090d12;
 }
