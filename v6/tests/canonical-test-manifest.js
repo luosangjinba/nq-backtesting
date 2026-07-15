@@ -12,7 +12,7 @@ export const TEST_ROLES = Object.freeze([
 ]);
 
 export const CANONICAL_TEST_MANIFEST = Object.freeze({
-  coverage: 'exhaustive-policy',
+  coverage: 'named-milestone-gates',
   schemaVersion: 1,
   suites: Object.freeze([
     Object.freeze({

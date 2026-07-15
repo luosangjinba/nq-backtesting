@@ -8,6 +8,11 @@ persisted-data DOM rendering, reduced App/Shell/Chart Surface/runtime
 composition pressure, moved governance probes out of production, centralized
 time-presentation validation, and archived the historical working ledger.
 
+Post-stabilization Step 455 made the named milestone manifest executable as one
+canonical runner. The manifest now truthfully declares named milestone gates,
+while the catalog separately declares exhaustive classification rather than
+implying exhaustive execution.
+
 The product freeze used by this milestone is now released for planning only.
 Implementation of the three operating modes, Semantic Drawing, or other new
 business capability still requires an explicit reviewed decision; it is not an
@@ -17,6 +22,7 @@ automatic next Step.
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
 - `node v6/tests/canonical-test-manifest-smoke.js`
+- `node v6/tests/canonical-test-runner.js` (executes every named manifest gate)
 - `node v6/tests/boundary-smoke.js`
 - `node v6/tests/static-architecture-audit-step394.js`
 - `node v6/tests/visible-kline-latency-regression-pack-step257-smoke.js`
@@ -37,6 +43,10 @@ Do not start a mode or plugin implementation from this TODO alone.
 
 ## Known Catalog Debt
 
+- The canonical manifest is intentionally a named milestone gate set, while the
+  catalog is exhaustive classification only. Tests outside the manifest still
+  require explicit triage before they can be treated as passing, quarantined,
+  or retired.
 - `status-readout-chart-data-browser-smoke.js` still expects empty OHLC after
   crosshair leave, contradicting the accepted latest-bar default. Current Pane
   status coverage is authoritative; retire or rewrite the old test during the

@@ -41,6 +41,8 @@ router, not a chronological ledger.
 - `v6/docs/V6_ARCHITECTURE.md`: hard ownership and composition boundaries.
 - `v6/docs/V6_EXECUTION_ROADMAP.md`: execution gates and sequencing rules.
 - `v6/tests/canonical-test-manifest.js`: named milestone suites.
+- `v6/tests/canonical-test-runner.js`: executable runner for every named
+  manifest gate; use `--list` or `--environment=<name>` for audit/scope.
 - `v6/tests/test-catalog-domain.js`: exhaustive environment/role classification.
 
 ## Historical Lookup

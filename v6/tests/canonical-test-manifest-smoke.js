@@ -7,7 +7,7 @@ import {
 } from './canonical-test-manifest.js';
 
 assert.equal(CANONICAL_TEST_MANIFEST.schemaVersion, 1);
-assert.equal(CANONICAL_TEST_MANIFEST.coverage, 'exhaustive-policy');
+assert.equal(CANONICAL_TEST_MANIFEST.coverage, 'named-milestone-gates');
 assert.equal(Object.isFrozen(CANONICAL_TEST_MANIFEST), true);
 
 const ids = new Set();
