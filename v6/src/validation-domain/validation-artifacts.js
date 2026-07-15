@@ -123,8 +123,13 @@ export function createValidationTrial({
     createdAt: timestamp(createdAt, 'Validation trial createdAt'),
     id: requiredText(id, 'Validation trial id'),
     invalidationReason: null,
+    replayCursorIndex: null,
+    replayCursorTime: null,
+    replayRevealedCount: null,
     replaySessionId: optionalText(replaySessionId, 'Validation trial replaySessionId'),
+    replayVisibleThroughTime: null,
     schemaVersion: VALIDATION_ARTIFACT_SCHEMA_VERSION,
+    startedAt: null,
     status,
     updatedAt: timestamp(updatedAt, 'Validation trial updatedAt'),
   });

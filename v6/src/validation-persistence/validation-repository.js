@@ -8,6 +8,7 @@ import {
   transitionValidationCampaign,
   transitionValidationTrial,
 } from '../validation-domain/validation-lifecycle.js';
+import { startValidationTrial } from '../validation-domain/blind-trial-provenance.js';
 import { createIndexedDbValidationPersistenceAdapter } from './validation-persistence-adapters.js';
 import { VALIDATION_STORES } from './validation-persistence-schema.js';
 
@@ -104,6 +105,30 @@ export function createValidationRepository({
     });
   }
 
+  async function startTrial(id, provenance, options = {}) {
+    return adapter.transaction([
+      VALIDATION_STORES.CAMPAIGNS,
+      VALIDATION_STORES.TRIALS,
+    ], 'readwrite', async (transaction) => {
+      const campaignStore = transaction.store(VALIDATION_STORES.CAMPAIGNS);
+      const trialStore = transaction.store(VALIDATION_STORES.TRIALS);
+      const current = requireRecord(await trialStore.get(id), 'Validation trial', id);
+      const campaign = requireRecord(
+        await campaignStore.get(current.campaignId),
+        'Validation campaign',
+        current.campaignId,
+      );
+      if (campaign.status !== 'active') {
+        throw new Error(`Validation campaign must be active before trial start; received ${campaign.status}.`);
+      }
+      const next = startValidationTrial(current, provenance, {
+        startedAt: options.startedAt ?? now(),
+      });
+      await trialStore.put(next);
+      return cloneValidationArtifact(next);
+    });
+  }
+
   return Object.freeze({
     close: () => adapter.close?.(),
     createCampaign,
@@ -128,6 +153,7 @@ export function createValidationRepository({
       campaignId,
     ),
     open: () => adapter.open(),
+    startTrial,
     transitionCampaign,
     transitionTrial,
   });
