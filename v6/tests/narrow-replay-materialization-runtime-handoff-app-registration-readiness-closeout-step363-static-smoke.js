@@ -12,7 +12,7 @@ const auditSource = await readFile(
   'v6/src/replay/narrow-replay-materialization-runtime-handoff-app-registration-readiness-audit.js',
   'utf8',
 );
-const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/replay-pipeline-runtime-contributions.js', 'utf8');
 const smoke = await readFile(
   'v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-step363-smoke.js',
   'utf8',

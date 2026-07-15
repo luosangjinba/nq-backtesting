@@ -9,7 +9,7 @@ const smoke = await readFile(
   'v6/tests/narrow-replay-materialization-runtime-handoff-app-registration-readiness-step363-smoke.js',
   'utf8',
 );
-const runtimeManifest = await readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8');
+const runtimeManifest = await readFile('v6/src/runtime/replay-pipeline-runtime-contributions.js', 'utf8');
 const skeletonSource = await readFile(
   'v6/src/replay/replay-coordination-materialization-runtime-handoff.js',
   'utf8',

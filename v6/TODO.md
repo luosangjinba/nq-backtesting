@@ -72,6 +72,11 @@
   cloning, and snapshot ordering now belong to a focused controller. The Chart
   Surface retains bar ownership and supplies read-only Pane bars.
 
+- Step 451 splits the 40-runtime manifest into ordered core-state (18) and
+  Replay/projection pipeline (22) contributions. The public manifest only
+  composes both frozen groups; exact count, uniqueness, boundary IDs, and
+  original order are regression protected.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to

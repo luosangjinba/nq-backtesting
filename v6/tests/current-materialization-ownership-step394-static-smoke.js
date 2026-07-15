@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 const [manifest, handoff, diagnostics, materialization, shell] = await Promise.all([
-  readFile('v6/src/runtime/core-runtime-manifest.js', 'utf8'),
+  readFile('v6/src/runtime/replay-pipeline-runtime-contributions.js', 'utf8'),
   readFile('v6/src/replay/replay-coordination-materialization-runtime-handoff.js', 'utf8'),
   readFile('v6/src/replay/target-materialization-replay-diagnostics-runtime.js', 'utf8'),
   readFile('v6/src/materialization/target-display-materialization.js', 'utf8'),
