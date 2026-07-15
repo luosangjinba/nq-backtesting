@@ -7,7 +7,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 8);
+assert.equal(SETTINGS_RECORD_VERSION, 9);
 const customized = updateSettingsRecord(createSettingsRecord(), {
   statusBackgroundColor: '#112233',
   statusBackgroundOpacityPercent: 65,

@@ -8,7 +8,7 @@ import {
   updateSettingsRecord,
 } from '../src/settings/settings-model.js';
 
-assert.equal(SETTINGS_RECORD_VERSION, 8);
+assert.equal(SETTINGS_RECORD_VERSION, 9);
 assert.deepEqual(createSettingsRecord(), DEFAULT_SETTINGS_INPUT);
 
 const customized = updateSettingsRecord(createSettingsRecord(), {
@@ -46,7 +46,7 @@ assert.equal(restoredV1.settings.chartGrid, false);
 assert.equal(restoredV1.settings.chartBackgroundColor, DEFAULT_SETTINGS_INPUT.chartBackgroundColor);
 assert.deepEqual(createSettingsPersistenceValue(restoredV1.settings), {
   settings: restoredV1.settings,
-  version: 8,
+  version: 9,
 });
 
 console.log('V6 Settings Canvas model Step 410 smoke passed.');
