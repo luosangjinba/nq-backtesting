@@ -74,6 +74,18 @@ After confirmation, Step 470 is the requested modularity/large-file audit before
 the Validation Campaign Thin Slice milestone closes. It is an audit/planning
 step, not authorization for new modes, Semantic Drawing, or business features.
 
+## Planned Capability — Multi-Instrument Panes
+
+`v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md` records the accepted delivery
+shape for pane-local Session instruments over one shared Replay clock. It is
+valuable for NQ/ES intermarket and SMT review, but does not preempt Step 469
+human acceptance or Step 470.
+
+When the current milestone gates permit new chart-foundation work, begin with
+Phase A contract/gap semantics. Do not start from the symbol picker, do not
+allow assets outside `session.symbols`, and do not create per-pane Replay
+cursors.
+
 ## Known Catalog Debt
 
 - Canonical is a named milestone set; the catalog is exhaustive metadata-driven
