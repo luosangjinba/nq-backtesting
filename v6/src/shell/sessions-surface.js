@@ -3,6 +3,7 @@ import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.j
 import { createSessionsSurfaceState } from './sessions-surface-model.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
 import { bindWorkflowPanelClose } from './workflow-panel-close.js';
+import { createTextElement, replaceNodeChildren } from './safe-dom-render.js';
 
 function setText(root, selector, value) {
   const element = root.querySelector(selector);
@@ -14,9 +15,17 @@ function setText(root, selector, value) {
 function renderSessionList(root, sessions = []) {
   const list = root.querySelector('[data-v6-sessions-list]');
   if (!list) return;
-  list.innerHTML = sessions
-    .map((session) => `<li data-v6-session-row="${session.id}"><strong>${session.symbol} ${session.timeframe}</strong><span>${session.id}</span></li>`)
-    .join('');
+  const documentRef = root.ownerDocument || globalThis.document;
+  const rows = sessions.map((session) => {
+    const row = createTextElement(documentRef, { tagName: 'li' });
+    row.dataset.v6SessionRow = String(session.id ?? '');
+    replaceNodeChildren(row, [
+      createTextElement(documentRef, { tagName: 'strong', text: `${session.symbol} ${session.timeframe}` }),
+      createTextElement(documentRef, { tagName: 'span', text: session.id }),
+    ]);
+    return row;
+  });
+  replaceNodeChildren(list, rows);
 }
 
 function renderSessionsSurface(root, state) {

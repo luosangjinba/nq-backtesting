@@ -12,6 +12,8 @@ import { mountSessionsSurface } from '../src/shell/sessions-surface.js';
 function createElement() {
   const listeners = new Map();
   return {
+    children: [],
+    dataset: {},
     innerHTML: '',
     textContent: '',
     addEventListener(name, listener) {
@@ -25,6 +27,9 @@ function createElement() {
         listeners.delete(name);
       }
     },
+    replaceChildren(...children) {
+      this.children = children;
+    },
   };
 }
 
@@ -36,16 +41,27 @@ function createFakeRoot() {
     }
     return elements.get(selector);
   }
-  return {
+  const root = {
+    ownerDocument: {
+      createElement() {
+        return createElement();
+      },
+    },
     querySelector: elementFor,
     text(selector) {
       return elementFor(selector).textContent;
     },
     html(selector) {
-      return elementFor(selector).innerHTML;
+      const serialize = (element) => [
+        element.textContent,
+        ...Object.values(element.dataset || {}),
+        ...(element.children || []).map(serialize),
+      ].join(' ');
+      return serialize(elementFor(selector));
     },
     elementFor,
   };
+  return root;
 }
 
 const modeled = createSessionsSurfaceState({

@@ -6,6 +6,7 @@ import { dispatchCommand as dispatchRuntimeCommand } from '../runtime/commands.j
 import { createJournalSurfaceState } from './journal-surface-model.js';
 import { setWorkflowActionOpen } from './workflow-action-state.js';
 import { bindWorkflowPanelClose } from './workflow-panel-close.js';
+import { createTextElement, replaceNodeChildren } from './safe-dom-render.js';
 
 const DEFAULT_SNAPSHOT_KEY = 'workstation-journal';
 
@@ -19,9 +20,17 @@ function setText(root, selector, value) {
 function renderEntryList(root, entries = []) {
   const list = root.querySelector('[data-v6-journal-list]');
   if (!list) return;
-  list.innerHTML = entries
-    .map((entry) => `<li data-v6-journal-row="${entry.id}"><strong>${entry.symbol} ${entry.side}</strong><span>${entry.quantity}@${entry.entryPrice}</span></li>`)
-    .join('');
+  const documentRef = root.ownerDocument || globalThis.document;
+  const rows = entries.map((entry) => {
+    const row = createTextElement(documentRef, { tagName: 'li' });
+    row.dataset.v6JournalRow = String(entry.id ?? '');
+    replaceNodeChildren(row, [
+      createTextElement(documentRef, { tagName: 'strong', text: `${entry.symbol} ${entry.side}` }),
+      createTextElement(documentRef, { tagName: 'span', text: `${entry.quantity}@${entry.entryPrice}` }),
+    ]);
+    return row;
+  });
+  replaceNodeChildren(list, rows);
 }
 
 function renderJournalSurface(root, state) {

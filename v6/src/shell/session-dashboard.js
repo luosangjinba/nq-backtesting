@@ -10,6 +10,7 @@ import { getVisibleRecentSessionRowActions } from './session-row-action-boundari
 import { mountSessionAnalyticsSurface } from './session-analytics-surface.js';
 import { mountSessionSummarySurface } from './session-summary-surface.js';
 import { readSessionSetupForm } from './session-setup-model.js';
+import { createTextElement, replaceNodeChildren } from './safe-dom-render.js';
 
 function formatSessionMoney(value) {
   const amount = Number(value ?? 0);
@@ -52,17 +53,17 @@ function isElementVisible(element) {
   return element && !element.hidden;
 }
 
-function renderSessionRowActions() {
-  return getVisibleRecentSessionRowActions().map((action) => `
-    <button
-      type="button"
-      data-v6-row-action="${action.id}"
-      data-v6-row-action-owner="${action.owner}"
-      aria-disabled="${String(!action.enabled)}"
-      ${action.enabled ? '' : 'disabled'}
-      title="${action.reason}"
-    >${action.label}</button>
-  `).join('');
+function renderSessionRowActions(documentRef) {
+  return getVisibleRecentSessionRowActions().map((action) => {
+    const button = createTextElement(documentRef, { tagName: 'button', text: action.label });
+    button.type = 'button';
+    button.dataset.v6RowAction = action.id;
+    button.dataset.v6RowActionOwner = action.owner;
+    button.disabled = !action.enabled;
+    button.setAttribute('aria-disabled', String(!action.enabled));
+    button.title = action.reason;
+    return button;
+  });
 }
 
 function renderSessions(root, view, { chartBoundaryMetadata = null } = {}) {
@@ -70,28 +71,48 @@ function renderSessions(root, view, { chartBoundaryMetadata = null } = {}) {
   const empty = root.querySelector('[data-v6-dashboard-empty]');
   if (!list) return;
   const rows = view?.rows || [];
-  list.innerHTML = rows.map((session) => {
+  const documentRef = root.ownerDocument || globalThis.document;
+  const rowElements = rows.map((session) => {
     const boundaryView = createSessionDateBoundaryView(session, { chartBoundaryMetadata });
-    const boundaryLabel = boundaryView.chartDataBoundaryLabel
-      ? `<small data-v6-session-chart-boundary="${session.id}">${boundaryView.chartDataBoundaryLabel}</small>`
-      : '';
-    return `
-    <li data-v6-dashboard-session-row="${session.id}">
-      <button class="session-open-button" type="button" data-v6-dashboard-open-session="${session.id}" aria-label="Open ${sessionLabel(session)}">&#9658;</button>
-      <div class="session-row-main">
-        <strong>${sessionLabel(session)}</strong>
-        <span>${boundaryView.tradingDateRangeLabel} &middot; ${formatSessionMoney(session.accountBalance)}</span>
-        ${boundaryLabel}
-        <div class="session-asset-chips">${sessionSymbols(session).map((symbol) => `<em>${symbol}</em>`).join('')}</div>
-      </div>
-      <span class="session-progress">Remaining days: --</span>
-      <div class="session-row-actions" aria-label="Session row actions">
-        ${renderSessionRowActions()}
-      </div>
-      <button class="session-dashboard-delete" type="button" data-v6-dashboard-delete-session="${session.id}" aria-label="Delete ${sessionLabel(session)} session">&times;</button>
-    </li>
-  `;
-  }).join('');
+    const row = createTextElement(documentRef, { tagName: 'li' });
+    row.dataset.v6DashboardSessionRow = String(session.id ?? '');
+    const open = createTextElement(documentRef, { className: 'session-open-button', tagName: 'button', text: '▶' });
+    open.type = 'button';
+    open.dataset.v6DashboardOpenSession = String(session.id ?? '');
+    open.setAttribute('aria-label', `Open ${sessionLabel(session)}`);
+    const main = createTextElement(documentRef, { className: 'session-row-main' });
+    const mainChildren = [
+      createTextElement(documentRef, { tagName: 'strong', text: sessionLabel(session) }),
+      createTextElement(documentRef, { tagName: 'span', text: `${boundaryView.tradingDateRangeLabel} · ${formatSessionMoney(session.accountBalance)}` }),
+    ];
+    if (boundaryView.chartDataBoundaryLabel) {
+      const boundary = createTextElement(documentRef, { tagName: 'small', text: boundaryView.chartDataBoundaryLabel });
+      boundary.dataset.v6SessionChartBoundary = String(session.id ?? '');
+      mainChildren.push(boundary);
+    }
+    const chips = createTextElement(documentRef, { className: 'session-asset-chips' });
+    replaceNodeChildren(chips, sessionSymbols(session).map((symbol) => (
+      createTextElement(documentRef, { tagName: 'em', text: symbol })
+    )));
+    mainChildren.push(chips);
+    replaceNodeChildren(main, mainChildren);
+    const actions = createTextElement(documentRef, { className: 'session-row-actions' });
+    actions.setAttribute('aria-label', 'Session row actions');
+    replaceNodeChildren(actions, renderSessionRowActions(documentRef));
+    const remove = createTextElement(documentRef, { className: 'session-dashboard-delete', tagName: 'button', text: '×' });
+    remove.type = 'button';
+    remove.dataset.v6DashboardDeleteSession = String(session.id ?? '');
+    remove.setAttribute('aria-label', `Delete ${sessionLabel(session)} session`);
+    replaceNodeChildren(row, [
+      open,
+      main,
+      createTextElement(documentRef, { className: 'session-progress', tagName: 'span', text: 'Remaining days: --' }),
+      actions,
+      remove,
+    ]);
+    return row;
+  });
+  replaceNodeChildren(list, rowElements);
   if (empty) {
     empty.hidden = rows.length > 0;
     empty.textContent = view?.totalCount && !rows.length ? 'No matching sessions' : 'No replay sessions yet';
@@ -215,17 +236,29 @@ export function mountSessionDashboard(root, {
   }
 
   function renderSelectedAssets() {
+    const documentRef = root.ownerDocument || globalThis.document;
     if (selectedAssetChips) {
-      selectedAssetChips.innerHTML = selectedSymbols.length
-        ? selectedSymbols.map((symbol) => `
-          <span class="asset-chip">${symbol}<button type="button" data-v6-remove-asset="${symbol}" aria-label="Remove ${symbol}">${symbol} remove</button></span>
-        `).join('')
-        : '<span class="asset-placeholder">Select NQ or ES</span>';
+      const chips = selectedSymbols.length
+        ? selectedSymbols.map((symbol) => {
+          const chip = createTextElement(documentRef, { className: 'asset-chip', tagName: 'span' });
+          const remove = createTextElement(documentRef, { tagName: 'button', text: `${symbol} remove` });
+          remove.type = 'button';
+          remove.dataset.v6RemoveAsset = symbol;
+          remove.setAttribute('aria-label', `Remove ${symbol}`);
+          replaceNodeChildren(chip, [documentRef.createTextNode(symbol), remove]);
+          return chip;
+        })
+        : [createTextElement(documentRef, { className: 'asset-placeholder', tagName: 'span', text: 'Select NQ or ES' })];
+      replaceNodeChildren(selectedAssetChips, chips);
     }
     if (selectedAssetInputs) {
-      selectedAssetInputs.innerHTML = selectedSymbols
-        .map((symbol) => `<input type="hidden" name="symbols" value="${symbol}">`)
-        .join('');
+      replaceNodeChildren(selectedAssetInputs, selectedSymbols.map((symbol) => {
+        const input = documentRef.createElement('input');
+        input.type = 'hidden';
+        input.name = 'symbols';
+        input.value = symbol;
+        return input;
+      }));
     }
     root.querySelectorAll('[data-v6-asset-option]').forEach((option) => {
       option.classList.toggle('is-selected', selectedSymbols.includes(option.dataset.v6AssetOption));
