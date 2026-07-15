@@ -159,6 +159,7 @@ export const STEP459_BROWSER_LOCAL_FILES = Object.freeze([
   'v6/tests/top-symbol-active-pane-browser-step212-smoke.js',
   'v6/tests/top-toolbar-parity-browser-smoke.js',
   'v6/tests/validation-indexeddb-reload-browser-step463-smoke.js',
+  'v6/tests/validation-trial-acceptance-step469-browser-smoke.js',
   'v6/tests/visible-latency-cache-hit-browser-smoke.js',
   'v6/tests/weekly-projection-browser-step269-smoke.js',
   'v6/tests/weekly-target-history-fallback-browser-step304-smoke.js',

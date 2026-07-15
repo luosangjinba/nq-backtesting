@@ -55,6 +55,9 @@ router, not a chronological ledger.
   outcome facts, bounded R, ambiguity disclosure, and IndexedDB v4 boundary.
 - `v6/docs/V6_CAMPAIGN_SUMMARY_DRILLBACK_STEP468.md`: read-only campaign metrics,
   raw-source rows, drillback descriptor, and remaining navigation constraint.
+- `v6/docs/V6_TRIAL_ACCEPTANCE_STEP469.md`: owner-safe backward evidence
+  navigation, full-chain IndexedDB/statistical acceptance, and the remaining
+  human recording-friction gate.
 
 ## Architecture And Testing
 

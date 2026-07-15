@@ -10,7 +10,7 @@ import {
 } from './test-environment-migration-step459.js';
 import { classifyTestFile } from './test-catalog-domain.js';
 
-assert.equal(STEP459_BROWSER_LOCAL_FILES.length, 175);
+assert.equal(STEP459_BROWSER_LOCAL_FILES.length, 176);
 assert.equal(STEP459_BROWSER_SERVICE_FILES.length, 1);
 assert.equal(STEP459_NODE_SERVICE_FILES.length, 1);
 assert.equal(STEP459_NODE_FALSE_POSITIVES.length, 18);
@@ -21,7 +21,7 @@ const all = [
   ...STEP459_NODE_SERVICE_FILES,
   ...STEP459_NODE_FALSE_POSITIVES,
 ];
-assert.equal(new Set(all).size, 195);
+assert.equal(new Set(all).size, 196);
 
 for (const path of all) await access(path);
 

@@ -38,6 +38,15 @@ navigation-owner contract; Analytics does not mutate Replay or source truth.
 Cross-slice gates passed: canonical 14/14, exhaustive Node 411/411, and static
 architecture 59/59. Replay/history measured 150.1 ms against the 160 ms gate.
 
+Step 469 automated acceptance is complete. Campaign Summary now hands evidence
+drillback to Replay Navigation, which safely rewinds all panes and removes
+future bars through one shared replacement boundary. A real IndexedDB v4
+two-trial recovery proved provenance, sample size, `+2R/-1R`, total/average R,
+and raw drillback integrity. Canonical passed 14/14, exhaustive Node 413/413,
+static architecture 59/59, app-shell browser passed, and Replay/history measured
+85.8 ms against the unchanged 160 ms gate. Human workflow/friction acceptance
+remains pending.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -50,19 +59,15 @@ architecture 59/59. Replay/history measured 150.1 ms against the 160 ms gate.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 469
+## Next Gate — Step 469 Human Acceptance
 
-Run Trial Acceptance only:
+Use the real workflow to confirm recording friction, summary/R correctness,
+same-session evidence return, no-future chart state across panes, and clear
+cross-session rejection. Do not mark Step 469 fully accepted from automation.
 
-- exercise complete real trial records and persistence recovery;
-- verify provenance, sample size, R, and raw evidence drillback integrity;
-- decide or implement only the safe owner-level backward navigation contract
-  required for automatic chart drillback;
-- run human workflow/recording-friction acceptance and foundation regression;
-- no ontology expansion, Semantic Drawing, broad dashboard, or mode shell.
-
-After Step 469, perform the requested modularity/large-file audit before the
-Validation Campaign Thin Slice milestone closes.
+After confirmation, Step 470 is the requested modularity/large-file audit before
+the Validation Campaign Thin Slice milestone closes. It is an audit/planning
+step, not authorization for new modes, Semantic Drawing, or business features.
 
 ## Known Catalog Debt
 

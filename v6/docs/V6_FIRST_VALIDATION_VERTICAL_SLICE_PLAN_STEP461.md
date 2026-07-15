@@ -116,6 +116,12 @@ Run focused regression packs and human use on real trials. Semantic vocabulary,
 plugin UI, and broader analytics may be reconsidered only after the thin loop
 demonstrates trustworthy provenance and low recording friction.
 
+Status: automated acceptance complete. Owner-safe evidence drillback, real
+IndexedDB recovery, raw provenance, sample size/R integrity, canonical,
+exhaustive Node, architecture, and app-shell gates pass. Human workflow and
+recording-friction acceptance remains pending and must not be inferred from the
+automated result.
+
 ## Not In This Sequence
 
 - separate God View, Pseudo-Live, or Live Reproduction workspaces;
