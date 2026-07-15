@@ -73,7 +73,10 @@
   workspace-cleanup closeout. The Step 435 visual candidate now also defaults
   pane OHLC/bar-change readouts to the latest chart bar when crosshair is
   absent, places Go-to in the top navigation, removes its dedicated right
-  rail, and directly joins the Canvas to the navigation boundary. See
+  rail, and directly joins the Canvas to the navigation boundary. Normal
+  readiness chrome is also hidden once all required owners and commands
+  are ready; the readiness owner remains mounted so incomplete startup states
+  can still surface a user-facing warning. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

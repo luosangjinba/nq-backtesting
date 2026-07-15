@@ -504,7 +504,8 @@ Commit intent: `test(v6): close workspace cleanup regression`
 
 - acceptance candidate refinements: no-crosshair OHLC falls back to each
   pane's latest chart bar; Go-to lives in top navigation; the dedicated right
-  rail is removed; Canvas begins directly below navigation;
+  rail is removed; Canvas begins directly below navigation; normal
+  `System ready` chrome is hidden while non-ready warnings remain available;
 - inspect single-, two-, and three-pane layouts;
 - inspect supported desktop resolutions;
 - verify top, left, right, and bottom reclaimed space;
