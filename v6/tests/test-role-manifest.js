@@ -4,6 +4,7 @@ export const EXPLICIT_SUPPORT_FILES = Object.freeze([
   'v6/tests/canonical-test-manifest.js',
   'v6/tests/canonical-test-runner-domain.js',
   'v6/tests/test-catalog-domain.js',
+  'v6/tests/test-environment-migration-step459.js',
   'v6/tests/test-role-manifest.js',
   'v6/tests/test-role-migration-step457.js',
   'v6/tests/test-runner-migration-step458.js',

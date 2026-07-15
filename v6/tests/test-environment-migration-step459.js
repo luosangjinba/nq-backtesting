@@ -198,3 +198,13 @@ export const STEP459_NODE_FALSE_POSITIVES = Object.freeze([
   'v6/tests/target-history-browser-pack-cost-control-closeout-step309-static-smoke.js',
   'v6/tests/target-history-request-sizing-browser-closeout-step296-static-smoke.js',
 ]);
+
+const BROWSER_LOCAL_PATHS = new Set(STEP459_BROWSER_LOCAL_FILES);
+const BROWSER_SERVICE_PATHS = new Set(STEP459_BROWSER_SERVICE_FILES);
+
+export function findExplicitTestEnvironment(path) {
+  const normalizedPath = String(path || '').replaceAll('\\', '/');
+  if (BROWSER_SERVICE_PATHS.has(normalizedPath)) return 'browser-service';
+  if (BROWSER_LOCAL_PATHS.has(normalizedPath)) return 'browser-local';
+  return null;
+}

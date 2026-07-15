@@ -4,8 +4,7 @@ import {
   hasExplicitSupportRole,
 } from './test-role-manifest.js';
 import { findStep457HistoricalLedgerDisposition } from './test-role-migration-step457.js';
-
-const BROWSER_SOURCE_PATTERN = /^import .*?(browser-cdp-client|v6-browser-harness)/m;
+import { findExplicitTestEnvironment } from './test-environment-migration-step459.js';
 
 export function classifyTestFile({ path, source = '' } = {}) {
   const normalizedPath = String(path || '').replaceAll('\\', '/');
@@ -13,13 +12,7 @@ export function classifyTestFile({ path, source = '' } = {}) {
     throw new Error(`V6 test catalog requires a JavaScript path: ${normalizedPath}`);
   }
 
-  let environment = 'node';
-  if (/real-api-browser/.test(normalizedPath)) environment = 'browser-service';
-  else if (
-    normalizedPath.includes('browser') ||
-    normalizedPath.includes('screenshot') ||
-    BROWSER_SOURCE_PATTERN.test(source)
-  ) environment = 'browser-local';
+  const environment = findExplicitTestEnvironment(normalizedPath) || 'node';
 
   let role = 'gate';
   const triage = findStep456TriageEntry(normalizedPath);
