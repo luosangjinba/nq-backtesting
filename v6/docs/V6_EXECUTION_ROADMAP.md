@@ -319,6 +319,19 @@ Gate:
 - optional drawings, notes, and post-session review;
 - journal evidence references back to chart context.
 
+## Post-Stabilization Product Selection — Step 461
+
+The stabilized workstation is conditionally ready for a product thin slice.
+Do not build three separate mode shells or begin Semantic Drawing first. The
+selected sequence is the generic Validation Campaign loop in
+`V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md`. Its implementation is
+blocked until Step 462 restores the repeated Manual Next/leftward-history
+latency failure; the domain/persistence spine then begins at Step 463.
+
+Free Practice remains protected on the same Replay foundation. The validation
+workflow may add required fields and provenance, but it may not fork chart,
+Replay, viewport, bar-data, layout, or persistence ownership by mode.
+
 Gate:
 
 - a user can complete a useful replay-practice session without creating a

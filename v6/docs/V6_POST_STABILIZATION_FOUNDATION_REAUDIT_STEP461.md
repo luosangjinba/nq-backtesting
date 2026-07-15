@@ -39,7 +39,7 @@ assessment.
 | Area | Assessment | Product-slice consequence |
 | --- | --- | --- |
 | Bar loading and timeframe projection | Ready | Reuse the Bar Data and projection owners; no feature-local fetch path. |
-| Replay cursor, reveal state, and no-future wall | Ready | Prospective evidence may reference Replay truth but may not own it. |
+| Replay cursor, reveal state, and no-future wall | Semantically ready; latency gate blocked | Prospective evidence may reference Replay truth but may not own it; product work waits for Step 462. |
 | Chart data, viewport intent, and engine writes | Ready | New overlays must enter through an explicit chart-owned projection boundary. |
 | Leftward history across supported timeframes | Ready | It is not a blocker for mode or evidence planning. |
 | Multi-pane identity and pane-local state | Ready | Product artifacts can reference panes without creating primary/secondary paths. |
@@ -65,6 +65,18 @@ assessment.
   surfaces are naming debt, not proof of fake functionality. Rename them only
   in a bounded behavior-preserving cleanup.
 
+### Closeout Blocker Discovered By This Audit
+
+The Step 461 canonical closeout run passed 13 of 14 named gates but the
+`replay-safe-leftward-history-latency-browser-step187-smoke.js` gate measured
+Manual Next at 219.2 ms against the 160 ms limit. An immediate isolated rerun
+measured 188.3 ms and failed again. Because the regression repeated, it is not
+classified as a harmless one-run browser fluctuation.
+
+This is a P0 foundation gate for starting product work. Step 462 must diagnose
+and restore the Replay/leftward-history concurrency latency without weakening
+the 160 ms threshold or changing Replay truth.
+
 ### Product Infrastructure, Not Foundation Repair
 
 - validation campaign/playbook/trial contracts and persistence;
@@ -79,14 +91,14 @@ files under the label of finishing the foundation.
 
 ## Decision
 
-The chart/replay foundation is **conditionally ready** for one thin product
-slice. There is no known P0 chart-foundation defect that justifies another broad
-cleanup milestone before product work.
+The chart/replay foundation is **architecturally ready but currently gate
+blocked** from one thin product slice. The repeated Manual Next latency failure
+is a bounded P0 repair, not justification for another broad cleanup milestone.
 
 The condition is architectural: the next slice must establish its own domain
 owner and public contracts, reuse the existing chart/replay/data/layout owners,
 and keep every new chart visual behind a chart-owned projection interface.
 
-This decision releases planning of the first slice. It does not release
-implementation until Step 461 also resolves the shared-mode boundary and names
-the next bounded delivery target.
+This decision releases planning of the first slice. Product implementation is
+held until Step 462 restores the named latency gate and the full canonical suite
+passes.

@@ -34,7 +34,14 @@ router, not a chronological ledger.
 - `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`: validation outcome and
   Replay role.
 - `v6/docs/V6_SEMANTIC_DRAWING_PLUGIN_SPEC_DRAFT.md`: product-owner review draft;
-  it does not authorize implementation.
+  Step 461 accepted its direction with changes, but it does not authorize
+  implementation.
+- `v6/docs/V6_POST_STABILIZATION_FOUNDATION_REAUDIT_STEP461.md`: current
+  foundation readiness and remaining-debt assessment.
+- `v6/docs/V6_THREE_MODE_SHARED_FOUNDATION_DECISION_STEP461.md`: binding rule
+  that the three operating perspectives are policies over shared owners.
+- `v6/docs/V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md`: selected thin-
+  loop delivery order, Step 462 latency entry gate, and exclusions.
 
 ## Architecture And Testing
 

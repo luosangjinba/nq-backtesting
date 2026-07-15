@@ -20,10 +20,18 @@ The catalog now classifies 761/761 files; exhaustive offline Node gates pass
 named canonical suite passes 14/14. The 165 browser-local catalog gates remain
 available as an explicit long-form run rather than an implicit routine gate.
 
-The product freeze used by this milestone is now released for planning only.
-Implementation of the three operating modes, Semantic Drawing, or other new
-business capability still requires an explicit reviewed decision; it is not an
-automatic next Step.
+Step 461 completed the post-stabilization product/foundation re-audit. The
+chart/replay foundation is architecturally ready for one product thin slice,
+but its canonical closeout exposed a repeated Manual Next latency failure:
+219.2 ms and 188.3 ms against the existing 160 ms gate.
+God View, Pseudo-Live, and Live Reproduction are constrained to policies over
+shared owners, not separate runtimes. Semantic Drawing's shared semantic/plugin
+direction is accepted with changes, while its UI/write path remains frozen.
+
+The first post-foundation delivery order is now fixed by
+`V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md`. Product implementation is
+held until Step 462 restores the latency gate; later Steps remain independently
+reviewed and committed.
 
 ## Current Foundation Gates
 
@@ -37,17 +45,18 @@ automatic next Step.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Decision
+## Next Step — 462
 
-Perform a short post-stabilization product/foundation re-audit before selecting
-new implementation. The decision should compare:
+Restore the Replay/leftward-history Manual Next latency gate only:
 
-1. remaining chart-foundation usability gaps;
-2. shared infrastructure required by the proposed three modes;
-3. the reviewed Semantic Drawing plugin specification;
-4. Journal/Backtesting validation-loop priorities.
+- reproduce and phase-time the repeated 219.2 ms / 188.3 ms failures;
+- identify the owning hot path before editing;
+- preserve Replay truth, no-future behavior, and the 160 ms threshold;
+- rerun the focused latency gate and full canonical suite;
+- no product UI, mode shell, Semantic Drawing, or validation-domain work.
 
-Do not start a mode or plugin implementation from this TODO alone.
+After Step 462 passes, Step 463 may begin the validation domain/persistence
+spine described in the selected plan.
 
 ## Known Catalog Debt
 
