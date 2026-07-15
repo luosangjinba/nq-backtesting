@@ -17,6 +17,7 @@ const calls = {
 
 const fakeEngine = {
   CandlestickSeries: Symbol('CandlestickSeries'),
+  LineSeries: Symbol('LineSeries'),
   createChart(host, options) {
     calls.createChart.push({ host, options });
     return {
@@ -80,6 +81,13 @@ const adapter = createLightweightChartAdapter({
 adapter.mount(host);
 assert.equal(calls.createChart.length, 1);
 assert.equal(calls.addSeries[0].seriesType, fakeEngine.CandlestickSeries);
+assert.equal(calls.addSeries[1].seriesType, fakeEngine.LineSeries);
+assert.deepEqual(calls.addSeries[1].seriesOptions, {
+  crosshairMarkerVisible: false,
+  lastValueVisible: false,
+  lineVisible: false,
+  priceLineVisible: false,
+});
 adapter.applyOptions({ grid: { horzLines: { color: 'transparent' } } });
 assert.deepEqual(calls.applyOptions, [{ grid: { horzLines: { color: 'transparent' } } }]);
 
@@ -91,18 +99,25 @@ assert.deepEqual(calls.setData[0].slice(0, 2), [
   { time: 100, open: 1, high: 2, low: 0.5, close: 1.5 },
   { time: 200, open: 2, high: 3, low: 1.5, close: 2.5 },
 ]);
-assert.equal(calls.setData[0].length, 34);
-assert.deepEqual(calls.setData[0].slice(2, 5), [
+assert.equal(calls.setData[0].length, 2);
+assert.deepEqual(calls.setData[1].slice(0, 3), [
   { time: 260 },
   { time: 320 },
   { time: 380 },
 ]);
+assert.equal(calls.setData[1].every((point) => Object.keys(point).length === 1), true);
 assert.equal(adapter.snapshot().dataLength, 2);
 assert.equal(adapter.snapshot().scaffoldPointCount, 32);
 
 adapter.update({ timestamp: 300, open: 3, high: 4, low: 2.5, close: 3.5 });
-assert.equal(calls.setData.length, 2);
-assert.deepEqual(calls.setData[1][2], { time: 300, open: 3, high: 4, low: 2.5, close: 3.5 });
+assert.equal(calls.setData.length, 3);
+assert.deepEqual(calls.update[0], { time: 300, open: 3, high: 4, low: 2.5, close: 3.5 });
+assert.equal(calls.setData[2][0].time, 360);
+assert.equal(adapter.snapshot().dataLength, 3);
+
+adapter.update({ timestamp: 300, open: 3, high: 5, low: 2, close: 4 });
+assert.equal(calls.setData.length, 3);
+assert.deepEqual(calls.update[1], { time: 300, open: 3, high: 5, low: 2, close: 4 });
 assert.equal(adapter.snapshot().dataLength, 3);
 
 adapter.setVisibleLogicalRange({ from: 5, to: 12 });

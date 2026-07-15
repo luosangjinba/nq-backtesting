@@ -13,6 +13,10 @@
   invisible chart-engine-owned Series accepting only finite, time-only
   whitespace points. Production integration remains Step 440.
 
+- Step 440 integrates the dual-Series scaffold: candlestick data contains only
+  real OHLC bars, future time-only points live in an invisible Line Series, and
+  single-bar Replay updates again use the native candlestick `update()` path.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to

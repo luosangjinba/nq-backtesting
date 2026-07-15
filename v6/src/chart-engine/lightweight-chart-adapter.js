@@ -15,6 +15,16 @@ function resolveCandlestickSeries(chart, engine, seriesOptions) {
   throw new Error('Lightweight chart adapter requires a candlestick series API.');
 }
 
+function resolveTimeScaffoldSeries(chart, engine) {
+  if (typeof chart.addSeries === 'function' && engine?.LineSeries) {
+    return chart.addSeries(engine.LineSeries, TIME_AXIS_SCAFFOLD_SERIES_OPTIONS);
+  }
+  if (typeof chart.addLineSeries === 'function') {
+    return chart.addLineSeries(TIME_AXIS_SCAFFOLD_SERIES_OPTIONS);
+  }
+  throw new Error('Lightweight chart adapter requires a line series API for the time scaffold.');
+}
+
 function normalizeSeriesBar(bar) {
   return {
     close: Number(bar.close),
@@ -75,6 +85,7 @@ export function createLightweightChartAdapter({
 } = {}) {
   let chart = null;
   let series = null;
+  let timeScaffoldSeries = null;
   let host = null;
   let lastDataLength = 0;
   let lastRealBars = [];
@@ -94,13 +105,14 @@ export function createLightweightChartAdapter({
     host = nextHost;
     chart = createChart(host, chartOptions);
     series = resolveCandlestickSeries(chart, engine, seriesOptions);
+    timeScaffoldSeries = resolveTimeScaffoldSeries(chart, engine);
     daySeparatorPrimitive = createDaySeparatorPrimitive();
     series.attachPrimitive?.(daySeparatorPrimitive);
     return snapshot();
   }
 
   function ensureMounted() {
-    if (!chart || !series) {
+    if (!chart || !series || !timeScaffoldSeries) {
       throw new Error('Lightweight chart adapter is not mounted.');
     }
   }
@@ -108,8 +120,12 @@ export function createLightweightChartAdapter({
   function setData(bars = [], { timeframe = 1 } = {}) {
     ensureMounted();
     const data = bars.map(normalizeSeriesBar);
-    const scaffold = createTimeAxisScaffold({ bars, timeframe });
-    series.setData([...data, ...scaffold]);
+    const scaffold = normalizeTimeAxisScaffoldSeriesData(
+      createTimeAxisScaffold({ bars, timeframe }),
+    );
+    assertTimeAxisScaffoldSeriesData(scaffold);
+    series.setData(data);
+    timeScaffoldSeries.setData(scaffold);
     lastRealBars = bars.map((bar) => ({ ...bar }));
     lastTimeframe = timeframe;
     lastDataLength = data.length;
@@ -139,10 +155,22 @@ export function createLightweightChartAdapter({
     ensureMounted();
     const timestamp = Number(bar?.timestamp ?? bar?.time);
     const latestTimestamp = Number(lastRealBars.at(-1)?.timestamp ?? lastRealBars.at(-1)?.time);
-    const nextBars = Number.isFinite(latestTimestamp) && timestamp === latestTimestamp
+    const replacesLatest = Number.isFinite(latestTimestamp) && timestamp === latestTimestamp;
+    const nextBars = replacesLatest
       ? [...lastRealBars.slice(0, -1), { ...bar }]
       : [...lastRealBars, { ...bar }];
-    return setData(nextBars, { timeframe: lastTimeframe });
+    series.update(normalizeSeriesBar(bar));
+    lastRealBars = nextBars;
+    lastDataLength = nextBars.length;
+    if (!replacesLatest) {
+      const scaffold = normalizeTimeAxisScaffoldSeriesData(
+        createTimeAxisScaffold({ bars: nextBars, timeframe: lastTimeframe }),
+      );
+      assertTimeAxisScaffoldSeriesData(scaffold);
+      timeScaffoldSeries.setData(scaffold);
+      lastScaffoldPointCount = scaffold.length;
+    }
+    return snapshot();
   }
 
   function setVisibleLogicalRange(range) {
@@ -244,6 +272,7 @@ export function createLightweightChartAdapter({
     chart?.remove?.();
     chart = null;
     series = null;
+    timeScaffoldSeries = null;
     host = null;
     lastDataLength = 0;
     lastRealBars = [];
@@ -284,3 +313,8 @@ export function createLightweightChartAdapter({
 }
 import { createDaySeparatorPrimitive } from './day-separator-primitive.js';
 import { createTimeAxisScaffold } from './time-axis-scaffold.js';
+import {
+  TIME_AXIS_SCAFFOLD_SERIES_OPTIONS,
+  assertTimeAxisScaffoldSeriesData,
+  normalizeTimeAxisScaffoldSeriesData,
+} from './time-axis-scaffold-series-contract.js';

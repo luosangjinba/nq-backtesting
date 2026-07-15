@@ -1029,7 +1029,7 @@ const chartApiExpectedFiles = [
     token: 'series.setData',
   },
   {
-    expected: [],
+    expected: [path.relative(process.cwd(), LIGHTWEIGHT_CHART_ADAPTER_FILE)],
     token: 'series.update',
   },
   {
