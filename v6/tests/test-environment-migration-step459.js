@@ -178,6 +178,10 @@ export const STEP459_BROWSER_SERVICE_FILES = Object.freeze([
   'v6/tests/unified-target-history-real-api-browser-step400-smoke.js',
 ]);
 
+export const STEP459_NODE_SERVICE_FILES = Object.freeze([
+  'v6/tests/replay-navigation-real-service-step405-smoke.js',
+]);
+
 export const STEP459_NODE_FALSE_POSITIVES = Object.freeze([
   'v6/tests/chart-control-bridge-browser-regression-audit-smoke.js',
   'v6/tests/dashboard-session-browser-regression-pack-audit-smoke.js',
@@ -201,10 +205,12 @@ export const STEP459_NODE_FALSE_POSITIVES = Object.freeze([
 
 const BROWSER_LOCAL_PATHS = new Set(STEP459_BROWSER_LOCAL_FILES);
 const BROWSER_SERVICE_PATHS = new Set(STEP459_BROWSER_SERVICE_FILES);
+const NODE_SERVICE_PATHS = new Set(STEP459_NODE_SERVICE_FILES);
 
 export function findExplicitTestEnvironment(path) {
   const normalizedPath = String(path || '').replaceAll('\\', '/');
   if (BROWSER_SERVICE_PATHS.has(normalizedPath)) return 'browser-service';
+  if (NODE_SERVICE_PATHS.has(normalizedPath)) return 'node-service';
   if (BROWSER_LOCAL_PATHS.has(normalizedPath)) return 'browser-local';
   return null;
 }

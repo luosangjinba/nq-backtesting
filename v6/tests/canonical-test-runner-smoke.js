@@ -4,10 +4,12 @@ import { selectCanonicalGateScripts } from './canonical-test-runner-domain.js';
 
 const all = selectCanonicalGateScripts(CANONICAL_TEST_MANIFEST);
 const node = selectCanonicalGateScripts(CANONICAL_TEST_MANIFEST, { environment: 'node' });
+const nodeService = selectCanonicalGateScripts(CANONICAL_TEST_MANIFEST, { environment: 'node-service' });
 const browser = selectCanonicalGateScripts(CANONICAL_TEST_MANIFEST, { environment: 'browser-local' });
 
 assert.equal(all.length, 14);
 assert.equal(node.length, 6);
+assert.equal(nodeService.length, 0);
 assert.equal(browser.length, 8);
 assert.deepEqual(all, [...node, ...browser]);
 assert.equal(new Set(all.map(({ script }) => script)).size, all.length);

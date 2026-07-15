@@ -1,5 +1,6 @@
 export const TEST_ENVIRONMENTS = Object.freeze([
   'node',
+  'node-service',
   'browser-local',
   'browser-service',
 ]);
