@@ -1,8 +1,12 @@
+import { STEP458_EXPLICIT_RUNNERS } from './test-runner-migration-step458.js';
+
 export const EXPLICIT_SUPPORT_FILES = Object.freeze([
   'v6/tests/canonical-test-manifest.js',
   'v6/tests/canonical-test-runner-domain.js',
   'v6/tests/test-catalog-domain.js',
   'v6/tests/test-role-manifest.js',
+  'v6/tests/test-role-migration-step457.js',
+  'v6/tests/test-runner-migration-step458.js',
   'v6/tests/test-triage-manifest-step456.js',
 ]);
 
@@ -11,9 +15,7 @@ export const EXPLICIT_SUPPORT_PREFIXES = Object.freeze([
   'v6/tests/helpers/',
 ]);
 
-export const EXPLICIT_RUNNER_FILES = Object.freeze([
-  'v6/tests/canonical-test-runner.js',
-]);
+export const EXPLICIT_RUNNER_FILES = STEP458_EXPLICIT_RUNNERS;
 
 export function hasExplicitSupportRole(path) {
   const normalizedPath = String(path || '').replaceAll('\\', '/');

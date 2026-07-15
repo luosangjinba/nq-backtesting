@@ -7,6 +7,7 @@ import {
   EXPLICIT_RUNNER_FILES,
 } from './test-role-manifest.js';
 import { STEP457_HISTORICAL_LEDGER_SNAPSHOTS } from './test-role-migration-step457.js';
+import { STEP458_FALSE_POSITIVE_RUNNERS } from './test-runner-migration-step458.js';
 
 for (const path of EXPLICIT_SUPPORT_FILES) {
   const source = await readFile(path, 'utf8');
@@ -20,6 +21,10 @@ for (const prefix of EXPLICIT_SUPPORT_PREFIXES) {
 
 for (const path of EXPLICIT_RUNNER_FILES) {
   assert.equal(classifyTestFile({ path, source: '' }).role, 'runner', path);
+}
+
+for (const path of STEP458_FALSE_POSITIVE_RUNNERS) {
+  assert.equal(classifyTestFile({ path, source: '' }).role, 'gate', path);
 }
 
 assert.equal(classifyTestFile({

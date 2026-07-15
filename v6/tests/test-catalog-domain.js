@@ -27,12 +27,7 @@ export function classifyTestFile({ path, source = '' } = {}) {
   if (triage?.disposition === 'quarantine-superseded') role = 'quarantine';
   else if (historicalLedger?.disposition === 'quarantine-superseded') role = 'quarantine';
   else if (hasExplicitSupportRole(normalizedPath)) role = 'support';
-  else if (
-    hasExplicitRunnerRole(normalizedPath) ||
-    normalizedPath.includes('regression-pack') ||
-    normalizedPath.endsWith('-pack.js') ||
-    normalizedPath.endsWith('static-architecture-audit-step394.js')
-  ) role = 'runner';
+  else if (hasExplicitRunnerRole(normalizedPath)) role = 'runner';
 
   return Object.freeze({ environment, path: normalizedPath, role });
 }
