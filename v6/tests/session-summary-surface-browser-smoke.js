@@ -59,11 +59,18 @@ try {
       const afterOpen = {
         activeLabel: document.activeElement?.getAttribute('aria-label') || '',
         fieldCount: document.querySelectorAll('[data-v6-session-summary-field]').length,
+        inlineRow: Boolean(document.querySelector('[data-v6-session-summary-surface]')?.closest('[data-v6-dashboard-session-row]')),
         state: root.__v6SessionDashboard.getState().summary,
         title: document.querySelector('#v6-session-summary-title')?.textContent.trim() || '',
         snapshot: await snapshot(),
       };
 
+      document.querySelector('[data-v6-dashboard-search]').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const afterOutside = {
+        state: root.__v6SessionDashboard.getState().summary,
+        surfaceHidden: document.querySelector('[data-v6-session-summary-surface]')?.hidden,
+      };
+      summaryButton.click();
       document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
       const afterEscape = {
         activeAction: document.activeElement?.dataset?.v6RowAction || '',
@@ -85,6 +92,7 @@ try {
         afterCloseButton,
         afterEscape,
         afterOpen,
+        afterOutside,
         before,
         disabledActions,
       };
@@ -103,6 +111,7 @@ try {
 
   assert.equal(value.afterOpen.activeLabel, 'Close session summary');
   assert.equal(value.afterOpen.fieldCount, 14);
+  assert.equal(value.afterOpen.inlineRow, true);
   assert.deepEqual(value.afterOpen.state, {
     open: true,
     owner: 'session-summary',
@@ -110,6 +119,13 @@ try {
   });
   assert.equal(value.afterOpen.title, 'Summary check');
   assert.deepEqual(value.afterOpen.snapshot, value.before);
+
+  assert.deepEqual(value.afterOutside.state, {
+    open: false,
+    owner: null,
+    sessionId: null,
+  });
+  assert.equal(value.afterOutside.surfaceHidden, true);
 
   assert.deepEqual(value.afterEscape.state, {
     open: false,

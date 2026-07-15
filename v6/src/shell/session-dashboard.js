@@ -369,18 +369,18 @@ export function mountSessionDashboard(root, {
     return getState();
   }
 
-  function openSessionAnalytics(id) {
+  function openSessionAnalytics(id, anchor = null) {
     const session = sessions.find((item) => item.id === id);
     if (!session) return getState();
     summarySurface.close();
-    return analyticsSurface.open(session);
+    return analyticsSurface.open(session, { anchor });
   }
 
-  function openSessionSummary(id) {
+  function openSessionSummary(id, anchor = null) {
     const session = sessions.find((item) => item.id === id);
     if (!session) return getState();
     analyticsSurface.close();
-    return summarySurface.open(session);
+    return summarySurface.open(session, { anchor });
   }
 
   async function openSessionJournal(id) {
@@ -595,9 +595,9 @@ export function mountSessionDashboard(root, {
         if (rowActionButton.disabled) return;
         const row = rowActionButton.closest('[data-v6-dashboard-session-row]');
         if (rowActionButton.dataset.v6RowAction === 'summary') {
-          openSessionSummary(row?.dataset.v6DashboardSessionRow);
+          openSessionSummary(row?.dataset.v6DashboardSessionRow, rowActionButton);
         } else if (rowActionButton.dataset.v6RowAction === 'analytics') {
-          openSessionAnalytics(row?.dataset.v6DashboardSessionRow);
+          openSessionAnalytics(row?.dataset.v6DashboardSessionRow, rowActionButton);
         } else if (rowActionButton.dataset.v6RowAction === 'copy') {
           void copySession(row?.dataset.v6DashboardSessionRow);
         } else if (rowActionButton.dataset.v6RowAction === 'journal') {

@@ -39,3 +39,9 @@ rows, responsive row actions, and a compact pager. The ownerless bottom
 Analytics placeholder and fake `Remaining days: --` values were removed. The
 row-level Stats action remains because it opens the real Session Analytics
 surface and preserves its existing owner contract.
+
+Summary and Stats were then converted from fixed right-side panels to inline row
+expansions. They push later sessions downward instead of obscuring list content,
+retain close-button/Escape behavior, and dismiss on pointer input anywhere
+outside the active expansion. Browser acceptance covers inline ownership,
+outside dismissal, mutual exclusion, and unchanged Replay/chart state.

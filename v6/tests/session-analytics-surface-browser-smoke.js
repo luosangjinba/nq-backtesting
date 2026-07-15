@@ -55,6 +55,7 @@ try {
       const afterOpen = {
         activeLabel: document.activeElement?.getAttribute('aria-label') || '',
         fieldCount: document.querySelectorAll('[data-v6-session-analytics-field]').length,
+        inlineRow: Boolean(document.querySelector('[data-v6-session-analytics-surface]')?.closest('[data-v6-dashboard-session-row]')),
         metricFields: [...document.querySelectorAll('[data-v6-session-analytics-metric]')]
           .map((field) => ({
             field: field.dataset.v6SessionAnalyticsMetric,
@@ -67,6 +68,12 @@ try {
         snapshot: await snapshot(),
       };
 
+      document.querySelector('[data-v6-dashboard-search]').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+      const afterOutside = {
+        state: root.__v6SessionDashboard.getState().analytics,
+        surfaceHidden: document.querySelector('[data-v6-session-analytics-surface]')?.hidden,
+      };
+      statsButton.click();
       document.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true, key: 'Escape' }));
       const afterEscape = {
         activeAction: document.activeElement?.dataset?.v6RowAction || '',
@@ -106,6 +113,7 @@ try {
         afterCopy,
         afterEscape,
         afterOpen,
+        afterOutside,
         afterSummary,
         before,
       };
@@ -119,6 +127,7 @@ try {
 
   assert.equal(value.afterOpen.activeLabel, 'Close session stats');
   assert.equal(value.afterOpen.fieldCount, 14);
+  assert.equal(value.afterOpen.inlineRow, true);
   assert.equal(value.afterOpen.title, 'Stats check Stats');
   assert.deepEqual(value.afterOpen.state, {
     open: true,
@@ -134,6 +143,13 @@ try {
   assert.ok(value.afterOpen.metricFields.every((field) => field.status === 'unavailable'));
   assert.ok(value.afterOpen.metricFields.every((field) => field.value === '--'));
   assert.deepEqual(value.afterOpen.snapshot, value.before);
+
+  assert.deepEqual(value.afterOutside.state, {
+    open: false,
+    owner: null,
+    sessionId: null,
+  });
+  assert.equal(value.afterOutside.surfaceHidden, true);
 
   assert.deepEqual(value.afterEscape.state, {
     open: false,

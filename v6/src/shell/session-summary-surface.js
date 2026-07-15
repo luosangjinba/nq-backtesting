@@ -47,6 +47,10 @@ export function mountSessionSummarySurface(root) {
 
   let currentView = null;
   let previousFocus = null;
+  const pointerdownListener = (event) => {
+    if (surface.hidden || surface.contains(event.target)) return;
+    close();
+  };
   const closeListener = (event) => {
     if (event.target.closest?.('[data-v6-session-summary-close]')) {
       close();
@@ -59,12 +63,15 @@ export function mountSessionSummarySurface(root) {
     }
   };
   surface.addEventListener('click', closeListener);
+  root.ownerDocument.addEventListener('pointerdown', pointerdownListener);
   root.ownerDocument.addEventListener('keydown', keydownListener);
 
-  function open(session = {}) {
+  function open(session = {}, { anchor = null } = {}) {
     previousFocus = root.ownerDocument.activeElement;
     currentView = createSessionSummarySurfaceView(session);
     renderSummarySurface(surface, currentView);
+    const row = anchor?.closest?.('[data-v6-dashboard-session-row]');
+    if (row) row.append(surface);
     surface.hidden = false;
     surface.querySelector('[data-v6-session-summary-close]')?.focus();
     return getState();
@@ -76,6 +83,7 @@ export function mountSessionSummarySurface(root) {
     previousFocus = null;
     surface.hidden = true;
     surface.innerHTML = '';
+    if (surface.parentElement !== root) root.append(surface);
     if (focusTarget?.isConnected && typeof focusTarget.focus === 'function') {
       focusTarget.focus();
     }
@@ -96,6 +104,7 @@ export function mountSessionSummarySurface(root) {
     open,
     unmount() {
       surface.removeEventListener('click', closeListener);
+      root.ownerDocument.removeEventListener('pointerdown', pointerdownListener);
       root.ownerDocument.removeEventListener('keydown', keydownListener);
       close();
     },

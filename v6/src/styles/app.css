@@ -1759,6 +1759,95 @@ p {
   }
 }
 
+.session-summary-surface,
+.session-analytics-surface {
+  position: static;
+  grid-column: 1 / -1;
+  width: 100%;
+  max-height: none;
+  margin-top: 2px;
+}
+
+.session-summary-card,
+.session-analytics-card {
+  max-height: none;
+  border-color: #2a3540;
+  border-radius: 9px;
+  background: #0a0f14;
+  box-shadow: inset 3px 0 0 #327fdc;
+}
+
+.session-summary-card header,
+.session-analytics-card header {
+  padding: 12px 14px;
+}
+
+.session-summary-card header strong,
+.session-analytics-card header strong {
+  font-size: 14px;
+}
+
+.session-summary-card header button,
+.session-analytics-card header button {
+  width: 28px;
+  min-height: 28px;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.session-summary-card dl,
+.session-analytics-card dl {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  max-height: 230px;
+  gap: 0 18px;
+  padding: 8px 14px 14px;
+}
+
+.session-summary-card dl div,
+.session-analytics-card dl div {
+  grid-template-columns: minmax(92px, 0.8fr) minmax(0, 1.2fr);
+  padding: 7px 0;
+}
+
+.session-summary-card dt,
+.session-summary-card dd,
+.session-analytics-card dt,
+.session-analytics-card dd {
+  font-size: 10px;
+}
+
+.session-analytics-metrics {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  padding: 10px 14px 4px;
+}
+
+.session-analytics-metrics article {
+  min-height: 52px;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.session-analytics-metrics span {
+  font-size: 9px;
+}
+
+.session-analytics-metrics strong {
+  margin-top: 5px;
+  font-size: 13px;
+}
+
+@media (max-width: 900px) {
+  .session-summary-card dl,
+  .session-analytics-card dl {
+    grid-template-columns: 1fr;
+  }
+
+  .session-analytics-metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .top-bar {
   position: relative;
   z-index: 40;
