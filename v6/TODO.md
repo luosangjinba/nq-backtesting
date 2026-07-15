@@ -67,6 +67,11 @@
   small facade with no embedded markup; all selectors and rendered structure
   remain byte-for-byte owned by `workstation-shell-template.js`.
 
+- Step 450 extracts Chart Surface crosshair control. Subscription lifecycle,
+  previous-close lookup, readout continuity, event emission, listener fan-out,
+  cloning, and snapshot ordering now belong to a focused controller. The Chart
+  Surface retains bar ownership and supplies read-only Pane bars.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to

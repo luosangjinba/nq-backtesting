@@ -6,7 +6,6 @@ import {
   normalizePaneResizeRatios,
   resizePaneRatiosByHandle,
 } from './pane-resize-model.js';
-import { CHART_SURFACE_EVENTS } from '../contracts/app-contracts.js';
 import { emitEvent as emitRuntimeEvent } from '../runtime/events.js';
 import {
   createWorkstationLayoutSnapshot,
@@ -17,6 +16,7 @@ import { createCanvasSettingsChartOptions } from './canvas-settings-options.js';
 import { createSymbolSettingsSeriesOptions } from './symbol-settings-options.js';
 import { createCurrentPriceSeriesOptions } from './current-price-settings-options.js';
 import { createTimePresentationChartOptions } from './time-presentation-options.js';
+import { createWorkstationCrosshairController } from './workstation-crosshair-controller.js';
 
 const DEFAULT_CHART_OPTIONS = Object.freeze({
   grid: {
@@ -115,12 +115,10 @@ export function mountWorkstationChartSurface(root, {
   const barsByPaneId = new Map();
   const displayTimeframeByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
-  const crosshairByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
   const programmaticRangeByPaneId = new Map();
   const chartSurfaceElement = root.querySelector?.('[data-v6-chart-surface]') || null;
   const chartPaneLayerElement = root.querySelector?.('[data-v6-chart-pane-layer]') || null;
-  const crosshairListeners = new Set();
   const paneActivationListeners = new Set();
   const visibleRangeListeners = new Set();
   const paneResizeRatiosByVariant = new Map();
@@ -143,7 +141,6 @@ export function mountWorkstationChartSurface(root, {
     isRecentWheelInput: () => false,
     isUserRangeInputActive: () => false,
   };
-  let readoutPaneId = null;
   let restoreLayoutSnapshot = null;
   const size = measureHost(hosts[0]);
   const manager = managerFactory({
@@ -182,34 +179,12 @@ export function mountWorkstationChartSurface(root, {
         visibleRangeListeners.forEach((listener) => listener({ ...record }));
       }))
     : [];
-  const unsubscribeCrosshairCallbacks = typeof manager.subscribeCrosshairMove === 'function'
-    ? [...hostsByPaneId.keys()].map((paneId) => manager.subscribeCrosshairMove(paneId, (payload = {}) => {
-        const recordPaneId = String(payload.paneId || paneId);
-        const hasSelectedBar = Boolean(payload.bar);
-        const paneBars = barsByPaneId.get(recordPaneId) || [];
-        const selectedIndex = hasSelectedBar
-          ? paneBars.findIndex((bar) => Number(bar.timestamp) === Number(payload.bar.timestamp ?? payload.time))
-          : -1;
-        const previousClose = selectedIndex > 0 ? Number(paneBars[selectedIndex - 1]?.close) : null;
-        const displayReadout = hasSelectedBar || recordPaneId === readoutPaneId;
-        if (hasSelectedBar) {
-          readoutPaneId = recordPaneId;
-        } else if (recordPaneId === readoutPaneId) {
-          readoutPaneId = null;
-        }
-        const record = {
-          bar: payload.bar ? { ...payload.bar } : null,
-          displayReadout,
-          paneId: recordPaneId,
-          point: payload.point ? { ...payload.point } : null,
-          ...(Number.isFinite(previousClose) ? { previousClose } : {}),
-          time: payload.time ?? null,
-        };
-        crosshairByPaneId.set(record.paneId, record);
-        emitEvent(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED, record);
-        crosshairListeners.forEach((listener) => listener({ ...record, bar: record.bar ? { ...record.bar } : null }));
-      }))
-    : [];
+  const crosshairController = createWorkstationCrosshairController({
+    emitEvent,
+    getPaneBars: (paneId) => barsByPaneId.get(paneId) || [],
+    manager,
+    paneIds: [...hostsByPaneId.keys()],
+  });
 
   function clearWheelPrependStabilization(paneId) {
     const timer = pendingWheelPrependStabilizationTimers.get(paneId);
@@ -784,11 +759,10 @@ export function mountWorkstationChartSurface(root, {
         clearWheelPrependStabilization(paneId);
       }
       rangeInputController.destroy();
-      unsubscribeCrosshairCallbacks.forEach((unsubscribeCrosshair) => unsubscribeCrosshair());
+      crosshairController.destroy();
       unsubscribeVisibleRangeCallbacks.forEach((unsubscribeVisibleRange) => unsubscribeVisibleRange());
       resizeObserver?.disconnect();
       manager.destroyAll();
-      crosshairListeners.clear();
       paneActivationListeners.clear();
       visibleRangeListeners.clear();
     },
@@ -813,9 +787,7 @@ export function mountWorkstationChartSurface(root, {
           handles: maximizedPaneId ? [] : getPaneResizeHandles(layoutSnapshot.variant, getPaneResizeRatios(layoutSnapshot.variant)),
           ratios: getPaneResizeRatios(layoutSnapshot.variant),
         },
-        crosshair: [...crosshairByPaneId.values()]
-          .map((record) => ({ ...record, bar: record.bar ? { ...record.bar } : null }))
-          .sort((left, right) => left.paneId.localeCompare(right.paneId)),
+        crosshair: crosshairController.snapshot(),
         measuredVisibleRange: [...measuredVisibleRangeByPaneId.values()]
           .sort((left, right) => left.paneId.localeCompare(right.paneId)),
         panes: snapshot.panes,
@@ -850,13 +822,7 @@ export function mountWorkstationChartSurface(root, {
       };
     },
     subscribeCrosshairChange(handler) {
-      if (typeof handler !== 'function') {
-        throw new Error('Workstation chart surface crosshair handler is required.');
-      }
-      crosshairListeners.add(handler);
-      return () => {
-        crosshairListeners.delete(handler);
-      };
+      return crosshairController.subscribe(handler);
     },
   };
 }
