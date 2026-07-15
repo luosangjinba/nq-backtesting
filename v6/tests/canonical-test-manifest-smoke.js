@@ -30,6 +30,6 @@ for (const suite of CANONICAL_TEST_MANIFEST.suites) {
 assert.equal(ids.has('architecture-boundary'), true);
 assert.equal(ids.has('chart-engine-core'), true);
 assert.equal(ids.has('chart-engine-browser'), true);
-assert.equal(ids.has('historical-assertion-review'), true);
+assert.equal(ids.has('replay-history-concurrency'), true);
 
 console.log('v6 canonical test manifest smoke passed');

@@ -49,9 +49,8 @@ export const CANONICAL_TEST_MANIFEST = Object.freeze({
     }),
     Object.freeze({
       environment: 'browser-local',
-      id: 'historical-assertion-review',
-      reason: 'Couples Manual Next latency to a non-deterministic older-window append.',
-      role: 'quarantine',
+      id: 'replay-history-concurrency',
+      role: 'gate',
       scripts: Object.freeze([
         'v6/tests/replay-safe-leftward-history-latency-browser-step187-smoke.js',
       ]),

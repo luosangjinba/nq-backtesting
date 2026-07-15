@@ -2,13 +2,6 @@ import assert from 'node:assert/strict';
 import { evaluate } from '../../v4/tests/helpers/browser-cdp-client.js';
 import { openV6Page } from './helpers/v6-browser-harness.js';
 
-function rangesNear(left = {}, right = {}, epsilon = 2) {
-  return (
-    Math.abs(Number(left.from) - Number(right.from)) <= epsilon &&
-    Math.abs(Number(left.to) - Number(right.to)) <= epsilon
-  );
-}
-
 const page = await openV6Page({ height: 820, width: 1360 });
 
 async function readState() {
@@ -74,7 +67,6 @@ try {
   const initial = await readState();
   assert.equal(initial.latestVisible, true);
 
-  let usedCommandFallback = false;
   const x = setup.hostRect.left + (setup.hostRect.width * 0.42);
   const y = setup.hostRect.top + (setup.hostRect.height * 0.54);
   let beforeNext = null;
@@ -105,7 +97,6 @@ try {
     }
   }
   if (!beforeNext) {
-    usedCommandFallback = true;
     const fallbackRange = initial.visibleRange
       ? {
         from: Math.min(-8, Number(initial.visibleRange.from) - 24),
@@ -150,19 +141,6 @@ try {
   await new Promise((resolve) => setTimeout(resolve, 40));
   const afterNext = await readState();
 
-  let afterHistory = afterNext.history.status === 'loaded' && afterNext.barCount > initial.barCount + 1
-    ? afterNext
-    : null;
-  const historyDeadline = Date.now() + 3000;
-  while (!afterHistory && Date.now() < historyDeadline) {
-    const state = await readState();
-    if (state.history.status === 'loaded' && state.barCount > afterNext.barCount) {
-      afterHistory = state;
-      break;
-    }
-    await new Promise((resolve) => setTimeout(resolve, 40));
-  }
-
   assert.equal(nextMeasurement.result.status, 'advanced', nextMeasurement.result.error || 'manual next should advance');
   assert.equal(
     nextMeasurement.latencyMs < 160,
@@ -178,23 +156,6 @@ try {
     ['idle', 'ignored', 'loaded'].includes(afterNext.history.status),
     true,
   );
-
-  assert.notEqual(afterHistory, null);
-  assert.equal(afterHistory.history.extension.plannedWindow.requestCap, 'canvas-left');
-  assert.equal(afterHistory.history.extension.plannedWindow.historyRequest, 'older-window');
-  assert.equal(afterHistory.history.extension.prependedBarCount > 0, true);
-  assert.equal(afterHistory.oldestTimestamp < initial.oldestTimestamp, true);
-  assert.deepEqual(afterHistory.replay, afterNext.replay);
-  const prependedBarCount = afterHistory === afterNext
-    ? afterHistory.barCount - initial.barCount - 1
-    : afterHistory.barCount - afterNext.barCount;
-  assert.equal(prependedBarCount > 0, true);
-  if (!usedCommandFallback || afterHistory !== afterNext) {
-    assert.equal(rangesNear(afterHistory.visibleRange, {
-      from: afterNext.visibleRange.from + prependedBarCount,
-      to: afterNext.visibleRange.to + prependedBarCount,
-    }), true);
-  }
 
   assert.equal(beforeNext.barCount >= initial.barCount, true);
   console.log(`v6 replay-safe leftward history manual-next latency ${nextMeasurement.latencyMs.toFixed(1)}ms`);

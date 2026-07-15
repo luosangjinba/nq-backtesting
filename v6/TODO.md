@@ -29,6 +29,12 @@
   missing files, invalid classifications, and reasonless quarantines fail the
   manifest self-check. Exhaustive inventory coverage remains Step 445.
 
+- Step 443 rewrites the stale Step 187 mixed assertion. The gate still creates
+  leftward-history pressure and keeps the original Manual Next `<160ms`, Replay
+  cursor, revealed-count, visible-candle, and future-protection checks, but no
+  longer treats availability of older source rows as a latency invariant. It
+  returns from quarantine to the canonical browser gates.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
