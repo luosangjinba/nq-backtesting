@@ -27,7 +27,7 @@ for (const required of [
 }
 
 assert.equal(plan.includes('Step 470 is the next authorized target'), true);
-assert.equal(todo.includes('## Next Gate — Step 470 Modularity Audit'), true);
+assert.equal(todo.includes('## Next Gate — ETH/RTH Phase A'), true);
 assert.equal(decision.includes('Step 463 may begin the validation domain spine'), true);
 assert.equal(session.includes('focused browser latency gate: 5/5'), true);
 

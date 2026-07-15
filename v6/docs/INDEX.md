@@ -13,6 +13,8 @@ router, not a chronological ledger.
 
 ## Current Foundation
 
+- `v6/docs/V6_MODULARITY_LARGE_FILE_AUDIT_STEP470.md`: completed large-file and
+  ownership audit with timed structural gates for ETH/RTH integration.
 - `v6/docs/V6_MILESTONE_STABILIZATION_PLAN_STEP438.md`: binding Step 438-454
   audit baseline, scope freeze, order, and stop conditions.
 - `v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md`: accepted Settings

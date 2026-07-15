@@ -30,6 +30,22 @@ close, maintenance-break, and daylight-saving rules must be established from
 the actual data/API timestamp contract during Phase A rather than inferred in
 the shell.
 
+## FXReplay Reference Observation
+
+The supplied FXReplay comparison establishes the intended observable baseline:
+
+- the compact ETH/RTH selector lives in the upper workstation toolbar;
+- ETH shows the electronic-session history;
+- RTH removes non-regular-session source bars and leaves visible cross-session
+  discontinuities on the time axis;
+- the `4h` candles and price scale change between ETH and RTH, demonstrating
+  that higher-timeframe candles are re-aggregated from eligible source bars
+  rather than produced by CSS-only hiding;
+- all panes change together under one selector.
+
+V6 may use its own visual styling, but Phase F should preserve these behavioral
+expectations unless Phase A records a data-driven exception.
+
 ## Ownership Contract
 
 - `session-hours` owns mode normalization and bar-eligibility policy.

@@ -21,7 +21,7 @@ for (const required of [
 }
 
 assert.equal(plan.includes('Step 470 is the next authorized target'), true);
-assert.equal(todo.includes('## Next Gate — Step 470 Modularity Audit'), true);
+assert.equal(todo.includes('## Next Gate — ETH/RTH Phase A'), true);
 assert.equal(session.includes('It never rewrites start provenance or navigates Replay'), true);
 assert.equal(session.includes('Step 465 may add one generic prospective observation'), true);
 

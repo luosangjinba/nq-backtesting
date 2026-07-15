@@ -54,6 +54,11 @@ points outside the revealed session range, and truncates the selected candle
 plus later candles through Replay rewind/shared replacement. Quick Session/Home
 received a UI pass; its Session Summary/Stats surface is not Validation Campaign
 analytics.
+
+Step 470 modularity/large-file audit is complete. It selected three timed
+structural gates for ETH/RTH: shared Replay pane materialization policy before
+Phase C, leftward-history request coordination before Phase C/D, and top-toolbar
+template extraction before Phase E. It did not authorize a broad refactor.
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -66,12 +71,12 @@ analytics.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Gate — Step 470 Modularity Audit
+## Next Gate — ETH/RTH Phase A
 
-Audit large and mixed-responsibility V6 files before selecting the next product
-implementation phase. Record ownership risks and bounded split candidates; do
-not infer authorization for new modes, Semantic Drawing, Campaign UI, or other
-business features from this audit.
+Verify the real NQ/ES data timestamp contract and settle Exchange Calendar and
+Replay semantics for ETH/RTH, maintenance breaks, weekends, holidays, early
+closes, DST, cursor-outside-RTH behavior, Replay traversal, and higher-timeframe
+aggregation. This is a domain/decision phase; do not begin with the toolbar.
 
 The future Validation Campaign UI phase must implement the real recording and
 summary workflow before recording friction, sample/R presentation, or human

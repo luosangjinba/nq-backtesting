@@ -27,7 +27,7 @@ for (const required of [
 }
 
 assert.equal(plan.includes('Step 470 is the next authorized target'), true);
-assert.equal(todo.includes('## Next Gate — Step 470 Modularity Audit'), true);
+assert.equal(todo.includes('## Next Gate — ETH/RTH Phase A'), true);
 assert.equal(decision.includes('Step 464 may consume this repository'), true);
 assert.equal(session.includes('No production UI, Replay coordination'), true);
 assert.equal(session.includes('Step 464 may add only the Blind Trial Coordinator'), true);
