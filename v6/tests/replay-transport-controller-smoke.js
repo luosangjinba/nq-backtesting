@@ -266,6 +266,7 @@ root.periodButtons = [periodButton, periodButton3m, periodButton5m];
 
 const dispatched = [];
 const savedPositions = [];
+let restartSelectionStarts = 0;
 const eventListeners = new Map();
 const controller = mountReplayTransport(root, {
   dispatchCommand: async (command, payload) => {
@@ -291,6 +292,11 @@ const controller = mountReplayTransport(root, {
     },
     save(position) {
       savedPositions.push(position);
+    },
+  },
+  restartSelection: {
+    start() {
+      restartSelectionStarts += 1;
     },
   },
 });
@@ -449,7 +455,7 @@ assert.equal(nextButton.disabled, true);
 assert.equal(restartButton.disabled, false);
 assert.equal(playButton['aria-label'], 'Replay ended');
 assert.equal(nextButton['aria-label'], 'Replay ended');
-assert.equal(restartButton['aria-label'], 'Restart replay');
+assert.equal(restartButton['aria-label'], 'Select Bar Replay restart point');
 assert.equal(playButton.classList.classes.has('is-disabled'), true);
 assert.equal(nextButton.classList.classes.has('is-disabled'), true);
 assert.equal(restartButton.classList.classes.has('is-active'), true);
@@ -467,14 +473,12 @@ assert.equal(dispatched.length, dispatchCountAtEnded);
 
 root.click(restartButton);
 await Promise.resolve();
-assert.deepEqual(dispatched.find((entry) => entry.command === CHART_ENTRY_RESTART_COMMANDS.RESTART), {
-  command: CHART_ENTRY_RESTART_COMMANDS.RESTART,
-  payload: undefined,
-});
-assert.equal(['ready', 'restarting'].includes(controller.getState().replayStatus), true);
-assert.equal(restartButton.disabled, true);
-assert.equal(restartButton['aria-label'], 'Restart available after replay ends');
-assert.equal(restartButton.classList.classes.has('is-disabled'), true);
+assert.equal(restartSelectionStarts, 1);
+assert.equal(dispatched.some((entry) => entry.command === CHART_ENTRY_RESTART_COMMANDS.RESTART), false);
+assert.equal(controller.getState().replayStatus, 'ended');
+assert.equal(restartButton.disabled, false);
+assert.equal(restartButton['aria-label'], 'Select Bar Replay restart point');
+assert.equal(restartButton.classList.classes.has('is-disabled'), false);
 assert.equal(periodLabel.textContent, '1m');
 assert.equal(periodTrigger.title, 'Replay step period 1m');
 assert.equal(periodButton['aria-checked'], 'true');
@@ -484,14 +488,14 @@ assert.equal(periodSync.title, 'Replay period is manual');
 assert.equal(periodSyncParent.classList.classes.has('is-active'), false);
 
 eventListeners.get('replay:playbackChanged')?.({ status: 'ended' });
-assert.equal(controller.getState().replayStatus, 'restarting');
-assert.equal(root.dataset.ended, 'false');
+assert.equal(controller.getState().replayStatus, 'ended');
+assert.equal(root.dataset.ended, 'true');
 
 eventListeners.get('replay:loaded')?.({ status: 'ready' });
 assert.equal(controller.getState().replayStatus, 'ready');
 assert.equal(playButton.disabled, false);
 assert.equal(nextButton.disabled, false);
-assert.equal(restartButton.disabled, true);
+assert.equal(restartButton.disabled, false);
 
 periodDetails.open = false;
 const dispatchCountBeforeMenuKeys = dispatched.length;

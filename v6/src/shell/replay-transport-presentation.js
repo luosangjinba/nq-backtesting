@@ -27,7 +27,11 @@ export function renderReplayTransport(root, state) {
     const ended = state.replayStatus === 'ended';
     const label = ended ? 'Replay ended' : state.playing ? 'Pause replay' : 'Play replay';
     const labelElement = playButton.querySelector?.('[data-v6-transport-play-label]');
+    const playIcon = playButton.querySelector?.('[data-v6-transport-play-icon]');
+    const pauseIcon = playButton.querySelector?.('[data-v6-transport-pause-icon]');
     if (labelElement) labelElement.textContent = label;
+    if (playIcon) playIcon.hidden = state.playing;
+    if (pauseIcon) pauseIcon.hidden = !state.playing;
     playButton.disabled = ended;
     playButton.setAttribute('aria-label', label);
     playButton.setAttribute('aria-pressed', String(state.playing));
@@ -48,14 +52,14 @@ export function renderReplayTransport(root, state) {
   }
   const restartButton = root.querySelector('[data-v6-transport-action="restart"]');
   if (restartButton) {
-    const ended = state.replayStatus === 'ended';
-    const label = ended ? 'Restart replay' : 'Restart available after replay ends';
-    restartButton.disabled = !ended;
+    const available = state.replayStatus !== 'idle';
+    const label = available ? 'Select Bar Replay restart point' : 'Restart available after replay loads';
+    restartButton.disabled = !available;
     restartButton.setAttribute('aria-label', label);
-    restartButton.setAttribute('aria-disabled', String(!ended));
+    restartButton.setAttribute('aria-disabled', String(!available));
     restartButton.setAttribute('title', label);
-    restartButton.classList.toggle('is-active', ended);
-    restartButton.classList.toggle('is-disabled', !ended);
+    restartButton.classList.toggle('is-active', available);
+    restartButton.classList.toggle('is-disabled', !available);
   }
   const speedSlider = root.querySelector('[data-v6-transport-speed-slider]');
   if (speedSlider) {

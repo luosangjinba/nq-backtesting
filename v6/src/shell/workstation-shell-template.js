@@ -81,10 +81,6 @@ export function createWorkstationShellMarkup() {
                   <span>Name *</span>
                   <input name="name" type="text" value="test" placeholder="Name your session" data-v6-session-setup-name>
                 </label>
-                <label class="quick-session-field">
-                  <span>Account Balance *</span>
-                  <input name="accountBalance" type="number" min="0" step="1" value="100000" data-v6-session-setup-balance>
-                </label>
                 <section class="quick-session-field quick-session-assets" data-v6-session-assets>
                   <header>
                     <span>Assets *</span>
@@ -186,7 +182,6 @@ export function createWorkstationShellMarkup() {
               <span data-v6-display-timeframe-label>1m</span>
             </button>
             <div id="v6-timeframe-menu" class="timeframe-menu" data-v6-display-timeframe-menu hidden role="menu" aria-label="Interval menu">
-              <button type="button" class="timeframe-custom" data-v6-display-timeframe-custom disabled role="menuitem">Add custom interval...</button>
 ${renderDisplayTimeframeMenuSections()}
             </div>
           </div>
@@ -688,7 +683,8 @@ ${renderDisplayTimeframeMenuSections()}
         </label>
         <button type="button" class="transport-icon-button" data-v6-transport-step-back disabled aria-label="Previous replay bar">${icon('stepBack')}</button>
         <button type="button" class="transport-icon-button" aria-label="Play replay" data-v6-transport-action="play-toggle" aria-pressed="false">
-          ${icon('play')}
+          <span data-v6-transport-play-icon>${icon('play')}</span>
+          <span data-v6-transport-pause-icon hidden>${icon('pause')}</span>
           <span class="sr-only" data-v6-transport-play-label>Play replay</span>
         </button>
         <details class="transport-period-menu-anchor" data-v6-transport-period-details>
@@ -696,14 +692,14 @@ ${renderDisplayTimeframeMenuSections()}
             <span data-v6-transport-period-label>1m</span>
           </summary>
           <div class="transport-period-menu" data-v6-transport-period-menu role="menu" aria-label="Replay step period">
-            <button type="button" role="menuitemradio" data-v6-transport-period-option="1s">1s</button>
-            <button type="button" role="menuitemradio" data-v6-transport-period-option="5s">5s</button>
-            <button type="button" role="menuitemradio" data-v6-transport-period-option="10s">10s</button>
-            <button type="button" role="menuitemradio" data-v6-transport-period-option="15s">15s</button>
-            <button type="button" role="menuitemradio" data-v6-transport-period-option="30s">30s</button>
             <button type="button" role="menuitemradio" data-v6-transport-period-option="1m">1m</button>
             <button type="button" role="menuitemradio" data-v6-transport-period-option="3m">3m</button>
             <button type="button" role="menuitemradio" data-v6-transport-period-option="5m">5m</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="15m">15m</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="30m">30m</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="1h">1h</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="2h">2h</button>
+            <button type="button" role="menuitemradio" data-v6-transport-period-option="4h">4h</button>
           </div>
         </details>
         <button type="button" class="transport-icon-button" aria-label="Next replay bar" data-v6-transport-action="next">${icon('stepForward')}</button>

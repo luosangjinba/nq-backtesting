@@ -105,9 +105,9 @@ try {
     assert.equal(snapshot.outlineWidth, '2px', name);
   }
   assert.equal(value.afterArrowDown.open, true);
-  assert.equal(value.afterArrowDown.activePeriod, '1s');
+  assert.equal(value.afterArrowDown.activePeriod, '1m');
   assert.equal(value.afterEnd.open, true);
-  assert.equal(value.afterEnd.activePeriod, '5m');
+  assert.equal(value.afterEnd.activePeriod, '4h');
   assert.equal(value.beforeSuppressed.cursorIndex, value.afterSuppressed.cursorIndex);
   assert.equal(value.beforeSuppressed.revealedCount, value.afterSuppressed.revealedCount);
   assert.equal(value.afterEscape.open, false);

@@ -197,7 +197,7 @@ try {
   assert.equal(value.afterDragRect.bottom <= value.viewport.height, true);
   assert.equal(value.afterDragRect.left !== value.beforeDragRect.left || value.afterDragRect.top !== value.beforeDragRect.top, true);
   assert.equal(value.periodMenuOpen, true);
-  assert.deepEqual(value.periodOptions, ['1s', '5s', '10s', '15s', '30s', '1m', '3m', '5m']);
+  assert.deepEqual(value.periodOptions, ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h']);
   assert.equal(value.syncToggleExists, true);
 } finally {
   await page.cleanup();

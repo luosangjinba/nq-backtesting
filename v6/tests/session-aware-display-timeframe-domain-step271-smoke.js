@@ -27,6 +27,9 @@ assert.equal(normalizeDisplayTimeframeValue('1M'), '1M');
 assert.throws(() => normalizeDisplayTimeframeValue('bad'), /minute value/);
 
 assert.equal(formatDisplayTimeframeValue(15), '15m');
+assert.equal(formatDisplayTimeframeValue(60), '1h');
+assert.equal(formatDisplayTimeframeValue(120), '2h');
+assert.equal(formatDisplayTimeframeValue(240), '4h');
 assert.equal(formatDisplayTimeframeValue('1D'), '1D');
 assert.equal(formatDisplayTimeframeValue('1W'), '1W');
 assert.equal(formatDisplayTimeframeValue('1M'), '1M');

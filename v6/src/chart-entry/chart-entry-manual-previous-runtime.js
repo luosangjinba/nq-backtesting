@@ -75,6 +75,8 @@ export function createChartEntryManualPreviousRuntime() {
       const currentReplayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
       const playbackPeriodState = await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE);
       const stepCount = resolvePlaybackPeriodStepCount({
+        cursorTimestamp: Date.parse(currentReplayState?.cursorTime) / 1000,
+        direction: 'previous',
         playbackPeriod: playbackPeriodState?.period,
         sourceTimeframe: currentReplayState?.timeframe,
       });

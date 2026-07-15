@@ -140,17 +140,17 @@ async function runPeriodCase({
 }
 
 await runPeriodCase({
-  expectedAppended: 5,
-  expectedFinalCursorTime: '2026-06-01T18:01:00.000Z',
-  expectedFinalIndex: 71,
+  expectedAppended: 4,
+  expectedFinalCursorTime: '2026-06-01T18:00:00.000Z',
+  expectedFinalIndex: 70,
   initialCursorTime: '2026-06-01T16:56:00.000Z',
   period: '5m',
 });
 
 await runPeriodCase({
-  expectedAppended: 15,
-  expectedFinalCursorTime: '2026-06-01T18:05:00.000Z',
-  expectedFinalIndex: 75,
+  expectedAppended: 10,
+  expectedFinalCursorTime: '2026-06-01T18:00:00.000Z',
+  expectedFinalIndex: 70,
   initialCursorTime: '2026-06-01T16:50:00.000Z',
   period: '15m',
 });

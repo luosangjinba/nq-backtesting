@@ -47,6 +47,11 @@ static architecture 59/59, app-shell browser passed, and Replay/history measured
 85.8 ms against the unchanged 160 ms gate. Human workflow/friction acceptance
 remains pending.
 
+Step 469 human acceptance exposed a legacy Restart semantic mismatch. Restart now
+enters an FXReplay-style Bar Replay selection mode, shows a blue marker, rejects
+points outside the revealed session range, and truncates the selected candle plus
+later candles through Replay rewind/shared replacement. Visual confirmation remains.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -71,20 +76,12 @@ step, not authorization for new modes, Semantic Drawing, or business features.
 
 ## Known Catalog Debt
 
-- The canonical manifest is intentionally a named milestone gate set, while the
-  catalog is exhaustive classification. Step 457 established explicit role
-  metadata for infrastructure support and every TODO/INDEX historical snapshot;
-  Step 458 completed explicit orchestration-runner metadata. Future non-gate
-  roles must extend metadata rather than add source or filename heuristics.
-- Test role/environment classification and exhaustive gate execution are now
-  checked-in and metadata-driven. The named canonical runner remains
-  intentionally smaller than the exhaustive catalog.
+- Canonical is a named milestone set; the catalog is exhaustive metadata-driven
+  classification. Extend role metadata instead of source/filename inference.
 - The browser-local exhaustive environment contains 175 gates and is too costly
   for an implicit routine run. Use it deliberately until future work defines
   reviewed shards or budgets; do not weaken the canonical visible-latency gate.
-- Historical static/readiness/selection tests remain available for targeted
-  archaeology but are not product direction documents.
-
+- Historical tests remain for archaeology; they are not direction documents.
 ## Archive
 
 - `v6/archive/TODO_THROUGH_STEP453.md`: complete historical working ledger.

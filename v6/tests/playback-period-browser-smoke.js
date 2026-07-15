@@ -39,16 +39,16 @@ try {
       const paneAfterSyncChange = await commands.dispatchCommand('pane.getActive');
 
       details.open = true;
-      document.querySelector('[data-v6-transport-period-option="30s"]').click();
-      const afterManualThirtySeconds = await waitForPeriod((state) => state.period === '30s' && !state.sync);
+      document.querySelector('[data-v6-transport-period-option="30m"]').click();
+      const afterManualThirtyMinutes = await waitForPeriod((state) => state.period === '30m' && !state.sync);
       const paneAfterManualPeriod = await commands.dispatchCommand('pane.getActive');
 
       return {
-        afterManualThirtySeconds,
+        afterManualThirtyMinutes,
         afterManualThree,
         afterPanePeriodChange,
         afterSyncOn,
-        ariaThirtySeconds: document.querySelector('[data-v6-transport-period-option="30s"]').getAttribute('aria-checked'),
+        ariaThirtyMinutes: document.querySelector('[data-v6-transport-period-option="30m"]').getAttribute('aria-checked'),
         label: document.querySelector('[data-v6-transport-period-label]').textContent.trim(),
         paneAfterManualPeriod,
         paneAfterSyncChange,
@@ -69,18 +69,18 @@ try {
   assert.equal(value.afterPanePeriodChange.period, '5m');
   assert.equal(value.afterPanePeriodChange.sync, true);
   assert.equal(value.paneAfterSyncChange.displayTimeframe, 5);
-  assert.equal(value.afterManualThirtySeconds.period, '30s');
-  assert.equal(value.afterManualThirtySeconds.sync, false);
+  assert.equal(value.afterManualThirtyMinutes.period, '30m');
+  assert.equal(value.afterManualThirtyMinutes.sync, false);
   assert.equal(value.paneAfterManualPeriod.displayTimeframe, 5);
-  assert.equal(value.label, '30s');
+  assert.equal(value.label, '30m');
   assert.equal(value.syncChecked, false);
   assert.deepEqual(value.transportDataset, {
-    period: '30s',
+    period: '30m',
     periodSync: 'false',
   });
-  assert.equal(value.transportState.period, '30s');
+  assert.equal(value.transportState.period, '30m');
   assert.equal(value.transportState.periodSync, false);
-  assert.equal(value.ariaThirtySeconds, 'true');
+  assert.equal(value.ariaThirtyMinutes, 'true');
 } finally {
   await page.cleanup();
 }

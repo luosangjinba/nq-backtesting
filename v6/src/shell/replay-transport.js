@@ -155,6 +155,7 @@ export function mountReplayTransport(root, {
   dispatchCommand = dispatchRuntimeCommand,
   getVisiblePaneIds = null,
   positionPreference,
+  restartSelection = null,
   subscribeEvent = subscribeRuntimeEvent,
 } = {}) {
   if (!root) {
@@ -208,6 +209,11 @@ export function mountReplayTransport(root, {
   }
 
   function dispatchAction(action) {
+    if (action === 'restart' && restartSelection?.start) {
+      root.dataset.lastAction = action;
+      restartSelection.start();
+      return Promise.resolve(null);
+    }
     const resolved = resolveReplayTransportAction(action, state);
     setState(resolved.nextState);
     if (!resolved.command) {
@@ -398,6 +404,11 @@ export function mountReplayTransport(root, {
   setState(state);
   Promise.resolve(dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE))
     .then(syncFromPlaybackPeriodEvent)
+    .catch(() => {});
+  Promise.resolve(dispatchCommand(REPLAY_COMMANDS.GET_STATE))
+    .then((replayState) => {
+      if (replayState) syncFromReplayEvent(replayState);
+    })
     .catch(() => {});
   return Object.freeze({
     destroy() {

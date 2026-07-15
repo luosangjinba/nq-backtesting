@@ -22,7 +22,7 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 0));
       return {
         ariaExpandedAfterSelect: toggle.getAttribute('aria-expanded'),
-        customDisabled: document.querySelector('[data-v6-display-timeframe-custom]')?.disabled === true,
+        customMissing: !document.querySelector('[data-v6-display-timeframe-custom]'),
         displayTimeframe: root.dataset.displayTimeframe,
         enabledValues,
         headings,
@@ -41,7 +41,7 @@ try {
   assert.deepEqual(value.headings, ['Minutes', 'Hours', 'Days', 'Weeks', 'Months']);
   assert.deepEqual(value.enabledValues, ['1', '2', '3', '4', '5', '10', '15', '30', '60', '120', '240', '480', '720', '1D', '1W', '1M']);
   assert.deepEqual(value.plannedIds, []);
-  assert.equal(value.customDisabled, true);
+  assert.equal(value.customMissing, true);
   assert.equal(value.secondsHidden, true);
   assert.equal(value.unsupportedDisabled, true);
   assert.equal(value.selectMissing, true);

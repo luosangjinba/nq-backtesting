@@ -97,7 +97,7 @@ const nearEnd = await runManualNextBoundary({
 
 assert.equal(nearEnd.state.status, 'advanced');
 assert.equal(nearEnd.state.advanced.playbackPeriod, '5m');
-assert.equal(nearEnd.state.advanced.stepCount, 5);
+assert.equal(nearEnd.state.advanced.stepCount, 2);
 assert.equal(nearEnd.state.advanced.appendedBarCount, 1);
 assert.equal(nearEnd.state.advanced.replayState.status, 'ended');
 assert.equal(nearEnd.calls.filter((call) => call === REPLAY_COMMANDS.NEXT).length, 1);
@@ -118,7 +118,7 @@ const alreadyEnded = await runManualNextBoundary({
 
 assert.equal(alreadyEnded.state.status, 'ended');
 assert.equal(alreadyEnded.state.advanced.playbackPeriod, '5m');
-assert.equal(alreadyEnded.state.advanced.stepCount, 5);
+assert.equal(alreadyEnded.state.advanced.stepCount, 1);
 assert.equal(alreadyEnded.state.advanced.appendedBarCount, 0);
 assert.equal(alreadyEnded.state.advanced.chartRecord, null);
 assert.equal(alreadyEnded.calls.includes(REPLAY_COMMANDS.NEXT), false);

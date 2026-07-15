@@ -53,7 +53,9 @@ const DEFAULT_SERIES_OPTIONS = Object.freeze({
 });
 
 const PROGRAMMATIC_RANGE_SUPPRESSION_MS = 80;
-const PROGRAMMATIC_RANGE_EPSILON = 2;
+// Only suppress the chart engine's effectively identical range echo. A wide
+// tolerance here batches one-bar manual-wall projections into visible jumps.
+const PROGRAMMATIC_RANGE_EPSILON = 0.01;
 const WHEEL_PREPEND_STABILIZE_DELAY_MS = 120;
 
 function measureHost(host) {

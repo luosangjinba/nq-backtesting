@@ -27,6 +27,7 @@ import { mountPaneStatusReadout } from './shell/pane-status-readout.js';
 import { mountReadinessSurface } from './shell/readiness-surface.js';
 import { mountReplayWorkflowSurface } from './shell/replay-workflow-surface.js';
 import { mountReplayTransport } from './shell/replay-transport.js';
+import { mountReplayRestartSelectionController } from './shell/replay-restart-selection-controller.js';
 import { mountReplayNavigationControl } from './shell/replay-navigation-control.js';
 import { mountReplayNavigationSettings } from './shell/replay-navigation-settings.js';
 import { createReplayTransportPositionPreference } from './shell/replay-transport-position-preference.js';
@@ -153,9 +154,13 @@ const readinessSurface = mountReadinessSurface(root, { registry });
 const replayWorkflowSurface = mountReplayWorkflowSurface(root, {
   onOpen: () => workflowPanelCoordinator.closeOthers('replay'),
 });
+const replayRestartSelection = mountReplayRestartSelectionController(root, {
+  chartSurface: workstationChartSurface,
+});
 const replayTransport = mountReplayTransport(root.querySelector('[data-v6-transport]'), {
   getVisiblePaneIds: () => workstationChartSurface.getState().layout.visiblePaneIds,
   positionPreference: createReplayTransportPositionPreference(),
+  restartSelection: replayRestartSelection,
 });
 const replayNavigationControl = mountReplayNavigationControl(root, {
   getVisiblePaneIds: () => workstationChartSurface.getState().layout.visiblePaneIds,
@@ -186,6 +191,7 @@ root.__v6ReadinessSurface = readinessSurface;
 root.__v6ReplayWorkflowSurface = replayWorkflowSurface;
 root.__v6RuntimeRegistry = registry;
 root.__v6ReplayTransport = replayTransport;
+root.__v6ReplayRestartSelection = replayRestartSelection;
 root.__v6ReplayNavigationControl = replayNavigationControl;
 root.__v6ReplayNavigationSettings = replayNavigationSettings;
 root.__v6SessionDashboard = sessionDashboard;

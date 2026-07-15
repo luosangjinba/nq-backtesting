@@ -22,8 +22,14 @@ function control(dataset = {}) {
 
 const previous = control();
 const playLabel = control();
+const playIcon = control();
+const pauseIcon = control();
 const play = control();
-play.querySelector = () => playLabel;
+play.querySelector = (selector) => new Map([
+  ['[data-v6-transport-play-label]', playLabel],
+  ['[data-v6-transport-play-icon]', playIcon],
+  ['[data-v6-transport-pause-icon]', pauseIcon],
+]).get(selector) || null;
 const next = control();
 const restart = control();
 const slider = control();
@@ -63,6 +69,8 @@ renderReplayTransport(root, {
 assert.equal(root.dataset.playback, 'playing');
 assert.equal(previous.disabled, false);
 assert.equal(playLabel.textContent, 'Pause replay');
+assert.equal(playIcon.hidden, true);
+assert.equal(pauseIcon.hidden, false);
 assert.equal(speed2.hasClass('is-active'), true);
 assert.equal(periodLabel.textContent, '5m');
 assert.equal(period5m.getAttribute('aria-checked'), 'true');
@@ -77,5 +85,7 @@ assert.equal(play.disabled, true);
 assert.equal(next.disabled, true);
 assert.equal(restart.disabled, false);
 assert.equal(playLabel.textContent, 'Replay ended');
+assert.equal(playIcon.hidden, false);
+assert.equal(pauseIcon.hidden, true);
 
 console.log('v6 replay transport presentation smoke passed');

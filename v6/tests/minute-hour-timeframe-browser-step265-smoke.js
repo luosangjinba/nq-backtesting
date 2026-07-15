@@ -63,7 +63,7 @@ assert.equal(tenMinute.projection.buckets[0].expectedSourceBars, 10);
 
 const oneHour = await runCase(60);
 assert.equal(oneHour.rootDataset, '60');
-assert.equal(oneHour.label, '60m');
+assert.equal(oneHour.label, '1h');
 assert.equal(oneHour.menuOpen, 'false');
 assert.equal(oneHour.paneDisplayTimeframe, 60);
 assert.equal(oneHour.barCount, 2);

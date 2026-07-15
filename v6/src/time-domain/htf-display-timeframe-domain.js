@@ -31,7 +31,11 @@ export function normalizeDisplayTimeframeValue(value, {
 export function formatDisplayTimeframeValue(value) {
   const sessionAware = normalizeSessionAwareDisplayTimeframe(value);
   if (sessionAware) return sessionAware;
-  return `${value}m`;
+  const minutes = normalizeMinuteTimeframe(value, {
+    allowSuffix: false,
+    fieldName: 'displayTimeframe',
+  });
+  return minutes >= 60 && minutes % 60 === 0 ? `${minutes / 60}h` : `${minutes}m`;
 }
 
 export function estimateSessionAwareSourceBarCount({

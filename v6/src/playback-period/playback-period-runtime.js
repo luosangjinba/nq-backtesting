@@ -8,17 +8,14 @@ import { dispatchCommand, registerCommand } from '../runtime/commands.js';
 import { subscribeEvent as subscribeRuntimeEvent } from '../runtime/events.js';
 
 export const PLAYBACK_PERIOD_OPTIONS = Object.freeze([
-  '1s',
-  '5s',
-  '10s',
-  '15s',
-  '30s',
   '1m',
   '3m',
   '5m',
   '15m',
   '30m',
   '1h',
+  '2h',
+  '4h',
 ]);
 
 function normalizePeriod(value) {

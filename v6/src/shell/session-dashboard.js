@@ -12,13 +12,6 @@ import { mountSessionSummarySurface } from './session-summary-surface.js';
 import { readSessionSetupForm } from './session-setup-model.js';
 import { createTextElement, replaceNodeChildren } from './safe-dom-render.js';
 
-function formatSessionMoney(value) {
-  const amount = Number(value ?? 0);
-  return Number.isFinite(amount)
-    ? amount.toLocaleString('en-US', { maximumFractionDigits: 0, style: 'currency', currency: 'USD' })
-    : '$0';
-}
-
 function sessionLabel(session = {}) {
   return session.name || `${session.symbol || 'NQ'} ${session.timeframe || '1m'}`;
 }
@@ -83,7 +76,7 @@ function renderSessions(root, view, { chartBoundaryMetadata = null } = {}) {
     const main = createTextElement(documentRef, { className: 'session-row-main' });
     const mainChildren = [
       createTextElement(documentRef, { tagName: 'strong', text: sessionLabel(session) }),
-      createTextElement(documentRef, { tagName: 'span', text: `${boundaryView.tradingDateRangeLabel} · ${formatSessionMoney(session.accountBalance)}` }),
+      createTextElement(documentRef, { tagName: 'span', text: boundaryView.tradingDateRangeLabel }),
     ];
     if (boundaryView.chartDataBoundaryLabel) {
       const boundary = createTextElement(documentRef, { tagName: 'small', text: boundaryView.chartDataBoundaryLabel });

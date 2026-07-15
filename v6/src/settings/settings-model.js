@@ -19,7 +19,7 @@ export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   chartTradingDaySeparatorStyle: 'dashed',
   currentPriceLineVisible: true,
   currentPriceNameVisible: true,
-  currentPriceValueVisible: true,
+  currentPriceValueVisible: false,
   dateFormat: 'yyyy/mm/dd',
   displayTimezone: 'exchange',
   showWatermark: true,

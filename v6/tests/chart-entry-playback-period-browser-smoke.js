@@ -50,7 +50,7 @@ try {
       });
       const syncedPeriod = await commands.dispatchCommand('playbackPeriod.getState');
       document.querySelector('[data-v6-transport-action="next"]').click();
-      const afterSynced = await waitForBars((afterManual.chart.bars?.length || 0) + 5);
+      const afterSynced = await waitForBars((afterManual.chart.bars?.length || 0) + 2);
       const syncedState = await commands.dispatchCommand('chartEntryManualNext.getState');
       const surface = root.__v6WorkstationChartSurface.getState();
 
@@ -82,10 +82,10 @@ try {
   assert.equal(value.syncedPeriod.sync, true);
   assert.equal(value.syncedState.status, 'advanced', value.syncedState.error || 'synced period should advance');
   assert.equal(value.syncedState.advanced.playbackPeriod, '5m');
-  assert.equal(value.syncedState.advanced.stepCount, 5);
-  assert.equal(value.syncedState.advanced.appendedBarCount, 5);
-  assert.equal(value.afterSyncedReplay.cursorIndex, value.afterManualReplay.cursorIndex + 5);
-  assert.equal(value.afterSyncedReplay.revealedCount, value.afterManualReplay.revealedCount + 5);
+  assert.equal(value.syncedState.advanced.stepCount, 2);
+  assert.equal(value.syncedState.advanced.appendedBarCount, 2);
+  assert.equal(value.afterSyncedReplay.cursorIndex, value.afterManualReplay.cursorIndex + 2);
+  assert.equal(value.afterSyncedReplay.revealedCount, value.afterManualReplay.revealedCount + 2);
   assert.equal(value.afterSyncedBarCount > 0, true);
   assert.equal(value.surfaceDataLength, value.afterSyncedBarCount);
 } finally {

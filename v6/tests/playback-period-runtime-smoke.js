@@ -96,12 +96,12 @@ assert.deepEqual(await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE), {
 });
 
 await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.SET_PERIOD, {
-  period: '30s',
+  period: '30m',
 });
 assert.deepEqual(await dispatchCommand(PLAYBACK_PERIOD_COMMANDS.GET_STATE), {
   activeDisplayTimeframe: 15,
   activePaneId: 'pane-review',
-  period: '30s',
+  period: '30m',
   sync: false,
 });
 
