@@ -10,6 +10,7 @@ export function createCoreRuntimeContributions({
   observationEvidenceRepository,
   sessionRepository,
   subscribeEvent,
+  tradePlanRepository,
   validationRepository,
 } = {}) {
   return Object.freeze([
@@ -25,6 +26,7 @@ export function createCoreRuntimeContributions({
     ...createValidationRuntimeContributions({
       dispatchCommand,
       observationEvidenceRepository,
+      tradePlanRepository,
       validationRepository,
     }),
   ]);

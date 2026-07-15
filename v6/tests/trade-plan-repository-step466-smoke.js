@@ -1,0 +1,15 @@
+import assert from 'node:assert/strict';
+import { createMemoryValidationDatabase, createMemoryValidationPersistenceAdapter } from '../src/validation-persistence/validation-persistence-adapters.js';
+import { createValidationRepository } from '../src/validation-persistence/validation-repository.js';
+import { createObservationEvidenceRepository } from '../src/validation-observation/observation-evidence-repository.js';
+import { createTradePlanRepository } from '../src/validation-trade-plan/trade-plan-repository.js';
+const db = createMemoryValidationDatabase(); const adapter = () => createMemoryValidationPersistenceAdapter({ database: db });
+const validation = createValidationRepository({ adapter: adapter() }); const evidence = createObservationEvidenceRepository({ adapter: adapter() }); const plans = createTradePlanRepository({ adapter: adapter() });
+await validation.createPlaybookVersion({ createdAt: 1, id: 'pv', name: 'v', playbookId: 'p', rules: [{ id: 'r', statement: 'r' }], version: 1 });
+await validation.createCampaign({ createdAt: 2, hypothesis: 'h', id: 'c', name: 'c', playbookVersionId: 'pv' }); await validation.transitionCampaign('c', 'active', { updatedAt: 3 });
+await validation.createTrial({ campaignId: 'c', createdAt: 4, id: 't' }); await validation.startTrial('t', { cursorIndex: 0, cursorTime: '2026-01-01T10:00:00Z', revealedCount: 1, sessionId: 's' }, { startedAt: 5 });
+await evidence.create({ observation: { category: 'setup', createdAt: 6, evidenceId: 'e', id: 'o', text: 'x', trialId: 't' }, evidence: { createdAt: 6, id: 'e', observationId: 'o', paneId: 'primary', price: 100, replayCursorTime: '2026-01-01T10:00:00Z', replaySessionId: 's', replayVisibleThroughTime: '2026-01-01T10:00:00Z', symbol: 'NQ', time: '2026-01-01T10:00:00Z', timeframe: '1m', trialId: 't' } });
+const plan = await plans.create({ createdAt: 7, direction: 'long', entry: 100, evidenceId: 'e', id: 'pr1', invalidation: 'below', observationId: 'o', stop: 90, target: 120, tradePlanId: 'plan', trialId: 't' });
+assert.equal(plan.revisionKind, 'prospective'); assert.equal((await plans.list('t')).length, 1);
+await assert.rejects(() => plans.create({ ...plan, id: 'pr2' }), /byTradePlanRevision|violation/);
+console.log('v6 trade plan repository step466 smoke passed');

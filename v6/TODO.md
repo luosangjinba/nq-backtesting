@@ -26,6 +26,9 @@ Step 465 added separate prospective observation and evidence artifacts,
 atomically persisted with pane/timeframe/time-price and Replay no-future
 provenance. It adds no overlay or Semantic Drawing write path.
 
+Step 466 added an immutable prospective trade-plan revision with direction,
+entry, stop, target, invalidation, and active trial/evidence references.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -38,18 +41,17 @@ provenance. It adds no overlay or Semantic Drawing write path.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 466
+## Next Step — 467
 
-Implement Prospective Trade Plan only:
+Implement Simulated Outcome and R only:
 
-- persist direction, entry, stop, target, and invalidation separately from
-  observation/evidence;
-- require an active trial and prospective evidence reference;
-- commit an immutable pre-result revision and distinguish later review edits;
-- no execution/outcome, R, Analytics, Semantic Drawing, or mode shell.
+- persist execution/outcome facts separately from the prospective plan;
+- calculate bounded R from immutable plan risk and realized exit;
+- disclose ambiguous within-minute stop/target ordering;
+- no aggregate dashboard, Semantic Drawing, mode shell, or tick-accuracy claim.
 
-Do not place trade-plan truth inside observation, Journal, Replay, drawing,
-App, Shell, persistence-adapter, or route entry files.
+Do not overwrite the prospective plan or place outcome truth inside Journal,
+Replay, drawing, App, Shell, persistence-adapter, or route entry files.
 
 ## Known Catalog Debt
 

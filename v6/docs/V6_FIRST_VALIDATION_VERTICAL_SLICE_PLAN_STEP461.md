@@ -89,6 +89,9 @@ or Semantic Drawing write path was added.
 Record direction, entry, stop, target, and invalidation separately from the
 observation. Commit the pre-result revision and distinguish later review edits.
 
+Status: complete. The immutable revision-1 plan is stored separately over
+IndexedDB v3 with direction geometry and reciprocal trial/evidence checks.
+
 ### Step 467 — Simulated Outcome And R
 
 Record execution/outcome facts separately, calculate bounded `R`, and disclose
@@ -117,8 +120,8 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Steps 462-465 completed the foundation repair and first prospective evidence
-spine. Step 466 is now the next authorized target. This does not pre-authorize
-product Steps 467-469: each Step requires focused
+Steps 462-466 completed the foundation repair and prospective judgment/plan
+spine. Step 467 is now the next authorized target. This does not pre-authorize
+product Steps 468-469: each Step requires focused
 inspection, verification, and an independent commit, and may revise later
 detail without breaking the accepted product/ownership invariants.

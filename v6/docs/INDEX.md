@@ -49,6 +49,8 @@ router, not a chronological ledger.
   commands/events, Replay provenance, resume integrity, and ownership boundary.
 - `v6/docs/V6_GENERIC_OBSERVATION_EVIDENCE_STEP465.md`: generic prospective
   observation/evidence artifacts, provenance, and IndexedDB v2 boundary.
+- `v6/docs/V6_PROSPECTIVE_TRADE_PLAN_STEP466.md`: immutable prospective plan
+  revision, price geometry, references, and IndexedDB v3 boundary.
 
 ## Architecture And Testing
 

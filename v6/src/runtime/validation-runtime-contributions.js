@@ -1,9 +1,11 @@
 import { createBlindTrialCoordinatorRuntime } from '../blind-trial/blind-trial-coordinator-runtime.js';
 import { createObservationEvidenceRuntime } from '../validation-observation/observation-evidence-runtime.js';
+import { createTradePlanRuntime } from '../validation-trade-plan/trade-plan-runtime.js';
 
 export function createValidationRuntimeContributions({
   dispatchCommand,
   observationEvidenceRepository,
+  tradePlanRepository,
   validationRepository,
 } = {}) {
   if (!validationRepository) return Object.freeze([]);
@@ -16,5 +18,6 @@ export function createValidationRuntimeContributions({
       dispatchCommand,
       repository: observationEvidenceRepository,
     })] : []),
+    ...(tradePlanRepository ? [createTradePlanRuntime({ repository: tradePlanRepository })] : []),
   ]);
 }

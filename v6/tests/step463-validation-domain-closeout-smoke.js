@@ -26,8 +26,8 @@ for (const required of [
   assert.equal(decision.includes(required), true, required);
 }
 
-assert.equal(plan.includes('Step 466 is now the next authorized target'), true);
-assert.equal(todo.includes('## Next Step — 466'), true);
+assert.equal(plan.includes('Step 467 is now the next authorized target'), true);
+assert.equal(todo.includes('## Next Step — 467'), true);
 assert.equal(decision.includes('Step 464 may consume this repository'), true);
 assert.equal(session.includes('No production UI, Replay coordination'), true);
 assert.equal(session.includes('Step 464 may add only the Blind Trial Coordinator'), true);
