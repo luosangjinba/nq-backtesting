@@ -16,6 +16,12 @@ try {
       const field = document.querySelector('[data-v6-settings-field="timeFormat"]');
       field.value = '12h';
       field.dispatchEvent(new Event('change', { bubbles: true }));
+      const dateFormat = document.querySelector('[data-v6-settings-field="dateFormat"]');
+      dateFormat.value = 'dd/mm/yyyy';
+      dateFormat.dispatchEvent(new Event('change', { bubbles: true }));
+      const dayOfWeek = document.querySelector('[data-v6-settings-field="showDayOfWeek"]');
+      dayOfWeek.checked = false;
+      dayOfWeek.dispatchEvent(new Event('change', { bubbles: true }));
       const preview = JSON.parse(surface.dataset.v6TimePresentation);
       root.__v6ReplayNavigationSettings.setOpen(true, { restoreFocus: false });
       const gotoTwelveHour = Object.fromEntries([...document.querySelectorAll('[data-v6-replay-navigation-setting]')]
@@ -27,7 +33,11 @@ try {
     })()))()
   `));
   assert.equal(result.before.timeFormat, '24h');
+  assert.equal(result.before.dateFormat, 'yyyy/mm/dd');
+  assert.equal(result.before.showDayOfWeek, true);
   assert.equal(result.preview.timeFormat, '12h');
+  assert.equal(result.preview.dateFormat, 'dd/mm/yyyy');
+  assert.equal(result.preview.showDayOfWeek, false);
   assert.deepEqual(result.gotoTwelveHour, {
     asianSession: '7:00 PM',
     dayOpen: '6:00 PM',
