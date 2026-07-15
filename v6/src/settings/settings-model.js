@@ -1,3 +1,5 @@
+import { normalizeTimePresentationPreferences } from '../time-domain/time-presentation-preferences.js';
+
 export const DEFAULT_SETTINGS_INPUT = Object.freeze({
   chartAxisBorderColor: '#163345',
   chartBackgroundColor: '#0f1721',
@@ -43,14 +45,11 @@ export const SETTINGS_RECORD_VERSION = 9;
 
 const SETTING_KEYS = Object.freeze(Object.keys(DEFAULT_SETTINGS_INPUT));
 const THEMES = Object.freeze(['dark', 'light']);
-const TIMEZONES = Object.freeze(['exchange', 'local', 'utc']);
 const NAVIGATION_VISIBILITY = Object.freeze(['hover', 'always', 'hidden']);
 const DAY_SEPARATORS = Object.freeze(['off', 'trading', 'ict', 'both']);
 const LINE_STYLES = Object.freeze(['solid', 'dashed', 'dotted']);
 const PRICE_PRECISIONS = Object.freeze(['auto', '0', '1', '2', '3', '4', '5', '6']);
 const STATUS_TITLE_MODES = Object.freeze(['hidden', 'ticker']);
-const TIME_FORMATS = Object.freeze(['12h', '24h']);
-const DATE_FORMATS = Object.freeze(['yyyy/mm/dd', 'yyyy-mm-dd', 'dd/mm/yyyy', 'mm/dd/yyyy']);
 const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
 
 function normalizeBoolean(value, fallback) {
@@ -85,6 +84,7 @@ function normalizeInteger(value, fallback, fieldName, { min, max }) {
 }
 
 export function createSettingsRecord(input = {}) {
+  const timePresentation = normalizeTimePresentationPreferences(input, { strict: true });
   return Object.freeze({
     chartAxisBorderColor: normalizeColor(
       input.chartAxisBorderColor,
@@ -182,18 +182,8 @@ export function createSettingsRecord(input = {}) {
       input.currentPriceValueVisible,
       DEFAULT_SETTINGS_INPUT.currentPriceValueVisible,
     ),
-    dateFormat: normalizeChoice(
-      input.dateFormat,
-      DATE_FORMATS,
-      DEFAULT_SETTINGS_INPUT.dateFormat,
-      'dateFormat',
-    ),
-    displayTimezone: normalizeChoice(
-      input.displayTimezone,
-      TIMEZONES,
-      DEFAULT_SETTINGS_INPUT.displayTimezone,
-      'displayTimezone',
-    ),
+    dateFormat: timePresentation.dateFormat,
+    displayTimezone: timePresentation.displayTimezone,
     showWatermark: normalizeBoolean(input.showWatermark, DEFAULT_SETTINGS_INPUT.showWatermark),
     symbolBordersVisible: normalizeBoolean(
       input.symbolBordersVisible,
@@ -265,12 +255,7 @@ export function createSettingsRecord(input = {}) {
       DEFAULT_SETTINGS_INPUT.showDayOfWeek,
     ),
     theme: normalizeChoice(input.theme, THEMES, DEFAULT_SETTINGS_INPUT.theme, 'theme'),
-    timeFormat: normalizeChoice(
-      input.timeFormat,
-      TIME_FORMATS,
-      DEFAULT_SETTINGS_INPUT.timeFormat,
-      'timeFormat',
-    ),
+    timeFormat: timePresentation.timeFormat,
   });
 }
 

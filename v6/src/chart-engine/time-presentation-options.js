@@ -1,16 +1,8 @@
 import { formatChartDateTime, formatChartTime } from '../time-domain/time-presentation.js';
+import { normalizeTimePresentationPreferences } from '../time-domain/time-presentation-preferences.js';
 
 export function createTimePresentationChartOptions(settings = {}) {
-  const state = Object.freeze({
-    dateFormat: ['yyyy-mm-dd', 'dd/mm/yyyy', 'mm/dd/yyyy'].includes(settings.dateFormat)
-      ? settings.dateFormat
-      : 'yyyy/mm/dd',
-    displayTimezone: ['utc', 'local'].includes(settings.displayTimezone)
-      ? settings.displayTimezone
-      : 'exchange',
-    showDayOfWeek: settings.showDayOfWeek !== false,
-    timeFormat: settings.timeFormat === '12h' ? '12h' : '24h',
-  });
+  const state = normalizeTimePresentationPreferences(settings);
   const crosshairFormatter = (time) => formatChartDateTime(time, state);
   const axisFormatter = (time) => formatChartTime(time, state);
 

@@ -83,6 +83,11 @@
   tests import them from `v6/tests/governance/helpers`; production App/runtime
   manifests are guarded against importing them.
 
+- Step 453 centralizes display timezone, date-format, weekday, and 12/24-hour
+  validation in the time-domain owner. Settings uses strict validation while
+  chart/status consumers use deterministic canonical fallbacks; duplicated
+  choice arrays and ad-hoc normalization are removed.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to

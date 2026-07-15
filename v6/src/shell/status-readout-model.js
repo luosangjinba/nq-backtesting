@@ -1,4 +1,5 @@
 import { formatChartTime } from '../time-domain/time-presentation.js';
+import { normalizeTimePresentationPreferences } from '../time-domain/time-presentation-preferences.js';
 
 function formatPrice(value) {
   const price = Number(value);
@@ -77,6 +78,7 @@ export function createStatusReadoutState({
   replayState = {},
   timePresentation = {},
 } = {}) {
+  const normalizedTimePresentation = normalizeTimePresentationPreferences(timePresentation);
   const replay = normalizeReplayState(replayState);
   const bar = latestBar ? { ...latestBar } : null;
   const selectedBar = crosshairBar ? { ...crosshairBar } : null;
@@ -121,12 +123,10 @@ export function createStatusReadoutState({
     timeframe: replay.timeframe,
     title: `${replay.symbol} ${replay.timeframe}`,
     timePresentation: Object.freeze({
-      displayTimezone: ['utc', 'local'].includes(timePresentation.displayTimezone)
-        ? timePresentation.displayTimezone
-        : 'exchange',
-      timeFormat: timePresentation.timeFormat === '12h' ? '12h' : '24h',
+      displayTimezone: normalizedTimePresentation.displayTimezone,
+      timeFormat: normalizedTimePresentation.timeFormat,
     }),
-    timestamp: formatTimestamp(bar?.timestamp, timePresentation),
+    timestamp: formatTimestamp(bar?.timestamp, normalizedTimePresentation),
   });
 }
 
