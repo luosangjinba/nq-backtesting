@@ -93,17 +93,21 @@ try {
     'playbookVersions',
     'validationCampaigns',
     'validationEvidence',
+    'validationExecutions',
     'validationObservations',
+    'validationOutcomes',
     'validationTradePlanRevisions',
     'validationTrials',
   ]);
-  assert.equal(result.schema.version, 3);
+  assert.equal(result.schema.version, 4);
   assert.deepEqual(result.schema.indexes.playbookVersions.sort(), ['byPlaybookId', 'byPlaybookVersion']);
   assert.deepEqual(result.schema.indexes.validationCampaigns.sort(), ['byPlaybookVersionId', 'byStatus']);
   assert.deepEqual(result.schema.indexes.validationTrials.sort(), ['byCampaignId', 'byStatus']);
   assert.deepEqual(result.schema.indexes.validationObservations.sort(), ['byEvidenceId', 'byTrialId']);
   assert.deepEqual(result.schema.indexes.validationEvidence.sort(), ['byObservationId', 'byTrialId']);
   assert.deepEqual(result.schema.indexes.validationTradePlanRevisions.sort(), ['byObservationId', 'byTradePlanRevision', 'byTrialId']);
+  assert.deepEqual(result.schema.indexes.validationExecutions.sort(), ['byPlanRevisionId', 'byTrialId']);
+  assert.deepEqual(result.schema.indexes.validationOutcomes.sort(), ['byExecutionId', 'byTrialId']);
 } finally {
   await page.cleanup();
 }

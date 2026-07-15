@@ -1,0 +1,1 @@
+import assert from 'node:assert/strict';import{readFile}from'node:fs/promises';const source=await readFile('v6/src/validation-outcome/simulated-outcome-runtime.js','utf8');for(const f of ['replay-runtime','chart-engine','journal'])assert.equal(source.includes(f),false);console.log('v6 simulated outcome boundary step467 static smoke passed');

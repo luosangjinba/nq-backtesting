@@ -1,13 +1,15 @@
 export const VALIDATION_DATABASE_NAME = 'v6.validation';
-export const VALIDATION_DATABASE_VERSION = 3;
+export const VALIDATION_DATABASE_VERSION = 4;
 
 export const VALIDATION_STORES = Object.freeze({
   CAMPAIGNS: 'validationCampaigns',
   EVIDENCE: 'validationEvidence',
   OBSERVATIONS: 'validationObservations',
+  OUTCOMES: 'validationOutcomes',
   PLAYBOOK_VERSIONS: 'playbookVersions',
   TRIALS: 'validationTrials',
   TRADE_PLAN_REVISIONS: 'validationTradePlanRevisions',
+  EXECUTIONS: 'validationExecutions',
 });
 
 export const VALIDATION_STORE_DEFINITIONS = Object.freeze({
@@ -54,6 +56,18 @@ export const VALIDATION_STORE_DEFINITIONS = Object.freeze({
     ]),
     keyPath: 'id',
   }),
+  [VALIDATION_STORES.EXECUTIONS]: Object.freeze({
+    indexes: Object.freeze([
+      Object.freeze({ keyPath: 'trialId', name: 'byTrialId', unique: false }),
+      Object.freeze({ keyPath: 'planRevisionId', name: 'byPlanRevisionId', unique: true }),
+    ]), keyPath: 'id',
+  }),
+  [VALIDATION_STORES.OUTCOMES]: Object.freeze({
+    indexes: Object.freeze([
+      Object.freeze({ keyPath: 'trialId', name: 'byTrialId', unique: false }),
+      Object.freeze({ keyPath: 'executionId', name: 'byExecutionId', unique: true }),
+    ]), keyPath: 'id',
+  }),
 });
 
 function createStore(db, name, definition) {
@@ -88,5 +102,10 @@ export function applyValidationIndexedDbMigrations({
       VALIDATION_STORES.TRADE_PLAN_REVISIONS,
       VALIDATION_STORE_DEFINITIONS[VALIDATION_STORES.TRADE_PLAN_REVISIONS],
     );
+  }
+  if (Number(oldVersion) < 4) {
+    [VALIDATION_STORES.EXECUTIONS, VALIDATION_STORES.OUTCOMES].forEach((name) => {
+      createStore(db, name, VALIDATION_STORE_DEFINITIONS[name]);
+    });
   }
 }

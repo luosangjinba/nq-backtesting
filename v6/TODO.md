@@ -29,6 +29,9 @@ provenance. It adds no overlay or Semantic Drawing write path.
 Step 466 added an immutable prospective trade-plan revision with direction,
 entry, stop, target, invalidation, and active trial/evidence references.
 
+Step 467 added separate simulated execution/outcome facts, bounded R, and
+mandatory `1m` within-minute ordering disclosure without tick-accuracy claims.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -41,17 +44,17 @@ entry, stop, target, invalidation, and active trial/evidence references.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 467
+## Next Step — 468
 
-Implement Simulated Outcome and R only:
+Implement Campaign Summary and Evidence Drillback only:
 
-- persist execution/outcome facts separately from the prospective plan;
-- calculate bounded R from immutable plan risk and realized exit;
-- disclose ambiguous within-minute stop/target ordering;
-- no aggregate dashboard, Semantic Drawing, mode shell, or tick-accuracy claim.
+- compute one small campaign projection with sample size, wins/losses, average
+  R, and total R from source artifacts;
+- return raw trial rows and stable evidence references;
+- navigate drillback through public Replay/navigation contracts only;
+- no broad dashboard, filtering system, Semantic Drawing, or mode shell.
 
-Do not overwrite the prospective plan or place outcome truth inside Journal,
-Replay, drawing, App, Shell, persistence-adapter, or route entry files.
+Analytics is read-only and must not rewrite trial/evidence/plan/outcome truth.
 
 ## Known Catalog Debt
 

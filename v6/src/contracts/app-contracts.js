@@ -216,6 +216,8 @@ export const VALIDATION_TRADE_PLAN_COMMANDS = Object.freeze({
 export const VALIDATION_TRADE_PLAN_EVENTS = Object.freeze({
   CREATED: 'validationTradePlan:created', REJECTED: 'validationTradePlan:rejected',
 });
+export const VALIDATION_OUTCOME_COMMANDS=Object.freeze({LIST:'validationOutcome.list',RECORD:'validationOutcome.record'});
+export const VALIDATION_OUTCOME_EVENTS=Object.freeze({RECORDED:'validationOutcome:recorded',REJECTED:'validationOutcome:rejected'});
 
 export const REPLAY_NAVIGATION_PREFERENCES_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'replayNavigationPreferences.getSnapshot',

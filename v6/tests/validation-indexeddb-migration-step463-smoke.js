@@ -20,7 +20,7 @@ const database = {
 };
 
 applyValidationIndexedDbMigrations({ db: database, oldVersion: 0 });
-assert.equal(VALIDATION_DATABASE_VERSION, 3);
+assert.equal(VALIDATION_DATABASE_VERSION, 4);
 assert.deepEqual([...stores.keys()].sort(), Object.keys(VALIDATION_STORE_DEFINITIONS).sort());
 for (const [name, definition] of Object.entries(VALIDATION_STORE_DEFINITIONS)) {
   assert.equal(stores.get(name).keyPath, definition.keyPath);
@@ -36,6 +36,6 @@ applyValidationIndexedDbMigrations({
   db: { createObjectStore(name) { upgradedStores.push(name); return { createIndex() {} }; } },
   oldVersion: 1,
 });
-assert.deepEqual(upgradedStores.sort(), ['validationEvidence', 'validationObservations', 'validationTradePlanRevisions']);
+assert.deepEqual(upgradedStores.sort(), ['validationEvidence', 'validationExecutions', 'validationObservations', 'validationOutcomes', 'validationTradePlanRevisions']);
 
 console.log('v6 validation IndexedDB migration step463 smoke passed');

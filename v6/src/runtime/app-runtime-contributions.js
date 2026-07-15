@@ -9,6 +9,7 @@ import { createReplayNavigationPreferencesStorage } from '../replay-navigation/r
 import { createValidationRepository } from '../validation-persistence/validation-repository.js';
 import { createObservationEvidenceRepository } from '../validation-observation/observation-evidence-repository.js';
 import { createTradePlanRepository } from '../validation-trade-plan/trade-plan-repository.js';
+import { createSimulatedOutcomeRepository } from '../validation-outcome/simulated-outcome-repository.js';
 
 export function createAppRuntimeContributions({
   dispatchCommand,
@@ -24,12 +25,14 @@ export function createAppRuntimeContributions({
   const validationRepository = createValidationRepository();
   const observationEvidenceRepository = createObservationEvidenceRepository();
   const tradePlanRepository = createTradePlanRepository();
+  const simulatedOutcomeRepository = createSimulatedOutcomeRepository();
   return createCoreRuntimeContributions({
     dispatchCommand,
     observationEvidenceRepository,
     persistenceRepository,
     replayNavigationPreferencesStorage,
     sessionRepository,
+    simulatedOutcomeRepository,
     subscribeEvent,
     tradePlanRepository,
     validationRepository,

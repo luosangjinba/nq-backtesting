@@ -51,6 +51,8 @@ router, not a chronological ledger.
   observation/evidence artifacts, provenance, and IndexedDB v2 boundary.
 - `v6/docs/V6_PROSPECTIVE_TRADE_PLAN_STEP466.md`: immutable prospective plan
   revision, price geometry, references, and IndexedDB v3 boundary.
+- `v6/docs/V6_SIMULATED_OUTCOME_R_STEP467.md`: separate simulated execution and
+  outcome facts, bounded R, ambiguity disclosure, and IndexedDB v4 boundary.
 
 ## Architecture And Testing
 

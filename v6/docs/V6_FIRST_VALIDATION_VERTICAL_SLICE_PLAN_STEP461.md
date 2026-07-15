@@ -97,6 +97,9 @@ IndexedDB v3 with direction geometry and reciprocal trial/evidence checks.
 Record execution/outcome facts separately, calculate bounded `R`, and disclose
 the ambiguity of within-minute stop/target ordering.
 
+Status: complete. Separate execution/outcome artifacts over IndexedDB v4 retain
+the `1m` ambiguity disclosure and calculate bounded R from immutable plan risk.
+
 ### Step 468 — Summary And Evidence Drillback
 
 Show one small campaign summary and navigate a result back to its original
@@ -120,8 +123,7 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Steps 462-466 completed the foundation repair and prospective judgment/plan
-spine. Step 467 is now the next authorized target. This does not pre-authorize
-product Steps 468-469: each Step requires focused
+Steps 462-467 completed the first trial source-artifact chain. Step 468 is now
+the next authorized target. This does not pre-authorize Step 469: each Step requires focused
 inspection, verification, and an independent commit, and may revise later
 detail without breaking the accepted product/ownership invariants.
