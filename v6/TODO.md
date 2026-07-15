@@ -70,7 +70,10 @@
   gates pass. One stale history harness was changed to assert visible bar
   extension instead of an internal request count; production behavior was not
   changed. The next bounded step is Step 435: human visual acceptance and
-  workspace-cleanup closeout. See
+  workspace-cleanup closeout. The Step 435 visual candidate now also defaults
+  pane OHLC/bar-change readouts to the latest chart bar when crosshair is
+  absent, places Go-to in the top navigation, removes its dedicated right
+  rail, and directly joins the Canvas to the navigation boundary. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

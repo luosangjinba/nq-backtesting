@@ -502,6 +502,9 @@ Commit intent: `test(v6): close workspace cleanup regression`
 
 ### Step 435 - Human Visual Acceptance And Closeout
 
+- acceptance candidate refinements: no-crosshair OHLC falls back to each
+  pane's latest chart bar; Go-to lives in top navigation; the dedicated right
+  rail is removed; Canvas begins directly below navigation;
 - inspect single-, two-, and three-pane layouts;
 - inspect supported desktop resolutions;
 - verify top, left, right, and bottom reclaimed space;
