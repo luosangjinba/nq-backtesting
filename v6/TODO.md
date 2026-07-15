@@ -2,48 +2,25 @@
 
 ## Current State
 
-Milestone stabilization Steps 438-454 are complete. This sequence repaired the
-time-axis scaffold hot path, established a canonical test catalog, secured
-persisted-data DOM rendering, reduced App/Shell/Chart Surface/runtime
-composition pressure, moved governance probes out of production, centralized
-time-presentation validation, and archived the historical working ledger.
+Milestone stabilization Steps 438-454 are complete. Post-stabilization Steps
+455-460 established explicit test classification, named canonical gates, and
+exhaustive runners. Historical detail is archived or kept in the corresponding
+session records.
 
-Post-stabilization Steps 455-459 made the named milestone manifest executable,
-triaged all failing root Node gates, and replaced role/environment inference
-with explicit metadata. Historical snapshots, runners, browser tests, and
-service-dependent tests now have reviewable classifications; detailed evidence
-remains in the corresponding session records.
+Step 461 fixed the first validation vertical-slice order and constrained God
+View, Pseudo-Live, and Live Reproduction to policies over shared owners.
+Semantic Drawing's direction remains accepted with changes while its UI/write
+path stays frozen.
 
-Step 460 made exhaustive catalog gates executable through a checked-in runner.
-The catalog now classifies 761/761 files; exhaustive offline Node gates pass
-380/380, both service environments pass 1/1, static gates pass 52/52, and the
-named canonical suite passes 14/14. The 165 browser-local catalog gates remain
-available as an explicit long-form run rather than an implicit routine gate.
+Step 462 restored the 160 ms Replay/history latency gate through exact one-bar
+cursor materialization and forward-cache reuse. Step 463 established immutable
+playbook versions, campaign/trial lifecycles, and transactional IndexedDB
+persistence without UI or Replay/chart/Bar Data coupling.
 
-Step 461 completed the post-stabilization product/foundation re-audit. The
-chart/replay foundation is architecturally ready for one product thin slice,
-but its canonical closeout exposed a repeated Manual Next latency failure:
-219.2 ms and 188.3 ms against the existing 160 ms gate.
-God View, Pseudo-Live, and Live Reproduction are constrained to policies over
-shared owners, not separate runtimes. Semantic Drawing's shared semantic/plugin
-direction is accepted with changes, while its UI/write path remains frozen.
-
-The first post-foundation delivery order is now fixed by
-`V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md`. Product implementation is
-released in bounded order after Step 462 restored the latency gate; later Steps
-remain independently reviewed and committed.
-
-Step 462 attributed the canonical Manual Next failure to two near-serial window
-loads. Same-timeframe cursor materialization now requests one exact bar and
-reuses the source advance's forward cache. Five focused runs passed at
-55.9–99.0 ms; canonical passed 14/14 with a 98.5 ms concurrency sample.
-
-Step 463 established the validation domain spine. Immutable playbook versions,
-campaign/trial lifecycle invariants, a dedicated async repository, versioned
-IndexedDB stores/indexes, and transactional reference checks now exist without
-production UI or Replay/chart/Bar Data coupling. Real Chromium close/reopen
-reload passed; the canonical suite passed 14/14 and exhaustive offline Node
-gates passed 391/391.
+Step 464 added the Blind Trial Coordinator. It transactionally binds a pending
+trial to public Replay session/cursor/visible-through provenance, resumes it
+after IndexedDB reload, rejects mismatched or rewound Replay state, and never
+mutates Replay. Canonical passed 14/14; exhaustive Node passed 398/398.
 
 ## Current Foundation Gates
 
@@ -57,23 +34,22 @@ gates passed 391/391.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 464
+## Next Step — 465
 
-Implement the Blind Trial Coordinator only:
+Implement Generic Observation and Evidence Snapshot only:
 
-- expose bounded commands/events to start and resume a trial through the
-  validation repository;
-- capture only Replay session, cursor, and visible-through references already
-  exposed by public contracts;
-- keep Replay as the sole owner of cursor/reveal state and avoid direct runtime
-  implementation imports;
-- add coordinator contract/ownership/reload gates;
-- no observation, trade-plan, outcome, Analytics, Semantic Drawing, mode shell,
-  or broad workflow UI.
+- persist one prospective text/category observation linked to an active trial;
+- persist canonical time-price, pane, timeframe, and Replay visible-through
+  evidence references with explicit provenance;
+- establish a separate observation/evidence owner and public contract before
+  adding any surface;
+- use a minimal non-overlay surface only if required for the thin slice;
+- no Semantic Drawing writes, trade plan, outcome, Analytics, mode shell, or
+  broad ICT ontology.
 
-Inspect the existing command/event and Replay public contracts before defining
-the coordinator interface. Do not place this logic in App, Shell, Replay,
-chart, persistence-adapter, or route entry files.
+Inspect active-trial, pane, chart-coordinate, and Replay public contracts first.
+Do not read hidden bars or place observation meaning inside drawing/chart,
+Replay, App, Shell, persistence-adapter, or route entry files.
 
 ## Known Catalog Debt
 
@@ -85,7 +61,7 @@ chart, persistence-adapter, or route entry files.
 - Test role/environment classification and exhaustive gate execution are now
   checked-in and metadata-driven. The named canonical runner remains
   intentionally smaller than the exhaustive catalog.
-- The browser-local exhaustive environment contains 165 gates and is too costly
+- The browser-local exhaustive environment contains 175 gates and is too costly
   for an implicit routine run. Use it deliberately until future work defines
   reviewed shards or budgets; do not weaken the canonical visible-latency gate.
 - Historical static/readiness/selection tests remain available for targeted

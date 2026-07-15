@@ -45,6 +45,8 @@ router, not a chronological ledger.
 - `v6/docs/V6_VALIDATION_DOMAIN_SPINE_STEP463.md`: completed validation-domain
   artifacts, lifecycle invariants, repository ownership, and IndexedDB
   persistence boundary.
+- `v6/docs/V6_BLIND_TRIAL_COORDINATOR_STEP464.md`: completed blind trial
+  commands/events, Replay provenance, resume integrity, and ownership boundary.
 
 ## Architecture And Testing
 

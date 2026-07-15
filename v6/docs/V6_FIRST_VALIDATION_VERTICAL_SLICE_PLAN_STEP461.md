@@ -70,6 +70,10 @@ Add a thin coordinator that starts/resumes a trial through commands/events and
 captures the Replay session/cursor/visible-through references exposed by public
 contracts. It must not own or mutate Replay state directly.
 
+Status: complete. Start binds an active campaign's pending trial to an immutable
+Replay no-future snapshot transactionally; resume reloads that truth, validates
+the current public Replay boundary, and never navigates or mutates Replay.
+
 ### Step 465 — Generic Observation And Evidence Snapshot
 
 Persist one text/category observation plus canonical time-price/pane/timeframe
@@ -109,8 +113,8 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Steps 462-463 completed the bounded foundation repair and validation domain
-spine. Step 464 is now the next authorized target. This does not pre-authorize
-product Steps 465-469: each Step requires focused inspection, verification,
-and an independent commit, and may revise later detail without breaking the
-accepted product/ownership invariants.
+Steps 462-464 completed the bounded foundation repair, validation domain spine,
+and Blind Trial Coordinator. Step 465 is now the next authorized target. This
+does not pre-authorize product Steps 466-469: each Step requires focused
+inspection, verification, and an independent commit, and may revise later
+detail without breaking the accepted product/ownership invariants.
