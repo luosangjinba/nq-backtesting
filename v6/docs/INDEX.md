@@ -92,6 +92,9 @@ Read this index before working on V6.
 - `v6/docs/V6_SETTINGS_GLOBAL_TIME_PRESENTATION_STEP416.md`: schema-v8 global
   Exchange/UTC/Local and 12/24-hour presentation, shared chart/status formatter,
   controlled Go-to inputs, canonical-value invariants, and visual gate.
+- `v6/docs/V6_GLOBAL_DATE_PRESENTATION_STEP436.md`: curated global date-format
+  and weekday preferences, full crosshair date-time labels, compact axis ticks,
+  and shared formatter ownership.
 - `v6/docs/V6_SETTINGS_SCOPE_CLOSEOUT_STEP417.md`: binding rejection of
   Settings templates, Apply to all, and per-Pane visual overrides for the
   lightweight product.

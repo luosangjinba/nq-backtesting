@@ -2,6 +2,13 @@
 
 ## Current / Next
 
+- Step 436 is selected as the next bounded visual-foundation refinement. It
+  extends the existing global time-presentation owner with four unambiguous
+  date formats and an independent weekday toggle. The crosshair target is
+  `Tue 2026/07/14 22:26`; time-axis ticks remain compact, and canonical chart,
+  Replay, and Go-to values remain unchanged. See
+  `v6/docs/V6_GLOBAL_DATE_PRESENTATION_STEP436.md`.
+
 - Latest planning step: Step 418 - Workspace Placeholder And FXReplay Shell
   Audit. The chart workstation inventory separates functional state-disabled
   Replay controls from ownerless production chrome. Clone-only duplicates are
