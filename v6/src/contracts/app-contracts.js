@@ -186,6 +186,18 @@ export const REPLAY_EVENTS = Object.freeze({
   RESET: 'replay:reset',
 });
 
+export const BLIND_TRIAL_COMMANDS = Object.freeze({
+  GET_STATE: 'blindTrial.getState',
+  RESUME: 'blindTrial.resume',
+  START: 'blindTrial.start',
+});
+
+export const BLIND_TRIAL_EVENTS = Object.freeze({
+  REJECTED: 'blindTrial:rejected',
+  RESUMED: 'blindTrial:resumed',
+  STARTED: 'blindTrial:started',
+});
+
 export const REPLAY_NAVIGATION_PREFERENCES_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'replayNavigationPreferences.getSnapshot',
   RESET: 'replayNavigationPreferences.reset',
