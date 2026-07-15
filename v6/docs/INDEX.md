@@ -46,6 +46,10 @@ router, not a chronological ledger.
 - `v6/tests/test-catalog-domain.js`: exhaustive environment/role classification.
 - `v6/docs/V6_TEST_TRIAGE_STEP456.md`: explicit disposition rules and closeout
   gate for the post-stabilization failing Node tests.
+- `v6/docs/V6_EXPLICIT_TEST_ROLES_STEP457.md`: binding explicit-role policy and
+  migration closeout for the exhaustive test catalog.
+- `v6/docs/V6_HISTORICAL_LEDGER_TEST_AUDIT_STEP457.md`: audited disposition of
+  the 155 tests previously hidden by TODO/INDEX source inference.
 
 ## Historical Lookup
 

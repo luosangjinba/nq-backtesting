@@ -18,6 +18,12 @@ manifest: 22 current contracts were refreshed without production changes, five
 superseded phase assertions were explicitly quarantined with successor
 coverage, and the remaining root Node gate set passed 366/366.
 
+Step 457 replaced the remaining TODO/INDEX source-text support heuristic with
+explicit role metadata. Of 155 affected tests, one remains the current-ledger
+gate and 154 completed-phase snapshots are explicitly quarantined. The catalog
+now classifies 751/751 JavaScript files, while root Node gates pass 371/371 and
+the named canonical suite passes 14/14.
+
 The product freeze used by this milestone is now released for planning only.
 Implementation of the three operating modes, Semantic Drawing, or other new
 business capability still requires an explicit reviewed decision; it is not an
@@ -49,12 +55,10 @@ Do not start a mode or plugin implementation from this TODO alone.
 ## Known Catalog Debt
 
 - The canonical manifest is intentionally a named milestone gate set, while the
-  catalog is exhaustive classification only. Tests outside the manifest still
-  require explicit triage before they can be treated as passing, quarantined,
-  or retired.
-- Historical support classification still uses broad source-text inference for
-  TODO/INDEX readers. Replace that heuristic with explicit metadata before
-  claiming every historical support test has been semantically audited.
+  catalog is exhaustive classification. Step 457 established explicit role
+  metadata for infrastructure support, orchestration runners, and every
+  TODO/INDEX historical snapshot; future non-gate roles must extend that
+  metadata rather than add source or filename heuristics.
 - Historical static/readiness/selection tests remain available for targeted
   archaeology but are not product direction documents.
 
