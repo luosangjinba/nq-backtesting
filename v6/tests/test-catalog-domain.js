@@ -1,3 +1,5 @@
+import { findStep456TriageEntry } from './test-triage-manifest-step456.js';
+
 const BROWSER_SOURCE_PATTERN = /^import .*?(browser-cdp-client|v6-browser-harness)/m;
 
 export function classifyTestFile({ path, source = '' } = {}) {
@@ -15,7 +17,9 @@ export function classifyTestFile({ path, source = '' } = {}) {
   ) environment = 'browser-local';
 
   let role = 'gate';
-  if (
+  const triage = findStep456TriageEntry(normalizedPath);
+  if (triage?.disposition === 'quarantine-superseded') role = 'quarantine';
+  else if (
     normalizedPath.includes('/helpers/') ||
     normalizedPath.endsWith('/canonical-test-manifest.js') ||
     normalizedPath.endsWith('/test-catalog-domain.js') ||

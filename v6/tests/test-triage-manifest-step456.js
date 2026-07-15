@@ -60,3 +60,9 @@ export const STEP456_TEST_TRIAGE = Object.freeze([
     'v6/tests/app-shell-browser-smoke.js',
   ),
 ]);
+
+const TRIAGE_BY_PATH = new Map(STEP456_TEST_TRIAGE.map((entry) => [entry.path, entry]));
+
+export function findStep456TriageEntry(path) {
+  return TRIAGE_BY_PATH.get(String(path || '').replaceAll('\\', '/')) || null;
+}

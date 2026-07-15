@@ -34,5 +34,14 @@ const summary = Object.fromEntries(TEST_ENVIRONMENTS.map((environment) => [
   environment,
   catalog.filter((entry) => entry.environment === environment).length,
 ]));
-console.log(JSON.stringify({ coverage: 'exhaustive-classification', summary, total: catalog.length }, null, 2));
+const roleSummary = Object.fromEntries(TEST_ROLES.map((role) => [
+  role,
+  catalog.filter((entry) => entry.role === role).length,
+]));
+console.log(JSON.stringify({
+  coverage: 'exhaustive-classification',
+  roleSummary,
+  summary,
+  total: catalog.length,
+}, null, 2));
 console.log('v6 canonical test catalog smoke passed');
