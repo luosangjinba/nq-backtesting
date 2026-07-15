@@ -80,6 +80,7 @@ export function createStatusReadoutState({
   const replay = normalizeReplayState(replayState);
   const bar = latestBar ? { ...latestBar } : null;
   const selectedBar = crosshairBar ? { ...crosshairBar } : null;
+  const displayBar = selectedBar || bar;
   const revealedCount = Number.isFinite(replay.revealedCount) ? replay.revealedCount : 0;
   const totalBars = Number.isFinite(replay.totalBars) ? replay.totalBars : 0;
   const remaining = Math.max(0, totalBars - revealedCount);
@@ -103,17 +104,18 @@ export function createStatusReadoutState({
       hiddenCount: remaining,
       runtimeStatus: replay.status,
     }),
-    candleDirection: candleDirection(selectedBar),
-    barChange: formatBarChange(selectedBar, previousClose),
+    candleDirection: candleDirection(displayBar),
+    barChange: formatBarChange(displayBar, previousClose),
     crosshairBar: selectedBar ? Object.freeze(selectedBar) : null,
     latestBar: bar ? Object.freeze(bar) : null,
     ohlc: Object.freeze({
-      close: `C ${formatPrice(selectedBar?.close)}`,
-      high: `H ${formatPrice(selectedBar?.high)}`,
-      low: `L ${formatPrice(selectedBar?.low)}`,
-      open: `O ${formatPrice(selectedBar?.open)}`,
+      close: `C ${formatPrice(displayBar?.close)}`,
+      high: `H ${formatPrice(displayBar?.high)}`,
+      low: `L ${formatPrice(displayBar?.low)}`,
+      open: `O ${formatPrice(displayBar?.open)}`,
     }),
     playback: playback || replay.status || 'idle',
+    previousClose: Number.isFinite(Number(previousClose)) ? Number(previousClose) : null,
     replay,
     symbol: replay.symbol,
     timeframe: replay.timeframe,
@@ -134,6 +136,7 @@ export function statusReadoutStateFromDefaultWallPayload(payload = {}, previousS
     latestBar: latestBarFromPayload(payload) || previousState.latestBar,
     playback: payload.replayState?.status || previousState.playback,
     replayState: payload.replayState || previousState.replay,
+    previousClose: previousState.previousClose,
     timePresentation: previousState.timePresentation,
   });
 }
@@ -147,6 +150,7 @@ export function statusReadoutStateFromReplayPayload(payload = {}, previousState 
       ...previousState.replay,
       ...payload,
     },
+    previousClose: previousState.previousClose,
     timePresentation: previousState.timePresentation,
   });
 }
@@ -157,6 +161,7 @@ export function statusReadoutStateFromChartDataPayload(payload = {}, previousSta
     latestBar: payload.record?.bars?.at?.(-1) || previousState.latestBar,
     playback: previousState.playback,
     replayState: previousState.replay,
+    previousClose: payload.record?.bars?.at?.(-2)?.close ?? previousState.previousClose,
     timePresentation: previousState.timePresentation,
   });
 }
@@ -169,7 +174,7 @@ export function statusReadoutStateFromCrosshairPayload(payload = {}, previousSta
     crosshairBar: payload.bar || null,
     latestBar: previousState.latestBar,
     playback: previousState.playback,
-    previousClose: payload.previousClose,
+    previousClose: payload.previousClose ?? previousState.previousClose,
     replayState: previousState.replay,
     timePresentation: previousState.timePresentation,
   });
@@ -180,6 +185,7 @@ export function statusReadoutStateWithTimePresentation(previousState, timePresen
     crosshairBar: previousState.crosshairBar,
     latestBar: previousState.latestBar,
     playback: previousState.playback,
+    previousClose: previousState.previousClose,
     replayState: previousState.replay,
     timePresentation,
   });

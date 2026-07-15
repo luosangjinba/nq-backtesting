@@ -38,6 +38,7 @@ try {
       const host = document.querySelector('[data-v6-chart-engine-host]');
       const hostRect = rect('[data-v6-chart-engine-host]');
       const readoutText = text('[data-v6-status-readout]');
+      const chartRecord = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
       return {
         applyState,
         canvasCount: host.querySelectorAll('canvas').length,
@@ -52,6 +53,7 @@ try {
           nq: (readoutText.match(/NQ/g) || []).length,
           timeframe: (readoutText.match(/1m/g) || []).length,
         },
+        latestBar: chartRecord.bars.at(-1),
         readoutDataset: {
           direction: document.querySelector('[data-v6-status-readout]').dataset.statusCandleDirection,
           ohlc: document.querySelector('[data-v6-status-readout]').dataset.statusOhlc,
@@ -66,12 +68,12 @@ try {
 
   assert.equal(setup.applyState.status, 'applied');
   assert.equal(setup.canvasCount > 0, true);
-  assert.equal(setup.initial.open, 'O --');
-  assert.equal(setup.initial.high, 'H --');
-  assert.equal(setup.initial.low, 'L --');
-  assert.equal(setup.initial.close, 'C --');
-  assert.equal(setup.readoutDataset.ohlc, 'empty');
-  assert.equal(setup.readoutDataset.direction, 'empty');
+  assert.equal(setup.initial.open, `O ${Number(setup.latestBar.open).toFixed(2)}`);
+  assert.equal(setup.initial.high, `H ${Number(setup.latestBar.high).toFixed(2)}`);
+  assert.equal(setup.initial.low, `L ${Number(setup.latestBar.low).toFixed(2)}`);
+  assert.equal(setup.initial.close, `C ${Number(setup.latestBar.close).toFixed(2)}`);
+  assert.equal(setup.readoutDataset.ohlc, 'latest');
+  assert.match(setup.readoutDataset.direction, /^(up|down|flat)$/);
   assert.equal(setup.labelCounts.nq, 1);
   assert.equal(setup.labelCounts.timeframe, 1);
   assert.equal(setup.symbol, 'NQ');

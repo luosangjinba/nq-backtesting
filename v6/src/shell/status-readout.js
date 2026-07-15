@@ -30,7 +30,7 @@ function updateDataset(element, state) {
     element.dataset = {};
   }
   element.dataset.statusCandleDirection = state.candleDirection;
-  element.dataset.statusOhlc = state.crosshairBar ? 'selected' : 'empty';
+  element.dataset.statusOhlc = state.crosshairBar ? 'selected' : state.latestBar ? 'latest' : 'empty';
 }
 
 function renderStatusReadout(root, state) {

@@ -44,12 +44,12 @@ const loaded = statusReadoutStateFromDefaultWallPayload({
 
 assert.equal(loaded.title, 'NQ 1m');
 assert.deepEqual(loaded.ohlc, {
-  close: 'C --',
-  high: 'H --',
-  low: 'L --',
-  open: 'O --',
+  close: 'C 100.50',
+  high: 'H 101.00',
+  low: 'L 99.00',
+  open: 'O 100.00',
 });
-assert.equal(loaded.candleDirection, 'empty');
+assert.equal(loaded.candleDirection, 'up');
 assert.deepEqual(loaded.compactReplayStatus, {
   kind: 'ready',
   message: 'Replay ready',
@@ -79,7 +79,7 @@ const playing = statusReadoutStateFromReplayPayload({
 }, loaded);
 assert.equal(playing.compactReplayStatus.message, 'Replay ready');
 assert.equal(playing.replayDiagnostics.runtimeStatus, 'playing');
-assert.equal(playing.ohlc.close, 'C --');
+assert.equal(playing.ohlc.close, 'C 100.50');
 
 const chartDataChanged = statusReadoutStateFromChartDataPayload({
   record: {
@@ -95,10 +95,10 @@ const chartDataChanged = statusReadoutStateFromChartDataPayload({
   },
 }, playing);
 assert.deepEqual(chartDataChanged.ohlc, {
-  close: 'C --',
-  high: 'H --',
-  low: 'L --',
-  open: 'O --',
+  close: 'C 101.50',
+  high: 'H 102.00',
+  low: 'L 100.00',
+  open: 'O 101.00',
 });
 assert.equal(chartDataChanged.compactReplayStatus.message, 'Replay ready');
 assert.equal(chartDataChanged.timestamp, '09:31');

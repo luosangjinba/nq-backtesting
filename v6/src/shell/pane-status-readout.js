@@ -1,4 +1,5 @@
 import {
+  CHART_DATA_EVENTS,
   CHART_SURFACE_EVENTS,
   CHART_HISTORY_EVENTS,
   DEFAULT_WALL_EVENTS,
@@ -48,7 +49,7 @@ function statusBackground(color, opacityPercent) {
 function updateDataset(element, state) {
   if (!element) return;
   element.dataset.statusCandleDirection = state.candleDirection;
-  element.dataset.statusOhlc = state.crosshairBar ? 'selected' : 'empty';
+  element.dataset.statusOhlc = state.crosshairBar ? 'selected' : state.latestBar ? 'latest' : 'empty';
   element.dataset.v6PaneActive = state.active ? 'true' : 'false';
 }
 
@@ -157,6 +158,7 @@ function createPaneState(record = {}) {
     historyExtension: record.historyExtension ? { ...record.historyExtension } : null,
     active: normalized.active,
     instrument: normalized.instrument,
+    latestBar: null,
     paneId: normalized.id,
     previousClose: null,
     timeframe: normalized.timeframe,
@@ -166,6 +168,7 @@ function createPaneState(record = {}) {
 function renderPaneReadout(element, paneState) {
   const readoutState = createStatusReadoutState({
     crosshairBar: paneState.bar,
+    latestBar: paneState.latestBar,
     previousClose: paneState.previousClose,
     replayState: {
       symbol: paneState.instrument,
@@ -267,6 +270,19 @@ export function mountPaneStatusReadout(root, {
     return renderPane(paneId);
   }
 
+  function updatePaneBars(payload = {}) {
+    const paneId = String(payload.paneId || payload.record?.paneId || '').trim();
+    if (!paneId || !readoutByPaneId.has(paneId)) return null;
+    const bars = Array.isArray(payload.record?.bars) ? payload.record.bars : [];
+    const previous = paneStateByPaneId.get(paneId) || createPaneState({ id: paneId });
+    paneStateByPaneId.set(paneId, {
+      ...previous,
+      latestBar: bars.at(-1) ? { ...bars.at(-1) } : null,
+      previousClose: bars.at(-2)?.close ?? null,
+    });
+    return renderPane(paneId);
+  }
+
   function updateHistoryDiagnostics(extension = {}) {
     const paneId = String(extension.paneId || '').trim();
     if (!paneId || !readoutByPaneId.has(paneId)) return null;
@@ -293,6 +309,7 @@ export function mountPaneStatusReadout(root, {
     subscribeEvent(PANE_EVENTS.INTERVAL_INTENT_CHANGED, updatePaneMetadata),
     subscribeEvent(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, updatePaneMetadata),
     subscribeEvent(PANE_EVENTS.ACTIVE_CHANGED, updateActivePane),
+    subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, updatePaneBars),
     subscribeEvent(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED, updatePaneCrosshair),
     subscribeEvent(CHART_HISTORY_EVENTS.LEFT_EXTENSION_LOADED, updateHistoryDiagnostics),
     subscribeEvent(REPLAY_EVENTS.LOADED, updateFromReplay),
@@ -329,6 +346,7 @@ export function mountPaneStatusReadout(root, {
         panes: [...paneStateByPaneId.values()].map((pane) => ({
           ...pane,
           bar: pane.bar ? { ...pane.bar } : null,
+          latestBar: pane.latestBar ? { ...pane.latestBar } : null,
           historyExtension: pane.historyExtension ? { ...pane.historyExtension } : null,
         })),
       };

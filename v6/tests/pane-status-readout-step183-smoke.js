@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  CHART_DATA_EVENTS,
   CHART_HISTORY_EVENTS,
   CHART_SURFACE_EVENTS,
   PANE_EVENTS,
@@ -94,6 +95,20 @@ assert.equal(
 );
 assert.equal(secondary.text('[data-v6-status-symbol]'), 'ES');
 assert.equal(secondary.text('[data-v6-status-timeframe]'), '5m');
+
+listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
+  paneId: 'main',
+  record: {
+    bars: [
+      { close: 98, high: 100, low: 97, open: 99, timestamp: 99 },
+      { close: 101, high: 102, low: 98, open: 100, timestamp: 100 },
+    ],
+    paneId: 'main',
+  },
+});
+assert.equal(main.text('[data-v6-status-open]'), 'O 100.00');
+assert.equal(main.text('[data-v6-status-close]'), 'C 101.00');
+assert.equal(main.dataset.statusOhlc, 'latest');
 
 listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: { close: 101, high: 102, low: 99, open: 100, timestamp: 100 },
@@ -215,9 +230,9 @@ listeners.get(CHART_SURFACE_EVENTS.CROSSHAIR_CHANGED)({
   bar: null,
   paneId: 'main',
 });
-assert.equal(main.text('[data-v6-status-open]'), 'O --');
-assert.equal(main.text('[data-v6-status-close]'), 'C --');
-assert.equal(main.dataset.statusOhlc, 'empty');
+assert.equal(main.text('[data-v6-status-open]'), 'O 100.00');
+assert.equal(main.text('[data-v6-status-close]'), 'C 101.00');
+assert.equal(main.dataset.statusOhlc, 'latest');
 assert.equal(secondary.text('[data-v6-status-close]'), 'C 208.00');
 assert.equal(secondary.text('[data-v6-target-history-diagnostics]'), 'History fallback 25ms T1/S1 +8 target-history-empty');
 
