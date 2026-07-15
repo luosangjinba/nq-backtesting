@@ -10,9 +10,9 @@ The capability must use one shared Replay clock and pane-local instrument
 intent. It must not create a Replay runtime, cursor, session, or order timeline
 per pane.
 
-This plan records the accepted delivery shape. It does not preempt the Step 470
-modularity audit, and it does not authorize arbitrary out-of-session
-instruments.
+This plan records the accepted delivery shape. It follows the Step 470
+modularity audit and the required ETH/RTH Session Hours milestone gate, and it
+does not authorize arbitrary out-of-session instruments.
 
 ## Product Contract
 
@@ -190,7 +190,7 @@ Gate:
 
 ## Delivery Order
 
-Complete the phases in order. Phase A is the first selectable implementation
-slice after the active milestone gates permit new chart-foundation work. Each
-phase should close as an independently verified commit; do not combine the UI,
-persistence migration, and validation drillback into one step.
+Complete the phases in order. Phase A is selectable only after Step 470 and the
+ETH/RTH Session Hours milestone gate. Each phase should close as an
+independently verified commit; do not combine the UI, persistence migration,
+and validation drillback into one step.

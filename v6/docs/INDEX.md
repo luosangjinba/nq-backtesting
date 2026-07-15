@@ -33,9 +33,11 @@ router, not a chronological ledger.
 - `v6/docs/V6_PRODUCT_DIRECTION.md`: target user and foundation priorities.
 - `v6/docs/V6_REPLAY_VALIDATION_PRODUCT_DECISION.md`: validation outcome and
   Replay role.
+- `v6/docs/V6_ETH_RTH_SESSION_HOURS_PHASE_PLAN.md`: required pre-milestone
+  Session Hours plan; follows Step 470 and precedes multi-instrument panes.
 - `v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md`: accepted phase-level plan
   for pane-local Session instruments over one shared Replay clock; sequencing
-  remains behind the active Step 469/470 milestone gates.
+  remains behind Step 470 and the ETH/RTH milestone gate.
 - `v6/docs/V6_SEMANTIC_DRAWING_PLUGIN_SPEC_DRAFT.md`: product-owner review draft;
   Step 461 accepted its direction with changes, but it does not authorize
   implementation.

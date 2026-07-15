@@ -77,6 +77,17 @@ The future Validation Campaign UI phase must implement the real recording and
 summary workflow before recording friction, sample/R presentation, or human
 drillback comprehension can be accepted.
 
+## Required Before Milestone Close — ETH/RTH Session Hours
+
+`v6/docs/V6_ETH_RTH_SESSION_HOURS_PHASE_PLAN.md` is a blocking pre-milestone
+capability. The earlier ETH control was removed because it was an inert shell
+placeholder; implementation must establish a real Session Hours owner and
+integrate eligible-bar semantics with Replay, Chart Data, timeframe projection,
+persistence, and evidence provenance.
+
+After Step 470, execute ETH/RTH Phases A-F before starting multi-instrument
+panes. Do not close the next product milestone while this gate remains open.
+
 ## Planned Capability — Multi-Instrument Panes
 
 `v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md` records the accepted delivery
@@ -84,9 +95,9 @@ shape for pane-local Session instruments over one shared Replay clock. It is
 valuable for NQ/ES intermarket and SMT review, but does not preempt Step 470.
 
 When the current milestone gates permit new chart-foundation work, begin with
-Phase A contract/gap semantics. Do not start from the symbol picker, do not
-allow assets outside `session.symbols`, and do not create per-pane Replay
-cursors.
+ETH/RTH first. After its acceptance gate passes, begin multi-instrument Phase A
+contract/gap semantics. Do not start from the symbol picker, do not allow assets
+outside `session.symbols`, and do not create per-pane Replay cursors.
 
 ## Known Catalog Debt
 
