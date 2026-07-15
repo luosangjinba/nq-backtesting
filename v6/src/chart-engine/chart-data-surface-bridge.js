@@ -1,4 +1,4 @@
-import { CHART_DATA_EVENTS } from '../contracts/app-contracts.js';
+import { CHART_DATA_EVENTS, PANE_EVENTS } from '../contracts/app-contracts.js';
 
 export function connectChartDataSurfaceBridge({
   chartSurface,
@@ -11,7 +11,8 @@ export function connectChartDataSurfaceBridge({
     throw new Error('Chart data surface bridge requires subscribeEvent.');
   }
 
-  const unsubscribe = subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (payload = {}) => {
+  const unsubscriptions = [];
+  unsubscriptions.push(subscribeEvent(CHART_DATA_EVENTS.BARS_CHANGED, (payload = {}) => {
     if (!payload.record) {
       return;
     }
@@ -19,11 +20,19 @@ export function connectChartDataSurfaceBridge({
       ...payload.record,
       operation: payload.operation || null,
     });
-  });
+  }));
+  if (typeof chartSurface.applyPaneDisplayTimeframe === 'function') {
+    unsubscriptions.push(subscribeEvent(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED, (pane = {}) => {
+      chartSurface.applyPaneDisplayTimeframe(
+        pane.id || pane.paneId,
+        pane.displayTimeframe || pane.timeframe || 1,
+      );
+    }));
+  }
 
   return {
     destroy() {
-      unsubscribe();
+      while (unsubscriptions.length) unsubscriptions.pop()();
     },
   };
 }

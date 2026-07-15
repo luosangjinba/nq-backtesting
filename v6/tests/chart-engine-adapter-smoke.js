@@ -69,10 +69,11 @@ const adapter = createLightweightChartAdapter({
   seriesOptions: { priceFormat: { precision: 2 } },
 });
 
-assert.deepEqual(adapter.snapshot(), {
-  dataLength: 0,
-  daySeparatorCount: 0,
-  mounted: false,
+  assert.deepEqual(adapter.snapshot(), {
+    dataLength: 0,
+    daySeparatorCount: 0,
+    mounted: false,
+    scaffoldPointCount: 0,
   visibleLogicalRange: null,
 });
 
@@ -86,14 +87,22 @@ adapter.setData([
   { timestamp: 100, open: 1, high: 2, low: 0.5, close: 1.5 },
   { timestamp: 200, open: 2, high: 3, low: 1.5, close: 2.5 },
 ]);
-assert.deepEqual(calls.setData[0], [
+assert.deepEqual(calls.setData[0].slice(0, 2), [
   { time: 100, open: 1, high: 2, low: 0.5, close: 1.5 },
   { time: 200, open: 2, high: 3, low: 1.5, close: 2.5 },
 ]);
+assert.equal(calls.setData[0].length, 34);
+assert.deepEqual(calls.setData[0].slice(2, 5), [
+  { time: 260 },
+  { time: 320 },
+  { time: 380 },
+]);
 assert.equal(adapter.snapshot().dataLength, 2);
+assert.equal(adapter.snapshot().scaffoldPointCount, 32);
 
 adapter.update({ timestamp: 300, open: 3, high: 4, low: 2.5, close: 3.5 });
-assert.deepEqual(calls.update[0], { time: 300, open: 3, high: 4, low: 2.5, close: 3.5 });
+assert.equal(calls.setData.length, 2);
+assert.deepEqual(calls.setData[1][2], { time: 300, open: 3, high: 4, low: 2.5, close: 3.5 });
 assert.equal(adapter.snapshot().dataLength, 3);
 
 adapter.setVisibleLogicalRange({ from: 5, to: 12 });
@@ -117,10 +126,11 @@ assert.deepEqual(calls.resize[0], { height: 360, width: 640 });
 
 adapter.destroy();
 assert.equal(calls.remove, 1);
-assert.deepEqual(adapter.snapshot(), {
-  dataLength: 0,
-  daySeparatorCount: 0,
-  mounted: false,
+  assert.deepEqual(adapter.snapshot(), {
+    dataLength: 0,
+    daySeparatorCount: 0,
+    mounted: false,
+    scaffoldPointCount: 0,
   visibleLogicalRange: null,
 });
 

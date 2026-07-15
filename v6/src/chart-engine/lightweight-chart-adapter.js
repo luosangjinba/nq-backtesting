@@ -77,6 +77,9 @@ export function createLightweightChartAdapter({
   let series = null;
   let host = null;
   let lastDataLength = 0;
+  let lastRealBars = [];
+  let lastScaffoldPointCount = 0;
+  let lastTimeframe = 1;
   let lastVisibleLogicalRange = null;
   let daySeparatorPrimitive = null;
 
@@ -102,11 +105,15 @@ export function createLightweightChartAdapter({
     }
   }
 
-  function setData(bars = []) {
+  function setData(bars = [], { timeframe = 1 } = {}) {
     ensureMounted();
     const data = bars.map(normalizeSeriesBar);
-    series.setData(data);
+    const scaffold = createTimeAxisScaffold({ bars, timeframe });
+    series.setData([...data, ...scaffold]);
+    lastRealBars = bars.map((bar) => ({ ...bar }));
+    lastTimeframe = timeframe;
     lastDataLength = data.length;
+    lastScaffoldPointCount = scaffold.length;
     return snapshot();
   }
 
@@ -130,9 +137,12 @@ export function createLightweightChartAdapter({
 
   function update(bar) {
     ensureMounted();
-    series.update(normalizeSeriesBar(bar));
-    lastDataLength += 1;
-    return snapshot();
+    const timestamp = Number(bar?.timestamp ?? bar?.time);
+    const latestTimestamp = Number(lastRealBars.at(-1)?.timestamp ?? lastRealBars.at(-1)?.time);
+    const nextBars = Number.isFinite(latestTimestamp) && timestamp === latestTimestamp
+      ? [...lastRealBars.slice(0, -1), { ...bar }]
+      : [...lastRealBars, { ...bar }];
+    return setData(nextBars, { timeframe: lastTimeframe });
   }
 
   function setVisibleLogicalRange(range) {
@@ -236,6 +246,9 @@ export function createLightweightChartAdapter({
     series = null;
     host = null;
     lastDataLength = 0;
+    lastRealBars = [];
+    lastScaffoldPointCount = 0;
+    lastTimeframe = 1;
     lastVisibleLogicalRange = null;
     daySeparatorPrimitive = null;
   }
@@ -244,6 +257,7 @@ export function createLightweightChartAdapter({
     return {
       dataLength: lastDataLength,
       daySeparatorCount: daySeparatorPrimitive?.lines.length || 0,
+      scaffoldPointCount: lastScaffoldPointCount,
       mounted: Boolean(chart && series && host),
       visibleLogicalRange: cloneRange(lastVisibleLogicalRange),
     };
@@ -269,3 +283,4 @@ export function createLightweightChartAdapter({
   };
 }
 import { createDaySeparatorPrimitive } from './day-separator-primitive.js';
+import { createTimeAxisScaffold } from './time-axis-scaffold.js';

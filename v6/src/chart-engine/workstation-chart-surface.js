@@ -113,6 +113,7 @@ export function mountWorkstationChartSurface(root, {
   });
   const appliedChartDataByPaneId = new Map();
   const barsByPaneId = new Map();
+  const displayTimeframeByPaneId = new Map();
   const appliedViewportByPaneId = new Map();
   const crosshairByPaneId = new Map();
   const measuredVisibleRangeByPaneId = new Map();
@@ -160,6 +161,7 @@ export function mountWorkstationChartSurface(root, {
 
   hostsByPaneId.forEach((host, paneId) => {
     manager.mountPane({ host, paneId });
+    displayTimeframeByPaneId.set(paneId, 1);
   });
   const unsubscribeVisibleRangeCallbacks = typeof manager.subscribeVisibleLogicalRangeChange === 'function'
     ? [...hostsByPaneId.keys()].map((paneId) => manager.subscribeVisibleLogicalRangeChange(paneId, ({ paneId: changedPaneId, range } = {}) => {
@@ -676,7 +678,9 @@ export function mountWorkstationChartSurface(root, {
       }
       const previousChartData = appliedChartDataByPaneId.get(recordPaneId);
       const previousVisibleRange = measuredVisibleRangeByPaneId.get(recordPaneId);
-      const snapshot = manager.setData(recordPaneId, record.bars || []);
+      const snapshot = manager.setData(recordPaneId, record.bars || [], {
+        timeframe: displayTimeframeByPaneId.get(recordPaneId) || 1,
+      });
       barsByPaneId.set(recordPaneId, (record.bars || []).map((bar) => ({ ...bar })));
       appliedChartDataByPaneId.set(recordPaneId, {
         barCount: record.bars?.length || 0,
@@ -696,6 +700,12 @@ export function mountWorkstationChartSurface(root, {
         return stabilizedSnapshot;
       }
       return snapshot;
+    },
+    applyPaneDisplayTimeframe(paneId, timeframe = 1) {
+      const recordPaneId = String(paneId || '').trim();
+      if (!recordPaneId || !hostsByPaneId.has(recordPaneId)) return null;
+      displayTimeframeByPaneId.set(recordPaneId, timeframe);
+      return manager.setData(recordPaneId, barsByPaneId.get(recordPaneId) || [], { timeframe });
     },
     applyViewportProjection(record = {}) {
       const recordPaneId = String(record.paneId || '').trim();

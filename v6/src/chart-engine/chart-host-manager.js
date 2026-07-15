@@ -62,9 +62,9 @@ export function createChartHostManager({
     return getPaneSnapshot(id);
   }
 
-  function setData(paneId, bars = []) {
+  function setData(paneId, bars = [], options = {}) {
     const record = getMountedRecord(paneId);
-    record.adapter.setData(bars);
+    record.adapter.setData(bars, options);
     return getPaneSnapshot(record.paneId);
   }
 

@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
-import { CHART_DATA_EVENTS } from '../src/contracts/app-contracts.js';
+import { CHART_DATA_EVENTS, PANE_EVENTS } from '../src/contracts/app-contracts.js';
 import { connectChartDataSurfaceBridge } from '../src/chart-engine/chart-data-surface-bridge.js';
 
 const applied = [];
+const appliedTimeframes = [];
 const subscriptions = [];
-let listener = null;
+const listeners = new Map();
 const chartSurface = {
   applyChartDataRecord(record) {
     applied.push(record);
+  },
+  applyPaneDisplayTimeframe(paneId, timeframe) {
+    appliedTimeframes.push({ paneId, timeframe });
   },
 };
 
@@ -15,16 +19,19 @@ const bridge = connectChartDataSurfaceBridge({
   chartSurface,
   subscribeEvent(name, nextListener) {
     subscriptions.push(name);
-    listener = nextListener;
+    listeners.set(name, nextListener);
     return () => {
-      listener = null;
+      listeners.delete(name);
     };
   },
 });
 
-assert.deepEqual(subscriptions, [CHART_DATA_EVENTS.BARS_CHANGED]);
+assert.deepEqual(subscriptions, [
+  CHART_DATA_EVENTS.BARS_CHANGED,
+  PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED,
+]);
 
-listener({
+listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({
   operation: 'replace',
   record: {
     bars: [{ close: 1, high: 2, low: 0.5, open: 1, timestamp: 100 }],
@@ -32,14 +39,19 @@ listener({
     revision: 1,
   },
 });
-listener({ operation: 'append' });
+listeners.get(CHART_DATA_EVENTS.BARS_CHANGED)({ operation: 'append' });
+listeners.get(PANE_EVENTS.DISPLAY_TIMEFRAME_CHANGED)({
+  displayTimeframe: 240,
+  id: 'default',
+});
 
 assert.equal(applied.length, 1);
 assert.equal(applied[0].paneId, 'default');
 assert.equal(applied[0].revision, 1);
+assert.deepEqual(appliedTimeframes, [{ paneId: 'default', timeframe: 240 }]);
 
 bridge.destroy();
-assert.equal(listener, null);
+assert.equal(listeners.size, 0);
 
 assert.throws(
   () => connectChartDataSurfaceBridge({ subscribeEvent: () => () => {} }),
