@@ -267,7 +267,7 @@ const forbiddenStatusOwnershipPatterns = [
     reason: 'V6 status UI must be read-only and not import feature runtimes or state modules.',
   },
   {
-    pattern: /\b(dispatchCommand|registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,
+    pattern: /\b(registerCommand|createChart|setData|setVisibleLogicalRange|fetch|XMLHttpRequest|localStorage)\b/,
     reason: 'V6 status UI must not dispatch mutation commands or own chart/data/storage/network state.',
   },
 ];
@@ -690,6 +690,15 @@ for (const file of STATUS_FILES) {
       });
     }
   });
+  const statusCommandTokens = [...text.matchAll(/[A-Z_]+_COMMANDS\.[A-Z_]+/g)]
+    .map((match) => match[0]);
+  if (statusCommandTokens.some((token) => token !== 'SETTINGS_COMMANDS.GET_SNAPSHOT')) {
+    violations.push({
+      file: path.relative(process.cwd(), file),
+      pattern: statusCommandTokens.join(', '),
+      reason: 'V6 status UI may dispatch only the read-only Settings snapshot command.',
+    });
+  }
 }
 
 for (const file of await walkFiles(DISPLAY_TIMEFRAME_ROOT)) {

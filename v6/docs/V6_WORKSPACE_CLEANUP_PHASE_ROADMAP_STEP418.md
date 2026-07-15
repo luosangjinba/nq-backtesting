@@ -404,8 +404,8 @@ events, and transport behavior are unchanged.
 
 ### Step 432 - Verify Status Semantics And Layout
 
-Status: automated verification completed on 2026-07-14; mandatory human visual
-acceptance remains pending.
+Status: completed on 2026-07-14. Automated verification and mandatory human
+visual acceptance both passed; Phase 5 is closed.
 
 - update model/controller/browser tests to assert meaning rather than obsolete
   English engineering strings;
@@ -422,8 +422,9 @@ status geometry at `1024x720`, `1440x900`, and `1920x1080` across single,
 two-Pane, and three-Pane layouts. It exposed the status row's content-box
 height inflation; explicit border-box sizing and tighter padding now keep the
 actual row within 32px. Replay, Restart, Session, Go-to, history, layout, App
-Shell, and screenshot gates pass. Phase 5 remains open until human visual
-acceptance is recorded.
+Shell, and screenshot gates pass. Human acceptance confirmed the two compact
+messages remain readable, single-line, quiet, and clear of Replay Transport in
+representative layouts.
 
 ### Phase 5 Gate
 
@@ -445,6 +446,8 @@ decision without starting replacement features.
 
 ### Step 433 - Remove Orphan Styling And Obsolete Tests
 
+Status: completed on 2026-07-14.
+
 - audit deleted selectors across markup, CSS, controllers, and tests;
 - remove orphan CSS and reservation-only fixtures;
 - retain reusable icon primitives, owner contracts, and domain tests only when
@@ -452,6 +455,16 @@ decision without starting replacement features.
 - verify no hidden element is being kept merely to satisfy an old parity test.
 
 Commit intent: `refactor(v6): consolidate workspace cleanup residue`
+
+The audit found no orphan production selector or CSS family after Steps
+421-431. It retired ten parity/reservation/next-slice tests whose only remaining
+responsibility was historical-document shape or duplicate placeholder absence,
+then removed duplicate absence checks from retained top/side/bottom browser
+tests so those tests protect only current interaction and geometry. Five stale
+static file-shape/test-of-test checks and one historical direct-registration
+readiness audit were also retired. The current static
+architecture audit now passes `124/124`; active owner/domain contracts and the
+single cleanup absence manifest remain intact.
 
 ### Step 434 - Run Full Workspace Regression Matrix
 

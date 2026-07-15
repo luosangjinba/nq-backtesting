@@ -57,9 +57,14 @@
   dedicated matrix covers preparing plus single/two/three-Pane geometry at
   `1024x720`, `1440x900`, and `1920x1080`. The matrix found and fixed actual
   status-row content-box inflation; the row is now at most 32px and Transport
-  clearance remains intact. Phase 5 is still open pending mandatory human
-  visual acceptance. After acceptance, the next bounded step is Step 433:
-  remove cleanup residue and obsolete tests. See
+  clearance remains intact. Human visual acceptance passed, closing Phase 5.
+  Step 433 is complete: no orphan production CSS remained; ten historical or
+  duplicate parity/reservation tests, five stale static file-shape/test-of-test
+  checks, and one historical direct-registration readiness audit were retired,
+  while retained browser tests now protect only
+  current interactions and geometry. The current static architecture audit
+  passes `124/124`. The next bounded step is Step 434: run and record the full
+  workspace regression matrix. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus

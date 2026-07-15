@@ -42,11 +42,6 @@ try {
       const afterHost = rectOf('[data-v6-chart-engine-host]');
       const menu = document.querySelector('[data-v6-rail-goto-menu]');
       const menuRect = rectOf('[data-v6-rail-goto-menu]');
-      const removedEntries = [
-        '[data-v6-rail-object-tree]',
-        '[data-v6-rail-order]',
-        '[data-v6-rail-news]',
-      ].map((selector) => Boolean(document.querySelector(selector)));
       return {
         afterChart,
         afterHost,
@@ -55,14 +50,11 @@ try {
         chart,
         gotoOpen: gotoDetails.open,
         host,
-        removedEntries,
         main,
         menuOptionLabels: [...menu.querySelectorAll('button')].map((button) => button.textContent.trim()),
         menuOptionsDisabled: [...menu.querySelectorAll('button')].map((button) => button.disabled),
         menuRect,
         rail,
-        sessionSettingsExists: Boolean(document.querySelector('[data-v6-session-settings-panel]')),
-        sessionSettingsTriggerExists: Boolean(document.querySelector('[data-v6-rail-session-settings]')),
         chartToolbarExists: Boolean(document.querySelector('.chart-toolbar')),
         viewportWidth: window.innerWidth,
       };
@@ -88,9 +80,6 @@ try {
     'Custom Settings',
   ]);
   assert.deepEqual(value.menuOptionsDisabled, [false, false, false, false, false, false]);
-  assert.deepEqual(value.removedEntries, [false, false, false]);
-  assert.equal(value.sessionSettingsExists, false);
-  assert.equal(value.sessionSettingsTriggerExists, false);
   assert.deepEqual(value.beforeChart, value.afterChart);
   assert.deepEqual(value.beforeHost, value.afterHost);
 } finally {

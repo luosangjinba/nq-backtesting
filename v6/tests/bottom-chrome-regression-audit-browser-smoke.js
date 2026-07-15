@@ -29,7 +29,6 @@ async function inspectChrome({ height, width }) {
       return {
         chart: rectOf('[data-v6-chart-surface]'),
         host: rectOf('[data-v6-chart-engine-host]'),
-        placeholderCount: document.querySelectorAll('[data-v6-bottom-account-chrome], [data-v6-bottom-buy], [data-v6-bottom-sell], [data-v6-bottom-quantity], [data-v6-bottom-analytics]').length,
         statusGridRow: getComputedStyle(document.querySelector('[data-v6-status-bar]')).gridRowStart,
         rightRail: rectOf('[data-v6-right-utility-rail]'),
         statusBar: rectOf('[data-v6-status-bar]'),
@@ -47,7 +46,6 @@ for (const value of [
   await inspectChrome({ height: 860, width: 1440 }),
   await inspectChrome({ height: 760, width: 920 }),
 ]) {
-  assert.equal(value.placeholderCount, 0);
   assert.equal(value.statusGridRow, '7');
   assert.equal(value.host.width, value.chart.width);
   assert.equal(value.host.height, value.chart.height);

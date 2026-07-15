@@ -25,7 +25,6 @@ try {
         intervalExpanded: document.querySelector('[data-v6-top-interval]')?.getAttribute('aria-expanded'),
         layoutLabel: document.querySelector('[data-v6-top-page-layout]')?.getAttribute('aria-label') || '',
         layoutDisabled: disabled('[data-v6-top-page-layout]'),
-        layoutNameExists: exists('[data-v6-top-layout-name]'),
         layoutMenuOpen: layoutDetails.open,
         layoutRows: [...document.querySelectorAll('.layout-menu-row')].map((row) => row.getAttribute('aria-label')),
         layoutOptions: document.querySelectorAll('.layout-option').length,
@@ -37,17 +36,6 @@ try {
         profile: textOf('[data-v6-top-profile]'),
         rightIconCount: document.querySelectorAll('.top-tool-group-right .tool-button .tool-icon').length,
         readinessInHeader: exists('[data-v6-workstation-header] [data-v6-readiness-surface]'),
-        removedControls: [
-          'search-symbol',
-          'compare',
-          'indicators',
-          'undo',
-          'redo',
-          'session-hours',
-          'screenshot',
-          'theme',
-          'fullscreen',
-        ].map((name) => exists('[data-v6-top-' + name + ']')),
         sessionDashboardToggleExists: exists('[data-v6-dashboard-toggle]'),
         sessionsWorkflowStillPresent: exists('[data-v6-sessions-toggle]'),
         symbol: textOf('[data-v6-top-symbol]'),
@@ -67,7 +55,6 @@ try {
   assert.equal(value.intervalExpanded, 'false');
   assert.equal(value.layoutLabel, 'Page layout');
   assert.equal(value.profile, 'test');
-  assert.equal(value.layoutNameExists, false);
   assert.equal(value.layoutMenuOpen, true);
   assert.deepEqual(value.layoutRows, ['One pane', 'Two panes', 'Three panes']);
   assert.equal(value.layoutOptions, 7);
@@ -89,7 +76,6 @@ try {
   assert.equal(value.toolIconCount >= 3, true);
   assert.equal(value.rightIconCount, 2);
   assert.equal(value.settingsExists, true);
-  assert.deepEqual(value.removedControls, [false, false, false, false, false, false, false, false, false]);
 } finally {
   await page.cleanup();
 }
