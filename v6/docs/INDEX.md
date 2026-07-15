@@ -40,6 +40,9 @@ router, not a chronological ledger.
 - `v6/docs/V6_ETH_RTH_LOCAL_DATA_CONTRACT_PHASE_A1.md`: accepted local
   DuckDB/V4 API exchange-wall-clock timestamp and ordinary ETH source-shape
   contract.
+- `v6/docs/V6_ETH_RTH_EXCHANGE_CALENDAR_PHASE_A2.md`: accepted NQ/ES normal
+  ETH/RTH intervals, half-open boundary convention, DST treatment, and
+  versioned CME exception policy.
 - `v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md`: accepted phase-level plan
   for pane-local Session instruments over one shared Replay clock; sequencing
   remains behind Step 470 and the ETH/RTH milestone gate.
