@@ -13,6 +13,11 @@ canonical runner. The manifest now truthfully declares named milestone gates,
 while the catalog separately declares exhaustive classification rather than
 implying exhaustive execution.
 
+Step 456 then audited all 27 failing root Node gate tests outside that named
+manifest: 22 current contracts were refreshed without production changes, five
+superseded phase assertions were explicitly quarantined with successor
+coverage, and the remaining root Node gate set passed 366/366.
+
 The product freeze used by this milestone is now released for planning only.
 Implementation of the three operating modes, Semantic Drawing, or other new
 business capability still requires an explicit reviewed decision; it is not an
@@ -47,10 +52,9 @@ Do not start a mode or plugin implementation from this TODO alone.
   catalog is exhaustive classification only. Tests outside the manifest still
   require explicit triage before they can be treated as passing, quarantined,
   or retired.
-- `status-readout-chart-data-browser-smoke.js` still expects empty OHLC after
-  crosshair leave, contradicting the accepted latest-bar default. Current Pane
-  status coverage is authoritative; retire or rewrite the old test during the
-  next catalog maintenance slice.
+- Historical support classification still uses broad source-text inference for
+  TODO/INDEX readers. Replace that heuristic with explicit metadata before
+  claiming every historical support test has been semantically audited.
 - Historical static/readiness/selection tests remain available for targeted
   archaeology but are not product direction documents.
 

@@ -44,6 +44,8 @@ router, not a chronological ledger.
 - `v6/tests/canonical-test-runner.js`: executable runner for every named
   manifest gate; use `--list` or `--environment=<name>` for audit/scope.
 - `v6/tests/test-catalog-domain.js`: exhaustive environment/role classification.
+- `v6/docs/V6_TEST_TRIAGE_STEP456.md`: explicit disposition rules and closeout
+  gate for the post-stabilization failing Node tests.
 
 ## Historical Lookup
 
