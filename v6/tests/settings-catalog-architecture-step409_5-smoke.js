@@ -19,7 +19,7 @@ assert.match(catalog, /catalog-driven shell/);
 assert.match(catalog, /A field must not become active until its consumer/);
 assert.match(catalog, /Chart Viewport runtime remains the only owner/);
 assert.match(catalog, /Session Calendar owns ET\/DST day boundaries/);
-assert.match(catalog, /Initial chart[\s\S]*target all panes/);
+assert.match(catalog, /Chart-presentation commits[\s\S]*target all panes/);
 assert.match(catalog, /Step 410 - Canvas Direct Chart Options/);
 assert.match(catalog, /Step 416 - Global Time Presentation/);
 assert.match(catalog, /Production work remains blocked until Step 409 human visual acceptance/);
@@ -33,9 +33,9 @@ for (const rejected of [
   assert.match(catalog, new RegExp(`${rejected}[^\\n]*Reject`));
 }
 
-// Step 409.5 is planning-only: no future catalog field ships accidentally.
-for (const field of ['backgroundColor', 'crosshairColor', 'scaleFontSize', 'timeFormat']) {
-  assert.equal(settingsModel.includes(field), false);
+// Implemented fields remain centralized in the Settings model after planning closes.
+for (const field of ['chartBackgroundColor', 'chartCrosshairColor', 'chartScaleFontSize', 'timeFormat']) {
+  assert.equal(settingsModel.includes(field), true);
 }
 
 console.log('V6 Settings catalog architecture Step 409.5 smoke passed.');

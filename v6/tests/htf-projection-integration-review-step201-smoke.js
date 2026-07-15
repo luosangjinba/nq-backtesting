@@ -14,6 +14,7 @@ const preparationRuntime = await read('v6/src/chart-entry/chart-entry-projection
 const paneReloadChartData = await read('v6/src/pane-intent-reload/pane-intent-reload-chart-data-runtime.js');
 const manualNext = await read('v6/src/chart-entry/chart-entry-manual-next-runtime.js');
 const leftwardHistory = await read('v6/src/chart-history/leftward-history-extension-runtime.js');
+const leftwardHistoryData = await read('v6/src/chart-history/leftward-history-data-orchestrator.js');
 const autoPlay = await read('v6/src/chart-entry/chart-entry-auto-play-runtime.js');
 const resetBridge = await read('v6/src/chart-engine/reset-view-control-bridge.js');
 const chartDataRuntime = await read('v6/src/chart-data/chart-data-runtime.js');
@@ -49,9 +50,12 @@ assert.equal(projectionDomain.includes('projectSourceBarsToChartData'), true);
 [
   preparationRuntime,
   paneReloadChartData,
-  manualNext,
-  leftwardHistory,
+  preparationRuntime,
+  leftwardHistoryData,
 ].forEach((text) => assert.equal(text.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT'), true));
+
+assert.equal(manualNext.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
+assert.equal(leftwardHistory.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
 
 [
   autoPlay,

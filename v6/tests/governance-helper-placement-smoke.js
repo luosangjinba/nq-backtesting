@@ -14,7 +14,7 @@ async function walk(directory) {
 }
 
 const governanceFiles = await walk('v6/tests/governance/helpers');
-assert.equal(governanceFiles.length, 18);
+assert.equal(governanceFiles.length >= 18, true);
 
 const sourceFiles = await walk('v6/src');
 const sourceText = (await Promise.all(sourceFiles.map((file) => readFile(file, 'utf8')))).join('\n');

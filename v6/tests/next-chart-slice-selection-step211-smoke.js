@@ -8,7 +8,7 @@ async function read(path) {
 const doc = await read('v6/docs/V6_NEXT_CHART_SLICE_SELECTION_STEP211.md');
 const step208Doc = await read('v6/docs/V6_DISPLAY_TIMEFRAME_ACTIVE_PANE_UI_STATE_SYNC_STEP208.md');
 const step210Doc = await read('v6/docs/V6_PANE_LOCAL_HEADER_STATE_SYNC_STEP210.md');
-const shell = await read('v6/src/shell/workstation-shell.js');
+const shell = await read('v6/src/shell/workstation-shell-template.js');
 const displayBridge = await read('v6/src/shell/display-timeframe-pane-target-bridge.js');
 const paneHeaderBrowser = await read('v6/tests/pane-local-header-state-browser-step210-smoke.js');
 

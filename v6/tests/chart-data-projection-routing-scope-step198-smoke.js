@@ -5,6 +5,7 @@ const preparationRuntime = await readFile('v6/src/chart-entry/chart-entry-projec
 const paneReloadChartData = await readFile('v6/src/pane-intent-reload/pane-intent-reload-chart-data-runtime.js', 'utf8');
 const manualNext = await readFile('v6/src/chart-entry/chart-entry-manual-next-runtime.js', 'utf8');
 const leftwardHistory = await readFile('v6/src/chart-history/leftward-history-extension-runtime.js', 'utf8');
+const leftwardHistoryData = await readFile('v6/src/chart-history/leftward-history-data-orchestrator.js', 'utf8');
 const applyRuntime = await readFile('v6/src/chart-entry/chart-entry-projection-apply-runtime.js', 'utf8');
 const autoPlay = await readFile('v6/src/chart-entry/chart-entry-auto-play-runtime.js', 'utf8');
 const resetBridge = await readFile('v6/src/chart-engine/reset-view-control-bridge.js', 'utf8');
@@ -15,14 +16,14 @@ const chartDataSurfaceBridge = await readFile('v6/src/chart-engine/chart-data-su
 [
   preparationRuntime,
   paneReloadChartData,
-  manualNext,
-  leftwardHistory,
+  preparationRuntime,
+  leftwardHistoryData,
 ].forEach((text) => {
   assert.equal(text.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT'), true);
 });
 
-assert.equal(leftwardHistory.includes('createPrependBars'), true);
-assert.equal(leftwardHistory.includes('targetTimeframe > sourceTimeframe'), true);
+assert.equal(leftwardHistory.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
+assert.equal(leftwardHistoryData.includes('shouldProject'), true);
 assert.equal(leftwardHistory.includes('projectionSource'), true);
 
 [

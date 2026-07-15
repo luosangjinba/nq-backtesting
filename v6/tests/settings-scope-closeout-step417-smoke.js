@@ -6,7 +6,7 @@ const [decision, gapAudit, catalog, model, shell] = await Promise.all([
   readFile('v6/docs/V6_POST_SETTINGS_PRODUCT_GAP_REAUDIT_STEP417.md', 'utf8'),
   readFile('v6/docs/V6_SETTINGS_CATALOG_ARCHITECTURE_STEP409_5.md', 'utf8'),
   readFile('v6/src/settings/settings-model.js', 'utf8'),
-  readFile('v6/src/shell/workstation-shell.js', 'utf8'),
+  readFile('v6/src/shell/workstation-shell-template.js', 'utf8'),
 ]);
 
 assert.match(decision, /rejects the following Settings capabilities/);

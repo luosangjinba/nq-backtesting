@@ -14,15 +14,14 @@ const chartDataSurfaceBridge = await readFile('v6/src/chart-engine/chart-data-su
 [
   preparationRuntime,
   paneReloadChartData,
-  manualNext,
-  leftwardHistory,
 ].forEach((text) => {
   assert.equal(text.includes('CHART_DATA_PROJECTION_COMMANDS.PROJECT'), true);
 });
 
-assert.equal(manualNext.includes('createAppendBars'), true);
-assert.equal(manualNext.includes('resolveSourceTimeframe'), true);
-assert.equal(manualNext.includes('resolveTargetTimeframe'), true);
+assert.equal(manualNext.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
+assert.equal(manualNext.includes('advanceReplayToNextSourceBar'), true);
+assert.equal(manualNext.includes('appendReplayCursorAcrossPanes'), true);
+assert.equal(leftwardHistory.includes('CHART_DATA_PROJECTION_COMMANDS'), false);
 
 [
   applyRuntime,

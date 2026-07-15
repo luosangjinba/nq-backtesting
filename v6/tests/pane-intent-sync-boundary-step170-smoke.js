@@ -50,7 +50,7 @@ assert.equal(runtimeSource.includes('PANE_EVENTS.INTERVAL_INTENT_CHANGED'), true
 assert.equal(runtimeSource.includes('PANE_COMMANDS.SET_SYMBOL_INTENT'), true);
 assert.equal(runtimeSource.includes('PANE_COMMANDS.SET_INTERVAL_INTENT'), true);
 
-const appSource = fs.readFileSync(new URL('../src/app.js', import.meta.url), 'utf8');
-assert.equal(appSource.includes('createPaneIntentSyncRuntime'), true);
+const contributionsSource = fs.readFileSync(new URL('../src/runtime/core-state-runtime-contributions.js', import.meta.url), 'utf8');
+assert.equal(contributionsSource.includes('createPaneIntentSyncRuntime'), true);
 
 console.log('v6 pane intent sync boundary step 170 smoke passed');

@@ -75,9 +75,11 @@ assert.deepEqual(readoutProducerFlow.selectedIds, ['readout-producer-flow']);
 assert.deepEqual(readoutProducerFlow.scripts, [
   'v6/tests/target-materialization-replay-diagnostics-readout-producer-flow-browser-step352-smoke.js',
 ]);
-assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS.length, 2);
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS.length, 4);
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[0].id, 'replay-coordination');
 assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[1].id, 'readout-producer-flow');
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[2].id, 'handoff-registration');
+assert.equal(TARGET_HISTORY_PACK_OPTIONAL_TESTS[3].id, 'reduced-delay-budget');
 assert.equal(full.selectedCount, 8);
 
 assert.throws(() => selectTargetHistoryPackTests({ group: 'unknown' }), /Unknown target-history pack group/);

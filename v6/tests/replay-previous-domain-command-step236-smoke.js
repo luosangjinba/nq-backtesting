@@ -95,7 +95,7 @@ await registry.stop();
 unsubscribeRewound();
 unsubscribePlayback();
 
-const shell = await read('v6/src/shell/workstation-shell.js');
+const shell = await read('v6/src/shell/workstation-shell-template.js');
 const transport = await read('v6/src/shell/replay-transport.js');
 const chartEntryManualNext = await read('v6/src/chart-entry/chart-entry-manual-next-runtime.js');
 const chartDataRuntime = await read('v6/src/chart-data/chart-data-runtime.js');

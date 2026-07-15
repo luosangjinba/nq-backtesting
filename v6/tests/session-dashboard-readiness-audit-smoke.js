@@ -15,9 +15,11 @@ const imports = [...dashboardSource.matchAll(/from\s+['"]([^'"]+)['"]/g)]
 assert.deepEqual(imports, [
   '../contracts/app-contracts.js',
   '../runtime/commands.js',
+  '../runtime/events.js',
   './session-analytics-surface.js',
   './session-dashboard-model.js',
   './session-row-action-boundaries.js',
+  './safe-dom-render.js',
   './session-setup-model.js',
   './session-summary-surface.js',
 ].sort());
