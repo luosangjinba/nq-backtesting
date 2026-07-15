@@ -24,6 +24,9 @@ export function createValidationRuntimeContributions({
     })] : []),
     ...(tradePlanRepository ? [createTradePlanRuntime({ repository: tradePlanRepository })] : []),
     ...(simulatedOutcomeRepository ? [createSimulatedOutcomeRuntime({ repository: simulatedOutcomeRepository })] : []),
-    ...(campaignSummaryRepository ? [createCampaignSummaryRuntime({ repository: campaignSummaryRepository })] : []),
+    ...(campaignSummaryRepository ? [createCampaignSummaryRuntime({
+      dispatchCommand,
+      repository: campaignSummaryRepository,
+    })] : []),
   ]);
 }

@@ -233,6 +233,7 @@ export const REPLAY_NAVIGATION_PREFERENCES_EVENTS = Object.freeze({
 });
 
 export const REPLAY_NAVIGATION_COMMANDS = Object.freeze({
+  DRILLBACK: 'replayNavigation.drillback',
   GET_STATE: 'replayNavigation.getState',
   NAVIGATE: 'replayNavigation.navigate',
 });

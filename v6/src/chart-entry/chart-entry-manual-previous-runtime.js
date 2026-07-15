@@ -1,20 +1,12 @@
 import {
-  BAR_DATA_COMMANDS,
-  CHART_DATA_COMMANDS,
-  CHART_DATA_PROJECTION_COMMANDS,
   CHART_ENTRY_MANUAL_PREVIOUS_COMMANDS,
   CHART_ENTRY_MANUAL_PREVIOUS_EVENTS,
-  PANE_COMMANDS,
   PLAYBACK_PERIOD_COMMANDS,
   REPLAY_COMMANDS,
 } from '../contracts/app-contracts.js';
-import { dispatchCommand, hasCommand, registerCommand } from '../runtime/commands.js';
+import { dispatchCommand, registerCommand } from '../runtime/commands.js';
 import { resolvePlaybackPeriodStepCount } from './chart-entry-playback-period-policy.js';
-import {
-  normalizeMinuteTimeframe,
-  normalizeUnixSeconds,
-  summarizeProjectionSource,
-} from '../time-domain/time-domain.js';
+import { replaceReplayCursorAcrossPanes } from '../replay/replay-cursor-pane-replacer.js';
 
 function cloneBars(bars = []) {
   return bars.map((bar) => ({ ...bar }));
@@ -61,155 +53,6 @@ function normalizePaneIds(payload = {}) {
   return [normalizePaneId(payload.paneId)];
 }
 
-function normalizeTimeframeMinutes(timeframe) {
-  try {
-    return normalizeMinuteTimeframe(timeframe, {
-      fieldName: 'Chart entry manual previous timeframe',
-    });
-  } catch (error) {
-    const message = error?.message || '';
-    if (/positive minute value/.test(message)) {
-      throw new Error('Chart entry manual previous timeframe must be a positive minute value.');
-    }
-    if (/minute-based/.test(message)) {
-      throw new Error('Chart entry manual previous timeframe must be minute-based.');
-    }
-    throw new Error('Chart entry manual previous timeframe must be minute-based.');
-  }
-}
-
-function parseReplayTimestamp(value, fieldName) {
-  try {
-    return normalizeUnixSeconds(value, {
-      fieldName: `Chart entry manual previous ${fieldName}`,
-    });
-  } catch {
-    throw new Error(`Chart entry manual previous ${fieldName} must be a valid date/time.`);
-  }
-}
-
-function resolveSourceTimeframe(replayState = {}) {
-  return normalizeTimeframeMinutes(replayState.timeframe);
-}
-
-function resolveTargetTimeframe(replayState = {}, pane = {}) {
-  return normalizeTimeframeMinutes(pane.displayTimeframe || replayState.timeframe);
-}
-
-async function getPaneRecord(paneId) {
-  try {
-    return await dispatchCommand(PANE_COMMANDS.GET_BY_ID, paneId);
-  } catch {
-    return null;
-  }
-}
-
-function filterCurrentChartBars(record, cursorTimestamp) {
-  return cloneBars(record?.bars)
-    .filter((bar) => Number(bar.timestamp ?? bar.time) <= cursorTimestamp);
-}
-
-function createPreviousWindowPayload({
-  currentRecord,
-  pane = {},
-  replayState,
-} = {}) {
-  if (!replayState?.cursorTime) {
-    throw new Error('Chart entry manual previous requires replay cursor time.');
-  }
-  const instrument = pane.instrument || replayState?.symbol;
-  if (!instrument) {
-    throw new Error('Chart entry manual previous requires replay symbol.');
-  }
-  const sourceTimeframe = resolveSourceTimeframe(replayState);
-  const targetTimeframe = resolveTargetTimeframe(replayState, pane);
-  return {
-    anchor: replayState.cursorTime,
-    count: Math.max(
-      2,
-      Math.ceil(targetTimeframe / sourceTimeframe),
-      Array.isArray(currentRecord?.bars) ? currentRecord.bars.length : 0,
-    ),
-    direction: 'backward',
-    instrument: String(instrument).toUpperCase(),
-    timeframe: sourceTimeframe,
-  };
-}
-
-async function projectBarsIfNeeded({
-  bars,
-  pane,
-  paneId,
-  replayState,
-} = {}) {
-  const sourceTimeframe = resolveSourceTimeframe(replayState);
-  const targetTimeframe = resolveTargetTimeframe(replayState, pane);
-  if (
-    targetTimeframe > sourceTimeframe
-    && hasCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT)
-  ) {
-    const projectionRecord = await dispatchCommand(CHART_DATA_PROJECTION_COMMANDS.PROJECT, {
-      bars,
-      cursorTimestamp: parseReplayTimestamp(replayState.cursorTime, 'cursorTime'),
-      paneId,
-      sessionStartTimestamp: parseReplayTimestamp(replayState.startTime, 'startTime'),
-      sourceTimeframe,
-      targetTimeframe,
-    });
-    return {
-      bars: projectionRecord.bars,
-      projectionRecord,
-      sourceBars: bars,
-    };
-  }
-  return {
-    bars,
-    projectionRecord: null,
-    sourceBars: bars,
-  };
-}
-
-async function createReplacementBars({
-  currentRecord,
-  pane,
-  paneId,
-  replayState,
-} = {}) {
-  const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
-  const currentBars = filterCurrentChartBars(currentRecord, cursorTimestamp);
-  if (currentBars.length) {
-    return {
-      bars: currentBars,
-      loadedWindow: null,
-      projectionRecord: null,
-      sourceBars: currentBars,
-      source: 'chart-data-filter',
-    };
-  }
-  if (!hasCommand(BAR_DATA_COMMANDS.LOAD_WINDOW)) {
-    throw new Error('Chart entry manual previous requires chart-data bars or a bar-data loader.');
-  }
-  const windowPayload = createPreviousWindowPayload({
-    currentRecord,
-    pane,
-    replayState,
-  });
-  const loadedWindow = await dispatchCommand(BAR_DATA_COMMANDS.LOAD_WINDOW, windowPayload);
-  const projected = await projectBarsIfNeeded({
-    bars: loadedWindow.bars || [],
-    pane,
-    paneId,
-    replayState,
-  });
-  return {
-    bars: projected.bars,
-    loadedWindow,
-    projectionRecord: projected.projectionRecord,
-    sourceBars: projected.sourceBars,
-    source: 'bar-data-window',
-  };
-}
-
 export function createChartEntryManualPreviousRuntime() {
   const unregisterCallbacks = [];
   let state = {
@@ -241,35 +84,10 @@ export function createChartEntryManualPreviousRuntime() {
       let replacedBarCount = 0;
       for (let index = 0; index < stepCount; index += 1) {
         replayState = await dispatchCommand(REPLAY_COMMANDS.PREVIOUS);
-        for (const paneId of paneIds) {
-          const pane = await getPaneRecord(paneId);
-          const currentRecord = await dispatchCommand(CHART_DATA_COMMANDS.GET_BARS, { paneId });
-          const replacement = await createReplacementBars({
-            currentRecord,
-            pane: pane || {},
-            paneId,
-            replayState,
-          });
-          const cursorTimestamp = parseReplayTimestamp(replayState.cursorTime, 'cursorTime');
-          const chartRecord = await dispatchCommand(CHART_DATA_COMMANDS.REPLACE_BARS, {
-            bars: replacement.bars,
-            cursorTimestamp,
-            paneId,
-            sourceBars: replacement.sourceBars,
-          });
-          chartRecords.push(chartRecord);
-          replacedBarCount += chartRecord.bars.length;
-          loadedWindows.push({
-            barCount: Array.isArray(replacement.loadedWindow?.bars)
-              ? replacement.loadedWindow.bars.length
-              : 0,
-            cacheHit: Boolean(replacement.loadedWindow?.cacheHit),
-            key: replacement.loadedWindow?.key || null,
-            paneId,
-            projectionSource: summarizeProjectionSource(replacement.projectionRecord),
-            source: replacement.source,
-          });
-        }
+        const replacement = await replaceReplayCursorAcrossPanes({ paneIds, replayState });
+        chartRecords.push(...replacement.chartRecords);
+        loadedWindows.push(...replacement.loadedWindows);
+        replacedBarCount += replacement.replacedBarCount;
         if (replayState.cursorIndex <= 0) break;
       }
       state = {

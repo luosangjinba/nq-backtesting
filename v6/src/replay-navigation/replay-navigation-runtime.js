@@ -7,6 +7,7 @@ import {
   REPLAY_NAVIGATION_PREFERENCES_COMMANDS,
 } from '../contracts/app-contracts.js';
 import { appendReplayCursorAcrossPanes } from '../replay/replay-cursor-pane-materializer.js';
+import { replaceReplayCursorAcrossPanes } from '../replay/replay-cursor-pane-replacer.js';
 import {
   dispatchCommand as dispatchRuntimeCommand,
   hasCommand as hasRuntimeCommand,
@@ -44,6 +45,7 @@ export function createReplayNavigationRuntime({
   dispatchCommand = dispatchRuntimeCommand,
   hasCommand = hasRuntimeCommand,
   materializeCursor = appendReplayCursorAcrossPanes,
+  replaceCursor = replaceReplayCursorAcrossPanes,
   resolveTarget = resolveReplayNavigationTarget,
 } = {}) {
   const unregisterCallbacks = [];
@@ -87,6 +89,73 @@ export function createReplayNavigationRuntime({
       throw new Error('Replay navigation requires at least one pane.');
     }
     return [String(activePane.id)];
+  }
+
+  async function resolveAllPaneIds() {
+    const panes = await dispatchCommand(PANE_COMMANDS.LIST);
+    const paneIds = normalizePaneIds((panes || []).map((pane) => pane?.id));
+    if (!paneIds.length) throw new Error('Replay navigation requires at least one pane.');
+    return paneIds;
+  }
+
+  async function drillback(payload = {}, emitEvent) {
+    const action = 'evidence-drillback';
+    if (inFlight) return reject({ action, emitEvent, reason: 'in-flight' });
+    inFlight = true;
+    state = { error: null, lastResult: null, status: 'resolving' };
+    try {
+      const descriptor = payload.descriptor || payload;
+      const replayState = await dispatchCommand(REPLAY_COMMANDS.GET_STATE);
+      if (!replayState?.sessionId) return reject({ action, emitEvent, reason: 'replay-not-loaded' });
+      if (descriptor.replaySessionId !== replayState.sessionId) {
+        return reject({ action, emitEvent, reason: 'replay-session-mismatch' });
+      }
+      const targetTime = new Date(descriptor.replayVisibleThroughTime).getTime();
+      const cursorTime = new Date(replayState.cursorTime).getTime();
+      const startTime = new Date(replayState.startTime).getTime();
+      if (!Number.isFinite(targetTime)) return reject({ action, emitEvent, reason: 'invalid-evidence-time' });
+      if (targetTime > cursorTime) return reject({ action, emitEvent, reason: 'future-evidence' });
+      if (targetTime < startTime) return reject({ action, emitEvent, reason: 'evidence-before-session' });
+      const paneIds = await resolveAllPaneIds();
+      if (hasCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP)) {
+        await dispatchCommand(CHART_ENTRY_AUTO_PLAY_COMMANDS.STOP);
+      } else {
+        await dispatchCommand(REPLAY_COMMANDS.PAUSE);
+      }
+      const rewoundReplayState = await dispatchCommand(REPLAY_COMMANDS.SET_CURSOR_TIME, {
+        cursorTime: descriptor.replayVisibleThroughTime,
+      });
+      const replaced = await replaceCursor({
+        dispatchCommand,
+        hasCommand,
+        paneIds,
+        replayState: rewoundReplayState,
+      });
+      const result = {
+        action,
+        chartRecords: replaced.chartRecords,
+        descriptor: { ...descriptor },
+        fromCursorTime: replayState.cursorTime,
+        loadedWindows: replaced.loadedWindows,
+        paneIds,
+        replayState: rewoundReplayState,
+        replacedBarCount: replaced.replacedBarCount,
+        sourceCursorTime: rewoundReplayState.cursorTime,
+        status: 'completed',
+      };
+      state = { error: null, lastResult: result, status: 'completed' };
+      emitEvent?.(REPLAY_NAVIGATION_EVENTS.COMPLETED, cloneRecord(result));
+      return getState();
+    } catch (error) {
+      return reject({
+        action,
+        emitEvent,
+        error: error?.message || String(error),
+        reason: 'navigation-error',
+      });
+    } finally {
+      inFlight = false;
+    }
   }
 
   async function navigate(payload = {}, emitEvent) {
@@ -179,6 +248,7 @@ export function createReplayNavigationRuntime({
   function start({ emitEvent } = {}) {
     unregisterCallbacks.push(
       registerCommand(REPLAY_NAVIGATION_COMMANDS.GET_STATE, () => getState()),
+      registerCommand(REPLAY_NAVIGATION_COMMANDS.DRILLBACK, (payload) => drillback(payload, emitEvent)),
       registerCommand(REPLAY_NAVIGATION_COMMANDS.NAVIGATE, (payload) => navigate(payload, emitEvent)),
     );
   }
