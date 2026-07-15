@@ -71,11 +71,15 @@ export function createWorkstationShellMarkup() {
             <div class="quick-session-backdrop" data-v6-quick-session-modal hidden>
               <form class="quick-session-dialog" data-v6-session-setup-form>
                 <header class="quick-session-header">
-                  <strong>Create a quick session</strong>
+                  <div>
+                    <span>Replay workspace</span>
+                    <strong>Create session</strong>
+                    <p>Choose the market and historical window you want to practice.</p>
+                  </div>
                   <button type="button" class="quick-session-icon-button" data-v6-quick-session-close aria-label="Close quick session">${icon('close')}</button>
                 </header>
                 <div class="quick-session-tabs" aria-label="Session type">
-                  <button type="button" class="is-active">Backtesting Session</button>
+                  <button type="button" class="is-active">Historical replay</button>
                 </div>
                 <label class="quick-session-field">
                   <span>Name *</span>
@@ -92,9 +96,9 @@ export function createWorkstationShellMarkup() {
                   </button>
                   <div class="asset-hidden-inputs" data-v6-selected-asset-inputs></div>
                   <div class="asset-picker-menu" data-v6-asset-picker-menu hidden>
-                    <strong>Available assets</strong>
-                    <button type="button" class="asset-option" data-v6-asset-option="NQ"><span>NQ <em>E-Mini NASDAQ-100 Futures</em></span><span>US Futures</span></button>
-                    <button type="button" class="asset-option" data-v6-asset-option="ES"><span>ES <em>E-Mini S&amp;P 500 Futures</em></span><span>US Futures</span></button>
+                    <header><strong>Available markets</strong><span>Select one or more</span></header>
+                    <button type="button" class="asset-option" data-v6-asset-option="NQ"><span class="asset-option-symbol">NQ</span><span class="asset-option-name">E-mini Nasdaq-100 Futures</span><span class="asset-option-market">CME</span><i aria-hidden="true"></i></button>
+                    <button type="button" class="asset-option" data-v6-asset-option="ES"><span class="asset-option-symbol">ES</span><span class="asset-option-name">E-mini S&amp;P 500 Futures</span><span class="asset-option-market">CME</span><i aria-hidden="true"></i></button>
                   </div>
                 </section>
                 <label class="quick-session-field">

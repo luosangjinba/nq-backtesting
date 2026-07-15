@@ -33,6 +33,8 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 0));
       document.querySelector('[data-v6-asset-option="NQ"]').click();
       document.querySelector('[data-v6-asset-option="ES"]').click();
+      document.querySelector('[data-v6-session-setup-start]').focus();
+      await new Promise((resolve) => setTimeout(resolve, 0));
       document.querySelector('[data-v6-session-setup-name]').value = 'abc';
       document.querySelector('[data-v6-session-setup-start]').value = '2026-07-01T09:30';
       document.querySelector('[data-v6-session-auto-end]').checked = true;
@@ -42,6 +44,7 @@ try {
         autoEndChecked: document.querySelector('[data-v6-session-auto-end]').checked,
         computedEnd: document.querySelector('[data-v6-session-setup-computed-end]').value,
         endDisabled: document.querySelector('[data-v6-session-setup-end]').disabled,
+        menuHiddenAfterBlur: document.querySelector('[data-v6-asset-picker-menu]').hidden,
         selectedSymbols: [...document.querySelectorAll('[name="symbols"]')].map((input) => input.value),
       };
 
@@ -80,6 +83,7 @@ try {
   assert.deepEqual(value.beforeCreate.selectedSymbols, ['NQ', 'ES']);
   assert.equal(value.beforeCreate.autoEndChecked, true);
   assert.equal(value.beforeCreate.endDisabled, true);
+  assert.equal(value.beforeCreate.menuHiddenAfterBlur, true);
   assert.equal(value.beforeCreate.computedEnd, '2026-07-05T09:30');
   assert.equal(value.session.name, 'abc');
   assert.equal(value.session.symbol, 'NQ');

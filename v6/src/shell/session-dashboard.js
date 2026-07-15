@@ -234,7 +234,7 @@ export function mountSessionDashboard(root, {
       const chips = selectedSymbols.length
         ? selectedSymbols.map((symbol) => {
           const chip = createTextElement(documentRef, { className: 'asset-chip', tagName: 'span' });
-          const remove = createTextElement(documentRef, { tagName: 'button', text: `${symbol} remove` });
+          const remove = createTextElement(documentRef, { tagName: 'button', text: '×' });
           remove.type = 'button';
           remove.dataset.v6RemoveAsset = symbol;
           remove.setAttribute('aria-label', `Remove ${symbol}`);
@@ -426,6 +426,27 @@ export function mountSessionDashboard(root, {
     };
     assetPickerToggle.addEventListener('click', listener);
     unsubscriptions.push(() => assetPickerToggle.removeEventListener('click', listener));
+
+    const closeAssetPicker = (event) => {
+      if (assetPickerMenu.hidden) return;
+      const assets = root.querySelector('[data-v6-session-assets]');
+      if (event?.target && assets?.contains(event.target)) return;
+      assetPickerMenu.hidden = true;
+      assetPickerToggle.setAttribute('aria-expanded', 'false');
+    };
+    const keyListener = (event) => {
+      if (event.key !== 'Escape' || assetPickerMenu.hidden) return;
+      closeAssetPicker();
+      assetPickerToggle.focus();
+    };
+    root.ownerDocument.addEventListener('pointerdown', closeAssetPicker);
+    root.ownerDocument.addEventListener('focusin', closeAssetPicker);
+    root.ownerDocument.addEventListener('keydown', keyListener);
+    unsubscriptions.push(() => {
+      root.ownerDocument.removeEventListener('pointerdown', closeAssetPicker);
+      root.ownerDocument.removeEventListener('focusin', closeAssetPicker);
+      root.ownerDocument.removeEventListener('keydown', keyListener);
+    });
   }
   root.querySelectorAll('[data-v6-asset-option]').forEach((option) => {
     const listener = () => {
