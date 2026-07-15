@@ -11,8 +11,17 @@ export const EXPLICIT_SUPPORT_PREFIXES = Object.freeze([
   'v6/tests/helpers/',
 ]);
 
+export const EXPLICIT_RUNNER_FILES = Object.freeze([
+  'v6/tests/canonical-test-runner.js',
+]);
+
 export function hasExplicitSupportRole(path) {
   const normalizedPath = String(path || '').replaceAll('\\', '/');
   return EXPLICIT_SUPPORT_FILES.includes(normalizedPath)
     || EXPLICIT_SUPPORT_PREFIXES.some((prefix) => normalizedPath.startsWith(prefix));
+}
+
+export function hasExplicitRunnerRole(path) {
+  const normalizedPath = String(path || '').replaceAll('\\', '/');
+  return EXPLICIT_RUNNER_FILES.includes(normalizedPath);
 }

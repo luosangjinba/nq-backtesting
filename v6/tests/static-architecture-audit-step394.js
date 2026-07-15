@@ -8,12 +8,12 @@ const candidates = (await readdir('v6/tests'))
   .sort()
   .map((name) => `v6/tests/${name}`);
 const tests = [];
-const support = [];
+const excludedByRole = {};
 for (const test of candidates) {
   const source = await readFile(test, 'utf8');
   const entry = classifyTestFile({ path: test, source });
-  if (entry.role === 'support') support.push(test);
-  else tests.push(test);
+  if (entry.role === 'gate') tests.push(test);
+  else excludedByRole[entry.role] = (excludedByRole[entry.role] || 0) + 1;
 }
 
 const failures = [];
@@ -27,7 +27,7 @@ console.log(JSON.stringify({
   passed: tests.length - failures.length,
   failed: failures.length,
   failures,
-  support: support.length,
+  excludedByRole,
 }, null, 2));
 
 if (failures.length && !auditOnly) process.exitCode = 1;

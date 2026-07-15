@@ -14,10 +14,16 @@ assert.match(index, /current-state\s+router/);
 assert.equal(archivedTodo.split('\n').length > 10_000, true);
 assert.equal(archivedIndex.split('\n').length > 900, true);
 
-const ledgerAssertion = classifyTestFile({
+const unregisteredLedgerAssertion = classifyTestFile({
   path: 'v6/tests/historical-closeout-static-smoke.js',
   source: "const todo = await readFile('v6/TODO.md', 'utf8');",
 });
-assert.equal(ledgerAssertion.role, 'support');
+assert.equal(unregisteredLedgerAssertion.role, 'gate');
+
+const registeredLedgerAssertion = classifyTestFile({
+  path: 'v6/tests/product-direction-smoke.js',
+  source: '',
+});
+assert.equal(registeredLedgerAssertion.role, 'quarantine');
 
 console.log('v6 current ledger routing smoke passed');

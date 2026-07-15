@@ -1,5 +1,9 @@
 import { findStep456TriageEntry } from './test-triage-manifest-step456.js';
-import { hasExplicitSupportRole } from './test-role-manifest.js';
+import {
+  hasExplicitRunnerRole,
+  hasExplicitSupportRole,
+} from './test-role-manifest.js';
+import { findStep457HistoricalLedgerDisposition } from './test-role-migration-step457.js';
 
 const BROWSER_SOURCE_PATTERN = /^import .*?(browser-cdp-client|v6-browser-harness)/m;
 
@@ -19,11 +23,12 @@ export function classifyTestFile({ path, source = '' } = {}) {
 
   let role = 'gate';
   const triage = findStep456TriageEntry(normalizedPath);
+  const historicalLedger = findStep457HistoricalLedgerDisposition(normalizedPath);
   if (triage?.disposition === 'quarantine-superseded') role = 'quarantine';
-  else if (hasExplicitSupportRole(normalizedPath) ||
-    /['"]v6\/(?:TODO|docs\/INDEX)\.md['"]/.test(source)
-  ) role = 'support';
+  else if (historicalLedger?.disposition === 'quarantine-superseded') role = 'quarantine';
+  else if (hasExplicitSupportRole(normalizedPath)) role = 'support';
   else if (
+    hasExplicitRunnerRole(normalizedPath) ||
     normalizedPath.includes('regression-pack') ||
     normalizedPath.endsWith('-pack.js') ||
     normalizedPath.endsWith('static-architecture-audit-step394.js')
