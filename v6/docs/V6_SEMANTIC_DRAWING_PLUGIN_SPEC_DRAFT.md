@@ -5,8 +5,10 @@ Date: 2026-07-14
 ## Status
 
 This document records the recent product and architecture discussion about V6
-drawing. It is a **draft for product-owner review**, not an accepted
-implementation decision.
+drawing. Step 461 accepted its shared semantic/plugin direction **with
+changes**, but this remains a design draft rather than implementation
+authorization. The binding review outcome is
+`V6_THREE_MODE_SHARED_FOUNDATION_DECISION_STEP461.md`.
 
 Existing normative decisions in `V6_PRODUCT_DIRECTION.md`,
 `V6_ARCHITECTURE.md`, and `V6_REPLAY_VALIDATION_PRODUCT_DECISION.md` continue
@@ -479,13 +481,16 @@ is enabled.
 
 ## Review Decision Record
 
-Complete this section after product-owner review:
-
-- Status: Draft / Accepted / Accepted with changes / Rejected
-- Reviewed by:
-- Review date:
-- Accepted constraints:
-- Required changes:
-- Deferred questions:
-- Authorized next step:
-
+- Status: Accepted with changes
+- Reviewed by: V6 product/foundation re-audit
+- Review date: 2026-07-15
+- Accepted constraints: semantic-first direction, one artifact/provenance model,
+  constrained trusted plugins, core-owned policy/persistence/projection routing,
+  and no separate mode drawing systems.
+- Required changes: the first slice remains one generic observation and trade
+  plan; generic drawings and the larger initial ICT ontology are deferred.
+- Deferred questions: vocabulary/UX, exact schemas and revision policy,
+  cross-pane projection, missing-plugin fallback, initial semantic set, and
+  detector provenance.
+- Authorized next step: none for Semantic Drawing implementation. Follow the
+  Step 461 thin validation-slice decision first.
