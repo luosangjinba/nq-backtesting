@@ -80,12 +80,10 @@ const historyWindows = new Map([
   ]],
 ]);
 const nextWindows = new Map([
-  ['2026-06-01 09:32|2026-06-01 09:33', [
-    { close: 102.5, high: 103, low: 102, open: 102, timestamp: 1780306320 },
+  ['2026-06-01 09:33|2026-06-01 09:33', [
     { close: 103.5, high: 104, low: 103, open: 103, timestamp: 1780306380 },
   ]],
-  ['2026-06-01 09:33|2026-06-01 09:34', [
-    { close: 103.5, high: 104, low: 103, open: 103, timestamp: 1780306380 },
+  ['2026-06-01 09:34|2026-06-01 09:34', [
     { close: 104.5, high: 105, low: 104, open: 104, timestamp: 1780306440 },
   ]],
 ]);
