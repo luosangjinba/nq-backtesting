@@ -468,10 +468,35 @@ single cleanup absence manifest remain intact.
 
 ### Step 434 - Run Full Workspace Regression Matrix
 
+Status: completed on 2026-07-14.
+
 - run chart foundation, Replay, Go-to, Settings, Journal, layout, panes,
   transport, session entry, app-shell, and screenshot regression packs;
 - record automated results and any intentionally updated baselines;
 - run `git diff --check` and repository boundary tests.
+
+Recorded results:
+
+- chart browser regression pack: `28/28`;
+- timeframe/Replay foundation pack: `8/8`, including Replay-gap fast pack
+  `3/3`;
+- Replay Transport modularization pack: `5/5`;
+- Go-to UI, timeframe matrix, and fixed-timeframe alignment: passed;
+- Settings browser matrix: `8/8`;
+- Session/Journal browser matrix: `9/9`. Metadata persistence had one grouped
+  reload timeout, then passed both isolated and repeated grouped execution;
+- compact Replay status layout, App Shell, and product baseline screenshot:
+  passed;
+- repository boundary smoke: passed;
+- static architecture audit: `124/124`;
+- `git diff --check`: passed.
+
+One retained history-extension harness was corrected during the matrix. It
+still required an internal history-request counter to increase even when the
+current projection path had already materialized the required earlier bars.
+The harness now asserts the observable invariant: successful target
+projection, an earlier oldest timestamp, non-empty bars, and a valid viewport.
+No production runtime behavior or accepted baseline changed.
 
 Commit intent: `test(v6): close workspace cleanup regression`
 
@@ -515,6 +540,6 @@ code.
 
 ## Recommended Next Step
 
-Start with Step 419 only. Do not begin deleting markup until Phase 0 proves the
-functional-survival and placeholder-absence harnesses can distinguish real
-controls from empty shells.
+Run Step 435 only: human visual acceptance and cleanup closeout. Do not begin a
+Semantic Drawing entry surface or one of the three future workstation modes as
+part of this cleanup phase.

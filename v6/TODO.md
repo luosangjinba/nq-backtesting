@@ -63,8 +63,14 @@
   checks, and one historical direct-registration readiness audit were retired,
   while retained browser tests now protect only
   current interactions and geometry. The current static architecture audit
-  passes `124/124`. The next bounded step is Step 434: run and record the full
-  workspace regression matrix. See
+  passes `124/124`. Step 434 is complete: chart browser `28/28`,
+  timeframe/Replay foundation `8/8` (including gap pack `3/3`), Replay
+  Transport `5/5`, Settings `8/8`, Session/Journal `9/9`, Go-to, compact
+  status, App Shell, screenshot, boundary, and static architecture `124/124`
+  gates pass. One stale history harness was changed to assert visible bar
+  extension instead of an internal request count; production behavior was not
+  changed. The next bounded step is Step 435: human visual acceptance and
+  workspace-cleanup closeout. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
