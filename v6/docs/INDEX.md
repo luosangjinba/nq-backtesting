@@ -37,6 +37,9 @@ router, not a chronological ledger.
   Replay role.
 - `v6/docs/V6_ETH_RTH_SESSION_HOURS_PHASE_PLAN.md`: required pre-milestone
   Session Hours plan; follows Step 470 and precedes multi-instrument panes.
+- `v6/docs/V6_ETH_RTH_LOCAL_DATA_CONTRACT_PHASE_A1.md`: accepted local
+  DuckDB/V4 API exchange-wall-clock timestamp and ordinary ETH source-shape
+  contract.
 - `v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md`: accepted phase-level plan
   for pane-local Session instruments over one shared Replay clock; sequencing
   remains behind Step 470 and the ETH/RTH milestone gate.

@@ -73,10 +73,15 @@ template extraction before Phase E. It did not authorize a broad refactor.
 
 ## Next Gate — ETH/RTH Phase A
 
-Verify the real NQ/ES data timestamp contract and settle Exchange Calendar and
-Replay semantics for ETH/RTH, maintenance breaks, weekends, holidays, early
-closes, DST, cursor-outside-RTH behavior, Replay traversal, and higher-timeframe
-aggregation. This is a domain/decision phase; do not begin with the toolbar.
+Phase A1 accepted the real NQ/ES data contract: DuckDB and V4 API timestamps are
+exchange wall-clock fields encoded as UTC-like epoch seconds; ordinary source
+data already omits `17:00–17:59`, closes Friday `16:59`, and reopens Sunday
+`18:00`. Do not apply a second New York timezone conversion.
+
+Next, Phase A2 must settle the authoritative Exchange Calendar semantics for
+RTH, holidays, early closes, maintenance breaks, and DST. Replay traversal and
+higher-timeframe aggregation decisions follow in Phase A3. This is a
+domain/decision phase; do not begin with the toolbar.
 
 The future Validation Campaign UI phase must implement the real recording and
 summary workflow before recording friction, sample/R presentation, or human
