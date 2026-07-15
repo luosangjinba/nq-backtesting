@@ -8,6 +8,7 @@ function createFakeRoot() {
     if (!elements.has(selector)) {
       elements.set(selector, {
         dataset: {},
+        hidden: false,
         innerHTML: '',
         textContent: '',
       });
@@ -81,5 +82,22 @@ assert.equal(root.text('[data-v6-readiness-missing]'), 'Some services are still 
 assert.equal(root.html('[data-v6-readiness-gates]'), '');
 assert.equal(root.datasetFor('[data-v6-readiness-gates]').gateCount, '4');
 assert.equal(root.datasetFor('[data-v6-readiness-surface]').running, 'true');
+assert.equal(root.querySelector('[data-v6-readiness-surface]').hidden, false);
+
+const readyRoot = createFakeRoot();
+mountReadinessSurface(readyRoot, {
+  listCommands: () => [
+    'defaultWall.next',
+    'journalPersistence.saveSnapshot',
+    'layout.getSnapshot',
+    'persistence.saveRecord',
+    'replay.next',
+    'settings.getSnapshot',
+  ],
+  registry: {
+    snapshot: () => ({ running: true, started: ['runtime.replay'] }),
+  },
+});
+assert.equal(readyRoot.querySelector('[data-v6-readiness-surface]').hidden, true);
 
 console.log('v6 readiness surface controller smoke passed');

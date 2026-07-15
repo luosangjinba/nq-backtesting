@@ -41,6 +41,7 @@ async function main() {
         readinessMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6ReadinessSurface?.getState),
         sessionDashboardMounted: Boolean(document.querySelector('[data-v6-root]')?.__v6SessionDashboard?.getState),
         readinessInHeader: Boolean(document.querySelector('[data-v6-workstation-header] [data-v6-readiness-surface]')),
+        readinessHidden: document.querySelector('[data-v6-readiness-surface]')?.hidden ?? false,
         standaloneReadiness: Boolean(document.querySelector('[data-v6-workstation-shell] > [data-v6-readiness-surface]')),
         readinessState: document.querySelector('[data-v6-readiness-state]')?.textContent || '',
         readinessDetail: document.querySelector('[data-v6-readiness-missing]')?.textContent || '',
@@ -94,6 +95,7 @@ async function main() {
     assert.equal(value.readinessMounted, true);
     assert.equal(value.sessionDashboardMounted, true);
     assert.equal(value.readinessInHeader, true);
+    assert.equal(value.readinessHidden, true);
     assert.equal(value.standaloneReadiness, false);
     assert.equal(value.readinessState, 'System ready');
     assert.equal(value.readinessDetail, 'Replay workstation is ready');
@@ -108,6 +110,7 @@ async function main() {
     assert.equal(value.readinessGateCountAriaHidden, 'true');
     assert.equal(value.readinessGateItems, 0);
     assert.equal(value.readinessGatesHidden, true);
+    assert.equal(value.visibleBodyText.includes('System ready'), false);
     assert.deepEqual(value.panelTitles, [
       'Trade Journal',
       'Replay Control',

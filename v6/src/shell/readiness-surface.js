@@ -20,6 +20,8 @@ function renderReadinessSurface(root, state) {
   if (surface) {
     surface.dataset.ready = String(state.ready);
     surface.dataset.running = String(state.running);
+    surface.hidden = state.ready;
+    surface.setAttribute?.('aria-hidden', String(state.ready));
   }
   setText(root, '[data-v6-readiness-state]', state.statusLabel);
   setText(root, '[data-v6-readiness-runtime-count]', state.runtimeLabel);

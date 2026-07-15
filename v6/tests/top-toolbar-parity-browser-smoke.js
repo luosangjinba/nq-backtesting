@@ -18,6 +18,7 @@ try {
         backDisabled: disabled('[data-v6-top-back]'),
         editorExists: exists('[data-v6-top-editor]'),
         forwardExists: exists('[data-v6-top-session-forward]'),
+        goToExists: exists('[data-v6-rail-goto]'),
         hasHeader: exists('[data-v6-workstation-header]'),
         headerHeight: Math.round(headerRect.height),
         interval: textOf('[data-v6-top-interval]'),
@@ -49,6 +50,7 @@ try {
   assert.equal(value.headerHeight <= 56, true);
   assert.equal(value.backLabel, 'Back to session dashboard');
   assert.equal(value.forwardExists, false);
+  assert.equal(value.goToExists, true);
   assert.equal(value.symbol, 'NQ');
   assert.equal(value.interval, '1m');
   assert.equal(value.intervalDisabled, false);
@@ -74,7 +76,7 @@ try {
   assert.equal(value.sessionsWorkflowStillPresent, false);
   assert.equal(value.readinessInHeader, true);
   assert.equal(value.toolIconCount >= 3, true);
-  assert.equal(value.rightIconCount, 2);
+  assert.equal(value.rightIconCount, 3);
   assert.equal(value.settingsExists, true);
 } finally {
   await page.cleanup();

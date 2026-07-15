@@ -43,6 +43,7 @@ try {
       const readiness = document.querySelector('[data-v6-readiness-surface]');
       return JSON.stringify({
         readinessInHeader: Boolean(header?.querySelector('[data-v6-readiness-surface]')),
+        readinessHidden: readiness?.hidden ?? false,
         standaloneReadiness: Boolean(document.querySelector('[data-v6-workstation-shell] > [data-v6-readiness-surface]')),
         readinessState: text('[data-v6-readiness-state]'),
         readinessDetail: text('[data-v6-readiness-missing]'),
@@ -69,6 +70,7 @@ try {
   `));
 
   assert.equal(value.readinessInHeader, true);
+  assert.equal(value.readinessHidden, true);
   assert.equal(value.standaloneReadiness, false);
   assert.equal(value.workstationHidden, false);
   assert.equal(value.rootSurface, 'workstation');
@@ -85,7 +87,7 @@ try {
   assert.equal(value.commandAriaHidden, 'true');
   assert.equal(value.gateAriaHidden, 'true');
   assert.equal(value.gateListAriaHidden, 'true');
-  assert.equal(value.visibleHeaderText.includes('System ready'), true);
+  assert.equal(value.visibleHeaderText.includes('System ready'), false);
   assert.equal(value.visibleHeaderText.includes('services active'), false);
   assert.equal(value.visibleHeaderText.includes('Commands ready'), false);
   assert.equal(value.visibleHeaderText.includes('Core checks passed'), false);
