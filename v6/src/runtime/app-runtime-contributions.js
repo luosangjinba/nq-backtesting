@@ -10,11 +10,13 @@ import { createValidationRepository } from '../validation-persistence/validation
 import { createObservationEvidenceRepository } from '../validation-observation/observation-evidence-repository.js';
 import { createTradePlanRepository } from '../validation-trade-plan/trade-plan-repository.js';
 import { createSimulatedOutcomeRepository } from '../validation-outcome/simulated-outcome-repository.js';
+import { createCampaignSummaryRepository } from '../validation-summary/campaign-summary-repository.js';
 
 export function createAppRuntimeContributions({
   dispatchCommand,
   subscribeEvent,
 } = {}) {
+  const campaignSummaryRepository = createCampaignSummaryRepository();
   const sessionRepository = createInMemorySessionRepository({
     metadataStore: createSessionMetadataStorage(),
   });
@@ -27,6 +29,7 @@ export function createAppRuntimeContributions({
   const tradePlanRepository = createTradePlanRepository();
   const simulatedOutcomeRepository = createSimulatedOutcomeRepository();
   return createCoreRuntimeContributions({
+    campaignSummaryRepository,
     dispatchCommand,
     observationEvidenceRepository,
     persistenceRepository,

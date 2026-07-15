@@ -53,6 +53,8 @@ router, not a chronological ledger.
   revision, price geometry, references, and IndexedDB v3 boundary.
 - `v6/docs/V6_SIMULATED_OUTCOME_R_STEP467.md`: separate simulated execution and
   outcome facts, bounded R, ambiguity disclosure, and IndexedDB v4 boundary.
+- `v6/docs/V6_CAMPAIGN_SUMMARY_DRILLBACK_STEP468.md`: read-only campaign metrics,
+  raw-source rows, drillback descriptor, and remaining navigation constraint.
 
 ## Architecture And Testing
 

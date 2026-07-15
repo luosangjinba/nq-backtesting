@@ -32,6 +32,10 @@ entry, stop, target, invalidation, and active trial/evidence references.
 Step 467 added separate simulated execution/outcome facts, bounded R, and
 mandatory `1m` within-minute ordering disclosure without tick-accuracy claims.
 
+Step 468 added a read-only campaign summary and stable evidence drillback
+descriptor. Automatic backward chart repositioning remains gated on a safe
+navigation-owner contract; Analytics does not mutate Replay or source truth.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -44,17 +48,19 @@ mandatory `1m` within-minute ordering disclosure without tick-accuracy claims.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 468
+## Next Step — 469
 
-Implement Campaign Summary and Evidence Drillback only:
+Run Trial Acceptance only:
 
-- compute one small campaign projection with sample size, wins/losses, average
-  R, and total R from source artifacts;
-- return raw trial rows and stable evidence references;
-- navigate drillback through public Replay/navigation contracts only;
-- no broad dashboard, filtering system, Semantic Drawing, or mode shell.
+- exercise complete real trial records and persistence recovery;
+- verify provenance, sample size, R, and raw evidence drillback integrity;
+- decide or implement only the safe owner-level backward navigation contract
+  required for automatic chart drillback;
+- run human workflow/recording-friction acceptance and foundation regression;
+- no ontology expansion, Semantic Drawing, broad dashboard, or mode shell.
 
-Analytics is read-only and must not rewrite trial/evidence/plan/outcome truth.
+After Step 469, perform the requested modularity/large-file audit before the
+Validation Campaign Thin Slice milestone closes.
 
 ## Known Catalog Debt
 

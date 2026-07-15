@@ -1,0 +1,3 @@
+import assert from 'node:assert/strict';import{createCampaignSummary,createEvidenceDrillbackDescriptor}from'../src/validation-summary/campaign-summary-domain.js';
+const summary=createCampaignSummary({campaignId:'c',trialCount:3,rows:[{rMultiple:2},{rMultiple:-1},{rMultiple:0}]});assert.deepEqual({averageR:summary.averageR,breakeven:summary.breakeven,losses:summary.losses,sampleSize:summary.sampleSize,totalR:summary.totalR,wins:summary.wins},{averageR:.3333,breakeven:1,losses:1,sampleSize:3,totalR:1,wins:1});
+assert.throws(()=>createEvidenceDrillbackDescriptor({trialId:'t'}),/no complete/);console.log('v6 campaign summary step468 smoke passed');

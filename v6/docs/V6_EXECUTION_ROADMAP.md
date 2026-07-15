@@ -334,7 +334,9 @@ campaign/trial lifecycles, and a transactional migration-backed IndexedDB
 repository without UI or Replay implementation coupling. Step 464 added the
 Blind Trial Coordinator over public Replay read contracts and durable trial
 provenance without Replay mutation. Step 465, Generic Observation and Evidence
-Snapshot, is the current product-entry target.
+Snapshot through bounded R and a read-only campaign drillback projection. Step
+469 Trial Acceptance is the current target; automatic backward chart drillback
+remains gated on a safe navigation-owner contract.
 
 Free Practice remains protected on the same Replay foundation. The validation
 workflow may add required fields and provenance, but it may not fork chart,

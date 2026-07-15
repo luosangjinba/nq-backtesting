@@ -2,9 +2,11 @@ import { createBlindTrialCoordinatorRuntime } from '../blind-trial/blind-trial-c
 import { createObservationEvidenceRuntime } from '../validation-observation/observation-evidence-runtime.js';
 import { createTradePlanRuntime } from '../validation-trade-plan/trade-plan-runtime.js';
 import { createSimulatedOutcomeRuntime } from '../validation-outcome/simulated-outcome-runtime.js';
+import { createCampaignSummaryRuntime } from '../validation-summary/campaign-summary-runtime.js';
 
 export function createValidationRuntimeContributions({
   dispatchCommand,
+  campaignSummaryRepository,
   observationEvidenceRepository,
   simulatedOutcomeRepository,
   tradePlanRepository,
@@ -22,5 +24,6 @@ export function createValidationRuntimeContributions({
     })] : []),
     ...(tradePlanRepository ? [createTradePlanRuntime({ repository: tradePlanRepository })] : []),
     ...(simulatedOutcomeRepository ? [createSimulatedOutcomeRuntime({ repository: simulatedOutcomeRepository })] : []),
+    ...(campaignSummaryRepository ? [createCampaignSummaryRuntime({ repository: campaignSummaryRepository })] : []),
   ]);
 }

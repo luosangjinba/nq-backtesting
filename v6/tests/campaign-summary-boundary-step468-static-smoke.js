@@ -1,0 +1,1 @@
+import assert from'node:assert/strict';import{readFile}from'node:fs/promises';const runtime=await readFile('v6/src/validation-summary/campaign-summary-runtime.js','utf8');for(const f of ['REPLAY_COMMANDS','replay-runtime','chart-engine','store.put','store.add'])assert.equal(runtime.includes(f),false);console.log('v6 campaign summary boundary step468 static smoke passed');

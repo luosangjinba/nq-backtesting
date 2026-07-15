@@ -105,6 +105,11 @@ the `1m` ambiguity disclosure and calculate bounded R from immutable plan risk.
 Show one small campaign summary and navigate a result back to its original
 trial/evidence context through public navigation contracts.
 
+Status: complete with an explicit navigation constraint. The read-only summary
+and stable drillback descriptor are complete; automatic backward chart
+repositioning remains gated on a safe owner-level navigation contract in Step
+469 and is not emulated by direct Replay mutation.
+
 ### Step 469 — Trial Acceptance
 
 Run focused regression packs and human use on real trials. Semantic vocabulary,
@@ -123,7 +128,7 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Steps 462-467 completed the first trial source-artifact chain. Step 468 is now
-the next authorized target. This does not pre-authorize Step 469: each Step requires focused
+Steps 462-468 completed the first trial source-artifact and read-projection
+chain. Step 469 is now the next authorized target and requires focused
 inspection, verification, and an independent commit, and may revise later
 detail without breaking the accepted product/ownership invariants.

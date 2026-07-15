@@ -218,6 +218,8 @@ export const VALIDATION_TRADE_PLAN_EVENTS = Object.freeze({
 });
 export const VALIDATION_OUTCOME_COMMANDS=Object.freeze({LIST:'validationOutcome.list',RECORD:'validationOutcome.record'});
 export const VALIDATION_OUTCOME_EVENTS=Object.freeze({RECORDED:'validationOutcome:recorded',REJECTED:'validationOutcome:rejected'});
+export const VALIDATION_SUMMARY_COMMANDS=Object.freeze({DRILLBACK:'validationSummary.drillback',GET:'validationSummary.get'});
+export const VALIDATION_SUMMARY_EVENTS=Object.freeze({DRILLBACK_REJECTED:'validationSummary:drillbackRejected',DRILLBACK_RESOLVED:'validationSummary:drillbackResolved'});
 
 export const REPLAY_NAVIGATION_PREFERENCES_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'replayNavigationPreferences.getSnapshot',

@@ -4,6 +4,7 @@ import { createReplayPipelineRuntimeContributions } from './replay-pipeline-runt
 import { createValidationRuntimeContributions } from './validation-runtime-contributions.js';
 
 export function createCoreRuntimeContributions({
+  campaignSummaryRepository,
   dispatchCommand,
   persistenceRepository = createPersistenceRepository(),
   replayNavigationPreferencesStorage,
@@ -25,6 +26,7 @@ export function createCoreRuntimeContributions({
       subscribeEvent,
     }),
     ...createValidationRuntimeContributions({
+      campaignSummaryRepository,
       dispatchCommand,
       observationEvidenceRepository,
       simulatedOutcomeRepository,
