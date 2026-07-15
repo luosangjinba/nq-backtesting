@@ -84,6 +84,16 @@ assert.equal(resumed.lastResult.startVisibleThroughTime, '2026-07-15T13:33:00.00
 assert.equal(events.at(-1).status, 'resumed');
 assert.equal(replayReadCount, 2);
 
+replayState = {
+  ...replayState,
+  cursorIndex: 2,
+  cursorTime: '2026-07-15T13:32:00.000Z',
+  revealedCount: 3,
+};
+const rewound = await dispatchCommand(BLIND_TRIAL_COMMANDS.RESUME, { trialId: 'trial-1' });
+assert.equal(rewound.status, 'rejected');
+assert.match(rewound.error, /precedes.*visible-through/);
+
 replayState = { ...replayState, sessionId: 'other-replay' };
 const rejected = await dispatchCommand(BLIND_TRIAL_COMMANDS.RESUME, { trialId: 'trial-1' });
 assert.equal(rejected.status, 'rejected');

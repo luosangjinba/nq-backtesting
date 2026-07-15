@@ -103,6 +103,9 @@ export function createBlindTrialCoordinatorRuntime({
         if (trial.replaySessionId !== provenance.sessionId) {
           throw new Error('Loaded Replay session does not match the blind trial session.');
         }
+        if (Date.parse(provenance.visibleThroughTime) < Date.parse(trial.replayVisibleThroughTime)) {
+          throw new Error('Loaded Replay cursor precedes the blind trial visible-through boundary.');
+        }
       }
       const result = {
         action,
