@@ -1,6 +1,6 @@
 import { renderAppShell } from './shell/app-shell.js';
 import { createRuntimeRegistry } from './runtime/lifecycle.js';
-import { createCoreRuntimeContributions } from './runtime/core-runtime-manifest.js';
+import { createAppRuntimeContributions } from './runtime/app-runtime-contributions.js';
 import { dispatchCommand } from './runtime/commands.js';
 import { emitEvent, subscribeEvent } from './runtime/events.js';
 import { connectChartDataSurfaceBridge } from './chart-engine/chart-data-surface-bridge.js';
@@ -17,13 +17,7 @@ import { connectSettingsCurrentPriceBridge } from './chart-engine/settings-curre
 import { mountWorkstationChartSurface } from './chart-engine/workstation-chart-surface.js';
 import { connectLeftwardHistoryInputBridge } from './chart-history/leftward-history-input-bridge.js';
 import { connectSettingsChartViewportBridge } from './chart-viewport/settings-chart-viewport-bridge.js';
-import { createSessionMetadataStorage } from './session/session-metadata-storage.js';
 import { connectSettingsDaySeparatorBridge } from './session-calendar/settings-day-separator-bridge.js';
-import { createInMemorySessionRepository } from './session/session-repository.js';
-import {
-  createPersistenceRepository,
-  createWebStoragePersistenceAdapter,
-} from './persistence/persistence-repository.js';
 import { mountDisplayTimeframeControl } from './shell/display-timeframe-control.js';
 import { connectDisplayTimeframePaneTargetBridge } from './shell/display-timeframe-pane-target-bridge.js';
 import { mountJournalSurface } from './shell/journal-surface.js';
@@ -36,7 +30,6 @@ import { mountReplayTransport } from './shell/replay-transport.js';
 import { mountReplayNavigationControl } from './shell/replay-navigation-control.js';
 import { mountReplayNavigationSettings } from './shell/replay-navigation-settings.js';
 import { createReplayTransportPositionPreference } from './shell/replay-transport-position-preference.js';
-import { createReplayNavigationPreferencesStorage } from './replay-navigation/replay-navigation-preferences-storage.js';
 import { mountSessionDashboard } from './shell/session-dashboard.js';
 import { mountSettingsPanel } from './shell/settings-panel.js';
 import { mountSessionsSurface } from './shell/sessions-surface.js';
@@ -53,18 +46,8 @@ if (!root) {
 
 renderAppShell(root);
 const registry = createRuntimeRegistry();
-const sessionRepository = createInMemorySessionRepository({
-  metadataStore: createSessionMetadataStorage(),
-});
-const replayNavigationPreferencesStorage = createReplayNavigationPreferencesStorage();
-const persistenceRepository = createPersistenceRepository({
-  adapter: createWebStoragePersistenceAdapter(),
-});
-createCoreRuntimeContributions({
+createAppRuntimeContributions({
   dispatchCommand,
-  persistenceRepository,
-  replayNavigationPreferencesStorage,
-  sessionRepository,
   subscribeEvent,
 })
   .forEach((runtime) => registry.registerRuntime(runtime));

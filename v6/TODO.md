@@ -57,6 +57,11 @@
   sides, prices, and date-boundary copy are now text/DOM properties rather than
   parsed HTML. A static invariant forbids `innerHTML` in all three paths.
 
+- Step 448 extracts App runtime contributions. Repository/storage construction
+  and the core-runtime factory call move from `app.js` into one explicit
+  composition boundary; App retains registry creation, ordered registration,
+  startup, and UI orchestration.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
