@@ -20,15 +20,15 @@ for (const required of [
   'Step 462 — Restore Replay/History Latency Gate',
   'Step 463 — Validation Domain Spine',
   'no production UI is added',
-  'does not pre-authorize product Steps 464-469',
+  'does not pre-authorize product Steps 466-469',
 ]) {
   assert.equal(plan.includes(required), true, required);
 }
 
 assert.equal(roadmap.includes('Post-Stabilization Product Selection — Step 461'), true);
 assert.equal(index.includes('V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md'), true);
-assert.equal(todo.includes('## Next Step — 463'), true);
-assert.equal(todo.includes('219.2 ms and 188.3 ms'), true);
+assert.equal(todo.includes('## Next Step — 465'), true);
+assert.equal(session.includes('219.2 ms and 188.3 ms'), true);
 assert.equal(session.includes('canonical named suite: 13/14 passed'), true);
 assert.equal(session.includes('No production source or product UI changed'), true);
 
