@@ -1,4 +1,5 @@
 import { findStep456TriageEntry } from './test-triage-manifest-step456.js';
+import { hasExplicitSupportRole } from './test-role-manifest.js';
 
 const BROWSER_SOURCE_PATTERN = /^import .*?(browser-cdp-client|v6-browser-harness)/m;
 
@@ -19,10 +20,7 @@ export function classifyTestFile({ path, source = '' } = {}) {
   let role = 'gate';
   const triage = findStep456TriageEntry(normalizedPath);
   if (triage?.disposition === 'quarantine-superseded') role = 'quarantine';
-  else if (
-    normalizedPath.includes('/helpers/') ||
-    normalizedPath.endsWith('/canonical-test-manifest.js') ||
-    normalizedPath.endsWith('/test-catalog-domain.js') ||
+  else if (hasExplicitSupportRole(normalizedPath) ||
     /['"]v6\/(?:TODO|docs\/INDEX)\.md['"]/.test(source)
   ) role = 'support';
   else if (

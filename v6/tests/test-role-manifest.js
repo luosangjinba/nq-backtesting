@@ -1,6 +1,9 @@
 export const EXPLICIT_SUPPORT_FILES = Object.freeze([
   'v6/tests/canonical-test-manifest.js',
+  'v6/tests/canonical-test-runner-domain.js',
   'v6/tests/test-catalog-domain.js',
+  'v6/tests/test-role-manifest.js',
+  'v6/tests/test-triage-manifest-step456.js',
 ]);
 
 export const EXPLICIT_SUPPORT_PREFIXES = Object.freeze([
