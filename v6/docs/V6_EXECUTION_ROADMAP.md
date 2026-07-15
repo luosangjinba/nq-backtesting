@@ -329,7 +329,10 @@ blocked until Step 462 restores the repeated Manual Next/leftward-history
 latency failure; the domain/persistence spine then begins at Step 463.
 
 Step 462 restored that gate with a 98.5 ms canonical concurrency sample and a
-14/14 named suite. Step 463 is the current product-entry target.
+14/14 named suite. Step 463 then established immutable playbook versions,
+campaign/trial lifecycles, and a transactional migration-backed IndexedDB
+repository without UI or Replay implementation coupling. Step 464, the Blind
+Trial Coordinator, is the current product-entry target.
 
 Free Practice remains protected on the same Replay foundation. The validation
 workflow may add required fields and provenance, but it may not fork chart,

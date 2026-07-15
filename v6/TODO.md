@@ -38,6 +38,13 @@ loads. Same-timeframe cursor materialization now requests one exact bar and
 reuses the source advance's forward cache. Five focused runs passed at
 55.9–99.0 ms; canonical passed 14/14 with a 98.5 ms concurrency sample.
 
+Step 463 established the validation domain spine. Immutable playbook versions,
+campaign/trial lifecycle invariants, a dedicated async repository, versioned
+IndexedDB stores/indexes, and transactional reference checks now exist without
+production UI or Replay/chart/Bar Data coupling. Real Chromium close/reopen
+reload passed; the canonical suite passed 14/14 and exhaustive offline Node
+gates passed 391/391.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -50,19 +57,23 @@ reuses the source advance's forward cache. Five focused runs passed at
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 463
+## Next Step — 464
 
-Implement the validation domain spine only:
+Implement the Blind Trial Coordinator only:
 
-- minimal versioned contracts and lifecycle invariants for `playbookVersion`,
-  `validationCampaign`, and `trial`;
-- an explicit repository interface and migration-backed local persistence;
-- create/get/list/reload and architecture gates;
-- no production UI, mode shell, Semantic Drawing, order/outcome, or analytics.
+- expose bounded commands/events to start and resume a trial through the
+  validation repository;
+- capture only Replay session, cursor, and visible-through references already
+  exposed by public contracts;
+- keep Replay as the sole owner of cursor/reveal state and avoid direct runtime
+  implementation imports;
+- add coordinator contract/ownership/reload gates;
+- no observation, trade-plan, outcome, Analytics, Semantic Drawing, mode shell,
+  or broad workflow UI.
 
-Inspect existing persistence owners and contracts before choosing the
-module/database boundary. Do not place this logic in App, Shell, Replay, chart,
-or adapter entry files.
+Inspect the existing command/event and Replay public contracts before defining
+the coordinator interface. Do not place this logic in App, Shell, Replay,
+chart, persistence-adapter, or route entry files.
 
 ## Known Catalog Debt
 

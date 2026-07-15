@@ -1,6 +1,6 @@
 # V6 Validation Domain Spine — Step 463
 
-Status: implementation boundary (2026-07-15)
+Status: complete (2026-07-15)
 
 ## Scope
 
@@ -79,3 +79,23 @@ Once persisted, a playbook version cannot be overwritten or reinterpreted.
 - IndexedDB schema migration creates required stores and indexes;
 - domain/repository code imports no App, Shell, Replay, chart engine, Bar Data,
   DOM, or Lightweight Charts implementation.
+
+## Closeout Evidence
+
+- pure domain contract and lifecycle smoke: passed;
+- repository create/get/list/transition/reload smoke: passed;
+- real Chromium IndexedDB close/reopen smoke: passed;
+- schema migration and boundary smoke: passed;
+- canonical named suite: 14/14 passed;
+- exhaustive offline Node suite: 391/391 passed;
+- static architecture audit: 54/54 passed;
+- exhaustive catalog before this closeout harness: 773/773 classified.
+
+The exhaustive run exposed two pre-Step-463 fixtures that still counted the
+older two-window replay cursor path. They were updated independently while
+retaining their production ownership assertions. No Step 463 production code
+imports or mutates Replay, chart, Bar Data, App, or Shell owners.
+
+Step 464 may consume this repository through a thin Blind Trial Coordinator.
+It must use Replay's public commands/events only and must not add observation,
+trade-plan, outcome, Analytics, Semantic Drawing, or mode-shell behavior.

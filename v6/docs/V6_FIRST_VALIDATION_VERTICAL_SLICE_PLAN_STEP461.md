@@ -59,6 +59,11 @@ Gate:
   market-bar API import;
 - no production UI is added.
 
+Status: complete. The three artifacts now have pure constructors/transitions,
+an async repository, versioned IndexedDB schema/migration, transactional
+reference checks, and reload coverage without UI or Replay implementation
+coupling.
+
 ### Step 464 — Blind Trial Coordinator
 
 Add a thin coordinator that starts/resumes a trial through commands/events and
@@ -104,7 +109,8 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Step 462 completed the bounded foundation repair. Step 463 is now the next
-authorized target. This does not pre-authorize product Steps 464-469: each Step requires focused inspection,
-verification, and an independent commit, and may revise later detail without
-breaking the accepted product/ownership invariants.
+Steps 462-463 completed the bounded foundation repair and validation domain
+spine. Step 464 is now the next authorized target. This does not pre-authorize
+product Steps 465-469: each Step requires focused inspection, verification,
+and an independent commit, and may revise later detail without breaking the
+accepted product/ownership invariants.

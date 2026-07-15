@@ -42,6 +42,9 @@ router, not a chronological ledger.
   that the three operating perspectives are policies over shared owners.
 - `v6/docs/V6_FIRST_VALIDATION_VERTICAL_SLICE_PLAN_STEP461.md`: selected thin-
   loop delivery order, Step 462 latency entry gate, and exclusions.
+- `v6/docs/V6_VALIDATION_DOMAIN_SPINE_STEP463.md`: completed validation-domain
+  artifacts, lifecycle invariants, repository ownership, and IndexedDB
+  persistence boundary.
 
 ## Architecture And Testing
 
