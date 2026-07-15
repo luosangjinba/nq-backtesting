@@ -24,6 +24,11 @@
   latency to a non-deterministic older-window append and is queued for the
   historical-assertion decision in Step 443 rather than weakening its limit.
 
+- Step 442 establishes canonical test-manifest schema v1. Every selected suite
+  declares its runtime environment and gate/quarantine role; duplicate scripts,
+  missing files, invalid classifications, and reasonless quarantines fail the
+  manifest self-check. Exhaustive inventory coverage remains Step 445.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
