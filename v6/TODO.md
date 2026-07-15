@@ -41,6 +41,12 @@
   loopback HTTP/debug ports, and cleanup requirements so Node-only discovery no
   longer silently executes browser infrastructure tests.
 
+- Step 445 closes canonical catalog discovery. A pure catalog policy now
+  classifies every JavaScript file below `v6/tests` as Node, local-browser, or
+  service-browser and as gate, runner, or support. Exhaustiveness, uniqueness,
+  and direct browser-import classification are executable invariants; manifest
+  coverage advances from `foundation-selection` to `exhaustive-policy`.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to

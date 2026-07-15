@@ -7,10 +7,12 @@ export const TEST_ENVIRONMENTS = Object.freeze([
 export const TEST_ROLES = Object.freeze([
   'gate',
   'quarantine',
+  'runner',
+  'support',
 ]);
 
 export const CANONICAL_TEST_MANIFEST = Object.freeze({
-  coverage: 'foundation-selection',
+  coverage: 'exhaustive-policy',
   schemaVersion: 1,
   suites: Object.freeze([
     Object.freeze({
