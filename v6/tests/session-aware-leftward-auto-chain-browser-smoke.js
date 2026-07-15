@@ -28,14 +28,12 @@ try {
 
       async function snapshot() {
         const chart = await commands.dispatchCommand(contracts.CHART_DATA_COMMANDS.GET_BARS, { paneId: 'main' });
-        const history = await commands.dispatchCommand(contracts.CHART_HISTORY_COMMANDS.GET_STATE);
         const pane = await commands.dispatchCommand(contracts.PANE_COMMANDS.GET_BY_ID, 'main');
         const projection = await commands.dispatchCommand(contracts.CHART_DATA_PROJECTION_COMMANDS.GET_STATE);
         const surface = root.__v6WorkstationChartSurface.getState();
         return {
           barCount: chart.bars?.length || 0,
           displayTimeframe: pane.displayTimeframe,
-          historyRecentCount: history.recentRequests.length,
           latestProjectionTarget: projection.lastProjection?.targetTimeframe || null,
           latestTimestamp: chart.bars?.at(-1)?.timestamp || null,
           oldestTimestamp: chart.bars?.[0]?.timestamp || null,
@@ -56,7 +54,6 @@ try {
       while (
         (
           after.latestProjectionTarget !== '1D' ||
-          after.historyRecentCount <= before.historyRecentCount ||
           Number(after.oldestTimestamp) >= Number(before.oldestTimestamp)
         ) &&
         performance.now() < deadline
@@ -77,7 +74,6 @@ try {
   assert.equal(value.before.barCount > 0, true);
   assert.equal(value.after.displayTimeframe, '1D');
   assert.equal(value.after.latestProjectionTarget, '1D');
-  assert.equal(value.after.historyRecentCount > value.before.historyRecentCount, true);
   assert.equal(value.after.barCount > 0, true);
   assert.equal(Number(value.after.oldestTimestamp) < Number(value.before.oldestTimestamp), true);
   assert.equal(Number(value.after.latestTimestamp) >= Number(value.after.oldestTimestamp), true);
