@@ -63,7 +63,10 @@ function resolveSourceTimeframe(replayState = {}) {
 }
 
 function resolveTargetTimeframe(replayState = {}, pane = {}) {
-  const value = pane.displayTimeframe || replayState.timeframe;
+  if (pane.displayTimeframe === null || pane.displayTimeframe === undefined) {
+    return resolveSourceTimeframe(replayState);
+  }
+  const value = pane.displayTimeframe;
   if (isSessionAwareDisplayTimeframe(value)) {
     return normalizeDisplayTimeframeValue(value);
   }
@@ -80,9 +83,11 @@ function createCursorWindowPayload(replayState, pane = {}) {
   }
   const sourceTimeframe = resolveSourceTimeframe(replayState);
   const targetTimeframe = resolveTargetTimeframe(replayState, pane);
-  const count = isSessionAwareDisplayTimeframe(targetTimeframe)
-    ? 2
-    : Math.max(2, Math.ceil(targetTimeframe / sourceTimeframe));
+  const count = targetTimeframe === sourceTimeframe
+    ? 1
+    : isSessionAwareDisplayTimeframe(targetTimeframe)
+      ? 2
+      : Math.max(2, Math.ceil(targetTimeframe / sourceTimeframe));
   return {
     anchor: replayState.cursorTime,
     count,

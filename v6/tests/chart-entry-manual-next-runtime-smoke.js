@@ -139,7 +139,7 @@ assert.deepEqual(calls.map((call) => call.command), [
 ]);
 assert.deepEqual(calls[3].payload, {
   anchor: '2026-06-01T09:31:00.000Z',
-  count: 2,
+  count: 1,
   direction: 'backward',
   instrument: 'NQ',
   timeframe: 1,

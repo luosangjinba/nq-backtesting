@@ -63,7 +63,7 @@ assert.equal(result.loadedWindows[0].cacheHit, true);
 assert.notEqual(result.loadedWindows[1].projectionSource, null);
 
 const loadCalls = calls.filter((call) => call.command === BAR_DATA_COMMANDS.LOAD_WINDOW);
-assert.deepEqual(loadCalls.map((call) => call.payload.count), [2, 240]);
+assert.deepEqual(loadCalls.map((call) => call.payload.count), [1, 240]);
 assert.deepEqual(loadCalls.map((call) => call.payload.instrument), ['NQ', 'ES']);
 assert.equal(calls.filter((call) => call.command === CHART_DATA_PROJECTION_COMMANDS.PROJECT).length, 1);
 
