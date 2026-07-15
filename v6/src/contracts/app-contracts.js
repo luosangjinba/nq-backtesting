@@ -198,6 +198,18 @@ export const BLIND_TRIAL_EVENTS = Object.freeze({
   STARTED: 'blindTrial:started',
 });
 
+export const VALIDATION_OBSERVATION_COMMANDS = Object.freeze({
+  CAPTURE: 'validationObservation.capture',
+  GET_EVIDENCE: 'validationObservation.getEvidence',
+  GET_OBSERVATION: 'validationObservation.getObservation',
+  LIST: 'validationObservation.list',
+});
+
+export const VALIDATION_OBSERVATION_EVENTS = Object.freeze({
+  CAPTURED: 'validationObservation:captured',
+  REJECTED: 'validationObservation:rejected',
+});
+
 export const REPLAY_NAVIGATION_PREFERENCES_COMMANDS = Object.freeze({
   GET_SNAPSHOT: 'replayNavigationPreferences.getSnapshot',
   RESET: 'replayNavigationPreferences.reset',

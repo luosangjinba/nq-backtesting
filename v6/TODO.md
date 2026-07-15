@@ -22,6 +22,10 @@ trial to public Replay session/cursor/visible-through provenance, resumes it
 after IndexedDB reload, rejects mismatched or rewound Replay state, and never
 mutates Replay. Canonical passed 14/14; exhaustive Node passed 398/398.
 
+Step 465 added separate prospective observation and evidence artifacts,
+atomically persisted with pane/timeframe/time-price and Replay no-future
+provenance. It adds no overlay or Semantic Drawing write path.
+
 ## Current Foundation Gates
 
 - `node v6/tests/canonical-test-catalog-smoke.js`
@@ -34,22 +38,18 @@ mutates Replay. Canonical passed 14/14; exhaustive Node passed 398/398.
 - `node v6/tests/app-shell-browser-smoke.js`
 - `git diff --check`
 
-## Next Step — 465
+## Next Step — 466
 
-Implement Generic Observation and Evidence Snapshot only:
+Implement Prospective Trade Plan only:
 
-- persist one prospective text/category observation linked to an active trial;
-- persist canonical time-price, pane, timeframe, and Replay visible-through
-  evidence references with explicit provenance;
-- establish a separate observation/evidence owner and public contract before
-  adding any surface;
-- use a minimal non-overlay surface only if required for the thin slice;
-- no Semantic Drawing writes, trade plan, outcome, Analytics, mode shell, or
-  broad ICT ontology.
+- persist direction, entry, stop, target, and invalidation separately from
+  observation/evidence;
+- require an active trial and prospective evidence reference;
+- commit an immutable pre-result revision and distinguish later review edits;
+- no execution/outcome, R, Analytics, Semantic Drawing, or mode shell.
 
-Inspect active-trial, pane, chart-coordinate, and Replay public contracts first.
-Do not read hidden bars or place observation meaning inside drawing/chart,
-Replay, App, Shell, persistence-adapter, or route entry files.
+Do not place trade-plan truth inside observation, Journal, Replay, drawing,
+App, Shell, persistence-adapter, or route entry files.
 
 ## Known Catalog Debt
 

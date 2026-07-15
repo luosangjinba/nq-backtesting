@@ -7,6 +7,7 @@ export function createCoreRuntimeContributions({
   dispatchCommand,
   persistenceRepository = createPersistenceRepository(),
   replayNavigationPreferencesStorage,
+  observationEvidenceRepository,
   sessionRepository,
   subscribeEvent,
   validationRepository,
@@ -23,6 +24,7 @@ export function createCoreRuntimeContributions({
     }),
     ...createValidationRuntimeContributions({
       dispatchCommand,
+      observationEvidenceRepository,
       validationRepository,
     }),
   ]);

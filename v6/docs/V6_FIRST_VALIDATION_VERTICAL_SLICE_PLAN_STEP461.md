@@ -80,6 +80,10 @@ Persist one text/category observation plus canonical time-price/pane/timeframe
 references and provenance. Use a non-overlay UI first if that is the smallest
 honest surface; do not enable Semantic Drawing writes.
 
+Status: complete. Observation and evidence are separate, atomically persisted
+artifacts over IndexedDB v2 and public Replay/Pane read contracts; no overlay
+or Semantic Drawing write path was added.
+
 ### Step 466 — Prospective Trade Plan
 
 Record direction, entry, stop, target, and invalidation separately from the
@@ -113,8 +117,8 @@ demonstrates trustworthy provenance and low recording friction.
 
 ## Authorization Boundary
 
-Steps 462-464 completed the bounded foundation repair, validation domain spine,
-and Blind Trial Coordinator. Step 465 is now the next authorized target. This
-does not pre-authorize product Steps 466-469: each Step requires focused
+Steps 462-465 completed the foundation repair and first prospective evidence
+spine. Step 466 is now the next authorized target. This does not pre-authorize
+product Steps 467-469: each Step requires focused
 inspection, verification, and an independent commit, and may revise later
 detail without breaking the accepted product/ownership invariants.

@@ -1,8 +1,10 @@
 export const VALIDATION_DATABASE_NAME = 'v6.validation';
-export const VALIDATION_DATABASE_VERSION = 1;
+export const VALIDATION_DATABASE_VERSION = 2;
 
 export const VALIDATION_STORES = Object.freeze({
   CAMPAIGNS: 'validationCampaigns',
+  EVIDENCE: 'validationEvidence',
+  OBSERVATIONS: 'validationObservations',
   PLAYBOOK_VERSIONS: 'playbookVersions',
   TRIALS: 'validationTrials',
 });
@@ -29,6 +31,20 @@ export const VALIDATION_STORE_DEFINITIONS = Object.freeze({
     ]),
     keyPath: 'id',
   }),
+  [VALIDATION_STORES.OBSERVATIONS]: Object.freeze({
+    indexes: Object.freeze([
+      Object.freeze({ keyPath: 'trialId', name: 'byTrialId', unique: false }),
+      Object.freeze({ keyPath: 'evidenceId', name: 'byEvidenceId', unique: true }),
+    ]),
+    keyPath: 'id',
+  }),
+  [VALIDATION_STORES.EVIDENCE]: Object.freeze({
+    indexes: Object.freeze([
+      Object.freeze({ keyPath: 'trialId', name: 'byTrialId', unique: false }),
+      Object.freeze({ keyPath: 'observationId', name: 'byObservationId', unique: true }),
+    ]),
+    keyPath: 'id',
+  }),
 });
 
 function createStore(db, name, definition) {
@@ -46,8 +62,15 @@ export function applyValidationIndexedDbMigrations({
     throw new Error('Validation IndexedDB migration requires a database.');
   }
   if (Number(oldVersion) < 1) {
-    Object.entries(VALIDATION_STORE_DEFINITIONS).forEach(([name, definition]) => {
+    [VALIDATION_STORES.PLAYBOOK_VERSIONS, VALIDATION_STORES.CAMPAIGNS, VALIDATION_STORES.TRIALS]
+      .forEach((name) => {
+      const definition = VALIDATION_STORE_DEFINITIONS[name];
       createStore(db, name, definition);
+    });
+  }
+  if (Number(oldVersion) < 2) {
+    [VALIDATION_STORES.OBSERVATIONS, VALIDATION_STORES.EVIDENCE].forEach((name) => {
+      createStore(db, name, VALIDATION_STORE_DEFINITIONS[name]);
     });
   }
 }

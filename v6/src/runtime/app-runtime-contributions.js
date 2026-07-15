@@ -7,6 +7,7 @@ import {
 } from '../persistence/persistence-repository.js';
 import { createReplayNavigationPreferencesStorage } from '../replay-navigation/replay-navigation-preferences-storage.js';
 import { createValidationRepository } from '../validation-persistence/validation-repository.js';
+import { createObservationEvidenceRepository } from '../validation-observation/observation-evidence-repository.js';
 
 export function createAppRuntimeContributions({
   dispatchCommand,
@@ -20,8 +21,10 @@ export function createAppRuntimeContributions({
     adapter: createWebStoragePersistenceAdapter(),
   });
   const validationRepository = createValidationRepository();
+  const observationEvidenceRepository = createObservationEvidenceRepository();
   return createCoreRuntimeContributions({
     dispatchCommand,
+    observationEvidenceRepository,
     persistenceRepository,
     replayNavigationPreferencesStorage,
     sessionRepository,

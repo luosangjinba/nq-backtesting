@@ -11,8 +11,8 @@ const repository = createValidationRepository({ adapter, now: () => 9000 });
 await repository.open();
 
 assert.deepEqual(adapter.inspect(), {
-  stores: ['playbookVersions', 'validationCampaigns', 'validationTrials'],
-  version: 1,
+  stores: ['playbookVersions', 'validationCampaigns', 'validationEvidence', 'validationObservations', 'validationTrials'],
+  version: 2,
 });
 
 const playbook = await repository.createPlaybookVersion({

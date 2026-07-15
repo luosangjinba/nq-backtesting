@@ -26,8 +26,8 @@ for (const required of [
   assert.equal(decision.includes(required), true, required);
 }
 
-assert.equal(plan.includes('Step 465 is now the next authorized target'), true);
-assert.equal(todo.includes('## Next Step — 465'), true);
+assert.equal(plan.includes('Step 466 is now the next authorized target'), true);
+assert.equal(todo.includes('## Next Step — 466'), true);
 assert.equal(decision.includes('Step 463 may begin the validation domain spine'), true);
 assert.equal(session.includes('focused browser latency gate: 5/5'), true);
 

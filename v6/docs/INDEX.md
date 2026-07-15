@@ -47,6 +47,8 @@ router, not a chronological ledger.
   persistence boundary.
 - `v6/docs/V6_BLIND_TRIAL_COORDINATOR_STEP464.md`: completed blind trial
   commands/events, Replay provenance, resume integrity, and ownership boundary.
+- `v6/docs/V6_GENERIC_OBSERVATION_EVIDENCE_STEP465.md`: generic prospective
+  observation/evidence artifacts, provenance, and IndexedDB v2 boundary.
 
 ## Architecture And Testing
 
