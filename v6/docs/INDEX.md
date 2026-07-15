@@ -43,6 +43,9 @@ router, not a chronological ledger.
 - `v6/docs/V6_ETH_RTH_EXCHANGE_CALENDAR_PHASE_A2.md`: accepted NQ/ES normal
   ETH/RTH intervals, half-open boundary convention, DST treatment, and
   versioned CME exception policy.
+- `v6/docs/V6_ETH_RTH_REPLAY_PROJECTION_PHASE_A3.md`: accepted shared-cursor
+  switching/traversal, RTH-first aggregation, cache, persistence, and
+  provenance semantics.
 - `v6/docs/V6_MULTI_INSTRUMENT_PANE_PHASE_PLAN.md`: accepted phase-level plan
   for pane-local Session instruments over one shared Replay clock; sequencing
   remains behind Step 470 and the ETH/RTH milestone gate.

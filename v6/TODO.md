@@ -83,9 +83,13 @@ Phase A2 accepted normal ETH `[18:00 previous day, 17:00)` and reduced RTH
 versioned CME holiday/early-close exceptions. Missing bars are never
 synthesized or silently classified as holidays.
 
-Next, Phase A3 must settle Replay traversal, switching outside RTH,
-higher-timeframe aggregation, cache identity, persistence, and provenance. This
-is still a domain/decision phase; do not begin with the toolbar.
+Phase A3 accepted shared-cursor behavior: switching mode retains cursor and
+recomputes visible-through; RTH transport skips ineligible bars; all panes share
+one revision; RTH source bars are filtered before `09:30`-anchored aggregation;
+cache/provenance identity includes mode and calendar revision.
+
+Next, Phase A4 implements the pure Session Hours/calendar domain and fixtures,
+then closes Phase A. Do not add runtime commands or toolbar UI in Phase A4.
 
 The future Validation Campaign UI phase must implement the real recording and
 summary workflow before recording friction, sample/R presentation, or human
