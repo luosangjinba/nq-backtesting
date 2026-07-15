@@ -1864,35 +1864,35 @@ p {
   color: #b7c8d2;
 }
 
-.symbol-readout[data-status-ohlc="selected"] [data-v6-status-open],
-.symbol-readout[data-status-ohlc="selected"] [data-v6-status-high],
-.symbol-readout[data-status-ohlc="selected"] [data-v6-status-low],
-.symbol-readout[data-status-ohlc="selected"] [data-v6-status-close],
-.symbol-readout[data-status-ohlc="selected"] [data-v6-status-change] {
+.symbol-readout:not([data-status-ohlc="empty"]) [data-v6-status-open],
+.symbol-readout:not([data-status-ohlc="empty"]) [data-v6-status-high],
+.symbol-readout:not([data-status-ohlc="empty"]) [data-v6-status-low],
+.symbol-readout:not([data-status-ohlc="empty"]) [data-v6-status-close],
+.symbol-readout:not([data-status-ohlc="empty"]) [data-v6-status-change] {
   color: #9ee7d6;
 }
 
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="up"] [data-v6-status-open],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="up"] [data-v6-status-high],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="up"] [data-v6-status-low],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="up"] [data-v6-status-close],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="up"] [data-v6-status-change] {
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="up"] [data-v6-status-open],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="up"] [data-v6-status-high],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="up"] [data-v6-status-low],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="up"] [data-v6-status-close],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="up"] [data-v6-status-change] {
   color: #36b7a8;
 }
 
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="down"] [data-v6-status-open],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="down"] [data-v6-status-high],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="down"] [data-v6-status-low],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="down"] [data-v6-status-close],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="down"] [data-v6-status-change] {
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="down"] [data-v6-status-open],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="down"] [data-v6-status-high],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="down"] [data-v6-status-low],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="down"] [data-v6-status-close],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="down"] [data-v6-status-change] {
   color: #f25f68;
 }
 
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="flat"] [data-v6-status-open],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="flat"] [data-v6-status-high],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="flat"] [data-v6-status-low],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="flat"] [data-v6-status-close],
-.symbol-readout[data-status-ohlc="selected"][data-status-candle-direction="flat"] [data-v6-status-change] {
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="flat"] [data-v6-status-open],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="flat"] [data-v6-status-high],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="flat"] [data-v6-status-low],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="flat"] [data-v6-status-close],
+.symbol-readout:not([data-status-ohlc="empty"])[data-status-candle-direction="flat"] [data-v6-status-change] {
   color: #d7e1e7;
 }
 

@@ -45,6 +45,7 @@ try {
         hostRect,
         initial: {
           close: text('[data-v6-status-close]'),
+          color: getComputedStyle(document.querySelector('[data-v6-status-close]')).color,
           high: text('[data-v6-status-high]'),
           low: text('[data-v6-status-low]'),
           open: text('[data-v6-status-open]'),
@@ -74,6 +75,11 @@ try {
   assert.equal(setup.initial.close, `C ${Number(setup.latestBar.close).toFixed(2)}`);
   assert.equal(setup.readoutDataset.ohlc, 'latest');
   assert.match(setup.readoutDataset.direction, /^(up|down|flat)$/);
+  assert.equal(setup.initial.color, {
+    down: 'rgb(242, 95, 104)',
+    flat: 'rgb(215, 225, 231)',
+    up: 'rgb(54, 183, 168)',
+  }[setup.readoutDataset.direction]);
   assert.equal(setup.labelCounts.nq, 1);
   assert.equal(setup.labelCounts.timeframe, 1);
   assert.equal(setup.symbol, 'NQ');
