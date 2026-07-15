@@ -4,6 +4,7 @@ export const STEP459_BROWSER_LOCAL_FILES = Object.freeze([
   'v6/tests/auto-play-continuous-history-browser-step152-smoke.js',
   'v6/tests/auto-play-htf-visible-latency-browser-step199-smoke.js',
   'v6/tests/auto-play-session-gap-browser-step263-smoke.js',
+  'v6/tests/blind-trial-indexeddb-resume-browser-step464-smoke.js',
   'v6/tests/bottom-chrome-regression-audit-browser-smoke.js',
   'v6/tests/browser-harness-environment-contract-smoke.js',
   'v6/tests/browser-harness-parallel-step180-smoke.js',

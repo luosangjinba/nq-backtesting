@@ -9,6 +9,7 @@ const runtimes = createCoreRuntimeContributions({
   },
   sessionRepository: {},
   subscribeEvent: () => () => {},
+  validationRepository: {},
 });
 const ids = runtimes.map((runtime) => runtime.id);
 
@@ -20,5 +21,6 @@ assert.equal(ids.includes('runtime.replay-navigation-preferences'), true);
 assert.equal(ids.includes('runtime.chart-data'), true);
 assert.equal(ids.includes('runtime.chart-viewport'), true);
 assert.equal(ids.includes('runtime.replay-coordination-materialization-handoff'), true);
+assert.equal(ids.includes('runtime.blind-trial-coordinator'), true);
 
 console.log('v6 core runtime manifest smoke passed');

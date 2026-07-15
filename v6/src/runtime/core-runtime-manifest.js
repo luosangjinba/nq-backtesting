@@ -1,6 +1,7 @@
 import { createPersistenceRepository } from '../persistence/persistence-repository.js';
 import { createCoreStateRuntimeContributions } from './core-state-runtime-contributions.js';
 import { createReplayPipelineRuntimeContributions } from './replay-pipeline-runtime-contributions.js';
+import { createValidationRuntimeContributions } from './validation-runtime-contributions.js';
 
 export function createCoreRuntimeContributions({
   dispatchCommand,
@@ -8,6 +9,7 @@ export function createCoreRuntimeContributions({
   replayNavigationPreferencesStorage,
   sessionRepository,
   subscribeEvent,
+  validationRepository,
 } = {}) {
   return Object.freeze([
     ...createCoreStateRuntimeContributions({
@@ -18,6 +20,10 @@ export function createCoreRuntimeContributions({
       dispatchCommand,
       replayNavigationPreferencesStorage,
       subscribeEvent,
+    }),
+    ...createValidationRuntimeContributions({
+      dispatchCommand,
+      validationRepository,
     }),
   ]);
 }

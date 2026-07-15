@@ -16,5 +16,6 @@ assert.match(contributions, /createSessionMetadataStorage/);
 assert.match(contributions, /createInMemorySessionRepository/);
 assert.match(contributions, /createWebStoragePersistenceAdapter/);
 assert.match(contributions, /createReplayNavigationPreferencesStorage/);
+assert.match(contributions, /createValidationRepository/);
 
 console.log('v6 app runtime contributions static smoke passed');
