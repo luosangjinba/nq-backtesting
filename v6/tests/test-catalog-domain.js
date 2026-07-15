@@ -18,7 +18,8 @@ export function classifyTestFile({ path, source = '' } = {}) {
   if (
     normalizedPath.includes('/helpers/') ||
     normalizedPath.endsWith('/canonical-test-manifest.js') ||
-    normalizedPath.endsWith('/test-catalog-domain.js')
+    normalizedPath.endsWith('/test-catalog-domain.js') ||
+    /['"]v6\/(?:TODO|docs\/INDEX)\.md['"]/.test(source)
   ) role = 'support';
   else if (
     normalizedPath.includes('regression-pack') ||

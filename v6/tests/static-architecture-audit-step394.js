@@ -1,11 +1,20 @@
 import { spawnSync } from 'node:child_process';
-import { readdir } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
+import { classifyTestFile } from './test-catalog-domain.js';
 
 const auditOnly = process.argv.includes('--audit');
-const tests = (await readdir('v6/tests'))
+const candidates = (await readdir('v6/tests'))
   .filter((name) => name.endsWith('static-smoke.js'))
   .sort()
   .map((name) => `v6/tests/${name}`);
+const tests = [];
+const support = [];
+for (const test of candidates) {
+  const source = await readFile(test, 'utf8');
+  const entry = classifyTestFile({ path: test, source });
+  if (entry.role === 'support') support.push(test);
+  else tests.push(test);
+}
 
 const failures = [];
 for (const test of tests) {
@@ -18,6 +27,7 @@ console.log(JSON.stringify({
   passed: tests.length - failures.length,
   failed: failures.length,
   failures,
+  support: support.length,
 }, null, 2));
 
 if (failures.length && !auditOnly) process.exitCode = 1;
