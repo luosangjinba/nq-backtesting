@@ -76,7 +76,11 @@
   rail, and directly joins the Canvas to the navigation boundary. Normal
   readiness chrome is also hidden once all required owners and commands
   are ready; the readiness owner remains mounted so incomplete startup states
-  can still surface a user-facing warning. See
+  can still surface a user-facing warning. The chart adapter now extends each
+  pane with timeframe-aware, time-only whitespace points so the time scale
+  remains readable in the blank area to the right of the latest candle. These
+  points never enter bar-data or Replay state, contain no OHLC values, and do
+  not change the latest-bar status readout or future-data protection. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
