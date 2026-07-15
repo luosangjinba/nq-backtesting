@@ -52,6 +52,8 @@ router, not a chronological ledger.
   the 155 tests previously hidden by TODO/INDEX source inference.
 - `v6/docs/V6_EXPLICIT_TEST_RUNNERS_STEP458.md`: explicit runner inventory and
   closeout of filename-based runner inference.
+- `v6/docs/V6_EXPLICIT_TEST_ENVIRONMENTS_STEP459.md`: explicit execution
+  environment inventory, service dependency contract, and migration closeout.
 
 ## Historical Lookup
 

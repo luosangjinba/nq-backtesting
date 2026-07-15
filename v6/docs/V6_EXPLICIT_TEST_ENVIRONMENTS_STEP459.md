@@ -26,3 +26,20 @@ membership, not from filenames alone.
 2. Route non-default and service-dependent environments through explicit metadata.
 3. Remove filename and source-text environment inference.
 4. Execute the 18 restored Node classifications and all root/canonical gates.
+
+## Closeout
+
+Step 459 is complete:
+
+- 173 local-browser tests/runners use explicit `browser-local` metadata;
+- one browser plus API test uses explicit `browser-service` metadata;
+- one Node plus API test uses the new explicit `node-service` environment;
+- 18 filename false positives returned to Node classification; their three
+  current gates passed and 15 historical tests remain explicitly quarantined;
+- filename and source-text environment inference is removed;
+- a transitive dependency guard rejects browser-harness users without explicit
+  browser environment metadata;
+- the catalog classifies 755/755 JavaScript files across 580 Node, one
+  node-service, 173 browser-local, and one browser-service entry;
+- offline root Node gates passed 378/378, both service gates passed, static
+  gates passed 51/51, and the named canonical suite passed 14/14.

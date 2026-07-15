@@ -30,6 +30,12 @@ five ordinary assertion tests returned to the gate set and passed. The catalog
 now classifies 753/753 JavaScript files, root Node gates pass 375/375, static
 architecture gates pass 51/51, and the named canonical suite passes 14/14.
 
+Step 459 replaced filename/source environment inference with explicit metadata.
+The catalog now separates 580 offline Node files, one node-service file, 173
+local-browser files, and one browser-service file. Offline root Node gates pass
+378/378, both service gates pass, static gates pass 51/51, and the named
+canonical suite passes 14/14.
+
 The product freeze used by this milestone is now released for planning only.
 Implementation of the three operating modes, Semantic Drawing, or other new
 business capability still requires an explicit reviewed decision; it is not an
@@ -65,9 +71,10 @@ Do not start a mode or plugin implementation from this TODO alone.
   metadata for infrastructure support and every TODO/INDEX historical snapshot;
   Step 458 completed explicit orchestration-runner metadata. Future non-gate
   roles must extend metadata rather than add source or filename heuristics.
-- Environment classification still uses filename/source signals for browser
-  and real-service tests. Audit and replace those signals with explicit
-  environment metadata before claiming the catalog is inference-free.
+- Test role and environment classification are now metadata-driven. The named
+  canonical runner remains intentionally smaller than the exhaustive catalog;
+  root/environment gate execution is still assembled with audit commands
+  rather than one checked-in exhaustive runner.
 - Historical static/readiness/selection tests remain available for targeted
   archaeology but are not product direction documents.
 
