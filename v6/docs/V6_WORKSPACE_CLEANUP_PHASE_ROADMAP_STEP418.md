@@ -404,6 +404,9 @@ events, and transport behavior are unchanged.
 
 ### Step 432 - Verify Status Semantics And Layout
 
+Status: automated verification completed on 2026-07-14; mandatory human visual
+acceptance remains pending.
+
 - update model/controller/browser tests to assert meaning rather than obsolete
   English engineering strings;
 - verify Play/Pause, Next/Previous, Go-to, restart, session entry, loading, and
@@ -411,6 +414,16 @@ events, and transport behavior are unchanged.
 - verify compact status at supported resolutions and pane counts.
 
 Commit intent: `test(v6): verify compact replay status`
+
+The real Transport browser flow now verifies ready, playing, paused, ended,
+and restarted compact states plus future-protection visibility and diagnostic
+status/counts. A dedicated browser matrix verifies preparing state and compact
+status geometry at `1024x720`, `1440x900`, and `1920x1080` across single,
+two-Pane, and three-Pane layouts. It exposed the status row's content-box
+height inflation; explicit border-box sizing and tighter padding now keep the
+actual row within 32px. Replay, Restart, Session, Go-to, history, layout, App
+Shell, and screenshot gates pass. Phase 5 remains open until human visual
+acceptance is recorded.
 
 ### Phase 5 Gate
 

@@ -2773,17 +2773,18 @@ p {
 
 .status-bar {
   grid-row: 7;
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: 8px;
   min-height: 30px;
-  padding: 4px 10px;
+  padding: 2px 10px;
   color: #9fb7c6;
   font-size: 12px;
 }
 
 .status-bar span {
-  padding: 3px 8px;
+  padding: 2px 8px;
   border: 1px solid #1d303a;
   border-radius: 5px;
   background: #101a22;

@@ -46,7 +46,16 @@ try {
         const selectedPeriod = document.querySelector('[data-v6-transport-period-option].is-active');
         const playStyle = getComputedStyle(play);
         const restartStyle = getComputedStyle(restart);
+        const statusBar = document.querySelector('[data-v6-status-bar]');
+        const protection = document.querySelector('[data-v6-replay-protection]');
         return {
+          compactStatus: {
+            diagnostics: JSON.parse(statusBar.getAttribute('data-v6-replay-diagnostics')),
+            kind: statusBar.dataset.replayStatusKind,
+            message: document.querySelector('[data-v6-replay-status]').textContent.trim(),
+            protectionHidden: protection.hidden,
+            protectionMessage: protection.textContent.trim(),
+          },
           dataset: {
             ended: root.dataset.ended,
             playback: root.dataset.playback,
@@ -134,6 +143,7 @@ try {
 
       document.querySelector('[data-v6-transport-action="play-toggle"]').click();
       await waitForReplayStatus('paused');
+      const pausedSnapshot = snapshot();
 
       await commands.dispatchCommand('playbackPeriod.setPeriod', { period: '15m' });
       document.querySelector('[data-v6-transport-action="play-toggle"]').click();
@@ -173,6 +183,7 @@ try {
         manualPeriodState,
         periodState,
         periodSynced,
+        pausedSnapshot,
         playing,
         playingSnapshot,
         ready,
@@ -195,6 +206,10 @@ try {
   assert.equal(value.ready.period.label, '1m');
   assert.equal(value.ready.period.selected, '1m');
   assert.equal(value.ready.sync.checked, false);
+  assert.equal(value.ready.compactStatus.kind, 'ready');
+  assert.equal(value.ready.compactStatus.message, 'Replay ready');
+  assert.equal(value.ready.compactStatus.protectionHidden, false);
+  assert.equal(value.ready.compactStatus.protectionMessage, 'Future data hidden');
 
   assert.equal(value.manualPeriodState.period, '3m');
   assert.equal(value.manualPeriodState.sync, false);
@@ -223,6 +238,10 @@ try {
   assert.equal(value.playingSnapshot.play.pressed, 'true');
   assert.equal(value.playingSnapshot.restart.disabled, true);
   assert.equal(value.playingSnapshot.next.disabled, false);
+  assert.equal(value.playingSnapshot.compactStatus.message, 'Replay ready');
+  assert.equal(value.playingSnapshot.compactStatus.diagnostics.runtimeStatus, 'playing');
+  assert.equal(value.pausedSnapshot.compactStatus.message, 'Replay ready');
+  assert.equal(value.pausedSnapshot.compactStatus.diagnostics.runtimeStatus, 'paused');
 
   assert.equal(value.ended.status, 'ended');
   assert.equal(value.endedSnapshot.dataset.ended, 'true');
@@ -235,6 +254,10 @@ try {
   assert.equal(value.endedSnapshot.restart.active, true);
   assert.equal(value.endedSnapshot.restart.disabledClass, false);
   assert.equal(value.endedSnapshot.restart.label, 'Restart replay');
+  assert.equal(value.endedSnapshot.compactStatus.kind, 'complete');
+  assert.equal(value.endedSnapshot.compactStatus.message, 'Replay complete');
+  assert.equal(value.endedSnapshot.compactStatus.protectionHidden, true);
+  assert.equal(value.endedSnapshot.compactStatus.diagnostics.hiddenCount, 0);
   assert.equal(value.beforeDisabled.cursorIndex, value.afterDisabled.cursorIndex);
   assert.equal(value.beforeDisabled.revealedCount, value.afterDisabled.revealedCount);
   assert.equal(value.disabledActionSnapshot.dataset.ended, 'true');
@@ -246,6 +269,9 @@ try {
   assert.equal(value.restartedSnapshot.play.label, 'Play replay');
   assert.equal(value.restartedSnapshot.restart.disabled, true);
   assert.equal(value.restartedSnapshot.restart.disabledClass, true);
+  assert.equal(value.restartedSnapshot.compactStatus.message, 'Replay ready');
+  assert.equal(value.restartedSnapshot.compactStatus.protectionHidden, false);
+  assert.equal(value.restartedSnapshot.compactStatus.diagnostics.runtimeStatus, 'ready');
 } finally {
   await page.cleanup();
 }

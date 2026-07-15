@@ -52,9 +52,14 @@
   provide one compact lifecycle message, a conditional future-data assurance,
   and the versioned diagnostic JSON snapshot; all seven engineering badges are
   absent from production. Replay Runtime, commands, events, and transport are
-  unchanged. The next bounded step is Step 432: verify the compact semantics
-  across Replay flows and supported layouts, then perform mandatory human
-  visual acceptance. See
+  unchanged. Step 432 automated verification is complete: real Transport flows
+  cover ready/playing/paused/complete/restart and future protection, while a
+  dedicated matrix covers preparing plus single/two/three-Pane geometry at
+  `1024x720`, `1440x900`, and `1920x1080`. The matrix found and fixed actual
+  status-row content-box inflation; the row is now at most 32px and Transport
+  clearance remains intact. Phase 5 is still open pending mandatory human
+  visual acceptance. After acceptance, the next bounded step is Step 433:
+  remove cleanup residue and obsolete tests. See
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_INVENTORY_STEP418.md`,
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_DECISION_STEP418.md`, and
   `v6/docs/V6_WORKSPACE_PLACEHOLDER_CLEANUP_PLAN_STEP418.md`, plus
