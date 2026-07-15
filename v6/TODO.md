@@ -47,6 +47,11 @@
   and direct browser-import classification are executable invariants; manifest
   coverage advances from `foundation-selection` to `exhaustive-policy`.
 
+- Step 446 establishes the Shell safe-DOM boundary. Dynamic text elements are
+  created through `textContent`, lists are committed with `replaceChildren`,
+  and invalid tag names fail closed. Persisted Session/Journal migrations use
+  this boundary in Step 447.
+
 - Step 437 automated implementation is complete: the workstation outer inset
   is reduced from 10px (8px at narrow width) to a consistent 4px, while the
   Session Dashboard height contract is updated from `100vh - 20px` to
