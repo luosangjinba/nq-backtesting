@@ -87,6 +87,53 @@ count, or implementation timing.
 Correctness cannot depend on mouse movement, resize, wheel, arbitrary timeout,
 or repeated retry. Browser input may trigger an explicit command only.
 
+## Source Responsibility And Size Budgets
+
+File size is a review signal, not the architectural goal. Production files
+must first satisfy one-long-lived-responsibility. Default effective-code budgets
+are:
+
+| Kind | Review at | Block above | Function block above |
+| --- | ---: | ---: | ---: |
+| composition root / entry | 150 | 250 | 60 |
+| domain / contract / runtime | 250 | 400 | 80 |
+| adapter / persistence | 300 | 450 | 80 |
+| UI surface / controller | 300 | 450 | 80 |
+
+Fixtures, generated sources, and test data use separate reviewed budgets.
+Exceeding a blocking budget requires a machine-readable exception with owner,
+reason, why splitting is worse, human approval, and a removal/review condition.
+
+The harness also rejects artificial fragmentation: a tiny forwarding-only file
+without an owned contract or adaptation responsibility cannot exist merely to
+avoid a size gate.
+
+## Contract And Invariant Documentation
+
+Comment quantity is not a metric. Required documentation explains ownership,
+contracts, side effects, lifecycle, error behavior, concurrency/cancellation,
+and non-obvious invariants.
+
+Every public export must document its purpose and public behavior. Public ports,
+commands, queries, notifications, snapshots, transactions, provider adapters,
+and module lifecycle entries require the applicable fields:
+
+- owner;
+- inputs/outputs;
+- side effects;
+- lifecycle;
+- errors;
+- concurrency/cancellation;
+- protected invariants.
+
+Critical Session identity, stale rejection, atomic commit, no-future,
+projection alignment, and Viewport-wall code must explain why its rule exists.
+Comments that only translate syntax are not accepted as contract evidence.
+
+`TODO`, `FIXME`, `HACK`, and compatibility paths require a tracked decision id,
+owner, and removal condition. Comments remain secondary to executable contracts
+and harnesses; prose cannot override runtime truth.
+
 ## Commit And Human Gate
 
 The rule catalog, manifest, harness, fixtures, and implementation change in the

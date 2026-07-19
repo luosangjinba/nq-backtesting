@@ -32,6 +32,19 @@ No production runtime or V6 runtime import is allowed.
 Gate: architecture hardening harness passes all negative controls; no rule is
 marked accepted without human evidence.
 
+## R0.2 — Source Modularity And Documentation Gates
+
+- production file kind determines reviewed size/function budgets;
+- one file owns one long-lived responsibility;
+- size exceptions require machine-readable human evidence;
+- artificial forwarding fragments cannot evade size review;
+- public contracts document ownership and behavior;
+- critical concurrency/data/viewport invariants explain why they exist;
+- debt comments require decision id, owner, and removal condition.
+
+Gate: source-quality harness passes its positive model and rejects every
+intentional size, responsibility, documentation, and debt violation.
+
 ## R1 — Pure Identity And Transaction Contracts
 
 - opaque Session identity;

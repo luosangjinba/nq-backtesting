@@ -1,0 +1,20 @@
+{
+  "expectedFailureCode": "artificial-source-fragment",
+  "model": {
+    "files": [
+      {
+        "path": "replay/pass-through.js",
+        "kind": "runtime",
+        "effectiveLines": 8,
+        "responsibilities": ["forward one call"],
+        "forwardingOnly": true,
+        "ownsContract": false,
+        "adaptsBoundary": false,
+        "functions": [],
+        "publicExports": [],
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}

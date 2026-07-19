@@ -1,0 +1,34 @@
+{
+  "files": [
+    {
+      "path": "session-identity/public.js",
+      "kind": "contract",
+      "effectiveLines": 96,
+      "responsibilities": ["publish immutable Session identity contracts"],
+      "ownsContract": true,
+      "forwardingOnly": false,
+      "functions": [{ "name": "createSessionIdentity", "effectiveLines": 18 }],
+      "publicExports": [
+        {
+          "name": "createSessionIdentity",
+          "documentation": {
+            "owner": "session-identity",
+            "purpose": "create an opaque immutable Session identity",
+            "inputs": "validated opaque id source",
+            "outputs": "frozen SessionIdentity",
+            "sideEffects": "none",
+            "errors": "rejects empty identity"
+          }
+        }
+      ],
+      "requiresCriticalInvariant": true,
+      "criticalInvariants": [
+        {
+          "id": "session-identity",
+          "why": "all async and persisted state must remain explicitly scoped to one Session"
+        }
+      ],
+      "debtComments": []
+    }
+  ]
+}

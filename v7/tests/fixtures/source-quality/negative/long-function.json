@@ -1,0 +1,17 @@
+{
+  "expectedFailureCode": "function-size-budget-exceeded",
+  "model": {
+    "files": [
+      {
+        "path": "projection/domain.js",
+        "kind": "domain",
+        "effectiveLines": 180,
+        "responsibilities": ["project source bars"],
+        "functions": [{ "name": "projectEverything", "effectiveLines": 81 }],
+        "publicExports": [],
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}

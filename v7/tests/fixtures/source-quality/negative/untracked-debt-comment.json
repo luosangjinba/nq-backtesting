@@ -1,0 +1,17 @@
+{
+  "expectedFailureCode": "untracked-debt-comment",
+  "model": {
+    "files": [
+      {
+        "path": "adapter/temporary.js",
+        "kind": "adapter",
+        "effectiveLines": 50,
+        "responsibilities": ["adapt provider"],
+        "functions": [],
+        "publicExports": [],
+        "criticalInvariants": [],
+        "debtComments": [{ "text": "HACK remove later" }]
+      }
+    ]
+  }
+}

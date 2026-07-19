@@ -1,0 +1,17 @@
+{
+  "expectedFailureCode": "undocumented-public-contract",
+  "model": {
+    "files": [
+      {
+        "path": "replay/public.js",
+        "kind": "contract",
+        "effectiveLines": 50,
+        "responsibilities": ["publish Replay contract"],
+        "functions": [],
+        "publicExports": [{ "name": "advanceReplay", "documentation": { "purpose": "advance" } }],
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}

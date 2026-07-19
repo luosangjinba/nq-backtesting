@@ -43,6 +43,20 @@ Established:
 
 R0.1 adds no production runtime. It requires human acceptance before R1.
 
+## R0.2 — Source Modularity And Documentation
+
+Established:
+
+- kind-specific file and function size budgets;
+- single-long-lived-responsibility rule;
+- human-reviewed size exception schema;
+- artificial-fragment rejection;
+- documented public contract and critical-invariant requirements;
+- tracked debt-comment requirements;
+- positive source model and seven intentional violations.
+
+R0.2 adds no production runtime. It requires human acceptance before R1.
+
 ## Next Proposed Step — R1 Pure Contracts
 
 After R0 human acceptance, implement immutable Session identity, activation

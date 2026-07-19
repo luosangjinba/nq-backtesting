@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R0.1",
-  "stepOrder": ["R0", "R0.1", "R1", "R2", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R0.2",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R1", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -287,6 +287,41 @@
       "harness": null,
       "positiveEvidence": [],
       "negativeFixtures": [],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H022",
+      "name": "single-responsibility-and-source-size-budget",
+      "owner": "test-governance",
+      "v6FailurePrevented": "large mixed-purpose runtime and route files hid old ownership paths",
+      "activationStep": "R0.2",
+      "state": "executable",
+      "harness": "tests/source-quality-harness.js",
+      "positiveEvidence": ["tests/fixtures/source-quality/positive/modular-source.json"],
+      "negativeFixtures": [
+        "tests/fixtures/source-quality/negative/oversized-file.json",
+        "tests/fixtures/source-quality/negative/mixed-responsibility.json",
+        "tests/fixtures/source-quality/negative/long-function.json",
+        "tests/fixtures/source-quality/negative/artificial-fragment.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H023",
+      "name": "public-contract-and-critical-invariant-documentation",
+      "owner": "test-governance",
+      "v6FailurePrevented": "owners and old compatibility behavior could not be reliably located or removed",
+      "activationStep": "R0.2",
+      "state": "executable",
+      "harness": "tests/source-quality-harness.js",
+      "positiveEvidence": ["tests/fixtures/source-quality/positive/modular-source.json"],
+      "negativeFixtures": [
+        "tests/fixtures/source-quality/negative/undocumented-public-export.json",
+        "tests/fixtures/source-quality/negative/untracked-debt-comment.json",
+        "tests/fixtures/source-quality/negative/missing-critical-invariant.json"
+      ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

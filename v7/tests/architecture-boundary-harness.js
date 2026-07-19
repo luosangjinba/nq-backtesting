@@ -134,6 +134,9 @@ for (const rule of [
   'critical-rules-have-enforcement-lifecycle',
   'executable-rules-require-negative-controls',
   'automated-evidence-cannot-grant-human-acceptance',
+  'production-files-have-one-long-lived-responsibility',
+  'source-size-exceptions-require-human-evidence',
+  'public-contracts-and-critical-invariants-are-documented',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

@@ -1,0 +1,17 @@
+{
+  "expectedFailureCode": "mixed-or-missing-file-responsibility",
+  "model": {
+    "files": [
+      {
+        "path": "workspace/everything.js",
+        "kind": "runtime",
+        "effectiveLines": 200,
+        "responsibilities": ["advance Replay", "request bars", "write charts"],
+        "functions": [],
+        "publicExports": [],
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}

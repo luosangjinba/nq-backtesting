@@ -1,0 +1,18 @@
+{
+  "expectedFailureCode": "missing-critical-invariant-rationale",
+  "model": {
+    "files": [
+      {
+        "path": "transaction/commit.js",
+        "kind": "runtime",
+        "effectiveLines": 120,
+        "responsibilities": ["commit atomic workspace snapshot"],
+        "functions": [],
+        "publicExports": [],
+        "requiresCriticalInvariant": true,
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "expectedFailureCode": "source-size-budget-exceeded",
+  "model": {
+    "files": [
+      {
+        "path": "replay/runtime.js",
+        "kind": "runtime",
+        "effectiveLines": 401,
+        "responsibilities": ["own Replay state"],
+        "functions": [],
+        "publicExports": [],
+        "criticalInvariants": [],
+        "debtComments": []
+      }
+    ]
+  }
+}
