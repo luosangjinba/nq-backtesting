@@ -1,0 +1,20 @@
+{
+  "modules": [
+    { "id": "contract-registry", "dependencies": [], "internalImports": [], "writers": [] },
+    { "id": "module-lifecycle", "dependencies": ["contract-registry"], "internalImports": [], "writers": [] },
+    { "id": "composition-root", "dependencies": ["contract-registry", "module-lifecycle"], "internalImports": [], "writers": [] }
+  ],
+  "events": { "orchestrateBusinessFlow": false },
+  "transaction": {
+    "identityFields": ["sessionId", "activationGeneration", "transactionId"],
+    "exactlyOneTerminal": true,
+    "everyAcceptedIntentHasTerminalPath": true,
+    "terminalStates": ["committed", "rejected", "stale", "failed", "cancelled"],
+    "staleAllowedSideEffects": []
+  },
+  "minimalCore": {
+    "headless": true,
+    "bootsWithoutOptionalModules": true,
+    "globalMutableState": false
+  }
+}

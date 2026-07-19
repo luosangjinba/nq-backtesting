@@ -1,0 +1,6 @@
+{
+  "expectedFailureCode": "minimal-core-global-state",
+  "mutation": {
+    "minimalCore": { "globalMutableState": true }
+  }
+}

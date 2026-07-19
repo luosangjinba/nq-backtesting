@@ -1,0 +1,6 @@
+{
+  "expectedFailureCode": "missing-transaction-identity",
+  "mutation": {
+    "transaction": { "identityFields": ["sessionId", "transactionId"] }
+  }
+}

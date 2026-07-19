@@ -1,0 +1,6 @@
+{
+  "expectedFailureCode": "optional-module-required",
+  "mutation": {
+    "minimalCore": { "bootsWithoutOptionalModules": false }
+  }
+}

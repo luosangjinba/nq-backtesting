@@ -19,6 +19,19 @@ manual checklist. Only explicit human acceptance opens the next step.
 
 No production runtime or V6 runtime import is allowed.
 
+## R0.1 — Harness Hardening
+
+- every critical rule receives a lifecycle and activation step;
+- executable rules require positive and intentional negative evidence;
+- minimal-core architecture model proves public dependencies, unique writers,
+  event notification, identity, terminal transactions, stale no-op, optional
+  removal, and no global mutable state;
+- later dynamic/product rules are declared but cannot be marked protected until
+  their real owner boundary exists.
+
+Gate: architecture hardening harness passes all negative controls; no rule is
+marked accepted without human evidence.
+
 ## R1 — Pure Identity And Transaction Contracts
 
 - opaque Session identity;

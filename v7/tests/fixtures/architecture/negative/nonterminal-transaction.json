@@ -1,0 +1,6 @@
+{
+  "expectedFailureCode": "transaction-missing-terminal-path",
+  "mutation": {
+    "transaction": { "everyAcceptedIntentHasTerminalPath": false }
+  }
+}

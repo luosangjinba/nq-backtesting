@@ -27,6 +27,22 @@ Established:
 R0 changes no product behavior and activates no runtime. It requires manual
 review before R1 begins.
 
+## R0.1 — Harness Hardening
+
+Established:
+
+- machine-readable lifecycle for 21 critical V6-derived rules;
+- explicit activation steps and no premature acceptance;
+- architecture-model validator with one valid minimal-core fixture;
+- nine intentional violations proving duplicate writers, internal imports,
+  dependency cycles, event orchestration, identity, transaction liveness,
+  stale side effects, optional-module coupling, and global state are detected;
+- future blocking families for concurrency, atomic snapshots, bars,
+  projection, Replay step, Viewport, visible completion, latency, persistence,
+  extension, and cross-product coverage.
+
+R0.1 adds no production runtime. It requires human acceptance before R1.
+
 ## Next Proposed Step — R1 Pure Contracts
 
 After R0 human acceptance, implement immutable Session identity, activation

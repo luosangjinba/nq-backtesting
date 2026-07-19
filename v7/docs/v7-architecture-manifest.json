@@ -10,6 +10,7 @@
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
     "docs/V7_UI_REFERENCE_AND_QUALITY.md",
+    "docs/V7_HARNESS_STANDARD.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -114,6 +115,9 @@
     "concrete-capability-ids-forbidden-in-core-branches",
     "complex-features-use-versioned-public-mechanisms",
     "workflow-coordinators-never-own-feature-state",
-    "professional-ui-from-first-visible-slice"
+    "professional-ui-from-first-visible-slice",
+    "critical-rules-have-enforcement-lifecycle",
+    "executable-rules-require-negative-controls",
+    "automated-evidence-cannot-grant-human-acceptance"
   ]
 }

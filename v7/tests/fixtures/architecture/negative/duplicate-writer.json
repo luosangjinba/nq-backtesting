@@ -1,0 +1,9 @@
+{
+  "expectedFailureCode": "duplicate-writer",
+  "mutation": {
+    "modules": [
+      { "id": "owner-a", "dependencies": [], "internalImports": [], "writers": ["chart-series"] },
+      { "id": "owner-b", "dependencies": [], "internalImports": [], "writers": ["chart-series"] }
+    ]
+  }
+}

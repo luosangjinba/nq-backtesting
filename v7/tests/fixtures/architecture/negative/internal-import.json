@@ -1,0 +1,9 @@
+{
+  "expectedFailureCode": "cross-module-internal-import",
+  "mutation": {
+    "modules": [
+      { "id": "replay", "dependencies": ["bar-data"], "internalImports": ["bar-data/internal/cache.js"], "writers": [] },
+      { "id": "bar-data", "dependencies": [], "internalImports": [], "writers": [] }
+    ]
+  }
+}

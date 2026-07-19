@@ -10,8 +10,11 @@ Read in this order before V7 implementation work:
 3. `V7_V6_MIGRATION_DENYLIST.md`
 4. `V7_V6_DISPOSITION_MATRIX.md`
 5. `V7_UI_REFERENCE_AND_QUALITY.md`
-6. `V7_EXECUTION_ROADMAP.md`
-7. `../TODO.md`
+6. `V7_HARNESS_STANDARD.md`
+7. `V7_EXECUTION_ROADMAP.md`
+8. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.
+Critical rule lifecycle and activation metadata lives in
+`v7-harness-rules.json`.

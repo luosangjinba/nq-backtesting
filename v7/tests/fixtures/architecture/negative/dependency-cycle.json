@@ -1,0 +1,9 @@
+{
+  "expectedFailureCode": "dependency-cycle",
+  "mutation": {
+    "modules": [
+      { "id": "module-a", "dependencies": ["module-b"], "internalImports": [], "writers": [] },
+      { "id": "module-b", "dependencies": ["module-a"], "internalImports": [], "writers": [] }
+    ]
+  }
+}

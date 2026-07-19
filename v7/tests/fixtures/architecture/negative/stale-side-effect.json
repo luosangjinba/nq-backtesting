@@ -1,0 +1,6 @@
+{
+  "expectedFailureCode": "stale-completion-side-effect",
+  "mutation": {
+    "transaction": { "staleAllowedSideEffects": ["clear-loading-state"] }
+  }
+}

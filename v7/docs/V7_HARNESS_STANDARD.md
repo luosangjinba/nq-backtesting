@@ -1,0 +1,94 @@
+# V7 Harness Standard
+
+Status: binding verification contract (R0.1, 2026-07-19)
+
+## Purpose
+
+V6 proved that many passing tests can coexist with a broken product when tests
+encode helper sequences instead of observable invariants. V7 therefore treats
+the harness catalog as architecture, not test bookkeeping.
+
+## Rule Lifecycle
+
+Every critical rule has one machine-readable record with:
+
+- stable rule id and owner boundary;
+- V6 failure prevented;
+- activation step;
+- enforcement state;
+- executable harness path when executable;
+- positive evidence;
+- at least one negative fixture when executable;
+- required human review;
+- acceptance evidence only after human approval.
+
+Allowed enforcement states:
+
+- `declared`: binding rule, implementation boundary does not exist yet;
+- `scaffolded`: harness shape exists but cannot yet exercise production;
+- `executable`: positive and negative automated evidence runs;
+- `accepted`: executable evidence plus recorded human acceptance.
+
+A rule cannot skip states or be marked accepted by an automated run. When its
+activation step begins, `declared` is a blocking failure.
+
+## Negative-Control Rule
+
+Every architecture/product harness must prove it detects a representative
+violation. A positive-only test is not sufficient for a critical invariant.
+Negative fixtures live outside production roots and declare their expected
+failure codes. If a negative fixture stops failing, the harness fails.
+
+## Minimal Core
+
+Minimal core is the headless architecture assembly:
+
+```text
+contract registry
++ module lifecycle
++ composition root
++ Session identity
++ transaction identity/acceptance
++ in-memory/fake ports
+```
+
+It owns no UI, chart, network, database, market bars, timeframe, Session Hours,
+or product feature. It proves explicit dependency injection, isolated multiple
+instances, deterministic lifecycle cleanup, and optional-module removal.
+
+As modules arrive, the removal matrix boots minimal core with each optional
+module absent. Core modules remain independently constructible against fake
+ports; optional modules never become required implicitly.
+
+## Mandatory Harness Families
+
+1. architecture/ownership and exact writer inventories;
+2. module public-port graph, cycles, independent boot, removal, lifecycle;
+3. Session/activation/transaction identity and stale-result isolation;
+4. transaction terminal-state liveness, exactly-once completion, rollback;
+5. deterministic concurrency permutations and fake-clock execution;
+6. atomic workspace/pane snapshot revision consistency;
+7. Bar Data ordering, identity, gap, precision, and no-future invariants;
+8. Projection determinism, eligibility-before-aggregation, generic TF rules;
+9. Viewport wall/scale independence from data mutations;
+10. browser-visible completion and explicit UI state settlement;
+11. cache-hit/miss and interaction-to-visible latency budgets;
+12. persistence isolation, migrations, interruption, and hard-refresh recovery;
+13. capability conformance without existing core-owner edits;
+14. cross-product coverage manifest and mandatory disposition of new cases.
+
+## Test Assertion Policy
+
+Assert outcomes: accepted cursor, final visible bars, provenance, pane revisions,
+viewport intent, UI state, latency, persistence, and cleanup. Do not assert
+private helper names, incidental event order, retry count, animation-frame
+count, or implementation timing.
+
+Correctness cannot depend on mouse movement, resize, wheel, arbitrary timeout,
+or repeated retry. Browser input may trigger an explicit command only.
+
+## Commit And Human Gate
+
+The rule catalog, manifest, harness, fixtures, and implementation change in the
+same commit. Every step stops after commit for human review. Rejection is
+recorded before corrective work; automated evidence cannot overwrite it.
