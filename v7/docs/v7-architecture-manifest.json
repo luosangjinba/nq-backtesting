@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "status": "r0-contract-only",
+  "productionRoots": ["v7/src"],
+  "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
+  "requiredDocuments": [
+    "docs/INDEX.md",
+    "docs/V7_PRODUCT_AND_SCOPE.md",
+    "docs/V7_ARCHITECTURE.md",
+    "docs/V7_V6_MIGRATION_DENYLIST.md",
+    "docs/V7_V6_DISPOSITION_MATRIX.md",
+    "docs/V7_EXECUTION_ROADMAP.md",
+    "TODO.md"
+  ],
+  "owners": [
+    "session-store",
+    "replay-runtime",
+    "bar-data-runtime",
+    "projection-domain",
+    "workspace-transaction-runtime",
+    "chart-runtime-adapter",
+    "viewport-runtime"
+  ],
+  "requiredIdentityFields": [
+    "sessionId",
+    "activationGeneration",
+    "transactionId"
+  ],
+  "forbiddenSourceTokens": [
+    "primaryState",
+    "secondaryState",
+    "nonPrimary",
+    "replay-coordination-materialization-runtime-handoff",
+    "chart-entry-initialization-runtime",
+    "chart-entry-replay-bootstrap-runtime",
+    "chart-entry-projection-apply-runtime"
+  ],
+  "activeProductionModules": [],
+  "moduleContract": {
+    "descriptorRequiredFields": [
+      "id",
+      "version",
+      "kind",
+      "owner",
+      "publicEntry",
+      "requiredPorts",
+      "optionalPorts",
+      "lifecycle",
+      "independentHarness",
+      "removable"
+    ],
+    "allowedKinds": ["core", "adapter", "optional"],
+    "forbidInternalCrossModuleImports": true,
+    "requireAcyclicDependencies": true,
+    "requireIndependentHarness": true,
+    "requireOptionalRemovalBootMatrix": true,
+    "requireLifecycleCleanupProof": true
+  },
+  "extensionContracts": {
+    "timeframe": "TimeframeDefinition",
+    "marketData": "MarketDataProvider",
+    "instrument": "InstrumentDefinition",
+    "calendar": "TradingCalendar",
+    "indicator": "IndicatorModule",
+    "formula": "FormulaEngine"
+  },
+  "forbiddenCoreValueBranches": [
+    "timeframe-id",
+    "instrument-id",
+    "provider-id",
+    "indicator-id",
+    "formula-language-id"
+  ],
+  "futureComplexityMechanisms": [
+    "versioned-public-schemas",
+    "capability-negotiation",
+    "module-scoped-persistence-migrations",
+    "explicit-module-permissions",
+    "cancellable-budgeted-background-work",
+    "structured-module-transaction-observability",
+    "read-only-analytics-ai-snapshots",
+    "public-port-and-storage-compatibility-suites"
+  ],
+  "writerInventories": {
+    "chartSeries": [],
+    "rawBarRequest": [],
+    "replayCursor": []
+  },
+  "requiredRules": [
+    "explicit-session-identity",
+    "one-intent-one-visible-commit",
+    "multi-pane-atomicity",
+    "replace-and-delete-in-one-commit",
+    "manual-acceptance-after-every-step",
+    "autonomous-execution-between-human-gates",
+    "modules-independently-runnable",
+    "optional-modules-removable-without-core-edits",
+    "cross-module-imports-public-only",
+    "capabilities-extend-without-core-owner-edits",
+    "concrete-capability-ids-forbidden-in-core-branches",
+    "complex-features-use-versioned-public-mechanisms",
+    "workflow-coordinators-never-own-feature-state"
+  ]
+}
