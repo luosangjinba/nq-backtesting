@@ -54,6 +54,8 @@ Manual gate: visibly distinct A/B metadata survives navigation and hard reload.
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;
 - stable default/manual wall.
+- first professional workstation surface using reviewed design tokens and
+  complete loading/empty/error/ready states.
 
 ## R5 — Timeframe And Session Hours
 

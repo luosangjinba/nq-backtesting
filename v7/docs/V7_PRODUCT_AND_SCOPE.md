@@ -61,6 +61,30 @@ Retain or adapt only after explicit review:
 
 No later slice may compensate for a failed earlier slice.
 
+## Professional UI From The First Visible Slice
+
+V7 must not ship an engineering-demo shell and defer product quality. The first
+browser-visible vertical slice uses the intended professional workstation
+language and production states.
+
+Required from the first visible slice:
+
+- dense desktop trading-workstation layout with clear information hierarchy;
+- shared design tokens for color, type, spacing, borders, elevation, motion,
+  focus, and chart chrome;
+- stable geometry during loading, switching, resize, and error recovery;
+- explicit loading, empty, unavailable, stale, error, and retry states;
+- pane-local refresh masks rather than unexplained blank canvases;
+- responsive single/multi-pane composition at supported desktop sizes;
+- keyboard navigation, visible focus, labels, contrast, and reduced motion;
+- no debug timing text, placeholder controls, or raw internal errors in the
+  customer surface;
+- screenshot/visual-regression fixtures for every accepted visible state;
+- perceived-latency review as well as measured transaction latency.
+
+FXReplay can inform replay ergonomics and refresh behavior, but V7 owns a
+coherent visual system rather than copying isolated screens.
+
 ## Human Acceptance Rule
 
 Every committed step stops for manual review. An automated pass is necessary

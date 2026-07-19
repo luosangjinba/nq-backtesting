@@ -27,6 +27,10 @@ failure evidence; do not use its production runtime as an implementation base.
   instruments/calendars, indicators, and formula engines;
 - bounded long-term complexity mechanisms for versioning, migrations,
   permissions, background work, observability, analytics, and AI consumers;
+- professional workstation UI and complete visual-state acceptance from the
+  first browser-visible slice;
+- reviewed FXReplay/TradeZella visual references and GitHub component/design/UI
+  extraction references without brand or runtime copying;
 - first Session isolation acceptance matrix;
 - no production V7 runtime.
 

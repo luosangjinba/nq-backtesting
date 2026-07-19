@@ -9,6 +9,7 @@
     "docs/V7_ARCHITECTURE.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
+    "docs/V7_UI_REFERENCE_AND_QUALITY.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -81,6 +82,19 @@
     "read-only-analytics-ai-snapshots",
     "public-port-and-storage-compatibility-suites"
   ],
+  "professionalUiGate": {
+    "requiredFromFirstVisibleSlice": true,
+    "requiredStates": ["loading", "empty", "unavailable", "stale", "error", "ready"],
+    "requirements": [
+      "shared-design-tokens",
+      "stable-loading-geometry",
+      "pane-local-refresh-gates",
+      "keyboard-focus-accessibility",
+      "desktop-responsive-pane-layout",
+      "visual-regression-fixtures",
+      "no-debug-or-placeholder-customer-ui"
+    ]
+  },
   "writerInventories": {
     "chartSeries": [],
     "rawBarRequest": [],
@@ -99,6 +113,7 @@
     "capabilities-extend-without-core-owner-edits",
     "concrete-capability-ids-forbidden-in-core-branches",
     "complex-features-use-versioned-public-mechanisms",
-    "workflow-coordinators-never-own-feature-state"
+    "workflow-coordinators-never-own-feature-state",
+    "professional-ui-from-first-visible-slice"
   ]
 }

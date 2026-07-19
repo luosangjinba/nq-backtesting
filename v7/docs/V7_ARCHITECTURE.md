@@ -210,6 +210,26 @@ projection transactions, Chart application, Viewport intent, module lifecycle,
 and public contract/version infrastructure. Speculative feature engines are not
 added to core until a reviewed vertical slice needs them.
 
+## UI Architecture Boundary
+
+UI modules render read-only view models, collect user intent, and dispatch
+public commands. They never read owner internals or repair incomplete runtime
+state. A presentation system module owns design tokens and reusable interaction
+states; feature surfaces compose those primitives without owning global CSS or
+chart lifecycle.
+
+Every browser-visible module declares:
+
+- supported viewport/container constraints;
+- loading/empty/error/stale/ready view-model variants;
+- keyboard/focus behavior and accessible names;
+- visual-regression fixtures;
+- whether refresh gating is workspace-wide or pane-local.
+
+Blank chart output is never treated as a loading indicator. Runtime readiness
+must be explicit, and the prior accepted chart snapshot remains visible behind
+a bounded refresh gate whenever product semantics allow it.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

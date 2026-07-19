@@ -69,6 +69,26 @@ assert.deepEqual(manifest.futureComplexityMechanisms, [
   'read-only-analytics-ai-snapshots',
   'public-port-and-storage-compatibility-suites',
 ]);
+assert.equal(manifest.professionalUiGate.requiredFromFirstVisibleSlice, true);
+assert.deepEqual(manifest.professionalUiGate.requiredStates, [
+  'loading',
+  'empty',
+  'unavailable',
+  'stale',
+  'error',
+  'ready',
+]);
+for (const requirement of [
+  'shared-design-tokens',
+  'stable-loading-geometry',
+  'pane-local-refresh-gates',
+  'keyboard-focus-accessibility',
+  'desktop-responsive-pane-layout',
+  'visual-regression-fixtures',
+  'no-debug-or-placeholder-customer-ui',
+]) {
+  assert.ok(manifest.professionalUiGate.requirements.includes(requirement));
+}
 
 const productionFiles = manifest.productionRoots.flatMap((root) =>
   walk(path.join(REPOSITORY_ROOT, root)).filter((file) => /\.(?:js|mjs|ts)$/.test(file)),
@@ -110,6 +130,7 @@ for (const rule of [
   'concrete-capability-ids-forbidden-in-core-branches',
   'complex-features-use-versioned-public-mechanisms',
   'workflow-coordinators-never-own-feature-state',
+  'professional-ui-from-first-visible-slice',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

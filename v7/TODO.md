@@ -16,6 +16,11 @@ Established:
 - versioned contracts, capability negotiation, permissions, persistence
   migrations, background-work budgets, and observability for future complex
   modules without expanding the kernel prematurely;
+- professional UI, complete visible states, accessibility, and visual
+  regression gates from the first browser-visible vertical slice;
+- FXReplay and TradeZella visual/product references plus shadcn/ui,
+  ui-ux-pro-max, and UI-extraction workflow references with explicit
+  absorb/do-not-copy rules;
 - executable empty-runtime/writer boundary;
 - black-box Session isolation acceptance matrix.
 
