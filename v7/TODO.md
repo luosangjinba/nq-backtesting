@@ -1,6 +1,6 @@
 # V7 TODO
 
-## Current Step — R0 Constitution And Isolation Gate
+## Established Foundation Governance
 
 Established:
 
@@ -24,8 +24,7 @@ Established:
 - executable empty-runtime/writer boundary;
 - black-box Session isolation acceptance matrix.
 
-R0 changes no product behavior and activates no runtime. It requires manual
-review before R1 begins.
+R0 changes no product behavior and activates no runtime.
 
 ## R0.1 — Harness Hardening
 
@@ -41,7 +40,7 @@ Established:
   projection, Replay step, Viewport, visible completion, latency, persistence,
   extension, and cross-product coverage.
 
-R0.1 adds no production runtime. It requires human acceptance before R1.
+R0.1 adds no production runtime.
 
 ## R0.2 — Source Modularity And Documentation
 
@@ -55,13 +54,28 @@ Established:
 - tracked debt-comment requirements;
 - positive source model and seven intentional violations.
 
-R0.2 adds no production runtime. It requires human acceptance before R1.
+R0.2 adds no production runtime and was human-accepted on 2026-07-19.
 
-## Next Proposed Step — R1 Pure Contracts
+## Current Step — R0.3 Foundation Interaction And Phase Boundary
 
-After R0 human acceptance, implement immutable Session identity, activation
-generation, transaction intent/result, and stale acceptance contracts. Do not
-add persistence, network, Replay behavior, chart engine, or UI.
+In progress:
+
+- immutable delivery numbering (`R<n>.<m>`) with one commit and human gate;
+- detailed foundation user-intent, owner, visible-completion, failure, and
+  persistence contracts;
+- explicit cross-product test-disposition axes;
+- explicit second-phase capability inventory that cannot close foundation;
+- executable interaction-contract validator and intentional failures.
+
+R0.3 adds no production runtime or browser behavior. It requires human
+acceptance before R1 is decomposed into its first implementation step.
+
+## Next Milestone — R1 Pure Contracts
+
+After R0.3 human acceptance, decompose R1 into numbered review steps, then
+implement immutable Session identity, activation generation, transaction
+intent/result, and stale acceptance contracts. Do not add persistence, network,
+Replay behavior, chart engine, or UI.
 
 ## Standing Gates
 

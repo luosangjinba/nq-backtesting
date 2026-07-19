@@ -22,3 +22,7 @@ seven intentional violations. It adds no production runtime.
 Review budgets, exception requirements, documentation fields, critical
 invariant categories, and artificial-fragment handling. There is no browser
 behavior in this step.
+
+## Human Acceptance
+
+Accepted by the user on 2026-07-19 before R0.3 began.

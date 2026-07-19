@@ -1,0 +1,16 @@
+{
+  "expectedFailureCode": "missing-or-invalid-interaction-owner",
+  "model": {
+    "foundationInteractions": [
+      {
+        "id": "UX-FND-001",
+        "capability": "session-create",
+        "command": "CreateSession",
+        "owner": "feature-ui",
+        "visibleStates": ["ready"],
+        "completion": { "runtimeSignal": "committed", "visibleEvidence": "visible" },
+        "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true }
+      }
+    ]
+  }
+}

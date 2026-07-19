@@ -137,6 +137,7 @@ for (const rule of [
   'production-files-have-one-long-lived-responsibility',
   'source-size-exceptions-require-human-evidence',
   'public-contracts-and-critical-invariants-are-documented',
+  'foundation-interactions-have-owner-visible-completion-and-phase-boundary',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

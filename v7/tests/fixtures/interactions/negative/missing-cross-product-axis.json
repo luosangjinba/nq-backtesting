@@ -1,0 +1,8 @@
+{
+  "expectedFailureCode": "missing-cross-product-axis",
+  "model": {
+    "requiredCrossProductAxes": ["responseOrdering"],
+    "coverageDimensions": { "responseOrdering": [] },
+    "foundationInteractions": []
+  }
+}

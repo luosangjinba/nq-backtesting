@@ -1,0 +1,13 @@
+{
+  "expectedFailureCode": "deferred-capability-leaks-into-foundation",
+  "model": {
+    "deferredInteractions": [
+      {
+        "id": "UX-P2-001",
+        "foundationAcceptanceRequired": true,
+        "extensionBoundary": "journal-module",
+        "foundationDependency": "Session identity"
+      }
+    ]
+  }
+}

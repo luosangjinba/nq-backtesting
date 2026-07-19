@@ -8,6 +8,11 @@ listed step. The user does not need to restate implementation instructions.
 After every commit the agent must stop, report evidence, and provide a concise
 manual checklist. Only explicit human acceptance opens the next step.
 
+Milestones use `R<n>`. Every repository-changing, independently reviewed step
+uses the next immutable `R<n>.<m>` id and produces exactly one commit. Rejected
+steps retain their ids and evidence; replacement work consumes a new id. See
+`V7_TASK_NUMBERING.md`.
+
 ## R0 — Constitution And Isolation Gate
 
 - create V7 skeleton;
@@ -44,6 +49,20 @@ marked accepted without human evidence.
 
 Gate: source-quality harness passes its positive model and rejects every
 intentional size, responsibility, documentation, and debt violation.
+
+## R0.3 — Foundation Interaction And Phase Boundary
+
+- inventory detailed foundation user intents and visible responses;
+- bind every intent to one command/runtime owner and visible completion;
+- declare persistence and last-accepted-snapshot behavior;
+- require later disposition across TF, hours, pane, instrument, cache,
+  ordering, lifecycle, viewport, and transport axes;
+- explicitly defer phase-two workflows without making them foundation gates;
+- establish immutable task, harness, interaction, decision, and bug ids.
+
+Gate: interaction-contract harness accepts the complete foundation model and
+rejects missing owners, missing visible completion, deferred-scope leakage, and
+missing cross-product axes.
 
 ## R1 — Pure Identity And Transaction Contracts
 

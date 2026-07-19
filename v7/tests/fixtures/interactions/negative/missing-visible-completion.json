@@ -1,0 +1,16 @@
+{
+  "expectedFailureCode": "missing-visible-completion-contract",
+  "model": {
+    "foundationInteractions": [
+      {
+        "id": "UX-FND-001",
+        "capability": "session-create",
+        "command": "CreateSession",
+        "owner": "session-store",
+        "visibleStates": ["ready"],
+        "completion": { "runtimeSignal": "committed", "visibleEvidence": "" },
+        "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true }
+      }
+    ]
+  }
+}
