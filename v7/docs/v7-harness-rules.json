@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R0.3",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R1", "R2", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R0.4",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -337,8 +337,28 @@
       "negativeFixtures": [
         "tests/fixtures/interactions/negative/missing-owner.json",
         "tests/fixtures/interactions/negative/missing-visible-completion.json",
-        "tests/fixtures/interactions/negative/deferred-foundation-leak.json",
+        "tests/fixtures/interactions/negative/unplanned-candidate-foundation-leak.json",
         "tests/fixtures/interactions/negative/missing-cross-product-axis.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H025",
+      "name": "cache-latency-history-and-atomic-refresh-bounds",
+      "owner": "latency-observability",
+      "v6FailurePrevented": "Next and switches regressed to seconds, history appeared one piece per incidental input, and caches lacked stable identity",
+      "activationStep": "R0.4",
+      "state": "executable",
+      "harness": "tests/cache-latency-contract-harness.js",
+      "positiveEvidence": ["docs/v7-cache-latency-contract.json"],
+      "negativeFixtures": [
+        "tests/fixtures/cache-latency/negative/artificial-delay.json",
+        "tests/fixtures/cache-latency/negative/unbounded-cache-hit.json",
+        "tests/fixtures/cache-latency/negative/provider-time-hidden.json",
+        "tests/fixtures/cache-latency/negative/blank-projection-refresh.json",
+        "tests/fixtures/cache-latency/negative/bar-by-bar-history.json",
+        "tests/fixtures/cache-latency/negative/incomplete-cache-key.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

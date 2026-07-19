@@ -78,16 +78,17 @@ export function validateInteractionContract(model) {
     if (!coveredAxes.has(axis)) violations.push({ code: 'unassigned-cross-product-axis', axis });
   }
 
-  for (const interaction of model.deferredInteractions ?? []) {
-    if (!/^UX-P2-\d{3}$/.test(interaction.id ?? '')) {
-      violations.push({ code: 'invalid-deferred-interaction-id', id: interaction.id });
+  for (const interaction of model.unplannedPostFoundationCandidates ?? []) {
+    if (!/^UX-POST-\d{3}$/.test(interaction.id ?? '')) {
+      violations.push({ code: 'invalid-unplanned-candidate-id', id: interaction.id });
     }
     if (
+      interaction.planned !== false ||
       interaction.foundationAcceptanceRequired !== false ||
       !hasText(interaction.extensionBoundary) ||
       !hasText(interaction.foundationDependency)
     ) {
-      violations.push({ code: 'deferred-capability-leaks-into-foundation', id: interaction.id });
+      violations.push({ code: 'unplanned-candidate-leaks-into-foundation', id: interaction.id });
     }
   }
 

@@ -138,6 +138,7 @@ for (const rule of [
   'source-size-exceptions-require-human-evidence',
   'public-contracts-and-critical-invariants-are-documented',
   'foundation-interactions-have-owner-visible-completion-and-phase-boundary',
+  'cache-latency-and-refresh-contracts-are-bounded-and-atomic',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

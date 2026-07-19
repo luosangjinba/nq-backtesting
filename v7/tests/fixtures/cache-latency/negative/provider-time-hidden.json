@@ -1,0 +1,11 @@
+{
+  "expectedFailureCode": "invalid-latency-measurement-contract",
+  "model": {
+    "measurement": {
+      "artificialProductionDelayMs": 0,
+      "excludeProviderTimeFromLocalBudget": false,
+      "minimumSamples": 100,
+      "requiredRecordedContext": []
+    }
+  }
+}

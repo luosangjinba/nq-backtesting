@@ -28,19 +28,18 @@ Manual and Auto Replay transport, timeframe and ETH/RTH projection, history
 loading, viewport wall/reset behavior, multi-pane layout, pane-local instrument
 and timeframe, and bounded loading/error presentation for those actions.
 
-Complete simulated-order workflows, Journal authoring/evidence, Validation
-Campaign workflows, general settings/shortcut management, full operational
-recovery surfaces, indicators, drawings, and plugin-facing customer UI are
-second-phase capabilities. They depend on foundation public contracts but do
-not close R1-R7.
+Capabilities outside the accepted foundation are recorded only as unplanned
+post-foundation candidates. They are not a second-phase plan, feature promise,
+priority list, or acceptance scope. A later product-planning step must decide
+whether they exist, how they behave, and in which phase they belong.
 
 The first visible foundation slice still renders honest loading, empty, error,
 stale, unavailable, and ready states. This is presentation correctness, not an
-attempt to implement the deferred operational modules.
+attempt to implement unplanned post-foundation modules.
 
 ## Change Rule
 
-An interaction can move between phases only through a reviewed delivery step
+An interaction can enter a planned phase only through a reviewed delivery step
 that changes the contract, machine-readable matrix, negative controls, roadmap,
 and human acceptance checklist together. Implementations cannot quietly expand
 foundation acceptance by exposing a placeholder control.

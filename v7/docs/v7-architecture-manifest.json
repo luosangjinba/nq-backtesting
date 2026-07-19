@@ -14,6 +14,8 @@
     "docs/V7_TASK_NUMBERING.md",
     "docs/V7_FOUNDATION_INTERACTION_CONTRACT.md",
     "docs/v7-foundation-interactions.json",
+    "docs/V7_CACHE_AND_LATENCY_CONTRACT.md",
+    "docs/v7-cache-latency-contract.json",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -125,6 +127,7 @@
     "production-files-have-one-long-lived-responsibility",
     "source-size-exceptions-require-human-evidence",
     "public-contracts-and-critical-invariants-are-documented",
-    "foundation-interactions-have-owner-visible-completion-and-phase-boundary"
+    "foundation-interactions-have-owner-visible-completion-and-phase-boundary",
+    "cache-latency-and-refresh-contracts-are-bounded-and-atomic"
   ]
 }

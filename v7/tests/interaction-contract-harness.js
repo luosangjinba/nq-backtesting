@@ -24,4 +24,4 @@ for (const file of files) {
   );
 }
 
-console.log(`v7 interaction contract harness passed (${model.foundationInteractions.length} foundation interactions, ${model.deferredInteractions.length} deferred, ${files.length} negative controls)`);
+console.log(`v7 interaction contract harness passed (${model.foundationInteractions.length} foundation interactions, ${model.unplannedPostFoundationCandidates.length} unplanned candidates, ${files.length} negative controls)`);

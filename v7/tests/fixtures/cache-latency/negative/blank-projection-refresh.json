@@ -1,0 +1,19 @@
+{
+  "expectedFailureCode": "non-atomic-or-blank-projection-refresh",
+  "model": {
+    "measurement": {
+      "artificialProductionDelayMs": 0,
+      "excludeProviderTimeFromLocalBudget": true,
+      "minimumSamples": 100,
+      "requiredRecordedContext": []
+    },
+    "profiles": {
+      "projection-switch-cache-tiered": {
+        "retainLastAcceptedSnapshot": false,
+        "dimDuringRefresh": false,
+        "atomicReplacement": false,
+        "blankSeriesAllowed": true
+      }
+    }
+  }
+}

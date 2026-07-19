@@ -56,23 +56,40 @@ Established:
 
 R0.2 adds no production runtime and was human-accepted on 2026-07-19.
 
-## Current Step — R0.3 Foundation Interaction And Phase Boundary
+## R0.3 Foundation Interaction And Phase Boundary — Rejected
 
-In progress:
+Established but not accepted:
 
 - immutable delivery numbering (`R<n>.<m>`) with one commit and human gate;
 - detailed foundation user-intent, owner, visible-completion, failure, and
   persistence contracts;
 - explicit cross-product test-disposition axes;
-- explicit second-phase capability inventory that cannot close foundation;
+- outside-foundation candidate inventory;
 - executable interaction-contract validator and intentional failures.
 
-R0.3 adds no production runtime or browser behavior. It requires human
-acceptance before R1 is decomposed into its first implementation step.
+R0.3 added no production runtime or browser behavior. Human review rejected its
+description of unplanned candidates as second-phase functions.
+
+## Current Step — R0.4 Cache, Latency, And Atomic Refresh
+
+In progress:
+
+- reclassify outside-foundation examples as unplanned candidates only;
+- bind Manual Next and Auto Replay cache-hit visible latency;
+- separate provider delay from bounded local post-response overhead;
+- retain/dim existing candles during TF and ETH/RTH refresh;
+- atomically replace complete target projections;
+- extend earlier history automatically in fast bounded chunks;
+- define raw Bar Data cache identity, coalescing, eviction, no-future, and
+  Replay prefetch watermarks;
+- add executable positive and negative cache/latency contracts.
+
+R0.4 adds no production runtime or browser behavior. It requires human
+acceptance before R1 is decomposed.
 
 ## Next Milestone — R1 Pure Contracts
 
-After R0.3 human acceptance, decompose R1 into numbered review steps, then
+After R0.4 human acceptance, decompose R1 into numbered review steps, then
 implement immutable Session identity, activation generation, transaction
 intent/result, and stale acceptance contracts. Do not add persistence, network,
 Replay behavior, chart engine, or UI.

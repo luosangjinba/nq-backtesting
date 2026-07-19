@@ -13,12 +13,15 @@ Read in this order before V7 implementation work:
 6. `V7_HARNESS_STANDARD.md`
 7. `V7_TASK_NUMBERING.md`
 8. `V7_FOUNDATION_INTERACTION_CONTRACT.md`
-9. `V7_EXECUTION_ROADMAP.md`
-10. `../TODO.md`
+9. `V7_CACHE_AND_LATENCY_CONTRACT.md`
+10. `V7_EXECUTION_ROADMAP.md`
+11. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.
 Critical rule lifecycle and activation metadata lives in
 `v7-harness-rules.json`.
-Foundation/deferred interaction ownership and visible-completion metadata lives
+Foundation/unplanned-candidate interaction ownership and visible-completion metadata lives
 in `v7-foundation-interactions.json`.
+Cache identity, prefetch, latency tiers, refresh behavior, and chunked history
+budgets live in `v7-cache-latency-contract.json`.

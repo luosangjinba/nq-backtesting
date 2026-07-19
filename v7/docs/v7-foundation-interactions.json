@@ -100,6 +100,8 @@
       "completion": { "runtimeSignal": "Cursor and all affected projections commit once", "visibleEvidence": "All intermediate display bars appear at the existing wall with no margin reset" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "workspace",
+      "performanceProfile": "manual-next-cache-tiered",
+      "refreshPolicy": "append-at-existing-wall",
       "coverageAxes": ["timeframe", "transportMode", "paneCount", "responseOrdering"]
     },
     {
@@ -139,6 +141,8 @@
       "completion": { "runtimeSignal": "A generic projection for the current cursor commits", "visibleEvidence": "The pane refreshes once with complete aligned history and preserved viewport intent" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "workspace",
+      "performanceProfile": "projection-switch-cache-tiered",
+      "refreshPolicy": "dim-retained-snapshot-then-atomic-replace",
       "coverageAxes": ["timeframe", "cacheState", "responseOrdering", "viewportIntent"]
     },
     {
@@ -152,6 +156,8 @@
       "completion": { "runtimeSignal": "All affected panes commit one hours/calendar revision", "visibleEvidence": "Eligible history reaches the viewport boundary with correct common TF anchors" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "workspace",
+      "performanceProfile": "projection-switch-cache-tiered",
+      "refreshPolicy": "dim-retained-snapshot-then-atomic-replace",
       "coverageAxes": ["sessionHours", "timeframe", "paneCount", "responseOrdering"]
     },
     {
@@ -165,6 +171,8 @@
       "completion": { "runtimeSignal": "One bounded history window is projected and committed", "visibleEvidence": "Complete earlier bars appear without mouse-driven incremental repair" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "none",
+      "performanceProfile": "history-extension-chunked",
+      "refreshPolicy": "automatic-atomic-prepend-chunks",
       "coverageAxes": ["cacheState", "timeframe", "sessionHours"]
     },
     {
@@ -230,6 +238,8 @@
       "completion": { "runtimeSignal": "Each scheduled proposal uses the same accepted transaction path as Manual Next", "visibleEvidence": "Bars advance at the existing wall without skipped intermediate bars or UI blocking" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "workspace",
+      "performanceProfile": "auto-replay-cache-tiered",
+      "refreshPolicy": "append-at-existing-wall",
       "coverageAxes": ["transportMode", "timeframe", "paneCount", "responseOrdering"]
     },
     {
@@ -256,15 +266,17 @@
       "completion": { "runtimeSignal": "Only the current transaction can publish visible completion", "visibleEvidence": "A bounded pane/workspace refresh gate resolves once while the last accepted chart remains stable" },
       "failure": { "visibleState": "error", "preservesLastAcceptedSnapshot": true },
       "persistence": "none",
+      "performanceProfile": "miss-overhead-and-feedback",
+      "refreshPolicy": "retain-snapshot-with-bounded-refresh-gate",
       "coverageAxes": ["cacheState", "responseOrdering", "paneCount"]
     }
   ],
-  "deferredInteractions": [
-    { "id": "UX-P2-001", "capability": "simulated-orders-risk-account", "foundationAcceptanceRequired": false, "extensionBoundary": "simulated-execution-module", "foundationDependency": "immutable Replay snapshots and versioned commands" },
-    { "id": "UX-P2-002", "capability": "journal-authoring-tags-screenshots-evidence", "foundationAcceptanceRequired": false, "extensionBoundary": "journal-module", "foundationDependency": "read-only chart provenance and Session identity" },
-    { "id": "UX-P2-003", "capability": "validation-campaign-rules-progress-drilldown", "foundationAcceptanceRequired": false, "extensionBoundary": "validation-workflow-module", "foundationDependency": "shared Replay, evidence and statistics ports" },
-    { "id": "UX-P2-004", "capability": "general-settings-shortcuts-calendar-dialogs", "foundationAcceptanceRequired": false, "extensionBoundary": "settings-and-presentation-modules", "foundationDependency": "registered capabilities and public configuration ports" },
-    { "id": "UX-P2-005", "capability": "operational-recovery-session-expiry", "foundationAcceptanceRequired": false, "extensionBoundary": "operations-recovery-module", "foundationDependency": "foundation error states and transaction diagnostics" },
-    { "id": "UX-P2-006", "capability": "indicators-drawings-plugin-ui", "foundationAcceptanceRequired": false, "extensionBoundary": "optional-capability-modules", "foundationDependency": "immutable pane snapshots and declarative chart surfaces" }
+  "unplannedPostFoundationCandidates": [
+    { "id": "UX-POST-001", "capability": "simulated-orders-risk-account", "planned": false, "foundationAcceptanceRequired": false, "extensionBoundary": "simulated-execution-module", "foundationDependency": "immutable Replay snapshots and versioned commands" },
+    { "id": "UX-POST-002", "capability": "journal-authoring-tags-screenshots-evidence", "planned": false, "foundationAcceptanceRequired": false, "extensionBoundary": "journal-module", "foundationDependency": "read-only chart provenance and Session identity" },
+    { "id": "UX-POST-003", "capability": "validation-campaign-rules-progress-drilldown", "planned": false, "foundationAcceptanceRequired": false, "extensionBoundary": "validation-workflow-module", "foundationDependency": "shared Replay, evidence and statistics ports" },
+    { "id": "UX-POST-004", "capability": "general-settings-shortcuts-calendar-dialogs", "planned": false, "foundationAcceptanceRequired": false, "extensionBoundary": "settings-and-presentation-modules", "foundationDependency": "registered capabilities and public configuration ports" },
+    { "id": "UX-POST-005", "capability": "operational-recovery-session-expiry", "planned": false, "foundationAcceptanceRequired": false, "extensionBoundary": "operations-recovery-module", "foundationDependency": "foundation error states and transaction diagnostics" },
+    { "id": "UX-POST-006", "capability": "indicators-drawings-plugin-ui", "planned": false, "foundationAcceptanceRequired": false, "extensionBoundary": "optional-capability-modules", "foundationDependency": "immutable pane snapshots and declarative chart surfaces" }
   ]
 }

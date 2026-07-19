@@ -47,6 +47,12 @@ provider, instrument, source interval, and bounded time window. It never uses
 the active UI session as an implicit cache identity and never writes Replay or
 chart state.
 
+Dataset revision completes raw cache identity. Identical in-flight requests are
+coalesced, eviction is bounded, and Replay prefetch uses explicit watermarks.
+Raw future bars may be cached but never projected past the accepted cursor.
+Detailed performance and chunking rules are binding in
+`V7_CACHE_AND_LATENCY_CONTRACT.md`.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

@@ -28,8 +28,8 @@ milestone only.
 
 - `H###`: executable or planned harness invariant; ids never change meaning.
 - `UX-FND-###`: foundation user-interaction contract.
-- `UX-P2-###`: second-phase user-interaction contract; it cannot close a
-  foundation milestone.
+- `UX-POST-###`: unplanned post-foundation candidate. It records only an
+  extension boundary and is not a roadmap or phase commitment.
 - `ADR-V7-###`: future architecture decisions when a choice needs a dedicated
   decision record.
 - `BUG-V7-####`: future accepted black-box regression identity.

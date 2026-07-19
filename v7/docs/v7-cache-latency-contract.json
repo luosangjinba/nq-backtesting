@@ -1,0 +1,71 @@
+{
+  "schemaVersion": 1,
+  "measurement": {
+    "foregroundBrowser": true,
+    "productionBuild": true,
+    "minimumSamples": 100,
+    "clock": "performance.now",
+    "excludeProviderTimeFromLocalBudget": true,
+    "providerRequestDeadlineMs": 3000,
+    "artificialProductionDelayMs": 0,
+    "requiredRecordedContext": ["machine", "browser", "paneCount", "loadedBars", "cacheClass", "providerDelayMs"]
+  },
+  "profiles": {
+    "manual-next-cache-tiered": {
+      "cacheHitVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
+      "cacheMissFeedback": { "p95Ms": 50, "p99Ms": 100 },
+      "postResponseVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
+      "oneVisibleCommit": true,
+      "allIntermediateBars": true
+    },
+    "auto-replay-cache-tiered": {
+      "cacheHitVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
+      "cacheMissFeedback": { "p95Ms": 50, "p99Ms": 100 },
+      "postResponseVisible": { "p95Ms": 100, "p99Ms": 150, "maxMs": 250 },
+      "activeTabSchedulerDrift": { "p95Ms": 50, "p99Ms": 100 },
+      "overlappingAdvanceAllowed": false,
+      "skipOrCatchUpAllowed": false,
+      "waitsWhenDataUnavailable": true
+    },
+    "projection-switch-cache-tiered": {
+      "cacheHitVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "cacheMissFeedback": { "p95Ms": 50, "p99Ms": 100 },
+      "postResponseVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "retainLastAcceptedSnapshot": true,
+      "dimDuringRefresh": true,
+      "atomicReplacement": true,
+      "blankSeriesAllowed": false
+    },
+    "history-extension-chunked": {
+      "cacheHitChunkVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "postResponseChunkVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "automaticContinuationMaxMs": 50,
+      "minimumVisibleRangeMultiplier": 2,
+      "safetyVisibleRanges": 1,
+      "atomicChunkCommit": true,
+      "barByBarVisibleRepairAllowed": false,
+      "requiresAdditionalUserInput": false
+    },
+    "miss-overhead-and-feedback": {
+      "feedback": { "p95Ms": 50, "p99Ms": 100 },
+      "postResponseVisible": { "p95Ms": 150, "p99Ms": 250, "maxMs": 400 },
+      "providerTimeReportedSeparately": true,
+      "retainLastAcceptedSnapshot": true
+    }
+  },
+  "rawBarCache": {
+    "owner": "bar-data-runtime",
+    "keyFields": ["providerId", "instrumentId", "sourceResolution", "windowStart", "windowEnd", "datasetRevision"],
+    "activeSessionInKey": false,
+    "coalesceIdenticalInflightRequests": true,
+    "boundedEvictionRequired": true,
+    "futureRawBarsMayBeCached": true,
+    "projectionStillEnforcesNoFuture": true,
+    "prefetch": {
+      "minimumAheadReplaySteps": 2,
+      "lowWatermarkReplaySteps": 1,
+      "targetVisibleSourceWindows": 1,
+      "respectsProviderRequestLimits": true
+    }
+  }
+}

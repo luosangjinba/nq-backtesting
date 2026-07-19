@@ -57,12 +57,32 @@ intentional size, responsibility, documentation, and debt violation.
 - declare persistence and last-accepted-snapshot behavior;
 - require later disposition across TF, hours, pane, instrument, cache,
   ordering, lifecycle, viewport, and transport axes;
-- explicitly defer phase-two workflows without making them foundation gates;
+- record outside-foundation examples without planning a later phase;
 - establish immutable task, harness, interaction, decision, and bug ids.
 
 Gate: interaction-contract harness accepts the complete foundation model and
-rejects missing owners, missing visible completion, deferred-scope leakage, and
+rejects missing owners, missing visible completion, unplanned-scope leakage, and
 missing cross-product axes.
+
+Human result: rejected. Outside-foundation examples were incorrectly named as
+second-phase functions before phase two had been planned.
+
+## R0.4 — Cache, Latency, And Atomic Refresh Correction
+
+- reclassify outside-foundation examples as unplanned candidates only;
+- set cache-hit and post-response visible latency budgets for Manual Next,
+  Auto Replay, TF/session-hours switching, and history chunks;
+- prohibit artificial production delay and separate provider time from local
+  processing overhead;
+- retain and dim the last accepted snapshot during TF/ETH/RTH refresh, then
+  replace it atomically;
+- prepend earlier history in automatic bounded chunks, never one bar at a time;
+- bind raw cache ownership, complete identity, coalescing, eviction, no-future,
+  and Replay prefetch watermarks.
+
+Gate: cache/latency contract and interaction harnesses reject unbounded latency,
+blank/partial refresh, user-driven incremental history repair, artificial
+delay, and incomplete or Session-coupled cache identity.
 
 ## R1 — Pure Identity And Transaction Contracts
 

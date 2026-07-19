@@ -28,3 +28,10 @@ browser UI.
 Review the 18 foundation interactions, six deferred capability families,
 owners, visible outcomes, phase classification, coverage axes, and numbering
 rules. Automated evidence cannot accept this step.
+
+## Human Review Result
+
+Rejected on 2026-07-19. The six outside-foundation examples were incorrectly
+described as second-phase functions even though phase two has not been planned.
+R0.4 must classify them only as unplanned post-foundation candidates and add
+the requested cache, latency, switch-refresh, and history-extension standards.

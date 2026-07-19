@@ -1,0 +1,11 @@
+{
+  "expectedFailureCode": "artificial-production-delay",
+  "model": {
+    "measurement": {
+      "artificialProductionDelayMs": 500,
+      "excludeProviderTimeFromLocalBudget": true,
+      "minimumSamples": 100,
+      "requiredRecordedContext": []
+    }
+  }
+}

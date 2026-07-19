@@ -1,0 +1,19 @@
+{
+  "expectedFailureCode": "incremental-or-user-driven-history-repair",
+  "model": {
+    "measurement": {
+      "artificialProductionDelayMs": 0,
+      "excludeProviderTimeFromLocalBudget": true,
+      "minimumSamples": 100,
+      "requiredRecordedContext": []
+    },
+    "profiles": {
+      "history-extension-chunked": {
+        "atomicChunkCommit": false,
+        "barByBarVisibleRepairAllowed": true,
+        "requiresAdditionalUserInput": true,
+        "minimumVisibleRangeMultiplier": 1
+      }
+    }
+  }
+}

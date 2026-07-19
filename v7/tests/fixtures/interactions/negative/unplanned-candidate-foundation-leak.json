@@ -1,9 +1,10 @@
 {
-  "expectedFailureCode": "deferred-capability-leaks-into-foundation",
+  "expectedFailureCode": "unplanned-candidate-leaks-into-foundation",
   "model": {
-    "deferredInteractions": [
+    "unplannedPostFoundationCandidates": [
       {
-        "id": "UX-P2-001",
+        "id": "UX-POST-001",
+        "planned": true,
         "foundationAcceptanceRequired": true,
         "extensionBoundary": "journal-module",
         "foundationDependency": "Session identity"

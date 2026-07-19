@@ -1,0 +1,16 @@
+{
+  "expectedFailureCode": "incomplete-or-session-coupled-cache-identity",
+  "model": {
+    "measurement": {
+      "artificialProductionDelayMs": 0,
+      "excludeProviderTimeFromLocalBudget": true,
+      "minimumSamples": 100,
+      "requiredRecordedContext": []
+    },
+    "rawBarCache": {
+      "owner": "feature-ui",
+      "keyFields": ["instrumentId"],
+      "activeSessionInKey": true
+    }
+  }
+}
