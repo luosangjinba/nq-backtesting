@@ -26,6 +26,7 @@
     "projection-domain",
     "workspace-transaction-runtime",
     "module-lifecycle",
+    "module-registry",
     "chart-runtime-adapter",
     "viewport-runtime"
   ],
@@ -48,7 +49,8 @@
     "src/activation-generation/module.json",
     "src/transaction-identity/module.json",
     "src/workspace-transaction-contract/module.json",
-    "src/module-host/module.json"
+    "src/module-host/module.json",
+    "src/capability-contract/module.json"
   ],
   "moduleContract": {
     "descriptorRequiredFields": [

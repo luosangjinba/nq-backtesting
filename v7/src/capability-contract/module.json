@@ -1,0 +1,12 @@
+{
+  "id": "core.capability-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "module-registry",
+  "publicEntry": "src/capability-contract/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/capability-contract-harness.js",
+  "removable": false
+}

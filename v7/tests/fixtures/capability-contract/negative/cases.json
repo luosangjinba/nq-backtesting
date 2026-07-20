@@ -1,0 +1,18 @@
+[
+  { "case": "unknown-field", "expectedFailureCode": "UNKNOWN_CAPABILITY_FIELD" },
+  { "case": "unsupported-schema", "expectedFailureCode": "UNSUPPORTED_CAPABILITY_VERSION" },
+  { "case": "invalid-timeframe-duration", "expectedFailureCode": "INVALID_CAPABILITY_FIELD" },
+  { "case": "invalid-time-zone", "expectedFailureCode": "INVALID_TIME_ZONE" },
+  { "case": "invalid-decimal-increment", "expectedFailureCode": "INVALID_CAPABILITY_FIELD" },
+  { "case": "invalid-provider-limit", "expectedFailureCode": "INVALID_CAPABILITY_FIELD" },
+  { "case": "unsafe-indicator", "expectedFailureCode": "UNSAFE_INDICATOR_CONTRACT" },
+  { "case": "unsafe-formula", "expectedFailureCode": "UNSAFE_FORMULA_CONTRACT" },
+  { "case": "duplicate-capability", "expectedFailureCode": "DUPLICATE_CAPABILITY" },
+  { "case": "missing-calendar-reference", "expectedFailureCode": "MISSING_CAPABILITY_REFERENCE" },
+  { "case": "provider-instrument-mismatch", "expectedFailureCode": "INCONSISTENT_PROVIDER_INSTRUMENT" },
+  { "case": "missing-formula-reference", "expectedFailureCode": "MISSING_CAPABILITY_REFERENCE" },
+  { "case": "undeclared-selection", "expectedFailureCode": "UNDECLARED_CAPABILITY" },
+  { "case": "incompatible-resolution", "expectedFailureCode": "INCOMPATIBLE_CAPABILITY_SELECTION" },
+  { "case": "incompatible-calendar-alignment", "expectedFailureCode": "INCOMPATIBLE_CAPABILITY_SELECTION" },
+  { "case": "concrete-id-branch", "expectedFailureCode": "concrete-capability-id-if-branch" }
+]

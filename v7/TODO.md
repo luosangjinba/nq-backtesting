@@ -124,9 +124,9 @@ Human-accepted on 2026-07-19:
 - add no scheduler, cancellation owner, transaction runtime, state writer,
   persistence, Replay, bars, charts, composition root, or UI.
 
-## Current Step — R1.4 Isolated Module Host And Lifecycle
+## R1.4 Isolated Module Host And Lifecycle — Accepted
 
-In progress:
+Human-accepted on 2026-07-19:
 
 - validate complete descriptors and explicit required/optional port graphs;
 - construct real R1 minimal core without application-global state;
@@ -136,8 +136,19 @@ In progress:
 - add no feature runtime, capability implementation, persistence, network,
   Replay, bars, chart, DOM, or UI.
 
-R1.5 will establish capability descriptor contracts after R1.4 human
-acceptance.
+## Current Step — R1.5 Capability Descriptor Contracts
+
+In progress:
+
+- define versioned pure descriptors for timeframe, provider, instrument,
+  calendar, indicator, and formula capabilities;
+- validate exact schemas before registration;
+- resolve provider/instrument/calendar/timeframe compatibility before modules
+  start;
+- keep optional analysis capabilities removable;
+- reject concrete capability-id branches in core capability sources;
+- add no capability implementation, network, persistence, Replay, bars, chart,
+  DOM, UI, plugin installer, or application composition root.
 
 ## Standing Gates
 

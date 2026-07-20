@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R1.4",
+  "currentStep": "R1.5",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
@@ -244,7 +244,7 @@
       "owner": "module-lifecycle",
       "v6FailurePrevented": "new modules became implicit permanent dependencies",
       "activationStep": "R1.4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/module-host-harness.js",
       "positiveEvidence": [
         "src/module-host/public.js",
@@ -253,7 +253,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/module-host/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r1_4_module_host.md"
     },
     {
       "id": "H019",
@@ -440,6 +440,23 @@
       "negativeFixtures": ["tests/fixtures/transaction-identity/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260719_r1_3_transaction_contract.md"
+    },
+    {
+      "id": "H031",
+      "name": "versioned-capability-descriptor-and-negotiation-contracts",
+      "owner": "module-registry",
+      "v6FailurePrevented": "new timeframes, providers, instruments, calendars, indicators, and formula paths required concrete-id branches in existing core owners",
+      "activationStep": "R1.5",
+      "state": "executable",
+      "harness": "tests/capability-contract-harness.js",
+      "positiveEvidence": [
+        "src/capability-contract/public.js",
+        "src/capability-contract/module.json",
+        "tests/capability-contract-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/capability-contract/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

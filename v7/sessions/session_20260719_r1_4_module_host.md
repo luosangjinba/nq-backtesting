@@ -61,3 +61,9 @@ Confirm the host has no global registry or active-module state, modules receive
 only declared public ports, optional absence is normal, and cleanup is reverse
 and complete on both success and failure. This headless step has no visual or
 interaction surface to inspect. Automated evidence cannot accept the step.
+
+## Human Result
+
+Accepted by the user on 2026-07-19. The user reaffirmed that browser-visible
+steps require interaction and visual review; this headless acceptance opens
+R1.5 only.
