@@ -65,12 +65,13 @@ assert.deepEqual(manifest.writerInventories, {
   sessionRecord: ['core.session-store'],
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
-  chartSeries: ['core.chart-snapshot-application'],
+  replayWorkspaceDom: ['adapter.replay-workspace-ui'],
+  chartSeries: ['adapter.lightweight-chart'],
   viewportIntent: ['core.viewport-runtime'],
   workspaceSnapshot: ['core.workspace-transaction-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: ['core.replay-runtime'],
-}, 'R4.4 activates one viewport-intent owner without changing chart, raw, or Replay writers');
+}, 'R4.5 activates one concrete chart writer and one Replay Workspace DOM owner');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -197,6 +198,7 @@ for (const rule of [
   'projection-domain-provider-neutral-exclusive-no-future',
   'chart-snapshot-application-exact-visible-receipt',
   'viewport-intent-pane-local-and-data-independent',
+  'real-chart-visible-completion-and-native-wall',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

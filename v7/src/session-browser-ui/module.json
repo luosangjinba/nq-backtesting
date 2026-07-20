@@ -9,7 +9,7 @@
     "core.session-identity",
     "core.session-store"
   ],
-  "optionalPorts": [],
+  "optionalPorts": ["adapter.replay-workspace-ui"],
   "lifecycle": ["dispose"],
   "independentHarness": "tests/session-browser-browser-harness.js",
   "removable": false

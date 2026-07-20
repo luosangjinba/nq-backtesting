@@ -1,0 +1,15 @@
+{
+  "id": "adapter.lightweight-chart",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "chart-runtime-adapter",
+  "publicEntry": "src/lightweight-chart-adapter/public.js",
+  "requiredPorts": [
+    "core.chart-snapshot-application",
+    "core.viewport-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/lightweight-chart-adapter-browser-harness.js",
+  "removable": false
+}

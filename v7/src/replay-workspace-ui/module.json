@@ -1,0 +1,27 @@
+{
+  "id": "adapter.replay-workspace-ui",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "replay-workspace-ui",
+  "publicEntry": "src/replay-workspace-ui/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "core.transaction-identity",
+    "core.bar-data-contract",
+    "core.bar-data-runtime",
+    "core.capability-contract",
+    "core.replay-contract",
+    "core.replay-runtime",
+    "core.projection-domain",
+    "core.chart-snapshot-application",
+    "core.viewport-runtime",
+    "core.workspace-transaction-contract",
+    "core.workspace-transaction-runtime",
+    "adapter.lightweight-chart"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/replay-workspace-browser-harness.js",
+  "removable": false
+}

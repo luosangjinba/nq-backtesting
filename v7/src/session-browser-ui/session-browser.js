@@ -30,6 +30,7 @@ class SessionBrowserController {
     this.idFactory = options.idFactory;
     this.now = options.now;
     this.schedule = options.schedule;
+    this.openedSessionSurface = options.openedSessionSurface ?? null;
     this.unavailableMessage = options.unavailableMessage;
     this.records = [];
     this.stopped = false;
@@ -48,6 +49,7 @@ class SessionBrowserController {
 
   commit(model) {
     if (this.stopped) return;
+    this.openedSessionSurface?.unmount();
     renderSessionBrowserSurface(this.root, model, this.actions);
     this.root.append(this.dialog.element);
   }
@@ -92,7 +94,16 @@ class SessionBrowserController {
       try {
         const record = this.store.activateSession(createSessionId(token), { nowEpochMs: this.now() });
         this.records = this.store.listSessions();
-        this.commit(createOpenedSessionViewModel({ state: 'ready', record, instrumentLabels: this.labels }));
+        const workspace = this.openedSessionSurface?.supports(record) === true;
+        this.commit(createOpenedSessionViewModel({
+          state: 'ready', record, instrumentLabels: this.labels, workspace,
+        }));
+        if (workspace) {
+          this.openedSessionSurface.mount({
+            record,
+            root: this.root.querySelector('.replay-workspace-slot'),
+          });
+        }
       } catch {
         this.commit(createOpenedSessionViewModel({
           state: 'error', record: null, instrumentLabels: this.labels,
@@ -127,6 +138,7 @@ class SessionBrowserController {
     this.stopped = true;
     this.unsubscribe?.();
     this.unsubscribe = null;
+    this.openedSessionSurface?.unmount();
     this.dialog.element.remove();
     this.root.replaceChildren();
   }
@@ -143,6 +155,9 @@ class SessionBrowserController {
  */
 export function createSessionBrowser(options) {
   if (!(options.root instanceof HTMLElement)) throw new TypeError('Session Browser requires an HTMLElement root.');
+  if (options.openedSessionSurface) {
+    requirePort(options.openedSessionSurface, ['mount', 'supports', 'unmount'], 'Opened Session surface');
+  }
   const controller = new SessionBrowserController({
     ...options,
     now: options.now ?? (() => Date.now()),

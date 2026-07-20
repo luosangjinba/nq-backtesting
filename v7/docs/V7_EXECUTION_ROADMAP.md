@@ -281,8 +281,9 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R4.4`: pure pane-local Viewport Runtime intent, native logical-range manual
   wall measurement, data-independent cursor movement, explicit Reset/Follow,
   and deterministic adapter projection;
-- later R4 steps add the real chart adapter and
-  the first reviewed professional workstation slice;
+- `R4.5`: real Lightweight Charts 5.2 adapter and professional NQ/`1m`/ETH
+  one-pane workspace, entry/Manual Next atomic path, screenshot-backed paint
+  receipt, default/manual wall, and mandatory human review;
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;
 - stable default/manual wall.

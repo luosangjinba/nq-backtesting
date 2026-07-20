@@ -48,13 +48,26 @@ function clickCardByName(name) {
 }
 
 async function capture(cdp, name) {
-  const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  const actual = Buffer.from(data, 'base64');
   const file = path.join(VISUAL_ROOT, `${name}-1440x900.png`);
-  if (process.env.V7_UPDATE_VISUALS === '1') fs.writeFileSync(file, actual);
+  let actual;
+  if (process.env.V7_UPDATE_VISUALS === '1') {
+    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    actual = Buffer.from(data, 'base64');
+    fs.writeFileSync(file, actual);
+  }
   else {
     assert.ok(fs.existsSync(file), `missing visual fixture ${path.basename(file)}; run with V7_UPDATE_VISUALS=1`);
-    const matches = actual.equals(fs.readFileSync(file));
+    const expected = fs.readFileSync(file);
+    let matches = false;
+    for (let attempt = 0; attempt < 5 && !matches; attempt += 1) {
+      if (attempt > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+      }
+      const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+      actual = Buffer.from(data, 'base64');
+      matches = actual.equals(expected);
+    }
     if (!matches) fs.writeFileSync(path.join(os.tmpdir(), `v7-${name}-actual.png`), actual);
     assert.equal(matches, true, `${name} visual fixture changed`);
   }

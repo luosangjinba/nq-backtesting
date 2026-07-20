@@ -290,7 +290,7 @@ R4.3 completed with automated evidence; no interaction or visual review is requi
 - add no DOM, Lightweight Charts dependency, viewport, Replay mutation, Bar
   Data request, projection, persistence, or concrete capability branch.
 
-## Current Step — R4.4 Pure Viewport Runtime Intent — Completed
+## R4.4 Pure Viewport Runtime Intent — Completed
 
 R4.4 completed with automated evidence; no interaction or visual review is required:
 
@@ -303,9 +303,28 @@ R4.4 completed with automated evidence; no interaction or visual review is requi
 - add no chart mutation, DOM, Lightweight Charts, Replay mutation, Bar Data
   request, projection, persistence, or concrete capability branch.
 
-Next, define bounded R4.5 first real Lightweight Charts vertical slice. It may
-proceed without a pre-implementation manual gate, but must stop after commit for
-interaction and visual review before any later step.
+## Current Step — R4.5 Real Lightweight Charts Slice — Awaiting Human Review
+
+Implemented with automated evidence:
+
+- pin official Lightweight Charts `5.2.0` without copying V6 runtime code;
+- isolate every chart API call in one replaceable adapter;
+- prove actual candle pixels after two rendering opportunities before exact
+  adapter receipt and workspace/Replay acceptance;
+- compose one NQ/`1m`/ETH deterministic local foundation workspace through
+  Session, Bar Data, Replay, Projection, Workspace Transaction, Chart Snapshot,
+  Viewport, and adapter public ports;
+- reveal the complete first hour on entry and one additional minute per Manual
+  Next without future bars;
+- preserve native drag-created manual offset/span through the next snapshot and
+  restore default wall only through Reset View;
+- provide professional chart-first loading, empty, unavailable, stale, error,
+  and ready surfaces with keyboard-visible controls and responsive layout;
+- add independent adapter and complete workspace real-Chrome harnesses, six
+  negative controls, cache-hit maximum, and a fixed `1440x900` visual fixture.
+
+Do not begin R4.6 until human review accepts real chart interaction, wall
+behavior, visible settlement, perceived latency, and visual quality.
 
 ## Standing Gates
 

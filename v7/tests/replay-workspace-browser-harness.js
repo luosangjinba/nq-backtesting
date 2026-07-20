@@ -1,0 +1,208 @@
+import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { createStaticServer } from '../scripts/static-server.mjs';
+import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
+import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
+
+const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
+const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
+const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/ready-default-1440x900.png');
+const negativeCases = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/replay-workspace/negative/cases.json',
+), 'utf8'));
+assert.equal(negativeCases.length, 6);
+assert.equal(new Set(negativeCases).size, 6);
+assert.deepEqual(REPLAY_WORKSPACE_STATES, [
+  'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
+]);
+const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
+const server = createStaticServer(REPOSITORY_ROOT);
+await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
+const webPort = server.address().port;
+const chrome = spawn('/usr/bin/google-chrome', [
+  '--headless=new', '--no-sandbox', '--disable-gpu', '--disable-breakpad',
+  '--disable-crash-reporter', '--no-first-run', '--no-default-browser-check',
+  '--remote-debugging-port=0', '--window-size=1440,900',
+  `--user-data-dir=${userDataDirectory}`, 'about:blank',
+], { stdio: 'ignore' });
+
+async function waitForDevtools() {
+  const activePortFile = path.join(userDataDirectory, 'DevToolsActivePort');
+  const deadline = Date.now() + 8_000;
+  while (Date.now() < deadline) {
+    if (fs.existsSync(activePortFile)) return fs.readFileSync(activePortFile, 'utf8').split(/\r?\n/)[0];
+    await new Promise((resolve) => setTimeout(resolve, 25));
+  }
+  throw new Error('Chrome DevTools endpoint did not start.');
+}
+
+async function capture(cdp) {
+  let actual;
+  if (process.env.V7_UPDATE_VISUALS === '1') {
+    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    actual = Buffer.from(data, 'base64');
+    fs.writeFileSync(visualFile, actual);
+  }
+  else {
+    assert.ok(fs.existsSync(visualFile), 'missing replay workspace visual fixture');
+    const expected = fs.readFileSync(visualFile);
+    let matches = false;
+    for (let attempt = 0; attempt < 5 && !matches; attempt += 1) {
+      if (attempt > 0) {
+        await new Promise((resolve) => setTimeout(resolve, 100));
+        await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+      }
+      const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+      actual = Buffer.from(data, 'base64');
+      matches = actual.equals(expected);
+    }
+    if (!matches) fs.writeFileSync(path.join(os.tmpdir(), 'v7-replay-workspace-actual.png'), actual);
+    assert.equal(matches, true, 'replay workspace visual fixture changed');
+  }
+}
+
+let cdp;
+try {
+  const debugPort = await waitForDevtools();
+  const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
+  cdp = await connectCdp(targets.find((target) => target.type === 'page').webSocketDebuggerUrl);
+  await cdp.send('Page.enable');
+  await cdp.send('Runtime.enable');
+  await cdp.send('Emulation.setDeviceMetricsOverride', {
+    width: 1440, height: 900, deviceScaleFactor: 1, mobile: false,
+  });
+  await cdp.send('Emulation.setEmulatedMedia', {
+    features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
+  });
+  await cdp.send('Page.addScriptToEvaluateOnNewDocument', {
+    source: `{
+      globalThis.__browserErrors = [];
+      addEventListener('error', (event) => globalThis.__browserErrors.push(event.message));
+      addEventListener('unhandledrejection', (event) => globalThis.__browserErrors.push(String(event.reason)));
+      const NativeDate = Date;
+      globalThis.Date = class extends NativeDate {
+        constructor(...args) { super(...(args.length ? args : [1780693200000])); }
+        static now() { return 1780693200000; }
+      };
+    }`,
+  });
+  await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/` });
+  try {
+    await waitFor(cdp, `document.querySelector('#app')?.dataset.viewState === 'empty'`);
+  } catch (error) {
+    const browserErrors = await evaluate(cdp, `globalThis.__browserErrors`);
+    throw new Error(`${error.message}; browser errors: ${browserErrors.join(' | ')}`);
+  }
+  await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    form.elements.name.value = 'NQ Morning Replay';
+    form.querySelectorAll('[name="instrument"]')[0].checked = true;
+    form.elements.start.value = '2026-06-01T09:30';
+    form.elements.end.value = '2026-06-02T16:00';
+    form.requestSubmit();
+  })()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
+  await evaluate(cdp, `document.querySelector('.open-session-button').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
+
+  const entry = await evaluate(cdp, `(() => {
+    const root = document.querySelector('.replay-workspace');
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      barCount: Number(host.dataset.barCount),
+      canvasCount: host.querySelectorAll('canvas').length,
+      libraryVersion: host.dataset.libraryVersion,
+      offset: Number(host.dataset.latestOffsetBars),
+      origin: host.dataset.viewportOrigin,
+      painted: host.dataset.painted,
+      replayRevision: Number(root.dataset.replayRevision),
+      workspaceRevision: Number(root.dataset.workspaceRevision),
+    };
+  })()`);
+  assert.ok(entry.canvasCount > 0, 'real chart must own painted canvases');
+  delete entry.canvasCount;
+  assert.deepEqual(entry, {
+    barCount: 60, libraryVersion: '5.2.0', offset: 8,
+    origin: 'default', painted: 'true', replayRevision: 1, workspaceRevision: 1,
+  });
+  await capture(cdp);
+
+  const startedAt = performance.now();
+  await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
+  const cacheHitVisibleMs = performance.now() - startedAt;
+  assert.ok(cacheHitVisibleMs < 250, `cache-hit Next exceeded max budget: ${cacheHitVisibleMs}ms`);
+  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 61);
+
+  const box = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
+    const x = rect.left + rect.width * .62;
+    const y = rect.top + rect.height * .5;
+    return { x, y };
+  })()`);
+  assert.ok(box.x > 0 && box.x < 1440 && box.y > 0 && box.y < 900, 'chart drag point must be visible');
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: box.x, y: box.y, button: 'none', buttons: 0,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: box.x, y: box.y, button: 'left', buttons: 1, clickCount: 1,
+  });
+  for (const delta of [32, 64, 96, 128, 160]) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: box.x - delta, y: box.y, button: 'left', buttons: 1,
+    });
+  }
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: box.x - 160, y: box.y, button: 'left', buttons: 0, clickCount: 1,
+  });
+  await waitFor(cdp, `document.querySelector('.lightweight-chart-host')?.dataset.viewportOrigin === 'manual'`);
+  const manualBefore = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return { offset: Number(host.dataset.latestOffsetBars), span: Number(host.dataset.spanBars) };
+  })()`);
+  assert.notEqual(manualBefore.offset, 8, 'native drag must create a distinct manual wall');
+
+  await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '3'`);
+  const manualAfter = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
+      span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-wall-status').textContent,
+    };
+  })()`);
+  assert.equal(manualAfter.origin, 'manual');
+  assert.equal(manualAfter.wall, 'Manual wall');
+  assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
+  assert.ok(Math.abs(manualAfter.span - manualBefore.span) < 0.001);
+
+  await evaluate(cdp, `document.querySelector('.replay-reset').click()`);
+  await waitFor(cdp, `document.querySelector('.lightweight-chart-host')?.dataset.viewportOrigin === 'default'`);
+  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.latestOffsetBars)`), 8);
+} finally {
+  cdp?.close();
+  const exited = new Promise((resolve) => chrome.once('exit', resolve));
+  chrome.kill('SIGTERM');
+  const stopped = await Promise.race([
+    exited.then(() => true),
+    new Promise((resolve) => setTimeout(() => resolve(false), 2_000)),
+  ]);
+  if (!stopped) {
+    chrome.kill('SIGKILL');
+    await exited;
+  }
+  server.closeAllConnections();
+  await new Promise((resolve) => server.close(resolve));
+  await new Promise((resolve) => setTimeout(resolve, 200));
+  await fs.promises.rm(userDataDirectory, {
+    force: true, maxRetries: 10, recursive: true, retryDelay: 50,
+  });
+}
+
+console.log('v7 Replay Workspace browser harness passed (real chart, paint, Next, manual/default wall)');

@@ -40,9 +40,10 @@ official infinite-history example uses visible logical-range notification and
 ownership. The awesome-tradingview catalogue supplies useful official plugin
 and example references, but no atomic multi-owner application contract.
 
-Therefore R4.3 keeps library calls behind a future adapter and requires its own
-visible receipt. The first browser adapter must prove a paint-level visual gate;
-it must not reinterpret `subscribeDataChanged()` as visible completion.
+R4.3 kept library calls behind a future adapter and required its own visible
+receipt. R4.5 now supplies that adapter with a two-frame, screenshot/candle-
+pixel paint gate; it does not reinterpret `subscribeDataChanged()` as visible
+completion. See `V7_LIGHTWEIGHT_CHART_SLICE.md`.
 
 References:
 

@@ -108,7 +108,13 @@ function openedScreen(model, actions) {
     content.append(statePanel(model.state, model.message, model.state === 'error' ? actions.onBack : null));
   } else {
     const session = model.session;
-    content.append(
+    if (model.workspace) {
+      content.classList.add('replay-opened-content');
+      content.append(element('section', {
+        className: 'replay-workspace-slot',
+        'aria-label': `${session.name} replay workspace`,
+      }));
+    } else content.append(
       element('section', { className: 'session-hero' }, [
         element('div', { className: 'session-hero-mark' }, [icon('layers')]),
         element('div', {}, [

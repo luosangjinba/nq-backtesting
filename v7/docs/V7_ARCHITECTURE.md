@@ -159,6 +159,13 @@ completion. Stale, failed, duplicate, forged, and disposed applications publish
 no completion. R4.3 uses a deterministic fake adapter and makes no browser-paint
 claim; the first Lightweight Charts adapter must add a paint-level visual gate.
 
+R4.5 activates `adapter.lightweight-chart` as the only concrete series-API
+implementation. It applies one complete snapshot, reapplies Viewport intent,
+waits across rendering opportunities, and requires candle pixels from
+`takeScreenshot()` before returning its exact receipt. The adapter owns native
+logical-range capture and chart disposal, but no Replay, bars, projection, or
+durable viewport state.
+
 ### Viewport Runtime
 
 Owns pane-local horizontal wall and vertical-scale intent. Data commits preserve
@@ -171,6 +178,10 @@ Replay cursor movement preserves origin, offset, span, and intent revision;
 native logical-range measurements create manual intent, while adapter logical
 ranges remain transient projection output. There is still no chart mutation,
 DOM, persistence, vertical-scale policy, or Lightweight Charts dependency.
+
+R4.5 adds the mutable pane controller inside the same owner. The real adapter
+may request a projection or submit a native logical-range measurement; it
+cannot replace intent through data application.
 
 ## Modular Assembly Contract
 

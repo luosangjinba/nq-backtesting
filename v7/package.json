@@ -1,5 +1,8 @@
 {
   "name": "v7-replay-workstation",
   "private": true,
-  "type": "module"
+  "type": "module",
+  "dependencies": {
+    "lightweight-charts": "5.2.0"
+  }
 }

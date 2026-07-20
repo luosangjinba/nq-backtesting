@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R4.4",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4", "R5", "R6", "R7"],
+  "currentStep": "R4.5",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -195,10 +195,13 @@
       "owner": "replay-runtime",
       "v6FailurePrevented": "replay step sampled one bar per step interval",
       "activationStep": "R4",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/replay-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/replay-workspace-ui/workspace-controller.js",
+        "tests/replay-workspace-browser-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -239,10 +242,14 @@
       "owner": "chart-runtime-adapter",
       "v6FailurePrevented": "tests passed before candles were visible",
       "activationStep": "R4",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/lightweight-chart-adapter-browser-harness.js",
+      "positiveEvidence": [
+        "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "src/lightweight-chart-adapter/paint-gate.js",
+        "tests/lightweight-chart-adapter-browser-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -252,10 +259,13 @@
       "owner": "latency-observability",
       "v6FailurePrevented": "artificial delay polluted cache-hit Next and regressions hid by averages",
       "activationStep": "R4",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/replay-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "docs/v7-cache-latency-contract.json",
+        "tests/replay-workspace-browser-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/cache-latency/negative/artificial-delay.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -674,6 +684,27 @@
       "negativeFixtures": ["tests/fixtures/viewport-runtime/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260720_r4_4_viewport_runtime.md"
+    },
+    {
+      "id": "H042",
+      "name": "real-lightweight-chart-foundation-slice",
+      "owner": "chart-runtime-adapter",
+      "v6FailurePrevented": "headless tests passed while the browser showed blank candles, sampled Replay, reset walls, or premature completion",
+      "activationStep": "R4.5",
+      "state": "executable",
+      "harness": "tests/replay-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/lightweight-chart-adapter/public.js",
+        "src/lightweight-chart-adapter/module.json",
+        "src/replay-workspace-ui/public.js",
+        "src/replay-workspace-ui/module.json",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/ready-default-1440x900.png"
+      ],
+      "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

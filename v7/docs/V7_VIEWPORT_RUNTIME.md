@@ -5,11 +5,11 @@ Status: R4.4 pure pane-local intent foundation (2026-07-20)
 ## Ownership
 
 `core.viewport-runtime` owns the semantic replay-wall intent for one pane in one
-branded Session activation. R4.4 is pure: it creates and transforms immutable
-intent values and projects transient logical-range instructions, but owns no
-chart instance or mutable application state yet.
+branded Session activation. R4.4 established its pure values and projections;
+R4.5 adds a small mutable controller used only through the real adapter port.
+It still owns no chart instance.
 
-It performs no chart write, Replay mutation, Bar Data request, projection,
+It performs no chart write, Replay mutation, Bar Data request, candle projection,
 persistence, DOM work, notification, or Lightweight Charts call.
 
 ## Intent Contract

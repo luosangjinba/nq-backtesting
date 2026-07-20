@@ -65,7 +65,13 @@ export function createSessionListViewModel({
  * Side effects: none.
  * Errors: TypeError for unsupported state or absent record in ready state.
  */
-export function createOpenedSessionViewModel({ state, record, instrumentLabels = {}, message = null }) {
+export function createOpenedSessionViewModel({
+  state,
+  record,
+  instrumentLabels = {},
+  message = null,
+  workspace = false,
+}) {
   const normalizedState = requireState(state);
   if ((normalizedState === 'ready' || normalizedState === 'stale') && !record) {
     throw new TypeError('Opened Session ready/stale state requires a record.');
@@ -75,5 +81,6 @@ export function createOpenedSessionViewModel({ state, record, instrumentLabels =
     state: normalizedState,
     message,
     session: record ? toCard(record, instrumentLabels) : null,
+    workspace: Boolean(workspace),
   });
 }
