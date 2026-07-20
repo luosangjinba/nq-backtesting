@@ -25,6 +25,8 @@ and interaction acceptance.
   on one desktop row;
 - only one current-timeframe trigger is shown by default; unimplemented
   timeframe favourites are not simulated.
+- the trigger opens a conventional single-column dropdown with high-contrast
+  text, full-row selection, group separators, and no wrapped interval labels.
 
 ## Foundation Scope
 
@@ -43,7 +45,8 @@ Auto Replay, Previous, Restart, or Go-to.
 The real-Chrome harness proves compact controls, `1m` to `5m` projection,
 ETH to RTH replacement, cursor retention, accepted-state UI synchronization,
 no centered refresh overlay, manual-wall preservation, and Reset View. The
-fixed `1440x900` visual fixture was intentionally updated for the controls.
+fixed `1440x900` ready-state and open-timeframe-menu visual fixtures are
+intentional regression gates.
 
 The R5.5 review found and corrected two boundary defects: chart timestamps now
 use the same browser-local clock convention as Session cards, and Manual Next

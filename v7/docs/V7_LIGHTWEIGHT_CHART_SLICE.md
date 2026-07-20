@@ -88,7 +88,8 @@ References checked immediately before implementation:
   unsupported capability, blank refresh, and latency regressions;
 - deterministic fixture quality assertions require every OHLC value to align
   to the NQ `0.25` tick, aggregate wick length to remain below aggregate body
-  length, and elongated-wick frequency to stay below eight percent;
+  length, elongated-wick frequency to stay below eight percent, and directional
+  runs to remain below twelve candles;
 - complete V7 suite and source/architecture checks run before commit.
 
 Automated evidence did not grant acceptance. Human review exercised the actual

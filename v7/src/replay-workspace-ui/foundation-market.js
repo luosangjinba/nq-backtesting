@@ -16,8 +16,11 @@ function sampleMinute(minute, salt) {
 }
 
 function closeAt(minute) {
-  const structure = (Math.sin(minute / 47) * 11) + (Math.sin(minute / 173) * 18);
-  return alignPrice(20_000 + structure + ((sampleMinute(minute, 0x51f15e) - 0.5) * 2.5));
+  const structure = (Math.sin(minute / 5.5) * 3)
+    + (Math.sin(minute / 17) * 6)
+    + (Math.sin(minute / 61) * 10)
+    + (Math.sin(minute / 193) * 14);
+  return alignPrice(20_000 + structure + ((sampleMinute(minute, 0x51f15e) - 0.5) * 4));
 }
 
 function generateBars(request) {
@@ -27,7 +30,7 @@ function generateBars(request) {
     const open = closeAt(minute - 1);
     const close = closeAt(minute);
     const wick = (salt, rareSalt) => {
-      let steps = Math.floor((sampleMinute(minute, salt) ** 6) * 5);
+      let steps = Math.floor((sampleMinute(minute, salt) ** 3) * 6);
       if (sampleMinute(minute, rareSalt) > 0.992) {
         steps += 4 + Math.floor(sampleMinute(minute, rareSalt ^ 0x5bd1e9) * 5);
       }
@@ -55,7 +58,7 @@ export function createFoundationMarket(record) {
   function requestThrough(exclusiveEndEpochMs) {
     const boundedEnd = Math.min(range.endEpochMs, Math.max(range.startEpochMs + MINUTE, exclusiveEndEpochMs));
     return createRawBarRequest({
-      datasetRevision: 'foundation-r2',
+      datasetRevision: 'foundation-r3',
       instrumentId: FOUNDATION_IDS.instrument,
       providerId: FOUNDATION_IDS.provider,
       schemaVersion: 1,
@@ -67,7 +70,7 @@ export function createFoundationMarket(record) {
   function requestBefore(oldestEpochMs) {
     const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
     return createRawBarRequest({
-      datasetRevision: 'foundation-r2',
+      datasetRevision: 'foundation-r3',
       instrumentId: FOUNDATION_IDS.instrument,
       providerId: FOUNDATION_IDS.provider,
       schemaVersion: 1,

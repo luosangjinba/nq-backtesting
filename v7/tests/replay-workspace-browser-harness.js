@@ -12,6 +12,7 @@ import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/ready-default-1440x900.png');
+const menuVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/timeframe-menu-open-1440x900.png');
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/replay-workspace/negative/cases.json',
 ), 'utf8'));
@@ -31,15 +32,22 @@ const candleQuality = qualityBars.reduce((summary, bar) => {
   summary.body += body;
   summary.wick += totalWick;
   summary.spikes += totalWick > Math.max(3, body * 3) ? 1 : 0;
+  const direction = Math.sign(bar.close - bar.open);
+  if (direction !== 0 && direction === summary.previousDirection) summary.currentRun += 1;
+  else summary.currentRun = direction === 0 ? 0 : 1;
+  summary.longestRun = Math.max(summary.longestRun, summary.currentRun);
+  if (direction !== 0) summary.previousDirection = direction;
   for (const price of [bar.open, bar.high, bar.low, bar.close]) {
     assert.equal(Number.isInteger(price * 4), true, 'foundation OHLC must align to the NQ 0.25 tick');
   }
   return summary;
-}, { body: 0, spikes: 0, wick: 0 });
+}, { body: 0, currentRun: 0, longestRun: 0, previousDirection: 0, spikes: 0, wick: 0 });
 assert.ok(candleQuality.wick < candleQuality.body,
   'foundation candles must not be dominated by synthetic upper/lower wicks');
 assert.ok(candleQuality.spikes / qualityBars.length < 0.08,
   'foundation candles must reserve elongated wicks for sparse events');
+assert.ok(candleQuality.longestRun < 12,
+  'foundation candles must not collapse into long mechanical directional staircases');
 const fridayStart = Date.parse('2026-05-01T19:40:00Z');
 const fridayMarket = createFoundationMarket({
   configuration: { historicalRange: {
@@ -79,16 +87,16 @@ async function waitForDevtools() {
   throw new Error('Chrome DevTools endpoint did not start.');
 }
 
-async function capture(cdp) {
+async function capture(cdp, targetFile = visualFile, label = 'replay workspace') {
   let actual;
   if (process.env.V7_UPDATE_VISUALS === '1') {
     const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     actual = Buffer.from(data, 'base64');
-    fs.writeFileSync(visualFile, actual);
+    fs.writeFileSync(targetFile, actual);
   }
   else {
-    assert.ok(fs.existsSync(visualFile), 'missing replay workspace visual fixture');
-    const expected = fs.readFileSync(visualFile);
+    assert.ok(fs.existsSync(targetFile), `missing ${label} visual fixture`);
+    const expected = fs.readFileSync(targetFile);
     let matches = false;
     for (let attempt = 0; attempt < 5 && !matches; attempt += 1) {
       if (attempt > 0) {
@@ -100,7 +108,7 @@ async function capture(cdp) {
       matches = actual.equals(expected);
     }
     if (!matches) fs.writeFileSync(path.join(os.tmpdir(), 'v7-replay-workspace-actual.png'), actual);
-    assert.equal(matches, true, 'replay workspace visual fixture changed');
+    assert.equal(matches, true, `${label} visual fixture changed`);
   }
 }
 
@@ -208,6 +216,10 @@ try {
     hidden: true,
   });
   await capture(cdp);
+  await evaluate(cdp, `document.querySelector('.timeframe-toggle').click()`);
+  await capture(cdp, menuVisualFile, 'timeframe menu');
+  await evaluate(cdp,
+    `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
 
   const startedAt = performance.now();
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);

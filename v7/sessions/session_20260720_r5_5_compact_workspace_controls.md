@@ -33,6 +33,13 @@ session-aware aggregation exists. Manual browsing may move the latest bar
 offscreen and repeatedly loads bounded older windows at the left boundary
 without advancing Replay.
 
+A later visual review rejected the grid-like TF panel and the mechanical
+single-direction foundation candles. The TF surface is now a high-contrast
+single-column dropdown with its own open-state fixture. Foundation OHLC uses a
+request-independent multi-scale price function, controlled wicks, and a
+directional-run regression while retaining exact quarter-tick continuity
+across independently requested history windows.
+
 ## Automated Evidence
 
 - all 33 V7 harness files pass;
