@@ -301,8 +301,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   alignment fixtures through the existing pure Projection Domain;
 - `R5.4`: route timeframe and ETH/RTH replacement intents through one headless
   workspace transaction with stale/superseded isolation;
-- `R5.5`: compact inherited timeframe and ETH/RTH controls are implemented over
-  atomic replacement and stopped for interaction/visual acceptance;
+- `R5.5`: one grouped fixed minute/hour timeframe menu and compact ETH/RTH
+  controls are implemented over atomic replacement; V6 prefix-plus-start entry,
+  single-bar reveal, and repeatable leftward extension are restored before the
+  interaction/visual acceptance gate;
 - all TF projection through the pure domain;
 - ETH/RTH eligibility before aggregation;
 - delayed/superseded switches cannot commit.

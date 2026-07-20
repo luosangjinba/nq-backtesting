@@ -71,6 +71,10 @@ const measurement = measureManualViewportWall({
 });
 assert.deepEqual(measurement, { latestOffsetBars: 6, spanBars: 85 });
 assert.equal(Object.isFrozen(measurement), true);
+assert.deepEqual(measureManualViewportWall({
+  latestLogicalIndex: 155,
+  range: Object.freeze({ from: -79, to: 1 }),
+}), { latestOffsetBars: -154, spanBars: 80 });
 
 const manualIntent = promoteViewportIntentToManual(defaultIntent, measurement);
 const manualBefore = readViewportIntent(manualIntent);
@@ -153,10 +157,6 @@ assert.throws(() => measureManualViewportWall({
   range: { from: 5, to: 5 },
 }));
 assert.throws(() => measureManualViewportWall({
-  latestLogicalIndex: 11,
-  range: { from: 5, to: 10 },
-}));
-assert.throws(() => measureManualViewportWall({
   latestLogicalIndex: Number.NaN,
   range: { from: 5, to: 10 },
 }));
@@ -167,6 +167,10 @@ assert.throws(() => projectViewportIntent(defaultIntent, {
 assert.throws(() => promoteViewportIntentToManual(defaultIntent, {
   latestOffsetBars: 2,
   spanBars: 0,
+}));
+assert.throws(() => promoteViewportIntentToManual(defaultIntent, {
+  latestOffsetBars: Number.NEGATIVE_INFINITY,
+  spanBars: 10,
 }));
 
 console.log(`v7 Viewport Runtime harness passed (${negativeCases.length} negative controls)`);

@@ -2,8 +2,8 @@
 
 ## Outcome
 
-R5.5 connects compact `1m`/`5m`/`15m`/`1h` and `ETH`/`RTH` controls to the
-registered atomic replacement path in the real one-pane Lightweight Charts
+R5.5 connects one compact grouped timeframe menu and an `ETH`/`RTH` selector to
+the registered atomic replacement path in the real one-pane Lightweight Charts
 workspace. This is an implemented browser-visible slice awaiting human visual
 and interaction acceptance.
 
@@ -21,11 +21,17 @@ and interaction acceptance.
   chart with a centered message;
 - a failed replacement restores the accepted control state and leaves the last
   chart visible with a bounded inline error.
+- the toolbar keeps Session, instrument, timeframe, ETH/RTH, Reset, and Next bar
+  on one desktop row;
+- only one current-timeframe trigger is shown by default; unimplemented
+  timeframe favourites are not simulated.
 
 ## Foundation Scope
 
 The visible slice remains NQ and a deterministic local one-minute source. The
-capability catalog registers four timeframes crossed with ETH/RTH. The adapter
+capability catalog registers V6's fixed minute/hour set (`1m` through `12h`)
+crossed with ETH/RTH. Calendar `1D`/`1W`/`1M` entries remain visibly disabled
+until their session-aware aggregation owner is migrated. The adapter
 converts real instants to New York exchange wall-clock labels before invoking
 the R5.2 calendar policy; chart timestamps themselves remain unchanged.
 
@@ -44,16 +50,23 @@ use the same browser-local clock convention as Session cards, and Manual Next
 uses the active calendar policy to reveal the next eligible source minute
 across ETH/RTH maintenance or weekend gaps. The exact reported Friday
 2026-05-01 12:40 through Monday 2026-05-11 12:40 Session is the browser
-regression fixture; its first Next visibly reveals the Sunday ETH reopen.
+regression fixture; its first Next reveals only Friday 12:41. A separate domain
+fixture proves Friday-close Next traverses to the Sunday ETH reopen.
 
 The review also exposed an ambiguous presentation: the chart's last visible
 bar was being compared to the Session end boundary. The workspace now displays
 Session range, Replay cursor, and source visible-through as three explicit
 values. Session end remains the Replay limit; it does not reveal future bars.
 
-A follow-up review proved the initial context still stopped at `01:59 PM` for
-any date entered around midday. Entry had advanced two wall-clock hours and
-landed inside the fixed ETH maintenance gap. It now gathers 120 eligible source
-minutes, crossing maintenance/weekend exclusions exactly like Next.
+A follow-up audit against the actual V6 chart-entry chain replaced the incorrect
+forward-context behavior. Entry now requests a 120-minute historical prefix and
+reveals only the selected start bar; all later bars stay hidden until Next bar.
+The default viewport uses the V6 baseline of 80 visible bars and 12 right-offset
+bars.
+
+Dragging to the loaded left boundary requests a bounded 2,500-source-minute
+older window. Older batches prepend without moving Replay or changing the
+accepted no-future boundary. The browser gate proves a second boundary visit
+loads a second older window, so the interaction can continue leftward.
 
 Human acceptance remains required before R6 selection or implementation.

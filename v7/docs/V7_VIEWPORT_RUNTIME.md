@@ -18,7 +18,7 @@ The durable semantic value contains:
 
 - Session identity, activation generation, and opaque pane identity;
 - `default` or `manual` origin;
-- latest replay-bar offset from the visible right wall;
+- signed latest replay-bar offset from the visible right wall for manual views;
 - a required manual visible span, while default span remains presentation-owned;
 - accepted Replay cursor epoch;
 - revision incremented only by native manual capture or explicit Reset/Follow.
@@ -47,6 +47,10 @@ When new Replay bars increase the latest logical index, both range boundaries
 move by the same delta. The latest candle remains at the existing wall and
 older candles move left. The adapter's transient `from`/`to` values are never
 stored as canonical product intent.
+
+A default wall keeps a non-negative latest-bar offset. A manual wall may keep a
+negative offset, which means the latest Replay bar is intentionally offscreen
+to the right while the user browses and extends older history.
 
 ## V6 Disposition
 

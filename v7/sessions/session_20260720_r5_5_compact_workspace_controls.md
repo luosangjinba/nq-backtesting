@@ -8,7 +8,7 @@ gate.
 
 ## Delivered
 
-- compact `1m`/`5m`/`15m`/`1h` and ETH/RTH toolbar controls;
+- one grouped fixed minute/hour TF dropdown and compact ETH/RTH controls;
 - registered NQ capability cross-product with fixed-duration projection and
   exchange-aware eligibility;
 - accepted Workspace snapshot as the only active-control truth;
@@ -22,18 +22,26 @@ the browser-local clock used by Session cards, plans Next against the active
 ETH/RTH eligibility policy, and expands only the bounded source window needed
 to reveal the next eligible minute. It does not load the complete Session.
 
-The follow-up review found entry itself still advanced two wall-clock hours,
-causing a date-independent `01:59 PM` cutoff for midday starts. Entry now
-materializes 120 eligible source minutes and traverses maintenance/weekend gaps
-without exposing any later bar.
+The follow-up audit against V6 found the attempted entry fix was directionally
+wrong. Entry now loads 120 minutes before the selected start, reveals the start
+bar as the first Replay bar, and hides every later bar until Next bar. The
+default wall is restored to 80 visible bars with a 12-bar right offset.
+
+The desktop controls now share one row and timeframe uses one grouped dropdown.
+The fixed minute/hour V6 set is enabled; `1D`/`1W`/`1M` remain disabled until
+session-aware aggregation exists. Manual browsing may move the latest bar
+offscreen and repeatedly loads bounded older windows at the left boundary
+without advancing Replay.
 
 ## Automated Evidence
 
 - all 33 V7 harness files pass;
-- real Chrome proves `1m` to `5m`, ETH to RTH, retained cursor, preserved manual
-  offset/span, compact controls, hidden centered update overlay, and Reset View;
-- the exact reported 2026-05-01 12:40–2026-05-11 12:40 Session proves the first ETH Next jumps
-  across the weekend and adds the Sunday reopen bar;
+- real Chrome proves prefix-plus-start entry, one-bar Next, grouped `1m` to
+  `12h` menu state, `1m` to `5m` projection, ETH to RTH, retained cursor,
+  preserved signed manual offset/span, repeated left extension, compact
+  controls, hidden centered update overlay, and Reset View;
+- the exact reported 2026-05-01 12:40–2026-05-11 12:40 Session proves initial
+  visibility ends at 12:40 and the first Next reveals only 12:41;
 - the visible workspace separately labels complete Session range, Replay
   cursor, and source visible-through so Session end is not mistaken for an
   already revealed candle boundary;
@@ -43,8 +51,8 @@ without exposing any later bar.
 
 ## Deferred
 
-No multi-pane, real provider, persistence, expanded Replay transport, custom
-timeframes, or day/week/month aggregation was added.
+No multi-pane, real provider, persistence, expanded Replay transport, TF
+favourites, custom timeframes, or day/week/month aggregation was added.
 
 ## Review Gate
 

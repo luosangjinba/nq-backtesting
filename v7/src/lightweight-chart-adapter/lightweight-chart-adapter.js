@@ -31,6 +31,7 @@ function chartData(workspaceSnapshot) {
 /** Construct the only real Lightweight Charts series writer for one pane. */
 export function createLightweightChartAdapter({
   host,
+  onHistoryBoundary = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
   viewportPort,
@@ -52,6 +53,8 @@ export function createLightweightChartAdapter({
     if (barCount < 1) return null;
     const projection = viewport.project(barCount - 1);
     chart.timeScale().setVisibleLogicalRange({ from: projection.from, to: projection.to });
+    host.dataset.logicalFrom = String(projection.from);
+    host.dataset.logicalTo = String(projection.to);
     host.dataset.latestOffsetBars = String(projection.latestOffsetBars);
     host.dataset.spanBars = String(projection.spanBars);
     host.dataset.viewportOrigin = projection.origin;
@@ -65,6 +68,8 @@ export function createLightweightChartAdapter({
     if (disposed || token !== captureToken || barCount < 1) return;
     const range = chart.timeScale().getVisibleLogicalRange();
     if (!range) return;
+    host.dataset.logicalFrom = String(range.from);
+    host.dataset.logicalTo = String(range.to);
     viewport.captureManual({ latestLogicalIndex: barCount - 1, range });
     const value = readViewportIntent(viewport.snapshot());
     host.dataset.latestOffsetBars = String(value.latestOffsetBars);
@@ -72,6 +77,7 @@ export function createLightweightChartAdapter({
     host.dataset.viewportOrigin = value.origin;
     host.dataset.viewportRevision = String(value.revision);
     onViewportIntent(value);
+    onHistoryBoundary(Object.freeze({ from: range.from, to: range.to }));
   }
 
   const onPointerDown = (event) => {

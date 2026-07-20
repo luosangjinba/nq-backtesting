@@ -20,10 +20,38 @@ export const FOUNDATION_IDS = Object.freeze({
 });
 
 const TIMEFRAMES = Object.freeze([
-  Object.freeze({ durationMinutes: 1, id: 'timeframe.display-1-minute', label: '1m' }),
-  Object.freeze({ durationMinutes: 5, id: 'timeframe.display-5-minute', label: '5m' }),
-  Object.freeze({ durationMinutes: 15, id: 'timeframe.display-15-minute', label: '15m' }),
-  Object.freeze({ durationMinutes: 60, id: 'timeframe.display-1-hour', label: '1h' }),
+  Object.freeze({ durationMinutes: 1, id: 'timeframe.display-1-minute', label: '1m', menuLabel: '1 minute' }),
+  Object.freeze({ durationMinutes: 2, id: 'timeframe.display-2-minute', label: '2m', menuLabel: '2 minutes' }),
+  Object.freeze({ durationMinutes: 3, id: 'timeframe.display-3-minute', label: '3m', menuLabel: '3 minutes' }),
+  Object.freeze({ durationMinutes: 4, id: 'timeframe.display-4-minute', label: '4m', menuLabel: '4 minutes' }),
+  Object.freeze({ durationMinutes: 5, id: 'timeframe.display-5-minute', label: '5m', menuLabel: '5 minutes' }),
+  Object.freeze({ durationMinutes: 10, id: 'timeframe.display-10-minute', label: '10m', menuLabel: '10 minutes' }),
+  Object.freeze({ durationMinutes: 15, id: 'timeframe.display-15-minute', label: '15m', menuLabel: '15 minutes' }),
+  Object.freeze({ durationMinutes: 30, id: 'timeframe.display-30-minute', label: '30m', menuLabel: '30 minutes' }),
+  Object.freeze({ durationMinutes: 60, id: 'timeframe.display-1-hour', label: '1h', menuLabel: '1 hour' }),
+  Object.freeze({ durationMinutes: 120, id: 'timeframe.display-2-hour', label: '2h', menuLabel: '2 hours' }),
+  Object.freeze({ durationMinutes: 240, id: 'timeframe.display-4-hour', label: '4h', menuLabel: '4 hours' }),
+  Object.freeze({ durationMinutes: 480, id: 'timeframe.display-8-hour', label: '8h', menuLabel: '8 hours' }),
+  Object.freeze({ durationMinutes: 720, id: 'timeframe.display-12-hour', label: '12h', menuLabel: '12 hours' }),
+]);
+
+const TIMEFRAME_MENU_GROUPS = Object.freeze([
+  Object.freeze({
+    label: 'Minutes',
+    items: Object.freeze(TIMEFRAMES.filter(({ durationMinutes }) => durationMinutes < 60)),
+  }),
+  Object.freeze({
+    label: 'Hours',
+    items: Object.freeze(TIMEFRAMES.filter(({ durationMinutes }) => durationMinutes >= 60)),
+  }),
+  Object.freeze({
+    label: 'Calendar',
+    items: Object.freeze([
+      Object.freeze({ id: 'timeframe.display-1-day', label: '1D', menuLabel: '1 day', unavailable: true }),
+      Object.freeze({ id: 'timeframe.display-1-week', label: '1W', menuLabel: '1 week', unavailable: true }),
+      Object.freeze({ id: 'timeframe.display-1-month', label: '1M', menuLabel: '1 month', unavailable: true }),
+    ]),
+  }),
 ]);
 
 function base(kind, contract, id, label) {
@@ -143,5 +171,6 @@ export function createFoundationCapabilities() {
     instrument,
     sessionHoursModes: Object.freeze(['eth', 'rth']),
     timeframes: Object.freeze(definitions.map(({ id, label }) => Object.freeze({ id, label }))),
+    timeframeMenuGroups: TIMEFRAME_MENU_GROUPS,
   });
 }

@@ -24,8 +24,8 @@ export function measureManualViewportWall({ latestLogicalIndex, range }) {
   }
   const from = requireFinite(range.from, 'VIEWPORT_LOGICAL_RANGE_INVALID', 'Range start must be finite.');
   const to = requireFinite(range.to, 'VIEWPORT_LOGICAL_RANGE_INVALID', 'Range end must be finite.');
-  if (to <= from || to < latest) {
-    failViewport('VIEWPORT_LOGICAL_RANGE_INVALID', 'Logical range must contain the latest bar wall.');
+  if (to <= from) {
+    failViewport('VIEWPORT_LOGICAL_RANGE_INVALID', 'Logical range must increase.');
   }
   return Object.freeze({ latestOffsetBars: to - latest, spanBars: to - from });
 }

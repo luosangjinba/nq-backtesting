@@ -8,7 +8,7 @@
   "mutable-or-structural-intent",
   "missing-logical-range",
   "reversed-logical-range",
-  "latest-bar-outside-range",
+  "non-finite-manual-offset",
   "non-finite-logical-index",
   "non-positive-default-span",
   "invalid-manual-measurement"

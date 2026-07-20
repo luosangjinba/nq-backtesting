@@ -27,7 +27,7 @@ export function createReplayWorkspaceSurface() {
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
         sessionHoursModes: capabilities.sessionHoursModes,
-        timeframes: capabilities.timeframes,
+        timeframeMenuGroups: capabilities.timeframeMenuGroups,
       });
       view.setSelection(capabilities.defaultTarget);
       root.replaceChildren(view.root);

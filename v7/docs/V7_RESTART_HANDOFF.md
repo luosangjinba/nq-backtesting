@@ -77,9 +77,9 @@ and human-accepted:
   scope, and revision while shifting earlier bars left;
 - adapter logical ranges are transient projections, not stored product truth;
 - official Lightweight Charts 5.2.0 is isolated behind one real adapter;
-- NQ/`1m`/ETH chart entry reveals 120 eligible source minutes through one
-  transaction, traversing excluded gaps, and Manual Next reveals one additional
-  eligible minute;
+- NQ/`1m`/ETH chart entry reveals a 120-minute historical prefix plus the
+  selected Session start bar through one transaction; Manual Next reveals one
+  additional eligible source bar;
 - visible receipt follows two rendering opportunities and screenshot-proven
   candle pixels rather than `subscribeDataChanged()`;
 - native drag creates manual wall intent, Next preserves it, and Reset View
@@ -99,11 +99,12 @@ and human-accepted:
 - R5.4 routes registered timeframe/ETH-RTH replacements through the existing
   atomic transaction, with cursor retention, source-level visible-through, and
   acquisition/presentation stale isolation.
-- R5.5 mounts compact `1m`/`5m`/`15m`/`1h` and ETH/RTH controls over that path,
-  preserves cursor/manual wall, and keeps accepted chart pixels visible during
-  bounded refresh/error states. Its review correction aligns chart timestamps
-  with Session-card local time and makes Next skip excluded calendar gaps to a
-  visibly eligible source minute. Human acceptance is pending.
+- R5.5 mounts one grouped fixed minute/hour TF dropdown and compact ETH/RTH
+  controls over that path, preserves cursor/manual wall, and keeps accepted
+  chart pixels visible during bounded refresh/error states. Its review
+  corrections align chart timestamps with Session-card local time, restore the
+  V6 prefix-plus-start/no-future entry baseline, and add repeatable bounded
+  leftward history extension. Human acceptance is pending.
 
 Latest R3.3 commits, oldest to newest:
 

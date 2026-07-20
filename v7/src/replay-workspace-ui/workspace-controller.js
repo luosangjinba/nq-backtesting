@@ -18,6 +18,7 @@ import {
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
 import { createWorkspaceReplacementExecutor } from '../workspace-replacement-runtime/public.js';
 import { createFoundationMarket } from './foundation-market.js';
+import { createSourceBatchLedger } from './source-batch-ledger.js';
 
 function formatCursor(epochMs) {
   const formatter = new Intl.DateTimeFormat(undefined, {
@@ -33,6 +34,7 @@ function createReplayPort(replay) {
       visibleThroughEpochMs: workspaceSnapshot.provenance.visibleThroughEpochMs,
     }),
     propose: ({ identity, input, operation }) => operation.endsWith('-replacement')
+      || operation === 'history-extension'
       ? replay.proposeRetention({ identity })
       : replay.proposeAdvance({ advance: input.advance, identity }),
     reject: (proposal) => replay.reject(proposal),
@@ -51,17 +53,21 @@ export function createReplayWorkspaceController({ record, view }) {
   });
   view.setSessionRange({ end: formatCursor(range.endEpochMs), start: formatCursor(range.startEpochMs) });
   const viewport = createViewportController({
-    defaultSpanBars: 136,
+    defaultSpanBars: 80,
     initialIntent: createInitialViewportIntent({
       activationGeneration: record.activationGeneration,
       cursorEpochMs: range.startEpochMs,
-      latestOffsetBars: 8,
+      latestOffsetBars: 12,
       paneId: 'pane-main',
       sessionId: record.sessionId,
     }),
   });
+  const sourceBatches = createSourceBatchLedger();
   const adapter = createLightweightChartAdapter({
     host: view.chartHost,
+    onHistoryBoundary: (range) => {
+      if (range.from < 24) void requestLeftExtension();
+    },
     onViewportIntent: (intent) => view.setWall(intent.origin),
     viewportPort: viewport,
   });
@@ -71,7 +77,7 @@ export function createReplayWorkspaceController({ record, view }) {
     sessionId: record.sessionId,
   });
   const barData = createBarDataRuntime({
-    maxCacheEntries: 4,
+    maxCacheEntries: 16,
     maxConcurrentRequests: 1,
     resolveProvider: () => market.provider,
   });
@@ -79,8 +85,9 @@ export function createReplayWorkspaceController({ record, view }) {
     activationGeneration: record.activationGeneration,
     acquisitionPort: Object.freeze({ acquire: ({ input }) => barData.acquire(input.request) }),
     projectionPort: Object.freeze({
-      project: ({ acquired, input, proposal }) => {
+      project: ({ acquired, input, operation, proposal }) => {
         const selection = input.selection ?? currentSelection();
+        const projectionBatches = sourceBatches.stage(acquired, operation);
         return projectPaneSnapshot({
           aggregationPolicy: selection.aggregationPolicy,
           calendar: selection.calendar,
@@ -90,7 +97,7 @@ export function createReplayWorkspaceController({ record, view }) {
           paneId: 'pane-main',
           schemaVersion: 1,
           sessionHoursPolicy: selection.sessionHoursPolicy,
-          sourceBatches: [acquired],
+          sourceBatches: projectionBatches,
         });
       },
     }),
@@ -100,6 +107,7 @@ export function createReplayWorkspaceController({ record, view }) {
   });
   const replacement = createWorkspaceReplacementExecutor({ catalog: market.catalog, transactionRuntime: runtime });
   let disposed = false;
+  let historyRequestQueued = false;
   let pending = false;
   let transactionSequence = 0;
 
@@ -126,8 +134,8 @@ export function createReplayWorkspaceController({ record, view }) {
   function acceptVisibleState() {
     const replaySnapshot = replay.snapshot();
     const workspaceSnapshot = runtime.snapshot().acceptedSnapshot.workspace;
-    viewport.moveCursor(replaySnapshot.cursorEpochMs);
-    view.setCursor(formatCursor(replaySnapshot.cursorEpochMs));
+    viewport.moveCursor(workspaceSnapshot.provenance.visibleThroughEpochMs);
+    view.setCursor(formatCursor(workspaceSnapshot.provenance.visibleThroughEpochMs));
     view.setEvidence({ replayRevision: replaySnapshot.revision, workspaceRevision: runtime.snapshot().acceptedRevision });
     view.setSelection(acceptedTarget());
     view.setVisibleThrough({
@@ -138,24 +146,44 @@ export function createReplayWorkspaceController({ record, view }) {
     view.setState('ready');
   }
 
-  async function execute(operation, durationMs, request = market.request) {
+  async function execute(operation, { durationMs = null, request = market.request } = {}) {
     if (disposed || pending) return;
     pending = true;
     view.setState(operation === 'chart-entry' ? 'loading' : 'stale');
     const intent = identity(operation);
     const input = Object.freeze({
-      advance: createReplayAdvanceInput({ durationMs, source: 'manual' }),
+      ...(durationMs === null ? {} : {
+        advance: createReplayAdvanceInput({ durationMs, source: 'manual' }),
+      }),
       request,
     });
     try {
       const terminal = describeWorkspaceTransactionEnvelope(await runtime.execute({ input, intent }));
       if (terminal.status !== 'committed') throw Object.assign(new Error(terminal.code), { code: terminal.code });
+      sourceBatches.accept();
       acceptVisibleState();
     } catch (error) {
       if (!disposed) view.setState('error', { message: error?.message });
     } finally {
+      sourceBatches.reject();
       pending = false;
+      const logicalFrom = adapter.snapshot().logicalRange?.from;
+      const shouldExtend = historyRequestQueued
+        || (operation === 'history-extension' && Number.isFinite(logicalFrom) && logicalFrom < 24);
+      historyRequestQueued = false;
+      if (shouldExtend && !disposed) queueMicrotask(requestLeftExtension);
     }
+  }
+
+  function requestLeftExtension() {
+    if (disposed) return undefined;
+    if (pending) {
+      historyRequestQueued = true;
+      return undefined;
+    }
+    const oldestEpochMs = sourceBatches.oldestEpochMs();
+    if (oldestEpochMs === null || oldestEpochMs <= 0) return undefined;
+    return execute('history-extension', { request: market.requestBefore(oldestEpochMs) });
   }
 
   async function replace(kind, value) {
@@ -173,6 +201,7 @@ export function createReplayWorkspaceController({ record, view }) {
         intent: identity(`${kind}-replacement`), request: market.requestThrough(replay.snapshot().cursorEpochMs), target,
       }));
       if (terminal.status !== 'committed') throw Object.assign(new Error(terminal.code), { code: terminal.code });
+      sourceBatches.accept();
       acceptVisibleState();
     } catch (error) {
       if (!disposed) {
@@ -180,6 +209,7 @@ export function createReplayWorkspaceController({ record, view }) {
         view.setState('error', { message: error?.message });
       }
     } finally {
+      sourceBatches.reject();
       pending = false;
     }
   }
@@ -202,7 +232,7 @@ export function createReplayWorkspaceController({ record, view }) {
           cursorEpochMs: replay.snapshot().cursorEpochMs,
           selection: currentSelection(),
         });
-        return execute('manual-next', plan.durationMs, plan.request);
+        return execute('manual-next', { durationMs: plan.durationMs, request: plan.request });
       } catch (error) {
         view.setState('error', { message: error?.message });
         return undefined;
@@ -210,7 +240,7 @@ export function createReplayWorkspaceController({ record, view }) {
     },
     replaceSessionHours: (mode) => replace('session-hours', mode),
     replaceTimeframe: (timeframeId) => replace('timeframe', timeframeId),
-    resetView() { adapter.resetView(8); },
+    resetView() { adapter.resetView(12); },
     snapshot: () => Object.freeze({
       chart: adapter.snapshot(),
       replay: replay.snapshot(),
@@ -219,12 +249,7 @@ export function createReplayWorkspaceController({ record, view }) {
     }),
     start() {
       try {
-        const plan = market.planEligibleMinutes({
-          count: 120,
-          cursorEpochMs: range.startEpochMs,
-          selection: market.defaultSelection,
-        });
-        return execute('chart-entry', plan.durationMs, plan.request);
+        return execute('chart-entry', { durationMs: market.entryAdvanceMs, request: market.request });
       } catch (error) {
         view.setState('unavailable', { message: error?.message });
         return undefined;

@@ -314,9 +314,9 @@ Implemented with automated evidence:
 - compose one NQ/`1m`/ETH deterministic local foundation workspace through
   Session, Bar Data, Replay, Projection, Workspace Transaction, Chart Snapshot,
   Viewport, and adapter public ports;
-- reveal the first 120 eligible source minutes on entry, traversing excluded
-  calendar gaps, and one additional eligible minute per Manual Next without
-  future bars;
+- show 120 source minutes of historical prefix plus the selected Session start
+  bar on entry, and reveal one additional eligible source bar per Manual Next
+  without future bars;
 - preserve native drag-created manual offset/span through the next snapshot and
   restore default wall only through Reset View;
 - provide professional chart-first loading, empty, unavailable, stale, error,
@@ -400,7 +400,9 @@ Completed with automated evidence; no interaction or visual review is required:
 
 Implemented with automated evidence:
 
-- register real `1m`/`5m`/`15m`/`1h` × ETH/RTH foundation capabilities;
+- register the V6 fixed minute/hour set from `1m` through `12h` × ETH/RTH;
+- render one grouped TF dropdown by default and keep unsupported session-aware
+  `1D`/`1W`/`1M` entries explicitly disabled;
 - dispatch compact controls through the R5.4 replacement transaction and sync
   active state only from its accepted Workspace snapshot;
 - retain the Replay cursor and manual/default wall across replacements;
@@ -409,6 +411,12 @@ Implemented with automated evidence:
 - prove real-browser timeframe and Session Hours projection, compact sizing,
   no centered update overlay, manual-wall preservation, and Reset View;
 - update the intentional `1440x900` visual fixture.
+- keep the Session, instrument, TF, ETH/RTH, Reset, and Next bar controls on one
+  desktop toolbar row;
+- use the V6 entry baseline: 120 minutes of earlier context plus the selected
+  start bar, with every future bar hidden until Next bar;
+- load bounded older history whenever manual browsing reaches the left edge,
+  preserving Replay and allowing repeated extension.
 
 The first review's mixed local/UTC chart labels and no-visible-change Friday
 Next are corrected. The chart now shares the Session card's browser-local
@@ -417,9 +425,9 @@ calendar gaps using a bounded expanded request.
 The workspace also distinguishes the full Session range from the Replay cursor
 and current source visible-through; the Session end is a no-future advancement
 limit, not an initially visible candle.
-The follow-up review's date-independent `01:59 PM` cutoff is also corrected:
-entry now gathers 120 eligible source minutes instead of advancing two wall-
-clock hours, so maintenance/weekend gaps no longer truncate initial context.
+The follow-up review's date-independent `01:59 PM` cutoff is corrected by
+removing forward-context entry entirely. The selected start is the first Replay
+bar; earlier bars are context and later bars remain hidden.
 
 Exact next action: human visual and interaction review of R5.5. Do not begin R6
 multi-pane or real-provider work until this gate is accepted.

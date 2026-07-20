@@ -1,3 +1,5 @@
+import { createTimeframeMenu } from './timeframe-menu.js';
+
 export const REPLAY_WORKSPACE_STATES = Object.freeze([
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
@@ -38,22 +40,17 @@ function createChoiceGroup({ ariaLabel, choices, className, onChoose }) {
 }
 
 export function createReplayWorkspaceView({
-  name, onNext, onReset, onSessionHours, onTimeframe, sessionHoursModes, timeframes,
+  name, onNext, onReset, onSessionHours, onTimeframe, sessionHoursModes, timeframeMenuGroups,
 }) {
   const nextButton = element('button', {
-    className: 'button replay-action-button replay-next', text: 'Next minute', type: 'button',
+    className: 'button replay-action-button replay-next', text: 'Next bar', type: 'button',
   });
   const resetButton = element('button', {
     className: 'button replay-action-button replay-reset', text: 'Reset view', type: 'button',
   });
   nextButton.addEventListener('click', onNext);
   resetButton.addEventListener('click', onReset);
-  const timeframeControl = createChoiceGroup({
-    ariaLabel: 'Chart timeframe',
-    choices: timeframes,
-    className: 'timeframe-control',
-    onChoose: onTimeframe,
-  });
+  const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
   const sessionHoursControl = createChoiceGroup({
     ariaLabel: 'Session hours',
     choices: sessionHoursModes.map((id) => ({ id, label: id.toUpperCase() })),
@@ -78,7 +75,6 @@ export function createReplayWorkspaceView({
   const root = element('section', { className: 'replay-workspace' }, [
     element('header', { className: 'replay-workspace-toolbar' }, [
       element('div', { className: 'replay-title-group' }, [
-        element('span', { className: 'eyebrow', text: 'Replay workspace' }),
         element('div', { className: 'replay-title-line' }, [
           element('h1', { text: name }),
           element('span', { className: 'market-symbol', text: 'NQ' }),

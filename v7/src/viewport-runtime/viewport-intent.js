@@ -23,9 +23,12 @@ function requireCursorEpochMs(value) {
   return value;
 }
 
-function requireOffset(value) {
-  if (!Number.isFinite(value) || value < 0) {
-    failViewport('VIEWPORT_OFFSET_INVALID', 'Latest-bar offset must be finite and non-negative.');
+function requireOffset(value, origin) {
+  if (!Number.isFinite(value) || (origin === 'default' && value < 0)) {
+    failViewport(
+      'VIEWPORT_OFFSET_INVALID',
+      'Latest-bar offset must be finite and may be negative only for a manual viewport.',
+    );
   }
   return value;
 }
@@ -49,7 +52,7 @@ function createIntent({ cursorEpochMs, latestOffsetBars, origin, revision, scope
   }
   return new ViewportIntentValue({
     cursorEpochMs: requireCursorEpochMs(cursorEpochMs),
-    latestOffsetBars: requireOffset(latestOffsetBars),
+    latestOffsetBars: requireOffset(latestOffsetBars, origin),
     mode: MODE,
     origin,
     revision: requireRevision(revision),
@@ -102,7 +105,7 @@ export function promoteViewportIntentToManual(intent, measurement) {
   const value = readViewportIntent(intent);
   return createIntent({
     ...value,
-    latestOffsetBars: requireOffset(measurement?.latestOffsetBars),
+    latestOffsetBars: requireOffset(measurement?.latestOffsetBars, 'manual'),
     origin: 'manual',
     revision: nextRevision(value.revision),
     spanBars: requireSpan(measurement?.spanBars, 'manual'),
