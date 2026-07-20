@@ -325,20 +325,28 @@ Implemented with automated evidence:
 
 The first human review rejected the fixed-size chart card, artificial-looking
 bar fixture, oversized actions, and centered Manual Next overlay. The corrective
-pass is awaiting re-review with an immersive chart route, denser varied candles,
+pass delivered an immersive chart route, denser varied candles,
 compact actions, no stale-state chart cover, exact NQ quarter-tick OHLC, and
 bounded low-frequency wick spikes.
 
 Human-accepted on 2026-07-20 after re-review of real chart interaction, wall
 behavior, visible settlement, perceived latency, and visual quality.
 
-## Exact Next Step — Selection Audit
+## R5.1 V6 Interaction Decision Carry-Forward — Complete
 
-Perform a targeted V6 reference audit for Reset View, Replay transport, and
-Chart Settings interaction patterns. Retain useful control placement, draft /
-commit semantics, and accessibility; reject V6 shell-owned runtime mutation and
-large mixed-purpose templates. Choose and number the next bounded roadmap step
-only after mapping each candidate to its V7 owner and current R5/R7 dependency.
+Settled V6 interaction decisions for Reset View, Replay transport, Chart
+Settings, multi-pane, ETH/RTH, and multi-instrument behavior now carry forward
+as binding V7 product evidence. V7 does not repeat the product interview unless
+a recorded reopen trigger applies. Implementation ownership, atomicity, stale
+rejection, persistence, and executable proof are re-derived in V7.
+
+## Exact Next Step — R5.2 Session Hours/Calendar Domain
+
+Verify the actual NQ/ES source timestamp and exchange-calendar facts, then
+implement the pure Session Hours/calendar policy and inherited ETH/RTH cursor,
+visible-through, eligible traversal, DST, weekend, holiday, early-close, and
+maintenance-break fixtures. Add no toolbar, Replay mutation, Bar Data I/O,
+chart mutation, persistence, multi-pane, or multi-instrument runtime yet.
 
 ## Standing Gates
 

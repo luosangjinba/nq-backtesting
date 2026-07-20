@@ -58,6 +58,11 @@ pure domains, harnesses, manual reports, and external adapter behavior. Record:
 This targeted audit is mandatory. A bulk V6 source review or copy is forbidden
 because it obscures ownership and imports obsolete assumptions.
 
+`V7_V6_INTERACTION_CARRY_FORWARD.md` is the binding result for interaction
+decisions already settled in V6. Those behaviors are inherited without another
+product interview unless one of that document's explicit reopen triggers is
+met. The per-slice audit therefore concentrates on V7 ownership and evidence.
+
 ## Intended Final Product Shape
 
 V7's final shape is one local-first workstation, not a collection of separate

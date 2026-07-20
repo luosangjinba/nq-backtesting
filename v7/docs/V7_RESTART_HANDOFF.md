@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R4.5 human acceptance
+Last updated: 2026-07-20 after R5.1 interaction carry-forward audit
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,7 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: current human-accepted R4.5 commit
+- implemented code baseline: human-accepted R4.5 plus completed R5.1 audit
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -29,13 +29,12 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. The four most recent records
-are sufficient for a targeted R4 audit:
+Do not load all historical `sessions/` records. For R5.2, read only:
 
-- `sessions/session_20260720_r4_3_chart_snapshot_application.md`.
-- `sessions/session_20260720_r4_4_viewport_runtime.md`.
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
-- this handoff plus `docs/V7_LIGHTWEIGHT_CHART_SLICE.md`.
+- `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
+- this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
+- the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 
 ## Completed Boundary
 
@@ -82,8 +81,10 @@ and human-accepted:
 - the NQ route uses an immersive chart-first shell with compact controls and no
   centered cache-hit update overlay;
 - the UI discloses its deterministic local foundation feed;
-- H005/H006/H008/H009/H010/H013/H014/H016/H017/H042 are human-accepted through
+- H005/H006/H008/H009/H010/H013/H014/H015/H016/H017/H042 are human-accepted through
   the R4.5 browser review; H011/H039/H040/H041 have automated evidence.
+- R5.1 binds settled V6 Reset View, Replay, Settings, multi-pane, ETH/RTH, and
+  multi-instrument interaction decisions as prior product evidence.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -127,11 +128,11 @@ connected.
 
 ## Exact Next Step
 
-Perform a targeted V6 reference audit for Reset View, Replay transport, and
-Chart Settings. Map useful interaction patterns to V7 owners and reject V6's
-shell-level command/event coupling and mixed-purpose template. Then select and
-number one bounded next step according to the existing R5/R7 dependency order;
-do not activate Settings or Auto Replay merely because V6 has visible controls.
+Execute R5.2: verify actual NQ/ES timestamp and exchange-calendar facts, then
+implement the pure Session Hours/calendar policy and inherited ETH/RTH cursor,
+visible-through, eligible traversal, DST, weekend, holiday, early-close, and
+maintenance-break fixtures. Do not add the toolbar or mutate Replay, Bar Data,
+chart, persistence, multi-pane, or multi-instrument runtime in this step.
 
 ## Standing Workflow
 

@@ -292,6 +292,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 
 ## R5 — Timeframe And Session Hours
 
+- `R5.1`: carry forward settled V6 interaction decisions for Reset View,
+  Replay, Settings, multi-pane, ETH/RTH, and multi-instrument behavior while
+  rejecting V6 ownership/orchestration;
+- `R5.2`: verify real NQ/ES timestamp/calendar facts and implement the pure
+  Session Hours/calendar policy plus inherited cursor/eligibility fixtures;
 - all TF projection through the pure domain;
 - ETH/RTH eligibility before aggregation;
 - delayed/superseded switches cannot commit.

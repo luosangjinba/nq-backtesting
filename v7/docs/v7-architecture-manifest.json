@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r4.5-real-chart-human-accepted",
+  "status": "r5.1-v6-interaction-carry-forward-complete",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -10,6 +10,7 @@
     "docs/V7_ARCHITECTURE.md",
     "docs/V7_V6_MIGRATION_DENYLIST.md",
     "docs/V7_V6_DISPOSITION_MATRIX.md",
+    "docs/V7_V6_INTERACTION_CARRY_FORWARD.md",
     "docs/V7_UI_REFERENCE_AND_QUALITY.md",
     "docs/V7_HARNESS_STANDARD.md",
     "docs/V7_TASK_NUMBERING.md",
