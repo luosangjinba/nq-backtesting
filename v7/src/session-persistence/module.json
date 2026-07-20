@@ -1,0 +1,12 @@
+{
+  "id": "adapter.session-persistence",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "session-store",
+  "publicEntry": "src/session-persistence/public.js",
+  "requiredPorts": ["core.session-identity"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/session-persistence-harness.js",
+  "removable": false
+}

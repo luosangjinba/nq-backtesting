@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r1-module-host",
+  "status": "r2.1-session-store",
   "productionRoots": ["v7/src"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -50,7 +50,9 @@
     "src/transaction-identity/module.json",
     "src/workspace-transaction-contract/module.json",
     "src/module-host/module.json",
-    "src/capability-contract/module.json"
+    "src/capability-contract/module.json",
+    "src/session-persistence/module.json",
+    "src/session-store/module.json"
   ],
   "moduleContract": {
     "descriptorRequiredFields": [
@@ -111,6 +113,7 @@
     ]
   },
   "writerInventories": {
+    "sessionRecord": ["core.session-store"],
     "chartSeries": [],
     "rawBarRequest": [],
     "replayCursor": []

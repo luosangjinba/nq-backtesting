@@ -1,0 +1,38 @@
+[
+  {
+    "name": "invalid empty name",
+    "operation": "create",
+    "patch": { "name": "" },
+    "expectedCode": "INVALID_SESSION_NAME"
+  },
+  {
+    "name": "invalid historical range order",
+    "operation": "create",
+    "patch": { "historicalRange": { "startEpochMs": 200, "endEpochMs": 100 } },
+    "expectedCode": "INVALID_SESSION_RANGE"
+  },
+  {
+    "name": "duplicate instruments",
+    "operation": "create",
+    "patch": { "instrumentIds": ["instrument.nq", "instrument.nq"] },
+    "expectedCode": "INVALID_SESSION_INSTRUMENTS"
+  },
+  {
+    "name": "unsupported record version",
+    "operation": "deserialize",
+    "patch": { "version": 99 },
+    "expectedCode": "UNSUPPORTED_SESSION_RECORD_VERSION"
+  },
+  {
+    "name": "unknown session",
+    "operation": "getUnknown",
+    "patch": {},
+    "expectedCode": "SESSION_NOT_FOUND"
+  },
+  {
+    "name": "stored identity differs from explicit key",
+    "operation": "mismatchedStoredIdentity",
+    "patch": {},
+    "expectedCode": "SESSION_RECORD_IDENTITY_MISMATCH"
+  }
+]

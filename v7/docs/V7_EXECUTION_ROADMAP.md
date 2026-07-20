@@ -159,9 +159,31 @@ incompatible, or undeclared capabilities fail without starting a host.
 
 ## R2 — Session Store Vertical Slice
 
-- per-session persistent workspace records;
-- explicit keyed reads/writes;
-- create/open/leave/reopen without charts or bars.
+R2 is split into two independently committed and manually reviewed boundaries:
+
+- `R2.1`: headless versioned Session records, explicit-key persistence,
+  revision CAS, activation allocation, migration, and runtime reconstruction;
+- `R2.2`: professional Session browser UI for create/open/leave/reopen and the
+  first visible A/B navigation and hard-reload evidence.
+
+### R2.1 — Session Store And Persistence Boundary
+
+- per-Session versioned records with an explicitly uninitialized workspace;
+- explicit keyed reads/writes and no implicit active/current Session key;
+- compare-and-swap revision commits;
+- persisted activation generation that remains monotonic after reconstruction;
+- replaceable Web Storage-compatible adapter and deliberate schema migrations;
+- no charts, bars, Replay cursor, pane state, DOM, UI, or global singleton.
+
+Gate: A/B metadata and ranges never cross; A→B→A advances A independently;
+reconstructed repository/store instances restore both Sessions and allocate a
+strictly later activation; stale revision commits fail deterministically.
+
+### R2.2 — Professional Session Browser Slice
+
+- create/open/leave/reopen through the Session Store public boundary;
+- visible loading, empty, unavailable, stale, error, and ready states;
+- visibly distinct A/B Session metadata survives navigation and hard reload.
 
 Manual gate: visibly distinct A/B metadata survives navigation and hard reload.
 

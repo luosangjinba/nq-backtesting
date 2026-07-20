@@ -56,7 +56,7 @@ reference, concrete `1m`/`1h`/NQ/ES value, or concrete capability-id branch.
 
 ## Human Review
 
-Confirm the schemas express contracts rather than implementations, concrete ids
-remain opaque lookup keys, optional analysis capabilities can be absent, and no
-future feature engine has been prematurely added. This headless step has no
-visual or interaction surface. Automated evidence cannot accept the step.
+Accepted by the user on 2026-07-19. The schemas express contracts rather than
+implementations, concrete ids remain opaque lookup keys, optional analysis
+capabilities can be absent, and no future feature engine was prematurely added.
+This headless step has no visual or interaction surface.

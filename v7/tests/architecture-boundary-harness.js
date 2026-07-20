@@ -61,9 +61,12 @@ function visitModule(moduleId) {
   visited.add(moduleId);
 }
 for (const moduleId of activeModuleIds) visitModule(moduleId);
-for (const inventory of Object.values(manifest.writerInventories)) {
-  assert.deepEqual(inventory, [], 'R1 pure contracts must not activate a state writer');
-}
+assert.deepEqual(manifest.writerInventories, {
+  sessionRecord: ['core.session-store'],
+  chartSeries: [],
+  rawBarRequest: [],
+  replayCursor: [],
+}, 'R2.1 activates only the Session record writer; later state owners remain inactive');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',

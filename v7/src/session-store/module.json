@@ -1,0 +1,16 @@
+{
+  "id": "core.session-store",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "session-store",
+  "publicEntry": "src/session-store/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "adapter.session-persistence"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/session-store-harness.js",
+  "removable": false
+}

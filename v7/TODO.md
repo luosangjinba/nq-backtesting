@@ -136,19 +136,25 @@ Human-accepted on 2026-07-19:
 - add no feature runtime, capability implementation, persistence, network,
   Replay, bars, chart, DOM, or UI.
 
-## Current Step — R1.5 Capability Descriptor Contracts
+## R1.5 Capability Descriptor Contracts — Accepted
+
+Human-accepted on 2026-07-19:
+
+- six exact, versioned capability contracts and pre-start negotiation;
+- arbitrary capability ids remain lookup keys rather than core branches;
+- optional analysis contracts remain removable;
+- no capability implementation or future feature engine was added.
+
+## Current Step — R2.1 Session Store And Persistence Boundary
 
 In progress:
 
-- define versioned pure descriptors for timeframe, provider, instrument,
-  calendar, indicator, and formula capabilities;
-- validate exact schemas before registration;
-- resolve provider/instrument/calendar/timeframe compatibility before modules
-  start;
-- keep optional analysis capabilities removable;
-- reject concrete capability-id branches in core capability sources;
-- add no capability implementation, network, persistence, Replay, bars, chart,
-  DOM, UI, plugin installer, or application composition root.
+- versioned per-Session records with an explicitly uninitialized workspace;
+- explicit branded Session-key reads/writes and no active Session storage key;
+- revision CAS and persisted monotonic activation allocation;
+- replaceable Web Storage-compatible adapter and explicit record migration;
+- A/B isolation and runtime reconstruction harnesses;
+- no charts, bars, Replay, panes, viewport, DOM, UI, or application singleton.
 
 ## Standing Gates
 

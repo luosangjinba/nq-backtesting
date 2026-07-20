@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R1.5",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R2.1",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -273,11 +273,16 @@
       "name": "persistence-isolation-migration-and-refresh",
       "owner": "session-store",
       "v6FailurePrevented": "re-entry, hard refresh, and different sessions restored mixed state",
-      "activationStep": "R2",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "activationStep": "R2.1",
+      "state": "executable",
+      "harness": "tests/session-store-harness.js",
+      "positiveEvidence": [
+        "src/session-store/public.js",
+        "src/session-persistence/public.js",
+        "tests/session-store-harness.js",
+        "tests/session-persistence-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/session-store/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -447,7 +452,7 @@
       "owner": "module-registry",
       "v6FailurePrevented": "new timeframes, providers, instruments, calendars, indicators, and formula paths required concrete-id branches in existing core owners",
       "activationStep": "R1.5",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/capability-contract-harness.js",
       "positiveEvidence": [
         "src/capability-contract/public.js",
@@ -456,7 +461,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/capability-contract/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r1_5_capability_contracts.md"
     }
   ]
 }
