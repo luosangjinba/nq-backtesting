@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r0-contract-only",
+  "status": "r1-pure-contracts",
   "productionRoots": ["v7/src"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -42,7 +42,7 @@
     "chart-entry-replay-bootstrap-runtime",
     "chart-entry-projection-apply-runtime"
   ],
-  "activeProductionModules": [],
+  "activeProductionModules": ["src/session-identity/module.json"],
   "moduleContract": {
     "descriptorRequiredFields": [
       "id",

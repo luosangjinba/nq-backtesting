@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R0.4",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1", "R2", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R1.1",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -71,7 +71,7 @@
       "name": "transaction-exactly-one-terminal-state",
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "chart entry remained stuck in Preparing replay",
-      "activationStep": "R1",
+      "activationStep": "R1.3",
       "state": "scaffolded",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
@@ -84,7 +84,7 @@
       "name": "stale-completion-zero-side-effects",
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "older Session completion overwrote newer state or UI",
-      "activationStep": "R1",
+      "activationStep": "R1.3",
       "state": "scaffolded",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
@@ -94,10 +94,10 @@
     },
     {
       "id": "H007",
-      "name": "explicit-session-activation-transaction-identity",
+      "name": "explicit-activation-and-transaction-identity",
       "owner": "session-store",
       "v6FailurePrevented": "sessions shared bars, cursor, panes, and persisted state",
-      "activationStep": "R1",
+      "activationStep": "R1.3",
       "state": "scaffolded",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
@@ -110,7 +110,7 @@
       "name": "deterministic-concurrency-permutations",
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "correctness depended on request timing",
-      "activationStep": "R1",
+      "activationStep": "R1.3",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -240,7 +240,7 @@
       "name": "minimal-core-module-removal-and-lifecycle",
       "owner": "module-lifecycle",
       "v6FailurePrevented": "new modules became implicit permanent dependencies",
-      "activationStep": "R1",
+      "activationStep": "R1.4",
       "state": "scaffolded",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
@@ -331,7 +331,7 @@
       "owner": "test-governance",
       "v6FailurePrevented": "product interactions were implicit, completion depended on incidental input, and later features distorted foundation scope",
       "activationStep": "R0.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/interaction-contract-harness.js",
       "positiveEvidence": ["docs/v7-foundation-interactions.json"],
       "negativeFixtures": [
@@ -341,7 +341,7 @@
         "tests/fixtures/interactions/negative/missing-cross-product-axis.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r0_4_cache_latency.md"
     },
     {
       "id": "H025",
@@ -349,7 +349,7 @@
       "owner": "latency-observability",
       "v6FailurePrevented": "Next and switches regressed to seconds, history appeared one piece per incidental input, and caches lacked stable identity",
       "activationStep": "R0.4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/cache-latency-contract-harness.js",
       "positiveEvidence": ["docs/v7-cache-latency-contract.json"],
       "negativeFixtures": [
@@ -360,6 +360,22 @@
         "tests/fixtures/cache-latency/negative/bar-by-bar-history.json",
         "tests/fixtures/cache-latency/negative/incomplete-cache-key.json"
       ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260719_r0_4_cache_latency.md"
+    },
+    {
+      "id": "H026",
+      "name": "opaque-versioned-session-identity",
+      "owner": "session-store",
+      "v6FailurePrevented": "raw string coercion and implicit active-session identity allowed Session state to cross-contaminate",
+      "activationStep": "R1.1",
+      "state": "executable",
+      "harness": "tests/session-identity-harness.js",
+      "positiveEvidence": [
+        "src/session-identity/public.js",
+        "src/session-identity/module.json"
+      ],
+      "negativeFixtures": ["tests/fixtures/session-identity/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

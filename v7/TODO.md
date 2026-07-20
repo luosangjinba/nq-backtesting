@@ -70,9 +70,9 @@ Established but not accepted:
 R0.3 added no production runtime or browser behavior. Human review rejected its
 description of unplanned candidates as second-phase functions.
 
-## Current Step — R0.4 Cache, Latency, And Atomic Refresh
+## R0.4 Cache, Latency, And Atomic Refresh — Accepted
 
-In progress:
+Human-accepted on 2026-07-19:
 
 - reclassify outside-foundation examples as unplanned candidates only;
 - bind Manual Next and Auto Replay cache-hit visible latency;
@@ -84,15 +84,21 @@ In progress:
   Replay prefetch watermarks;
 - add executable positive and negative cache/latency contracts.
 
-R0.4 adds no production runtime or browser behavior. It requires human
-acceptance before R1 is decomposed.
+R0.4 adds no production runtime or browser behavior.
 
-## Next Milestone — R1 Pure Contracts
+## Current Step — R1.1 Session Identity
 
-After R0.4 human acceptance, decompose R1 into numbered review steps, then
-implement immutable Session identity, activation generation, transaction
-intent/result, and stale acceptance contracts. Do not add persistence, network,
-Replay behavior, chart engine, or UI.
+In progress:
+
+- add one pure `SessionId` public contract owned by the Session Store boundary;
+- reject raw strings, coercion, trimming, structural lookalikes, and forged
+  prototype instances at Session-scoped boundaries;
+- use explicit schema/version serialization only;
+- activate the first production module descriptor and its independent harness;
+- add no Session generation, activation, persistence, network, Replay, bars,
+  chart engine, transaction, composition root, or UI.
+
+R1.2 will add activation generation only after R1.1 human acceptance.
 
 ## Standing Gates
 

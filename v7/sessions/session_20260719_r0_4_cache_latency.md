@@ -38,3 +38,8 @@ production runtime, actual cache, data requests, chart mutation, or browser UI.
 Review latency thresholds, measurement separation, snapshot dim/replace
 behavior, history chunk policy, cache identity, prefetch watermarks, and the
 unplanned-candidate terminology. Automated evidence cannot accept this step.
+
+## Human Acceptance
+
+Accepted by the user on 2026-07-19. This acceptance also closes the corrected
+R0.3 interaction/phase-boundary contract carried forward by R0.4.

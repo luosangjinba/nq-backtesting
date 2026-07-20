@@ -1,0 +1,10 @@
+[
+  { "name": "number-token", "operation": "create", "value": 54, "expectedCode": "SESSION_ID_TOKEN_TYPE" },
+  { "name": "empty-token", "operation": "create", "value": "", "expectedCode": "SESSION_ID_TOKEN_FORMAT" },
+  { "name": "trimmed-by-consumer", "operation": "create", "value": " session-A ", "expectedCode": "SESSION_ID_TOKEN_FORMAT" },
+  { "name": "raw-string-as-id", "operation": "require", "value": "session-A", "expectedCode": "SESSION_ID_REQUIRED" },
+  { "name": "structural-lookalike", "operation": "require", "value": { "value": "session-A" }, "expectedCode": "SESSION_ID_REQUIRED" },
+  { "name": "unsupported-schema", "operation": "deserialize", "value": { "schema": "v6.session-id", "version": 1, "value": "session-A" }, "expectedCode": "SESSION_ID_SCHEMA" },
+  { "name": "unsupported-version", "operation": "deserialize", "value": { "schema": "v7.session-id", "version": 2, "value": "session-A" }, "expectedCode": "SESSION_ID_VERSION" },
+  { "name": "extra-wire-field", "operation": "deserialize", "value": { "schema": "v7.session-id", "version": 1, "value": "session-A", "active": true }, "expectedCode": "SESSION_ID_SERIALIZED_SHAPE" }
+]

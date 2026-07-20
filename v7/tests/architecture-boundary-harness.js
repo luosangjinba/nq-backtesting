@@ -22,9 +22,26 @@ for (const document of manifest.requiredDocuments) {
   assert.ok(fs.existsSync(path.join(V7_ROOT, document)), `missing required V7 document: ${document}`);
 }
 
-assert.deepEqual(manifest.activeProductionModules, [], 'R0 must not activate production runtime modules');
+const activeModuleIds = new Set();
+for (const descriptorPath of manifest.activeProductionModules) {
+  const absoluteDescriptorPath = path.join(V7_ROOT, descriptorPath);
+  assert.ok(fs.existsSync(absoluteDescriptorPath), `missing active module descriptor: ${descriptorPath}`);
+  const descriptor = JSON.parse(fs.readFileSync(absoluteDescriptorPath, 'utf8'));
+  for (const field of manifest.moduleContract.descriptorRequiredFields) {
+    assert.ok(field in descriptor, `${descriptorPath} missing descriptor field ${field}`);
+  }
+  assert.equal(activeModuleIds.has(descriptor.id), false, `duplicate active module id ${descriptor.id}`);
+  activeModuleIds.add(descriptor.id);
+  assert.ok(manifest.moduleContract.allowedKinds.includes(descriptor.kind), `${descriptor.id} has invalid kind`);
+  assert.ok(manifest.owners.includes(descriptor.owner), `${descriptor.id} has unknown owner`);
+  assert.ok(fs.existsSync(path.join(V7_ROOT, descriptor.publicEntry)), `${descriptor.id} public entry is missing`);
+  assert.ok(
+    fs.existsSync(path.join(V7_ROOT, descriptor.independentHarness)),
+    `${descriptor.id} independent harness is missing`,
+  );
+}
 for (const inventory of Object.values(manifest.writerInventories)) {
-  assert.deepEqual(inventory, [], 'R0 writer inventories must remain empty');
+  assert.deepEqual(inventory, [], 'R1.1 pure identity contract must not activate a state writer');
 }
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [

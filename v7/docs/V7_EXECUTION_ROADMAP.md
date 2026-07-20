@@ -86,15 +86,34 @@ delay, and incomplete or Session-coupled cache identity.
 
 ## R1 — Pure Identity And Transaction Contracts
 
+R1 is split into separately committed and manually reviewed boundaries:
+
+- `R1.1`: opaque, immutable, version-serialized Session identity only;
+- `R1.2`: activation generation only;
+- `R1.3`: transaction identity, terminal results, and pure stale acceptance;
+- `R1.4`: minimal-core module lifecycle and capability descriptor contracts.
+
+### R1.1 — Session Identity
+
 - opaque Session identity;
+- strict branded input at every future Session-scoped public boundary;
+- explicit versioned serialization with no implicit JSON identity leakage;
+- no Session generation policy, active Session, persistence, transaction,
+  Replay, bars, chart, or UI.
+
+Gate: A and B remain unequal; raw strings, structural lookalikes, malformed
+tokens, and unsupported serialized schemas/versions fail deterministically.
+
+### R1.2–R1.4 — Remaining R1 Boundaries
+
 - activation generation and transaction identity;
 - immutable intent/plan/result/failure contracts;
 - pure current/stale acceptance function.
 
 Gate: delayed A, activated B, then reopened A cannot share an accepted identity.
 
-R1 also establishes the module descriptor schema and harness utilities used by
-all later modules. It still adds no application composition or UI.
+R1.4 completes the module descriptor schema and harness utilities used by all
+later modules. R1 still adds no application composition or UI.
 
 It also defines capability descriptors for timeframe, market-data provider,
 instrument/calendar, indicator, and formula-engine extension. Implementations
