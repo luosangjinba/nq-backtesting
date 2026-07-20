@@ -1,4 +1,5 @@
 import { element, icon } from './dom-primitives.js';
+import { createInstrumentPicker } from './instrument-picker.js';
 
 function toLocalDateTime(epochMs) {
   const date = new Date(epochMs - new Date(epochMs).getTimezoneOffset() * 60_000);
@@ -27,23 +28,18 @@ function createControls(instruments, defaultRange) {
     className: 'text-input', name: 'end', type: 'datetime-local',
     value: toLocalDateTime(defaultRange.endEpochMs), required: '',
   });
-  const instrumentsGrid = element('div', { className: 'instrument-grid', role: 'group', 'aria-label': 'Instruments' });
-  instruments.forEach((instrument, index) => {
-    const input = element('input', {
-      type: 'checkbox', name: 'instrument', value: instrument.id,
-      id: `instrument-${index}`, ...(index === 0 ? { checked: '' } : {}),
-    });
-    instrumentsGrid.append(element('label', { className: 'instrument-option', for: `instrument-${index}` }, [
-      input,
-      element('span', { className: 'instrument-symbol', text: instrument.label }),
-      element('span', { className: 'instrument-market', text: instrument.market }),
-    ]));
-  });
-  return Object.freeze({ name, start, end, instrumentsGrid });
+  return Object.freeze({ name, start, end, instruments: createInstrumentPicker(instruments) });
 }
 
-function readIntent(form, controls) {
-  const instrumentIds = [...form.querySelectorAll('input[name="instrument"]:checked')].map((input) => input.value);
+function resetControls(controls, defaultRange) {
+  controls.name.value = '';
+  controls.start.value = toLocalDateTime(defaultRange.startEpochMs);
+  controls.end.value = toLocalDateTime(defaultRange.endEpochMs);
+  controls.instruments.reset();
+}
+
+function readIntent(controls) {
+  const instrumentIds = controls.instruments.selectedIds();
   const startEpochMs = new Date(controls.start.value).getTime();
   const endEpochMs = new Date(controls.end.value).getTime();
   if (controls.name.value.trim() !== controls.name.value || controls.name.value.length === 0) {
@@ -78,7 +74,7 @@ export function createSessionDialog({ instruments, defaultRange, onSubmit }) {
   const form = element('form', { className: 'create-form', method: 'dialog' });
   form.append(
     field('Session name', controls.name, 'Use a name you will recognize later.'),
-    field('Instruments', controls.instrumentsGrid),
+    field('Instruments', controls.instruments.element),
     element('div', { className: 'date-grid' }, [
       field('Start', controls.start),
       field('End', controls.end),
@@ -101,7 +97,7 @@ export function createSessionDialog({ instruments, defaultRange, onSubmit }) {
   form.addEventListener('submit', (event) => {
     event.preventDefault();
     error.hidden = true;
-    const result = readIntent(form, controls);
+    const result = readIntent(controls);
     if (result.error) {
       error.textContent = result.error;
       error.hidden = false;
@@ -109,10 +105,19 @@ export function createSessionDialog({ instruments, defaultRange, onSubmit }) {
     }
     onSubmit(result.intent);
   });
+  dialog.addEventListener('click', (event) => {
+    if (!controls.instruments.element.contains(event.target)) controls.instruments.close();
+  });
+  dialog.addEventListener('cancel', (event) => {
+    if (!controls.instruments.isOpen()) return;
+    event.preventDefault();
+    controls.instruments.close();
+  });
 
   return Object.freeze({
     element: dialog,
     open() {
+      resetControls(controls, defaultRange);
       error.hidden = true;
       dialog.showModal();
       controls.name.focus();

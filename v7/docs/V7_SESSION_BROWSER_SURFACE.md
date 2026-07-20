@@ -18,7 +18,13 @@ key. Every activation still passes the branded SessionId to Session Store.
 ## Customer Surfaces
 
 - Session list with distinct name, instruments, creation time, and range;
-- accessible Create Session dialog with explicit instruments and date-times;
+- accessible Create Session dialog with a compact multi-select instrument
+  dropdown and explicit date-times;
+- a fresh default creation draft on every open; previous name, instruments,
+  and dates never leak into a later creation attempt;
+- configuration-driven asset discovery with search, dynamic category filters,
+  bounded scrolling, descriptions, and venue metadata; adding an instrument or
+  category does not add a concrete-id branch to Session Browser code;
 - selected Session summary with only that Session's metadata;
 - loading, empty, unavailable, stale, error, and ready states;
 - retained list snapshot during a write and inline failure presentation;
@@ -39,8 +45,8 @@ Chrome at `1440x900`, device scale factor 1, and reduced motion captures:
 - selected Beta after hard refresh.
 
 The browser harness compares screenshots byte-for-byte and executes create A,
-create B, A→B, hard refresh on B, and reopen A. A visual change requires an
-explicit fixture update plus human review.
+fresh-default draft verification before create B, A→B, hard refresh on B, and
+reopen A. A visual change requires an explicit fixture update plus human review.
 
 ## R2.2 Boundary
 

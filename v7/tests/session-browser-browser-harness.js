@@ -54,7 +54,9 @@ async function capture(cdp, name) {
   if (process.env.V7_UPDATE_VISUALS === '1') fs.writeFileSync(file, actual);
   else {
     assert.ok(fs.existsSync(file), `missing visual fixture ${path.basename(file)}; run with V7_UPDATE_VISUALS=1`);
-    assert.equal(actual.equals(fs.readFileSync(file)), true, `${name} visual fixture changed`);
+    const matches = actual.equals(fs.readFileSync(file));
+    if (!matches) fs.writeFileSync(path.join(os.tmpdir(), `v7-${name}-actual.png`), actual);
+    assert.equal(matches, true, `${name} visual fixture changed`);
   }
 }
 
@@ -87,6 +89,34 @@ try {
 
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  const defaultDraft = await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    return {
+      name: form.elements.name.value,
+      instrumentIds: [...form.querySelectorAll('[name="instrument"]:checked')].map((input) => input.value),
+      start: form.elements.start.value,
+      end: form.elements.end.value,
+      query: form.querySelector('.instrument-picker-search').value,
+      pickerOpen: form.querySelector('.instrument-picker').open,
+    };
+  })()`);
+  assert.equal(defaultDraft.name, '');
+  assert.deepEqual(defaultDraft.instrumentIds, ['instrument.cme.nq']);
+  assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.instrument-category')].map((node) => node.textContent)`),
+    ['All', 'Futures'], 'category filters must derive from instrument configuration');
+  const searchEvidence = await evaluate(cdp, `(() => {
+    document.querySelector('.instrument-picker').open = true;
+    const search = document.querySelector('.instrument-picker-search');
+    search.value = 'S&P';
+    search.dispatchEvent(new Event('input', { bubbles: true }));
+    const visible = [...document.querySelectorAll('.instrument-picker-option:not([hidden]) .instrument-symbol')]
+      .map((node) => node.textContent);
+    search.value = '';
+    search.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('.instrument-picker-trigger').focus();
+    return visible;
+  })()`);
+  assert.deepEqual(searchEvidence, ['ES'], 'instrument dropdown search must filter configuration-driven options');
   await capture(cdp, 'create-dialog');
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
@@ -99,6 +129,18 @@ try {
 
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  const reopenedDraft = await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    return {
+      name: form.elements.name.value,
+      instrumentIds: [...form.querySelectorAll('[name="instrument"]:checked')].map((input) => input.value),
+      start: form.elements.start.value,
+      end: form.elements.end.value,
+      query: form.querySelector('.instrument-picker-search').value,
+      pickerOpen: form.querySelector('.instrument-picker').open,
+    };
+  })()`);
+  assert.deepEqual(reopenedDraft, defaultDraft, 'each Create Session open must start from the default draft');
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'Session Beta';
@@ -143,7 +185,7 @@ try {
   assert.deepEqual(storageEvidence.sessions, { 'Session Alpha': 2, 'Session Beta': 2 });
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);
 
-  console.log('v7 Session Browser browser harness passed (A/B navigation, hard refresh, 4 visual fixtures)');
+  console.log('v7 Session Browser browser harness passed (fresh drafts, instrument dropdown, A/B navigation, hard refresh, 4 visual fixtures)');
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));

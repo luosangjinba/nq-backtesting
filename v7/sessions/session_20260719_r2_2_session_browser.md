@@ -35,6 +35,12 @@ also required immediately before commit.
 
 ## Human Review
 
+First review rejected on 2026-07-20: the instrument choices occupied a permanent
+card grid, and reopening Create Session retained the prior draft. The corrective
+slice replaces the grid with a multi-select dropdown and resets name,
+instruments, dates, validation, and dropdown state on every open. Real-Chrome
+evidence must create A, reopen, and prove the complete default draft before B.
+
 Use the running V7 service for interaction and visual review. Confirm hierarchy,
 density, focus/dialog behavior, responsive layout, A/B isolation, and refresh.
 Automated evidence cannot accept the step. Passing R2.2 opens R3 Bar Data and

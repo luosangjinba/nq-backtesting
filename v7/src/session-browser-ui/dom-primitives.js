@@ -1,6 +1,7 @@
 const ICON_PATHS = Object.freeze({
   arrowLeft: '<path d="m15 18-6-6 6-6"/><path d="M9 12h10"/>',
   calendar: '<path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/>',
+  chevronDown: '<path d="m6 9 6 6 6-6"/>',
   chevronRight: '<path d="m9 18 6-6-6-6"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   database: '<ellipse cx="12" cy="5" rx="8" ry="3"/><path d="M4 5v6c0 1.7 3.6 3 8 3s8-1.3 8-3V5"/><path d="M4 11v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6"/>',
