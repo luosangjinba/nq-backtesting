@@ -3,6 +3,11 @@ import {
   formatLocalDateTimeValue,
   parseLocalDateTimeValue,
 } from '../src/session-browser-ui/date-time-control.js';
+import {
+  createDecadePage,
+  createLocalDate,
+  createMonthGrid,
+} from '../src/session-browser-ui/date-time-calendar-model.js';
 
 assert.equal(Number.isNaN(parseLocalDateTimeValue('')), true, 'an empty control must stay empty');
 assert.equal(Number.isNaN(parseLocalDateTimeValue('not-a-date')), true, 'invalid text must not become a Session epoch');
@@ -20,4 +25,19 @@ assert.equal(formatLocalDateTimeValue(secondEpoch, 'second'), secondValue,
 assert.throws(() => formatLocalDateTimeValue(Number.NaN), /finite/);
 assert.throws(() => formatLocalDateTimeValue(minuteEpoch, 'tick'), /unsupported/);
 
-console.log('v7 Session Browser date-time control harness passed (empty, invalid, minute, second)');
+const leapMonth = createMonthGrid({
+  year: 2020, month: 1,
+  selected: createLocalDate({ year: 2020, month: 1, day: 29 }),
+  today: createLocalDate({ year: 2020, month: 1, day: 20 }),
+});
+assert.equal(leapMonth.length, 42, 'month view must always produce a stable six-week grid');
+assert.deepEqual(leapMonth[0], {
+  year: 2020, month: 0, day: 26, outside: true, selected: false, today: false,
+});
+assert.equal(leapMonth.find((day) => day.selected)?.day, 29, 'leap day must remain selectable');
+assert.deepEqual(createDecadePage(2026), {
+  start: 2020, end: 2029, years: [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029],
+});
+assert.throws(() => createLocalDate({ year: 2026, month: 1, day: 31 }), /invalid/);
+
+console.log('v7 Session Browser date-time control harness passed (value, month, decade, leap-day)');

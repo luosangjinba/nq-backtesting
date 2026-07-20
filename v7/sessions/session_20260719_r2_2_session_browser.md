@@ -52,6 +52,12 @@ values share one round-trip contract. This step intentionally does not add an
 Auto-update end-date control: market-data availability belongs to R3 Bar Data,
 not wall-clock or Session Browser state.
 
+The next bounded slice replaced only that native presentation with a
+professional dependency-free picker: deterministic 42-day grid, month and
+decade navigation, local time steppers, Today/Clear, Escape, outside-click,
+and one-open-overlay behavior. Calendar computation is pure and separate from
+DOM ownership. A fifth fixed Chrome fixture covers the open overlay.
+
 Use the running V7 service for interaction and visual review. Confirm hierarchy,
 density, focus/dialog behavior, responsive layout, A/B isolation, and refresh.
 Automated evidence cannot accept the step. Passing R2.2 opens R3 Bar Data and

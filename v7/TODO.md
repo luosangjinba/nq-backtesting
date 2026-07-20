@@ -163,6 +163,8 @@ In progress:
 - every dialog open starts from a fully empty draft with no prior-form bleed;
 - replaceable date-time-control boundary with native minute and future-second
   value conformance, without wall-clock market-data assumptions;
+- professional day/month/decade and time-stepper picker behind that boundary,
+  including Today/Clear and deterministic overlay dismissal;
 - loading, empty, unavailable, stale, error, and ready presentation;
 - create A/create B, A→B→A, hard refresh on B, and no cross-Session metadata;
 - fixed `1440x900` real-Chrome visual regression fixtures;

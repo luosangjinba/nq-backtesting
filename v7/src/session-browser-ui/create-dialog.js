@@ -2,8 +2,8 @@ import { element, icon } from './dom-primitives.js';
 import { createDateTimeControl } from './date-time-control.js';
 import { createInstrumentPicker } from './instrument-picker.js';
 
-function field(label, control, hint = null) {
-  const labelNode = element('label', { className: 'form-field' }, [
+function field(label, control, hint = null, containerTag = 'label') {
+  const labelNode = element(containerTag, { className: 'form-field' }, [
     element('span', { className: 'form-label', text: label }),
     control,
   ]);
@@ -16,8 +16,8 @@ function createControls(instruments) {
     className: 'text-input', name: 'name', type: 'text', maxlength: '120',
     autocomplete: 'off', placeholder: 'e.g. London open practice', required: '',
   });
-  const start = createDateTimeControl({ name: 'start' });
-  const end = createDateTimeControl({ name: 'end' });
+  const start = createDateTimeControl({ name: 'start', label: 'Start' });
+  const end = createDateTimeControl({ name: 'end', label: 'End' });
   return Object.freeze({ name, start, end, instruments: createInstrumentPicker(instruments) });
 }
 
@@ -66,8 +66,8 @@ export function createSessionDialog({ instruments, onSubmit }) {
     field('Session name', controls.name, 'Use a name you will recognize later.'),
     field('Instruments', controls.instruments.element),
     element('div', { className: 'date-grid' }, [
-      field('Start', controls.start.element),
-      field('End', controls.end.element),
+      field('Start', controls.start.element, null, 'div'),
+      field('End', controls.end.element, null, 'div'),
     ]),
     error,
     element('div', { className: 'dialog-actions' }, [
@@ -96,12 +96,18 @@ export function createSessionDialog({ instruments, onSubmit }) {
     onSubmit(result.intent);
   });
   dialog.addEventListener('click', (event) => {
-    if (!controls.instruments.element.contains(event.target)) controls.instruments.close();
+    const path = event.composedPath();
+    if (!path.includes(controls.instruments.element)) controls.instruments.close();
+    if (!path.includes(controls.start.element)) controls.start.close();
+    if (!path.includes(controls.end.element)) controls.end.close();
   });
   dialog.addEventListener('cancel', (event) => {
-    if (!controls.instruments.isOpen()) return;
+    const overlayOpen = controls.instruments.isOpen() || controls.start.isOpen() || controls.end.isOpen();
+    if (!overlayOpen) return;
     event.preventDefault();
     controls.instruments.close();
+    controls.start.close();
+    controls.end.close();
   });
 
   return Object.freeze({

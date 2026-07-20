@@ -120,6 +120,36 @@ try {
   })()`);
   assert.deepEqual(searchEvidence, ['ES'], 'instrument dropdown search must filter configuration-driven options');
   await capture(cdp, 'create-dialog');
+  const datePickerEvidence = await evaluate(cdp, `(() => {
+    const start = document.querySelectorAll('.date-time-control')[0];
+    start.querySelector('.date-time-trigger').click();
+    const days = start.querySelectorAll('.date-time-day');
+    const initial = {
+      open: !start.querySelector('.date-time-popover').hidden,
+      dayCount: days.length,
+      heading: start.querySelector('.date-time-heading').textContent,
+    };
+    start.querySelectorAll('.date-time-heading-button')[0].click();
+    const monthCount = start.querySelectorAll('.date-time-choice').length;
+    start.querySelector('.date-time-heading-button').click();
+    const yearCount = start.querySelectorAll('.date-time-choice').length;
+    start.querySelectorAll('.date-time-choice')[6].click();
+    start.querySelectorAll('.date-time-choice')[5].click();
+    return { ...initial, monthCount, yearCount };
+  })()`);
+  assert.deepEqual(datePickerEvidence, {
+    open: true, dayCount: 42, heading: 'June2026', monthCount: 12, yearCount: 10,
+  }, 'professional picker must expose deterministic day, month, and decade views');
+  await capture(cdp, 'date-time-picker-open');
+  const todayEvidence = await evaluate(cdp, `(() => {
+    const start = document.querySelectorAll('.date-time-control')[0];
+    start.querySelector('.date-time-today').click();
+    const value = document.querySelector('.create-form').elements.start.value;
+    start.querySelector('.date-time-clear').click();
+    return { value, cleared: document.querySelector('.create-form').elements.start.value };
+  })()`);
+  assert.equal(todayEvidence.value.startsWith('2026-06-05T'), true, 'Today must use the injected deterministic browser clock');
+  assert.equal(todayEvidence.cleared, '', 'Clear must restore the empty field contract');
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'Session Alpha';
@@ -188,7 +218,7 @@ try {
   assert.deepEqual(storageEvidence.sessions, { 'Session Alpha': 2, 'Session Beta': 2 });
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);
 
-  console.log('v7 Session Browser browser harness passed (fresh drafts, instrument dropdown, A/B navigation, hard refresh, 4 visual fixtures)');
+  console.log('v7 Session Browser browser harness passed (fresh drafts, professional date-time picker, A/B navigation, 5 visual fixtures)');
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));

@@ -32,11 +32,12 @@ key. Every activation still passes the branded SessionId to Session Store.
   responsive rail/card/form layouts.
 
 Start and End depend on one replaceable date-time-control interface owned by
-the Session Browser adapter. Its current native-input implementation owns DOM
-formatting, reset, epoch parsing, and minute/second precision. Create Session
-does not read native input details directly. A future flatpickr or custom
-day/month/year adapter must pass the same interface and preserve empty-draft and
-epoch semantics; it cannot own market-data availability or Session state.
+the Session Browser adapter. Its professional DOM implementation owns day,
+month, and decade views; local time stepping; Today/Clear actions; overlay
+focus/close behavior; formatting; reset; epoch parsing; and minute/second
+precision. Create Session does not read picker DOM details directly. A future
+flatpickr or other adapter must pass the same interface and preserve empty-draft
+and epoch semantics; it cannot own market-data availability or Session state.
 
 No fake Replay, chart, order, Journal, campaign, plugin, or unavailable future
 control may appear. Revision, activation generation, internal phase names, and
@@ -48,6 +49,7 @@ Chrome at `1440x900`, device scale factor 1, and reduced motion captures:
 
 - empty Session list;
 - Create Session dialog;
+- open professional date-time picker;
 - ready list with distinct Alpha/Beta Sessions;
 - selected Beta after hard refresh.
 
