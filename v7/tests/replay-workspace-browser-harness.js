@@ -40,6 +40,23 @@ assert.ok(candleQuality.wick < candleQuality.body,
   'foundation candles must not be dominated by synthetic upper/lower wicks');
 assert.ok(candleQuality.spikes / qualityBars.length < 0.08,
   'foundation candles must reserve elongated wicks for sparse events');
+const fridayStart = Date.parse('2026-05-01T19:24:00Z');
+const fridayMarket = createFoundationMarket({
+  configuration: { historicalRange: {
+    startEpochMs: fridayStart,
+    endEpochMs: Date.parse('2026-06-01T19:24:00Z'),
+  } },
+});
+const weekendPlan = fridayMarket.planNext({
+  cursorEpochMs: fridayStart + (120 * 60_000),
+  selection: fridayMarket.defaultSelection,
+});
+assert.equal(
+  fridayStart + (120 * 60_000) + weekendPlan.durationMs,
+  Date.parse('2026-05-03T22:01:00Z'),
+  'ETH Next from the Friday close must reveal the Sunday reopen minute',
+);
+assert.equal(weekendPlan.request.windowEndEpochMs, Date.parse('2026-05-03T22:01:00Z'));
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -96,6 +113,7 @@ try {
   await cdp.send('Emulation.setDeviceMetricsOverride', {
     width: 1440, height: 900, deviceScaleFactor: 1, mobile: false,
   });
+  await cdp.send('Emulation.setTimezoneOverride', { timezoneId: 'America/Los_Angeles' });
   await cdp.send('Emulation.setEmulatedMedia', {
     features: [{ name: 'prefers-reduced-motion', value: 'reduce' }],
   });
@@ -124,8 +142,8 @@ try {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'NQ Morning Replay';
     form.querySelectorAll('[name="instrument"]')[0].checked = true;
-    form.elements.start.value = '2026-06-01T09:30';
-    form.elements.end.value = '2026-06-02T16:00';
+    form.elements.start.value = '2026-05-01T12:24';
+    form.elements.end.value = '2026-06-01T12:24';
     form.requestSubmit();
   })()`);
   await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
@@ -163,10 +181,12 @@ try {
   delete entry.buttonHeight;
   delete entry.controlHeight;
   assert.deepEqual(entry, {
-    barCount: 120, libraryVersion: '5.2.0', offset: 8,
+    barCount: 96, libraryVersion: '5.2.0', offset: 8,
     origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
     timeframeId: 'timeframe.display-1-minute', workspaceRevision: 1,
   });
+  assert.match(await evaluate(cdp, `document.querySelector('.replay-cursor').textContent`), /14:24.*PDT/,
+    'chart cursor must use the same browser-local clock convention as Session dates');
   await capture(cdp);
 
   const startedAt = performance.now();
@@ -176,7 +196,8 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
   const cacheHitVisibleMs = performance.now() - startedAt;
   assert.ok(cacheHitVisibleMs < 250, `cache-hit Next exceeded max budget: ${cacheHitVisibleMs}ms`);
-  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 121);
+  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 97,
+    'Friday ETH Next must visibly add the Sunday reopen minute');
 
   const box = await evaluate(cdp, `(() => {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
@@ -219,7 +240,7 @@ try {
       timeframeId: document.querySelector('.replay-workspace').dataset.timeframeId,
     };
   })()`);
-  assert.equal(timeframeAfter.barCount, 25);
+  assert.equal(timeframeAfter.barCount, 21);
   assert.equal(timeframeAfter.cursor, cursorBeforeReplacement, 'timeframe replacement must retain cursor');
   assert.equal(timeframeAfter.origin, 'manual');
   assert.equal(timeframeAfter.wall, 'Manual wall');
@@ -238,7 +259,7 @@ try {
     mode: document.querySelector('.replay-workspace').dataset.sessionHoursMode,
     pressed: document.querySelector('.session-hours-control [data-value="rth"]').getAttribute('aria-pressed'),
   }))()`);
-  assert.deepEqual(sessionAfter, { barCount: 25, cursor: cursorBeforeReplacement, mode: 'rth', pressed: 'true' });
+  assert.deepEqual(sessionAfter, { barCount: 11, cursor: cursorBeforeReplacement, mode: 'rth', pressed: 'true' });
 
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '5'`);

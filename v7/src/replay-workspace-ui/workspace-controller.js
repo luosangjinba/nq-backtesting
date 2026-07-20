@@ -20,7 +20,11 @@ import { createWorkspaceReplacementExecutor } from '../workspace-replacement-run
 import { createFoundationMarket } from './foundation-market.js';
 
 function formatCursor(epochMs) {
-  return `${new Date(epochMs).toISOString().slice(0, 16).replace('T', ' ')} UTC`;
+  const formatter = new Intl.DateTimeFormat(undefined, {
+    day: '2-digit', hour: '2-digit', hour12: false, minute: '2-digit', month: '2-digit',
+    timeZoneName: 'short', year: 'numeric',
+  });
+  return formatter.format(new Date(epochMs));
 }
 
 function createReplayPort(replay) {
@@ -128,14 +132,14 @@ export function createReplayWorkspaceController({ record, view }) {
     view.setState('ready');
   }
 
-  async function execute(operation, durationMs) {
+  async function execute(operation, durationMs, request = market.request) {
     if (disposed || pending) return;
     pending = true;
     view.setState(operation === 'chart-entry' ? 'loading' : 'stale');
     const intent = identity(operation);
     const input = Object.freeze({
       advance: createReplayAdvanceInput({ durationMs, source: 'manual' }),
-      request: market.request,
+      request,
     });
     try {
       const terminal = describeWorkspaceTransactionEnvelope(await runtime.execute({ input, intent }));
@@ -160,7 +164,7 @@ export function createReplayWorkspaceController({ record, view }) {
     view.setState('stale');
     try {
       const terminal = describeWorkspaceTransactionEnvelope(await replacement.execute({
-        intent: identity(`${kind}-replacement`), request: market.request, target,
+        intent: identity(`${kind}-replacement`), request: market.requestThrough(replay.snapshot().cursorEpochMs), target,
       }));
       if (terminal.status !== 'committed') throw Object.assign(new Error(terminal.code), { code: terminal.code });
       acceptVisibleState();
@@ -184,7 +188,19 @@ export function createReplayWorkspaceController({ record, view }) {
       barData.dispose();
       replay.dispose();
     },
-    next: () => execute('manual-next', 60_000),
+    next() {
+      if (disposed || pending) return;
+      try {
+        const plan = market.planNext({
+          cursorEpochMs: replay.snapshot().cursorEpochMs,
+          selection: currentSelection(),
+        });
+        return execute('manual-next', plan.durationMs, plan.request);
+      } catch (error) {
+        view.setState('error', { message: error?.message });
+        return undefined;
+      }
+    },
     replaceSessionHours: (mode) => replace('session-hours', mode),
     replaceTimeframe: (timeframeId) => replace('timeframe', timeframeId),
     resetView() { adapter.resetView(8); },

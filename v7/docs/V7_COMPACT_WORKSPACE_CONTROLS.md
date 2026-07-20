@@ -39,4 +39,11 @@ ETH to RTH replacement, cursor retention, accepted-state UI synchronization,
 no centered refresh overlay, manual-wall preservation, and Reset View. The
 fixed `1440x900` visual fixture was intentionally updated for the controls.
 
+The R5.5 review found and corrected two boundary defects: chart timestamps now
+use the same browser-local clock convention as Session cards, and Manual Next
+uses the active calendar policy to reveal the next eligible source minute
+across ETH/RTH maintenance or weekend gaps. The exact reported Friday
+2026-05-01 12:24 through Monday 2026-06-01 12:24 Session is the browser
+regression fixture; its first Next visibly reveals the Sunday ETH reopen.
+
 Human acceptance remains required before R6 selection or implementation.

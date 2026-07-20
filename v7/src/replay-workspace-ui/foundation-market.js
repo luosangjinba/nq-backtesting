@@ -45,15 +45,19 @@ export function createFoundationMarket(record) {
   const capabilities = createFoundationCapabilities();
   const range = record.configuration.historicalRange;
   const requestEnd = Math.min(range.endEpochMs, range.startEpochMs + (360 * 60_000));
-  const request = createRawBarRequest({
+  function requestThrough(exclusiveEndEpochMs) {
+    const boundedEnd = Math.min(range.endEpochMs, Math.max(requestEnd, exclusiveEndEpochMs));
+    return createRawBarRequest({
     datasetRevision: 'foundation-r1',
     instrumentId: FOUNDATION_IDS.instrument,
     providerId: FOUNDATION_IDS.provider,
     schemaVersion: 1,
     sourceResolutionId: FOUNDATION_IDS.resolution,
-    windowEndEpochMs: requestEnd,
+    windowEndEpochMs: boundedEnd,
     windowStartEpochMs: range.startEpochMs,
-  });
+    });
+  }
+  const request = requestThrough(requestEnd);
   const provider = Object.freeze({
     requestRawBars: (rawRequest) => createRawBarBatch({
       bars: generateBars(rawRequest),
@@ -61,7 +65,22 @@ export function createFoundationMarket(record) {
       schemaVersion: 1,
     }),
   });
-  return Object.freeze({ ...capabilities, ids: FOUNDATION_IDS, provider, request });
+  function planNext({ cursorEpochMs, selection }) {
+    for (let epochMs = cursorEpochMs; epochMs < range.endEpochMs; epochMs += 60_000) {
+      if (selection.sessionHoursPolicy.isEligible({ startEpochMs: epochMs }, {
+        calendar: selection.calendar,
+        instrument: selection.instrument,
+        sessionHoursMode: selection.sessionHoursMode,
+      })) {
+        const targetEpochMs = Math.min(range.endEpochMs, epochMs + 60_000);
+        return Object.freeze({ durationMs: targetEpochMs - cursorEpochMs, request: requestThrough(targetEpochMs) });
+      }
+    }
+    throw Object.assign(new Error('No later eligible minute exists in this Session.'), {
+      code: 'foundation-session-complete',
+    });
+  }
+  return Object.freeze({ ...capabilities, ids: FOUNDATION_IDS, planNext, provider, request, requestThrough });
 }
 
 export function supportsFoundationWorkspace(record) {

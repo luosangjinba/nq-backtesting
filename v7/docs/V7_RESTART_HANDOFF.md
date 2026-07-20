@@ -100,7 +100,9 @@ and human-accepted:
   acquisition/presentation stale isolation.
 - R5.5 mounts compact `1m`/`5m`/`15m`/`1h` and ETH/RTH controls over that path,
   preserves cursor/manual wall, and keeps accepted chart pixels visible during
-  bounded refresh/error states. Human acceptance is pending.
+  bounded refresh/error states. Its review correction aligns chart timestamps
+  with Session-card local time and makes Next skip excluded calendar gaps to a
+  visibly eligible source minute. Human acceptance is pending.
 
 Latest R3.3 commits, oldest to newest:
 
