@@ -27,6 +27,6 @@ unchanged real-Chrome visual fixtures, all 16 V7 harnesses, and
 
 ## Human Review
 
-Pending after commit. Confirm the Create Session Start/End controls retain the
-accepted appearance and day/month/year/time interactions. Automated evidence
-cannot accept R2.3.
+Accepted on 2026-07-20. The Create Session Start/End controls retained the
+accepted appearance and day/month/year/time interactions. No market-coverage
+behavior was requested for the next step.

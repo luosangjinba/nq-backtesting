@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r2.3-shared-calendar-surface",
+  "status": "r3.1-raw-bar-data-contract",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -18,6 +18,7 @@
     "docs/v7-cache-latency-contract.json",
     "docs/V7_SESSION_BROWSER_SURFACE.md",
     "docs/V7_CALENDAR_SURFACE.md",
+    "docs/V7_BAR_DATA_CONTRACT.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -54,6 +55,7 @@
     "src/workspace-transaction-contract/module.json",
     "src/module-host/module.json",
     "src/capability-contract/module.json",
+    "src/bar-data-contract/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
     "src/calendar-surface/module.json",
@@ -148,6 +150,7 @@
     "public-contracts-and-critical-invariants-are-documented",
     "foundation-interactions-have-owner-visible-completion-and-phase-boundary",
     "cache-latency-and-refresh-contracts-are-bounded-and-atomic",
-    "calendar-surface-business-data-agnostic"
+    "calendar-surface-business-data-agnostic",
+    "raw-bar-contract-session-independent-and-window-bounded"
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R2.3",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R3.1",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2", "R3.3", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -152,7 +152,7 @@
       "name": "bar-data-order-identity-gap-no-future",
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "missing, sampled, duplicate, future, or cross-source bars",
-      "activationStep": "R3",
+      "activationStep": "R3.2",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -291,7 +291,7 @@
       "name": "cross-product-coverage-disposition",
       "owner": "test-governance",
       "v6FailurePrevented": "single-case fixes missed TF, hours, pane, source, and lifecycle combinations",
-      "activationStep": "R3",
+      "activationStep": "R3.3",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -491,7 +491,7 @@
       "owner": "calendar-surface",
       "v6FailurePrevented": "feature-local calendars duplicated navigation and selection logic while accumulating market-data, order, news, and chart ownership",
       "activationStep": "R2.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/calendar-surface-harness.js",
       "positiveEvidence": [
         "src/calendar-surface/public.js",
@@ -501,6 +501,25 @@
         "tests/fixtures/session-browser/date-time-picker-open-1440x900.png"
       ],
       "negativeFixtures": ["tests/fixtures/calendar-surface/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260720_r2_3_calendar_surface.md"
+    },
+    {
+      "id": "H034",
+      "name": "provider-neutral-raw-bar-value-contract",
+      "owner": "bar-data-runtime",
+      "v6FailurePrevented": "raw requests and responses could mix Session, provider, instrument, resolution, window, revision, order, duplicate, or out-of-window state before caching",
+      "activationStep": "R3.1",
+      "state": "executable",
+      "harness": "tests/bar-data-contract-harness.js",
+      "positiveEvidence": [
+        "src/bar-data-contract/public.js",
+        "src/bar-data-contract/module.json",
+        "src/bar-data-contract/request-contract.js",
+        "src/bar-data-contract/bar-contract.js",
+        "src/bar-data-contract/batch-contract.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/bar-data-contract/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

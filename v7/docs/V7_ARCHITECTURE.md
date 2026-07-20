@@ -53,6 +53,13 @@ Raw future bars may be cached but never projected past the accepted cursor.
 Detailed performance and chunking rules are binding in
 `V7_CACHE_AND_LATENCY_CONTRACT.md`.
 
+Before the runtime is activated, `core.bar-data-contract` owns only immutable
+provider-neutral request/bar/batch values. Raw identity is exactly provider,
+instrument, source resolution, bounded half-open window, and dataset revision.
+It excludes Session, pane, display TF, ETH/RTH, Replay, and viewport state.
+Provider wire metadata is normalized at a future adapter boundary and cannot
+leak into the raw domain merely for V4 compatibility.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

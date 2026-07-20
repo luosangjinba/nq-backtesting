@@ -68,7 +68,7 @@ assert.deepEqual(manifest.writerInventories, {
   chartSeries: [],
   rawBarRequest: [],
   replayCursor: [],
-}, 'R2.3 adds an isolated Calendar Surface DOM writer; later business owners remain inactive');
+}, 'R3.1 adds only pure Bar Data values; raw requests and later state writers remain inactive');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -183,6 +183,7 @@ for (const rule of [
   'foundation-interactions-have-owner-visible-completion-and-phase-boundary',
   'cache-latency-and-refresh-contracts-are-bounded-and-atomic',
   'calendar-surface-business-data-agnostic',
+  'raw-bar-contract-session-independent-and-window-bounded',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

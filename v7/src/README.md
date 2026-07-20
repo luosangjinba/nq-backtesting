@@ -17,4 +17,8 @@ Calendar Surface adapter. Calendar Surface owns only calendar/date-time
 presentation and no coverage, bars, Replay, panes, viewport, provider, order,
 news, or chart behavior.
 
+R3.1 adds only immutable provider-neutral raw Bar Data request/bar/batch values.
+No provider I/O, cache, prefetch, retry, Replay, projection, chart, or UI owner
+is active yet.
+
 Do not import runtime code from V4, V5, or V6.

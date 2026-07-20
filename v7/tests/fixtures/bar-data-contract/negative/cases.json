@@ -1,0 +1,13 @@
+[
+  { "case": "unknown-request-field", "expectedCode": "UNKNOWN_RAW_BAR_REQUEST_FIELD" },
+  { "case": "unsupported-request-version", "expectedCode": "UNSUPPORTED_RAW_BAR_REQUEST_VERSION" },
+  { "case": "invalid-provider-id", "expectedCode": "INVALID_RAW_BAR_IDENTITY" },
+  { "case": "reversed-window", "expectedCode": "INVALID_RAW_BAR_WINDOW" },
+  { "case": "blank-revision", "expectedCode": "INVALID_DATASET_REVISION" },
+  { "case": "unknown-bar-field", "expectedCode": "UNKNOWN_RAW_BAR_FIELD" },
+  { "case": "invalid-price-envelope", "expectedCode": "INVALID_RAW_BAR_ENVELOPE" },
+  { "case": "invalid-volume", "expectedCode": "INVALID_RAW_BAR_VOLUME" },
+  { "case": "outside-window", "expectedCode": "RAW_BAR_OUTSIDE_REQUEST_WINDOW" },
+  { "case": "duplicate-timestamp", "expectedCode": "RAW_BARS_NOT_STRICTLY_ORDERED" },
+  { "case": "descending-timestamps", "expectedCode": "RAW_BARS_NOT_STRICTLY_ORDERED" }
+]

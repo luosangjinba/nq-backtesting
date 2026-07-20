@@ -204,8 +204,34 @@ remain unchanged after extraction.
 
 ## R3 — Bar Data And Replay Core
 
-- bounded raw requests/cache;
-- one Replay clock and no-future cursor proposals;
+R3 is split into independently committed boundaries before milestone closure:
+
+- `R3.1`: pure provider-neutral raw request/bar/batch values;
+- `R3.2`: bounded raw Bar Data Runtime, cache, coalescing, and provider adapter;
+- `R3.3`: one headless Replay clock and no-future cursor proposals.
+
+### R3.1 — Raw Bar Data Value Contract
+
+- exact Session-independent request identity across provider, instrument,
+  source resolution, half-open window, and dataset revision;
+- immutable normalized OHLCV bars and batches;
+- strict ordering, uniqueness, price-envelope, and request-window validation;
+- no provider I/O, cache, Replay, projection, chart, UI, or coverage calendar.
+
+Gate: every identity component changes the request key; malformed, duplicate,
+descending, and out-of-window bars fail before any future cache can observe them.
+
+### R3.2 — Bounded Bar Data Runtime
+
+- the only raw requester/cache writer;
+- provider adapter, deadline, request coalescing, revision handling, bounded
+  eviction, and contiguous-coverage/gap policy;
+- no Replay or chart dependency.
+
+### R3.3 — Headless Replay Runtime
+
+- one Session-activation Replay clock;
+- no-future cursor proposals and deterministic manual/auto advancement inputs;
 - no chart dependency.
 
 ## R4 — First Atomic Chart Slice

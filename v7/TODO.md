@@ -170,9 +170,9 @@ Human-accepted on 2026-07-20:
 - fixed `1440x900` real-Chrome visual regression fixtures;
 - no chart, bars, Replay, panes, viewport, provider, or fake future controls.
 
-## Current Step — R2.3 Shared Calendar Surface
+## R2.3 Shared Calendar Surface — Accepted
 
-In progress:
+Human-accepted on 2026-07-20:
 
 - move accepted date-time UI/model/style ownership out of Session Browser;
 - expose one documented Calendar Surface public facade and module descriptor;
@@ -181,6 +181,19 @@ In progress:
 - add no market coverage, Auto-update end date, orders, news, chart navigation,
   TradingCalendar domain behavior, bars, Replay, panes, or provider access;
 - stop for interaction and visual review after the focused commit.
+
+## Current Step — R3.1 Raw Bar Data Value Contract
+
+In progress:
+
+- define one provider-neutral, versioned raw request identity;
+- require provider, instrument, source resolution, half-open window, and dataset
+  revision in every raw key;
+- explicitly exclude Session, pane, display TF, ETH/RTH, Replay, and viewport;
+- normalize immutable OHLCV bars and strictly ordered batches;
+- reject malformed, duplicate, descending, and out-of-window input;
+- add no provider I/O, cache, data-availability calendar, Replay, projection,
+  chart, pane, or UI behavior.
 
 ## Standing Gates
 

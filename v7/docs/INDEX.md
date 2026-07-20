@@ -16,8 +16,9 @@ Read in this order before V7 implementation work:
 9. `V7_CACHE_AND_LATENCY_CONTRACT.md`
 10. `V7_SESSION_BROWSER_SURFACE.md`
 11. `V7_CALENDAR_SURFACE.md`
-12. `V7_EXECUTION_ROADMAP.md`
-13. `../TODO.md`
+12. `V7_BAR_DATA_CONTRACT.md`
+13. `V7_EXECUTION_ROADMAP.md`
+14. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

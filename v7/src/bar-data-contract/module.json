@@ -1,0 +1,12 @@
+{
+  "id": "core.bar-data-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "bar-data-runtime",
+  "publicEntry": "src/bar-data-contract/public.js",
+  "requiredPorts": ["core.capability-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/bar-data-contract-harness.js",
+  "removable": false
+}
