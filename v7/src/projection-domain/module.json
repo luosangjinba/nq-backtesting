@@ -1,0 +1,16 @@
+{
+  "id": "core.projection-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "projection-domain",
+  "publicEntry": "src/projection-domain/public.js",
+  "requiredPorts": [
+    "core.bar-data-contract",
+    "core.replay-contract",
+    "core.capability-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/projection-domain-harness.js",
+  "removable": false
+}

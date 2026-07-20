@@ -1,4 +1,4 @@
-const ID_NAME = '(?:timeframe|provider|instrument|calendar|indicator|formula)\\w*Id';
+const ID_NAME = '(?:displayTimeframe|timeframe|provider|instrument|calendar|indicator|formula|aggregationPolicy|sessionHoursPolicy|sourceResolution)\\w*Id';
 const IF_LITERAL_BRANCH = new RegExp(`\\bif\\s*\\([^)]*\\b${ID_NAME}\\s*={2,3}\\s*['\"]`, 'i');
 const SWITCH_ID_BRANCH = new RegExp(`\\bswitch\\s*\\([^)]*\\b${ID_NAME}\\b`, 'i');
 

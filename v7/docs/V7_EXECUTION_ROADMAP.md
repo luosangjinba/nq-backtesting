@@ -272,8 +272,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   identity, injected owner ports, inert Replay proposals, deterministic
   supersession, exact visible-completion acknowledgement, final currency check,
   and failure preservation;
-- later R4 steps add the pure one-pane projection, Chart Runtime/Adapter,
-  Viewport Runtime, and first reviewed professional workstation slice;
+- `R4.2`: pure provider-neutral pane Projection Domain, exclusive Replay
+  no-future filtering, registered eligibility/aggregation policy ports, exact
+  provenance, and one-pane identity `1m`/ETH fixtures;
+- later R4 steps add Chart Snapshot Application/Adapter, Viewport Runtime, and
+  the first reviewed professional workstation slice;
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;
 - stable default/manual wall.

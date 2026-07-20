@@ -193,6 +193,7 @@ for (const rule of [
   'replay-runtime-visible-commit-only',
   'replay-prefetch-advice-bounded-and-io-free',
   'workspace-transaction-runtime-visible-gated-and-stale-safe',
+  'projection-domain-provider-neutral-exclusive-no-future',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

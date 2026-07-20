@@ -53,4 +53,10 @@ one complete identity; stale and failed work cannot replace the last accepted
 workspace snapshot or advance Replay. No chart, DOM, real provider, projection
 policy, pane, viewport, or concrete capability branch is active yet.
 
+R4.2 activates the pure Projection Domain boundary. It validates common raw
+source identity, applies exclusive Replay no-future filtering before injected
+Session Hours and aggregation policies, and returns one immutable pane snapshot
+with exact provenance. Its accepted fixture is identity `1m` projection only;
+real aggregation, calendar eligibility, charts, and UI remain absent.
+
 Do not import runtime code from V4, V5, or V6.

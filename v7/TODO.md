@@ -258,23 +258,25 @@ Completed with automated evidence; no interaction or visual review is required:
 - keep Manual and Auto inputs on the same proposal/commit path;
 - add no scheduler, bar I/O, projection, chart, viewport, persistence, or UI.
 
-## Current Step — R4.1 Headless Workspace Transaction Runtime — Completed
+## Current Step — R4.2 Pure Projection Domain — Completed
 
-R4.1 completed with automated evidence; no interaction or visual review is required:
+R4.2 completed with automated evidence; no interaction or visual review is required:
 
-- activate one isolated coordinator per branded Session activation;
-- invoke injected Replay, acquisition, projection, and visible-completion ports
-  in one direction under the complete transaction identity;
-- keep Replay proposals inert until an exact visible-completion acknowledgement;
-- perform one final currency check before synchronous Replay/workspace acceptance;
-- make slow old success, slow old failure, dependency failure, and disposal
-  preserve the last accepted workspace snapshot and Replay cursor;
-- treat abort as cleanup rather than proof of transaction currency;
-- add no real provider, Projection Domain policy, chart, DOM, pane, viewport,
-  concrete TF/ETH branch, Auto timer, or replay workspace UI.
+- consume immutable Raw Bar Batches and one branded Replay proposal;
+- require common provider/instrument/source-resolution/dataset identity across
+  ordered, non-overlapping source windows;
+- apply exclusive Replay no-future filtering before Session Hours eligibility
+  and aggregation;
+- preserve every eligible intermediate source bar in the identity `1m` fixture;
+- dispatch frozen registered policy ports without concrete capability-id branches;
+- return one deeply immutable pane snapshot with exact source, dataset,
+  capability, calendar, policy, request-key, and cursor provenance;
+- reject empty, malformed, mixed, unordered, incompatible, or future output;
+- add no I/O, cache mutation, Replay mutation, chart, DOM, viewport, actual CME
+  calendar policy, or higher-timeframe aggregation.
 
-Next, define the bounded R4.2 pure Projection Domain input/output and one-pane
-`1m` ETH/no-future fixtures before introducing the real Chart Runtime/Adapter.
+Next, define bounded R4.3 headless Chart Snapshot Application/visible-completion
+contract over a fake adapter before the first real Lightweight Charts slice.
 
 ## Standing Gates
 

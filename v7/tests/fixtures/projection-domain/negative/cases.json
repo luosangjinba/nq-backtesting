@@ -1,0 +1,19 @@
+[
+  { "case": "empty-batch-list", "expectedCode": "PROJECTION_SOURCE_BATCHES_EMPTY" },
+  { "case": "empty-source", "expectedCode": "PROJECTION_SOURCE_EMPTY" },
+  { "case": "unordered-windows", "expectedCode": "PROJECTION_SOURCE_WINDOWS_OVERLAP" },
+  { "case": "mixed-dataset", "expectedCode": "PROJECTION_SOURCE_IDENTITY_MIXED" },
+  { "case": "instrument-mismatch", "expectedCode": "PROJECTION_INSTRUMENT_MISMATCH" },
+  { "case": "provider-mismatch", "expectedCode": "PROJECTION_PROVIDER_MISMATCH" },
+  { "case": "resolution-mismatch", "expectedCode": "PROJECTION_SOURCE_RESOLUTION_MISMATCH" },
+  { "case": "calendar-mismatch", "expectedCode": "PROJECTION_CALENDAR_MISMATCH" },
+  { "case": "session-policy-mismatch", "expectedCode": "PROJECTION_SESSION_HOURS_POLICY_MISMATCH" },
+  { "case": "aggregation-policy-mismatch", "expectedCode": "PROJECTION_AGGREGATION_POLICY_MISMATCH" },
+  { "case": "nondeterministic-policy", "expectedCode": "PROJECTION_AGGREGATION_POLICY_INVALID" },
+  { "case": "invalid-eligibility-result", "expectedCode": "PROJECTION_ELIGIBILITY_RESULT_INVALID" },
+  { "case": "all-source-future", "expectedCode": "PROJECTION_VISIBLE_EMPTY" },
+  { "case": "future-output", "expectedCode": "PROJECTION_OUTPUT_FUTURE_BAR" },
+  { "case": "unordered-output", "expectedCode": "PROJECTION_OUTPUT_NOT_ORDERED" },
+  { "case": "malformed-source-bar", "expectedCode": "INVALID_RAW_BAR_ENVELOPE" },
+  { "case": "unknown-input-field", "expectedCode": "PROJECTION_INPUT_UNKNOWN_FIELD" }
+]

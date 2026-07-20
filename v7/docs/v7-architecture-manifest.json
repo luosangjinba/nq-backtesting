@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r4.1-headless-workspace-transaction-runtime-complete",
+  "status": "r4.2-pure-projection-domain-complete",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -28,6 +28,7 @@
     "docs/V7_REPLAY_RUNTIME.md",
     "docs/V7_REPLAY_PREFETCH_CONTRACT.md",
     "docs/V7_WORKSPACE_TRANSACTION_RUNTIME.md",
+    "docs/V7_PROJECTION_DOMAIN.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -72,6 +73,7 @@
     "src/replay-runtime/module.json",
     "src/replay-prefetch-contract/module.json",
     "src/workspace-transaction-runtime/module.json",
+    "src/projection-domain/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
@@ -177,6 +179,7 @@
     "replay-contract-time-based-transaction-scoped",
     "replay-runtime-visible-commit-only",
     "replay-prefetch-advice-bounded-and-io-free",
-    "workspace-transaction-runtime-visible-gated-and-stale-safe"
+    "workspace-transaction-runtime-visible-gated-and-stale-safe",
+    "projection-domain-provider-neutral-exclusive-no-future"
   ]
 }

@@ -114,6 +114,16 @@ session-hours mode/calendar revision, display timeframe, and no-future policy.
 It returns final pane bars plus provenance. It performs no I/O and owns no
 state.
 
+R4.2 activates its provider-neutral identity-projection foundation. Ordered,
+non-overlapping Raw Bar Batches must share provider, instrument, source
+resolution, and dataset revision. The proposed Replay target is an exclusive
+cutoff applied before Session Hours eligibility and aggregation. Registered
+pure policy ports must match the selected Timeframe/Calendar capability ids;
+the core domain contains no concrete capability-id branches. Output is one
+deeply immutable pane snapshot with source request keys, capability/calendar
+revisions, policy ids, dataset revision, and the original cursor proposal.
+R4.2 implements no actual CME eligibility or higher-timeframe aggregation.
+
 ### Workspace Transaction Runtime
 
 Is the sole coordinator of chart-visible changes. It accepts an immutable
