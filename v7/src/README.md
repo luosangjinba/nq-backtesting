@@ -30,4 +30,8 @@ R3.2b1 adds a transport-neutral Provider Policy Contract for revision freshness,
 request limits, deadlines, bounded retry, stable errors, and the adapter port.
 It selects and invokes no real provider.
 
+R3.2b2 adds explicit full-window coverage values and pure bounded acquisition
+planning. Missing bars do not imply a coverage reason, and no provider is
+invoked by this module.
+
 Do not import runtime code from V4, V5, or V6.

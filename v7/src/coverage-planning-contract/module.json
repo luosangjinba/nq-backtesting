@@ -1,0 +1,12 @@
+{
+  "id": "core.coverage-planning-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "bar-data-runtime",
+  "publicEntry": "src/coverage-planning-contract/public.js",
+  "requiredPorts": ["core.bar-data-contract", "core.provider-policy-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/coverage-planning-contract-harness.js",
+  "removable": false
+}

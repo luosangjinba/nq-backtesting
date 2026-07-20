@@ -74,6 +74,12 @@ bounded retries, stable error kinds, and the adapter port are declared before
 any real provider is selected. Coverage math and policy execution remain later
 substeps; no Session, Replay, chart, UI, or network owner is introduced.
 
+R3.2b2 adds a pure `core.coverage-planning-contract`. Provider coverage is an
+explicit full-window tiling rather than an inference from sparse bars. Its
+planner subtracts settled intervals and splits unresolved acquisition by both
+provider window and bar-count limits, in deterministic forward or backward
+order. It performs no provider I/O and owns no runtime state.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

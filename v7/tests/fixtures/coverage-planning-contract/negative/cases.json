@@ -1,0 +1,12 @@
+[
+  { "case": "empty-segments", "expectedCode": "INCOMPLETE_COVERAGE_TILING" },
+  { "case": "coverage-hole", "expectedCode": "INCOMPLETE_COVERAGE_TILING" },
+  { "case": "coverage-overlap", "expectedCode": "INCOMPLETE_COVERAGE_TILING" },
+  { "case": "invalid-coverage-kind", "expectedCode": "INVALID_COVERAGE_SEGMENT" },
+  { "case": "forged-request-key", "expectedCode": "COVERAGE_IDENTITY_MISMATCH" },
+  { "case": "zero-source-step", "expectedCode": "INVALID_SOURCE_STEP" },
+  { "case": "invalid-direction", "expectedCode": "INVALID_COVERAGE_PLAN_OPTIONS" },
+  { "case": "coverage-request-mismatch", "expectedCode": "COVERAGE_PLAN_IDENTITY_MISMATCH" },
+  { "case": "policy-provider-mismatch", "expectedCode": "COVERAGE_PLAN_IDENTITY_MISMATCH" },
+  { "case": "unknown-segment-field", "expectedCode": "INVALID_COVERAGE_SEGMENT" }
+]

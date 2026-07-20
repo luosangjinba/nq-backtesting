@@ -186,6 +186,7 @@ for (const rule of [
   'raw-bar-contract-session-independent-and-window-bounded',
   'bar-data-runtime-bounded-coalesced-and-disposable',
   'provider-policy-bounded-and-transport-neutral',
+  'coverage-explicit-and-request-planning-bounded',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

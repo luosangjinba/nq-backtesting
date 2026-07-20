@@ -200,7 +200,7 @@ Human-accepted on 2026-07-20:
 Accepted on 2026-07-20. It owns exact-window cache, request coalescing, bounded
 concurrency, fake-provider acquisition, and deterministic disposal.
 
-## Current Step — R3.2b1 Provider Policy Contract — Completed
+## R3.2b1 Provider Policy Contract — Completed
 
 Completed with automated evidence; no interaction or visual review is required:
 
@@ -210,6 +210,18 @@ Completed with automated evidence; no interaction or visual review is required:
 - define at most four attempts and explicit retryable failure kinds;
 - define a transport-neutral adapter port and stable error taxonomy;
 - add no concrete provider, network/database access, coverage, Replay, chart, or UI.
+
+## Current Step — R3.2b2 Coverage And Request Planning — Completed
+
+Completed with automated evidence; no interaction or visual review is required:
+
+- require explicit full-window coverage classification;
+- keep missing bars distinct from market closure and provider failure;
+- merge adjacent equal classifications into canonical segments;
+- request only unknown or explicitly retried unavailable intervals;
+- split by both maximum window duration and estimated source-bar count;
+- preserve complete raw request identity in forward/backward plans;
+- add no provider I/O, cache mutation, Replay, chart, viewport, or UI.
 
 ## Standing Gates
 
