@@ -6,6 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
+import { createFoundationMarket } from '../src/replay-workspace-ui/foundation-market.js';
 import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -19,6 +20,26 @@ assert.equal(new Set(negativeCases).size, 6);
 assert.deepEqual(REPLAY_WORKSPACE_STATES, [
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
+const qualityMarket = createFoundationMarket({
+  configuration: { historicalRange: { startEpochMs: 1_780_000_000_000, endEpochMs: 1_780_021_600_000 } },
+});
+const qualityBars = qualityMarket.provider.requestRawBars(qualityMarket.request).bars;
+const candleQuality = qualityBars.reduce((summary, bar) => {
+  const body = Math.abs(bar.close - bar.open);
+  const totalWick = (bar.high - Math.max(bar.open, bar.close))
+    + (Math.min(bar.open, bar.close) - bar.low);
+  summary.body += body;
+  summary.wick += totalWick;
+  summary.spikes += totalWick > Math.max(3, body * 3) ? 1 : 0;
+  for (const price of [bar.open, bar.high, bar.low, bar.close]) {
+    assert.equal(Number.isInteger(price * 4), true, 'foundation OHLC must align to the NQ 0.25 tick');
+  }
+  return summary;
+}, { body: 0, spikes: 0, wick: 0 });
+assert.ok(candleQuality.wick < candleQuality.body,
+  'foundation candles must not be dominated by synthetic upper/lower wicks');
+assert.ok(candleQuality.spikes / qualityBars.length < 0.08,
+  'foundation candles must reserve elongated wicks for sparse events');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));

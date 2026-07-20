@@ -326,7 +326,8 @@ Implemented with automated evidence:
 The first human review rejected the fixed-size chart card, artificial-looking
 bar fixture, oversized actions, and centered Manual Next overlay. The corrective
 pass is awaiting re-review with an immersive chart route, denser varied candles,
-compact actions, and no stale-state chart cover.
+compact actions, no stale-state chart cover, exact NQ quarter-tick OHLC, and
+bounded low-frequency wick spikes.
 
 Do not begin R4.6 until human review accepts real chart interaction, wall
 behavior, visible settlement, perceived latency, and visual quality.

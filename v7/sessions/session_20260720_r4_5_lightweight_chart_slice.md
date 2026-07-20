@@ -40,5 +40,9 @@ The first review rejected the fixed-width/height chart card, visibly artificial
 candle fixture, oversized Replay controls, and centered stale-update overlay.
 The corrective pass uses an immersive chart-first route, denser two-hour entry,
 varied deterministic OHLC structure, compact controls, and preserves the chart
-without a centered message during Manual Next. Human re-review is required;
-R4.6 remains blocked until interaction and visual acceptance are recorded.
+without a centered message during Manual Next. A second review identified
+excessive independent wick lengths and non-tick-aligned prices; the fixture now
+uses exact NQ quarter ticks, short power-distributed routine wicks, and sparse
+long-wick events, with executable distribution limits. Human re-review is
+required; R4.6 remains blocked until interaction and visual acceptance is
+recorded.

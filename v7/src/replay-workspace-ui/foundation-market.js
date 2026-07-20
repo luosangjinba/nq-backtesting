@@ -14,6 +14,11 @@ const IDS = Object.freeze({
   sessionHours: 'session-hours.cme-eth',
   timeframe: 'timeframe.display-1-minute',
 });
+const PRICE_TICK = 0.25;
+
+function alignPrice(value) {
+  return Math.round(value / PRICE_TICK) * PRICE_TICK;
+}
 
 function base(kind, contract, id, label) {
   return {
@@ -37,15 +42,21 @@ function generateBars(request) {
       value = Math.imul((value ^ (value >>> 16)) >>> 0, 0x45d9f3b);
       return ((value ^ (value >>> 16)) >>> 0) / 0x1_0000_0000;
     };
-    const open = previousClose + ((sample(0x51f15e) - 0.5) * 1.6);
-    const regime = Math.sin(minute / 47) * 0.45;
-    const close = open + regime + ((sample(0x9e3779) - 0.5) * 7.4);
-    const upperWick = 0.45 + (sample(0x7f4a7c) * 3.8);
-    const lowerWick = 0.45 + (sample(0x6a09e6) * 3.8);
+    const open = previousClose;
+    const balancedMove = sample(0x51f15e) + sample(0x9e3779) + sample(0x243f6a) - 1.5;
+    const regime = Math.sin(minute / 47) * 0.35;
+    const close = alignPrice(open + regime + (balancedMove * 5.2));
+    const wick = (salt, rareSalt) => {
+      let steps = 1 + Math.floor((sample(salt) ** 5) * 7);
+      if (sample(rareSalt) > 0.992) steps += 8 + Math.floor(sample(rareSalt ^ 0x5bd1e9) * 8);
+      return steps * PRICE_TICK;
+    };
+    const upperWick = wick(0x7f4a7c, 0xa54ff5);
+    const lowerWick = wick(0x6a09e6, 0x510e52);
     bars.push({
       close,
-      high: Math.max(open, close) + upperWick,
-      low: Math.min(open, close) - lowerWick,
+      high: alignPrice(Math.max(open, close) + upperWick),
+      low: alignPrice(Math.min(open, close) - lowerWick),
       open,
       startEpochMs: epoch,
       volume: 70 + Math.floor(sample(0xbb67ae) * 170),

@@ -86,6 +86,9 @@ References checked immediately before implementation:
   fixed `1440x900` visual regression, and the 250 ms cache-hit maximum;
 - six negative controls bind early completion, sampling, wall reset,
   unsupported capability, blank refresh, and latency regressions;
+- deterministic fixture quality assertions require every OHLC value to align
+  to the NQ `0.25` tick, aggregate wick length to remain below aggregate body
+  length, and elongated-wick frequency to stay below eight percent;
 - complete V7 suite and source/architecture checks run before commit.
 
 Automated evidence cannot accept R4.5. Human review must exercise the actual
