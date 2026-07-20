@@ -3,9 +3,9 @@ import {
   describeWorkspaceTransactionEnvelope,
   settleWorkspaceTransaction,
 } from '../workspace-transaction-contract/public.js';
+import { requireMatchingVisibleCompletion } from '../chart-snapshot-application/public.js';
 import { requireImmutableTransactionInput } from './port-contract.js';
 import { WorkspaceTransactionRuntimeError } from './runtime-error.js';
-import { requireMatchingVisibleCompletion } from './visible-completion.js';
 
 class RuntimeInterruption extends Error {
   constructor(status, code) {

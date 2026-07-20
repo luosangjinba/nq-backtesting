@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r4.2-pure-projection-domain-complete",
+  "status": "r4.3-headless-chart-snapshot-application-complete",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -29,6 +29,7 @@
     "docs/V7_REPLAY_PREFETCH_CONTRACT.md",
     "docs/V7_WORKSPACE_TRANSACTION_RUNTIME.md",
     "docs/V7_PROJECTION_DOMAIN.md",
+    "docs/V7_CHART_SNAPSHOT_APPLICATION.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -72,6 +73,7 @@
     "src/replay-contract/module.json",
     "src/replay-runtime/module.json",
     "src/replay-prefetch-contract/module.json",
+    "src/chart-snapshot-application/module.json",
     "src/workspace-transaction-runtime/module.json",
     "src/projection-domain/module.json",
     "src/bar-data-runtime/module.json",
@@ -142,7 +144,7 @@
     "sessionRecord": ["core.session-store"],
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
-    "chartSeries": [],
+    "chartSeries": ["core.chart-snapshot-application"],
     "workspaceSnapshot": ["core.workspace-transaction-runtime"],
     "rawBarRequest": ["core.bar-data-runtime"],
     "replayCursor": ["core.replay-runtime"]
@@ -180,6 +182,7 @@
     "replay-runtime-visible-commit-only",
     "replay-prefetch-advice-bounded-and-io-free",
     "workspace-transaction-runtime-visible-gated-and-stale-safe",
-    "projection-domain-provider-neutral-exclusive-no-future"
+    "projection-domain-provider-neutral-exclusive-no-future",
+    "chart-snapshot-application-exact-visible-receipt"
   ]
 }

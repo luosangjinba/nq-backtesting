@@ -65,11 +65,11 @@ assert.deepEqual(manifest.writerInventories, {
   sessionRecord: ['core.session-store'],
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
-  chartSeries: [],
+  chartSeries: ['core.chart-snapshot-application'],
   workspaceSnapshot: ['core.workspace-transaction-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: ['core.replay-runtime'],
-}, 'R4.1 activates one workspace snapshot coordinator without changing raw or Replay writers');
+}, 'R4.3 activates one chart-series writer without changing raw or Replay writers');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -194,6 +194,7 @@ for (const rule of [
   'replay-prefetch-advice-bounded-and-io-free',
   'workspace-transaction-runtime-visible-gated-and-stale-safe',
   'projection-domain-provider-neutral-exclusive-no-future',
+  'chart-snapshot-application-exact-visible-receipt',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

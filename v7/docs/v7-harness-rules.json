@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R4.2",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4", "R5", "R6", "R7"],
+  "currentStep": "R4.3",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -632,6 +632,24 @@
       "negativeFixtures": ["tests/fixtures/projection-domain/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260720_r4_2_projection_domain.md"
+    },
+    {
+      "id": "H040",
+      "name": "headless-chart-snapshot-exact-visible-receipt",
+      "owner": "chart-runtime-adapter",
+      "v6FailurePrevented": "distributed series writers and command-level acknowledgements exposed stale or partially applied chart state",
+      "activationStep": "R4.3",
+      "state": "accepted",
+      "harness": "tests/chart-snapshot-application-harness.js",
+      "positiveEvidence": [
+        "src/chart-snapshot-application/public.js",
+        "src/chart-snapshot-application/module.json",
+        "src/chart-snapshot-application/chart-snapshot-application.js",
+        "tests/chart-snapshot-application-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/chart-snapshot-application/negative/cases.json"],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260720_r4_3_chart_snapshot_application.md"
     }
   ]
 }

@@ -12,8 +12,8 @@ import {
   createWorkspaceTransactionIntent,
   describeWorkspaceTransactionEnvelope,
 } from '../src/workspace-transaction-contract/public.js';
+import { createVisibleCompletionAcknowledgement } from '../src/chart-snapshot-application/public.js';
 import {
-  createVisibleCompletionAcknowledgement,
   createWorkspaceTransactionRuntime,
   WorkspaceTransactionRuntimeError,
 } from '../src/workspace-transaction-runtime/public.js';

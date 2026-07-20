@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R4.2 completion
+Last updated: 2026-07-20 after R4.3 completion
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,7 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- completed code baseline: current R4.2 commit
+- completed code baseline: current R4.3 commit
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -29,18 +29,17 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. The five most recent records
-are sufficient for a targeted R3.3/R4.1/R4.2 audit:
+Do not load all historical `sessions/` records. The four most recent records
+are sufficient for a targeted R4 audit:
 
-- `sessions/session_20260720_r3_3a_replay_contract.md`;
-- `sessions/session_20260720_r3_3b_replay_runtime.md`;
-- `sessions/session_20260720_r3_3c_replay_prefetch.md`.
 - `sessions/session_20260720_r4_1_workspace_transaction_runtime.md`.
 - `sessions/session_20260720_r4_2_projection_domain.md`.
+- `sessions/session_20260720_r4_3_chart_snapshot_application.md`.
+- this handoff plus `docs/V7_CHART_SNAPSHOT_APPLICATION.md`.
 
 ## Completed Boundary
 
-R3.3 Replay, R4.1 Workspace Transaction, and R4.2 Projection foundations are complete:
+R3.3 Replay and R4.1–R4.3 atomic chart foundations are complete:
 
 - Replay advancement is duration-based, not one sampled display candle;
 - Manual and Auto inputs share one proposal path;
@@ -62,8 +61,14 @@ R3.3 Replay, R4.1 Workspace Transaction, and R4.2 Projection foundations are com
 - identity `1m` projection preserves every eligible intermediate source bar;
 - projection output carries exact source/capability/calendar/policy/cursor
   provenance and contains no concrete capability-id branch;
+- one headless Chart Snapshot Application is the sole chart-series writer;
+- frozen projection provenance, exact adapter receipt, and exact visible
+  completion bind the same complete transaction and snapshot;
+- stage/apply races, failure, duplicate, forged receipt, and disposal cannot
+  publish chart completion;
+- the fake adapter checks currency at its final visible mutation boundary;
 - H005/H006/H008/H009/H010 are executable pending the real chart acceptance
-  boundary, and H011 remains accepted with automated evidence.
+  boundary, and H011/H039/H040 have automated evidence.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -71,15 +76,15 @@ Latest R3.3 commits, oldest to newest:
 2. `f9cb0626 feat(v7): add visible-commit replay clock`
 3. `56fdfce4 feat(v7): add bounded replay prefetch advice`
 
-R4.1 and R4.2 are the commits after this handoff's original R3.3 baseline.
+R4.1–R4.3 are the commits after this handoff's original R3.3 baseline.
 
 ## Deliberately Not Implemented
 
 There is still no real provider, actual CME Session Hours policy, higher-
-timeframe aggregation policy, chart runtime/adapter, pane/viewport runtime,
+timeframe aggregation policy, real chart adapter, pane/viewport runtime,
 Auto Replay timer, or replay workspace UI. The existing browser surface is the
-accepted Session Browser only. R4.1's visible-completion port and R4.2's policy
-ports use headless fakes and make no browser-visible claim. Do not mistake
+accepted Session Browser only. R4.2's policies and R4.3's chart adapter use
+headless fakes and make no browser-visible claim. Do not mistake
 absent chart-bearing R4 behavior for a regression.
 
 ## Verification After Restart
@@ -97,7 +102,7 @@ Expected results:
 
 - branch is `v7/rebuild`;
 - `git status --short` is empty;
-- 26 Harness files pass;
+- 27 Harness files pass;
 - the server prints the V7 Session Browser URL;
 - `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/`
   returns `200` while the service is running.
@@ -108,23 +113,25 @@ connected.
 
 ## Exact Next Step
 
-Begin bounded R4.3: the headless Chart Snapshot Application and visible-
-completion contract over a fake adapter before any real chart UI.
+Begin bounded R4.4: the pure Viewport Intent Domain before any real chart UI.
 
-R4.3 should first define and prove:
+R4.4 should first define and prove:
 
-1. Chart Runtime/Adapter is the sole chart-series writer boundary;
-2. one immutable projected pane snapshot is staged and applied exactly once;
-3. visible completion binds the exact transaction identity and snapshot;
-4. stale, failed, duplicate, and disposed applications publish no completion;
-5. adapter failure preserves the prior accepted chart snapshot;
-6. no Replay mutation, Bar Data request, projection, viewport decision, DOM,
-   Lightweight Charts dependency, or concrete capability branch;
-7. the independent Harness uses a deterministic fake adapter only.
+1. pane-local horizontal intent distinguishes stable default/follow and manual
+   wall without storing chart-library coordinates as product truth;
+2. data/snapshot application preserves manual intent;
+3. only explicit Reset/Follow creates a new default intent;
+4. Replay advancement places new bars at the existing wall and pushes prior
+   bars left through pure deterministic calculations;
+5. intent binds Session activation and pane identity without chart mutation;
+6. no Replay mutation, Bar Data request, projection, DOM, Lightweight Charts
+   dependency, or concrete capability branch;
+7. the independent Harness uses pure deterministic inputs only.
 
-Before the first chart-bearing R4 substep, inspect current official Lightweight
-Charts documentation and appropriate awesome-tradingview examples as required
-by `AGENTS.md`. Do not copy legacy V6 ownership paths.
+The R4.3 library audit is recorded in `V7_CHART_SNAPSHOT_APPLICATION.md`. Recheck
+current official documentation before the later real chart-bearing substep if
+library versions or the implementation date changes. Do not copy legacy V6
+ownership paths.
 
 ## Standing Workflow
 

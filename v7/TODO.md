@@ -258,7 +258,7 @@ Completed with automated evidence; no interaction or visual review is required:
 - keep Manual and Auto inputs on the same proposal/commit path;
 - add no scheduler, bar I/O, projection, chart, viewport, persistence, or UI.
 
-## Current Step — R4.2 Pure Projection Domain — Completed
+## R4.2 Pure Projection Domain — Completed
 
 R4.2 completed with automated evidence; no interaction or visual review is required:
 
@@ -275,8 +275,23 @@ R4.2 completed with automated evidence; no interaction or visual review is requi
 - add no I/O, cache mutation, Replay mutation, chart, DOM, viewport, actual CME
   calendar policy, or higher-timeframe aggregation.
 
-Next, define bounded R4.3 headless Chart Snapshot Application/visible-completion
-contract over a fake adapter before the first real Lightweight Charts slice.
+## Current Step — R4.3 Headless Chart Snapshot Application — Completed
+
+R4.3 completed with automated evidence; no interaction or visual review is required:
+
+- activate the sole chart-series writer boundary per Session activation;
+- validate exact frozen Projection Domain output and Replay-proposal identity;
+- stage without visible mutation and apply only after a final currency check;
+- bind adapter receipt and visible completion to the exact identity and snapshot;
+- reject stale, failed, duplicate, foreign, forged, and disposed applications;
+- preserve prior accepted chart state on adapter failure;
+- move visible-completion ownership out of Workspace Transaction Runtime while
+  retaining public-only, acyclic dependencies;
+- add no DOM, Lightweight Charts dependency, viewport, Replay mutation, Bar
+  Data request, projection, persistence, or concrete capability branch.
+
+Next, define bounded R4.4 pure Viewport Intent Domain for pane-local default and
+manual-wall semantics before wiring a real Lightweight Charts adapter.
 
 ## Standing Gates
 

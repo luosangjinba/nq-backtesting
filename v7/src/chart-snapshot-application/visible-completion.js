@@ -2,7 +2,7 @@ import {
   readWorkspaceTransactionIdentity,
   workspaceTransactionIdentitiesEqual,
 } from '../workspace-transaction-contract/public.js';
-import { WorkspaceTransactionRuntimeError } from './runtime-error.js';
+import { failChartApplication } from './application-error.js';
 
 class VisibleCompletionValue {
   #value;
@@ -19,7 +19,7 @@ class VisibleCompletionValue {
 
 function requireImmutableSnapshot(candidate) {
   if (!candidate || typeof candidate !== 'object' || !Object.isFrozen(candidate)) {
-    throw new WorkspaceTransactionRuntimeError(
+    failChartApplication(
       'WORKSPACE_SNAPSHOT_IMMUTABLE',
       'A workspace snapshot must be a frozen object.',
     );
@@ -27,46 +27,29 @@ function requireImmutableSnapshot(candidate) {
   return candidate;
 }
 
-/**
- * Owner: future Chart Runtime visible-completion adapter.
- * Purpose: acknowledge that one exact projected snapshot reached its visible boundary.
- * Inputs: complete transaction identity and the exact immutable projected snapshot.
- * Outputs: opaque frozen acknowledgement consumed once by the coordinator.
- * Side effects: none; creating an acknowledgement does not accept Replay or workspace state.
- */
+/** Create an opaque acknowledgement for one exact visible immutable snapshot. */
 export function createVisibleCompletionAcknowledgement({ identity, workspaceSnapshot }) {
   readWorkspaceTransactionIdentity(identity);
   return new VisibleCompletionValue(identity, requireImmutableSnapshot(workspaceSnapshot));
 }
 
 /** Validate acknowledgement identity and exact snapshot provenance. */
-export function requireMatchingVisibleCompletion(
-  candidate,
-  { identity, workspaceSnapshot },
-) {
+export function requireMatchingVisibleCompletion(candidate, { identity, workspaceSnapshot }) {
   if (!(candidate instanceof VisibleCompletionValue)) {
-    throw new WorkspaceTransactionRuntimeError(
+    failChartApplication(
       'VISIBLE_COMPLETION_REQUIRED',
       'A branded visible-completion acknowledgement is required.',
     );
   }
-  let value;
-  try {
-    value = candidate.read();
-  } catch {
-    throw new WorkspaceTransactionRuntimeError(
-      'VISIBLE_COMPLETION_REQUIRED',
-      'A valid visible-completion acknowledgement is required.',
-    );
-  }
+  const value = candidate.read();
   if (!workspaceTransactionIdentitiesEqual(value.identity, identity)) {
-    throw new WorkspaceTransactionRuntimeError(
+    failChartApplication(
       'VISIBLE_COMPLETION_IDENTITY_MISMATCH',
       'Visible completion belongs to another workspace transaction.',
     );
   }
   if (value.workspaceSnapshot !== workspaceSnapshot) {
-    throw new WorkspaceTransactionRuntimeError(
+    failChartApplication(
       'VISIBLE_COMPLETION_SNAPSHOT_MISMATCH',
       'Visible completion belongs to another workspace snapshot.',
     );

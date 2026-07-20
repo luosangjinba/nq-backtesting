@@ -59,4 +59,10 @@ Session Hours and aggregation policies, and returns one immutable pane snapshot
 with exact provenance. Its accepted fixture is identity `1m` projection only;
 real aggregation, calendar eligibility, charts, and UI remain absent.
 
+R4.3 activates the headless Chart Snapshot Application as the sole chart-series
+writer boundary. It stages immutable projected snapshots and requires an exact
+adapter-visible receipt before completion. Only a deterministic fake adapter is
+tested; no DOM, Lightweight Charts, viewport, Replay, or Bar Data behavior is
+added.
+
 Do not import runtime code from V4, V5, or V6.

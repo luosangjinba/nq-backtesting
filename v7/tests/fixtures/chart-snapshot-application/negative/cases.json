@@ -1,0 +1,16 @@
+[
+  "projection-identity-mismatch",
+  "adapter-apply-failure",
+  "stale-after-stage",
+  "stale-at-visible-mutation-boundary",
+  "coordinator-abort-before-visible-mutation",
+  "duplicate-transaction",
+  "session-mismatch",
+  "activation-mismatch",
+  "invalid-adapter-port",
+  "mutable-snapshot",
+  "foreign-receipt-identity",
+  "foreign-receipt-snapshot",
+  "unbranded-receipt",
+  "dispose-during-stage"
+]

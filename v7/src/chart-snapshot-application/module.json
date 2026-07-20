@@ -1,0 +1,19 @@
+{
+  "id": "core.chart-snapshot-application",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "chart-runtime-adapter",
+  "publicEntry": "src/chart-snapshot-application/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "core.transaction-identity",
+    "core.workspace-transaction-contract",
+    "core.replay-contract",
+    "core.projection-domain"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/chart-snapshot-application-harness.js",
+  "removable": false
+}

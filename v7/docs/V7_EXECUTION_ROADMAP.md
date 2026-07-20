@@ -275,7 +275,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R4.2`: pure provider-neutral pane Projection Domain, exclusive Replay
   no-future filtering, registered eligibility/aggregation policy ports, exact
   provenance, and one-pane identity `1m`/ETH fixtures;
-- later R4 steps add Chart Snapshot Application/Adapter, Viewport Runtime, and
+- `R4.3`: headless sole-writer Chart Snapshot Application, staged atomic fake
+  adapter, exact visible receipt, race/disposal rejection, and failure
+  preservation;
+- later R4 steps add Viewport Runtime, the real chart adapter, and
   the first reviewed professional workstation slice;
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;

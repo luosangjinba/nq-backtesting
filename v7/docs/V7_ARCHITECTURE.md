@@ -151,6 +151,14 @@ Is the only chart-series writer. It applies an accepted workspace snapshot. It
 does not infer missing bars, request history, choose a cursor, persist a
 session, or initiate another projection.
 
+R4.3 activates the headless Chart Snapshot Application behind this boundary.
+It validates immutable projection provenance, stages without visible mutation,
+checks complete transaction currency at the adapter's final mutation boundary,
+and accepts only an exact branded adapter receipt before issuing exact visible
+completion. Stale, failed, duplicate, forged, and disposed applications publish
+no completion. R4.3 uses a deterministic fake adapter and makes no browser-paint
+claim; the first Lightweight Charts adapter must add a paint-level visual gate.
+
 ### Viewport Runtime
 
 Owns pane-local horizontal wall and vertical-scale intent. Data commits preserve
