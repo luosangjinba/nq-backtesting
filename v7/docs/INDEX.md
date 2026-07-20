@@ -28,11 +28,12 @@ Read in this order before V7 implementation work:
 21. `V7_REPLAY_PREFETCH_CONTRACT.md`
 22. `V7_WORKSPACE_TRANSACTION_RUNTIME.md`
 23. `V7_PROJECTION_DOMAIN.md`
-24. `V7_CHART_SNAPSHOT_APPLICATION.md`
-25. `V7_VIEWPORT_RUNTIME.md`
-26. `V7_LIGHTWEIGHT_CHART_SLICE.md`
-27. `V7_EXECUTION_ROADMAP.md`
-28. `../TODO.md`
+24. `V7_SESSION_HOURS_DOMAIN.md`
+25. `V7_CHART_SNAPSHOT_APPLICATION.md`
+26. `V7_VIEWPORT_RUNTIME.md`
+27. `V7_LIGHTWEIGHT_CHART_SLICE.md`
+28. `V7_EXECUTION_ROADMAP.md`
+29. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

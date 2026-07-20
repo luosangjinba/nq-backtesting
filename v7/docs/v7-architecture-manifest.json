@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r5.1-v6-interaction-carry-forward-complete",
+  "status": "r5.2-session-hours-domain-complete",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -30,6 +30,7 @@
     "docs/V7_REPLAY_PREFETCH_CONTRACT.md",
     "docs/V7_WORKSPACE_TRANSACTION_RUNTIME.md",
     "docs/V7_PROJECTION_DOMAIN.md",
+    "docs/V7_SESSION_HOURS_DOMAIN.md",
     "docs/V7_CHART_SNAPSHOT_APPLICATION.md",
     "docs/V7_VIEWPORT_RUNTIME.md",
     "docs/V7_LIGHTWEIGHT_CHART_SLICE.md",
@@ -41,6 +42,7 @@
     "replay-runtime",
     "bar-data-runtime",
     "projection-domain",
+    "session-hours-domain",
     "workspace-transaction-runtime",
     "replay-workspace-ui",
     "module-lifecycle",
@@ -83,6 +85,7 @@
     "src/replay-workspace-ui/module.json",
     "src/workspace-transaction-runtime/module.json",
     "src/projection-domain/module.json",
+    "src/session-hours-domain/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
@@ -194,6 +197,7 @@
     "projection-domain-provider-neutral-exclusive-no-future",
     "chart-snapshot-application-exact-visible-receipt",
     "viewport-intent-pane-local-and-data-independent",
-    "real-chart-visible-completion-and-native-wall"
+    "real-chart-visible-completion-and-native-wall",
+    "session-hours-wall-clock-eligibility"
   ]
 }

@@ -1,0 +1,12 @@
+{
+  "id": "core.session-hours-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "session-hours-domain",
+  "publicEntry": "src/session-hours-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/session-hours-domain-harness.js",
+  "removable": false
+}

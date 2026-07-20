@@ -1,0 +1,18 @@
+[
+  { "case": "unknown-calendar-field", "expectedCode": "SESSION_HOURS_FIELDS_INVALID" },
+  { "case": "unsupported-encoding", "expectedCode": "SESSION_HOURS_CALENDAR_VERSION_UNSUPPORTED" },
+  { "case": "duplicate-instrument", "expectedCode": "SESSION_HOURS_INSTRUMENTS_INVALID" },
+  { "case": "short-week", "expectedCode": "SESSION_HOURS_WEEK_INVALID" },
+  { "case": "overlapping-interval", "expectedCode": "SESSION_HOURS_INTERVAL_INVALID" },
+  { "case": "exception-revision-mismatch", "expectedCode": "SESSION_HOURS_EXCEPTION_REVISION_MISMATCH" },
+  { "case": "duplicate-exception-date", "expectedCode": "SESSION_HOURS_EXCEPTION_DUPLICATE" },
+  { "case": "unverified-override", "expectedCode": "SESSION_HOURS_EXCEPTION_OVERRIDE_UNVERIFIED" },
+  { "case": "invalid-mode", "expectedCode": "SESSION_HOURS_MODE_INVALID" },
+  { "case": "unsupported-instrument", "expectedCode": "SESSION_HOURS_INSTRUMENT_UNSUPPORTED" },
+  { "case": "invalid-epoch", "expectedCode": "SESSION_HOURS_EPOCH_INVALID" },
+  { "case": "out-of-range-epoch", "expectedCode": "SESSION_HOURS_EPOCH_INVALID" },
+  { "case": "forged-calendar", "expectedCode": "SESSION_HOURS_CALENDAR_INVALID" },
+  { "case": "unordered-source", "expectedCode": "SESSION_HOURS_SOURCE_EPOCHS_NOT_ORDERED" },
+  { "case": "duplicate-source", "expectedCode": "SESSION_HOURS_SOURCE_EPOCHS_NOT_ORDERED" },
+  { "case": "invalid-direction", "expectedCode": "SESSION_HOURS_DIRECTION_INVALID" }
+]

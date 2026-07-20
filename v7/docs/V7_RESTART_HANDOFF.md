@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.1 interaction carry-forward audit
+Last updated: 2026-07-20 after R5.2 Session Hours domain
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,7 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: human-accepted R4.5 plus completed R5.1 audit
+- implemented code baseline: human-accepted R4.5 plus completed R5.1/R5.2
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -29,10 +29,11 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. For R5.2, read only:
+Do not load all historical `sessions/` records. For R5.3, read only:
 
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
 - `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
+- `sessions/session_20260720_r5_2_session_hours_domain.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 
@@ -85,6 +86,9 @@ and human-accepted:
   the R4.5 browser review; H011/H039/H040/H041 have automated evidence.
 - R5.1 binds settled V6 Reset View, Replay, Settings, multi-pane, ETH/RTH, and
   multi-instrument interaction decisions as prior product evidence.
+- R5.2 verifies the source wall-clock encoding and activates a pure,
+  revisioned ETH/RTH calendar/eligibility/traversal domain without runtime or UI
+  mutation.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -96,7 +100,7 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 
 ## Deliberately Not Implemented
 
-There is still no real provider, actual CME Session Hours policy, higher-
+There is still no real provider, production-complete CME holiday dataset, higher-
 timeframe aggregation policy, Auto Replay timer, multi-pane layout, or durable
 workspace restore. R4.5 uses a clearly disclosed deterministic local foundation
 feed. Do not describe it as real CME history or production data coverage.
@@ -128,10 +132,9 @@ connected.
 
 ## Exact Next Step
 
-Execute R5.2: verify actual NQ/ES timestamp and exchange-calendar facts, then
-implement the pure Session Hours/calendar policy and inherited ETH/RTH cursor,
-visible-through, eligible traversal, DST, weekend, holiday, early-close, and
-maintenance-break fixtures. Do not add the toolbar or mutate Replay, Bar Data,
+Execute R5.3: review the relevant chart-ecosystem aggregation/alignment
+references, then implement registered fixed-duration timeframe policies through
+the pure Projection Domain. Do not add the toolbar or mutate Replay, Bar Data,
 chart, persistence, multi-pane, or multi-instrument runtime in this step.
 
 ## Standing Workflow

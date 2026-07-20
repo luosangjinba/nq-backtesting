@@ -340,13 +340,30 @@ as binding V7 product evidence. V7 does not repeat the product interview unless
 a recorded reopen trigger applies. Implementation ownership, atomicity, stale
 rejection, persistence, and executable proof are re-derived in V7.
 
-## Exact Next Step — R5.2 Session Hours/Calendar Domain
+## R5.2 Session Hours/Calendar Domain — Completed
 
-Verify the actual NQ/ES source timestamp and exchange-calendar facts, then
-implement the pure Session Hours/calendar policy and inherited ETH/RTH cursor,
-visible-through, eligible traversal, DST, weekend, holiday, early-close, and
-maintenance-break fixtures. Add no toolbar, Replay mutation, Bar Data I/O,
-chart mutation, persistence, multi-pane, or multi-instrument runtime yet.
+Completed with automated evidence; no interaction or visual review is required:
+
+- verify actual NQ/ES DuckDB timestamps are exchange-wall-clock labels encoded
+  as UTC-like epochs and forbid a second timezone conversion;
+- implement immutable weekly ETH/RTH schedules and versioned, sourced,
+  verified date exceptions;
+- preserve unknown/missing source truth instead of inferring a closure;
+- expose Projection-compatible eligibility plus source-backed visible-through
+  and next/previous traversal without owning Replay;
+- cover NQ/ES, DST, weekend, maintenance, holiday, early close, exclusive
+  cursor, immutable output, and negative controls;
+- add no toolbar, Replay mutation, Bar Data I/O, chart mutation, persistence,
+  multi-pane, or multi-instrument runtime.
+
+## Exact Next Step — R5.3 Fixed-Duration Timeframe Projection
+
+Review the relevant official Lightweight Charts and awesome-tradingview
+aggregation/alignment references, then implement registered fixed-duration
+timeframe policies through the pure Projection Domain. Prove eligibility before
+aggregation, complete source-bar preservation, deterministic bucket alignment,
+no-future output, and delayed/superseded policy isolation. Add no toolbar,
+runtime switch mutation, multi-pane, or real provider yet.
 
 ## Standing Gates
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R5.1",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5", "R6", "R7"],
+  "currentStep": "R5.2",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -708,6 +708,27 @@
       "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
+    },
+    {
+      "id": "H043",
+      "name": "session-hours-wall-clock-eligibility",
+      "owner": "session-hours-domain",
+      "v6FailurePrevented": "a second timezone conversion shifted exchange wall labels while missing bars were mistaken for closures or synthesized during RTH traversal",
+      "activationStep": "R5.2",
+      "state": "accepted",
+      "harness": "tests/session-hours-domain-harness.js",
+      "positiveEvidence": [
+        "src/session-hours-domain/public.js",
+        "src/session-hours-domain/module.json",
+        "src/session-hours-domain/calendar.js",
+        "src/session-hours-domain/eligibility.js",
+        "src/session-hours-domain/traversal.js",
+        "tests/session-hours-domain-harness.js",
+        "docs/V7_SESSION_HOURS_DOMAIN.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/session-hours-domain/negative/cases.json"],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260720_r5_2_session_hours_domain.md"
     }
   ]
 }

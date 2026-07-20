@@ -297,6 +297,8 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   rejecting V6 ownership/orchestration;
 - `R5.2`: verify real NQ/ES timestamp/calendar facts and implement the pure
   Session Hours/calendar policy plus inherited cursor/eligibility fixtures;
+- `R5.3`: implement registered fixed-duration timeframe projection and
+  alignment fixtures through the existing pure Projection Domain;
 - all TF projection through the pure domain;
 - ETH/RTH eligibility before aggregation;
 - delayed/superseded switches cannot commit.

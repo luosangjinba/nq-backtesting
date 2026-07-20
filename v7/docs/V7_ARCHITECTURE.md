@@ -124,6 +124,14 @@ deeply immutable pane snapshot with source request keys, capability/calendar
 revisions, policy ids, dataset revision, and the original cursor proposal.
 R4.2 implements no actual CME eligibility or higher-timeframe aggregation.
 
+R5.2 activates `core.session-hours-domain`. It interprets the verified source's
+UTC-like exchange wall-clock labels without a second timezone conversion,
+applies half-open weekly ETH/RTH intervals plus versioned verified date
+exceptions, and exposes source-backed visible-through and eligible traversal.
+It is pure and does not own Replay or Bar Data state. Unknown/missing source
+coverage remains unknown; it cannot silently become a holiday or a synthesized
+bar.
+
 ### Workspace Transaction Runtime
 
 Is the sole coordinator of chart-visible changes. It accepts an immutable
