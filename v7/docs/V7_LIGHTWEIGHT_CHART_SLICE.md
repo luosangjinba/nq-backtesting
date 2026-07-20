@@ -65,6 +65,13 @@ the latest Replay bar move offscreen while browsing older history. Reset View
 explicitly creates a new default intent. Programmatic data application never
 fabricates a manual intent.
 
+Wheel input is region-specific. Over the plot it retains Lightweight Charts'
+horizontal time zoom. Over the visible right price axis, the adapter intercepts
+the wheel in the capture phase and uses the public `IPriceScaleApi` visible-
+range methods to zoom vertically around the pointer price without changing the
+logical time range. Reset View re-enables price autoscale as well as restoring
+the default horizontal wall.
+
 ## Dependency And License
 
 `lightweight-charts` is pinned exactly to `5.2.0` in `v7/package.json` and its

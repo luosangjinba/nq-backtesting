@@ -58,6 +58,37 @@ try {
   assert.equal(result.libraryVersion, '5.2.0');
   assert.equal(result.painted, 'true');
   assert.equal(result.visibleRevision, 1);
+
+  const beforeAxisWheel = await evaluate(cdp, `(() => {
+    const host = document.querySelector('#chart');
+    const bounds = host.getBoundingClientRect();
+    const snapshot = globalThis.__adapter.snapshot();
+    return { bounds: { right: bounds.right, y: bounds.top + bounds.height / 2 },
+      logicalRange: snapshot.logicalRange, priceRange: snapshot.priceRange };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseWheel',
+    x: beforeAxisWheel.bounds.right - 3,
+    y: beforeAxisWheel.bounds.y,
+    deltaX: 0,
+    deltaY: -120,
+  });
+  await waitFor(cdp, `document.querySelector('#chart').dataset.priceScaleWheelRevision === '1'`);
+  const afterAxisWheel = await evaluate(cdp, `(() => {
+    const snapshot = globalThis.__adapter.snapshot();
+    return { logicalRange: snapshot.logicalRange, priceRange: snapshot.priceRange,
+      previousSpan: Number(document.querySelector('#chart').dataset.priceScalePreviousSpan),
+      span: Number(document.querySelector('#chart').dataset.priceScaleSpan) };
+  })()`);
+  assert.deepEqual(afterAxisWheel.logicalRange, beforeAxisWheel.logicalRange,
+    'wheel on the price axis must not zoom the horizontal time range');
+  assert.ok(afterAxisWheel.span < afterAxisWheel.previousSpan,
+    'wheel up on the price axis must vertically zoom into a smaller price span');
+  assert.ok(
+    afterAxisWheel.priceRange.to - afterAxisWheel.priceRange.from
+      < beforeAxisWheel.priceRange.to - beforeAxisWheel.priceRange.from,
+    'the public price-scale range must reflect vertical wheel zoom',
+  );
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));

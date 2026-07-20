@@ -53,6 +53,7 @@ const viewport = createViewportController({
   }),
 });
 const adapter = createLightweightChartAdapter({ host, viewportPort: viewport });
+globalThis.__adapter = adapter;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 
 try {

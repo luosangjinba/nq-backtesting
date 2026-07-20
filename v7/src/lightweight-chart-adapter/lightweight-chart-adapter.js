@@ -8,6 +8,7 @@ import { readViewportIntent } from '../viewport-runtime/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { requirePaintedCandles } from './paint-gate.js';
+import { applyPriceScaleWheel } from './price-scale-wheel.js';
 
 function requirePort(port) {
   for (const method of ['captureManual', 'project', 'reset', 'snapshot']) {
@@ -42,6 +43,7 @@ export function createLightweightChartAdapter({
   const viewport = requirePort(viewportPort);
   const chart = createChart(host, CHART_OPTIONS);
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
+  const priceScale = chart.priceScale('right');
   host.dataset.libraryVersion = lightweightChartsVersion();
   let adapterRevision = 0;
   let barCount = 0;
@@ -88,8 +90,11 @@ export function createLightweightChartAdapter({
     nativePointerActive = false;
     void captureNativeViewport();
   };
-  const onWheel = () => { void captureNativeViewport(); };
-  host.addEventListener('wheel', onWheel, { passive: true });
+  const onWheel = (event) => {
+    if (applyPriceScaleWheel({ event, host, priceScale })) return;
+    void captureNativeViewport();
+  };
+  host.addEventListener('wheel', onWheel, { capture: true, passive: false });
   window.addEventListener('pointerdown', onPointerDown, true);
   window.addEventListener('mousedown', onPointerDown, true);
   window.addEventListener('pointerup', onPointerUp, true);
@@ -119,7 +124,7 @@ export function createLightweightChartAdapter({
       if (disposed) return;
       disposed = true;
       captureToken += 1;
-      host.removeEventListener('wheel', onWheel);
+      host.removeEventListener('wheel', onWheel, true);
       window.removeEventListener('pointerdown', onPointerDown, true);
       window.removeEventListener('mousedown', onPointerDown, true);
       window.removeEventListener('pointerup', onPointerUp, true);
@@ -128,6 +133,7 @@ export function createLightweightChartAdapter({
     },
     resetView(latestOffsetBars) {
       viewport.reset(latestOffsetBars);
+      priceScale.setAutoScale(true);
       const projection = applyViewport();
       if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
     },
@@ -138,6 +144,7 @@ export function createLightweightChartAdapter({
         libraryVersion: lightweightChartsVersion(),
         logicalRange: chart.timeScale().getVisibleLogicalRange(),
         painted: host.dataset.painted === 'true',
+        priceRange: priceScale.getVisibleRange(),
         viewportIntent: viewport.snapshot(),
       });
     },

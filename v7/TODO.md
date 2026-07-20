@@ -447,6 +447,9 @@ used visually misleading generated bars:
 - replace the chart visual baselines with actual NQ OHLC from DuckDB;
 - remove the redundant feed/wall/cursor strip above the Canvas so the chart
   begins directly below the single compact toolbar;
+- route wheel input over the right price axis to pointer-anchored vertical
+  price zoom while retaining horizontal time zoom over the plot; Reset View
+  restores price autoscale;
 - prove the V6 entry baseline, Next, TF/ETH-RTH replacement, manual/reset wall,
   and repeated left extension in real Chrome.
 

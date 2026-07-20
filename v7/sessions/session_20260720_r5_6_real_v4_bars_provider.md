@@ -37,3 +37,10 @@ The redundant strip above the Canvas was removed after review. The data-source
 label, Default/Manual wall label, and Cursor timestamp no longer consume a
 second chart header row. Canvas now starts directly below the compact toolbar;
 wall/cursor values remain non-visible runtime evidence for automated tests.
+
+Price-axis wheel input was also aligned with the existing price-axis drag
+meaning. The adapter uses Lightweight Charts 5.2's public price-scale width and
+visible-range APIs, intercepts wheel only inside the right axis, anchors zoom at
+the pointer price, preserves the horizontal logical range, and restores price
+autoscale through Reset View. The independent real-Chrome adapter harness
+proves the vertical range changes while the time range does not.
