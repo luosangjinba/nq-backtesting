@@ -93,7 +93,7 @@ function commitPreparedResult({ description, ports, prepared, state }) {
   if (decision.status !== 'current') {
     throw new RuntimeInterruption(decision.status, decision.code);
   }
-  const replay = ports.replayPort.commitVisible(prepared.proposal);
+  const replay = ports.replayPort.commitVisible(prepared.proposal, prepared.workspaceSnapshot);
   state.publish({
     identity: description.identity,
     operation: description.operation,

@@ -44,7 +44,12 @@ aggregation, or Session Hours id.
 6. validate immutable, strictly ordered OHLCV output below the exclusive
    cursor;
 7. attach exact source, capability, calendar, policy, dataset, request-key, and
-   cursor-proposal provenance.
+  cursor-proposal provenance.
+
+R5.4 provenance additionally records the explicit Session Hours mode and the
+newest real eligible source-bar timestamp below the exclusive cursor. This
+source-level visible-through value remains distinct from the start of an
+aggregated display candle.
 
 An empty source or an empty eligible projection is an explicit domain failure
 in R4.2. Future product empty/unavailable presentation remains owned by the

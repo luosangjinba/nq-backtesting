@@ -1,5 +1,6 @@
 import {
   createReplayCursorProposal,
+  createReplayCursorRetentionProposal,
   createReplayRange,
   readReplayCursorProposal,
   requireCursorInRange,
@@ -25,6 +26,7 @@ export function createReplayRuntime({
   const activation = createReplayActivation({ sessionId, activationGeneration });
   const acceptedRange = createReplayRange(range);
   let cursorEpochMs = requireCursorInRange(initialCursorEpochMs, acceptedRange);
+  let visibleThroughEpochMs = cursorEpochMs;
   let revision = 0;
   let disposed = false;
   const issuedProposals = new WeakSet();
@@ -43,7 +45,7 @@ export function createReplayRuntime({
       cursorEpochMs,
       playback: 'paused',
       range: acceptedRange,
-      revealedThroughEpochMs: cursorEpochMs,
+      visibleThroughEpochMs,
       revision,
       sessionId: activation.sessionId,
     });
@@ -58,6 +60,19 @@ export function createReplayRuntime({
     }
     const proposal = createReplayCursorProposal({
       advance,
+      baseRevision: revision,
+      cursorEpochMs,
+      identity,
+      range: acceptedRange,
+    });
+    issuedProposals.add(proposal);
+    return proposal;
+  }
+
+  function proposeRetention({ identity }) {
+    requireActive();
+    requireMatchingActivation(identity, activation);
+    const proposal = createReplayCursorRetentionProposal({
       baseRevision: revision,
       cursorEpochMs,
       identity,
@@ -86,13 +101,28 @@ export function createReplayRuntime({
     return value;
   }
 
-  function commitVisible(proposal) {
+  function requireVisibility(visibility, targetEpochMs) {
+    if (visibility === undefined) return targetEpochMs;
+    if (!visibility || Object.keys(visibility).join(',') !== 'visibleThroughEpochMs') {
+      throw new ReplayRuntimeError('REPLAY_VISIBILITY_INVALID', 'Visible completion metadata is invalid.');
+    }
+    const candidate = visibility.visibleThroughEpochMs;
+    if (candidate !== null && (!Number.isSafeInteger(candidate)
+      || candidate < acceptedRange.startEpochMs || candidate >= targetEpochMs)) {
+      throw new ReplayRuntimeError('REPLAY_VISIBILITY_INVALID', 'visibleThroughEpochMs must precede the cursor.');
+    }
+    return candidate;
+  }
+
+  function commitVisible(proposal, visibility = undefined) {
     const value = requireCommittable(proposal);
+    const acceptedVisibility = requireVisibility(visibility, value.targetEpochMs);
     if (revision === Number.MAX_SAFE_INTEGER) {
       throw new ReplayRuntimeError('REPLAY_REVISION_EXHAUSTED', 'Replay revision is exhausted.');
     }
     issuedProposals.delete(proposal);
     cursorEpochMs = value.targetEpochMs;
+    visibleThroughEpochMs = acceptedVisibility;
     revision += 1;
     return snapshot();
   }
@@ -107,5 +137,5 @@ export function createReplayRuntime({
     disposed = true;
   }
 
-  return Object.freeze({ commitVisible, dispose, proposeAdvance, reject, snapshot });
+  return Object.freeze({ commitVisible, dispose, proposeAdvance, proposeRetention, reject, snapshot });
 }

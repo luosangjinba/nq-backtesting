@@ -137,6 +137,7 @@ function policies({ aggregationId = IDS.aggregation, eligibility = () => true } 
       deterministic: true,
       id: IDS.sessionHours,
       isEligible: eligibility,
+      mode: 'eth',
       revision: 'eth-r1',
     }),
   };
@@ -183,6 +184,8 @@ assert.equal(accepted.provenance.sourceResolutionId, IDS.resolution);
 assert.equal(accepted.provenance.displayTimeframeId, IDS.timeframe);
 assert.equal(accepted.provenance.sessionHoursPolicyId, IDS.sessionHours);
 assert.equal(accepted.provenance.sessionHoursPolicyRevision, 'eth-r1');
+assert.equal(accepted.provenance.sessionHoursMode, 'eth');
+assert.equal(accepted.provenance.visibleThroughEpochMs, 1_240_000);
 assert.equal(accepted.provenance.aggregationPolicyRevision, 'identity-r1');
 assert.equal(accepted.provenance.calendarRevision, 'cme-2026-r1');
 assert.equal(accepted.provenance.calendarVersion, '1.0.0');
@@ -196,6 +199,7 @@ const eligibleBeforeAggregation = projectPaneSnapshot(projectionInput({
     deterministic: true,
     id: IDS.sessionHours,
     isEligible: (candidate) => candidate.startEpochMs !== 1_180_000,
+    mode: 'eth',
     revision: 'eth-r1',
   }),
   aggregationPolicy: Object.freeze({
@@ -263,6 +267,7 @@ const negativeActions = {
       deterministic: true,
       id: 'cme.rth',
       isEligible: () => true,
+      mode: 'rth',
       revision: 'rth-r1',
     }),
   })),

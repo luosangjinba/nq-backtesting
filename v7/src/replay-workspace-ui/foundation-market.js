@@ -112,6 +112,7 @@ export function createFoundationMarket(record) {
       deterministic: true,
       id: IDS.sessionHours,
       isEligible: () => true,
+      mode: 'eth',
       revision: 'eth-foundation-r1',
     }),
   });

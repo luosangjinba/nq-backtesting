@@ -188,6 +188,7 @@ function projectionInput(overrides = {}) {
       deterministic: true,
       id: IDS.sessionHours,
       isEligible: (candidate) => candidate.startEpochMs !== epoch('2026-06-08T09:32'),
+      mode: 'eth',
       revision: 'session-r1',
     }),
     aggregationPolicy: policy,

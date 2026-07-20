@@ -1,0 +1,17 @@
+{
+  "id": "core.workspace-replacement-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/workspace-replacement-runtime/public.js",
+  "requiredPorts": [
+    "core.bar-data-contract",
+    "core.capability-contract",
+    "core.workspace-transaction-contract",
+    "core.workspace-transaction-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/workspace-replacement-runtime-harness.js",
+  "removable": false
+}

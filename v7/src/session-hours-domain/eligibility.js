@@ -58,6 +58,7 @@ export function createSessionHoursPolicy(value) {
       mode,
       startEpochMs: bar.startEpochMs,
     }).eligible,
+    mode,
     revision: calendar.revision,
   });
 }

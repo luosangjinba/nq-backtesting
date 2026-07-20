@@ -5,5 +5,7 @@
   { "case": "foreign-proposal", "expectedCode": "REPLAY_PROPOSAL_FOREIGN" },
   { "case": "commit-rejected-proposal", "expectedCode": "REPLAY_PROPOSAL_FOREIGN" },
   { "case": "advance-after-complete", "expectedCode": "REPLAY_COMPLETE" },
-  { "case": "call-after-dispose", "expectedCode": "REPLAY_RUNTIME_DISPOSED" }
+  { "case": "call-after-dispose", "expectedCode": "REPLAY_RUNTIME_DISPOSED" },
+  { "case": "visibility-at-cursor", "expectedCode": "REPLAY_VISIBILITY_INVALID" },
+  { "case": "visibility-before-range", "expectedCode": "REPLAY_VISIBILITY_INVALID" }
 ]

@@ -24,7 +24,9 @@ function formatCursor(epochMs) {
 
 function createReplayPort(replay) {
   return Object.freeze({
-    commitVisible: (proposal) => replay.commitVisible(proposal),
+    commitVisible: (proposal, workspaceSnapshot) => replay.commitVisible(proposal, {
+      visibleThroughEpochMs: workspaceSnapshot.provenance.visibleThroughEpochMs,
+    }),
     propose: ({ identity, input }) => replay.proposeAdvance({ advance: input.advance, identity }),
     reject: (proposal) => replay.reject(proposal),
   });

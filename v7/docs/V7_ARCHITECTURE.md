@@ -139,6 +139,13 @@ exclusive-no-future bars supplied by Projection Domain, preserves gaps, and
 contains no concrete timeframe-id branches. Calendar day/week/month alignment
 remains a separate policy boundary.
 
+R5.4 activates `core.workspace-replacement-runtime` as a thin registered
+selection and routing boundary over the existing Workspace Transaction Runtime.
+Replay retention proposals distinguish projection-only replacement from time
+advancement; exact projection provenance supplies explicit Session Hours mode
+and source-level visible-through. Acquisition/presentation races and failures
+cannot publish a stale selection, chart snapshot, cursor, or visibility value.
+
 ### Workspace Transaction Runtime
 
 Is the sole coordinator of chart-visible changes. It accepts an immutable

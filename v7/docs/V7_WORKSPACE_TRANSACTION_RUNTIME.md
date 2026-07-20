@@ -36,6 +36,12 @@ transaction identity and the exact projected snapshot object. A structural
 lookalike, foreign identity, or acknowledgement for another snapshot cannot
 commit.
 
+R5.4 passes the exact visibly acknowledged workspace snapshot to the injected
+Replay commit port. This lets a public adapter commit Projection's
+source-level visible-through provenance for cursor-retaining replacements;
+the generic coordinator still does not interpret Session Hours or timeframe
+fields.
+
 R4.1 uses a fake visible-completion port. This proves ordering but does not
 claim browser-visible chart completion; H016 remains inactive until the real
 Chart Runtime/Adapter exists.

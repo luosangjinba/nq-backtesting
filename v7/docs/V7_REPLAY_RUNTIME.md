@@ -5,7 +5,7 @@ Status: R3.3b binding headless state owner (2026-07-20)
 ## Ownership
 
 `core.replay-runtime` is the only mutable owner of the accepted cursor,
-revealed-through cutoff, and Replay revision. One instance is permanently bound
+visible-through source timestamp, and Replay revision. One instance is permanently bound
 to one branded Session identity and activation generation. Panes, instruments,
 display timeframes, providers, and charts cannot own another clock.
 
@@ -22,6 +22,13 @@ cursor side effects.
 
 Manual and Auto advancement use this identical path. R3.3b creates no timer and
 does not implement Auto cadence, which remains R7 behavior.
+
+R5.4 adds `proposeRetention` for timeframe and Session Hours replacements. A
+retention proposal cannot move the source cursor. Exact visible completion may
+commit a `visibleThroughEpochMs` that precedes that cursor; the value must come
+from Projection provenance and identify a real eligible source bar. Invalid,
+failed, rejected, or stale retention proposals have zero cursor,
+visible-through, or revision effects.
 
 ## Lifecycle And Exclusions
 

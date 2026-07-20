@@ -1,11 +1,11 @@
 import { failProjection } from './projection-error.js';
 
-function requireExactFrozenPolicy(candidate, method, code) {
+function requireExactFrozenPolicy(candidate, method, code, additionalFields = []) {
   if (!candidate || typeof candidate !== 'object' || !Object.isFrozen(candidate)) {
     failProjection(code, 'Projection policy must be a frozen object.');
   }
   const fields = Object.keys(candidate).sort();
-  const expectedFields = ['deterministic', 'id', method, 'revision'].sort().join(',');
+  const expectedFields = ['deterministic', 'id', method, 'revision', ...additionalFields].sort().join(',');
   if (fields.join(',') !== expectedFields || typeof candidate[method] !== 'function') {
     failProjection(code, `Projection policy has an invalid ${method}() contract.`);
   }
@@ -38,7 +38,11 @@ export function requireSessionHoursPolicy(candidate, calendar) {
     candidate,
     'isEligible',
     'PROJECTION_SESSION_HOURS_POLICY_INVALID',
+    ['mode'],
   );
+  if (typeof policy.mode !== 'string' || policy.mode.length === 0 || policy.mode.trim() !== policy.mode) {
+    failProjection('PROJECTION_SESSION_HOURS_POLICY_INVALID', 'Session Hours mode must be an exact string.');
+  }
   if (!calendar.sessionHoursPolicyIds.includes(policy.id)) {
     failProjection(
       'PROJECTION_SESSION_HOURS_POLICY_MISMATCH',

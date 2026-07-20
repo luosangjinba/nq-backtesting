@@ -1,0 +1,13 @@
+[
+  { "case": "empty-catalog", "expectedCode": "WORKSPACE_REPLACEMENT_CATALOG_INVALID" },
+  { "case": "duplicate-entry", "expectedCode": "WORKSPACE_REPLACEMENT_ENTRY_DUPLICATE" },
+  { "case": "incompatible-entry", "expectedCode": "WORKSPACE_REPLACEMENT_ENTRY_INCOMPATIBLE" },
+  { "case": "mutable-policy", "expectedCode": "WORKSPACE_REPLACEMENT_POLICY_INVALID" },
+  { "case": "undeclared-target", "expectedCode": "WORKSPACE_REPLACEMENT_TARGET_UNDECLARED" },
+  { "case": "request-instrument-mismatch", "expectedCode": "WORKSPACE_REPLACEMENT_REQUEST_INCOMPATIBLE" },
+  { "case": "request-provider-mismatch", "expectedCode": "WORKSPACE_REPLACEMENT_REQUEST_INCOMPATIBLE" },
+  { "case": "request-resolution-mismatch", "expectedCode": "WORKSPACE_REPLACEMENT_REQUEST_INCOMPATIBLE" },
+  { "case": "invalid-operation", "expectedCode": "WORKSPACE_REPLACEMENT_OPERATION_INVALID" },
+  { "case": "unknown-execution-field", "expectedCode": "WORKSPACE_REPLACEMENT_FIELDS_INVALID" },
+  { "case": "invalid-transaction-port", "expectedCode": "WORKSPACE_REPLACEMENT_TRANSACTION_PORT_INVALID" }
+]

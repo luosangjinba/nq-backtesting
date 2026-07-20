@@ -44,8 +44,14 @@ assert.equal(clock.snapshot().cursorEpochMs, 2_000, 'proposal must not publish c
 assert.equal(clock.snapshot().revision, 0);
 const accepted = clock.commitVisible(proposal);
 assert.equal(accepted.cursorEpochMs, 4_000);
-assert.equal(accepted.revealedThroughEpochMs, 4_000);
+assert.equal(accepted.visibleThroughEpochMs, 4_000);
 assert.equal(accepted.revision, 1);
+
+const retained = clock.proposeRetention({ identity: identity(sessionA, generationOne, 'retain') });
+const retainedSnapshot = clock.commitVisible(retained, { visibleThroughEpochMs: 3_000 });
+assert.equal(retainedSnapshot.cursorEpochMs, 4_000, 'retention proposal cannot move the source cursor');
+assert.equal(retainedSnapshot.visibleThroughEpochMs, 3_000);
+assert.equal(retainedSnapshot.revision, 2);
 
 const rejected = clock.proposeAdvance({ identity: identity(sessionA, generationOne, 'two'), advance: auto });
 assert.equal(clock.reject(rejected), true);
@@ -103,6 +109,20 @@ const negativeActions = {
     const target = runtime();
     target.dispose();
     return target.snapshot();
+  },
+  'visibility-at-cursor': () => {
+    const target = runtime();
+    const retainedProposal = target.proposeRetention({
+      identity: identity(sessionA, generationOne, 'visibility-at-cursor'),
+    });
+    return target.commitVisible(retainedProposal, { visibleThroughEpochMs: 2_000 });
+  },
+  'visibility-before-range': () => {
+    const target = runtime();
+    const retainedProposal = target.proposeRetention({
+      identity: identity(sessionA, generationOne, 'visibility-before-range'),
+    });
+    return target.commitVisible(retainedProposal, { visibleThroughEpochMs: 999 });
   },
 };
 

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R5.3",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5", "R6", "R7"],
+  "currentStep": "R5.4",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -751,6 +751,29 @@
       "negativeFixtures": ["tests/fixtures/fixed-timeframe-domain/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260720_r5_3_fixed_timeframe_domain.md"
+    },
+    {
+      "id": "H045",
+      "name": "atomic-timeframe-session-hours-replacement",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "timeframe and ETH/RTH event chains moved cursors, published stale selections, or confused aggregated candle starts with the latest visible source bar",
+      "activationStep": "R5.4",
+      "state": "accepted",
+      "harness": "tests/workspace-replacement-runtime-harness.js",
+      "positiveEvidence": [
+        "src/workspace-replacement-runtime/public.js",
+        "src/workspace-replacement-runtime/module.json",
+        "src/workspace-replacement-runtime/replacement-catalog.js",
+        "src/workspace-replacement-runtime/replacement-executor.js",
+        "src/replay-contract/cursor-proposal.js",
+        "src/replay-runtime/replay-runtime.js",
+        "src/projection-domain/pane-projection.js",
+        "tests/workspace-replacement-runtime-harness.js",
+        "docs/V7_WORKSPACE_REPLACEMENT_RUNTIME.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/workspace-replacement-runtime/negative/cases.json"],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260720_r5_4_workspace_replacement_runtime.md"
     }
   ]
 }

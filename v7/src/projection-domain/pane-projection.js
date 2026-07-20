@@ -11,6 +11,7 @@ function eligibleVisibleBars(input, sourceBars) {
     instrument: input.instrument,
     sessionHoursPolicyId: input.sessionHoursPolicy.id,
     sessionHoursPolicyRevision: input.sessionHoursPolicy.revision,
+    sessionHoursMode: input.sessionHoursPolicy.mode,
   });
   const bars = sourceBars.filter((bar) => {
     if (!isEpochVisibleAtReplayCursor(bar.startEpochMs, input.cursor.targetEpochMs)) return false;
@@ -45,6 +46,7 @@ function provenance(input, sourceIdentity) {
     providerId: sourceIdentity.providerId,
     sessionHoursPolicyId: input.sessionHoursPolicy.id,
     sessionHoursPolicyRevision: input.sessionHoursPolicy.revision,
+    sessionHoursMode: input.sessionHoursPolicy.mode,
     sourceResolutionId: sourceIdentity.sourceResolutionId,
     sourceRequestKeys: Object.freeze(input.sourceBatches.map((batch) => batch.requestKey)),
   });
@@ -66,12 +68,16 @@ export function projectPaneSnapshot(value) {
     instrument: input.instrument,
     sessionHoursPolicyId: input.sessionHoursPolicy.id,
     sessionHoursPolicyRevision: input.sessionHoursPolicy.revision,
+    sessionHoursMode: input.sessionHoursPolicy.mode,
     sourceResolutionId: source.sourceIdentity.sourceResolutionId,
   }));
   return Object.freeze({
     bars: normalizeProjectedBars(projectedValues, input.cursor.targetEpochMs),
     paneId: input.paneId,
-    provenance: provenance(input, source.sourceIdentity),
+    provenance: Object.freeze({
+      ...provenance(input, source.sourceIdentity),
+      visibleThroughEpochMs: eligibleBars.at(-1).startEpochMs,
+    }),
     schemaVersion: 1,
   });
 }

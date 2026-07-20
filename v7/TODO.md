@@ -375,14 +375,34 @@ Completed with automated evidence; no interaction or visual review is required:
 - add no toolbar, runtime switch mutation, multi-pane, real provider, or
   calendar day/week/month aggregation.
 
-## Exact Next Step — R5.4 Atomic Timeframe/Session-Hours Replacement
+## R5.4 Atomic Timeframe/Session-Hours Replacement — Completed
 
-Implement the headless intent/planning boundary that selects registered
-timeframe and ETH/RTH policies and routes the complete replacement through the
-existing Workspace Transaction Runtime. Retain the Replay cursor, recompute
-mode-specific visible-through, preserve the accepted chart on failure, and
-prove delayed/superseded results have zero visible or Replay side effects. Add
-no toolbar, multi-pane, real provider, or persistence yet.
+Completed with automated evidence; no interaction or visual review is required:
+
+- resolve registered instrument/timeframe/Session Hours policy combinations
+  without concrete capability-id branches;
+- route both replacement operations through the existing Workspace Transaction
+  Runtime and exact visible-completion gate;
+- add branded Replay retention proposals that advance revision without moving
+  the source cursor;
+- record explicit Session Hours mode and real source-level visible-through in
+  Projection provenance;
+- prove ETH→RTH retains Tuesday `03:01` cursor while visible-through becomes
+  Monday `16:14`, including RTH `1h` `09:30`-anchored aggregation;
+- preserve the last accepted workspace, visible snapshot, cursor,
+  visible-through, and revisions on failure;
+- reject delayed/superseded acquisition and presentation with zero side
+  effects;
+- add no toolbar, multi-pane, real provider, persistence, or playback timer.
+
+## Exact Next Step — R5.5 Compact Timeframe And ETH/RTH Controls
+
+Integrate the registered R5 policies and R5.4 replacement path into the real
+one-pane workspace. Add compact active timeframe and ETH/RTH controls using the
+settled V6 interaction semantics, retain the manual/default wall, show bounded
+refresh/error states without a centered overlay, and stop for browser
+interaction and visual acceptance. Do not add multi-pane, real provider,
+persistence, or expanded Replay transport yet.
 
 ## Standing Gates
 

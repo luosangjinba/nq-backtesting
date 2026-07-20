@@ -18,6 +18,11 @@ Manual and Auto advancement use the same positive duration input. The duration
 advances Replay time rather than selecting one candle at a display interval.
 Projection must therefore retain every eligible intermediate source bar.
 
+R5.4 adds a cursor-retention proposal for visibility-only workspace
+replacements. It carries the same complete identity, cursor, range, and base
+revision, but has an empty reveal window and a target equal to the current
+cursor. It cannot masquerade as Manual or Auto advancement.
+
 ## Transaction Proposal
 
 A proposal contains the complete branded workspace transaction identity, base

@@ -26,9 +26,18 @@ for (const advance of [manual, auto]) {
     identity, range, baseRevision: 4, cursorEpochMs: 2_000, advance,
   }));
   assert.equal(value.targetEpochMs, 5_000);
+  assert.equal(value.kind, 'advance');
   assert.deepEqual(value.revealWindow, { startEpochMs: 2_000, endEpochMs: 5_000 });
   assert.equal(value.complete, false);
 }
+
+const retained = replay.readReplayCursorProposal(replay.createReplayCursorRetentionProposal({
+  identity, range, baseRevision: 4, cursorEpochMs: 2_000,
+}));
+assert.equal(retained.kind, 'retain');
+assert.equal(retained.advance, null);
+assert.equal(retained.targetEpochMs, 2_000);
+assert.deepEqual(retained.revealWindow, { startEpochMs: 2_000, endEpochMs: 2_000 });
 
 const clamped = replay.readReplayCursorProposal(replay.createReplayCursorProposal({
   identity, range, baseRevision: 4, cursorEpochMs: 9_000, advance: manual,

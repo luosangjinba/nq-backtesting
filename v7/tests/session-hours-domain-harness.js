@@ -155,7 +155,7 @@ assert.equal(resolveEligibleTraversal({
 }), null, 'traversal must not invent an eligible source bar');
 
 const policy = createSessionHoursPolicy({ calendar, id: 'cme.rth', mode: 'rth' });
-assert.deepEqual(Object.keys(policy).sort(), ['deterministic', 'id', 'isEligible', 'revision']);
+assert.deepEqual(Object.keys(policy).sort(), ['deterministic', 'id', 'isEligible', 'mode', 'revision']);
 assert.equal(Object.isFrozen(policy), true);
 assert.equal(policy.deterministic, true);
 assert.equal(policy.isEligible(
