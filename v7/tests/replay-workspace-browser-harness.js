@@ -138,6 +138,7 @@ try {
     return {
       barCount: Number(host.dataset.barCount),
       buttonHeight: document.querySelector('.replay-next').getBoundingClientRect().height,
+      controlHeight: document.querySelector('.workspace-choice').getBoundingClientRect().height,
       canvasCount: host.querySelectorAll('canvas').length,
       chartHeight: host.getBoundingClientRect().height,
       chartWidth: host.getBoundingClientRect().width,
@@ -146,6 +147,8 @@ try {
       origin: host.dataset.viewportOrigin,
       painted: host.dataset.painted,
       replayRevision: Number(root.dataset.replayRevision),
+      sessionHoursMode: root.dataset.sessionHoursMode,
+      timeframeId: root.dataset.timeframeId,
       workspaceRevision: Number(root.dataset.workspaceRevision),
     };
   })()`);
@@ -154,12 +157,15 @@ try {
   assert.ok(entry.chartWidth >= 1100, `chart must fill available desktop width: ${entry.chartWidth}px`);
   assert.ok(entry.chartHeight >= 650, `chart must fill available desktop height: ${entry.chartHeight}px`);
   assert.ok(entry.buttonHeight <= 32, `replay actions must remain compact: ${entry.buttonHeight}px`);
+  assert.ok(entry.controlHeight <= 26, `workspace selectors must remain compact: ${entry.controlHeight}px`);
   delete entry.chartWidth;
   delete entry.chartHeight;
   delete entry.buttonHeight;
+  delete entry.controlHeight;
   assert.deepEqual(entry, {
     barCount: 120, libraryVersion: '5.2.0', offset: 8,
-    origin: 'default', painted: 'true', replayRevision: 1, workspaceRevision: 1,
+    origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
+    timeframeId: 'timeframe.display-1-minute', workspaceRevision: 1,
   });
   await capture(cdp);
 
@@ -200,14 +206,46 @@ try {
   })()`);
   assert.notEqual(manualBefore.offset, 8, 'native drag must create a distinct manual wall');
 
-  await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  const cursorBeforeReplacement = await evaluate(cdp, `document.querySelector('.replay-cursor').textContent`);
+  await evaluate(cdp, `document.querySelector('.timeframe-control [data-value="timeframe.display-5-minute"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '3'`);
-  const manualAfter = await evaluate(cdp, `(() => {
+  const timeframeAfter = await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     return {
+      barCount: Number(host.dataset.barCount), cursor: document.querySelector('.replay-cursor').textContent,
       offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
       span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-wall-status').textContent,
+      pressed: document.querySelector('.timeframe-control [data-value="timeframe.display-5-minute"]').getAttribute('aria-pressed'),
+      timeframeId: document.querySelector('.replay-workspace').dataset.timeframeId,
     };
+  })()`);
+  assert.equal(timeframeAfter.barCount, 25);
+  assert.equal(timeframeAfter.cursor, cursorBeforeReplacement, 'timeframe replacement must retain cursor');
+  assert.equal(timeframeAfter.origin, 'manual');
+  assert.equal(timeframeAfter.wall, 'Manual wall');
+  assert.equal(timeframeAfter.pressed, 'true');
+  assert.equal(timeframeAfter.timeframeId, 'timeframe.display-5-minute');
+  assert.ok(Math.abs(timeframeAfter.offset - manualBefore.offset) < 0.001);
+  assert.ok(Math.abs(timeframeAfter.span - manualBefore.span) < 0.001);
+
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.chart-state-overlay').hidden`), true,
+    'Session Hours replacement must preserve the accepted chart without a centered overlay');
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '4'`);
+  const sessionAfter = await evaluate(cdp, `(() => ({
+    barCount: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
+    cursor: document.querySelector('.replay-cursor').textContent,
+    mode: document.querySelector('.replay-workspace').dataset.sessionHoursMode,
+    pressed: document.querySelector('.session-hours-control [data-value="rth"]').getAttribute('aria-pressed'),
+  }))()`);
+  assert.deepEqual(sessionAfter, { barCount: 25, cursor: cursorBeforeReplacement, mode: 'rth', pressed: 'true' });
+
+  await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '5'`);
+  const manualAfter = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return { offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
+      span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-wall-status').textContent };
   })()`);
   assert.equal(manualAfter.origin, 'manual');
   assert.equal(manualAfter.wall, 'Manual wall');
@@ -237,4 +275,4 @@ try {
   });
 }
 
-console.log('v7 Replay Workspace browser harness passed (real chart, paint, Next, manual/default wall)');
+console.log('v7 Replay Workspace browser harness passed (real chart, compact controls, atomic replacements, walls)');

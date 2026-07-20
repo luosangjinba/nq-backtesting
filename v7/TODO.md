@@ -395,14 +395,22 @@ Completed with automated evidence; no interaction or visual review is required:
   effects;
 - add no toolbar, multi-pane, real provider, persistence, or playback timer.
 
-## Exact Next Step — R5.5 Compact Timeframe And ETH/RTH Controls
+## R5.5 Compact Timeframe And ETH/RTH Controls — Awaiting Human Acceptance
 
-Integrate the registered R5 policies and R5.4 replacement path into the real
-one-pane workspace. Add compact active timeframe and ETH/RTH controls using the
-settled V6 interaction semantics, retain the manual/default wall, show bounded
-refresh/error states without a centered overlay, and stop for browser
-interaction and visual acceptance. Do not add multi-pane, real provider,
-persistence, or expanded Replay transport yet.
+Implemented with automated evidence:
+
+- register real `1m`/`5m`/`15m`/`1h` × ETH/RTH foundation capabilities;
+- dispatch compact controls through the R5.4 replacement transaction and sync
+  active state only from its accepted Workspace snapshot;
+- retain the Replay cursor and manual/default wall across replacements;
+- keep the accepted chart visible during cache-hit refresh and replacement
+  errors, using only bounded inline status;
+- prove real-browser timeframe and Session Hours projection, compact sizing,
+  no centered update overlay, manual-wall preservation, and Reset View;
+- update the intentional `1440x900` visual fixture.
+
+Exact next action: human visual and interaction review of R5.5. Do not begin R6
+multi-pane or real-provider work until this gate is accepted.
 
 ## Standing Gates
 

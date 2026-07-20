@@ -12,7 +12,34 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
-export function createReplayWorkspaceView({ name, onNext, onReset }) {
+function createChoiceGroup({ ariaLabel, choices, className, onChoose }) {
+  const buttons = new Map();
+  const root = element('div', { className: `workspace-choice-group ${className}`, ariaLabel });
+  root.setAttribute('role', 'group');
+  for (const choice of choices) {
+    const button = element('button', {
+      className: 'workspace-choice', text: choice.label, type: 'button',
+    });
+    button.dataset.value = choice.id;
+    button.setAttribute('aria-pressed', 'false');
+    button.addEventListener('click', () => onChoose(choice.id));
+    buttons.set(choice.id, button);
+    root.append(button);
+  }
+  return Object.freeze({
+    buttons,
+    dispose() { for (const button of buttons.values()) button.replaceWith(button.cloneNode(true)); },
+    root,
+    setDisabled(disabled) { for (const button of buttons.values()) button.disabled = disabled; },
+    setValue(value) {
+      for (const [id, button] of buttons) button.setAttribute('aria-pressed', String(id === value));
+    },
+  });
+}
+
+export function createReplayWorkspaceView({
+  name, onNext, onReset, onSessionHours, onTimeframe, sessionHoursModes, timeframes,
+}) {
   const nextButton = element('button', {
     className: 'button replay-action-button replay-next', text: 'Next minute', type: 'button',
   });
@@ -21,15 +48,29 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
   });
   nextButton.addEventListener('click', onNext);
   resetButton.addEventListener('click', onReset);
+  const timeframeControl = createChoiceGroup({
+    ariaLabel: 'Chart timeframe',
+    choices: timeframes,
+    className: 'timeframe-control',
+    onChoose: onTimeframe,
+  });
+  const sessionHoursControl = createChoiceGroup({
+    ariaLabel: 'Session hours',
+    choices: sessionHoursModes.map((id) => ({ id, label: id.toUpperCase() })),
+    className: 'session-hours-control',
+    onChoose: onSessionHours,
+  });
   const cursor = element('strong', { className: 'replay-cursor', text: 'Preparing…' });
   const wall = element('span', { className: 'replay-wall-status', text: 'Default wall' });
+  const status = element('span', { className: 'workspace-inline-status' });
+  status.hidden = true;
   const overlayTitle = element('strong', { text: 'Preparing replay chart' });
   const overlayCopy = element('span', { text: 'Projecting the first no-future snapshot.' });
   const overlay = element('div', { className: 'chart-state-overlay', ariaLabel: 'Chart loading state' }, [
     element('span', { className: 'chart-state-spinner' }),
     element('div', {}, [overlayTitle, overlayCopy]),
   ]);
-  const chartHost = element('div', { className: 'lightweight-chart-host', ariaLabel: 'NQ one minute replay chart' });
+  const chartHost = element('div', { className: 'lightweight-chart-host', ariaLabel: 'NQ replay chart' });
   chartHost.setAttribute('role', 'application');
   chartHost.tabIndex = 0;
   const root = element('section', { className: 'replay-workspace' }, [
@@ -39,8 +80,8 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
         element('div', { className: 'replay-title-line' }, [
           element('h1', { text: name }),
           element('span', { className: 'market-symbol', text: 'NQ' }),
-          element('span', { className: 'workspace-chip', text: '1m' }),
-          element('span', { className: 'workspace-chip', text: 'ETH' }),
+          timeframeControl.root,
+          sessionHoursControl.root,
         ]),
       ]),
       element('div', { className: 'replay-actions' }, [resetButton, nextButton]),
@@ -48,7 +89,7 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
     element('div', { className: 'chart-frame' }, [
       element('div', { className: 'chart-meta-strip' }, [
         element('span', { text: 'Nasdaq-100 Futures · Local deterministic foundation feed' }),
-        element('span', { className: 'chart-meta-right' }, [wall, cursor]),
+        element('span', { className: 'chart-meta-right' }, [status, wall, cursor]),
       ]),
       chartHost,
       overlay,
@@ -58,6 +99,7 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
       element('span', { text: 'Drag or zoom the chart to create a manual wall' }),
     ]),
   ]);
+  let hasAcceptedChart = false;
 
   function setState(state, detail = {}) {
     if (!REPLAY_WORKSPACE_STATES.includes(state)) throw new TypeError(`Unsupported workspace state ${state}.`);
@@ -65,8 +107,14 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
     const busy = state === 'loading' || state === 'stale';
     nextButton.disabled = busy || state === 'empty' || state === 'unavailable';
     resetButton.disabled = busy || state === 'empty' || state === 'unavailable';
+    timeframeControl.setDisabled(busy);
+    sessionHoursControl.setDisabled(busy);
     root.setAttribute('aria-busy', String(busy));
-    overlay.hidden = state === 'ready' || state === 'stale';
+    if (state === 'ready') hasAcceptedChart = true;
+    overlay.hidden = state === 'ready' || state === 'stale' || (state === 'error' && hasAcceptedChart);
+    status.hidden = state !== 'stale' && !(state === 'error' && hasAcceptedChart);
+    status.className = `workspace-inline-status status-${state}`;
+    status.textContent = state === 'stale' ? 'Updating…' : (detail.message ?? 'Update failed');
     overlay.className = `chart-state-overlay state-${state}`;
     overlayTitle.textContent = detail.title ?? {
       loading: 'Preparing replay chart', empty: 'No visible bars', unavailable: 'Chart unavailable',
@@ -85,6 +133,8 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
     dispose() {
       nextButton.removeEventListener('click', onNext);
       resetButton.removeEventListener('click', onReset);
+      timeframeControl.dispose();
+      sessionHoursControl.dispose();
       root.remove();
     },
     root,
@@ -92,6 +142,12 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);
       root.dataset.workspaceRevision = String(workspaceRevision);
+    },
+    setSelection({ sessionHoursMode, timeframeId }) {
+      root.dataset.sessionHoursMode = sessionHoursMode;
+      root.dataset.timeframeId = timeframeId;
+      timeframeControl.setValue(timeframeId);
+      sessionHoursControl.setValue(sessionHoursMode);
     },
     setState,
     setWall(origin) { wall.textContent = origin === 'manual' ? 'Manual wall' : 'Default wall'; },

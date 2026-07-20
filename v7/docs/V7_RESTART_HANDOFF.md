@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.4 atomic workspace replacement
+Last updated: 2026-07-20 after R5.5 implementation, awaiting human acceptance
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,8 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: human-accepted R4.5 plus completed R5.1–R5.4
+- implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
+  R5.5 awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -29,13 +30,14 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. For R5.5, read only:
+Do not load all historical `sessions/` records. For the R5.5 review, read only:
 
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
 - `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
 - `sessions/session_20260720_r5_2_session_hours_domain.md`.
 - `sessions/session_20260720_r5_3_fixed_timeframe_domain.md`.
 - `sessions/session_20260720_r5_4_workspace_replacement_runtime.md`.
+- `sessions/session_20260720_r5_5_compact_workspace_controls.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 
@@ -96,6 +98,9 @@ and human-accepted:
 - R5.4 routes registered timeframe/ETH-RTH replacements through the existing
   atomic transaction, with cursor retention, source-level visible-through, and
   acquisition/presentation stale isolation.
+- R5.5 mounts compact `1m`/`5m`/`15m`/`1h` and ETH/RTH controls over that path,
+  preserves cursor/manual wall, and keeps accepted chart pixels visible during
+  bounded refresh/error states. Human acceptance is pending.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -108,8 +113,7 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 ## Deliberately Not Implemented
 
 There is still no real provider, production-complete CME holiday dataset,
-calendar-aligned day/week/month policy, visible timeframe/hours controls, Auto
-Replay timer, multi-pane layout, or durable
+calendar-aligned day/week/month policy, Auto Replay timer, multi-pane layout, or durable
 workspace restore. R4.5 uses a clearly disclosed deterministic local foundation
 feed. Do not describe it as real CME history or production data coverage.
 
@@ -140,10 +144,9 @@ connected.
 
 ## Exact Next Step
 
-Execute R5.5: integrate compact timeframe and ETH/RTH controls into the real
-one-pane workspace through the accepted replacement path, then stop for
-interaction and visual review. Do not add multi-pane, real provider,
-persistence, or expanded Replay transport in this step.
+Perform human visual and interaction review of R5.5. Do not begin R6
+multi-pane, real provider, persistence, or expanded Replay transport until the
+R5.5 gate is accepted.
 
 ## Standing Workflow
 

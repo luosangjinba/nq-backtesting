@@ -14,10 +14,13 @@
     "core.replay-contract",
     "core.replay-runtime",
     "core.projection-domain",
+    "core.fixed-timeframe-domain",
+    "core.session-hours-domain",
     "core.chart-snapshot-application",
     "core.viewport-runtime",
     "core.workspace-transaction-contract",
     "core.workspace-transaction-runtime",
+    "core.workspace-replacement-runtime",
     "adapter.lightweight-chart"
   ],
   "optionalPorts": [],
