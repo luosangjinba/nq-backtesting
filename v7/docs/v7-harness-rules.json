@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R4.3",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R4.4",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -208,10 +208,15 @@
       "owner": "viewport-runtime",
       "v6FailurePrevented": "Next, TF, and ETH/RTH reset margins, scale, or wall",
       "activationStep": "R4",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "executable",
+      "harness": "tests/viewport-runtime-harness.js",
+      "positiveEvidence": [
+        "src/viewport-runtime/public.js",
+        "src/viewport-runtime/viewport-intent.js",
+        "src/viewport-runtime/logical-projection.js",
+        "tests/viewport-runtime-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/viewport-runtime/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -650,6 +655,25 @@
       "negativeFixtures": ["tests/fixtures/chart-snapshot-application/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260720_r4_3_chart_snapshot_application.md"
+    },
+    {
+      "id": "H041",
+      "name": "pure-pane-local-viewport-intent",
+      "owner": "viewport-runtime",
+      "v6FailurePrevented": "data replacement, Replay advancement, or time-range restoration silently reset a user's manual wall",
+      "activationStep": "R4.4",
+      "state": "accepted",
+      "harness": "tests/viewport-runtime-harness.js",
+      "positiveEvidence": [
+        "src/viewport-runtime/public.js",
+        "src/viewport-runtime/module.json",
+        "src/viewport-runtime/viewport-intent.js",
+        "src/viewport-runtime/logical-projection.js",
+        "tests/viewport-runtime-harness.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/viewport-runtime/negative/cases.json"],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260720_r4_4_viewport_runtime.md"
     }
   ]
 }

@@ -275,7 +275,7 @@ R4.2 completed with automated evidence; no interaction or visual review is requi
 - add no I/O, cache mutation, Replay mutation, chart, DOM, viewport, actual CME
   calendar policy, or higher-timeframe aggregation.
 
-## Current Step — R4.3 Headless Chart Snapshot Application — Completed
+## R4.3 Headless Chart Snapshot Application — Completed
 
 R4.3 completed with automated evidence; no interaction or visual review is required:
 
@@ -290,8 +290,22 @@ R4.3 completed with automated evidence; no interaction or visual review is requi
 - add no DOM, Lightweight Charts dependency, viewport, Replay mutation, Bar
   Data request, projection, persistence, or concrete capability branch.
 
-Next, define bounded R4.4 pure Viewport Intent Domain for pane-local default and
-manual-wall semantics before wiring a real Lightweight Charts adapter.
+## Current Step — R4.4 Pure Viewport Runtime Intent — Completed
+
+R4.4 completed with automated evidence; no interaction or visual review is required:
+
+- bind immutable viewport intent to Session activation and pane identity;
+- distinguish initial/explicit-reset default wall from native-captured manual wall;
+- retain manual origin, offset, span, and revision across Replay cursor movement;
+- project default/manual intent through one deterministic logical-range formula;
+- shift the logical window with new bars while retaining the latest-candle wall;
+- keep adapter logical ranges transient rather than canonical product truth;
+- add no chart mutation, DOM, Lightweight Charts, Replay mutation, Bar Data
+  request, projection, persistence, or concrete capability branch.
+
+Next, define bounded R4.5 first real Lightweight Charts vertical slice. It may
+proceed without a pre-implementation manual gate, but must stop after commit for
+interaction and visual review before any later step.
 
 ## Standing Gates
 

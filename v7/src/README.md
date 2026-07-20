@@ -65,4 +65,9 @@ adapter-visible receipt before completion. Only a deterministic fake adapter is
 tested; no DOM, Lightweight Charts, viewport, Replay, or Bar Data behavior is
 added.
 
+R4.4 activates pure pane-local Viewport Runtime semantics. Branded default and
+manual wall intent survives Replay cursor/data movement, and logical ranges are
+transient adapter projections only. No chart, DOM, persistence, or vertical-
+scale behavior is added.
+
 Do not import runtime code from V4, V5, or V6.

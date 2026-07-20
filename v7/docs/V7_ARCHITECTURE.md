@@ -165,6 +165,13 @@ Owns pane-local horizontal wall and vertical-scale intent. Data commits preserve
 the current intent. Only explicit Reset/Follow creates a new default intent.
 Replay places new bars at the existing wall and pushes prior bars left.
 
+R4.4 activates its pure horizontal intent foundation. One branded Session
+activation and opaque pane identity bind immutable default/manual wall values.
+Replay cursor movement preserves origin, offset, span, and intent revision;
+native logical-range measurements create manual intent, while adapter logical
+ranges remain transient projection output. There is still no chart mutation,
+DOM, persistence, vertical-scale policy, or Lightweight Charts dependency.
+
 ## Modular Assembly Contract
 
 V7 is assembled from modules; it is not one application object split across

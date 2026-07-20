@@ -1,0 +1,15 @@
+[
+  "raw-session-id",
+  "raw-activation-generation",
+  "invalid-pane-id",
+  "negative-cursor",
+  "unsafe-cursor",
+  "negative-default-offset",
+  "mutable-or-structural-intent",
+  "missing-logical-range",
+  "reversed-logical-range",
+  "latest-bar-outside-range",
+  "non-finite-logical-index",
+  "non-positive-default-span",
+  "invalid-manual-measurement"
+]

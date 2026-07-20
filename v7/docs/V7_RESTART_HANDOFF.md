@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R4.3 completion
+Last updated: 2026-07-20 after R4.4 completion
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,7 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- completed code baseline: current R4.3 commit
+- completed code baseline: current R4.4 commit
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -32,14 +32,15 @@ listed above.
 Do not load all historical `sessions/` records. The four most recent records
 are sufficient for a targeted R4 audit:
 
-- `sessions/session_20260720_r4_1_workspace_transaction_runtime.md`.
 - `sessions/session_20260720_r4_2_projection_domain.md`.
 - `sessions/session_20260720_r4_3_chart_snapshot_application.md`.
-- this handoff plus `docs/V7_CHART_SNAPSHOT_APPLICATION.md`.
+- `sessions/session_20260720_r4_4_viewport_runtime.md`.
+- this handoff plus `docs/V7_CHART_SNAPSHOT_APPLICATION.md` and
+  `docs/V7_VIEWPORT_RUNTIME.md`.
 
 ## Completed Boundary
 
-R3.3 Replay and R4.1–R4.3 atomic chart foundations are complete:
+R3.3 Replay and R4.1–R4.4 atomic chart foundations are complete:
 
 - Replay advancement is duration-based, not one sampled display candle;
 - Manual and Auto inputs share one proposal path;
@@ -67,8 +68,13 @@ R3.3 Replay and R4.1–R4.3 atomic chart foundations are complete:
 - stage/apply races, failure, duplicate, forged receipt, and disposal cannot
   publish chart completion;
 - the fake adapter checks currency at its final visible mutation boundary;
+- pure pane-local viewport intent distinguishes default and manual walls;
+- Replay cursor/logical-index movement preserves manual origin, offset, span,
+  scope, and revision while shifting earlier bars left;
+- adapter logical ranges are transient projections, not stored product truth;
 - H005/H006/H008/H009/H010 are executable pending the real chart acceptance
-  boundary, and H011/H039/H040 have automated evidence.
+  boundary, H014 is executable pending browser review, and
+  H011/H039/H040/H041 have automated evidence.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -76,12 +82,12 @@ Latest R3.3 commits, oldest to newest:
 2. `f9cb0626 feat(v7): add visible-commit replay clock`
 3. `56fdfce4 feat(v7): add bounded replay prefetch advice`
 
-R4.1–R4.3 are the commits after this handoff's original R3.3 baseline.
+R4.1–R4.4 are the commits after this handoff's original R3.3 baseline.
 
 ## Deliberately Not Implemented
 
 There is still no real provider, actual CME Session Hours policy, higher-
-timeframe aggregation policy, real chart adapter, pane/viewport runtime,
+timeframe aggregation policy, real chart adapter, mutable viewport application,
 Auto Replay timer, or replay workspace UI. The existing browser surface is the
 accepted Session Browser only. R4.2's policies and R4.3's chart adapter use
 headless fakes and make no browser-visible claim. Do not mistake
@@ -102,7 +108,7 @@ Expected results:
 
 - branch is `v7/rebuild`;
 - `git status --short` is empty;
-- 27 Harness files pass;
+- 28 Harness files pass;
 - the server prints the V7 Session Browser URL;
 - `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/`
   returns `200` while the service is running.
@@ -113,25 +119,28 @@ connected.
 
 ## Exact Next Step
 
-Begin bounded R4.4: the pure Viewport Intent Domain before any real chart UI.
+Begin bounded R4.5: the first real Lightweight Charts vertical slice.
 
-R4.4 should first define and prove:
+R4.5 should first define and prove:
 
-1. pane-local horizontal intent distinguishes stable default/follow and manual
-   wall without storing chart-library coordinates as product truth;
-2. data/snapshot application preserves manual intent;
-3. only explicit Reset/Follow creates a new default intent;
-4. Replay advancement places new bars at the existing wall and pushes prior
-   bars left through pure deterministic calculations;
-5. intent binds Session activation and pane identity without chart mutation;
-6. no Replay mutation, Bar Data request, projection, DOM, Lightweight Charts
-   dependency, or concrete capability branch;
-7. the independent Harness uses pure deterministic inputs only.
+1. use the current Lightweight Charts API only inside one replaceable adapter;
+2. wire Session activation, Workspace Transaction, Replay, deterministic Bar
+   Data/policies, Projection, Chart Snapshot Application, and Viewport through
+   public ports for one NQ/`1m`/ETH pane;
+3. support chart entry and Manual Next through one transaction path;
+4. prove actual candle paint before adapter visible receipt and workspace
+   completion; `subscribeDataChanged()` alone is insufficient;
+5. preserve stable default wall and native drag-created manual wall across Next;
+6. render professional loading, empty, unavailable, stale, error, and ready
+   states without disturbing the accepted Session Browser;
+7. add real-Chrome interaction, logical-offset, visible-settlement, latency,
+   and fixed-viewport visual gates.
 
-The R4.3 library audit is recorded in `V7_CHART_SNAPSHOT_APPLICATION.md`. Recheck
-current official documentation before the later real chart-bearing substep if
-library versions or the implementation date changes. Do not copy legacy V6
-ownership paths.
+No pre-implementation human review is required. The R4.3 library audit is
+recorded in `V7_CHART_SNAPSHOT_APPLICATION.md`; recheck current official
+documentation immediately before implementation if the version or date has
+changed. After the R4.5 commit, stop for mandatory interaction and visual
+review before any later step. Do not copy legacy V6 ownership paths.
 
 ## Standing Workflow
 

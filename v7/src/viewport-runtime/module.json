@@ -1,0 +1,15 @@
+{
+  "id": "core.viewport-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "viewport-runtime",
+  "publicEntry": "src/viewport-runtime/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/viewport-runtime-harness.js",
+  "removable": false
+}

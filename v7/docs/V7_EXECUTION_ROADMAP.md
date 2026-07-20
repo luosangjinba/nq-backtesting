@@ -278,7 +278,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R4.3`: headless sole-writer Chart Snapshot Application, staged atomic fake
   adapter, exact visible receipt, race/disposal rejection, and failure
   preservation;
-- later R4 steps add Viewport Runtime, the real chart adapter, and
+- `R4.4`: pure pane-local Viewport Runtime intent, native logical-range manual
+  wall measurement, data-independent cursor movement, explicit Reset/Follow,
+  and deterministic adapter projection;
+- later R4 steps add the real chart adapter and
   the first reviewed professional workstation slice;
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;
