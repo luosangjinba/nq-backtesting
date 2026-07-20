@@ -314,8 +314,9 @@ Implemented with automated evidence:
 - compose one NQ/`1m`/ETH deterministic local foundation workspace through
   Session, Bar Data, Replay, Projection, Workspace Transaction, Chart Snapshot,
   Viewport, and adapter public ports;
-- reveal the complete first two hours on entry and one additional minute per Manual
-  Next without future bars;
+- reveal the first 120 eligible source minutes on entry, traversing excluded
+  calendar gaps, and one additional eligible minute per Manual Next without
+  future bars;
 - preserve native drag-created manual offset/span through the next snapshot and
   restore default wall only through Reset View;
 - provide professional chart-first loading, empty, unavailable, stale, error,
@@ -416,6 +417,9 @@ calendar gaps using a bounded expanded request.
 The workspace also distinguishes the full Session range from the Replay cursor
 and current source visible-through; the Session end is a no-future advancement
 limit, not an initially visible candle.
+The follow-up review's date-independent `01:59 PM` cutoff is also corrected:
+entry now gathers 120 eligible source minutes instead of advancing two wall-
+clock hours, so maintenance/weekend gaps no longer truncate initial context.
 
 Exact next action: human visual and interaction review of R5.5. Do not begin R6
 multi-pane or real-provider work until this gate is accepted.

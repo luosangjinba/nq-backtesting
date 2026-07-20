@@ -8,8 +8,8 @@ R4.5 is the first real chart-bearing vertical slice:
 
 - one NQ pane with explicit `1m` and ETH labels;
 - deterministic local foundation bars, clearly disclosed in the UI;
-- chart entry revealing every eligible minute in the first two hours for useful
-  one-minute visual context;
+- chart entry revealing the first 120 eligible source minutes for useful
+  one-minute visual context, traversing excluded calendar gaps;
 - Manual Next through the same Workspace Transaction Runtime path;
 - default wall, native drag-created manual wall, and explicit Reset View;
 - loading, empty, unavailable, stale, error, and ready presentation variants;

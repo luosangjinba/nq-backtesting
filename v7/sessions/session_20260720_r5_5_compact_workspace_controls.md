@@ -22,6 +22,11 @@ the browser-local clock used by Session cards, plans Next against the active
 ETH/RTH eligibility policy, and expands only the bounded source window needed
 to reveal the next eligible minute. It does not load the complete Session.
 
+The follow-up review found entry itself still advanced two wall-clock hours,
+causing a date-independent `01:59 PM` cutoff for midday starts. Entry now
+materializes 120 eligible source minutes and traverses maintenance/weekend gaps
+without exposing any later bar.
+
 ## Automated Evidence
 
 - all 33 V7 harness files pass;

@@ -197,7 +197,8 @@ export function createReplayWorkspaceController({ record, view }) {
     next() {
       if (disposed || pending) return;
       try {
-        const plan = market.planNext({
+        const plan = market.planEligibleMinutes({
+          count: 1,
           cursorEpochMs: replay.snapshot().cursorEpochMs,
           selection: currentSelection(),
         });
@@ -216,6 +217,18 @@ export function createReplayWorkspaceController({ record, view }) {
       viewportIntent: viewport.snapshot(),
       workspace: runtime.snapshot(),
     }),
-    start: () => execute('chart-entry', 120 * 60_000),
+    start() {
+      try {
+        const plan = market.planEligibleMinutes({
+          count: 120,
+          cursorEpochMs: range.startEpochMs,
+          selection: market.defaultSelection,
+        });
+        return execute('chart-entry', plan.durationMs, plan.request);
+      } catch (error) {
+        view.setState('unavailable', { message: error?.message });
+        return undefined;
+      }
+    },
   });
 }

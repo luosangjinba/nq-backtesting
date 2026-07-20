@@ -77,8 +77,9 @@ and human-accepted:
   scope, and revision while shifting earlier bars left;
 - adapter logical ranges are transient projections, not stored product truth;
 - official Lightweight Charts 5.2.0 is isolated behind one real adapter;
-- NQ/`1m`/ETH chart entry reveals the complete first two hours through one
-  transaction, and Manual Next reveals one additional minute;
+- NQ/`1m`/ETH chart entry reveals 120 eligible source minutes through one
+  transaction, traversing excluded gaps, and Manual Next reveals one additional
+  eligible minute;
 - visible receipt follows two rendering opportunities and screenshot-proven
   candle pixels rather than `subscribeDataChanged()`;
 - native drag creates manual wall intent, Next preserves it, and Reset View

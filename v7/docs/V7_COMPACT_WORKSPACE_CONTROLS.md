@@ -51,4 +51,9 @@ bar was being compared to the Session end boundary. The workspace now displays
 Session range, Replay cursor, and source visible-through as three explicit
 values. Session end remains the Replay limit; it does not reveal future bars.
 
+A follow-up review proved the initial context still stopped at `01:59 PM` for
+any date entered around midday. Entry had advanced two wall-clock hours and
+landed inside the fixed ETH maintenance gap. It now gathers 120 eligible source
+minutes, crossing maintenance/weekend exclusions exactly like Next.
+
 Human acceptance remains required before R6 selection or implementation.

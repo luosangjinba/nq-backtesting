@@ -47,7 +47,8 @@ const fridayMarket = createFoundationMarket({
     endEpochMs: Date.parse('2026-05-11T19:40:00Z'),
   } },
 });
-const weekendPlan = fridayMarket.planNext({
+const weekendPlan = fridayMarket.planEligibleMinutes({
+  count: 1,
   cursorEpochMs: fridayStart + (120 * 60_000),
   selection: fridayMarket.defaultSelection,
 });
@@ -183,13 +184,13 @@ try {
   delete entry.buttonHeight;
   delete entry.controlHeight;
   assert.deepEqual(entry, {
-    barCount: 80, libraryVersion: '5.2.0', offset: 8,
+    barCount: 120, libraryVersion: '5.2.0', offset: 8,
     origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
     sessionRange: 'Session · 05/01/2026, 12:40 PDT → 05/11/2026, 12:40 PDT',
     timeframeId: 'timeframe.display-1-minute',
-    visibleThrough: 'Visible through · 05/01/2026, 13:59 PDT · 80 bars', workspaceRevision: 1,
+    visibleThrough: 'Visible through · 05/03/2026, 15:39 PDT · 120 bars', workspaceRevision: 1,
   });
-  assert.match(await evaluate(cdp, `document.querySelector('.replay-cursor').textContent`), /14:40.*PDT/,
+  assert.match(await evaluate(cdp, `document.querySelector('.replay-cursor').textContent`), /05\/03\/2026.*15:40.*PDT/,
     'chart cursor must use the same browser-local clock convention as Session dates');
   await capture(cdp);
 
@@ -200,10 +201,10 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
   const cacheHitVisibleMs = performance.now() - startedAt;
   assert.ok(cacheHitVisibleMs < 250, `cache-hit Next exceeded max budget: ${cacheHitVisibleMs}ms`);
-  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 81,
-    'Friday ETH Next must visibly add the Sunday reopen minute');
+  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 121,
+    'ETH Next must visibly add the next eligible minute after entry');
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
-    'Visible through · 05/03/2026, 15:00 PDT · 81 bars');
+    'Visible through · 05/03/2026, 15:40 PDT · 121 bars');
 
   const box = await evaluate(cdp, `(() => {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
@@ -246,7 +247,7 @@ try {
       timeframeId: document.querySelector('.replay-workspace').dataset.timeframeId,
     };
   })()`);
-  assert.equal(timeframeAfter.barCount, 17);
+  assert.equal(timeframeAfter.barCount, 25);
   assert.equal(timeframeAfter.cursor, cursorBeforeReplacement, 'timeframe replacement must retain cursor');
   assert.equal(timeframeAfter.origin, 'manual');
   assert.equal(timeframeAfter.wall, 'Manual wall');

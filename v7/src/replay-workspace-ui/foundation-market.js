@@ -65,22 +65,27 @@ export function createFoundationMarket(record) {
       schemaVersion: 1,
     }),
   });
-  function planNext({ cursorEpochMs, selection }) {
+  function planEligibleMinutes({ count, cursorEpochMs, selection }) {
+    let remaining = count;
+    let lastEligibleEpochMs = null;
     for (let epochMs = cursorEpochMs; epochMs < range.endEpochMs; epochMs += 60_000) {
       if (selection.sessionHoursPolicy.isEligible({ startEpochMs: epochMs }, {
         calendar: selection.calendar,
         instrument: selection.instrument,
         sessionHoursMode: selection.sessionHoursMode,
       })) {
-        const targetEpochMs = Math.min(range.endEpochMs, epochMs + 60_000);
-        return Object.freeze({ durationMs: targetEpochMs - cursorEpochMs, request: requestThrough(targetEpochMs) });
+        lastEligibleEpochMs = epochMs;
+        remaining -= 1;
+        if (remaining === 0) break;
       }
     }
-    throw Object.assign(new Error('No later eligible minute exists in this Session.'), {
+    if (lastEligibleEpochMs === null) throw Object.assign(new Error('No later eligible minute exists in this Session.'), {
       code: 'foundation-session-complete',
     });
+    const targetEpochMs = Math.min(range.endEpochMs, lastEligibleEpochMs + 60_000);
+    return Object.freeze({ durationMs: targetEpochMs - cursorEpochMs, request: requestThrough(targetEpochMs) });
   }
-  return Object.freeze({ ...capabilities, ids: FOUNDATION_IDS, planNext, provider, request, requestThrough });
+  return Object.freeze({ ...capabilities, ids: FOUNDATION_IDS, planEligibleMinutes, provider, request, requestThrough });
 }
 
 export function supportsFoundationWorkspace(record) {
