@@ -1,0 +1,12 @@
+[
+  { "name": "raw-session-component", "operation": "raw-session", "expectedCode": "SESSION_ID_REQUIRED" },
+  { "name": "raw-generation-component", "operation": "raw-generation", "expectedCode": "ACTIVATION_GENERATION_REQUIRED" },
+  { "name": "raw-transaction-component", "operation": "raw-transaction", "expectedCode": "TRANSACTION_ID_REQUIRED" },
+  { "name": "structural-identity-lookalike", "operation": "identity-lookalike", "expectedCode": "WORKSPACE_TRANSACTION_IDENTITY_REQUIRED" },
+  { "name": "invalid-operation-id", "operation": "invalid-operation", "expectedCode": "WORKSPACE_TRANSACTION_OPERATION" },
+  { "name": "plan-from-lookalike", "operation": "plan-lookalike", "expectedCode": "WORKSPACE_TRANSACTION_PHASE" },
+  { "name": "unsupported-terminal-status", "operation": "terminal-status", "expectedCode": "WORKSPACE_TRANSACTION_TERMINAL_STATUS" },
+  { "name": "committed-with-failure-code", "operation": "committed-code", "expectedCode": "WORKSPACE_TRANSACTION_TERMINAL_CODE" },
+  { "name": "failure-without-code", "operation": "failure-no-code", "expectedCode": "WORKSPACE_TRANSACTION_TERMINAL_CODE" },
+  { "name": "settle-terminal-again", "operation": "settle-terminal", "expectedCode": "WORKSPACE_TRANSACTION_PHASE" }
+]

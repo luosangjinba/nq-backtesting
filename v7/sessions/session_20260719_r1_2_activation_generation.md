@@ -52,3 +52,8 @@ unsupported wire generations.
 Confirm this is one pure value contract, that the successor is strictly later,
 and that no pane-local operation counter or hidden allocator state has entered
 the module. Automated evidence cannot accept this step.
+
+## Human Acceptance
+
+Accepted by the user on 2026-07-19 after clarifying that a positive safe integer
+prevents invalid ordinals, precision collisions, and wraparound ambiguity.

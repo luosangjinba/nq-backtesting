@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R1.2",
+  "currentStep": "R1.3",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
@@ -71,7 +71,7 @@
       "name": "transaction-exactly-one-terminal-state",
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "chart entry remained stuck in Preparing replay",
-      "activationStep": "R1.3",
+      "activationStep": "R4",
       "state": "scaffolded",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
@@ -84,7 +84,7 @@
       "name": "stale-completion-zero-side-effects",
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "older Session completion overwrote newer state or UI",
-      "activationStep": "R1.3",
+      "activationStep": "R4",
       "state": "scaffolded",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
@@ -94,14 +94,17 @@
     },
     {
       "id": "H007",
-      "name": "explicit-activation-and-transaction-identity",
-      "owner": "session-store",
+      "name": "complete-session-activation-transaction-identity",
+      "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "sessions shared bars, cursor, panes, and persisted state",
       "activationStep": "R1.3",
-      "state": "scaffolded",
-      "harness": "tests/architecture-hardening-harness.js",
-      "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
-      "negativeFixtures": ["tests/fixtures/architecture/negative/missing-identity.json"],
+      "state": "executable",
+      "harness": "tests/workspace-transaction-contract-harness.js",
+      "positiveEvidence": [
+        "src/transaction-identity/public.js",
+        "src/workspace-transaction-contract/public.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -110,7 +113,7 @@
       "name": "deterministic-concurrency-permutations",
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "correctness depended on request timing",
-      "activationStep": "R1.3",
+      "activationStep": "R4",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -385,13 +388,55 @@
       "owner": "session-store",
       "v6FailurePrevented": "unrelated pane, history, prewarm, and Auto Replay counters could not reject work from an older Session activation",
       "activationStep": "R1.2",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/activation-generation-harness.js",
       "positiveEvidence": [
         "src/activation-generation/public.js",
         "src/activation-generation/module.json"
       ],
       "negativeFixtures": ["tests/fixtures/activation-generation/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260719_r1_2_activation_generation.md"
+    },
+    {
+      "id": "H028",
+      "name": "immutable-transaction-lifecycle-envelopes",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "replacement, Session Hours, pane scheduling, and visual settlement used incompatible ad hoc result shapes",
+      "activationStep": "R1.3",
+      "state": "executable",
+      "harness": "tests/workspace-transaction-contract-harness.js",
+      "positiveEvidence": ["src/workspace-transaction-contract/public.js"],
+      "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H029",
+      "name": "pure-complete-identity-currency-decision",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "cancellation success was mistaken for correctness while late completions needed scattered stale checks",
+      "activationStep": "R1.3",
+      "state": "executable",
+      "harness": "tests/workspace-transaction-contract-harness.js",
+      "positiveEvidence": ["src/workspace-transaction-contract/public.js"],
+      "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
+    },
+    {
+      "id": "H030",
+      "name": "opaque-versioned-transaction-identity",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "module-global chart replacement counters leaked allocation and correlation into feature runtimes",
+      "activationStep": "R1.3",
+      "state": "executable",
+      "harness": "tests/transaction-identity-harness.js",
+      "positiveEvidence": [
+        "src/transaction-identity/public.js",
+        "src/transaction-identity/module.json"
+      ],
+      "negativeFixtures": ["tests/fixtures/transaction-identity/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

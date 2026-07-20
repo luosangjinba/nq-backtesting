@@ -118,11 +118,22 @@ Gate: reopening the same Session can receive a strictly later branded
 generation; raw numbers, lookalikes, invalid ranges, overflow, and unsupported
 wire forms fail deterministically.
 
-### R1.3–R1.4 — Remaining R1 Boundaries
+### R1.3 — Transaction Identity And Pure Currency Contract
 
-- transaction identity and the complete Session/activation/transaction tuple;
-- immutable intent/plan/result/failure contracts;
-- pure current/stale acceptance function.
+- opaque immutable TransactionId without a module-global allocator;
+- branded complete Session/activation/transaction identity tuple;
+- immutable generic intent, plan, and terminal result/failure envelopes;
+- pure deterministic current/stale assessment with zero stale side effects;
+- cancellation is resource cleanup and never the commit-safety proof.
+
+Gate: same-Session older transaction, older activation, and other-Session
+completions are rejected deterministically regardless of completion order.
+Runtime liveness, actual side-effect suppression, and concurrency permutations
+remain unprotected until the Workspace Transaction Runtime exists.
+
+### R1.4 — Remaining R1 Boundary
+
+- minimal-core module lifecycle and capability descriptor contracts.
 
 Gate: delayed A, activated B, then reopened A cannot share an accepted identity.
 

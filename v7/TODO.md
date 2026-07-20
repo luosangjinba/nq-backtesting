@@ -98,9 +98,9 @@ Human-accepted on 2026-07-19:
 - add no Session generation, activation, persistence, network, Replay, bars,
   chart engine, transaction, composition root, or UI.
 
-## Current Step — R1.2 Activation Generation
+## R1.2 Activation Generation — Accepted
 
-In progress:
+Human-accepted on 2026-07-19:
 
 - add one immutable branded activation-generation public contract;
 - require a positive safe integer and provide a pure strictly-later successor;
@@ -110,8 +110,22 @@ In progress:
 - add no allocator state, active Session, cancellation, persistence,
   transaction, Replay, bars, chart, composition root, or UI.
 
-R1.3 will add transaction identity and stale acceptance only after R1.2 human
-acceptance.
+## Current Step — R1.3 Transaction Identity And Pure Currency
+
+In progress:
+
+- add an opaque immutable TransactionId without a global allocator;
+- compose branded Session/activation/transaction identity tuples;
+- define immutable generic intent, plan, and terminal envelopes without domain
+  payload or runtime behavior;
+- assess current/stale identity deterministically and declare zero allowed stale
+  side effects;
+- prove module dependencies exist and remain acyclic;
+- add no scheduler, cancellation owner, transaction runtime, state writer,
+  persistence, Replay, bars, charts, composition root, or UI.
+
+R1.4 will establish minimal-core lifecycle/capability assembly only after R1.3
+human acceptance.
 
 ## Standing Gates
 

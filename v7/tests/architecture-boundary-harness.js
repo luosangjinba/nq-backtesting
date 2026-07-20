@@ -23,6 +23,7 @@ for (const document of manifest.requiredDocuments) {
 }
 
 const activeModuleIds = new Set();
+const activeModuleDescriptors = [];
 for (const descriptorPath of manifest.activeProductionModules) {
   const absoluteDescriptorPath = path.join(V7_ROOT, descriptorPath);
   assert.ok(fs.existsSync(absoluteDescriptorPath), `missing active module descriptor: ${descriptorPath}`);
@@ -32,6 +33,7 @@ for (const descriptorPath of manifest.activeProductionModules) {
   }
   assert.equal(activeModuleIds.has(descriptor.id), false, `duplicate active module id ${descriptor.id}`);
   activeModuleIds.add(descriptor.id);
+  activeModuleDescriptors.push(descriptor);
   assert.ok(manifest.moduleContract.allowedKinds.includes(descriptor.kind), `${descriptor.id} has invalid kind`);
   assert.ok(manifest.owners.includes(descriptor.owner), `${descriptor.id} has unknown owner`);
   assert.ok(fs.existsSync(path.join(V7_ROOT, descriptor.publicEntry)), `${descriptor.id} public entry is missing`);
@@ -40,8 +42,27 @@ for (const descriptorPath of manifest.activeProductionModules) {
     `${descriptor.id} independent harness is missing`,
   );
 }
+for (const descriptor of activeModuleDescriptors) {
+  for (const dependency of descriptor.requiredPorts) {
+    assert.ok(activeModuleIds.has(dependency), `${descriptor.id} requires inactive module ${dependency}`);
+  }
+}
+const dependenciesById = new Map(activeModuleDescriptors.map(
+  (descriptor) => [descriptor.id, descriptor.requiredPorts],
+));
+const visiting = new Set();
+const visited = new Set();
+function visitModule(moduleId) {
+  assert.equal(visiting.has(moduleId), false, `active module dependency cycle reaches ${moduleId}`);
+  if (visited.has(moduleId)) return;
+  visiting.add(moduleId);
+  for (const dependency of dependenciesById.get(moduleId) ?? []) visitModule(dependency);
+  visiting.delete(moduleId);
+  visited.add(moduleId);
+}
+for (const moduleId of activeModuleIds) visitModule(moduleId);
 for (const inventory of Object.values(manifest.writerInventories)) {
-  assert.deepEqual(inventory, [], 'R1.1 pure identity contract must not activate a state writer');
+  assert.deepEqual(inventory, [], 'R1 pure contracts must not activate a state writer');
 }
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [

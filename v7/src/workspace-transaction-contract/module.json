@@ -1,0 +1,16 @@
+{
+  "id": "core.workspace-transaction-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/workspace-transaction-contract/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "core.transaction-identity"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/workspace-transaction-contract-harness.js",
+  "removable": false
+}

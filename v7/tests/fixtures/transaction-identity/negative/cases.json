@@ -1,0 +1,10 @@
+[
+  { "name": "number-token", "operation": "create", "value": 1, "expectedCode": "TRANSACTION_ID_TOKEN_TYPE" },
+  { "name": "empty-token", "operation": "create", "value": "", "expectedCode": "TRANSACTION_ID_TOKEN_FORMAT" },
+  { "name": "whitespace-token", "operation": "create", "value": " tx-1 ", "expectedCode": "TRANSACTION_ID_TOKEN_FORMAT" },
+  { "name": "raw-string-as-id", "operation": "require", "value": "tx-1", "expectedCode": "TRANSACTION_ID_REQUIRED" },
+  { "name": "structural-lookalike", "operation": "require", "value": { "value": "tx-1" }, "expectedCode": "TRANSACTION_ID_REQUIRED" },
+  { "name": "unsupported-schema", "operation": "deserialize", "value": { "schema": "v6.transaction-id", "version": 1, "value": "tx-1" }, "expectedCode": "TRANSACTION_ID_SCHEMA" },
+  { "name": "unsupported-version", "operation": "deserialize", "value": { "schema": "v7.transaction-id", "version": 2, "value": "tx-1" }, "expectedCode": "TRANSACTION_ID_VERSION" },
+  { "name": "extra-wire-field", "operation": "deserialize", "value": { "schema": "v7.transaction-id", "version": 1, "value": "tx-1", "active": true }, "expectedCode": "TRANSACTION_ID_SERIALIZED_SHAPE" }
+]

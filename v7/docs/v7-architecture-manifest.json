@@ -44,7 +44,9 @@
   ],
   "activeProductionModules": [
     "src/session-identity/module.json",
-    "src/activation-generation/module.json"
+    "src/activation-generation/module.json",
+    "src/transaction-identity/module.json",
+    "src/workspace-transaction-contract/module.json"
   ],
   "moduleContract": {
     "descriptorRequiredFields": [

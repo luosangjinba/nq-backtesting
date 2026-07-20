@@ -1,0 +1,12 @@
+{
+  "id": "core.transaction-identity",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/transaction-identity/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/transaction-identity-harness.js",
+  "removable": false
+}
