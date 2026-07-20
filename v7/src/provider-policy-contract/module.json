@@ -1,0 +1,12 @@
+{
+  "id": "core.provider-policy-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "bar-data-runtime",
+  "publicEntry": "src/provider-policy-contract/public.js",
+  "requiredPorts": ["core.capability-contract", "core.bar-data-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/provider-policy-contract-harness.js",
+  "removable": false
+}

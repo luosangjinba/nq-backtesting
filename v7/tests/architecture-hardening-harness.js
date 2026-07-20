@@ -33,7 +33,7 @@ for (const rule of rules.rules) {
   assert.ok(rules.allowedStates.includes(rule.state), `${rule.id} has invalid state ${rule.state}`);
   const activationStepIndex = rules.stepOrder.indexOf(rule.activationStep);
   assert.ok(activationStepIndex >= 0, `${rule.id} has unknown activation step ${rule.activationStep}`);
-  assert.equal(rule.humanReviewRequired, true, `${rule.id} must require human review`);
+  assert.equal(typeof rule.humanReviewRequired, 'boolean', `${rule.id} must declare human review policy`);
 
   if (activationStepIndex <= currentStepIndex) {
     assert.ok(
@@ -52,7 +52,7 @@ for (const rule of rules.rules) {
     }
   }
   if (rule.state === 'accepted') {
-    assert.ok(rule.acceptanceEvidence, `${rule.id} cannot be accepted without human evidence`);
+    assert.ok(rule.acceptanceEvidence, `${rule.id} cannot be accepted without completion evidence`);
   } else {
     assert.equal(rule.acceptanceEvidence, null, `${rule.id} has premature acceptance evidence`);
   }

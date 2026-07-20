@@ -32,6 +32,6 @@ Passed before commit:
 
 ## Human Review
 
-Pending after commit. This headless step has no interaction or visual delta;
-review focuses on request ownership, boundedness, cleanup, and deliberately
-deferred provider/coverage decisions.
+Accepted by the user on 2026-07-20. The user then established the standing rule
+that only interaction or visual changes require manual acceptance; headless
+changes require a completion explanation and automated evidence.

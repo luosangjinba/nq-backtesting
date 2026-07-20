@@ -1,0 +1,14 @@
+[
+  { "case": "unknown-policy-field", "expectedCode": "UNKNOWN_PROVIDER_POLICY_FIELD" },
+  { "case": "invalid-provider-id", "expectedCode": "INVALID_PROVIDER_POLICY_ID" },
+  { "case": "invalid-revision-mode", "expectedCode": "INVALID_REVISION_POLICY" },
+  { "case": "immutable-revision-ttl", "expectedCode": "INVALID_REVISION_POLICY" },
+  { "case": "zero-request-limit", "expectedCode": "INVALID_PROVIDER_POLICY_LIMIT" },
+  { "case": "unbounded-retry", "expectedCode": "UNBOUNDED_RETRY_POLICY" },
+  { "case": "retry-delay-count-mismatch", "expectedCode": "INVALID_RETRY_POLICY" },
+  { "case": "retry-delay-exceeds-deadline", "expectedCode": "INVALID_RETRY_POLICY" },
+  { "case": "terminal-kind-in-retry-list", "expectedCode": "INVALID_RETRY_POLICY" },
+  { "case": "adapter-provider-mismatch", "expectedCode": "INVALID_PROVIDER_ADAPTER_PORT" },
+  { "case": "invalid-failure-kind", "expectedCode": "INVALID_PROVIDER_FAILURE" },
+  { "case": "invalid-completed-attempts", "expectedCode": "INVALID_RETRY_ATTEMPT" }
+]

@@ -195,26 +195,29 @@ Human-accepted on 2026-07-20:
 - add no provider I/O, cache, data-availability calendar, Replay, projection,
   chart, pane, or UI behavior.
 
-## Current Step — R3.2a Bounded Exact-Window Bar Data Runtime
+## R3.2a Bounded Exact-Window Bar Data Runtime — Accepted
 
-In progress:
+Accepted on 2026-07-20. It owns exact-window cache, request coalescing, bounded
+concurrency, fake-provider acquisition, and deterministic disposal.
 
-- activate exactly one raw provider requester/cache writer;
-- inject a fake provider resolver rather than connecting V4 or the network;
-- coalesce identical in-flight identities to one Promise/provider call;
-- bound unique-request concurrency and continue queued work automatically;
-- bound exact-window cache entries with deterministic LRU eviction;
-- never cache provider failures or mismatched response identity;
-- isolate cache/queue state between runtime instances;
-- dispose queued/active work and prevent late cache writes;
-- add no coverage UI, real provider policy, Replay, projection, chart, or pane.
+## Current Step — R3.2b1 Provider Policy Contract — Completed
+
+Completed with automated evidence; no interaction or visual review is required:
+
+- define provider revision freshness without resolving a real dataset;
+- define maximum request size, window, and concurrency;
+- define a failure deadline without synthetic delay;
+- define at most four attempts and explicit retryable failure kinds;
+- define a transport-neutral adapter port and stable error taxonomy;
+- add no concrete provider, network/database access, coverage, Replay, chart, or UI.
 
 ## Standing Gates
 
 - every bounded step has one focused commit;
 - architecture harness and focused tests pass;
 - `git diff --check` passes;
-- every step stops for human review;
+- only interaction or visual changes stop for human review;
+- headless contract/runtime/doc steps record automated evidence and continue;
 - after acceptance, the agent autonomously executes the next roadmap step;
 - no V6 production runtime import or copied orchestration;
 - every module declares ports/lifecycle and passes an independent harness;

@@ -66,7 +66,13 @@ LRU cache, identical-request coalescing, a global concurrency queue, abort
 signals, and disposal. Provider output is revalidated before cache admission;
 failures and late post-dispose completions cannot write cache state. Real
 transport, overlapping coverage, revision discovery, gap policy, retry,
-deadline, and prefetch remain inactive until R3.2b.
+deadline, and prefetch remain inactive after R3.2a.
+
+R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
+boundary. Provider revision freshness, request limits, failure deadline,
+bounded retries, stable error kinds, and the adapter port are declared before
+any real provider is selected. Coverage math and policy execution remain later
+substeps; no Session, Replay, chart, UI, or network owner is introduced.
 
 ### Projection Domain
 

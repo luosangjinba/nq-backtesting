@@ -1,12 +1,13 @@
 # V7 Foundation Execution Roadmap
 
-Each step is independently committed, automatically verified, and then stopped
-for manual acceptance.
+Each step is independently committed and automatically verified. Steps that
+change interaction or visuals then stop for manual acceptance.
 
 Once this roadmap is accepted, the agent proceeds autonomously within the next
 listed step. The user does not need to restate implementation instructions.
-After every commit the agent must stop, report evidence, and provide a concise
-manual checklist. Only explicit human acceptance opens the next step.
+After every commit the agent reports evidence. A concise manual checklist and
+explicit acceptance gate apply only when interaction or visuals changed;
+headless steps continue in roadmap order.
 
 Milestones use `R<n>`. Every repository-changing, independently reviewed step
 uses the next immutable `R<n>.<m>` id and produces exactly one commit. Rejected
@@ -208,7 +209,9 @@ R3 is split into independently committed boundaries before milestone closure:
 
 - `R3.1`: pure provider-neutral raw request/bar/batch values;
 - `R3.2a`: bounded exact-window runtime/cache and fake-provider conformance;
-- `R3.2b`: reviewed real provider/coverage adapter policy;
+- `R3.2b1`: transport-neutral provider policy and adapter port;
+- `R3.2b2`: coverage/gap values and bounded request planning;
+- `R3.2b3`: policy execution over fake-provider conformance;
 - `R3.3`: one headless Replay clock and no-future cursor proposals.
 
 ### R3.1 — Raw Bar Data Value Contract
@@ -233,11 +236,22 @@ Gate: cache hits avoid the provider, identical in-flight requests share one
 Promise, queued work advances without user input, eviction is bounded, failures
 are not cached, runtimes are isolated, and disposal blocks late writes.
 
-### R3.2b — Provider And Coverage Policy
+### R3.2b1 — Provider Policy Contract
 
-- reviewed provider adapter and dataset-revision discovery;
-- provider-specific limits, deadline, retry/error taxonomy, overlapping
-  contiguous coverage, gap policy, and prefetch;
+- provider-neutral revision freshness, request limits, deadline, bounded retry,
+  stable failure taxonomy, and adapter port;
+- no concrete provider or policy execution.
+
+### R3.2b2 — Coverage And Request Planning
+
+- ordered coverage/gap values, contiguous interval merge, missing-window query,
+  bounded chunk planning, and prefetch watermarks;
+- no concrete provider or policy execution.
+
+### R3.2b3 — Fake-Provider Policy Execution
+
+- revision discovery cache, deadline, bounded retry, request limits, coverage
+  acquisition, and prefetch execution against deterministic fakes;
 - no Replay or chart dependency.
 
 ### R3.3 — Headless Replay Runtime

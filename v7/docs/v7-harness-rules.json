@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R3.2a",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b", "R3.3", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R3.2b1",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -152,7 +152,7 @@
       "name": "bar-data-order-identity-gap-no-future",
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "missing, sampled, duplicate, future, or cross-source bars",
-      "activationStep": "R3.2b",
+      "activationStep": "R3.2b3",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -529,7 +529,7 @@
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "duplicate requests, unbounded caches, hidden concurrency, shared runtime state, failed-response caching, and late writes after teardown made replay slow and nondeterministic",
       "activationStep": "R3.2a",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/bar-data-runtime-harness.js",
       "positiveEvidence": [
         "src/bar-data-runtime/public.js",
@@ -539,7 +539,26 @@
       ],
       "negativeFixtures": ["tests/fixtures/bar-data-runtime/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r3_2a_bar_data_runtime.md"
+    },
+    {
+      "id": "H036",
+      "name": "provider-policy-bounded-and-transport-neutral",
+      "owner": "bar-data-runtime",
+      "v6FailurePrevented": "provider deadlines, retries, revisions, limits, and transport errors were implicit or scattered through feature and runtime code",
+      "activationStep": "R3.2b1",
+      "state": "accepted",
+      "harness": "tests/provider-policy-contract-harness.js",
+      "positiveEvidence": [
+        "src/provider-policy-contract/public.js",
+        "src/provider-policy-contract/module.json",
+        "src/provider-policy-contract/policy-contract.js",
+        "src/provider-policy-contract/provider-failure.js",
+        "src/provider-policy-contract/adapter-port.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/provider-policy-contract/negative/cases.json"],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260720_r3_2b1_provider_policy_contract.md"
     }
   ]
 }

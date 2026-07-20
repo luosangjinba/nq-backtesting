@@ -164,7 +164,7 @@ for (const rule of [
   'one-intent-one-visible-commit',
   'multi-pane-atomicity',
   'replace-and-delete-in-one-commit',
-  'manual-acceptance-after-every-step',
+  'manual-acceptance-for-interaction-or-visual-changes',
   'autonomous-execution-between-human-gates',
   'modules-independently-runnable',
   'optional-modules-removable-without-core-edits',
@@ -185,6 +185,7 @@ for (const rule of [
   'calendar-surface-business-data-agnostic',
   'raw-bar-contract-session-independent-and-window-bounded',
   'bar-data-runtime-bounded-coalesced-and-disposable',
+  'provider-policy-bounded-and-transport-neutral',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

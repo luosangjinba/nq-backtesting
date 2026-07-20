@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r3.2a-bounded-bar-data-runtime",
+  "status": "r3.2b1-provider-policy-contract",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -20,6 +20,7 @@
     "docs/V7_CALENDAR_SURFACE.md",
     "docs/V7_BAR_DATA_CONTRACT.md",
     "docs/V7_BAR_DATA_RUNTIME.md",
+    "docs/V7_PROVIDER_POLICY_CONTRACT.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -57,6 +58,7 @@
     "src/module-host/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
+    "src/provider-policy-contract/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
@@ -134,7 +136,7 @@
     "one-intent-one-visible-commit",
     "multi-pane-atomicity",
     "replace-and-delete-in-one-commit",
-    "manual-acceptance-after-every-step",
+    "manual-acceptance-for-interaction-or-visual-changes",
     "autonomous-execution-between-human-gates",
     "modules-independently-runnable",
     "optional-modules-removable-without-core-edits",
@@ -154,6 +156,7 @@
     "cache-latency-and-refresh-contracts-are-bounded-and-atomic",
     "calendar-surface-business-data-agnostic",
     "raw-bar-contract-session-independent-and-window-bounded",
-    "bar-data-runtime-bounded-coalesced-and-disposable"
+    "bar-data-runtime-bounded-coalesced-and-disposable",
+    "provider-policy-bounded-and-transport-neutral"
   ]
 }
