@@ -34,10 +34,8 @@ class SessionBrowserController {
     this.records = [];
     this.stopped = false;
     this.unsubscribe = null;
-    const end = this.now();
     this.dialog = createSessionDialog({
       instruments: this.instruments,
-      defaultRange: { startEpochMs: end - 4 * 24 * 60 * 60 * 1000, endEpochMs: end },
       onSubmit: (intent) => this.createSession(intent),
     });
     this.actions = Object.freeze({

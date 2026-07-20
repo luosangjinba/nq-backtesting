@@ -41,6 +41,10 @@ slice replaces the grid with a multi-select dropdown and resets name,
 instruments, dates, validation, and dropdown state on every open. Real-Chrome
 evidence must create A, reopen, and prove the complete default draft before B.
 
+Second review requested a stricter empty state on 2026-07-20. Instruments,
+Start, and End now initialize empty instead of supplying convenience defaults;
+the reopen assertion proves the same complete empty draft before Session B.
+
 Use the running V7 service for interaction and visual review. Confirm hierarchy,
 density, focus/dialog behavior, responsive layout, A/B isolation, and refresh.
 Automated evidence cannot accept the step. Passing R2.2 opens R3 Bar Data and

@@ -98,7 +98,7 @@ export function createInstrumentPicker(instruments) {
   search.addEventListener('input', filter);
 
   function reset() {
-    records.forEach(({ input }, index) => { input.checked = index === 0; });
+    records.forEach(({ input }) => { input.checked = false; });
     search.value = '';
     categories.reset();
     filter();

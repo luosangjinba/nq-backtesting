@@ -1,11 +1,6 @@
 import { element, icon } from './dom-primitives.js';
 import { createInstrumentPicker } from './instrument-picker.js';
 
-function toLocalDateTime(epochMs) {
-  const date = new Date(epochMs - new Date(epochMs).getTimezoneOffset() * 60_000);
-  return date.toISOString().slice(0, 16);
-}
-
 function field(label, control, hint = null) {
   const labelNode = element('label', { className: 'form-field' }, [
     element('span', { className: 'form-label', text: label }),
@@ -15,26 +10,26 @@ function field(label, control, hint = null) {
   return labelNode;
 }
 
-function createControls(instruments, defaultRange) {
+function createControls(instruments) {
   const name = element('input', {
     className: 'text-input', name: 'name', type: 'text', maxlength: '120',
     autocomplete: 'off', placeholder: 'e.g. London open practice', required: '',
   });
   const start = element('input', {
     className: 'text-input', name: 'start', type: 'datetime-local',
-    value: toLocalDateTime(defaultRange.startEpochMs), required: '',
+    required: '',
   });
   const end = element('input', {
     className: 'text-input', name: 'end', type: 'datetime-local',
-    value: toLocalDateTime(defaultRange.endEpochMs), required: '',
+    required: '',
   });
   return Object.freeze({ name, start, end, instruments: createInstrumentPicker(instruments) });
 }
 
-function resetControls(controls, defaultRange) {
+function resetControls(controls) {
   controls.name.value = '';
-  controls.start.value = toLocalDateTime(defaultRange.startEpochMs);
-  controls.end.value = toLocalDateTime(defaultRange.endEpochMs);
+  controls.start.value = '';
+  controls.end.value = '';
   controls.instruments.reset();
 }
 
@@ -62,14 +57,14 @@ function readIntent(controls) {
  * Owner: session-store UI adapter.
  * Purpose: build the accessible Create Session dialog and normalize its form
  * intent without owning persistence or Session identity.
- * Inputs: instrument options, default range, submit and cancel callbacks.
+ * Inputs: instrument options plus submit callback.
  * Outputs: dialog element with open/close/focus API.
  * Side effects: creates DOM and binds listeners scoped to the returned dialog.
  * Errors: form validation is reported inline; submit callback errors stay external.
  */
-export function createSessionDialog({ instruments, defaultRange, onSubmit }) {
+export function createSessionDialog({ instruments, onSubmit }) {
   const dialog = element('dialog', { className: 'create-dialog', 'aria-labelledby': 'create-title' });
-  const controls = createControls(instruments, defaultRange);
+  const controls = createControls(instruments);
   const error = element('div', { className: 'form-error', role: 'alert', hidden: '' });
   const form = element('form', { className: 'create-form', method: 'dialog' });
   form.append(
@@ -117,7 +112,7 @@ export function createSessionDialog({ instruments, defaultRange, onSubmit }) {
   return Object.freeze({
     element: dialog,
     open() {
-      resetControls(controls, defaultRange);
+      resetControls(controls);
       error.hidden = true;
       dialog.showModal();
       controls.name.focus();

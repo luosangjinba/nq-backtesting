@@ -20,8 +20,8 @@ key. Every activation still passes the branded SessionId to Session Store.
 - Session list with distinct name, instruments, creation time, and range;
 - accessible Create Session dialog with a compact multi-select instrument
   dropdown and explicit date-times;
-- a fresh default creation draft on every open; previous name, instruments,
-  and dates never leak into a later creation attempt;
+- a fresh empty creation draft on every open; name, instruments, Start, End,
+  search, and dropdown state never leak into a later creation attempt;
 - configuration-driven asset discovery with search, dynamic category filters,
   bounded scrolling, descriptions, and venue metadata; adding an instrument or
   category does not add a concrete-id branch to Session Browser code;

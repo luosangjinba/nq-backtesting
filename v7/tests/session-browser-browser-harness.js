@@ -101,7 +101,9 @@ try {
     };
   })()`);
   assert.equal(defaultDraft.name, '');
-  assert.deepEqual(defaultDraft.instrumentIds, ['instrument.cme.nq']);
+  assert.deepEqual(defaultDraft.instrumentIds, []);
+  assert.equal(defaultDraft.start, '');
+  assert.equal(defaultDraft.end, '');
   assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.instrument-category')].map((node) => node.textContent)`),
     ['All', 'Futures'], 'category filters must derive from instrument configuration');
   const searchEvidence = await evaluate(cdp, `(() => {
@@ -121,6 +123,7 @@ try {
   await evaluate(cdp, `(() => {
     const form = document.querySelector('.create-form');
     form.elements.name.value = 'Session Alpha';
+    form.querySelectorAll('[name="instrument"]')[0].checked = true;
     form.elements.start.value = '2026-05-01T09:30';
     form.elements.end.value = '2026-05-05T16:00';
     form.requestSubmit();
