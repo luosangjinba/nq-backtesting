@@ -63,11 +63,12 @@ function visitModule(moduleId) {
 for (const moduleId of activeModuleIds) visitModule(moduleId);
 assert.deepEqual(manifest.writerInventories, {
   sessionRecord: ['core.session-store'],
+  calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   chartSeries: [],
   rawBarRequest: [],
   replayCursor: [],
-}, 'R2.2 activates Session record and Session Browser DOM writers; later state owners remain inactive');
+}, 'R2.3 adds an isolated Calendar Surface DOM writer; later business owners remain inactive');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -181,6 +182,7 @@ for (const rule of [
   'public-contracts-and-critical-invariants-are-documented',
   'foundation-interactions-have-owner-visible-completion-and-phase-boundary',
   'cache-latency-and-refresh-contracts-are-bounded-and-atomic',
+  'calendar-surface-business-data-agnostic',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

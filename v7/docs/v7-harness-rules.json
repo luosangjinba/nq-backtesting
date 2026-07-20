@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R2.2",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R2.3",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -469,7 +469,7 @@
       "owner": "session-store",
       "v6FailurePrevented": "Session Browser navigation, re-entry, hard refresh, or a reused creation form displayed another Session or leaked prior draft metadata",
       "activationStep": "R2.2",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/session-browser-browser-harness.js",
       "positiveEvidence": [
         "src/session-browser-ui/public.js",
@@ -482,6 +482,25 @@
         "tests/fixtures/session-browser/opened-beta-after-refresh-1440x900.png"
       ],
       "negativeFixtures": ["tests/fixtures/session-browser/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260719_r2_2_session_browser.md"
+    },
+    {
+      "id": "H033",
+      "name": "shared-calendar-surface-boundary",
+      "owner": "calendar-surface",
+      "v6FailurePrevented": "feature-local calendars duplicated navigation and selection logic while accumulating market-data, order, news, and chart ownership",
+      "activationStep": "R2.3",
+      "state": "executable",
+      "harness": "tests/calendar-surface-harness.js",
+      "positiveEvidence": [
+        "src/calendar-surface/public.js",
+        "src/calendar-surface/module.json",
+        "src/calendar-surface/calendar-model.js",
+        "src/calendar-surface/date-time-control.js",
+        "tests/fixtures/session-browser/date-time-picker-open-1440x900.png"
+      ],
+      "negativeFixtures": ["tests/fixtures/calendar-surface/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

@@ -5,6 +5,7 @@
   "owner": "session-store",
   "publicEntry": "src/session-browser-ui/public.js",
   "requiredPorts": [
+    "adapter.calendar-surface",
     "core.session-identity",
     "core.session-store"
   ],

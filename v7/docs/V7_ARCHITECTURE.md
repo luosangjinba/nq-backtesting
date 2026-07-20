@@ -232,6 +232,16 @@ Every browser-visible module declares:
 - visual-regression fixtures;
 - whether refresh gating is workspace-wide or pane-local.
 
+Calendar/date-time presentation is owned by the shared Calendar Surface
+adapter. Feature surfaces consume its public selection contract and cannot
+import its DOM or calendar-model internals. Calendar Surface owns navigation,
+selection, focus, and its rendered subtree only; it never requests market data,
+decides coverage, queries feature records, moves charts/Replay, or persists
+Session state. The UI Calendar Surface is distinct from the future
+`TradingCalendar` exchange-session/alignment capability. Future decorated-day
+or chart-jump behavior requires a separate reviewed consumer contract rather
+than speculative business-data ports in the calendar module.
+
 Blank chart output is never treated as a loading indicator. Runtime readiness
 must be explicit, and the prior accepted chart snapshot remains visible behind
 a bounded refresh gate whenever product semantics allow it.

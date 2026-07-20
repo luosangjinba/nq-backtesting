@@ -58,7 +58,10 @@ decade navigation, local time steppers, Today/Clear, Escape, outside-click,
 and one-open-overlay behavior. Calendar computation is pure and separate from
 DOM ownership. A fifth fixed Chrome fixture covers the open overlay.
 
+Human review accepted the complete R2.2 Session Browser interaction and visual
+surface on 2026-07-20. Extracting that accepted picker into a shared Calendar
+Surface is a separate R2.3 ownership-only step; R2.2 did not add market data.
+
 Use the running V7 service for interaction and visual review. Confirm hierarchy,
 density, focus/dialog behavior, responsive layout, A/B isolation, and refresh.
-Automated evidence cannot accept the step. Passing R2.2 opens R3 Bar Data and
-Replay Core, which remains headless and chart-independent.
+Automated evidence did not grant acceptance; the recorded human review did.

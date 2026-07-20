@@ -10,7 +10,7 @@ function localDayIdentity(date) {
 }
 
 /**
- * Owner: session-browser UI adapter.
+ * Owner: Calendar Surface adapter.
  * Purpose: build a deterministic six-week month grid without DOM state.
  * Inputs: displayed year/month and optional selected/today local Dates.
  * Outputs: immutable 42-cell calendar model including adjacent-month days.
@@ -37,7 +37,7 @@ export function createMonthGrid({ year, month, selected = null, today = new Date
 }
 
 /**
- * Owner: session-browser UI adapter.
+ * Owner: Calendar Surface adapter.
  * Purpose: return the ten-year page containing a displayed year.
  * Inputs: integer year.
  * Outputs: immutable start/end/year-list model.
@@ -53,7 +53,7 @@ export function createDecadePage(year) {
 }
 
 /**
- * Owner: session-browser UI adapter.
+ * Owner: Calendar Surface adapter.
  * Purpose: create a local Date while preserving explicit wall-clock parts.
  * Inputs: date parts plus optional time parts.
  * Outputs: valid local Date.

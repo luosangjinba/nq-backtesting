@@ -1,5 +1,5 @@
 import { element, icon } from './dom-primitives.js';
-import { createDateTimeControl } from './date-time-control.js';
+import { createDateTimeControl } from '../calendar-surface/public.js';
 import { createInstrumentPicker } from './instrument-picker.js';
 
 function field(label, control, hint = null, containerTag = 'label') {
@@ -17,7 +17,7 @@ function createControls(instruments) {
     autocomplete: 'off', placeholder: 'e.g. London open practice', required: '',
   });
   const start = createDateTimeControl({ name: 'start', label: 'Start' });
-  const end = createDateTimeControl({ name: 'end', label: 'End' });
+  const end = createDateTimeControl({ name: 'end', label: 'End', placement: 'end' });
   return Object.freeze({ name, start, end, instruments: createInstrumentPicker(instruments) });
 }
 

@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import {
+  createDateTimeControl,
   formatLocalDateTimeValue,
   parseLocalDateTimeValue,
-} from '../src/session-browser-ui/date-time-control.js';
+} from '../src/calendar-surface/public.js';
 import {
   createDecadePage,
   createLocalDate,
   createMonthGrid,
-} from '../src/session-browser-ui/date-time-calendar-model.js';
+} from '../src/calendar-surface/public.js';
 
 assert.equal(Number.isNaN(parseLocalDateTimeValue('')), true, 'an empty control must stay empty');
 assert.equal(Number.isNaN(parseLocalDateTimeValue('not-a-date')), true, 'invalid text must not become a Session epoch');
@@ -22,8 +26,20 @@ const secondEpoch = parseLocalDateTimeValue(secondValue);
 assert.equal(formatLocalDateTimeValue(secondEpoch, 'second'), secondValue,
   'the boundary must support future second-level controls without Session creation changes');
 
-assert.throws(() => formatLocalDateTimeValue(Number.NaN), /finite/);
-assert.throws(() => formatLocalDateTimeValue(minuteEpoch, 'tick'), /unsupported/);
+const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
+const negativeCases = JSON.parse(fs.readFileSync(
+  path.join(TEST_DIR, 'fixtures/calendar-surface/negative/cases.json'),
+  'utf8',
+));
+const negativeActions = Object.freeze({
+  'non-finite-epoch': () => formatLocalDateTimeValue(Number.NaN),
+  'unsupported-precision': () => formatLocalDateTimeValue(minuteEpoch, 'tick'),
+  'unsupported-placement': () => createDateTimeControl({ name: 'start', placement: 'middle' }),
+  'invalid-calendar-date': () => createLocalDate({ year: 2026, month: 1, day: 31 }),
+});
+for (const fixture of negativeCases) {
+  assert.throws(negativeActions[fixture.action], new RegExp(fixture.expectedMessage), fixture.name);
+}
 
 const leapMonth = createMonthGrid({
   year: 2020, month: 1,
@@ -38,6 +54,4 @@ assert.equal(leapMonth.find((day) => day.selected)?.day, 29, 'leap day must rema
 assert.deepEqual(createDecadePage(2026), {
   start: 2020, end: 2029, years: [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029],
 });
-assert.throws(() => createLocalDate({ year: 2026, month: 1, day: 31 }), /invalid/);
-
-console.log('v7 Session Browser date-time control harness passed (value, month, decade, leap-day)');
+console.log('v7 Calendar Surface harness passed (value, month, decade, leap-day, negative controls)');

@@ -1,0 +1,22 @@
+[
+  {
+    "name": "non-finite epochs cannot enter the control",
+    "action": "non-finite-epoch",
+    "expectedMessage": "finite"
+  },
+  {
+    "name": "unsupported precision cannot create an implicit mode",
+    "action": "unsupported-precision",
+    "expectedMessage": "unsupported"
+  },
+  {
+    "name": "unsupported placement cannot leak consumer layout into the module",
+    "action": "unsupported-placement",
+    "expectedMessage": "unsupported"
+  },
+  {
+    "name": "overflowing calendar dates cannot silently normalize",
+    "action": "invalid-calendar-date",
+    "expectedMessage": "invalid"
+  }
+]

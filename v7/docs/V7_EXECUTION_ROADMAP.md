@@ -159,12 +159,14 @@ incompatible, or undeclared capabilities fail without starting a host.
 
 ## R2 — Session Store Vertical Slice
 
-R2 is split into two independently committed and manually reviewed boundaries:
+R2 is split into three independently committed and manually reviewed boundaries:
 
 - `R2.1`: headless versioned Session records, explicit-key persistence,
   revision CAS, activation allocation, migration, and runtime reconstruction;
 - `R2.2`: professional Session browser UI for create/open/leave/reopen and the
-  first visible A/B navigation and hard-reload evidence.
+  first visible A/B navigation and hard-reload evidence;
+- `R2.3`: extract the accepted date-time UI into a shared, business-data-agnostic
+  Calendar Surface without adding market coverage or chart behavior.
 
 ### R2.1 — Session Store And Persistence Boundary
 
@@ -186,6 +188,19 @@ strictly later activation; stale revision commits fail deterministically.
 - visibly distinct A/B Session metadata survives navigation and hard reload.
 
 Manual gate: visibly distinct A/B metadata survives navigation and hard reload.
+
+### R2.3 — Shared Calendar Surface
+
+- one reusable public date-time selection boundary;
+- deterministic day/month/decade models separated from DOM ownership;
+- Session Browser consumes only the Calendar Surface public facade;
+- Calendar Surface owns no market data, coverage, order/news, chart, Replay,
+  viewport, or Session state;
+- no future decoration or chart-navigation API is invented before its product
+  interaction has been reviewed.
+
+Manual gate: the accepted Session creation interaction and visual presentation
+remain unchanged after extraction.
 
 ## R3 — Bar Data And Replay Core
 

@@ -1,0 +1,12 @@
+{
+  "id": "adapter.calendar-surface",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "calendar-surface",
+  "publicEntry": "src/calendar-surface/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/calendar-surface-harness.js",
+  "removable": false
+}

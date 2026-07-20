@@ -154,9 +154,9 @@ Human-accepted on 2026-07-19:
 - A/B identity/key consistency and no implicit active Session storage key;
 - no chart, bar, Replay, pane, viewport, DOM, or UI behavior.
 
-## Current Step — R2.2 Professional Session Browser
+## R2.2 Professional Session Browser — Accepted
 
-In progress:
+Human-accepted on 2026-07-20:
 
 - professional local-first Session list and selected-Session surfaces;
 - accessible Create Session dialog with compact NQ/ES multi-select dropdown;
@@ -169,6 +169,18 @@ In progress:
 - create A/create B, A→B→A, hard refresh on B, and no cross-Session metadata;
 - fixed `1440x900` real-Chrome visual regression fixtures;
 - no chart, bars, Replay, panes, viewport, provider, or fake future controls.
+
+## Current Step — R2.3 Shared Calendar Surface
+
+In progress:
+
+- move accepted date-time UI/model/style ownership out of Session Browser;
+- expose one documented Calendar Surface public facade and module descriptor;
+- keep Session Browser dependent only on that facade;
+- preserve byte-identical fixed Chrome fixtures and existing interaction;
+- add no market coverage, Auto-update end date, orders, news, chart navigation,
+  TradingCalendar domain behavior, bars, Replay, panes, or provider access;
+- stop for interaction and visual review after the focused commit.
 
 ## Standing Gates
 

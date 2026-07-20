@@ -1,11 +1,11 @@
-import { element, icon } from './dom-primitives.js';
+import { calendarElement as element, calendarIcon as icon } from './calendar-dom.js';
 import {
   createDecadePage,
   createLocalDate,
   createMonthGrid,
   MONTH_LABELS,
   WEEKDAY_LABELS,
-} from './date-time-calendar-model.js';
+} from './calendar-model.js';
 
 const PRECISION_LENGTH = Object.freeze({ minute: 16, second: 19 });
 const VIEW = Object.freeze({ DAYS: 'days', MONTHS: 'months', YEARS: 'years' });
@@ -27,7 +27,7 @@ function formatTrigger(date, precision) {
 }
 
 /**
- * Owner: session-browser UI adapter.
+ * Owner: Calendar Surface adapter.
  * Purpose: convert an epoch into the local, zone-free value consumed by a
  * date-time control without leaking presentation formatting into its caller.
  * Inputs: finite epoch milliseconds and minute/second display precision.
@@ -45,7 +45,7 @@ export function formatLocalDateTimeValue(epochMs, precision = 'minute') {
 }
 
 /**
- * Owner: session-browser UI adapter.
+ * Owner: Calendar Surface adapter.
  * Purpose: normalize the local wall-time value emitted by a conforming
  * date-time adapter into the Session creation epoch contract.
  * Inputs: empty or local date-time string.
@@ -57,7 +57,7 @@ export function parseLocalDateTimeValue(value) {
   return new Date(value).getTime();
 }
 
-function createStructure(name, label) {
+function createStructure(name, label, placement) {
   const hiddenInput = element('input', { name, type: 'hidden' });
   const triggerText = element('span', { className: 'date-time-trigger-text', text: 'Select date and time' });
   const trigger = element('button', {
@@ -80,15 +80,17 @@ function createStructure(name, label) {
       element('button', { className: 'date-time-action date-time-clear', type: 'button', text: 'Clear' }),
     ]),
   ]);
-  const root = element('div', { className: 'date-time-control' }, [hiddenInput, trigger, popover]);
+  const root = element('div', {
+    className: `date-time-control${placement === 'end' ? ' is-align-end' : ''}`,
+  }, [hiddenInput, trigger, popover]);
   return { root, hiddenInput, trigger, triggerText, heading, body, popover };
 }
 
 class DateTimeControl {
-  constructor({ name, label, precision, now }) {
+  constructor({ name, label, precision, placement, now }) {
     this.precision = precision;
     this.now = now;
-    this.nodes = createStructure(name, label);
+    this.nodes = createStructure(name, label, placement);
     this.selected = null;
     const today = new Date(this.now());
     this.displayYear = today.getFullYear();
@@ -267,18 +269,26 @@ class DateTimeControl {
 }
 
 /**
- * Owner: session-browser UI adapter.
+ * Owner: Calendar Surface adapter.
  * Purpose: create the replaceable professional date-time-control contract.
- * Inputs: form name, minute/second precision, and injectable wall clock.
+ * Inputs: form name, minute/second precision, popover placement, and
+ * injectable wall clock.
  * Outputs: owned element plus reset/read/set/open-state methods.
  * Side effects: owns only its DOM subtree and scoped event listeners.
  * Errors: invalid epochs/precision are rejected before mutating the control.
- * Protected invariant: Session creation reads date-times only through this
- * boundary, so presentation replacement cannot fork creation semantics.
+ * Protected invariant: consumers read date-times only through this boundary,
+ * so presentation replacement cannot fork value or reset semantics.
  */
-export function createDateTimeControl({ name, label = name, precision = 'minute', now = () => Date.now() }) {
+export function createDateTimeControl({
+  name,
+  label = name,
+  precision = 'minute',
+  placement = 'start',
+  now = () => Date.now(),
+}) {
   if (!Object.hasOwn(PRECISION_LENGTH, precision)) throw new TypeError('Date-time precision is unsupported.');
-  const controller = new DateTimeControl({ name, label, precision, now });
+  if (placement !== 'start' && placement !== 'end') throw new TypeError('Date-time placement is unsupported.');
+  const controller = new DateTimeControl({ name, label, precision, placement, now });
   return Object.freeze({
     element: controller.nodes.root,
     reset: () => controller.reset(),

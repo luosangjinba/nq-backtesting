@@ -31,13 +31,13 @@ key. Every activation still passes the branded SessionId to Session Store.
 - keyboard focus rings, native dialog Escape behavior, reduced motion, and
   responsive rail/card/form layouts.
 
-Start and End depend on one replaceable date-time-control interface owned by
-the Session Browser adapter. Its professional DOM implementation owns day,
-month, and decade views; local time stepping; Today/Clear actions; overlay
-focus/close behavior; formatting; reset; epoch parsing; and minute/second
-precision. Create Session does not read picker DOM details directly. A future
-flatpickr or other adapter must pass the same interface and preserve empty-draft
-and epoch semantics; it cannot own market-data availability or Session state.
+Start and End depend on the replaceable `adapter.calendar-surface` public
+interface. Calendar Surface owns day/month/decade views, local time stepping,
+Today/Clear actions, overlay focus/close behavior, formatting, reset, epoch
+parsing, and minute/second precision. Session Browser does not read picker DOM
+or model internals. A replacement must pass the same public conformance and
+preserve empty-draft and epoch semantics. Calendar Surface cannot own
+market-data availability or Session state.
 
 No fake Replay, chart, order, Journal, campaign, plugin, or unavailable future
 control may appear. Revision, activation generation, internal phase names, and

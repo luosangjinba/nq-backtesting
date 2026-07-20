@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r2.2-session-browser",
+  "status": "r2.3-shared-calendar-surface",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -17,6 +17,7 @@
     "docs/V7_CACHE_AND_LATENCY_CONTRACT.md",
     "docs/v7-cache-latency-contract.json",
     "docs/V7_SESSION_BROWSER_SURFACE.md",
+    "docs/V7_CALENDAR_SURFACE.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -29,7 +30,8 @@
     "module-lifecycle",
     "module-registry",
     "chart-runtime-adapter",
-    "viewport-runtime"
+    "viewport-runtime",
+    "calendar-surface"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -54,6 +56,7 @@
     "src/capability-contract/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
+    "src/calendar-surface/module.json",
     "src/session-browser-ui/module.json"
   ],
   "moduleContract": {
@@ -116,6 +119,7 @@
   },
   "writerInventories": {
     "sessionRecord": ["core.session-store"],
+    "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "chartSeries": [],
     "rawBarRequest": [],
@@ -143,6 +147,7 @@
     "source-size-exceptions-require-human-evidence",
     "public-contracts-and-critical-invariants-are-documented",
     "foundation-interactions-have-owner-visible-completion-and-phase-boundary",
-    "cache-latency-and-refresh-contracts-are-bounded-and-atomic"
+    "cache-latency-and-refresh-contracts-are-bounded-and-atomic",
+    "calendar-surface-business-data-agnostic"
   ]
 }
