@@ -259,8 +259,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 
 ### R3.3 — Headless Replay Runtime
 
-- one Session-activation Replay clock;
-- no-future cursor proposals and deterministic manual/auto advancement inputs;
+- `R3.3a`: provider-independent Replay range, deterministic manual/auto time
+  inputs, transaction-scoped cursor proposals, and exclusive no-future cutoff;
+- `R3.3b`: one mutable Session-activation Replay clock with visible-commit-only
+  acceptance and stale proposal rejection;
+- `R3.3c`: pure high/low-watermark prefetch advice without data I/O;
 - no chart dependency.
 
 ## R4 — First Atomic Chart Slice

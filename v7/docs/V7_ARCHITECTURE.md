@@ -86,6 +86,13 @@ concurrency, validated coverage, caller/root cancellation, and complete-plan
 continuation. Bar Data Runtime remains the only raw cache/request owner. Only
 deterministic fake adapters are used; no real transport is selected.
 
+R3.3a adds `core.replay-contract` without activating a mutable clock. Manual
+and Auto advancement are the same duration-based input, never a request for one
+sampled display candle. A branded cursor proposal carries the complete workspace
+transaction identity, base Replay revision, bounded target, and half-open reveal
+window. Its cursor is an exclusive no-future cutoff; Projection remains the
+future owner that applies that cutoff to bars.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

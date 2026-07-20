@@ -223,7 +223,7 @@ Completed with automated evidence; no interaction or visual review is required:
 - preserve complete raw request identity in forward/backward plans;
 - add no provider I/O, cache mutation, Replay, chart, viewport, or UI.
 
-## Current Step — R3.2b3 Fake-Provider Policy Execution — Completed
+## R3.2b3 Fake-Provider Policy Execution — Completed
 
 Completed with automated evidence; no interaction or visual review is required:
 
@@ -235,6 +235,17 @@ Completed with automated evidence; no interaction or visual review is required:
 - submit complete coverage plans without requiring later pointer input;
 - exercise deterministic fake adapters only;
 - add no real provider, V4/network/DuckDB access, Replay, chart, or UI.
+
+## Current Step — R3.3a Replay Value Contract — Completed
+
+Completed with automated evidence; no interaction or visual review is required:
+
+- define one half-open, millisecond Replay range and exclusive visibility cutoff;
+- express Manual Next and Auto Replay as identical time advancement inputs;
+- bind every cursor proposal to the complete workspace transaction identity;
+- clamp proposals at the activated Session end and reject unsafe time overflow;
+- expose no scheduler, mutable cursor, bars, projection, chart, pane, viewport,
+  persistence, provider, network, or UI behavior.
 
 ## Standing Gates
 

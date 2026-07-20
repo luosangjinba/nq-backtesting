@@ -1,0 +1,12 @@
+{
+  "id": "core.replay-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "replay-runtime",
+  "publicEntry": "src/replay-contract/public.js",
+  "requiredPorts": ["core.workspace-transaction-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/replay-contract-harness.js",
+  "removable": false
+}

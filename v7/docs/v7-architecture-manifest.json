@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r3.2b3-provider-execution-runtime",
+  "status": "r3.3a-replay-value-contract",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -23,6 +23,7 @@
     "docs/V7_PROVIDER_POLICY_CONTRACT.md",
     "docs/V7_COVERAGE_PLANNING_CONTRACT.md",
     "docs/V7_PROVIDER_EXECUTION_RUNTIME.md",
+    "docs/V7_REPLAY_CONTRACT.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -63,6 +64,7 @@
     "src/provider-policy-contract/module.json",
     "src/coverage-planning-contract/module.json",
     "src/provider-execution-runtime/module.json",
+    "src/replay-contract/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
@@ -163,6 +165,7 @@
     "bar-data-runtime-bounded-coalesced-and-disposable",
     "provider-policy-bounded-and-transport-neutral",
     "coverage-explicit-and-request-planning-bounded",
-    "provider-execution-policy-bound-cancellable-and-automatic"
+    "provider-execution-policy-bound-cancellable-and-automatic",
+    "replay-contract-time-based-transaction-scoped"
   ]
 }

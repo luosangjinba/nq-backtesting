@@ -1,0 +1,10 @@
+[
+  { "case": "zero-duration", "expectedCode": "REPLAY_DURATION_INVALID" },
+  { "case": "unknown-source", "expectedCode": "REPLAY_ADVANCE_SOURCE_INVALID" },
+  { "case": "reversed-range", "expectedCode": "REPLAY_RANGE_ORDER" },
+  { "case": "cursor-before-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" },
+  { "case": "raw-identity", "expectedCode": "WORKSPACE_TRANSACTION_IDENTITY_REQUIRED" },
+  { "case": "negative-revision", "expectedCode": "REPLAY_BASE_REVISION_INVALID" },
+  { "case": "forged-proposal", "expectedCode": "REPLAY_CURSOR_PROPOSAL_REQUIRED" },
+  { "case": "overflow-target", "expectedCode": "REPLAY_TARGET_OVERFLOW" }
+]

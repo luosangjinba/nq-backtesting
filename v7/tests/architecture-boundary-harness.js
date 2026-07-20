@@ -188,6 +188,7 @@ for (const rule of [
   'provider-policy-bounded-and-transport-neutral',
   'coverage-explicit-and-request-planning-bounded',
   'provider-execution-policy-bound-cancellable-and-automatic',
+  'replay-contract-time-based-transaction-scoped',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }
