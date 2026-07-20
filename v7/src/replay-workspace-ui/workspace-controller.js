@@ -49,6 +49,7 @@ export function createReplayWorkspaceController({ record, view }) {
     range,
     sessionId: record.sessionId,
   });
+  view.setSessionRange({ end: formatCursor(range.endEpochMs), start: formatCursor(range.startEpochMs) });
   const viewport = createViewportController({
     defaultSpanBars: 136,
     initialIntent: createInitialViewportIntent({
@@ -124,10 +125,15 @@ export function createReplayWorkspaceController({ record, view }) {
 
   function acceptVisibleState() {
     const replaySnapshot = replay.snapshot();
+    const workspaceSnapshot = runtime.snapshot().acceptedSnapshot.workspace;
     viewport.moveCursor(replaySnapshot.cursorEpochMs);
     view.setCursor(formatCursor(replaySnapshot.cursorEpochMs));
     view.setEvidence({ replayRevision: replaySnapshot.revision, workspaceRevision: runtime.snapshot().acceptedRevision });
     view.setSelection(acceptedTarget());
+    view.setVisibleThrough({
+      barCount: workspaceSnapshot.bars.length,
+      text: formatCursor(workspaceSnapshot.provenance.visibleThroughEpochMs),
+    });
     view.setWall(readViewportIntent(viewport.snapshot()).origin);
     view.setState('ready');
   }

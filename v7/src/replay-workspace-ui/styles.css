@@ -136,11 +136,14 @@
 .replay-workspace-footer {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
   padding: 0 4px;
   color: var(--text-muted);
   font-size: 9px;
 }
+.replay-session-range { color: #8fa5b9; }
+.replay-visible-through { color: #72879a; }
 
 @media (max-width: 760px) {
   .replay-opened-content { width: calc(100% - 16px); height: auto; min-height: calc(100vh - 58px); padding-top: 8px; }

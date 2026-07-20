@@ -413,6 +413,9 @@ The first review's mixed local/UTC chart labels and no-visible-change Friday
 Next are corrected. The chart now shares the Session card's browser-local
 clock, and Next reveals the next eligible ETH/RTH source minute across excluded
 calendar gaps using a bounded expanded request.
+The workspace also distinguishes the full Session range from the Replay cursor
+and current source visible-through; the Session end is a no-future advancement
+limit, not an initially visible candle.
 
 Exact next action: human visual and interaction review of R5.5. Do not begin R6
 multi-pane or real-provider work until this gate is accepted.

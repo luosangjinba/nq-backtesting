@@ -62,6 +62,8 @@ export function createReplayWorkspaceView({
   });
   const cursor = element('strong', { className: 'replay-cursor', text: 'Preparing…' });
   const wall = element('span', { className: 'replay-wall-status', text: 'Default wall' });
+  const sessionRange = element('span', { className: 'replay-session-range', text: 'Session range preparing…' });
+  const visibleThrough = element('span', { className: 'replay-visible-through', text: 'Visible through preparing…' });
   const status = element('span', { className: 'workspace-inline-status' });
   status.hidden = true;
   const overlayTitle = element('strong', { text: 'Preparing replay chart' });
@@ -95,7 +97,8 @@ export function createReplayWorkspaceView({
       overlay,
     ]),
     element('footer', { className: 'replay-workspace-footer' }, [
-      element('span', { text: 'Replay-visible data only' }),
+      sessionRange,
+      visibleThrough,
       element('span', { text: 'Drag or zoom the chart to create a manual wall' }),
     ]),
   ]);
@@ -138,7 +141,7 @@ export function createReplayWorkspaceView({
       root.remove();
     },
     root,
-    setCursor(text) { cursor.textContent = text; },
+    setCursor(text) { cursor.textContent = `Cursor · ${text}`; },
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);
       root.dataset.workspaceRevision = String(workspaceRevision);
@@ -149,7 +152,13 @@ export function createReplayWorkspaceView({
       timeframeControl.setValue(timeframeId);
       sessionHoursControl.setValue(sessionHoursMode);
     },
+    setSessionRange({ end, start }) {
+      sessionRange.textContent = `Session · ${start} → ${end}`;
+    },
     setState,
+    setVisibleThrough({ barCount, text }) {
+      visibleThrough.textContent = `Visible through · ${text} · ${barCount} bars`;
+    },
     setWall(origin) { wall.textContent = origin === 'manual' ? 'Manual wall' : 'Default wall'; },
   });
 }

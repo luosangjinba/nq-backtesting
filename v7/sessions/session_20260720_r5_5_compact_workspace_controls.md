@@ -27,8 +27,11 @@ to reveal the next eligible minute. It does not load the complete Session.
 - all 33 V7 harness files pass;
 - real Chrome proves `1m` to `5m`, ETH to RTH, retained cursor, preserved manual
   offset/span, compact controls, hidden centered update overlay, and Reset View;
-- the exact reported 2026-05-01 12:24 Session proves the first ETH Next jumps
+- the exact reported 2026-05-01 12:40–2026-05-11 12:40 Session proves the first ETH Next jumps
   across the weekend and adds the Sunday reopen bar;
+- the visible workspace separately labels complete Session range, Replay
+  cursor, and source visible-through so Session end is not mistaken for an
+  already revealed candle boundary;
 - architecture boundary, hardening, source quality, cache/latency, atomic race,
   and visual fixtures pass;
 - `git diff --check` passes.
