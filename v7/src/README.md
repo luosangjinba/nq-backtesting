@@ -34,4 +34,8 @@ R3.2b2 adds explicit full-window coverage values and pure bounded acquisition
 planning. Missing bars do not imply a coverage reason, and no provider is
 invoked by this module.
 
+R3.2b3 adds a policy-bound provider execution wrapper and automatic complete
+coverage-plan runner. Bar Data Runtime retains raw request/cache ownership, only
+fake adapters are exercised, and no Replay or UI behavior is active.
+
 Do not import runtime code from V4, V5, or V6.

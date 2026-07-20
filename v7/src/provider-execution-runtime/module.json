@@ -1,0 +1,17 @@
+{
+  "id": "core.provider-execution-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "bar-data-runtime",
+  "publicEntry": "src/provider-execution-runtime/public.js",
+  "requiredPorts": [
+    "core.bar-data-contract",
+    "core.provider-policy-contract",
+    "core.coverage-planning-contract",
+    "core.bar-data-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/provider-execution-runtime-harness.js",
+  "removable": false
+}

@@ -251,7 +251,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 ### R3.2b3 — Fake-Provider Policy Execution
 
 - revision discovery cache, deadline, bounded retry, request limits, coverage
-  acquisition, and prefetch execution against deterministic fakes;
+  acquisition, cancellation, and automatic complete-plan execution against
+  deterministic fakes;
+- Replay-cursor high/low-watermark prefetch remains deferred until Replay owns
+  a cursor;
 - no Replay or chart dependency.
 
 ### R3.3 — Headless Replay Runtime

@@ -211,7 +211,7 @@ Completed with automated evidence; no interaction or visual review is required:
 - define a transport-neutral adapter port and stable error taxonomy;
 - add no concrete provider, network/database access, coverage, Replay, chart, or UI.
 
-## Current Step — R3.2b2 Coverage And Request Planning — Completed
+## R3.2b2 Coverage And Request Planning — Completed
 
 Completed with automated evidence; no interaction or visual review is required:
 
@@ -222,6 +222,19 @@ Completed with automated evidence; no interaction or visual review is required:
 - split by both maximum window duration and estimated source-bar count;
 - preserve complete raw request identity in forward/backward plans;
 - add no provider I/O, cache mutation, Replay, chart, viewport, or UI.
+
+## Current Step — R3.2b3 Fake-Provider Policy Execution — Completed
+
+Completed with automated evidence; no interaction or visual review is required:
+
+- coalesce and cache revision discovery by exact provider scope;
+- enforce policy TTL, deadline, bounded retries, window/bar limits, and
+  provider-local concurrency;
+- validate batch and coverage identity before Bar Data Runtime cache admission;
+- propagate both Bar Data Runtime caller abort and executor disposal;
+- submit complete coverage plans without requiring later pointer input;
+- exercise deterministic fake adapters only;
+- add no real provider, V4/network/DuckDB access, Replay, chart, or UI.
 
 ## Standing Gates
 

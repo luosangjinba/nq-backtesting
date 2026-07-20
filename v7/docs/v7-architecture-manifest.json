@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r3.2b2-coverage-planning-contract",
+  "status": "r3.2b3-provider-execution-runtime",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -22,6 +22,7 @@
     "docs/V7_BAR_DATA_RUNTIME.md",
     "docs/V7_PROVIDER_POLICY_CONTRACT.md",
     "docs/V7_COVERAGE_PLANNING_CONTRACT.md",
+    "docs/V7_PROVIDER_EXECUTION_RUNTIME.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -61,6 +62,7 @@
     "src/bar-data-contract/module.json",
     "src/provider-policy-contract/module.json",
     "src/coverage-planning-contract/module.json",
+    "src/provider-execution-runtime/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
@@ -160,6 +162,7 @@
     "raw-bar-contract-session-independent-and-window-bounded",
     "bar-data-runtime-bounded-coalesced-and-disposable",
     "provider-policy-bounded-and-transport-neutral",
-    "coverage-explicit-and-request-planning-bounded"
+    "coverage-explicit-and-request-planning-bounded",
+    "provider-execution-policy-bound-cancellable-and-automatic"
   ]
 }

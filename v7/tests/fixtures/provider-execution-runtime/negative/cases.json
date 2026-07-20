@@ -1,0 +1,9 @@
+[
+  { "case": "invalid-clock-port", "expectedCode": "INVALID_PROVIDER_EXECUTOR_CONFIG" },
+  { "case": "invalid-revision-scope", "expectedCode": "INVALID_REVISION_SCOPE" },
+  { "case": "request-outside-policy", "expectedCode": "PROVIDER_REQUEST_OUTSIDE_POLICY" },
+  { "case": "acquire-after-dispose", "expectedCode": "PROVIDER_EXECUTOR_DISPOSED" },
+  { "case": "invalid-plan-runtime", "expectedCode": "INVALID_COVERAGE_ACQUISITION_PLAN" },
+  { "case": "invalid-provider-result", "expectedCode": "INVALID_PROVIDER_RESULT" },
+  { "case": "bar-limit-exceeded", "expectedCode": "PROVIDER_BAR_LIMIT_EXCEEDED" }
+]

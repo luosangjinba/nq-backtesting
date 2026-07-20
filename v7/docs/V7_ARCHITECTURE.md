@@ -80,6 +80,12 @@ planner subtracts settled intervals and splits unresolved acquisition by both
 provider window and bar-count limits, in deterministic forward or backward
 order. It performs no provider I/O and owns no runtime state.
 
+R3.2b3 adds `core.provider-execution-runtime` between a concrete adapter port
+and Bar Data Runtime. It executes revision TTL, deadline, retry, provider-local
+concurrency, validated coverage, caller/root cancellation, and complete-plan
+continuation. Bar Data Runtime remains the only raw cache/request owner. Only
+deterministic fake adapters are used; no real transport is selected.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,
