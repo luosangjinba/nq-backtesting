@@ -1,0 +1,177 @@
+import { element, formatDateRange, formatDateTime, icon } from './dom-primitives.js';
+
+function statePanel(state, message, onRetry) {
+  if (state === 'loading') {
+    return element('section', { className: 'state-panel state-loading', 'aria-busy': 'true', 'aria-label': 'Loading sessions' }, [
+      element('div', { className: 'skeleton skeleton-title' }),
+      element('div', { className: 'skeleton skeleton-copy' }),
+      element('div', { className: 'skeleton skeleton-card' }),
+      element('div', { className: 'skeleton skeleton-card' }),
+    ]);
+  }
+  const unavailable = state === 'unavailable';
+  return element('section', { className: `state-panel state-${state}`, role: state === 'error' ? 'alert' : 'status' }, [
+    element('div', { className: 'state-icon' }, [icon(unavailable ? 'database' : 'warning')]),
+    element('div', { className: 'state-copy' }, [
+      element('h2', { text: unavailable ? 'Session storage unavailable' : 'Sessions could not be loaded' }),
+      element('p', { text: message ?? (unavailable
+        ? 'This browser cannot provide durable local storage. Enable site storage, then reload.'
+        : 'Your saved sessions were not changed. Try loading them again.') }),
+    ]),
+    onRetry ? element('button', { className: 'button button-secondary', type: 'button', onClick: onRetry }, [
+      icon('refresh'), element('span', { text: 'Try again' }),
+    ]) : null,
+  ]);
+}
+
+function sessionCard(card, onOpen) {
+  const instruments = element('div', { className: 'instrument-tags', 'aria-label': 'Instruments' });
+  card.instruments.forEach((instrument) => instruments.append(
+    element('span', { className: 'instrument-tag', text: instrument.label }),
+  ));
+  return element('article', { className: 'session-card', dataset: { sessionId: card.id } }, [
+    element('div', { className: 'session-card-marker' }, [icon('layers')]),
+    element('div', { className: 'session-card-body' }, [
+      element('div', { className: 'session-card-heading' }, [
+        element('div', {}, [
+          element('h3', { text: card.name }),
+          element('p', { text: `Created ${formatDateTime(card.createdAtEpochMs)}` }),
+        ]),
+        instruments,
+      ]),
+      element('div', { className: 'session-card-meta' }, [
+        element('span', {}, [icon('calendar'), element('span', { text: formatDateRange(card.startEpochMs, card.endEpochMs) })]),
+      ]),
+    ]),
+    element('button', {
+      className: 'open-session-button', type: 'button',
+      'aria-label': `Open ${card.name}`, onClick: () => onOpen(card.id),
+    }, [element('span', { text: 'Open' }), icon('chevronRight')]),
+  ]);
+}
+
+function listScreen(model, actions) {
+  const header = element('header', { className: 'page-header' }, [
+    element('div', {}, [
+      element('span', { className: 'eyebrow', text: 'Practice workspace' }),
+      element('h1', { text: 'Replay sessions' }),
+      element('p', { text: 'Create focused historical practice windows and return to them without crossing context.' }),
+    ]),
+    element('button', { className: 'button button-primary', type: 'button', onClick: actions.onCreate }, [
+      icon('plus'), element('span', { text: 'New session' }),
+    ]),
+  ]);
+  const content = element('div', { className: 'page-content' });
+  if (model.state === 'loading' || model.state === 'unavailable'
+    || (model.state === 'error' && model.cards.length === 0)) {
+    content.append(statePanel(model.state, model.message, model.state === 'error' ? actions.onRetry : null));
+  } else if (model.state === 'empty') {
+    content.append(element('section', { className: 'empty-state' }, [
+      element('div', { className: 'empty-visual' }, [
+        element('span', { className: 'empty-orbit orbit-one' }),
+        element('span', { className: 'empty-orbit orbit-two' }),
+        element('div', { className: 'empty-icon' }, [icon('sessions')]),
+      ]),
+      element('h2', { text: 'Build your first replay session' }),
+      element('p', { text: 'Choose a historical window and one or more instruments. Market bars are loaded only when the replay workspace is available.' }),
+      element('button', { className: 'button button-primary', type: 'button', onClick: actions.onCreate }, [
+        icon('plus'), element('span', { text: 'Create first session' }),
+      ]),
+    ]));
+  } else {
+    const section = element('section', { className: 'sessions-section', 'aria-busy': model.state === 'stale' ? 'true' : 'false' }, [
+      model.state === 'error' ? element('div', { className: 'inline-alert', role: 'alert' }, [
+        icon('warning'),
+        element('span', { text: model.message ?? 'The action failed. Your saved sessions were not changed.' }),
+        element('button', { className: 'button button-ghost', type: 'button', text: 'Dismiss', onClick: actions.onRetry }),
+      ]) : null,
+      element('div', { className: 'section-heading' }, [
+        element('div', {}, [
+          element('h2', { text: 'Your sessions' }),
+          element('p', { text: `${model.cards.length} saved ${model.cards.length === 1 ? 'session' : 'sessions'}` }),
+        ]),
+        element('button', { className: 'icon-button', type: 'button', 'aria-label': 'Refresh sessions', onClick: actions.onRetry }, [icon('refresh')]),
+      ]),
+      element('div', { className: 'session-list' }, model.cards.map((card) => sessionCard(card, actions.onOpen))),
+    ]);
+    if (model.state === 'stale') section.append(element('div', { className: 'refresh-gate', 'aria-label': 'Refreshing sessions' }, [
+      element('span', { className: 'spinner' }), element('span', { text: 'Saving session…' }),
+    ]));
+    content.append(section);
+  }
+  return element('div', { className: 'page page-sessions' }, [header, content]);
+}
+
+function openedScreen(model, actions) {
+  const content = element('div', { className: 'page-content opened-content' });
+  if (model.state === 'loading' || model.state === 'error' || model.state === 'unavailable') {
+    content.append(statePanel(model.state, model.message, model.state === 'error' ? actions.onBack : null));
+  } else {
+    const session = model.session;
+    content.append(
+      element('section', { className: 'session-hero' }, [
+        element('div', { className: 'session-hero-mark' }, [icon('layers')]),
+        element('div', {}, [
+          element('span', { className: 'eyebrow', text: 'Selected session' }),
+          element('h1', { text: session.name }),
+          element('div', { className: 'instrument-tags' }, session.instruments.map((item) =>
+            element('span', { className: 'instrument-tag', text: item.label }))),
+        ]),
+      ]),
+      element('section', { className: 'session-summary-grid' }, [
+        element('article', { className: 'summary-card' }, [
+          element('span', { className: 'summary-icon' }, [icon('calendar')]),
+          element('span', { className: 'summary-label', text: 'Historical window' }),
+          element('strong', { text: formatDateRange(session.startEpochMs, session.endEpochMs) }),
+        ]),
+        element('article', { className: 'summary-card' }, [
+          element('span', { className: 'summary-icon' }, [icon('clock')]),
+          element('span', { className: 'summary-label', text: 'Last opened' }),
+          element('strong', { text: formatDateTime(session.updatedAtEpochMs) }),
+        ]),
+      ]),
+      element('section', { className: 'foundation-notice' }, [
+        element('div', {}, [
+          element('h2', { text: 'Session details saved locally' }),
+          element('p', { text: 'Your market selection and historical window are ready. Market data stays out of the Session list and loads only inside the replay workspace.' }),
+        ]),
+      ]),
+    );
+  }
+  return element('div', { className: 'page page-opened' }, [
+    element('header', { className: 'opened-header' }, [
+      element('button', { className: 'button button-ghost', type: 'button', onClick: actions.onBack }, [
+        icon('arrowLeft'), element('span', { text: 'All sessions' }),
+      ]),
+      element('span', { className: 'workspace-status' }, [element('span', { className: 'status-dot' }), element('span', { text: 'Local workspace' })]),
+    ]),
+    content,
+  ]);
+}
+
+function shell(content) {
+  return element('div', { className: 'workstation-shell' }, [
+    element('aside', { className: 'app-rail', 'aria-label': 'Primary navigation' }, [
+      element('a', { className: 'product-mark', href: '#/sessions', 'aria-label': 'Replay Lab sessions' }, [
+        element('span', { className: 'product-glyph' }, [icon('layers')]),
+        element('span', { className: 'product-name', text: 'Replay Lab' }),
+      ]),
+      element('nav', {}, [
+        element('a', { className: 'rail-link is-active', href: '#/sessions' }, [icon('sessions'), element('span', { text: 'Sessions' })]),
+      ]),
+      element('div', { className: 'rail-footer' }, [
+        element('span', { className: 'foundation-badge', text: 'Local-first' }),
+        element('span', { className: 'local-note', text: 'Stored on this device' }),
+      ]),
+    ]),
+    element('main', { className: 'main-surface' }, [content]),
+  ]);
+}
+
+/** Render one complete, atomic Session Browser snapshot into its owned root. */
+export function renderSessionBrowserSurface(root, model, actions) {
+  const content = model.screen === 'opened' ? openedScreen(model, actions) : listScreen(model, actions);
+  root.replaceChildren(shell(content));
+  root.dataset.viewState = model.state;
+  root.dataset.screen = model.screen;
+}

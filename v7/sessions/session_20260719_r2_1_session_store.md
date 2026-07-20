@@ -39,7 +39,6 @@ quality, and legacy-isolation gates remain green. `git diff --check` passes.
 
 ## Human Review
 
-Confirm the headless boundary and evidence. R2.1 has no interaction or visual
-surface. Automated evidence cannot accept the step. Passing R2.1 opens R2.2,
-which will provide the professional Session browser and the primary interaction
-and visual audit.
+Accepted by the user on 2026-07-19. The headless boundary, explicit-key A/B
+isolation, monotonic activation, reconstruction evidence, and absence of chart,
+bar, Replay, pane, viewport, DOM, and UI behavior were confirmed. R2.2 is open.

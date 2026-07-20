@@ -145,16 +145,25 @@ Human-accepted on 2026-07-19:
 - optional analysis contracts remain removable;
 - no capability implementation or future feature engine was added.
 
-## Current Step — R2.1 Session Store And Persistence Boundary
+## R2.1 Session Store And Persistence Boundary — Accepted
+
+Human-accepted on 2026-07-19:
+
+- versioned per-Session records and explicit branded Session-key persistence;
+- revision CAS, migration, reconstruction, and monotonic activation allocation;
+- A/B identity/key consistency and no implicit active Session storage key;
+- no chart, bar, Replay, pane, viewport, DOM, or UI behavior.
+
+## Current Step — R2.2 Professional Session Browser
 
 In progress:
 
-- versioned per-Session records with an explicitly uninitialized workspace;
-- explicit branded Session-key reads/writes and no active Session storage key;
-- revision CAS and persisted monotonic activation allocation;
-- replaceable Web Storage-compatible adapter and explicit record migration;
-- A/B isolation and runtime reconstruction harnesses;
-- no charts, bars, Replay, panes, viewport, DOM, UI, or application singleton.
+- professional local-first Session list and selected-Session surfaces;
+- accessible Create Session dialog with NQ/ES composition configuration;
+- loading, empty, unavailable, stale, error, and ready presentation;
+- create A/create B, A→B→A, hard refresh on B, and no cross-Session metadata;
+- fixed `1440x900` real-Chrome visual regression fixtures;
+- no chart, bars, Replay, panes, viewport, provider, or fake future controls.
 
 ## Standing Gates
 

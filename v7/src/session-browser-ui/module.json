@@ -1,0 +1,15 @@
+{
+  "id": "adapter.session-browser-ui",
+  "version": "1.0.0",
+  "kind": "adapter",
+  "owner": "session-store",
+  "publicEntry": "src/session-browser-ui/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.session-store"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/session-browser-browser-harness.js",
+  "removable": false
+}

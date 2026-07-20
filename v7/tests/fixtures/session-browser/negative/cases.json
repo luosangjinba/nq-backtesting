@@ -1,0 +1,14 @@
+[
+  {
+    "name": "unsupported visible state",
+    "operation": "list",
+    "state": "debug",
+    "expectedMessage": "Unsupported Session Browser state"
+  },
+  {
+    "name": "opened ready without Session record",
+    "operation": "opened",
+    "state": "ready",
+    "expectedMessage": "requires a record"
+  }
+]

@@ -1,0 +1,157 @@
+import { createSessionId } from '../session-identity/public.js';
+import { createSessionDialog } from './create-dialog.js';
+import { renderSessionBrowserSurface } from './surface.js';
+import { createOpenedSessionViewModel, createSessionListViewModel } from './view-model.js';
+
+function readRoute(hash) {
+  const match = /^#\/session\/([^/]+)$/.exec(hash);
+  if (!match) return Object.freeze({ screen: 'list', token: null });
+  try {
+    return Object.freeze({ screen: 'opened', token: decodeURIComponent(match[1]) });
+  } catch {
+    return Object.freeze({ screen: 'opened', token: '' });
+  }
+}
+
+function requirePort(value, methods, name) {
+  for (const method of methods) {
+    if (typeof value?.[method] !== 'function') throw new TypeError(`${name} requires ${method}().`);
+  }
+  return value;
+}
+
+class SessionBrowserController {
+  constructor(options) {
+    this.root = options.root;
+    this.store = options.store;
+    this.navigation = requirePort(options.navigation, ['read', 'go', 'subscribe'], 'Navigation port');
+    this.instruments = options.instruments;
+    this.labels = Object.freeze(Object.fromEntries(options.instruments.map((item) => [item.id, item.label])));
+    this.idFactory = options.idFactory;
+    this.now = options.now;
+    this.schedule = options.schedule;
+    this.unavailableMessage = options.unavailableMessage;
+    this.records = [];
+    this.stopped = false;
+    this.unsubscribe = null;
+    const end = this.now();
+    this.dialog = createSessionDialog({
+      instruments: this.instruments,
+      defaultRange: { startEpochMs: end - 4 * 24 * 60 * 60 * 1000, endEpochMs: end },
+      onSubmit: (intent) => this.createSession(intent),
+    });
+    this.actions = Object.freeze({
+      onCreate: () => this.dialog.open(),
+      onOpen: (token) => this.navigation.go(`#\/session\/${encodeURIComponent(token)}`),
+      onBack: () => this.navigation.go('#/sessions'),
+      onRetry: () => this.applyRoute(),
+    });
+  }
+
+  commit(model) {
+    if (this.stopped) return;
+    renderSessionBrowserSurface(this.root, model, this.actions);
+    this.root.append(this.dialog.element);
+  }
+
+  renderList(state, message = null) {
+    this.commit(createSessionListViewModel({
+      state, records: this.records, instrumentLabels: this.labels, message,
+    }));
+  }
+
+  refreshList() {
+    try {
+      this.records = this.store.listSessions();
+      this.renderList('ready');
+    } catch (error) {
+      this.renderList('error', error.message);
+    }
+  }
+
+  createSession(intent) {
+    this.dialog.close();
+    this.renderList('stale');
+    this.schedule(() => {
+      if (this.stopped) return;
+      try {
+        this.store.createSession({
+          ...intent,
+          sessionId: createSessionId(this.idFactory()),
+          nowEpochMs: this.now(),
+        });
+        this.refreshList();
+      } catch (error) {
+        this.renderList('error', error.message);
+      }
+    });
+  }
+
+  openSession(token) {
+    this.commit(createOpenedSessionViewModel({ state: 'loading', record: null, instrumentLabels: this.labels }));
+    this.schedule(() => {
+      if (this.stopped) return;
+      try {
+        const record = this.store.activateSession(createSessionId(token), { nowEpochMs: this.now() });
+        this.records = this.store.listSessions();
+        this.commit(createOpenedSessionViewModel({ state: 'ready', record, instrumentLabels: this.labels }));
+      } catch {
+        this.commit(createOpenedSessionViewModel({
+          state: 'error', record: null, instrumentLabels: this.labels,
+          message: 'This Session could not be opened. Return to the Session list and try again.',
+        }));
+      }
+    });
+  }
+
+  applyRoute() {
+    if (!this.store) {
+      this.commit(createSessionListViewModel({
+        state: 'unavailable', records: [], instrumentLabels: this.labels,
+        message: this.unavailableMessage,
+      }));
+      return;
+    }
+    const route = readRoute(this.navigation.read());
+    if (route.screen === 'opened') this.openSession(route.token);
+    else this.refreshList();
+  }
+
+  start() {
+    if (this.stopped || this.unsubscribe) return;
+    this.commit(createSessionListViewModel({ state: 'loading', instrumentLabels: this.labels }));
+    this.unsubscribe = this.navigation.subscribe(() => this.applyRoute());
+    this.schedule(() => this.applyRoute());
+  }
+
+  dispose() {
+    if (this.stopped) return;
+    this.stopped = true;
+    this.unsubscribe?.();
+    this.unsubscribe = null;
+    this.dialog.element.remove();
+    this.root.replaceChildren();
+  }
+}
+
+/**
+ * Owner: session-store UI adapter.
+ * Purpose: translate Session Browser DOM intents into explicit Session Store
+ * commands while rendering only immutable view models.
+ * Inputs: owned root, Session Store, navigation, identity/time/config ports.
+ * Outputs: start/dispose controller API.
+ * Side effects: owns DOM under root and one navigation subscription.
+ * Errors: operation failures become visible error/unavailable states.
+ */
+export function createSessionBrowser(options) {
+  if (!(options.root instanceof HTMLElement)) throw new TypeError('Session Browser requires an HTMLElement root.');
+  const controller = new SessionBrowserController({
+    ...options,
+    now: options.now ?? (() => Date.now()),
+    schedule: options.schedule ?? ((task) => queueMicrotask(task)),
+  });
+  return Object.freeze({
+    start: () => controller.start(),
+    dispose: () => controller.dispose(),
+  });
+}

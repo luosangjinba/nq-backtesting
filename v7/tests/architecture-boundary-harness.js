@@ -63,10 +63,11 @@ function visitModule(moduleId) {
 for (const moduleId of activeModuleIds) visitModule(moduleId);
 assert.deepEqual(manifest.writerInventories, {
   sessionRecord: ['core.session-store'],
+  sessionBrowserDom: ['adapter.session-browser-ui'],
   chartSeries: [],
   rawBarRequest: [],
   replayCursor: [],
-}, 'R2.1 activates only the Session record writer; later state owners remain inactive');
+}, 'R2.2 activates Session record and Session Browser DOM writers; later state owners remain inactive');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',

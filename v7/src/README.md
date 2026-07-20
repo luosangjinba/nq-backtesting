@@ -10,4 +10,8 @@ R1.5 adds pure versioned capability descriptors and compatibility negotiation;
 it does not add a provider, timeframe implementation, instrument catalog,
 calendar calculation, indicator evaluator, formula evaluator, or plugin loader.
 
+R2.1 adds the explicit-key Session Store and replaceable persistence adapter.
+R2.2 adds only the Session Browser DOM adapter and thin browser composition;
+neither step adds bars, Replay, panes, viewport, provider, or chart behavior.
+
 Do not import runtime code from V4, V5, or V6.

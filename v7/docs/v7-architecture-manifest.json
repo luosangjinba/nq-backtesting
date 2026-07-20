@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "status": "r2.1-session-store",
-  "productionRoots": ["v7/src"],
+  "status": "r2.2-session-browser",
+  "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
     "docs/INDEX.md",
@@ -16,6 +16,7 @@
     "docs/v7-foundation-interactions.json",
     "docs/V7_CACHE_AND_LATENCY_CONTRACT.md",
     "docs/v7-cache-latency-contract.json",
+    "docs/V7_SESSION_BROWSER_SURFACE.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -52,7 +53,8 @@
     "src/module-host/module.json",
     "src/capability-contract/module.json",
     "src/session-persistence/module.json",
-    "src/session-store/module.json"
+    "src/session-store/module.json",
+    "src/session-browser-ui/module.json"
   ],
   "moduleContract": {
     "descriptorRequiredFields": [
@@ -114,6 +116,7 @@
   },
   "writerInventories": {
     "sessionRecord": ["core.session-store"],
+    "sessionBrowserDom": ["adapter.session-browser-ui"],
     "chartSeries": [],
     "rawBarRequest": [],
     "replayCursor": []
