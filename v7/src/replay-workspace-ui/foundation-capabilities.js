@@ -6,12 +6,13 @@ import {
 import { createFixedDurationAggregationPolicy } from '../fixed-timeframe-domain/public.js';
 import { createSessionHoursCalendar, createSessionHoursPolicy } from '../session-hours-domain/public.js';
 import { createWorkspaceReplacementCatalog } from '../workspace-replacement-runtime/public.js';
+import { V4_BARS_PROVIDER_ID } from '../v4-bars-provider-adapter/public.js';
 
 const MINUTE = 60_000;
 export const FOUNDATION_IDS = Object.freeze({
   calendar: 'calendar.cme-equity-index',
   instrument: 'instrument.cme.nq',
-  provider: 'provider.local-foundation',
+  provider: V4_BARS_PROVIDER_ID,
   resolution: 'resolution.fixed-1-minute',
   sessionHours: Object.freeze({
     eth: 'session-hours.cme-eth',

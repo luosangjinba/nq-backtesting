@@ -144,15 +144,13 @@ function openedScreen(model, actions) {
       ]),
     );
   }
-  return element('div', { className: 'page page-opened' }, [
-    element('header', { className: 'opened-header' }, [
+  const header = element('header', { className: 'opened-header' }, [
       element('button', { className: 'button button-ghost', type: 'button', onClick: actions.onBack }, [
         icon('arrowLeft'), element('span', { text: 'All sessions' }),
       ]),
       element('span', { className: 'workspace-status' }, [element('span', { className: 'status-dot' }), element('span', { text: 'Local workspace' })]),
-    ]),
-    content,
-  ]);
+    ]);
+  return element('div', { className: 'page page-opened' }, [model.workspace ? null : header, content]);
 }
 
 function shell(content, { immersive = false } = {}) {

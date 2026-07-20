@@ -22,7 +22,7 @@ import { createSourceBatchLedger } from './source-batch-ledger.js';
 
 function formatCursor(epochMs) {
   const formatter = new Intl.DateTimeFormat(undefined, {
-    day: '2-digit', hour: '2-digit', hour12: false, minute: '2-digit', month: '2-digit',
+    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: '2-digit',
     timeZoneName: 'short', year: 'numeric',
   });
   return formatter.format(new Date(epochMs));
@@ -163,7 +163,9 @@ export function createReplayWorkspaceController({ record, view }) {
       sourceBatches.accept();
       acceptVisibleState();
     } catch (error) {
-      if (!disposed) view.setState('error', { message: error?.message });
+      if (!disposed) view.setState(operation === 'chart-entry' ? 'unavailable' : 'error', {
+        message: error?.message,
+      });
     } finally {
       sourceBatches.reject();
       pending = false;
@@ -223,6 +225,7 @@ export function createReplayWorkspaceController({ record, view }) {
       adapter.dispose();
       barData.dispose();
       replay.dispose();
+      market.dispose();
     },
     next() {
       if (disposed || pending) return;

@@ -78,6 +78,7 @@
     "src/provider-policy-contract/module.json",
     "src/coverage-planning-contract/module.json",
     "src/provider-execution-runtime/module.json",
+    "src/v4-bars-provider-adapter/module.json",
     "src/replay-contract/module.json",
     "src/replay-runtime/module.json",
     "src/replay-prefetch-contract/module.json",
@@ -204,6 +205,7 @@
     "real-chart-visible-completion-and-native-wall",
     "session-hours-wall-clock-eligibility",
     "fixed-timeframe-canonical-alignment",
-    "atomic-timeframe-session-hours-replacement"
+    "atomic-timeframe-session-hours-replacement",
+    "real-v4-bars-no-synthetic-production-fallback"
   ]
 }

@@ -7,7 +7,7 @@ Status: R4.5 human-accepted (2026-07-20)
 R4.5 is the first real chart-bearing vertical slice:
 
 - one NQ pane with explicit `1m` and ETH labels;
-- deterministic local foundation bars, clearly disclosed in the UI;
+- real local V4/DuckDB bars after the R5.6 provider correction;
 - chart entry showing 120 source minutes of historical prefix plus the selected
   Session start bar, while every later bar remains hidden;
 - Manual Next through the same Workspace Transaction Runtime path;
@@ -17,8 +17,9 @@ R4.5 is the first real chart-bearing vertical slice:
   configurations retain their existing summary rather than pretending to have
   market support.
 
-This is not a real CME provider or production Session Hours implementation.
-Those remain later capability/adapter work.
+R4.5 originally used a disclosed deterministic fixture. R5.6 replaced that
+production fixture with the existing local V4/DuckDB provider; production
+Session Hours still remains bounded by the currently verified calendar set.
 
 ## Owners And Ports
 
@@ -29,8 +30,8 @@ Viewport Runtime logical projection, and owns chart lifecycle/native input
 capture under its supplied host.
 
 `adapter.replay-workspace-ui` owns only its DOM subtree, visible state, and UI
-command dispatch. It composes Session activation, Bar Data Runtime with a
-deterministic provider, Replay Runtime, Projection Domain, Workspace
+command dispatch. It composes Session activation, Bar Data Runtime with the
+real provider port, Replay Runtime, Projection Domain, Workspace
 Transaction Runtime, Chart Snapshot Application, Viewport Runtime, and the
 real adapter strictly through public facades. It owns no alternate bars,
 Replay cursor, projection, chart series, or viewport intent.
@@ -86,10 +87,8 @@ References checked immediately before implementation:
   fixed `1440x900` visual regression, and the 250 ms cache-hit maximum;
 - six negative controls bind early completion, sampling, wall reset,
   unsupported capability, blank refresh, and latency regressions;
-- deterministic fixture quality assertions require every OHLC value to align
-  to the NQ `0.25` tick, aggregate wick length to remain below aggregate body
-  length, elongated-wick frequency to stay below eight percent, and directional
-  runs to remain below twelve candles;
+- the R5.6 provider harness verifies actual source normalization and the browser
+  fixture displays real DuckDB OHLC rather than synthetic shape heuristics;
 - complete V7 suite and source/architecture checks run before commit.
 
 Automated evidence did not grant acceptance. Human review exercised the actual

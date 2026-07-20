@@ -21,33 +21,6 @@ assert.equal(new Set(negativeCases).size, 6);
 assert.deepEqual(REPLAY_WORKSPACE_STATES, [
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
-const qualityMarket = createFoundationMarket({
-  configuration: { historicalRange: { startEpochMs: 1_780_000_000_000, endEpochMs: 1_780_021_600_000 } },
-});
-const qualityBars = qualityMarket.provider.requestRawBars(qualityMarket.request).bars;
-const candleQuality = qualityBars.reduce((summary, bar) => {
-  const body = Math.abs(bar.close - bar.open);
-  const totalWick = (bar.high - Math.max(bar.open, bar.close))
-    + (Math.min(bar.open, bar.close) - bar.low);
-  summary.body += body;
-  summary.wick += totalWick;
-  summary.spikes += totalWick > Math.max(3, body * 3) ? 1 : 0;
-  const direction = Math.sign(bar.close - bar.open);
-  if (direction !== 0 && direction === summary.previousDirection) summary.currentRun += 1;
-  else summary.currentRun = direction === 0 ? 0 : 1;
-  summary.longestRun = Math.max(summary.longestRun, summary.currentRun);
-  if (direction !== 0) summary.previousDirection = direction;
-  for (const price of [bar.open, bar.high, bar.low, bar.close]) {
-    assert.equal(Number.isInteger(price * 4), true, 'foundation OHLC must align to the NQ 0.25 tick');
-  }
-  return summary;
-}, { body: 0, currentRun: 0, longestRun: 0, previousDirection: 0, spikes: 0, wick: 0 });
-assert.ok(candleQuality.wick < candleQuality.body,
-  'foundation candles must not be dominated by synthetic upper/lower wicks');
-assert.ok(candleQuality.spikes / qualityBars.length < 0.08,
-  'foundation candles must reserve elongated wicks for sparse events');
-assert.ok(candleQuality.longestRun < 12,
-  'foundation candles must not collapse into long mechanical directional staircases');
 const fridayStart = Date.parse('2026-05-01T19:40:00Z');
 const fridayMarket = createFoundationMarket({
   configuration: { historicalRange: {
@@ -66,6 +39,7 @@ assert.equal(
   'ETH Next from the Friday close must reveal the Sunday reopen minute',
 );
 assert.equal(weekendPlan.request.windowEndEpochMs, Date.parse('2026-05-03T22:01:00Z'));
+fridayMarket.dispose();
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -164,6 +138,7 @@ try {
     const host = document.querySelector('.lightweight-chart-host');
     return {
       barCount: Number(host.dataset.barCount),
+      backHeight: document.querySelector('.replay-back').getBoundingClientRect().height,
       buttonHeight: document.querySelector('.replay-next').getBoundingClientRect().height,
       controlHeight: document.querySelector('.workspace-choice').getBoundingClientRect().height,
       canvasCount: host.querySelectorAll('canvas').length,
@@ -173,10 +148,12 @@ try {
       offset: Number(host.dataset.latestOffsetBars),
       origin: host.dataset.viewportOrigin,
       painted: host.dataset.painted,
+      routeHeaderMissing: !document.querySelector('.opened-header'),
       replayRevision: Number(root.dataset.replayRevision),
       sessionHoursMode: root.dataset.sessionHoursMode,
       sessionRange: document.querySelector('.replay-session-range').textContent,
       timeframeId: root.dataset.timeframeId,
+      toolbarHeight: document.querySelector('.replay-workspace-toolbar').getBoundingClientRect().height,
       visibleThrough: document.querySelector('.replay-visible-through').textContent,
       workspaceRevision: Number(root.dataset.workspaceRevision),
     };
@@ -184,16 +161,21 @@ try {
   assert.ok(entry.canvasCount > 0, 'real chart must own painted canvases');
   delete entry.canvasCount;
   assert.ok(entry.chartWidth >= 1100, `chart must fill available desktop width: ${entry.chartWidth}px`);
-  assert.ok(entry.chartHeight >= 650, `chart must fill available desktop height: ${entry.chartHeight}px`);
+  assert.ok(entry.chartHeight >= 800, `chart must maximize available desktop height: ${entry.chartHeight}px`);
+  assert.ok(entry.toolbarHeight <= 38, `merged toolbar must remain compact: ${entry.toolbarHeight}px`);
+  assert.ok(entry.backHeight <= 30, `merged back action must remain compact: ${entry.backHeight}px`);
   assert.ok(entry.buttonHeight <= 32, `replay actions must remain compact: ${entry.buttonHeight}px`);
   assert.ok(entry.controlHeight <= 26, `workspace selectors must remain compact: ${entry.controlHeight}px`);
   delete entry.chartWidth;
   delete entry.chartHeight;
   delete entry.buttonHeight;
+  delete entry.backHeight;
   delete entry.controlHeight;
+  delete entry.toolbarHeight;
   assert.deepEqual(entry, {
     barCount: 121, libraryVersion: '5.2.0', offset: 12,
     origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
+    routeHeaderMissing: true,
     sessionRange: 'Session · 05/01/2026, 12:40 PDT → 05/11/2026, 12:40 PDT',
     timeframeId: 'timeframe.display-1-minute',
     visibleThrough: 'Visible through · 05/01/2026, 12:40 PDT · 121 bars', workspaceRevision: 1,

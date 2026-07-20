@@ -146,6 +146,14 @@ advancement; exact projection provenance supplies explicit Session Hours mode
 and source-level visible-through. Acquisition/presentation races and failures
 cannot publish a stale selection, chart snapshot, cursor, or visibility value.
 
+R5.6 activates `adapter.v4-bars-provider` as the concrete local market-data
+boundary. It converts real request instants to V4 New York wall-clock strings,
+normalizes V4's UTC-like wall timestamps back to real instants, removes API
+padding outside the exact half-open request, and returns validated Raw Bar and
+Coverage contracts through the existing policy executor. It has no Session,
+Replay, Projection, chart, or viewport ownership. Production has no synthetic
+bar fallback; an unavailable V4/DuckDB source remains a visible failure.
+
 ### Workspace Transaction Runtime
 
 Is the sole coordinator of chart-visible changes. It accepts an immutable

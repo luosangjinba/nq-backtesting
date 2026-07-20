@@ -204,7 +204,7 @@ try {
 
   assert.equal(await evaluate(cdp, clickCardByName('Session Alpha')), true);
   await waitFor(cdp, `document.querySelector('#app').dataset.screen === 'opened' && document.querySelector('h1')?.textContent === 'Session Alpha'`);
-  await evaluate(cdp, `document.querySelector('.opened-header .button').click()`);
+  await evaluate(cdp, `document.querySelector('.replay-back, .opened-header .button').click()`);
   await waitFor(cdp, `document.querySelector('#app').dataset.screen === 'list' && document.querySelectorAll('.session-card').length === 2`);
   assert.equal(await evaluate(cdp, clickCardByName('Session Beta')), true);
   await waitFor(cdp, `document.querySelector('#app').dataset.screen === 'opened' && document.querySelector('h1')?.textContent === 'Session Beta'`);

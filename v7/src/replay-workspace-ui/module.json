@@ -21,7 +21,8 @@
     "core.workspace-transaction-contract",
     "core.workspace-transaction-runtime",
     "core.workspace-replacement-runtime",
-    "adapter.lightweight-chart"
+    "adapter.lightweight-chart",
+    "adapter.v4-bars-provider"
   ],
   "optionalPorts": [],
   "lifecycle": ["dispose"],

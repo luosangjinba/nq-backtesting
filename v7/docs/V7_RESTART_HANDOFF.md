@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.5 implementation, awaiting human acceptance
+Last updated: 2026-07-20 after R5.6 real-provider correction, awaiting human acceptance
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  R5.5 awaiting human review
+  combined R5.5/R5.6 workspace awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -38,6 +38,7 @@ Do not load all historical `sessions/` records. For the R5.5 review, read only:
 - `sessions/session_20260720_r5_3_fixed_timeframe_domain.md`.
 - `sessions/session_20260720_r5_4_workspace_replacement_runtime.md`.
 - `sessions/session_20260720_r5_5_compact_workspace_controls.md`.
+- `sessions/session_20260720_r5_6_real_v4_bars_provider.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 
@@ -86,7 +87,7 @@ and human-accepted:
   explicitly restores default intent;
 - the NQ route uses an immersive chart-first shell with compact controls and no
   centered cache-hit update overlay;
-- the UI discloses its deterministic local foundation feed;
+- the UI discloses its real local V4/DuckDB market-data feed;
 - H005/H006/H008/H009/H010/H013/H014/H015/H016/H017/H042 are human-accepted through
   the R4.5 browser review; H011/H039/H040/H041 have automated evidence.
 - R5.1 binds settled V6 Reset View, Replay, Settings, multi-pane, ETH/RTH, and
@@ -105,6 +106,9 @@ and human-accepted:
   corrections align chart timestamps with Session-card local time, restore the
   V6 prefix-plus-start/no-future entry baseline, and add repeatable bounded
   leftward history extension. Human acceptance is pending.
+- R5.6 removes the production synthetic generator and connects the existing
+  V4/DuckDB NQ source through an independent, policy-bound adapter with exact
+  wall-time normalization, padding removal, and no silent fallback.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -116,10 +120,10 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 
 ## Deliberately Not Implemented
 
-There is still no real provider, production-complete CME holiday dataset,
-calendar-aligned day/week/month policy, Auto Replay timer, multi-pane layout, or durable
-workspace restore. R4.5 uses a clearly disclosed deterministic local foundation
-feed. Do not describe it as real CME history or production data coverage.
+There is still no production-complete CME holiday dataset, calendar-aligned
+day/week/month policy, Auto Replay timer, multi-pane layout, or durable
+workspace restore. V7 now uses real local V4/DuckDB NQ history, but this does
+not imply complete exchange-calendar or tick-level coverage.
 
 ## Verification After Restart
 
@@ -137,20 +141,20 @@ Expected results:
 
 - branch is `v7/rebuild`;
 - `git status --short` is empty;
-- 33 Harness files pass;
+- all Harness files pass;
 - the server prints the V7 Session Browser URL;
 - `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/`
   returns `200` while the service is running.
 
 The server process does not survive a machine reboot and must be restarted.
-No second V7 data service is currently required because no real provider is
-connected.
+The existing V4 API on `127.0.0.1:8766` is required for the real chart. If it
+is unavailable, V7 shows Chart unavailable and does not substitute fake bars.
 
 ## Exact Next Step
 
-Perform human visual and interaction review of R5.5. Do not begin R6
-multi-pane, real provider, persistence, or expanded Replay transport until the
-R5.5 gate is accepted.
+Perform human visual and interaction review of the combined R5.5/R5.6 real-data
+workspace. Do not begin R6 multi-pane, persistence, or expanded Replay
+transport until the gate is accepted.
 
 ## Standing Workflow
 

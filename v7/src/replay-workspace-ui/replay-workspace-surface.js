@@ -16,12 +16,13 @@ export function createReplayWorkspaceSurface() {
 
   return Object.freeze({
     dispose: unmount,
-    mount({ record, root }) {
+    mount({ onBack, record, root }) {
       unmount();
       const callbacks = { next: null, reset: null, sessionHours: null, timeframe: null };
       const capabilities = createFoundationCapabilities();
       const view = createReplayWorkspaceView({
         name: record.metadata.name,
+        onBack,
         onNext: () => callbacks.next?.(),
         onReset: () => callbacks.reset?.(),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),

@@ -21,7 +21,7 @@ function replaceChildren(node, children) {
 function formatTrigger(date, precision) {
   return new Intl.DateTimeFormat(undefined, {
     year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit',
+    hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
     second: precision === 'second' ? '2-digit' : undefined,
   }).format(date);
 }

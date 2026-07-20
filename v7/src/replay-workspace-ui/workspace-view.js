@@ -40,8 +40,12 @@ function createChoiceGroup({ ariaLabel, choices, className, onChoose }) {
 }
 
 export function createReplayWorkspaceView({
-  name, onNext, onReset, onSessionHours, onTimeframe, sessionHoursModes, timeframeMenuGroups,
+  name, onBack, onNext, onReset, onSessionHours, onTimeframe, sessionHoursModes,
+  timeframeMenuGroups,
 }) {
+  const backButton = element('button', {
+    className: 'button replay-action-button replay-back', text: '← All sessions', type: 'button',
+  });
   const nextButton = element('button', {
     className: 'button replay-action-button replay-next', text: 'Next bar', type: 'button',
   });
@@ -50,6 +54,7 @@ export function createReplayWorkspaceView({
   });
   nextButton.addEventListener('click', onNext);
   resetButton.addEventListener('click', onReset);
+  backButton.addEventListener('click', onBack);
   const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
   const sessionHoursControl = createChoiceGroup({
     ariaLabel: 'Session hours',
@@ -76,17 +81,25 @@ export function createReplayWorkspaceView({
     element('header', { className: 'replay-workspace-toolbar' }, [
       element('div', { className: 'replay-title-group' }, [
         element('div', { className: 'replay-title-line' }, [
+          backButton,
           element('h1', { text: name }),
           element('span', { className: 'market-symbol', text: 'NQ' }),
           timeframeControl.root,
           sessionHoursControl.root,
         ]),
       ]),
-      element('div', { className: 'replay-actions' }, [resetButton, nextButton]),
+      element('div', { className: 'replay-actions' }, [
+        resetButton,
+        nextButton,
+        element('span', { className: 'workspace-status replay-local-status' }, [
+          element('span', { className: 'status-dot' }),
+          element('span', { text: 'Local workspace' }),
+        ]),
+      ]),
     ]),
     element('div', { className: 'chart-frame' }, [
       element('div', { className: 'chart-meta-strip' }, [
-        element('span', { text: 'Nasdaq-100 Futures · Local deterministic foundation feed' }),
+        element('span', { text: 'Nasdaq-100 Futures · Local V4/DuckDB market data' }),
         element('span', { className: 'chart-meta-right' }, [status, wall, cursor]),
       ]),
       chartHost,
@@ -130,6 +143,7 @@ export function createReplayWorkspaceView({
   return Object.freeze({
     chartHost,
     dispose() {
+      backButton.removeEventListener('click', onBack);
       nextButton.removeEventListener('click', onNext);
       resetButton.removeEventListener('click', onReset);
       timeframeControl.dispose();

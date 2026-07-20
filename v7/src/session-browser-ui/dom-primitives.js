@@ -41,7 +41,7 @@ export function element(tag, attributes = {}, children = []) {
 export function formatDateTime(epochMs) {
   return new Intl.DateTimeFormat(undefined, {
     year: 'numeric', month: 'short', day: '2-digit',
-    hour: '2-digit', minute: '2-digit',
+    hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
   }).format(new Date(epochMs));
 }
 

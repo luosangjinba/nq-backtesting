@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R5.4",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5", "R6", "R7"],
+  "currentStep": "R5.6",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -774,6 +774,26 @@
       "negativeFixtures": ["tests/fixtures/workspace-replacement-runtime/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260720_r5_4_workspace_replacement_runtime.md"
+    },
+    {
+      "id": "H046",
+      "name": "real-v4-bars-no-synthetic-production-fallback",
+      "owner": "bar-data-runtime",
+      "v6FailurePrevented": "a visually plausible synthetic feed reached chart review while real local OHLC and transport failures remained hidden",
+      "activationStep": "R5.6",
+      "state": "executable",
+      "harness": "tests/v4-bars-provider-adapter-harness.js",
+      "positiveEvidence": [
+        "src/v4-bars-provider-adapter/public.js",
+        "src/v4-bars-provider-adapter/module.json",
+        "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "src/v4-bars-provider-adapter/time-codec.js",
+        "tests/v4-bars-provider-adapter-harness.js",
+        "docs/V7_REAL_V4_BARS_PROVIDER.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/v4-bars-provider-adapter/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

@@ -396,7 +396,7 @@ Completed with automated evidence; no interaction or visual review is required:
   effects;
 - add no toolbar, multi-pane, real provider, persistence, or playback timer.
 
-## R5.5 Compact Timeframe And ETH/RTH Controls — Awaiting Human Acceptance
+## R5.5 Compact Timeframe And ETH/RTH Controls — Awaiting Combined Human Acceptance
 
 Implemented with automated evidence:
 
@@ -429,8 +429,27 @@ The follow-up review's date-independent `01:59 PM` cutoff is corrected by
 removing forward-context entry entirely. The selected start is the first Replay
 bar; earlier bars are context and later bars remain hidden.
 
-Exact next action: human visual and interaction review of R5.5. Do not begin R6
-multi-pane or real-provider work until this gate is accepted.
+## R5.6 Real V4/DuckDB Bars Provider — Awaiting Human Acceptance
+
+Implemented as a corrective gate after chart review exposed that R5.5 still
+used visually misleading generated bars:
+
+- remove all production sine-wave, pseudo-random candle, and artificial-wick
+  generation;
+- add an independent V4 bars provider adapter over the existing local DuckDB
+  service;
+- convert Session real instants to New York request wall time and normalize the
+  API's UTC-like exchange-wall response back to real instants;
+- filter the V4 API's automatic padding to the exact V7 half-open raw window;
+- execute through the existing provider policy/deadline/retry boundary and Bar
+  Data Runtime cache owner;
+- show real-source failure explicitly with no synthetic fallback;
+- replace the chart visual baselines with actual NQ OHLC from DuckDB;
+- prove the V6 entry baseline, Next, TF/ETH-RTH replacement, manual/reset wall,
+  and repeated left extension in real Chrome.
+
+Exact next action: human visual and interaction review of the combined R5.5 and
+R5.6 workspace. Do not begin R6 multi-pane until this gate is accepted.
 
 ## Standing Gates
 

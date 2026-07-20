@@ -30,14 +30,14 @@ and interaction acceptance.
 
 ## Foundation Scope
 
-The visible slice remains NQ and a deterministic local one-minute source. The
+The visible slice remains NQ and now uses the real local V4/DuckDB one-minute source. The
 capability catalog registers V6's fixed minute/hour set (`1m` through `12h`)
 crossed with ETH/RTH. Calendar `1D`/`1W`/`1M` entries remain visibly disabled
 until their session-aware aggregation owner is migrated. The adapter
 converts real instants to New York exchange wall-clock labels before invoking
 the R5.2 calendar policy; chart timestamps themselves remain unchanged.
 
-This step does not add multi-pane, a real market-data provider, persistence,
+This step does not add multi-pane, persistence,
 Auto Replay, Previous, Restart, or Go-to.
 
 ## Evidence
@@ -72,4 +72,5 @@ older window. Older batches prepend without moving Replay or changing the
 accepted no-future boundary. The browser gate proves a second boundary visit
 loads a second older window, so the interaction can continue leftward.
 
-Human acceptance remains required before R6 selection or implementation.
+R5.6 supersedes the temporary synthetic source described by the original R5.5
+implementation. Human acceptance remains required before R6 selection or implementation.

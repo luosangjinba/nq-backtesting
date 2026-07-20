@@ -100,6 +100,7 @@ class SessionBrowserController {
         }));
         if (workspace) {
           this.openedSessionSurface.mount({
+            onBack: this.actions.onBack,
             record,
             root: this.root.querySelector('.replay-workspace-slot'),
           });
