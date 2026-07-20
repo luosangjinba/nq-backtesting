@@ -1,0 +1,11 @@
+[
+  { "name": "string-ordinal", "operation": "create", "value": "1", "expectedCode": "ACTIVATION_GENERATION_TYPE" },
+  { "name": "zero-ordinal", "operation": "create", "value": 0, "expectedCode": "ACTIVATION_GENERATION_RANGE" },
+  { "name": "negative-ordinal", "operation": "create", "value": -1, "expectedCode": "ACTIVATION_GENERATION_RANGE" },
+  { "name": "fractional-ordinal", "operation": "create", "value": 1.5, "expectedCode": "ACTIVATION_GENERATION_RANGE" },
+  { "name": "raw-number-as-generation", "operation": "require", "value": 1, "expectedCode": "ACTIVATION_GENERATION_REQUIRED" },
+  { "name": "structural-lookalike", "operation": "require", "value": { "value": 1 }, "expectedCode": "ACTIVATION_GENERATION_REQUIRED" },
+  { "name": "unsupported-schema", "operation": "deserialize", "value": { "schema": "v6.generation", "version": 1, "value": 1 }, "expectedCode": "ACTIVATION_GENERATION_SCHEMA" },
+  { "name": "unsupported-version", "operation": "deserialize", "value": { "schema": "v7.activation-generation", "version": 2, "value": 1 }, "expectedCode": "ACTIVATION_GENERATION_VERSION" },
+  { "name": "extra-wire-field", "operation": "deserialize", "value": { "schema": "v7.activation-generation", "version": 1, "value": 1, "sessionId": "A" }, "expectedCode": "ACTIVATION_GENERATION_SERIALIZED_SHAPE" }
+]

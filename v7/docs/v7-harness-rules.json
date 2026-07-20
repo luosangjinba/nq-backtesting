@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R1.1",
+  "currentStep": "R1.2",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
@@ -369,13 +369,29 @@
       "owner": "session-store",
       "v6FailurePrevented": "raw string coercion and implicit active-session identity allowed Session state to cross-contaminate",
       "activationStep": "R1.1",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/session-identity-harness.js",
       "positiveEvidence": [
         "src/session-identity/public.js",
         "src/session-identity/module.json"
       ],
       "negativeFixtures": ["tests/fixtures/session-identity/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260719_r1_1_session_identity.md"
+    },
+    {
+      "id": "H027",
+      "name": "branded-monotonic-activation-generation",
+      "owner": "session-store",
+      "v6FailurePrevented": "unrelated pane, history, prewarm, and Auto Replay counters could not reject work from an older Session activation",
+      "activationStep": "R1.2",
+      "state": "executable",
+      "harness": "tests/activation-generation-harness.js",
+      "positiveEvidence": [
+        "src/activation-generation/public.js",
+        "src/activation-generation/module.json"
+      ],
+      "negativeFixtures": ["tests/fixtures/activation-generation/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

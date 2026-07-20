@@ -1,0 +1,12 @@
+{
+  "id": "core.activation-generation",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "session-store",
+  "publicEntry": "src/activation-generation/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/activation-generation-harness.js",
+  "removable": false
+}

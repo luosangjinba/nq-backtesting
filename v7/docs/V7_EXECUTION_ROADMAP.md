@@ -104,9 +104,23 @@ R1 is split into separately committed and manually reviewed boundaries:
 Gate: A and B remain unequal; raw strings, structural lookalikes, malformed
 tokens, and unsupported serialized schemas/versions fail deterministically.
 
-### R1.2–R1.4 — Remaining R1 Boundaries
+### R1.2 — Activation Generation
 
-- activation generation and transaction identity;
+- immutable branded positive-safe-integer generation;
+- pure strictly-increasing successor operation;
+- explicit versioned serialization with no implicit JSON leakage;
+- generation is a Session-activation identity component, never a pane-local
+  retry, history, timer, or request counter;
+- no allocator state, active Session, cancellation, transaction, persistence,
+  runtime coordination, bars, chart, or UI.
+
+Gate: reopening the same Session can receive a strictly later branded
+generation; raw numbers, lookalikes, invalid ranges, overflow, and unsupported
+wire forms fail deterministically.
+
+### R1.3–R1.4 — Remaining R1 Boundaries
+
+- transaction identity and the complete Session/activation/transaction tuple;
 - immutable intent/plan/result/failure contracts;
 - pure current/stale acceptance function.
 

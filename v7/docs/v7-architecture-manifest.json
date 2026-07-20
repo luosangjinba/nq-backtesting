@@ -42,7 +42,10 @@
     "chart-entry-replay-bootstrap-runtime",
     "chart-entry-projection-apply-runtime"
   ],
-  "activeProductionModules": ["src/session-identity/module.json"],
+  "activeProductionModules": [
+    "src/session-identity/module.json",
+    "src/activation-generation/module.json"
+  ],
   "moduleContract": {
     "descriptorRequiredFields": [
       "id",

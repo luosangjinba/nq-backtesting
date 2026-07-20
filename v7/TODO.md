@@ -86,9 +86,9 @@ Human-accepted on 2026-07-19:
 
 R0.4 adds no production runtime or browser behavior.
 
-## Current Step — R1.1 Session Identity
+## R1.1 Session Identity — Accepted
 
-In progress:
+Human-accepted on 2026-07-19:
 
 - add one pure `SessionId` public contract owned by the Session Store boundary;
 - reject raw strings, coercion, trimming, structural lookalikes, and forged
@@ -98,7 +98,20 @@ In progress:
 - add no Session generation, activation, persistence, network, Replay, bars,
   chart engine, transaction, composition root, or UI.
 
-R1.2 will add activation generation only after R1.1 human acceptance.
+## Current Step — R1.2 Activation Generation
+
+In progress:
+
+- add one immutable branded activation-generation public contract;
+- require a positive safe integer and provide a pure strictly-later successor;
+- reject raw numbers, pane-local structural lookalikes, invalid ranges,
+  overflow, and unsupported serialized forms;
+- activate an independent module descriptor and focused harness;
+- add no allocator state, active Session, cancellation, persistence,
+  transaction, Replay, bars, chart, composition root, or UI.
+
+R1.3 will add transaction identity and stale acceptance only after R1.2 human
+acceptance.
 
 ## Standing Gates
 

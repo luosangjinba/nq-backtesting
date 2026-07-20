@@ -54,3 +54,8 @@ unsupported wire identities.
 Confirm the API is small, pure, clearly documented, independently tested, and
 does not contain hidden Session state or premature R1.2+ behavior. Automated
 evidence cannot accept this step.
+
+## Human Acceptance
+
+Accepted by the user on 2026-07-19 after clarifying that distinct A/B identities
+mean different Replay Sessions cannot be treated as the same state namespace.
