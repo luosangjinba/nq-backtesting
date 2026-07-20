@@ -180,7 +180,7 @@ try {
     timeframeId: 'timeframe.display-1-minute',
     visibleThrough: 'Visible through · 05/01/2026, 12:40 PDT · 121 bars', workspaceRevision: 1,
   });
-  assert.match(await evaluate(cdp, `document.querySelector('.replay-cursor').textContent`), /05\/01\/2026.*12:40.*PDT/,
+  assert.match(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`), /05\/01\/2026.*12:40.*PDT/,
     'chart cursor must use the same browser-local clock convention as Session dates');
   const timeframeMenu = await evaluate(cdp, `(() => {
     const toggle = document.querySelector('.timeframe-toggle');
@@ -243,7 +243,7 @@ try {
   })()`);
   assert.notEqual(manualBefore.offset, 8, 'native drag must create a distinct manual wall');
 
-  const cursorBeforeReplacement = await evaluate(cdp, `document.querySelector('.replay-cursor').textContent`);
+  const cursorBeforeReplacement = await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`);
   await evaluate(cdp, `(() => {
     document.querySelector('.timeframe-toggle').click();
     document.querySelector('[data-timeframe-id="timeframe.display-5-minute"]').click();
@@ -252,9 +252,9 @@ try {
   const timeframeAfter = await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     return {
-      barCount: Number(host.dataset.barCount), cursor: document.querySelector('.replay-cursor').textContent,
+      barCount: Number(host.dataset.barCount), cursor: document.querySelector('.replay-workspace').dataset.cursorText,
       offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
-      span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-wall-status').textContent,
+      span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-workspace').dataset.wallOrigin,
       checked: document.querySelector('.timeframe-menu [data-timeframe-id="timeframe.display-5-minute"]').getAttribute('aria-checked'),
       timeframeId: document.querySelector('.replay-workspace').dataset.timeframeId,
     };
@@ -262,7 +262,7 @@ try {
   assert.equal(timeframeAfter.barCount, 25);
   assert.equal(timeframeAfter.cursor, cursorBeforeReplacement, 'timeframe replacement must retain cursor');
   assert.equal(timeframeAfter.origin, 'manual');
-  assert.equal(timeframeAfter.wall, 'Manual wall');
+  assert.equal(timeframeAfter.wall, 'manual');
   assert.equal(timeframeAfter.checked, 'true');
   assert.equal(timeframeAfter.timeframeId, 'timeframe.display-5-minute');
   assert.ok(Math.abs(timeframeAfter.offset - manualBefore.offset) < 0.001);
@@ -274,7 +274,7 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '4'`);
   const sessionAfter = await evaluate(cdp, `(() => ({
     barCount: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
-    cursor: document.querySelector('.replay-cursor').textContent,
+    cursor: document.querySelector('.replay-workspace').dataset.cursorText,
     mode: document.querySelector('.replay-workspace').dataset.sessionHoursMode,
     pressed: document.querySelector('.session-hours-control [data-value="rth"]').getAttribute('aria-pressed'),
   }))()`);
@@ -285,10 +285,10 @@ try {
   const manualAfter = await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     return { offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
-      span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-wall-status').textContent };
+      span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-workspace').dataset.wallOrigin };
   })()`);
   assert.equal(manualAfter.origin, 'manual');
-  assert.equal(manualAfter.wall, 'Manual wall');
+  assert.equal(manualAfter.wall, 'manual');
   assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
   assert.ok(Math.abs(manualAfter.span - manualBefore.span) < 0.001);
 
@@ -298,7 +298,7 @@ try {
 
   const historyBefore = await evaluate(cdp, `(() => ({
     bars: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
-    cursor: document.querySelector('.replay-cursor').textContent,
+    cursor: document.querySelector('.replay-workspace').dataset.cursorText,
     visible: document.querySelector('.replay-visible-through').textContent,
     revision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
   }))()`);
@@ -321,7 +321,7 @@ try {
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${historyBefore.revision}`);
   const historyAfter = await evaluate(cdp, `(() => ({
     bars: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
-    cursor: document.querySelector('.replay-cursor').textContent,
+    cursor: document.querySelector('.replay-workspace').dataset.cursorText,
     visible: document.querySelector('.replay-visible-through').textContent,
   }))()`);
   assert.ok(historyAfter.bars > historyBefore.bars, 'dragging to the loaded left boundary must prepend older bars');
@@ -353,7 +353,7 @@ try {
     `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${firstHistoryRevision}`);
   const repeatedHistory = await evaluate(cdp, `(() => ({
     bars: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
-    cursor: document.querySelector('.replay-cursor').textContent,
+    cursor: document.querySelector('.replay-workspace').dataset.cursorText,
   }))()`);
   assert.ok(repeatedHistory.bars > historyAfter.bars,
     'returning to the next loaded left boundary must extend history again');

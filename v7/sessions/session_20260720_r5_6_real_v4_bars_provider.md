@@ -31,3 +31,9 @@ history through a dedicated provider adapter.
 Human review should compare candle structure and timestamps with V6 or another
 known view of the same NQ interval.
 
+## Follow-up Visual Correction
+
+The redundant strip above the Canvas was removed after review. The data-source
+label, Default/Manual wall label, and Cursor timestamp no longer consume a
+second chart header row. Canvas now starts directly below the compact toolbar;
+wall/cursor values remain non-visible runtime evidence for automated tests.

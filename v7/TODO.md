@@ -445,6 +445,8 @@ used visually misleading generated bars:
   Data Runtime cache owner;
 - show real-source failure explicitly with no synthetic fallback;
 - replace the chart visual baselines with actual NQ OHLC from DuckDB;
+- remove the redundant feed/wall/cursor strip above the Canvas so the chart
+  begins directly below the single compact toolbar;
 - prove the V6 entry baseline, Next, TF/ETH-RTH replacement, manual/reset wall,
   and repeated left extension in real Chrome.
 

@@ -23,6 +23,9 @@ and interaction acceptance.
   chart visible with a bounded inline error.
 - the toolbar keeps Session, instrument, timeframe, ETH/RTH, Reset, and Next bar
   on one desktop row;
+- no separate feed/wall/cursor metadata strip consumes Canvas height; those
+  runtime values remain internal or in the existing bottom Session/progress
+  evidence where applicable;
 - only one current-timeframe trigger is shown by default; unimplemented
   timeframe favourites are not simulated.
 - the trigger opens a conventional single-column dropdown with high-contrast

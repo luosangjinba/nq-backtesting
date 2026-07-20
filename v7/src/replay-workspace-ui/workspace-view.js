@@ -62,8 +62,6 @@ export function createReplayWorkspaceView({
     className: 'session-hours-control',
     onChoose: onSessionHours,
   });
-  const cursor = element('strong', { className: 'replay-cursor', text: 'Preparing…' });
-  const wall = element('span', { className: 'replay-wall-status', text: 'Default wall' });
   const sessionRange = element('span', { className: 'replay-session-range', text: 'Session range preparing…' });
   const visibleThrough = element('span', { className: 'replay-visible-through', text: 'Visible through preparing…' });
   const status = element('span', { className: 'workspace-inline-status' });
@@ -89,6 +87,7 @@ export function createReplayWorkspaceView({
         ]),
       ]),
       element('div', { className: 'replay-actions' }, [
+        status,
         resetButton,
         nextButton,
         element('span', { className: 'workspace-status replay-local-status' }, [
@@ -98,10 +97,6 @@ export function createReplayWorkspaceView({
       ]),
     ]),
     element('div', { className: 'chart-frame' }, [
-      element('div', { className: 'chart-meta-strip' }, [
-        element('span', { text: 'Nasdaq-100 Futures · Local V4/DuckDB market data' }),
-        element('span', { className: 'chart-meta-right' }, [status, wall, cursor]),
-      ]),
       chartHost,
       overlay,
     ]),
@@ -151,7 +146,7 @@ export function createReplayWorkspaceView({
       root.remove();
     },
     root,
-    setCursor(text) { cursor.textContent = `Cursor · ${text}`; },
+    setCursor(text) { root.dataset.cursorText = text; },
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);
       root.dataset.workspaceRevision = String(workspaceRevision);
@@ -169,6 +164,6 @@ export function createReplayWorkspaceView({
     setVisibleThrough({ barCount, text }) {
       visibleThrough.textContent = `Visible through · ${text} · ${barCount} bars`;
     },
-    setWall(origin) { wall.textContent = origin === 'manual' ? 'Manual wall' : 'Default wall'; },
+    setWall(origin) { root.dataset.wallOrigin = origin; },
   });
 }
