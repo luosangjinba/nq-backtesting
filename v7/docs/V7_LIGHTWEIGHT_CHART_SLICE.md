@@ -1,7 +1,6 @@
 # V7 First Lightweight Charts Slice
 
-Status: R4.5 implemented, awaiting mandatory human interaction/visual review
-(2026-07-20)
+Status: R4.5 human-accepted (2026-07-20)
 
 ## Visible Scope
 
@@ -91,5 +90,6 @@ References checked immediately before implementation:
   length, and elongated-wick frequency to stay below eight percent;
 - complete V7 suite and source/architecture checks run before commit.
 
-Automated evidence cannot accept R4.5. Human review must exercise the actual
-chart interaction and visual quality before R4.6 begins.
+Automated evidence did not grant acceptance. Human review exercised the actual
+chart interaction and visual quality and accepted R4.5 on 2026-07-20 after the
+immersive-layout and candle-structure corrections.

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r4.5-real-chart-awaiting-human-review",
+  "status": "r4.5-real-chart-human-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [

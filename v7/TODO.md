@@ -303,7 +303,7 @@ R4.4 completed with automated evidence; no interaction or visual review is requi
 - add no chart mutation, DOM, Lightweight Charts, Replay mutation, Bar Data
   request, projection, persistence, or concrete capability branch.
 
-## Current Step — R4.5 Real Lightweight Charts Slice — Awaiting Human Review
+## R4.5 Real Lightweight Charts Slice — Accepted
 
 Implemented with automated evidence:
 
@@ -329,8 +329,16 @@ pass is awaiting re-review with an immersive chart route, denser varied candles,
 compact actions, no stale-state chart cover, exact NQ quarter-tick OHLC, and
 bounded low-frequency wick spikes.
 
-Do not begin R4.6 until human review accepts real chart interaction, wall
+Human-accepted on 2026-07-20 after re-review of real chart interaction, wall
 behavior, visible settlement, perceived latency, and visual quality.
+
+## Exact Next Step — Selection Audit
+
+Perform a targeted V6 reference audit for Reset View, Replay transport, and
+Chart Settings interaction patterns. Retain useful control placement, draft /
+commit semantics, and accessibility; reject V6 shell-owned runtime mutation and
+large mixed-purpose templates. Choose and number the next bounded roadmap step
+only after mapping each candidate to its V7 owner and current R5/R7 dependency.
 
 ## Standing Gates
 

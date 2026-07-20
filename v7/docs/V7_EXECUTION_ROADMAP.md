@@ -283,7 +283,7 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   and deterministic adapter projection;
 - `R4.5`: real Lightweight Charts 5.2 adapter and professional NQ/`1m`/ETH
   one-pane workspace, entry/Manual Next atomic path, screenshot-backed paint
-  receipt, default/manual wall, and mandatory human review;
+  receipt, default/manual wall, and human acceptance on 2026-07-20;
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;
 - stable default/manual wall.

@@ -20,9 +20,9 @@ replacement receives the next unused step id and links the rejected step. A
 bug fix, documentation correction, or harness repair that changes repository
 state is therefore a new `R<n>.<m>` step, not an unnumbered patch.
 
-The current implemented step is `R4.5`, pending its mandatory human gate. Later R4 work receives the next unused
-`R4.<m>` id before implementation; the broad `R4` heading remains a milestone
-only.
+The current implemented step is `R4.5`, human-accepted on 2026-07-20. Any later
+R4 work receives the next unused `R4.<m>` id before implementation; the broad
+`R4` heading remains a milestone only.
 
 ## Other Stable IDs
 

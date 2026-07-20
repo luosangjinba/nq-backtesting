@@ -34,7 +34,7 @@ real candle pixels from `takeScreenshot()` before its exact visible receipt.
 - architecture, source-quality, complete V7 Harness suite, dependency lock,
   and `git diff --check` before commit.
 
-## Human Review
+## Human Review — Accepted
 
 The first review rejected the fixed-width/height chart card, visibly artificial
 candle fixture, oversized Replay controls, and centered stale-update overlay.
@@ -43,6 +43,12 @@ varied deterministic OHLC structure, compact controls, and preserves the chart
 without a centered message during Manual Next. A second review identified
 excessive independent wick lengths and non-tick-aligned prices; the fixture now
 uses exact NQ quarter ticks, short power-distributed routine wicks, and sparse
-long-wick events, with executable distribution limits. Human re-review is
-required; R4.6 remains blocked until interaction and visual acceptance is
-recorded.
+long-wick events, with executable distribution limits. R4.6 remained blocked
+until interaction and visual acceptance was recorded.
+
+The user accepted R4.5 on 2026-07-20 after exercising the real workspace. The
+accepted boundary includes the immersive chart layout, compact Reset/Next
+controls, no centered Manual Next overlay, native drag/zoom wall preservation,
+explicit Reset View, and normalized quarter-tick candle structure. The user
+also requested that upcoming Reset View, Replay, and Settings work consider
+useful V6 interaction patterns without importing its ownership model.

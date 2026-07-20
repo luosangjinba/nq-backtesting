@@ -72,12 +72,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "chart entry remained stuck in Preparing replay",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
       "positiveEvidence": ["src/workspace-transaction-runtime/public.js", "tests/workspace-transaction-runtime-harness.js"],
       "negativeFixtures": ["tests/fixtures/architecture/negative/nonterminal-transaction.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H006",
@@ -85,12 +85,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "older Session completion overwrote newer state or UI",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
       "positiveEvidence": ["src/workspace-transaction-runtime/public.js", "tests/workspace-transaction-runtime-harness.js"],
       "negativeFixtures": ["tests/fixtures/architecture/negative/stale-side-effect.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H007",
@@ -114,12 +114,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "correctness depended on request timing",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
       "positiveEvidence": ["tests/workspace-transaction-runtime-harness.js"],
       "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H009",
@@ -127,12 +127,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "multi-pane and Replay displayed mixed revisions",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
       "positiveEvidence": ["src/workspace-transaction-runtime/runtime-state.js", "tests/workspace-transaction-runtime-harness.js"],
       "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H010",
@@ -140,12 +140,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "failed loads blanked or partially replaced charts",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-runtime-harness.js",
       "positiveEvidence": ["src/workspace-transaction-runtime/runtime-state.js", "tests/workspace-transaction-runtime-harness.js"],
       "negativeFixtures": ["tests/fixtures/workspace-transaction-runtime/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H011",
@@ -195,7 +195,7 @@
       "owner": "replay-runtime",
       "v6FailurePrevented": "replay step sampled one bar per step interval",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/replay-workspace-ui/workspace-controller.js",
@@ -203,7 +203,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H014",
@@ -211,7 +211,7 @@
       "owner": "viewport-runtime",
       "v6FailurePrevented": "Next, TF, and ETH/RTH reset margins, scale, or wall",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/viewport-runtime-harness.js",
       "positiveEvidence": [
         "src/viewport-runtime/public.js",
@@ -221,7 +221,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/viewport-runtime/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H015",
@@ -242,7 +242,7 @@
       "owner": "chart-runtime-adapter",
       "v6FailurePrevented": "tests passed before candles were visible",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/lightweight-chart-adapter-browser-harness.js",
       "positiveEvidence": [
         "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
@@ -251,7 +251,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H017",
@@ -259,7 +259,7 @@
       "owner": "latency-observability",
       "v6FailurePrevented": "artificial delay polluted cache-hit Next and regressions hid by averages",
       "activationStep": "R4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-workspace-browser-harness.js",
       "positiveEvidence": [
         "docs/v7-cache-latency-contract.json",
@@ -267,7 +267,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/cache-latency/negative/artificial-delay.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     },
     {
       "id": "H018",
@@ -691,7 +691,7 @@
       "owner": "chart-runtime-adapter",
       "v6FailurePrevented": "headless tests passed while the browser showed blank candles, sampled Replay, reset walls, or premature completion",
       "activationStep": "R4.5",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/lightweight-chart-adapter/public.js",
@@ -704,7 +704,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/replay-workspace/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r4_5_lightweight_chart_slice.md"
     }
   ]
 }

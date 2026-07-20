@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R4.5 implementation, pending human review
+Last updated: 2026-07-20 after R4.5 human acceptance
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,7 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: current R4.5 commit, not human-accepted yet
+- implemented code baseline: current human-accepted R4.5 commit
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -40,7 +40,7 @@ are sufficient for a targeted R4 audit:
 ## Completed Boundary
 
 R3.3 Replay and R4.1–R4.4 headless foundations are complete; R4.5 is implemented
-and awaiting human acceptance:
+and human-accepted:
 
 - Replay advancement is duration-based, not one sampled display candle;
 - Manual and Auto inputs share one proposal path;
@@ -82,9 +82,8 @@ and awaiting human acceptance:
 - the NQ route uses an immersive chart-first shell with compact controls and no
   centered cache-hit update overlay;
 - the UI discloses its deterministic local foundation feed;
-- H005/H006/H008/H009/H010 are executable pending the real chart acceptance
-  boundary; H013/H014/H016/H017/H042 are executable pending this browser review;
-  H011/H039/H040/H041 have automated evidence.
+- H005/H006/H008/H009/H010/H013/H014/H016/H017/H042 are human-accepted through
+  the R4.5 browser review; H011/H039/H040/H041 have automated evidence.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -128,23 +127,11 @@ connected.
 
 ## Exact Next Step
 
-Perform the mandatory R4.5 human interaction and visual review. Do not begin
-R4.6 first.
-
-Review at `http://127.0.0.1:8007/v7/app/`:
-
-1. create an NQ Session spanning more than two hours and open it;
-2. confirm the chart fills the desktop workspace, is crisp, dense, legible, and
-   uses naturally varied candle bodies and wicks;
-3. click Next minute several times and assess visible settlement/perceived lag;
-4. drag left, then click Next and confirm the manual candle wall stays fixed;
-5. zoom with the wheel, click Next, and confirm span/wall stability;
-6. click Reset View and confirm explicit return to the default wall;
-7. navigate back and open an unsupported ES-only Session; confirm it retains an
-   honest saved-Session summary with no fake chart capability.
-
-Record acceptance or concrete rejection findings in the R4.5 session record.
-Only after acceptance may the roadmap choose and number R4.6.
+Perform a targeted V6 reference audit for Reset View, Replay transport, and
+Chart Settings. Map useful interaction patterns to V7 owners and reject V6's
+shell-level command/event coupling and mixed-purpose template. Then select and
+number one bounded next step according to the existing R5/R7 dependency order;
+do not activate Settings or Auto Replay merely because V6 has visible controls.
 
 ## Standing Workflow
 
