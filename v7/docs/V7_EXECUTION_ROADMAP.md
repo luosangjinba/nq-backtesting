@@ -91,7 +91,8 @@ R1 is split into separately committed and manually reviewed boundaries:
 - `R1.1`: opaque, immutable, version-serialized Session identity only;
 - `R1.2`: activation generation only;
 - `R1.3`: transaction identity, terminal results, and pure stale acceptance;
-- `R1.4`: minimal-core module lifecycle and capability descriptor contracts.
+- `R1.4`: isolated minimal-core module host and lifecycle;
+- `R1.5`: capability descriptor contracts without capability implementations.
 
 ### R1.1 — Session Identity
 
@@ -131,18 +132,30 @@ completions are rejected deterministically regardless of completion order.
 Runtime liveness, actual side-effect suppression, and concurrency permutations
 remain unprotected until the Workspace Transaction Runtime exists.
 
-### R1.4 — Remaining R1 Boundary
+### R1.4 — Isolated Module Host And Lifecycle
 
-- minimal-core module lifecycle and capability descriptor contracts.
+- validate module descriptors and explicit required/optional ports;
+- build a deterministic dependency-first assembly plan;
+- inject only declared public ports into isolated module instances;
+- stop and dispose in reverse dependency order;
+- roll back partial start failure without leaking resources;
+- boot the real pure minimal core with optional modules absent.
 
-Gate: delayed A, activated B, then reopened A cannot share an accepted identity.
+Gate: two hosts share no mutable lifecycle/API state, optional-module removal
+still boots, and every normal/failure path cleans up deterministically.
 
-R1.4 completes the module descriptor schema and harness utilities used by all
-later modules. R1 still adds no application composition or UI.
+R1.4 adds no application singleton, feature runtime, chart, bars, persistence,
+network, DOM, or UI.
 
-It also defines capability descriptors for timeframe, market-data provider,
+### R1.5 — Capability Descriptor Contracts
+
+Define versioned capability descriptors for timeframe, market-data provider,
 instrument/calendar, indicator, and formula-engine extension. Implementations
-arrive only in their later vertical slices.
+arrive only in their later vertical slices. Adding a descriptor must not add a
+concrete-id branch to an existing core owner.
+
+Gate: valid descriptors negotiate through public contracts while malformed,
+incompatible, or undeclared capabilities fail without starting a host.
 
 ## R2 — Session Store Vertical Slice
 

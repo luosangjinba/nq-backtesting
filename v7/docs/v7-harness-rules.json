@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R1.3",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R2", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R1.4",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -98,7 +98,7 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "sessions shared bars, cursor, panes, and persisted state",
       "activationStep": "R1.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-contract-harness.js",
       "positiveEvidence": [
         "src/transaction-identity/public.js",
@@ -106,7 +106,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r1_3_transaction_contract.md"
     },
     {
       "id": "H008",
@@ -244,13 +244,14 @@
       "owner": "module-lifecycle",
       "v6FailurePrevented": "new modules became implicit permanent dependencies",
       "activationStep": "R1.4",
-      "state": "scaffolded",
-      "harness": "tests/architecture-hardening-harness.js",
-      "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
-      "negativeFixtures": [
-        "tests/fixtures/architecture/negative/optional-module-required.json",
-        "tests/fixtures/architecture/negative/global-state.json"
+      "state": "executable",
+      "harness": "tests/module-host-harness.js",
+      "positiveEvidence": [
+        "src/module-host/public.js",
+        "src/module-host/module.json",
+        "tests/module-host-harness.js"
       ],
+      "negativeFixtures": ["tests/fixtures/module-host/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     },
@@ -404,12 +405,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "replacement, Session Hours, pane scheduling, and visual settlement used incompatible ad hoc result shapes",
       "activationStep": "R1.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-contract-harness.js",
       "positiveEvidence": ["src/workspace-transaction-contract/public.js"],
       "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r1_3_transaction_contract.md"
     },
     {
       "id": "H029",
@@ -417,12 +418,12 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "cancellation success was mistaken for correctness while late completions needed scattered stale checks",
       "activationStep": "R1.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-transaction-contract-harness.js",
       "positiveEvidence": ["src/workspace-transaction-contract/public.js"],
       "negativeFixtures": ["tests/fixtures/workspace-transaction-contract/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r1_3_transaction_contract.md"
     },
     {
       "id": "H030",
@@ -430,7 +431,7 @@
       "owner": "workspace-transaction-runtime",
       "v6FailurePrevented": "module-global chart replacement counters leaked allocation and correlation into feature runtimes",
       "activationStep": "R1.3",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/transaction-identity-harness.js",
       "positiveEvidence": [
         "src/transaction-identity/public.js",
@@ -438,7 +439,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/transaction-identity/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260719_r1_3_transaction_contract.md"
     }
   ]
 }

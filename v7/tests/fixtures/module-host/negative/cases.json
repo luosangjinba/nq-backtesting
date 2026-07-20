@@ -1,0 +1,11 @@
+[
+  { "case": "duplicate-module-id", "expectedFailureCode": "DUPLICATE_MODULE_ID" },
+  { "case": "missing-required-module", "expectedFailureCode": "MISSING_REQUIRED_MODULE" },
+  { "case": "dependency-cycle", "expectedFailureCode": "MODULE_DEPENDENCY_CYCLE" },
+  { "case": "static-module-has-lifecycle", "expectedFailureCode": "STATIC_MODULE_HAS_LIFECYCLE" },
+  { "case": "dynamic-module-missing-dispose", "expectedFailureCode": "DYNAMIC_MODULE_MISSING_DISPOSE" },
+  { "case": "invalid-public-api", "expectedFailureCode": "INVALID_PUBLIC_API" },
+  { "case": "missing-lifecycle-method", "expectedFailureCode": "MISSING_LIFECYCLE_METHOD" },
+  { "case": "hidden-lifecycle-method", "expectedFailureCode": "HIDDEN_LIFECYCLE_METHOD" },
+  { "case": "rollback-cleanup-failure", "expectedFailureCode": "MODULE_HOST_ROLLBACK_FAILED" }
+]

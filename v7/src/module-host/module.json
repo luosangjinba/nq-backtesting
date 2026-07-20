@@ -1,0 +1,12 @@
+{
+  "id": "core.module-host",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "module-lifecycle",
+  "publicEntry": "src/module-host/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/module-host-harness.js",
+  "removable": false
+}

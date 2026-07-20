@@ -110,9 +110,9 @@ Human-accepted on 2026-07-19:
 - add no allocator state, active Session, cancellation, persistence,
   transaction, Replay, bars, chart, composition root, or UI.
 
-## Current Step — R1.3 Transaction Identity And Pure Currency
+## R1.3 Transaction Identity And Pure Currency — Accepted
 
-In progress:
+Human-accepted on 2026-07-19:
 
 - add an opaque immutable TransactionId without a global allocator;
 - compose branded Session/activation/transaction identity tuples;
@@ -124,8 +124,20 @@ In progress:
 - add no scheduler, cancellation owner, transaction runtime, state writer,
   persistence, Replay, bars, charts, composition root, or UI.
 
-R1.4 will establish minimal-core lifecycle/capability assembly only after R1.3
-human acceptance.
+## Current Step — R1.4 Isolated Module Host And Lifecycle
+
+In progress:
+
+- validate complete descriptors and explicit required/optional port graphs;
+- construct real R1 minimal core without application-global state;
+- inject only declared public APIs into dynamic instances;
+- prove independent hosts, optional-module absence, reverse cleanup, idempotent
+  stop, and partial-start rollback;
+- add no feature runtime, capability implementation, persistence, network,
+  Replay, bars, chart, DOM, or UI.
+
+R1.5 will establish capability descriptor contracts after R1.4 human
+acceptance.
 
 ## Standing Gates
 

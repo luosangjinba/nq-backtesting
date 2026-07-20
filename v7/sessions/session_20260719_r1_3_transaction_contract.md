@@ -63,3 +63,8 @@ Confirm the tuple always contains all three branded components, stale always
 declares no allowed side effects, cancellation is not part of currency logic,
 and no runtime guarantee is claimed before its owner exists. Automated evidence
 cannot accept this step.
+
+## Human Result
+
+Accepted by the user on 2026-07-19. This acceptance opens R1.4 only; runtime
+liveness and browser behavior remain outside R1.3.

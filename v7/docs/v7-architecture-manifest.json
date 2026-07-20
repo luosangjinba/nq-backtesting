@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r1-pure-contracts",
+  "status": "r1-module-host",
   "productionRoots": ["v7/src"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -25,6 +25,7 @@
     "bar-data-runtime",
     "projection-domain",
     "workspace-transaction-runtime",
+    "module-lifecycle",
     "chart-runtime-adapter",
     "viewport-runtime"
   ],
@@ -46,7 +47,8 @@
     "src/session-identity/module.json",
     "src/activation-generation/module.json",
     "src/transaction-identity/module.json",
-    "src/workspace-transaction-contract/module.json"
+    "src/workspace-transaction-contract/module.json",
+    "src/module-host/module.json"
   ],
   "moduleContract": {
     "descriptorRequiredFields": [

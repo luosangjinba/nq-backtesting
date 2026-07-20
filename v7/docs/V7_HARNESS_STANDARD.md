@@ -139,3 +139,9 @@ and harnesses; prose cannot override runtime truth.
 The rule catalog, manifest, harness, fixtures, and implementation change in the
 same commit. Every step stops after commit for human review. Rejection is
 recorded before corrective work; automated evidence cannot overwrite it.
+
+For headless contract steps, human review focuses on boundary, ownership,
+negative-control, and rollback evidence. From the first browser-visible slice,
+human review primarily exercises real interaction, visual quality, visible
+settlement, and perceived latency; automated checks cannot substitute for that
+browser review.
