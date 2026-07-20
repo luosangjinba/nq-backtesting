@@ -1,0 +1,7 @@
+[
+  { "case": "zero-low-watermark", "expectedCode": "REPLAY_PREFETCH_DURATION_INVALID" },
+  { "case": "equal-watermarks", "expectedCode": "REPLAY_PREFETCH_WATERMARK_ORDER" },
+  { "case": "coverage-behind-cursor", "expectedCode": "REPLAY_PREFETCH_COVERAGE_INVALID" },
+  { "case": "coverage-after-session", "expectedCode": "REPLAY_PREFETCH_COVERAGE_INVALID" },
+  { "case": "cursor-before-session", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" }
+]

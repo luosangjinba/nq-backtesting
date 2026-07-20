@@ -247,7 +247,7 @@ Completed with automated evidence; no interaction or visual review is required:
 - expose no scheduler, mutable cursor, bars, projection, chart, pane, viewport,
   persistence, provider, network, or UI behavior.
 
-## Current Step — R3.3b Single Replay Clock — Completed
+## R3.3b Single Replay Clock — Completed
 
 Completed with automated evidence; no interaction or visual review is required:
 
@@ -257,6 +257,18 @@ Completed with automated evidence; no interaction or visual review is required:
 - preserve the accepted cursor when a proposal is rejected or superseded;
 - keep Manual and Auto inputs on the same proposal/commit path;
 - add no scheduler, bar I/O, projection, chart, viewport, persistence, or UI.
+
+## Current Step — R3.3 Headless Replay Runtime — Completed
+
+R3.3c completed with automated evidence; no interaction or visual review is required:
+
+- define pure provider-independent low/high-watermark prefetch policy;
+- emit one bounded forward window only when contiguous coverage falls below low;
+- fill toward high watermark and clamp advice at the activated Session end;
+- keep Bar Data Runtime as the sole requester and cache owner;
+- activate H011 evidence across raw ordering/identity, explicit coverage gaps,
+  exclusive Replay no-future cutoff, and bounded forward prefetch;
+- add no timer, provider mapping, data I/O, projection, chart, viewport, or UI.
 
 ## Standing Gates
 

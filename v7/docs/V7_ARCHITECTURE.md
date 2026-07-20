@@ -100,6 +100,13 @@ revision advance only through `commitVisible`, after the future coordinator has
 completed the matching visible workspace transaction. Foreign, rejected, and
 base-revision-stale proposals cannot mutate the clock.
 
+R3.3c adds `core.replay-prefetch-contract` as pure advice rather than another
+request owner. When explicit contiguous raw coverage ahead of the accepted
+cursor drops below low watermark, it recommends one bounded forward window
+toward high watermark, clamped at Session end. A future coordinator may map the
+window to provider identity and submit it to Bar Data Runtime; Replay never
+performs provider I/O and pointer events never continue the plan.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

@@ -153,12 +153,28 @@
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "missing, sampled, duplicate, future, or cross-source bars",
       "activationStep": "R3.3",
-      "state": "declared",
-      "harness": null,
-      "positiveEvidence": [],
-      "negativeFixtures": [],
+      "state": "accepted",
+      "harness": "tests/replay-prefetch-contract-harness.js",
+      "positiveEvidence": [
+        "src/bar-data-contract/public.js",
+        "src/coverage-planning-contract/public.js",
+        "src/replay-contract/public.js",
+        "src/replay-runtime/public.js",
+        "src/replay-prefetch-contract/public.js",
+        "tests/bar-data-contract-harness.js",
+        "tests/coverage-planning-contract-harness.js",
+        "tests/replay-contract-harness.js",
+        "tests/replay-runtime-harness.js",
+        "tests/replay-prefetch-contract-harness.js"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/bar-data-contract/negative/cases.json",
+        "tests/fixtures/coverage-planning-contract/negative/cases.json",
+        "tests/fixtures/replay-contract/negative/cases.json",
+        "tests/fixtures/replay-prefetch-contract/negative/cases.json"
+      ],
       "humanReviewRequired": false,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260720_r3_3c_replay_prefetch.md"
     },
     {
       "id": "H012",

@@ -1,0 +1,12 @@
+{
+  "id": "core.replay-prefetch-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "replay-runtime",
+  "publicEntry": "src/replay-prefetch-contract/public.js",
+  "requiredPorts": ["core.replay-contract"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/replay-prefetch-contract-harness.js",
+  "removable": false
+}

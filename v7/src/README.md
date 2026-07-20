@@ -44,4 +44,7 @@ transaction-scoped cursor proposal values. It activates no mutable Replay clock.
 R3.3b activates one independently runnable Replay clock for each Session
 activation. Only its explicit visible-commit port can publish cursor progress.
 
+R3.3c adds pure low/high-watermark prefetch advice. It emits bounded time
+windows only; Bar Data Runtime remains the sole raw requester/cache owner.
+
 Do not import runtime code from V4, V5, or V6.

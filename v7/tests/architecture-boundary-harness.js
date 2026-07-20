@@ -190,6 +190,7 @@ for (const rule of [
   'provider-execution-policy-bound-cancellable-and-automatic',
   'replay-contract-time-based-transaction-scoped',
   'replay-runtime-visible-commit-only',
+  'replay-prefetch-advice-bounded-and-io-free',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }
