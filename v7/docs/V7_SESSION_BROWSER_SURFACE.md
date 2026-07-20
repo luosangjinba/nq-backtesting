@@ -31,6 +31,13 @@ key. Every activation still passes the branded SessionId to Session Store.
 - keyboard focus rings, native dialog Escape behavior, reduced motion, and
   responsive rail/card/form layouts.
 
+Start and End depend on one replaceable date-time-control interface owned by
+the Session Browser adapter. Its current native-input implementation owns DOM
+formatting, reset, epoch parsing, and minute/second precision. Create Session
+does not read native input details directly. A future flatpickr or custom
+day/month/year adapter must pass the same interface and preserve empty-draft and
+epoch semantics; it cannot own market-data availability or Session state.
+
 No fake Replay, chart, order, Journal, campaign, plugin, or unavailable future
 control may appear. Revision, activation generation, internal phase names, and
 debug state are not customer-visible.

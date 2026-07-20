@@ -45,6 +45,13 @@ Second review requested a stricter empty state on 2026-07-20. Instruments,
 Start, and End now initialize empty instead of supplying convenience defaults;
 the reopen assertion proves the same complete empty draft before Session B.
 
+After that review passed, Start and End moved behind a focused replaceable
+date-time-control boundary. The native control remains visually stable, while
+creation now consumes only reset/read/set APIs. Minute and future second-level
+values share one round-trip contract. This step intentionally does not add an
+Auto-update end-date control: market-data availability belongs to R3 Bar Data,
+not wall-clock or Session Browser state.
+
 Use the running V7 service for interaction and visual review. Confirm hierarchy,
 density, focus/dialog behavior, responsive layout, A/B isolation, and refresh.
 Automated evidence cannot accept the step. Passing R2.2 opens R3 Bar Data and

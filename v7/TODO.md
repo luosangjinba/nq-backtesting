@@ -161,6 +161,8 @@ In progress:
 - professional local-first Session list and selected-Session surfaces;
 - accessible Create Session dialog with compact NQ/ES multi-select dropdown;
 - every dialog open starts from a fully empty draft with no prior-form bleed;
+- replaceable date-time-control boundary with native minute and future-second
+  value conformance, without wall-clock market-data assumptions;
 - loading, empty, unavailable, stale, error, and ready presentation;
 - create A/create B, A→B→A, hard refresh on B, and no cross-Session metadata;
 - fixed `1440x900` real-Chrome visual regression fixtures;

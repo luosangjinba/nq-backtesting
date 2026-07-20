@@ -1,4 +1,5 @@
 import { element, icon } from './dom-primitives.js';
+import { createDateTimeControl } from './date-time-control.js';
 import { createInstrumentPicker } from './instrument-picker.js';
 
 function field(label, control, hint = null) {
@@ -15,28 +16,22 @@ function createControls(instruments) {
     className: 'text-input', name: 'name', type: 'text', maxlength: '120',
     autocomplete: 'off', placeholder: 'e.g. London open practice', required: '',
   });
-  const start = element('input', {
-    className: 'text-input', name: 'start', type: 'datetime-local',
-    required: '',
-  });
-  const end = element('input', {
-    className: 'text-input', name: 'end', type: 'datetime-local',
-    required: '',
-  });
+  const start = createDateTimeControl({ name: 'start' });
+  const end = createDateTimeControl({ name: 'end' });
   return Object.freeze({ name, start, end, instruments: createInstrumentPicker(instruments) });
 }
 
 function resetControls(controls) {
   controls.name.value = '';
-  controls.start.value = '';
-  controls.end.value = '';
+  controls.start.reset();
+  controls.end.reset();
   controls.instruments.reset();
 }
 
 function readIntent(controls) {
   const instrumentIds = controls.instruments.selectedIds();
-  const startEpochMs = new Date(controls.start.value).getTime();
-  const endEpochMs = new Date(controls.end.value).getTime();
+  const startEpochMs = controls.start.readEpochMs();
+  const endEpochMs = controls.end.readEpochMs();
   if (controls.name.value.trim() !== controls.name.value || controls.name.value.length === 0) {
     return { error: 'Enter a name without leading or trailing spaces.' };
   }
@@ -71,8 +66,8 @@ export function createSessionDialog({ instruments, onSubmit }) {
     field('Session name', controls.name, 'Use a name you will recognize later.'),
     field('Instruments', controls.instruments.element),
     element('div', { className: 'date-grid' }, [
-      field('Start', controls.start),
-      field('End', controls.end),
+      field('Start', controls.start.element),
+      field('End', controls.end.element),
     ]),
     error,
     element('div', { className: 'dialog-actions' }, [
