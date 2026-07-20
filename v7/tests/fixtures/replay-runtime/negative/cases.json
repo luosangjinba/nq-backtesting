@@ -1,0 +1,9 @@
+[
+  { "case": "session-mismatch", "expectedCode": "REPLAY_SESSION_MISMATCH" },
+  { "case": "activation-mismatch", "expectedCode": "REPLAY_ACTIVATION_MISMATCH" },
+  { "case": "stale-proposal", "expectedCode": "REPLAY_PROPOSAL_STALE" },
+  { "case": "foreign-proposal", "expectedCode": "REPLAY_PROPOSAL_FOREIGN" },
+  { "case": "commit-rejected-proposal", "expectedCode": "REPLAY_PROPOSAL_FOREIGN" },
+  { "case": "advance-after-complete", "expectedCode": "REPLAY_COMPLETE" },
+  { "case": "call-after-dispose", "expectedCode": "REPLAY_RUNTIME_DISPOSED" }
+]

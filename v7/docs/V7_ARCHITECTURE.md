@@ -93,6 +93,13 @@ transaction identity, base Replay revision, bounded target, and half-open reveal
 window. Its cursor is an exclusive no-future cutoff; Projection remains the
 future owner that applies that cutoff to bars.
 
+R3.3b activates `core.replay-runtime` as the only mutable Replay cursor writer.
+Each instance is permanently scoped to one branded Session/activation pair.
+Proposing Manual or Auto advancement has zero state effects. The cursor and
+revision advance only through `commitVisible`, after the future coordinator has
+completed the matching visible workspace transaction. Foreign, rejected, and
+base-revision-stale proposals cannot mutate the clock.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

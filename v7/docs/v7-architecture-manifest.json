@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r3.3a-replay-value-contract",
+  "status": "r3.3b-single-replay-clock",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -24,6 +24,7 @@
     "docs/V7_COVERAGE_PLANNING_CONTRACT.md",
     "docs/V7_PROVIDER_EXECUTION_RUNTIME.md",
     "docs/V7_REPLAY_CONTRACT.md",
+    "docs/V7_REPLAY_RUNTIME.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -65,6 +66,7 @@
     "src/coverage-planning-contract/module.json",
     "src/provider-execution-runtime/module.json",
     "src/replay-contract/module.json",
+    "src/replay-runtime/module.json",
     "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
@@ -135,7 +137,7 @@
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "chartSeries": [],
     "rawBarRequest": ["core.bar-data-runtime"],
-    "replayCursor": []
+    "replayCursor": ["core.replay-runtime"]
   },
   "requiredRules": [
     "explicit-session-identity",
@@ -166,6 +168,7 @@
     "provider-policy-bounded-and-transport-neutral",
     "coverage-explicit-and-request-planning-bounded",
     "provider-execution-policy-bound-cancellable-and-automatic",
-    "replay-contract-time-based-transaction-scoped"
+    "replay-contract-time-based-transaction-scoped",
+    "replay-runtime-visible-commit-only"
   ]
 }

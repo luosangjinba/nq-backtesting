@@ -1,0 +1,17 @@
+{
+  "id": "core.replay-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "replay-runtime",
+  "publicEntry": "src/replay-runtime/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "core.workspace-transaction-contract",
+    "core.replay-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/replay-runtime-harness.js",
+  "removable": false
+}

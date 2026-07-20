@@ -67,8 +67,8 @@ assert.deepEqual(manifest.writerInventories, {
   sessionBrowserDom: ['adapter.session-browser-ui'],
   chartSeries: [],
   rawBarRequest: ['core.bar-data-runtime'],
-  replayCursor: [],
-}, 'R3.2a activates one bounded raw requester/cache writer; later state writers remain inactive');
+  replayCursor: ['core.replay-runtime'],
+}, 'R3.3b activates one bounded raw requester and one visible-commit Replay cursor writer');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -189,6 +189,7 @@ for (const rule of [
   'coverage-explicit-and-request-planning-bounded',
   'provider-execution-policy-bound-cancellable-and-automatic',
   'replay-contract-time-based-transaction-scoped',
+  'replay-runtime-visible-commit-only',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

@@ -13,6 +13,7 @@ export {
   WorkspaceTransactionContractError,
   assessWorkspaceTransactionCurrency,
   createWorkspaceTransactionIdentity,
+  readWorkspaceTransactionIdentity,
   requireWorkspaceTransactionIdentity,
   workspaceTransactionIdentitiesEqual,
 } from './identity-contract.js';

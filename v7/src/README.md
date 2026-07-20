@@ -41,4 +41,7 @@ fake adapters are exercised, and no Replay or UI behavior is active.
 R3.3a adds provider/chart-independent Replay range, advancement input, and
 transaction-scoped cursor proposal values. It activates no mutable Replay clock.
 
+R3.3b activates one independently runnable Replay clock for each Session
+activation. Only its explicit visible-commit port can publish cursor progress.
+
 Do not import runtime code from V4, V5, or V6.

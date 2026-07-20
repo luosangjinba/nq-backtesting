@@ -236,7 +236,7 @@ Completed with automated evidence; no interaction or visual review is required:
 - exercise deterministic fake adapters only;
 - add no real provider, V4/network/DuckDB access, Replay, chart, or UI.
 
-## Current Step — R3.3a Replay Value Contract — Completed
+## R3.3a Replay Value Contract — Completed
 
 Completed with automated evidence; no interaction or visual review is required:
 
@@ -246,6 +246,17 @@ Completed with automated evidence; no interaction or visual review is required:
 - clamp proposals at the activated Session end and reject unsafe time overflow;
 - expose no scheduler, mutable cursor, bars, projection, chart, pane, viewport,
   persistence, provider, network, or UI behavior.
+
+## Current Step — R3.3b Single Replay Clock — Completed
+
+Completed with automated evidence; no interaction or visual review is required:
+
+- activate exactly one accepted cursor/revision owner per Session activation;
+- keep proposals inert until `commitVisible` confirms the workspace result;
+- reject cross-Session, cross-activation, foreign, rejected, and stale proposals;
+- preserve the accepted cursor when a proposal is rejected or superseded;
+- keep Manual and Auto inputs on the same proposal/commit path;
+- add no scheduler, bar I/O, projection, chart, viewport, persistence, or UI.
 
 ## Standing Gates
 
