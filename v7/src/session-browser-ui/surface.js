@@ -155,9 +155,9 @@ function openedScreen(model, actions) {
   ]);
 }
 
-function shell(content) {
+function shell(content, { immersive = false } = {}) {
   return element('div', { className: 'workstation-shell' }, [
-    element('aside', { className: 'app-rail', 'aria-label': 'Primary navigation' }, [
+    immersive ? null : element('aside', { className: 'app-rail', 'aria-label': 'Primary navigation' }, [
       element('a', { className: 'product-mark', href: '#/sessions', 'aria-label': 'Replay Lab sessions' }, [
         element('span', { className: 'product-glyph' }, [icon('layers')]),
         element('span', { className: 'product-name', text: 'Replay Lab' }),
@@ -170,14 +170,14 @@ function shell(content) {
         element('span', { className: 'local-note', text: 'Stored on this device' }),
       ]),
     ]),
-    element('main', { className: 'main-surface' }, [content]),
+    element('main', { className: `main-surface${immersive ? ' main-surface-immersive' : ''}` }, [content]),
   ]);
 }
 
 /** Render one complete, atomic Session Browser snapshot into its owned root. */
 export function renderSessionBrowserSurface(root, model, actions) {
   const content = model.screen === 'opened' ? openedScreen(model, actions) : listScreen(model, actions);
-  root.replaceChildren(shell(content));
+  root.replaceChildren(shell(content, { immersive: model.screen === 'opened' && model.workspace }));
   root.dataset.viewState = model.state;
   root.dataset.screen = model.screen;
 }

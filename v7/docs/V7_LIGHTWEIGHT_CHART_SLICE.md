@@ -9,7 +9,8 @@ R4.5 is the first real chart-bearing vertical slice:
 
 - one NQ pane with explicit `1m` and ETH labels;
 - deterministic local foundation bars, clearly disclosed in the UI;
-- chart entry revealing every eligible minute in the first hour;
+- chart entry revealing every eligible minute in the first two hours for useful
+  one-minute visual context;
 - Manual Next through the same Workspace Transaction Runtime path;
 - default wall, native drag-created manual wall, and explicit Reset View;
 - loading, empty, unavailable, stale, error, and ready presentation variants;
@@ -80,7 +81,7 @@ References checked immediately before implementation:
 
 - independent real-Chrome adapter harness proves v5.2.0 canvas paint and exact
   application revision;
-- full real-Chrome workspace harness proves 60-bar entry, one-minute Next,
+- full real-Chrome workspace harness proves 120-bar entry, one-minute Next,
   one visible/Replay/workspace revision per action, default/manual/reset wall,
   fixed `1440x900` visual regression, and the 250 ms cache-hit maximum;
 - six negative controls bind early completion, sampling, wall reset,

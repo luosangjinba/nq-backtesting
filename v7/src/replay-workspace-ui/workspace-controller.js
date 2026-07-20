@@ -41,7 +41,7 @@ export function createReplayWorkspaceController({ record, view }) {
     sessionId: record.sessionId,
   });
   const viewport = createViewportController({
-    defaultSpanBars: 96,
+    defaultSpanBars: 136,
     initialIntent: createInitialViewportIntent({
       activationGeneration: record.activationGeneration,
       cursorEpochMs: range.startEpochMs,
@@ -140,6 +140,6 @@ export function createReplayWorkspaceController({ record, view }) {
       viewportIntent: viewport.snapshot(),
       workspace: runtime.snapshot(),
     }),
-    start: () => execute('chart-entry', 60 * 60_000),
+    start: () => execute('chart-entry', 120 * 60_000),
   });
 }

@@ -29,21 +29,28 @@ function base(kind, contract, id, label) {
 
 function generateBars(request) {
   const bars = [];
-  let index = 0;
+  let previousClose = 20_000;
   for (let epoch = request.windowStartEpochMs; epoch < request.windowEndEpochMs; epoch += 60_000) {
-    const drift = index * 0.38;
-    const wave = Math.sin(index / 6) * 5.5;
-    const open = 20_000 + drift + wave;
-    const close = open + Math.sin(index * 1.7) * 2.8;
+    const minute = Math.floor(epoch / 60_000);
+    const sample = (salt) => {
+      let value = Math.imul((minute ^ salt) >>> 0, 0x45d9f3b);
+      value = Math.imul((value ^ (value >>> 16)) >>> 0, 0x45d9f3b);
+      return ((value ^ (value >>> 16)) >>> 0) / 0x1_0000_0000;
+    };
+    const open = previousClose + ((sample(0x51f15e) - 0.5) * 1.6);
+    const regime = Math.sin(minute / 47) * 0.45;
+    const close = open + regime + ((sample(0x9e3779) - 0.5) * 7.4);
+    const upperWick = 0.45 + (sample(0x7f4a7c) * 3.8);
+    const lowerWick = 0.45 + (sample(0x6a09e6) * 3.8);
     bars.push({
       close,
-      high: Math.max(open, close) + 2.2,
-      low: Math.min(open, close) - 2.1,
+      high: Math.max(open, close) + upperWick,
+      low: Math.min(open, close) - lowerWick,
       open,
       startEpochMs: epoch,
-      volume: 80 + ((index * 17) % 90),
+      volume: 70 + Math.floor(sample(0xbb67ae) * 170),
     });
-    index += 1;
+    previousClose = close;
   }
   return bars;
 }

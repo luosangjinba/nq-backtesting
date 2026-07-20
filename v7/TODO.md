@@ -314,7 +314,7 @@ Implemented with automated evidence:
 - compose one NQ/`1m`/ETH deterministic local foundation workspace through
   Session, Bar Data, Replay, Projection, Workspace Transaction, Chart Snapshot,
   Viewport, and adapter public ports;
-- reveal the complete first hour on entry and one additional minute per Manual
+- reveal the complete first two hours on entry and one additional minute per Manual
   Next without future bars;
 - preserve native drag-created manual offset/span through the next snapshot and
   restore default wall only through Reset View;
@@ -322,6 +322,11 @@ Implemented with automated evidence:
   and ready surfaces with keyboard-visible controls and responsive layout;
 - add independent adapter and complete workspace real-Chrome harnesses, six
   negative controls, cache-hit maximum, and a fixed `1440x900` visual fixture.
+
+The first human review rejected the fixed-size chart card, artificial-looking
+bar fixture, oversized actions, and centered Manual Next overlay. The corrective
+pass is awaiting re-review with an immersive chart route, denser varied candles,
+compact actions, and no stale-state chart cover.
 
 Do not begin R4.6 until human review accepts real chart interaction, wall
 behavior, visible settlement, perceived latency, and visual quality.

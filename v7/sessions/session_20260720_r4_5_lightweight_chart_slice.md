@@ -25,7 +25,7 @@ real candle pixels from `takeScreenshot()` before its exact visible receipt.
 ## Automated Gate
 
 - independent real-Chrome Lightweight Chart Adapter Harness;
-- complete Replay Workspace Chrome Harness covering 60-bar entry, Manual Next,
+- complete Replay Workspace Chrome Harness covering 120-bar entry, Manual Next,
   exact revisions, native drag/manual wall preservation, Reset View, cache-hit
   maximum, and fixed `1440x900` visual fixture;
 - six negative controls;
@@ -36,5 +36,9 @@ real candle pixels from `takeScreenshot()` before its exact visible receipt.
 
 ## Human Review
 
-Required and not yet accepted. Review the actual running workspace after the
-commit; R4.6 is blocked until interaction and visual acceptance are recorded.
+The first review rejected the fixed-width/height chart card, visibly artificial
+candle fixture, oversized Replay controls, and centered stale-update overlay.
+The corrective pass uses an immersive chart-first route, denser two-hour entry,
+varied deterministic OHLC structure, compact controls, and preserves the chart
+without a centered message during Manual Next. Human re-review is required;
+R4.6 remains blocked until interaction and visual acceptance are recorded.

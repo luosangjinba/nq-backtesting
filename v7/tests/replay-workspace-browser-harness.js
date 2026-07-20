@@ -116,7 +116,10 @@ try {
     const host = document.querySelector('.lightweight-chart-host');
     return {
       barCount: Number(host.dataset.barCount),
+      buttonHeight: document.querySelector('.replay-next').getBoundingClientRect().height,
       canvasCount: host.querySelectorAll('canvas').length,
+      chartHeight: host.getBoundingClientRect().height,
+      chartWidth: host.getBoundingClientRect().width,
       libraryVersion: host.dataset.libraryVersion,
       offset: Number(host.dataset.latestOffsetBars),
       origin: host.dataset.viewportOrigin,
@@ -127,18 +130,26 @@ try {
   })()`);
   assert.ok(entry.canvasCount > 0, 'real chart must own painted canvases');
   delete entry.canvasCount;
+  assert.ok(entry.chartWidth >= 1100, `chart must fill available desktop width: ${entry.chartWidth}px`);
+  assert.ok(entry.chartHeight >= 650, `chart must fill available desktop height: ${entry.chartHeight}px`);
+  assert.ok(entry.buttonHeight <= 32, `replay actions must remain compact: ${entry.buttonHeight}px`);
+  delete entry.chartWidth;
+  delete entry.chartHeight;
+  delete entry.buttonHeight;
   assert.deepEqual(entry, {
-    barCount: 60, libraryVersion: '5.2.0', offset: 8,
+    barCount: 120, libraryVersion: '5.2.0', offset: 8,
     origin: 'default', painted: 'true', replayRevision: 1, workspaceRevision: 1,
   });
   await capture(cdp);
 
   const startedAt = performance.now();
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.chart-state-overlay').hidden`), true,
+    'cache-hit advancement must not cover the chart with a stale-state message');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
   const cacheHitVisibleMs = performance.now() - startedAt;
   assert.ok(cacheHitVisibleMs < 250, `cache-hit Next exceeded max budget: ${cacheHitVisibleMs}ms`);
-  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 61);
+  assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 121);
 
   const box = await evaluate(cdp, `(() => {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();

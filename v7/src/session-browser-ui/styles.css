@@ -60,6 +60,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visibl
 .foundation-badge { width: fit-content; padding: 3px 8px; border: 1px solid rgba(72,214,168,.24); border-radius: 99px; color: var(--positive); background: rgba(72,214,168,.07); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .local-note { color: var(--text-muted); font-size: 11px; }
 .main-surface { grid-column: 2; min-width: 0; min-height: 100vh; background: radial-gradient(circle at 70% -20%, rgba(47,143,240,.08), transparent 38%), var(--bg-canvas); }
+.main-surface-immersive { grid-column: 1 / -1; }
 .page { min-height: 100vh; }
 .page-header { min-height: 228px; display: flex; align-items: center; justify-content: space-between; gap: 40px; padding: 48px clamp(32px, 6vw, 88px); border-bottom: 1px solid var(--border-subtle); background: linear-gradient(180deg, rgba(14,22,31,.88), rgba(9,14,20,.64)); }
 .eyebrow { display: block; margin-bottom: 10px; color: var(--accent); font-size: 10px; font-weight: 750; letter-spacing: .13em; text-transform: uppercase; }

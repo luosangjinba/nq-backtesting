@@ -73,12 +73,14 @@ and awaiting human acceptance:
   scope, and revision while shifting earlier bars left;
 - adapter logical ranges are transient projections, not stored product truth;
 - official Lightweight Charts 5.2.0 is isolated behind one real adapter;
-- NQ/`1m`/ETH chart entry reveals the complete first hour through one
+- NQ/`1m`/ETH chart entry reveals the complete first two hours through one
   transaction, and Manual Next reveals one additional minute;
 - visible receipt follows two rendering opportunities and screenshot-proven
   candle pixels rather than `subscribeDataChanged()`;
 - native drag creates manual wall intent, Next preserves it, and Reset View
   explicitly restores default intent;
+- the NQ route uses an immersive chart-first shell with compact controls and no
+  centered cache-hit update overlay;
 - the UI discloses its deterministic local foundation feed;
 - H005/H006/H008/H009/H010 are executable pending the real chart acceptance
   boundary; H013/H014/H016/H017/H042 are executable pending this browser review;
@@ -132,8 +134,8 @@ R4.6 first.
 Review at `http://127.0.0.1:8007/v7/app/`:
 
 1. create an NQ Session spanning more than two hours and open it;
-2. confirm the chart is crisp, dense, legible, and visually integrated with the
-   accepted shell at desktop size;
+2. confirm the chart fills the desktop workspace, is crisp, dense, legible, and
+   uses naturally varied candle bodies and wicks;
 3. click Next minute several times and assess visible settlement/perceived lag;
 4. drag left, then click Next and confirm the manual candle wall stays fixed;
 5. zoom with the wheel, click Next, and confirm span/wall stability;

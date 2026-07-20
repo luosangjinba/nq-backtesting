@@ -14,10 +14,10 @@ function element(tag, options = {}, children = []) {
 
 export function createReplayWorkspaceView({ name, onNext, onReset }) {
   const nextButton = element('button', {
-    className: 'button button-primary replay-next', text: 'Next minute', type: 'button',
+    className: 'button replay-action-button replay-next', text: 'Next minute', type: 'button',
   });
   const resetButton = element('button', {
-    className: 'button button-secondary replay-reset', text: 'Reset view', type: 'button',
+    className: 'button replay-action-button replay-reset', text: 'Reset view', type: 'button',
   });
   nextButton.addEventListener('click', onNext);
   resetButton.addEventListener('click', onReset);
@@ -65,7 +65,8 @@ export function createReplayWorkspaceView({ name, onNext, onReset }) {
     const busy = state === 'loading' || state === 'stale';
     nextButton.disabled = busy || state === 'empty' || state === 'unavailable';
     resetButton.disabled = busy || state === 'empty' || state === 'unavailable';
-    overlay.hidden = state === 'ready';
+    root.setAttribute('aria-busy', String(busy));
+    overlay.hidden = state === 'ready' || state === 'stale';
     overlay.className = `chart-state-overlay state-${state}`;
     overlayTitle.textContent = detail.title ?? {
       loading: 'Preparing replay chart', empty: 'No visible bars', unavailable: 'Chart unavailable',
