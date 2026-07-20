@@ -132,6 +132,13 @@ It is pure and does not own Replay or Bar Data state. Unknown/missing source
 coverage remains unknown; it cannot silently become a holiday or a synthesized
 bar.
 
+R5.3 activates `core.fixed-timeframe-domain` as a pure registered aggregation
+policy. Fixed buckets use an explicit Unix/clock origin and configuration offset
+rather than caller/session/Replay origins. It aggregates only the eligible,
+exclusive-no-future bars supplied by Projection Domain, preserves gaps, and
+contains no concrete timeframe-id branches. Calendar day/week/month alignment
+remains a separate policy boundary.
+
 ### Workspace Transaction Runtime
 
 Is the sole coordinator of chart-visible changes. It accepts an immutable

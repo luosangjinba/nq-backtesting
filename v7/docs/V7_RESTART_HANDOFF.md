@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.2 Session Hours domain
+Last updated: 2026-07-20 after R5.3 fixed-timeframe domain
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,7 +10,7 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: human-accepted R4.5 plus completed R5.1/R5.2
+- implemented code baseline: human-accepted R4.5 plus completed R5.1–R5.3
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -29,11 +29,12 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. For R5.3, read only:
+Do not load all historical `sessions/` records. For R5.4, read only:
 
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
 - `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
 - `sessions/session_20260720_r5_2_session_hours_domain.md`.
+- `sessions/session_20260720_r5_3_fixed_timeframe_domain.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 
@@ -89,6 +90,8 @@ and human-accepted:
 - R5.2 verifies the source wall-clock encoding and activates a pure,
   revisioned ETH/RTH calendar/eligibility/traversal domain without runtime or UI
   mutation.
+- R5.3 activates generic canonical fixed-duration OHLCV aggregation policies,
+  including inherited whole-hour and configured four-hour-offset grids.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -100,8 +103,9 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 
 ## Deliberately Not Implemented
 
-There is still no real provider, production-complete CME holiday dataset, higher-
-timeframe aggregation policy, Auto Replay timer, multi-pane layout, or durable
+There is still no real provider, production-complete CME holiday dataset,
+calendar-aligned day/week/month policy, runtime timeframe/hours switching, Auto
+Replay timer, multi-pane layout, or durable
 workspace restore. R4.5 uses a clearly disclosed deterministic local foundation
 feed. Do not describe it as real CME history or production data coverage.
 
@@ -121,7 +125,7 @@ Expected results:
 
 - branch is `v7/rebuild`;
 - `git status --short` is empty;
-- 30 Harness files pass;
+- 32 Harness files pass;
 - the server prints the V7 Session Browser URL;
 - `curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/`
   returns `200` while the service is running.
@@ -132,10 +136,10 @@ connected.
 
 ## Exact Next Step
 
-Execute R5.3: review the relevant chart-ecosystem aggregation/alignment
-references, then implement registered fixed-duration timeframe policies through
-the pure Projection Domain. Do not add the toolbar or mutate Replay, Bar Data,
-chart, persistence, multi-pane, or multi-instrument runtime in this step.
+Execute R5.4: implement the headless timeframe/Session Hours replacement intent
+and planning boundary through one existing Workspace Transaction. Retain cursor
+truth and reject delayed/superseded results without side effects. Do not add the
+toolbar, multi-pane, real provider, or persistence in this step.
 
 ## Standing Workflow
 

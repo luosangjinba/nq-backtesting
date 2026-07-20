@@ -356,14 +356,33 @@ Completed with automated evidence; no interaction or visual review is required:
 - add no toolbar, Replay mutation, Bar Data I/O, chart mutation, persistence,
   multi-pane, or multi-instrument runtime.
 
-## Exact Next Step — R5.3 Fixed-Duration Timeframe Projection
+## R5.3 Fixed-Duration Timeframe Projection — Completed
 
-Review the relevant official Lightweight Charts and awesome-tradingview
-aggregation/alignment references, then implement registered fixed-duration
-timeframe policies through the pure Projection Domain. Prove eligibility before
-aggregation, complete source-bar preservation, deterministic bucket alignment,
-no-future output, and delayed/superseded policy isolation. Add no toolbar,
-runtime switch mutation, multi-pane, or real provider yet.
+Completed with automated evidence; no interaction or visual review is required:
+
+- confirm Lightweight Charts consumes ordered prepared data and does not own
+  source-to-display aggregation;
+- implement registered fixed-duration policy ports with immutable OHLCV output;
+- use one canonical Unix/clock bucket formula with a configuration offset and
+  no Session/Replay/request-window origin drift;
+- preserve V6's accepted whole-hour and offset four-hour grids without concrete
+  timeframe-id branches;
+- prove Session Hours eligibility precedes aggregation, partial active buckets
+  remain exclusive-no-future, gaps are not synthesized, and unknown volume
+  remains unknown;
+- prove independently immutable policy instances and reject a stale policy id
+  against a newly selected timeframe definition;
+- add no toolbar, runtime switch mutation, multi-pane, real provider, or
+  calendar day/week/month aggregation.
+
+## Exact Next Step — R5.4 Atomic Timeframe/Session-Hours Replacement
+
+Implement the headless intent/planning boundary that selects registered
+timeframe and ETH/RTH policies and routes the complete replacement through the
+existing Workspace Transaction Runtime. Retain the Replay cursor, recompute
+mode-specific visible-through, preserve the accepted chart on failure, and
+prove delayed/superseded results have zero visible or Replay side effects. Add
+no toolbar, multi-pane, real provider, or persistence yet.
 
 ## Standing Gates
 

@@ -1,0 +1,21 @@
+[
+  { "case": "unknown-policy-field", "expectedCode": "FIXED_TIMEFRAME_FIELDS_INVALID" },
+  { "case": "unsupported-version", "expectedCode": "FIXED_TIMEFRAME_VERSION_UNSUPPORTED" },
+  { "case": "zero-duration", "expectedCode": "FIXED_TIMEFRAME_INTEGER_INVALID" },
+  { "case": "source-longer-than-target", "expectedCode": "FIXED_TIMEFRAME_SOURCE_INCOMPATIBLE" },
+  { "case": "duration-not-source-multiple", "expectedCode": "FIXED_TIMEFRAME_SOURCE_INCOMPATIBLE" },
+  { "case": "offset-outside-duration", "expectedCode": "FIXED_TIMEFRAME_OFFSET_INVALID" },
+  { "case": "offset-not-source-aligned", "expectedCode": "FIXED_TIMEFRAME_OFFSET_INVALID" },
+  { "case": "empty-source", "expectedCode": "FIXED_TIMEFRAME_SOURCE_EMPTY" },
+  { "case": "unordered-source", "expectedCode": "FIXED_TIMEFRAME_SOURCE_NOT_ORDERED" },
+  { "case": "duplicate-source", "expectedCode": "FIXED_TIMEFRAME_SOURCE_NOT_ORDERED" },
+  { "case": "misaligned-source", "expectedCode": "FIXED_TIMEFRAME_SOURCE_MISALIGNED" },
+  { "case": "invalid-envelope", "expectedCode": "FIXED_TIMEFRAME_ENVELOPE_INVALID" },
+  { "case": "invalid-volume", "expectedCode": "FIXED_TIMEFRAME_VOLUME_INVALID" },
+  { "case": "volume-overflow", "expectedCode": "FIXED_TIMEFRAME_VOLUME_INVALID" },
+  { "case": "negative-bucket", "expectedCode": "FIXED_TIMEFRAME_BUCKET_INVALID" },
+  { "case": "missing-context", "expectedCode": "FIXED_TIMEFRAME_CONTEXT_INVALID" },
+  { "case": "context-duration-mismatch", "expectedCode": "FIXED_TIMEFRAME_CONTEXT_MISMATCH" },
+  { "case": "context-resolution-mismatch", "expectedCode": "FIXED_TIMEFRAME_CONTEXT_MISMATCH" },
+  { "case": "stale-policy-id", "expectedCode": "PROJECTION_AGGREGATION_POLICY_MISMATCH" }
+]

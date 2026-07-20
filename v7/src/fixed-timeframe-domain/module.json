@@ -1,0 +1,12 @@
+{
+  "id": "core.fixed-timeframe-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "projection-domain",
+  "publicEntry": "src/fixed-timeframe-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/fixed-timeframe-domain-harness.js",
+  "removable": false
+}

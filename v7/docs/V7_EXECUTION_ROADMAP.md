@@ -299,6 +299,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   Session Hours/calendar policy plus inherited cursor/eligibility fixtures;
 - `R5.3`: implement registered fixed-duration timeframe projection and
   alignment fixtures through the existing pure Projection Domain;
+- `R5.4`: route timeframe and ETH/RTH replacement intents through one headless
+  workspace transaction with stale/superseded isolation;
+- `R5.5`: add the compact inherited timeframe and ETH/RTH controls and stop for
+  interaction/visual acceptance;
 - all TF projection through the pure domain;
 - ETH/RTH eligibility before aggregation;
 - delayed/superseded switches cannot commit.

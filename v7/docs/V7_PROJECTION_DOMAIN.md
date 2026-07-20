@@ -79,9 +79,10 @@ The accepted fixture uses NQ capability data, a one-minute source/display
 definition, ETH policy identity, and an identity aggregation policy. Those ids
 exist only in the independent Harness. Production code is capability-generic.
 
-R4.2 does not implement fixed-duration aggregation, calendar alignment, actual
-CME ETH/RTH eligibility, multiple panes, or a chart adapter. Those arrive in
-their reviewed roadmap steps behind the same policy contracts.
+R5.2 and R5.3 now supply registered actual CME ETH/RTH eligibility and generic
+fixed-duration aggregation policies behind these contracts. Calendar-aligned
+day/week/month projection, runtime selection, multiple panes, and UI remain
+separate roadmap steps.
 
 ## Gate
 
