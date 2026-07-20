@@ -1,0 +1,16 @@
+[
+  "acquisition-failure",
+  "projection-failure",
+  "presentation-failure",
+  "reordered-stale-success",
+  "reordered-stale-failure",
+  "dispose-cancellation",
+  "foreign-visible-completion",
+  "duplicate-transaction",
+  "session-mismatch",
+  "activation-mismatch",
+  "mutable-input",
+  "mutable-projection",
+  "invalid-initial-revision",
+  "revision-exhaustion"
+]

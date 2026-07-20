@@ -66,9 +66,10 @@ assert.deepEqual(manifest.writerInventories, {
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   chartSeries: [],
+  workspaceSnapshot: ['core.workspace-transaction-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: ['core.replay-runtime'],
-}, 'R3.3b activates one bounded raw requester and one visible-commit Replay cursor writer');
+}, 'R4.1 activates one workspace snapshot coordinator without changing raw or Replay writers');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -191,6 +192,7 @@ for (const rule of [
   'replay-contract-time-based-transaction-scoped',
   'replay-runtime-visible-commit-only',
   'replay-prefetch-advice-bounded-and-io-free',
+  'workspace-transaction-runtime-visible-gated-and-stale-safe',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

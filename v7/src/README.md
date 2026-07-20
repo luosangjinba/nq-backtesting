@@ -47,4 +47,10 @@ activation. Only its explicit visible-commit port can publish cursor progress.
 R3.3c adds pure low/high-watermark prefetch advice. It emits bounded time
 windows only; Bar Data Runtime remains the sole raw requester/cache owner.
 
+R4.1 activates the headless Workspace Transaction Runtime. It coordinates
+injected Replay, acquisition, projection, and visible-completion ports under
+one complete identity; stale and failed work cannot replace the last accepted
+workspace snapshot or advance Replay. No chart, DOM, real provider, projection
+policy, pane, viewport, or concrete capability branch is active yet.
+
 Do not import runtime code from V4, V5, or V6.

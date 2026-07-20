@@ -124,6 +124,17 @@ currency once more, and commits or rejects the entire result.
 It never becomes the owner of Session, Replay, Bar Data, Chart, or Viewport
 state. It coordinates their public contracts.
 
+R4.1 activates its headless coordination foundation for one branded Session
+activation. A newer complete transaction identity supersedes older work;
+aborting that work is cleanup only. Replay proposals remain inert across
+acquisition and projection. An opaque visible-completion acknowledgement must
+bind the exact identity and immutable projected snapshot before one final
+currency check permits Replay `commitVisible` and accepted workspace revision
+publication in the same synchronous turn. Late stale successes, late stale
+failures, dependency failures, and disposal preserve the last accepted
+workspace snapshot and Replay cursor. R4.1 uses fake owner ports and does not
+claim real chart-visible completion.
+
 ### Chart Runtime/Adapter
 
 Is the only chart-series writer. It applies an accepted workspace snapshot. It

@@ -268,6 +268,12 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 
 ## R4 — First Atomic Chart Slice
 
+- `R4.1`: headless Workspace Transaction Runtime with one immutable complete
+  identity, injected owner ports, inert Replay proposals, deterministic
+  supersession, exact visible-completion acknowledgement, final currency check,
+  and failure preservation;
+- later R4 steps add the pure one-pane projection, Chart Runtime/Adapter,
+  Viewport Runtime, and first reviewed professional workstation slice;
 - one pane, NQ, `1m`, ETH;
 - entry and Manual Next through one transaction/visible completion;
 - stable default/manual wall.

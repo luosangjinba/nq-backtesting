@@ -258,17 +258,23 @@ Completed with automated evidence; no interaction or visual review is required:
 - keep Manual and Auto inputs on the same proposal/commit path;
 - add no scheduler, bar I/O, projection, chart, viewport, persistence, or UI.
 
-## Current Step — R3.3 Headless Replay Runtime — Completed
+## Current Step — R4.1 Headless Workspace Transaction Runtime — Completed
 
-R3.3c completed with automated evidence; no interaction or visual review is required:
+R4.1 completed with automated evidence; no interaction or visual review is required:
 
-- define pure provider-independent low/high-watermark prefetch policy;
-- emit one bounded forward window only when contiguous coverage falls below low;
-- fill toward high watermark and clamp advice at the activated Session end;
-- keep Bar Data Runtime as the sole requester and cache owner;
-- activate H011 evidence across raw ordering/identity, explicit coverage gaps,
-  exclusive Replay no-future cutoff, and bounded forward prefetch;
-- add no timer, provider mapping, data I/O, projection, chart, viewport, or UI.
+- activate one isolated coordinator per branded Session activation;
+- invoke injected Replay, acquisition, projection, and visible-completion ports
+  in one direction under the complete transaction identity;
+- keep Replay proposals inert until an exact visible-completion acknowledgement;
+- perform one final currency check before synchronous Replay/workspace acceptance;
+- make slow old success, slow old failure, dependency failure, and disposal
+  preserve the last accepted workspace snapshot and Replay cursor;
+- treat abort as cleanup rather than proof of transaction currency;
+- add no real provider, Projection Domain policy, chart, DOM, pane, viewport,
+  concrete TF/ETH branch, Auto timer, or replay workspace UI.
+
+Next, define the bounded R4.2 pure Projection Domain input/output and one-pane
+`1m` ETH/no-future fixtures before introducing the real Chart Runtime/Adapter.
 
 ## Standing Gates
 

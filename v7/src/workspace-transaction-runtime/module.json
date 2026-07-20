@@ -1,0 +1,19 @@
+{
+  "id": "core.workspace-transaction-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/workspace-transaction-runtime/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "core.transaction-identity",
+    "core.workspace-transaction-contract",
+    "core.replay-runtime",
+    "core.bar-data-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": ["dispose"],
+  "independentHarness": "tests/workspace-transaction-runtime-harness.js",
+  "removable": false
+}

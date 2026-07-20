@@ -1,0 +1,74 @@
+# V7 Workspace Transaction Runtime
+
+Status: R4.1 headless coordinator foundation (2026-07-20)
+
+## Ownership
+
+`core.workspace-transaction-runtime` is the sole coordinator for chart-visible
+workspace changes within one branded Session activation. It owns transaction
+supersession, cancellation cleanup, the current complete identity, and the
+accepted workspace snapshot revision. It does not own Replay cursor semantics,
+raw acquisition, projection rules, chart series, viewport intent, or UI.
+
+Every accepted request carries one immutable lifecycle intent plus a frozen
+domain input. The intent contains the complete:
+
+`sessionId + activationGeneration + transactionId`
+
+Raw strings and cross-Session/cross-activation identities fail before any owner
+port is invoked. A transaction identity can enter one runtime only once.
+
+## Headless Stage Order
+
+The coordinator invokes injected public ports in one direction:
+
+1. request an inert Replay proposal;
+2. acquire required input through the acquisition port;
+3. project one immutable workspace snapshot;
+4. request an exact visible-completion acknowledgement;
+5. perform the final complete-identity currency check;
+6. synchronously commit Replay visible progress and the accepted workspace
+   snapshot revision;
+7. return exactly one terminal lifecycle envelope.
+
+The visible-completion acknowledgement is branded and binds both the complete
+transaction identity and the exact projected snapshot object. A structural
+lookalike, foreign identity, or acknowledgement for another snapshot cannot
+commit.
+
+R4.1 uses a fake visible-completion port. This proves ordering but does not
+claim browser-visible chart completion; H016 remains inactive until the real
+Chart Runtime/Adapter exists.
+
+## Concurrency And Failure
+
+- starting a newer intent aborts older work only for resource cleanup;
+- the complete identity check, not cancellation success, proves currency;
+- late stale success and late stale failure both have zero accepted-state side
+  effects;
+- acquisition, projection, and presentation failures preserve the last
+  accepted workspace snapshot and Replay cursor;
+- disposal cancels pending work and prevents later acceptance;
+- Replay proposals remain inert until exact visible completion returns;
+- accepted workspace revision advances once per committed intent only.
+
+No events orchestrate a second pipeline. Append, replace, cached, and uncached
+strategies remain future implementation details behind the same transaction.
+
+## Explicit R4.1 Exclusions
+
+- real provider or V4/DuckDB access;
+- concrete instrument, timeframe, or ETH/RTH branches;
+- Projection Domain implementation;
+- Chart Runtime, Lightweight Charts, DOM, pane, or viewport behavior;
+- Auto Replay timer or browser workspace UI;
+- persistence of the accepted workspace snapshot.
+
+## Gate
+
+`tests/workspace-transaction-runtime-harness.js` proves normal stage ordering,
+visible-commit-only Replay progress, acquisition/projection/presentation
+failure preservation, slow-old/fast-new response reordering, stale failure,
+disposal, foreign visible acknowledgement, duplicate identity, scope mismatch,
+immutable inputs/projections, initial revision validation, and
+revision-exhaustion preflight.
