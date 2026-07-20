@@ -1,0 +1,8 @@
+[
+  { "case": "invalid-cache-bound", "expectedCode": "INVALID_BAR_DATA_RUNTIME_CONFIG" },
+  { "case": "invalid-concurrency", "expectedCode": "INVALID_BAR_DATA_RUNTIME_CONFIG" },
+  { "case": "invalid-resolver", "expectedCode": "INVALID_PROVIDER_RESOLVER" },
+  { "case": "missing-provider-port", "expectedCode": "INVALID_PROVIDER_PORT" },
+  { "case": "response-identity-mismatch", "expectedCode": "PROVIDER_RESPONSE_IDENTITY_MISMATCH" },
+  { "case": "acquire-after-dispose", "expectedCode": "BAR_DATA_RUNTIME_DISPOSED" }
+]

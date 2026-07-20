@@ -41,6 +41,8 @@ assert.equal(Object.isFrozen(batch), true);
 assert.equal(Object.isFrozen(batch.bars), true);
 assert.equal(Object.isFrozen(batch.bars[0]), true);
 assert.equal(batch.requestKey, barDataApi.rawBarRequestKey(normalizedRequest));
+assert.equal(barDataApi.createRawBarBatch(batch).requestKey, batch.requestKey,
+  'a normalized batch must remain valid at a provider/runtime trust boundary');
 assert.deepEqual(
   barDataApi.createRawBarBatch({ schemaVersion: 1, request: normalizedRequest, bars: [] }).bars,
   [],
@@ -69,6 +71,9 @@ const negativeActions = Object.freeze({
   'invalid-price-envelope': () => barDataApi.createRawBar(bar(1_000_000, { high: 100.5, close: 101 })),
   'invalid-volume': () => barDataApi.createRawBar(bar(1_000_000, { volume: -1 })),
   'outside-window': () => barDataApi.createRawBarBatch({ schemaVersion: 1, request: request(), bars: [bar(1_180_000)] }),
+  'forged-request-key': () => barDataApi.createRawBarBatch({
+    schemaVersion: 1, request: request(), requestKey: 'forged', bars: [],
+  }),
   'duplicate-timestamp': () => barDataApi.createRawBarBatch({ schemaVersion: 1, request: request(), bars: [bar(1_000_000), bar(1_000_000)] }),
   'descending-timestamps': () => barDataApi.createRawBarBatch({ schemaVersion: 1, request: request(), bars: [bar(1_060_000), bar(1_000_000)] }),
 });

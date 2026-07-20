@@ -207,7 +207,8 @@ remain unchanged after extraction.
 R3 is split into independently committed boundaries before milestone closure:
 
 - `R3.1`: pure provider-neutral raw request/bar/batch values;
-- `R3.2`: bounded raw Bar Data Runtime, cache, coalescing, and provider adapter;
+- `R3.2a`: bounded exact-window runtime/cache and fake-provider conformance;
+- `R3.2b`: reviewed real provider/coverage adapter policy;
 - `R3.3`: one headless Replay clock and no-future cursor proposals.
 
 ### R3.1 — Raw Bar Data Value Contract
@@ -221,11 +222,22 @@ R3 is split into independently committed boundaries before milestone closure:
 Gate: every identity component changes the request key; malformed, duplicate,
 descending, and out-of-window bars fail before any future cache can observe them.
 
-### R3.2 — Bounded Bar Data Runtime
+### R3.2a — Bounded Exact-Window Runtime
 
 - the only raw requester/cache writer;
-- provider adapter, deadline, request coalescing, revision handling, bounded
-  eviction, and contiguous-coverage/gap policy;
+- injected fake-provider port, identical-request coalescing, global concurrency
+  bound, exact-window LRU eviction, and deterministic disposal;
+- no Replay or chart dependency.
+
+Gate: cache hits avoid the provider, identical in-flight requests share one
+Promise, queued work advances without user input, eviction is bounded, failures
+are not cached, runtimes are isolated, and disposal blocks late writes.
+
+### R3.2b — Provider And Coverage Policy
+
+- reviewed provider adapter and dataset-revision discovery;
+- provider-specific limits, deadline, retry/error taxonomy, overlapping
+  contiguous coverage, gap policy, and prefetch;
 - no Replay or chart dependency.
 
 ### R3.3 — Headless Replay Runtime

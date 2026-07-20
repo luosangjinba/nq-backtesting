@@ -1,0 +1,46 @@
+# V7 Bounded Bar Data Runtime
+
+Status: R3.2a fake-provider runtime boundary (2026-07-20)
+
+## Responsibility
+
+`core.bar-data-runtime` is the only active owner allowed to invoke a raw market
+data provider or retain raw batches. R3.2a provides a factory; each constructed
+runtime owns an isolated queue, in-flight map, and exact-window LRU cache.
+
+The injected `resolveProvider(providerId)` port returns an adapter exposing:
+
+```text
+requestRawBars(normalizedRequest, { signal }) -> RawBarBatch | Promise<RawBarBatch>
+```
+
+Provider output is revalidated through `core.bar-data-contract` before it can
+enter cache. A returned request identity must exactly match the requested key.
+
+## R3.2a Guarantees
+
+- identical in-flight request identities receive the same Promise and one
+  provider invocation;
+- exact-window cache hits do not invoke the provider;
+- the cache has an explicit positive entry bound and deterministic LRU eviction;
+- a configurable global concurrency bound queues excess unique requests;
+- queued work continues automatically when a slot opens, without mouse/wheel or
+  another user command;
+- provider failures are not cached;
+- separate runtime instances share no mutable queue or cache;
+- `dispose()` rejects queued and active consumers, aborts active signals, clears
+  cache/in-flight state, blocks new acquisition, and prevents late cache writes.
+
+The provider adapter is injected, so tests use a deterministic fake. R3.2a does
+not connect V4, the network, DuckDB, or any external data source.
+
+## Deliberate Deferrals
+
+R3.2a caches only exact bounded windows. It does not yet merge overlapping
+coverage, define market-closed gaps, discover revisions, apply provider-specific
+request limits, retry, enforce the provider deadline, prefetch, or expose cache
+metrics. Those require a reviewed provider/coverage policy in R3.2b.
+
+It also owns no Session, Replay cursor, projection, chart, viewport, calendar UI,
+or data-availability presentation. Cached raw future bars cannot become visible
+until later Projection and transaction owners enforce no-future semantics.

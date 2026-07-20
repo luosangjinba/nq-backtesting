@@ -21,4 +21,8 @@ R3.1 adds only immutable provider-neutral raw Bar Data request/bar/batch values.
 No provider I/O, cache, prefetch, retry, Replay, projection, chart, or UI owner
 is active yet.
 
+R3.2a activates the single Bar Data requester/cache factory with an injected
+provider port, exact-window LRU, coalescing, concurrency queue, and disposal.
+Only fake providers are used; real transport and coverage policy remain absent.
+
 Do not import runtime code from V4, V5, or V6.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R3.1",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2", "R3.3", "R3", "R4", "R5", "R6", "R7"],
+  "currentStep": "R3.2a",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b", "R3.3", "R3", "R4", "R5", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -152,7 +152,7 @@
       "name": "bar-data-order-identity-gap-no-future",
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "missing, sampled, duplicate, future, or cross-source bars",
-      "activationStep": "R3.2",
+      "activationStep": "R3.2b",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -291,7 +291,7 @@
       "name": "cross-product-coverage-disposition",
       "owner": "test-governance",
       "v6FailurePrevented": "single-case fixes missed TF, hours, pane, source, and lifecycle combinations",
-      "activationStep": "R3.3",
+      "activationStep": "R6",
       "state": "declared",
       "harness": null,
       "positiveEvidence": [],
@@ -510,7 +510,7 @@
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "raw requests and responses could mix Session, provider, instrument, resolution, window, revision, order, duplicate, or out-of-window state before caching",
       "activationStep": "R3.1",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/bar-data-contract-harness.js",
       "positiveEvidence": [
         "src/bar-data-contract/public.js",
@@ -520,6 +520,24 @@
         "src/bar-data-contract/batch-contract.js"
       ],
       "negativeFixtures": ["tests/fixtures/bar-data-contract/negative/cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260720_r3_1_bar_data_contract.md"
+    },
+    {
+      "id": "H035",
+      "name": "bounded-coalesced-disposable-bar-data-runtime",
+      "owner": "bar-data-runtime",
+      "v6FailurePrevented": "duplicate requests, unbounded caches, hidden concurrency, shared runtime state, failed-response caching, and late writes after teardown made replay slow and nondeterministic",
+      "activationStep": "R3.2a",
+      "state": "executable",
+      "harness": "tests/bar-data-runtime-harness.js",
+      "positiveEvidence": [
+        "src/bar-data-runtime/public.js",
+        "src/bar-data-runtime/module.json",
+        "src/bar-data-runtime/bar-data-runtime.js",
+        "src/bar-data-runtime/exact-window-cache.js"
+      ],
+      "negativeFixtures": ["tests/fixtures/bar-data-runtime/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
     }

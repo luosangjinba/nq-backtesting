@@ -8,6 +8,7 @@
   { "case": "invalid-price-envelope", "expectedCode": "INVALID_RAW_BAR_ENVELOPE" },
   { "case": "invalid-volume", "expectedCode": "INVALID_RAW_BAR_VOLUME" },
   { "case": "outside-window", "expectedCode": "RAW_BAR_OUTSIDE_REQUEST_WINDOW" },
+  { "case": "forged-request-key", "expectedCode": "RAW_BAR_BATCH_KEY_MISMATCH" },
   { "case": "duplicate-timestamp", "expectedCode": "RAW_BARS_NOT_STRICTLY_ORDERED" },
   { "case": "descending-timestamps", "expectedCode": "RAW_BARS_NOT_STRICTLY_ORDERED" }
 ]

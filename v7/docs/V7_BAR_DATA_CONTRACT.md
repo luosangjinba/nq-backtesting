@@ -44,6 +44,10 @@ inside the request's half-open window. Empty batches are valid successful
 values; transport unavailable/error states will be specified with the runtime,
 not encoded as fake bars.
 
+The normalizer is idempotent: a previously normalized batch may cross another
+trust boundary and be validated again. Its derived `requestKey` must match the
+echoed request; a supplied forged key is rejected.
+
 R3.1 does not prove gap policy, request coalescing, eviction, bounded concurrency,
 dataset-revision discovery, provider deadlines, or no-future Replay visibility.
 Those require the later Bar Data Runtime and transaction owners.

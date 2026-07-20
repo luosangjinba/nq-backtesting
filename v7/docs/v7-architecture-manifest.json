@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r3.1-raw-bar-data-contract",
+  "status": "r3.2a-bounded-bar-data-runtime",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -19,6 +19,7 @@
     "docs/V7_SESSION_BROWSER_SURFACE.md",
     "docs/V7_CALENDAR_SURFACE.md",
     "docs/V7_BAR_DATA_CONTRACT.md",
+    "docs/V7_BAR_DATA_RUNTIME.md",
     "docs/V7_EXECUTION_ROADMAP.md",
     "TODO.md"
   ],
@@ -56,6 +57,7 @@
     "src/module-host/module.json",
     "src/capability-contract/module.json",
     "src/bar-data-contract/module.json",
+    "src/bar-data-runtime/module.json",
     "src/session-persistence/module.json",
     "src/session-store/module.json",
     "src/calendar-surface/module.json",
@@ -124,7 +126,7 @@
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "chartSeries": [],
-    "rawBarRequest": [],
+    "rawBarRequest": ["core.bar-data-runtime"],
     "replayCursor": []
   },
   "requiredRules": [
@@ -151,6 +153,7 @@
     "foundation-interactions-have-owner-visible-completion-and-phase-boundary",
     "cache-latency-and-refresh-contracts-are-bounded-and-atomic",
     "calendar-surface-business-data-agnostic",
-    "raw-bar-contract-session-independent-and-window-bounded"
+    "raw-bar-contract-session-independent-and-window-bounded",
+    "bar-data-runtime-bounded-coalesced-and-disposable"
   ]
 }

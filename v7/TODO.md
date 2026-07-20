@@ -182,9 +182,9 @@ Human-accepted on 2026-07-20:
   TradingCalendar domain behavior, bars, Replay, panes, or provider access;
 - stop for interaction and visual review after the focused commit.
 
-## Current Step — R3.1 Raw Bar Data Value Contract
+## R3.1 Raw Bar Data Value Contract — Accepted
 
-In progress:
+Human-accepted on 2026-07-20:
 
 - define one provider-neutral, versioned raw request identity;
 - require provider, instrument, source resolution, half-open window, and dataset
@@ -194,6 +194,20 @@ In progress:
 - reject malformed, duplicate, descending, and out-of-window input;
 - add no provider I/O, cache, data-availability calendar, Replay, projection,
   chart, pane, or UI behavior.
+
+## Current Step — R3.2a Bounded Exact-Window Bar Data Runtime
+
+In progress:
+
+- activate exactly one raw provider requester/cache writer;
+- inject a fake provider resolver rather than connecting V4 or the network;
+- coalesce identical in-flight identities to one Promise/provider call;
+- bound unique-request concurrency and continue queued work automatically;
+- bound exact-window cache entries with deterministic LRU eviction;
+- never cache provider failures or mismatched response identity;
+- isolate cache/queue state between runtime instances;
+- dispose queued/active work and prevent late cache writes;
+- add no coverage UI, real provider policy, Replay, projection, chart, or pane.
 
 ## Standing Gates
 

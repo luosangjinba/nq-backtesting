@@ -66,9 +66,9 @@ assert.deepEqual(manifest.writerInventories, {
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   chartSeries: [],
-  rawBarRequest: [],
+  rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: [],
-}, 'R3.1 adds only pure Bar Data values; raw requests and later state writers remain inactive');
+}, 'R3.2a activates one bounded raw requester/cache writer; later state writers remain inactive');
 
 assert.deepEqual(manifest.moduleContract.descriptorRequiredFields, [
   'id',
@@ -184,6 +184,7 @@ for (const rule of [
   'cache-latency-and-refresh-contracts-are-bounded-and-atomic',
   'calendar-surface-business-data-agnostic',
   'raw-bar-contract-session-independent-and-window-bounded',
+  'bar-data-runtime-bounded-coalesced-and-disposable',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

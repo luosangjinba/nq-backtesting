@@ -60,6 +60,14 @@ It excludes Session, pane, display TF, ETH/RTH, Replay, and viewport state.
 Provider wire metadata is normalized at a future adapter boundary and cannot
 leak into the raw domain merely for V4 compatibility.
 
+R3.2a activates one `core.bar-data-runtime` acquisition/cache path over an
+injected provider resolver. Each runtime instance owns a bounded exact-window
+LRU cache, identical-request coalescing, a global concurrency queue, abort
+signals, and disposal. Provider output is revalidated before cache admission;
+failures and late post-dispose completions cannot write cache state. Real
+transport, overlapping coverage, revision discovery, gap policy, retry,
+deadline, and prefetch remain inactive until R3.2b.
+
 ### Projection Domain
 
 Is pure. Its complete input includes instrument, source bars, proposed cursor,

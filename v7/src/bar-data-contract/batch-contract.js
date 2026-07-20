@@ -2,7 +2,8 @@ import { createRawBar } from './bar-contract.js';
 import { failBarDataContract } from './contract-error.js';
 import { createRawBarRequest, rawBarRequestKey } from './request-contract.js';
 
-const BATCH_FIELDS = Object.freeze(['schemaVersion', 'request', 'bars']);
+const REQUIRED_BATCH_FIELDS = Object.freeze(['schemaVersion', 'request', 'bars']);
+const BATCH_FIELDS = Object.freeze([...REQUIRED_BATCH_FIELDS, 'requestKey']);
 
 /**
  * Owner: Bar Data Runtime contract boundary.
@@ -18,7 +19,7 @@ export function createRawBarBatch(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     failBarDataContract('INVALID_RAW_BAR_BATCH', 'Raw bar batch must be an object.');
   }
-  for (const field of BATCH_FIELDS) {
+  for (const field of REQUIRED_BATCH_FIELDS) {
     if (!Object.hasOwn(value, field)) failBarDataContract('MISSING_RAW_BAR_BATCH_FIELD', `Missing raw bar batch field ${field}.`);
   }
   if (Object.keys(value).some((field) => !BATCH_FIELDS.includes(field))) {
@@ -41,10 +42,14 @@ export function createRawBarBatch(value) {
     previousStart = bar.startEpochMs;
     return bar;
   });
+  const requestKey = rawBarRequestKey(request);
+  if (Object.hasOwn(value, 'requestKey') && value.requestKey !== requestKey) {
+    failBarDataContract('RAW_BAR_BATCH_KEY_MISMATCH', 'Raw bar batch requestKey does not match its request.');
+  }
   return Object.freeze({
     schemaVersion: 1,
     request,
-    requestKey: rawBarRequestKey(request),
+    requestKey,
     bars: Object.freeze(bars),
   });
 }
