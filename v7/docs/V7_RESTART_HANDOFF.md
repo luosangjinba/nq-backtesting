@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R5.6 fifth-review acceptance; R6 unblocked
+Last updated: 2026-07-21 after R6.1 Pane Workspace Domain completion
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,8 +10,8 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: human-accepted R4.5 and human-accepted R5.1–R5.6,
-  including all R5.6a–l corrective work
+- implemented code baseline: human-accepted R4.5 and R5.1–R5.6, plus completed
+  headless R6.1 Pane Workspace Domain
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -49,6 +49,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r5_6k_fourth_review_rejection.md` and
   `sessions/session_20260721_r5_6l_history_responsiveness.md`.
 - `sessions/session_20260721_r5_6m_fifth_review_acceptance.md`.
+- `sessions/session_20260721_r6_1_pane_workspace_domain.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -148,6 +149,9 @@ and human-accepted:
   York DST conversion, and yielding seven-day V4 transport chunks.
 - R5.6m records explicit fifth-review acceptance and closes the complete R5.6
   corrective gate, unblocking R6.
+- R6.1 defines one uniform one-to-many Pane intent value, binds Pane instruments
+  to Session assets, validates one shared Replay cursor through pane-local
+  Viewport intent, and isolates focus plus instrument-sync transitions.
 
 Latest corrective commits:
 
@@ -267,12 +271,12 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Begin the first bounded R6 Atomic Multi-Pane And Instruments step. Re-read the
-R6 roadmap, architecture multi-pane boundaries, and accepted V6 interaction
-evidence; define the smallest owner/API and executable invariant before adding
-browser-visible layout. Preserve one shared Replay clock, atomic pane-set
-switch/restore, pane-local instrument identity, and all accepted R5.6 chart
-behavior.
+Execute R6.2: materialize one complete Pane set through the existing Workspace
+Transaction Runtime, project each Pane against one shared Replay proposal, and
+stage/apply the set behind one exact visible-completion acknowledgement. Prove
+failure/stale work exposes neither partial Pane data nor a partial layout. Keep
+the step headless with fake acquisition/chart ports; browser-visible layout is
+a later human-review step.
 
 ## Standing Workflow
 

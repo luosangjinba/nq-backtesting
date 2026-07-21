@@ -1,0 +1,22 @@
+[
+  { "case": "workspace-extra-field", "expectedCode": "PANE_WORKSPACE_FIELDS_INVALID" },
+  { "case": "empty-assets", "expectedCode": "PANE_WORKSPACE_ALLOWED_INSTRUMENTS_INVALID" },
+  { "case": "duplicate-assets", "expectedCode": "PANE_WORKSPACE_ALLOWED_INSTRUMENTS_DUPLICATE" },
+  { "case": "primary-outside-session", "expectedCode": "PANE_WORKSPACE_PRIMARY_INSTRUMENT_INVALID" },
+  { "case": "empty-panes", "expectedCode": "PANE_WORKSPACE_PANES_INVALID" },
+  { "case": "duplicate-pane", "expectedCode": "PANE_WORKSPACE_PANE_DUPLICATE" },
+  { "case": "active-pane-missing", "expectedCode": "PANE_WORKSPACE_ACTIVE_PANE_MISSING" },
+  { "case": "pane-replay-field", "expectedCode": "PANE_WORKSPACE_PANE_FIELDS_INVALID" },
+  { "case": "instrument-outside-session", "expectedCode": "PANE_WORKSPACE_INSTRUMENT_OUTSIDE_SESSION" },
+  { "case": "invalid-timeframe", "expectedCode": "PANE_WORKSPACE_CAPABILITY_ID_INVALID" },
+  { "case": "invalid-sync", "expectedCode": "PANE_WORKSPACE_INSTRUMENT_SYNC_INVALID" },
+  { "case": "viewport-pane-mismatch", "expectedCode": "PANE_WORKSPACE_VIEWPORT_PANE_MISMATCH" },
+  { "case": "viewport-session-mismatch", "expectedCode": "PANE_WORKSPACE_VIEWPORT_SESSION_MISMATCH" },
+  { "case": "viewport-activation-mismatch", "expectedCode": "PANE_WORKSPACE_VIEWPORT_ACTIVATION_MISMATCH" },
+  { "case": "mixed-cursor", "expectedCode": "PANE_WORKSPACE_SHARED_CURSOR_MISMATCH" },
+  { "case": "focus-target-missing", "expectedCode": "PANE_WORKSPACE_TARGET_PANE_MISSING" },
+  { "case": "change-target-missing", "expectedCode": "PANE_WORKSPACE_TARGET_PANE_MISSING" },
+  { "case": "change-instrument-outside-session", "expectedCode": "PANE_WORKSPACE_INSTRUMENT_OUTSIDE_SESSION" },
+  { "case": "transition-extra-field", "expectedCode": "PANE_WORKSPACE_TRANSITION_FIELDS_INVALID" },
+  { "case": "workspace-lookalike", "expectedCode": "PANE_WORKSPACE_REQUIRED" }
+]

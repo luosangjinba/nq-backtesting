@@ -1,0 +1,16 @@
+{
+  "id": "core.pane-workspace-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "pane-workspace-domain",
+  "publicEntry": "src/pane-workspace-domain/public.js",
+  "requiredPorts": [
+    "core.session-identity",
+    "core.activation-generation",
+    "core.viewport-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/pane-workspace-domain-harness.js",
+  "removable": false
+}

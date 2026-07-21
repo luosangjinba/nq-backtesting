@@ -668,6 +668,25 @@ R6 remains blocked pending explicit fifth-review acceptance.
   history extension, is human-accepted;
 - R5.6 is closed and R6 Atomic Multi-Pane And Instruments is unblocked.
 
+### R6.1 Pane Workspace Domain — Completed
+
+- activate one pure `core.pane-workspace-domain` boundary before multi-chart UI
+  or materialization work;
+- use one exact Pane record for a one-Pane or multi-Pane workspace: Pane id,
+  instrument id, timeframe id, and branded pane-local Viewport intent;
+- bind every Pane to the active Session/activation, restrict instruments to the
+  Session asset set, and require all Pane Viewports to observe one shared Replay
+  cursor;
+- reject Pane-local Replay fields, duplicate Pane identities, foreign Viewport
+  scope, mixed cursors, absent active focus, and out-of-Session instruments;
+- make focus a data-command-free transition and instrument intent either
+  pane-local or all-Pane without moving Replay or Viewport intent;
+- pass the independent Harness with 20 negative controls plus architecture,
+  module-host, and diff gates.
+
+R6.2 complete-Pane-set materialization through one Workspace transaction and
+one atomic visible-completion boundary is next. Browser layout remains later.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

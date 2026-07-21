@@ -311,6 +311,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 
 ## R6 — Atomic Multi-Pane And Instruments
 
+- `R6.1`: define the pure uniform Pane Workspace value and Session-bounded
+  active-focus/instrument transitions, with one shared Replay cursor and no
+  Pane-local Replay state;
+- `R6.2`: materialize the complete Pane set through one Workspace transaction
+  and one atomic visible-completion boundary;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.

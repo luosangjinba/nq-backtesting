@@ -40,6 +40,18 @@ only when that transaction commits visibly.
 
 There is one shared Replay clock. Panes and instruments never own cursors.
 
+### Pane Workspace Domain
+
+Is pure. It defines the uniform Pane intent record used from one Pane to many,
+validates active focus and Session-bounded instrument selection, and plans
+pane-local or synchronized instrument intent. It owns no mutable runtime,
+persistence, Replay, bars, projection, chart, or DOM state.
+
+R6.1 activates `core.pane-workspace-domain`. Every Pane has exactly `paneId`,
+`instrumentId`, `timeframeId`, and one branded Viewport intent. The Viewport
+scope must match the Session, activation, and Pane; every Pane must observe the
+same Replay cursor. Pane records structurally reject per-Pane Replay fields.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

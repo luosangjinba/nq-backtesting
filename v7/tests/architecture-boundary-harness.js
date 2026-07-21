@@ -68,6 +68,7 @@ assert.deepEqual(manifest.writerInventories, {
   replayWorkspaceDom: ['adapter.replay-workspace-ui'],
   chartSeries: ['adapter.lightweight-chart'],
   viewportIntent: ['core.viewport-runtime'],
+  paneWorkspace: ['core.pane-workspace-domain'],
   workspaceSnapshot: ['core.workspace-transaction-runtime'],
   rawBarRequest: ['core.bar-data-runtime'],
   replayCursor: ['core.replay-runtime'],
@@ -199,6 +200,7 @@ for (const rule of [
   'chart-snapshot-application-exact-visible-receipt',
   'viewport-intent-pane-local-and-data-independent',
   'real-chart-visible-completion-and-native-wall',
+  'uniform-pane-workspace-session-assets-shared-cursor',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }
