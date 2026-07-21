@@ -19,6 +19,7 @@ import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runt
 import { createWorkspaceReplacementExecutor } from '../workspace-replacement-runtime/public.js';
 import { createFoundationMarket } from './foundation-market.js';
 import { createSourceBatchLedger } from './source-batch-ledger.js';
+import { createRefreshFeedback } from './refresh-feedback.js';
 
 function formatCursor(epochMs) {
   const formatter = new Intl.DateTimeFormat(undefined, {
@@ -63,6 +64,7 @@ export function createReplayWorkspaceController({ record, view }) {
     }),
   });
   const sourceBatches = createSourceBatchLedger();
+  const refreshFeedback = createRefreshFeedback({ view });
   const adapter = createLightweightChartAdapter({
     host: view.chartHost,
     onHistoryBoundary: (range) => {
@@ -149,7 +151,8 @@ export function createReplayWorkspaceController({ record, view }) {
   async function execute(operation, { durationMs = null, request = market.request } = {}) {
     if (disposed || pending) return;
     pending = true;
-    view.setState(operation === 'chart-entry' ? 'loading' : 'stale');
+    if (operation === 'chart-entry') view.setState('loading');
+    const feedbackToken = operation === 'chart-entry' ? null : refreshFeedback.begin();
     const intent = identity(operation);
     const input = Object.freeze({
       ...(durationMs === null ? {} : {
@@ -169,6 +172,7 @@ export function createReplayWorkspaceController({ record, view }) {
     } finally {
       sourceBatches.reject();
       pending = false;
+      refreshFeedback.finish(feedbackToken);
       const logicalFrom = adapter.snapshot().logicalRange?.from;
       const shouldExtend = historyRequestQueued
         || (operation === 'history-extension' && Number.isFinite(logicalFrom) && logicalFrom < 24);
@@ -197,7 +201,7 @@ export function createReplayWorkspaceController({ record, view }) {
     });
     if (target.timeframeId === current.timeframeId && target.sessionHoursMode === current.sessionHoursMode) return;
     pending = true;
-    view.setState('stale');
+    const feedbackToken = refreshFeedback.begin({ allowDim: true });
     try {
       const terminal = describeWorkspaceTransactionEnvelope(await replacement.execute({
         intent: identity(`${kind}-replacement`), request: market.requestThrough(replay.snapshot().cursorEpochMs), target,
@@ -213,6 +217,7 @@ export function createReplayWorkspaceController({ record, view }) {
     } finally {
       sourceBatches.reject();
       pending = false;
+      refreshFeedback.finish(feedbackToken);
     }
   }
 
@@ -220,6 +225,7 @@ export function createReplayWorkspaceController({ record, view }) {
     dispose() {
       if (disposed) return;
       disposed = true;
+      refreshFeedback.dispose();
       runtime.dispose();
       chartApplication.dispose();
       adapter.dispose();

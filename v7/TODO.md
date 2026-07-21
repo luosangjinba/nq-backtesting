@@ -517,6 +517,21 @@ R5.6c TF switch and higher-TF Next latency profiling is next.
 
 R5.6d refresh-feedback correction is next.
 
+### R5.6d Delayed Refresh Feedback — Completed
+
+- removed toolbar `Updating…` from cache-hit Next and replacements;
+- separated interaction disabling from visible workspace state so ignored
+  duplicate input does not require flashing a loading label;
+- added a UI-owned 500 ms delayed feedback controller that never delays or
+  coordinates the transaction itself;
+- cache-hit completion cancels the pending feedback before any visual change;
+- a genuinely slow TF/Session-Hours replacement retains and subtly dims the
+  accepted chart with no overlay text or geometry shift;
+- failures continue to retain the accepted chart and show one bounded inline
+  error; reduced-motion removes the dim transition animation.
+
+R5.6e direct-open Session creation is next.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

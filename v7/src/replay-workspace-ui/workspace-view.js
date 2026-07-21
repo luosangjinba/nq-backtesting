@@ -107,21 +107,28 @@ export function createReplayWorkspaceView({
     ]),
   ]);
   let hasAcceptedChart = false;
+  let interactionPending = false;
+  let viewState = 'loading';
 
-  function setState(state, detail = {}) {
-    if (!REPLAY_WORKSPACE_STATES.includes(state)) throw new TypeError(`Unsupported workspace state ${state}.`);
-    root.dataset.viewState = state;
-    const busy = state === 'loading' || state === 'stale';
-    nextButton.disabled = busy || state === 'empty' || state === 'unavailable';
-    resetButton.disabled = busy || state === 'empty' || state === 'unavailable';
+  function renderAvailability() {
+    const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
+    nextButton.disabled = busy || viewState === 'empty' || viewState === 'unavailable';
+    resetButton.disabled = busy || viewState === 'empty' || viewState === 'unavailable';
     timeframeControl.setDisabled(busy);
     sessionHoursControl.setDisabled(busy);
     root.setAttribute('aria-busy', String(busy));
+  }
+
+  function setState(state, detail = {}) {
+    if (!REPLAY_WORKSPACE_STATES.includes(state)) throw new TypeError(`Unsupported workspace state ${state}.`);
+    viewState = state;
+    root.dataset.viewState = state;
+    renderAvailability();
     if (state === 'ready') hasAcceptedChart = true;
     overlay.hidden = state === 'ready' || state === 'stale' || (state === 'error' && hasAcceptedChart);
-    status.hidden = state !== 'stale' && !(state === 'error' && hasAcceptedChart);
+    status.hidden = !(state === 'error' && hasAcceptedChart);
     status.className = `workspace-inline-status status-${state}`;
-    status.textContent = state === 'stale' ? 'Updating…' : (detail.message ?? 'Update failed');
+    status.textContent = state === 'error' ? (detail.message ?? 'Update failed') : '';
     overlay.className = `chart-state-overlay state-${state}`;
     overlayTitle.textContent = detail.title ?? {
       loading: 'Preparing replay chart', empty: 'No visible bars', unavailable: 'Chart unavailable',
@@ -159,6 +166,10 @@ export function createReplayWorkspaceView({
     },
     setSessionRange({ end, start }) {
       sessionRange.textContent = `Session · ${start} → ${end}`;
+    },
+    setPending(value) {
+      interactionPending = value === true;
+      renderAvailability();
     },
     setState,
     setVisibleThrough({ barCount, text }) {

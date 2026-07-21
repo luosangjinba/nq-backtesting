@@ -17,8 +17,9 @@ and interaction acceptance.
 - ETH/RTH eligibility runs before fixed-duration aggregation;
 - native manual-wall origin, offset, and span survive timeframe, Session Hours,
   and Manual Next replacement; Reset View alone restores the default wall;
-- cache-hit refresh uses a small toolbar status and never covers the accepted
-  chart with a centered message;
+- cache-hit Next and replacement show no transient status or dimming;
+- a replacement still pending after 500 ms subtly dims the accepted chart
+  without text, layout movement, or a centered message;
 - a failed replacement restores the accepted control state and leaves the last
   chart visible with a bounded inline error.
 - the toolbar keeps Session, instrument, timeframe, ETH/RTH, Reset, and Next bar

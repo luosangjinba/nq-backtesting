@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 import { createFoundationMarket } from '../src/replay-workspace-ui/foundation-market.js';
+import { createRefreshFeedback } from '../src/replay-workspace-ui/refresh-feedback.js';
 import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -21,6 +22,27 @@ assert.equal(new Set(negativeCases).size, 6);
 assert.deepEqual(REPLAY_WORKSPACE_STATES, [
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
+const feedbackTrace = [];
+let delayedFeedback = null;
+const feedback = createRefreshFeedback({
+  clearTimer: () => { delayedFeedback = null; },
+  setTimer: (callback, delay) => { delayedFeedback = { callback, delay }; return 1; },
+  view: {
+    setPending: (value) => feedbackTrace.push(`pending:${value}`),
+    setState: (value) => feedbackTrace.push(`state:${value}`),
+  },
+});
+const fastFeedbackToken = feedback.begin();
+assert.equal(delayedFeedback, null, 'cache-hit/Next feedback must schedule no visual state');
+feedback.finish(fastFeedbackToken);
+const slowFeedbackToken = feedback.begin({ allowDim: true });
+assert.equal(delayedFeedback.delay, 500);
+delayedFeedback.callback();
+feedback.finish(slowFeedbackToken);
+assert.deepEqual(feedbackTrace, [
+  'pending:true', 'pending:false', 'pending:true', 'state:stale', 'pending:false',
+]);
+feedback.dispose();
 const fridayStart = Date.parse('2026-05-01T19:40:00Z');
 const fridayMarket = createFoundationMarket({
   configuration: { historicalRange: {
@@ -214,6 +236,8 @@ try {
   const providerRequestsAtEntry = await evaluate(cdp,
     `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.workspace-inline-status').hidden`), true,
+    'cache-hit Next must not flash toolbar update status');
   assert.equal(await evaluate(cdp, `document.querySelector('.chart-state-overlay').hidden`), true,
     'cache-hit advancement must not cover the chart with a stale-state message');
   try {
@@ -273,6 +297,11 @@ try {
     document.querySelector('.timeframe-toggle').click();
     document.querySelector('[data-timeframe-id="timeframe.display-5-minute"]').click();
   })()`);
+  assert.deepEqual(await evaluate(cdp, `(() => ({
+    state: document.querySelector('.replay-workspace').dataset.viewState,
+    statusHidden: document.querySelector('.workspace-inline-status').hidden,
+  }))()`), { state: 'ready', statusHidden: true },
+  'cache-hit TF replacement must settle before delayed dim feedback');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '3'`);
   const timeframeVisibleMs = performance.now() - timeframeStartedAt;
   const timeframeAfter = await evaluate(cdp, `(() => {

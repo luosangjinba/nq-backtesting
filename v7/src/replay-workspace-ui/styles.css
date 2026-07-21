@@ -183,6 +183,10 @@
 .workspace-inline-status { color: #c5c5c5; }
 .workspace-inline-status.status-error { color: #ffc4c9; }
 .lightweight-chart-host { width: 100%; height: 100%; min-height: 0; }
+.replay-workspace[data-view-state="stale"] .lightweight-chart-host {
+  opacity: .72;
+  transition: opacity 100ms ease-out;
+}
 
 .chart-state-overlay {
   position: absolute;
@@ -235,4 +239,8 @@
   .replay-actions .button { flex: 0 1 auto; }
   .lightweight-chart-host { height: 430px; }
   .replay-workspace-footer { flex-direction: column; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .replay-workspace[data-view-state="stale"] .lightweight-chart-host { transition: none; }
 }
