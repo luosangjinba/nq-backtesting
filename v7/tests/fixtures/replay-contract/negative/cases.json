@@ -7,5 +7,11 @@
   { "case": "negative-revision", "expectedCode": "REPLAY_BASE_REVISION_INVALID" },
   { "case": "forged-proposal", "expectedCode": "REPLAY_CURSOR_PROPOSAL_REQUIRED" },
   { "case": "overflow-target", "expectedCode": "REPLAY_TARGET_OVERFLOW" },
-  { "case": "target-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" }
+  { "case": "target-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" },
+  { "case": "step-fields", "expectedCode": "REPLAY_STEP_FIELDS_INVALID" },
+  { "case": "step-id", "expectedCode": "REPLAY_STEP_ID_INVALID" },
+  { "case": "step-zero-duration", "expectedCode": "REPLAY_STEP_DURATION_INVALID" },
+  { "case": "step-source-incompatible", "expectedCode": "REPLAY_STEP_SOURCE_INCOMPATIBLE" },
+  { "case": "step-offset", "expectedCode": "REPLAY_STEP_OFFSET_INVALID" },
+  { "case": "step-lookalike", "expectedCode": "REPLAY_STEP_REQUIRED" }
 ]

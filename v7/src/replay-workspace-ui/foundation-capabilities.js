@@ -4,6 +4,7 @@ import {
   defineTradingCalendar,
 } from '../capability-contract/public.js';
 import { createFixedDurationAggregationPolicy } from '../fixed-timeframe-domain/public.js';
+import { createReplayStep } from '../replay-contract/public.js';
 import { createSessionHoursCalendar, createSessionHoursPolicy } from '../session-hours-domain/public.js';
 import { createWorkspaceReplacementCatalog } from '../workspace-replacement-runtime/public.js';
 import {
@@ -12,6 +13,7 @@ import {
 } from '../v4-bars-provider-adapter/public.js';
 
 const MINUTE = 60_000;
+const FIXED_GRID_OFFSET_MS = 0;
 export const FOUNDATION_IDS = Object.freeze({
   calendar: 'calendar.cme-equity-index',
   instrument: 'instrument.cme.nq',
@@ -57,6 +59,8 @@ const TIMEFRAMES = Object.freeze([
   Object.freeze({ durationMinutes: 480, id: 'timeframe.display-8-hour', label: '8h', menuLabel: '8 hours' }),
   Object.freeze({ durationMinutes: 720, id: 'timeframe.display-12-hour', label: '12h', menuLabel: '12 hours' }),
 ]);
+
+const REPLAY_STEP_MINUTES = new Set([1, 3, 5, 15, 30, 60, 120, 240]);
 
 const TIMEFRAME_MENU_GROUPS = Object.freeze([
   Object.freeze({
@@ -175,7 +179,7 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
       aggregationPolicy: createFixedDurationAggregationPolicy({
         durationMs: timeframe.durationMinutes * MINUTE,
         id: timeframe.aggregationPolicyId,
-        offsetMs: 0,
+        offsetMs: FIXED_GRID_OFFSET_MS,
         revision: `fixed-${timeframe.durationMinutes}m-${mode}-exchange-grid-r2`,
         schemaVersion: 1,
         sourceDurationMs: MINUTE,
@@ -193,6 +197,18 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
     sessionHoursMode: 'eth',
     timeframeId: definitions[0].id,
   });
+  const replayStepOptions = Object.freeze(TIMEFRAMES
+    .filter(({ durationMinutes }) => REPLAY_STEP_MINUTES.has(durationMinutes))
+    .map(({ durationMinutes, label }) => Object.freeze({
+      id: `replay-step.fixed-${durationMinutes}-minute`,
+      label,
+      step: createReplayStep({
+        durationMs: durationMinutes * MINUTE,
+        id: `replay-step.fixed-${durationMinutes}-minute`,
+        offsetMs: FIXED_GRID_OFFSET_MS,
+        sourceDurationMs: MINUTE,
+      }),
+    })));
   const catalog = createWorkspaceReplacementCatalog(entries);
   return Object.freeze({
     calendar,
@@ -202,6 +218,7 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
     instrument,
     instrumentOptions: Object.freeze(instruments.map(({ id, symbol }) => Object.freeze({ id, label: symbol }))),
     instruments,
+    replayStepOptions,
     sessionHoursModes: Object.freeze(['eth', 'rth']),
     timeframes: Object.freeze(definitions.map(({ id, label }) => Object.freeze({ id, label }))),
     timeframeMenuGroups: TIMEFRAME_MENU_GROUPS,

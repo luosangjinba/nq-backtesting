@@ -1,4 +1,5 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
+import { readReplayStep } from '../replay-contract/public.js';
 import { createGotoControls } from './goto-controls.js';
 import { createPaneGridView } from './pane-grid-view.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
@@ -58,6 +59,23 @@ function createInstrumentSelect(options, onChoose) {
   });
 }
 
+function createReplayStepSelect(options, onChoose) {
+  const select = element('select', { ariaLabel: 'Replay step', className: 'replay-step-select' });
+  select.title = 'Previous and Next advance one completed Replay bar on this independent timeframe.';
+  for (const option of options) {
+    const node = element('option', { text: option.label });
+    node.value = option.id;
+    select.append(node);
+  }
+  select.addEventListener('change', () => onChoose(select.value));
+  return Object.freeze({
+    dispose() { select.replaceWith(select.cloneNode(true)); },
+    root: select,
+    setDisabled(value) { select.disabled = value; },
+    setValue(value) { select.value = value; },
+  });
+}
+
 /** Own the real one/multi-Pane workstation presentation and dispatch UI intents. */
 export function createReplayWorkspaceView({
   instrumentOptions,
@@ -73,9 +91,11 @@ export function createReplayWorkspaceView({
   onPrevious,
   onQuickGoto,
   onReset,
+  onReplayStep,
   onRestart,
   onSessionHours,
   onTimeframe,
+  replayStepOptions,
   sessionHoursModes,
   timeframeMenuGroups,
 }) {
@@ -86,12 +106,12 @@ export function createReplayWorkspaceView({
     ariaLabel: 'Previous bar', className: 'button replay-action-button replay-previous', text: '‹', type: 'button',
   });
   const nextButton = element('button', {
-    className: 'button replay-action-button replay-next', text: 'Next', type: 'button',
+    ariaLabel: 'Next bar', className: 'button replay-action-button replay-next', text: 'Next bar', type: 'button',
   });
   const autoplayButton = element('button', {
     className: 'button replay-action-button replay-autoplay', text: 'Auto ×1', type: 'button',
   });
-  autoplayButton.title = 'Advance one Autoplay cadence step; continuous cadence is added in R7.';
+  autoplayButton.title = 'Advance one Autoplay step; continuous playback arrives with the transport correction.';
   const pauseButton = element('button', {
     className: 'button replay-action-button replay-pause', text: 'Pause', type: 'button',
   });
@@ -111,6 +131,7 @@ export function createReplayWorkspaceView({
 
   const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
   const instrumentControl = createInstrumentSelect(instrumentOptions, onInstrument);
+  const replayStepControl = createReplayStepSelect(replayStepOptions, onReplayStep);
   const sessionHoursControl = createChoiceGroup({
     ariaLabel: 'Session hours',
     choices: sessionHoursModes.map((id) => ({ id, label: id.toUpperCase() })),
@@ -158,6 +179,7 @@ export function createReplayWorkspaceView({
         restartButton,
         goto.root,
         previousButton,
+        replayStepControl.root,
         autoplayButton,
         pauseButton,
         nextButton,
@@ -198,6 +220,7 @@ export function createReplayWorkspaceView({
     instrumentControl.setDisabled(busy || unavailable || instrumentOptions.length < 2);
     sessionHoursControl.setDisabled(busy || unavailable);
     paneCountControl.setDisabled(busy || unavailable);
+    replayStepControl.setDisabled(busy || unavailable);
     goto.setDisabled(busy || unavailable);
     paneGrid.setPending(busy || unavailable);
     root.setAttribute('aria-busy', String(busy));
@@ -238,6 +261,7 @@ export function createReplayWorkspaceView({
       instrumentControl.dispose();
       sessionHoursControl.dispose();
       paneCountControl.dispose();
+      replayStepControl.dispose();
       goto.dispose();
       paneGrid.dispose();
       root.remove();
@@ -256,8 +280,11 @@ export function createReplayWorkspaceView({
     setReplay(snapshot) {
       complete = snapshot.complete;
       playback = snapshot.playback;
+      const replayStep = readReplayStep(snapshot.replayStep);
       exactDefaultEpochMs = snapshot.cursorEpochMs;
       root.dataset.replayPlayback = playback;
+      root.dataset.replayStepId = replayStep.id;
+      replayStepControl.setValue(replayStep.id);
       autoplayButton.setAttribute('aria-pressed', String(playback === 'playing'));
       renderAvailability();
     },

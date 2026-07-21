@@ -7,6 +7,45 @@ function active(signal) {
   });
 }
 
+function stepBucketEnd(startEpochMs, step) {
+  const bucketStartEpochMs = Math.floor(
+    (startEpochMs - step.offsetMs) / step.durationMs,
+  ) * step.durationMs + step.offsetMs;
+  return bucketStartEpochMs + step.durationMs;
+}
+
+function nextCompletedStep(bars, context) {
+  let targetEpochMs = null;
+  let sourceEpochMs = null;
+  for (const bar of bars) {
+    const completion = Math.min(context.range.endEpochMs, stepBucketEnd(bar.startEpochMs, context.replayStep));
+    if (completion <= context.cursorEpochMs) continue;
+    if (targetEpochMs === null || completion < targetEpochMs) {
+      targetEpochMs = completion;
+      sourceEpochMs = bar.startEpochMs;
+    } else if (completion === targetEpochMs && bar.startEpochMs > sourceEpochMs) {
+      sourceEpochMs = bar.startEpochMs;
+    }
+  }
+  return targetEpochMs === null ? null : Object.freeze({ sourceEpochMs, targetEpochMs });
+}
+
+function previousCompletedStep(bars, context) {
+  let targetEpochMs = null;
+  let sourceEpochMs = null;
+  for (const bar of bars) {
+    const completion = stepBucketEnd(bar.startEpochMs, context.replayStep);
+    if (completion >= context.cursorEpochMs || completion < context.range.startEpochMs) continue;
+    if (targetEpochMs === null || completion > targetEpochMs) {
+      targetEpochMs = completion;
+      sourceEpochMs = bar.startEpochMs;
+    } else if (completion === targetEpochMs && bar.startEpochMs > sourceEpochMs) {
+      sourceEpochMs = bar.startEpochMs;
+    }
+  }
+  return targetEpochMs === null ? null : Object.freeze({ sourceEpochMs, targetEpochMs });
+}
+
 /** Resolve Replay targets from real primary-instrument bars via Bar Data Runtime. */
 export function createFoundationSourceTraversal({ barData, market, readCachedSourceBars = () => [] }) {
   function selection(context) {
@@ -60,49 +99,38 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
       });
     },
     async nextEligible(context) {
-      const cachedBars = cached(context, context.cursorEpochMs, context.range.endEpochMs);
-      const cachedSource = cachedBars.find(({ startEpochMs }) => startEpochMs >= context.cursorEpochMs);
-      if (cachedSource) return Object.freeze({
-        sourceEpochMs: cachedSource.startEpochMs,
-        targetEpochMs: Math.min(context.range.endEpochMs, cachedSource.startEpochMs + MINUTE),
-      });
-      for (let start = context.cursorEpochMs; start < context.range.endEpochMs;) {
+      const currentBucketStart = stepBucketEnd(context.cursorEpochMs, context.replayStep)
+        - context.replayStep.durationMs;
+      const searchStart = Math.max(context.range.startEpochMs, currentBucketStart);
+      const cachedTarget = nextCompletedStep(
+        cached(context, searchStart, context.range.endEpochMs),
+        context,
+      );
+      if (cachedTarget) return cachedTarget;
+      for (let start = searchStart; start < context.range.endEpochMs;) {
         const end = Math.min(context.range.endEpochMs, start + SEARCH_WINDOW_MS);
         const bars = await acquire(context, start, end);
-        const source = bars.find(({ startEpochMs }) => startEpochMs >= context.cursorEpochMs);
-        if (source) return Object.freeze({
-          sourceEpochMs: source.startEpochMs,
-          targetEpochMs: Math.min(context.range.endEpochMs, source.startEpochMs + MINUTE),
-        });
+        const target = nextCompletedStep(bars, context);
+        if (target) return target;
         start = end;
       }
       return null;
     },
     async previousEligible(context) {
       const cachedBars = cached(context, context.range.startEpochMs, context.cursorEpochMs);
-      if (cachedBars.length > 0) {
-        const last = cachedBars.at(-1);
-        return Object.freeze({
-          sourceEpochMs: cachedBars.at(-2)?.startEpochMs ?? null,
-          targetEpochMs: last.startEpochMs,
-        });
-      }
+      const cachedTarget = previousCompletedStep(cachedBars, context);
+      if (cachedTarget) return cachedTarget;
       let end = context.cursorEpochMs;
       while (end > context.range.startEpochMs) {
         const start = Math.max(context.range.startEpochMs, end - SEARCH_WINDOW_MS);
         const bars = await acquire(context, start, end);
-        const visible = bars.filter(({ startEpochMs }) => startEpochMs < context.cursorEpochMs);
-        if (visible.length > 0) {
-          const last = visible.at(-1);
-          const previous = visible.at(-2) ?? null;
-          return Object.freeze({
-            sourceEpochMs: previous?.startEpochMs ?? null,
-            targetEpochMs: last.startEpochMs,
-          });
-        }
+        const target = previousCompletedStep(bars, context);
+        if (target) return target;
         end = start;
       }
-      return null;
+      return context.cursorEpochMs > context.range.startEpochMs
+        ? Object.freeze({ sourceEpochMs: null, targetEpochMs: context.range.startEpochMs })
+        : null;
     },
   });
 }

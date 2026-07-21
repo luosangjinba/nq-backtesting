@@ -1,4 +1,4 @@
-import { requireCursorInRange } from '../replay-contract/public.js';
+import { readReplayStep, requireCursorInRange } from '../replay-contract/public.js';
 import { requireReplayPaneResponsePlan } from '../replay-pane-response-contract/public.js';
 import { failReplayNavigation } from './navigation-error.js';
 import { requireReplayNavigationSchedule } from './navigation-schedule.js';
@@ -41,6 +41,7 @@ function context(plan, range, signal, extra = {}) {
     cursorEpochMs: plan.fromCursorEpochMs,
     instrumentId: plan.cursorAuthorityInstrumentId,
     range,
+    replayStep: readReplayStep(plan.replayStep),
     sessionHours: plan.sessionHours,
     signal,
     ...extra,

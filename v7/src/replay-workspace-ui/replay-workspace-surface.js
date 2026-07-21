@@ -29,6 +29,7 @@ export function createReplayWorkspaceSurface() {
         previous: null,
         quickGoto: null,
         reset: null,
+        replayStep: null,
         restart: null,
         sessionHours: null,
         timeframe: null,
@@ -48,9 +49,11 @@ export function createReplayWorkspaceSurface() {
         onPrevious: () => callbacks.previous?.(),
         onQuickGoto: (anchor) => callbacks.quickGoto?.(anchor),
         onReset: (paneId) => callbacks.reset?.(paneId),
+        onReplayStep: (replayStepId) => callbacks.replayStep?.(replayStepId),
         onRestart: () => callbacks.restart?.(),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
+        replayStepOptions: capabilities.replayStepOptions,
         sessionHoursModes: capabilities.sessionHoursModes,
         timeframeMenuGroups: capabilities.timeframeMenuGroups,
       });
@@ -67,6 +70,7 @@ export function createReplayWorkspaceSurface() {
       callbacks.previous = () => controller.previous();
       callbacks.quickGoto = (anchor) => controller.gotoQuick(anchor);
       callbacks.reset = (paneId) => controller.resetView(paneId);
+      callbacks.replayStep = (replayStepId) => controller.changeReplayStep(replayStepId);
       callbacks.restart = () => controller.restart();
       callbacks.sessionHours = (mode) => controller.replaceSessionHours(mode);
       callbacks.timeframe = (timeframeId) => controller.replaceTimeframe(timeframeId);

@@ -106,6 +106,7 @@ export function createWorkspaceExecution({
         action: replayAction,
         paneWorkspace: desiredWorkspace,
         replayRange: range,
+        replayStep: replay.snapshot().replayStep,
         sessionHours: sessionHours(desiredMode, desiredRevision),
       });
       const paneRequests = Object.freeze(responsePlan.paneResponses.map((paneResponse) => Object.freeze({

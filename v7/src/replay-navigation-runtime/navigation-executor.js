@@ -74,13 +74,14 @@ export function createReplayNavigationExecutor({ paneRequestPort, replayRuntime,
     }
     inFlight = true;
     try {
+      const replay = replaySnapshot();
       const plan = planReplayPaneResponse({
         action: execution.action,
         paneWorkspace: execution.paneWorkspace,
         replayRange: execution.replayRange,
+        replayStep: replay.replayStep,
         sessionHours: execution.sessionHours,
       });
-      const replay = replaySnapshot();
       if (replay.cursorEpochMs !== plan.fromCursorEpochMs || !rangesEqual(replay.range, plan.replayRange)) {
         failReplayNavigation('REPLAY_NAVIGATION_CURSOR_STALE', 'Pane Workspace cursor or Replay range is stale.');
       }

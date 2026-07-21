@@ -1,6 +1,6 @@
 # V7 Real Pane Workspace — R6.5
 
-Status: implemented; awaiting interaction and visual acceptance (2026-07-21)
+Status: human review rejected; superseded by R6.6 and later corrections (2026-07-21)
 
 ## Outcome
 
@@ -70,9 +70,18 @@ publishing no Session-visible bar before the start cutoff.
 The established single-Pane browser Harness also remains green, including 100
 aggregate Next samples and the high-TF history responsiveness gate.
 
+## Human Review Outcome
+
+R6.5 was not accepted. The review found that `Next` still meant next source
+minute rather than Next bar, the toolbar was not a final Replay transport, the
+layout selector covered too few arrangements, and layout sync controls were
+absent. R6.6 corrects bar-step semantics first; transport, layout, and sync
+receive later bounded replacement steps.
+
 ## Deferred
 
-- continuous Autoplay cadence, speed, and restoration remain R7;
+- continuous Autoplay cadence and speed move to the post-R6.6 transport
+  correction; restoration remains R7;
 - durable layout/selection restore remains R7;
 - Economic Calendar/events remain an optional later business module;
 - indicator main/sub-pane work may use native Lightweight Charts Panes later,

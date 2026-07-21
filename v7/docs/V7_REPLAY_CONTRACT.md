@@ -1,6 +1,6 @@
 # V7 Replay Contract
 
-Status: R3.3a binding headless value contract (2026-07-20)
+Status: R3.3a values with R5.4, R6.4, and R6.6 extensions
 
 ## Ownership
 
@@ -17,6 +17,12 @@ when `t < cursorEpochMs`. Raw future bars may remain cached.
 Manual and Auto advancement use the same positive duration input. The duration
 advances Replay time rather than selecting one candle at a display interval.
 Projection must therefore retain every eligible intermediate source bar.
+
+R6.6 adds a branded Replay-step grid containing an id, duration, alignment
+offset, and source duration. This value is not a Pane display timeframe and
+cannot be inferred from active focus. Navigation resolves the next/previous
+real non-empty grid completion and then uses the existing exact-target proposal
+so Projection still retains every eligible intermediate source bar.
 
 R5.4 adds a cursor-retention proposal for visibility-only workspace
 replacements. It carries the same complete identity, cursor, range, and base

@@ -9,3 +9,4 @@ export {
 } from './cursor-proposal.js';
 export { ReplayContractError } from './replay-error.js';
 export { createReplayRange, requireCursorInRange } from './replay-range.js';
+export { createReplayStep, readReplayStep } from './replay-step.js';

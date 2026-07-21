@@ -4,6 +4,7 @@ import {
   createReplayCursorTargetProposal,
   createReplayRange,
   readReplayCursorProposal,
+  readReplayStep,
   requireCursorInRange,
   requireReplayAdvanceInput,
 } from '../replay-contract/public.js';
@@ -23,12 +24,15 @@ export function createReplayRuntime({
   activationGeneration,
   range,
   initialCursorEpochMs,
+  initialReplayStep,
 }) {
   const activation = createReplayActivation({ sessionId, activationGeneration });
   const acceptedRange = createReplayRange(range);
   let cursorEpochMs = requireCursorInRange(initialCursorEpochMs, acceptedRange);
   let visibleThroughEpochMs = cursorEpochMs;
   let playback = 'paused';
+  let replayStep = initialReplayStep;
+  readReplayStep(replayStep);
   let revision = 0;
   let disposed = false;
   const issuedProposals = new WeakSet();
@@ -47,6 +51,7 @@ export function createReplayRuntime({
       cursorEpochMs,
       playback,
       range: acceptedRange,
+      replayStep,
       visibleThroughEpochMs,
       revision,
       sessionId: activation.sessionId,
@@ -110,6 +115,13 @@ export function createReplayRuntime({
   function pause() {
     requireActive();
     playback = 'paused';
+    return snapshot();
+  }
+
+  function setReplayStep(candidate) {
+    requireActive();
+    readReplayStep(candidate);
+    replayStep = candidate;
     return snapshot();
   }
 
@@ -178,6 +190,7 @@ export function createReplayRuntime({
     proposeRetention,
     proposeTarget,
     reject,
+    setReplayStep,
     snapshot,
   });
 }

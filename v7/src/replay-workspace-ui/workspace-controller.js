@@ -31,9 +31,11 @@ function formatCursor(epochMs) {
 export function createReplayWorkspaceController({ record, view }) {
   const market = createFoundationMarket(record);
   const range = record.configuration.historicalRange;
+  const replayStepById = new Map(market.replayStepOptions.map((option) => [option.id, option.step]));
   const replay = createReplayRuntime({
     activationGeneration: record.activationGeneration,
     initialCursorEpochMs: range.startEpochMs,
+    initialReplayStep: market.replayStepOptions[0].step,
     range,
     sessionId: record.sessionId,
   });
@@ -135,6 +137,12 @@ export function createReplayWorkspaceController({ record, view }) {
 
   return Object.freeze({
     autoplay: () => execution.action('autoplay-next'),
+    changeReplayStep(replayStepId) {
+      if (disposed || execution.isPending()) return;
+      const step = replayStepById.get(replayStepId);
+      if (!step || replay.snapshot().replayStep === step) return;
+      view.setReplay(replay.setReplayStep(step));
+    },
     changePaneCount(count) {
       const current = paneState.read();
       if (count === current.panes.length || (count !== 1 && count !== 2)) return;

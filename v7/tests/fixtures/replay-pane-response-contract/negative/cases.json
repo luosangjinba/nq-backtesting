@@ -16,5 +16,6 @@
   { "case": "session-hours-revision", "expectedCode": "REPLAY_PANE_SESSION_HOURS_REVISION_INVALID" },
   { "case": "calendar-revision", "expectedCode": "REPLAY_PANE_CALENDAR_REVISION_INVALID" },
   { "case": "back-to-forward", "expectedCode": "REPLAY_PANE_BACK_TO_NOT_BACKWARD" },
-  { "case": "exact-target-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" }
+  { "case": "exact-target-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" },
+  { "case": "replay-step-lookalike", "expectedCode": "REPLAY_STEP_REQUIRED" }
 ]

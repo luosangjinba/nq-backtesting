@@ -324,7 +324,12 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   proposal path, DST-aware New York anchors, and overlap/failure controls;
 - `R6.5`: real single/multi-Pane chart hosts, active-Pane instrument/TF intent,
   Session-wide ETH/RTH, shared Replay transport, quick/exact GoTo, and the
-  combined browser/visual gate are implemented and awaiting human acceptance;
+  combined browser/visual gate were implemented but human review rejected the
+  Next-minute semantics, interim transport, limited layouts, and absent sync;
+- `R6.6`: replace implicit source-minute stepping with one Session-level Replay
+  bar-step grid independent from Pane TF, resolve aligned non-empty
+  Next/Previous completions through real source traversal, and expose the
+  bounded Replay-step selector; implemented and awaiting human acceptance;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.

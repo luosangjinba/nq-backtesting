@@ -74,6 +74,9 @@ export function createReplayNavigationReplayPort({ replayRuntime, targetResolver
       if (replay.cursorEpochMs !== plan.fromCursorEpochMs || !rangesEqual(replay.range, plan.replayRange)) {
         failReplayNavigation('REPLAY_NAVIGATION_CURSOR_STALE', 'Response plan does not match the accepted Replay cursor.');
       }
+      if (replay.replayStep !== plan.replayStep) {
+        failReplayNavigation('REPLAY_NAVIGATION_STEP_STALE', 'Response plan does not match the accepted Replay step.');
+      }
       const targetEpochMs = plan.target.requestedTargetEpochMs ?? (await resolveTarget({
         range: replay.range,
         responsePlan: plan,

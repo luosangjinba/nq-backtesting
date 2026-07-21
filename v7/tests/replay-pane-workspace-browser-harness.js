@@ -48,9 +48,11 @@ function paneStateExpression() {
     const root = document.querySelector('.replay-workspace');
     return {
       activePaneId: root.dataset.activePaneId,
+      cursorText: root.dataset.cursorText,
       paneCount: Number(root.dataset.paneCount),
       playback: root.dataset.replayPlayback,
       replayRevision: Number(root.dataset.replayRevision),
+      replayStepId: root.dataset.replayStepId,
       sessionHoursMode: root.dataset.sessionHoursMode,
       workspaceRevision: Number(root.dataset.workspaceRevision),
       panes: [...document.querySelectorAll('.workspace-pane:not(.is-prepared)')].map((pane) => {
@@ -182,11 +184,27 @@ try {
   state = await evaluate(cdp, paneStateExpression());
   await capture(cdp);
 
+  const beforeStepSelection = state;
+  await evaluate(cdp, `(() => {
+    const select = document.querySelector('.replay-step-select');
+    select.value = 'replay-step.fixed-5-minute';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayStepId === 'replay-step.fixed-5-minute'`);
+  state = await evaluate(cdp, paneStateExpression());
+  assert.equal(state.workspaceRevision, beforeStepSelection.workspaceRevision,
+    'Replay step selection must not issue a Pane materialization transaction');
+  assert.equal(state.replayRevision, beforeStepSelection.replayRevision,
+    'Replay step selection must not move the shared Replay cursor');
+  assert.equal(state.panes[1].timeframeId, 'timeframe.display-4-hour');
+
   const beforeNext = state;
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeNext.workspaceRevision}`);
   state = await evaluate(cdp, paneStateExpression());
   assert.equal(state.replayRevision, beforeNext.replayRevision + 1);
+  assert.match(state.cursorText, /12:44 EDT/,
+    '5m Next bar must finish at the 12:44 display completion rather than add one minute');
   assert.ok(state.panes.every((pane, index) => pane.visibleRevision > beforeNext.panes[index].visibleRevision),
     'one shared Next must visibly apply every Pane');
 

@@ -755,7 +755,7 @@ Restart/Back-to, quick GoTo, and exact GoTo over the R6.3 materialization path.
 - prove mixed NQ/ES plus `1m`/`4h`, empty comparison Pane, weekend anchor skip,
   primary-clock visibility, DST, and 20 negative/race controls headlessly.
 
-### R6.5 Real Pane Workspace And Replay Surfaces — Awaiting Human Review
+### R6.5 Real Pane Workspace And Replay Surfaces — Human Review Rejected
 
 - activate Session-configured NQ/ES capability composition and one real chart
   host per product Pane, because Lightweight Charts native Panes share one time
@@ -778,9 +778,41 @@ Restart/Back-to, quick GoTo, and exact GoTo over the R6.3 materialization path.
   p95 `63.0ms`, p99 `70.1ms`, max `79.8ms`, 12h RTH replacement `1193ms`, and
   rapid high-TF history loading with zero observed long tasks.
 
-R6.5 changes interaction and visuals, so implementation stops here for the
-combined human acceptance gate. Economic Calendar remains a separate later
-business module.
+The 2026-07-21 human review rejected this combined gate:
+
+1. `Next` was still next source minute rather than Next bar;
+2. the top toolbar was an interim shell, not the accepted final transport;
+3. only single/two-column Pane layouts existed;
+4. Symbol, Interval, Crosshair, Time, and Date-range layout sync were absent.
+
+R6.6 corrects the bar-step invariant first. Economic Calendar remains a
+separate later business module.
+
+### R6.6 Independent Replay Bar Step — Awaiting Human Review
+
+- add one branded aligned Replay-step value and make Replay Runtime its sole
+  Session-level selection owner;
+- keep the selected step independent from active focus and every Pane display
+  TF; changing it moves no cursor, increments no Replay revision, requests no
+  bars, and issues no Pane transaction;
+- upgrade the complete-Pane response plan to schema v3 with exact step
+  provenance and stale-step rejection;
+- make Manual Next and Autoplay Next resolve the next non-empty aligned
+  primary-source step completion, and Manual Previous resolve the prior one;
+- skip empty RTH/ETH closed periods and weekends, retain fixed completion slots
+  across missing source minutes, and never synthesize a source bar;
+- expose `1m`, `3m`, `5m`, `15m`, `30m`, `1h`, `2h`, and `4h` Replay steps and
+  label the forward action `Next bar`;
+- prove a real `5m` Replay step remains unchanged with the active comparison
+  Pane at ES/`4h`, and that one Next displays through `12:44 EDT` under one
+  atomic Pane-set transaction;
+- preserve the established single-Pane visual, latency, replacement, and rapid
+  history regression gates.
+
+R6.6 changes interaction and visuals, so implementation stops for human review.
+The next correction after acceptance is the constrained floating transport and
+real continuous Autoplay; layout expansion and layout sync follow in later
+bounded steps.
 
 ## Standing Gates
 

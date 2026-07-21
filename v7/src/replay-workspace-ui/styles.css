@@ -168,6 +168,20 @@
 .timeframe-menu-option:disabled { color: #686868; cursor: not-allowed; }
 .replay-actions { display: flex; align-items: center; gap: 4px; }
 .replay-local-status { margin-left: 6px; white-space: nowrap; }
+.replay-step-select {
+  height: 28px;
+  min-width: 48px;
+  padding: 0 19px 0 7px;
+  border: 1px solid #3b3b3b;
+  border-radius: 6px;
+  background: #151515;
+  color: #ededed;
+  font-size: 10px;
+  font-weight: 720;
+  cursor: pointer;
+}
+.replay-step-select:focus-visible { outline: 1px solid var(--accent); outline-offset: 1px; }
+.replay-step-select:disabled { cursor: wait; opacity: .58; }
 .replay-actions .replay-action-button {
   min-height: 28px;
   padding: 0 8px;

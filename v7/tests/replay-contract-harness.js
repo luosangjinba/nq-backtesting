@@ -21,6 +21,18 @@ const identity = createWorkspaceTransactionIdentity({
 
 const manual = replay.createReplayAdvanceInput({ source: 'manual', durationMs: 3_000 });
 const auto = replay.createReplayAdvanceInput({ source: 'auto', durationMs: 3_000 });
+const replayStep = replay.createReplayStep({
+  durationMs: 5_000,
+  id: 'replay-step.test-5',
+  offsetMs: 0,
+  sourceDurationMs: 1_000,
+});
+assert.deepEqual(replay.readReplayStep(replayStep), {
+  durationMs: 5_000,
+  id: 'replay-step.test-5',
+  offsetMs: 0,
+  sourceDurationMs: 1_000,
+});
 for (const advance of [manual, auto]) {
   const value = replay.readReplayCursorProposal(replay.createReplayCursorProposal({
     identity, range, baseRevision: 4, cursorEpochMs: 2_000, advance,
@@ -94,6 +106,12 @@ const negativeActions = {
   'target-outside-range': () => replay.createReplayCursorTargetProposal({
     identity, range, baseRevision: 0, cursorEpochMs: 2_000, targetEpochMs: 10_001,
   }),
+  'step-fields': () => replay.createReplayStep({ durationMs: 1_000, id: 'step', offsetMs: 0 }),
+  'step-id': () => replay.createReplayStep({ durationMs: 1_000, id: ' ', offsetMs: 0, sourceDurationMs: 1_000 }),
+  'step-zero-duration': () => replay.createReplayStep({ durationMs: 0, id: 'step', offsetMs: 0, sourceDurationMs: 1_000 }),
+  'step-source-incompatible': () => replay.createReplayStep({ durationMs: 5_000, id: 'step', offsetMs: 0, sourceDurationMs: 2_000 }),
+  'step-offset': () => replay.createReplayStep({ durationMs: 5_000, id: 'step', offsetMs: 5_000, sourceDurationMs: 1_000 }),
+  'step-lookalike': () => replay.readReplayStep(Object.freeze({ durationMs: 1_000, id: 'step', offsetMs: 0, sourceDurationMs: 1_000 })),
 };
 
 for (const fixture of negativeCases) {

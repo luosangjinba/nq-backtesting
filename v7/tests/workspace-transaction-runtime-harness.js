@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createActivationGeneration } from '../src/activation-generation/public.js';
-import { createReplayAdvanceInput } from '../src/replay-contract/public.js';
+import { createReplayAdvanceInput, createReplayStep } from '../src/replay-contract/public.js';
 import { createReplayRuntime } from '../src/replay-runtime/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createTransactionId } from '../src/transaction-identity/public.js';
@@ -24,6 +24,9 @@ const generationOne = createActivationGeneration(1);
 const generationTwo = createActivationGeneration(2);
 const range = Object.freeze({ startEpochMs: 1_000, endEpochMs: 20_000 });
 const advance = createReplayAdvanceInput({ source: 'manual', durationMs: 1_000 });
+const replayStep = createReplayStep({
+  durationMs: 1_000, id: 'replay-step.test', offsetMs: 0, sourceDurationMs: 1_000,
+});
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR,
@@ -76,6 +79,7 @@ function fixture({
   const clock = createReplayRuntime({
     activationGeneration: generationOne,
     initialCursorEpochMs: 2_000,
+    initialReplayStep: replayStep,
     range,
     sessionId: sessionA,
   });

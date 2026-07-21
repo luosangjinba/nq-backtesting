@@ -76,6 +76,14 @@ builds the R6.2 plan and R6.3 input, then invokes one Workspace Transaction.
 Overlap is rejected without backlog, and every failed terminal pauses while
 preserving the last accepted atomic state.
 
+R6.6 replaces the implicit adjacent-source-minute navigation assumption with
+one branded Session-level Replay step owned by Replay Runtime. The selected
+fixed grid is independent from every Pane TF and changes without cursor,
+revision, or data-request effects. The schema-v3 complete-Pane response plan
+carries the exact step; cancellable source traversal resolves the next or
+previous non-empty aligned primary-source bucket completion, skips empty
+closed-session/weekend buckets, and preserves the same atomic Pane-set commit.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

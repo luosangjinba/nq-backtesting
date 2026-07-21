@@ -1,10 +1,10 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
-import { createReplayRange, requireCursorInRange } from '../replay-contract/public.js';
+import { createReplayRange, readReplayStep, requireCursorInRange } from '../replay-contract/public.js';
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { readReplayPaneAction } from './action-intent.js';
 import { failReplayPaneResponse } from './response-error.js';
 
-const PLAN_FIELDS = Object.freeze(['action', 'paneWorkspace', 'replayRange', 'sessionHours']);
+const PLAN_FIELDS = Object.freeze(['action', 'paneWorkspace', 'replayRange', 'replayStep', 'sessionHours']);
 const SESSION_HOURS_FIELDS = Object.freeze(['calendarRevision', 'mode', 'revision']);
 const RESPONSE_PLANS = new WeakSet();
 
@@ -49,10 +49,10 @@ function sessionHours(value) {
 function targetSemantics(action, cursorEpochMs, replayRange) {
   if (action.kind === 'manual-next' || action.kind === 'autoplay-next') {
     return Object.freeze({
-      coverage: 'next-eligible-source-step',
+      coverage: 'complete-next-replay-bar',
       direction: 'forward',
       requestedTargetEpochMs: null,
-      resolution: 'next-eligible-primary-source',
+      resolution: 'next-completed-primary-replay-step',
     });
   }
   if (action.kind === 'manual-previous') {
@@ -60,7 +60,7 @@ function targetSemantics(action, cursorEpochMs, replayRange) {
       coverage: 'replace-through-resolved-target',
       direction: 'backward',
       requestedTargetEpochMs: null,
-      resolution: 'previous-eligible-primary-source',
+      resolution: 'previous-completed-primary-replay-step',
     });
   }
   if (action.kind === 'goto-anchor') {
@@ -119,6 +119,7 @@ function paneResponse(pane) {
 export function planReplayPaneResponse(value) {
   exactRecord(value, PLAN_FIELDS, 'REPLAY_PANE_PLAN_FIELDS_INVALID', 'Replay Pane plan input');
   const action = readReplayPaneAction(value.action);
+  readReplayStep(value.replayStep);
   const workspace = readPaneWorkspace(value.paneWorkspace);
   const replayRange = createReplayRange(value.replayRange);
   const cursorEpochMs = requireCursorInRange(
@@ -142,7 +143,8 @@ export function planReplayPaneResponse(value) {
     fromCursorEpochMs: cursorEpochMs,
     paneResponses: panes,
     replayRange,
-    schemaVersion: 2,
+    replayStep: value.replayStep,
+    schemaVersion: 3,
     sessionHours: sessionHours(value.sessionHours),
     target,
   });

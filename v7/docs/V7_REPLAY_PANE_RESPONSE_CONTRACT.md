@@ -1,6 +1,6 @@
 # V7 Replay × Pane Response Contract
 
-Status: R6.2 pure plan, range-bound schema v2 consumed by R6.4
+Status: R6.2 pure plan, range/step-bound schema v3 consumed by R6.6
 
 ## Decision
 
@@ -53,9 +53,9 @@ Primary V6 evidence:
 
 | Action | Target resolution | Coverage/materialization |
 | --- | --- | --- |
-| Manual Next | next eligible primary-source bar | one eligible source step; reproject all Panes |
+| Manual Next | next non-empty aligned Replay-step completion | one complete Replay bar; reproject all Panes |
 | Autoplay Next | same resolver as Manual Next | one non-overlapping atomic Next transaction |
-| Manual Previous | previous eligible primary-source bar | replace all Pane visibility through resolved target |
+| Manual Previous | previous non-empty aligned Replay-step completion | replace all Pane visibility through resolved target |
 | Restart/Back-to | selected earlier source cutoff | replace all Panes; selected cutoff remains exclusive |
 | Quick GoTo | next real source near the selected New York anchor | complete forward range from old cursor through target |
 | Exact GoTo forward | requested Session cutoff | complete forward range from old cursor through target |
@@ -84,14 +84,18 @@ Every plan declares:
   eligible bar, but no Pane may reveal source data at or after the shared
   exclusive cursor.
 
-Different TFs can respond to a source step by updating the current aggregate
-candle rather than adding a new displayed candle. Different instruments may
-have different `visibleThrough` values. Neither condition creates a separate
-cursor or stalls Replay.
+Different Pane TFs respond by reprojecting at the resolved global Replay-step
+cutoff. The Replay step does not follow active focus or any Pane TF. Different
+instruments may have different `visibleThrough` values. Neither condition
+creates a separate cursor or stalls Replay.
 
 R6.4 binds the exact active Replay range into response-plan schema v2. This
 lets both the navigation executor and Replay proposal port reject a stale or
 foreign range before no-op or materialization work.
+
+R6.6 upgrades the response plan to schema v3 and carries the exact branded
+Replay step. The proposal boundary rejects a stale step before target
+resolution/materialization. Step selection itself creates no Pane transaction.
 
 ## Economic Calendar Boundary
 
@@ -122,4 +126,4 @@ runtime; browser transport/dialog/layout and Economic Calendar remain excluded.
 all five quick anchors, exact forward/backward/retain movement, single- and
 mixed-instrument/mixed-TF multi-Pane plans, Session-level ETH/RTH, primary-clock
 authority, Viewport preservation, complete forward coverage, atomic failure and
-overlap policies, plus 18 negative controls.
+overlap policies, plus 19 negative controls.

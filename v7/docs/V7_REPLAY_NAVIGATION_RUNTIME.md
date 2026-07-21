@@ -1,6 +1,6 @@
 # V7 Replay Navigation Runtime
 
-Status: R6.4 headless owner accepted; R6.5 real browser surfaces mounted (2026-07-21)
+Status: R6.4 owner with R6.6 Replay bar-step correction (2026-07-21)
 
 ## Decision
 
@@ -32,15 +32,21 @@ Replay Runtime now exposes its real `playing`/`paused` state. Manual navigation
 and failure pause through that owner. An Autoplay Next action enters `playing`,
 uses the same target resolver and transaction as Manual Next, and stays playing
 only after a non-terminal success. Reaching Session end or any failed terminal
-result pauses. R6.4 adds no timer or cadence loop; that remains R7.
+result pauses. R6.4 adds no timer or cadence loop; the post-R6.6 transport
+correction owns that work.
 
 ## Target Resolution
 
 The injected source-traversal port resolves:
 
-- the next eligible primary-instrument source step;
-- the previous eligible primary-instrument source step;
+- the next non-empty aligned primary-instrument Replay-step completion;
+- the previous non-empty aligned primary-instrument Replay-step completion;
 - the first eligible source bar inside each bounded quick-GoTo anchor window.
+
+R6.6 makes Replay step an explicit Session-level branded grid rather than an
+implicit source-minute step. Resolution skips empty closed-session/weekend
+buckets, preserves completion alignment when source minutes are missing, and
+does not follow the active Pane's display TF. Exact and quick GoTo are unchanged.
 
 The navigation module never requests raw bars itself. Results must be exact,
 immutable source/target cutoff pairs inside the active Replay range. The
@@ -94,7 +100,7 @@ preserves the last accepted Replay/workspace/chart state and pauses playback.
 
 ## Remaining Exclusions
 
-- no timer, speed, cadence, or background Autoplay loop;
+- no timer, speed, or background Autoplay loop;
 - no navigation-preference persistence;
 - no Economic Calendar or marker provider.
 
@@ -105,4 +111,8 @@ five quick actions, Manual Next/Previous, one-step Autoplay, Restart/Back-to,
 exact forward/backward/no-op GoTo, continuous-range request intent, weekend
 anchor skipping, mixed NQ/ES and `1m`/`4h`, comparison-Pane absence,
 primary-instrument visibility, overlap suppression, failure pause/preservation,
-and 20 negative/race controls.
+and 21 negative/race controls.
+
+`tests/replay-step-source-traversal-harness.js` additionally proves `5m` and
+`1h` completion, missing-minute stability, RTH weekend skipping, symmetric
+Previous, and partial `12h` RTH completion without a synthesized source bar.

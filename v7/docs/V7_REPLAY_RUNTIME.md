@@ -1,6 +1,6 @@
 # V7 Replay Runtime
 
-Status: R3.3b clock owner with R5.4 retention and R6.4 navigation extensions
+Status: R3.3b clock owner with R5.4, R6.4, and R6.6 extensions
 
 ## Ownership
 
@@ -20,8 +20,8 @@ The runtime rejects proposals from another instance, Session, activation,
 range, or accepted base revision. Rejected and superseded proposals have zero
 cursor side effects.
 
-Manual and Auto advancement use this identical path. R3.3b creates no timer and
-does not implement Auto cadence, which remains R7 behavior.
+Manual and Auto advancement use this identical path. R3.3b creates no timer;
+continuous cadence remains a later transport behavior.
 
 R5.4 adds `proposeRetention` for timeframe and Session Hours replacements. A
 retention proposal cannot move the source cursor. Exact visible completion may
@@ -35,7 +35,14 @@ The proposal carries the covered span but remains inert. `play()` and `pause()`
 now publish the Replay-owned playback state; they do not change the cursor
 revision or bypass visible commit. A terminal cursor commit automatically
 pauses at Session end. Navigation failure pauses through this public owner API.
-Autoplay cadence/timers remain outside this runtime until R7.
+Autoplay cadence/timers remain outside this runtime until the transport step.
+
+R6.6 adds the selected branded Replay step to the same Session-level owner.
+The step is an aligned duration grid independent from every Pane display TF.
+`setReplayStep()` validates and publishes selection without moving the cursor,
+changing visible-through, or incrementing Replay revision. Manual Next,
+Autoplay Next, and Manual Previous resolve targets from that exact selected
+step; exact and quick GoTo remain independent from it.
 
 ## Lifecycle And Exclusions
 

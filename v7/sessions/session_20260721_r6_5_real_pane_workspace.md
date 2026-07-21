@@ -1,7 +1,7 @@
 # Session — R6.5 Real Pane Workspace And Replay Surfaces
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction/visual review
+Status: human review rejected; preserved as superseded evidence
 
 ## Delivered
 
@@ -41,3 +41,10 @@ before testing native input isolation.
 This step changes interaction and visuals and therefore stops for human review.
 Continuous Autoplay cadence and persistence remain R7. Economic Calendar is not
 part of this foundation gate.
+
+## Human Review Outcome
+
+Rejected on 2026-07-21. `Next` was still next source minute rather than Next
+bar; the top-row toolbar was not accepted as the final Replay transport; and
+the requested one-to-four Pane layout matrix and layout sync controls were not
+present. R6.6 begins correction with the bar-step invariant.

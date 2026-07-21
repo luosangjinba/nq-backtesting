@@ -14,7 +14,11 @@ import {
   createPaneSetTransactionInput,
   readPaneSetTransactionInput,
 } from '../src/pane-set-materialization/public.js';
-import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
+import {
+  createReplayAdvanceInput,
+  createReplayCursorProposal,
+  createReplayStep,
+} from '../src/replay-contract/public.js';
 import {
   createReplayPaneAction,
   planReplayPaneResponse,
@@ -43,6 +47,9 @@ const NQ = 'instrument.cme.nq';
 const ES = 'instrument.cme.es';
 const HOURS = Object.freeze({ calendarRevision: 'cme-2026.1', mode: 'eth', revision: 2 });
 const advance = createReplayAdvanceInput({ durationMs: 1_000, source: 'manual' });
+const replayStep = createReplayStep({
+  durationMs: 1_000, id: 'replay-step.test', offsetMs: 0, sourceDurationMs: 1_000,
+});
 let transactionSequence = 0;
 
 function deferred() {
@@ -104,6 +111,7 @@ function responsePlan(cursorEpochMs = 2_000, action = createReplayPaneAction({ k
     action,
     paneWorkspace: paneWorkspace(cursorEpochMs),
     replayRange: RANGE,
+    replayStep,
     sessionHours: HOURS,
   });
 }
@@ -182,6 +190,7 @@ function fixture({ acquirePane, adapterOptions, projectPane } = {}) {
   const clock = createReplayRuntime({
     activationGeneration: generation,
     initialCursorEpochMs: 2_000,
+    initialReplayStep: replayStep,
     range: RANGE,
     sessionId,
   });

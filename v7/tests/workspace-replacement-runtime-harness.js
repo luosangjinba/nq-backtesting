@@ -12,6 +12,7 @@ import {
 import { createVisibleCompletionAcknowledgement } from '../src/chart-snapshot-application/public.js';
 import { createFixedDurationAggregationPolicy } from '../src/fixed-timeframe-domain/public.js';
 import { projectPaneSnapshot } from '../src/projection-domain/public.js';
+import { createReplayStep } from '../src/replay-contract/public.js';
 import { createReplayRuntime } from '../src/replay-runtime/public.js';
 import { createSessionHoursCalendar, createSessionHoursPolicy } from '../src/session-hours-domain/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
@@ -39,6 +40,9 @@ const MINUTE = 60_000;
 const epoch = (label) => Date.parse(`${label}:00Z`);
 const sessionId = createSessionId('session-replacement');
 const activationGeneration = createActivationGeneration(1);
+const replayStep = createReplayStep({
+  durationMs: MINUTE, id: 'replay-step.test', offsetMs: 0, sourceDurationMs: MINUTE,
+});
 
 function deferred() {
   let resolve;
@@ -204,6 +208,7 @@ const cursorEpochMs = epoch('2026-06-09T03:01');
 const replay = createReplayRuntime({
   activationGeneration,
   initialCursorEpochMs: cursorEpochMs,
+  initialReplayStep: replayStep,
   range: { startEpochMs: request.windowStartEpochMs, endEpochMs: epoch('2026-06-09T18:00') },
   sessionId,
 });

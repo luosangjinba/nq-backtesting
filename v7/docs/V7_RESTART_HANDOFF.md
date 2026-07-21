@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.4 shared Replay navigation completion
+Last updated: 2026-07-21 after R6.6 Replay bar-step implementation
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,9 +10,9 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: human-accepted R4.5 and R5.1–R5.6, plus completed
-  headless R6.1 Pane Workspace Domain, R6.2 Replay × Pane response planning, and
-  R6.3 complete Pane-set materialization plus R6.4 shared Replay navigation
+- implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
+  headless R6.1–R6.4; human-rejected R6.5 real Pane workspace; and R6.6 Replay
+  bar-step correction awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -53,6 +53,9 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_1_pane_workspace_domain.md`.
 - `sessions/session_20260721_r6_2_replay_pane_response_contract.md`.
 - `sessions/session_20260721_r6_3_pane_set_materialization.md`.
+- `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
+- `sessions/session_20260721_r6_5_real_pane_workspace.md`.
+- `sessions/session_20260721_r6_6_replay_bar_step.md`.
 - `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -171,6 +174,12 @@ and human-accepted:
   anchors through an injected primary-source traversal port, and routes all
   non-no-op actions through one R6.3 transaction. Overlap has no backlog;
   failures pause and preserve the last accepted state.
+- R6.5 mounted the real one/two-Pane workspace but human review rejected its
+  implicit Next-minute behavior, interim transport, limited layouts, and
+  missing layout sync.
+- R6.6 adds one Session-level Replay bar-step grid independent from Pane TF,
+  resolves real aligned non-empty Next/Previous completions through Bar Data,
+  and exposes the selector plus `Next bar`; it now awaits human review.
 
 Latest corrective commits:
 
@@ -290,14 +299,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Execute R6.5: compose the real size-one/size-many Pane workspace over the R6.2
-plan, R6.3 materialization, and R6.4 navigation runtime. Add real Pane-local
-instrument/TF hosts, shared ETH/RTH and Replay controls, Previous/Autoplay/
-Restart/quick and exact GoTo surfaces, plus one atomic multi-host chart adapter.
-Verify mixed TF, mixed instrument, mixed Pane focus, missing comparison data,
-all Replay actions, Viewport preservation, and stale/failure settlement in the
-browser, then stop for the combined interaction and visual human-review gate.
-Economic Calendar remains outside this foundation step.
+Human-review R6.6: select `5m` Replay step while the active comparison Pane is
+on another TF, confirm Next advances to the next `5m` completion and Previous
+returns one completed Replay bar without changing either Pane TF. After
+acceptance, execute R6.7 as the constrained floating bottom-center transport
+with real continuous Autoplay and speed; layout expansion and the five layout
+sync families remain subsequent bounded steps. Economic Calendar remains
+outside this foundation phase.
 
 ## Standing Workflow
 

@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createActivationGeneration } from '../src/activation-generation/public.js';
 import { createPaneWorkspace, readPaneWorkspace } from '../src/pane-workspace-domain/public.js';
+import { createReplayStep } from '../src/replay-contract/public.js';
 import {
   createReplayPaneAction,
   planReplayPaneResponse,
@@ -25,6 +26,9 @@ const NQ = 'instrument.cme.nq';
 const ES = 'instrument.cme.es';
 const RANGE = Object.freeze({ endEpochMs: 10_000, startEpochMs: 1_000 });
 const HOURS = Object.freeze({ calendarRevision: 'cme-2026.1', mode: 'rth', revision: 4 });
+const REPLAY_STEP = createReplayStep({
+  durationMs: 5_000, id: 'replay-step.test-5', offsetMs: 0, sourceDurationMs: 1_000,
+});
 
 function viewport(paneId, cursorEpochMs = 5_000) {
   return createInitialViewportIntent({
@@ -66,6 +70,7 @@ function plan(action, overrides = {}) {
     action,
     paneWorkspace: workspace(),
     replayRange: RANGE,
+    replayStep: REPLAY_STEP,
     sessionHours: HOURS,
     ...overrides,
   });
@@ -89,14 +94,15 @@ assert.deepEqual(REPLAY_GOTO_ANCHORS, [
 ]);
 
 const stepCases = [
-  ['manual-next', 'forward', 'next-eligible-source-step', 'next-eligible-primary-source'],
-  ['autoplay-next', 'forward', 'next-eligible-source-step', 'next-eligible-primary-source'],
-  ['manual-previous', 'backward', 'replace-through-resolved-target', 'previous-eligible-primary-source'],
+  ['manual-next', 'forward', 'complete-next-replay-bar', 'next-completed-primary-replay-step'],
+  ['autoplay-next', 'forward', 'complete-next-replay-bar', 'next-completed-primary-replay-step'],
+  ['manual-previous', 'backward', 'replace-through-resolved-target', 'previous-completed-primary-replay-step'],
 ];
 for (const [kind, direction, coverage, resolution] of stepCases) {
   const result = plan(createReplayPaneAction({ kind }));
   assert.equal(result.actionKind, kind);
-  assert.equal(result.schemaVersion, 2);
+  assert.equal(result.schemaVersion, 3);
+  assert.equal(result.replayStep, REPLAY_STEP, 'Replay step is global and independent of active Pane TF');
   assert.equal(result.target.direction, direction);
   assert.equal(result.target.coverage, coverage);
   assert.equal(result.target.resolution, resolution);
@@ -184,6 +190,9 @@ const negative = {
   'workspace-lookalike': () => plan(baseAction, { paneWorkspace: Object.freeze(readPaneWorkspace(workspace())) }),
   'range-order': () => plan(baseAction, { replayRange: { endEpochMs: 1_000, startEpochMs: 1_000 } }),
   'workspace-cursor-outside-range': () => plan(baseAction, { paneWorkspace: workspace(500) }),
+  'replay-step-lookalike': () => plan(baseAction, { replayStep: Object.freeze({
+    durationMs: 5_000, id: 'replay-step.test-5', offsetMs: 0, sourceDurationMs: 1_000,
+  }) }),
   'session-hours-extra-field': () => plan(baseAction, { sessionHours: { ...HOURS, paneId: 'pane-es' } }),
   'session-hours-per-pane': () => plan(baseAction, { sessionHours: { ...HOURS, panes: {} } }),
   'session-hours-mode': () => plan(baseAction, { sessionHours: { ...HOURS, mode: 'all' } }),
@@ -193,7 +202,7 @@ const negative = {
   'exact-target-outside-range': () => plan(createReplayPaneAction({ kind: 'goto-exact', targetEpochMs: 11_000 })),
 };
 
-assert.equal(negativeCases.length, 18);
+assert.equal(negativeCases.length, 19);
 assert.equal(new Set(negativeCases.map(({ case: name }) => name)).size, negativeCases.length);
 for (const fixture of negativeCases) {
   assert.equal(typeof negative[fixture.case], 'function', `missing negative control ${fixture.case}`);

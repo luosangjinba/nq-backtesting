@@ -18,5 +18,6 @@
   { "case": "executor-operation", "expectedCode": "REPLAY_NAVIGATION_OPERATION_MISMATCH" },
   { "case": "executor-range-stale", "expectedCode": "REPLAY_NAVIGATION_CURSOR_STALE" },
   { "case": "pane-request-mutable", "expectedCode": "REPLAY_NAVIGATION_PANE_REQUEST_INVALID" },
-  { "case": "result-lookalike", "expectedCode": "REPLAY_NAVIGATION_RESULT_REQUIRED" }
+  { "case": "result-lookalike", "expectedCode": "REPLAY_NAVIGATION_RESULT_REQUIRED" },
+  { "case": "step-stale", "expectedCode": "REPLAY_NAVIGATION_STEP_STALE" }
 ]

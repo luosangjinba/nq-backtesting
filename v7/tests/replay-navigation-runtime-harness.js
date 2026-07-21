@@ -13,7 +13,7 @@ import {
   createPaneSetMaterializationPorts,
   createPaneSetTransactionInput,
 } from '../src/pane-set-materialization/public.js';
-import { readReplayCursorProposal } from '../src/replay-contract/public.js';
+import { createReplayStep, readReplayCursorProposal } from '../src/replay-contract/public.js';
 import {
   createReplayNavigationExecutor,
   createReplayNavigationReplayPort,
@@ -48,6 +48,12 @@ const RANGE = Object.freeze({
   endEpochMs: epoch('2026-05-06T22:00:00.000Z'),
 });
 const HOURS = Object.freeze({ calendarRevision: 'cme-2026.1', mode: 'eth', revision: 3 });
+const REPLAY_STEP = createReplayStep({
+  durationMs: MINUTE, id: 'replay-step.one-minute', offsetMs: 0, sourceDurationMs: MINUTE,
+});
+const FIVE_MINUTE_STEP = createReplayStep({
+  durationMs: 5 * MINUTE, id: 'replay-step.five-minute', offsetMs: 0, sourceDurationMs: MINUTE,
+});
 const NQ = 'instrument.cme.nq';
 const ES = 'instrument.cme.es';
 const sessionId = createSessionId('session-navigation');
@@ -163,13 +169,15 @@ const sourceTraversalPort = Object.freeze({
     const gate = traversalGate;
     if (gate) await gate.promise;
     if (traversalUnavailable) return null;
+    assert.equal(context.replayStep.id, 'replay-step.one-minute');
     const targetEpochMs = traversalWrongDirection
-      ? context.cursorEpochMs - MINUTE : context.cursorEpochMs + MINUTE;
+      ? context.cursorEpochMs - MINUTE : context.cursorEpochMs + context.replayStep.durationMs;
     return Object.freeze({ sourceEpochMs: targetEpochMs - MINUTE, targetEpochMs });
   },
   async previousEligible(context) {
     if (traversalUnavailable) return null;
-    const targetEpochMs = context.cursorEpochMs - MINUTE;
+    assert.equal(context.replayStep.id, 'replay-step.one-minute');
+    const targetEpochMs = context.cursorEpochMs - context.replayStep.durationMs;
     return Object.freeze({ sourceEpochMs: targetEpochMs - MINUTE, targetEpochMs });
   },
 });
@@ -177,6 +185,7 @@ const targetResolver = createReplayNavigationTargetResolver({ schedule, sourceTr
 const replay = createReplayRuntime({
   activationGeneration,
   initialCursorEpochMs: epoch('2026-05-01T12:41:00.000Z'),
+  initialReplayStep: REPLAY_STEP,
   range: RANGE,
   sessionId,
 });
@@ -374,6 +383,7 @@ const stalePlan = planReplayPaneResponse({
   action: createReplayPaneAction({ kind: 'manual-next' }),
   paneWorkspace: workspace(replay.snapshot().cursorEpochMs),
   replayRange: RANGE,
+  replayStep: REPLAY_STEP,
   sessionHours: HOURS,
 });
 const staleInput = createPaneSetTransactionInput({
@@ -399,11 +409,17 @@ slowGate.resolve();
 assert.equal(describeWorkspaceTransactionEnvelope(await slowResolution).status, 'stale');
 assert.equal(replay.snapshot().playback, 'paused');
 
-function planFor(action, cursorEpochMs = replay.snapshot().cursorEpochMs, range = RANGE) {
+function planFor(
+  action,
+  cursorEpochMs = replay.snapshot().cursorEpochMs,
+  range = RANGE,
+  replayStep = REPLAY_STEP,
+) {
   return planReplayPaneResponse({
     action,
     paneWorkspace: workspace(cursorEpochMs),
     replayRange: range,
+    replayStep,
     sessionHours: HOURS,
   });
 }
@@ -422,13 +438,13 @@ const nextPlan = planFor(nextAction);
 const signal = new AbortController().signal;
 const traversal = (overrides = {}) => Object.freeze({
   eligibleAtOrAfter: async () => null,
-  nextEligible: async ({ cursorEpochMs }) => Object.freeze({
+  nextEligible: async ({ cursorEpochMs, replayStep }) => Object.freeze({
     sourceEpochMs: cursorEpochMs,
-    targetEpochMs: cursorEpochMs + MINUTE,
+    targetEpochMs: cursorEpochMs + replayStep.durationMs,
   }),
-  previousEligible: async ({ cursorEpochMs }) => Object.freeze({
-    sourceEpochMs: cursorEpochMs - (2 * MINUTE),
-    targetEpochMs: cursorEpochMs - MINUTE,
+  previousEligible: async ({ cursorEpochMs, replayStep }) => Object.freeze({
+    sourceEpochMs: cursorEpochMs - replayStep.durationMs - MINUTE,
+    targetEpochMs: cursorEpochMs - replayStep.durationMs,
   }),
   ...overrides,
 });
@@ -482,6 +498,12 @@ const negative = {
       identity: identity('cursor-stale'), input: inputFor(stalePlan), operation: 'manual-next', signal,
     });
   },
+  'step-stale': () => {
+    const stalePlan = planFor(nextAction, replay.snapshot().cursorEpochMs, RANGE, FIVE_MINUTE_STEP);
+    return directReplayPort.propose({
+      identity: identity('step-stale'), input: inputFor(stalePlan), operation: 'manual-next', signal,
+    });
+  },
   'execution-extra-field': () => executor.execute({
     action: nextAction,
     intent: createWorkspaceTransactionIntent({ identity: identity('extra'), operation: 'manual-next' }),
@@ -515,7 +537,7 @@ const negative = {
   'result-lookalike': () => readReplayNavigationResult(Object.freeze({ status: 'committed' })),
 };
 
-assert.equal(negativeCases.length, 20);
+assert.equal(negativeCases.length, 21);
 for (const fixture of negativeCases) {
   assert.equal(typeof negative[fixture.case], 'function', `missing negative control ${fixture.case}`);
   await assert.rejects(

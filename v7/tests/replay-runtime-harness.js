@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createActivationGeneration } from '../src/activation-generation/public.js';
-import { createReplayAdvanceInput } from '../src/replay-contract/public.js';
+import { createReplayAdvanceInput, createReplayStep } from '../src/replay-contract/public.js';
 import { createReplayRuntime } from '../src/replay-runtime/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createTransactionId } from '../src/transaction-identity/public.js';
@@ -20,6 +20,12 @@ const generationTwo = createActivationGeneration(2);
 const range = { startEpochMs: 1_000, endEpochMs: 10_000 };
 const manual = createReplayAdvanceInput({ source: 'manual', durationMs: 2_000 });
 const auto = createReplayAdvanceInput({ source: 'auto', durationMs: 2_000 });
+const oneSecondStep = createReplayStep({
+  durationMs: 1_000, id: 'replay-step.one-second', offsetMs: 0, sourceDurationMs: 1_000,
+});
+const twoSecondStep = createReplayStep({
+  durationMs: 2_000, id: 'replay-step.two-second', offsetMs: 0, sourceDurationMs: 1_000,
+});
 
 function identity(sessionId, activationGeneration, suffix) {
   return createWorkspaceTransactionIdentity({
@@ -33,12 +39,17 @@ function runtime() {
   return createReplayRuntime({
     sessionId: sessionA,
     activationGeneration: generationOne,
+    initialReplayStep: oneSecondStep,
     range,
     initialCursorEpochMs: 2_000,
   });
 }
 
 const clock = runtime();
+assert.equal(clock.snapshot().replayStep, oneSecondStep);
+assert.equal(clock.setReplayStep(twoSecondStep).replayStep, twoSecondStep);
+assert.equal(clock.snapshot().revision, 0, 'Replay step selection must not move or revise the cursor');
+clock.setReplayStep(oneSecondStep);
 const proposal = clock.proposeAdvance({ identity: identity(sessionA, generationOne, 'one'), advance: manual });
 assert.equal(clock.snapshot().cursorEpochMs, 2_000, 'proposal must not publish cursor progress');
 assert.equal(clock.snapshot().revision, 0);
@@ -110,6 +121,7 @@ const negativeActions = {
     const target = createReplayRuntime({
       sessionId: sessionA,
       activationGeneration: generationOne,
+      initialReplayStep: oneSecondStep,
       range,
       initialCursorEpochMs: range.endEpochMs,
     });
@@ -141,11 +153,15 @@ const negativeActions = {
     const target = createReplayRuntime({
       sessionId: sessionA,
       activationGeneration: generationOne,
+      initialReplayStep: oneSecondStep,
       range,
       initialCursorEpochMs: range.endEpochMs,
     });
     return target.play();
   },
+  'set-step-lookalike': () => runtime().setReplayStep(Object.freeze({
+    durationMs: 1_000, id: 'lookalike', offsetMs: 0, sourceDurationMs: 1_000,
+  })),
 };
 
 for (const fixture of negativeCases) {
