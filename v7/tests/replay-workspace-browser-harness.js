@@ -86,6 +86,21 @@ assert.ok(
   weekendPlan.request.windowEndEpochMs - Date.parse('2026-05-03T22:01:00Z') < 500 * 60_000,
   'eligible-gap traversal may add only one bounded forward-buffer remainder',
 );
+const rthOneMinute = fridayMarket.catalog.get({
+  instrumentId: fridayMarket.defaultTarget.instrumentId,
+  sessionHoursMode: 'rth',
+  timeframeId: fridayMarket.defaultTarget.timeframeId,
+});
+assert.equal(
+  fridayMarket.requestBefore(Date.parse('2026-04-28T13:30:00Z'), rthOneMinute).windowStartEpochMs,
+  Date.parse('2026-04-27T16:15:00Z'),
+  'one RTH history request at 09:30 must cross the overnight close and include 240 prior eligible minutes',
+);
+assert.equal(
+  fridayMarket.requestBefore(Date.parse('2026-05-04T13:30:00Z'), rthOneMinute).windowStartEpochMs,
+  Date.parse('2026-05-01T16:15:00Z'),
+  'one RTH history request at Monday 09:30 must cross the weekend without repeated empty loads',
+);
 fridayMarket.dispose();
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);

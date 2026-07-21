@@ -66,6 +66,16 @@ target chunk covers at least two current visible ranges when provider limits
 permit, plus a one-visible-range safety buffer. If more coverage is needed, the
 runtime schedules the next chunk automatically within the continuation budget.
 
+A timeframe-aware nominal window is retained when it contains any eligible
+source minute. If the whole nominal window falls inside an RTH close, the
+request planner expands that same request backward until it contains up to 240
+eligible source minutes or reaches the 35-day foreground cap. Overnight and
+weekend closures therefore require one accepted request rather than repeated
+empty requests. The provider still returns only real source bars; the planner
+does not synthesize bars, start a recursive foreground chain, or move Replay.
+If no earlier eligible data exists within the hard cap, the accepted Pane and
+its canonical manual Viewport remain unchanged.
+
 Bar-by-bar visible history repair is forbidden. Large datasets may appear in a
 small number of fast atomic blocks when one bounded request cannot cover the
 target.

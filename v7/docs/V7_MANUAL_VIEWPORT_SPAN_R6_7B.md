@@ -1,6 +1,7 @@
 # V7 Manual Viewport Span Preservation — R6.7b
 
-Status: implemented; awaiting human interaction review (2026-07-21)
+Status: implemented; review blocked by separate history-window coverage defect
+(2026-07-21)
 
 ## Reproduction
 
@@ -41,3 +42,11 @@ a fixed minimum.
 - the flow still switches back to ETH successfully; all 37 non-browser and five
   browser gates pass, with Next p95 `62.4ms`, p99 `75.5ms`, max `99.2ms`, `12h`
   RTH replacement about `922ms`, and rapid history with no long task.
+
+## Follow-up Review
+
+The user confirmed the span no longer collapses, then found that a nominal
+240-wall-minute request at RTH `09:30` can contain no eligible candle. Repeated
+non-contributing requests made the boundary appear to snap back until enough
+requests crossed the closure. R6.7c corrects that separate acquisition-window
+problem without changing this Viewport correction.

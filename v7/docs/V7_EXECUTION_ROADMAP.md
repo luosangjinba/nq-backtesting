@@ -341,7 +341,12 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   review exposed a manual-span collapse under rapid boundary input;
 - `R6.7b`: translate left-clamped transient manual logical ranges without
   shrinking their canonical span, preserve that wall through two-to-one Pane
-  replacement, and make the first subsequent drag extend history;
+  replacement, and make the first subsequent drag extend history; follow-up
+  review exposed repeated non-contributing wall-clock requests at RTH `09:30`;
+- `R6.7c`: keep contributing nominal history windows unchanged, but expand a
+  wholly closed nominal window within the same bounded request until it reaches
+  prior eligible source minutes, crossing overnight and weekend closures
+  without synthetic bars or recursive foreground transactions;
 - `R6.8`: replace the interim top-row controls with the reviewed constrained
   floating bottom-center transport and add playback speed;
 - `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal

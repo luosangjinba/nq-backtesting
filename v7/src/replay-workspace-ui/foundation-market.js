@@ -36,6 +36,27 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
       windowStartEpochMs,
     });
   }
+  function isEligibleMinute(epochMs, selection) {
+    return selection.sessionHoursPolicy.isEligible({ startEpochMs: epochMs }, {
+      calendar: selection.calendar,
+      instrument: selection.instrument,
+      sessionHoursMode: selection.sessionHoursMode,
+    });
+  }
+  function contributingHistoryStart(windowEndEpochMs, sourceBars, selection) {
+    const boundedStart = Math.max(0, windowEndEpochMs - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE));
+    const nominalStart = Math.max(boundedStart, windowEndEpochMs - (sourceBars * MINUTE));
+    for (let epochMs = windowEndEpochMs - MINUTE; epochMs >= nominalStart; epochMs -= MINUTE) {
+      if (isEligibleMinute(epochMs, selection)) return nominalStart;
+    }
+    let requiredEligibleBars = Math.min(MINIMUM_HISTORY_SOURCE_BARS, sourceBars);
+    for (let epochMs = nominalStart - MINUTE; epochMs >= boundedStart; epochMs -= MINUTE) {
+      if (!isEligibleMinute(epochMs, selection)) continue;
+      requiredEligibleBars -= 1;
+      if (requiredEligibleBars === 0) return epochMs;
+    }
+    return boundedStart;
+  }
   function requestThrough(exclusiveEndEpochMs, selection = capabilities.defaultSelection) {
     const requiredBars = Math.max(1, Math.ceil((exclusiveEndEpochMs - range.startEpochMs) / MINUTE));
     const bufferedBars = Math.ceil(requiredBars / FORWARD_BUFFER_SOURCE_BARS) * FORWARD_BUFFER_SOURCE_BARS;
@@ -56,7 +77,7 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
     return rawRequest({
       instrumentId: selection.instrument.id,
       windowEndEpochMs,
-      windowStartEpochMs: Math.max(0, windowEndEpochMs - (sourceBars * MINUTE)),
+      windowStartEpochMs: contributingHistoryStart(windowEndEpochMs, sourceBars, selection),
     });
   }
   const request = requestThrough(range.startEpochMs + MINUTE);
@@ -64,11 +85,7 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
     let remaining = count;
     let lastEligibleEpochMs = null;
     for (let epochMs = cursorEpochMs; epochMs < range.endEpochMs; epochMs += MINUTE) {
-      if (selection.sessionHoursPolicy.isEligible({ startEpochMs: epochMs }, {
-        calendar: selection.calendar,
-        instrument: selection.instrument,
-        sessionHoursMode: selection.sessionHoursMode,
-      })) {
+      if (isEligibleMinute(epochMs, selection)) {
         lastEligibleEpochMs = epochMs;
         remaining -= 1;
         if (remaining === 0) break;

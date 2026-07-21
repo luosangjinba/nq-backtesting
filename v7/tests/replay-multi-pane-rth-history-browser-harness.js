@@ -134,6 +134,12 @@ try {
   await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  const beforeFirstRthHistory = await readState(cdp);
+  state = await extendHistory(cdp, 'pane-main');
+  assert.ok(state.panes[0].bars >= beforeFirstRthHistory.panes[0].bars + 200,
+    `one drag at RTH 09:30 must cross the close and prepend a useful prior-session block: ${JSON.stringify({
+      beforeFirstRthHistory, state,
+    })}`);
   for (const paneId of ['pane-main', 'pane-secondary']) {
     for (let extension = 0; extension < 4; extension += 1) state = await extendHistory(cdp, paneId);
   }

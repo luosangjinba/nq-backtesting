@@ -1,7 +1,8 @@
 # Session — R6.7b Manual Viewport Span Preservation
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction review
+Status: implementation complete; review blocked by separate history-window
+coverage defect
 
 ## Review Input
 
@@ -38,5 +39,7 @@ movement triggered history.
 
 Repeat rapid RTH dragging without wheel repair, switch directly to one Pane,
 and drag once toward history. Candle width should remain usable and history
-must extend immediately. R6.8 remains blocked until R6.7/R6.7a/R6.7b are
-accepted together.
+must extend immediately. The review retained the stable span but found that a
+240-wall-minute request at `09:30` could cross only part of the RTH closure.
+R6.7c owns that separate request-planning correction; R6.8 remains blocked
+until the combined gate is accepted.

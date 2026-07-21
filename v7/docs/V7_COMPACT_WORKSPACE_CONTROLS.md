@@ -79,6 +79,14 @@ prepend without moving Replay or changing the
 accepted no-future boundary. The browser gate proves a second boundary visit
 loads a second older window, so the interaction can continue leftward.
 
+The nominal size is measured in wall-clock source minutes and remains unchanged
+when it contains any eligible minute. If all of it is closed under the selected
+Session Hours policy, the same request expands backward, still under the
+35-day cap, until it contains up to 240 eligible minutes. Thus one accepted RTH
+request at `09:30` crosses the overnight close or weekend instead of requiring
+several empty boundary transactions. No source candle is synthesized and no
+recursive history transaction is started.
+
 Low-to-high timeframe replacement acquires target-sized left context in its
 atomic transaction. If the provider-bound cap yields fewer candles than the
 canonical Viewport span, the chart adapter clamps only its transient logical

@@ -862,7 +862,7 @@ RTH drags collapsed the manual Viewport from roughly 80 visible bars to about
 seven. Candles became oversized, further history input stalled, and a two-to-
 one Pane transition preserved the damaged wall until another irregular drag.
 
-### R6.7b Manual Viewport Span Preservation — Awaiting Human Review
+### R6.7b Manual Viewport Span Preservation — Review Blocked
 
 - keep the adapter's transient left clamp separate from canonical manual wall
   state when an RTH history chunk contributes no new display candles;
@@ -875,7 +875,30 @@ one Pane transition preserved the damaged wall until another irregular drag.
 - keep deliberate wheel zoom authoritative: a user-selected small span remains
   valid and is not widened by this correction.
 
-After R6.7b acceptance, R6.8 is the constrained floating bottom-center Replay
+The next review confirmed that candle width and the manual span remain stable,
+but exposed a separate request-coverage defect at every RTH `09:30` boundary.
+The nominal one-minute history request covered only 240 wall-clock minutes,
+which could contain no eligible RTH minute; each accepted empty request moved
+through only part of the overnight/weekend closure and visibly snapped `09:30`
+back to the left edge.
+
+### R6.7c Session-Aware Contributing History Windows — Awaiting Human Review
+
+- retain the existing timeframe-aware nominal history size when that window
+  contains at least one eligible source minute;
+- when the complete nominal window is closed, expand that same request backward
+  until it contains up to 240 eligible source minutes, still under the existing
+  35-day foreground cap;
+- cross an overnight close or weekend with one bounded Workspace transaction,
+  without synthesizing bars, recursively scheduling requests, or changing
+  Replay/Projection/Chart ownership;
+- prove exact Tuesday and Monday `09:30` RTH request windows and require the
+  first accepted browser history transaction to add at least 200 prior-session
+  candles;
+- preserve the R6.7a ready-Pane fallback when no earlier eligible data exists
+  inside the hard cap, and preserve the R6.7b manual Viewport span.
+
+After R6.7c acceptance, R6.8 is the constrained floating bottom-center Replay
 transport with speed control. R6.9 expands one-to-four layouts with draggable,
 persisted nested split ratios and minimum Pane sizes; layout sync follows as a
 separate bounded step.
