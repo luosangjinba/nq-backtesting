@@ -74,17 +74,31 @@ const exchangeClock = new Intl.DateTimeFormat('en-CA', {
   second: '2-digit', timeZone: 'America/New_York', year: 'numeric',
 });
 
-function exchangeWallEpoch(epochMs) {
+function exchangeWallOffset(epochMs) {
   const parts = Object.fromEntries(exchangeClock.formatToParts(epochMs)
     .filter(({ type }) => type !== 'literal').map(({ type, value }) => [type, value]));
   return Date.UTC(
     Number(parts.year), Number(parts.month) - 1, Number(parts.day),
     Number(parts.hour), Number(parts.minute), Number(parts.second),
-  );
+  ) - epochMs;
+}
+
+function createExchangeWallEpochConverter() {
+  const offsetsByHour = new Map();
+  return (epochMs) => {
+    const hourEpochMs = Math.floor(epochMs / (60 * MINUTE)) * 60 * MINUTE;
+    let offsetMs = offsetsByHour.get(hourEpochMs);
+    if (offsetMs === undefined) {
+      offsetMs = exchangeWallOffset(hourEpochMs);
+      offsetsByHour.set(hourEpochMs, offsetMs);
+    }
+    return epochMs + offsetMs;
+  };
 }
 
 /** Register the bounded NQ capability cross-product used by the visible foundation slice. */
 export function createFoundationCapabilities() {
+  const exchangeWallEpoch = createExchangeWallEpochConverter();
   const instrument = defineInstrument({
     ...base('instrument', 'InstrumentDefinition', FOUNDATION_IDS.instrument, 'NQ'),
     calendarId: FOUNDATION_IDS.calendar,
@@ -147,8 +161,8 @@ export function createFoundationCapabilities() {
     aggregationPolicy: createFixedDurationAggregationPolicy({
       durationMs: timeframe.durationMinutes * MINUTE,
       id: timeframe.aggregationPolicyId,
-      offsetMs: mode === 'rth' ? (570 % timeframe.durationMinutes) * MINUTE : 0,
-      revision: `fixed-${timeframe.durationMinutes}m-${mode}-r1`,
+      offsetMs: 0,
+      revision: `fixed-${timeframe.durationMinutes}m-${mode}-exchange-grid-r2`,
       schemaVersion: 1,
       sourceDurationMs: MINUTE,
     }),

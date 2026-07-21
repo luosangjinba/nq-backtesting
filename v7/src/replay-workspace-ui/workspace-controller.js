@@ -24,7 +24,7 @@ import { createRefreshFeedback } from './refresh-feedback.js';
 function formatCursor(epochMs) {
   const formatter = new Intl.DateTimeFormat(undefined, {
     day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: '2-digit',
-    timeZoneName: 'short', year: 'numeric',
+    timeZone: 'America/New_York', timeZoneName: 'short', year: 'numeric',
   });
   return formatter.format(new Date(epochMs));
 }
@@ -173,9 +173,7 @@ export function createReplayWorkspaceController({ record, view }) {
       sourceBatches.reject();
       pending = false;
       refreshFeedback.finish(feedbackToken);
-      const logicalFrom = adapter.snapshot().logicalRange?.from;
-      const shouldExtend = historyRequestQueued
-        || (operation === 'history-extension' && Number.isFinite(logicalFrom) && logicalFrom < 24);
+      const shouldExtend = historyRequestQueued;
       historyRequestQueued = false;
       if (shouldExtend && !disposed) queueMicrotask(requestLeftExtension);
     }
@@ -189,7 +187,9 @@ export function createReplayWorkspaceController({ record, view }) {
     }
     const oldestEpochMs = sourceBatches.oldestEpochMs();
     if (oldestEpochMs === null || oldestEpochMs <= 0) return undefined;
-    return execute('history-extension', { request: market.requestBefore(oldestEpochMs) });
+    return execute('history-extension', {
+      request: market.requestBefore(oldestEpochMs, currentSelection()),
+    });
   }
 
   async function replace(kind, value) {
@@ -204,7 +204,9 @@ export function createReplayWorkspaceController({ record, view }) {
     const feedbackToken = refreshFeedback.begin({ allowDim: true });
     try {
       const terminal = describeWorkspaceTransactionEnvelope(await replacement.execute({
-        intent: identity(`${kind}-replacement`), request: market.requestThrough(replay.snapshot().cursorEpochMs), target,
+        intent: identity(`${kind}-replacement`),
+        request: market.requestThrough(replay.snapshot().cursorEpochMs, market.catalog.get(target)),
+        target,
       }));
       if (terminal.status !== 'committed') throw Object.assign(new Error(terminal.code), { code: terminal.code });
       sourceBatches.accept();

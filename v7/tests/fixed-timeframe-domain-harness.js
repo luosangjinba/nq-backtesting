@@ -16,6 +16,7 @@ import {
 } from '../src/fixed-timeframe-domain/public.js';
 import { projectPaneSnapshot } from '../src/projection-domain/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
+import { createFoundationCapabilities, FOUNDATION_IDS } from '../src/replay-workspace-ui/foundation-capabilities.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createTransactionId } from '../src/transaction-identity/public.js';
 import { createWorkspaceTransactionIdentity } from '../src/workspace-transaction-contract/public.js';
@@ -103,6 +104,37 @@ assert.equal(resolveFixedBucketStart({
   sourceDurationMs: MINUTE,
   startEpochMs: epoch('2026-06-08T19:00'),
 }), epoch('2026-06-08T18:00'));
+
+const foundationCapabilities = createFoundationCapabilities();
+const exchangeSourceBar = Object.freeze({
+  startEpochMs: Date.parse('2026-05-01T16:40:00Z'),
+  open: 100, high: 102, low: 99, close: 101, volume: 10,
+});
+for (const [timeframeId, expectedMinute] of [
+  ['timeframe.display-4-minute', '43'],
+  ['timeframe.display-1-hour', '59'],
+  ['timeframe.display-2-hour', '59'],
+  ['timeframe.display-4-hour', '59'],
+  ['timeframe.display-8-hour', '59'],
+  ['timeframe.display-12-hour', '59'],
+]) {
+  const projectedByMode = ['eth', 'rth'].map((sessionHoursMode) => {
+    const selection = foundationCapabilities.catalog.get({
+      instrumentId: FOUNDATION_IDS.instrument, sessionHoursMode, timeframeId,
+    });
+    return selection.aggregationPolicy.project([exchangeSourceBar], {
+      aggregationPolicyRevision: selection.aggregationPolicy.revision,
+      displayTimeframe: selection.displayTimeframe,
+      sourceResolutionId: FOUNDATION_IDS.resolution,
+    })[0].displayEpochMs;
+  });
+  assert.equal(projectedByMode[0], projectedByMode[1],
+    `${timeframeId} must use the same exchange-clock grid in ETH and RTH`);
+  assert.equal(new Intl.DateTimeFormat('en-US', {
+    minute: '2-digit', timeZone: 'America/New_York',
+  }).format(projectedByMode[1]), expectedMinute,
+  `${timeframeId} RTH completion minute is incorrect`);
+}
 
 function base(kind, contract, id) {
   return {

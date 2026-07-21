@@ -59,8 +59,9 @@ export function createLightweightChartAdapter({
   function applyViewport() {
     if (barCount < 1) return null;
     const projection = viewport.project(barCount - 1);
-    chart.timeScale().setVisibleLogicalRange({ from: projection.from, to: projection.to });
-    host.dataset.logicalFrom = String(projection.from);
+    const visibleFrom = Math.max(-0.5, projection.from);
+    chart.timeScale().setVisibleLogicalRange({ from: visibleFrom, to: projection.to });
+    host.dataset.logicalFrom = String(visibleFrom);
     host.dataset.logicalTo = String(projection.to);
     host.dataset.latestOffsetBars = String(projection.latestOffsetBars);
     host.dataset.spanBars = String(projection.spanBars);
