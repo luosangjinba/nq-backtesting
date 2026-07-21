@@ -107,6 +107,7 @@ export function createLightweightChartAdapter({
     void captureNativeViewport();
   };
   const onWheel = (event) => {
+    host.dataset.wheelEventCount = String(Number(host.dataset.wheelEventCount || 0) + 1);
     if (applyPriceScaleWheel({ event, host, priceScale })) return;
     void captureNativeViewport();
   };
@@ -157,6 +158,8 @@ export function createLightweightChartAdapter({
           : 0);
       appliedData = context.staged.data;
       host.dataset.barCount = String(barCount);
+      host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
+      host.dataset.instrumentId = context.workspaceSnapshot.provenance.instrumentId;
       host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
       host.dataset.lastMutationMode = mutation.kind;
       host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
@@ -164,6 +167,8 @@ export function createLightweightChartAdapter({
       host.dataset.maximumDisplayGapMs = String(maximumAppliedDisplayGapMs);
       host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
       host.dataset.painted = 'true';
+      host.dataset.sessionHoursMode = context.workspaceSnapshot.provenance.sessionHoursMode;
+      host.dataset.visibleThroughEpochMs = String(context.workspaceSnapshot.provenance.visibleThroughEpochMs);
       host.dataset.visibleRevision = String(adapterRevision);
       return createChartAdapterVisibleReceipt({
         adapterRevision,

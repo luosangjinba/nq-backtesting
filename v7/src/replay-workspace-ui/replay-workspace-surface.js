@@ -18,23 +18,56 @@ export function createReplayWorkspaceSurface() {
     dispose: unmount,
     mount({ onBack, record, root }) {
       unmount();
-      const callbacks = { next: null, reset: null, sessionHours: null, timeframe: null };
-      const capabilities = createFoundationCapabilities();
+      const callbacks = {
+        autoplay: null,
+        exactGoto: null,
+        focusPane: null,
+        instrument: null,
+        next: null,
+        paneCount: null,
+        pause: null,
+        previous: null,
+        quickGoto: null,
+        reset: null,
+        restart: null,
+        sessionHours: null,
+        timeframe: null,
+      };
+      const capabilities = createFoundationCapabilities(record.configuration.instrumentIds);
       const view = createReplayWorkspaceView({
+        instrumentOptions: capabilities.instrumentOptions,
         name: record.metadata.name,
+        onAutoplay: () => callbacks.autoplay?.(),
         onBack,
+        onExactGoto: (epochMs) => callbacks.exactGoto?.(epochMs),
+        onFocusPane: (paneId) => callbacks.focusPane?.(paneId),
+        onInstrument: (instrumentId) => callbacks.instrument?.(instrumentId),
         onNext: () => callbacks.next?.(),
-        onReset: () => callbacks.reset?.(),
+        onPaneCount: (count) => callbacks.paneCount?.(count),
+        onPause: () => callbacks.pause?.(),
+        onPrevious: () => callbacks.previous?.(),
+        onQuickGoto: (anchor) => callbacks.quickGoto?.(anchor),
+        onReset: (paneId) => callbacks.reset?.(paneId),
+        onRestart: () => callbacks.restart?.(),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
         sessionHoursModes: capabilities.sessionHoursModes,
         timeframeMenuGroups: capabilities.timeframeMenuGroups,
       });
-      view.setSelection(capabilities.defaultTarget);
+      view.setSelection({ sessionHoursMode: capabilities.defaultTarget.sessionHoursMode });
       root.replaceChildren(view.root);
       const controller = createReplayWorkspaceController({ record, view });
+      callbacks.autoplay = () => controller.autoplay();
+      callbacks.exactGoto = (epochMs) => controller.gotoExact(epochMs);
+      callbacks.focusPane = (paneId) => controller.focusPane(paneId);
+      callbacks.instrument = (instrumentId) => controller.replaceInstrument(instrumentId);
       callbacks.next = () => controller.next();
-      callbacks.reset = () => controller.resetView();
+      callbacks.paneCount = (count) => controller.changePaneCount(count);
+      callbacks.pause = () => controller.pause();
+      callbacks.previous = () => controller.previous();
+      callbacks.quickGoto = (anchor) => controller.gotoQuick(anchor);
+      callbacks.reset = (paneId) => controller.resetView(paneId);
+      callbacks.restart = () => controller.restart();
       callbacks.sessionHours = (mode) => controller.replaceSessionHours(mode);
       callbacks.timeframe = (timeframeId) => controller.replaceTimeframe(timeframeId);
       active = { controller, view };

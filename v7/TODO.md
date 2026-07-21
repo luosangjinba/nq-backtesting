@@ -755,9 +755,32 @@ Restart/Back-to, quick GoTo, and exact GoTo over the R6.3 materialization path.
 - prove mixed NQ/ES plus `1m`/`4h`, empty comparison Pane, weekend anchor skip,
   primary-clock visibility, DST, and 20 negative/race controls headlessly.
 
-R6.5 real single/multi-Pane browser composition and the combined Replay × Pane
-interaction/visual acceptance gate are next. Economic Calendar remains a
-separate later business module.
+### R6.5 Real Pane Workspace And Replay Surfaces — Awaiting Human Review
+
+- activate Session-configured NQ/ES capability composition and one real chart
+  host per product Pane, because Lightweight Charts native Panes share one time
+  scale and cannot own independent product-Pane Viewports;
+- preserve one uniform Pane Workspace record for one or two visible Panes,
+  active focus without a transaction, Pane-local instrument/TF/Viewport, and
+  one Session-wide ETH/RTH policy;
+- route Pane layout, instrument, TF, Session Hours, and earlier-history changes
+  through one retained-cursor complete Pane-set Workspace transaction;
+- mount Manual Next/Previous, one-step Autoplay plus Pause, Restart, all five
+  New York quick GoTo actions with shortcuts, and exact New York date/time GoTo
+  over the R6.4 shared-navigation owner;
+- keep continuous Autoplay cadence/timer in R7 and Economic Calendar in the
+  later optional business module;
+- prove real NQ/`1m` plus ES/`4h`, host geometry, focus isolation, Pane-local
+  native viewport input, Session-wide ETH/RTH, all-Pane Replay actions, both
+  GoTo forms, one/two-Pane transitions, and fixed `1440x900` visual output in a
+  dedicated browser Harness;
+- retain the accepted single-Pane regression/performance gate: aggregate Next
+  p95 `63.0ms`, p99 `70.1ms`, max `79.8ms`, 12h RTH replacement `1193ms`, and
+  rapid high-TF history loading with zero observed long tasks.
+
+R6.5 changes interaction and visuals, so implementation stops here for the
+combined human acceptance gate. Economic Calendar remains a separate later
+business module.
 
 ## Standing Gates
 

@@ -15,11 +15,30 @@ const MINUTE = 60_000;
 export const FOUNDATION_IDS = Object.freeze({
   calendar: 'calendar.cme-equity-index',
   instrument: 'instrument.cme.nq',
+  instruments: Object.freeze({
+    es: 'instrument.cme.es',
+    nq: 'instrument.cme.nq',
+  }),
   provider: V4_BARS_PROVIDER_ID,
   resolution: 'resolution.fixed-1-minute',
   sessionHours: Object.freeze({
     eth: 'session-hours.cme-eth',
     rth: 'session-hours.cme-rth',
+  }),
+});
+
+const INSTRUMENTS = Object.freeze({
+  [FOUNDATION_IDS.instruments.nq]: Object.freeze({
+    id: FOUNDATION_IDS.instruments.nq,
+    label: 'NQ',
+    priceIncrement: '0.25',
+    symbol: 'NQ',
+  }),
+  [FOUNDATION_IDS.instruments.es]: Object.freeze({
+    id: FOUNDATION_IDS.instruments.es,
+    label: 'ES',
+    priceIncrement: '0.25',
+    symbol: 'ES',
   }),
 });
 
@@ -76,18 +95,32 @@ function createExchangeWallEpochConverter() {
   return createNewYorkWallEpochConverter();
 }
 
-/** Register the bounded NQ capability cross-product used by the visible foundation slice. */
-export function createFoundationCapabilities() {
+function selectedInstrumentIds(value) {
+  const requested = value ?? [FOUNDATION_IDS.instrument];
+  if (!Array.isArray(requested) || requested.length === 0
+    || requested.some((id) => !Object.hasOwn(INSTRUMENTS, id))) {
+    throw new TypeError('Foundation instruments must be a non-empty supported Session asset set.');
+  }
+  return Object.freeze([...requested]);
+}
+
+/** Register the bounded Session-asset capability cross-product used by the visible foundation slice. */
+export function createFoundationCapabilities(instrumentIds = undefined) {
   const exchangeWallEpoch = createExchangeWallEpochConverter();
-  const instrument = defineInstrument({
-    ...base('instrument', 'InstrumentDefinition', FOUNDATION_IDS.instrument, 'NQ'),
-    calendarId: FOUNDATION_IDS.calendar,
-    exchangeTimeZone: 'America/New_York',
-    priceIncrement: '0.25',
-    providerIds: [FOUNDATION_IDS.provider],
-    quantityIncrement: '1',
-    symbol: 'NQ',
-  });
+  const acceptedInstrumentIds = selectedInstrumentIds(instrumentIds);
+  const instruments = Object.freeze(acceptedInstrumentIds.map((id) => {
+    const descriptor = INSTRUMENTS[id];
+    return defineInstrument({
+      ...base('instrument', 'InstrumentDefinition', descriptor.id, descriptor.label),
+      calendarId: FOUNDATION_IDS.calendar,
+      exchangeTimeZone: 'America/New_York',
+      priceIncrement: descriptor.priceIncrement,
+      providerIds: [FOUNDATION_IDS.provider],
+      quantityIncrement: '1',
+      symbol: descriptor.symbol,
+    });
+  }));
+  const instrument = instruments[0];
   const calendar = defineTradingCalendar({
     ...base('calendar', 'TradingCalendar', FOUNDATION_IDS.calendar, 'CME Equity Index'),
     alignmentPolicyIds: ['alignment.fixed-duration'],
@@ -99,7 +132,7 @@ export function createFoundationCapabilities() {
     exceptions: [],
     revision: calendar.revision,
     schemaVersion: 1,
-    supportedInstrumentIds: [instrument.id],
+    supportedInstrumentIds: instruments.map(({ id }) => id),
     wallClockEncoding: 'exchange-wall-clock-utc-like',
     weeklySchedule: {
       eth: [
@@ -137,33 +170,38 @@ export function createFoundationCapabilities() {
       aggregationPolicyId,
     });
   }));
-  const entries = definitions.flatMap((timeframe) => ['eth', 'rth'].map((mode) => ({
-    aggregationPolicy: createFixedDurationAggregationPolicy({
-      durationMs: timeframe.durationMinutes * MINUTE,
-      id: timeframe.aggregationPolicyId,
-      offsetMs: 0,
-      revision: `fixed-${timeframe.durationMinutes}m-${mode}-exchange-grid-r2`,
-      schemaVersion: 1,
-      sourceDurationMs: MINUTE,
-    }),
-    calendar,
-    displayTimeframe: timeframe.definition,
-    instrument,
-    paneId: 'pane-main',
-    sessionHoursMode: mode,
-    sessionHoursPolicy: sessionPolicies[mode],
-  })));
+  const entries = instruments.flatMap((entryInstrument) => definitions.flatMap((timeframe) => (
+    ['eth', 'rth'].map((mode) => ({
+      aggregationPolicy: createFixedDurationAggregationPolicy({
+        durationMs: timeframe.durationMinutes * MINUTE,
+        id: timeframe.aggregationPolicyId,
+        offsetMs: 0,
+        revision: `fixed-${timeframe.durationMinutes}m-${mode}-exchange-grid-r2`,
+        schemaVersion: 1,
+        sourceDurationMs: MINUTE,
+      }),
+      calendar,
+      displayTimeframe: timeframe.definition,
+      instrument: entryInstrument,
+      paneId: 'pane-template',
+      sessionHoursMode: mode,
+      sessionHoursPolicy: sessionPolicies[mode],
+    }))
+  )));
   const defaultTarget = Object.freeze({
     instrumentId: instrument.id,
     sessionHoursMode: 'eth',
     timeframeId: definitions[0].id,
   });
+  const catalog = createWorkspaceReplacementCatalog(entries);
   return Object.freeze({
     calendar,
-    catalog: createWorkspaceReplacementCatalog(entries),
-    defaultSelection: entries[0],
+    catalog,
+    defaultSelection: catalog.get(defaultTarget),
     defaultTarget,
     instrument,
+    instrumentOptions: Object.freeze(instruments.map(({ id, symbol }) => Object.freeze({ id, label: symbol }))),
+    instruments,
     sessionHoursModes: Object.freeze(['eth', 'rth']),
     timeframes: Object.freeze(definitions.map(({ id, label }) => Object.freeze({ id, label }))),
     timeframeMenuGroups: TIMEFRAME_MENU_GROUPS,

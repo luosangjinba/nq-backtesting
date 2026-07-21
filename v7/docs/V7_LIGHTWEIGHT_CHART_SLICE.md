@@ -1,6 +1,6 @@
 # V7 First Lightweight Charts Slice
 
-Status: R4.5 human-accepted (2026-07-20)
+Status: R4.5 human-accepted; R6.5 multi-host extension awaiting review (2026-07-21)
 
 ## Visible Scope
 
@@ -44,6 +44,28 @@ Replay cursor, projection, chart series, or viewport intent.
 Session Browser receives the workspace surface as an optional public route
 surface. When absent or unsupported, its previous opened-Session behavior is
 unchanged.
+
+## R6.5 Product Pane Mapping
+
+Lightweight Charts 5.2 has a native Pane API (`addPane`, `moveToPane`,
+`panes`, `removePane`) and it was evaluated before implementation. Native
+Panes intentionally share one chart time scale. They fit future same-symbol,
+same-time-axis main/sub-pane indicators, but they cannot represent V7 product
+Panes that may use independent instruments, fixed TFs, and viewport walls.
+
+R6.5 therefore uses one Lightweight chart instance per product Pane host. One
+complete Pane-set adapter owns those child adapters behind the sole Chart
+Snapshot Application writer. It stages every Pane result, applies all ready
+children inside one visible-application call, then publishes Pane membership,
+focus, and empty states together. A newly added hidden host is sized and
+painted before the two-Pane layout becomes accepted. Each host is geometrically
+bounded by its own Pane so native drag/wheel input cannot leak into its sibling.
+
+Official references checked for this decision:
+
+- <https://tradingview.github.io/lightweight-charts/tutorials/how_to/panes>
+- <https://tradingview.github.io/lightweight-charts/docs/api/interfaces/IChartApi>
+- <https://github.com/tradingview/awesome-tradingview>
 
 ## Paint Receipt
 
@@ -110,6 +132,12 @@ References checked immediately before implementation:
 - the R5.6 provider harness verifies actual source normalization and the browser
   fixture displays real DuckDB OHLC rather than synthetic shape heuristics;
 - complete V7 suite and source/architecture checks run before commit.
+
+The R6.5 browser gate additionally proves real NQ/`1m` plus ES/`4h` hosts,
+active-focus isolation, Pane-local native viewport input, all-Pane Next,
+one-step Autoplay, Previous, Restart, Session-wide ETH/RTH, quick New York
+GoTo, exact New York GoTo, one/two-Pane transitions, and a fixed `1440x900`
+mixed-Pane visual fixture.
 
 Automated evidence did not grant acceptance. Human review exercised the actual
 chart interaction and visual quality and accepted R4.5 on 2026-07-20 after the

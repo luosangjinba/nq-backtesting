@@ -1,6 +1,6 @@
 # V7 Replay Navigation Runtime
 
-Status: R6.4 headless shared-navigation activation (2026-07-21)
+Status: R6.4 headless owner accepted; R6.5 real browser surfaces mounted (2026-07-21)
 
 ## Decision
 
@@ -73,9 +73,10 @@ DST-aware instants: `09:30` is `14:30Z` before the 2026 spring transition and
 `13:30Z` after it. Nonexistent and repeated wall times are handled by matching
 actual `America/New_York` fields, not by a fixed UTC offset.
 
-Custom anchor values are accepted by the pure schedule constructor. Persistence
-and the settings UI remain R6.5 surface work and cannot create another Replay
-path.
+Custom anchor values are accepted by the pure schedule constructor. R6.5 mounts
+the five default quick actions, keyboard shortcuts, and exact New York calendar
+control over this same path. Custom-anchor persistence and settings remain
+later work and cannot create another Replay path.
 
 ## Complete Pane-set Semantics
 
@@ -91,11 +92,9 @@ action is rejected as `navigation-in-flight` and is never queued. Resolution,
 acquisition, Projection, visible application, stale, or cancellation failure
 preserves the last accepted Replay/workspace/chart state and pauses playback.
 
-## R6.4 Exclusions
+## Remaining Exclusions
 
 - no timer, speed, cadence, or background Autoplay loop;
-- no browser controls, keyboard shortcuts, GoTo menu/dialog, or Pane layout;
-- no real NQ/ES Pane request composer or multi-host Lightweight Charts adapter;
 - no navigation-preference persistence;
 - no Economic Calendar or marker provider.
 

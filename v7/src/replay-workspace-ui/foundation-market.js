@@ -8,9 +8,10 @@ const MINIMUM_HISTORY_SOURCE_BARS = 240;
 const TARGET_HISTORY_DISPLAY_BARS = 240;
 const MAXIMUM_REQUEST_SOURCE_BARS = 35 * 24 * 60;
 
-/** Concrete R4.5 one-pane capability fixture, isolated outside all core owners. */
+/** Concrete NQ-primary Session market composition, isolated outside all core owners. */
 export function createFoundationMarket(record, { provider = createV4BarsProvider() } = {}) {
-  const capabilities = createFoundationCapabilities();
+  const configuredInstrumentIds = record?.configuration?.instrumentIds ?? [FOUNDATION_IDS.instrument];
+  const capabilities = createFoundationCapabilities(configuredInstrumentIds);
   const range = record.configuration.historicalRange;
   const contextStartEpochMs = Math.max(0, range.startEpochMs - (ENTRY_PREFIX_BARS * MINUTE));
   function historySourceBars(selection) {
@@ -24,18 +25,25 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
     return selection?.displayTimeframe?.id === capabilities.defaultTarget.timeframeId
       && selection?.sessionHoursMode === capabilities.defaultTarget.sessionHoursMode;
   }
+  function rawRequest({ instrumentId, windowEndEpochMs, windowStartEpochMs }) {
+    return createRawBarRequest({
+      datasetRevision: V4_BARS_DATASET_REVISION,
+      instrumentId,
+      providerId: FOUNDATION_IDS.provider,
+      schemaVersion: 1,
+      sourceResolutionId: FOUNDATION_IDS.resolution,
+      windowEndEpochMs,
+      windowStartEpochMs,
+    });
+  }
   function requestThrough(exclusiveEndEpochMs, selection = capabilities.defaultSelection) {
     const requiredBars = Math.max(1, Math.ceil((exclusiveEndEpochMs - range.startEpochMs) / MINUTE));
     const bufferedBars = Math.ceil(requiredBars / FORWARD_BUFFER_SOURCE_BARS) * FORWARD_BUFFER_SOURCE_BARS;
     const boundedEnd = Math.min(range.endEpochMs, range.startEpochMs + (bufferedBars * MINUTE));
     const desiredStart = range.startEpochMs - (historySourceBars(selection) * MINUTE);
     const boundedStart = Math.max(0, boundedEnd - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE));
-    return createRawBarRequest({
-      datasetRevision: V4_BARS_DATASET_REVISION,
-      instrumentId: FOUNDATION_IDS.instrument,
-      providerId: FOUNDATION_IDS.provider,
-      schemaVersion: 1,
-      sourceResolutionId: FOUNDATION_IDS.resolution,
+    return rawRequest({
+      instrumentId: selection.instrument.id,
       windowEndEpochMs: boundedEnd,
       windowStartEpochMs: usesEntryPrefix(selection)
         ? contextStartEpochMs
@@ -45,12 +53,8 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
   function requestBefore(oldestEpochMs, selection = capabilities.defaultSelection) {
     const windowEndEpochMs = Math.max(MINUTE, oldestEpochMs);
     const sourceBars = historySourceBars(selection);
-    return createRawBarRequest({
-      datasetRevision: V4_BARS_DATASET_REVISION,
-      instrumentId: FOUNDATION_IDS.instrument,
-      providerId: FOUNDATION_IDS.provider,
-      schemaVersion: 1,
-      sourceResolutionId: FOUNDATION_IDS.resolution,
+    return rawRequest({
+      instrumentId: selection.instrument.id,
       windowEndEpochMs,
       windowStartEpochMs: Math.max(0, windowEndEpochMs - (sourceBars * MINUTE)),
     });
@@ -89,9 +93,14 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
     request,
     requestBefore,
     requestThrough,
+    requestWindow: rawRequest,
   });
 }
 
 export function supportsFoundationWorkspace(record) {
-  return record?.configuration?.instrumentIds?.includes(FOUNDATION_IDS.instrument) === true;
+  const instrumentIds = record?.configuration?.instrumentIds;
+  const supported = new Set(Object.values(FOUNDATION_IDS.instruments));
+  return Array.isArray(instrumentIds) && instrumentIds.length > 0
+    && instrumentIds.includes(FOUNDATION_IDS.instrument)
+    && instrumentIds.every((id) => supported.has(id));
 }

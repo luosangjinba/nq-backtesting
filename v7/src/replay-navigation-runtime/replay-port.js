@@ -31,12 +31,14 @@ function direction(cursorEpochMs, targetEpochMs) {
 
 function primaryVisibleThrough(snapshot, plan) {
   let visibleThroughEpochMs = null;
+  const targetEpochMs = readReplayCursorProposal(snapshot.cursorProposal).targetEpochMs;
   for (let index = 0; index < snapshot.panes.length; index += 1) {
     const pane = snapshot.panes[index];
     const response = plan.paneResponses[index];
     if (pane.status !== 'ready' || response.instrumentId !== plan.cursorAuthorityInstrumentId) continue;
     const candidate = pane.snapshot.provenance.visibleThroughEpochMs;
-    if (candidate !== null && (visibleThroughEpochMs === null || candidate > visibleThroughEpochMs)) {
+    if (candidate !== null && candidate >= plan.replayRange.startEpochMs && candidate < targetEpochMs
+      && (visibleThroughEpochMs === null || candidate > visibleThroughEpochMs)) {
       visibleThroughEpochMs = candidate;
     }
   }

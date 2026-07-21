@@ -1,3 +1,6 @@
+import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
+import { createGotoControls } from './goto-controls.js';
+import { createPaneGridView } from './pane-grid-view.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
 
 export const REPLAY_WORKSPACE_STATES = Object.freeze([
@@ -39,29 +42,94 @@ function createChoiceGroup({ ariaLabel, choices, className, onChoose }) {
   });
 }
 
+function createInstrumentSelect(options, onChoose) {
+  const select = element('select', { ariaLabel: 'Active pane instrument', className: 'market-symbol-select' });
+  for (const option of options) {
+    const node = element('option', { text: option.label });
+    node.value = option.id;
+    select.append(node);
+  }
+  select.addEventListener('change', () => onChoose(select.value));
+  return Object.freeze({
+    dispose() { select.replaceWith(select.cloneNode(true)); },
+    root: select,
+    setDisabled(value) { select.disabled = value; },
+    setValue(value) { select.value = value; },
+  });
+}
+
+/** Own the real one/multi-Pane workstation presentation and dispatch UI intents. */
 export function createReplayWorkspaceView({
-  name, onBack, onNext, onReset, onSessionHours, onTimeframe, sessionHoursModes,
+  instrumentOptions,
+  name,
+  onAutoplay,
+  onBack,
+  onExactGoto,
+  onFocusPane,
+  onInstrument,
+  onNext,
+  onPaneCount,
+  onPause,
+  onPrevious,
+  onQuickGoto,
+  onReset,
+  onRestart,
+  onSessionHours,
+  onTimeframe,
+  sessionHoursModes,
   timeframeMenuGroups,
 }) {
   const backButton = element('button', {
     className: 'button replay-action-button replay-back', text: '← All sessions', type: 'button',
   });
+  const previousButton = element('button', {
+    ariaLabel: 'Previous bar', className: 'button replay-action-button replay-previous', text: '‹', type: 'button',
+  });
   const nextButton = element('button', {
-    className: 'button replay-action-button replay-next', text: 'Next bar', type: 'button',
+    className: 'button replay-action-button replay-next', text: 'Next', type: 'button',
+  });
+  const autoplayButton = element('button', {
+    className: 'button replay-action-button replay-autoplay', text: 'Auto ×1', type: 'button',
+  });
+  autoplayButton.title = 'Advance one Autoplay cadence step; continuous cadence is added in R7.';
+  const pauseButton = element('button', {
+    className: 'button replay-action-button replay-pause', text: 'Pause', type: 'button',
+  });
+  const restartButton = element('button', {
+    className: 'button replay-action-button replay-restart', text: 'Restart', type: 'button',
   });
   const resetButton = element('button', {
     className: 'button replay-action-button replay-reset', text: 'Reset view', type: 'button',
   });
-  nextButton.addEventListener('click', onNext);
-  resetButton.addEventListener('click', onReset);
   backButton.addEventListener('click', onBack);
+  previousButton.addEventListener('click', onPrevious);
+  nextButton.addEventListener('click', onNext);
+  autoplayButton.addEventListener('click', onAutoplay);
+  pauseButton.addEventListener('click', onPause);
+  restartButton.addEventListener('click', onRestart);
+  resetButton.addEventListener('click', () => onReset(null));
+
   const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
+  const instrumentControl = createInstrumentSelect(instrumentOptions, onInstrument);
   const sessionHoursControl = createChoiceGroup({
     ariaLabel: 'Session hours',
     choices: sessionHoursModes.map((id) => ({ id, label: id.toUpperCase() })),
     className: 'session-hours-control',
     onChoose: onSessionHours,
   });
+  const paneCountControl = createChoiceGroup({
+    ariaLabel: 'Pane count',
+    choices: [{ id: '1', label: '1 pane' }, { id: '2', label: '2 panes' }],
+    className: 'pane-count-control',
+    onChoose: (value) => onPaneCount(Number(value)),
+  });
+  let exactDefaultEpochMs = Date.now();
+  const goto = createGotoControls({
+    getExactDefault: () => exactDefaultEpochMs,
+    onExact: onExactGoto,
+    onQuick: onQuickGoto,
+  });
+  const paneGrid = createPaneGridView({ onFocus: onFocusPane, onReset });
   const sessionRange = element('span', { className: 'replay-session-range', text: 'Session range preparing…' });
   const visibleThrough = element('span', { className: 'replay-visible-through', text: 'Visible through preparing…' });
   const status = element('span', { className: 'workspace-inline-status' });
@@ -72,50 +140,66 @@ export function createReplayWorkspaceView({
     element('span', { className: 'chart-state-spinner' }),
     element('div', {}, [overlayTitle, overlayCopy]),
   ]);
-  const chartHost = element('div', { className: 'lightweight-chart-host', ariaLabel: 'NQ replay chart' });
-  chartHost.setAttribute('role', 'application');
-  chartHost.tabIndex = 0;
   const root = element('section', { className: 'replay-workspace' }, [
     element('header', { className: 'replay-workspace-toolbar' }, [
       element('div', { className: 'replay-title-group' }, [
         element('div', { className: 'replay-title-line' }, [
           backButton,
           element('h1', { text: name }),
-          element('span', { className: 'market-symbol', text: 'NQ' }),
+          instrumentControl.root,
           timeframeControl.root,
           sessionHoursControl.root,
+          paneCountControl.root,
         ]),
       ]),
       element('div', { className: 'replay-actions' }, [
         status,
         resetButton,
+        restartButton,
+        goto.root,
+        previousButton,
+        autoplayButton,
+        pauseButton,
         nextButton,
         element('span', { className: 'workspace-status replay-local-status' }, [
           element('span', { className: 'status-dot' }),
-          element('span', { text: 'Local workspace' }),
+          element('span', { text: 'Local' }),
         ]),
       ]),
     ]),
-    element('div', { className: 'chart-frame' }, [
-      chartHost,
-      overlay,
-    ]),
+    element('div', { className: 'chart-frame' }, [paneGrid.root, overlay]),
     element('footer', { className: 'replay-workspace-footer' }, [
       sessionRange,
       visibleThrough,
-      element('span', { text: 'Drag or zoom the chart to create a manual wall' }),
+      element('span', { text: 'Focused Pane owns symbol, interval, and viewport' }),
     ]),
   ]);
+  const instrumentLabels = new Map(instrumentOptions.map(({ id, label }) => [id, label]));
+  const timeframeLabels = new Map(timeframeMenuGroups.flatMap(({ items }) => (
+    items.map(({ id, label }) => [id, label])
+  )));
+  let activePaneId = 'pane-main';
+  let complete = false;
   let hasAcceptedChart = false;
   let interactionPending = false;
+  let playback = 'paused';
   let viewState = 'loading';
 
   function renderAvailability() {
     const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
-    nextButton.disabled = busy || viewState === 'empty' || viewState === 'unavailable';
-    resetButton.disabled = busy || viewState === 'empty' || viewState === 'unavailable';
-    timeframeControl.setDisabled(busy);
-    sessionHoursControl.setDisabled(busy);
+    const unavailable = viewState === 'unavailable';
+    nextButton.disabled = busy || unavailable || complete;
+    autoplayButton.disabled = busy || unavailable || complete;
+    previousButton.disabled = busy || unavailable;
+    restartButton.disabled = busy || unavailable;
+    resetButton.disabled = busy || unavailable;
+    pauseButton.disabled = busy || playback !== 'playing';
+    timeframeControl.setDisabled(busy || unavailable);
+    instrumentControl.setDisabled(busy || unavailable || instrumentOptions.length < 2);
+    sessionHoursControl.setDisabled(busy || unavailable);
+    paneCountControl.setDisabled(busy || unavailable);
+    goto.setDisabled(busy || unavailable);
+    paneGrid.setPending(busy || unavailable);
     root.setAttribute('aria-busy', String(busy));
   }
 
@@ -123,7 +207,6 @@ export function createReplayWorkspaceView({
     if (!REPLAY_WORKSPACE_STATES.includes(state)) throw new TypeError(`Unsupported workspace state ${state}.`);
     viewState = state;
     root.dataset.viewState = state;
-    renderAvailability();
     if (state === 'ready') hasAcceptedChart = true;
     overlay.hidden = state === 'ready' || state === 'stale' || (state === 'error' && hasAcceptedChart);
     status.hidden = !(state === 'error' && hasAcceptedChart);
@@ -132,49 +215,83 @@ export function createReplayWorkspaceView({
     overlay.className = `chart-state-overlay state-${state}`;
     overlayTitle.textContent = detail.title ?? {
       loading: 'Preparing replay chart', empty: 'No visible bars', unavailable: 'Chart unavailable',
-      stale: 'Applying next snapshot', error: 'Replay could not advance', ready: '',
+      stale: 'Applying complete Pane set', error: 'Replay update failed', ready: '',
     }[state];
     overlayCopy.textContent = detail.message ?? {
-      loading: 'Projecting the first no-future snapshot.', empty: 'No eligible bars exist before this cursor.',
-      unavailable: 'This workspace configuration is not available in the foundation slice.',
-      stale: 'The last accepted chart remains visible while this update settles.',
-      error: 'The last accepted chart was preserved. Try Next again.', ready: '',
+      loading: 'Projecting the first no-future snapshot.', empty: 'No visible Pane has eligible bars.',
+      unavailable: 'This Session asset set is not available.',
+      stale: 'The last accepted Pane set remains authoritative while this update settles.',
+      error: 'The last accepted Pane set and Replay cursor were preserved.', ready: '',
     }[state];
+    renderAvailability();
   }
 
   return Object.freeze({
-    chartHost,
     dispose() {
       backButton.removeEventListener('click', onBack);
+      previousButton.removeEventListener('click', onPrevious);
       nextButton.removeEventListener('click', onNext);
-      resetButton.removeEventListener('click', onReset);
+      autoplayButton.removeEventListener('click', onAutoplay);
+      pauseButton.removeEventListener('click', onPause);
+      restartButton.removeEventListener('click', onRestart);
       timeframeControl.dispose();
+      instrumentControl.dispose();
       sessionHoursControl.dispose();
+      paneCountControl.dispose();
+      goto.dispose();
+      paneGrid.dispose();
       root.remove();
     },
+    openExactGoto: goto.openExact,
     root,
     setCursor(text) { root.dataset.cursorText = text; },
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);
       root.dataset.workspaceRevision = String(workspaceRevision);
     },
-    setSelection({ sessionHoursMode, timeframeId }) {
-      root.dataset.sessionHoursMode = sessionHoursMode;
-      root.dataset.timeframeId = timeframeId;
-      timeframeControl.setValue(timeframeId);
-      sessionHoursControl.setValue(sessionHoursMode);
-    },
-    setSessionRange({ end, start }) {
-      sessionRange.textContent = `Session · ${start} → ${end}`;
-    },
     setPending(value) {
       interactionPending = value === true;
       renderAvailability();
     },
-    setState,
-    setVisibleThrough({ barCount, text }) {
-      visibleThrough.textContent = `Visible through · ${text} · ${barCount} bars`;
+    setReplay(snapshot) {
+      complete = snapshot.complete;
+      playback = snapshot.playback;
+      exactDefaultEpochMs = snapshot.cursorEpochMs;
+      root.dataset.replayPlayback = playback;
+      autoplayButton.setAttribute('aria-pressed', String(playback === 'playing'));
+      renderAvailability();
     },
-    setWall(origin) { root.dataset.wallOrigin = origin; },
+    setSelection({ sessionHoursMode }) {
+      root.dataset.sessionHoursMode = sessionHoursMode;
+      sessionHoursControl.setValue(sessionHoursMode);
+    },
+    setSessionRange({ end, start }) { sessionRange.textContent = `Session · ${start} → ${end}`; },
+    setState,
+    setVisibleThrough({ barCount, paneCount, text }) {
+      visibleThrough.textContent = `Visible through · ${text} · ${barCount} bars${paneCount > 1 ? ` · ${paneCount} panes` : ''}`;
+    },
+    setWall(paneId, origin) {
+      if (paneId === activePaneId) root.dataset.wallOrigin = origin;
+    },
+    setWorkspace(workspace) {
+      const value = readPaneWorkspace(workspace);
+      activePaneId = value.activePaneId;
+      const active = value.panes.find(({ paneId }) => paneId === activePaneId);
+      root.dataset.activePaneId = activePaneId;
+      root.dataset.instrumentId = active.instrumentId;
+      root.dataset.paneCount = String(value.panes.length);
+      root.dataset.timeframeId = active.timeframeId;
+      instrumentControl.setValue(active.instrumentId);
+      timeframeControl.setValue(active.timeframeId);
+      paneCountControl.setValue(String(value.panes.length));
+      paneGrid.setWorkspace(value, {
+        instrument: (id) => instrumentLabels.get(id) ?? id,
+        timeframe: (id) => timeframeLabels.get(id) ?? id,
+      });
+    },
+    surfacePort: Object.freeze({
+      commitPaneSet: paneGrid.commitPaneSet,
+      preparePane: paneGrid.preparePane,
+    }),
   });
 }

@@ -19,7 +19,9 @@ export function createSourceBatchLedger() {
   function stage(acquired, operation) {
     const batches = operation === 'history-extension'
       ? [acquired, ...accepted]
-      : [...contiguousAcceptedPrefix(acquired), acquired];
+      : operation === 'pane-source-replacement'
+        ? [acquired]
+        : [...contiguousAcceptedPrefix(acquired), acquired];
     staged = Object.freeze(batches);
     return staged;
   }
@@ -31,6 +33,7 @@ export function createSourceBatchLedger() {
       staged = null;
       return accepted;
     },
+    acceptedBatches: () => accepted,
     oldestEpochMs() { return accepted[0]?.request.windowStartEpochMs ?? null; },
     reject() { staged = null; },
     stage,
