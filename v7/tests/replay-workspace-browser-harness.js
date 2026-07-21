@@ -115,6 +115,7 @@ async function capture(cdp, targetFile = visualFile, label = 'replay workspace')
 
 let cdp;
 let latencySummary = null;
+let replacementLatencyEvidence = null;
 try {
   const debugPort = await waitForDevtools();
   const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
@@ -205,12 +206,12 @@ try {
     barCount: 121, libraryVersion: '5.2.0', mutationMode: 'full-replace', offset: 12,
     origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
     routeHeaderMissing: true,
-    sessionRange: 'Session · 05/01/2026, 12:40 PDT → 05/11/2026, 12:40 PDT',
+    sessionRange: 'Session · 05/01/2026, 12:40 EDT → 05/11/2026, 12:40 EDT',
     timeframeId: 'timeframe.display-1-minute',
-    visibleThrough: 'Visible through · 05/01/2026, 12:40 PDT · 121 bars', workspaceRevision: 1,
+    visibleThrough: 'Visible through · 05/01/2026, 12:40 EDT · 121 bars', workspaceRevision: 1,
   });
-  assert.match(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`), /05\/01\/2026.*12:40.*PDT/,
-    'chart cursor must use the same browser-local clock convention as Session dates');
+  assert.match(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`), /05\/01\/2026.*12:40.*EDT/,
+    'chart cursor must use the Session New York exchange clock convention');
   const timeframeMenu = await evaluate(cdp, `(() => {
     const toggle = document.querySelector('.timeframe-toggle');
     toggle.click();
@@ -261,7 +262,7 @@ try {
     `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
     providerRequestsAtEntry, 'buffered cache-hit Next must not issue another provider request');
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
-    'Visible through · 05/01/2026, 12:41 PDT · 122 bars');
+    'Visible through · 05/01/2026, 12:41 EDT · 122 bars');
 
   const box = await evaluate(cdp, `(() => {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
@@ -315,18 +316,20 @@ try {
       timeframeId: document.querySelector('.replay-workspace').dataset.timeframeId,
     };
   })()`);
-  assert.equal(timeframeAfter.barCount, 25);
-  assert.ok(timeframeVisibleMs < 400, `cache-hit timeframe switch exceeded max budget: ${timeframeVisibleMs}ms`);
+  assert.ok(timeframeAfter.barCount >= 200,
+    'timeframe replacement must proactively include enough left history for the target display');
+  assert.ok(timeframeVisibleMs < 400, `bounded timeframe switch exceeded max budget: ${timeframeVisibleMs}ms`);
   assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
     'full-replace', 'timeframe replacement must remain one complete series mutation');
-  assert.equal(await evaluate(cdp,
-    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
-    providerRequestsAtEntry, 'cache-hit timeframe replacement must reuse buffered raw bars');
+  const providerRequestsAfterTimeframe = await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
+  assert.equal(providerRequestsAfterTimeframe, providerRequestsAtEntry + 1,
+    'first target-history expansion must use one bounded provider request');
   assert.equal(
     new Date(timeframeAfter.latestDisplayEpochMs).toLocaleTimeString('en-US', {
       hour: '2-digit', hour12: false, minute: '2-digit', timeZone: 'America/New_York',
     }),
-    '15:44',
+    '12:44',
     'partial 5m candle must display at its completion minute without moving Replay',
   );
   assert.equal(timeframeAfter.cursor, cursorBeforeReplacement, 'timeframe replacement must retain cursor');
@@ -337,17 +340,24 @@ try {
   assert.ok(Math.abs(timeframeAfter.offset - manualBefore.offset) < 0.001);
   assert.ok(Math.abs(timeframeAfter.span - manualBefore.span) < 0.001);
 
+  const sessionHoursStartedAt = performance.now();
   await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
   assert.equal(await evaluate(cdp, `document.querySelector('.chart-state-overlay').hidden`), true,
     'Session Hours replacement must preserve the accepted chart without a centered overlay');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '4'`);
+  const sessionHoursVisibleMs = performance.now() - sessionHoursStartedAt;
   const sessionAfter = await evaluate(cdp, `(() => ({
     barCount: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
     cursor: document.querySelector('.replay-workspace').dataset.cursorText,
     mode: document.querySelector('.replay-workspace').dataset.sessionHoursMode,
     pressed: document.querySelector('.session-hours-control [data-value="rth"]').getAttribute('aria-pressed'),
   }))()`);
-  assert.deepEqual(sessionAfter, { barCount: 25, cursor: cursorBeforeReplacement, mode: 'rth', pressed: 'true' });
+  assert.ok(sessionAfter.barCount >= 24, 'RTH replacement must retain useful bounded left history');
+  assert.equal(sessionAfter.cursor, cursorBeforeReplacement);
+  assert.equal(sessionAfter.mode, 'rth');
+  assert.equal(sessionAfter.pressed, 'true');
+  assert.ok(sessionHoursVisibleMs < 400,
+    `cache-hit ETH→RTH replacement exceeded max budget: ${sessionHoursVisibleMs}ms`);
 
   const aggregateNextStartedAt = performance.now();
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
@@ -365,7 +375,7 @@ try {
     'tail-update', 'aggregate Next must update only the active or newly appended candle');
   assert.equal(await evaluate(cdp,
     `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
-    providerRequestsAtEntry, 'cache-hit aggregate Next must not issue another provider request');
+    providerRequestsAfterTimeframe, 'cache-hit aggregate Next must not issue another provider request');
   assert.equal(manualAfter.wall, 'manual');
   assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
   assert.ok(Math.abs(manualAfter.span - manualBefore.span) < 0.001);
@@ -373,6 +383,79 @@ try {
   await evaluate(cdp, `document.querySelector('.replay-reset').click()`);
   await waitFor(cdp, `document.querySelector('.lightweight-chart-host')?.dataset.viewportOrigin === 'default'`);
   assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.latestOffsetBars)`), 12);
+
+  const highTimeframeRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  const highTimeframeStartedAt = performance.now();
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-12-hour"]').click();
+  })()`);
+  try {
+    await waitFor(cdp, `(() => {
+      const root = document.querySelector('.replay-workspace');
+      const host = document.querySelector('.lightweight-chart-host');
+      return Number(root?.dataset.workspaceRevision) > ${highTimeframeRevision};
+    })()`, 10_000);
+  } catch (error) {
+    const highTimeframeFailure = await evaluate(cdp, `(() => {
+      const root = document.querySelector('.replay-workspace');
+      const host = document.querySelector('.lightweight-chart-host');
+      return { busy: root?.getAttribute('aria-busy'), barCount: Number(host?.dataset.barCount),
+        revision: Number(root?.dataset.workspaceRevision), state: root?.dataset.viewState,
+        status: document.querySelector('.workspace-inline-status')?.textContent,
+        timeframeId: root?.dataset.timeframeId };
+    })()`);
+    throw new Error(`${error.message}; 12h evidence: ${JSON.stringify(highTimeframeFailure)}`);
+  }
+  const highTimeframeVisibleMs = performance.now() - highTimeframeStartedAt;
+  const highTimeframeAfter = await evaluate(cdp, `(() => {
+    const root = document.querySelector('.replay-workspace');
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      barCount: Number(host.dataset.barCount), latestDisplayEpochMs: Number(host.dataset.latestDisplayEpochMs),
+      logicalFrom: Number(host.dataset.logicalFrom), revision: Number(root.dataset.workspaceRevision),
+      timeframeId: root.dataset.timeframeId,
+    };
+  })()`);
+  assert.ok(highTimeframeVisibleMs < 3_000,
+    `12h RTH replacement/history fill exceeded max budget: ${highTimeframeVisibleMs}ms`);
+  assert.ok(highTimeframeAfter.barCount >= 24,
+    `12h RTH replacement must provide useful bounded history: ${JSON.stringify(highTimeframeAfter)}`);
+  assert.ok(highTimeframeAfter.logicalFrom >= -0.5,
+    `high-timeframe replacement must not leave an empty left margin: ${JSON.stringify(highTimeframeAfter)}`);
+  assert.equal(highTimeframeAfter.timeframeId, 'timeframe.display-12-hour');
+  assert.equal(new Date(highTimeframeAfter.latestDisplayEpochMs).toLocaleTimeString('en-US', {
+    hour: '2-digit', hour12: false, minute: '2-digit', timeZone: 'America/New_York',
+  }).endsWith(':59'), true, 'RTH hour-family completion slots must use the shared :59 grid');
+  replacementLatencyEvidence = Object.freeze({
+    ethToRthMs: sessionHoursVisibleMs,
+    fiveMinuteMs: timeframeVisibleMs,
+    twelveHourRthMs: highTimeframeVisibleMs,
+  });
+
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-4-minute"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-4-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  const rthFourMinuteDisplay = Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.latestDisplayEpochMs`));
+  assert.equal(Number(new Intl.DateTimeFormat('en-US', {
+    minute: '2-digit', timeZone: 'America/New_York',
+  }).format(new Date(rthFourMinuteDisplay))) % 4, 3,
+  'RTH 4m completion slots must use the shared :03/:07/:11/... grid');
+
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-1-minute"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-1-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="eth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'eth'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
 
   const historyBefore = await evaluate(cdp, `(() => ({
     bars: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
@@ -384,19 +467,33 @@ try {
     const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
     return { x: rect.left + rect.width * .35, y: rect.top + rect.height * .5, right: rect.right - 12 };
   })()`);
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mouseMoved', x: historyBox.x, y: historyBox.y, button: 'none', buttons: 0,
-  });
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mousePressed', x: historyBox.x, y: historyBox.y, button: 'left', buttons: 1, clickCount: 1,
-  });
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mouseMoved', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 1,
-  });
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mouseReleased', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 0, clickCount: 1,
-  });
-  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${historyBefore.revision}`);
+  for (let attempt = 0; attempt < 12; attempt += 1) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: historyBox.x, y: historyBox.y, button: 'none', buttons: 0,
+    });
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mousePressed', x: historyBox.x, y: historyBox.y, button: 'left', buttons: 1, clickCount: 1,
+    });
+    for (const ratio of [.1, .2, .3, .4, .5, .6, .7, .8, .9, 1]) {
+      await cdp.send('Input.dispatchMouseEvent', {
+        type: 'mouseMoved', x: historyBox.x + ((historyBox.right - historyBox.x) * ratio),
+        y: historyBox.y, button: 'left', buttons: 1,
+      });
+    }
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseReleased', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 0, clickCount: 1,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 60));
+    const revision = await evaluate(cdp,
+      `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision)`);
+    if (revision > historyBefore.revision) break;
+  }
+  const historyDragEvidence = await evaluate(cdp, `(() => ({
+    logicalFrom: Number(document.querySelector('.lightweight-chart-host').dataset.logicalFrom),
+    revision: Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision),
+  }))()`);
+  assert.ok(historyDragEvidence.revision > historyBefore.revision,
+    `dragging must trigger left history: ${JSON.stringify(historyDragEvidence)}`);
   const historyAfter = await evaluate(cdp, `(() => ({
     bars: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
     cursor: document.querySelector('.replay-workspace').dataset.cursorText,
@@ -404,12 +501,12 @@ try {
   }))()`);
   assert.ok(historyAfter.bars > historyBefore.bars, 'dragging to the loaded left boundary must prepend older bars');
   assert.equal(historyAfter.cursor, historyBefore.cursor, 'left extension must not move Replay');
-  assert.match(historyAfter.visible, /05\/01\/2026, 12:42 PDT/,
+  assert.match(historyAfter.visible, /05\/01\/2026, 12:42 EDT/,
     'left extension must preserve the accepted no-future boundary');
 
   const firstHistoryRevision = await evaluate(cdp,
     `Number(document.querySelector('.replay-workspace').dataset.workspaceRevision)`);
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  for (let attempt = 0; attempt < 12; attempt += 1) {
     await cdp.send('Input.dispatchMouseEvent', {
       type: 'mouseMoved', x: historyBox.x, y: historyBox.y, button: 'none', buttons: 0,
     });
@@ -526,5 +623,6 @@ try {
 
 console.log('v7 Replay Workspace browser harness passed', {
   latencySummary,
+  replacementLatencyEvidence,
   scope: 'real chart, compact controls, atomic replacements, walls',
 });

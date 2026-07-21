@@ -16,8 +16,12 @@ function createControls(instruments) {
     className: 'text-input', name: 'name', type: 'text', maxlength: '120',
     autocomplete: 'off', placeholder: 'e.g. London open practice', required: '',
   });
-  const start = createDateTimeControl({ name: 'start', label: 'Start' });
-  const end = createDateTimeControl({ name: 'end', label: 'End', placement: 'end' });
+  const start = createDateTimeControl({
+    name: 'start', label: 'Start in New York', timeZone: 'America/New_York',
+  });
+  const end = createDateTimeControl({
+    name: 'end', label: 'End in New York', placement: 'end', timeZone: 'America/New_York',
+  });
   return Object.freeze({ name, start, end, instruments: createInstrumentPicker(instruments) });
 }
 
@@ -66,8 +70,8 @@ export function createSessionDialog({ instruments, onSubmit }) {
     field('Session name', controls.name, 'Use a name you will recognize later.'),
     field('Instruments', controls.instruments.element),
     element('div', { className: 'date-grid' }, [
-      field('Start', controls.start.element, null, 'div'),
-      field('End', controls.end.element, null, 'div'),
+      field('Start · New York time', controls.start.element, null, 'div'),
+      field('End · New York time', controls.end.element, null, 'div'),
     ]),
     error,
     element('div', { className: 'dialog-actions' }, [

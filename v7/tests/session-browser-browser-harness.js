@@ -234,10 +234,16 @@ try {
     const records = keys.filter((key) => key.includes(':record:')).map((key) => JSON.parse(localStorage.getItem(key)).value);
     return {
       keys,
+      ranges: Object.fromEntries(records.map((record) => [record.metadata.name,
+        record.configuration.historicalRange.startEpochMs])),
       sessions: Object.fromEntries(records.map((record) => [record.metadata.name, record.activationGeneration.value])),
     };
   })()`);
   assert.deepEqual(storageEvidence.sessions, { 'Session Alpha': 3, 'Session Beta': 3 });
+  assert.deepEqual(storageEvidence.ranges, {
+    'Session Alpha': Date.parse('2026-05-01T13:30:00Z'),
+    'Session Beta': Date.parse('2026-06-10T13:30:00Z'),
+  }, 'Session creation must persist New York wall input independently of the Pacific browser timezone');
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);
 
   console.log('v7 Session Browser browser harness passed (fresh drafts, professional date-time picker, A/B navigation, 5 visual fixtures)');

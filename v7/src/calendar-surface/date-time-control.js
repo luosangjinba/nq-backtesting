@@ -9,6 +9,7 @@ import {
 
 const PRECISION_LENGTH = Object.freeze({ minute: 16, second: 19 });
 const VIEW = Object.freeze({ DAYS: 'days', MONTHS: 'months', YEARS: 'years' });
+const WALL_VALUE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/;
 
 function pad(value) {
   return String(value).padStart(2, '0');
@@ -28,16 +29,30 @@ function formatTrigger(date, precision) {
 
 /**
  * Owner: Calendar Surface adapter.
- * Purpose: convert an epoch into the local, zone-free value consumed by a
- * date-time control without leaking presentation formatting into its caller.
- * Inputs: finite epoch milliseconds and minute/second display precision.
+ * Purpose: convert an epoch into the wall value consumed by a date-time
+ * control, using browser-local time by default or an explicit IANA zone.
+ * Inputs: finite epoch milliseconds, precision, and optional time zone.
  * Outputs: a `datetime-local` compatible string.
  * Side effects: none.
  * Errors: rejects non-finite epochs and unsupported precision values.
  */
-export function formatLocalDateTimeValue(epochMs, precision = 'minute') {
+export function formatLocalDateTimeValue(epochMs, precision = 'minute', timeZone = null) {
   if (!Number.isFinite(epochMs)) throw new TypeError('Date-time epoch must be finite.');
   if (!Object.hasOwn(PRECISION_LENGTH, precision)) throw new TypeError('Date-time precision is unsupported.');
+  if (timeZone !== null) {
+    let parts;
+    try {
+      parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+        day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: '2-digit',
+        second: '2-digit', timeZone, year: 'numeric',
+      }).formatToParts(epochMs).filter(({ type }) => type !== 'literal')
+        .map(({ type, value }) => [type, value]));
+    } catch {
+      throw new TypeError('Date-time zone is unsupported.');
+    }
+    return `${parts.year}-${parts.month}-${parts.day}T${parts.hour}:${parts.minute}:${parts.second}`
+      .slice(0, PRECISION_LENGTH[precision]);
+  }
   const date = new Date(epochMs);
   const value = `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`
     + `T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
@@ -46,15 +61,42 @@ export function formatLocalDateTimeValue(epochMs, precision = 'minute') {
 
 /**
  * Owner: Calendar Surface adapter.
- * Purpose: normalize the local wall-time value emitted by a conforming
- * date-time adapter into the Session creation epoch contract.
- * Inputs: empty or local date-time string.
+ * Purpose: normalize a wall-time value emitted by a conforming date-time
+ * adapter into an epoch using browser-local time or an explicit IANA zone.
+ * Inputs: empty/date-time string and optional time zone.
  * Outputs: epoch milliseconds, or NaN when empty/invalid.
  * Side effects: none.
  */
-export function parseLocalDateTimeValue(value) {
+export function parseLocalDateTimeValue(value, timeZone = null) {
   if (typeof value !== 'string' || value.length === 0) return Number.NaN;
-  return new Date(value).getTime();
+  if (timeZone === null) return new Date(value).getTime();
+  const match = WALL_VALUE_PATTERN.exec(value);
+  if (!match) return Number.NaN;
+  const [, year, month, day, hour, minute, second = '00'] = match;
+  const wallEpochMs = Date.UTC(
+    Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute), Number(second),
+  );
+  const canonical = `${year}-${month}-${day}T${hour}:${minute}:${second}`;
+  let instantEpochMs = wallEpochMs;
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    let presented;
+    try {
+      presented = formatLocalDateTimeValue(instantEpochMs, 'second', timeZone);
+    } catch {
+      return Number.NaN;
+    }
+    const presentedMatch = WALL_VALUE_PATTERN.exec(presented);
+    const presentedEpochMs = Date.UTC(
+      Number(presentedMatch[1]), Number(presentedMatch[2]) - 1, Number(presentedMatch[3]),
+      Number(presentedMatch[4]), Number(presentedMatch[5]), Number(presentedMatch[6]),
+    );
+    const correctionMs = wallEpochMs - presentedEpochMs;
+    instantEpochMs += correctionMs;
+    if (correctionMs === 0) return presented === canonical ? instantEpochMs : Number.NaN;
+  }
+  return formatLocalDateTimeValue(instantEpochMs, 'second', timeZone) === canonical
+    ? instantEpochMs
+    : Number.NaN;
 }
 
 function createStructure(name, label, placement) {
@@ -87,12 +129,13 @@ function createStructure(name, label, placement) {
 }
 
 class DateTimeControl {
-  constructor({ name, label, precision, placement, now }) {
+  constructor({ name, label, precision, placement, now, timeZone }) {
     this.precision = precision;
     this.now = now;
+    this.timeZone = timeZone;
     this.nodes = createStructure(name, label, placement);
     this.selected = null;
-    const today = new Date(this.now());
+    const today = this.wallDate(this.now());
     this.displayYear = today.getFullYear();
     this.displayMonth = today.getMonth();
     this.view = VIEW.DAYS;
@@ -100,12 +143,17 @@ class DateTimeControl {
     this.render();
   }
 
+  wallDate(epochMs) {
+    if (this.timeZone === null) return new Date(epochMs);
+    return new Date(formatLocalDateTimeValue(epochMs, 'second', this.timeZone));
+  }
+
   bind() {
     const { trigger, popover } = this.nodes;
     trigger.addEventListener('click', () => (this.isOpen() ? this.close() : this.open()));
     popover.querySelector('.date-time-previous').addEventListener('click', () => this.navigate(-1));
     popover.querySelector('.date-time-next').addEventListener('click', () => this.navigate(1));
-    popover.querySelector('.date-time-today').addEventListener('click', () => this.select(new Date(this.now())));
+    popover.querySelector('.date-time-today').addEventListener('click', () => this.select(this.wallDate(this.now())));
     popover.querySelector('.date-time-clear').addEventListener('click', () => this.clear());
     this.nodes.root.addEventListener('keydown', (event) => {
       if (event.key !== 'Escape' || !this.isOpen()) return;
@@ -136,7 +184,7 @@ class DateTimeControl {
     this.selected = null;
     this.nodes.hiddenInput.value = '';
     this.nodes.triggerText.textContent = 'Select date and time';
-    const today = new Date(this.now());
+    const today = this.wallDate(this.now());
     this.displayYear = today.getFullYear();
     this.displayMonth = today.getMonth();
     this.close();
@@ -207,12 +255,12 @@ class DateTimeControl {
   renderDays() {
     const weekdays = WEEKDAY_LABELS.map((label) => element('span', { className: 'date-time-weekday', text: label }));
     const days = createMonthGrid({
-      year: this.displayYear, month: this.displayMonth, selected: this.selected, today: new Date(this.now()),
+      year: this.displayYear, month: this.displayMonth, selected: this.selected, today: this.wallDate(this.now()),
     }).map((item) => element('button', {
       className: `date-time-day${item.outside ? ' is-outside' : ''}${item.selected ? ' is-selected' : ''}${item.today ? ' is-today' : ''}`,
       type: 'button', text: String(item.day), 'aria-label': `${MONTH_LABELS[item.month]} ${item.day}, ${item.year}`,
       onClick: () => {
-        const time = this.selected ?? new Date(this.now());
+        const time = this.selected ?? this.wallDate(this.now());
         this.select(createLocalDate({
           ...item, hour: time.getHours(), minute: time.getMinutes(), second: time.getSeconds(),
         }));
@@ -223,7 +271,7 @@ class DateTimeControl {
 
   renderTime() {
     const parts = ['hour', 'minute', ...(this.precision === 'second' ? ['second'] : [])];
-    const date = this.selected ?? new Date(this.now());
+    const date = this.selected ?? this.wallDate(this.now());
     const values = { hour: date.getHours(), minute: date.getMinutes(), second: date.getSeconds() };
     const children = [];
     parts.forEach((part, index) => {
@@ -285,17 +333,25 @@ export function createDateTimeControl({
   precision = 'minute',
   placement = 'start',
   now = () => Date.now(),
+  timeZone = null,
 }) {
   if (!Object.hasOwn(PRECISION_LENGTH, precision)) throw new TypeError('Date-time precision is unsupported.');
   if (placement !== 'start' && placement !== 'end') throw new TypeError('Date-time placement is unsupported.');
-  const controller = new DateTimeControl({ name, label, precision, placement, now });
+  if (timeZone !== null) {
+    try {
+      new Intl.DateTimeFormat('en', { timeZone }).format(0);
+    } catch {
+      throw new TypeError('Date-time zone is unsupported.');
+    }
+  }
+  const controller = new DateTimeControl({ name, label, precision, placement, now, timeZone });
   return Object.freeze({
     element: controller.nodes.root,
     reset: () => controller.reset(),
-    readEpochMs: () => parseLocalDateTimeValue(controller.nodes.hiddenInput.value),
+    readEpochMs: () => parseLocalDateTimeValue(controller.nodes.hiddenInput.value, timeZone),
     setEpochMs(epochMs) {
-      const value = formatLocalDateTimeValue(epochMs, precision);
-      controller.select(new Date(parseLocalDateTimeValue(value)));
+      const value = formatLocalDateTimeValue(epochMs, precision, timeZone);
+      controller.select(new Date(value));
     },
     value: () => controller.nodes.hiddenInput.value,
     close: () => controller.close(),

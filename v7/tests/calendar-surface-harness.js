@@ -26,6 +26,18 @@ const secondEpoch = parseLocalDateTimeValue(secondValue);
 assert.equal(formatLocalDateTimeValue(secondEpoch, 'second'), secondValue,
   'the boundary must support future second-level controls without Session creation changes');
 
+const newYorkSummerEpoch = parseLocalDateTimeValue('2026-05-01T12:40', 'America/New_York');
+assert.equal(newYorkSummerEpoch, Date.parse('2026-05-01T16:40:00Z'),
+  'New York Session input must not inherit the browser local timezone');
+assert.equal(formatLocalDateTimeValue(newYorkSummerEpoch, 'minute', 'America/New_York'), '2026-05-01T12:40');
+assert.equal(
+  parseLocalDateTimeValue('2026-01-05T12:40', 'America/New_York'),
+  Date.parse('2026-01-05T17:40:00Z'),
+  'New York Session input must honor winter offset changes',
+);
+assert.equal(Number.isNaN(parseLocalDateTimeValue('2026-03-08T02:30', 'America/New_York')), true,
+  'a nonexistent New York DST wall time must be rejected');
+
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(
   path.join(TEST_DIR, 'fixtures/calendar-surface/negative/cases.json'),
