@@ -2,6 +2,7 @@ import { supportsFoundationWorkspace } from './foundation-market.js';
 import { createReplayWorkspaceController } from './workspace-controller.js';
 import { createReplayWorkspaceView } from './workspace-view.js';
 import { createFoundationCapabilities } from './foundation-capabilities.js';
+import { AUTOPLAY_SPEED_OPTIONS } from './autoplay-speed.js';
 
 /** Own the professional replay-workspace DOM subtree mounted by the route UI. */
 export function createReplayWorkspaceSurface() {
@@ -26,6 +27,7 @@ export function createReplayWorkspaceSurface() {
         next: null,
         paneCount: null,
         pause: null,
+        playbackSpeed: null,
         previous: null,
         quickGoto: null,
         reset: null,
@@ -46,6 +48,7 @@ export function createReplayWorkspaceSurface() {
         onNext: () => callbacks.next?.(),
         onPaneCount: (count) => callbacks.paneCount?.(count),
         onPause: () => callbacks.pause?.(),
+        onPlaybackSpeed: (speedId) => callbacks.playbackSpeed?.(speedId),
         onPrevious: () => callbacks.previous?.(),
         onQuickGoto: (anchor) => callbacks.quickGoto?.(anchor),
         onReset: (paneId) => callbacks.reset?.(paneId),
@@ -53,6 +56,7 @@ export function createReplayWorkspaceSurface() {
         onRestart: () => callbacks.restart?.(),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
+        playbackSpeedOptions: AUTOPLAY_SPEED_OPTIONS,
         replayStepOptions: capabilities.replayStepOptions,
         sessionHoursModes: capabilities.sessionHoursModes,
         timeframeMenuGroups: capabilities.timeframeMenuGroups,
@@ -67,6 +71,7 @@ export function createReplayWorkspaceSurface() {
       callbacks.next = () => controller.next();
       callbacks.paneCount = (count) => controller.changePaneCount(count);
       callbacks.pause = () => controller.pause();
+      callbacks.playbackSpeed = (speedId) => controller.changePlaybackSpeed(speedId);
       callbacks.previous = () => controller.previous();
       callbacks.quickGoto = (anchor) => controller.gotoQuick(anchor);
       callbacks.reset = (paneId) => controller.resetView(paneId);

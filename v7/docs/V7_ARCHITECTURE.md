@@ -93,6 +93,12 @@ invalidates the cadence generation and clears the future timeout, so a settling
 atomic transaction cannot enqueue a successor. Completion, rejection, or
 failure publishes `paused` through Replay Runtime.
 
+R6.8 keeps that scheduler UI-local and adds bounded cadence selection. The
+default `1×` gap remains `500ms`; `0.5×/2×/5×` map to
+`1000/250/100ms`. Changing speed replaces at most one scheduled timeout or is
+consumed after the current atomic tick. Speed is transport preference, not
+Replay cursor/revision state, and it cannot create a Pane transaction.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

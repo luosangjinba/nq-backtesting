@@ -1,6 +1,6 @@
 # V7 Stable Toolbar During Candle Refresh — R6.7d
 
-Status: implemented; awaiting human interaction review (2026-07-21)
+Status: human-accepted (2026-07-21)
 
 ## Reproduction
 

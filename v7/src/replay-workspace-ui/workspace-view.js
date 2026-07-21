@@ -3,6 +3,7 @@ import { readReplayStep } from '../replay-contract/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 import { createGotoControls } from './goto-controls.js';
 import { createPaneGridView } from './pane-grid-view.js';
+import { createReplayTransport } from './replay-transport.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
 
 export const REPLAY_WORKSPACE_STATES = Object.freeze([
@@ -64,25 +65,6 @@ function createInstrumentSelect(options, onChoose) {
   });
 }
 
-function createReplayStepSelect(options, onChoose) {
-  const select = element('select', { ariaLabel: 'Replay step', className: 'replay-step-select' });
-  select.title = 'Previous and Next advance one completed Replay bar on this independent timeframe.';
-  for (const option of options) {
-    const node = element('option', { text: option.label });
-    node.value = option.id;
-    select.append(node);
-  }
-  select.addEventListener('change', () => onChoose(select.value));
-  return Object.freeze({
-    dispose() { select.replaceWith(select.cloneNode(true)); },
-    root: select,
-    setDisabled(disabled, preserveVisual = false) {
-      setControlDisabled(select, { disabled, preserveVisual });
-    },
-    setValue(value) { select.value = value; },
-  });
-}
-
 /** Own the real one/multi-Pane workstation presentation and dispatch UI intents. */
 export function createReplayWorkspaceView({
   instrumentOptions,
@@ -95,6 +77,7 @@ export function createReplayWorkspaceView({
   onNext,
   onPaneCount,
   onPause,
+  onPlaybackSpeed,
   onPrevious,
   onQuickGoto,
   onReset,
@@ -102,25 +85,13 @@ export function createReplayWorkspaceView({
   onRestart,
   onSessionHours,
   onTimeframe,
+  playbackSpeedOptions,
   replayStepOptions,
   sessionHoursModes,
   timeframeMenuGroups,
 }) {
   const backButton = element('button', {
     className: 'button replay-action-button replay-back', text: '← All sessions', type: 'button',
-  });
-  const previousButton = element('button', {
-    ariaLabel: 'Previous bar', className: 'button replay-action-button replay-previous', text: '‹', type: 'button',
-  });
-  const nextButton = element('button', {
-    ariaLabel: 'Next bar', className: 'button replay-action-button replay-next', text: 'Next bar', type: 'button',
-  });
-  const autoplayButton = element('button', {
-    ariaLabel: 'Play replay continuously', className: 'button replay-action-button replay-autoplay', text: 'Play', type: 'button',
-  });
-  autoplayButton.title = 'Continuously advance one selected Replay bar per cadence.';
-  const pauseButton = element('button', {
-    className: 'button replay-action-button replay-pause', text: 'Pause', type: 'button',
   });
   const restartButton = element('button', {
     className: 'button replay-action-button replay-restart', text: 'Restart', type: 'button',
@@ -129,16 +100,11 @@ export function createReplayWorkspaceView({
     className: 'button replay-action-button replay-reset', text: 'Reset view', type: 'button',
   });
   backButton.addEventListener('click', onBack);
-  previousButton.addEventListener('click', onPrevious);
-  nextButton.addEventListener('click', onNext);
-  autoplayButton.addEventListener('click', onAutoplay);
-  pauseButton.addEventListener('click', onPause);
   restartButton.addEventListener('click', onRestart);
   resetButton.addEventListener('click', () => onReset(null));
 
   const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
   const instrumentControl = createInstrumentSelect(instrumentOptions, onInstrument);
-  const replayStepControl = createReplayStepSelect(replayStepOptions, onReplayStep);
   const sessionHoursControl = createChoiceGroup({
     ariaLabel: 'Session hours',
     choices: sessionHoursModes.map((id) => ({ id, label: id.toUpperCase() })),
@@ -158,6 +124,16 @@ export function createReplayWorkspaceView({
     onQuick: onQuickGoto,
   });
   const paneGrid = createPaneGridView({ onFocus: onFocusPane, onReset });
+  const replayTransport = createReplayTransport({
+    onAutoplay,
+    onNext,
+    onPause,
+    onPlaybackSpeed,
+    onPrevious,
+    onReplayStep,
+    playbackSpeedOptions,
+    replayStepOptions,
+  });
   const sessionRange = element('span', { className: 'replay-session-range', text: 'Session range preparing…' });
   const visibleThrough = element('span', { className: 'replay-visible-through', text: 'Visible through preparing…' });
   const status = element('span', { className: 'workspace-inline-status' });
@@ -185,11 +161,6 @@ export function createReplayWorkspaceView({
         resetButton,
         restartButton,
         goto.root,
-        previousButton,
-        replayStepControl.root,
-        autoplayButton,
-        pauseButton,
-        nextButton,
         element('span', { className: 'workspace-status replay-local-status' }, [
           element('span', { className: 'status-dot' }),
           element('span', { text: 'Local' }),
@@ -198,9 +169,11 @@ export function createReplayWorkspaceView({
     ]),
     element('div', { className: 'chart-frame' }, [paneGrid.root, overlay]),
     element('footer', { className: 'replay-workspace-footer' }, [
-      sessionRange,
-      visibleThrough,
-      element('span', { text: 'Focused Pane owns symbol, interval, and viewport' }),
+      element('div', { className: 'replay-footer-context' }, [sessionRange, visibleThrough]),
+      replayTransport.root,
+      element('span', {
+        className: 'replay-footer-owner', text: 'Focused Pane owns symbol, interval, and viewport',
+      }),
     ]),
   ]);
   const instrumentLabels = new Map(instrumentOptions.map(({ id, label }) => [id, label]));
@@ -222,19 +195,15 @@ export function createReplayWorkspaceView({
       disabled: busy || intrinsicallyDisabled,
       preserveVisual: stableRefresh && !intrinsicallyDisabled,
     });
-    setAction(nextButton, unavailable || complete);
-    setAction(autoplayButton, unavailable || complete || playback === 'playing');
-    setAction(previousButton, unavailable);
     setAction(restartButton, unavailable);
     setAction(resetButton, unavailable);
-    setControlDisabled(pauseButton, { disabled: unavailable || playback !== 'playing' });
     timeframeControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
     const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
     instrumentControl.setDisabled(busy || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
     sessionHoursControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
     paneCountControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
-    replayStepControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
     goto.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    replayTransport.setAvailability({ busy, complete, hasAcceptedChart, unavailable });
     paneGrid.setPending(busy || unavailable);
     root.setAttribute('aria-busy', String(busy));
   }
@@ -265,16 +234,12 @@ export function createReplayWorkspaceView({
   return Object.freeze({
     dispose() {
       backButton.removeEventListener('click', onBack);
-      previousButton.removeEventListener('click', onPrevious);
-      nextButton.removeEventListener('click', onNext);
-      autoplayButton.removeEventListener('click', onAutoplay);
-      pauseButton.removeEventListener('click', onPause);
       restartButton.removeEventListener('click', onRestart);
       timeframeControl.dispose();
       instrumentControl.dispose();
       sessionHoursControl.dispose();
       paneCountControl.dispose();
-      replayStepControl.dispose();
+      replayTransport.dispose();
       goto.dispose();
       paneGrid.dispose();
       root.remove();
@@ -297,9 +262,12 @@ export function createReplayWorkspaceView({
       exactDefaultEpochMs = snapshot.cursorEpochMs;
       root.dataset.replayPlayback = playback;
       root.dataset.replayStepId = replayStep.id;
-      replayStepControl.setValue(replayStep.id);
-      autoplayButton.setAttribute('aria-pressed', String(playback === 'playing'));
+      replayTransport.setReplay({ playback, replayStepId: replayStep.id });
       renderAvailability();
+    },
+    setPlaybackSpeed(speedId) {
+      root.dataset.autoplaySpeedId = speedId;
+      replayTransport.setSpeed(speedId);
     },
     setSelection({ sessionHoursMode }) {
       root.dataset.sessionHoursMode = sessionHoursMode;

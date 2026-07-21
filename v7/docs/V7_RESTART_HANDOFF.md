@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.7d stable-toolbar correction
+Last updated: 2026-07-21 after R6.8 fixed Replay transport
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -14,8 +14,8 @@ required for normal startup.
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
   multi-Pane RTH history preservation implemented; and R6.7b manual Viewport
-  span correction implemented; R6.7c contributing history-window correction
-  human-accepted; R6.7d stable-toolbar correction awaiting human review
+  span, contributing history-window, and stable-toolbar corrections accepted as
+  one combined R6.7 gate; R6.8 fixed Replay transport awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -64,6 +64,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_7b_manual_viewport_span.md`.
 - `sessions/session_20260721_r6_7c_contributing_history_windows.md`.
 - `sessions/session_20260721_r6_7d_stable_toolbar_refresh.md`.
+- `sessions/session_20260721_r6_8_fixed_replay_transport.md`.
 - `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -213,6 +214,11 @@ and human-accepted:
   subtree and functional transaction locks remain, while only transiently
   locked controls retain their ready-state opacity; intrinsic disabled states
   stay visibly disabled.
+- The user accepted the combined R6.7/R6.7a–d gate and approved R6.8's fixed
+  transport form. R6.8 moves Replay controls into a centered capsule inside a
+  dedicated `38px` bottom rail, combines Play/Pause, and adds bounded dynamic
+  `0.5×/1×/2×/5×` completion cadence without entering Replay product state or
+  overlapping the Pane grid.
 
 Latest corrective commits:
 
@@ -332,22 +338,14 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Human-review R6.7d together with the remaining combined R6 interaction gate.
-Repeat the supplied two-Pane sequence:
-extend ETH, switch to RTH, rapidly extend both Panes without wheel repair,
-switch directly to one Pane, and verify the first deliberate drag extends
-history with normal candle width; at an RTH `09:30` left boundary, one accepted
-history transaction must bring in the prior session without boundary snap-back
-or roughly five repeated empty loads. Repeat across a weekend, then switch back
-to ETH. Finally select a
-`5m` Replay step, Play at least three steps, Pause, and verify no Pane/cursor
-movement for `1.2s`. After acceptance, R6.8 implements the constrained floating
-transport; R6.9 implements one-to-four layouts with draggable persisted
+Human-review R6.8. In single and two-Pane modes, confirm the fixed bottom rail
+never covers Canvas or moves with Pane focus. Exercise Previous/Next bar,
+Replay-step selection, every `0.5×/1×/2×/5×` speed, continuous Play/Pause, TF,
+ETH/RTH, and history extension. Speed/step selection must not move the cursor;
+Pause must stop future work while toolbar and transport remain visually stable.
+After acceptance, R6.9 implements one-to-four layouts with draggable persisted
 boundaries, followed by layout sync. Economic Calendar remains outside this
 foundation phase.
-
-While performing those actions, the accepted top toolbar must retain the same
-visual opacity through Next, Play, TF, ETH/RTH, and history transactions.
 
 ## Standing Workflow
 

@@ -44,4 +44,5 @@ The user found that `Auto ×1` advanced only one Replay bar, after which Pause
 had no continuing action to stop. The Replay bar-step invariant remains
 regression-protected, but R6.6 is not accepted as a complete interaction gate.
 R6.7 is therefore limited to continuous Autoplay and effective Pause; the
-constrained floating transport moves to R6.8.
+final transport moves to R6.8, which later adopts the approved fixed bottom
+rail rather than an overlay.

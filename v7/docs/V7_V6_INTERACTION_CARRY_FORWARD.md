@@ -35,7 +35,7 @@ They require a V7 implementation decision, not another user product interview.
 | Area | Inherited interaction semantics | V7 treatment |
 | --- | --- | --- |
 | Reset View | reset is Pane-local; it restores that Pane's default wall; it does not request bars, alter chart data, or move Replay | already re-derived and accepted in Viewport Runtime; future multi-pane UI gives every Pane a compact Pane-local action |
-| Replay transport | one shared Replay clock; Play/Pause, Next, Previous, Restart and period/speed controls reflect real availability; Space and Arrow Right avoid editable fields; ended/disabled states are honest | retain interaction model for R7; UI dispatches to Replay/workspace transaction owners and never infers acceptance from command return |
+| Replay transport | one shared Replay clock; Play/Pause, Next, Previous, Restart and period/speed controls reflect real availability; Space and Arrow Right avoid editable fields; ended/disabled states are honest | activate the reviewed visible transport in R6.8; UI dispatches to Replay/workspace transaction owners and never infers acceptance from command return; keyboard bindings remain separately bounded |
 | Chart Settings | open from committed state; edits live in a draft; Cancel/close/Escape/backdrop restore committed presentation; Reset is draft-only; OK atomically validates and persists; never expose a control without a real consumer | retain for a future Settings owner; presentation preview uses explicit reversible ports and only the chart adapter mutates Lightweight Charts |
 | Settings scope | Chart Settings and Session Settings are distinct; visual preferences are global workspace preferences; Pane-local instrument/timeframe/viewport remain operational Pane state; no templates, Apply-to-all, or per-Pane visual overrides without a new journey | retain; do not reproduce V6's large shell modal or global command/event registry |
 | Multi-pane | every Pane uses the same Pane record shape; active focus controls which Pane the toolbar describes/targets; each Pane owns instrument, timeframe and viewport intent; one chart instance per host is acceptable; Reset and manual walls stay Pane-local | re-derive in R6 through one atomic workspace revision; no primary/non-primary code paths and no partial visible layout commit |
@@ -84,7 +84,8 @@ Hours/calendar policy and inherited cursor/eligibility fixtures. Later R5
 slices add atomic projection and the compact selector.
 
 R6 inherits the multi-pane and multi-instrument interaction matrix after the
-Session Hours gate. R7 inherits the Replay transport interaction matrix. A
-future Settings step inherits the transactional modal rules. Human review is
-still required when the real browser interaction or visuals change, but it
-validates the implementation rather than reopening already-settled semantics.
+Session Hours gate. R6.8 activates the visible Replay transport interaction
+matrix; keyboard bindings remain separately bounded. A future Settings step
+inherits the transactional modal rules. Human review is still required when
+the real browser interaction or visuals change, but it validates the
+implementation rather than reopening already-settled semantics.

@@ -50,9 +50,9 @@ one complete Pane-set paint may publish Replay progress.
 
 The current R6.5 toolbar now exposes the independent Replay step selector and
 labels the forward action `Next bar`. This is an interim transport shell. The
-reviewed constrained floating transport, continuous Autoplay, speed control,
-and final button arrangement remain the next correction; this step does not
-claim their visual acceptance.
+continuous Autoplay, speed control, and final button arrangement remain later
+corrections; R6.8 ultimately adopts the approved fixed bottom rail. This step
+does not claim their visual acceptance.
 
 ## Gate
 
@@ -71,7 +71,7 @@ claim their visual acceptance.
 ## Still Rejected From R6.5
 
 - `Auto ×1` is not the final continuous Autoplay control;
-- the transport is not yet the constrained floating bottom-center surface;
+- the transport is not yet the final bottom-center surface;
 - only one/two-Pane layouts exist;
 - Symbol, Interval, Crosshair, Time, and Date-range sync controls do not yet
   exist.

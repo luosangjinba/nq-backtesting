@@ -1,7 +1,6 @@
 # V7 Manual Viewport Span Preservation — R6.7b
 
-Status: implemented; review blocked by separate history-window coverage defect
-(2026-07-21)
+Status: human-accepted after R6.7c–d follow-up corrections (2026-07-21)
 
 ## Reproduction
 

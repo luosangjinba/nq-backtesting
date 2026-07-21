@@ -350,8 +350,9 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.7d`: retain functional input locking during candle transactions while
   keeping the accepted toolbar DOM and visual opacity stable; intrinsic
   unavailable/complete/playback states remain visibly disabled;
-- `R6.8`: replace the interim top-row controls with the reviewed constrained
-  floating bottom-center transport and add playback speed;
+- `R6.8`: replace the interim top-row controls with the reviewed fixed `38px`
+  bottom rail and centered capsule, combine Play/Pause, and add bounded dynamic
+  playback speed without covering any Pane or changing Replay ownership;
 - `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal
   and vertical boundary is draggable, nested split ratios have minimum Pane
   sizes, and accepted ratios persist with the Session without data/replay work;

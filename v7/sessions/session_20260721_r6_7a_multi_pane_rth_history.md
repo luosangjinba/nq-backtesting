@@ -1,7 +1,7 @@
 # Session — R6.7a Multi-Pane RTH History Preservation
 
 Date: 2026-07-21
-Status: implementation complete; follow-up review blocked by Viewport span collapse
+Status: human-accepted after R6.7b–d follow-up corrections
 
 ## Review Input
 

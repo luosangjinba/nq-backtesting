@@ -48,6 +48,7 @@ function paneStateExpression() {
     const root = document.querySelector('.replay-workspace');
     return {
       activePaneId: root.dataset.activePaneId,
+      autoplaySpeedId: root.dataset.autoplaySpeedId,
       cursorText: root.dataset.cursorText,
       paneCount: Number(root.dataset.paneCount),
       playback: root.dataset.replayPlayback,
@@ -197,6 +198,7 @@ try {
   assert.equal(state.replayRevision, beforeStepSelection.replayRevision,
     'Replay step selection must not move the shared Replay cursor');
   assert.equal(state.panes[1].timeframeId, 'timeframe.display-4-hour');
+  assert.equal(state.autoplaySpeedId, 'autoplay-speed-1x');
 
   const beforeNext = state;
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
@@ -216,10 +218,31 @@ try {
   assert.ok(state.panes.every(({ sessionHoursMode }) => sessionHoursMode === 'rth'),
     'Session Hours must reproject the complete Pane set');
 
+  const beforeSpeed = state;
+  await evaluate(cdp, `(() => {
+    const select = document.querySelector('.replay-speed-select');
+    select.value = 'autoplay-speed-5x';
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.autoplaySpeedId === 'autoplay-speed-5x'`);
+  state = await evaluate(cdp, paneStateExpression());
+  assert.equal(state.workspaceRevision, beforeSpeed.workspaceRevision,
+    'Autoplay speed selection must not issue a Pane materialization transaction');
+  assert.equal(state.replayRevision, beforeSpeed.replayRevision,
+    'Autoplay speed selection must not move the Replay cursor');
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.replay-autoplay') === document.querySelector('.replay-pause')`), true,
+  'Play and Pause must be one stateful transport control');
+
   const beforeAuto = state;
+  const autoplayStartedAt = performance.now();
   await evaluate(cdp, `document.querySelector('.replay-autoplay').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'playing'
+    && document.querySelector('.replay-playback')?.getAttribute('aria-label') === 'Pause replay'`);
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) >= ${beforeAuto.workspaceRevision + 3}`,
     10_000);
+  assert.ok(performance.now() - autoplayStartedAt < 3_000,
+    '5× Autoplay must apply three completion-driven steps without using the default 500ms cadence');
   state = await evaluate(cdp, paneStateExpression());
   assert.equal(state.playback, 'playing');
   assert.ok(state.replayRevision >= beforeAuto.replayRevision + 3,
@@ -228,6 +251,8 @@ try {
   await evaluate(cdp, `document.querySelector('.replay-pause').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'paused'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-playback').getAttribute('aria-label')`),
+    'Play replay continuously');
   const pausedState = await evaluate(cdp, paneStateExpression());
   await new Promise((resolve) => setTimeout(resolve, 1_200));
   state = await evaluate(cdp, paneStateExpression());
@@ -269,6 +294,32 @@ try {
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeRestart}`, 10_000);
   assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
     /No Session bar visible/, 'Restart hides the Session start bar without losing historical context');
+
+  const beforeSessionEnd = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('.goto-custom').click();
+    document.querySelector('.goto-dialog [name="goto-target"]').value = '2026-05-06T16:00';
+    document.querySelector('.goto-submit').click();
+  })()`);
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeSessionEnd}
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  const completedAvailability = await evaluate(cdp, `(() => ({
+    next: document.querySelector('.replay-next').disabled,
+    playback: document.querySelector('.replay-playback').disabled,
+    previous: document.querySelector('.replay-previous').disabled,
+    speed: document.querySelector('.replay-speed-select').disabled,
+    step: document.querySelector('.replay-step-select').disabled,
+  }))()`);
+  assert.deepEqual(completedAvailability, {
+    next: true, playback: true, previous: false, speed: true, step: false,
+  }, 'Session completion must still allow Previous and Replay-step recovery');
+  const beforeCompletedPrevious = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  await evaluate(cdp, `document.querySelector('.replay-previous').click()`);
+  await waitFor(cdp,
+    `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeCompletedPrevious}`);
 
   await evaluate(cdp, `document.querySelector('.pane-count-control [data-value="1"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'

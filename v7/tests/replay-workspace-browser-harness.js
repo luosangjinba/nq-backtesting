@@ -202,7 +202,12 @@ try {
   const entry = await evaluate(cdp, `(() => {
     const root = document.querySelector('.replay-workspace');
     const host = document.querySelector('.lightweight-chart-host');
+    const chartFrame = document.querySelector('.chart-frame').getBoundingClientRect();
+    const footer = document.querySelector('.replay-workspace-footer').getBoundingClientRect();
+    const transport = document.querySelector('.replay-transport').getBoundingClientRect();
+    const workspace = root.getBoundingClientRect();
     return {
+      autoplaySpeedId: root.dataset.autoplaySpeedId,
       barCount: Number(host.dataset.barCount),
       backHeight: document.querySelector('.replay-back').getBoundingClientRect().height,
       buttonHeight: document.querySelector('.replay-next').getBoundingClientRect().height,
@@ -210,6 +215,8 @@ try {
       canvasCount: host.querySelectorAll('canvas').length,
       chartHeight: host.getBoundingClientRect().height,
       chartWidth: host.getBoundingClientRect().width,
+      footerHeight: footer.height,
+      footerStartsAfterChart: footer.top >= chartFrame.bottom - 1,
       libraryVersion: host.dataset.libraryVersion,
       mutationMode: host.dataset.lastMutationMode,
       offset: Number(host.dataset.latestOffsetBars),
@@ -221,6 +228,12 @@ try {
       sessionRange: document.querySelector('.replay-session-range').textContent,
       timeframeId: root.dataset.timeframeId,
       toolbarHeight: document.querySelector('.replay-workspace-toolbar').getBoundingClientRect().height,
+      topTransportControls: document.querySelector('.replay-workspace-toolbar')
+        .querySelectorAll('.replay-next, .replay-previous, .replay-playback, .replay-step-select, .replay-speed-select').length,
+      transportCentered: Math.abs((transport.left + transport.width / 2)
+        - (workspace.left + workspace.width / 2)) < 1,
+      transportHeight: transport.height,
+      transportParent: document.querySelector('.replay-transport').parentElement.className,
       visibleThrough: document.querySelector('.replay-visible-through').textContent,
       workspaceRevision: Number(root.dataset.workspaceRevision),
     };
@@ -230,6 +243,8 @@ try {
   assert.ok(entry.chartWidth >= 1100, `chart must fill available desktop width: ${entry.chartWidth}px`);
   assert.ok(entry.chartHeight >= 800, `chart must maximize available desktop height: ${entry.chartHeight}px`);
   assert.ok(entry.toolbarHeight <= 38, `merged toolbar must remain compact: ${entry.toolbarHeight}px`);
+  assert.ok(entry.footerHeight <= 38, `fixed Replay rail must remain compact: ${entry.footerHeight}px`);
+  assert.ok(entry.transportHeight <= 32, `Replay capsule must remain compact: ${entry.transportHeight}px`);
   assert.ok(entry.backHeight <= 30, `merged back action must remain compact: ${entry.backHeight}px`);
   assert.ok(entry.buttonHeight <= 32, `replay actions must remain compact: ${entry.buttonHeight}px`);
   assert.ok(entry.controlHeight <= 26, `workspace selectors must remain compact: ${entry.controlHeight}px`);
@@ -239,12 +254,16 @@ try {
   delete entry.backHeight;
   delete entry.controlHeight;
   delete entry.toolbarHeight;
+  delete entry.footerHeight;
+  delete entry.transportHeight;
   assert.deepEqual(entry, {
-    barCount: 121, libraryVersion: '5.2.0', mutationMode: 'full-replace', offset: 12,
+    autoplaySpeedId: 'autoplay-speed-1x', barCount: 121,
+    footerStartsAfterChart: true, libraryVersion: '5.2.0', mutationMode: 'full-replace', offset: 12,
     origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
     routeHeaderMissing: true,
     sessionRange: 'Session · 05/01/2026, 12:40 EDT → 05/11/2026, 12:40 EDT',
-    timeframeId: 'timeframe.display-1-minute',
+    timeframeId: 'timeframe.display-1-minute', topTransportControls: 0,
+    transportCentered: true, transportParent: 'replay-workspace-footer',
     visibleThrough: 'Visible through · 05/01/2026, 12:40 EDT · 121 bars', workspaceRevision: 1,
   });
   assert.match(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`), /05\/01\/2026.*12:40.*EDT/,
@@ -274,17 +293,19 @@ try {
   const providerRequestsAtEntry = await evaluate(cdp,
     `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
   await evaluate(cdp, `(() => {
+    const root = document.querySelector('.replay-workspace');
     const toolbar = document.querySelector('.replay-workspace-toolbar');
+    const transport = document.querySelector('.replay-transport');
     const selectors = ['.replay-next', '.replay-previous', '.timeframe-toggle',
       '.session-hours-control [aria-pressed="true"]', '.pane-count-control [aria-pressed="true"]',
-      '.replay-step-select', '.goto-toggle', '.replay-reset'];
+      '.replay-step-select', '.replay-speed-select', '.goto-toggle', '.replay-reset'];
     const sample = () => selectors.map((selector) => {
-      const control = toolbar.querySelector(selector);
+      const control = root.querySelector(selector);
       return { opacity: getComputedStyle(control).opacity, selector };
     });
-    const probe = { initial: sample(), records: [], toolbar };
+    const probe = { initial: sample(), records: [], toolbar, transport };
     probe.observer = new MutationObserver(() => probe.records.push(sample()));
-    probe.observer.observe(toolbar, { attributes: true, attributeFilter: ['disabled'], subtree: true });
+    probe.observer.observe(root, { attributes: true, attributeFilter: ['disabled'], subtree: true });
     globalThis.__toolbarRefreshProbe = probe;
   })()`);
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
@@ -310,9 +331,11 @@ try {
       initial: probe.initial,
       records: probe.records,
       sameNode: probe.toolbar === document.querySelector('.replay-workspace-toolbar'),
+      sameTransport: probe.transport === document.querySelector('.replay-transport'),
     };
   })()`);
   assert.equal(toolbarRefreshProbe.sameNode, true, 'candle refresh must retain the toolbar DOM node');
+  assert.equal(toolbarRefreshProbe.sameTransport, true, 'candle refresh must retain the Replay transport DOM node');
   assert.ok(toolbarRefreshProbe.records.length >= 1, 'toolbar probe must observe the transient input lock');
   for (const record of toolbarRefreshProbe.records) assert.deepEqual(record, toolbarRefreshProbe.initial,
     `transient input locking must not flash toolbar opacity: ${JSON.stringify(toolbarRefreshProbe)}`);

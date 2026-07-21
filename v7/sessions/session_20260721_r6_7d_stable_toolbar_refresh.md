@@ -1,7 +1,7 @@
 # Session — R6.7d Stable Toolbar During Candle Refresh
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction review
+Status: human-accepted
 
 ## Review Input
 
@@ -36,3 +36,6 @@ operations remained usable.
 Use Next, Play, TF switching, ETH/RTH switching, and history extension while
 watching the top toolbar. It must remain visually steady while still rejecting
 overlapping inputs during each atomic candle transaction.
+
+The user explicitly reported acceptance on 2026-07-21 and approved proceeding
+to R6.8 with a fixed bottom rail and centered capsule instead of an overlay.

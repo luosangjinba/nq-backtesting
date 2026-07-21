@@ -814,7 +814,7 @@ left Replay marked `playing`, and therefore gave Pause no future work to stop.
 The bar-step correction remains regression-protected, but R6.6 is not accepted
 as a complete interaction gate.
 
-### R6.7 Continuous Autoplay And Effective Pause — Review Blocked
+### R6.7 Continuous Autoplay And Effective Pause — Human Accepted
 
 - add one UI-local cadence scheduler that invokes the existing
   `autoplay-next` action without taking cursor, target, transaction, or chart
@@ -840,7 +840,7 @@ could replace accepted candles with an empty Pane and a later action could show
 `workspace-transaction-failed`. Continuous Autoplay remains regression-tested,
 but the combined review cannot pass until the following correction is accepted.
 
-### R6.7a Multi-Pane RTH History Preservation — Review Blocked
+### R6.7a Multi-Pane RTH History Preservation — Human Accepted
 
 - preserve a ready accepted Pane when a bounded earlier-history prefix and its
   boundary chunk contain no eligible RTH bars;
@@ -862,7 +862,7 @@ RTH drags collapsed the manual Viewport from roughly 80 visible bars to about
 seven. Candles became oversized, further history input stalled, and a two-to-
 one Pane transition preserved the damaged wall until another irregular drag.
 
-### R6.7b Manual Viewport Span Preservation — Review Blocked
+### R6.7b Manual Viewport Span Preservation — Human Accepted
 
 - keep the adapter's transient left clamp separate from canonical manual wall
   state when an RTH history chunk contributes no new display candles;
@@ -901,7 +901,7 @@ back to the left edge.
 The user confirmed the RTH boundary defect fixed on 2026-07-21, then reported a
 minor visual-only issue: the top toolbar flashed whenever candles refreshed.
 
-### R6.7d Stable Toolbar During Candle Refresh — Awaiting Human Review
+### R6.7d Stable Toolbar During Candle Refresh — Human Accepted
 
 - retain the same toolbar DOM node across every Workspace transaction;
 - continue disabling transaction-conflicting inputs while work is pending, but
@@ -913,8 +913,28 @@ minor visual-only issue: the top toolbar flashed whenever candles refreshed.
 - prove real Chrome observes the disabled-attribute lock without any sampled
   toolbar-opacity change during a candle refresh.
 
-After R6.7d acceptance, R6.8 is the constrained floating bottom-center Replay
-transport with speed control. R6.9 expands one-to-four layouts with draggable,
+The user accepted the combined R6.7/R6.7a–d interaction gate on 2026-07-21 and
+approved replacing the earlier floating-overlay proposal with a fixed bottom
+rail whose centered capsule retains the visual lightness without covering a
+Pane.
+
+### R6.8 Fixed Bottom Replay Transport — Awaiting Human Review
+
+- keep Reset View, Restart, Go to, and Local status in the compact top toolbar;
+- move Previous bar, one stateful Play/Pause button, Replay step, Autoplay
+  speed, and Next bar into one Workspace-level centered capsule;
+- place that capsule in a dedicated `38px` bottom rail outside the Pane grid,
+  preserving an `800px` real-chart host at the `1440×900` review viewport;
+- expose bounded `0.5×`, `1×`, `2×`, and `5×` speeds, defaulting to `1×`, with
+  cadence gaps of `1000/500/250/100ms` after each complete visible commit;
+- let an in-play speed change replace at most one scheduled timeout or affect
+  the next post-commit timeout, never overlap Pane transactions or move Replay;
+- keep Pause available during an in-flight tick and retain stable transport
+  and toolbar opacity during every candle transaction;
+- prove speed and Replay-step selection create no Pane materialization or
+  cursor movement, while every actual step still atomically updates all Panes.
+
+After R6.8 acceptance, R6.9 expands one-to-four layouts with draggable,
 persisted nested split ratios and minimum Pane sizes; layout sync follows as a
 separate bounded step.
 

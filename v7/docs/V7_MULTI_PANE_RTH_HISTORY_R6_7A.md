@@ -1,6 +1,6 @@
 # V7 Multi-Pane RTH History Preservation — R6.7a
 
-Status: implemented; follow-up review blocked by Viewport span collapse (2026-07-21)
+Status: human-accepted after R6.7b–d follow-up corrections (2026-07-21)
 
 ## Reproduction
 

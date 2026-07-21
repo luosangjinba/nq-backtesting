@@ -18,9 +18,11 @@ export function createReplayAutoplayScheduler({
   runNext,
   setTimer = setTimeout,
 }) {
-  if (!Number.isSafeInteger(cadenceMs) || cadenceMs < 1 || cadenceMs > 60_000) {
+  function assertCadence(value) {
+    if (Number.isSafeInteger(value) && value >= 1 && value <= 60_000) return value;
     throw new TypeError('Replay Autoplay cadence must be between 1 and 60000ms.');
   }
+  let currentCadenceMs = assertCadence(cadenceMs);
   if (typeof clearTimer !== 'function' || typeof setTimer !== 'function' || typeof runNext !== 'function') {
     throw new TypeError('Replay Autoplay scheduler ports are invalid.');
   }
@@ -40,7 +42,7 @@ export function createReplayAutoplayScheduler({
   }
 
   function state() {
-    return Object.freeze({ active, scheduled: timerId !== null, ticking });
+    return Object.freeze({ active, cadenceMs: currentCadenceMs, scheduled: timerId !== null, ticking });
   }
 
   function stop({ publishPause = true } = {}) {
@@ -57,7 +59,7 @@ export function createReplayAutoplayScheduler({
     timerId = setTimer(() => {
       timerId = null;
       void tick(token);
-    }, cadenceMs);
+    }, currentCadenceMs);
   }
 
   async function tick(token) {
@@ -99,6 +101,13 @@ export function createReplayAutoplayScheduler({
     },
     pause: () => stop(),
     play,
+    setCadenceMs(value) {
+      const nextCadenceMs = assertCadence(value);
+      if (nextCadenceMs === currentCadenceMs) return state();
+      currentCadenceMs = nextCadenceMs;
+      if (active && !ticking) schedule(generation);
+      return state();
+    },
     snapshot: state,
   });
 }

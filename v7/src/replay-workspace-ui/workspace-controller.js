@@ -13,6 +13,7 @@ import {
 import { createReplayRuntime } from '../replay-runtime/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
 import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
+import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
 import { createFoundationMarket } from './foundation-market.js';
 import { createFoundationSourceTraversal } from './foundation-source-traversal.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
@@ -137,6 +138,7 @@ export function createReplayWorkspaceController({ record, view }) {
     acceptVisibleState, market, navigation, paneData, paneState, range, record, replay, runtime, view,
   });
   autoplayScheduler = createReplayAutoplayScheduler({
+    cadenceMs: DEFAULT_AUTOPLAY_SPEED.cadenceMs,
     playbackPort: Object.freeze({
       pause() {
         const snapshot = replay.pause();
@@ -152,6 +154,7 @@ export function createReplayWorkspaceController({ record, view }) {
     }),
     runNext: () => execution.action('autoplay-next'),
   });
+  view.setPlaybackSpeed(DEFAULT_AUTOPLAY_SPEED.id);
 
   return Object.freeze({
     autoplay: () => autoplayScheduler.play(),
@@ -166,6 +169,12 @@ export function createReplayWorkspaceController({ record, view }) {
       if (count === current.panes.length || (count !== 1 && count !== 2)) return;
       const desiredWorkspace = paneState.desiredPaneCount(count, replay.snapshot().cursorEpochMs);
       return execution.materialize({ desiredWorkspace });
+    },
+    changePlaybackSpeed(speedId) {
+      if (disposed) return;
+      const speed = readAutoplaySpeed(speedId);
+      autoplayScheduler.setCadenceMs(speed.cadenceMs);
+      view.setPlaybackSpeed(speed.id);
     },
     dispose() {
       if (disposed) return;

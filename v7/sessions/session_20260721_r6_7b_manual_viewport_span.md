@@ -1,8 +1,7 @@
 # Session — R6.7b Manual Viewport Span Preservation
 
 Date: 2026-07-21
-Status: implementation complete; review blocked by separate history-window
-coverage defect
+Status: human-accepted after R6.7c–d follow-up corrections
 
 ## Review Input
 

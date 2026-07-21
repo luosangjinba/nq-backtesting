@@ -1,7 +1,7 @@
 # Session — R6.7 Continuous Autoplay And Effective Pause
 
 Date: 2026-07-21
-Status: implementation complete; review blocked by multi-Pane RTH history regression
+Status: human-accepted after R6.7a–d follow-up corrections
 
 ## Review Input
 
@@ -42,9 +42,10 @@ no observable effect.
 
 ## Next Review Boundary
 
-This transport interaction correction stops for human review. After acceptance,
-R6.8 should implement the constrained floating bottom-center transport and
-speed control before layout expansion and layout-sync work.
+This transport interaction correction stopped for human review. The combined
+R6.7/R6.7a–d gate was later accepted; R6.8 implements the subsequently approved
+fixed bottom rail and speed control before layout expansion and layout-sync
+work.
 
 ## Review Follow-up
 

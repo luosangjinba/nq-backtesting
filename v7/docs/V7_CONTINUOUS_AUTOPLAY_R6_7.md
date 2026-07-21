@@ -1,6 +1,6 @@
 # V7 Continuous Autoplay — R6.7
 
-Status: implemented; review blocked by multi-Pane RTH history regression (2026-07-21)
+Status: human-accepted after R6.7a–d follow-up corrections (2026-07-21)
 
 ## Correction
 
@@ -42,10 +42,9 @@ cannot fork the clock.
 ## Visible Surface
 
 The interim top-row action is renamed `Play`, and its Pause control remains
-enabled while an autoplay transaction is in flight so the cadence can be
-stopped immediately. This bounded bug correction does not claim final transport
-layout or speed-control acceptance. The reviewed constrained floating
-bottom-center transport is R6.8.
+  enabled while an autoplay transaction is in flight so the cadence can be
+  stopped immediately. This bounded bug correction did not claim final
+  transport layout or speed-control acceptance; R6.8 supplies those surfaces.
 
 ## Gate
 
@@ -64,8 +63,8 @@ bottom-center transport is R6.8.
 
 ## Deferred
 
-- playback speed selection;
-- constrained floating transport and final button arrangement (R6.8);
+- fixed bottom transport and bounded playback speed selection (delivered by
+  R6.8 and awaiting its own visual review);
 - one-to-four Pane layout expansion and Symbol/Interval/Crosshair/Time/Date
   range sync;
 - Economic Calendar, which remains an optional later business module.
