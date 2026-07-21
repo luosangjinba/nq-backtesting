@@ -23,6 +23,11 @@ Session Hours continues to evaluate real bar instants through its existing
 exchange-wall adapter. No core owner knows the V4 wire encoding, and no second
 timezone conversion is applied to V4's wall fields themselves.
 
+The chart adapter presents those real instants in `America/New_York`. This is a
+presentation-only conversion: it restores the accepted V6 exchange-wall labels
+such as RTH `09:30–16:14` without changing Raw Bar identity, Session request
+instants, Projection provenance, or Replay's exclusive cursor.
+
 ## Request And Failure Semantics
 
 - raw requests remain half-open and Session-independent;
@@ -47,4 +52,3 @@ timezone conversion is applied to V4's wall fields themselves.
 
 Human comparison with V6/TradingView remains required before this visual gate
 is accepted.
-

@@ -470,6 +470,19 @@ It did not accept the gate. Execute these corrections before re-review:
 
 The next action is the targeted V6 time/TF/Replay audit, not R6 multi-pane.
 
+### R5.6a Exchange-Time Presentation — Completed
+
+- audited the V6 Session-input, V4 request, source timestamp, Session Hours,
+  Replay, Projection, and chart-label chain;
+- retained V7's provider-neutral real instants and prohibited a second V4
+  wall-field conversion;
+- moved only chart tick/crosshair presentation to `America/New_York`;
+- locked summer and winter `09:30` plus RTH `16:14` browser-independent labels;
+- changed no Session range, raw cache key, Replay cursor, eligibility, candle
+  aggregation, viewport, or chart-series ownership.
+
+R5.6b aggregate-candle completion display placement is next.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

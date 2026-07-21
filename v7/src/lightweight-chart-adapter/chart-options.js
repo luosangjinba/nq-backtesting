@@ -4,23 +4,36 @@ import {
   TickMarkType,
 } from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
 
-const localTime = new Intl.DateTimeFormat(undefined, {
-  hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
-});
-const localDay = new Intl.DateTimeFormat(undefined, { day: '2-digit', month: 'short', year: '2-digit' });
-const localMonth = new Intl.DateTimeFormat(undefined, { month: 'short', year: 'numeric' });
-const localYear = new Intl.DateTimeFormat(undefined, { year: 'numeric' });
-const localCrosshair = new Intl.DateTimeFormat(undefined, {
-  day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: 'short', year: 'numeric',
-});
+export const EXCHANGE_TIME_ZONE = 'America/New_York';
 
-function localTick(time, type) {
-  const date = new Date(Number(time) * 1_000);
-  if (type === TickMarkType.Year) return localYear.format(date);
-  if (type === TickMarkType.Month) return localMonth.format(date);
-  if (type === TickMarkType.DayOfMonth) return localDay.format(date);
-  return localTime.format(date);
+/** Build chart-only New York presentation without changing real bar instants. */
+export function createExchangeTimePresentation(locale = undefined) {
+  const options = { timeZone: EXCHANGE_TIME_ZONE };
+  const time = new Intl.DateTimeFormat(locale, {
+    ...options, hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
+  });
+  const day = new Intl.DateTimeFormat(locale, {
+    ...options, day: '2-digit', month: 'short', year: '2-digit',
+  });
+  const month = new Intl.DateTimeFormat(locale, { ...options, month: 'short', year: 'numeric' });
+  const year = new Intl.DateTimeFormat(locale, { ...options, year: 'numeric' });
+  const crosshair = new Intl.DateTimeFormat(locale, {
+    ...options,
+    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: 'short', year: 'numeric',
+  });
+  return Object.freeze({
+    tickMarkFormatter(value, type) {
+      const date = new Date(Number(value) * 1_000);
+      if (type === TickMarkType.Year) return year.format(date);
+      if (type === TickMarkType.Month) return month.format(date);
+      if (type === TickMarkType.DayOfMonth) return day.format(date);
+      return time.format(date);
+    },
+    timeFormatter: (value) => crosshair.format(new Date(Number(value) * 1_000)),
+  });
 }
+
+const exchangeTimePresentation = createExchangeTimePresentation();
 
 export const CANDLE_OPTIONS = Object.freeze({
   borderDownColor: '#f23645',
@@ -33,7 +46,7 @@ export const CANDLE_OPTIONS = Object.freeze({
 
 export const CHART_OPTIONS = Object.freeze({
   autoSize: true,
-  localization: Object.freeze({ timeFormatter: (time) => localCrosshair.format(new Date(Number(time) * 1_000)) }),
+  localization: Object.freeze({ timeFormatter: exchangeTimePresentation.timeFormatter }),
   layout: Object.freeze({
     background: Object.freeze({ color: '#050505', type: ColorType.Solid }),
     attributionLogo: false,
@@ -57,6 +70,6 @@ export const CHART_OPTIONS = Object.freeze({
     rightBarStaysOnScroll: false,
     secondsVisible: false,
     timeVisible: true,
-    tickMarkFormatter: localTick,
+    tickMarkFormatter: exchangeTimePresentation.tickMarkFormatter,
   }),
 });

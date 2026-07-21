@@ -62,6 +62,7 @@ async function waitForDevtools() {
 }
 
 async function capture(cdp, targetFile = visualFile, label = 'replay workspace') {
+  await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
   let actual;
   if (process.env.V7_UPDATE_VISUALS === '1') {
     const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });

@@ -5,7 +5,14 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
+import { createExchangeTimePresentation } from '../src/lightweight-chart-adapter/chart-options.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
+
+const exchangeTime = createExchangeTimePresentation('en-US');
+assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-05-01T13:30:00Z') / 1_000, 3), '09:30');
+assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-05-01T20:14:00Z') / 1_000, 3), '16:14');
+assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-01-02T14:30:00Z') / 1_000, 3), '09:30');
+assert.match(exchangeTime.timeFormatter(Date.parse('2026-05-01T13:30:00Z') / 1_000), /09:30/);
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
