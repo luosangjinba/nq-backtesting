@@ -882,7 +882,7 @@ which could contain no eligible RTH minute; each accepted empty request moved
 through only part of the overnight/weekend closure and visibly snapped `09:30`
 back to the left edge.
 
-### R6.7c Session-Aware Contributing History Windows — Awaiting Human Review
+### R6.7c Session-Aware Contributing History Windows — Human Accepted
 
 - retain the existing timeframe-aware nominal history size when that window
   contains at least one eligible source minute;
@@ -898,7 +898,22 @@ back to the left edge.
 - preserve the R6.7a ready-Pane fallback when no earlier eligible data exists
   inside the hard cap, and preserve the R6.7b manual Viewport span.
 
-After R6.7c acceptance, R6.8 is the constrained floating bottom-center Replay
+The user confirmed the RTH boundary defect fixed on 2026-07-21, then reported a
+minor visual-only issue: the top toolbar flashed whenever candles refreshed.
+
+### R6.7d Stable Toolbar During Candle Refresh — Awaiting Human Review
+
+- retain the same toolbar DOM node across every Workspace transaction;
+- continue disabling transaction-conflicting inputs while work is pending, but
+  distinguish that transient lock from an intrinsically unavailable control;
+- keep the visual opacity of transiently locked controls identical to their
+  accepted ready-state appearance, including delayed stale feedback;
+- keep genuinely unavailable, completed, or playback-incompatible controls
+  visibly disabled;
+- prove real Chrome observes the disabled-attribute lock without any sampled
+  toolbar-opacity change during a candle refresh.
+
+After R6.7d acceptance, R6.8 is the constrained floating bottom-center Replay
 transport with speed control. R6.9 expands one-to-four layouts with draggable,
 persisted nested split ratios and minimum Pane sizes; layout sync follows as a
 separate bounded step.

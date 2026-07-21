@@ -1,5 +1,6 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
+import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 import { createGotoControls } from './goto-controls.js';
 import { createPaneGridView } from './pane-grid-view.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
@@ -36,7 +37,9 @@ function createChoiceGroup({ ariaLabel, choices, className, onChoose }) {
     buttons,
     dispose() { for (const button of buttons.values()) button.replaceWith(button.cloneNode(true)); },
     root,
-    setDisabled(disabled) { for (const button of buttons.values()) button.disabled = disabled; },
+    setDisabled(disabled, preserveVisual = false) {
+      setControlsDisabled(buttons.values(), { disabled, preserveVisual });
+    },
     setValue(value) {
       for (const [id, button] of buttons) button.setAttribute('aria-pressed', String(id === value));
     },
@@ -54,7 +57,9 @@ function createInstrumentSelect(options, onChoose) {
   return Object.freeze({
     dispose() { select.replaceWith(select.cloneNode(true)); },
     root: select,
-    setDisabled(value) { select.disabled = value; },
+    setDisabled(disabled, preserveVisual = false) {
+      setControlDisabled(select, { disabled, preserveVisual });
+    },
     setValue(value) { select.value = value; },
   });
 }
@@ -71,7 +76,9 @@ function createReplayStepSelect(options, onChoose) {
   return Object.freeze({
     dispose() { select.replaceWith(select.cloneNode(true)); },
     root: select,
-    setDisabled(value) { select.disabled = value; },
+    setDisabled(disabled, preserveVisual = false) {
+      setControlDisabled(select, { disabled, preserveVisual });
+    },
     setValue(value) { select.value = value; },
   });
 }
@@ -210,18 +217,24 @@ export function createReplayWorkspaceView({
   function renderAvailability() {
     const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
     const unavailable = viewState === 'unavailable';
-    nextButton.disabled = busy || unavailable || complete;
-    autoplayButton.disabled = busy || unavailable || complete || playback === 'playing';
-    previousButton.disabled = busy || unavailable;
-    restartButton.disabled = busy || unavailable;
-    resetButton.disabled = busy || unavailable;
-    pauseButton.disabled = unavailable || playback !== 'playing';
-    timeframeControl.setDisabled(busy || unavailable);
-    instrumentControl.setDisabled(busy || unavailable || instrumentOptions.length < 2);
-    sessionHoursControl.setDisabled(busy || unavailable);
-    paneCountControl.setDisabled(busy || unavailable);
-    replayStepControl.setDisabled(busy || unavailable);
-    goto.setDisabled(busy || unavailable);
+    const stableRefresh = busy && hasAcceptedChart;
+    const setAction = (control, intrinsicallyDisabled) => setControlDisabled(control, {
+      disabled: busy || intrinsicallyDisabled,
+      preserveVisual: stableRefresh && !intrinsicallyDisabled,
+    });
+    setAction(nextButton, unavailable || complete);
+    setAction(autoplayButton, unavailable || complete || playback === 'playing');
+    setAction(previousButton, unavailable);
+    setAction(restartButton, unavailable);
+    setAction(resetButton, unavailable);
+    setControlDisabled(pauseButton, { disabled: unavailable || playback !== 'playing' });
+    timeframeControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
+    instrumentControl.setDisabled(busy || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
+    sessionHoursControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    paneCountControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    replayStepControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    goto.setDisabled(busy || unavailable, stableRefresh && !unavailable);
     paneGrid.setPending(busy || unavailable);
     root.setAttribute('aria-busy', String(busy));
   }

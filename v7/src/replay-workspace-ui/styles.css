@@ -203,6 +203,10 @@
 .replay-actions .replay-previous { min-width: 29px; padding: 0; font-size: 18px; }
 .replay-actions .replay-autoplay[aria-pressed="true"] { background: #26354a; color: #fff; }
 .replay-actions .button:disabled { opacity: .58; cursor: wait; transform: none; }
+.replay-workspace-toolbar [data-pending-lock="true"]:disabled {
+  opacity: 1;
+  filter: none;
+}
 
 .chart-frame {
   position: relative;

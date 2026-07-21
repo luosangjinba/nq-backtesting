@@ -99,5 +99,12 @@ loaded aggregate candle, the adapter also repairs the transient right boundary
 so the range remains ordered and includes loaded candles. This does not mutate
 the canonical manual Viewport intent.
 
+Workspace transactions retain one toolbar DOM subtree. Conflicting inputs stay
+functionally disabled until the atomic visible commit, but this transient lock
+does not dim or flash their accepted ready-state appearance. Controls that are
+intrinsically unavailable, complete, or incompatible with current playback
+remain visibly disabled. Delayed stale feedback may dim the chart only; it
+does not pulse the top toolbar.
+
 R5.6 supersedes the temporary synthetic source described by the original R5.5
 implementation. Human acceptance remains required before R6 selection or implementation.

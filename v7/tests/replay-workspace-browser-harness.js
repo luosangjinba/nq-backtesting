@@ -273,6 +273,20 @@ try {
   const startedAt = performance.now();
   const providerRequestsAtEntry = await evaluate(cdp,
     `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
+  await evaluate(cdp, `(() => {
+    const toolbar = document.querySelector('.replay-workspace-toolbar');
+    const selectors = ['.replay-next', '.replay-previous', '.timeframe-toggle',
+      '.session-hours-control [aria-pressed="true"]', '.pane-count-control [aria-pressed="true"]',
+      '.replay-step-select', '.goto-toggle', '.replay-reset'];
+    const sample = () => selectors.map((selector) => {
+      const control = toolbar.querySelector(selector);
+      return { opacity: getComputedStyle(control).opacity, selector };
+    });
+    const probe = { initial: sample(), records: [], toolbar };
+    probe.observer = new MutationObserver(() => probe.records.push(sample()));
+    probe.observer.observe(toolbar, { attributes: true, attributeFilter: ['disabled'], subtree: true });
+    globalThis.__toolbarRefreshProbe = probe;
+  })()`);
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
   assert.equal(await evaluate(cdp, `document.querySelector('.workspace-inline-status').hidden`), true,
     'cache-hit Next must not flash toolbar update status');
@@ -289,6 +303,19 @@ try {
     })()`);
     throw new Error(`${error.message}; next failure: ${JSON.stringify(nextFailure)}`);
   }
+  const toolbarRefreshProbe = await evaluate(cdp, `(() => {
+    const probe = globalThis.__toolbarRefreshProbe;
+    probe.observer.disconnect();
+    return {
+      initial: probe.initial,
+      records: probe.records,
+      sameNode: probe.toolbar === document.querySelector('.replay-workspace-toolbar'),
+    };
+  })()`);
+  assert.equal(toolbarRefreshProbe.sameNode, true, 'candle refresh must retain the toolbar DOM node');
+  assert.ok(toolbarRefreshProbe.records.length >= 1, 'toolbar probe must observe the transient input lock');
+  for (const record of toolbarRefreshProbe.records) assert.deepEqual(record, toolbarRefreshProbe.initial,
+    `transient input locking must not flash toolbar opacity: ${JSON.stringify(toolbarRefreshProbe)}`);
   const cacheHitVisibleMs = performance.now() - startedAt;
   assert.ok(cacheHitVisibleMs < 250, `cache-hit Next exceeded max budget: ${cacheHitVisibleMs}ms`);
   assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 122,

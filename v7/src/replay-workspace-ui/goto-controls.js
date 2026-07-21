@@ -1,4 +1,5 @@
 import { createDateTimeControl } from '../calendar-surface/public.js';
+import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 
 const QUICK_ACTIONS = Object.freeze([
   Object.freeze({ anchor: 'next-day-open', key: 'Y', label: 'Next Day Open' }),
@@ -133,9 +134,10 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
       dialog.showModal();
     },
     root,
-    setDisabled(disabled) {
-      toggle.disabled = disabled;
-      for (const button of menu.querySelectorAll('button')) button.disabled = disabled;
+    setDisabled(disabled, preserveVisual = false) {
+      const options = { disabled, preserveVisual };
+      setControlDisabled(toggle, options);
+      setControlsDisabled(menu.querySelectorAll('button'), options);
     },
   });
 }

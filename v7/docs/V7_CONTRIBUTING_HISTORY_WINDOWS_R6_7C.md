@@ -1,6 +1,6 @@
 # V7 Session-Aware Contributing History Windows — R6.7c
 
-Status: implemented; awaiting human interaction review (2026-07-21)
+Status: human-accepted (2026-07-21)
 
 ## Reproduction
 

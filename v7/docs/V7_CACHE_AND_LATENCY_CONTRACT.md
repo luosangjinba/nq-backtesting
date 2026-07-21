@@ -55,6 +55,11 @@ The chart never clears to an empty series and never exposes a partially rebuilt
 target. A cache hit has an end-to-end budget. A cache miss has an immediate
 feedback budget and a separate post-provider-response budget.
 
+The accepted toolbar subtree and its visual opacity remain stable across that
+refresh boundary. Transaction-conflicting inputs may be functionally locked,
+but the lock must not produce a toolbar flash; intrinsically unavailable
+controls retain their disabled presentation.
+
 ## Earlier-History Extension
 
 Visible-range proximity is only an explicit request trigger. Correctness never

@@ -347,6 +347,9 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   wholly closed nominal window within the same bounded request until it reaches
   prior eligible source minutes, crossing overnight and weekend closures
   without synthetic bars or recursive foreground transactions;
+- `R6.7d`: retain functional input locking during candle transactions while
+  keeping the accepted toolbar DOM and visual opacity stable; intrinsic
+  unavailable/complete/playback states remain visibly disabled;
 - `R6.8`: replace the interim top-row controls with the reviewed constrained
   floating bottom-center transport and add playback speed;
 - `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal

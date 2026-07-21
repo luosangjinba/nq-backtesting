@@ -1,7 +1,7 @@
 # Session — R6.7c Session-Aware Contributing History Windows
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction review
+Status: human-accepted
 
 ## Review Input
 
@@ -39,3 +39,6 @@ In RTH, drag to a `09:30` left boundary and continue once. The previous trading
 session should load in that transaction without repeated empty loads, boundary
 snap-back, oversized candles, or wheel repair. Repeat across a weekend, then
 verify two-to-one Pane replacement and ETH recovery.
+
+The user confirmed this defect fixed on 2026-07-21. A separate, non-blocking
+toolbar-opacity flash observed during candle refresh is owned by R6.7d.

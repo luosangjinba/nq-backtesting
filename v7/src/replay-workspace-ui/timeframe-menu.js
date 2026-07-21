@@ -1,3 +1,5 @@
+import { setControlDisabled } from './control-availability.js';
+
 function node(tag, className, text) {
   const value = document.createElement(tag);
   if (className) value.className = className;
@@ -82,7 +84,9 @@ export function createTimeframeMenu({ groups, onChoose }) {
       root.remove();
     },
     root,
-    setDisabled(disabled) { toggle.disabled = disabled; },
+    setDisabled(disabled, preserveVisual = false) {
+      setControlDisabled(toggle, { disabled, preserveVisual });
+    },
     setValue: syncValue,
   });
 }

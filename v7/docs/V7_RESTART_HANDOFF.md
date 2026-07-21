@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.7c contributing history-window correction
+Last updated: 2026-07-21 after R6.7d stable-toolbar correction
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -15,7 +15,7 @@ required for normal startup.
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
   multi-Pane RTH history preservation implemented; and R6.7b manual Viewport
   span correction implemented; R6.7c contributing history-window correction
-  awaiting combined human review
+  human-accepted; R6.7d stable-toolbar correction awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -63,6 +63,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_7a_multi_pane_rth_history.md`.
 - `sessions/session_20260721_r6_7b_manual_viewport_span.md`.
 - `sessions/session_20260721_r6_7c_contributing_history_windows.md`.
+- `sessions/session_20260721_r6_7d_stable_toolbar_refresh.md`.
 - `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -208,6 +209,10 @@ and human-accepted:
   bounded raw request, until it reaches up to 240 prior eligible minutes or the
   35-day cap. One accepted transaction crosses an overnight close or weekend;
   it neither synthesizes bars nor starts recursive foreground continuation.
+- R6.7d fixes the visual-only toolbar flash during candle refresh. The same DOM
+  subtree and functional transaction locks remain, while only transiently
+  locked controls retain their ready-state opacity; intrinsic disabled states
+  stay visibly disabled.
 
 Latest corrective commits:
 
@@ -327,7 +332,8 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Human-review R6.7/R6.7a/R6.7b/R6.7c together. Repeat the supplied two-Pane sequence:
+Human-review R6.7d together with the remaining combined R6 interaction gate.
+Repeat the supplied two-Pane sequence:
 extend ETH, switch to RTH, rapidly extend both Panes without wheel repair,
 switch directly to one Pane, and verify the first deliberate drag extends
 history with normal candle width; at an RTH `09:30` left boundary, one accepted
@@ -339,6 +345,9 @@ movement for `1.2s`. After acceptance, R6.8 implements the constrained floating
 transport; R6.9 implements one-to-four layouts with draggable persisted
 boundaries, followed by layout sync. Economic Calendar remains outside this
 foundation phase.
+
+While performing those actions, the accepted top toolbar must retain the same
+visual opacity through Next, Play, TF, ETH/RTH, and history transactions.
 
 ## Standing Workflow
 
