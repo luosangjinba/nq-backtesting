@@ -458,14 +458,26 @@
 .replay-truncation[aria-pressed="true"] { background: #2962ff; color: #fff; }
 .replay-transport-icon { width: 16px; height: 16px; pointer-events: none; }
 .replay-transport-select {
-  min-width: 58px;
-  padding: 0 19px 0 7px;
+  min-width: 42px;
+  padding: 0 6px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: none;
+  text-align: center;
+  text-align-last: center;
 }
+.replay-transport-select::-ms-expand { display: none; }
 .replay-speed-select {
-  min-width: 55px;
+  min-width: 44px;
   margin-left: 3px;
   border-left: 1px solid #353535;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 5px 5px 0;
+}
+.replay-step-select {
+  min-width: 40px;
+  margin-right: 3px;
+  border-right: 1px solid #353535;
+  border-radius: 5px 0 0 5px;
 }
 .replay-timeframe-sync {
   position: relative;

@@ -356,6 +356,8 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.8a`: add Session-bounded Replay truncation through the existing exact
   all-Pane transaction, add one-way `Sync timeframe`, and refine the capsule
   with TradingView-like icons while retaining the fixed non-overlay rail;
+- `R6.8b`: render Autoplay speed and Replay step as compact arrowless text
+  selectors in speed-to-step order while retaining native selection behavior;
 - `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal
   and vertical boundary is draggable, nested split ratios have minimum Pane
   sizes, and accepted ratios persist with the Session without data/replay work;

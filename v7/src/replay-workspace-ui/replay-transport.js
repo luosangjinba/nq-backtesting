@@ -123,7 +123,7 @@ export function createReplayTransport({
   const root = element('div', { className: 'replay-transport' });
   root.setAttribute('role', 'group');
   root.setAttribute('aria-label', 'Replay transport');
-  root.append(truncation, previous, playPause, replayStep, playbackSpeed, next, timeframeSync);
+  root.append(truncation, previous, playPause, playbackSpeed, replayStep, next, timeframeSync);
 
   return Object.freeze({
     dispose() {

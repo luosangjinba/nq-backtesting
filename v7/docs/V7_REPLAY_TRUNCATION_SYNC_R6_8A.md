@@ -68,3 +68,12 @@ All 38 non-browser and five serial real-Chrome Harnesses pass. The retained
 single-Pane performance gate records Next p95 `50.9ms`, p99 `58.1ms`, max
 `58.7ms`; ETH→RTH `65ms`, `5m` `138ms`, and `12h` RTH `826ms`; rapid history
 loading records zero observed long task.
+
+## R6.8b Visual Follow-Up
+
+The Autoplay speed and Replay-step controls now use the reviewed TradingView-
+like text treatment: native dropdown arrows and their reserved space are
+removed, and the visible order is speed then step. Both remain native select
+controls, so click selection and keyboard access are unchanged. The browser
+gate binds computed `appearance: none`, DOM order, and the updated fixed visual
+fixtures.

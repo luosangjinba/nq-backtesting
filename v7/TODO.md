@@ -918,7 +918,7 @@ approved replacing the earlier floating-overlay proposal with a fixed bottom
 rail whose centered capsule retains the visual lightness without covering a
 Pane.
 
-### R6.8 Fixed Bottom Replay Transport — Awaiting Human Review With R6.8a
+### R6.8 Fixed Bottom Replay Transport — Awaiting Human Review With R6.8a–b
 
 - keep Reset View, Restart, Go to, and Local status in the compact top toolbar;
 - move Previous bar, one stateful Play/Pause button, Replay step, Autoplay
@@ -951,9 +951,18 @@ Pane.
 - refine the capsule with TradingView-like SVG transport icons and switch
   treatment while retaining the accepted fixed `38px` non-overlay rail.
 
-After the combined R6.8/R6.8a acceptance, R6.9 expands one-to-four layouts with draggable,
-persisted nested split ratios and minimum Pane sizes; layout sync follows as a
-separate bounded step.
+### R6.8b Text-Only Replay Selectors — Awaiting Human Review
+
+- remove the native dropdown arrows and reserved arrow space from Autoplay
+  speed and Replay-step selectors;
+- present the selectors in the reviewed TradingView order, speed before step,
+  while preserving native click and keyboard selection;
+- bind `appearance: none`, selector order, and the compact treatment in the
+  real-Chrome Harness and fixed `1440×900` visual fixtures.
+
+After the combined R6.8/R6.8a–b acceptance, R6.9 expands one-to-four layouts
+with draggable, persisted nested split ratios and minimum Pane sizes; layout
+sync follows as a separate bounded step.
 
 ## Standing Gates
 

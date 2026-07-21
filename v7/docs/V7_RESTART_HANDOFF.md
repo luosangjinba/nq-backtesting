@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.8a Replay truncation and Sync timeframe
+Last updated: 2026-07-21 after R6.8b text-only Replay selectors
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -15,8 +15,8 @@ required for normal startup.
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
   multi-Pane RTH history preservation implemented; and R6.7b manual Viewport
   span, contributing history-window, and stable-toolbar corrections accepted as
-  one combined R6.7 gate; combined R6.8/R6.8a fixed Replay transport,
-  truncation, and Sync timeframe awaiting human review
+  one combined R6.7 gate; combined R6.8/R6.8a–b fixed Replay transport,
+  truncation, Sync timeframe, and text-only selectors awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -224,6 +224,9 @@ and human-accepted:
   existing exact all-Pane transaction, plus the named one-way `Sync timeframe`
   preference and TradingView-like transport icons; it remains part of the
   combined R6.8 human review gate.
+- R6.8b removes native dropdown arrows from the speed and Replay-step
+  selectors, orders the plain text values speed-to-step, and preserves native
+  click and keyboard selection.
 
 Latest corrective commits:
 
@@ -343,10 +346,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Human-review the combined R6.8/R6.8a gate. In single and two-Pane modes, confirm the fixed bottom rail
-never covers Canvas or moves with Pane focus. Exercise Previous/Next bar,
-Replay-step selection, every `0.5×/1×/2×/5×` speed, continuous Play/Pause, TF,
-ETH/RTH, history extension, truncation, and `Sync timeframe`. A valid
+Human-review the combined R6.8/R6.8a–b gate. In single and two-Pane modes,
+confirm the fixed bottom rail never covers Canvas or moves with Pane focus and
+that speed then step appear as arrowless text selectors. Exercise Previous/Next
+bar, Replay-step selection, every `0.5×/1×/2×/5×` speed, continuous Play/Pause,
+TF, ETH/RTH, history extension, truncation, and `Sync timeframe`. A valid
 truncation must remove the selected and all later candles from every Pane; an
 outside-Session click must preserve state. Speed/step/sync selection must not
 move the cursor; Pause must stop future work while toolbar and transport remain visually stable.
