@@ -429,7 +429,7 @@ The follow-up review's date-independent `01:59 PM` cutoff is corrected by
 removing forward-context entry entirely. The selected start is the first Replay
 bar; earlier bars are context and later bars remain hidden.
 
-## R5.6 Real V4/DuckDB Bars Provider — Corrective Pass Complete, Re-Review Pending
+## R5.6 Real V4/DuckDB Bars Provider — Second Human Review Rejected
 
 Implemented as a corrective gate after chart review exposed that R5.5 still
 used visually misleading generated bars:
@@ -556,6 +556,27 @@ R5.6f combined regression, handoff closure, and human checklist are next.
 - restart handoff and the revised Chinese human checklist identify the exact
   acceptance point;
 - R6 remains blocked until the user explicitly accepts this combined gate.
+
+### R5.6g Second Human Review — Rejected
+
+The 2026-07-20 second human review rejected the combined gate. Preserve the
+reported priority order during correction:
+
+1. higher-timeframe aggregation, switching, and drag/history interaction can
+   stall for roughly 20 seconds and can become effectively undraggable;
+2. RTH completion slots are incorrect for the reviewed product expectation:
+   `4m` appears at `:01/:05/:09/...` and hour families at `:29` instead of the
+   shared exchange-clock completion grid;
+3. Session creation input `12:40` was interpreted as browser-local Pacific
+   time, causing the New York chart to begin at `15:40`; Session input must use
+   explicit New York exchange-wall semantics;
+4. low-to-high timeframe replacement compresses candles against the left edge
+   and does not fill the missing left context until another mouse action;
+5. ETH→RTH replacement remains perceptibly slow.
+
+R6 remains blocked. First reproduce and close the high-timeframe/history
+latency through the existing Bar Data, Projection, Chart Adapter, and Viewport
+owners; then correct completion alignment and Session wall-time semantics.
 
 ## Standing Gates
 
