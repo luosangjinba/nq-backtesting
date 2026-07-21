@@ -109,9 +109,9 @@ export function createReplayWorkspaceView({
     ariaLabel: 'Next bar', className: 'button replay-action-button replay-next', text: 'Next bar', type: 'button',
   });
   const autoplayButton = element('button', {
-    className: 'button replay-action-button replay-autoplay', text: 'Auto ×1', type: 'button',
+    ariaLabel: 'Play replay continuously', className: 'button replay-action-button replay-autoplay', text: 'Play', type: 'button',
   });
-  autoplayButton.title = 'Advance one Autoplay step; continuous playback arrives with the transport correction.';
+  autoplayButton.title = 'Continuously advance one selected Replay bar per cadence.';
   const pauseButton = element('button', {
     className: 'button replay-action-button replay-pause', text: 'Pause', type: 'button',
   });
@@ -211,11 +211,11 @@ export function createReplayWorkspaceView({
     const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
     const unavailable = viewState === 'unavailable';
     nextButton.disabled = busy || unavailable || complete;
-    autoplayButton.disabled = busy || unavailable || complete;
+    autoplayButton.disabled = busy || unavailable || complete || playback === 'playing';
     previousButton.disabled = busy || unavailable;
     restartButton.disabled = busy || unavailable;
     resetButton.disabled = busy || unavailable;
-    pauseButton.disabled = busy || playback !== 'playing';
+    pauseButton.disabled = unavailable || playback !== 'playing';
     timeframeControl.setDisabled(busy || unavailable);
     instrumentControl.setDisabled(busy || unavailable || instrumentOptions.length < 2);
     sessionHoursControl.setDisabled(busy || unavailable);

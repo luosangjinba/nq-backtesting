@@ -329,7 +329,14 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.6`: replace implicit source-minute stepping with one Session-level Replay
   bar-step grid independent from Pane TF, resolve aligned non-empty
   Next/Previous completions through real source traversal, and expose the
-  bounded Replay-step selector; implemented and awaiting human acceptance;
+  bounded Replay-step selector; its interaction gate was human-rejected because
+  Autoplay performed only one step and Pause had no continuing work to stop;
+- `R6.7`: add a completion-driven continuous Autoplay cadence over the existing
+  one-step navigation action, make Pause cancel future work without overlapping
+  all-Pane transactions, and stop at Session end/failure; implemented and
+  awaiting human acceptance;
+- `R6.8`: replace the interim top-row controls with the reviewed constrained
+  floating bottom-center transport and add playback speed;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.

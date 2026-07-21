@@ -1,6 +1,6 @@
 # V7 Replay Runtime
 
-Status: R3.3b clock owner with R5.4, R6.4, and R6.6 extensions
+Status: R3.3b clock owner with R5.4, R6.4, R6.6, and R6.7 integration
 
 ## Ownership
 
@@ -35,7 +35,8 @@ The proposal carries the covered span but remains inert. `play()` and `pause()`
 now publish the Replay-owned playback state; they do not change the cursor
 revision or bypass visible commit. A terminal cursor commit automatically
 pauses at Session end. Navigation failure pauses through this public owner API.
-Autoplay cadence/timers remain outside this runtime until the transport step.
+Autoplay cadence/timers remain outside this runtime; R6.7 supplies them through
+the UI transport boundary.
 
 R6.6 adds the selected branded Replay step to the same Session-level owner.
 The step is an aligned duration grid independent from every Pane display TF.
@@ -43,6 +44,13 @@ The step is an aligned duration grid independent from every Pane display TF.
 changing visible-through, or incrementing Replay revision. Manual Next,
 Autoplay Next, and Manual Previous resolve targets from that exact selected
 step; exact and quick GoTo remain independent from it.
+
+R6.7 supplies that cadence through a UI-local scheduler which uses only this
+runtime's public `play()`, `pause()`, and `snapshot()` ports. The scheduler owns
+no playback state and cannot publish a cursor: every tick still resolves and
+commits through Replay Navigation and the atomic Workspace transaction. Pause
+invalidates scheduled continuation; an already in-flight proposal may settle
+through the normal visible-commit rule but cannot schedule another tick.
 
 ## Lifecycle And Exclusions
 

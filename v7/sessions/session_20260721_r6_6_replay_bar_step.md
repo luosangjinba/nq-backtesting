@@ -1,7 +1,7 @@
 # Session — R6.6 Replay Bar Step Correction
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction review
+Status: implementation complete; human interaction review rejected
 
 ## Review Input
 
@@ -38,8 +38,10 @@ families. This bounded correction addresses only bar-step truth first.
   long task and a maximum sample interval of about `123ms`;
 - module-host, source-quality, architecture, and diff gates pass.
 
-## Next Review Boundary
+## Human Review Outcome
 
-This interaction change stops for human review. R6.7 should replace the interim
-top-row transport with the reviewed constrained floating transport and real
-continuous Autoplay before layout expansion begins.
+The user found that `Auto ×1` advanced only one Replay bar, after which Pause
+had no continuing action to stop. The Replay bar-step invariant remains
+regression-protected, but R6.6 is not accepted as a complete interaction gate.
+R6.7 is therefore limited to continuous Autoplay and effective Pause; the
+constrained floating transport moves to R6.8.

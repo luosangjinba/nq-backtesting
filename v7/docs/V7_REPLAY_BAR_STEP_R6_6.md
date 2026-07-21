@@ -1,6 +1,6 @@
 # V7 Replay Bar Step — R6.6
 
-Status: implemented; awaiting human interaction review (2026-07-21)
+Status: implemented; human interaction review rejected (2026-07-21)
 
 ## Correction
 
@@ -75,3 +75,11 @@ claim their visual acceptance.
 - only one/two-Pane layouts exist;
 - Symbol, Interval, Crosshair, Time, and Date-range sync controls do not yet
   exist.
+
+## Human Review Outcome
+
+The independent Replay-step and `Next bar` semantics remain valid regression
+behavior. The combined R6.6 interaction gate was nevertheless rejected because
+`Auto ×1` executed only one `autoplay-next` action, left playback marked
+`playing`, and gave Pause no scheduled continuation to cancel. R6.7 supersedes
+that incomplete autoplay surface with a continuous completion-driven cadence.

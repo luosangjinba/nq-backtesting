@@ -1,6 +1,6 @@
 # V7 Replay Navigation Runtime
 
-Status: R6.4 owner with R6.6 Replay bar-step correction (2026-07-21)
+Status: R6.4 owner with R6.6 bar-step and R6.7 cadence integration (2026-07-21)
 
 ## Decision
 
@@ -32,8 +32,9 @@ Replay Runtime now exposes its real `playing`/`paused` state. Manual navigation
 and failure pause through that owner. An Autoplay Next action enters `playing`,
 uses the same target resolver and transaction as Manual Next, and stays playing
 only after a non-terminal success. Reaching Session end or any failed terminal
-result pauses. R6.4 adds no timer or cadence loop; the post-R6.6 transport
-correction owns that work.
+result pauses. The navigation action remains exactly one step and owns no timer.
+R6.7's UI-local scheduler invokes that public action repeatedly only after each
+complete visible commit; no cadence concern enters this runtime.
 
 ## Target Resolution
 
@@ -100,18 +101,24 @@ preserves the last accepted Replay/workspace/chart state and pauses playback.
 
 ## Remaining Exclusions
 
-- no timer, speed, or background Autoplay loop;
+- no timer or speed ownership inside Replay Navigation Runtime;
 - no navigation-preference persistence;
 - no Economic Calendar or marker provider.
 
 ## Gate
 
 `tests/replay-navigation-runtime-harness.js` proves DST-aware schedules, all
-five quick actions, Manual Next/Previous, one-step Autoplay, Restart/Back-to,
+five quick actions, the one-step Autoplay primitive, Manual Next/Previous,
+Restart/Back-to,
 exact forward/backward/no-op GoTo, continuous-range request intent, weekend
 anchor skipping, mixed NQ/ES and `1m`/`4h`, comparison-Pane absence,
 primary-instrument visibility, overlap suppression, failure pause/preservation,
 and 21 negative/race controls.
+
+`tests/replay-autoplay-scheduler-harness.js` separately proves R6.7 continuous
+cadence, completion-driven scheduling without backlog, Pause before and during
+an in-flight step, and terminal stop. This keeps cadence outside the navigation
+owner while exercising only its public one-step action.
 
 `tests/replay-step-source-traversal-harness.js` additionally proves `5m` and
 `1h` completion, missing-minute stability, RTH weekend skipping, symmetric

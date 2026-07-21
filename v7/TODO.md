@@ -788,7 +788,7 @@ The 2026-07-21 human review rejected this combined gate:
 R6.6 corrects the bar-step invariant first. Economic Calendar remains a
 separate later business module.
 
-### R6.6 Independent Replay Bar Step — Awaiting Human Review
+### R6.6 Independent Replay Bar Step — Human Review Rejected
 
 - add one branded aligned Replay-step value and make Replay Runtime its sole
   Session-level selection owner;
@@ -809,10 +809,34 @@ separate later business module.
 - preserve the established single-Pane visual, latency, replacement, and rapid
   history regression gates.
 
-R6.6 changes interaction and visuals, so implementation stops for human review.
-The next correction after acceptance is the constrained floating transport and
-real continuous Autoplay; layout expansion and layout sync follow in later
-bounded steps.
+The 2026-07-21 human review found that `Auto ×1` advanced only one Replay bar,
+left Replay marked `playing`, and therefore gave Pause no future work to stop.
+The bar-step correction remains regression-protected, but R6.6 is not accepted
+as a complete interaction gate.
+
+### R6.7 Continuous Autoplay And Effective Pause — Awaiting Human Review
+
+- add one UI-local cadence scheduler that invokes the existing
+  `autoplay-next` action without taking cursor, target, transaction, or chart
+  ownership from their established runtimes;
+- publish `playing` immediately, run the first selected Replay bar immediately,
+  and schedule each later bar only after the prior complete Pane-set visible
+  commit plus a `500ms` cadence;
+- use completion-driven timeouts rather than an interval, so a slow
+  materialization cannot overlap, queue, or build an input backlog;
+- make Pause cancel every scheduled future step while allowing at most one
+  already in-flight atomic Pane transaction to settle without a successor;
+- stop and publish `paused` at Session completion, navigation rejection, or
+  failure;
+- expose the interim control as `Play`, keep Pause available during an
+  in-flight autoplay step, and prove that cursor/revisions remain unchanged for
+  more than two cadence intervals after Pause;
+- preserve the selected Replay step and the one shared cursor/atomic all-Pane
+  response on every autoplay tick.
+
+R6.7 changes transport interaction and visuals, so implementation stops for
+human review. The constrained floating bottom-center transport becomes R6.8;
+layout expansion and layout sync follow in later bounded steps.
 
 ## Standing Gates
 

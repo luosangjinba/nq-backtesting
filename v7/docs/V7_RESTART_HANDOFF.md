@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.6 Replay bar-step implementation
+Last updated: 2026-07-21 after R6.7 continuous Autoplay implementation
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,8 +11,9 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
-  headless R6.1–R6.4; human-rejected R6.5 real Pane workspace; and R6.6 Replay
-  bar-step correction awaiting human review
+  headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
+  bar-step interaction gate; and R6.7 continuous Autoplay correction awaiting
+  human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -56,6 +57,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
 - `sessions/session_20260721_r6_5_real_pane_workspace.md`.
 - `sessions/session_20260721_r6_6_replay_bar_step.md`.
+- `sessions/session_20260721_r6_7_continuous_autoplay.md`.
 - `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -179,7 +181,14 @@ and human-accepted:
   missing layout sync.
 - R6.6 adds one Session-level Replay bar-step grid independent from Pane TF,
   resolves real aligned non-empty Next/Previous completions through Bar Data,
-  and exposes the selector plus `Next bar`; it now awaits human review.
+  and exposes the selector plus `Next bar`. Human review retained that
+  invariant but rejected the combined gate because Autoplay executed only one
+  step and Pause had no scheduled continuation to stop.
+- R6.7 adds a completion-driven UI cadence owner over the existing one-step
+  action. Play advances immediately and continues only after each prior atomic
+  all-Pane visible commit plus `500ms`; Pause clears future work, including
+  during an in-flight settlement, and Session completion/failure stops
+  playback through Replay Runtime.
 
 Latest corrective commits:
 
@@ -299,13 +308,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Human-review R6.6: select `5m` Replay step while the active comparison Pane is
-on another TF, confirm Next advances to the next `5m` completion and Previous
-returns one completed Replay bar without changing either Pane TF. After
-acceptance, execute R6.7 as the constrained floating bottom-center transport
-with real continuous Autoplay and speed; layout expansion and the five layout
-sync families remain subsequent bounded steps. Economic Calendar remains
-outside this foundation phase.
+Human-review R6.7: select `5m` Replay step while the active comparison Pane is
+on another TF, click Play, confirm at least three `5m` bars advance, then click
+Pause and verify the shared cursor and every Pane remain unchanged for at least
+`1.2s`. After acceptance, execute R6.8 as the constrained floating
+bottom-center transport with speed control. Layout expansion and the five
+layout-sync families remain subsequent bounded steps. Economic Calendar
+remains outside this foundation phase.
 
 ## Standing Workflow
 

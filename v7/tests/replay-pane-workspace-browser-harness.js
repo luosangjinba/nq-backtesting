@@ -218,12 +218,24 @@ try {
 
   const beforeAuto = state;
   await evaluate(cdp, `document.querySelector('.replay-autoplay').click()`);
-  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeAuto.workspaceRevision}`);
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) >= ${beforeAuto.workspaceRevision + 3}`,
+    10_000);
   state = await evaluate(cdp, paneStateExpression());
   assert.equal(state.playback, 'playing');
+  assert.ok(state.replayRevision >= beforeAuto.replayRevision + 3,
+    'continuous Autoplay must advance more than one selected Replay bar');
   assert.ok(state.panes.every((pane, index) => pane.visibleRevision > beforeAuto.panes[index].visibleRevision));
   await evaluate(cdp, `document.querySelector('.replay-pause').click()`);
-  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'paused'`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'paused'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  const pausedState = await evaluate(cdp, paneStateExpression());
+  await new Promise((resolve) => setTimeout(resolve, 1_200));
+  state = await evaluate(cdp, paneStateExpression());
+  assert.equal(state.workspaceRevision, pausedState.workspaceRevision,
+    'Pause must cancel every future Autoplay transaction');
+  assert.equal(state.replayRevision, pausedState.replayRevision,
+    'Pause must keep the Replay cursor stable beyond two cadence intervals');
+  assert.equal(state.cursorText, pausedState.cursorText);
 
   const beforePrevious = state.workspaceRevision;
   await evaluate(cdp, `document.querySelector('.replay-previous').click()`);
@@ -281,6 +293,6 @@ try {
   });
 }
 
-console.log('v7 Replay Pane Workspace browser harness passed', {
-  scope: 'single/multi Pane, mixed instrument/TF, shared Replay, both GoTo forms',
-});
+  console.log('v7 Replay Pane Workspace browser harness passed', {
+    scope: 'single/multi Pane, mixed instrument/TF, continuous Replay/Pause, both GoTo forms',
+  });

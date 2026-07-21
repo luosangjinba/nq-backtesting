@@ -84,6 +84,15 @@ carries the exact step; cancellable source traversal resolves the next or
 previous non-empty aligned primary-source bucket completion, skips empty
 closed-session/weekend buckets, and preserves the same atomic Pane-set commit.
 
+R6.7 adds one UI-local Autoplay cadence owner over public Replay and Workspace
+Execution ports. It owns no accepted product state: Replay Runtime still owns
+`playing`/`paused` and the shared cursor, while Workspace Transaction still owns
+each complete Pane-set transition. The first action is immediate; every later
+action is scheduled only after the prior visible commit plus `500ms`. Pause
+invalidates the cadence generation and clears the future timeout, so a settling
+atomic transaction cannot enqueue a successor. Completion, rejection, or
+failure publishes `paused` through Replay Runtime.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

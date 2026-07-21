@@ -12,6 +12,7 @@ import {
 } from '../replay-navigation-runtime/public.js';
 import { createReplayRuntime } from '../replay-runtime/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
+import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
 import { createFoundationMarket } from './foundation-market.js';
 import { createFoundationSourceTraversal } from './foundation-source-traversal.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
@@ -42,6 +43,7 @@ export function createReplayWorkspaceController({ record, view }) {
   let runtime = null;
   let disposed = false;
   let execution = null;
+  let autoplayScheduler = null;
 
   const paneState = createPaneWorkspaceState({
     initialCursorEpochMs: range.startEpochMs,
@@ -134,9 +136,25 @@ export function createReplayWorkspaceController({ record, view }) {
   execution = createWorkspaceExecution({
     acceptVisibleState, market, navigation, paneData, paneState, range, record, replay, runtime, view,
   });
+  autoplayScheduler = createReplayAutoplayScheduler({
+    playbackPort: Object.freeze({
+      pause() {
+        const snapshot = replay.pause();
+        view.setReplay(snapshot);
+        return snapshot;
+      },
+      play() {
+        const snapshot = replay.play();
+        view.setReplay(snapshot);
+        return snapshot;
+      },
+      snapshot: replay.snapshot,
+    }),
+    runNext: () => execution.action('autoplay-next'),
+  });
 
   return Object.freeze({
-    autoplay: () => execution.action('autoplay-next'),
+    autoplay: () => autoplayScheduler.play(),
     changeReplayStep(replayStepId) {
       if (disposed || execution.isPending()) return;
       const step = replayStepById.get(replayStepId);
@@ -152,6 +170,7 @@ export function createReplayWorkspaceController({ record, view }) {
     dispose() {
       if (disposed) return;
       disposed = true;
+      autoplayScheduler.dispose();
       execution.dispose();
       runtime.dispose();
       chartApplication.dispose();
@@ -171,8 +190,7 @@ export function createReplayWorkspaceController({ record, view }) {
     next: () => execution.action('manual-next'),
     pause() {
       if (disposed) return;
-      replay.pause();
-      view.setReplay(replay.snapshot());
+      return autoplayScheduler.pause();
     },
     previous: () => execution.action('manual-previous', {}, { allowDim: true }),
     replaceInstrument(instrumentId) {
