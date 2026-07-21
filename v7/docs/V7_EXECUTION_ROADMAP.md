@@ -337,7 +337,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   blocking multi-Pane RTH history regression;
 - `R6.7a`: preserve accepted Pane candles while earlier RTH history crosses
   consecutive non-contributing closed-session windows, retain exact coverage
-  provenance, and prove two-Pane ETH→RTH extension plus ETH recovery;
+  provenance, and prove two-Pane ETH→RTH extension plus ETH recovery; follow-up
+  review exposed a manual-span collapse under rapid boundary input;
+- `R6.7b`: translate left-clamped transient manual logical ranges without
+  shrinking their canonical span, preserve that wall through two-to-one Pane
+  replacement, and make the first subsequent drag extend history;
 - `R6.8`: replace the interim top-row controls with the reviewed constrained
   floating bottom-center transport and add playback speed;
 - `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal

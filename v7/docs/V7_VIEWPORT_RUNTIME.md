@@ -52,6 +52,14 @@ A default wall keeps a non-negative latest-bar offset. A manual wall may keep a
 negative offset, which means the latest Replay bar is intentionally offscreen
 to the right while the user browses and extends older history.
 
+R6.7b protects the boundary between canonical intent and adapter-only range
+repair. When a manual projection begins before logical `-0.5`, the adapter
+translates both transient endpoints by the same delta and preserves the exact
+manual `spanBars`. Clamping only `from` would shrink the visible range during a
+non-contributing RTH history commit; a later native capture could then promote
+that artificial range into durable intent. Deliberate native wheel zoom remains
+authoritative because the rule preserves whatever valid span the user chose.
+
 ## V6 Disposition
 
 Retained and re-derived:
@@ -75,4 +83,6 @@ Rejected:
 default and manual projection, stable walls across Replay movement, explicit
 reset, immutable branded values, and 13 negative controls. H014 becomes
 executable but remains pending human browser acceptance; H041 records the pure
-contract's automated acceptance.
+contract's automated acceptance. The real adapter and RTH multi-Pane browser
+Harnesses additionally prove transient left-clamp span preservation, rapid
+drag stability, two-to-one Pane survival, and immediate subsequent extension.

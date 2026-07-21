@@ -1,6 +1,6 @@
 # V7 Multi-Pane RTH History Preservation — R6.7a
 
-Status: implemented; awaiting human interaction review (2026-07-21)
+Status: implemented; follow-up review blocked by Viewport span collapse (2026-07-21)
 
 ## Reproduction
 
@@ -48,3 +48,10 @@ bar is created and no Pane/UI module merges projected bars.
 - all 37 non-browser and five browser gates pass; the retained single-Pane
   performance gate measures Next p95 `52.1ms`, p99 `60.4ms`, max `61.2ms`,
   `12h` RTH replacement about `1065ms`, and rapid history with no long task.
+
+## Review Follow-up
+
+The false-empty and recovery behavior was corrected, but follow-up review found
+rapid RTH dragging could collapse an unzoomed manual wall to roughly seven
+bars. R6.7b corrects that separate adapter-only logical-range defect and extends
+this browser gate through a two-to-one Pane transition.

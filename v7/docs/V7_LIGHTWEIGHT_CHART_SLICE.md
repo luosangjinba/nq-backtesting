@@ -107,6 +107,13 @@ range methods to zoom vertically around the pointer price without changing the
 logical time range. Reset View re-enables price autoscale as well as restoring
 the default horizontal wall.
 
+For a manual wall whose projected `from` precedes the first loaded logical
+slot, R6.7b shifts the complete transient range to begin at `-0.5`; it does not
+retain the old `to` and collapse candle spacing. This repair is adapter-only,
+preserves canonical span, and prevents a rapid history interaction from
+turning a temporary left clamp into oversized candles or a stranded one-Pane
+wall.
+
 ## Dependency And License
 
 `lightweight-charts` is pinned exactly to `5.2.0` in `v7/package.json` and its

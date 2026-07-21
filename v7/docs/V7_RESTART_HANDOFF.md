@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.7a multi-Pane RTH history correction
+Last updated: 2026-07-21 after R6.7b manual Viewport span correction
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -12,8 +12,9 @@ required for normal startup.
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6; completed
   headless R6.1–R6.4; human-rejected R6.5 real Pane workspace and R6.6 combined
-  bar-step interaction gate; R6.7 continuous Autoplay implemented; and R6.7a
-  multi-Pane RTH history correction awaiting combined human review
+  bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
+  multi-Pane RTH history preservation implemented; and R6.7b manual Viewport
+  span correction awaiting combined human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -59,6 +60,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_6_replay_bar_step.md`.
 - `sessions/session_20260721_r6_7_continuous_autoplay.md`.
 - `sessions/session_20260721_r6_7a_multi_pane_rth_history.md`.
+- `sessions/session_20260721_r6_7b_manual_viewport_span.md`.
 - `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -195,6 +197,10 @@ and human-accepted:
   while preserving an already-ready accepted Pane; current Replay provenance
   is rebound without cursor movement, and real identity/policy/contiguity
   failures remain hard errors.
+- R6.7b fixes the follow-up rapid-drag Viewport collapse. A left-clamped manual
+  adapter range now translates both endpoints and retains its exact canonical
+  span, so no-contribution RTH history cannot create oversized candles; that
+  wall survives two-to-one Pane replacement and the next drag extends history.
 
 Latest corrective commits:
 
@@ -314,14 +320,15 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Human-review R6.7/R6.7a together. First repeat the supplied two-Pane sequence:
-extend ETH history, switch to RTH, extend both Panes, switch back to ETH, and
-confirm candles/controls remain available without a Workspace error. Then
-select a `5m` Replay step, click Play, confirm at least three steps, Pause, and
-verify no Pane/cursor movement for `1.2s`. After acceptance, R6.8 implements the
-constrained floating transport; R6.9 implements one-to-four layouts with
-draggable persisted boundaries, followed by layout sync. Economic Calendar
-remains outside this foundation phase.
+Human-review R6.7/R6.7a/R6.7b together. Repeat the supplied two-Pane sequence:
+extend ETH, switch to RTH, rapidly extend both Panes without wheel repair,
+switch directly to one Pane, and verify the first deliberate drag extends
+history with normal candle width; then switch back to ETH. Finally select a
+`5m` Replay step, Play at least three steps, Pause, and verify no Pane/cursor
+movement for `1.2s`. After acceptance, R6.8 implements the constrained floating
+transport; R6.9 implements one-to-four layouts with draggable persisted
+boundaries, followed by layout sync. Economic Calendar remains outside this
+foundation phase.
 
 ## Standing Workflow
 

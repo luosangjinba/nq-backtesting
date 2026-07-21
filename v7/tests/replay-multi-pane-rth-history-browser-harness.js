@@ -49,7 +49,9 @@ function readState(cdp) {
           empty: !pane.querySelector('.pane-empty-state').hidden,
           lastApplyError: host.dataset.lastApplyError ?? '',
           logicalFrom: Number(host.dataset.logicalFrom),
+          logicalTo: Number(host.dataset.logicalTo),
           paneId: pane.dataset.paneId,
+          spanBars: Number(host.dataset.spanBars),
           visibleRevision: Number(host.dataset.visibleRevision),
         };
       }),
@@ -145,7 +147,22 @@ try {
   assert.equal(state.state, 'ready',
     `RTH history must not fail the complete Workspace transaction: ${JSON.stringify(state)}`);
   assert.equal(state.controlsDisabled, false, 'Session Hours must remain interactive after RTH history');
+  assert.ok(state.panes.every(({ logicalFrom, logicalTo, spanBars }) => spanBars >= 40
+    && logicalTo - logicalFrom >= 40),
+    `rapid RTH history must not collapse the visible span into oversized candles: ${JSON.stringify(state)}`);
   const rthHistoryState = state;
+
+  await evaluate(cdp, `document.querySelector('.pane-count-control [data-value="1"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  const singleBefore = await readState(cdp);
+  assert.equal(singleBefore.panes.length, 1);
+  assert.ok(singleBefore.panes[0].spanBars >= 40
+    && singleBefore.panes[0].logicalTo - singleBefore.panes[0].logicalFrom >= 40,
+    `two-to-one Pane replacement must preserve a usable RTH wall: ${JSON.stringify(singleBefore)}`);
+  state = await extendHistory(cdp, 'pane-main');
+  assert.ok(state.revision > singleBefore.revision,
+    `the first deliberate single-Pane drag must extend history: ${JSON.stringify({ singleBefore, state })}`);
 
   await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="eth"]').click()`);
   await waitFor(cdp, `(document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'eth'
@@ -177,5 +194,5 @@ try {
 }
 
 console.log('v7 multi-Pane RTH history browser harness passed', {
-  scope: 'ETH extension, repeated/rapid RTH extension in both Panes, ETH recovery',
+  scope: 'rapid RTH span, two-to-one Pane wall, first-drag extension, ETH recovery',
 });

@@ -1,7 +1,7 @@
 # Session — R6.7a Multi-Pane RTH History Preservation
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction review
+Status: implementation complete; follow-up review blocked by Viewport span collapse
 
 ## Review Input
 
@@ -39,3 +39,10 @@ selection appeared stuck on RTH, and `workspace-transaction-failed` appeared.
 Repeat the supplied sequence and confirm both Panes retain candles, ETH/RTH can
 still switch in either direction, and no Workspace error appears. R6.8 remains
 blocked until this correction and continuous Autoplay are accepted together.
+
+## Review Follow-up
+
+Candles no longer became false-empty, but rapid RTH dragging shrank the manual
+wall to only a few bars. Switching to one Pane retained the damaged range and
+history did not extend until further irregular movement. R6.7b is the bounded
+Viewport correction.
