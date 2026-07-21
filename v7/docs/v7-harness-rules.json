@@ -782,7 +782,7 @@
       "owner": "bar-data-runtime",
       "v6FailurePrevented": "a visually plausible synthetic feed reached chart review while real local OHLC and transport failures remained hidden",
       "activationStep": "R5.6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/v4-bars-provider-adapter-harness.js",
       "positiveEvidence": [
         "src/v4-bars-provider-adapter/public.js",
@@ -795,7 +795,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/v4-bars-provider-adapter/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260721_r5_6m_fifth_review_acceptance.md"
     }
   ]
 }

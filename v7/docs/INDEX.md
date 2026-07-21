@@ -33,7 +33,7 @@ Read in this order before V7 implementation work:
 26. `V7_WORKSPACE_REPLACEMENT_RUNTIME.md`
 27. `V7_COMPACT_WORKSPACE_CONTROLS.md`
 28. `V7_REAL_V4_BARS_PROVIDER.md`
-29. `V7_R5_6_CORRECTIVE_REVIEW.md` while the R5.6 human gate is pending
+29. `V7_R5_6_CORRECTIVE_REVIEW.md` for the accepted R5.6 regression contract
 30. `V7_CHART_SNAPSHOT_APPLICATION.md`
 31. `V7_VIEWPORT_RUNTIME.md`
 32. `V7_LIGHTWEIGHT_CHART_SLICE.md`

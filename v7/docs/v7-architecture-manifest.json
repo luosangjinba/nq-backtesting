@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r5.6-corrective-automated-gate-complete-human-review-pending",
+  "status": "r5.6-human-accepted-r6-unblocked",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [

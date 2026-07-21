@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R5.6k rejection and R5.6l corrections; fifth human review required
+Last updated: 2026-07-21 after R5.6 fifth-review acceptance; R6 unblocked
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -10,8 +10,8 @@ required for normal startup.
 
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
-- implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  combined R5.5/R5.6 plus R5.6a–l corrections awaiting final human acceptance
+- implemented code baseline: human-accepted R4.5 and human-accepted R5.1–R5.6,
+  including all R5.6a–l corrective work
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -30,8 +30,8 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. For the R5.6 re-review, read
-only:
+Do not load all historical `sessions/` records. For R6 planning, read only the
+R6-relevant architecture/roadmap documents plus:
 
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
 - `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
@@ -48,6 +48,7 @@ only:
   `sessions/session_20260721_r5_6j_third_review_corrections.md`.
 - `sessions/session_20260721_r5_6k_fourth_review_rejection.md` and
   `sessions/session_20260721_r5_6l_history_responsiveness.md`.
+- `sessions/session_20260721_r5_6m_fifth_review_acceptance.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -145,6 +146,8 @@ and human-accepted:
 - R5.6l adds bounded incremental history Projection, validated Raw Bar trust
   paths, allocation-light calendar/aggregation loops, deterministic modern New
   York DST conversion, and yielding seven-day V4 transport chunks.
+- R5.6m records explicit fifth-review acceptance and closes the complete R5.6
+  corrective gate, unblocking R6.
 
 Latest corrective commits:
 
@@ -162,7 +165,11 @@ Latest corrective commits:
 
 ## R5.6 Human Review Result
 
-Status: **fourth-review corrections complete; fifth human review pending**.
+Status: **accepted and closed**.
+
+On 2026-07-21 the user explicitly reported `R5.6复审通过`. Rapid earlier-history
+loading is accepted without the reported input freeze, and the complete R5.6
+corrective gate is now binding regression behavior. R6 is unblocked.
 
 Passed and protected:
 
@@ -260,9 +267,12 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Execute `docs/V7_R5_6_CORRECTIVE_REVIEW.md`. Record acceptance or the exact
-failed item before any replacement work. Do not begin R6 multi-pane,
-persistence, or expanded Replay transport until R5.6 is explicitly accepted.
+Begin the first bounded R6 Atomic Multi-Pane And Instruments step. Re-read the
+R6 roadmap, architecture multi-pane boundaries, and accepted V6 interaction
+evidence; define the smallest owner/API and executable invariant before adding
+browser-visible layout. Preserve one shared Replay clock, atomic pane-set
+switch/restore, pane-local instrument identity, and all accepted R5.6 chart
+behavior.
 
 ## Standing Workflow
 

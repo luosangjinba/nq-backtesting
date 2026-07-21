@@ -658,6 +658,16 @@ regressing continuity, no-future, or bounded-request behavior.
 
 R6 remains blocked pending explicit fifth-review acceptance.
 
+### R5.6m Fifth Human Review — Accepted
+
+- the user explicitly reported `R5.6复审通过` on 2026-07-21;
+- rapid earlier-history loading no longer produces the reported two-to-three-
+  second input freeze;
+- the full R5.6 gate, including New York time semantics, shared completion
+  slots, no-future behavior, continuous replacements, and responsive bounded
+  history extension, is human-accepted;
+- R5.6 is closed and R6 Atomic Multi-Pane And Instruments is unblocked.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

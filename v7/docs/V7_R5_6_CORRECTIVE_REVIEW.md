@@ -1,6 +1,6 @@
 # V7 R5.6 Corrective Human Review
 
-Status: fourth-review corrections automated-complete; fifth human review pending
+Status: accepted; R5.6 corrective gate closed
 
 Browser URL: `http://127.0.0.1:8007/v7/app/`
 
@@ -110,7 +110,7 @@ Reply with one of:
 - `R5.6复审通过`
 - `R5.6复审未通过：第 N 项，现象……`
 
-R6 remains blocked until acceptance is explicitly reported.
+R6 remained blocked until acceptance was explicitly reported.
 
 ## Third Human Review Result — Rejected
 
@@ -175,3 +175,14 @@ before requesting another review.
   sampling interval below about 125ms instead of the prior 695ms stall.
 
 All automated gates pass. Perform the fifth human review above.
+
+## Fifth Human Review Result — Accepted
+
+On 2026-07-21 the user explicitly reported `R5.6复审通过`. The final manual
+review accepts the rapid-history responsiveness correction and the complete
+R5.6 corrective gate. The previously accepted New York time semantics,
+completion slots, no-future behavior, source-window continuity, atomic
+replacement, and viewport behavior remain protected invariants.
+
+R5.6 is closed. R6 is unblocked; do not reopen this corrective gate unless a
+new regression reproduces one of its protected invariants.
