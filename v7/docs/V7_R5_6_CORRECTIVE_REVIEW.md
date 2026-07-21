@@ -1,6 +1,6 @@
 # V7 R5.6 Corrective Human Review
 
-Status: third-review corrections automated-complete; fourth human review pending
+Status: fourth human review rejected; corrective implementation required
 
 Browser URL: `http://127.0.0.1:8007/v7/app/`
 
@@ -127,3 +127,18 @@ continuity failures are corrected and re-reviewed.
   normal weekend rather than the rejected ten-day hole.
 
 All automated gates pass. Perform the fourth human review above.
+
+## Fourth Human Review Result — Rejected
+
+The 2026-07-21 review found that rapidly dragging candles right to expose a
+large blank left area can enqueue/accumulate earlier-history work on every
+timeframe. During the roughly two-to-three-second history materialization the
+browser main thread becomes unresponsive to mouse input. The supplied `8h`
+screenshot shows 1,348 accepted aggregate bars and a wall around September,
+despite the Replay cursor remaining at May 1, which is evidence that repeated
+bounded chunks have accumulated into one increasingly expensive full
+projection/repaint path.
+
+The fourth review is rejected. Preserve data continuity and all prior semantic
+fixes, but make rapid boundary interaction coalesced and main-thread responsive
+before requesting another review.

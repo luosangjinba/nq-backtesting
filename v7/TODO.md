@@ -629,6 +629,16 @@ the full real-browser review gate.
 
 R6 remains blocked pending explicit fourth-review acceptance.
 
+### R5.6k Fourth Human Review — Rejected
+
+Rapidly dragging candles right to create a large left blank area can accumulate
+earlier-history chunks across every timeframe. The observed load takes roughly
+two to three seconds and blocks all mouse response; an `8h` example reached
+1,348 accepted aggregate bars while Replay remained at May 1. R6 remains
+blocked. Profile acquisition, full Projection, chart mutation, and paint under
+coalesced rapid boundary input; then remove the main-thread stall without
+regressing continuity, no-future, or bounded-request behavior.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;
