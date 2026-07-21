@@ -52,8 +52,9 @@ no centered refresh overlay, manual-wall preservation, and Reset View. The
 fixed `1440x900` ready-state and open-timeframe-menu visual fixtures are
 intentional regression gates.
 
-The R5.5 review found and corrected two boundary defects: chart timestamps now
-use the same browser-local clock convention as Session cards, and Manual Next
+The latest R5.6 review correction makes Session creation, Session cards,
+Replay metadata, and chart timestamps use the same explicit New York exchange
+clock rather than the browser-local timezone. Manual Next
 uses the active calendar policy to reveal the next eligible source minute
 across ETH/RTH maintenance or weekend gaps. The exact reported Friday
 2026-05-01 12:40 through Monday 2026-05-11 12:40 Session is the browser
@@ -71,10 +72,19 @@ reveals only the selected start bar; all later bars stay hidden until Next bar.
 The default viewport uses the V6 baseline of 80 visible bars and 12 right-offset
 bars.
 
-Dragging to the loaded left boundary requests a bounded 2,500-source-minute
-older window. Older batches prepend without moving Replay or changing the
+Dragging to the loaded left boundary requests a bounded timeframe-aware older
+window. The one-minute minimum is three visible ranges (240 source minutes),
+while larger timeframes scale up under a 35-day foreground cap. Older batches
+prepend without moving Replay or changing the
 accepted no-future boundary. The browser gate proves a second boundary visit
 loads a second older window, so the interaction can continue leftward.
+
+Low-to-high timeframe replacement acquires target-sized left context in its
+atomic transaction. If the provider-bound cap yields fewer candles than the
+canonical Viewport span, the chart adapter clamps only its transient logical
+range to the first loaded candle; it does not mutate the Viewport intent or
+wait for another pointer action. Replacement completion no longer starts a
+recursive history transaction chain.
 
 R5.6 supersedes the temporary synthetic source described by the original R5.5
 implementation. Human acceptance remains required before R6 selection or implementation.

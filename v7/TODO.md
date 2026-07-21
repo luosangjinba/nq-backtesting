@@ -419,7 +419,7 @@ Implemented with automated evidence:
   preserving Replay and allowing repeated extension.
 
 The first review's mixed local/UTC chart labels and no-visible-change Friday
-Next are corrected. The chart now shares the Session card's browser-local
+Next are corrected. The chart now shares the Session's explicit New York
 clock, and Next reveals the next eligible ETH/RTH source minute across excluded
 calendar gaps using a bounded expanded request.
 The workspace also distinguishes the full Session range from the Replay cursor
@@ -491,8 +491,8 @@ R5.6b aggregate-candle completion display placement is next.
   `startEpochMs` or Replay-visible provenance;
 - placed zero-offset `4m`, `30m`, and `1h` candles at `:03/:07/...`, `:29/:59`,
   and `:59`, including the incomplete current candle;
-- kept RTH-aligned grids anchored at `09:30` and placed their display candle at
-  the final source-minute slot of that registered bucket;
+- originally kept RTH-aligned grids anchored at `09:30`; R5.6h supersedes this
+  rejected product expectation with one shared ETH/RTH exchange-clock grid;
 - added invalid/duplicate display-time negative controls and real-browser
   evidence that a partial higher-TF candle does not move Replay.
 
@@ -577,6 +577,33 @@ reported priority order during correction:
 R6 remains blocked. First reproduce and close the high-timeframe/history
 latency through the existing Bar Data, Projection, Chart Adapter, and Viewport
 owners; then correct completion alignment and Session wall-time semantics.
+
+### R5.6h Second-Review Corrections — Automated Complete, Human Review Pending
+
+- removed the 20-second high-timeframe foreground chain by replacing fixed
+  2,500-minute history chunks with timeframe-aware bounded windows and by
+  stopping replacement/history completion from recursively scheduling more
+  materialization;
+- reduced New York Session Hours conversion from one `Intl` call per source
+  minute to one cached offset lookup per UTC hour;
+- kept target history inside the real provider deadline and capped the visible
+  foundation at 35 days per foreground request;
+- clamped only the adapter's transient logical range when high-TF data contains
+  fewer bars than the canonical Viewport span, removing the empty left margin
+  without mutating default/manual wall intent;
+- registered one zero-offset completion grid for ETH and RTH, with executable
+  `4m :03/:07/...` and `1h`/`2h`/`4h`/`8h`/`12h :59` evidence;
+- interpreted Session creation fields explicitly in `America/New_York`,
+  including summer/winter and nonexistent-DST-time tests, and made Session/
+  Replay metadata use the same exchange clock;
+- measured the final full real-Chrome gate at approximately `159ms` for first
+  `5m` target-history expansion, `72ms` for cache-hit ETH→RTH, and `1.42s` for
+  uncached `12h` RTH;
+- retained 100-sample higher-timeframe Next performance at p95 `56.2ms`, p99
+  `74.5ms`, and max `74.7ms`.
+
+All corrections require another human interaction/visual review. R6 remains
+blocked until explicit R5.6 acceptance.
 
 ## Standing Gates
 

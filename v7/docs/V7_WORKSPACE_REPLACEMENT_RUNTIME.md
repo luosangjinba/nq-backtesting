@@ -37,9 +37,10 @@ combinations before acquisition. Core code never branches on a concrete
 instrument or timeframe id.
 
 The same timeframe may register distinct aggregation-policy revisions per
-Session Hours mode. This allows RTH fixed buckets to use the inherited `09:30`
-anchor while ETH uses its canonical clock grid, without adding a mode branch to
-Projection Domain.
+Session Hours mode without adding a mode branch to Projection Domain. The
+visible foundation now registers the same zero-offset exchange-clock grid for
+ETH and RTH: `4m` completes at `:03/:07/...`, and every hour family completes
+at `:59`. Session Hours still filters source eligibility before aggregation.
 
 ## Cursor And Visible-Through
 
@@ -58,7 +59,8 @@ R5.4 extends Replay with a branded retention proposal:
 
 The accepted fixture proves an ETH cursor at Tuesday `03:01` retains `03:01`
 after switching to RTH while visible-through becomes Monday `16:14`. On RTH
-`1h`, the last candle starts `15:30`, yet visible-through remains `16:14`.
+`1h`, visible-through remains the last eligible source minute rather than the
+chart-only completion coordinate.
 
 ## Atomic Failure And Race Semantics
 
@@ -82,7 +84,7 @@ presentation from committing.
 ## Gate
 
 `tests/workspace-replacement-runtime-harness.js` proves ETH/RTH and timeframe
-replacement, RTH anchored aggregation, cursor retention, source-level
+replacement, registered aggregation dispatch, cursor retention, source-level
 visible-through, failure preservation, acquisition and presentation reorder
 races, generic catalog dispatch, and 11 negative controls. Existing Replay,
 Projection, Workspace Transaction, Session Hours, fixed-timeframe, and browser

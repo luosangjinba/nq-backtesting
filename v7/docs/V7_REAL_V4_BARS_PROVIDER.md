@@ -1,6 +1,6 @@
 # V7 Real V4 Bars Provider
 
-Status: R5.6 corrective implementation complete, awaiting human re-review (2026-07-20)
+Status: R5.6 second corrective implementation complete, awaiting human re-review (2026-07-20)
 
 ## Outcome
 
@@ -11,8 +11,9 @@ artificial wicks, and it has no silent synthetic fallback.
 
 ## Time Boundary
 
-Session records contain real browser-local instants. V4 accepts timezone-naive
-New York exchange-wall strings and returns those wall fields encoded as
+Session creation interprets its explicit wall fields in `America/New_York`, so
+the same entered value has one real instant independent of browser timezone.
+V4 accepts timezone-naive New York exchange-wall strings and returns those wall fields encoded as
 UTC-like epoch seconds. The concrete adapter therefore owns both conversions:
 
 1. real request instants become `America/New_York` wall-minute strings;
@@ -50,6 +51,6 @@ instants, Projection provenance, or Replay's exclusive cursor.
   replacement, manual/reset wall, and repeated left history against real data;
 - fixed visual fixtures now contain actual DuckDB NQ candles.
 
-Human re-review of New York labels, aggregate placement, perceived latency,
-status stability, and direct-open creation remains required before this gate is
-accepted.
+Human re-review of New York Session input/labels, shared ETH/RTH aggregate
+placement, high-timeframe interaction latency, status stability, and direct-open
+creation remains required before this gate is accepted.

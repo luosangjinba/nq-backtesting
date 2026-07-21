@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.6a–f corrective implementation; human re-review required
+Last updated: 2026-07-20 after R5.6g rejection and R5.6h corrections; human re-review required
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  combined R5.5/R5.6 plus R5.6a–f corrections awaiting final human acceptance
+  combined R5.5/R5.6 plus R5.6a–h corrections awaiting final human acceptance
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -120,6 +120,13 @@ and human-accepted:
 - follow-up commits remove the redundant Canvas metadata row and route wheel
   input over the right price axis to pointer-anchored vertical zoom; plot wheel
   remains horizontal and Reset View restores price autoscale.
+- R5.6g records the second human rejection: browser-local Session input,
+  RTH-specific completion offsets, 20-second high-TF work, empty left context,
+  and perceptible ETH→RTH latency.
+- R5.6h makes Session input explicitly New York, gives ETH/RTH one completion
+  grid, bounds target-sized history without recursive foreground continuation,
+  caches exchange offsets, and clamps transient logical range when bounded
+  high-TF history is shorter than the canonical Viewport span.
 
 Latest corrective commits:
 
@@ -128,10 +135,12 @@ Latest corrective commits:
 3. `6dd86fff perf(v7): accelerate aggregate replay updates`
 4. `c2abb6f0 fix(v7): delay slow refresh feedback`
 5. `9947f77a fix(v7): open newly created sessions`
+6. `4a6e6869 fix(v7): stabilize high-timeframe replay interactions`
+7. `af0173c1 fix(v7): use New York session wall time`
 
 ## R5.6 Human Review Result
 
-Status: **corrective implementation complete; human re-review pending**.
+Status: **second corrective implementation complete; human re-review pending**.
 
 Passed and protected:
 
@@ -154,6 +163,14 @@ Corrective implementation, in order:
 4. Cache-hit work shows no `Updating…`; slow replacement dimming begins only
    after 500 ms and contains no overlay text.
 5. Successful Session creation navigates to and activates the exact new route.
+6. Session creation `12:40` is now New York wall time and produces a `12:40`
+   New York initial chart boundary, independent of browser timezone.
+7. ETH and RTH share `4m :03/:07/...` and hour-family `:59` completion slots.
+8. High-TF replacement no longer starts recursive foreground history work;
+   the final real-Chrome gate measured about `1.42s` for uncached `12h` RTH,
+   `159ms` for first `5m`, and `72ms` for cache-hit ETH→RTH.
+9. Bounded high-TF history no longer leaves an empty left chart margin or needs
+   another pointer action to repair its initial logical range.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.

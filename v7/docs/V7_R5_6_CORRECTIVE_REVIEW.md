@@ -1,6 +1,6 @@
 # V7 R5.6 Corrective Human Review
 
-Status: automated gate complete; human interaction/visual review pending
+Status: second corrective implementation automated-complete; third human review pending
 
 Browser URL: `http://127.0.0.1:8007/v7/app/`
 
@@ -18,11 +18,13 @@ Create this Session:
 After Create Session, the exact new `R5.6 Recheck` chart must open directly.
 The app must not first return to the Replay sessions list.
 
-## 2. New York Chart Time And No-Future Behavior
+## 2. New York Session Input, Chart Time, And No-Future Behavior
 
-- Session/Visible through metadata remains browser-local and shows `12:40 PDT`.
-- The chart axis uses New York exchange time; the last initial candle is about
-  `15:40`.
+- The form labels Start and End as New York time.
+- Session/Visible through metadata shows `12:40 EDT`, independent of the
+  browser's Pacific timezone.
+- The chart axis uses the same New York exchange time; the last initial candle
+  is `12:40`, not `15:40`.
 - Future minutes must not appear. One Next bar reveals exactly one source
   minute.
 - After switching to RTH, the axis must not use Pacific `06:30–13:14`
@@ -34,24 +36,32 @@ York `16:14`.
 
 ## 3. Aggregate Candle Display Placement
 
-Return to `R5.6 Recheck` and inspect the last candle after each timeframe
-switch:
+Return to `R5.6 Recheck` and inspect both ETH and RTH after each timeframe
+switch. Both modes use the same exchange-clock completion grid:
 
 - `4m`: completion slots are `:03/:07/:11/:15/...`; the initial last candle is
-  at `:43`.
+  at `:43`, never RTH `:01/:05/:09/...`.
 - `30m`: completion slots are `:29/:59`; the initial last candle is at `:59`.
-- `1h`: the completion slot is `:59`.
+- `1h`, `2h`, `4h`, `8h`, and `12h`: the completion minute is `:59`, never
+  RTH `:29`.
 
 An aggregate candle may be displayed at its bucket's completion-minute slot,
 but its OHLC must contain only revealed source minutes. Next bar still advances
 exactly one source minute and must not reveal future data.
 
-## 4. Latency And Refresh Feedback
+## 4. Latency, Dragging, And Refresh Feedback
 
-- Switch among `5m`, `15m`, and `1h`; there should be no previous obvious
-  stall.
+- Switch among `5m`, `15m`, `1h`, and `12h`; no operation may enter the prior
+  20-second stall or leave the chart effectively undraggable.
 - Repeated higher-timeframe Next actions should update the current candle
   smoothly.
+- Low→high timeframe replacement must not compress all candles against the
+  right side or leave a large empty left margin that requires another click to
+  repair.
+- After the high-timeframe switch settles, dragging must respond immediately;
+  reaching a real history boundary loads one bounded chunk, not a recursive
+  foreground chain.
+- ETH→RTH should settle without the previous perceptible cache-hit stall.
 - Reset view must not flash `Updating…` beside the controls.
 - Cache-hit TF, ETH/RTH, and Next actions must not flash dimming, text, or a
   centered overlay.
