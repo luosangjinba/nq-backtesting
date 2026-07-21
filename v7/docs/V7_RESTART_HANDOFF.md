@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after partial R5.6 human review; corrective pass required
+Last updated: 2026-07-20 after R5.6a–f corrective implementation; human re-review required
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  combined R5.5/R5.6 workspace partially passing human review but not accepted
+  combined R5.5/R5.6 plus R5.6a–f corrections awaiting final human acceptance
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -30,8 +30,8 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. For the R5.6 corrective pass,
-read only:
+Do not load all historical `sessions/` records. For the R5.6 re-review, read
+only:
 
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
 - `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
@@ -40,10 +40,12 @@ read only:
 - `sessions/session_20260720_r5_4_workspace_replacement_runtime.md`.
 - `sessions/session_20260720_r5_5_compact_workspace_controls.md`.
 - `sessions/session_20260720_r5_6_real_v4_bars_provider.md`.
+- `sessions/session_20260720_r5_6a_exchange_time_presentation.md` through
+  `sessions/session_20260720_r5_6f_corrective_gate.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
-- the human report at
-  `tmp/人工验收步骤R5.6/人工验收步骤R5.6.md`.
+- the revised human checklist at
+  `docs/V7_R5_6_CORRECTIVE_REVIEW.md`.
 
 ## Completed Boundary
 
@@ -84,8 +86,9 @@ and human-accepted:
 - NQ/`1m`/ETH chart entry reveals a 120-minute historical prefix plus the
   selected Session start bar through one transaction; Manual Next reveals one
   additional eligible source bar;
-- visible receipt follows two rendering opportunities and screenshot-proven
-  candle pixels rather than `subscribeDataChanged()`;
+- full replacements use two rendering opportunities plus screenshot-proven
+  candle pixels; safe tail updates require exact series-change evidence plus
+  two rendering opportunities;
 - native drag creates manual wall intent, Next preserves it, and Reset View
   explicitly restores default intent;
 - the NQ route uses an immersive chart-first shell with compact controls and no
@@ -107,26 +110,28 @@ and human-accepted:
   controls over that path, preserves cursor/manual wall, and keeps accepted
   chart pixels visible during bounded refresh/error states. Its review
   corrections restore the V6 prefix-plus-start/no-future entry baseline and add
-  repeatable bounded leftward history extension. The partial R5.6 review rejects
-  the current browser-local chart axis for RTH; exchange-time semantics remain
-  blocking.
+  repeatable bounded leftward history extension.
 - R5.6 removes the production synthetic generator and connects the existing
   V4/DuckDB NQ source through an independent, policy-bound adapter with padding
-  removal and no silent fallback. Its instant/wall display boundary is now
-  explicitly under re-audit.
+  removal and no silent fallback.
+- R5.6a–e present the chart in New York exchange time, separate bucket identity
+  from completion-slot display, remove foreground provider/refull-series stalls,
+  eliminate cache-hit status flashing, and open new Sessions directly.
 - follow-up commits remove the redundant Canvas metadata row and route wheel
   input over the right price axis to pointer-anchored vertical zoom; plot wheel
   remains horizontal and Reset View restores price autoscale.
 
 Latest corrective commits:
 
-1. `b895b800 fix(v7): use real local bars in replay chart`
-2. `828209d3 refactor(v7): remove redundant chart metadata strip`
-3. `263a8b15 feat(v7): zoom price scale with axis wheel`
+1. `beaced4f fix(v7): present chart time in New York`
+2. `8d93cd92 fix(v7): place aggregate candles at completion`
+3. `6dd86fff perf(v7): accelerate aggregate replay updates`
+4. `c2abb6f0 fix(v7): delay slow refresh feedback`
+5. `9947f77a fix(v7): open newly created sessions`
 
 ## R5.6 Human Review Result
 
-Status: **partially passed; not accepted**.
+Status: **corrective implementation complete; human re-review pending**.
 
 Passed and protected:
 
@@ -137,29 +142,18 @@ Passed and protected:
 - plot-wheel horizontal zoom, price-axis wheel vertical zoom, and Reset View;
 - full-height Canvas with no feed/wall/cursor metadata strip.
 
-Required corrective work, in this order:
+Corrective implementation, in order:
 
-1. **Exchange-time semantics (blocking).** RTH currently appears as
-   `06:30–13:14` because the chart presents browser PDT. The accepted product
-   expectation is New York exchange wall time `09:30–16:14`. Audit the complete
-   V6 Session-input → request-window → source timestamp → chart-label chain
-   before editing V7. Do not apply a formatter-only patch and do not perform a
-   second conversion of V4 UTC-like exchange-wall fields.
-2. **TF candle placement.** Recover the exact V6 display-time convention for
-   completed aggregate candles: `1h` at minute `59`, `30m` at `29/59`, `4m` at
-   `3/7/11/15/...`. Determine whether V6 stores bucket-end display timestamps
-   separately from source/no-future provenance; do not guess or change Replay's
-   exclusive source cursor.
-3. **TF and aggregate Next latency.** Profile the current cache/projection/
-   `setData`/paint phases and reuse V6's mature incremental behavior where it
-   fits V7 ownership. Higher-TF Next remains a one-source-minute advance but
-   must not visibly stall.
-4. **Loading feedback.** Remove the toolbar `Updating…` flash from cache-hit
-   Next. A short chart-dim transition is allowed only for a perceptible TF or
-   ETH/RTH cache miss (human expectation roughly 500 ms); never cover the chart
-   with centered text.
-5. **Create flow.** Successful Create Session must navigate directly into the
-   newly created chart instead of returning to the Session list.
+1. New York exchange-axis presentation is locked without changing real source,
+   request, cache, Projection, or Replay instants.
+2. Projected bars retain bucket `startEpochMs` and carry chart-only
+   `displayEpochMs` for `4m :03/:07/...`, `30m :29/:59`, and `1h :59`.
+3. Bounded forward raw coverage plus safe adapter tail updates produce zero
+   provider requests across 100 covered `5m` Next actions; the final full-gate
+   run remains below the binding p95/p99/max thresholds.
+4. Cache-hit work shows no `Updating…`; slow replacement dimming begins only
+   after 500 ms and contains no overlay text.
+5. Successful Session creation navigates to and activates the exact new route.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.
@@ -213,10 +207,9 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Execute the bounded R5.6 corrective pass above, starting with a targeted V6
-time/TF/Replay audit. Fix and verify one ownership-safe group at a time, then
-issue a revised human checklist. Do not begin R6 multi-pane, persistence, or
-expanded Replay transport until R5.6 is explicitly accepted.
+Execute `docs/V7_R5_6_CORRECTIVE_REVIEW.md`. Record acceptance or the exact
+failed item before any replacement work. Do not begin R6 multi-pane,
+persistence, or expanded Replay transport until R5.6 is explicitly accepted.
 
 ## Standing Workflow
 

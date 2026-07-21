@@ -1,6 +1,6 @@
 # V7 Real V4 Bars Provider
 
-Status: R5.6 implemented, awaiting human chart review (2026-07-20)
+Status: R5.6 corrective implementation complete, awaiting human re-review (2026-07-20)
 
 ## Outcome
 
@@ -44,11 +44,12 @@ instants, Projection provenance, or Replay's exclusive cursor.
 
 - the independent adapter harness proves DST-aware request conversion,
   response conversion, padding removal, exact identity, coverage, and failure;
-- a live local probe returned exactly the requested 121 NQ bars for the V6
-  entry baseline;
+- chart entry requests one bounded prefix-plus-forward window while Projection
+  still reveals exactly the 121-bar prefix-plus-start baseline;
 - the real-Chrome workspace harness proves entry, Next bar, TF/ETH-RTH atomic
   replacement, manual/reset wall, and repeated left history against real data;
 - fixed visual fixtures now contain actual DuckDB NQ candles.
 
-Human comparison with V6/TradingView remains required before this visual gate
-is accepted.
+Human re-review of New York labels, aggregate placement, perceived latency,
+status stability, and direct-open creation remains required before this gate is
+accepted.

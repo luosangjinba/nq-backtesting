@@ -429,7 +429,7 @@ The follow-up review's date-independent `01:59 PM` cutoff is corrected by
 removing forward-context entry entirely. The selected start is the first Replay
 bar; earlier bars are context and later bars remain hidden.
 
-## R5.6 Real V4/DuckDB Bars Provider — Partial Human Review, Not Accepted
+## R5.6 Real V4/DuckDB Bars Provider — Corrective Pass Complete, Re-Review Pending
 
 Implemented as a corrective gate after chart review exposed that R5.5 still
 used visually misleading generated bars:
@@ -496,7 +496,7 @@ R5.6b aggregate-candle completion display placement is next.
 - added invalid/duplicate display-time negative controls and real-browser
   evidence that a partial higher-TF candle does not move Replay.
 
-R5.6c TF switch and higher-TF Next latency profiling is next.
+This exposed the bounded cache/series-update work closed in R5.6c.
 
 ### R5.6c TF And Aggregate Next Latency — Completed
 
@@ -515,7 +515,7 @@ R5.6c TF switch and higher-TF Next latency profiling is next.
 - measured the final 100-sample full-gate run at p95 `62.2ms`, p99 `66.1ms`,
   max `84.8ms`; adapter mutation p95 `0.3ms`, adapter paint p95 `29.0ms`.
 
-R5.6d refresh-feedback correction is next.
+This exposed the delayed refresh-feedback work closed in R5.6d.
 
 ### R5.6d Delayed Refresh Feedback — Completed
 
@@ -530,7 +530,7 @@ R5.6d refresh-feedback correction is next.
 - failures continue to retain the accepted chart and show one bounded inline
   error; reduced-motion removes the dim transition animation.
 
-R5.6e direct-open Session creation is next.
+This exposed the direct-open Session-creation work closed in R5.6e.
 
 ### R5.6e Direct-Open Session Creation — Completed
 
@@ -546,6 +546,16 @@ R5.6e direct-open Session creation is next.
   A→B→A, hard refresh, activation generations, and no active/current key.
 
 R5.6f combined regression, handoff closure, and human checklist are next.
+
+### R5.6f Corrective Gate — Automated Complete, Human Re-Review Pending
+
+- all R5.6a–e corrections are independently committed;
+- all V7 Harnesses, 100-sample latency, visual fixtures, architecture/source
+  quality, race controls, Session isolation, and `git diff --check` pass;
+- V4 health and the V7 static browser endpoint are verified for re-review;
+- restart handoff and the revised Chinese human checklist identify the exact
+  acceptance point;
+- R6 remains blocked until the user explicitly accepts this combined gate.
 
 ## Standing Gates
 
