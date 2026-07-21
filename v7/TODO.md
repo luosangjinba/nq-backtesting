@@ -639,6 +639,25 @@ blocked. Profile acquisition, full Projection, chart mutation, and paint under
 coalesced rapid boundary input; then remove the main-thread stall without
 regressing continuity, no-future, or bounded-request behavior.
 
+### R5.6l Fourth-Review Responsiveness — Automated Complete, Human Review Pending
+
+- 604,800-source-bar `8h` full Projection fell from about `3.93s` to `0.36s`;
+- earlier-history extension now reprojects only the acquired plus boundary
+  chunks and measures about `60ms` at that accumulated-history scale;
+- validated Raw Bar/Batch fast paths, allocation-light Session Hours checks,
+  direct fixed aggregation, and deterministic modern New York DST conversion
+  preserve the existing owner graph and semantics;
+- V4 logical windows above seven days use contiguous seven-day transport chunks
+  with main-thread yields and still publish one exact Raw Batch identity;
+- real Chrome rapid `8h` dragging completed two coalesced extensions in about
+  `1.68s`, with no 200ms long task and a maximum event-loop interval of about
+  `125ms` instead of the reproduced `695ms` stall;
+- final performance remains about `1.10s` for uncached `12h` RTH, `123ms` for
+  first `5m`, `60ms` for ETH→RTH, and aggregate Next p95 `52.7ms`, p99 `59.7ms`,
+  max `62.5ms`.
+
+R6 remains blocked pending explicit fifth-review acceptance.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

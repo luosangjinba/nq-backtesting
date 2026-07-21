@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R5.6i rejection and R5.6j corrections; fourth human review required
+Last updated: 2026-07-21 after R5.6k rejection and R5.6l corrections; fifth human review required
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  combined R5.5/R5.6 plus R5.6a–j corrections awaiting final human acceptance
+  combined R5.5/R5.6 plus R5.6a–l corrections awaiting final human acceptance
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -46,6 +46,8 @@ only:
   `sessions/session_20260720_r5_6h_second_review_corrections.md`.
 - `sessions/session_20260721_r5_6i_third_review_rejection.md` and
   `sessions/session_20260721_r5_6j_third_review_corrections.md`.
+- `sessions/session_20260721_r5_6k_fourth_review_rejection.md` and
+  `sessions/session_20260721_r5_6l_history_responsiveness.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -137,6 +139,12 @@ and human-accepted:
 - R5.6j retains only contiguous source-window prefixes, rejects gaps in
   Projection, and repairs adapter-only inverted logical ranges without
   changing canonical Viewport intent.
+- R5.6k records the fourth human rejection: rapid boundary dragging accumulated
+  history into a multi-second synchronous full-projection/response path that
+  stopped mouse response.
+- R5.6l adds bounded incremental history Projection, validated Raw Bar trust
+  paths, allocation-light calendar/aggregation loops, deterministic modern New
+  York DST conversion, and yielding seven-day V4 transport chunks.
 
 Latest corrective commits:
 
@@ -149,10 +157,12 @@ Latest corrective commits:
 7. `af0173c1 fix(v7): use New York session wall time`
 8. `55d36761 docs(v7): record third R5.6 review rejection`
 9. `8616913c fix(v7): preserve continuous chart replacements`
+10. `9d05e0cd docs(v7): record fourth R5.6 review rejection`
+11. `3d66f46e perf(v7): keep rapid history loading responsive`
 
 ## R5.6 Human Review Result
 
-Status: **third-review corrections complete; fourth human review pending**.
+Status: **fourth-review corrections complete; fifth human review pending**.
 
 Passed and protected:
 
@@ -190,6 +200,13 @@ Corrective implementation, in order:
 12. Real Chrome history→`1h`→RTH→ETH evidence reaches the Replay-visible tail,
     reports a normal 50-hour weekend as its maximum interval, and preserves the
     high-timeframe performance improvement.
+13. Deep earlier-history projection cost is bounded to the new plus boundary
+    chunks instead of all accumulated raw history.
+14. Large V4 logical requests yield between contiguous seven-day transport
+    responses without changing Bar Data identity or coverage.
+15. Rapid `8h` boundary input coalesces to two visible revisions; the final
+    Chrome gate observes no 200ms long task and about a 125ms maximum event-loop
+    interval while both history loads complete.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.

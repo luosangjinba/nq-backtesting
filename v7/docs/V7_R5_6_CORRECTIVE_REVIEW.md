@@ -1,6 +1,6 @@
 # V7 R5.6 Corrective Human Review
 
-Status: fourth human review rejected; corrective implementation required
+Status: fourth-review corrections automated-complete; fifth human review pending
 
 Browser URL: `http://127.0.0.1:8007/v7/app/`
 
@@ -90,6 +90,19 @@ Using `R5.6 Recheck` in `1m`/ETH, drag to the left history boundary twice, then:
 4. switch between `2m` and `1h` once more and confirm every replacement settles
    without needing another click to make candles appear.
 
+## 7. Rapid Earlier-History Responsiveness
+
+On each representative timeframe, especially `1m`, `1h`, `8h`, and `12h`:
+
+1. rapidly drag candles right several times until a large blank area appears at
+   the left boundary and history loading begins;
+2. keep moving the mouse over the chart while loading; pointer interaction must
+   continue responding rather than freezing for two to three seconds;
+3. repeated releases during one pending load may coalesce into at most one
+   queued continuation and must not create an unbounded request chain;
+4. after loading settles, earlier candles appear atomically, the chart remains
+   draggable, and Visible through/Replay do not move.
+
 ## Review Result
 
 Reply with one of:
@@ -142,3 +155,23 @@ projection/repaint path.
 The fourth review is rejected. Preserve data continuity and all prior semantic
 fixes, but make rapid boundary interaction coalesced and main-thread responsive
 before requesting another review.
+
+## Fourth-Review Corrections
+
+- validated Raw Bars/Batches retain an internal immutable trust marker, so
+  downstream Projection no longer revalidates hundreds of thousands of values;
+- fixed-duration aggregation validates untrusted direct input but uses the
+  trusted Raw Bar path during normal Projection;
+- modern New York wall conversion uses deterministic DST boundaries rather
+  than per-bar `Intl` work while preserving spring/fall transition fixtures;
+- history extension is now a pure incremental Projection operation over the new
+  chunk plus one adjacent boundary chunk; Projection owns boundary-bucket
+  rebuilding and accepted-tail merging;
+- logical V4 requests above seven days use contiguous transport chunks with a
+  main-thread yield between responses, while Bar Data receives one original
+  request identity and one complete Raw Batch;
+- real Chrome rapid `8h` dragging coalesces to two revisions, loads 239 candles
+  in about 1.68 seconds, observes no 200ms long task, and keeps the event-loop
+  sampling interval below about 125ms instead of the prior 695ms stall.
+
+All automated gates pass. Perform the fifth human review above.
