@@ -66,6 +66,11 @@ separate registered calendar-alignment policy.
 - each supplied eligible source bar contributes to exactly one bucket;
 - output open is the first source open, high/low are the extrema, close is the
   last source close;
+- `startEpochMs` remains the canonical bucket/provenance identity, while
+  `displayEpochMs` places the candle at the final source-minute slot in that
+  bucket (`4m :03/:07/...`, `30m :29/:59`, `1h :59` on zero-offset grids);
+- an incomplete current bucket keeps that same completion-slot presentation;
+  the later display coordinate never advances Replay or admits future source;
 - volume is summed only when every contributing source volume is known;
   otherwise output volume is `null`;
 - an incomplete current bucket is valid because Projection Domain first removes
@@ -83,6 +88,7 @@ completed work.
 ## Gate
 
 `tests/fixed-timeframe-domain-harness.js` proves direct OHLCV aggregation,
+completion-slot display time,
 partial active buckets, null-volume propagation, canonical one-hour/four-hour
 alignment, Projection integration, Session Hours eligibility before
 aggregation, exclusive no-future filtering, immutable interleaved policy

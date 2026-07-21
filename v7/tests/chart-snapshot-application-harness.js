@@ -23,8 +23,8 @@ const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR,
   'fixtures/chart-snapshot-application/negative/cases.json',
 ), 'utf8'));
-assert.equal(negativeCases.length, 14);
-assert.equal(new Set(negativeCases).size, 14);
+assert.equal(negativeCases.length, 15);
+assert.equal(new Set(negativeCases).size, 15);
 
 function deferred() {
   let resolve;
@@ -52,7 +52,7 @@ function snapshot(transactionIdentity, label = 'default') {
   });
   return Object.freeze({
     bars: Object.freeze([Object.freeze({
-      close: 2, high: 3, low: 1, open: 1.5, startEpochMs: 1_000, volume: 10,
+      close: 2, displayEpochMs: 1_000, high: 3, low: 1, open: 1.5, startEpochMs: 1_000, volume: 10,
     })]),
     paneId: `pane-${label}`,
     provenance: Object.freeze({ cursorProposal }),
@@ -247,6 +247,19 @@ await assert.rejects(mutableTarget.present({
   signal: new AbortController().signal,
   workspaceSnapshot: { ...snapshot(mutableIdentity) },
 }), (error) => error?.code === 'CHART_SNAPSHOT_INVALID');
+
+const missingDisplayIdentity = identity('missing-display');
+const canonicalSnapshot = snapshot(missingDisplayIdentity);
+const missingDisplayBar = { ...canonicalSnapshot.bars[0] };
+delete missingDisplayBar.displayEpochMs;
+await assert.rejects(application(fakeAdapter().adapter).present({
+  identity: missingDisplayIdentity,
+  signal: new AbortController().signal,
+  workspaceSnapshot: Object.freeze({
+    ...canonicalSnapshot,
+    bars: Object.freeze([Object.freeze(missingDisplayBar)]),
+  }),
+}), (error) => error?.code === 'CHART_SNAPSHOT_BAR_DISPLAY_TIME');
 
 for (const [index, forgedReceipt] of [
   (context, revision) => createChartAdapterVisibleReceipt({

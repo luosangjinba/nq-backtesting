@@ -29,6 +29,7 @@ const bars = Object.freeze(Array.from({ length: 20 }, (_, index) => {
   const open = 100 + index;
   return Object.freeze({
     close: open + (index % 2 ? -2 : 2),
+    displayEpochMs: 1_000_000 + (index * 60_000),
     high: open + 3,
     low: open - 3,
     open,

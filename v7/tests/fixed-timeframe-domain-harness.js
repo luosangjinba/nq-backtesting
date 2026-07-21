@@ -59,16 +59,31 @@ const projected = projectFixedDurationBars({
 });
 assert.deepEqual(projected, [
   {
+    displayEpochMs: epoch('2026-06-08T09:34'),
     startEpochMs: epoch('2026-06-08T09:30'),
     open: 100, high: 1_000, low: 99, close: 105, volume: 60,
   },
   {
+    displayEpochMs: epoch('2026-06-08T09:39'),
     startEpochMs: epoch('2026-06-08T09:35'),
     open: 105, high: 107, low: 104, close: 106, volume: 15,
   },
 ]);
 assert.equal(Object.isFrozen(projected), true);
 assert.equal(Object.isFrozen(projected[0]), true);
+for (const [label, durationMinutes, expected] of [
+  ['2026-06-08T12:40', 4, '2026-06-08T12:43'],
+  ['2026-06-08T12:10', 30, '2026-06-08T12:29'],
+  ['2026-06-08T12:40', 30, '2026-06-08T12:59'],
+  ['2026-06-08T12:40', 60, '2026-06-08T12:59'],
+]) {
+  assert.equal(projectFixedDurationBars({
+    bars: [bar(label, 0)],
+    durationMs: durationMinutes * MINUTE,
+    offsetMs: 0,
+    sourceDurationMs: MINUTE,
+  })[0].displayEpochMs, epoch(expected));
+}
 assert.equal(projectFixedDurationBars({
   bars: [sourceBars[0], { ...sourceBars[1], volume: null }],
   durationMs: 5 * MINUTE,
@@ -203,6 +218,7 @@ const partial = projectPaneSnapshot(projectionInput({
   cursorProposal: proposal(epoch('2026-06-08T09:33')),
 }));
 assert.deepEqual(partial.bars, [{
+  displayEpochMs: epoch('2026-06-08T09:34'),
   startEpochMs: epoch('2026-06-08T09:30'),
   open: 100, high: 103, low: 99, close: 102, volume: 21,
 }], 'exclusive cursor may expose a deterministic partial active bucket');

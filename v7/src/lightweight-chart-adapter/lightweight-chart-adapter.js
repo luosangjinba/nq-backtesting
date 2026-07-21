@@ -25,7 +25,7 @@ function chartData(workspaceSnapshot) {
     high: bar.high,
     low: bar.low,
     open: bar.open,
-    time: bar.startEpochMs / 1_000,
+    time: bar.displayEpochMs / 1_000,
   })));
 }
 
@@ -111,6 +111,7 @@ export function createLightweightChartAdapter({
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       adapterRevision += 1;
       host.dataset.barCount = String(barCount);
+      host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
       host.dataset.painted = 'true';
       host.dataset.visibleRevision = String(adapterRevision);
       return createChartAdapterVisibleReceipt({

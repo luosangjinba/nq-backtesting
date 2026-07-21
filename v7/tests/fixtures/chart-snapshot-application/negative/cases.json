@@ -12,5 +12,6 @@
   "foreign-receipt-identity",
   "foreign-receipt-snapshot",
   "unbranded-receipt",
-  "dispose-during-stage"
+  "dispose-during-stage",
+  "missing-display-time"
 ]

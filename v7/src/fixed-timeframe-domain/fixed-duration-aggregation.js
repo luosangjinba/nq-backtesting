@@ -23,8 +23,9 @@ function requireBar(bar, previousStart) {
   }
 }
 
-function beginBucket(bar, startEpochMs) {
+function beginBucket(bar, startEpochMs, { durationMs, sourceDurationMs }) {
   return {
+    displayEpochMs: startEpochMs + durationMs - sourceDurationMs,
     startEpochMs,
     open: bar.open,
     high: bar.high,
@@ -62,7 +63,7 @@ export function projectFixedDurationBars(value) {
     const bucketStart = resolveFixedBucketStart({ ...config, startEpochMs: bar.startEpochMs });
     if (!current || current.startEpochMs !== bucketStart) {
       if (current) buckets.push(Object.freeze(current));
-      current = beginBucket(bar, bucketStart);
+      current = beginBucket(bar, bucketStart, config);
     } else {
       extendBucket(current, bar);
     }

@@ -26,6 +26,9 @@ export function requireProjectedPaneSnapshot(candidate, identity) {
   }
   for (const bar of candidate.bars) {
     if (!Object.isFrozen(bar)) failChartApplication('CHART_SNAPSHOT_BAR_MUTABLE', 'Bars must be frozen.');
+    if (!Object.hasOwn(bar, 'displayEpochMs')) {
+      failChartApplication('CHART_SNAPSHOT_BAR_DISPLAY_TIME', 'Projected bars require canonical display time.');
+    }
     createProjectedBar(bar);
   }
   if (!candidate.provenance || !Object.isFrozen(candidate.provenance)) {

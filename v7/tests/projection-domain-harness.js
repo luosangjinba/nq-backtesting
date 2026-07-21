@@ -177,6 +177,11 @@ assert.deepEqual(
   'exclusive target must preserve every historical and intermediate 1m bar below the cursor',
 );
 assert.deepEqual(eligibilityCalls, accepted.bars.map((candidate) => candidate.startEpochMs));
+assert.deepEqual(
+  accepted.bars.map((candidate) => candidate.displayEpochMs),
+  accepted.bars.map((candidate) => candidate.startEpochMs),
+  'identity 1m projection must canonicalize display time to source start',
+);
 assert.equal(accepted.bars.some((candidate) => candidate.startEpochMs === 1_300_000), false);
 assert.equal(accepted.provenance.instrumentId, IDS.instrument);
 assert.equal(accepted.provenance.instrumentVersion, '1.0.0');
@@ -304,6 +309,24 @@ const negativeActions = {
       deterministic: true,
       id: IDS.aggregation,
       project: (bars) => [...bars].reverse(),
+      revision: 'identity-r1',
+    }),
+  })),
+  'invalid-display-time': () => projectPaneSnapshot(projectionInput({
+    aggregationPolicy: Object.freeze({
+      deterministic: true,
+      id: IDS.aggregation,
+      project: (bars) => bars.map((candidate) => ({
+        ...candidate, displayEpochMs: candidate.startEpochMs - 1,
+      })),
+      revision: 'identity-r1',
+    }),
+  })),
+  'unordered-display-time': () => projectPaneSnapshot(projectionInput({
+    aggregationPolicy: Object.freeze({
+      deterministic: true,
+      id: IDS.aggregation,
+      project: (bars) => bars.map((candidate) => ({ ...candidate, displayEpochMs: 2_000_000 })),
       revision: 'identity-r1',
     }),
   })),

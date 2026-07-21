@@ -483,6 +483,21 @@ The next action is the targeted V6 time/TF/Replay audit, not R6 multi-pane.
 
 R5.6b aggregate-candle completion display placement is next.
 
+### R5.6b Aggregate Candle Completion Placement — Completed
+
+- audited V6 bucket start/end metadata and confirmed source/no-future identity
+  was already separate from bucket completion;
+- added canonical projected `displayEpochMs` without replacing bucket
+  `startEpochMs` or Replay-visible provenance;
+- placed zero-offset `4m`, `30m`, and `1h` candles at `:03/:07/...`, `:29/:59`,
+  and `:59`, including the incomplete current candle;
+- kept RTH-aligned grids anchored at `09:30` and placed their display candle at
+  the final source-minute slot of that registered bucket;
+- added invalid/duplicate display-time negative controls and real-browser
+  evidence that a partial higher-TF candle does not move Replay.
+
+R5.6c TF switch and higher-TF Next latency profiling is next.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

@@ -14,6 +14,8 @@
   { "case": "all-source-future", "expectedCode": "PROJECTION_VISIBLE_EMPTY" },
   { "case": "future-output", "expectedCode": "PROJECTION_OUTPUT_FUTURE_BAR" },
   { "case": "unordered-output", "expectedCode": "PROJECTION_OUTPUT_NOT_ORDERED" },
+  { "case": "invalid-display-time", "expectedCode": "PROJECTED_BAR_DISPLAY_TIMESTAMP_INVALID" },
+  { "case": "unordered-display-time", "expectedCode": "PROJECTION_OUTPUT_DISPLAY_NOT_ORDERED" },
   { "case": "malformed-source-bar", "expectedCode": "INVALID_RAW_BAR_ENVELOPE" },
   { "case": "unknown-input-field", "expectedCode": "PROJECTION_INPUT_UNKNOWN_FIELD" }
 ]

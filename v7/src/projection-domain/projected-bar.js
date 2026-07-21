@@ -1,6 +1,11 @@
 import { failProjection } from './projection-error.js';
 
-const BAR_FIELDS = Object.freeze(['startEpochMs', 'open', 'high', 'low', 'close', 'volume']);
+const BASE_BAR_FIELDS = Object.freeze(['startEpochMs', 'open', 'high', 'low', 'close', 'volume']);
+const PROJECTED_BAR_FIELDS = Object.freeze([...BASE_BAR_FIELDS, 'displayEpochMs']);
+
+function exactFields(value, fields) {
+  return Object.keys(value).sort().join(',') === [...fields].sort().join(',');
+}
 
 function requireFinite(value, field) {
   if (!Number.isFinite(value)) {
@@ -13,11 +18,15 @@ export function createProjectedBar(value) {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     failProjection('PROJECTED_BAR_INVALID', 'Projected bar must be an object.');
   }
-  if (Object.keys(value).sort().join(',') !== [...BAR_FIELDS].sort().join(',')) {
-    failProjection('PROJECTED_BAR_FIELDS', 'Projected bar must contain the exact OHLCV fields.');
+  if (!exactFields(value, BASE_BAR_FIELDS) && !exactFields(value, PROJECTED_BAR_FIELDS)) {
+    failProjection('PROJECTED_BAR_FIELDS', 'Projected bar must contain exact OHLCV and optional display-time fields.');
   }
   if (!Number.isSafeInteger(value.startEpochMs) || value.startEpochMs < 0) {
     failProjection('PROJECTED_BAR_TIMESTAMP_INVALID', 'Projected bar timestamp is invalid.');
+  }
+  const displayEpochMs = value.displayEpochMs ?? value.startEpochMs;
+  if (!Number.isSafeInteger(displayEpochMs) || displayEpochMs < value.startEpochMs) {
+    failProjection('PROJECTED_BAR_DISPLAY_TIMESTAMP_INVALID', 'Projected display timestamp is invalid.');
   }
   const open = requireFinite(value.open, 'open');
   const high = requireFinite(value.high, 'high');
@@ -29,7 +38,9 @@ export function createProjectedBar(value) {
   if (value.volume !== null && (!Number.isFinite(value.volume) || value.volume < 0)) {
     failProjection('PROJECTED_BAR_VOLUME_INVALID', 'Projected volume must be null or non-negative.');
   }
-  return Object.freeze({ startEpochMs: value.startEpochMs, open, high, low, close, volume: value.volume });
+  return Object.freeze({
+    startEpochMs: value.startEpochMs, displayEpochMs, open, high, low, close, volume: value.volume,
+  });
 }
 
 export function normalizeProjectedBars(values, exclusiveCursorEpochMs) {
@@ -37,15 +48,20 @@ export function normalizeProjectedBars(values, exclusiveCursorEpochMs) {
     failProjection('PROJECTION_OUTPUT_EMPTY', 'Aggregation policy must return at least one projected bar.');
   }
   let previousStart = -1;
+  let previousDisplay = -1;
   const bars = values.map((value) => {
     const bar = createProjectedBar(value);
     if (bar.startEpochMs <= previousStart) {
       failProjection('PROJECTION_OUTPUT_NOT_ORDERED', 'Projected bars must be strictly ordered and unique.');
     }
+    if (bar.displayEpochMs <= previousDisplay) {
+      failProjection('PROJECTION_OUTPUT_DISPLAY_NOT_ORDERED', 'Projected display times must be strictly ordered and unique.');
+    }
     if (bar.startEpochMs >= exclusiveCursorEpochMs) {
       failProjection('PROJECTION_OUTPUT_FUTURE_BAR', 'Projected output exceeds the exclusive Replay cursor.');
     }
     previousStart = bar.startEpochMs;
+    previousDisplay = bar.displayEpochMs;
     return bar;
   });
   return Object.freeze(bars);

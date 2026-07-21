@@ -254,6 +254,7 @@ try {
     const host = document.querySelector('.lightweight-chart-host');
     return {
       barCount: Number(host.dataset.barCount), cursor: document.querySelector('.replay-workspace').dataset.cursorText,
+      latestDisplayEpochMs: Number(host.dataset.latestDisplayEpochMs),
       offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
       span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-workspace').dataset.wallOrigin,
       checked: document.querySelector('.timeframe-menu [data-timeframe-id="timeframe.display-5-minute"]').getAttribute('aria-checked'),
@@ -261,6 +262,13 @@ try {
     };
   })()`);
   assert.equal(timeframeAfter.barCount, 25);
+  assert.equal(
+    new Date(timeframeAfter.latestDisplayEpochMs).toLocaleTimeString('en-US', {
+      hour: '2-digit', hour12: false, minute: '2-digit', timeZone: 'America/New_York',
+    }),
+    '15:44',
+    'partial 5m candle must display at its completion minute without moving Replay',
+  );
   assert.equal(timeframeAfter.cursor, cursorBeforeReplacement, 'timeframe replacement must retain cursor');
   assert.equal(timeframeAfter.origin, 'manual');
   assert.equal(timeframeAfter.wall, 'manual');

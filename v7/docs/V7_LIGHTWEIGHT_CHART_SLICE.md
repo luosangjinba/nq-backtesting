@@ -29,6 +29,11 @@ uses `setData()` for one complete immutable snapshot, applies the current
 Viewport Runtime logical projection, and owns chart lifecycle/native input
 capture under its supplied host.
 
+Projection bars carry separate canonical bucket `startEpochMs` and chart-only
+`displayEpochMs`. The adapter uses only `displayEpochMs` as the Lightweight
+Charts time coordinate. Replay/no-future, Session Hours, aggregation identity,
+and provenance continue to use the bucket/source fields.
+
 `adapter.replay-workspace-ui` owns only its DOM subtree, visible state, and UI
 command dispatch. It composes Session activation, Bar Data Runtime with the
 real provider port, Replay Runtime, Projection Domain, Workspace
