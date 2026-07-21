@@ -63,6 +63,15 @@ capability/policy identity, Replay target, and visible-through invariants are
 verified before the combined snapshot is returned. Work therefore remains
 bounded as loaded history grows; the UI/runtime does not merge aggregate bars.
 
+R6.7a distinguishes an empty initial Pane from a non-contributing history
+prefix. If a Pane is already ready and the newly acquired plus boundary chunks
+contain no eligible bars under the unchanged policy—for example consecutive
+RTH closed-session windows—the operation preserves the accepted visible bars,
+rebinds them to the current retained Replay proposal, and prepends the exact raw
+request key. This advances historical coverage without publishing a false
+empty Pane. Identity, cursor, contiguity, and request-key failures remain hard
+Projection failures and are never converted into preservation.
+
 ## Targeted V6 Audit
 
 Retained product behavior:
@@ -101,5 +110,6 @@ separate roadmap steps.
 
 `tests/projection-domain-harness.js` proves deterministic deep-immutable output,
 all intermediate `1m` bars, exclusive no-future behavior, eligibility before
-aggregation, contiguous multi-window provenance, 20 negative controls, and the absence of
-concrete capability-id branches.
+aggregation, contiguous multi-window provenance, closed-session prefix
+preservation with changed-policy/forged-chain rejection, 20 fixture negative
+controls, and the absence of concrete capability-id branches.

@@ -814,7 +814,7 @@ left Replay marked `playing`, and therefore gave Pause no future work to stop.
 The bar-step correction remains regression-protected, but R6.6 is not accepted
 as a complete interaction gate.
 
-### R6.7 Continuous Autoplay And Effective Pause — Awaiting Human Review
+### R6.7 Continuous Autoplay And Effective Pause — Review Blocked
 
 - add one UI-local cadence scheduler that invokes the existing
   `autoplay-next` action without taking cursor, target, transaction, or chart
@@ -834,9 +834,33 @@ as a complete interaction gate.
 - preserve the selected Replay step and the one shared cursor/atomic all-Pane
   response on every autoplay tick.
 
-R6.7 changes transport interaction and visuals, so implementation stops for
-human review. The constrained floating bottom-center transport becomes R6.8;
-layout expansion and layout sync follow in later bounded steps.
+The 2026-07-21 review then exposed a blocking pre-existing multi-Pane history
+regression: after ETH left extension and an RTH switch, extending either Pane
+could replace accepted candles with an empty Pane and a later action could show
+`workspace-transaction-failed`. Continuous Autoplay remains regression-tested,
+but the combined review cannot pass until the following correction is accepted.
+
+### R6.7a Multi-Pane RTH History Preservation — Awaiting Human Review
+
+- preserve a ready accepted Pane when a bounded earlier-history prefix and its
+  boundary chunk contain no eligible RTH bars;
+- still prepend the exact raw request key so later leftward requests advance
+  across closed-session and weekend windows rather than retrying one boundary;
+- rebind preserved provenance to the current retained Replay proposal while
+  proving unchanged cursor, instrument, TF, dataset, calendar, aggregation, and
+  Session Hours policy identities;
+- continue rejecting gaps, overlaps, forged request-key chains, changed
+  policies, and other real Projection failures;
+- reproduce `05/01/2026 12:40–05/11/2026 12:40` with two NQ `1m` Panes, ETH
+  extension, RTH switch, repeated left extension in both Panes, and ETH
+  recovery in real Chrome;
+- require both Panes to retain candles, Session Hours to remain interactive,
+  and no Workspace/browser error to appear.
+
+After R6.7a acceptance, R6.8 is the constrained floating bottom-center Replay
+transport with speed control. R6.9 expands one-to-four layouts with draggable,
+persisted nested split ratios and minimum Pane sizes; layout sync follows as a
+separate bounded step.
 
 ## Standing Gates
 

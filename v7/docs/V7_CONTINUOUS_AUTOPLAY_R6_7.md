@@ -1,6 +1,6 @@
 # V7 Continuous Autoplay — R6.7
 
-Status: implemented; awaiting human interaction review (2026-07-21)
+Status: implemented; review blocked by multi-Pane RTH history regression (2026-07-21)
 
 ## Correction
 
@@ -69,3 +69,10 @@ bottom-center transport is R6.8.
 - one-to-four Pane layout expansion and Symbol/Interval/Crosshair/Time/Date
   range sync;
 - Economic Calendar, which remains an optional later business module.
+
+## Review Follow-up
+
+Review subsequently found a pre-existing history defect outside the cadence
+owner: ETH left extension followed by RTH extension could replace one of two
+ready Panes with a false empty result. R6.7a corrects that Projection behavior;
+R6.7 remains unaccepted until the combined interaction is reviewed again.

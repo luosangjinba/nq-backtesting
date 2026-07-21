@@ -1,7 +1,7 @@
 # Session — R6.7 Continuous Autoplay And Effective Pause
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human interaction review
+Status: implementation complete; review blocked by multi-Pane RTH history regression
 
 ## Review Input
 
@@ -45,3 +45,10 @@ no observable effect.
 This transport interaction correction stops for human review. After acceptance,
 R6.8 should implement the constrained floating bottom-center transport and
 speed control before layout expansion and layout-sync work.
+
+## Review Follow-up
+
+The user reproduced a separate blocking foundation regression while reviewing:
+after ETH leftward history, switching to RTH and extending either of two Panes
+could make candles disappear and later show `workspace-transaction-failed`.
+R6.7a addresses that defect before R6.7 can be accepted.

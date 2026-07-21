@@ -246,6 +246,32 @@ assert.deepEqual(extended.provenance.sourceRequestKeys, [
 ]);
 assertDeepFrozen(extended);
 
+const closedWindow = batch({
+  bars: [bar(880_000), bar(940_000)],
+  request: { windowStartEpochMs: 880_000, windowEndEpochMs: 1_000_000 },
+});
+const closedPolicies = policies({ eligibility: (candidate) => candidate.startEpochMs >= 1_000_000 });
+const firstClosedExtension = projectPaneHistoryExtension({
+  ...projectionInput({ sourceBatches: [closedWindow, batch()], ...closedPolicies }),
+  acceptedSnapshot: accepted,
+  sourceRequestKeys: [closedWindow.requestKey, ...accepted.provenance.sourceRequestKeys],
+});
+const earlierClosedWindow = batch({
+  bars: [bar(760_000), bar(820_000)],
+  request: { windowStartEpochMs: 760_000, windowEndEpochMs: 880_000 },
+});
+const nonContributingExtension = projectPaneHistoryExtension({
+  ...projectionInput({ sourceBatches: [earlierClosedWindow, closedWindow], ...closedPolicies }),
+  acceptedSnapshot: firstClosedExtension,
+  sourceRequestKeys: [earlierClosedWindow.requestKey, ...firstClosedExtension.provenance.sourceRequestKeys],
+});
+assert.deepEqual(nonContributingExtension.bars, accepted.bars,
+  'consecutive closed-session history windows must preserve the accepted visible tail');
+assert.deepEqual(nonContributingExtension.provenance.sourceRequestKeys, [
+  earlierClosedWindow.requestKey, closedWindow.requestKey, ...accepted.provenance.sourceRequestKeys,
+], 'a non-contributing history window must still advance raw coverage');
+assertDeepFrozen(nonContributingExtension);
+
 function errorCode(action) {
   try {
     action();
@@ -254,6 +280,26 @@ function errorCode(action) {
     return error.code;
   }
 }
+
+assert.equal(errorCode(() => projectPaneHistoryExtension({
+  ...projectionInput({
+    sourceBatches: [earlierClosedWindow, closedWindow],
+    ...closedPolicies,
+    sessionHoursPolicy: Object.freeze({
+      ...closedPolicies.sessionHoursPolicy,
+      revision: 'eth-r2',
+    }),
+  }),
+  acceptedSnapshot: firstClosedExtension,
+  sourceRequestKeys: [earlierClosedWindow.requestKey, ...firstClosedExtension.provenance.sourceRequestKeys],
+})), 'PROJECTION_HISTORY_SNAPSHOT_MISMATCH',
+'non-contributing history must not conceal a changed Session Hours policy');
+assert.equal(errorCode(() => projectPaneHistoryExtension({
+  ...projectionInput({ sourceBatches: [earlierClosedWindow, closedWindow], ...closedPolicies }),
+  acceptedSnapshot: firstClosedExtension,
+  sourceRequestKeys: [earlierClosedWindow.requestKey, 'forged-request-key'],
+})), 'PROJECTION_HISTORY_SOURCE_KEYS_INVALID',
+'non-contributing history must still prove an exact contiguous request-key chain');
 
 const laterBatch = () => batch({
   bars: [bar(1_480_000)],

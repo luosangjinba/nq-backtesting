@@ -333,10 +333,18 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   Autoplay performed only one step and Pause had no continuing work to stop;
 - `R6.7`: add a completion-driven continuous Autoplay cadence over the existing
   one-step navigation action, make Pause cancel future work without overlapping
-  all-Pane transactions, and stop at Session end/failure; implemented and
-  awaiting human acceptance;
+  all-Pane transactions, and stop at Session end/failure; its review exposed a
+  blocking multi-Pane RTH history regression;
+- `R6.7a`: preserve accepted Pane candles while earlier RTH history crosses
+  consecutive non-contributing closed-session windows, retain exact coverage
+  provenance, and prove two-Pane ETH→RTH extension plus ETH recovery;
 - `R6.8`: replace the interim top-row controls with the reviewed constrained
   floating bottom-center transport and add playback speed;
+- `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal
+  and vertical boundary is draggable, nested split ratios have minimum Pane
+  sizes, and accepted ratios persist with the Session without data/replay work;
+- `R6.10`: add the bounded Symbol, Interval, Crosshair, Time, and Date-range
+  layout-sync families over explicit owners;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.
