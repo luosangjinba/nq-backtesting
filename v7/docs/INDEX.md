@@ -35,11 +35,12 @@ Read in this order before V7 implementation work:
 28. `V7_REAL_V4_BARS_PROVIDER.md`
 29. `V7_R5_6_CORRECTIVE_REVIEW.md` for the accepted R5.6 regression contract
 30. `V7_PANE_WORKSPACE_DOMAIN.md`
-31. `V7_CHART_SNAPSHOT_APPLICATION.md`
-32. `V7_VIEWPORT_RUNTIME.md`
-33. `V7_LIGHTWEIGHT_CHART_SLICE.md`
-34. `V7_EXECUTION_ROADMAP.md`
-35. `../TODO.md`
+31. `V7_REPLAY_PANE_RESPONSE_CONTRACT.md`
+32. `V7_CHART_SNAPSHOT_APPLICATION.md`
+33. `V7_VIEWPORT_RUNTIME.md`
+34. `V7_LIGHTWEIGHT_CHART_SLICE.md`
+35. `V7_EXECUTION_ROADMAP.md`
+36. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

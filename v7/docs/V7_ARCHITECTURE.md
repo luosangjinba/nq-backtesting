@@ -52,6 +52,13 @@ R6.1 activates `core.pane-workspace-domain`. Every Pane has exactly `paneId`,
 scope must match the Session, activation, and Pane; every Pane must observe the
 same Replay cursor. Pane records structurally reject per-Pane Replay fields.
 
+R6.2 activates `core.replay-pane-response-contract`. Manual Next/Previous,
+Autoplay Next, Restart/Back-to, quick schedule GoTo, and exact GoTo all produce
+one complete visible-Pane response plan. Active focus cannot narrow Replay
+scope; the Session primary instrument remains clock authority; Session Hours is
+one Session-level revision; forward jumps require complete interval coverage;
+and failure preserves the last accepted Pane set.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

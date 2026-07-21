@@ -1,0 +1,16 @@
+{
+  "id": "core.replay-pane-response-contract",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/replay-pane-response-contract/public.js",
+  "requiredPorts": [
+    "core.replay-contract",
+    "core.pane-workspace-domain",
+    "core.viewport-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/replay-pane-response-contract-harness.js",
+  "removable": false
+}

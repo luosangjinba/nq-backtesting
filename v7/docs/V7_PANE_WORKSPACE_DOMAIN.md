@@ -50,9 +50,10 @@ forms preserve every Viewport intent and the shared cursor.
 - no durable layout restore;
 - no ES production provider activation.
 
-R6.2 must materialize a complete Pane set through one Workspace transaction and
-one exact visible-completion gate. It must not add a per-Pane transaction or
-Replay runtime.
+R6.2 defines how every Replay/navigation action targets this complete Pane set.
+R6.3 then materializes the set through one Workspace transaction and one exact
+visible-completion gate. Neither step may add a per-Pane transaction or Replay
+runtime.
 
 ## Gate
 

@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.1 Pane Workspace Domain completion
+Last updated: 2026-07-21 after R6.2 Replay × Pane Response Contract completion
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5 and R5.1–R5.6, plus completed
-  headless R6.1 Pane Workspace Domain
+  headless R6.1 Pane Workspace Domain and R6.2 Replay × Pane response planning
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -50,6 +50,7 @@ R6-relevant architecture/roadmap documents plus:
   `sessions/session_20260721_r5_6l_history_responsiveness.md`.
 - `sessions/session_20260721_r5_6m_fifth_review_acceptance.md`.
 - `sessions/session_20260721_r6_1_pane_workspace_domain.md`.
+- `sessions/session_20260721_r6_2_replay_pane_response_contract.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -152,6 +153,11 @@ and human-accepted:
 - R6.1 defines one uniform one-to-many Pane intent value, binds Pane instruments
   to Session assets, validates one shared Replay cursor through pane-local
   Viewport intent, and isolates focus plus instrument-sync transitions.
+- R6.2 binds Next, Previous, Autoplay, Restart/Back-to, five quick New York
+  GoTo anchors, and exact forward/backward GoTo to every visible Pane through
+  one pure atomic response plan. Session Hours remains Session-scoped, forward
+  jumps require continuous range coverage, and Economic Calendar is deferred
+  to an optional business module.
 
 Latest corrective commits:
 
@@ -271,7 +277,7 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Execute R6.2: materialize one complete Pane set through the existing Workspace
+Execute R6.3: materialize one complete Pane set through the existing Workspace
 Transaction Runtime, project each Pane against one shared Replay proposal, and
 stage/apply the set behind one exact visible-completion acknowledgement. Prove
 failure/stale work exposes neither partial Pane data nor a partial layout. Keep

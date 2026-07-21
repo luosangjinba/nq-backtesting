@@ -30,6 +30,7 @@ the only cursor owner, and Viewport Runtime remains the pane-local wall owner.
 
 ## Continuation
 
-R6.2 should define complete-Pane-set acquisition/projection and atomic visible
-application through the existing Workspace Transaction Runtime. It must remain
-headless and use fake ports before any browser-visible multi-Pane layout.
+R6.2 should first define the complete Replay/navigation response matrix for the
+Pane set. Complete-Pane-set acquisition/projection and atomic visible
+application then move to R6.3, still headless and using fake ports before any
+browser-visible multi-Pane layout.

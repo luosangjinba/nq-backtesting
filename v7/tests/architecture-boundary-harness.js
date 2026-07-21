@@ -201,6 +201,7 @@ for (const rule of [
   'viewport-intent-pane-local-and-data-independent',
   'real-chart-visible-completion-and-native-wall',
   'uniform-pane-workspace-session-assets-shared-cursor',
+  'replay-actions-plan-complete-pane-set-atomically',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

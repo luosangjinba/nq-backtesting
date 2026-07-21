@@ -314,14 +314,18 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.1`: define the pure uniform Pane Workspace value and Session-bounded
   active-focus/instrument transitions, with one shared Replay cursor and no
   Pane-local Replay state;
-- `R6.2`: materialize the complete Pane set through one Workspace transaction
+- `R6.2`: bind Manual Next/Previous, Autoplay, Restart/Back-to, quick GoTo, and
+  exact GoTo to one shared cursor and complete visible-Pane response plan;
+- `R6.3`: materialize the complete Pane set through one Workspace transaction
   and one atomic visible-completion boundary;
+- `R6.4`: activate Previous, Autoplay, Restart/Back-to, and both GoTo forms over
+  that shared materialization path;
+- `R6.5`: mount the real single/multi-Pane chart surface and interaction gate;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.
 
-## R7 — Transport, Restore, And Performance
+## R7 — Restore And Performance
 
-- Auto/Previous/Restart/Go-to;
 - soft re-entry and hard refresh restore;
 - cache-hit and delayed/reordered response gates.

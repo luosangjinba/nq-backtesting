@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.1-pane-workspace-domain-complete",
+  "status": "r6.2-replay-pane-response-contract-complete",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -35,6 +35,7 @@
     "docs/V7_WORKSPACE_REPLACEMENT_RUNTIME.md",
     "docs/V7_R5_6_CORRECTIVE_REVIEW.md",
     "docs/V7_PANE_WORKSPACE_DOMAIN.md",
+    "docs/V7_REPLAY_PANE_RESPONSE_CONTRACT.md",
     "docs/V7_CHART_SNAPSHOT_APPLICATION.md",
     "docs/V7_VIEWPORT_RUNTIME.md",
     "docs/V7_LIGHTWEIGHT_CHART_SLICE.md",
@@ -88,6 +89,7 @@
     "src/chart-snapshot-application/module.json",
     "src/viewport-runtime/module.json",
     "src/pane-workspace-domain/module.json",
+    "src/replay-pane-response-contract/module.json",
     "src/lightweight-chart-adapter/module.json",
     "src/replay-workspace-ui/module.json",
     "src/workspace-transaction-runtime/module.json",
@@ -212,6 +214,7 @@
     "fixed-timeframe-canonical-alignment",
     "atomic-timeframe-session-hours-replacement",
     "real-v4-bars-no-synthetic-production-fallback",
-    "uniform-pane-workspace-session-assets-shared-cursor"
+    "uniform-pane-workspace-session-assets-shared-cursor",
+    "replay-actions-plan-complete-pane-set-atomically"
   ]
 }

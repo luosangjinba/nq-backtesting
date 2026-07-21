@@ -684,8 +684,32 @@ R6 remains blocked pending explicit fifth-review acceptance.
 - pass the independent Harness with 20 negative controls plus architecture,
   module-host, and diff gates.
 
-R6.2 complete-Pane-set materialization through one Workspace transaction and
-one atomic visible-completion boundary is next. Browser layout remains later.
+R6.2 Replay × Pane response semantics are next. Complete-Pane-set
+materialization moves to R6.3; browser layout remains later.
+
+### R6.2 Replay × Pane Response Contract — Completed
+
+- re-derive the accepted V6 Previous, Autoplay, shared-cursor materialization,
+  GoTo continuous-range, Session Hours, and multi-instrument rules without
+  copying V6 command/event orchestration;
+- bind Manual Next/Previous, Autoplay Next, Restart/Back-to, quick schedule
+  GoTo, and exact GoTo to every visible Pane, regardless of active focus;
+- retain the Session primary instrument as source-clock authority and one
+  Session-scoped ETH/RTH plus calendar revision across all Panes;
+- require Previous/backward targets to replace visibility, and every forward
+  GoTo to cover the complete interval rather than destination-only data;
+- preserve mixed instrument/TF Viewport intents, allow Pane-local missing or
+  earlier visible-through data, and forbid separate Pane cursors;
+- require one in-flight transaction, exact all-Pane visible completion, atomic
+  Replay/workspace commit, and last-accepted preservation plus pause on failure;
+- define both GoTo surfaces: the five V6 quick New York anchors and an exact
+  Session-range cutoff that may move forward or backward;
+- defer Economic Calendar to an optional second-phase event provider/container;
+  it may later emit Exact GoTo intent but cannot own Replay or chart state;
+- pass the independent Harness with 18 negative controls.
+
+R6.3 complete-Pane-set acquisition, Projection, and atomic visible application
+through the existing Workspace Transaction Runtime is next.
 
 ## Standing Gates
 

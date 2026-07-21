@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R6.1",
-  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6", "R7"],
+  "currentStep": "R6.2",
+  "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
     {
@@ -832,6 +832,26 @@
       "negativeFixtures": ["tests/fixtures/pane-workspace-domain/negative/cases.json"],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260721_r6_1_pane_workspace_domain.md"
+    },
+    {
+      "id": "H048",
+      "name": "replay-actions-plan-complete-pane-set-atomically",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "Replay actions updated only an active pane, Previous deleted a rendered candle, GoTo skipped the revealed interval, or Autoplay accumulated overlapping pane work",
+      "activationStep": "R6.2",
+      "state": "accepted",
+      "harness": "tests/replay-pane-response-contract-harness.js",
+      "positiveEvidence": [
+        "src/replay-pane-response-contract/public.js",
+        "src/replay-pane-response-contract/module.json",
+        "src/replay-pane-response-contract/action-intent.js",
+        "src/replay-pane-response-contract/response-plan.js",
+        "tests/replay-pane-response-contract-harness.js",
+        "docs/V7_REPLAY_PANE_RESPONSE_CONTRACT.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/replay-pane-response-contract/negative/cases.json"],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260721_r6_2_replay_pane_response_contract.md"
     }
   ]
 }

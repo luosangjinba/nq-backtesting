@@ -1,0 +1,20 @@
+[
+  { "case": "unknown-action", "expectedCode": "REPLAY_PANE_ACTION_KIND_INVALID" },
+  { "case": "step-extra-field", "expectedCode": "REPLAY_PANE_ACTION_FIELDS_INVALID" },
+  { "case": "anchor-missing", "expectedCode": "REPLAY_PANE_ACTION_FIELDS_INVALID" },
+  { "case": "anchor-unknown", "expectedCode": "REPLAY_PANE_ACTION_ANCHOR_INVALID" },
+  { "case": "target-missing", "expectedCode": "REPLAY_PANE_ACTION_FIELDS_INVALID" },
+  { "case": "target-invalid", "expectedCode": "REPLAY_PANE_ACTION_TARGET_INVALID" },
+  { "case": "action-lookalike", "expectedCode": "REPLAY_PANE_ACTION_REQUIRED" },
+  { "case": "plan-extra-field", "expectedCode": "REPLAY_PANE_PLAN_FIELDS_INVALID" },
+  { "case": "workspace-lookalike", "expectedCode": "PANE_WORKSPACE_REQUIRED" },
+  { "case": "range-order", "expectedCode": "REPLAY_RANGE_ORDER" },
+  { "case": "workspace-cursor-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" },
+  { "case": "session-hours-extra-field", "expectedCode": "REPLAY_PANE_SESSION_HOURS_FIELDS_INVALID" },
+  { "case": "session-hours-per-pane", "expectedCode": "REPLAY_PANE_SESSION_HOURS_FIELDS_INVALID" },
+  { "case": "session-hours-mode", "expectedCode": "REPLAY_PANE_SESSION_HOURS_MODE_INVALID" },
+  { "case": "session-hours-revision", "expectedCode": "REPLAY_PANE_SESSION_HOURS_REVISION_INVALID" },
+  { "case": "calendar-revision", "expectedCode": "REPLAY_PANE_CALENDAR_REVISION_INVALID" },
+  { "case": "back-to-forward", "expectedCode": "REPLAY_PANE_BACK_TO_NOT_BACKWARD" },
+  { "case": "exact-target-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" }
+]
