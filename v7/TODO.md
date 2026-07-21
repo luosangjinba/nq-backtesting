@@ -734,6 +734,31 @@ through the existing Workspace Transaction Runtime is next.
 R6.4 shared Replay Runtime navigation actions are next: Previous, Autoplay,
 Restart/Back-to, quick GoTo, and exact GoTo over the R6.3 materialization path.
 
+### R6.4 Shared Replay Navigation Runtime — Completed
+
+- extend Replay Contract/Runtime with inert exact forward/backward/retain
+  proposals and real Replay-owned playing/paused state;
+- bind the active Replay range into R6.2 response-plan schema v2 and reject
+  stale cursor/range inputs before materialization or exact-target no-op;
+- add pure DST-aware `America/New_York` candidate generation for Next Day Open,
+  Next Session, Asian, London, and New York quick GoTo anchors;
+- resolve next/previous steps and real-bar-near-anchor targets through one
+  injected cancellable primary-source traversal port, without another raw-data
+  requester;
+- route Manual Previous, one-step Autoplay, Restart/Back-to, quick GoTo, and
+  exact forward/backward GoTo through one R6.3 complete Pane-set transaction;
+- skip materialization for exact GoTo at the accepted cursor, retain complete
+  forward-range intent, and use full replacement intent for backward moves;
+- reject overlapping navigation without backlog; pause and preserve the last
+  accepted Replay/workspace/chart state on target, Projection, or visible-apply
+  failure;
+- prove mixed NQ/ES plus `1m`/`4h`, empty comparison Pane, weekend anchor skip,
+  primary-clock visibility, DST, and 20 negative/race controls headlessly.
+
+R6.5 real single/multi-Pane browser composition and the combined Replay × Pane
+interaction/visual acceptance gate are next. Economic Calendar remains a
+separate later business module.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

@@ -3,6 +3,7 @@ export { createReplayAdvanceInput, requireReplayAdvanceInput } from './advance-i
 export {
   createReplayCursorProposal,
   createReplayCursorRetentionProposal,
+  createReplayCursorTargetProposal,
   isEpochVisibleAtReplayCursor,
   readReplayCursorProposal,
 } from './cursor-proposal.js';

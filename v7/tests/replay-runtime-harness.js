@@ -53,9 +53,19 @@ assert.equal(retainedSnapshot.cursorEpochMs, 4_000, 'retention proposal cannot m
 assert.equal(retainedSnapshot.visibleThroughEpochMs, 3_000);
 assert.equal(retainedSnapshot.revision, 2);
 
+assert.equal(clock.play().playback, 'playing');
+const backward = clock.proposeTarget({
+  identity: identity(sessionA, generationOne, 'backward'), targetEpochMs: 2_000,
+});
+assert.equal(clock.snapshot().cursorEpochMs, 4_000, 'target proposal is inert');
+const rewound = clock.commitVisible(backward, { visibleThroughEpochMs: null });
+assert.equal(rewound.cursorEpochMs, 2_000);
+assert.equal(rewound.playback, 'playing', 'non-terminal commit does not invent a pause');
+assert.equal(clock.pause().playback, 'paused');
+
 const rejected = clock.proposeAdvance({ identity: identity(sessionA, generationOne, 'two'), advance: auto });
 assert.equal(clock.reject(rejected), true);
-assert.equal(clock.snapshot().cursorEpochMs, 4_000, 'rejection must have zero cursor side effects');
+assert.equal(clock.snapshot().cursorEpochMs, 2_000, 'rejection must have zero cursor side effects');
 clock.dispose();
 
 function errorCode(action) {
@@ -123,6 +133,18 @@ const negativeActions = {
       identity: identity(sessionA, generationOne, 'visibility-before-range'),
     });
     return target.commitVisible(retainedProposal, { visibleThroughEpochMs: 999 });
+  },
+  'target-session-mismatch': () => runtime().proposeTarget({
+    identity: identity(sessionB, generationOne, 'target-wrong-session'), targetEpochMs: 3_000,
+  }),
+  'play-after-complete': () => {
+    const target = createReplayRuntime({
+      sessionId: sessionA,
+      activationGeneration: generationOne,
+      range,
+      initialCursorEpochMs: range.endEpochMs,
+    });
+    return target.play();
   },
 };
 

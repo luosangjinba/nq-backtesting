@@ -39,6 +39,20 @@ assert.equal(retained.advance, null);
 assert.equal(retained.targetEpochMs, 2_000);
 assert.deepEqual(retained.revealWindow, { startEpochMs: 2_000, endEpochMs: 2_000 });
 
+for (const [targetEpochMs, movement, revealWindow] of [
+  [7_000, 'forward', { startEpochMs: 2_000, endEpochMs: 7_000 }],
+  [1_000, 'backward', { startEpochMs: 1_000, endEpochMs: 2_000 }],
+  [2_000, 'retain', { startEpochMs: 2_000, endEpochMs: 2_000 }],
+]) {
+  const target = replay.readReplayCursorProposal(replay.createReplayCursorTargetProposal({
+    identity, range, baseRevision: 4, cursorEpochMs: 2_000, targetEpochMs,
+  }));
+  assert.equal(target.kind, 'target');
+  assert.equal(target.movement, movement);
+  assert.equal(target.targetEpochMs, targetEpochMs);
+  assert.deepEqual(target.revealWindow, revealWindow);
+}
+
 const clamped = replay.readReplayCursorProposal(replay.createReplayCursorProposal({
   identity, range, baseRevision: 4, cursorEpochMs: 9_000, advance: manual,
 }));
@@ -76,6 +90,9 @@ const negativeActions = {
     baseRevision: 0,
     cursorEpochMs: Number.MAX_SAFE_INTEGER - 1,
     advance: replay.createReplayAdvanceInput({ source: 'auto', durationMs: 2 }),
+  }),
+  'target-outside-range': () => replay.createReplayCursorTargetProposal({
+    identity, range, baseRevision: 0, cursorEpochMs: 2_000, targetEpochMs: 10_001,
   }),
 };
 

@@ -49,6 +49,12 @@ complete snapshot to the existing visible-completion port. Workspace
 Transaction Runtime still sees one acquisition, one projection, one
 presentation, and one accepted revision.
 
+R6.4 permits the injected Replay proposal port to resolve asynchronously under
+the same transaction AbortSignal. The runtime awaits proposal resolution and
+performs a currency check before acquisition. Existing synchronous proposal
+ports remain valid. Slow superseded target lookup therefore cannot escape into
+Pane acquisition or cursor publication.
+
 R4.1 uses a fake visible-completion port. This proves ordering but does not
 claim browser-visible chart completion; H016 remains inactive until the real
 Chart Runtime/Adapter exists.

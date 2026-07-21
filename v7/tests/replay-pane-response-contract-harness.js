@@ -96,6 +96,7 @@ const stepCases = [
 for (const [kind, direction, coverage, resolution] of stepCases) {
   const result = plan(createReplayPaneAction({ kind }));
   assert.equal(result.actionKind, kind);
+  assert.equal(result.schemaVersion, 2);
   assert.equal(result.target.direction, direction);
   assert.equal(result.target.coverage, coverage);
   assert.equal(result.target.resolution, resolution);
@@ -104,6 +105,7 @@ for (const [kind, direction, coverage, resolution] of stepCases) {
   assert.equal(result.cursorAuthorityInstrumentId, NQ, 'Session primary instrument is clock authority');
   assert.equal(result.sessionHours.scope, 'session');
   assert.equal(result.sessionHours.mode, 'rth');
+  assert.deepEqual(result.replayRange, RANGE);
   assert.equal(result.atomicity.commit, 'replay-and-complete-pane-set-after-exact-visible-completion');
   assert.equal(result.atomicity.failure, 'preserve-last-accepted-workspace-and-pause');
   assert.equal(result.atomicity.overlap, 'single-in-flight-no-autoplay-backlog');

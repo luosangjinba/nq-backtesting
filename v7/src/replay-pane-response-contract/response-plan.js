@@ -141,7 +141,8 @@ export function planReplayPaneResponse(value) {
     cursorAuthorityInstrumentId: workspace.primaryInstrumentId,
     fromCursorEpochMs: cursorEpochMs,
     paneResponses: panes,
-    schemaVersion: 1,
+    replayRange,
+    schemaVersion: 2,
     sessionHours: sessionHours(value.sessionHours),
     target,
   });

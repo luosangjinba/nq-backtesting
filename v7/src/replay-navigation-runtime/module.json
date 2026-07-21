@@ -1,0 +1,20 @@
+{
+  "id": "core.replay-navigation-runtime",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/replay-navigation-runtime/public.js",
+  "requiredPorts": [
+    "core.replay-contract",
+    "core.replay-runtime",
+    "core.replay-pane-response-contract",
+    "core.pane-set-materialization",
+    "core.chart-snapshot-application",
+    "core.workspace-transaction-contract",
+    "core.workspace-transaction-runtime"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/replay-navigation-runtime-harness.js",
+  "removable": false
+}

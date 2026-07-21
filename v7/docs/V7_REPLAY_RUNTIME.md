@@ -1,6 +1,6 @@
 # V7 Replay Runtime
 
-Status: R3.3b binding headless state owner (2026-07-20)
+Status: R3.3b clock owner with R5.4 retention and R6.4 navigation extensions
 
 ## Ownership
 
@@ -29,6 +29,13 @@ commit a `visibleThroughEpochMs` that precedes that cursor; the value must come
 from Projection provenance and identify a real eligible source bar. Invalid,
 failed, rejected, or stale retention proposals have zero cursor,
 visible-through, or revision effects.
+
+R6.4 adds `proposeTarget` for exact forward, backward, or retained navigation.
+The proposal carries the covered span but remains inert. `play()` and `pause()`
+now publish the Replay-owned playback state; they do not change the cursor
+revision or bypass visible commit. A terminal cursor commit automatically
+pauses at Session end. Navigation failure pauses through this public owner API.
+Autoplay cadence/timers remain outside this runtime until R7.
 
 ## Lifecycle And Exclusions
 

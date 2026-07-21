@@ -203,6 +203,7 @@ for (const rule of [
   'uniform-pane-workspace-session-assets-shared-cursor',
   'replay-actions-plan-complete-pane-set-atomically',
   'complete-pane-set-materializes-and-applies-atomically',
+  'replay-navigation-shares-one-clock-and-pane-set-transaction',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

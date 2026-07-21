@@ -320,7 +320,8 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   and one atomic visible-completion boundary; completed headlessly with fake
   per-Pane acquisition/projection and chart ports;
 - `R6.4`: activate Previous, Autoplay, Restart/Back-to, and both GoTo forms over
-  that shared materialization path;
+  that shared materialization path; completed headlessly with one Replay target
+  proposal path, DST-aware New York anchors, and overlap/failure controls;
 - `R6.5`: mount the real single/multi-Pane chart surface and interaction gate;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;

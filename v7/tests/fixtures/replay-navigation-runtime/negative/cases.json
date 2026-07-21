@@ -1,0 +1,22 @@
+[
+  { "case": "anchors-missing-field", "expectedCode": "REPLAY_NAVIGATION_ANCHORS_INVALID" },
+  { "case": "anchor-time-invalid", "expectedCode": "REPLAY_NAVIGATION_ANCHOR_TIME_INVALID" },
+  { "case": "schedule-bounds", "expectedCode": "REPLAY_NAVIGATION_SCHEDULE_BOUNDS_INVALID" },
+  { "case": "schedule-lookalike", "expectedCode": "REPLAY_NAVIGATION_SCHEDULE_REQUIRED" },
+  { "case": "schedule-anchor", "expectedCode": "REPLAY_NAVIGATION_ANCHOR_INVALID" },
+  { "case": "traversal-port-missing", "expectedCode": "REPLAY_NAVIGATION_TRAVERSAL_PORT_INVALID" },
+  { "case": "target-signal-missing", "expectedCode": "REPLAY_NAVIGATION_SIGNAL_REQUIRED" },
+  { "case": "target-result-mutable", "expectedCode": "REPLAY_NAVIGATION_TARGET_RESULT_INVALID" },
+  { "case": "target-source-invalid", "expectedCode": "REPLAY_NAVIGATION_SOURCE_EPOCH_INVALID" },
+  { "case": "target-direction", "expectedCode": "REPLAY_NAVIGATION_TARGET_DIRECTION" },
+  { "case": "anchor-distance", "expectedCode": "REPLAY_NAVIGATION_ANCHOR_DISTANCE" },
+  { "case": "replay-port-missing", "expectedCode": "REPLAY_NAVIGATION_PORT_INVALID" },
+  { "case": "replay-signal-missing", "expectedCode": "REPLAY_NAVIGATION_SIGNAL_REQUIRED" },
+  { "case": "operation-mismatch", "expectedCode": "REPLAY_NAVIGATION_OPERATION_MISMATCH" },
+  { "case": "cursor-stale", "expectedCode": "REPLAY_NAVIGATION_CURSOR_STALE" },
+  { "case": "execution-extra-field", "expectedCode": "REPLAY_NAVIGATION_EXECUTION_INVALID" },
+  { "case": "executor-operation", "expectedCode": "REPLAY_NAVIGATION_OPERATION_MISMATCH" },
+  { "case": "executor-range-stale", "expectedCode": "REPLAY_NAVIGATION_CURSOR_STALE" },
+  { "case": "pane-request-mutable", "expectedCode": "REPLAY_NAVIGATION_PANE_REQUEST_INVALID" },
+  { "case": "result-lookalike", "expectedCode": "REPLAY_NAVIGATION_RESULT_REQUIRED" }
+]

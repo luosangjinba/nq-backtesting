@@ -43,11 +43,13 @@ function safeReject(replayPort, proposal) {
 }
 
 async function prepareVisibleResult({ description, immutableInput, ports, record, state }) {
-  const proposal = ports.replayPort.propose(Object.freeze({
+  const proposal = await ports.replayPort.propose(Object.freeze({
     identity: description.identity,
     input: immutableInput,
     operation: description.operation,
+    signal: record.controller.signal,
   }));
+  assertCurrent(state, description.identity);
   record.proposal = proposal;
   const acquired = await ports.acquisitionPort.acquire(Object.freeze({
     identity: description.identity,

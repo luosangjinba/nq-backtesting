@@ -80,6 +80,43 @@ export function createReplayCursorRetentionProposal({
   });
 }
 
+/**
+ * Owner: Replay Runtime boundary.
+ * Purpose: create one inert exact-target proposal for forward, backward, or
+ * retained navigation without giving the caller cursor-write authority.
+ * Inputs: complete transaction identity, Replay range/revision/cursor, and an
+ * exact target cutoff inside that range.
+ * Outputs: branded immutable cursor proposal with direction and covered span.
+ * Side effects/lifecycle: none.
+ * Errors: Replay contract validation errors.
+ */
+export function createReplayCursorTargetProposal({
+  identity,
+  range,
+  baseRevision,
+  cursorEpochMs,
+  targetEpochMs,
+}) {
+  const { acceptedRange, cursor } = requireBase({ identity, range, baseRevision, cursorEpochMs });
+  const target = requireCursorInRange(targetEpochMs, acceptedRange);
+  const movement = target > cursor ? 'forward' : target < cursor ? 'backward' : 'retain';
+  return new ReplayCursorProposalValue({
+    advance: null,
+    baseRevision,
+    complete: target === acceptedRange.endEpochMs,
+    cursorEpochMs: cursor,
+    identity,
+    kind: 'target',
+    movement,
+    range: acceptedRange,
+    revealWindow: Object.freeze({
+      startEpochMs: Math.min(cursor, target),
+      endEpochMs: Math.max(cursor, target),
+    }),
+    targetEpochMs: target,
+  });
+}
+
 export function readReplayCursorProposal(candidate) {
   if (!(candidate instanceof ReplayCursorProposalValue)) {
     throw new ReplayContractError(

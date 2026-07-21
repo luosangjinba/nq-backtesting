@@ -7,5 +7,7 @@
   { "case": "advance-after-complete", "expectedCode": "REPLAY_COMPLETE" },
   { "case": "call-after-dispose", "expectedCode": "REPLAY_RUNTIME_DISPOSED" },
   { "case": "visibility-at-cursor", "expectedCode": "REPLAY_VISIBILITY_INVALID" },
-  { "case": "visibility-before-range", "expectedCode": "REPLAY_VISIBILITY_INVALID" }
+  { "case": "visibility-before-range", "expectedCode": "REPLAY_VISIBILITY_INVALID" },
+  { "case": "target-session-mismatch", "expectedCode": "REPLAY_SESSION_MISMATCH" },
+  { "case": "play-after-complete", "expectedCode": "REPLAY_COMPLETE" }
 ]

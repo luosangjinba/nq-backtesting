@@ -6,5 +6,6 @@
   { "case": "raw-identity", "expectedCode": "WORKSPACE_TRANSACTION_IDENTITY_REQUIRED" },
   { "case": "negative-revision", "expectedCode": "REPLAY_BASE_REVISION_INVALID" },
   { "case": "forged-proposal", "expectedCode": "REPLAY_CURSOR_PROPOSAL_REQUIRED" },
-  { "case": "overflow-target", "expectedCode": "REPLAY_TARGET_OVERFLOW" }
+  { "case": "overflow-target", "expectedCode": "REPLAY_TARGET_OVERFLOW" },
+  { "case": "target-outside-range", "expectedCode": "REPLAY_CURSOR_OUT_OF_RANGE" }
 ]

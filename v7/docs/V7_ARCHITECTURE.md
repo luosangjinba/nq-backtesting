@@ -67,6 +67,15 @@ Pane does not stall Replay. The existing Chart Snapshot Application module
 validates and visibly applies the complete set through one adapter call and one
 exact receipt; no second chart writer or coordinator is introduced.
 
+R6.4 activates `core.replay-navigation-runtime` as a thin action/target router,
+not another coordinator. Replay Runtime issues inert exact forward/backward
+target proposals and owns playing/paused state. A cancellable source-traversal
+port resolves next/previous eligible primary-source cutoffs and verifies
+DST-aware New York quick anchors; exact targets bypass traversal. The router
+builds the R6.2 plan and R6.3 input, then invokes one Workspace Transaction.
+Overlap is rejected without backlog, and every failed terminal pauses while
+preserving the last accepted atomic state.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

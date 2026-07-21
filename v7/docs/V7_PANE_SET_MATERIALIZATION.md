@@ -73,6 +73,11 @@ will migrate it to the Pane-set constructor while adding real multi-Pane hosts;
 R6.3 adds no browser-visible behavior and keeps both constructors inside the
 same sole-writer module during that bounded migration.
 
+R6.4 consumes this boundary unchanged for every non-no-op Replay navigation
+action. Target resolution occurs in the cancellable Replay proposal stage;
+after that, the same complete acquisition, Projection, and single visible apply
+path handles forward ranges and backward replacements.
+
 ## R6.3 Exclusions
 
 - no Previous/Autoplay/Restart/GoTo Replay Runtime mutation API;

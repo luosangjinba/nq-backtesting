@@ -1,6 +1,7 @@
 import {
   createReplayCursorProposal,
   createReplayCursorRetentionProposal,
+  createReplayCursorTargetProposal,
   createReplayRange,
   readReplayCursorProposal,
   requireCursorInRange,
@@ -27,6 +28,7 @@ export function createReplayRuntime({
   const acceptedRange = createReplayRange(range);
   let cursorEpochMs = requireCursorInRange(initialCursorEpochMs, acceptedRange);
   let visibleThroughEpochMs = cursorEpochMs;
+  let playback = 'paused';
   let revision = 0;
   let disposed = false;
   const issuedProposals = new WeakSet();
@@ -43,7 +45,7 @@ export function createReplayRuntime({
       activationGeneration: activation.activationGeneration,
       complete: cursorEpochMs === acceptedRange.endEpochMs,
       cursorEpochMs,
-      playback: 'paused',
+      playback,
       range: acceptedRange,
       visibleThroughEpochMs,
       revision,
@@ -80,6 +82,35 @@ export function createReplayRuntime({
     });
     issuedProposals.add(proposal);
     return proposal;
+  }
+
+  function proposeTarget({ identity, targetEpochMs }) {
+    requireActive();
+    requireMatchingActivation(identity, activation);
+    const proposal = createReplayCursorTargetProposal({
+      baseRevision: revision,
+      cursorEpochMs,
+      identity,
+      range: acceptedRange,
+      targetEpochMs,
+    });
+    issuedProposals.add(proposal);
+    return proposal;
+  }
+
+  function play() {
+    requireActive();
+    if (cursorEpochMs === acceptedRange.endEpochMs) {
+      throw new ReplayRuntimeError('REPLAY_COMPLETE', 'Replay is already at Session end.');
+    }
+    playback = 'playing';
+    return snapshot();
+  }
+
+  function pause() {
+    requireActive();
+    playback = 'paused';
+    return snapshot();
   }
 
   function requireCommittable(proposal) {
@@ -123,6 +154,7 @@ export function createReplayRuntime({
     issuedProposals.delete(proposal);
     cursorEpochMs = value.targetEpochMs;
     visibleThroughEpochMs = acceptedVisibility;
+    if (cursorEpochMs === acceptedRange.endEpochMs) playback = 'paused';
     revision += 1;
     return snapshot();
   }
@@ -137,5 +169,15 @@ export function createReplayRuntime({
     disposed = true;
   }
 
-  return Object.freeze({ commitVisible, dispose, proposeAdvance, proposeRetention, reject, snapshot });
+  return Object.freeze({
+    commitVisible,
+    dispose,
+    pause,
+    play,
+    proposeAdvance,
+    proposeRetention,
+    proposeTarget,
+    reject,
+    snapshot,
+  });
 }

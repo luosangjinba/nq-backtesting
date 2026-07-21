@@ -1,6 +1,6 @@
 # V7 Replay × Pane Response Contract
 
-Status: R6.2 pure response-planning foundation (2026-07-21)
+Status: R6.2 pure plan, range-bound schema v2 consumed by R6.4
 
 ## Decision
 
@@ -89,6 +89,10 @@ candle rather than adding a new displayed candle. Different instruments may
 have different `visibleThrough` values. Neither condition creates a separate
 cursor or stalls Replay.
 
+R6.4 binds the exact active Replay range into response-plan schema v2. This
+lets both the navigation executor and Replay proposal port reject a stale or
+foreign range before no-op or materialization work.
+
 ## Economic Calendar Boundary
 
 V6 has no accepted Economic Calendar implementation. V7 therefore does not
@@ -101,13 +105,16 @@ expose post-release news results before the accepted Replay cursor. Replay,
 live-order, training-order, and review-order providers remain separate fact
 owners behind the same read-only event presentation contract.
 
-## R6.2 Exclusions
+## R6.2 Exclusions At Definition Time
 
 - no Replay Runtime Previous/target/autoplay mutation API;
 - no target-resolution I/O or New York anchor scheduler;
 - no complete Pane-set Projection/application runtime;
 - no browser transport, GoTo dialog, multi-Pane layout, or event markers;
 - no Economic Calendar provider or data source.
+
+R6.3 and R6.4 now activate the first three items headlessly through the shared
+runtime; browser transport/dialog/layout and Economic Calendar remain excluded.
 
 ## Gate
 
