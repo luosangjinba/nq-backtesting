@@ -55,6 +55,14 @@ An empty source or an empty eligible projection is an explicit domain failure
 in R4.2. Future product empty/unavailable presentation remains owned by the
 transaction/UI state model rather than fake candles.
 
+Earlier-history extension uses a dedicated pure Projection operation. It
+reprojects only the acquired chunk and the oldest accepted boundary chunk so a
+fixed-duration candle crossing that boundary is rebuilt correctly, then
+preserves the already accepted ordered tail. Exact source request-key prefix,
+capability/policy identity, Replay target, and visible-through invariants are
+verified before the combined snapshot is returned. Work therefore remains
+bounded as loaded history grows; the UI/runtime does not merge aggregate bars.
+
 ## Targeted V6 Audit
 
 Retained product behavior:

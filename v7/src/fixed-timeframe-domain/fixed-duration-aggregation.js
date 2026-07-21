@@ -1,11 +1,11 @@
-import { resolveFixedBucketStart } from './bucket-alignment.js';
+import { isValidatedRawBar } from '../bar-data-contract/public.js';
 import { failFixedTimeframe } from './fixed-timeframe-error.js';
 import { exactRecord, normalizeFixedConfiguration } from './validation.js';
 
-const BAR_FIELDS = Object.freeze(['startEpochMs', 'open', 'high', 'low', 'close', 'volume']);
-
 function requireBar(bar, previousStart) {
-  exactRecord(bar, BAR_FIELDS, 'source bar');
+  if (!isValidatedRawBar(bar)) {
+    exactRecord(bar, ['startEpochMs', 'open', 'high', 'low', 'close', 'volume'], 'source bar');
+  }
   if (!Number.isSafeInteger(bar.startEpochMs) || bar.startEpochMs < 0 || bar.startEpochMs <= previousStart) {
     failFixedTimeframe('FIXED_TIMEFRAME_SOURCE_NOT_ORDERED', 'Source bars must be strictly ordered and unique.');
   }
@@ -60,7 +60,12 @@ export function projectFixedDurationBars(value) {
   let previousStart = -1;
   for (const bar of value.bars) {
     requireBar(bar, previousStart);
-    const bucketStart = resolveFixedBucketStart({ ...config, startEpochMs: bar.startEpochMs });
+    if (bar.startEpochMs % config.sourceDurationMs !== 0) {
+      failFixedTimeframe('FIXED_TIMEFRAME_SOURCE_MISALIGNED', 'Source bar is not aligned to sourceDurationMs.');
+    }
+    const bucketStart = Math.floor(
+      (bar.startEpochMs - config.offsetMs) / config.durationMs,
+    ) * config.durationMs + config.offsetMs;
     if (!current || current.startEpochMs !== bucketStart) {
       if (current) buckets.push(Object.freeze(current));
       current = beginBucket(bar, bucketStart, config);

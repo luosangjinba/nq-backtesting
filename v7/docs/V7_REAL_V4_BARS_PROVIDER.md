@@ -35,6 +35,9 @@ instants, Projection provenance, or Replay's exclusive cursor.
 - the V4 API's automatic 19-bar padding is removed at the adapter boundary;
 - the provider policy limits one request to 45 days, 65,000 bars, two concurrent
   attempts, a three-second attempt deadline, and one bounded retry;
+- logical requests above seven days are transported as contiguous API chunks
+  with a browser-main-thread yield between responses, then returned as one
+  validated Raw Batch with the original exact request/coverage identity;
 - HTTP/network failures become stable provider failures;
 - initial service failure shows Chart unavailable and never substitutes fake
   candles;

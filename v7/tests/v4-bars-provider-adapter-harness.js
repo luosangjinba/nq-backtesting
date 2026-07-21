@@ -81,6 +81,22 @@ assert.deepEqual(result.coverage.segments[0], {
   kind: 'data',
 });
 
+const chunkCalls = [];
+const chunked = createV4BarsAdapter({
+  fetchImpl: async (url) => {
+    chunkCalls.push(url);
+    return { ok: true, async json() { return { bars: [] }; } };
+  },
+});
+await chunked.requestRawBars({
+  ...request,
+  windowEndEpochMs: startEpochMs + (15 * 24 * 60 * MINUTE),
+});
+assert.equal(chunkCalls.length, 3, 'large logical requests must yield between bounded API transfers');
+assert.match(chunkCalls[0], /end=2026-05-08\+15%3A39/);
+assert.match(chunkCalls[1], /start=2026-05-08\+15%3A40/);
+assert.match(chunkCalls[2], /start=2026-05-15\+15%3A40/);
+
 const failing = createV4BarsAdapter({
   fetchImpl: async () => ({
     ok: false, status: 500, async json() { return { error: 'database unavailable' }; },

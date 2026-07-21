@@ -1,3 +1,5 @@
+import { newYorkWallEpochToInstantMs } from './new-york-wall-clock.js';
+
 const EXCHANGE_TIME_ZONE = 'America/New_York';
 const exchangeFormatter = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
@@ -36,6 +38,9 @@ export function exchangeWallSecondsToInstantMs(value) {
     throw new TypeError('V4 bar timestamp must be a non-negative epoch second.');
   }
   const wallEpochMs = value * 1_000;
+  if (new Date(wallEpochMs).getUTCFullYear() >= 2007) {
+    return newYorkWallEpochToInstantMs(wallEpochMs);
+  }
   let instantEpochMs = wallEpochMs;
   for (let attempt = 0; attempt < 4; attempt += 1) {
     const correctionMs = wallEpochMs - fieldsEpoch(partsAt(instantEpochMs));
@@ -47,4 +52,3 @@ export function exchangeWallSecondsToInstantMs(value) {
   }
   return instantEpochMs;
 }
-

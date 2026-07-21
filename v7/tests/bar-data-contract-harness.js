@@ -41,8 +41,10 @@ assert.equal(Object.isFrozen(batch), true);
 assert.equal(Object.isFrozen(batch.bars), true);
 assert.equal(Object.isFrozen(batch.bars[0]), true);
 assert.equal(batch.requestKey, barDataApi.rawBarRequestKey(normalizedRequest));
-assert.equal(barDataApi.createRawBarBatch(batch).requestKey, batch.requestKey,
-  'a normalized batch must remain valid at a provider/runtime trust boundary');
+assert.equal(barDataApi.createRawBarBatch(batch), batch,
+  'a normalized batch must cross provider/runtime trust boundaries without full revalidation');
+assert.equal(barDataApi.createRawBar(batch.bars[0]), batch.bars[0],
+  'a normalized raw bar must retain its validated identity in downstream aggregation');
 assert.deepEqual(
   barDataApi.createRawBarBatch({ schemaVersion: 1, request: normalizedRequest, bars: [] }).bars,
   [],

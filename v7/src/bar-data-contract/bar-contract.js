@@ -1,6 +1,11 @@
 import { failBarDataContract } from './contract-error.js';
 
 const BAR_FIELDS = Object.freeze(['startEpochMs', 'open', 'high', 'low', 'close', 'volume']);
+const RAW_BAR_BRAND = Symbol('RawBar');
+
+export function isValidatedRawBar(value) {
+  return value?.[RAW_BAR_BRAND] === true;
+}
 
 function requireFinite(value, field) {
   if (!Number.isFinite(value)) failBarDataContract('INVALID_RAW_BAR_PRICE', `${field} must be finite.`);
@@ -16,6 +21,7 @@ function requireFinite(value, field) {
  * Errors: rejects structural, timestamp, price-envelope, and volume violations.
  */
 export function createRawBar(value) {
+  if (isValidatedRawBar(value)) return value;
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     failBarDataContract('INVALID_RAW_BAR', 'Raw bar must be an object.');
   }
@@ -38,5 +44,7 @@ export function createRawBar(value) {
   if (value.volume !== null && (!Number.isFinite(value.volume) || value.volume < 0)) {
     failBarDataContract('INVALID_RAW_BAR_VOLUME', 'volume must be null or a non-negative finite number.');
   }
-  return Object.freeze({ startEpochMs: value.startEpochMs, open, high, low, close, volume: value.volume });
+  const bar = { startEpochMs: value.startEpochMs, open, high, low, close, volume: value.volume };
+  Object.defineProperty(bar, RAW_BAR_BRAND, { value: true });
+  return Object.freeze(bar);
 }

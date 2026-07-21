@@ -9,7 +9,7 @@ import {
   defineTimeframe,
   defineTradingCalendar,
 } from '../src/capability-contract/public.js';
-import { projectPaneSnapshot } from '../src/projection-domain/public.js';
+import { projectPaneHistoryExtension, projectPaneSnapshot } from '../src/projection-domain/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createTransactionId } from '../src/transaction-identity/public.js';
@@ -227,6 +227,24 @@ const secondWindow = batch({
 const twoWindow = projectPaneSnapshot(projectionInput({ sourceBatches: [batch(), secondWindow] }));
 assert.equal(twoWindow.provenance.sourceRequestKeys.length, 2);
 assert.deepEqual(twoWindow.bars, accepted.bars, 'future cached chunks cannot cross Replay cutoff');
+
+const earlierWindow = batch({
+  bars: [bar(880_000), bar(940_000)],
+  request: { windowStartEpochMs: 880_000, windowEndEpochMs: 1_000_000 },
+});
+const extended = projectPaneHistoryExtension({
+  ...projectionInput({ sourceBatches: [earlierWindow, batch()] }),
+  acceptedSnapshot: accepted,
+  sourceRequestKeys: [earlierWindow.requestKey, ...accepted.provenance.sourceRequestKeys],
+});
+assert.deepEqual(extended.bars.map((candidate) => candidate.startEpochMs), [
+  880_000, 940_000, 1_000_000, 1_060_000, 1_120_000, 1_180_000, 1_240_000,
+]);
+assert.equal(extended.provenance.visibleThroughEpochMs, accepted.provenance.visibleThroughEpochMs);
+assert.deepEqual(extended.provenance.sourceRequestKeys, [
+  earlierWindow.requestKey, ...accepted.provenance.sourceRequestKeys,
+]);
+assertDeepFrozen(extended);
 
 function errorCode(action) {
   try {

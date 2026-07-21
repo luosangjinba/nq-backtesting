@@ -15,6 +15,7 @@ import {
   resolveFixedBucketStart,
 } from '../src/fixed-timeframe-domain/public.js';
 import { projectPaneSnapshot } from '../src/projection-domain/public.js';
+import { toNewYorkWallEpoch } from '../src/v4-bars-provider-adapter/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
 import { createFoundationCapabilities, FOUNDATION_IDS } from '../src/replay-workspace-ui/foundation-capabilities.js';
 import { createSessionId } from '../src/session-identity/public.js';
@@ -30,6 +31,14 @@ const negativeCases = JSON.parse(fs.readFileSync(path.join(
 ), 'utf8'));
 const MINUTE = 60_000;
 const epoch = (label) => Date.parse(`${label}:00Z`);
+assert.equal(new Date(toNewYorkWallEpoch(epoch('2026-03-08T06:59'))).toISOString(),
+  '2026-03-08T01:59:00.000Z');
+assert.equal(new Date(toNewYorkWallEpoch(epoch('2026-03-08T07:00'))).toISOString(),
+  '2026-03-08T03:00:00.000Z');
+assert.equal(new Date(toNewYorkWallEpoch(epoch('2026-11-01T05:59'))).toISOString(),
+  '2026-11-01T01:59:00.000Z');
+assert.equal(new Date(toNewYorkWallEpoch(epoch('2026-11-01T06:00'))).toISOString(),
+  '2026-11-01T01:00:00.000Z');
 
 function bar(label, index, overrides = {}) {
   return Object.freeze({

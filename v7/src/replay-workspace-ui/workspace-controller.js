@@ -1,7 +1,7 @@
 import { createBarDataRuntime } from '../bar-data-runtime/public.js';
 import { createChartSnapshotApplication } from '../chart-snapshot-application/public.js';
 import { createLightweightChartAdapter } from '../lightweight-chart-adapter/public.js';
-import { projectPaneSnapshot } from '../projection-domain/public.js';
+import { projectPaneHistoryExtension, projectPaneSnapshot } from '../projection-domain/public.js';
 import { createReplayAdvanceInput } from '../replay-contract/public.js';
 import { createReplayRuntime } from '../replay-runtime/public.js';
 import { createTransactionId } from '../transaction-identity/public.js';
@@ -90,7 +90,7 @@ export function createReplayWorkspaceController({ record, view }) {
       project: ({ acquired, input, operation, proposal }) => {
         const selection = input.selection ?? currentSelection();
         const projectionBatches = sourceBatches.stage(acquired, operation);
-        return projectPaneSnapshot({
+        const projectionInput = {
           aggregationPolicy: selection.aggregationPolicy,
           calendar: selection.calendar,
           cursorProposal: proposal,
@@ -99,7 +99,15 @@ export function createReplayWorkspaceController({ record, view }) {
           paneId: 'pane-main',
           schemaVersion: 1,
           sessionHoursPolicy: selection.sessionHoursPolicy,
-          sourceBatches: projectionBatches,
+          sourceBatches: operation === 'history-extension'
+            ? projectionBatches.slice(0, 2)
+            : projectionBatches,
+        };
+        if (operation !== 'history-extension') return projectPaneSnapshot(projectionInput);
+        return projectPaneHistoryExtension({
+          ...projectionInput,
+          acceptedSnapshot: runtime.snapshot().acceptedSnapshot.workspace,
+          sourceRequestKeys: projectionBatches.map((batch) => batch.requestKey),
         });
       },
     }),

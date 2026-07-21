@@ -70,6 +70,13 @@ Bar-by-bar visible history repair is forbidden. Large datasets may appear in a
 small number of fast atomic blocks when one bounded request cannot cover the
 target.
 
+History projection cost must not grow with every already accepted raw chunk.
+Projection reprocesses the new chunk plus one adjacent boundary chunk and owns
+the aggregate-boundary/tail merge. A large logical V4 request may use smaller
+contiguous transport chunks; the adapter yields between chunks and returns one
+validated Raw Batch under the original exact request identity. Transport
+chunking is responsiveness policy, not new cache or Replay identity.
+
 The official Lightweight Charts infinite-history pattern confirms that visible
 logical-range subscriptions and `barsInLogicalRange` can trigger proactive
 history requests. `setData` supports whole ordered snapshot replacement and

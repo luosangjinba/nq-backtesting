@@ -11,9 +11,29 @@ function requireInstrument(calendar, instrumentId) {
 }
 
 function contains(intervals, minuteOfDay) {
-  return intervals.some(({ startMinute, endMinute }) => (
-    minuteOfDay >= startMinute && minuteOfDay < endMinute
-  ));
+  for (const { startMinute, endMinute } of intervals) {
+    if (minuteOfDay >= startMinute && minuteOfDay < endMinute) return true;
+  }
+  return false;
+}
+
+function sessionHoursAt(calendar, mode, startEpochMs) {
+  const dayNumber = Math.floor(startEpochMs / 86_400_000);
+  const dayEpochMs = dayNumber * 86_400_000;
+  const dayOfWeek = (dayNumber + 4) % 7;
+  const minuteOfDay = Math.floor((startEpochMs - dayEpochMs) / 60_000);
+  let intervals = calendar.weeklySchedule[mode][dayOfWeek];
+  if (calendar.exceptions.length > 0) {
+    const value = new Date(startEpochMs);
+    const wallDate = [
+      value.getUTCFullYear(),
+      String(value.getUTCMonth() + 1).padStart(2, '0'),
+      String(value.getUTCDate()).padStart(2, '0'),
+    ].join('-');
+    const exception = calendar.exceptions.find((entry) => entry.wallDate === wallDate) ?? null;
+    intervals = exception?.eligibleIntervals?.[mode] ?? intervals;
+  }
+  return contains(intervals, minuteOfDay);
 }
 
 /** Evaluate one bar-open epoch using half-open Session Hours intervals. */
@@ -25,13 +45,12 @@ export function evaluateSessionHours(value) {
   }
   requireInstrument(calendar, value.instrumentId);
   const mode = requireMode(value.mode);
-  const wall = decodeExchangeWallClock(requireEpochMs(value.startEpochMs, 'startEpochMs'));
+  const startEpochMs = requireEpochMs(value.startEpochMs, 'startEpochMs');
+  const wall = decodeExchangeWallClock(startEpochMs);
   const exception = calendar.exceptions.find((entry) => entry.wallDate === wall.date) ?? null;
-  const intervals = exception?.eligibleIntervals?.[mode]
-    ?? calendar.weeklySchedule[mode][wall.dayOfWeek];
   return Object.freeze({
     calendarRevision: calendar.revision,
-    eligible: contains(intervals, wall.minuteOfDay),
+    eligible: sessionHoursAt(calendar, mode, startEpochMs),
     exceptionKind: exception?.kind ?? null,
     mode,
     verification: exception?.verification ?? 'normal',
@@ -49,15 +68,16 @@ export function createSessionHoursPolicy(value) {
   if (!calendar || calendar[SESSION_HOURS_CALENDAR_BRAND] !== true || !Object.isFrozen(calendar)) {
     failSessionHours('SESSION_HOURS_CALENDAR_INVALID', 'calendar must be created by this domain.');
   }
+  const supportedInstrumentIds = new Set(calendar.supportedInstrumentIds);
   return Object.freeze({
     deterministic: true,
     id,
-    isEligible: (bar, context) => evaluateSessionHours({
-      calendar,
-      instrumentId: context.instrument.id,
-      mode,
-      startEpochMs: bar.startEpochMs,
-    }).eligible,
+    isEligible: (bar, context) => {
+      const instrumentId = context?.instrument?.id;
+      if (!supportedInstrumentIds.has(instrumentId)) requireInstrument(calendar, instrumentId);
+      const startEpochMs = requireEpochMs(bar?.startEpochMs, 'startEpochMs');
+      return sessionHoursAt(calendar, mode, startEpochMs);
+    },
     mode,
     revision: calendar.revision,
   });

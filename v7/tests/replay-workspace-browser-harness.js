@@ -137,6 +137,7 @@ async function capture(cdp, targetFile = visualFile, label = 'replay workspace')
 let cdp;
 let latencySummary = null;
 let replacementLatencyEvidence = null;
+let rapidHistoryLatencyEvidence = null;
 try {
   const debugPort = await waitForDevtools();
   const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
@@ -606,6 +607,73 @@ try {
     `document.querySelector('.lightweight-chart-host').dataset.maximumDisplayGapMs`)) < 4 * 24 * 60 * 60_000,
   '1h RTH→ETH replacement must not create a multi-day internal hole');
 
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-8-hour"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.timeframeId === 'timeframe.display-8-hour'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  await evaluate(cdp, `(() => {
+    globalThis.__rapidHistorySamples = [];
+    globalThis.__rapidHistoryLongTasks = [];
+    globalThis.__rapidHistoryStartedAt = performance.now();
+    globalThis.__rapidHistoryTimer = setInterval(() => {
+      globalThis.__rapidHistorySamples.push(performance.now());
+    }, 16);
+    globalThis.__rapidHistoryObserver = new PerformanceObserver((list) => {
+      globalThis.__rapidHistoryLongTasks.push(...list.getEntries().map((entry) => entry.duration));
+    });
+    globalThis.__rapidHistoryObserver.observe({ entryTypes: ['longtask'] });
+  })()`);
+  const rapidHistoryRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  const rapidHistoryBars = Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.barCount`));
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: historyBox.x, y: historyBox.y, button: 'none', buttons: 0,
+    });
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mousePressed', x: historyBox.x, y: historyBox.y, button: 'left', buttons: 1, clickCount: 1,
+    });
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 1,
+    });
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseReleased', x: historyBox.right, y: historyBox.y, button: 'left', buttons: 0, clickCount: 1,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
+  await waitFor(cdp,
+    `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${rapidHistoryRevision}`,
+    10_000);
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  const rapidHistoryEvidence = await evaluate(cdp, `(() => {
+    clearInterval(globalThis.__rapidHistoryTimer);
+    globalThis.__rapidHistoryObserver.disconnect();
+    const intervals = globalThis.__rapidHistorySamples.slice(1).map((value, index) => (
+      value - globalThis.__rapidHistorySamples[index]
+    ));
+    return {
+      barCount: Number(document.querySelector('.lightweight-chart-host').dataset.barCount),
+      elapsedMs: performance.now() - globalThis.__rapidHistoryStartedAt,
+      maxLongTaskMs: Math.max(0, ...globalThis.__rapidHistoryLongTasks),
+      maxSampleIntervalMs: Math.max(0, ...intervals),
+      revisionDelta: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision)
+        - ${rapidHistoryRevision},
+    };
+  })()`);
+  assert.ok(rapidHistoryEvidence.barCount > rapidHistoryBars,
+    `rapid high-TF boundary drag must extend history: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.ok(rapidHistoryEvidence.revisionDelta <= 2,
+    `rapid boundary input must coalesce to at most one queued continuation: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.ok(rapidHistoryEvidence.maxLongTaskMs < 200,
+    `high-TF history projection must not block the main thread for 200ms: ${JSON.stringify(rapidHistoryEvidence)}`);
+  assert.ok(rapidHistoryEvidence.maxSampleIntervalMs < 250,
+    `history loading must keep the browser event loop responsive: ${JSON.stringify(rapidHistoryEvidence)}`);
+  rapidHistoryLatencyEvidence = Object.freeze(rapidHistoryEvidence);
+
   await evaluate(cdp, `location.hash = '#/sessions'`);
   await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
   await evaluate(cdp, `performance.clearResourceTimings(); document.querySelector('.page-header .button-primary').click()`);
@@ -694,6 +762,7 @@ try {
 
 console.log('v7 Replay Workspace browser harness passed', {
   latencySummary,
+  rapidHistoryLatencyEvidence,
   replacementLatencyEvidence,
   scope: 'real chart, compact controls, atomic replacements, walls',
 });

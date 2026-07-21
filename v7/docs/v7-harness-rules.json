@@ -644,6 +644,7 @@
         "src/projection-domain/public.js",
         "src/projection-domain/module.json",
         "src/projection-domain/pane-projection.js",
+        "src/projection-domain/pane-history-extension.js",
         "src/projection-domain/source-bar-collection.js",
         "tests/projection-domain-harness.js"
       ],
@@ -787,6 +788,7 @@
         "src/v4-bars-provider-adapter/public.js",
         "src/v4-bars-provider-adapter/module.json",
         "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "src/v4-bars-provider-adapter/new-york-wall-clock.js",
         "src/v4-bars-provider-adapter/time-codec.js",
         "tests/v4-bars-provider-adapter-harness.js",
         "docs/V7_REAL_V4_BARS_PROVIDER.md"

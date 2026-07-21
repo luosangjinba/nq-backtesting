@@ -4,6 +4,7 @@ import { createPolicyBoundProvider } from '../provider-execution-runtime/public.
 import { formatExchangeWallMinute, exchangeWallSecondsToInstantMs } from './time-codec.js';
 
 const MINUTE = 60_000;
+const API_CHUNK_DURATION_MS = 7 * 24 * 60 * MINUTE;
 export const V4_BARS_DATASET_REVISION = 'v4-local-futures-1m-r1';
 export const V4_BARS_PROVIDER_ID = 'provider.local-v4-bars';
 
@@ -55,6 +56,25 @@ function normalizeBars(payload, request) {
   ));
 }
 
+function chunkRequests(request) {
+  const chunks = [];
+  for (let startEpochMs = request.windowStartEpochMs;
+    startEpochMs < request.windowEndEpochMs;
+    startEpochMs += API_CHUNK_DURATION_MS) {
+    chunks.push(createRawBarRequest({
+      ...request,
+      windowStartEpochMs: startEpochMs,
+      windowEndEpochMs: Math.min(request.windowEndEpochMs, startEpochMs + API_CHUNK_DURATION_MS),
+    }));
+  }
+  return chunks;
+}
+
+function yieldMainThread() {
+  if (typeof globalThis.scheduler?.yield === 'function') return globalThis.scheduler.yield();
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 export function createV4BarsAdapter({
   apiBase = resolveV4BarsApiBase(),
   fetchImpl = globalThis.fetch,
@@ -68,18 +88,25 @@ export function createV4BarsAdapter({
       if (request.providerId !== V4_BARS_PROVIDER_ID) {
         throw failure('unsupported', 'V4 bars adapter does not support this provider identity.');
       }
-      let response;
-      try {
-        response = await fetchImpl(requestUrl(request, apiBase), {
-          headers: { Accept: 'application/json' }, signal,
-        });
-      } catch (error) {
-        throw failure('unavailable', error?.message || 'V4 bars API is unavailable.');
+      const bars = [];
+      const chunks = chunkRequests(request);
+      for (let index = 0; index < chunks.length; index += 1) {
+        const chunk = chunks[index];
+        let response;
+        try {
+          response = await fetchImpl(requestUrl(chunk, apiBase), {
+            headers: { Accept: 'application/json' }, signal,
+          });
+        } catch (error) {
+          throw failure('unavailable', error?.message || 'V4 bars API is unavailable.');
+        }
+        const payload = await response.json().catch(() => null);
+        if (!response.ok) throw httpFailure(response, payload);
+        bars.push(...normalizeBars(payload, chunk));
+        if (index < chunks.length - 1) await yieldMainThread();
       }
-      const payload = await response.json().catch(() => null);
-      if (!response.ok) throw httpFailure(response, payload);
       const batch = createRawBarBatch({
-        bars: normalizeBars(payload, request), request, schemaVersion: 1,
+        bars, request, schemaVersion: 1,
       });
       return Object.freeze({
         batch,
@@ -117,4 +144,3 @@ export function createV4BarsProvider(options = {}) {
     },
   });
 }
-
