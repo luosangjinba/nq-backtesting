@@ -1,4 +1,4 @@
-import { createSessionId } from '../session-identity/public.js';
+import { createSessionId, serializeSessionId } from '../session-identity/public.js';
 import { createSessionDialog } from './create-dialog.js';
 import { renderSessionBrowserSurface } from './surface.js';
 import { createOpenedSessionViewModel, createSessionListViewModel } from './view-model.js';
@@ -75,12 +75,13 @@ class SessionBrowserController {
     this.schedule(() => {
       if (this.stopped) return;
       try {
-        this.store.createSession({
+        const record = this.store.createSession({
           ...intent,
           sessionId: createSessionId(this.idFactory()),
           nowEpochMs: this.now(),
         });
-        this.refreshList();
+        const token = serializeSessionId(record.sessionId).value;
+        this.navigation.go(`#\/session\/${encodeURIComponent(token)}`);
       } catch (error) {
         this.renderList('error', error.message);
       }

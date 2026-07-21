@@ -157,9 +157,9 @@ try {
     form.elements.end.value = '2026-05-11T12:40';
     form.requestSubmit();
   })()`);
-  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
-  await evaluate(cdp, `document.querySelector('.open-session-button').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
+  assert.match(await evaluate(cdp, `location.hash`), /^#\/session\/session-/,
+    'successful Create Session must navigate directly to the new chart route');
 
   const entry = await evaluate(cdp, `(() => {
     const root = document.querySelector('.replay-workspace');
@@ -450,8 +450,6 @@ try {
     form.elements.end.value = '2026-05-05T06:30';
     form.requestSubmit();
   })()`);
-  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 2`);
-  await evaluate(cdp, `[...document.querySelectorAll('.open-session-button')].at(-1).click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
   await evaluate(cdp, `(() => {
     document.querySelector('.timeframe-toggle').click();

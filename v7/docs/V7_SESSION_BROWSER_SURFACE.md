@@ -28,6 +28,9 @@ key. Every activation still passes the branded SessionId to Session Store.
 - selected Session summary with only that Session's metadata;
 - loading, empty, unavailable, stale, error, and ready states;
 - retained list snapshot during a write and inline failure presentation;
+- successful creation navigates directly to the new Session URL and activates
+  its supported Chart surface; unsupported configurations open the new Session
+  summary on the same route rather than returning to the list;
 - keyboard focus rings, native dialog Escape behavior, reduced motion, and
   responsive rail/card/form layouts.
 
@@ -53,9 +56,10 @@ Chrome at `1440x900`, device scale factor 1, and reduced motion captures:
 - ready list with distinct Alpha/Beta Sessions;
 - selected Beta after hard refresh.
 
-The browser harness compares screenshots byte-for-byte and executes create A,
-fresh-default draft verification before create B, A→B, hard refresh on B, and
-reopen A. A visual change requires an explicit fixture update plus human review.
+The browser harness compares screenshots byte-for-byte and executes direct-open
+create A, fresh-default draft verification before direct-open create B, A→B,
+hard refresh on B, and reopen A. A visual change requires an explicit fixture
+update plus human review.
 
 ## R2.2 Boundary
 

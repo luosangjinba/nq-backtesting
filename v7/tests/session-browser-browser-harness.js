@@ -171,7 +171,12 @@ try {
     form.elements.end.value = '2026-05-05T16:00';
     form.requestSubmit();
   })()`);
-  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1 && document.querySelector('#app').dataset.viewState === 'ready'`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
+  assert.match(await evaluate(cdp, `location.hash`), /^#\/session\/session-/,
+    'successful create must route directly to the new NQ chart');
+  assert.equal(await evaluate(cdp, `document.querySelector('h1').textContent`), 'Session Alpha');
+  await evaluate(cdp, `document.querySelector('.replay-back').click()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
 
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
@@ -197,6 +202,10 @@ try {
     form.elements.end.value = '2026-06-12T16:00';
     form.requestSubmit();
   })()`);
+  await waitFor(cdp, `document.querySelector('#app').dataset.screen === 'opened' && document.querySelector('h1')?.textContent === 'Session Beta'`);
+  assert.match(await evaluate(cdp, `location.hash`), /^#\/session\/session-/,
+    'successful unsupported-surface create must still open the new Session route');
+  await evaluate(cdp, `document.querySelector('.opened-header .button').click()`);
   await waitFor(cdp, `document.querySelectorAll('.session-card').length === 2 && document.querySelector('#app').dataset.viewState === 'ready'`);
   assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.session-card h3')].map((node) => node.textContent)`),
     ['Session Alpha', 'Session Beta']);
@@ -228,7 +237,7 @@ try {
       sessions: Object.fromEntries(records.map((record) => [record.metadata.name, record.activationGeneration.value])),
     };
   })()`);
-  assert.deepEqual(storageEvidence.sessions, { 'Session Alpha': 2, 'Session Beta': 2 });
+  assert.deepEqual(storageEvidence.sessions, { 'Session Alpha': 3, 'Session Beta': 3 });
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);
 
   console.log('v7 Session Browser browser harness passed (fresh drafts, professional date-time picker, A/B navigation, 5 visual fixtures)');

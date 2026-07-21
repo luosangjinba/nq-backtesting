@@ -532,6 +532,21 @@ R5.6d refresh-feedback correction is next.
 
 R5.6e direct-open Session creation is next.
 
+### R5.6e Direct-Open Session Creation — Completed
+
+- retained Session Store as the only creator and used its returned branded
+  Session identity;
+- kept hash navigation in Session Browser route UI rather than Store, dialog,
+  Replay Workspace, or persistence;
+- navigated successful creation directly to the exact new Session URL;
+- supported NQ Sessions mount the chart immediately; unsupported Session
+  configurations open their exact selected-Session summary;
+- creation failure still stays on the list surface with an inline error;
+- browser evidence covers direct-open A/B, fresh drafts, back navigation,
+  A→B→A, hard refresh, activation generations, and no active/current key.
+
+R5.6f combined regression, handoff closure, and human checklist are next.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;
