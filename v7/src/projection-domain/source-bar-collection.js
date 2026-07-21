@@ -31,7 +31,7 @@ function requireCapabilityCompatibility(input, request) {
   }
 }
 
-/** Collect strictly ordered chunks without silently sorting, deduplicating, or merging overlaps. */
+/** Collect contiguous ordered chunks without silently sorting, deduplicating, or merging. */
 export function collectProjectionSourceBars(input) {
   const [firstBatch] = input.sourceBatches;
   const expected = firstBatch.request;
@@ -46,6 +46,12 @@ export function collectProjectionSourceBars(input) {
       failProjection(
         'PROJECTION_SOURCE_WINDOWS_OVERLAP',
         'Projection source windows must be ordered and non-overlapping.',
+      );
+    }
+    if (previousWindowEnd >= 0 && batch.request.windowStartEpochMs > previousWindowEnd) {
+      failProjection(
+        'PROJECTION_SOURCE_WINDOWS_GAP',
+        'Projection source windows must remain contiguous.',
       );
     }
     previousWindowEnd = batch.request.windowEndEpochMs;

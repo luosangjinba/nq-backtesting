@@ -3,15 +3,23 @@ export function createSourceBatchLedger() {
   let accepted = Object.freeze([]);
   let staged = null;
 
+  function contiguousAcceptedPrefix(acquired) {
+    const prefix = [];
+    let requiredEndEpochMs = acquired.request.windowStartEpochMs;
+    for (let index = accepted.length - 1; index >= 0; index -= 1) {
+      const candidate = accepted[index];
+      if (candidate.request.windowEndEpochMs > requiredEndEpochMs) continue;
+      if (candidate.request.windowEndEpochMs < requiredEndEpochMs) break;
+      prefix.unshift(candidate);
+      requiredEndEpochMs = candidate.request.windowStartEpochMs;
+    }
+    return prefix;
+  }
+
   function stage(acquired, operation) {
     const batches = operation === 'history-extension'
       ? [acquired, ...accepted]
-      : [
-        ...accepted.filter((batch) => (
-          batch.request.windowEndEpochMs <= acquired.request.windowStartEpochMs
-        )),
-        acquired,
-      ];
+      : [...contiguousAcceptedPrefix(acquired), acquired];
     staged = Object.freeze(batches);
     return staged;
   }

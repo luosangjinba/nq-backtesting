@@ -86,5 +86,10 @@ range to the first loaded candle; it does not mutate the Viewport intent or
 wait for another pointer action. Replacement completion no longer starts a
 recursive history transaction chain.
 
+If a previously dragged low-timeframe wall projects entirely before the first
+loaded aggregate candle, the adapter also repairs the transient right boundary
+so the range remains ordered and includes loaded candles. This does not mutate
+the canonical manual Viewport intent.
+
 R5.6 supersedes the temporary synthetic source described by the original R5.5
 implementation. Human acceptance remains required before R6 selection or implementation.

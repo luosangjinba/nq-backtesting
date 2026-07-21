@@ -2,6 +2,7 @@
   { "case": "empty-batch-list", "expectedCode": "PROJECTION_SOURCE_BATCHES_EMPTY" },
   { "case": "empty-source", "expectedCode": "PROJECTION_SOURCE_EMPTY" },
   { "case": "unordered-windows", "expectedCode": "PROJECTION_SOURCE_WINDOWS_OVERLAP" },
+  { "case": "gapped-windows", "expectedCode": "PROJECTION_SOURCE_WINDOWS_GAP" },
   { "case": "mixed-dataset", "expectedCode": "PROJECTION_SOURCE_IDENTITY_MIXED" },
   { "case": "instrument-mismatch", "expectedCode": "PROJECTION_INSTRUMENT_MISMATCH" },
   { "case": "provider-mismatch", "expectedCode": "PROJECTION_PROVIDER_MISMATCH" },

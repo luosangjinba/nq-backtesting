@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { createExchangeTimePresentation } from '../src/lightweight-chart-adapter/chart-options.js';
 import { requireTailUpdatePaint } from '../src/lightweight-chart-adapter/paint-gate.js';
+import { planVisibleLogicalRange } from '../src/lightweight-chart-adapter/logical-range-plan.js';
 import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 
@@ -17,6 +18,11 @@ assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-01-02T14:30:00Z') /
 assert.match(exchangeTime.timeFormatter(Date.parse('2026-05-01T13:30:00Z') / 1_000), /09:30/);
 
 const candle = (time, close = 2) => ({ time, open: 1, high: 3, low: 0, close });
+assert.deepEqual(planVisibleLogicalRange({ from: -20, latestOffsetBars: 12, to: 40 }, 80),
+  { from: -0.5, to: 40 });
+assert.deepEqual(planVisibleLogicalRange({ from: -200, latestOffsetBars: -120, to: -120 }, 185),
+  { from: -0.5, to: 184 },
+  'a low→high replacement must not submit an inverted range or strand all candles off-screen');
 assert.equal(planSeriesMutation([], [candle(1)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1)], [candle(1, 2.5)]).kind, 'tail-update');
 assert.equal(planSeriesMutation([candle(1)], [candle(1), candle(2)]).kind, 'tail-update');

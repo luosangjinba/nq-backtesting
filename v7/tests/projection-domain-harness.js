@@ -245,6 +245,12 @@ const negativeActions = {
   'empty-batch-list': () => projectPaneSnapshot(projectionInput({ sourceBatches: [] })),
   'empty-source': () => projectPaneSnapshot(projectionInput({ sourceBatches: [batch({ bars: [] })] })),
   'unordered-windows': () => projectPaneSnapshot(projectionInput({ sourceBatches: [laterBatch(), batch()] })),
+  'gapped-windows': () => projectPaneSnapshot(projectionInput({
+    sourceBatches: [batch(), batch({
+      bars: [bar(1_540_000)],
+      request: { windowStartEpochMs: 1_540_000, windowEndEpochMs: 1_600_000 },
+    })],
+  })),
   'mixed-dataset': () => projectPaneSnapshot(projectionInput({
     sourceBatches: [batch(), batch({
       bars: [bar(1_480_000)],

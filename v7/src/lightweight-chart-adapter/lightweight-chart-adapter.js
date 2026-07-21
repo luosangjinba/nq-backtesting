@@ -7,6 +7,7 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
+import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
 import { planSeriesMutation } from './series-update-plan.js';
@@ -28,6 +29,14 @@ function chartData(workspaceSnapshot) {
     open: bar.open,
     time: bar.displayEpochMs / 1_000,
   })));
+}
+
+function maximumDisplayGapMs(data) {
+  let maximum = 0;
+  for (let index = 1; index < data.length; index += 1) {
+    maximum = Math.max(maximum, (data[index].time - data[index - 1].time) * 1_000);
+  }
+  return maximum;
 }
 
 /** Construct the only real Lightweight Charts series writer for one pane. */
@@ -53,16 +62,17 @@ export function createLightweightChartAdapter({
   let captureToken = 0;
   let nativePointerActive = false;
   let seriesDataRevision = 0;
+  let maximumAppliedDisplayGapMs = 0;
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
   series.subscribeDataChanged(onSeriesDataChanged);
 
   function applyViewport() {
     if (barCount < 1) return null;
     const projection = viewport.project(barCount - 1);
-    const visibleFrom = Math.max(-0.5, projection.from);
-    chart.timeScale().setVisibleLogicalRange({ from: visibleFrom, to: projection.to });
-    host.dataset.logicalFrom = String(visibleFrom);
-    host.dataset.logicalTo = String(projection.to);
+    const visibleRange = planVisibleLogicalRange(projection, barCount);
+    chart.timeScale().setVisibleLogicalRange(visibleRange);
+    host.dataset.logicalFrom = String(visibleRange.from);
+    host.dataset.logicalTo = String(visibleRange.to);
     host.dataset.latestOffsetBars = String(projection.latestOffsetBars);
     host.dataset.spanBars = String(projection.spanBars);
     host.dataset.viewportOrigin = projection.origin;
@@ -140,12 +150,18 @@ export function createLightweightChartAdapter({
       }
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       adapterRevision += 1;
+      maximumAppliedDisplayGapMs = mutation.kind === 'full-replace'
+        ? maximumDisplayGapMs(context.staged.data)
+        : Math.max(maximumAppliedDisplayGapMs, context.staged.data.length > appliedData.length
+          ? (context.staged.data.at(-1).time - appliedData.at(-1).time) * 1_000
+          : 0);
       appliedData = context.staged.data;
       host.dataset.barCount = String(barCount);
       host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
       host.dataset.lastMutationMode = mutation.kind;
       host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
       host.dataset.lastPaintMs = (paintedAt - mutationEndedAt).toFixed(3);
+      host.dataset.maximumDisplayGapMs = String(maximumAppliedDisplayGapMs);
       host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
       host.dataset.painted = 'true';
       host.dataset.visibleRevision = String(adapterRevision);

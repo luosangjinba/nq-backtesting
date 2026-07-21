@@ -21,7 +21,7 @@ Every projection binds:
 - `TimeframeDefinition`, source-resolution compatibility, and aggregation
   policy id;
 - registered Session Hours policy id;
-- one or more ordered, non-overlapping Raw Bar Batches with a common provider,
+- one or more ordered, contiguous Raw Bar Batches with a common provider,
   instrument, source resolution, and dataset revision;
 - one branded Replay cursor proposal carrying the complete workspace
   transaction identity and exclusive target cutoff.
@@ -35,8 +35,8 @@ aggregation, or Session Hours id.
 ## Projection Order
 
 1. validate and normalize every public value boundary;
-2. prove raw source identity and global window/bar ordering without sorting or
-   deduplication;
+2. prove raw source identity plus global contiguous window/bar ordering without
+   sorting or deduplication;
 3. exclude source bars whose start is greater than or equal to the proposed
    Replay target;
 4. apply Session Hours eligibility;
@@ -93,5 +93,5 @@ separate roadmap steps.
 
 `tests/projection-domain-harness.js` proves deterministic deep-immutable output,
 all intermediate `1m` bars, exclusive no-future behavior, eligibility before
-aggregation, multi-window provenance, 17 negative controls, and the absence of
+aggregation, contiguous multi-window provenance, 20 negative controls, and the absence of
 concrete capability-id branches.

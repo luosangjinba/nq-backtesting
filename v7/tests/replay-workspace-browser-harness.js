@@ -8,6 +8,7 @@ import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 import { createFoundationMarket } from '../src/replay-workspace-ui/foundation-market.js';
 import { createRefreshFeedback } from '../src/replay-workspace-ui/refresh-feedback.js';
+import { createSourceBatchLedger } from '../src/replay-workspace-ui/source-batch-ledger.js';
 import { REPLAY_WORKSPACE_STATES } from '../src/replay-workspace-ui/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -22,6 +23,26 @@ assert.equal(new Set(negativeCases).size, 6);
 assert.deepEqual(REPLAY_WORKSPACE_STATES, [
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
+const sourceWindow = (windowStartEpochMs, windowEndEpochMs) => Object.freeze({
+  request: Object.freeze({ windowEndEpochMs, windowStartEpochMs }),
+});
+const sourceLedger = createSourceBatchLedger();
+const firstWindow = sourceWindow(100, 200);
+sourceLedger.stage(firstWindow, 'chart-entry');
+sourceLedger.accept();
+const earlierWindow = sourceWindow(0, 100);
+sourceLedger.stage(earlierWindow, 'history-extension');
+sourceLedger.accept();
+const overlappingReplacement = sourceWindow(150, 300);
+assert.deepEqual(sourceLedger.stage(overlappingReplacement, 'timeframe-replacement'), [
+  overlappingReplacement,
+], 'replacement must drop old windows that would leave an internal coverage gap');
+sourceLedger.reject();
+const adjacentReplacement = sourceWindow(100, 300);
+assert.deepEqual(sourceLedger.stage(adjacentReplacement, 'session-hours-replacement'), [
+  earlierWindow, adjacentReplacement,
+], 'replacement may retain only the contiguous accepted prefix ending at its exact start');
+sourceLedger.reject();
 const feedbackTrace = [];
 let delayedFeedback = null;
 const feedback = createRefreshFeedback({
@@ -534,6 +555,56 @@ try {
     'returning to the next loaded left boundary must extend history again');
   assert.equal(repeatedHistory.cursor, historyBefore.cursor,
     'repeated left extension must remain Replay-safe');
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+
+  const continuityRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-1-hour"]').click();
+  })()`);
+  try {
+    await waitFor(cdp,
+      `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${continuityRevision}`,
+      10_000);
+  } catch (error) {
+    const continuityFailure = await evaluate(cdp, `(() => {
+      const root = document.querySelector('.replay-workspace');
+      const option = document.querySelector('[data-timeframe-id="timeframe.display-1-hour"]');
+      return { busy: root?.getAttribute('aria-busy'), buttonDisabled: option?.disabled,
+        adapterError: document.querySelector('.lightweight-chart-host')?.dataset.lastApplyError,
+        browserErrors: globalThis.__browserErrors, revision: Number(root?.dataset.workspaceRevision),
+        state: root?.dataset.viewState, status: document.querySelector('.workspace-inline-status')?.textContent,
+        timeframeId: root?.dataset.timeframeId };
+    })()`);
+    throw new Error(`${error.message}; history→1h evidence: ${JSON.stringify(continuityFailure)}`);
+  }
+  const oneHourEthContinuity = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return { barCount: Number(host.dataset.barCount), latest: Number(host.dataset.latestDisplayEpochMs),
+      maximumGapMs: Number(host.dataset.maximumDisplayGapMs),
+      state: document.querySelector('.replay-workspace').dataset.viewState };
+  })()`);
+  assert.equal(oneHourEthContinuity.state, 'ready');
+  assert.ok(oneHourEthContinuity.barCount >= 160,
+    `history→1h replacement must retain useful continuous context: ${JSON.stringify(oneHourEthContinuity)}`);
+  assert.ok(oneHourEthContinuity.latest >= Date.parse('2026-05-01T16:42:00Z'),
+    `history→1h replacement must extend through the Replay-visible tail: ${JSON.stringify(oneHourEthContinuity)}`);
+  assert.ok(oneHourEthContinuity.maximumGapMs < 4 * 24 * 60 * 60_000,
+    `history→1h replacement must not expose a multi-day internal hole: ${JSON.stringify(oneHourEthContinuity)}`);
+
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="rth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'rth'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  assert.ok(Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.maximumDisplayGapMs`)) < 4 * 24 * 60 * 60_000,
+  '1h ETH→RTH replacement must not create a multi-day internal hole');
+  await evaluate(cdp, `document.querySelector('.session-hours-control [data-value="eth"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.sessionHoursMode === 'eth'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`);
+  assert.ok(Number(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.maximumDisplayGapMs`)) < 4 * 24 * 60 * 60_000,
+  '1h RTH→ETH replacement must not create a multi-day internal hole');
 
   await evaluate(cdp, `location.hash = '#/sessions'`);
   await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
