@@ -24,6 +24,12 @@
     "expectedCode": "UNSUPPORTED_SESSION_RECORD_VERSION"
   },
   {
+    "name": "invalid configured workspace",
+    "operation": "deserialize",
+    "patch": { "workspace": { "schemaVersion": 2, "state": "configured", "paneLayout": {} } },
+    "expectedCode": "INVALID_SESSION_WORKSPACE"
+  },
+  {
     "name": "unknown session",
     "operation": "getUnknown",
     "patch": {},

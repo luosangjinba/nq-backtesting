@@ -304,7 +304,7 @@ try {
     const toolbar = document.querySelector('.replay-workspace-toolbar');
     const transport = document.querySelector('.replay-transport');
     const selectors = ['.replay-next', '.replay-previous', '.timeframe-toggle',
-      '.session-hours-control [aria-pressed="true"]', '.pane-count-control [aria-pressed="true"]',
+      '.session-hours-control [aria-pressed="true"]', '.pane-layout-toggle',
       '.replay-step-select', '.replay-speed-select', '.goto-toggle', '.replay-reset'];
     const sample = () => selectors.map((selector) => {
       const control = root.querySelector(selector);

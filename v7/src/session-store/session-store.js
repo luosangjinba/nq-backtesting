@@ -10,6 +10,7 @@ import {
   SESSION_RECORD_INTERNALS,
   SessionStoreError,
 } from './session-record.js';
+import { serializePaneLayout } from '../pane-layout-domain/public.js';
 
 function fail(code, message) {
   throw new SessionStoreError(code, message);
@@ -76,6 +77,21 @@ export function createSessionStore({ repository, migrations = {} }) {
         revision: current.revision + 1,
         activationGeneration,
         metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
+      });
+      port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
+      return next;
+    },
+    savePaneLayout(sessionId, { layout, nowEpochMs }) {
+      const current = requireExisting(sessionId);
+      const next = SESSION_RECORD_INTERNALS.freezeRecord({
+        ...current,
+        revision: current.revision + 1,
+        metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
+        workspace: {
+          paneLayout: serializePaneLayout(layout),
+          schemaVersion: 2,
+          state: 'configured',
+        },
       });
       port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
       return next;

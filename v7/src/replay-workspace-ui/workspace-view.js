@@ -1,8 +1,10 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
+import { readPaneLayout } from '../pane-layout-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 import { createGotoControls } from './goto-controls.js';
 import { createPaneGridView } from './pane-grid-view.js';
+import { createPaneLayoutMenu } from './pane-layout-menu.js';
 import { createReplayTransport } from './replay-transport.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
 
@@ -67,15 +69,18 @@ function createInstrumentSelect(options, onChoose) {
 
 /** Own the real one/multi-Pane workstation presentation and dispatch UI intents. */
 export function createReplayWorkspaceView({
+  initialLayout,
   instrumentOptions,
+  layoutOptions,
   name,
   onAutoplay,
   onBack,
   onExactGoto,
   onFocusPane,
   onInstrument,
+  onLayout,
+  onLayoutResize,
   onNext,
-  onPaneCount,
   onPause,
   onPlaybackSpeed,
   onPrevious,
@@ -113,19 +118,19 @@ export function createReplayWorkspaceView({
     className: 'session-hours-control',
     onChoose: onSessionHours,
   });
-  const paneCountControl = createChoiceGroup({
-    ariaLabel: 'Pane count',
-    choices: [{ id: '1', label: '1 pane' }, { id: '2', label: '2 panes' }],
-    className: 'pane-count-control',
-    onChoose: (value) => onPaneCount(Number(value)),
-  });
+  const paneLayoutControl = createPaneLayoutMenu({ onChoose: onLayout, options: layoutOptions });
   let exactDefaultEpochMs = Date.now();
   const goto = createGotoControls({
     getExactDefault: () => exactDefaultEpochMs,
     onExact: onExactGoto,
     onQuick: onQuickGoto,
   });
-  const paneGrid = createPaneGridView({ onFocus: onFocusPane, onReset });
+  const paneGrid = createPaneGridView({
+    initialLayout,
+    onFocus: onFocusPane,
+    onLayoutResize,
+    onReset,
+  });
   const replayTransport = createReplayTransport({
     onAutoplay,
     onNext,
@@ -157,7 +162,7 @@ export function createReplayWorkspaceView({
           instrumentControl.root,
           timeframeControl.root,
           sessionHoursControl.root,
-          paneCountControl.root,
+          paneLayoutControl.root,
         ]),
       ]),
       element('div', { className: 'replay-actions' }, [
@@ -209,7 +214,7 @@ export function createReplayWorkspaceView({
     const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
     instrumentControl.setDisabled(interactionLocked || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
     sessionHoursControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
-    paneCountControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
+    paneLayoutControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     goto.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     replayTransport.setAvailability({ busy, complete, hasAcceptedChart, unavailable });
     paneGrid.setPending(interactionLocked || unavailable);
@@ -259,7 +264,7 @@ export function createReplayWorkspaceView({
       timeframeControl.dispose();
       instrumentControl.dispose();
       sessionHoursControl.dispose();
-      paneCountControl.dispose();
+      paneLayoutControl.dispose();
       replayTransport.dispose();
       goto.dispose();
       paneGrid.dispose();
@@ -289,6 +294,12 @@ export function createReplayWorkspaceView({
     setPlaybackSpeed(speedId) {
       root.dataset.autoplaySpeedId = speedId;
       replayTransport.setSpeed(speedId);
+    },
+    setLayout(layout, paneIds) {
+      const value = readPaneLayout(layout);
+      root.dataset.layoutId = value.variantId;
+      paneLayoutControl.setValue(value.variantId);
+      paneGrid.setLayout(layout, paneIds);
     },
     setTimeframeSync(enabled) {
       root.dataset.syncTimeframe = String(enabled === true);
@@ -326,7 +337,6 @@ export function createReplayWorkspaceView({
       root.dataset.timeframeId = active.timeframeId;
       instrumentControl.setValue(active.instrumentId);
       timeframeControl.setValue(active.timeframeId);
-      paneCountControl.setValue(String(value.panes.length));
       paneGrid.setWorkspace(value, {
         instrument: (id) => instrumentLabels.get(id) ?? id,
         timeframe: (id) => timeframeLabels.get(id) ?? id,

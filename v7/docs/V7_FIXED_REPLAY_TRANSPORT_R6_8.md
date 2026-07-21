@@ -1,6 +1,6 @@
 # V7 Fixed Bottom Replay Transport — R6.8
 
-Status: implemented; awaiting human interaction and visual review (2026-07-21)
+Status: human accepted with R6.8a–b corrections (2026-07-21)
 
 ## Reviewed Layout Decision
 

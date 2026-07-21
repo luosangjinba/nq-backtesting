@@ -113,7 +113,7 @@ try {
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
 
-  await evaluate(cdp, `document.querySelector('.pane-count-control [data-value="2"]').click()`);
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
   let state = await evaluate(cdp, paneStateExpression());
@@ -174,7 +174,7 @@ try {
   });
   await waitFor(cdp, `Number(document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
     ?.dataset.wheelEventCount) >= 2`);
-  await new Promise((resolve) => setTimeout(resolve, 100));
+  await new Promise((resolve) => setTimeout(resolve, 250));
   state = await evaluate(cdp, paneStateExpression());
   assert.equal(state.panes[0].viewportOrigin, 'manual',
     `native main-Pane wheel must create a manual wall: ${JSON.stringify(state.panes[0])}`);
@@ -407,7 +407,7 @@ try {
   await waitFor(cdp,
     `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeCompletedPrevious}`);
 
-  await evaluate(cdp, `document.querySelector('.pane-count-control [data-value="1"]').click()`);
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.single"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
     && document.querySelectorAll('.workspace-pane:not(.is-prepared)').length === 1`);
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);

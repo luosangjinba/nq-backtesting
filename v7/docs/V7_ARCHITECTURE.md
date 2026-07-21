@@ -108,6 +108,15 @@ preference derives a Replay-step capability from the active Pane's registered
 fixed TF; Replay Runtime still owns the selected step, and focus/TF sync moves
 no cursor and creates no materialization transaction.
 
+R6.9 activates `core.pane-layout-domain` as the pure owner of the registered
+one-to-four Pane layout set, immutable split tree, versioned wire schema, and
+measured minimum-size constraints. Replay Workspace UI owns the picker,
+external split DOM, and transient drag preview while retaining one independent
+chart host per product Pane. Session Store persists only accepted layout intent
+under the explicit Session id. Same-count variant changes and resize commits do
+not request bars, move Replay, or create a Workspace transaction; Pane-count
+changes continue through the existing atomic complete Pane-set path.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

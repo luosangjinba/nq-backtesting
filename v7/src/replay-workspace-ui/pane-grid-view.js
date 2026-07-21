@@ -1,3 +1,9 @@
+import {
+  createPaneLayout,
+  readPaneLayout,
+  resizePaneLayout,
+} from '../pane-layout-domain/public.js';
+
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
   if (options.className) node.className = options.className;
@@ -8,10 +14,121 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
-/** Own product-Pane DOM/host identity without owning Pane or chart state. */
-export function createPaneGridView({ onFocus, onReset }) {
+/** Own product-Pane DOM/host identity plus a DOM-only resizable split tree. */
+export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onReset }) {
   const root = element('div', { className: 'workspace-pane-grid' });
   const records = new Map();
+  const splitRecords = new Map();
+  let layout = initialLayout ?? createPaneLayout();
+  let paneIds = ['pane-main'];
+  let pending = false;
+
+  function applyRatio(splitId, ratio) {
+    const record = splitRecords.get(splitId);
+    if (!record) return;
+    record.first.style.flexGrow = String(ratio);
+    record.second.style.flexGrow = String(1 - ratio);
+    record.divider.setAttribute('aria-valuenow', String(Math.round(ratio * 100)));
+  }
+
+  function applyRatios() {
+    const value = readPaneLayout(layout);
+    for (const [splitId, ratio] of Object.entries(value.ratios)) applyRatio(splitId, ratio);
+    root.dataset.layoutId = value.variantId;
+  }
+
+  function updateLayout(next) {
+    layout = next;
+    applyRatios();
+  }
+
+  function resizeFromPosition(splitId, record, clientPosition) {
+    const rect = record.split.getBoundingClientRect();
+    const size = record.axis === 'x' ? rect.width : rect.height;
+    const start = record.axis === 'x' ? rect.left : rect.top;
+    const dividerSize = record.axis === 'x'
+      ? record.divider.getBoundingClientRect().width
+      : record.divider.getBoundingClientRect().height;
+    updateLayout(resizePaneLayout({
+      containerSizePx: size,
+      layout,
+      ratio: (clientPosition - start - dividerSize / 2) / (size - dividerSize),
+      splitId,
+    }));
+  }
+
+  function bindDivider(divider, splitId, record) {
+    const finish = (event, commit) => {
+      if (!divider.hasPointerCapture?.(event.pointerId)) return;
+      divider.releasePointerCapture(event.pointerId);
+      root.dataset.resizing = 'false';
+      if (commit) onLayoutResize(layout);
+    };
+    divider.addEventListener('pointerdown', (event) => {
+      if (pending || event.button !== 0) return;
+      event.preventDefault();
+      divider.setPointerCapture(event.pointerId);
+      root.dataset.resizing = 'true';
+    });
+    divider.addEventListener('pointermove', (event) => {
+      if (!divider.hasPointerCapture?.(event.pointerId)) return;
+      resizeFromPosition(splitId, record, record.axis === 'x' ? event.clientX : event.clientY);
+    });
+    divider.addEventListener('pointerup', (event) => finish(event, true));
+    divider.addEventListener('pointercancel', (event) => finish(event, false));
+    divider.addEventListener('keydown', (event) => {
+      if (pending) return;
+      const keys = record.axis === 'x' ? ['ArrowLeft', 'ArrowRight'] : ['ArrowUp', 'ArrowDown'];
+      if (!keys.includes(event.key)) return;
+      event.preventDefault();
+      const current = readPaneLayout(layout).ratios[splitId];
+      const direction = event.key === keys[0] ? -1 : 1;
+      const rect = record.split.getBoundingClientRect();
+      updateLayout(resizePaneLayout({
+        containerSizePx: record.axis === 'x' ? rect.width : rect.height,
+        layout,
+        ratio: current + direction * 0.05,
+        splitId,
+      }));
+      onLayoutResize(layout);
+    });
+  }
+
+  function renderNode(node) {
+    if (node.kind === 'leaf') {
+      const branch = element('div', { className: 'workspace-pane-branch workspace-pane-leaf' });
+      branch.dataset.paneSlot = String(node.slot + 1);
+      const record = records.get(paneIds[node.slot]);
+      if (record) branch.append(record.shell);
+      return branch;
+    }
+    const splitRoot = element('div', { className: `workspace-pane-split axis-${node.axis}` });
+    splitRoot.dataset.splitId = node.id;
+    const first = element('div', { className: 'workspace-pane-branch' }, [renderNode(node.first)]);
+    const divider = element('div', {
+      ariaLabel: `Resize Pane boundary ${node.id}`,
+      className: 'workspace-pane-divider',
+    });
+    divider.dataset.axis = node.axis;
+    divider.dataset.splitId = node.id;
+    divider.setAttribute('aria-orientation', node.axis === 'x' ? 'vertical' : 'horizontal');
+    divider.setAttribute('aria-valuemin', '5');
+    divider.setAttribute('aria-valuemax', '95');
+    divider.setAttribute('role', 'separator');
+    divider.tabIndex = pending ? -1 : 0;
+    const second = element('div', { className: 'workspace-pane-branch' }, [renderNode(node.second)]);
+    splitRoot.append(first, divider, second);
+    const record = { axis: node.axis, divider, first, second, split: splitRoot };
+    splitRecords.set(node.id, record);
+    bindDivider(divider, node.id, record);
+    return splitRoot;
+  }
+
+  function renderLayout() {
+    splitRecords.clear();
+    root.replaceChildren(renderNode(readPaneLayout(layout).tree));
+    applyRatios();
+  }
 
   function createPane(paneId) {
     const symbol = element('strong', { className: 'pane-symbol', text: '—' });
@@ -40,9 +157,9 @@ export function createPaneGridView({ onFocus, onReset }) {
       event.stopPropagation();
       onReset(paneId);
     });
-    root.append(shell);
     const record = { empty, header, host, reset, shell, symbol, timeframe };
     records.set(paneId, record);
+    renderLayout();
     return record;
   }
 
@@ -50,13 +167,23 @@ export function createPaneGridView({ onFocus, onReset }) {
     return (records.get(paneId) ?? createPane(paneId)).host;
   }
 
+  renderLayout();
+
   return Object.freeze({
     commitPaneSet({ activePaneId, panes }) {
+      const nextPaneIds = panes.map(({ paneId }) => paneId);
+      const membershipChanged = nextPaneIds.length !== paneIds.length
+        || nextPaneIds.some((paneId, index) => paneId !== paneIds[index]);
+      paneIds = nextPaneIds;
       root.dataset.count = String(panes.length);
-      const accepted = new Set(panes.map(({ paneId }) => paneId));
+      const accepted = new Set(paneIds);
+      let recordChanged = false;
       for (const pane of panes) {
-        const record = records.get(pane.paneId) ?? createPane(pane.paneId);
-        root.append(record.shell);
+        let record = records.get(pane.paneId);
+        if (!record) {
+          record = createPane(pane.paneId);
+          recordChanged = true;
+        }
         record.shell.classList.remove('is-prepared');
         record.shell.classList.toggle('is-active', pane.paneId === activePaneId);
         record.shell.setAttribute('aria-hidden', 'false');
@@ -68,21 +195,45 @@ export function createPaneGridView({ onFocus, onReset }) {
         if (accepted.has(paneId)) continue;
         record.shell.remove();
         records.delete(paneId);
+        recordChanged = true;
       }
+      if (membershipChanged || recordChanged) renderLayout();
     },
     dispose() {
       records.clear();
+      splitRecords.clear();
       root.remove();
     },
     preparePane,
     root,
+    setLayout(nextLayout, nextPaneIds = paneIds) {
+      const value = readPaneLayout(nextLayout);
+      if (value.paneCount !== nextPaneIds.length) {
+        throw new TypeError('Pane layout leaf count must match the planned Pane set.');
+      }
+      const unchanged = nextLayout === layout && nextPaneIds.length === paneIds.length
+        && nextPaneIds.every((paneId, index) => paneId === paneIds[index]);
+      layout = nextLayout;
+      paneIds = [...nextPaneIds];
+      if (unchanged) applyRatios();
+      else renderLayout();
+    },
     setPending(disabled) {
-      for (const record of records.values()) record.reset.disabled = disabled;
+      pending = disabled === true;
+      for (const record of records.values()) record.reset.disabled = pending;
+      for (const { divider } of splitRecords.values()) {
+        divider.setAttribute('aria-disabled', String(pending));
+        divider.tabIndex = pending ? -1 : 0;
+      }
     },
     setTruncationSelection(active) {
       root.dataset.truncationSelection = active === true ? 'active' : 'inactive';
     },
     setWorkspace({ activePaneId, panes }, labels) {
+      const nextPaneIds = panes.map(({ paneId }) => paneId);
+      const membershipChanged = nextPaneIds.length !== paneIds.length
+        || nextPaneIds.some((paneId, index) => paneId !== paneIds[index]);
+      paneIds = nextPaneIds;
       root.dataset.activePaneId = activePaneId;
       root.dataset.count = String(panes.length);
       for (const pane of panes) {
@@ -93,6 +244,7 @@ export function createPaneGridView({ onFocus, onReset }) {
         record.shell.dataset.instrumentId = pane.instrumentId;
         record.shell.dataset.timeframeId = pane.timeframeId;
       }
+      if (membershipChanged) renderLayout();
     },
   });
 }

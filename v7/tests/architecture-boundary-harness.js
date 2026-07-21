@@ -204,6 +204,7 @@ for (const rule of [
   'replay-actions-plan-complete-pane-set-atomically',
   'complete-pane-set-materializes-and-applies-atomically',
   'replay-navigation-shares-one-clock-and-pane-set-transaction',
+  'versioned-pane-layout-persistence-and-resize-bounds',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

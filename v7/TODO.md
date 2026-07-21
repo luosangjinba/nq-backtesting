@@ -968,6 +968,33 @@ reproject every Pane even when Panes use different instruments. R6.9 is next:
 expand one-to-four layouts with draggable, persisted nested split ratios and
 minimum Pane sizes; layout sync follows as a separate bounded step.
 
+### R6.9 Resizable One-To-Four Pane Layouts — Awaiting Human Review
+
+- expose exactly 12 reviewed variants: single; two columns/rows; three
+  columns/rows/two-left/one-right/one-left/two-right; four grid,
+  three-left/one-right, one-left/three-right, one-top/three-bottom, and
+  three-top/one-bottom;
+- keep one independent Lightweight Charts host per product Pane because native
+  chart panes share one time scale and cannot represent independent product
+  Pane instruments, TFs, and Viewports;
+- activate a pure Pane Layout Domain for versioned split-tree intent,
+  deterministic leaf order, serialization, and measured resize constraints;
+- support pointer and keyboard resizing for every split while preserving at
+  least `180×120px` per Pane;
+- persist accepted layout and nested ratios under an explicit Session id and
+  restore them on Session re-entry;
+- make same-count variant changes and resize commits data-, Replay-, and
+  Workspace-transaction-free; keep Pane-count changes on the existing atomic
+  complete Pane-set materialization path;
+- preserve Pane identities/configuration, one shared Replay clock, and
+  Session-wide ETH/RTH across mixed instruments and timeframes;
+- bind the pure domain, Session persistence, real-browser geometry/input,
+  visual, all-Pane Replay/RTH, re-entry, architecture, and regression gates.
+
+R6.9 changes interaction and visuals and therefore stops here for explicit
+human acceptance. R6.10 layout sync remains the exact next implementation step
+after acceptance; it is not part of this commit.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

@@ -11,10 +11,15 @@ import {
 } from '../viewport-runtime/public.js';
 
 const PANE_MAIN = 'pane-main';
-const PANE_SECONDARY = 'pane-secondary';
+const PANE_IDS = Object.freeze([
+  PANE_MAIN,
+  'pane-secondary',
+  'pane-tertiary',
+  'pane-quaternary',
+]);
 
 /** Own the UI composition's accepted Pane Workspace and Pane viewport controllers. */
-export function createPaneWorkspaceState({ initialCursorEpochMs, initialTarget, record }) {
+export function createPaneWorkspaceState({ initialCursorEpochMs, initialPaneCount = 1, initialTarget, record }) {
   const viewports = new Map();
   let accepted = null;
 
@@ -63,11 +68,11 @@ export function createPaneWorkspaceState({ initialCursorEpochMs, initialTarget, 
 
   accepted = build({
     activePaneId: PANE_MAIN,
-    panes: [{
+    panes: PANE_IDS.slice(0, initialPaneCount).map((paneId) => ({
       instrumentId: initialTarget.instrumentId,
-      paneId: PANE_MAIN,
+      paneId,
       timeframeId: initialTarget.timeframeId,
-    }],
+    })),
   });
 
   return Object.freeze({
@@ -88,16 +93,26 @@ export function createPaneWorkspaceState({ initialCursorEpochMs, initialTarget, 
     },
     desiredPaneCount(count, cursorEpochMs) {
       return rebuild(accepted, (current) => {
-        if (count === 1) return { ...current, activePaneId: PANE_MAIN, panes: [current.panes[0]] };
+        if (!Number.isInteger(count) || count < 1 || count > PANE_IDS.length) {
+          throw new TypeError('Pane count must be an integer from one through four.');
+        }
         const activePane = current.panes.find(({ paneId }) => paneId === current.activePaneId);
-        viewport(PANE_SECONDARY, cursorEpochMs).moveCursor(cursorEpochMs);
+        const panesById = new Map(current.panes.map((pane) => [pane.paneId, pane]));
+        const panes = PANE_IDS.slice(0, count).map((paneId) => {
+          const retained = panesById.get(paneId);
+          if (retained) return retained;
+          viewport(paneId, cursorEpochMs).moveCursor(cursorEpochMs);
+          return {
+            instrumentId: activePane.instrumentId,
+            paneId,
+            timeframeId: activePane.timeframeId,
+          };
+        });
         return {
           ...current,
-          panes: [...current.panes, {
-            instrumentId: activePane.instrumentId,
-            paneId: PANE_SECONDARY,
-            timeframeId: activePane.timeframeId,
-          }],
+          activePaneId: panes.some(({ paneId }) => paneId === current.activePaneId)
+            ? current.activePaneId : PANE_MAIN,
+          panes,
         };
       });
     },

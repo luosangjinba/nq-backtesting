@@ -1,0 +1,12 @@
+{
+  "id": "core.pane-layout-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "pane-layout-domain",
+  "publicEntry": "src/pane-layout-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/pane-layout-domain-harness.js",
+  "removable": false
+}

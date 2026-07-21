@@ -4,6 +4,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { serializeActivationGeneration } from '../src/activation-generation/public.js';
 import { createSessionId, serializeSessionId, sessionIdsEqual } from '../src/session-identity/public.js';
+import { createPaneLayout, deserializePaneLayout, readPaneLayout } from '../src/pane-layout-domain/public.js';
 import { createSessionRepository, createStorageAdapter } from '../src/session-persistence/public.js';
 import {
   createSessionRecord,
@@ -59,6 +60,22 @@ assert.equal(store.getSession(sessionA).metadata.name, 'Alpha');
 assert.equal(store.getSession(sessionB).metadata.name, 'Beta');
 assert.equal(store.getSession(sessionB).configuration.instrumentIds[0], 'instrument.es');
 
+const fourPaneLayout = createPaneLayout({
+  ratios: { root: 0.6, 'root.first': 0.45, 'root.second': 0.55 },
+  variantId: 'layout.four-grid',
+});
+const layoutRevision = secondA.revision;
+const savedLayoutA = store.savePaneLayout(sessionA, { layout: fourPaneLayout, nowEpochMs: 55 });
+assert.equal(savedLayoutA.revision, layoutRevision + 1);
+assert.equal(serializeActivationGeneration(savedLayoutA.activationGeneration).value,
+  serializeActivationGeneration(secondA.activationGeneration).value,
+  'layout persistence must not create a new Session activation');
+assert.equal(savedLayoutA.workspace.state, 'configured');
+assert.equal(readPaneLayout(deserializePaneLayout(savedLayoutA.workspace.paneLayout)).variantId,
+  'layout.four-grid');
+assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
+  'layout persistence must remain isolated to its explicit Session');
+
 store = createSessionStore({ repository: makeRepository() });
 const restoredA = store.getSession(sessionA);
 const restoredB = store.getSession(sessionB);
@@ -66,6 +83,8 @@ assert.equal(sessionIdsEqual(restoredA.sessionId, sessionA), true);
 assert.equal(restoredA.metadata.name, 'Alpha');
 assert.equal(restoredB.metadata.name, 'Beta');
 assert.equal(serializeActivationGeneration(restoredA.activationGeneration).value, 2);
+assert.equal(restoredA.workspace.paneLayout.variantId, 'layout.four-grid');
+assert.equal(restoredA.workspace.paneLayout.ratios.root, 0.6);
 assert.equal(store.activateSession(sessionA, { nowEpochMs: 60 }).activationGeneration.value(), 3,
   'runtime reconstruction must allocate a strictly later activation');
 

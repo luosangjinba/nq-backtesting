@@ -102,6 +102,10 @@ class SessionBrowserController {
         if (workspace) {
           this.openedSessionSurface.mount({
             onBack: this.actions.onBack,
+            onPersistPaneLayout: (layout) => this.store.savePaneLayout(record.sessionId, {
+              layout,
+              nowEpochMs: this.now(),
+            }),
             record,
             root: this.root.querySelector('.replay-workspace-slot'),
           });

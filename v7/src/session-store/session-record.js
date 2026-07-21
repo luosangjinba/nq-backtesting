@@ -8,6 +8,7 @@ import {
   requireSessionId,
   serializeSessionId,
 } from '../session-identity/public.js';
+import { deserializePaneLayout, serializePaneLayout } from '../pane-layout-domain/public.js';
 
 const RECORD_SCHEMA = 'v7.session-record';
 const RECORD_VERSION = 1;
@@ -54,6 +55,26 @@ function requireConfiguration(value) {
   });
 }
 
+function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }) {
+  if (value?.schemaVersion === 1 && value.state === 'uninitialized'
+    && Object.keys(value).sort().join(',') === 'schemaVersion,state') {
+    return Object.freeze({ schemaVersion: 1, state: 'uninitialized' });
+  }
+  if (value?.schemaVersion === 2 && value.state === 'configured'
+    && Object.keys(value).sort().join(',') === 'paneLayout,schemaVersion,state') {
+    try {
+      return Object.freeze({
+        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
+        schemaVersion: 2,
+        state: 'configured',
+      });
+    } catch (cause) {
+      fail('INVALID_SESSION_WORKSPACE', 'Session workspace Pane layout is invalid.', { cause });
+    }
+  }
+  fail('INVALID_SESSION_WORKSPACE', 'Session workspace envelope is unsupported.');
+}
+
 function freezeRecord(value) {
   requireSessionId(value.sessionId);
   if (value.activationGeneration !== null && value.activationGeneration !== undefined) {
@@ -77,7 +98,7 @@ function freezeRecord(value) {
       updatedAtEpochMs,
     }),
     configuration: requireConfiguration(value.configuration),
-    workspace: Object.freeze({ schemaVersion: 1, state: 'uninitialized' }),
+    workspace: requireWorkspace(value.workspace),
   });
 }
 
@@ -97,6 +118,7 @@ export function createSessionRecord({ sessionId, name, historicalRange, instrume
     activationGeneration: null,
     metadata: { name, createdAtEpochMs: nowEpochMs, updatedAtEpochMs: nowEpochMs },
     configuration: { historicalRange, instrumentIds },
+    workspace: { schemaVersion: 1, state: 'uninitialized' },
   });
 }
 
@@ -152,9 +174,6 @@ export function deserializeSessionRecord(record, { migrations = {} } = {}) {
   const current = migrate(record, migrations);
   if (current?.schema !== RECORD_SCHEMA) fail('UNSUPPORTED_SESSION_RECORD_SCHEMA', 'Session record schema is unsupported.');
   if (current.version !== RECORD_VERSION) fail('UNSUPPORTED_SESSION_RECORD_VERSION', 'Session record version is unsupported.');
-  if (current.workspace?.schemaVersion !== 1 || current.workspace.state !== 'uninitialized') {
-    fail('INVALID_SESSION_WORKSPACE', 'R2.1 supports only an uninitialized workspace envelope.');
-  }
   return freezeRecord({
     sessionId: deserializeSessionId(current.sessionId),
     revision: current.revision,
@@ -162,6 +181,7 @@ export function deserializeSessionRecord(record, { migrations = {} } = {}) {
       ? null : deserializeActivationGeneration(current.activationGeneration),
     metadata: current.metadata,
     configuration: current.configuration,
+    workspace: current.workspace,
   });
 }
 

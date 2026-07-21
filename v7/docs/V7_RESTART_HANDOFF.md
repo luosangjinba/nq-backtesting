@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after combined R6.8/R6.8a–b human acceptance
+Last updated: 2026-07-21 after R6.9 implementation, awaiting human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -231,6 +231,13 @@ and human-accepted:
 - The combined R6.8 gate was human accepted on 2026-07-21. The user explicitly
   reaffirmed Session-wide ETH/RTH ownership: one switch atomically reprojects
   every Pane even when Pane instruments differ.
+- R6.9 implements the exact reviewed 12-variant one-to-four Pane layout set
+  through one pure split-tree domain and one independent chart host per product
+  Pane. Every horizontal/vertical divider supports pointer and keyboard resize,
+  measured minimum Pane sizes, and Session-owned ratio persistence. Same-count
+  layout/resize changes do no data, Replay, or Workspace transaction work;
+  count changes retain the atomic complete Pane-set path. This interaction and
+  visual gate awaits explicit human acceptance.
 
 Latest corrective commits:
 
@@ -312,9 +319,9 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 ## Deliberately Not Implemented
 
 There is still no production-complete CME holiday dataset, calendar-aligned
-day/week/month policy, Auto Replay timer, multi-pane layout, or durable
-workspace restore. V7 now uses real local V4/DuckDB NQ history, but this does
-not imply complete exchange-calendar or tick-level coverage.
+day/week/month policy, layout sync, or complete hard-refresh workspace restore.
+V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
+exchange-calendar or tick-level coverage.
 
 ## Verification After Restart
 
@@ -350,12 +357,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Execute R6.9: implement the reviewed one-to-four Pane layout set with draggable
-persisted boundaries and minimum Pane sizes. Preserve one shared Replay clock,
-Session-wide ETH/RTH across mixed instruments, Pane-local instrument/TF/
-Viewport ownership, and atomic complete-Pane transactions. Layout sync follows
-as a separate bounded step. Economic Calendar remains outside this foundation
-phase.
+Obtain explicit human acceptance for R6.9's one-to-four Pane picker, every
+horizontal/vertical draggable divider, minimum geometry, layout persistence,
+and mixed-Pane shared Replay/ETH-RTH behavior. After acceptance, execute R6.10
+as a separate bounded layout-sync step. Economic Calendar remains outside this
+foundation phase.
 
 ## Standing Workflow
 

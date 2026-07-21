@@ -123,7 +123,7 @@ try {
     form.requestSubmit();
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`, 10_000);
-  await evaluate(cdp, `document.querySelector('.pane-count-control [data-value="2"]').click()`);
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
 
@@ -158,7 +158,7 @@ try {
     `rapid RTH history must not collapse the visible span into oversized candles: ${JSON.stringify(state)}`);
   const rthHistoryState = state;
 
-  await evaluate(cdp, `document.querySelector('.pane-count-control [data-value="1"]').click()`);
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.single"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
   const singleBefore = await readState(cdp);

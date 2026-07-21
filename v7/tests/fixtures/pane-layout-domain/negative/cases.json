@@ -1,0 +1,9 @@
+[
+  { "name": "unknown variant", "operation": "create", "input": { "variantId": "layout.unknown" }, "expectedCode": "PANE_LAYOUT_VARIANT_INVALID" },
+  { "name": "unknown split", "operation": "create", "input": { "variantId": "layout.two-columns", "ratios": { "missing": 0.5 } }, "expectedCode": "PANE_LAYOUT_SPLIT_INVALID" },
+  { "name": "unsafe ratio", "operation": "create", "input": { "variantId": "layout.two-columns", "ratios": { "root": 0.99 } }, "expectedCode": "PANE_LAYOUT_RATIO_INVALID" },
+  { "name": "forged value", "operation": "read", "input": {}, "expectedCode": "PANE_LAYOUT_REQUIRED" },
+  { "name": "unsupported wire", "operation": "deserialize", "input": { "schema": "v7.pane-layout", "version": 2, "variantId": "layout.single", "ratios": {} }, "expectedCode": "PANE_LAYOUT_WIRE_INVALID" },
+  { "name": "unknown resize split", "operation": "resizeMissing", "input": {}, "expectedCode": "PANE_LAYOUT_SPLIT_INVALID" },
+  { "name": "too-small resize container", "operation": "resizeSmall", "input": {}, "expectedCode": "PANE_LAYOUT_CONTAINER_TOO_SMALL" }
+]
