@@ -396,7 +396,7 @@ Completed with automated evidence; no interaction or visual review is required:
   effects;
 - add no toolbar, multi-pane, real provider, persistence, or playback timer.
 
-## R5.5 Compact Timeframe And ETH/RTH Controls — Awaiting Combined Human Acceptance
+## R5.5 Compact Timeframe And ETH/RTH Controls — Partial Human Review
 
 Implemented with automated evidence:
 
@@ -429,7 +429,7 @@ The follow-up review's date-independent `01:59 PM` cutoff is corrected by
 removing forward-context entry entirely. The selected start is the first Replay
 bar; earlier bars are context and later bars remain hidden.
 
-## R5.6 Real V4/DuckDB Bars Provider — Awaiting Human Acceptance
+## R5.6 Real V4/DuckDB Bars Provider — Partial Human Review, Not Accepted
 
 Implemented as a corrective gate after chart review exposed that R5.5 still
 used visually misleading generated bars:
@@ -453,8 +453,22 @@ used visually misleading generated bars:
 - prove the V6 entry baseline, Next, TF/ETH-RTH replacement, manual/reset wall,
   and repeated left extension in real Chrome.
 
-Exact next action: human visual and interaction review of the combined R5.5 and
-R5.6 workspace. Do not begin R6 multi-pane until this gate is accepted.
+The 2026-07-20 human review passed real data, no-future/Next, repeated left
+history, TF menu, ETH/RTH filtering, wheel regions, Reset, and Canvas layout.
+It did not accept the gate. Execute these corrections before re-review:
+
+1. audit and restore V6 exchange-wall display semantics so RTH is visibly
+   `09:30–16:14` New York time without corrupting Session request instants or
+   double-converting V4 timestamps;
+2. restore V6 aggregate-candle display placement (`1h:59`, `30m:29/59`,
+   `4m:3/7/11/15/...`) while preserving source cursor/no-future provenance;
+3. profile and remove TF switch and higher-TF Next stalls through the owning
+   cache/projection/chart boundaries;
+4. remove cache-hit `Updating…`; allow only delayed, subtle chart dimming for
+   perceptible uncached TF/ETH-RTH work;
+5. navigate directly to the new chart after successful Session creation.
+
+The next action is the targeted V6 time/TF/Replay audit, not R6 multi-pane.
 
 ## Standing Gates
 

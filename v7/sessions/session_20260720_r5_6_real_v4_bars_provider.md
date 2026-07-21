@@ -1,7 +1,7 @@
 # Session — R5.6 Real V4 Bars Provider
 
 Date: 2026-07-20
-Status: implemented; human chart review pending
+Status: implemented; human chart review partially passed, not accepted
 
 ## Correction
 
@@ -44,3 +44,16 @@ visible-range APIs, intercepts wheel only inside the right axis, anchors zoom at
 the pointer price, preserves the horizontal logical range, and restores price
 autoscale through Reset View. The independent real-Chrome adapter harness
 proves the vertical range changes while the time range does not.
+
+## Human Review Result
+
+The report in `v7/tmp/人工验收步骤R5.6/人工验收步骤R5.6.md` passed real
+candles, entry/no-future, one-minute Next, repeated left history, TF menu,
+ETH/RTH filtering, wheel behavior, Reset, and Canvas layout.
+
+Acceptance remains blocked by five corrections: direct-open after Session
+creation; removal of cache-hit `Updating…`; TF switch and aggregate-Next
+latency; exact V6 aggregate candle-end display placement; and New York
+exchange-time chart labels (`09:30–16:14` RTH rather than browser-local
+`06:30–13:14`). The exchange-time item must begin with a V6 end-to-end audit,
+not a formatter-only patch.

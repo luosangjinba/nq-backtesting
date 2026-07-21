@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.6 real-provider correction, awaiting human acceptance
+Last updated: 2026-07-20 after partial R5.6 human review; corrective pass required
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  combined R5.5/R5.6 workspace awaiting human review
+  combined R5.5/R5.6 workspace partially passing human review but not accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -30,7 +30,8 @@ listed above.
 6. `docs/V7_EXECUTION_ROADMAP.md`;
 7. only the documents directly relevant to the next bounded step.
 
-Do not load all historical `sessions/` records. For the R5.5 review, read only:
+Do not load all historical `sessions/` records. For the R5.6 corrective pass,
+read only:
 
 - `sessions/session_20260720_r4_5_lightweight_chart_slice.md`.
 - `sessions/session_20260720_r5_1_v6_interaction_carry_forward.md`.
@@ -41,6 +42,8 @@ Do not load all historical `sessions/` records. For the R5.5 review, read only:
 - `sessions/session_20260720_r5_6_real_v4_bars_provider.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
+- the human report at
+  `tmp/人工验收步骤R5.6/人工验收步骤R5.6.md`.
 
 ## Completed Boundary
 
@@ -103,12 +106,63 @@ and human-accepted:
 - R5.5 mounts one grouped fixed minute/hour TF dropdown and compact ETH/RTH
   controls over that path, preserves cursor/manual wall, and keeps accepted
   chart pixels visible during bounded refresh/error states. Its review
-  corrections align chart timestamps with Session-card local time, restore the
-  V6 prefix-plus-start/no-future entry baseline, and add repeatable bounded
-  leftward history extension. Human acceptance is pending.
+  corrections restore the V6 prefix-plus-start/no-future entry baseline and add
+  repeatable bounded leftward history extension. The partial R5.6 review rejects
+  the current browser-local chart axis for RTH; exchange-time semantics remain
+  blocking.
 - R5.6 removes the production synthetic generator and connects the existing
-  V4/DuckDB NQ source through an independent, policy-bound adapter with exact
-  wall-time normalization, padding removal, and no silent fallback.
+  V4/DuckDB NQ source through an independent, policy-bound adapter with padding
+  removal and no silent fallback. Its instant/wall display boundary is now
+  explicitly under re-audit.
+- follow-up commits remove the redundant Canvas metadata row and route wheel
+  input over the right price axis to pointer-anchored vertical zoom; plot wheel
+  remains horizontal and Reset View restores price autoscale.
+
+Latest corrective commits:
+
+1. `b895b800 fix(v7): use real local bars in replay chart`
+2. `828209d3 refactor(v7): remove redundant chart metadata strip`
+3. `263a8b15 feat(v7): zoom price scale with axis wheel`
+
+## R5.6 Human Review Result
+
+Status: **partially passed; not accepted**.
+
+Passed and protected:
+
+- real NQ candles, exact initial no-future boundary, and one source minute per
+  Next;
+- repeated leftward history extension without moving Replay;
+- compact single-column TF menu and atomic ETH/RTH replacement;
+- plot-wheel horizontal zoom, price-axis wheel vertical zoom, and Reset View;
+- full-height Canvas with no feed/wall/cursor metadata strip.
+
+Required corrective work, in this order:
+
+1. **Exchange-time semantics (blocking).** RTH currently appears as
+   `06:30–13:14` because the chart presents browser PDT. The accepted product
+   expectation is New York exchange wall time `09:30–16:14`. Audit the complete
+   V6 Session-input → request-window → source timestamp → chart-label chain
+   before editing V7. Do not apply a formatter-only patch and do not perform a
+   second conversion of V4 UTC-like exchange-wall fields.
+2. **TF candle placement.** Recover the exact V6 display-time convention for
+   completed aggregate candles: `1h` at minute `59`, `30m` at `29/59`, `4m` at
+   `3/7/11/15/...`. Determine whether V6 stores bucket-end display timestamps
+   separately from source/no-future provenance; do not guess or change Replay's
+   exclusive source cursor.
+3. **TF and aggregate Next latency.** Profile the current cache/projection/
+   `setData`/paint phases and reuse V6's mature incremental behavior where it
+   fits V7 ownership. Higher-TF Next remains a one-source-minute advance but
+   must not visibly stall.
+4. **Loading feedback.** Remove the toolbar `Updating…` flash from cache-hit
+   Next. A short chart-dim transition is allowed only for a perceptible TF or
+   ETH/RTH cache miss (human expectation roughly 500 ms); never cover the chart
+   with centered text.
+5. **Create flow.** Successful Create Session must navigate directly into the
+   newly created chart instead of returning to the Session list.
+
+Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
+restart product interviews or copy V6 runtime ownership.
 
 Latest R3.3 commits, oldest to newest:
 
@@ -150,11 +204,19 @@ The server process does not survive a machine reboot and must be restarted.
 The existing V4 API on `127.0.0.1:8766` is required for the real chart. If it
 is unavailable, V7 shows Chart unavailable and does not substitute fake bars.
 
+After a service restart verify both endpoints:
+
+```bash
+curl -s http://127.0.0.1:8766/v4/health
+curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
+```
+
 ## Exact Next Step
 
-Perform human visual and interaction review of the combined R5.5/R5.6 real-data
-workspace. Do not begin R6 multi-pane, persistence, or expanded Replay
-transport until the gate is accepted.
+Execute the bounded R5.6 corrective pass above, starting with a targeted V6
+time/TF/Replay audit. Fix and verify one ownership-safe group at a time, then
+issue a revised human checklist. Do not begin R6 multi-pane, persistence, or
+expanded Replay transport until R5.6 is explicitly accepted.
 
 ## Standing Workflow
 
