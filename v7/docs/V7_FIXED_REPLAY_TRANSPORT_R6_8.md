@@ -70,3 +70,11 @@ All 37 non-browser and five serial real-Chrome Harnesses pass. The retained
 performance gate records Next p95 `58.1ms`, p99 `70.7ms`, max `72.3ms`,
 ETH→RTH `45ms`, `5m` `160ms`, `12h` RTH `1044ms`, and zero observed long task
 during rapid history loading.
+
+## R6.8a Review Correction
+
+Before acceptance, the user requested the FXReplay-style truncation/time-
+machine action, the explicitly named `Sync timeframe` switch, and a more
+TradingView-like visual treatment. R6.8a implements those additions without
+changing the accepted fixed-rail decision. Detailed behavior and evidence are
+recorded in `V7_REPLAY_TRUNCATION_SYNC_R6_8A.md`.

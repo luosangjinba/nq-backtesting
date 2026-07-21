@@ -34,7 +34,9 @@ export function createReplayWorkspaceSurface() {
         replayStep: null,
         restart: null,
         sessionHours: null,
+        timeframeSync: null,
         timeframe: null,
+        truncation: null,
       };
       const capabilities = createFoundationCapabilities(record.configuration.instrumentIds);
       const view = createReplayWorkspaceView({
@@ -55,7 +57,9 @@ export function createReplayWorkspaceSurface() {
         onReplayStep: (replayStepId) => callbacks.replayStep?.(replayStepId),
         onRestart: () => callbacks.restart?.(),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
+        onTimeframeSync: (enabled) => callbacks.timeframeSync?.(enabled),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
+        onTruncation: () => callbacks.truncation?.(),
         playbackSpeedOptions: AUTOPLAY_SPEED_OPTIONS,
         replayStepOptions: capabilities.replayStepOptions,
         sessionHoursModes: capabilities.sessionHoursModes,
@@ -78,7 +82,9 @@ export function createReplayWorkspaceSurface() {
       callbacks.replayStep = (replayStepId) => controller.changeReplayStep(replayStepId);
       callbacks.restart = () => controller.restart();
       callbacks.sessionHours = (mode) => controller.replaceSessionHours(mode);
+      callbacks.timeframeSync = (enabled) => controller.changeTimeframeSync(enabled);
       callbacks.timeframe = (timeframeId) => controller.replaceTimeframe(timeframeId);
+      callbacks.truncation = () => controller.toggleTruncationSelection();
       active = { controller, view };
       void controller.start();
       return controller;

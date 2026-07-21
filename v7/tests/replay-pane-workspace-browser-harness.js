@@ -55,6 +55,8 @@ function paneStateExpression() {
       replayRevision: Number(root.dataset.replayRevision),
       replayStepId: root.dataset.replayStepId,
       sessionHoursMode: root.dataset.sessionHoursMode,
+      syncTimeframe: root.dataset.syncTimeframe,
+      truncationSelection: root.dataset.truncationSelection,
       workspaceRevision: Number(root.dataset.workspaceRevision),
       panes: [...document.querySelectorAll('.workspace-pane:not(.is-prepared)')].map((pane) => {
         const host = pane.querySelector('.lightweight-chart-host');
@@ -185,6 +187,30 @@ try {
   state = await evaluate(cdp, paneStateExpression());
   await capture(cdp);
 
+  const beforeSync = state;
+  await evaluate(cdp, `document.querySelector('.replay-timeframe-sync input').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.syncTimeframe === 'true'
+    && document.querySelector('.replay-workspace')?.dataset.replayStepId === 'replay-step.fixed-240-minute'`);
+  state = await evaluate(cdp, paneStateExpression());
+  assert.equal(state.workspaceRevision, beforeSync.workspaceRevision,
+    'enabling Sync timeframe must not issue a Pane transaction');
+  assert.equal(state.replayRevision, beforeSync.replayRevision,
+    'enabling Sync timeframe must not move the Replay cursor');
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-step-select').disabled`), true,
+    'Replay step is read-only while Sync timeframe owns it');
+  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-main"]')
+    .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-main'
+    && document.querySelector('.replay-workspace')?.dataset.replayStepId === 'replay-step.fixed-1-minute'`);
+  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')
+    .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-secondary'
+    && document.querySelector('.replay-workspace')?.dataset.replayStepId === 'replay-step.fixed-240-minute'`);
+  await evaluate(cdp, `document.querySelector('.replay-timeframe-sync input').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.syncTimeframe === 'false'
+    && !document.querySelector('.replay-step-select').disabled`);
+  state = await evaluate(cdp, paneStateExpression());
+
   const beforeStepSelection = state;
   await evaluate(cdp, `(() => {
     const select = document.querySelector('.replay-step-select');
@@ -288,6 +314,63 @@ try {
   assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
     /05\/04\/2026, 12:59 EDT/, 'exact GoTo uses a New York exclusive cutoff');
 
+  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-main"] .pane-reset').click()`);
+  const beforeTruncation = await evaluate(cdp, paneStateExpression());
+  await evaluate(cdp, `document.querySelector('.replay-truncation').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.truncationSelection === 'active'`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-playback').disabled`), true,
+    'Replay navigation must lock while the chart owns a truncation-point gesture');
+  const truncationPoint = await evaluate(cdp, `(() => {
+    const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
+    const bounds = host.getBoundingClientRect();
+    const from = Number(host.dataset.logicalFrom);
+    const to = Number(host.dataset.logicalTo);
+    const barCount = Number(host.dataset.barCount);
+    const plotWidth = bounds.width - 70;
+    return {
+      x: bounds.left + (((barCount - 3) - from) / (to - from)) * plotWidth,
+      y: bounds.top + bounds.height / 2,
+    };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: truncationPoint.x, y: truncationPoint.y,
+    button: 'none', buttons: 0,
+  });
+  for (const type of ['mousePressed', 'mouseReleased']) await cdp.send('Input.dispatchMouseEvent', {
+    type, x: truncationPoint.x, y: truncationPoint.y,
+    button: 'left', buttons: type === 'mousePressed' ? 1 : 0, clickCount: 1,
+  });
+  try {
+    await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision)
+      > ${beforeTruncation.workspaceRevision}
+      && document.querySelector('.replay-workspace')?.dataset.truncationSelection === 'inactive'`, 10_000);
+  } catch (error) {
+    const diagnostic = await evaluate(cdp, `(() => {
+      const root = document.querySelector('.replay-workspace');
+      const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
+      return {
+        barCount: host.dataset.barCount,
+        cursorText: root.dataset.cursorText,
+        lastSelection: host.dataset.lastTruncationSelection,
+        lastLogical: host.dataset.lastTruncationLogical,
+        lastStart: host.dataset.lastTruncationStartEpochMs,
+        logicalFrom: host.dataset.logicalFrom,
+        logicalTo: host.dataset.logicalTo,
+        status: document.querySelector('.workspace-inline-status').textContent,
+        truncationSelection: root.dataset.truncationSelection,
+        workspaceRevision: root.dataset.workspaceRevision,
+      };
+    })()`);
+    throw new Error(`${error.message}; truncation diagnostic: ${JSON.stringify({ diagnostic, truncationPoint })}`);
+  }
+  state = await evaluate(cdp, paneStateExpression());
+  assert.ok(state.panes[0].barCount < beforeTruncation.panes[0].barCount,
+    'selected candle and every later candle must be removed from the visible Pane snapshot');
+  assert.equal(state.replayRevision, beforeTruncation.replayRevision + 1);
+  assert.ok(state.panes.every((pane, index) => (
+    pane.visibleRevision > beforeTruncation.panes[index].visibleRevision
+  )), 'one truncation click must visibly apply every Pane through the shared Replay transaction');
+
   const beforeRestart = Number(await evaluate(cdp,
     `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
   await evaluate(cdp, `document.querySelector('.replay-restart').click()`);
@@ -311,9 +394,12 @@ try {
     previous: document.querySelector('.replay-previous').disabled,
     speed: document.querySelector('.replay-speed-select').disabled,
     step: document.querySelector('.replay-step-select').disabled,
+    syncTimeframe: document.querySelector('.replay-timeframe-sync input').disabled,
+    truncation: document.querySelector('.replay-truncation').disabled,
   }))()`);
   assert.deepEqual(completedAvailability, {
     next: true, playback: true, previous: false, speed: true, step: false,
+    syncTimeframe: false, truncation: false,
   }, 'Session completion must still allow Previous and Replay-step recovery');
   const beforeCompletedPrevious = Number(await evaluate(cdp,
     `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
@@ -345,5 +431,5 @@ try {
 }
 
   console.log('v7 Replay Pane Workspace browser harness passed', {
-    scope: 'single/multi Pane, mixed instrument/TF, continuous Replay/Pause, both GoTo forms',
+    scope: 'single/multi Pane, truncation, Sync timeframe, continuous Replay/Pause, both GoTo forms',
   });

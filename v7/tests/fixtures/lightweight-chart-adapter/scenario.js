@@ -29,7 +29,7 @@ const bars = Object.freeze(Array.from({ length: 20 }, (_, index) => {
   const open = 100 + index;
   return Object.freeze({
     close: open + (index % 2 ? -2 : 2),
-    displayEpochMs: 1_000_000 + (index * 60_000),
+    displayEpochMs: 1_030_000 + (index * 60_000),
     high: open + 3,
     low: open - 3,
     open,
@@ -53,8 +53,14 @@ const viewport = createViewportController({
     sessionId,
   }),
 });
-const adapter = createLightweightChartAdapter({ host, viewportPort: viewport });
+const truncationSelections = [];
+const adapter = createLightweightChartAdapter({
+  host,
+  onTruncationSelect: (selection) => truncationSelections.push(selection),
+  viewportPort: viewport,
+});
 globalThis.__adapter = adapter;
+globalThis.__truncationSelections = truncationSelections;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 
 try {

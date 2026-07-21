@@ -18,6 +18,7 @@ import { createFoundationMarket } from './foundation-market.js';
 import { createFoundationSourceTraversal } from './foundation-source-traversal.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneWorkspaceState } from './pane-workspace-state.js';
+import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createWorkspaceExecution } from './workspace-execution.js';
 
 function formatCursor(epochMs) {
@@ -34,6 +35,9 @@ export function createReplayWorkspaceController({ record, view }) {
   const market = createFoundationMarket(record);
   const range = record.configuration.historicalRange;
   const replayStepById = new Map(market.replayStepOptions.map((option) => [option.id, option.step]));
+  const replayStepIdByTimeframeId = new Map(
+    market.timeframes.map(({ id, replayStepId }) => [id, replayStepId]),
+  );
   const replay = createReplayRuntime({
     activationGeneration: record.activationGeneration,
     initialCursorEpochMs: range.startEpochMs,
@@ -45,6 +49,8 @@ export function createReplayWorkspaceController({ record, view }) {
   let disposed = false;
   let execution = null;
   let autoplayScheduler = null;
+  let syncTimeframe = false;
+  let truncationSelectionActive = false;
 
   const paneState = createPaneWorkspaceState({
     initialCursorEpochMs: range.startEpochMs,
@@ -54,11 +60,52 @@ export function createReplayWorkspaceController({ record, view }) {
   view.setSessionRange({ end: formatCursor(range.endEpochMs), start: formatCursor(range.startEpochMs) });
   view.setSelection({ sessionHoursMode: market.defaultTarget.sessionHoursMode });
   view.setWorkspace(paneState.current());
+  view.setTimeframeSync(false);
+  view.setTruncationSelection({ active: false });
+
+  function setReplayStep(replayStepId, publish = true) {
+    const step = replayStepById.get(replayStepId);
+    if (!step || replay.snapshot().replayStep === step) return replay.snapshot();
+    const snapshot = replay.setReplayStep(step);
+    if (publish) view.setReplay(snapshot);
+    return snapshot;
+  }
+
+  function syncReplayStep(workspace = paneState.current(), publish = true) {
+    if (!syncTimeframe) return replay.snapshot();
+    const value = paneState.read(workspace);
+    const active = value.panes.find(({ paneId }) => paneId === value.activePaneId);
+    return setReplayStep(replayStepIdByTimeframeId.get(active.timeframeId), publish);
+  }
+
+  function setTruncationSelection(active, error = null) {
+    truncationSelectionActive = active === true;
+    adapter.setTruncationSelection(truncationSelectionActive);
+    view.setTruncationSelection({ active: truncationSelectionActive, error });
+  }
+
+  async function handleTruncationSelect(_paneId, selection) {
+    if (disposed || !truncationSelectionActive || execution.isPending()) return;
+    let targetEpochMs;
+    try {
+      targetEpochMs = resolveReplayTruncationTarget({
+        cursorEpochMs: replay.snapshot().cursorEpochMs,
+        range,
+        selection,
+      });
+    } catch (error) {
+      view.setTruncationSelection({ active: true, error: error.message });
+      return;
+    }
+    setTruncationSelection(false);
+    await execution.action('goto-exact', { targetEpochMs }, { allowDim: true });
+  }
 
   const adapter = createLightweightPaneSetAdapter({
     onHistoryBoundary: (paneId, logicalRange) => {
       if (logicalRange.from < 24) void execution?.requestHistory(paneId);
     },
+    onTruncationSelect: handleTruncationSelect,
     onViewportIntent: (paneId, intent) => view.setWall(paneId, intent.origin),
     resolveViewportPort: paneState.viewportPort,
     surfacePort: view.surfacePort,
@@ -109,8 +156,9 @@ export function createReplayWorkspaceController({ record, view }) {
   });
 
   function acceptVisibleState(desiredWorkspace, desiredMode) {
+    paneState.accept(desiredWorkspace, replay.snapshot().cursorEpochMs);
+    syncReplayStep(paneState.current(), false);
     const replaySnapshot = replay.snapshot();
-    paneState.accept(desiredWorkspace, replaySnapshot.cursorEpochMs);
     const workspaceSnapshot = runtime.snapshot().acceptedSnapshot.workspace;
     const activePaneId = paneState.activePaneId();
     const active = workspaceSnapshot.panes.find(({ paneId }) => paneId === activePaneId)
@@ -159,10 +207,14 @@ export function createReplayWorkspaceController({ record, view }) {
   return Object.freeze({
     autoplay: () => autoplayScheduler.play(),
     changeReplayStep(replayStepId) {
+      if (disposed || execution.isPending() || syncTimeframe) return;
+      setReplayStep(replayStepId);
+    },
+    changeTimeframeSync(enabled) {
       if (disposed || execution.isPending()) return;
-      const step = replayStepById.get(replayStepId);
-      if (!step || replay.snapshot().replayStep === step) return;
-      view.setReplay(replay.setReplayStep(step));
+      syncTimeframe = enabled === true;
+      view.setTimeframeSync(syncTimeframe);
+      if (syncTimeframe) syncReplayStep();
     },
     changePaneCount(count) {
       const current = paneState.read();
@@ -193,6 +245,7 @@ export function createReplayWorkspaceController({ record, view }) {
       if (disposed || execution.isPending()) return;
       view.setWorkspace(paneState.focus(paneId));
       view.setWall(paneId, paneState.wallOrigin(paneId));
+      syncReplayStep();
     },
     gotoExact: (targetEpochMs) => execution.action('goto-exact', { targetEpochMs }, { allowDim: true }),
     gotoQuick: (anchor) => execution.action('goto-anchor', { anchor }, { allowDim: true }),
@@ -242,6 +295,11 @@ export function createReplayWorkspaceController({ record, view }) {
     }),
     start() {
       return execution.action('manual-next', {}, { loading: true });
+    },
+    toggleTruncationSelection() {
+      if (disposed || execution.isPending()) return;
+      if (!truncationSelectionActive) autoplayScheduler.pause();
+      setTruncationSelection(!truncationSelectionActive);
     },
   });
 }

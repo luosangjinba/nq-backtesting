@@ -918,7 +918,7 @@ approved replacing the earlier floating-overlay proposal with a fixed bottom
 rail whose centered capsule retains the visual lightness without covering a
 Pane.
 
-### R6.8 Fixed Bottom Replay Transport — Awaiting Human Review
+### R6.8 Fixed Bottom Replay Transport — Awaiting Human Review With R6.8a
 
 - keep Reset View, Restart, Go to, and Local status in the compact top toolbar;
 - move Previous bar, one stateful Play/Pause button, Replay step, Autoplay
@@ -934,7 +934,24 @@ Pane.
 - prove speed and Replay-step selection create no Pane materialization or
   cursor movement, while every actual step still atomically updates all Panes.
 
-After R6.8 acceptance, R6.9 expands one-to-four layouts with draggable,
+### R6.8a Replay Truncation And Sync Timeframe — Awaiting Human Review
+
+- add one truncation/time-machine mode to the fixed transport, with a blue
+  vertical-only chart crosshair and explicit cancelable armed state;
+- map a clicked aggregate completion slot back to its real bucket start, then
+  use the existing exclusive `goto-exact` action so the selected candle and all
+  later candles disappear atomically from every Pane;
+- reject unavailable, outside-Session, and not-yet-revealed targets without
+  mutating accepted Replay/Workspace state;
+- add the explicitly named one-way `Sync timeframe` switch and cover every
+  supported fixed display TF with a real Replay step;
+- keep manual Replay-step selection independent when sync is off and read-only
+  while sync is on; focus/TF synchronization moves no cursor and creates no
+  Pane transaction;
+- refine the capsule with TradingView-like SVG transport icons and switch
+  treatment while retaining the accepted fixed `38px` non-overlay rail.
+
+After the combined R6.8/R6.8a acceptance, R6.9 expands one-to-four layouts with draggable,
 persisted nested split ratios and minimum Pane sizes; layout sync follows as a
 separate bounded step.
 

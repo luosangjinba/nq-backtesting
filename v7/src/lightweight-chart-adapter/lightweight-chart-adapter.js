@@ -10,6 +10,7 @@ import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
+import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 import { planSeriesMutation } from './series-update-plan.js';
 
 function requirePort(port) {
@@ -43,6 +44,7 @@ function maximumDisplayGapMs(data) {
 export function createLightweightChartAdapter({
   host,
   onHistoryBoundary = () => {},
+  onTruncationSelect = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
   viewportPort,
@@ -54,6 +56,9 @@ export function createLightweightChartAdapter({
   const chart = createChart(host, CHART_OPTIONS);
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
   const priceScale = chart.priceScale('right');
+  const truncationInteraction = createReplayTruncationInteraction({
+    chart, host, onSelect: onTruncationSelect,
+  });
   host.dataset.libraryVersion = lightweightChartsVersion();
   let adapterRevision = 0;
   let appliedData = Object.freeze([]);
@@ -157,6 +162,7 @@ export function createLightweightChartAdapter({
           ? (context.staged.data.at(-1).time - appliedData.at(-1).time) * 1_000
           : 0);
       appliedData = context.staged.data;
+      truncationInteraction.setBars(context.workspaceSnapshot.bars);
       host.dataset.barCount = String(barCount);
       host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
       host.dataset.instrumentId = context.workspaceSnapshot.provenance.instrumentId;
@@ -187,6 +193,7 @@ export function createLightweightChartAdapter({
       window.removeEventListener('pointerup', onPointerUp, true);
       window.removeEventListener('mouseup', onPointerUp, true);
       series.unsubscribeDataChanged(onSeriesDataChanged);
+      truncationInteraction.dispose();
       chart.remove();
     },
     resetView(latestOffsetBars) {
@@ -195,6 +202,7 @@ export function createLightweightChartAdapter({
       const projection = applyViewport();
       if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
     },
+    setTruncationSelection(active) { truncationInteraction.setActive(active); },
     snapshot() {
       return Object.freeze({
         adapterRevision,

@@ -99,6 +99,15 @@ default `1×` gap remains `500ms`; `0.5×/2×/5×` map to
 consumed after the current atomic tick. Speed is transport preference, not
 Replay cursor/revision state, and it cannot create a Pane transaction.
 
+R6.8a adds two bounded transport interactions without another owner. The Chart
+Adapter translates a native chart click from a completion-display timestamp to
+the projected candle's source bucket start. Workspace UI validates that target
+against the Session and accepted cursor, then routes it through the existing
+exclusive-cutoff `goto-exact` all-Pane transaction. The `Sync timeframe`
+preference derives a Replay-step capability from the active Pane's registered
+fixed TF; Replay Runtime still owns the selected step, and focus/TF sync moves
+no cursor and creates no materialization transaction.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

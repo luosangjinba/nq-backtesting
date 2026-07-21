@@ -16,6 +16,7 @@ function method(port, name, label) {
  */
 export function createLightweightPaneSetAdapter({
   onHistoryBoundary = () => {},
+  onTruncationSelect = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
   resolveViewportPort,
@@ -32,6 +33,7 @@ export function createLightweightPaneSetAdapter({
   const adapters = new Map();
   let adapterRevision = 0;
   let disposed = false;
+  let truncationSelectionActive = false;
 
   function ensureAdapter(paneId) {
     if (adapters.has(paneId)) return adapters.get(paneId);
@@ -39,10 +41,12 @@ export function createLightweightPaneSetAdapter({
     const adapter = createLightweightChartAdapter({
       host,
       onHistoryBoundary: (range) => onHistoryBoundary(paneId, range),
+      onTruncationSelect: (selection) => onTruncationSelect(paneId, selection),
       onViewportIntent: (intent) => onViewportIntent(paneId, intent),
       requestFrame,
       viewportPort: viewportFor(paneId),
     });
+    adapter.setTruncationSelection(truncationSelectionActive);
     adapters.set(paneId, adapter);
     return adapter;
   }
@@ -93,6 +97,10 @@ export function createLightweightPaneSetAdapter({
     },
     resetView(paneId, latestOffsetBars = 12) {
       adapters.get(paneId)?.resetView(latestOffsetBars);
+    },
+    setTruncationSelection(active) {
+      truncationSelectionActive = active === true;
+      for (const adapter of adapters.values()) adapter.setTruncationSelection(truncationSelectionActive);
     },
     snapshot() {
       return Object.freeze({

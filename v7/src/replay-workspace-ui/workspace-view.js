@@ -84,7 +84,9 @@ export function createReplayWorkspaceView({
   onReplayStep,
   onRestart,
   onSessionHours,
+  onTimeframeSync,
   onTimeframe,
+  onTruncation,
   playbackSpeedOptions,
   replayStepOptions,
   sessionHoursModes,
@@ -131,6 +133,8 @@ export function createReplayWorkspaceView({
     onPlaybackSpeed,
     onPrevious,
     onReplayStep,
+    onTimeframeSync,
+    onTruncation,
     playbackSpeedOptions,
     replayStepOptions,
   });
@@ -185,38 +189,54 @@ export function createReplayWorkspaceView({
   let hasAcceptedChart = false;
   let interactionPending = false;
   let playback = 'paused';
+  let truncationError = null;
+  let truncationSelectionActive = false;
   let viewState = 'loading';
+  let workspaceError = null;
 
   function renderAvailability() {
     const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
+    const interactionLocked = busy || truncationSelectionActive;
     const unavailable = viewState === 'unavailable';
     const stableRefresh = busy && hasAcceptedChart;
     const setAction = (control, intrinsicallyDisabled) => setControlDisabled(control, {
-      disabled: busy || intrinsicallyDisabled,
+      disabled: interactionLocked || intrinsicallyDisabled,
       preserveVisual: stableRefresh && !intrinsicallyDisabled,
     });
     setAction(restartButton, unavailable);
     setAction(resetButton, unavailable);
-    timeframeControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    timeframeControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
-    instrumentControl.setDisabled(busy || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
-    sessionHoursControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
-    paneCountControl.setDisabled(busy || unavailable, stableRefresh && !unavailable);
-    goto.setDisabled(busy || unavailable, stableRefresh && !unavailable);
+    instrumentControl.setDisabled(interactionLocked || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
+    sessionHoursControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
+    paneCountControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
+    goto.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     replayTransport.setAvailability({ busy, complete, hasAcceptedChart, unavailable });
-    paneGrid.setPending(busy || unavailable);
+    paneGrid.setPending(interactionLocked || unavailable);
     root.setAttribute('aria-busy', String(busy));
+  }
+
+  function renderStatus() {
+    if (truncationSelectionActive) {
+      status.hidden = false;
+      status.className = `workspace-inline-status ${truncationError ? 'status-error' : 'status-selection'}`;
+      status.textContent = truncationError
+        ?? 'Select a Session candle to hide it and every later candle.';
+      return;
+    }
+    const visibleError = viewState === 'error' && hasAcceptedChart;
+    status.hidden = !visibleError;
+    status.className = `workspace-inline-status status-${viewState}`;
+    status.textContent = visibleError ? (workspaceError ?? 'Update failed') : '';
   }
 
   function setState(state, detail = {}) {
     if (!REPLAY_WORKSPACE_STATES.includes(state)) throw new TypeError(`Unsupported workspace state ${state}.`);
     viewState = state;
+    workspaceError = state === 'error' ? (detail.message ?? 'Update failed') : null;
     root.dataset.viewState = state;
     if (state === 'ready') hasAcceptedChart = true;
     overlay.hidden = state === 'ready' || state === 'stale' || (state === 'error' && hasAcceptedChart);
-    status.hidden = !(state === 'error' && hasAcceptedChart);
-    status.className = `workspace-inline-status status-${state}`;
-    status.textContent = state === 'error' ? (detail.message ?? 'Update failed') : '';
     overlay.className = `chart-state-overlay state-${state}`;
     overlayTitle.textContent = detail.title ?? {
       loading: 'Preparing replay chart', empty: 'No visible bars', unavailable: 'Chart unavailable',
@@ -228,6 +248,7 @@ export function createReplayWorkspaceView({
       stale: 'The last accepted Pane set remains authoritative while this update settles.',
       error: 'The last accepted Pane set and Replay cursor were preserved.', ready: '',
     }[state];
+    renderStatus();
     renderAvailability();
   }
 
@@ -268,6 +289,20 @@ export function createReplayWorkspaceView({
     setPlaybackSpeed(speedId) {
       root.dataset.autoplaySpeedId = speedId;
       replayTransport.setSpeed(speedId);
+    },
+    setTimeframeSync(enabled) {
+      root.dataset.syncTimeframe = String(enabled === true);
+      replayTransport.setTimeframeSync(enabled);
+      renderAvailability();
+    },
+    setTruncationSelection({ active, error = null }) {
+      truncationSelectionActive = active === true;
+      truncationError = truncationSelectionActive ? error : null;
+      root.dataset.truncationSelection = truncationSelectionActive ? 'active' : 'inactive';
+      replayTransport.setTruncationSelection(truncationSelectionActive);
+      paneGrid.setTruncationSelection(truncationSelectionActive);
+      renderStatus();
+      renderAvailability();
     },
     setSelection({ sessionHoursMode }) {
       root.dataset.sessionHoursMode = sessionHoursMode;

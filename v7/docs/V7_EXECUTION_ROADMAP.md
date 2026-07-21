@@ -353,6 +353,9 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.8`: replace the interim top-row controls with the reviewed fixed `38px`
   bottom rail and centered capsule, combine Play/Pause, and add bounded dynamic
   playback speed without covering any Pane or changing Replay ownership;
+- `R6.8a`: add Session-bounded Replay truncation through the existing exact
+  all-Pane transaction, add one-way `Sync timeframe`, and refine the capsule
+  with TradingView-like icons while retaining the fixed non-overlay rail;
 - `R6.9`: expand to the reviewed one-to-four Pane layout set; every horizontal
   and vertical boundary is draggable, nested split ratios have minimum Pane
   sizes, and accepted ratios persist with the Session without data/replay work;

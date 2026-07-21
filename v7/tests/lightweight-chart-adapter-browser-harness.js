@@ -91,6 +91,48 @@ try {
   assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
 
+  const truncationPoint = await evaluate(cdp, `(() => {
+    globalThis.__adapter.setTruncationSelection(true);
+    const bounds = document.querySelector('#chart').getBoundingClientRect();
+    return { x: bounds.left + bounds.width / 2, y: bounds.top + bounds.height / 2 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: truncationPoint.x, y: truncationPoint.y,
+    button: 'left', buttons: 1, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: truncationPoint.x, y: truncationPoint.y,
+    button: 'left', buttons: 0, clickCount: 1,
+  });
+  await waitFor(cdp, `globalThis.__truncationSelections.length === 1`);
+  const truncationSelection = await evaluate(cdp, `(() => ({
+    hostState: document.querySelector('#chart').dataset.truncationSelection,
+    selection: globalThis.__truncationSelections[0],
+  }))()`);
+  assert.equal(truncationSelection.hostState, 'active');
+  assert.equal(
+    truncationSelection.selection.displayEpochMs - truncationSelection.selection.startEpochMs,
+    30_000,
+    'chart click must resolve the projected completion slot back to its real bucket start',
+  );
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: truncationPoint.x, y: truncationPoint.y,
+    button: 'none', buttons: 0,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: truncationPoint.x, y: truncationPoint.y,
+    button: 'left', buttons: 1, clickCount: 2,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: truncationPoint.x, y: truncationPoint.y,
+    button: 'left', buttons: 0, clickCount: 2,
+  });
+  await waitFor(cdp, `globalThis.__truncationSelections.length === 2`);
+  assert.equal(await evaluate(cdp, `(() => {
+    globalThis.__adapter.setTruncationSelection(false);
+    return document.querySelector('#chart').dataset.truncationSelection;
+  })()`), 'inactive');
+
   const beforeAxisWheel = await evaluate(cdp, `(() => {
     const host = document.querySelector('#chart');
     const bounds = host.getBoundingClientRect();

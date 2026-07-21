@@ -79,6 +79,9 @@ export function createPaneGridView({ onFocus, onReset }) {
     setPending(disabled) {
       for (const record of records.values()) record.reset.disabled = disabled;
     },
+    setTruncationSelection(active) {
+      root.dataset.truncationSelection = active === true ? 'active' : 'inactive';
+    },
     setWorkspace({ activePaneId, panes }, labels) {
       root.dataset.activePaneId = activePaneId;
       root.dataset.count = String(panes.length);

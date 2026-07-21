@@ -60,8 +60,6 @@ const TIMEFRAMES = Object.freeze([
   Object.freeze({ durationMinutes: 720, id: 'timeframe.display-12-hour', label: '12h', menuLabel: '12 hours' }),
 ]);
 
-const REPLAY_STEP_MINUTES = new Set([1, 3, 5, 15, 30, 60, 120, 240]);
-
 const TIMEFRAME_MENU_GROUPS = Object.freeze([
   Object.freeze({
     label: 'Minutes',
@@ -198,7 +196,6 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
     timeframeId: definitions[0].id,
   });
   const replayStepOptions = Object.freeze(TIMEFRAMES
-    .filter(({ durationMinutes }) => REPLAY_STEP_MINUTES.has(durationMinutes))
     .map(({ durationMinutes, label }) => Object.freeze({
       id: `replay-step.fixed-${durationMinutes}-minute`,
       label,
@@ -220,7 +217,11 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
     instruments,
     replayStepOptions,
     sessionHoursModes: Object.freeze(['eth', 'rth']),
-    timeframes: Object.freeze(definitions.map(({ id, label }) => Object.freeze({ id, label }))),
+    timeframes: Object.freeze(definitions.map(({ durationMinutes, id, label }) => Object.freeze({
+      id,
+      label,
+      replayStepId: `replay-step.fixed-${durationMinutes}-minute`,
+    }))),
     timeframeMenuGroups: TIMEFRAME_MENU_GROUPS,
   });
 }

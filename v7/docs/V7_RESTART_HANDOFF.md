@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.8 fixed Replay transport
+Last updated: 2026-07-21 after R6.8a Replay truncation and Sync timeframe
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -15,7 +15,8 @@ required for normal startup.
   bar-step interaction gate; R6.7 continuous Autoplay implemented; R6.7a
   multi-Pane RTH history preservation implemented; and R6.7b manual Viewport
   span, contributing history-window, and stable-toolbar corrections accepted as
-  one combined R6.7 gate; R6.8 fixed Replay transport awaiting human review
+  one combined R6.7 gate; combined R6.8/R6.8a fixed Replay transport,
+  truncation, and Sync timeframe awaiting human review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -219,6 +220,10 @@ and human-accepted:
   dedicated `38px` bottom rail, combines Play/Pause, and adds bounded dynamic
   `0.5×/1×/2×/5×` completion cadence without entering Replay product state or
   overlapping the Pane grid.
+- R6.8a adds a Session-bounded truncation/time-machine gesture through the
+  existing exact all-Pane transaction, plus the named one-way `Sync timeframe`
+  preference and TradingView-like transport icons; it remains part of the
+  combined R6.8 human review gate.
 
 Latest corrective commits:
 
@@ -338,11 +343,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Human-review R6.8. In single and two-Pane modes, confirm the fixed bottom rail
+Human-review the combined R6.8/R6.8a gate. In single and two-Pane modes, confirm the fixed bottom rail
 never covers Canvas or moves with Pane focus. Exercise Previous/Next bar,
 Replay-step selection, every `0.5×/1×/2×/5×` speed, continuous Play/Pause, TF,
-ETH/RTH, and history extension. Speed/step selection must not move the cursor;
-Pause must stop future work while toolbar and transport remain visually stable.
+ETH/RTH, history extension, truncation, and `Sync timeframe`. A valid
+truncation must remove the selected and all later candles from every Pane; an
+outside-Session click must preserve state. Speed/step/sync selection must not
+move the cursor; Pause must stop future work while toolbar and transport remain visually stable.
 After acceptance, R6.9 implements one-to-four layouts with draggable persisted
 boundaries, followed by layout sync. Economic Calendar remains outside this
 foundation phase.
