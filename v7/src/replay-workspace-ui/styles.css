@@ -544,7 +544,6 @@
   .replay-workspace-footer { grid-template-columns: 1fr; gap: 5px; padding-block: 5px; }
   .replay-footer-context,
   .replay-footer-owner { display: none; }
-  .replay-timeframe-sync-label { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

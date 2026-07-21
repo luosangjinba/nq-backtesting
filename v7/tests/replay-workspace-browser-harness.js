@@ -234,6 +234,8 @@ try {
         - (workspace.left + workspace.width / 2)) < 1,
       transportHeight: transport.height,
       transportParent: document.querySelector('.replay-transport').parentElement.className,
+      timeframeSyncAccessibleName: document.querySelector('.replay-timeframe-sync input').ariaLabel,
+      timeframeSyncVisibleText: document.querySelector('.replay-timeframe-sync').textContent.trim(),
       transportSelectAppearance: getComputedStyle(document.querySelector('.replay-step-select')).appearance,
       transportSelectOrder: [...document.querySelectorAll('.replay-transport-select')]
         .map((control) => control.classList.contains('replay-speed-select') ? 'speed' : 'step'),
@@ -267,6 +269,7 @@ try {
     sessionRange: 'Session · 05/01/2026, 12:40 EDT → 05/11/2026, 12:40 EDT',
     timeframeId: 'timeframe.display-1-minute', topTransportControls: 0,
     transportCentered: true, transportParent: 'replay-workspace-footer',
+    timeframeSyncAccessibleName: 'Sync timeframe', timeframeSyncVisibleText: '',
     transportSelectAppearance: 'none', transportSelectOrder: ['speed', 'step'],
     visibleThrough: 'Visible through · 05/01/2026, 12:40 EDT · 121 bars', workspaceRevision: 1,
   });

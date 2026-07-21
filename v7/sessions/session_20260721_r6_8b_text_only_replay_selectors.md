@@ -1,7 +1,7 @@
 # Session — R6.8b Text-Only Replay Selectors
 
 Date: 2026-07-21
-Status: implementation complete; awaiting human visual review
+Status: human accepted
 
 ## Decision Input
 
@@ -14,6 +14,8 @@ also places speed before step.
 - removed native dropdown chrome and reserved arrow space from both selectors;
 - ordered the visible values as Autoplay speed then Replay step;
 - preserved native select semantics, click behavior, and keyboard access;
+- removed the visible `Sync timeframe` caption while preserving its accessible
+  name, tooltip, and switch behavior;
 - updated the single/multi-Pane visual fixtures and added computed-style and
   DOM-order browser assertions.
 
@@ -33,6 +35,6 @@ also places speed before step.
 
 ## Next Review Boundary
 
-Review R6.8/R6.8a–b together. Confirm both plain text values remain selectable
-and the compact speed-to-step treatment is visually accepted. R6.9 remains
-blocked until this combined interaction gate is accepted.
+The user accepted R6.8/R6.8a–b on 2026-07-21 and explicitly confirmed that
+ETH/RTH must remain Session-wide across all Panes, including mixed instruments,
+because every Pane shares one time clock. R6.9 is now the exact next step.

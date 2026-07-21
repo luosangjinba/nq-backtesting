@@ -1,6 +1,6 @@
 # V7 Replay Truncation And Sync Timeframe — R6.8a
 
-Status: implemented; awaiting human interaction and visual review (2026-07-21)
+Status: human accepted (2026-07-21)
 
 ## Product Behavior
 
@@ -76,4 +76,5 @@ like text treatment: native dropdown arrows and their reserved space are
 removed, and the visible order is speed then step. Both remain native select
 controls, so click selection and keyboard access are unchanged. The browser
 gate binds computed `appearance: none`, DOM order, and the updated fixed visual
-fixtures.
+fixtures. The accepted final cleanup removes the visible `Sync timeframe`
+caption while preserving the checkbox's accessible name and tooltip.

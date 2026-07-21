@@ -918,7 +918,7 @@ approved replacing the earlier floating-overlay proposal with a fixed bottom
 rail whose centered capsule retains the visual lightness without covering a
 Pane.
 
-### R6.8 Fixed Bottom Replay Transport — Awaiting Human Review With R6.8a–b
+### R6.8 Fixed Bottom Replay Transport — Human Accepted
 
 - keep Reset View, Restart, Go to, and Local status in the compact top toolbar;
 - move Previous bar, one stateful Play/Pause button, Replay step, Autoplay
@@ -934,7 +934,7 @@ Pane.
 - prove speed and Replay-step selection create no Pane materialization or
   cursor movement, while every actual step still atomically updates all Panes.
 
-### R6.8a Replay Truncation And Sync Timeframe — Awaiting Human Review
+### R6.8a Replay Truncation And Sync Timeframe — Human Accepted
 
 - add one truncation/time-machine mode to the fixed transport, with a blue
   vertical-only chart crosshair and explicit cancelable armed state;
@@ -951,7 +951,7 @@ Pane.
 - refine the capsule with TradingView-like SVG transport icons and switch
   treatment while retaining the accepted fixed `38px` non-overlay rail.
 
-### R6.8b Text-Only Replay Selectors — Awaiting Human Review
+### R6.8b Text-Only Replay Selectors — Human Accepted
 
 - remove the native dropdown arrows and reserved arrow space from Autoplay
   speed and Replay-step selectors;
@@ -959,10 +959,14 @@ Pane.
   while preserving native click and keyboard selection;
 - bind `appearance: none`, selector order, and the compact treatment in the
   real-Chrome Harness and fixed `1440×900` visual fixtures.
+- remove the visible `Sync timeframe` caption after acceptance while retaining
+  its accessible name, tooltip, and switch behavior.
 
-After the combined R6.8/R6.8a–b acceptance, R6.9 expands one-to-four layouts
-with draggable, persisted nested split ratios and minimum Pane sizes; layout
-sync follows as a separate bounded step.
+The user accepted the combined R6.8/R6.8a–b gate on 2026-07-21 and reaffirmed
+that ETH/RTH is one Session-wide clock policy: switching it must atomically
+reproject every Pane even when Panes use different instruments. R6.9 is next:
+expand one-to-four layouts with draggable, persisted nested split ratios and
+minimum Pane sizes; layout sync follows as a separate bounded step.
 
 ## Standing Gates
 

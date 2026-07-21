@@ -97,7 +97,6 @@ export function createReplayTransport({
   timeframeSync.append(
     timeframeSyncInput,
     element('span', { className: 'replay-timeframe-sync-track' }),
-    element('span', { className: 'replay-timeframe-sync-label', text: 'Sync timeframe' }),
   );
   truncation.title = 'Select a candle: that candle and every later candle will be hidden';
   previous.title = 'Previous bar';
