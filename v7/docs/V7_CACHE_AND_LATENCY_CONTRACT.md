@@ -86,6 +86,13 @@ Raw cache may hold bars beyond the Replay cursor for responsiveness; Projection
 still enforces no-future visibility. Cache contents never advance Replay or
 write Chart state. Bounded eviction affects performance only, not correctness.
 
+The one-pane foundation quantizes foreground coverage into bounded 500-source-
+minute windows. Chart entry acquires only the first bounded window, not the
+Session range. Manual Next and projection replacements reuse that exact Bar
+Data identity while the target remains covered; crossing a boundary acquires a
+new bounded window. Future raw bars in the window remain invisible until the
+exclusive Replay cursor admits them.
+
 Replay prefetch maintains contiguous raw coverage ahead of the cursor using
 high/low watermarks and provider request limits. TF and ETH/RTH reuse compatible
 raw coverage and re-project it; they do not require duplicate network requests

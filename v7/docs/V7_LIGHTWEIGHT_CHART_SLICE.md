@@ -49,14 +49,22 @@ unchanged.
 
 Official v5.2 documentation confirms that `subscribeDataChanged()` fires when
 `setData()` or `update()` is invoked; it is not paint completion. The adapter
-therefore:
+therefore uses a tiered visible receipt:
 
-1. checks exact transaction currency immediately before series mutation;
-2. applies one complete candlestick dataset and current logical viewport;
-3. crosses two animation-frame opportunities;
-4. calls `takeScreenshot()` and requires actual up/down candle pixels;
-5. rechecks transaction currency;
-6. returns the exact branded adapter receipt.
+1. check exact transaction currency immediately before series mutation;
+2. use `setData()` for entry, TF/Session-Hours replacement, history prepend, or
+   any non-tail difference;
+3. use `update()` only when every prior candle is byte-equivalent and the
+   latest candle is replaced or one later candle is appended;
+4. full replacements cross two rendering opportunities and require actual
+   up/down pixels from `takeScreenshot()`;
+5. tail updates require the exact series data-change notification and cross
+   two rendering opportunities, avoiding a full-canvas screenshot on every
+   Replay step;
+6. recheck transaction currency and return the exact branded receipt.
+
+Browser phase evidence selected this tiered path: full-canvas capture, not the
+series mutation, dominated repeated higher-TF Next latency.
 
 Workspace/Replay acceptance still occurs only after Chart Snapshot Application
 returns exact visible completion.

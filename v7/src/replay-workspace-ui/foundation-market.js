@@ -3,6 +3,7 @@ import { createV4BarsProvider, V4_BARS_DATASET_REVISION } from '../v4-bars-provi
 import { createFoundationCapabilities, FOUNDATION_IDS } from './foundation-capabilities.js';
 const MINUTE = 60_000;
 const ENTRY_PREFIX_BARS = 120;
+const FORWARD_BUFFER_SOURCE_BARS = 500;
 const LEFT_EXTENSION_SOURCE_BARS = 2_500;
 
 /** Concrete R4.5 one-pane capability fixture, isolated outside all core owners. */
@@ -11,7 +12,9 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
   const range = record.configuration.historicalRange;
   const contextStartEpochMs = Math.max(0, range.startEpochMs - (ENTRY_PREFIX_BARS * MINUTE));
   function requestThrough(exclusiveEndEpochMs) {
-    const boundedEnd = Math.min(range.endEpochMs, Math.max(range.startEpochMs + MINUTE, exclusiveEndEpochMs));
+    const requiredBars = Math.max(1, Math.ceil((exclusiveEndEpochMs - range.startEpochMs) / MINUTE));
+    const bufferedBars = Math.ceil(requiredBars / FORWARD_BUFFER_SOURCE_BARS) * FORWARD_BUFFER_SOURCE_BARS;
+    const boundedEnd = Math.min(range.endEpochMs, range.startEpochMs + (bufferedBars * MINUTE));
     return createRawBarRequest({
       datasetRevision: V4_BARS_DATASET_REVISION,
       instrumentId: FOUNDATION_IDS.instrument,

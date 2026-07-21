@@ -7,8 +7,9 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
-import { requirePaintedCandles } from './paint-gate.js';
+import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
+import { planSeriesMutation } from './series-update-plan.js';
 
 function requirePort(port) {
   for (const method of ['captureManual', 'project', 'reset', 'snapshot']) {
@@ -46,10 +47,14 @@ export function createLightweightChartAdapter({
   const priceScale = chart.priceScale('right');
   host.dataset.libraryVersion = lightweightChartsVersion();
   let adapterRevision = 0;
+  let appliedData = Object.freeze([]);
   let barCount = 0;
   let disposed = false;
   let captureToken = 0;
   let nativePointerActive = false;
+  let seriesDataRevision = 0;
+  const onSeriesDataChanged = () => { seriesDataRevision += 1; };
+  series.subscribeDataChanged(onSeriesDataChanged);
 
   function applyViewport() {
     if (barCount < 1) return null;
@@ -104,13 +109,42 @@ export function createLightweightChartAdapter({
     async applyVisible(context) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
-      series.setData(context.staged.data);
-      barCount = context.staged.data.length;
-      applyViewport();
-      await requirePaintedCandles(chart, requestFrame);
+      let mutation;
+      let mutationEndedAt;
+      let paintedAt;
+      const startedAt = performance.now();
+      try {
+        mutation = planSeriesMutation(appliedData, context.staged.data);
+        const dataRevisionBefore = seriesDataRevision;
+        if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
+        else series.setData(context.staged.data);
+        mutationEndedAt = performance.now();
+        barCount = context.staged.data.length;
+        applyViewport();
+        if (mutation.kind === 'tail-update') {
+          await requireTailUpdatePaint({
+            changed: () => seriesDataRevision > dataRevisionBefore,
+            requestFrame,
+          });
+          host.dataset.lastPaintProof = 'series-change-two-frame';
+        } else {
+          await requirePaintedCandles(chart, requestFrame);
+          host.dataset.lastPaintProof = 'screenshot-candle-pixels';
+        }
+        paintedAt = performance.now();
+        delete host.dataset.lastApplyError;
+      } catch (error) {
+        host.dataset.lastApplyError = `${error?.code ?? error?.name ?? 'error'}:${error?.message ?? error}`;
+        throw error;
+      }
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       adapterRevision += 1;
+      appliedData = context.staged.data;
       host.dataset.barCount = String(barCount);
+      host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
+      host.dataset.lastMutationMode = mutation.kind;
+      host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
+      host.dataset.lastPaintMs = (paintedAt - mutationEndedAt).toFixed(3);
       host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
       host.dataset.painted = 'true';
       host.dataset.visibleRevision = String(adapterRevision);
@@ -130,6 +164,7 @@ export function createLightweightChartAdapter({
       window.removeEventListener('mousedown', onPointerDown, true);
       window.removeEventListener('pointerup', onPointerUp, true);
       window.removeEventListener('mouseup', onPointerUp, true);
+      series.unsubscribeDataChanged(onSeriesDataChanged);
       chart.remove();
     },
     resetView(latestOffsetBars) {
@@ -142,6 +177,11 @@ export function createLightweightChartAdapter({
       return Object.freeze({
         adapterRevision,
         barCount,
+        lastApplyMs: Number(host.dataset.lastApplyMs || 0),
+        lastMutationMode: host.dataset.lastMutationMode ?? null,
+        lastMutationMs: Number(host.dataset.lastMutationMs || 0),
+        lastPaintMs: Number(host.dataset.lastPaintMs || 0),
+        lastPaintProof: host.dataset.lastPaintProof ?? null,
         libraryVersion: lightweightChartsVersion(),
         logicalRange: chart.timeScale().getVisibleLogicalRange(),
         painted: host.dataset.painted === 'true',

@@ -38,7 +38,11 @@ assert.equal(
   Date.parse('2026-05-03T22:01:00Z'),
   'ETH Next from the Friday close must reveal the Sunday reopen minute',
 );
-assert.equal(weekendPlan.request.windowEndEpochMs, Date.parse('2026-05-03T22:01:00Z'));
+assert.ok(weekendPlan.request.windowEndEpochMs >= Date.parse('2026-05-03T22:01:00Z'));
+assert.ok(
+  weekendPlan.request.windowEndEpochMs - Date.parse('2026-05-03T22:01:00Z') < 500 * 60_000,
+  'eligible-gap traversal may add only one bounded forward-buffer remainder',
+);
 fridayMarket.dispose();
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
@@ -88,6 +92,7 @@ async function capture(cdp, targetFile = visualFile, label = 'replay workspace')
 }
 
 let cdp;
+let latencySummary = null;
 try {
   const debugPort = await waitForDevtools();
   const targets = await (await fetch(`http://127.0.0.1:${debugPort}/json/list`)).json();
@@ -146,6 +151,7 @@ try {
       chartHeight: host.getBoundingClientRect().height,
       chartWidth: host.getBoundingClientRect().width,
       libraryVersion: host.dataset.libraryVersion,
+      mutationMode: host.dataset.lastMutationMode,
       offset: Number(host.dataset.latestOffsetBars),
       origin: host.dataset.viewportOrigin,
       painted: host.dataset.painted,
@@ -174,7 +180,7 @@ try {
   delete entry.controlHeight;
   delete entry.toolbarHeight;
   assert.deepEqual(entry, {
-    barCount: 121, libraryVersion: '5.2.0', offset: 12,
+    barCount: 121, libraryVersion: '5.2.0', mutationMode: 'full-replace', offset: 12,
     origin: 'default', painted: 'true', replayRevision: 1, sessionHoursMode: 'eth',
     routeHeaderMissing: true,
     sessionRange: 'Session · 05/01/2026, 12:40 PDT → 05/11/2026, 12:40 PDT',
@@ -205,14 +211,31 @@ try {
     `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
 
   const startedAt = performance.now();
+  const providerRequestsAtEntry = await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
   assert.equal(await evaluate(cdp, `document.querySelector('.chart-state-overlay').hidden`), true,
     'cache-hit advancement must not cover the chart with a stale-state message');
-  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
+  try {
+    await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
+  } catch (error) {
+    const nextFailure = await evaluate(cdp, `(() => {
+      const root = document.querySelector('.replay-workspace');
+      return { browserErrors: globalThis.__browserErrors, state: root?.dataset.viewState,
+        status: document.querySelector('.workspace-inline-status')?.textContent,
+        adapterError: document.querySelector('.lightweight-chart-host')?.dataset.lastApplyError };
+    })()`);
+    throw new Error(`${error.message}; next failure: ${JSON.stringify(nextFailure)}`);
+  }
   const cacheHitVisibleMs = performance.now() - startedAt;
   assert.ok(cacheHitVisibleMs < 250, `cache-hit Next exceeded max budget: ${cacheHitVisibleMs}ms`);
   assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.barCount)`), 122,
     'Next bar must reveal exactly one eligible source minute after the Session start bar');
+  assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
+    'tail-update', 'cache-hit 1m Next must use the adapter tail-update path');
+  assert.equal(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    providerRequestsAtEntry, 'buffered cache-hit Next must not issue another provider request');
   assert.equal(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
     'Visible through · 05/01/2026, 12:41 PDT · 122 bars');
 
@@ -245,11 +268,13 @@ try {
   assert.notEqual(manualBefore.offset, 8, 'native drag must create a distinct manual wall');
 
   const cursorBeforeReplacement = await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.cursorText`);
+  const timeframeStartedAt = performance.now();
   await evaluate(cdp, `(() => {
     document.querySelector('.timeframe-toggle').click();
     document.querySelector('[data-timeframe-id="timeframe.display-5-minute"]').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '3'`);
+  const timeframeVisibleMs = performance.now() - timeframeStartedAt;
   const timeframeAfter = await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     return {
@@ -262,6 +287,12 @@ try {
     };
   })()`);
   assert.equal(timeframeAfter.barCount, 25);
+  assert.ok(timeframeVisibleMs < 400, `cache-hit timeframe switch exceeded max budget: ${timeframeVisibleMs}ms`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
+    'full-replace', 'timeframe replacement must remain one complete series mutation');
+  assert.equal(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    providerRequestsAtEntry, 'cache-hit timeframe replacement must reuse buffered raw bars');
   assert.equal(
     new Date(timeframeAfter.latestDisplayEpochMs).toLocaleTimeString('en-US', {
       hour: '2-digit', hour12: false, minute: '2-digit', timeZone: 'America/New_York',
@@ -289,14 +320,23 @@ try {
   }))()`);
   assert.deepEqual(sessionAfter, { barCount: 25, cursor: cursorBeforeReplacement, mode: 'rth', pressed: 'true' });
 
+  const aggregateNextStartedAt = performance.now();
   await evaluate(cdp, `document.querySelector('.replay-next').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '5'`);
+  const aggregateNextVisibleMs = performance.now() - aggregateNextStartedAt;
   const manualAfter = await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     return { offset: Number(host.dataset.latestOffsetBars), origin: host.dataset.viewportOrigin,
       span: Number(host.dataset.spanBars), wall: document.querySelector('.replay-workspace').dataset.wallOrigin };
   })()`);
   assert.equal(manualAfter.origin, 'manual');
+  assert.ok(aggregateNextVisibleMs < 250,
+    `cache-hit aggregate Next exceeded max budget: ${aggregateNextVisibleMs}ms`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.lightweight-chart-host').dataset.lastMutationMode`),
+    'tail-update', 'aggregate Next must update only the active or newly appended candle');
+  assert.equal(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    providerRequestsAtEntry, 'cache-hit aggregate Next must not issue another provider request');
   assert.equal(manualAfter.wall, 'manual');
   assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
   assert.ok(Math.abs(manualAfter.span - manualBefore.span) < 0.001);
@@ -368,6 +408,75 @@ try {
     'returning to the next loaded left boundary must extend history again');
   assert.equal(repeatedHistory.cursor, historyBefore.cursor,
     'repeated left extension must remain Replay-safe');
+
+  await evaluate(cdp, `location.hash = '#/sessions'`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
+  await evaluate(cdp, `performance.clearResourceTimings(); document.querySelector('.page-header .button-primary').click()`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    form.elements.name.value = 'NQ Aggregate Latency';
+    form.querySelectorAll('[name="instrument"]')[0].checked = true;
+    form.elements.start.value = '2026-05-04T06:30';
+    form.elements.end.value = '2026-05-05T06:30';
+    form.requestSubmit();
+  })()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 2`);
+  await evaluate(cdp, `[...document.querySelectorAll('.open-session-button')].at(-1).click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector('[data-timeframe-id="timeframe.display-5-minute"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.workspaceRevision === '2'`);
+  const requestsBeforeCadence = await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`);
+  let cadenceRevision = 2;
+  const cadenceSamples = [];
+  const adapterApplySamples = [];
+  const adapterMutationSamples = [];
+  const adapterPaintSamples = [];
+  for (let index = 0; index < 100; index += 1) {
+    const cadenceStartedAt = performance.now();
+    await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+    cadenceRevision += 1;
+    await waitFor(cdp,
+      `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) === ${cadenceRevision}`);
+    cadenceSamples.push(performance.now() - cadenceStartedAt);
+    const adapterTiming = await evaluate(cdp, `(() => {
+      const host = document.querySelector('.lightweight-chart-host');
+      return { applyMs: Number(host.dataset.lastApplyMs), mode: host.dataset.lastMutationMode,
+        mutationMs: Number(host.dataset.lastMutationMs), paintMs: Number(host.dataset.lastPaintMs),
+        proof: host.dataset.lastPaintProof };
+    })()`);
+    assert.equal(adapterTiming.mode, 'tail-update');
+    assert.equal(adapterTiming.proof, 'series-change-two-frame');
+    adapterApplySamples.push(adapterTiming.applyMs);
+    adapterMutationSamples.push(adapterTiming.mutationMs);
+    adapterPaintSamples.push(adapterTiming.paintMs);
+  }
+  const sortedCadence = [...cadenceSamples].sort((left, right) => left - right);
+  const percentile = (ratio) => sortedCadence[Math.ceil(sortedCadence.length * ratio) - 1];
+  const phaseP95 = (samples) => {
+    const sorted = [...samples].sort((left, right) => left - right);
+    return sorted[Math.ceil(sorted.length * .95) - 1];
+  };
+  latencySummary = Object.freeze({
+    adapterApplyP95Ms: phaseP95(adapterApplySamples),
+    adapterMutationP95Ms: phaseP95(adapterMutationSamples),
+    adapterPaintP95Ms: phaseP95(adapterPaintSamples),
+    maxMs: Math.max(...cadenceSamples),
+    p95Ms: percentile(.95),
+    p99Ms: percentile(.99),
+    samples: cadenceSamples.length,
+  });
+  assert.ok(latencySummary.p95Ms < 100,
+    `aggregate Next p95 exceeded budget: ${JSON.stringify(latencySummary)}`);
+  assert.ok(latencySummary.p99Ms < 150, `aggregate Next p99 exceeded budget: ${latencySummary.p99Ms}ms`);
+  assert.ok(latencySummary.maxMs < 250, `aggregate Next max exceeded budget: ${latencySummary.maxMs}ms`);
+  assert.equal(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`),
+    requestsBeforeCadence, '100 cache-hit aggregate Next actions must issue zero provider requests');
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));
@@ -388,4 +497,7 @@ try {
   });
 }
 
-console.log('v7 Replay Workspace browser harness passed (real chart, compact controls, atomic replacements, walls)');
+console.log('v7 Replay Workspace browser harness passed', {
+  latencySummary,
+  scope: 'real chart, compact controls, atomic replacements, walls',
+});

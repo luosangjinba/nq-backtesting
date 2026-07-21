@@ -498,6 +498,25 @@ R5.6b aggregate-candle completion display placement is next.
 
 R5.6c TF switch and higher-TF Next latency profiling is next.
 
+### R5.6c TF And Aggregate Next Latency — Completed
+
+- separated provider, full projection, series mutation, and paint-receipt
+  evidence in the real Chrome path;
+- replaced expanding per-minute exact-window identities with bounded
+  500-source-minute forward-buffer identities; entry still never loads the
+  complete Session range;
+- reused Bar Data cache for covered Next, TF, and ETH/RTH transactions with
+  zero provider requests across the 100-sample cache-hit cadence;
+- retained full `setData()` for atomic replacements and history changes;
+- allowed `series.update()` only when all prior chart data is unchanged and
+  exactly one tail candle is replaced or appended;
+- retained screenshot candle-pixel proof for full replacements and used exact
+  series-change plus two render opportunities for already-painted tail updates;
+- measured the final 100-sample full-gate run at p95 `62.2ms`, p99 `66.1ms`,
+  max `84.8ms`; adapter mutation p95 `0.3ms`, adapter paint p95 `29.0ms`.
+
+R5.6d refresh-feedback correction is next.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

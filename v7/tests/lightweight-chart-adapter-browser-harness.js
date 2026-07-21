@@ -6,6 +6,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { createExchangeTimePresentation } from '../src/lightweight-chart-adapter/chart-options.js';
+import { requireTailUpdatePaint } from '../src/lightweight-chart-adapter/paint-gate.js';
+import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 
 const exchangeTime = createExchangeTimePresentation('en-US');
@@ -13,6 +15,17 @@ assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-05-01T13:30:00Z') /
 assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-05-01T20:14:00Z') / 1_000, 3), '16:14');
 assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-01-02T14:30:00Z') / 1_000, 3), '09:30');
 assert.match(exchangeTime.timeFormatter(Date.parse('2026-05-01T13:30:00Z') / 1_000), /09:30/);
+
+const candle = (time, close = 2) => ({ time, open: 1, high: 3, low: 0, close });
+assert.equal(planSeriesMutation([], [candle(1)]).kind, 'full-replace');
+assert.equal(planSeriesMutation([candle(1)], [candle(1, 2.5)]).kind, 'tail-update');
+assert.equal(planSeriesMutation([candle(1)], [candle(1), candle(2)]).kind, 'tail-update');
+assert.equal(planSeriesMutation([candle(1)], [candle(2)]).kind, 'full-replace');
+assert.equal(planSeriesMutation([candle(1), candle(2)], [candle(1, 3), candle(2)]).kind, 'full-replace');
+await assert.rejects(
+  requireTailUpdatePaint({ changed: () => false, requestFrame: () => {} }),
+  (error) => error?.code === 'CHART_TAIL_UPDATE_NOT_OBSERVED',
+);
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
@@ -56,6 +69,7 @@ try {
       canvasCount: host.querySelectorAll('canvas').length,
       libraryVersion: host.dataset.libraryVersion,
       painted: host.dataset.painted,
+      mutationMode: host.dataset.lastMutationMode,
       visibleRevision: Number(host.dataset.visibleRevision),
     };
   })()`);
@@ -64,6 +78,7 @@ try {
   assert.ok(result.canvasCount > 0);
   assert.equal(result.libraryVersion, '5.2.0');
   assert.equal(result.painted, 'true');
+  assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
 
   const beforeAxisWheel = await evaluate(cdp, `(() => {
