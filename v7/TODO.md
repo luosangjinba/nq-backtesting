@@ -614,6 +614,21 @@ price/data discontinuity. R6 remains blocked. Correct source-window continuity
 without restoring the removed recursive foreground request chain, then repeat
 the full real-browser review gate.
 
+### R5.6j Third-Review Corrections — Automated Complete, Human Review Pending
+
+- source replacement now retains only an exactly contiguous accepted prefix;
+- Projection rejects gapped raw request windows before publication;
+- adapter-only range planning prevents an old low-TF manual wall from creating
+  an inverted Lightweight Charts range after aggregate bar-count reduction;
+- real Chrome covers history expansion→`1h`→RTH→ETH, reaches the Replay tail,
+  and measures a 50-hour maximum `1h` ETH display gap instead of the rejected
+  approximately ten-day discontinuity;
+- full V7 Harnesses pass; final measurements remain about `1.69s` for uncached
+  `12h` RTH, `156ms` for first `5m`, `55ms` for ETH→RTH, and aggregate Next p95
+  `62.4ms`, p99 `70.1ms`, max `72.1ms`.
+
+R6 remains blocked pending explicit fourth-review acceptance.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

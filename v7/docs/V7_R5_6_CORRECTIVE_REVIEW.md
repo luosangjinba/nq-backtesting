@@ -1,6 +1,6 @@
 # V7 R5.6 Corrective Human Review
 
-Status: third human review rejected; corrective implementation required
+Status: third-review corrections automated-complete; fourth human review pending
 
 Browser URL: `http://127.0.0.1:8007/v7/app/`
 
@@ -78,6 +78,18 @@ exactly one source minute and must not reveal future data.
 - Reset view restores the default horizontal wall and price autoscale without
   moving Replay.
 
+## 6. Third-Review Continuity Regression
+
+Using `R5.6 Recheck` in `1m`/ETH, drag to the left history boundary twice, then:
+
+1. switch to `1h` and confirm the chart still reaches the Replay-visible tail;
+2. scan the loaded history and confirm there is no approximately ten-day empty
+   interval or discontinuous price jump;
+3. switch ETH→RTH→ETH and confirm neither transition creates an internal empty
+   interval or leaves the previous candles frozen on screen;
+4. switch between `2m` and `1h` once more and confirm every replacement settles
+   without needing another click to make candles appear.
+
 ## Review Result
 
 Reply with one of:
@@ -85,7 +97,7 @@ Reply with one of:
 - `R5.6复审通过`
 - `R5.6复审未通过：第 N 项，现象……`
 
-R6 remains blocked until the first result is explicitly reported.
+R6 remains blocked until acceptance is explicitly reported.
 
 ## Third Human Review Result — Rejected
 
@@ -100,3 +112,18 @@ Session Hours and/or timeframe:
 The higher-timeframe latency is materially improved and must not regress, but
 it remains a future optimization target. R6 stays blocked while the two data
 continuity failures are corrected and re-reviewed.
+
+## Third-Review Corrections
+
+- replacement retains only an exactly adjacent older source-window chain;
+  overlapping or separated legacy windows cannot be spliced into a new target;
+- Projection rejects any internal request-window gap before chart publication;
+- a dragged low-timeframe wall that maps wholly before a smaller aggregate
+  series is repaired to a valid transient Lightweight Charts range without
+  mutating canonical Viewport intent;
+- real Chrome now executes history expansion→`1h`→RTH→ETH and asserts that the
+  chart reaches the Replay tail and that the maximum candle interval stays
+  below four days. The measured `1h` ETH maximum is 50 hours, representing the
+  normal weekend rather than the rejected ten-day hole.
+
+All automated gates pass. Perform the fourth human review above.

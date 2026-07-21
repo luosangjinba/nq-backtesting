@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-20 after R5.6g rejection and R5.6h corrections; human re-review required
+Last updated: 2026-07-21 after R5.6i rejection and R5.6j corrections; fourth human review required
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -11,7 +11,7 @@ required for normal startup.
 - repository: `/home/leo/myworkspace/trading/backtesting-v7`
 - branch: `v7/rebuild`
 - implemented code baseline: human-accepted R4.5, completed R5.1–R5.4, and
-  combined R5.5/R5.6 plus R5.6a–h corrections awaiting final human acceptance
+  combined R5.5/R5.6 plus R5.6a–j corrections awaiting final human acceptance
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -42,6 +42,10 @@ only:
 - `sessions/session_20260720_r5_6_real_v4_bars_provider.md`.
 - `sessions/session_20260720_r5_6a_exchange_time_presentation.md` through
   `sessions/session_20260720_r5_6f_corrective_gate.md`.
+- `sessions/session_20260720_r5_6g_second_review_rejection.md` and
+  `sessions/session_20260720_r5_6h_second_review_corrections.md`.
+- `sessions/session_20260721_r5_6i_third_review_rejection.md` and
+  `sessions/session_20260721_r5_6j_third_review_corrections.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -127,6 +131,12 @@ and human-accepted:
   grid, bounds target-sized history without recursive foreground continuation,
   caches exchange offsets, and clamps transient logical range when bounded
   high-TF history is shorter than the canonical Viewport span.
+- R5.6i records the third human rejection: replacement could splice separated
+  old/new source windows into a ten-day `1h` hole, while a heavily dragged
+  low-TF wall could become an invalid aggregate logical range.
+- R5.6j retains only contiguous source-window prefixes, rejects gaps in
+  Projection, and repairs adapter-only inverted logical ranges without
+  changing canonical Viewport intent.
 
 Latest corrective commits:
 
@@ -137,10 +147,12 @@ Latest corrective commits:
 5. `9947f77a fix(v7): open newly created sessions`
 6. `4a6e6869 fix(v7): stabilize high-timeframe replay interactions`
 7. `af0173c1 fix(v7): use New York session wall time`
+8. `55d36761 docs(v7): record third R5.6 review rejection`
+9. `8616913c fix(v7): preserve continuous chart replacements`
 
 ## R5.6 Human Review Result
 
-Status: **second corrective implementation complete; human re-review pending**.
+Status: **third-review corrections complete; fourth human review pending**.
 
 Passed and protected:
 
@@ -171,6 +183,13 @@ Corrective implementation, in order:
    `159ms` for first `5m`, and `72ms` for cache-hit ETH→RTH.
 9. Bounded high-TF history no longer leaves an empty left chart margin or needs
    another pointer action to repair its initial logical range.
+10. Replacement cannot splice non-adjacent accepted history into a target
+    request; Projection also rejects any gapped source-window sequence.
+11. A historical low-TF manual wall cannot submit `from > to` after a high-TF
+    replacement; the transient range remains valid and includes loaded bars.
+12. Real Chrome history→`1h`→RTH→ETH evidence reaches the Replay-visible tail,
+    reports a normal 50-hour weekend as its maximum interval, and preserves the
+    high-timeframe performance improvement.
 
 Use V6 source/docs/tests as binding interaction evidence for items 1–4. Do not
 restart product interviews or copy V6 runtime ownership.
