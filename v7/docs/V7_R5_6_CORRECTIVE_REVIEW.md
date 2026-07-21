@@ -1,6 +1,6 @@
 # V7 R5.6 Corrective Human Review
 
-Status: second corrective implementation automated-complete; third human review pending
+Status: third human review rejected; corrective implementation required
 
 Browser URL: `http://127.0.0.1:8007/v7/app/`
 
@@ -86,3 +86,17 @@ Reply with one of:
 - `R5.6复审未通过：第 N 项，现象……`
 
 R6 remains blocked until the first result is explicitly reported.
+
+## Third Human Review Result — Rejected
+
+The 2026-07-21 review found two remaining correctness failures after switching
+Session Hours and/or timeframe:
+
+1. candles can stop extending through the expected loaded interval after an
+   ETH/RTH or timeframe replacement;
+2. switching to `1h` can expose an approximately ten-day interval with no
+   candles followed by a discontinuous price jump.
+
+The higher-timeframe latency is materially improved and must not regress, but
+it remains a future optimization target. R6 stays blocked while the two data
+continuity failures are corrected and re-reviewed.

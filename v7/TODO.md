@@ -605,6 +605,15 @@ owners; then correct completion alignment and Session wall-time semantics.
 All corrections require another human interaction/visual review. R6 remains
 blocked until explicit R5.6 acceptance.
 
+### R5.6i Third Human Review — Rejected
+
+The 2026-07-21 third review confirmed the high-timeframe latency improvement,
+but found that ETH/RTH or timeframe replacement can leave candles short of the
+expected interval and that `1h` can show an approximately ten-day internal
+price/data discontinuity. R6 remains blocked. Correct source-window continuity
+without restoring the removed recursive foreground request chain, then repeat
+the full real-browser review gate.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;
