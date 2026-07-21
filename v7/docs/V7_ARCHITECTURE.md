@@ -59,6 +59,14 @@ scope; the Session primary instrument remains clock authority; Session Hours is
 one Session-level revision; forward jumps require complete interval coverage;
 and failure preserves the last accepted Pane set.
 
+R6.3 activates `core.pane-set-materialization` as a stateless adapter over the
+existing transaction acquisition/projection stages. One exact request per
+planned Pane settles before one schema-v2 complete Pane-set snapshot exists.
+Ready Pane results share the exact Replay proposal; an explicit empty comparison
+Pane does not stall Replay. The existing Chart Snapshot Application module
+validates and visibly applies the complete set through one adapter call and one
+exact receipt; no second chart writer or coordinator is introduced.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

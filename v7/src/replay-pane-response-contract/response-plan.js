@@ -6,6 +6,7 @@ import { failReplayPaneResponse } from './response-error.js';
 
 const PLAN_FIELDS = Object.freeze(['action', 'paneWorkspace', 'replayRange', 'sessionHours']);
 const SESSION_HOURS_FIELDS = Object.freeze(['calendarRevision', 'mode', 'revision']);
+const RESPONSE_PLANS = new WeakSet();
 
 function exactRecord(value, fields, code, label) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
@@ -126,7 +127,7 @@ export function planReplayPaneResponse(value) {
   );
   const target = targetSemantics(action, cursorEpochMs, replayRange);
   const panes = Object.freeze(workspace.panes.map(paneResponse));
-  return Object.freeze({
+  const plan = Object.freeze({
     action: value.action,
     actionKind: action.kind,
     activePaneId: workspace.activePaneId,
@@ -144,4 +145,23 @@ export function planReplayPaneResponse(value) {
     sessionHours: sessionHours(value.sessionHours),
     target,
   });
+  RESPONSE_PLANS.add(plan);
+  return plan;
+}
+
+/**
+ * Owner: Workspace Transaction Runtime contract boundary.
+ * Purpose: reject structural response-plan lookalikes at later materialization boundaries.
+ * Inputs/outputs: unknown candidate; returns the same branded frozen plan.
+ * Side effects/lifecycle: none.
+ * Errors: REPLAY_PANE_RESPONSE_PLAN_REQUIRED.
+ */
+export function requireReplayPaneResponsePlan(candidate) {
+  if (!candidate || !Object.isFrozen(candidate) || !RESPONSE_PLANS.has(candidate)) {
+    failReplayPaneResponse(
+      'REPLAY_PANE_RESPONSE_PLAN_REQUIRED',
+      'A response plan issued by planReplayPaneResponse() is required.',
+    );
+  }
+  return candidate;
 }

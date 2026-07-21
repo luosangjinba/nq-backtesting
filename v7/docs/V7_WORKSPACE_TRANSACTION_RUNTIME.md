@@ -42,6 +42,13 @@ source-level visible-through provenance for cursor-retaining replacements;
 the generic coordinator still does not interpret Session Hours or timeframe
 fields.
 
+R6.3 proves the same unchanged coordinator with a complete Pane set. A
+stateless adapter fans the acquisition and projection stages into exact planned
+Pane work, rejoins every result before snapshot creation, and supplies one
+complete snapshot to the existing visible-completion port. Workspace
+Transaction Runtime still sees one acquisition, one projection, one
+presentation, and one accepted revision.
+
 R4.1 uses a fake visible-completion port. This proves ordering but does not
 claim browser-visible chart completion; H016 remains inactive until the real
 Chart Runtime/Adapter exists.

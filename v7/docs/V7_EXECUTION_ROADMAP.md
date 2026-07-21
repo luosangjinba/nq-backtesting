@@ -317,7 +317,8 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.2`: bind Manual Next/Previous, Autoplay, Restart/Back-to, quick GoTo, and
   exact GoTo to one shared cursor and complete visible-Pane response plan;
 - `R6.3`: materialize the complete Pane set through one Workspace transaction
-  and one atomic visible-completion boundary;
+  and one atomic visible-completion boundary; completed headlessly with fake
+  per-Pane acquisition/projection and chart ports;
 - `R6.4`: activate Previous, Autoplay, Restart/Back-to, and both GoTo forms over
   that shared materialization path;
 - `R6.5`: mount the real single/multi-Pane chart surface and interaction gate;

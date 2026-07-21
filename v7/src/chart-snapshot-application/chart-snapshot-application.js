@@ -2,6 +2,7 @@ import { requireChartAdapter } from './port-contract.js';
 import { createChartApplicationState } from './application-state.js';
 import { failChartApplication } from './application-error.js';
 import { requireMatchingAdapterReceipt } from './adapter-receipt.js';
+import { requireProjectedPaneSetSnapshot } from './pane-set-snapshot-contract.js';
 import { requireProjectedPaneSnapshot } from './snapshot-contract.js';
 import { createVisibleCompletionAcknowledgement } from './visible-completion.js';
 
@@ -14,14 +15,13 @@ async function safeDiscard(adapter, staged) {
   }
 }
 
-/** Construct the sole chart-series writer for one Session activation. */
-export function createChartSnapshotApplication({ activationGeneration, adapter, sessionId }) {
+function createApplication({ activationGeneration, adapter, sessionId }, requireSnapshot) {
   const acceptedAdapter = requireChartAdapter(adapter);
   const state = createChartApplicationState({ activationGeneration, sessionId });
 
   async function present({ identity, workspaceSnapshot, signal }) {
     state.begin(identity);
-    requireProjectedPaneSnapshot(workspaceSnapshot, identity);
+    requireSnapshot(workspaceSnapshot, identity);
     if (!signal || typeof signal.aborted !== 'boolean') {
       failChartApplication('CHART_APPLICATION_SIGNAL_REQUIRED', 'An AbortSignal is required.');
     }
@@ -53,4 +53,18 @@ export function createChartSnapshotApplication({ activationGeneration, adapter, 
   }
 
   return Object.freeze({ dispose: () => state.dispose(), present, snapshot: () => state.snapshot() });
+}
+
+/** Construct the sole chart-series writer for one Pane in one Session activation. */
+export function createChartSnapshotApplication(options) {
+  return createApplication(options, requireProjectedPaneSnapshot);
+}
+
+/**
+ * Construct the same sole-writer boundary for a complete Pane set.
+ * The injected adapter must stage the complete set without visible mutation
+ * and cross its visible boundary exactly once for all Pane results.
+ */
+export function createPaneSetChartSnapshotApplication(options) {
+  return createApplication(options, requireProjectedPaneSetSnapshot);
 }

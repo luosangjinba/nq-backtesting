@@ -5,5 +5,5 @@ export {
   REPLAY_GOTO_ANCHORS,
   REPLAY_PANE_ACTION_KINDS,
 } from './action-intent.js';
-export { planReplayPaneResponse } from './response-plan.js';
+export { planReplayPaneResponse, requireReplayPaneResponsePlan } from './response-plan.js';
 export { ReplayPaneResponseContractError } from './response-error.js';

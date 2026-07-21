@@ -10,6 +10,7 @@
     "core.transaction-identity",
     "core.workspace-transaction-contract",
     "core.replay-contract",
+    "core.replay-pane-response-contract",
     "core.projection-domain"
   ],
   "optionalPorts": [],

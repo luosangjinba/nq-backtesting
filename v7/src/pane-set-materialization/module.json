@@ -1,0 +1,15 @@
+{
+  "id": "core.pane-set-materialization",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-transaction-runtime",
+  "publicEntry": "src/pane-set-materialization/public.js",
+  "requiredPorts": [
+    "core.replay-contract",
+    "core.replay-pane-response-contract"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/pane-set-materialization-harness.js",
+  "removable": false
+}

@@ -711,6 +711,29 @@ materialization moves to R6.3; browser layout remains later.
 R6.3 complete-Pane-set acquisition, Projection, and atomic visible application
 through the existing Workspace Transaction Runtime is next.
 
+### R6.3 Complete Pane-set Materialization — Completed
+
+- activate one stateless `core.pane-set-materialization` boundary behind the
+  existing Workspace Transaction acquisition and Projection stages;
+- bind one exact request to every planned Pane in stable order, using the same
+  transaction identity, Replay proposal, operation, and cancellation signal;
+- collect all Pane acquisition and Projection results before a complete
+  workspace snapshot exists, with explicit `no-source-data` and
+  `no-eligible-source` Pane results that cannot stall the shared Replay clock;
+- extend the existing sole Chart Snapshot Application writer with an atomic
+  Pane-set constructor and exact plan/proposal/provenance validation;
+- apply a complete Pane set exactly once, while acquisition, Projection,
+  staging, visible-apply, stale, and cancellation failures preserve the last
+  accepted Replay, workspace, and chart state;
+- prove mixed NQ/ES plus `1m`/`4h`, empty comparison Pane, delayed supersession,
+  exact stable ordering, and 22 negative/race controls in an independent
+  headless Harness;
+- leave the accepted real single-Pane browser path unchanged until the R6.5
+  multi-Pane interaction and visual gate.
+
+R6.4 shared Replay Runtime navigation actions are next: Previous, Autoplay,
+Restart/Back-to, quick GoTo, and exact GoTo over the R6.3 materialization path.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

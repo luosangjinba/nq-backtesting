@@ -1,6 +1,6 @@
 # V7 Chart Snapshot Application
 
-Status: R4.3 headless atomic chart-application boundary (2026-07-20)
+Status: R4.3 single-Pane boundary plus R6.3 headless complete Pane-set extension
 
 ## Ownership
 
@@ -8,6 +8,12 @@ Status: R4.3 headless atomic chart-application boundary (2026-07-20)
 accepts one immutable Projection Domain pane snapshot, stages adapter work,
 allows one current transaction to cross the visible mutation boundary, and
 returns a branded completion for that exact identity and snapshot.
+
+R6.3 adds a constructor for one immutable complete Pane-set snapshot inside the
+same module. It validates all planned ready/empty Pane results and lets the
+injected adapter cross one visible boundary for the entire set. This is not a
+second writer or transaction path. The real R5 browser remains on the
+single-Pane constructor until its bounded R6.5 multi-host migration.
 
 It does not request bars, project bars, mutate Replay, choose viewport intent,
 persist a Session, access the DOM, or depend on Lightweight Charts. The R4.3
@@ -54,7 +60,11 @@ References:
 
 ## Gate
 
-`tests/chart-snapshot-application-harness.js` proves normal exact application,
+`tests/chart-snapshot-application-harness.js` proves normal exact single-Pane application,
 stage and apply races, failure preservation, duplicate/scope/disposal rejection,
 immutable projection provenance, forged-receipt rejection, and sole-writer
-inventory with 14 deterministic negative/race controls.
+inventory with 15 deterministic negative/race controls.
+
+`tests/pane-set-materialization-harness.js` additionally proves exact complete
+Pane-set validation, one visible apply, ready/empty Pane handling, failure
+preservation, and stale-result isolation with 22 negative/race controls.
