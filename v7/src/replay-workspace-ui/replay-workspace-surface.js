@@ -8,10 +8,6 @@ import {
   deserializePaneLayout,
   PANE_LAYOUT_OPTIONS,
 } from '../pane-layout-domain/public.js';
-import {
-  createReplayNavigationSettings,
-  deserializeReplayNavigationSettings,
-} from '../replay-navigation-settings/public.js';
 
 /** Own the professional replay-workspace DOM subtree mounted by the route UI. */
 export function createReplayWorkspaceSurface() {
@@ -27,6 +23,7 @@ export function createReplayWorkspaceSurface() {
   return Object.freeze({
     dispose: unmount,
     mount({
+      initialNavigationSettings,
       onBack,
       onPersistPaneLayout = () => {},
       onPersistReplayNavigationSettings = () => {},
@@ -37,9 +34,6 @@ export function createReplayWorkspaceSurface() {
       const initialLayout = record.workspace.state === 'configured'
         ? deserializePaneLayout(record.workspace.paneLayout)
         : createPaneLayout();
-      const initialNavigationSettings = record.workspace.schemaVersion === 3
-        ? deserializeReplayNavigationSettings(record.workspace.replayNavigationSettings)
-        : createReplayNavigationSettings();
       const callbacks = {
         autoplay: null,
         crosshairSync: null,

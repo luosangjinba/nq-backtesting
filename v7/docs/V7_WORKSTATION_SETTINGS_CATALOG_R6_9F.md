@@ -104,13 +104,14 @@ must never silently turn draft edits into committed chart state.
 | --- | --- | --- |
 | `workstation` | User-wide presentation preference | One durable global record, shared by Session Browser and Replay Workspace |
 | `workspace-chart` | Visual defaults for all current and future product Panes | Stored in the global record and fanned out through chart/presentation owners |
-| `session` | Replay schedule or Session behavior | Remains in Session Store or its domain owner; never copied into global Settings |
+| `session` | Explicit Replay range, instruments, and Session behavior | Remains in Session Store; never copied into global Settings |
 | `pane-operational` | Instrument, TF, Viewport, maximize state, active focus | Remains with Pane/Layout/Viewport owners; never becomes a visual preference |
 | `pane-appearance` | Per-Pane color or visibility override | Rejected until a concrete user journey justifies inheritance and override semantics |
 
 Consequences:
 
-- Quick GoTo Custom Settings remain Session-scoped Replay Navigation settings.
+- Quick GoTo Custom Settings are global Replay Navigation preferences under a
+  separate domain-specific key; they are not visual Workstation Settings.
 - Global Settings are persisted under a separate global key and do not increase
   the Session workspace schema.
 - Visual preferences already apply to every Pane, so V7 needs no `Apply to all`
@@ -230,8 +231,8 @@ three stored fields.
 
 ### Time presentation and session-aware overlays
 
-- New York Quick GoTo anchor values remain canonical Session settings and are
-  not global presentation fields.
+- New York Quick GoTo anchor values remain canonical global Replay Navigation
+  preferences and are not time-presentation fields.
 - Replay Session range and stored instants never change with formatting.
 - `time.displayTimezone` implements only `America/New_York`, `UTC`, and browser
   local presentation. It stores semantic identifiers rather than fixed
@@ -289,8 +290,9 @@ Hydration rules:
 - Viewport tests: a changed default right margin preserves every manual wall;
 - time tests: New York DST, UTC/local display, four real date formats,
   weekday toggle, and 12/24-hour formatting never change canonical instants;
-- browser tests: Session A/B share global appearance while their Quick GoTo
-  settings remain isolated; hard reload restores both scopes correctly;
+- browser tests: Session A/B share global appearance and the global Quick GoTo
+  schedule while the two domain-specific records remain independently owned;
+  hard reload restores both scopes correctly;
 - stable-toolbar/performance tests: Settings application and later candle
   refresh do not remount or flash toolbar/transport DOM;
 - fixed visual fixtures for defaults and one high-contrast customized state;

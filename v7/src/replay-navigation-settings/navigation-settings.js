@@ -82,7 +82,7 @@ export function readReplayNavigationSettings(candidate) {
   return candidate.read();
 }
 
-/** Serialize settings for Session-owned durable storage. */
+/** Serialize settings for workstation-wide durable preference storage. */
 export function serializeReplayNavigationSettings(settings) {
   return Object.freeze({
     anchors: readReplayNavigationSettings(settings),

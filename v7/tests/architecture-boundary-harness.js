@@ -63,6 +63,7 @@ function visitModule(moduleId) {
 for (const moduleId of activeModuleIds) visitModule(moduleId);
 assert.deepEqual(manifest.writerInventories, {
   sessionRecord: ['core.session-store'],
+  replayNavigationPreferences: ['core.replay-navigation-preference-store'],
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   replayWorkspaceDom: ['adapter.replay-workspace-ui'],

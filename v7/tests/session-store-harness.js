@@ -4,11 +4,17 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { serializeActivationGeneration } from '../src/activation-generation/public.js';
 import { createSessionId, serializeSessionId, sessionIdsEqual } from '../src/session-identity/public.js';
-import { createPaneLayout, deserializePaneLayout, readPaneLayout } from '../src/pane-layout-domain/public.js';
+import {
+  createPaneLayout,
+  deserializePaneLayout,
+  readPaneLayout,
+  serializePaneLayout,
+} from '../src/pane-layout-domain/public.js';
 import {
   createReplayNavigationSettings,
   deserializeReplayNavigationSettings,
   readReplayNavigationSettings,
+  serializeReplayNavigationSettings,
 } from '../src/replay-navigation-settings/public.js';
 import {
   createSessionRepository,
@@ -43,7 +49,8 @@ const base = Object.freeze({
   nowEpochMs: 10,
 });
 
-let store = createSessionStore({ repository: makeRepository() });
+let repository = makeRepository();
+let store = createSessionStore({ repository });
 const createdA = store.createSession({ ...base, sessionId: sessionA });
 const createdB = store.createSession({
   ...base,
@@ -80,13 +87,13 @@ assert.equal(serializeActivationGeneration(savedLayoutA.activationGeneration).va
   serializeActivationGeneration(secondA.activationGeneration).value,
   'layout persistence must not create a new Session activation');
 assert.equal(savedLayoutA.workspace.state, 'configured');
-assert.equal(savedLayoutA.workspace.schemaVersion, 3);
+assert.equal(savedLayoutA.workspace.schemaVersion, 4);
 assert.equal(readPaneLayout(deserializePaneLayout(savedLayoutA.workspace.paneLayout)).variantId,
   'layout.four-grid');
 assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
   'layout persistence must remain isolated to its explicit Session');
 
-const customNavigationSettings = createReplayNavigationSettings({
+const legacyNavigationSettings = createReplayNavigationSettings({
   asianSession: '20:00',
   dayOpen: '17:45',
   londonSession: '03:00',
@@ -95,43 +102,44 @@ const customNavigationSettings = createReplayNavigationSettings({
   silverBulletNewYorkAm: '11:00',
   silverBulletNewYorkPm: '15:00',
 });
-const settingsRevision = savedLayoutA.revision;
-const savedSettingsA = store.saveReplayNavigationSettings(sessionA, {
-  nowEpochMs: 56,
-  settings: customNavigationSettings,
-});
-assert.equal(savedSettingsA.revision, settingsRevision + 1);
-assert.equal(readPaneLayout(deserializePaneLayout(savedSettingsA.workspace.paneLayout)).variantId,
-  'layout.four-grid', 'saving GoTo settings preserves the accepted Pane layout');
-assert.deepEqual(readReplayNavigationSettings(deserializeReplayNavigationSettings(
-  savedSettingsA.workspace.replayNavigationSettings,
-)), readReplayNavigationSettings(customNavigationSettings));
-assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
-  'GoTo settings persistence remains isolated to its explicit Session');
-const settingsOnlyB = store.saveReplayNavigationSettings(sessionB, {
-  nowEpochMs: 57,
-  settings: createReplayNavigationSettings(),
-});
-assert.equal(settingsOnlyB.workspace.schemaVersion, 3);
-assert.equal(readPaneLayout(deserializePaneLayout(settingsOnlyB.workspace.paneLayout)).variantId,
-  'layout.single', 'settings-first persistence must retain the default Pane layout');
-assert.deepEqual(readReplayNavigationSettings(deserializeReplayNavigationSettings(
-  settingsOnlyB.workspace.replayNavigationSettings,
-)), readReplayNavigationSettings(createReplayNavigationSettings()));
+assert.equal(Object.hasOwn(savedLayoutA.workspace, 'replayNavigationSettings'), false,
+  'current Session workspace must not own workstation-wide GoTo preferences');
 
-store = createSessionStore({ repository: makeRepository() });
+const legacyId = createSessionId('session-legacy-goto');
+const legacyRecord = createSessionRecord({ ...base, name: 'Legacy GoTo', sessionId: legacyId });
+repository.insert(legacyId, serializeSessionRecord({
+  ...legacyRecord,
+  workspace: {
+    paneLayout: serializePaneLayout(createPaneLayout()),
+    replayNavigationSettings: serializeReplayNavigationSettings(legacyNavigationSettings),
+    schemaVersion: 3,
+    state: 'configured',
+  },
+}));
+const restoredLegacy = store.getSession(legacyId);
+assert.deepEqual(readReplayNavigationSettings(deserializeReplayNavigationSettings(
+  restoredLegacy.workspace.replayNavigationSettings,
+)), readReplayNavigationSettings(legacyNavigationSettings),
+'legacy schema-3 Session settings must remain readable for one-time global migration');
+assert.equal(store.savePaneLayout(legacyId, {
+  layout: createPaneLayout(),
+  nowEpochMs: 58,
+}).workspace.schemaVersion, 4,
+'the next Session workspace save must remove the retired Session-scoped preference field');
+
+repository = makeRepository();
+store = createSessionStore({ repository });
 const restoredA = store.getSession(sessionA);
 const restoredB = store.getSession(sessionB);
 assert.equal(sessionIdsEqual(restoredA.sessionId, sessionA), true);
 assert.equal(restoredA.metadata.name, 'Alpha');
 assert.equal(restoredB.metadata.name, 'Beta');
-assert.equal(restoredB.workspace.schemaVersion, 3);
+assert.equal(restoredB.workspace.state, 'uninitialized');
 assert.equal(serializeActivationGeneration(restoredA.activationGeneration).value, 2);
 assert.equal(restoredA.workspace.paneLayout.variantId, 'layout.four-grid');
 assert.equal(restoredA.workspace.paneLayout.ratios.root, 0.6);
-assert.equal(readReplayNavigationSettings(deserializeReplayNavigationSettings(
-  restoredA.workspace.replayNavigationSettings,
-)).silverBulletNewYorkPm, '15:00');
+assert.equal(restoredA.workspace.schemaVersion, 4);
+assert.equal(Object.hasOwn(restoredA.workspace, 'replayNavigationSettings'), false);
 assert.equal(store.activateSession(sessionA, { nowEpochMs: 60 }).activationGeneration.value(), 3,
   'runtime reconstruction must allocate a strictly later activation');
 const removableId = createSessionId('session-removable');

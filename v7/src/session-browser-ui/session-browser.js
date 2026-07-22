@@ -31,6 +31,7 @@ class SessionBrowserController {
     this.now = options.now;
     this.schedule = options.schedule;
     this.openedSessionSurface = options.openedSessionSurface ?? null;
+    this.replayNavigationPreferences = options.replayNavigationPreferences ?? null;
     this.unavailableMessage = options.unavailableMessage;
     this.records = [];
     this.stopped = false;
@@ -116,17 +117,13 @@ class SessionBrowserController {
         }));
         if (workspace) {
           this.openedSessionSurface.mount({
+            initialNavigationSettings: this.replayNavigationPreferences.snapshot(),
             onBack: this.actions.onBack,
             onPersistPaneLayout: (layout) => this.store.savePaneLayout(record.sessionId, {
               layout,
               nowEpochMs: this.now(),
             }),
-            onPersistReplayNavigationSettings: (settings) => (
-              this.store.saveReplayNavigationSettings(record.sessionId, {
-                nowEpochMs: this.now(),
-                settings,
-              })
-            ),
+            onPersistReplayNavigationSettings: (settings) => this.replayNavigationPreferences.save(settings),
             record,
             root: this.root.querySelector('.replay-workspace-slot'),
           });
@@ -184,6 +181,7 @@ export function createSessionBrowser(options) {
   if (!(options.root instanceof HTMLElement)) throw new TypeError('Session Browser requires an HTMLElement root.');
   if (options.openedSessionSurface) {
     requirePort(options.openedSessionSurface, ['mount', 'supports', 'unmount'], 'Opened Session surface');
+    requirePort(options.replayNavigationPreferences, ['save', 'snapshot'], 'Replay navigation preferences');
   }
   const controller = new SessionBrowserController({
     ...options,

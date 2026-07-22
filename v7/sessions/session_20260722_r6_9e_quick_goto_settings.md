@@ -11,8 +11,9 @@ Status: awaiting human interaction and visual review
 - added one simplified seven-time New York settings dialog with Reset, Discard,
   Save, and an explicit derived-Next-Session explanation;
 - introduced a focused immutable/versioned Replay Navigation Settings contract;
-- persisted settings per explicit Replay Session through Session Store workspace
-  schema version 3 while preserving Pane Layout and older record restoration;
+- persisted one workstation-wide schedule through a focused preference owner;
+- retained Session workspace schema 3 as one-time migration input while current
+  schema 4 stores Pane Layout only;
 - applied accepted settings immediately through the existing Replay Navigation
   schedule resolver without moving Replay or issuing a Pane transaction;
 - translated expected quick-anchor range exhaustion into non-blocking inline
@@ -27,8 +28,8 @@ Status: awaiting human interaction and visual review
 - the Replay Pane Workspace real-Chrome Harness proves the eight-action menu,
   default fields, Reset/Discard/Save, immediate custom SB target, zero-revision
   settings Save, ready-state range-end feedback, and fixed visual baseline;
-- the Session Browser real-Chrome Harness proves workspace schema version 3 did
-  not regress Session create, navigation, delete, or persisted reconstruction;
+- the Replay Pane Workspace real-Chrome Harness proves a changed value appears
+  in a newly created Session and survives deletion of the original Session;
 - all non-browser and six serial real-Chrome Harnesses, JSON parsing, and
   `git diff --check` pass before commit.
 
@@ -67,3 +68,16 @@ the Workspace to remain ready before continuing with another Quick GoTo.
 
 The visible R6.9e gate remains open pending explicit human acceptance; this
 correction does not treat the later successful retry as acceptance.
+
+## Global Scope Correction
+
+Human review then clarified that Quick GoTo Custom Settings are workstation-
+wide, not Replay-Session-specific. Persistence moved from Session Store into
+`core.replay-navigation-preference-store`. Save now changes one durable global
+record, all newly mounted Sessions read the same snapshot, and deleting any
+Session cannot remove it. Saving still moves neither Replay nor Workspace.
+
+Existing schema-3 Session values remain valid migration evidence. When the
+global record is absent, application composition orders them by Session update
+time, seeds the first valid value globally once, and no longer consults Session
+records. Current Session workspace schema 4 contains Pane Layout only.

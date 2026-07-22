@@ -91,6 +91,18 @@ function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }) 
       fail('INVALID_SESSION_WORKSPACE', 'Session workspace configuration is invalid.', { cause });
     }
   }
+  if (value?.schemaVersion === 4 && value.state === 'configured'
+    && Object.keys(value).sort().join(',') === 'paneLayout,schemaVersion,state') {
+    try {
+      return Object.freeze({
+        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
+        schemaVersion: 4,
+        state: 'configured',
+      });
+    } catch (cause) {
+      fail('INVALID_SESSION_WORKSPACE', 'Session workspace Pane layout is invalid.', { cause });
+    }
+  }
   fail('INVALID_SESSION_WORKSPACE', 'Session workspace envelope is unsupported.');
 }
 

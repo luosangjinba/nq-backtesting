@@ -534,7 +534,68 @@ try {
   await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === true`);
   assert.equal(await evaluate(cdp,
     `document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value`), '15:00',
-  'hard Session re-entry must restore its accepted Quick GoTo settings alongside Pane layout');
+  'hard Session re-entry must restore the global Quick GoTo settings alongside Pane layout');
+  await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
+
+  await evaluate(cdp, `document.querySelector('.replay-back').click()`);
+  await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);
+  await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    form.elements.name.value = 'Global GoTo Witness';
+    form.querySelectorAll('[name="instrument"]')[0].checked = true;
+    form.elements.start.value = '2026-05-01T08:10';
+    form.elements.end.value = '2026-05-05T08:11';
+    form.requestSubmit();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`, 10_000);
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('.goto-settings').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === true`);
+  assert.deepEqual(await evaluate(cdp, `Object.fromEntries([...document.querySelectorAll('.goto-settings-time')]
+    .filter((input) => ['dayOpen', 'silverBulletNewYorkPm'].includes(input.name))
+    .map((input) => [input.name, input.value]))`), {
+    dayOpen: '12:00',
+    silverBulletNewYorkPm: '15:00',
+  }, 'a newly created Session must inherit the existing workstation-wide Quick GoTo settings');
+  await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
+  const preferenceStorage = await evaluate(cdp, `(() => {
+    const preference = JSON.parse(localStorage.getItem('v7.replay-navigation-preferences'));
+    const sessionRecords = Object.keys(localStorage)
+      .filter((key) => key.includes(':record:'))
+      .map((key) => JSON.parse(localStorage.getItem(key)).value);
+    return {
+      dayOpen: preference.replayNavigationSettings.anchors.dayOpen,
+      sessionOwnsSettings: sessionRecords.some((record) => (
+        Object.hasOwn(record.workspace, 'replayNavigationSettings')
+      )),
+    };
+  })()`);
+  assert.deepEqual(preferenceStorage, { dayOpen: '12:00', sessionOwnsSettings: false },
+    'one global record must own Quick GoTo settings independently of Session workspace records');
+
+  await evaluate(cdp, `document.querySelector('.replay-back').click()`);
+  await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);
+  await evaluate(cdp, `(() => {
+    const original = [...document.querySelectorAll('.session-card')]
+      .find((card) => card.querySelector('h3')?.textContent === 'NQ ES Pane Replay');
+    original.querySelector('.delete-session-button').click();
+    original.querySelector('.session-delete-confirm').click();
+  })()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
+  await evaluate(cdp, `document.querySelector('.open-session-button').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`, 10_000);
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('.goto-settings').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === true`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.goto-settings-time[name="dayOpen"]').value`), '12:00',
+  'deleting the Session that originally changed Quick GoTo must not delete the global preference');
   await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 } finally {

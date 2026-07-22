@@ -1106,8 +1106,9 @@ redesign below instead of being applied in isolation.
 - [x] add a simplified seven-time New York settings dialog with Reset,
   Discard, Save, and derived Next Session guidance;
 - [x] validate and version the settings through a focused pure contract;
-- [x] persist accepted settings per explicit Replay Session while preserving
-  Pane Layout and restoring older records;
+- [x] persist one accepted workstation-wide schedule outside Session Store,
+  migrate the most recently updated legacy schema-3 value once, and keep
+  current Session schema 4 limited to Pane Layout;
 - [x] apply saved settings immediately without moving Replay or issuing a
   Workspace transaction;
 - [x] treat every configured shortcut time as an exclusive cutoff so `1m`
@@ -1117,8 +1118,9 @@ redesign below instead of being applied in isolation.
 - [x] preserve actionable domain/provider failure classifications through the
   lowercase Workspace terminal contract and bind a custom cross-day Next Day
   Open path in the real-Chrome Workspace regression;
-- [x] bind the menu, settings lifecycle, dynamic schedule, Session isolation,
-  range end, and fixed visual output in focused and real-Chrome Harnesses;
+- [x] bind the menu, settings lifecycle, dynamic schedule, cross-Session
+  inheritance, Session-deletion independence, range end, and fixed visual
+  output in focused and real-Chrome Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 After acceptance, R6.9h separates Exact GoTo into its own Workspace-level entry
@@ -1127,8 +1129,9 @@ Replay path.
 
 ### R6.9f Workstation Settings Catalog And Ownership — Completed Headlessly
 
-- [x] classify Workstation Settings as one global durable preference scope,
-  separate from Session-scoped Quick GoTo settings and Pane operational state;
+- [x] classify visual Workstation Settings as one global durable preference
+  scope, separate from the global domain-specific Quick GoTo preference and
+  Pane operational state;
 - [x] retain the V6-proven draft/Save/Cancel/Reset interaction while rejecting
   its global command/event registry and large mixed-purpose shell;
 - [x] route Canvas/Candles only through the Chart adapter, OHLC/change only

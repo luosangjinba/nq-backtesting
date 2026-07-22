@@ -1,11 +1,12 @@
 {
   "id": "adapter.session-browser-ui",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "kind": "adapter",
   "owner": "session-store",
   "publicEntry": "src/session-browser-ui/public.js",
   "requiredPorts": [
     "adapter.calendar-surface",
+    "core.replay-navigation-preference-store",
     "core.session-identity",
     "core.session-store"
   ],

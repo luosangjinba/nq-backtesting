@@ -1,0 +1,15 @@
+{
+  "id": "core.replay-navigation-preference-store",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "replay-navigation-runtime",
+  "publicEntry": "src/replay-navigation-preference-store/public.js",
+  "requiredPorts": [
+    "core.replay-navigation-settings",
+    "adapter.session-persistence"
+  ],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/replay-navigation-preference-store-harness.js",
+  "removable": false
+}

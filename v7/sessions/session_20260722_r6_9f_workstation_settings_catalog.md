@@ -15,8 +15,9 @@ graph.
 - plan Settings now, before indicators, orders, Journal, and other business
   surfaces expand the presentation graph;
 - keep one global Workstation Settings record separate from Session Store;
-- keep Quick GoTo schedule values Session-scoped and Pane instrument/TF/
-  Viewport/layout/focus state with their existing operational owners;
+- keep Quick GoTo schedule values in their global domain-specific preference
+  owner and Pane instrument/TF/Viewport/layout/focus state with their existing
+  operational owners;
 - retain draft-only edits, atomic Save, Cancel/close/Escape discard, and
   draft-only Reset;
 - route chart and candle options through the sole Lightweight Charts adapter,
@@ -54,3 +55,9 @@ R6.9e remains at its visible human gate. After acceptance, R6.9g implements the
 separate range-aware Exact GoTo surface. The first production Settings work is
 R6.9h and must start with the owner/persistence/draft transaction plus one real
 Grid consumer rather than a complete modal full of disconnected controls.
+
+## Later Scope Correction
+
+The subsequent R6.9e review clarified that Quick GoTo Custom Settings are also
+global. They remain separate from visual Workstation Settings because they are
+Replay Navigation behavior, but they no longer belong to Session Store.

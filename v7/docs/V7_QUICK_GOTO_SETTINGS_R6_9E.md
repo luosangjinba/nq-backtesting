@@ -29,15 +29,15 @@ and applies the schedule immediately.
 ## Ownership And Persistence
 
 `core.replay-navigation-settings` owns the immutable, branded, versioned seven-
-time value. The GoTo UI only edits a draft and dispatches Save. Session Store
-is the only durable writer and stores the accepted settings under the explicit
-Replay Session record together with Pane Layout in workspace schema version 3.
+time value. The GoTo UI only edits a draft and dispatches Save.
+`core.replay-navigation-preference-store` is the sole durable writer and stores
+one workstation-wide value outside every Replay Session record.
 
 Saving settings does not move Replay, acquire bars, reproject Panes, or issue a
 Workspace transaction. The existing Replay Navigation target resolver reads
 the latest accepted schedule when the next Quick GoTo command is dispatched.
-Different Replay Sessions therefore retain independent settings without
-creating another Replay owner.
+Every current and future Replay Session therefore uses the same latest settings
+without creating another Replay owner.
 
 Each configured time is the unrevealed key moment, not the end of a candle to
 show. Quick GoTo commits an exclusive cutoff at that wall time after primary-
@@ -45,9 +45,10 @@ source eligibility is confirmed. Consequently `15:00` displays through
 `14:59` on `1m` data, and no Pane may reveal the `15:00` bar before the next
 Replay step.
 
-Older uninitialized and Pane-layout-only records remain readable. Their first
-layout or navigation-settings save upgrades the workspace envelope and fills
-the missing half with its default value.
+Older uninitialized, Pane-layout-only, and schema-3 records remain readable.
+If the global record is absent, the most recently updated valid schema-3 value
+seeds it once. Current schema 4 stores Pane Layout only; deleting a Session
+cannot reset the global schedule.
 
 ## Range-End Feedback
 
@@ -74,13 +75,16 @@ Replay cursor or become required by navigation.
 
 - the Replay Navigation Settings Harness binds exact fields, defaults,
   branding, versioned serialization, restoration, and seven negative controls;
-- Session Store evidence binds per-Session save/restore, layout preservation,
-  schema upgrade, and isolation;
+- the Replay Navigation Preference Store Harness binds global save/restore,
+  legacy migration, corruption fallback, and failed-write atomicity;
+- Session Store evidence binds legacy schema-3 readability and current
+  Pane-layout-only schema 4;
 - Replay Navigation evidence binds dynamic schedule replacement without a
   second runtime or cursor and binds the exclusive pre-anchor cutoff for all
   eight actions;
 - the real-Chrome Replay Pane Workspace Harness binds eight actions, five
   shortcuts, Reset/Discard/Save, immediate schedule use, zero-revision Save,
-  non-blocking range-end feedback, and fixed `1440×900` output;
+  cross-Session inheritance, Session-deletion independence, non-blocking
+  range-end feedback, and fixed `1440×900` output;
 - this browser-visible slice stops for explicit human interaction and visual
   review before Exact GoTo begins.

@@ -21,7 +21,7 @@ required for normal startup.
   combined R6.9/R6.9a–b Pane layouts, overlays, and interactions human
   accepted; R6.9c lower-right control dock implemented and awaiting focused
   visual review; R6.9d shared GoTo contract completed headlessly; R6.9e eight-
-  action Quick GoTo, Session-persisted settings, and range feedback implemented
+  action Quick GoTo, global settings, and range feedback implemented
   and awaiting human review; R6.9f global Workstation Settings catalog and
   ownership contract plus R6.9g field-level product refinement completed
   headlessly; R2.4 Session Browser readability and confirmed durable delete
@@ -282,13 +282,14 @@ and human-accepted:
   cursor and expands Quick GoTo to eight strict-forward New York anchors.
 - R6.9e exposes those eight actions, keeps only five keyboard shortcuts, and
   adds one seven-time Reset/Discard/Save settings dialog. A focused immutable
-  contract and Session Store workspace schema version 3 persist settings per
-  Replay Session alongside Pane Layout. Save replaces the schedule without
+  contract and global Replay Navigation Preference Store persist one schedule
+  for every Replay Session; legacy Session workspace schema 3 remains one-time
+  migration input while current schema 4 stores Pane Layout only. Save replaces the schedule without
   Replay or Workspace revision, and expected range exhaustion now leaves the
   Workspace ready with an inline message naming the range end. This visible
   slice awaits human interaction and visual review.
-- R6.9f freezes one global Workstation Settings scope, separate from Session
-  Quick GoTo settings and Pane operational state. It retains the V6-proven
+- R6.9f freezes one global visual Workstation Settings scope, separate from the
+  global domain-specific Quick GoTo preference and Pane operational state. It retains the V6-proven
   draft/Save/Cancel/Reset semantics, routes each field to its real owner, and
   originally bounded persistence, direct chart/candle, and optional visibility
   slices after Exact GoTo. It changes no production behavior and was completed

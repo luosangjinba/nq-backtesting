@@ -40,6 +40,7 @@
     "docs/V7_REPLAY_NAVIGATION_RUNTIME.md",
     "docs/V7_GOTO_REDESIGN_CONTRACT_R6_9D.md",
     "docs/V7_QUICK_GOTO_SETTINGS_R6_9E.md",
+    "docs/V7_REPLAY_NAVIGATION_PREFERENCE_STORE.md",
     "docs/V7_WORKSTATION_SETTINGS_CATALOG_R6_9F.md",
     "docs/V7_WORKSTATION_SETTINGS_PRODUCT_REFINEMENT_R6_9G.md",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
@@ -103,6 +104,7 @@
     "src/pane-workspace-domain/module.json",
     "src/pane-layout-domain/module.json",
     "src/replay-navigation-settings/module.json",
+    "src/replay-navigation-preference-store/module.json",
     "src/replay-pane-response-contract/module.json",
     "src/pane-set-materialization/module.json",
     "src/replay-navigation-runtime/module.json",
@@ -179,6 +181,7 @@
   },
   "writerInventories": {
     "sessionRecord": ["core.session-store"],
+    "replayNavigationPreferences": ["core.replay-navigation-preference-store"],
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "replayWorkspaceDom": ["adapter.replay-workspace-ui"],
