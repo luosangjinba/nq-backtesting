@@ -1,6 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.9b review corrections, awaiting human review
+Last updated: 2026-07-21 after R6.9c lower-right control-dock correction,
+awaiting focused visual review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -16,7 +17,10 @@ required for normal startup.
   multi-Pane RTH history preservation implemented; and R6.7b manual Viewport
   span, contributing history-window, and stable-toolbar corrections accepted as
   one combined R6.7 gate; combined R6.8/R6.8a–b fixed Replay transport,
-  truncation, Sync timeframe, and text-only selectors human accepted
+  truncation, Sync timeframe, and text-only selectors human accepted;
+  combined R6.9/R6.9a–b Pane layouts, overlays, and interactions human
+  accepted; R6.9c lower-right control dock implemented and awaiting focused
+  visual review
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -69,6 +73,8 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_9_resizable_pane_layouts.md`.
 - `sessions/session_20260721_r6_9a_pane_ohlc_crosshair_sync.md`.
 - `sessions/session_20260721_r6_9b_canvas_overlay_maximize.md`.
+- `sessions/session_20260721_r6_9_combined_acceptance.md`.
+- `sessions/session_20260721_r6_9c_pane_control_dock.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -239,7 +245,7 @@ and human-accepted:
   measured minimum Pane sizes, and Session-owned ratio persistence. Same-count
   layout/resize changes do no data, Replay, or Workspace transaction work;
   count changes retain the atomic complete Pane-set path. This interaction and
-  visual gate awaits explicit human acceptance.
+  visual gate was human accepted on 2026-07-21.
 - R6.9a corrects the review-visible active focus and header: every Pane now
   shows symbol/TF plus accepted selected-or-latest OHLC, non-active Panes retain
   native hover without taking focus, and the Crosshair layout switch projects
@@ -247,7 +253,7 @@ and human-accepted:
   targets cannot feed back as new pointer sources, mixed-TF misses retain each
   target's latest OHLC, and the entire effect performs no Replay, data,
   Session, series-write, or Workspace transaction work. The readability floor
-  is now `280×120px`. R6.9/R6.9a awaits combined human acceptance.
+  is now `280×120px`. R6.9a was human accepted with R6.9/R6.9b on 2026-07-21.
 - R6.9b integrates the symbol, compact TF, OHLC, and prior-close change into
   the Canvas; removes the global Reset in favor of hover/focus Pane-local
   controls; and adds transient multi-Pane Maximize/Restore. Every chart stays
@@ -255,7 +261,13 @@ and human-accepted:
   changes no Pane Layout, Replay, Workspace, Session, Bar Data, or series state.
   Neutral black Canvas surfaces, brighter text, and a stronger active border
   complete the visual correction. Market-open status remains deliberately
-  omitted until a reliable product contract exists.
+  omitted until a reliable product contract exists. R6.9b was human accepted
+  with R6.9/R6.9a on 2026-07-21.
+- R6.9c moves the unchanged Pane-local Maximize/Restore and Reset actions into
+  a vertical lower-right Canvas dock. Explicit right and bottom insets keep the
+  controls out of the price and time scales; hover/focus reveal, actual pointer
+  activation, mounted chart hosts, exact restore geometry, and zero Replay or
+  Workspace revisions remain enforced. It awaits focused visual confirmation.
 
 Latest corrective commits:
 
@@ -376,14 +388,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Obtain explicit human acceptance for the combined R6.9/R6.9a/R6.9b gate: one-to-four
-Pane picker, every horizontal/vertical draggable divider, `280×120px` minimum
-geometry, layout persistence, clear active border, Pane-local selected/latest
-OHLC/change overlay, hover Pane Reset and Maximize/Restore, Crosshair sync
-on/off, and mixed-Pane shared Replay/ETH-RTH behavior.
-After acceptance, execute the remaining R6.10 Symbol/Interval/Time/Date-range
-sync families as separate bounded work. Economic Calendar remains outside this
-foundation phase.
+Obtain focused visual confirmation that each Pane's vertically stacked
+Maximize/Restore and Reset controls appear at the Canvas lower-right without
+covering the price or time scale. After acceptance, execute the remaining
+R6.10 Symbol/Interval/Time/Date-range sync families as separate bounded work.
+Economic Calendar remains outside this foundation phase.
 
 ## Standing Workflow
 

@@ -1,6 +1,6 @@
 # V7 Pane Canvas Overlay And Maximize — R6.9b
 
-Status: implemented; awaiting human interaction and visual review (2026-07-21)
+Status: human accepted as part of the combined Pane gate (2026-07-21)
 
 ## Review Corrections
 
@@ -69,5 +69,6 @@ Harnesses; `git diff --check` also passes. The retained performance run records
 100 cache-hit Next samples at p95 `83.8ms`, p99 `96.8ms`, and max `102.8ms`,
 with no interaction freeze.
 
-This is an interaction and visual correction and therefore stops for explicit
-human acceptance with R6.9/R6.9a.
+The user accepted this interaction and visual correction with R6.9/R6.9a on
+2026-07-21. R6.9c records the subsequent lower-right control-dock placement
+request without reopening these accepted interaction semantics.

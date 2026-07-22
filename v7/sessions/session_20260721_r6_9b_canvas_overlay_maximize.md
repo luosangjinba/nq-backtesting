@@ -1,7 +1,7 @@
 # Session — R6.9b Canvas Overlay And Pane Maximize
 
 Date: 2026-07-21
-Status: awaiting human interaction and visual review
+Status: human accepted as part of the combined Pane gate
 
 ## Delivered
 
@@ -44,5 +44,6 @@ and Workspace Transaction owners are unchanged.
 
 ## Review Boundary
 
-This correction changes interaction and visuals, so the combined
-R6.9/R6.9a/R6.9b gate stops for explicit human acceptance before R6.10.
+The user accepted the combined R6.9/R6.9a/R6.9b gate on 2026-07-21. R6.9c
+tracks the subsequent lower-right control-dock placement correction before
+R6.10.

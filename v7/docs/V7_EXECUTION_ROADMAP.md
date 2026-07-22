@@ -359,19 +359,22 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.8b`: render Autoplay speed and Replay step as compact arrowless text
   selectors in speed-to-step order, retain native selection behavior, and keep
   the adjacent timeframe-sync switch icon-only with an accessible name;
-- `R6.9`: review corrections awaiting human review: the exact reviewed one-to-four
+- `R6.9`: human accepted: the exact reviewed one-to-four
   Pane layout set, draggable and keyboard-adjustable horizontal/vertical
   boundaries, nested minimum-size constraints, Session-persisted accepted
   ratios, and the corrected `280×120px` readability floor without data or
   Replay work;
 - `R6.9a`: strengthen active focus, add accepted Pane-local OHLC, and implement
   chart-only Crosshair sync through adapter-owned official APIs without Replay,
-  data, focus, Session, or Workspace transaction effects; awaiting combined
-  R6.9/R6.9a/R6.9b human review;
+  data, focus, Session, or Workspace transaction effects; accepted on
+  2026-07-21;
 - `R6.9b`: integrate compact symbol/TF/OHLC/change into the Canvas, move Reset
   to each Pane, and add transient hover Maximize/Restore that keeps every chart
-  mounted and preserves exact layout, Replay, and Workspace state; awaiting the
-  combined R6.9/R6.9a/R6.9b human review;
+  mounted and preserves exact layout, Replay, and Workspace state; accepted on
+  2026-07-21;
+- `R6.9c`: move Pane-local Maximize/Restore and Reset to a vertical lower-right
+  Canvas dock with explicit price/time-scale safe insets, retaining all
+  accepted interaction and ownership semantics; awaiting focused visual review;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;

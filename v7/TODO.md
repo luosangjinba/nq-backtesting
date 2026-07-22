@@ -969,7 +969,7 @@ reproject every Pane even when Panes use different instruments. R6.9 expands
 one-to-four layouts with draggable, persisted nested split ratios and minimum
 Pane sizes; R6.9a pulls in the review-required Crosshair portion of layout sync.
 
-### R6.9 Resizable One-To-Four Pane Layouts — Review Corrections In Progress
+### R6.9 Resizable One-To-Four Pane Layouts — Human Accepted
 
 - expose exactly 12 reviewed variants: single; two columns/rows; three
   columns/rows/two-left/one-right/one-left/two-right; four grid,
@@ -992,11 +992,11 @@ Pane sizes; R6.9a pulls in the review-required Crosshair portion of layout sync.
 - bind the pure domain, Session persistence, real-browser geometry/input,
   visual, all-Pane Replay/RTH, re-entry, architecture, and regression gates.
 
-R6.9 changes interaction and visuals and therefore stops with R6.9a/R6.9b for
-one combined explicit human acceptance gate. Remaining R6.10 sync is not part
-of this correction.
+R6.9/R6.9a/R6.9b were explicitly human accepted on 2026-07-21. The same review
+requested the R6.9c control-dock placement correction below. Remaining R6.10
+sync is not part of this correction.
 
-### R6.9a Active Pane, OHLC, And Crosshair Review Correction — Awaiting Human Review
+### R6.9a Active Pane, OHLC, And Crosshair Review Correction — Human Accepted
 
 - [x] make active focus unmistakable with a `2px` blue Pane boundary; R6.9b
   replaces the temporary header tint with a neutral Canvas overlay;
@@ -1011,10 +1011,10 @@ of this correction.
   feedback source, and zero Replay/Workspace revisions;
 - [x] update real-browser visuals and retain the complete R6.9 layout,
   persistence, Replay/RTH, performance, architecture, and source-quality gates;
-- [ ] obtain explicit human interaction and visual acceptance for
+- [x] obtain explicit human interaction and visual acceptance for
   R6.9/R6.9a/R6.9b.
 
-### R6.9b Canvas Overlay And Pane Maximize Review Correction — Awaiting Human Review
+### R6.9b Canvas Overlay And Pane Maximize Review Correction — Human Accepted
 
 - [x] remove the separate Pane header row and place short symbol, compact TF,
   OHLC, change value, and change percentage over the Canvas;
@@ -1027,10 +1027,21 @@ of this correction.
 - [x] use neutral black chart surfaces, brighter readouts/axes, and a stronger
   active Pane boundary;
 - [x] omit market-open status until a reliable product contract exists;
-- [ ] obtain explicit human acceptance for R6.9/R6.9a/R6.9b.
+- [x] obtain explicit human acceptance for R6.9/R6.9a/R6.9b.
+
+### R6.9c Lower-Right Pane Control Dock — Awaiting Focused Visual Review
+
+- [x] move Maximize/Restore and Reset from the upper-right to the Canvas
+  lower-right;
+- [x] stack Maximize/Restore above Reset View;
+- [x] keep the dock left of the price scale and above the time scale;
+- [x] preserve hover/focus reveal and actual pointer activation;
+- [x] preserve Pane-local Reset, transient maximize, mounted chart hosts,
+  exact restored geometry, and zero Replay/Workspace revisions;
+- [ ] obtain focused human visual confirmation of the final control position.
 
 Do not start the remaining R6.10 Symbol/Interval/Time/Date-range sync families
-until this combined review gate is accepted.
+until R6.9c receives focused visual confirmation.
 
 ## Standing Gates
 

@@ -908,7 +908,7 @@
       "owner": "pane-layout-domain",
       "v6FailurePrevented": "layout geometry was coupled to chart hosts, supported only a partial variant set, or lost unsafe split ratios across Session re-entry",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/pane-layout-domain-harness.js",
       "positiveEvidence": [
         "src/pane-layout-domain/public.js",
@@ -920,7 +920,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/pane-layout-domain/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260721_r6_9_combined_acceptance.md"
     },
     {
       "id": "H052",
@@ -928,7 +928,7 @@
       "owner": "chart-runtime-adapter",
       "v6FailurePrevented": "OHLC readouts were active-Pane placeholders, programmatic crosshair callbacks could feed back as new sources, or synchronization mutated Replay and Pane work",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/lightweight-chart-adapter-browser-harness.js",
       "positiveEvidence": [
         "src/lightweight-chart-adapter/crosshair-presentation.js",
@@ -940,7 +940,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260721_r6_9_combined_acceptance.md"
     },
     {
       "id": "H053",
@@ -948,7 +948,7 @@
       "owner": "replay-workspace-ui",
       "v6FailurePrevented": "Pane metadata consumed Canvas height, Reset changed the wrong viewport, or maximize rewrote persistent layout and unmounted chart owners",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-layout-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/replay-workspace-ui/pane-overlay-view.js",
@@ -956,6 +956,24 @@
         "src/replay-workspace-ui/styles.css",
         "tests/replay-layout-workspace-browser-harness.js",
         "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/replay-workspace/negative/pane-overlay-cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260721_r6_9_combined_acceptance.md"
+    },
+    {
+      "id": "H054",
+      "name": "pane-control-dock-is-vertical-and-scale-safe",
+      "owner": "replay-workspace-ui",
+      "v6FailurePrevented": "Pane-local controls covered the price or time scale, or their horizontal footprint hid chart content",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-layout-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/replay-workspace-ui/pane-overlay-view.js",
+        "src/replay-workspace-ui/styles.css",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "docs/V7_PANE_CONTROL_DOCK_R6_9C.md"
       ],
       "negativeFixtures": ["tests/fixtures/replay-workspace/negative/pane-overlay-cases.json"],
       "humanReviewRequired": true,

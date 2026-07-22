@@ -32,6 +32,7 @@ async function waitForDevtools() {
 }
 
 async function capture(cdp) {
+  await new Promise((resolve) => setTimeout(resolve, 160));
   await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
   const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
   const actual = Buffer.from(data, 'base64');

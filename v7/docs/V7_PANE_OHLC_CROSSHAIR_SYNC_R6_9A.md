@@ -1,6 +1,6 @@
 # V7 Pane OHLC And Crosshair Sync — R6.9a
 
-Status: implemented; awaiting human interaction and visual review (2026-07-21)
+Status: human accepted as part of the combined Pane gate (2026-07-21)
 
 ## Review Corrections
 

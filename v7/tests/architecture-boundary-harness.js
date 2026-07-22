@@ -207,6 +207,7 @@ for (const rule of [
   'versioned-pane-layout-persistence-and-resize-bounds',
   'pane-local-latest-ohlc-and-chart-only-crosshair-sync',
   'pane-canvas-overlay-controls-are-transient-and-local',
+  'pane-control-dock-is-vertical-and-scale-safe',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

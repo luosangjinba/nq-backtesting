@@ -5,8 +5,10 @@
   },
   {
     "name": "maximize-is-transient-and-keeps-two-charts-mounted",
+    "minimumBottomInsetPx": 28,
     "expectedHiddenOpacity": "0",
-    "expectedPaneCount": 2
+    "expectedPaneCount": 2,
+    "minimumRightInsetPx": 72
   },
   {
     "name": "reset-is-pane-local",

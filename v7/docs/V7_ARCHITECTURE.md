@@ -469,7 +469,9 @@ it does not reserve chart geometry or become a second chart state owner.
 Pane Maximize/Restore is transient outer-DOM presentation: it keeps all chart
 hosts mounted, never rewrites Pane Layout intent, and cannot move Replay,
 request data, mutate series, persist state, or open a Workspace transaction.
-Reset View remains an explicit Pane-local Viewport intent.
+Reset View remains an explicit Pane-local Viewport intent. Pane-local controls
+occupy a lower-right plot-safe dock, vertically stacked left of the price scale
+and above the time scale; scale geometry remains owned by the chart adapter.
 
 ## Session Isolation Invariant
 

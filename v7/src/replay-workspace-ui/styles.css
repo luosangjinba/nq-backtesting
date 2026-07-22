@@ -407,15 +407,20 @@
   visibility: hidden;
   pointer-events: none;
 }
-.workspace-pane-header {
+.pane-overlay-layer {
   position: absolute;
   z-index: 6;
+  inset: 0;
+  pointer-events: none;
+}
+.workspace-pane-header {
+  position: absolute;
   top: 3px;
   right: 5px;
   left: 5px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   height: 24px;
   min-width: 0;
   padding: 0 5px;
@@ -464,15 +469,15 @@
 .pane-change[data-direction="down"] { color: #f0525f; }
 .pane-change[data-direction="flat"] { color: #c0c7d0; }
 .pane-overlay-controls {
-  position: relative;
+  position: absolute;
   z-index: 7;
-  display: inline-flex;
-  flex: 0 0 auto;
+  right: 76px;
+  bottom: 32px;
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  margin-left: 10px;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-2px);
   transition: opacity 80ms ease-out;
 }
 .workspace-pane:hover .pane-overlay-controls,

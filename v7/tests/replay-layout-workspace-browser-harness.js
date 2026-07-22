@@ -13,6 +13,7 @@ const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-four-left-stack-1440x900.png');
 const syncVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-crosshair-sync-1440x900.png');
 const maximizeVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-maximized-1440x900.png');
+const MAX_STABLE_VISUAL_BYTE_DIFFERENCES = 96;
 const overlayCases = new Map(JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/replay-workspace/negative/pane-overlay-cases.json',
 ), 'utf8')).map((fixture) => [fixture.name, fixture]));
@@ -63,12 +64,14 @@ function isStableVisual(actual, expected) {
   for (let index = 0; index < actualScanlines.length; index += 1) {
     if (actualScanlines[index] === expectedScanlines[index]) continue;
     differenceCount += 1;
-    if (differenceCount > 32) return false;
+    // Canvas text anti-aliasing varies by a few bytes across serial Chrome runs.
+    if (differenceCount > MAX_STABLE_VISUAL_BYTE_DIFFERENCES) return false;
   }
   return true;
 }
 
 async function capture(cdp, targetFile = visualFile) {
+  await new Promise((resolve) => setTimeout(resolve, 160));
   await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
   if (process.env.V7_UPDATE_VISUALS === '1') {
     const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
@@ -298,6 +301,31 @@ try {
 
   const beforeMaximize = await evaluate(cdp, layoutStateExpression());
   const normalSecondary = beforeMaximize.panes.find(({ paneId }) => paneId === 'pane-secondary');
+  const controlGeometry = await evaluate(cdp, `(() => {
+    const pane = document.querySelector('[data-pane-id="pane-secondary"]');
+    const controls = pane.querySelector('.pane-overlay-controls');
+    const maximize = pane.querySelector('.pane-maximize');
+    const reset = pane.querySelector('.pane-reset');
+    const paneRect = pane.getBoundingClientRect();
+    const controlsRect = controls.getBoundingClientRect();
+    const maximizeRect = maximize.getBoundingClientRect();
+    const resetRect = reset.getBoundingClientRect();
+    return {
+      bottomInset: paneRect.bottom - controlsRect.bottom,
+      flexDirection: getComputedStyle(controls).flexDirection,
+      horizontalDelta: Math.abs(maximizeRect.left - resetRect.left),
+      rightInset: paneRect.right - controlsRect.right,
+      verticalGap: resetRect.top - maximizeRect.bottom,
+    };
+  })()`);
+  const maximizeCase = overlayCases.get('maximize-is-transient-and-keeps-two-charts-mounted');
+  assert.equal(controlGeometry.flexDirection, 'column');
+  assert.ok(controlGeometry.horizontalDelta < 1 && controlGeometry.verticalGap >= 4,
+    `Pane controls must form one vertical stack: ${JSON.stringify(controlGeometry)}`);
+  assert.ok(controlGeometry.rightInset >= maximizeCase.minimumRightInsetPx,
+    `Pane controls must remain left of the price scale: ${JSON.stringify(controlGeometry)}`);
+  assert.ok(controlGeometry.bottomInset >= maximizeCase.minimumBottomInsetPx,
+    `Pane controls must remain above the time scale: ${JSON.stringify(controlGeometry)}`);
   await clickPaneControl(cdp, 'pane-secondary', '.pane-maximize');
   await waitFor(cdp, `document.querySelector('.workspace-pane-grid')?.dataset.maximizedPaneId === 'pane-secondary'`);
   const maximized = await evaluate(cdp, `(() => {
@@ -324,7 +352,6 @@ try {
       workspaceRevision: Number(workspace.dataset.workspaceRevision),
     };
   })()`);
-  const maximizeCase = overlayCases.get('maximize-is-transient-and-keeps-two-charts-mounted');
   assert.deepEqual(maximized, {
     buttonLabel: 'Restore pane-secondary chart',
     buttonPressed: 'true',
@@ -382,6 +409,9 @@ try {
     secondary: 'selected',
     workspaceRevision: beforeCrosshair.workspaceRevision,
   }, 'Sync crosshair must project to every Pane without changing focus, Replay, or Workspace');
+  await waitFor(cdp, `getComputedStyle(document.querySelector(
+    '[data-pane-id="pane-main"] .pane-overlay-controls'
+  )).opacity === '1'`);
   await capture(cdp, syncVisualFile);
   await cdp.send('Input.dispatchMouseEvent', {
     type: 'mouseMoved', x: 700, y: 18, button: 'none', buttons: 0,

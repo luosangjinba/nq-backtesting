@@ -1,6 +1,6 @@
 # V7 Resizable Pane Layouts — R6.9
 
-Status: implemented; awaiting human interaction and visual review (2026-07-21)
+Status: human accepted as part of the combined Pane gate (2026-07-21)
 
 ## Product Layout Set
 

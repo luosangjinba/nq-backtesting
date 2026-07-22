@@ -1,7 +1,7 @@
 # Session — R6.9a Pane OHLC And Crosshair Sync
 
 Date: 2026-07-21
-Status: awaiting human interaction and visual review
+Status: human accepted as part of the combined Pane gate
 
 ## Delivered
 

@@ -83,14 +83,14 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
     ariaLabel: `Reset ${paneId} view`, className: 'pane-reset', icon: RESET_ICON,
   });
   const controls = element('span', { className: 'pane-overlay-controls' }, [maximize, reset]);
-  const root = element('header', { className: 'workspace-pane-header' }, [
+  const header = element('header', { className: 'workspace-pane-header' }, [
     element('span', { className: 'pane-status-line' }, [
       element('span', { className: 'pane-identity' }, [symbol, timeframe]),
       ohlc,
       change,
     ]),
-    controls,
   ]);
+  const root = element('div', { className: 'pane-overlay-layer' }, [header, controls]);
 
   maximize.addEventListener('click', (event) => {
     event.stopPropagation();
