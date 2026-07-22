@@ -36,6 +36,18 @@
     "expectedCode": "SESSION_NOT_FOUND"
   },
   {
+    "name": "delete unknown session",
+    "operation": "deleteUnknown",
+    "patch": {},
+    "expectedCode": "SESSION_NOT_FOUND"
+  },
+  {
+    "name": "stale repository removal",
+    "operation": "staleRepositoryRemove",
+    "patch": {},
+    "expectedCode": "SESSION_REVISION_CONFLICT"
+  },
+  {
     "name": "stored identity differs from explicit key",
     "operation": "mismatchedStoredIdentity",
     "patch": {},

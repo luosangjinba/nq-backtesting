@@ -17,6 +17,9 @@ R2.3 extracts its accepted date-time interaction into the independent shared
 Calendar Surface adapter. Calendar Surface owns only calendar/date-time
 presentation and no coverage, bars, Replay, panes, viewport, provider, order,
 news, or chart behavior.
+R2.4 adds confirmed Session deletion through the existing Session Store and
+Repository owners plus a list-only readability pass; Session Browser still
+cannot write storage directly.
 
 R3.1 adds only immutable provider-neutral raw Bar Data request/bar/batch values.
 No provider I/O, cache, prefetch, retry, Replay, projection, chart, or UI owner

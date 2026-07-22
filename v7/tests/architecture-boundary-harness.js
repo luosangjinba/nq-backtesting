@@ -208,6 +208,7 @@ for (const rule of [
   'pane-local-latest-ohlc-and-chart-only-crosshair-sync',
   'pane-canvas-overlay-controls-are-transient-and-local',
   'pane-control-dock-is-vertical-and-scale-safe',
+  'session-browser-delete-is-confirmed-and-durable',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

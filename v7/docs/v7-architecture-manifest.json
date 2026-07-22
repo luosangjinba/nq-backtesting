@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.9c-pane-control-dock-awaiting-human-review",
+  "status": "r2.4-session-browser-delete-and-r6.9c-awaiting-human-review",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -231,6 +231,7 @@
     "versioned-pane-layout-persistence-and-resize-bounds",
     "pane-local-latest-ohlc-and-chart-only-crosshair-sync",
     "pane-canvas-overlay-controls-are-transient-and-local",
-    "pane-control-dock-is-vertical-and-scale-safe"
+    "pane-control-dock-is-vertical-and-scale-safe",
+    "session-browser-delete-is-confirmed-and-durable"
   ]
 }

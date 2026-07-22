@@ -209,6 +209,8 @@ try {
   await waitFor(cdp, `document.querySelectorAll('.session-card').length === 2 && document.querySelector('#app').dataset.viewState === 'ready'`);
   assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.session-card h3')].map((node) => node.textContent)`),
     ['Session Alpha', 'Session Beta']);
+  assert.equal(await evaluate(cdp, `document.querySelectorAll('.session-card .delete-session-button').length`), 2,
+    'every Session card must expose its own Delete action');
   await capture(cdp, 'ready-two-sessions');
 
   assert.equal(await evaluate(cdp, clickCardByName('Session Alpha')), true);
@@ -246,7 +248,52 @@ try {
   }, 'Session creation must persist New York wall input independently of the Pacific browser timezone');
   assert.equal(storageEvidence.keys.some((key) => /active|current|last-opened/i.test(key)), false);
 
-  console.log('v7 Session Browser browser harness passed (fresh drafts, professional date-time picker, A/B navigation, 5 visual fixtures)');
+  await evaluate(cdp, `document.querySelector('.replay-back, .opened-header .button').click()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 2`);
+  const confirmationEvidence = await evaluate(cdp, `(() => {
+    const card = [...document.querySelectorAll('.session-card')]
+      .find((node) => node.querySelector('h3')?.textContent === 'Session Beta');
+    card.querySelector('.delete-session-button').click();
+    return {
+      confirmation: card.querySelector('.session-delete-question').textContent,
+      focusedLabel: document.activeElement.getAttribute('aria-label'),
+      standardHidden: card.querySelector('.session-card-actions').hidden,
+    };
+  })()`);
+  assert.deepEqual(confirmationEvidence, {
+    confirmation: 'Delete permanently?',
+    focusedLabel: 'Confirm delete Session Beta',
+    standardHidden: true,
+  }, 'Delete must require an explicit focused confirmation');
+  await capture(cdp, 'delete-confirmation');
+  await evaluate(cdp, `(() => {
+    const card = [...document.querySelectorAll('.session-card')]
+      .find((node) => node.querySelector('h3')?.textContent === 'Session Beta');
+    card.querySelector('.session-delete-cancel').click();
+  })()`);
+  assert.equal(await evaluate(cdp, `document.querySelectorAll('.session-card').length`), 2,
+    'cancelling deletion must preserve every Session');
+  await evaluate(cdp, `(() => {
+    const card = [...document.querySelectorAll('.session-card')]
+      .find((node) => node.querySelector('h3')?.textContent === 'Session Beta');
+    card.querySelector('.delete-session-button').click();
+    card.querySelector('.session-delete-confirm').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('#app').dataset.viewState === 'ready'
+    && document.querySelectorAll('.session-card').length === 1`);
+  assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.session-card h3')]
+    .map((node) => node.textContent)`), ['Session Alpha']);
+  const deleteStorageEvidence = await evaluate(cdp, `(() => {
+    const keys = Object.keys(localStorage).sort();
+    const records = keys.filter((key) => key.includes(':record:'))
+      .map((key) => JSON.parse(localStorage.getItem(key)).value.metadata.name);
+    const index = JSON.parse(localStorage.getItem(keys.find((key) => key.endsWith(':index'))));
+    return { indexedCount: index.sessionIds.length, recordNames: records };
+  })()`);
+  assert.deepEqual(deleteStorageEvidence, { indexedCount: 1, recordNames: ['Session Alpha'] },
+    'confirmed deletion must remove both the indexed identity and persisted Session record');
+
+  console.log('v7 Session Browser browser harness passed (create, A/B navigation, confirmed delete, 6 visual fixtures)');
 } finally {
   cdp?.close();
   const exited = new Promise((resolve) => chrome.once('exit', resolve));

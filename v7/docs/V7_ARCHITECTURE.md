@@ -29,6 +29,11 @@ workspace layout, pane intents, Replay checkpoint, and schema version. Every
 read/write requires an explicit `sessionId`; there is no implicit active-session
 persistence key.
 
+R2.4 adds explicit revision-checked Session deletion through the same owner.
+Repository removes the indexed identity and its record key as one bounded
+operation; Session Browser may dispatch the command only after visible user
+confirmation and never manipulates storage directly.
+
 It does not request bars, advance Replay, project bars, or write charts.
 
 ### Replay Runtime

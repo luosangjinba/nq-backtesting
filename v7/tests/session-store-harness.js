@@ -5,7 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { serializeActivationGeneration } from '../src/activation-generation/public.js';
 import { createSessionId, serializeSessionId, sessionIdsEqual } from '../src/session-identity/public.js';
 import { createPaneLayout, deserializePaneLayout, readPaneLayout } from '../src/pane-layout-domain/public.js';
-import { createSessionRepository, createStorageAdapter } from '../src/session-persistence/public.js';
+import {
+  createSessionRepository,
+  createStorageAdapter,
+  SessionPersistenceError,
+} from '../src/session-persistence/public.js';
 import {
   createSessionRecord,
   createSessionStore,
@@ -87,6 +91,19 @@ assert.equal(restoredA.workspace.paneLayout.variantId, 'layout.four-grid');
 assert.equal(restoredA.workspace.paneLayout.ratios.root, 0.6);
 assert.equal(store.activateSession(sessionA, { nowEpochMs: 60 }).activationGeneration.value(), 3,
   'runtime reconstruction must allocate a strictly later activation');
+const removableId = createSessionId('session-removable');
+store.createSession({ ...base, name: 'Removable', sessionId: removableId });
+const deleted = store.deleteSession(removableId);
+assert.equal(deleted.metadata.name, 'Removable');
+assert.equal(store.listSessions().some((record) => sessionIdsEqual(record.sessionId, removableId)), false);
+assert.throws(
+  () => store.getSession(removableId),
+  (error) => error instanceof SessionStoreError && error.code === 'SESSION_NOT_FOUND',
+  'deleted Sessions must no longer be addressable',
+);
+store = createSessionStore({ repository: makeRepository() });
+assert.equal(store.listSessions().some((record) => sessionIdsEqual(record.sessionId, removableId)), false,
+  'Session deletion must survive Store reconstruction');
 
 const v1Wire = serializeSessionRecord(createSessionRecord({ ...base, sessionId: createSessionId('migration') }));
 const v0Wire = { ...v1Wire, version: 0, legacyName: v1Wire.metadata.name };
@@ -127,10 +144,24 @@ for (const fixture of negativeCases) {
       mismatchRepository.insert(keyA, serializeSessionRecord(valueB));
       createSessionStore({ repository: mismatchRepository }).getSession(keyA);
     };
+  } else if (fixture.operation === 'deleteUnknown') {
+    operation = () => store.deleteSession(createSessionId('unknown-delete'));
+  } else if (fixture.operation === 'staleRepositoryRemove') {
+    operation = () => {
+      const staleRepository = createSessionRepository({
+        storage: createStorageAdapter(createMemoryWebStorage()),
+        namespace: 'stale-remove.sessions',
+      });
+      const sessionId = createSessionId('stale-remove');
+      staleRepository.insert(sessionId, { name: 'Stale remove' });
+      staleRepository.compareAndSwap(sessionId, 1, { name: 'Changed' });
+      staleRepository.remove(sessionId, 1);
+    };
   } else {
     operation = () => store.getSession(createSessionId('unknown'));
   }
-  assert.throws(operation, (error) => error instanceof SessionStoreError && error.code === fixture.expectedCode,
+  assert.throws(operation, (error) => (error instanceof SessionStoreError
+    || error instanceof SessionPersistenceError) && error.code === fixture.expectedCode,
     `${fixture.name} must fail with ${fixture.expectedCode}`);
 }
 

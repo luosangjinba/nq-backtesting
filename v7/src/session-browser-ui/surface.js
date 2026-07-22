@@ -24,11 +24,48 @@ function statePanel(state, message, onRetry) {
   ]);
 }
 
-function sessionCard(card, onOpen) {
+function sessionCard(card, actions) {
   const instruments = element('div', { className: 'instrument-tags', 'aria-label': 'Instruments' });
   card.instruments.forEach((instrument) => instruments.append(
     element('span', { className: 'instrument-tag', text: instrument.label }),
   ));
+  const standardActions = element('div', { className: 'session-card-actions' }, [
+    element('button', {
+      className: 'open-session-button', type: 'button',
+      'aria-label': `Open ${card.name}`, onClick: () => actions.onOpen(card.id),
+    }, [element('span', { text: 'Open' }), icon('chevronRight')]),
+    element('button', {
+      className: 'delete-session-button', type: 'button',
+      'aria-label': `Delete ${card.name}`,
+    }, [icon('trash'), element('span', { text: 'Delete' })]),
+  ]);
+  const cancelDelete = element('button', {
+    className: 'session-delete-cancel', type: 'button', text: 'Cancel',
+  });
+  const confirmDelete = element('button', {
+    className: 'session-delete-confirm', type: 'button', text: 'Delete',
+    'aria-label': `Confirm delete ${card.name}`, onClick: () => actions.onDelete(card.id),
+  });
+  const confirmation = element('div', {
+    className: 'session-delete-confirmation', role: 'group',
+    'aria-label': `Confirm deletion of ${card.name}`,
+  }, [
+    element('span', { className: 'session-delete-question', text: 'Delete permanently?' }),
+    cancelDelete,
+    confirmDelete,
+  ]);
+  confirmation.hidden = true;
+  const deleteButton = standardActions.querySelector('.delete-session-button');
+  deleteButton.addEventListener('click', () => {
+    standardActions.hidden = true;
+    confirmation.hidden = false;
+    confirmDelete.focus();
+  });
+  cancelDelete.addEventListener('click', () => {
+    confirmation.hidden = true;
+    standardActions.hidden = false;
+    deleteButton.focus();
+  });
   return element('article', { className: 'session-card', dataset: { sessionId: card.id } }, [
     element('div', { className: 'session-card-marker' }, [icon('layers')]),
     element('div', { className: 'session-card-body' }, [
@@ -43,10 +80,7 @@ function sessionCard(card, onOpen) {
         element('span', {}, [icon('calendar'), element('span', { text: formatDateRange(card.startEpochMs, card.endEpochMs) })]),
       ]),
     ]),
-    element('button', {
-      className: 'open-session-button', type: 'button',
-      'aria-label': `Open ${card.name}`, onClick: () => onOpen(card.id),
-    }, [element('span', { text: 'Open' }), icon('chevronRight')]),
+    element('div', { className: 'session-card-action-slot' }, [standardActions, confirmation]),
   ]);
 }
 
@@ -92,10 +126,10 @@ function listScreen(model, actions) {
         ]),
         element('button', { className: 'icon-button', type: 'button', 'aria-label': 'Refresh sessions', onClick: actions.onRetry }, [icon('refresh')]),
       ]),
-      element('div', { className: 'session-list' }, model.cards.map((card) => sessionCard(card, actions.onOpen))),
+      element('div', { className: 'session-list' }, model.cards.map((card) => sessionCard(card, actions))),
     ]);
     if (model.state === 'stale') section.append(element('div', { className: 'refresh-gate', 'aria-label': 'Refreshing sessions' }, [
-      element('span', { className: 'spinner' }), element('span', { text: 'Saving session…' }),
+      element('span', { className: 'spinner' }), element('span', { text: 'Updating sessions…' }),
     ]));
     content.append(section);
   }

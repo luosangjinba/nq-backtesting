@@ -134,5 +134,33 @@ export function createSessionRepository({ storage, namespace = 'v7.session-store
       writeEntry(sessionId, revision, nextValue);
       return Object.freeze({ revision, value: clone(nextValue) });
     },
+    remove(sessionId, expectedRevision) {
+      requireSessionId(sessionId);
+      requireRevision(expectedRevision);
+      const current = readEntry(sessionId);
+      if (current === null) fail('SESSION_NOT_FOUND', 'Session does not exist.');
+      if (current.revision !== expectedRevision) {
+        fail('SESSION_REVISION_CONFLICT', 'Session changed before remove commit.');
+      }
+      const ids = readIndex();
+      const retained = ids.filter((id) => serializeSessionId(id).value !== serializeSessionId(sessionId).value);
+      if (retained.length === ids.length) {
+        fail('SESSION_INDEX_ID_MISSING', 'Session record is absent from the Session index.');
+      }
+      writeIndex(retained);
+      try {
+        storage.remove(recordKey(sessionId));
+      } catch (error) {
+        try {
+          writeIndex(ids);
+        } catch (rollbackCause) {
+          fail('SESSION_REMOVE_ROLLBACK_FAILED', 'Session removal could not restore its index.', {
+            cause: new AggregateError([error, rollbackCause]),
+          });
+        }
+        throw error;
+      }
+      return Object.freeze({ revision: current.revision, value: clone(current.value) });
+    },
   });
 }

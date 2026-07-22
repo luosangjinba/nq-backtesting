@@ -1,6 +1,7 @@
 # V7 Session Browser Surface
 
-Status: R2.2 visible-surface contract (2026-07-19)
+Status: R2.2 accepted surface plus R2.4 readability/delete follow-up
+(2026-07-21)
 
 ## Owner And Ports
 
@@ -18,6 +19,8 @@ key. Every activation still passes the branded SessionId to Session Store.
 ## Customer Surfaces
 
 - Session list with distinct name, instruments, creation time, and range;
+- one visible Delete action per Session with an inline, keyboard-focused
+  permanent-delete confirmation before any Store command is dispatched;
 - accessible Create Session dialog with a compact multi-select instrument
   dropdown and explicit date-times;
 - a fresh empty creation draft on every open; name, instruments, Start, End,
@@ -33,6 +36,8 @@ key. Every activation still passes the branded SessionId to Session Store.
   summary on the same route rather than returning to the list;
 - keyboard focus rings, native dialog Escape behavior, reduced motion, and
   responsive rail/card/form layouts.
+- a list-only deeper neutral background, brighter semantic text colors, and
+  larger primary/card/form typography without changing immersive chart tokens.
 
 Start and End depend on the replaceable `adapter.calendar-surface` public
 interface. Calendar Surface owns day/month/decade views, local time stepping,
@@ -54,12 +59,26 @@ Chrome at `1440x900`, device scale factor 1, and reduced motion captures:
 - Create Session dialog;
 - open professional date-time picker;
 - ready list with distinct Alpha/Beta Sessions;
+- inline permanent-delete confirmation for Beta;
 - selected Beta after hard refresh.
 
 The browser harness compares screenshots byte-for-byte and executes direct-open
 create A, fresh-default draft verification before direct-open create B, A→B,
-hard refresh on B, and reopen A. A visual change requires an explicit fixture
-update plus human review.
+hard refresh on B, reopen A, cancel delete B, confirm delete B, and verify both
+its indexed identity and record key are gone while A remains. A visual change
+requires an explicit fixture update plus human review.
+
+## R2.4 Readability And Delete Follow-Up
+
+Session Browser remains the DOM owner and dispatches deletion only through the
+public Session Store. Session Store validates the explicit branded Session id
+and current revision before Repository removes the indexed identity and record
+key. The UI cannot delete storage keys, chart data, or another Session's state.
+
+Deletion is permanent and therefore requires a second explicit confirmation;
+Cancel restores the normal card actions without writing. Delete failure retains
+the current list snapshot and uses the existing inline error state. Deleting the
+last Session naturally returns the existing empty state.
 
 ## R2.2 Boundary
 

@@ -42,6 +42,7 @@ class SessionBrowserController {
     this.actions = Object.freeze({
       onCreate: () => this.dialog.open(),
       onOpen: (token) => this.navigation.go(`#\/session\/${encodeURIComponent(token)}`),
+      onDelete: (token) => this.deleteSession(token),
       onBack: () => this.navigation.go('#/sessions'),
       onRetry: () => this.applyRoute(),
     });
@@ -82,6 +83,20 @@ class SessionBrowserController {
         });
         const token = serializeSessionId(record.sessionId).value;
         this.navigation.go(`#\/session\/${encodeURIComponent(token)}`);
+      } catch (error) {
+        this.renderList('error', error.message);
+      }
+    });
+  }
+
+  deleteSession(token) {
+    this.renderList('stale');
+    this.schedule(() => {
+      if (this.stopped) return;
+      try {
+        this.store.deleteSession(createSessionId(token));
+        this.records = this.store.listSessions();
+        this.renderList('ready');
       } catch (error) {
         this.renderList('error', error.message);
       }

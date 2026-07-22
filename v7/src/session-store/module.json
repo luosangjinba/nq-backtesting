@@ -1,6 +1,6 @@
 {
   "id": "core.session-store",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "core",
   "owner": "session-store",
   "publicEntry": "src/session-store/public.js",

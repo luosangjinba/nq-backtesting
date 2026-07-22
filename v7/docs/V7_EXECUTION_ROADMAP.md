@@ -160,14 +160,16 @@ incompatible, or undeclared capabilities fail without starting a host.
 
 ## R2 — Session Store Vertical Slice
 
-R2 is split into three independently committed and manually reviewed boundaries:
+R2 is split into four independently committed and manually reviewed boundaries:
 
 - `R2.1`: headless versioned Session records, explicit-key persistence,
   revision CAS, activation allocation, migration, and runtime reconstruction;
 - `R2.2`: professional Session browser UI for create/open/leave/reopen and the
   first visible A/B navigation and hard-reload evidence;
 - `R2.3`: extract the accepted date-time UI into a shared, business-data-agnostic
-  Calendar Surface without adding market coverage or chart behavior.
+  Calendar Surface without adding market coverage or chart behavior;
+- `R2.4`: deepen and clarify the Session Browser presentation and add
+  confirmed, explicit-key Session deletion through the existing Store owner.
 
 ### R2.1 — Session Store And Persistence Boundary
 
@@ -202,6 +204,19 @@ Manual gate: visibly distinct A/B metadata survives navigation and hard reload.
 
 Manual gate: the accepted Session creation interaction and visual presentation
 remain unchanged after extraction.
+
+### R2.4 — Session Browser Readability And Delete
+
+- scope darker/brighter/larger presentation tokens to the Session list so the
+  immersive Replay workspace remains unchanged;
+- show one Delete action per card and require an explicit inline confirmation;
+- keep Browser UI command-only and make Session Store/Repository own
+  revision-checked durable removal;
+- prove Cancel is non-mutating, confirmed removal deletes index plus record,
+  other Sessions remain isolated, and reconstruction preserves the result.
+
+Manual gate: Session cards are clearly more readable, Delete is discoverable,
+and the confirmation interaction prevents accidental permanent removal.
 
 ## R3 — Bar Data And Replay Core
 

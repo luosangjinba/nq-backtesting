@@ -182,6 +182,23 @@ Human-accepted on 2026-07-20:
   TradingCalendar domain behavior, bars, Replay, panes, or provider access;
 - stop for interaction and visual review after the focused commit.
 
+## R2.4 Session Browser Readability And Delete — Awaiting Human Review
+
+- [x] deepen only the Session-list theme without changing immersive chart
+  colors;
+- [x] brighten semantic primary/secondary/muted text and enlarge list/card/form
+  typography;
+- [x] add one visible Delete action to every Session card;
+- [x] require an inline, keyboard-focused confirmation with Cancel before
+  permanent deletion;
+- [x] route deletion through Session Store and a revision-checked Repository
+  remove operation;
+- [x] remove both the Session index identity and record key while preserving
+  every other Session across reconstruction;
+- [x] bind Store, persistence, real-browser cancel/confirm, keyboard focus, and
+  fixed visual regression evidence;
+- [ ] obtain explicit human interaction and visual acceptance.
+
 ## R3.1 Raw Bar Data Value Contract — Accepted
 
 Human-accepted on 2026-07-20:

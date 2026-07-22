@@ -47,5 +47,22 @@ const reconstructed = createSessionRepository({
 });
 assert.equal(reconstructed.read(sessionA).value.name, 'Alpha 2');
 assert.equal(reconstructed.read(sessionB).value.name, 'Beta');
+assert.throws(
+  () => reconstructed.remove(sessionB, 2),
+  (error) => error instanceof SessionPersistenceError && error.code === 'SESSION_REVISION_CONFLICT',
+  'remove must reject a stale expected revision',
+);
+const removedB = reconstructed.remove(sessionB, 1);
+assert.equal(removedB.value.name, 'Beta');
+assert.equal(reconstructed.read(sessionB), null);
+assert.equal(reconstructed.listSessionIds().some((id) => sessionIdsEqual(id, sessionB)), false);
+assert.equal(reconstructed.read(sessionA).value.name, 'Alpha 2', 'removing B must not touch A');
+assert.equal(webStorage.keys().includes('test.sessions:record:B'), false,
+  'remove must delete the explicit Session record key');
+const afterRemove = createSessionRepository({
+  storage: createStorageAdapter(webStorage),
+  namespace: 'test.sessions',
+});
+assert.deepEqual(afterRemove.listSessionIds().map((id) => id.token()), ['A']);
 
-console.log('v7 Session persistence harness passed (A/B, CAS, reconstruction, no active key)');
+console.log('v7 Session persistence harness passed (A/B, CAS, remove, reconstruction, no active key)');

@@ -9,6 +9,7 @@ const ICON_PATHS = Object.freeze({
   plus: '<path d="M12 5v14M5 12h14"/>',
   refresh: '<path d="M20 11a8 8 0 1 0 2 5"/><path d="M20 4v7h-7"/>',
   sessions: '<rect width="16" height="14" x="4" y="5" rx="2"/><path d="M8 3h8M8 9h8M8 13h5"/>',
+  trash: '<path d="M4 7h16M9 11v6M15 11v6M6 7l1 14h10l1-14M9 7V4h6v3"/>',
   warning: '<path d="M12 3 2.8 19h18.4L12 3Z"/><path d="M12 9v4M12 17h.01"/>',
   x: '<path d="m6 6 12 12M18 6 6 18"/>',
 });

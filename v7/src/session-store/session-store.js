@@ -17,7 +17,7 @@ function fail(code, message) {
 }
 
 function requireRepository(repository) {
-  for (const method of ['insert', 'read', 'listSessionIds', 'compareAndSwap']) {
+  for (const method of ['insert', 'read', 'listSessionIds', 'compareAndSwap', 'remove']) {
     if (typeof repository?.[method] !== 'function') {
       fail('INVALID_SESSION_REPOSITORY', `Session repository must implement ${method}().`);
     }
@@ -27,8 +27,8 @@ function requireRepository(repository) {
 
 /**
  * Owner: session-store.
- * Purpose: own durable Session create/read/list/activation behavior over an
- * injected repository; no module-global active Session is created.
+ * Purpose: own durable Session create/read/list/delete/activation behavior over
+ * an injected repository; no module-global active Session is created.
  * Inputs: explicit repository port and optional version migration map.
  * Outputs: frozen Session Store API.
  * Side effects: writes only through the repository supplied to this instance.
@@ -66,6 +66,11 @@ export function createSessionStore({ repository, migrations = {} }) {
     },
     listSessions() {
       return Object.freeze(port.listSessionIds().map(requireExisting));
+    },
+    deleteSession(sessionId) {
+      const current = requireExisting(sessionId);
+      port.remove(sessionId, current.revision);
+      return current;
     },
     activateSession(sessionId, { nowEpochMs }) {
       const current = requireExisting(sessionId);
