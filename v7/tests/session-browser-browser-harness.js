@@ -221,7 +221,7 @@ try {
   await waitFor(cdp, `document.querySelector('#app').dataset.screen === 'opened' && document.querySelector('h1')?.textContent === 'Session Beta'`);
 
   await cdp.send('Page.reload', { ignoreCache: true });
-  await waitFor(cdp, `document.querySelector('#app').dataset.viewState === 'ready' && document.querySelector('h1')?.textContent === 'Session Beta'`);
+  await waitFor(cdp, `document.querySelector('#app')?.dataset.viewState === 'ready' && document.querySelector('h1')?.textContent === 'Session Beta'`);
   assert.equal(await evaluate(cdp, `document.body.textContent.includes('Session Alpha')`), false,
     'hard refresh while B is open must not display A metadata');
   await capture(cdp, 'opened-beta-after-refresh');
