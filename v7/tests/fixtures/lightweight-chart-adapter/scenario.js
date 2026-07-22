@@ -110,6 +110,28 @@ globalThis.__probeVisibleRollback = async () => {
   };
 };
 
+globalThis.__probeEmptyTransition = async () => {
+  const staged = await adapter.stageEmpty({ identity, signal: new AbortController().signal });
+  await adapter.applyEmpty({
+    identity, isCurrent: () => true, signal: new AbortController().signal, staged, workspaceSnapshot: null,
+  });
+  const empty = adapter.snapshot();
+  const emptyObservation = adapter.crosshairObservation();
+  const emptyDataset = {
+    barCount: host.dataset.barCount,
+    instrumentId: host.dataset.instrumentId ?? null,
+    latestDisplayEpochMs: host.dataset.latestDisplayEpochMs ?? null,
+  };
+  await adapter.discard(staged);
+  return {
+    empty,
+    emptyDataset,
+    emptyObservation,
+    restored: adapter.snapshot(),
+    restoredObservation: adapter.crosshairObservation(),
+  };
+};
+
 try {
   await application.present({
     identity,

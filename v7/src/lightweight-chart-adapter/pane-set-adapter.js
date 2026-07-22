@@ -108,22 +108,23 @@ export function createLightweightPaneSetAdapter({
 
   async function discardEntries(entries) {
     const results = await Promise.allSettled(entries
-      .filter((entry) => entry.status === 'ready')
+      .filter((entry) => entry.adapter && entry.staged)
       .map((entry) => entry.adapter.discard(entry.staged)));
     const failures = results.filter(({ status }) => status === 'rejected').map(({ reason }) => reason);
     if (failures.length > 0) throw new AggregateError(failures, 'Pane rollback failed.');
   }
 
-  async function applyReadyEntries(context) {
+  async function applyEntries(context) {
     const results = await Promise.allSettled(context.staged.entries.map(async (entry) => {
-      if (entry.status !== 'ready') return;
-      await entry.adapter.applyVisible(Object.freeze({
+      const childContext = Object.freeze({
         identity: context.identity,
         isCurrent: context.isCurrent,
         signal: context.signal,
         staged: entry.staged,
         workspaceSnapshot: entry.snapshot,
-      }));
+      });
+      if (entry.status === 'empty') await entry.adapter.applyEmpty(childContext);
+      else await entry.adapter.applyVisible(childContext);
     }));
     const failure = results.find(({ status }) => status === 'rejected');
     if (!failure) return;
@@ -134,7 +135,7 @@ export function createLightweightPaneSetAdapter({
   return Object.freeze({
     async applyVisible(context) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
-      await applyReadyEntries(context);
+      await applyEntries(context);
       if (!context.isCurrent()) {
         failLightweightAdapter('CHART_ADAPTER_STALE', 'Pane-set chart application is stale.');
       }
@@ -200,13 +201,14 @@ export function createLightweightPaneSetAdapter({
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
       const entries = await Promise.all(workspaceSnapshot.panes.map(async (result) => {
         if (result.status === 'empty') {
-          preparePane(result.paneId);
+          const adapter = ensureAdapter(result.paneId);
+          const staged = await adapter.stageEmpty({ identity, signal });
           return Object.freeze({
-            adapter: null,
+            adapter,
             paneId: result.paneId,
             reason: result.reason,
             snapshot: null,
-            staged: null,
+            staged,
             status: 'empty',
           });
         }

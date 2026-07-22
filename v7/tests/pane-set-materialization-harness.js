@@ -379,6 +379,7 @@ function rollbackProbeAdapter() {
       const state = { discards: 0, value: 'accepted' };
       children.set(host.paneId, state);
       return Object.freeze({
+        async applyEmpty() { state.value = 'empty'; },
         async applyVisible() {
           state.value = 'candidate';
           if (host.paneId === failingPaneId) throw new Error('child failed after visible mutation');
@@ -391,6 +392,7 @@ function rollbackProbeAdapter() {
         setTruncationSelection() {},
         snapshot: () => Object.freeze({ value: state.value }),
         async stage(context) { return Object.freeze({ workspaceSnapshot: context.workspaceSnapshot }); },
+        async stageEmpty() { return Object.freeze({ empty: true }); },
       });
     },
     requestFrame: (callback) => callback(),
@@ -441,6 +443,39 @@ assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value),
 await rollbackProbe.adapter.discard(successfulStage);
 assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['accepted', 'accepted'],
   'outer receipt rejection must roll back every successfully applied child');
+
+const emptyComparisonSnapshot = Object.freeze({
+  ...validSnapshot,
+  panes: Object.freeze(validSnapshot.panes.map((entry) => entry.paneId === 'pane-es'
+    ? Object.freeze({ paneId: entry.paneId, reason: 'no-eligible-source', snapshot: null, status: 'empty' })
+    : entry)),
+});
+const emptyStage = await rollbackProbe.adapter.stage({
+  identity: directIdentity, signal: directSignal, workspaceSnapshot: emptyComparisonSnapshot,
+});
+await rollbackProbe.adapter.applyVisible({
+  identity: directIdentity,
+  isCurrent: () => true,
+  signal: directSignal,
+  staged: emptyStage,
+  workspaceSnapshot: emptyComparisonSnapshot,
+});
+assert.equal(rollbackProbe.children.get('pane-es').value, 'empty',
+  'ready→empty must clear the existing child adapter instead of retaining its previous value');
+assert.equal(rollbackProbe.adapter.snapshot().panes.find(({ paneId }) => paneId === 'pane-es').snapshot.value, 'empty');
+const restoredReadyStage = await rollbackProbe.adapter.stage({
+  identity: directIdentity, signal: directSignal, workspaceSnapshot: validSnapshot,
+});
+await rollbackProbe.adapter.applyVisible({
+  identity: directIdentity,
+  isCurrent: () => true,
+  signal: directSignal,
+  staged: restoredReadyStage,
+  workspaceSnapshot: validSnapshot,
+});
+assert.equal(rollbackProbe.children.get('pane-es').value, 'candidate',
+  'empty→ready must reuse the same child ownership boundary and accept fresh data');
+assert.equal(rollbackProbe.children.size, 2, 'empty transitions must not leak replacement child adapters');
 rollbackProbe.adapter.dispose();
 
 const mutableRequestEntries = plan.affectedPaneIds.map((paneId) => Object.freeze({

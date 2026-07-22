@@ -46,6 +46,10 @@ A comparison Pane with no eligible data therefore does not stall or fork the
 shared Replay clock. Every ready result must match its planned Pane id and the
 exact shared cursor proposal.
 
+In the real adapter, an empty result is also staged and visibly applied under
+the same transaction. It clears the existing child series and OHLC index, but
+keeps that Pane's adapter lifecycle owner available for a later ready result.
+
 Only after every Pane settles does the adapter create one schema-v2 immutable
 Pane-set snapshot containing the response plan, cursor proposal, and complete
 ordered result set.

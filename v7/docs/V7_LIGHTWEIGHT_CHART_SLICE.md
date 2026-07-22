@@ -61,6 +61,11 @@ focus, and empty states together. A newly added hidden host is sized and
 painted before the two-Pane layout becomes accepted. Each host is geometrically
 bounded by its own Pane so native drag/wheel input cannot leak into its sibling.
 
+Empty results cross that same writer boundary as a zero-data child mutation.
+They clear the series, accepted OHLC index, and chart data attributes while
+retaining the Pane-owned adapter for later data. They are not implemented by
+covering an unchanged stale chart with UI alone.
+
 Official references checked for this decision:
 
 - <https://tradingview.github.io/lightweight-charts/tutorials/how_to/panes>

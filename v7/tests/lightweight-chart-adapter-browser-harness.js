@@ -131,6 +131,16 @@ try {
   assert.deepEqual(rollback.afterDiscard.logicalRange, rollback.before.logicalRange);
   assert.equal(rollback.latestAfterDiscard.displayEpochMs, 2_170_000);
 
+  const emptyTransition = await evaluate(cdp, `globalThis.__probeEmptyTransition()`);
+  assert.equal(emptyTransition.empty.barCount, 0);
+  assert.equal(emptyTransition.emptyObservation.state, 'empty');
+  assert.deepEqual(emptyTransition.emptyDataset, {
+    barCount: '0', instrumentId: null, latestDisplayEpochMs: null,
+  });
+  assert.equal(emptyTransition.restored.barCount, 20);
+  assert.equal(emptyTransition.restoredObservation.displayEpochMs, 2_170_000,
+    'discarding an empty transition must restore the prior OHLC index');
+
   const latestCrosshair = await evaluate(cdp, `globalThis.__adapter.crosshairObservation()`);
   assert.deepEqual(latestCrosshair, {
     bar: { close: 117, high: 122, low: 116, open: 119 },

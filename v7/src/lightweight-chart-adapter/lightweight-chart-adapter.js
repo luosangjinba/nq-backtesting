@@ -193,7 +193,7 @@ export function createLightweightChartAdapter({
     restoreAdapterScaleState({ chart, priceScale, state: record.previous });
   }
 
-  async function mutateAndPaint(data) {
+  async function mutateAndPaint(data, expectCandles = true) {
     const startedAt = performance.now();
     const mutation = planSeriesMutation(appliedData, data);
     const dataRevisionBefore = seriesDataRevision;
@@ -202,7 +202,10 @@ export function createLightweightChartAdapter({
     const mutationEndedAt = performance.now();
     barCount = data.length;
     applyViewport();
-    if (mutation.kind === 'tail-update') {
+    if (!expectCandles) {
+      await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
+      host.dataset.lastPaintProof = 'series-empty-two-frame';
+    } else if (mutation.kind === 'tail-update') {
       await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
       host.dataset.lastPaintProof = 'series-change-two-frame';
     } else {
@@ -210,6 +213,29 @@ export function createLightweightChartAdapter({
       host.dataset.lastPaintProof = 'screenshot-candle-pixels';
     }
     return Object.freeze({ mutation, mutationEndedAt, paintedAt: performance.now(), startedAt });
+  }
+
+  function commitEmpty(timing) {
+    const { mutation, mutationEndedAt, paintedAt, startedAt } = timing;
+    adapterRevision += 1;
+    appliedBars = Object.freeze([]);
+    appliedData = Object.freeze([]);
+    barCount = 0;
+    maximumAppliedDisplayGapMs = 0;
+    truncationInteraction.setBars(appliedBars);
+    crosshairPresentation.setBars(appliedBars);
+    host.dataset.barCount = '0';
+    host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
+    host.dataset.lastMutationMode = mutation.kind;
+    host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
+    host.dataset.lastPaintMs = (paintedAt - mutationEndedAt).toFixed(3);
+    host.dataset.maximumDisplayGapMs = '0';
+    host.dataset.painted = 'true';
+    host.dataset.visibleRevision = String(adapterRevision);
+    for (const field of [
+      'displayTimeframeId', 'instrumentId', 'latestDisplayEpochMs',
+      'sessionHoursMode', 'visibleThroughEpochMs',
+    ]) delete host.dataset[field];
   }
 
   function commitVisible(context, timing) {
@@ -244,29 +270,42 @@ export function createLightweightChartAdapter({
     });
   }
 
-  return Object.freeze({
-    async applyVisible(context) {
-      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+  function registerStage(value) {
+    const staged = Object.freeze(value);
+    stagedApplications.set(staged, { mutated: false, previous: null, rolledBack: false, token: null });
+    return staged;
+  }
+
+  async function applyStaged(context, { commit, expectCandles, kind }) {
+    if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+    if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
+    const record = stagedApplications.get(context.staged);
+    if (!record || record.mutated || context.staged.kind !== kind) {
+      failLightweightAdapter('CHART_ADAPTER_STAGE_INVALID', 'Chart stage is missing, mismatched, or already applied.');
+    }
+    record.previous = captureVisibleState();
+    record.token = ++visibleMutationToken;
+    record.mutated = true;
+    try {
+      const timing = await mutateAndPaint(context.staged.data, expectCandles);
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
-      const record = stagedApplications.get(context.staged);
-      if (!record || record.mutated) {
-        failLightweightAdapter('CHART_ADAPTER_STAGE_INVALID', 'Chart stage is missing or was already applied.');
-      }
-      record.previous = captureVisibleState();
-      record.token = ++visibleMutationToken;
-      record.mutated = true;
-      try {
-        const timing = await mutateAndPaint(context.staged.data);
-        if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
-        const receipt = commitVisible(context, timing);
-        delete host.dataset.lastApplyError;
-        return receipt;
-      } catch (error) {
-        try { await rollback(context.staged); } catch { /* The original apply failure remains authoritative. */ }
-        host.dataset.lastApplyError = `${error?.code ?? error?.name ?? 'error'}:${error?.message ?? error}`;
-        throw error;
-      }
-    },
+      const result = commit(context, timing);
+      delete host.dataset.lastApplyError;
+      return result;
+    } catch (error) {
+      try { await rollback(context.staged); } catch { /* The original apply failure remains authoritative. */ }
+      host.dataset.lastApplyError = `${error?.code ?? error?.name ?? 'error'}:${error?.message ?? error}`;
+      throw error;
+    }
+  }
+
+  return Object.freeze({
+    applyEmpty: (context) => applyStaged(context, {
+      commit: (_context, timing) => commitEmpty(timing), expectCandles: false, kind: 'empty',
+    }),
+    applyVisible: (context) => applyStaged(context, {
+      commit: commitVisible, expectCandles: true, kind: 'ready',
+    }),
     async discard(staged) { await rollback(staged); },
     dispose() {
       if (disposed) return;
@@ -325,9 +364,13 @@ export function createLightweightChartAdapter({
     },
     async stage({ identity, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      const staged = Object.freeze({ data: chartData(workspaceSnapshot), identity, signal, workspaceSnapshot });
-      stagedApplications.set(staged, { mutated: false, previous: null, rolledBack: false, token: null });
-      return staged;
+      return registerStage({
+        data: chartData(workspaceSnapshot), identity, kind: 'ready', signal, workspaceSnapshot,
+      });
+    },
+    async stageEmpty({ identity, signal }) {
+      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      return registerStage({ data: Object.freeze([]), identity, kind: 'empty', signal, workspaceSnapshot: null });
     },
   });
 }

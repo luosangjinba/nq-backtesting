@@ -52,6 +52,12 @@ The OHLC index is rebuilt only after an accepted chart snapshot is visibly
 applied. Native and projected crosshair changes read that accepted index and
 cannot write the series.
 
+The 2026-07-22 P1 hardening also makes `ready → empty` a real adapter
+transaction. It replaces the child series with an empty set, clears its OHLC
+index and chart data attributes, and retains the same Pane-owned adapter for a
+later `empty → ready` transition. The full-Pane empty overlay is presentation,
+not the mechanism that hides stale market state.
+
 ## Layout Geometry Correction
 
 The minimum Pane width increases from `180px` to `280px` so symbol, timeframe,
@@ -62,8 +68,8 @@ geometry, and accepted ratios remain Session-persisted.
 ## Gate
 
 - the real Lightweight Charts Harness covers selected/latest/empty lookup,
-  native candle hit, blank-area fallback, programmatic projection, and negative
-  missing-target/empty cases;
+  native candle hit, blank-area fallback, programmatic projection, reversible
+  ready/empty mutation, and negative missing-target/empty cases;
 - the Replay Layout browser Harness covers single-Pane OHLC, a non-active
   native source with sync off, same-TF synchronized selection, mixed-TF latest
   fallback, active-border contrast, no Replay/Workspace revisions, and both
