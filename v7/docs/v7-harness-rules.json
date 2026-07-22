@@ -986,7 +986,7 @@
       "owner": "session-store",
       "v6FailurePrevented": "Session UI deleted storage directly, accidental clicks caused permanent loss, stale records were removed, or deleting one Session damaged another",
       "activationStep": "R2.4",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/session-browser-browser-harness.js",
       "positiveEvidence": [
         "src/session-browser-ui/surface.js",
@@ -1001,7 +1001,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/session-store/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260721_r2_4_session_browser_readability_delete.md"
     }
   ]
 }

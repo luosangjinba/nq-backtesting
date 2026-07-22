@@ -1,7 +1,6 @@
 # V7 Session Browser Surface
 
-Status: R2.2 accepted surface plus R2.4 readability/delete follow-up
-(2026-07-21)
+Status: R2.2 and R2.4 human accepted (2026-07-21)
 
 ## Owner And Ports
 
@@ -79,6 +78,10 @@ Deletion is permanent and therefore requires a second explicit confirmation;
 Cancel restores the normal card actions without writing. Delete failure retains
 the current list snapshot and uses the existing inline error state. Deleting the
 last Session naturally returns the existing empty state.
+
+The user accepted the deeper list presentation, brighter/larger typography,
+per-card Delete discovery, safe Cancel path, and confirmed deletion on
+2026-07-21.
 
 ## R2.2 Boundary
 

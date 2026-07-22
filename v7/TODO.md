@@ -182,7 +182,9 @@ Human-accepted on 2026-07-20:
   TradingCalendar domain behavior, bars, Replay, panes, or provider access;
 - stop for interaction and visual review after the focused commit.
 
-## R2.4 Session Browser Readability And Delete — Awaiting Human Review
+## R2.4 Session Browser Readability And Delete — Accepted
+
+Human-accepted on 2026-07-21:
 
 - [x] deepen only the Session-list theme without changing immersive chart
   colors;
@@ -197,7 +199,7 @@ Human-accepted on 2026-07-20:
   every other Session across reconstruction;
 - [x] bind Store, persistence, real-browser cancel/confirm, keyboard focus, and
   fixed visual regression evidence;
-- [ ] obtain explicit human interaction and visual acceptance.
+- [x] obtain explicit human interaction and visual acceptance.
 
 ## R3.1 Raw Bar Data Value Contract — Accepted
 

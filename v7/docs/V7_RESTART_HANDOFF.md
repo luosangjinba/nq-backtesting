@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R2.4 Session Browser readability/delete follow-up;
-R2.4 and R6.9c await human review
+Last updated: 2026-07-21 after R2.4 Session Browser readability/delete
+acceptance; R6.9c awaits focused human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -21,7 +21,7 @@ required for normal startup.
   combined R6.9/R6.9a–b Pane layouts, overlays, and interactions human
   accepted; R6.9c lower-right control dock implemented and awaiting focused
   visual review; R2.4 Session Browser readability and confirmed durable delete
-  implemented and awaiting interaction/visual review
+  human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -398,13 +398,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Obtain human review for R2.4: confirm the Session list is darker, text is
-brighter/larger, every card exposes Delete, Cancel is safe, and confirmed
-deletion removes only the chosen Session. Also retain the outstanding R6.9c
-visual confirmation that each Pane's vertical lower-right controls avoid both
-chart scales. After both gates pass, execute the remaining R6.10
-Symbol/Interval/Time/Date-range sync families as separate bounded work.
-Economic Calendar remains outside this foundation phase.
+Complete the requested stage code review without changing production behavior,
+then obtain the outstanding R6.9c visual confirmation that each Pane's vertical
+lower-right controls avoid both chart scales. After that gate passes, execute
+the remaining R6.10 Symbol/Interval/Time/Date-range sync families as separate
+bounded work. Economic Calendar remains outside this foundation phase.
 
 ## Standing Workflow
 

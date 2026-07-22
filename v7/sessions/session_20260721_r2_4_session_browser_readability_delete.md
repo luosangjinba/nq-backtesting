@@ -1,7 +1,7 @@
 # Session — R2.4 Session Browser Readability And Delete
 
 Date: 2026-07-21
-Status: implemented; awaiting human interaction and visual review
+Status: human accepted
 
 ## Trigger
 
@@ -43,5 +43,6 @@ text, and one Delete button for every saved Session.
 ## Review Boundary
 
 R2.4 changes visible presentation and adds a destructive interaction, so it
-stops for explicit human interaction and visual acceptance. It adds no bars,
+stopped for explicit human interaction and visual acceptance. The user accepted
+the complete interaction and presentation on 2026-07-21. It adds no bars,
 Replay, chart, Pane, calendar-business-data, order, news, or Journal behavior.
