@@ -14,7 +14,7 @@ const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const negativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/v4-bars-provider-adapter/negative/cases.json',
 ), 'utf8'));
-assert.deepEqual(negativeCases, ['http-source-unavailable']);
+assert.deepEqual(negativeCases, ['http-source-unavailable', 'unsupported-instrument']);
 const productionMarketSource = fs.readFileSync(path.join(
   TEST_DIR, '../src/replay-workspace-ui/foundation-market.js',
 ), 'utf8');
@@ -106,5 +106,19 @@ await assert.rejects(
   () => failing.requestRawBars(request),
   (error) => error.kind === 'unavailable' && error.message === 'database unavailable',
 );
+
+let unsupportedFetches = 0;
+const unsupported = createV4BarsAdapter({
+  fetchImpl: async () => {
+    unsupportedFetches += 1;
+    return { ok: true, async json() { return { bars: [] }; } };
+  },
+});
+await assert.rejects(
+  () => unsupported.requestRawBars({ ...request, instrumentId: 'instrument.cme.mes' }),
+  (error) => error.kind === 'unsupported'
+    && error.message === 'V4 bars adapter does not support this instrument identity.',
+);
+assert.equal(unsupportedFetches, 0, 'unsupported instruments must fail before any market-data request');
 
 console.log('v7 V4 bars provider adapter harness passed');

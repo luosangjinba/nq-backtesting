@@ -7,6 +7,10 @@ const MINUTE = 60_000;
 const API_CHUNK_DURATION_MS = 7 * 24 * 60 * MINUTE;
 export const V4_BARS_DATASET_REVISION = 'v4-local-futures-1m-r1';
 export const V4_BARS_PROVIDER_ID = 'provider.local-v4-bars';
+const V4_INSTRUMENT_CODES = Object.freeze({
+  'instrument.cme.es': 'ES',
+  'instrument.cme.nq': 'NQ',
+});
 
 export function resolveV4BarsApiBase(locationLike = globalThis.location) {
   const hostname = locationLike?.hostname || '127.0.0.1';
@@ -21,7 +25,7 @@ function requestUrl(request, apiBase) {
   );
   const parameters = new URLSearchParams({
     end: formatExchangeWallMinute(inclusiveEndEpochMs),
-    instrument: request.instrumentId.endsWith('.es') ? 'ES' : 'NQ',
+    instrument: V4_INSTRUMENT_CODES[request.instrumentId],
     start: formatExchangeWallMinute(request.windowStartEpochMs),
     tf: '1',
   });
@@ -87,6 +91,9 @@ export function createV4BarsAdapter({
       const request = createRawBarRequest(requestValue);
       if (request.providerId !== V4_BARS_PROVIDER_ID) {
         throw failure('unsupported', 'V4 bars adapter does not support this provider identity.');
+      }
+      if (!Object.hasOwn(V4_INSTRUMENT_CODES, request.instrumentId)) {
+        throw failure('unsupported', 'V4 bars adapter does not support this instrument identity.');
       }
       const bars = [];
       const chunks = chunkRequests(request);
