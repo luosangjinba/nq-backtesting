@@ -1,0 +1,17 @@
+[
+  {
+    "name": "sub-second-duration",
+    "input": { "durationMs": 60001, "latestDisplayEpochMs": 1000000 },
+    "expectedCode": "CHART_FUTURE_TIME_AXIS_DURATION_INVALID"
+  },
+  {
+    "name": "fractional-second-origin",
+    "input": { "durationMs": 60000, "latestDisplayEpochMs": 1000001 },
+    "expectedCode": "CHART_FUTURE_TIME_AXIS_ORIGIN_INVALID"
+  },
+  {
+    "name": "unbounded-point-count",
+    "input": { "durationMs": 60000, "latestDisplayEpochMs": 1000000, "pointCount": 2049 },
+    "expectedCode": "CHART_FUTURE_TIME_AXIS_COUNT_INVALID"
+  }
+]

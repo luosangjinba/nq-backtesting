@@ -40,7 +40,7 @@ const bars = Object.freeze(Array.from({ length: 20 }, (_, index) => {
 const snapshot = Object.freeze({
   bars,
   paneId: 'adapter-pane',
-  provenance: Object.freeze({ cursorProposal: proposal }),
+  provenance: Object.freeze({ cursorProposal: proposal, displayTimeframeDurationMs: 60_000 }),
   schemaVersion: 1,
 });
 const viewport = createViewportController({

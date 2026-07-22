@@ -1,6 +1,6 @@
 # V7 Quick GoTo Settings And Range Feedback — R6.9e
 
-Status: implemented; awaiting human interaction and visual review (2026-07-22)
+Status: human accepted (2026-07-22)
 
 ## Delivered Surface
 
@@ -92,3 +92,6 @@ Replay cursor or become required by navigation.
   `1440×900` output;
 - this browser-visible slice stops for explicit human interaction and visual
   review before Exact GoTo begins.
+
+Human interaction and visual review passed on 2026-07-22 after the global-scope
+and explicit quarter-hour-selector corrections.

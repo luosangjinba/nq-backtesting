@@ -1,6 +1,7 @@
 import {
   CandlestickSeries,
   createChart,
+  LineSeries,
   version as lightweightChartsVersion,
 } from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
@@ -8,6 +9,7 @@ import { readViewportIntent } from '../viewport-runtime/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
+import { createFutureTimeAxisData } from './future-time-axis.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
@@ -62,6 +64,12 @@ export function createLightweightChartAdapter({
   const viewport = requirePort(viewportPort);
   const chart = createChart(host, CHART_OPTIONS);
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
+  const futureTimeAxisSeries = chart.addSeries(LineSeries, Object.freeze({
+    crosshairMarkerVisible: false,
+    lastValueVisible: false,
+    lineVisible: false,
+    priceLineVisible: false,
+  }));
   const priceScale = chart.priceScale('right');
   const crosshairPresentation = createCrosshairPresentationIndex();
   const truncationInteraction = createReplayTruncationInteraction({
@@ -71,6 +79,7 @@ export function createLightweightChartAdapter({
   let adapterRevision = 0;
   let appliedBars = Object.freeze([]);
   let appliedData = Object.freeze([]);
+  let appliedFutureTimeAxisData = Object.freeze([]);
   let barCount = 0;
   let disposed = false;
   let captureToken = 0;
@@ -166,6 +175,7 @@ export function createLightweightChartAdapter({
       adapterRevision,
       appliedBars,
       appliedData,
+      appliedFutureTimeAxisData,
       barCount,
       chart,
       host,
@@ -180,10 +190,18 @@ export function createLightweightChartAdapter({
     record.rolledBack = true;
     if (disposed || record.token !== visibleMutationToken) return;
     const dataRevisionBefore = seriesDataRevision;
-    const restored = restoreAdapterVisibleState({ chart, host, priceScale, series, state: record.previous });
+    const restored = restoreAdapterVisibleState({
+      chart,
+      futureTimeAxisSeries,
+      host,
+      priceScale,
+      series,
+      state: record.previous,
+    });
     adapterRevision = restored.adapterRevision;
     appliedBars = restored.appliedBars;
     appliedData = restored.appliedData;
+    appliedFutureTimeAxisData = restored.appliedFutureTimeAxisData;
     barCount = restored.barCount;
     maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
     truncationInteraction.setBars(appliedBars);
@@ -193,10 +211,11 @@ export function createLightweightChartAdapter({
     restoreAdapterScaleState({ chart, priceScale, state: record.previous });
   }
 
-  async function mutateAndPaint(data, expectCandles = true) {
+  async function mutateAndPaint(data, futureTimeAxisData, expectCandles = true) {
     const startedAt = performance.now();
     const mutation = planSeriesMutation(appliedData, data);
     const dataRevisionBefore = seriesDataRevision;
+    futureTimeAxisSeries.setData(futureTimeAxisData);
     if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
     else series.setData(data);
     const mutationEndedAt = performance.now();
@@ -220,11 +239,13 @@ export function createLightweightChartAdapter({
     adapterRevision += 1;
     appliedBars = Object.freeze([]);
     appliedData = Object.freeze([]);
+    appliedFutureTimeAxisData = Object.freeze([]);
     barCount = 0;
     maximumAppliedDisplayGapMs = 0;
     truncationInteraction.setBars(appliedBars);
     crosshairPresentation.setBars(appliedBars);
     host.dataset.barCount = '0';
+    host.dataset.futureTimeAxisPointCount = '0';
     host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
     host.dataset.lastMutationMode = mutation.kind;
     host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
@@ -234,7 +255,7 @@ export function createLightweightChartAdapter({
     host.dataset.visibleRevision = String(adapterRevision);
     for (const field of [
       'displayTimeframeId', 'instrumentId', 'latestDisplayEpochMs',
-      'sessionHoursMode', 'visibleThroughEpochMs',
+      'latestFutureTimeAxisEpochMs', 'sessionHoursMode', 'visibleThroughEpochMs',
     ]) delete host.dataset[field];
   }
 
@@ -248,9 +269,11 @@ export function createLightweightChartAdapter({
         : 0);
     appliedBars = context.workspaceSnapshot.bars;
     appliedData = context.staged.data;
+    appliedFutureTimeAxisData = context.staged.futureTimeAxisData;
     truncationInteraction.setBars(appliedBars);
     crosshairPresentation.setBars(appliedBars);
     host.dataset.barCount = String(barCount);
+    host.dataset.futureTimeAxisPointCount = String(appliedFutureTimeAxisData.length);
     host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
     host.dataset.instrumentId = context.workspaceSnapshot.provenance.instrumentId;
     host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
@@ -259,6 +282,9 @@ export function createLightweightChartAdapter({
     host.dataset.lastPaintMs = (paintedAt - mutationEndedAt).toFixed(3);
     host.dataset.maximumDisplayGapMs = String(maximumAppliedDisplayGapMs);
     host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
+    const latestFutureTime = context.staged.futureTimeAxisData.at(-1)?.time ?? null;
+    if (latestFutureTime === null) delete host.dataset.latestFutureTimeAxisEpochMs;
+    else host.dataset.latestFutureTimeAxisEpochMs = String(latestFutureTime * 1_000);
     host.dataset.painted = 'true';
     host.dataset.sessionHoursMode = context.workspaceSnapshot.provenance.sessionHoursMode;
     host.dataset.visibleThroughEpochMs = String(context.workspaceSnapshot.provenance.visibleThroughEpochMs);
@@ -287,7 +313,11 @@ export function createLightweightChartAdapter({
     record.token = ++visibleMutationToken;
     record.mutated = true;
     try {
-      const timing = await mutateAndPaint(context.staged.data, expectCandles);
+      const timing = await mutateAndPaint(
+        context.staged.data,
+        context.staged.futureTimeAxisData,
+        expectCandles,
+      );
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
       const result = commit(context, timing);
       delete host.dataset.lastApplyError;
@@ -347,15 +377,23 @@ export function createLightweightChartAdapter({
     },
     setTruncationSelection(active) { truncationInteraction.setActive(active); },
     snapshot() {
+      const latestCandleTime = appliedData.at(-1)?.time ?? null;
+      const firstFutureTime = appliedFutureTimeAxisData[0]?.time ?? null;
       return Object.freeze({
         adapterRevision,
         barCount,
+        firstFutureTimeAxisCoordinate: firstFutureTime === null
+          ? null : chart.timeScale().timeToCoordinate(firstFutureTime),
+        futureTimeAxisPointCount: appliedFutureTimeAxisData.length,
         lastApplyMs: Number(host.dataset.lastApplyMs || 0),
         lastMutationMode: host.dataset.lastMutationMode ?? null,
         lastMutationMs: Number(host.dataset.lastMutationMs || 0),
         lastPaintMs: Number(host.dataset.lastPaintMs || 0),
         lastPaintProof: host.dataset.lastPaintProof ?? null,
         libraryVersion: lightweightChartsVersion(),
+        latestCandleCoordinate: latestCandleTime === null
+          ? null : chart.timeScale().timeToCoordinate(latestCandleTime),
+        latestFutureTimeAxisEpochMs: appliedFutureTimeAxisData.at(-1)?.time * 1_000 ?? null,
         logicalRange: chart.timeScale().getVisibleLogicalRange(),
         painted: host.dataset.painted === 'true',
         priceRange: priceScale.getVisibleRange(),
@@ -364,13 +402,29 @@ export function createLightweightChartAdapter({
     },
     async stage({ identity, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      const data = chartData(workspaceSnapshot);
       return registerStage({
-        data: chartData(workspaceSnapshot), identity, kind: 'ready', signal, workspaceSnapshot,
+        data,
+        futureTimeAxisData: createFutureTimeAxisData({
+          durationMs: workspaceSnapshot.provenance.displayTimeframeDurationMs,
+          latestDisplayEpochMs: data.at(-1).time * 1_000,
+        }),
+        identity,
+        kind: 'ready',
+        signal,
+        workspaceSnapshot,
       });
     },
     async stageEmpty({ identity, signal }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      return registerStage({ data: Object.freeze([]), identity, kind: 'empty', signal, workspaceSnapshot: null });
+      return registerStage({
+        data: Object.freeze([]),
+        futureTimeAxisData: Object.freeze([]),
+        identity,
+        kind: 'empty',
+        signal,
+        workspaceSnapshot: null,
+      });
     },
   });
 }

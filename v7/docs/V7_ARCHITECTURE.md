@@ -288,6 +288,13 @@ waits across rendering opportunities, and requires candle pixels from
 logical-range capture and chart disposal, but no Replay, bars, projection, or
 durable viewport state.
 
+R6.9e1 adds adapter-only future time-axis continuity through a separate bounded
+Lightweight Charts whitespace series. Projection provenance supplies the fixed
+timeframe duration; whitespace contains only timestamps and never becomes bar,
+Replay, OHLC, history, or Viewport truth. It is staged and rolled back with the
+same visible mutation as candles while logical walls remain measured from the
+latest real-candle index.
+
 ### Viewport Runtime
 
 Owns pane-local horizontal wall and vertical-scale intent. Data commits preserve

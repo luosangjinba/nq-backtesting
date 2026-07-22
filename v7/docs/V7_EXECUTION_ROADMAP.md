@@ -397,7 +397,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9e`: implement the eight-action Quick GoTo menu, one globally persisted
   seven-time New York settings value, Reset/Discard/Save behavior, immediate
   dynamic schedule use, and non-blocking range-end feedback without Replay or
-  Pane transaction side effects; awaiting human interaction/visual review;
+  Pane transaction side effects; accepted on 2026-07-22;
+- `R6.9e1`: keep fixed-duration future time labels visible through bounded
+  adapter-owned whitespace points with no future OHLC, Replay, source-bar, or
+  Viewport ownership; accepted on 2026-07-22;
 - `R6.9f`: freeze the global Workstation Settings catalog, transactional draft,
   persistence scope, consumer routing, and all-Pane presentation invariants
   without activating production behavior;

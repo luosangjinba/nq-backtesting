@@ -23,7 +23,7 @@
       "owner": "test-governance",
       "v6FailurePrevented": "tests passed without proving they detect regressions",
       "activationStep": "R0.1",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/architecture-hardening-harness.js",
       "positiveEvidence": ["tests/fixtures/architecture/positive/minimal-core.json"],
       "negativeFixtures": [
@@ -38,7 +38,7 @@
         "tests/fixtures/architecture/negative/global-state.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260722_r6_9e1_future_time_axis.md"
     },
     {
       "id": "H003",
@@ -1058,7 +1058,7 @@
       "owner": "replay-navigation-runtime",
       "v6FailurePrevented": "Quick settings diverged between Replay Sessions, saving settings moved Replay, the configured anchor bar was revealed early, or expected range exhaustion replaced ready charts with a generic Workspace error",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-pane-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/replay-navigation-settings/navigation-settings.js",
@@ -1078,7 +1078,32 @@
         "tests/fixtures/session-store/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260722_r6_9e_quick_goto_settings.md"
+    },
+    {
+      "id": "H059",
+      "name": "future-time-axis-is-whitespace-only",
+      "owner": "chart-runtime-adapter",
+      "v6FailurePrevented": "logical right margins showed no future clock labels, while a naive fix could synthesize future OHLC or move the Viewport latest-bar wall",
+      "activationStep": "R6",
+      "state": "accepted",
+      "harness": "tests/lightweight-chart-adapter-browser-harness.js",
+      "positiveEvidence": [
+        "src/projection-domain/pane-projection.js",
+        "src/lightweight-chart-adapter/future-time-axis.js",
+        "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "src/lightweight-chart-adapter/visible-state-rollback.js",
+        "tests/projection-domain-harness.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-pane-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/multi-mixed-1440x900.png",
+        "docs/V7_FUTURE_TIME_AXIS_R6_9E1.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/lightweight-chart-adapter/negative/future-time-axis-cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260722_r6_9e1_future_time_axis.md"
     }
   ]
 }

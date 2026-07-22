@@ -1,6 +1,7 @@
 const DATASET_FIELDS = Object.freeze([
   'barCount',
   'displayTimeframeId',
+  'futureTimeAxisPointCount',
   'instrumentId',
   'lastApplyMs',
   'lastMutationMode',
@@ -8,6 +9,7 @@ const DATASET_FIELDS = Object.freeze([
   'lastPaintMs',
   'lastPaintProof',
   'latestDisplayEpochMs',
+  'latestFutureTimeAxisEpochMs',
   'latestOffsetBars',
   'logicalFrom',
   'logicalTo',
@@ -44,6 +46,7 @@ export function captureAdapterVisibleState({
   adapterRevision,
   appliedBars,
   appliedData,
+  appliedFutureTimeAxisData,
   barCount,
   chart,
   host,
@@ -54,6 +57,7 @@ export function captureAdapterVisibleState({
     adapterRevision,
     appliedBars,
     appliedData,
+    appliedFutureTimeAxisData,
     barCount,
     dataset: captureDataset(host),
     logicalRange: copyRange(chart.timeScale().getVisibleLogicalRange()),
@@ -74,14 +78,16 @@ export function restoreAdapterScaleState({ chart, priceScale, state }) {
 }
 
 /** Restore one previously accepted chart surface after apply, paint, or receipt failure. */
-export function restoreAdapterVisibleState({ chart, host, priceScale, series, state }) {
+export function restoreAdapterVisibleState({ chart, futureTimeAxisSeries, host, priceScale, series, state }) {
   series.setData(state.appliedData);
+  futureTimeAxisSeries.setData(state.appliedFutureTimeAxisData);
   restoreAdapterScaleState({ chart, priceScale, state });
   restoreDataset(host, state.dataset);
   return Object.freeze({
     adapterRevision: state.adapterRevision,
     appliedBars: state.appliedBars,
     appliedData: state.appliedData,
+    appliedFutureTimeAxisData: state.appliedFutureTimeAxisData,
     barCount: state.barCount,
     maximumDisplayGapMs: state.maximumDisplayGapMs,
   });

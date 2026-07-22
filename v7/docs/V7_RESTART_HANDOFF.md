@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after the headless R6.9g Settings product refinement;
-R6.9c and R6.9e await focused human review
+Last updated: 2026-07-22 after R6.9e Quick GoTo and R6.9e1 future time-axis
+acceptance; R6.9c awaits focused human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -21,8 +21,9 @@ required for normal startup.
   combined R6.9/R6.9a–b Pane layouts, overlays, and interactions human
   accepted; R6.9c lower-right control dock implemented and awaiting focused
   visual review; R6.9d shared GoTo contract completed headlessly; R6.9e eight-
-  action Quick GoTo, global settings, and range feedback implemented
-  and awaiting human review; R6.9f global Workstation Settings catalog and
+  action Quick GoTo, global settings, and range feedback human accepted;
+  R6.9e1 future time-axis continuity human accepted; R6.9f
+  global Workstation Settings catalog and
   ownership contract plus R6.9g field-level product refinement completed
   headlessly; R2.4 Session Browser readability and confirmed durable delete
   human accepted
@@ -82,6 +83,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_9c_pane_control_dock.md`.
 - `sessions/session_20260722_r6_9d_goto_redesign_contract.md`.
 - `sessions/session_20260722_r6_9e_quick_goto_settings.md`.
+- `sessions/session_20260722_r6_9e1_future_time_axis.md`.
 - `sessions/session_20260721_r2_4_session_browser_readability_delete.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -427,10 +429,9 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9g Settings product refinement is complete and changes no production
-behavior. R6.9e
-Quick GoTo settings and range feedback still require human interaction/visual
-acceptance. After acceptance, execute R6.9h as one separate Exact GoTo slice:
+R6.9g Settings product refinement changes no production behavior. R6.9e Quick
+GoTo and R6.9e1 future time-axis continuity are human accepted. Execute R6.9h
+as one separate Exact GoTo slice:
 move Exact GoTo to its own Workspace-level entry and add Session-range-aware
 Calendar Surface presentation with explicit boundary validation. R6.9i-m then
 activate the planned global Settings foundation, Symbol, Status/current price,

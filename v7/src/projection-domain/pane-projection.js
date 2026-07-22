@@ -31,6 +31,9 @@ function eligibleVisibleBars(input, sourceBars) {
 }
 
 function provenance(input, sourceIdentity) {
+  const displayTimeframeDurationMs = input.displayTimeframe.alignment.kind === 'fixed-duration'
+    ? input.displayTimeframe.alignment.durationMs
+    : null;
   return Object.freeze({
     aggregationPolicyId: input.aggregationPolicy.id,
     aggregationPolicyRevision: input.aggregationPolicy.revision,
@@ -40,6 +43,7 @@ function provenance(input, sourceIdentity) {
     cursorProposal: input.cursorProposal,
     datasetRevision: sourceIdentity.datasetRevision,
     displayTimeframeId: input.displayTimeframe.id,
+    displayTimeframeDurationMs,
     displayTimeframeVersion: input.displayTimeframe.version,
     instrumentId: input.instrument.id,
     instrumentVersion: input.instrument.version,

@@ -1099,7 +1099,7 @@ redesign below instead of being applied in isolation.
   later independent business-event provider/consumer;
 - [x] bind the result with pure response-plan and navigation-runtime Harnesses.
 
-### R6.9e Quick GoTo Settings And Range Feedback — Awaiting Human Review
+### R6.9e Quick GoTo Settings And Range Feedback — Human Accepted
 
 - [x] expose all eight fixed Quick GoTo actions and only the five accepted
   keyboard shortcuts;
@@ -1123,11 +1123,25 @@ redesign below instead of being applied in isolation.
 - [x] bind the menu, settings lifecycle, dynamic schedule, cross-Session
   inheritance, Session-deletion independence, range end, and fixed visual
   output in focused and real-Chrome Harnesses;
-- [ ] obtain explicit human interaction and visual acceptance.
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-After acceptance, R6.9h separates Exact GoTo into its own Workspace-level entry
-and adds range-aware Calendar Surface presentation. It may not start another
-Replay path.
+### R6.9e1 Future Time-Axis Continuity — Human Accepted
+
+- [x] test the official Lightweight Charts whitespace-data mechanism before
+  adding a custom renderer;
+- [x] carry fixed timeframe duration through immutable Projection provenance;
+- [x] add 256 bounded time-only future slots per fixed-duration Pane through a
+  separate adapter-owned series without adding OHLC or source bars;
+- [x] keep Replay cursor, visible-through, Pane bar count, Viewport latest-bar
+  index, Crosshair latest OHLC, truncation, and history ownership unchanged;
+- [x] include future time-axis state in stale/failure rollback;
+- [x] bind native future coordinates, no-OHLC whitespace, Crosshair behavior,
+  multi-Pane Replay, and fixed visual output in real Chrome;
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
+
+After this focused gate, R6.9h separates Exact GoTo into its own Workspace-level
+entry and adds range-aware Calendar Surface presentation. It may not start
+another Replay path.
 
 ### R6.9f Workstation Settings Catalog And Ownership — Completed Headlessly
 

@@ -7,6 +7,10 @@ import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { createExchangeTimePresentation } from '../src/lightweight-chart-adapter/chart-options.js';
 import { createCrosshairPresentationIndex } from '../src/lightweight-chart-adapter/crosshair-presentation.js';
+import {
+  createFutureTimeAxisData,
+  FUTURE_TIME_AXIS_POINT_COUNT,
+} from '../src/lightweight-chart-adapter/future-time-axis.js';
 import { requireTailUpdatePaint } from '../src/lightweight-chart-adapter/paint-gate.js';
 import { planVisibleLogicalRange } from '../src/lightweight-chart-adapter/logical-range-plan.js';
 import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
@@ -20,6 +24,24 @@ assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-01-02T14:30:00Z') /
 assert.match(exchangeTime.timeFormatter(Date.parse('2026-05-01T13:30:00Z') / 1_000), /09:30/);
 
 const candle = (time, close = 2) => ({ time, open: 1, high: 3, low: 0, close });
+const futureTimeAxisData = createFutureTimeAxisData({
+  durationMs: 60_000, latestDisplayEpochMs: 1_000_000,
+});
+assert.equal(futureTimeAxisData.length, FUTURE_TIME_AXIS_POINT_COUNT);
+assert.deepEqual(futureTimeAxisData[0], { time: 1_060 });
+assert.deepEqual(futureTimeAxisData.at(-1), { time: 16_360 });
+assert.equal(Object.hasOwn(futureTimeAxisData[0], 'open'), false,
+  'future time-axis points must never contain OHLC');
+assert.deepEqual(createFutureTimeAxisData({
+  durationMs: null, latestDisplayEpochMs: 1_000_000,
+}), [], 'calendar-aligned timeframes remain explicit until their axis policy exists');
+const futureTimeAxisNegativeCases = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/lightweight-chart-adapter/negative/future-time-axis-cases.json',
+), 'utf8'));
+for (const fixture of futureTimeAxisNegativeCases) {
+  assert.throws(() => createFutureTimeAxisData(fixture.input),
+    (error) => error?.code === fixture.expectedCode, fixture.name);
+}
 assert.deepEqual(planVisibleLogicalRange({ from: -20, latestOffsetBars: 12, to: 40 }, 80),
   { from: -0.5, to: 40 });
 assert.deepEqual(planVisibleLogicalRange({ from: -200, latestOffsetBars: -120, to: -120 }, 185),
@@ -101,6 +123,10 @@ try {
       applicationRevision: Number(host.dataset.applicationRevision),
       barCount: Number(host.dataset.barCount),
       canvasCount: host.querySelectorAll('canvas').length,
+      futureTimeAxisPointCount: Number(host.dataset.futureTimeAxisPointCount),
+      firstFutureTimeAxisCoordinate: globalThis.__adapter.snapshot().firstFutureTimeAxisCoordinate,
+      latestCandleCoordinate: globalThis.__adapter.snapshot().latestCandleCoordinate,
+      latestFutureTimeAxisEpochMs: Number(host.dataset.latestFutureTimeAxisEpochMs),
       libraryVersion: host.dataset.libraryVersion,
       painted: host.dataset.painted,
       mutationMode: host.dataset.lastMutationMode,
@@ -110,6 +136,11 @@ try {
   assert.equal(result.applicationRevision, 1);
   assert.equal(result.barCount, 20);
   assert.ok(result.canvasCount > 0);
+  assert.equal(result.futureTimeAxisPointCount, FUTURE_TIME_AXIS_POINT_COUNT);
+  assert.ok(Number.isFinite(result.firstFutureTimeAxisCoordinate));
+  assert.ok(result.firstFutureTimeAxisCoordinate > result.latestCandleCoordinate,
+    'the first no-data future slot must exist to the right of the latest real candle');
+  assert.equal(result.latestFutureTimeAxisEpochMs, 2_170_000 + (FUTURE_TIME_AXIS_POINT_COUNT * 60_000));
   assert.equal(result.libraryVersion, '5.2.0');
   assert.equal(result.painted, 'true');
   assert.equal(result.mutationMode, 'full-replace');
@@ -148,6 +179,24 @@ try {
     displayEpochMs: 2_170_000,
     state: 'latest',
   });
+  const futureCrosshairPoint = await evaluate(cdp, `(() => {
+    const host = document.querySelector('#chart');
+    const bounds = host.getBoundingClientRect();
+    return {
+      observationCount: globalThis.__crosshairObservations.length,
+      x: bounds.left + globalThis.__adapter.snapshot().firstFutureTimeAxisCoordinate,
+      y: bounds.top + bounds.height / 2,
+    };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: futureCrosshairPoint.x, y: futureCrosshairPoint.y,
+    button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `globalThis.__crosshairObservations.length > ${futureCrosshairPoint.observationCount}
+    && globalThis.__crosshairObservations.at(-1)?.state === 'latest'`);
+  assert.equal((await evaluate(cdp,
+    `globalThis.__crosshairObservations.at(-1).displayEpochMs`)), 2_170_000,
+  'crosshair over a future whitespace point must retain latest real-candle OHLC');
   assert.equal((await evaluate(cdp,
     `globalThis.__adapter.projectCrosshair(1330000)`)).state, 'selected');
   assert.equal((await evaluate(cdp,

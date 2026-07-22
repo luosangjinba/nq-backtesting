@@ -187,6 +187,7 @@ assert.equal(accepted.provenance.instrumentId, IDS.instrument);
 assert.equal(accepted.provenance.instrumentVersion, '1.0.0');
 assert.equal(accepted.provenance.sourceResolutionId, IDS.resolution);
 assert.equal(accepted.provenance.displayTimeframeId, IDS.timeframe);
+assert.equal(accepted.provenance.displayTimeframeDurationMs, 60_000);
 assert.equal(accepted.provenance.sessionHoursPolicyId, IDS.sessionHours);
 assert.equal(accepted.provenance.sessionHoursPolicyRevision, 'eth-r1');
 assert.equal(accepted.provenance.sessionHoursMode, 'eth');

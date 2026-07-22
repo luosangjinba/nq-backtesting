@@ -9,6 +9,7 @@ const COMPATIBILITY_FIELDS = Object.freeze([
   'calendarRevision',
   'calendarVersion',
   'datasetRevision',
+  'displayTimeframeDurationMs',
   'displayTimeframeId',
   'displayTimeframeVersion',
   'instrumentId',
@@ -57,6 +58,9 @@ function inputCompatibility(value) {
     calendarRevision: value.calendar.revision,
     calendarVersion: value.calendar.version,
     datasetRevision: request.datasetRevision,
+    displayTimeframeDurationMs: value.displayTimeframe.alignment.kind === 'fixed-duration'
+      ? value.displayTimeframe.alignment.durationMs
+      : null,
     displayTimeframeId: value.displayTimeframe.id,
     displayTimeframeVersion: value.displayTimeframe.version,
     instrumentId: value.instrument.id,

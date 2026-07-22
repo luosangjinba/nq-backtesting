@@ -1,7 +1,7 @@
 # Session — R6.9e Quick GoTo Settings And Range Feedback
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: human accepted
 
 ## Delivered
 
@@ -90,3 +90,10 @@ from `00:00` through `23:45` in 15-minute steps. The settings value contract
 now rejects off-grid minutes as well, so persisted or programmatic writes
 cannot bypass the visible selector rule. Global ownership, draft semantics,
 and Replay behavior are unchanged.
+
+## Human Acceptance
+
+The user accepted the complete R6.9e interaction and visual surface on
+2026-07-22 after verifying the global preference scope and the explicit
+24-hour quarter-hour dropdown correction. Exact GoTo remains a separate R6.9h
+slice.
