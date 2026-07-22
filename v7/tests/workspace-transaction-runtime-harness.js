@@ -165,6 +165,33 @@ for (const failingStage of ['acquire', 'project', 'present']) {
   assert.equal(failure.clock.snapshot().cursorEpochMs, 2_000);
 }
 
+const domainFailure = fixture({
+  acquire: async () => {
+    throw Object.assign(new Error('Anchor lookup failed.'), {
+      code: 'REPLAY_NAVIGATION_ANCHOR_DISTANCE',
+    });
+  },
+});
+assert.equal(terminal(await domainFailure.runtime.execute({
+  input: input('domain-failure'),
+  intent: intent('domain-failure'),
+})).code, 'replay-navigation-anchor-distance',
+'uppercase owner error codes must remain observable through the lowercase terminal contract');
+
+const providerFailure = fixture({
+  acquire: async () => {
+    throw Object.assign(new Error('Provider request failed.'), {
+      code: 'PROVIDER_REQUEST_FAILED',
+      kind: 'unavailable',
+    });
+  },
+});
+assert.equal(terminal(await providerFailure.runtime.execute({
+  input: input('provider-failure'),
+  intent: intent('provider-failure'),
+})).code, 'provider-unavailable',
+'provider failures must expose their bounded failure kind instead of a generic transaction code');
+
 const slowAcquisition = deferred();
 let slowSignal;
 const reordered = fixture({

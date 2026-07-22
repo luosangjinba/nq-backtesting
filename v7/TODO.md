@@ -1114,6 +1114,9 @@ redesign below instead of being applied in isolation.
   presentation stops one minute before the anchor and exposes no future bar;
 - [x] present exhausted anchors as non-blocking range-end feedback while the
   Workspace stays ready and all accepted revisions remain unchanged;
+- [x] preserve actionable domain/provider failure classifications through the
+  lowercase Workspace terminal contract and bind a custom cross-day Next Day
+  Open path in the real-Chrome Workspace regression;
 - [x] bind the menu, settings lifecycle, dynamic schedule, Session isolation,
   range end, and fixed visual output in focused and real-Chrome Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.

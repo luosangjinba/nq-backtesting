@@ -4,6 +4,7 @@ import {
   settleWorkspaceTransaction,
 } from '../workspace-transaction-contract/public.js';
 import { requireMatchingVisibleCompletion } from '../chart-snapshot-application/public.js';
+import { workspaceTransactionFailureCode } from './failure-code.js';
 import { requireImmutableTransactionInput } from './port-contract.js';
 import { WorkspaceTransactionRuntimeError } from './runtime-error.js';
 
@@ -114,10 +115,10 @@ function failureTerminal({ description, error, plan, state }) {
   if (!state.matchesCurrent(description.identity)) {
     return settleWorkspaceTransaction(plan, { code: 'transaction-superseded', status: 'stale' });
   }
-  const code = error?.code && /^[a-z][a-z0-9.-]{0,127}$/.test(error.code)
-    ? error.code
-    : 'workspace-transaction-failed';
-  return settleWorkspaceTransaction(plan, { code, status: 'failed' });
+  return settleWorkspaceTransaction(plan, {
+    code: workspaceTransactionFailureCode(error),
+    status: 'failed',
+  });
 }
 
 /** Execute one intent through injected owners and return exactly one terminal envelope. */

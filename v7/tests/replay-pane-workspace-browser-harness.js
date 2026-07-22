@@ -345,6 +345,7 @@ try {
   await capture(cdp, gotoSettingsVisualFile, '.goto-settings-dialog');
   const beforeSettings = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `(() => {
+    document.querySelector('.goto-settings-time[name="dayOpen"]').value = '12:00';
     document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value = '15:00';
     document.querySelector('.goto-settings-save').click();
   })()`);
@@ -365,7 +366,23 @@ try {
   assert.equal(await evaluate(cdp,
     `document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value`), '15:00',
   'Discard must restore the last saved Quick GoTo settings');
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.goto-settings-time[name="dayOpen"]').value`), '12:00',
+  'Discard must preserve the saved Next Day Open setting');
   await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
+
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('[data-goto-anchor="next-day-open"]').click();
+  })()`);
+  const beforeDayOpen = state.workspaceRevision;
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeDayOpen}`, 10_000);
+  state = await evaluate(cdp, paneStateExpression());
+  assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
+    /05\/05\/2026, 11:59 EDT/,
+    'custom Next Day Open must cross the trading day and stop one minute before its wall time');
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.viewState`), 'ready',
+    'custom Next Day Open must leave the accepted Workspace ready');
 
   await evaluate(cdp, `(() => {
     document.querySelector('.goto-toggle').click();
@@ -376,9 +393,9 @@ try {
   state = await evaluate(cdp, paneStateExpression());
   assert.ok(state.panes.every(({ visibleRevision }) => visibleRevision >= 1));
   assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
-    /05\/04\/2026, 14:59 EDT/,
+    /05\/05\/2026, 14:59 EDT/,
     'Quick GoTo must stop one minute before the saved Silver Bullet time');
-  const quickVisibleThrough = Date.parse('2026-05-04T18:59:00.000Z');
+  const quickVisibleThrough = Date.parse('2026-05-05T18:59:00.000Z');
   assert.ok(state.panes.every(({ visibleThroughEpochMs }) => visibleThroughEpochMs === quickVisibleThrough),
     `every Pane must exclude source data at or after the configured 15:00 anchor: ${JSON.stringify(state.panes)}`);
   assert.equal(state.panes.find(({ timeframeId }) => timeframeId === 'timeframe.display-1-minute')

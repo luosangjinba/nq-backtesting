@@ -67,6 +67,10 @@ Chart Runtime/Adapter exists.
   effects;
 - acquisition, projection, and presentation failures preserve the last
   accepted workspace snapshot and Replay cursor;
+- lowercase owner failure codes remain intact, uppercase domain codes are
+  normalized into the terminal contract, and policy-bound provider failures
+  expose only their bounded `provider-<kind>` classification instead of the
+  unhelpful generic transaction fallback;
 - disposal cancels pending work and prevents later acceptance;
 - Replay proposals remain inert until exact visible completion returns;
 - accepted workspace revision advances once per committed intent only.
@@ -87,7 +91,7 @@ strategies remain future implementation details behind the same transaction.
 
 `tests/workspace-transaction-runtime-harness.js` proves normal stage ordering,
 visible-commit-only Replay progress, acquisition/projection/presentation
-failure preservation, slow-old/fast-new response reordering, stale failure,
-disposal, foreign visible acknowledgement, duplicate identity, scope mismatch,
-immutable inputs/projections, initial revision validation, and
+failure preservation and classification, slow-old/fast-new response reordering,
+stale failure, disposal, foreign visible acknowledgement, duplicate identity,
+scope mismatch, immutable inputs/projections, initial revision validation, and
 revision-exhaustion preflight.

@@ -46,3 +46,24 @@ witness and commits the configured wall time as an exclusive cutoff. Thus a
 saved `15:00` shortcut displays through `14:59` on `1m`, uniformly across all
 eight actions and all Panes. Exact GoTo and Replay Next/Previous semantics are
 unchanged.
+
+## Second Review Investigation
+
+Human review initially reported that custom `12:00` and `23:00` Next Day Open
+actions preserved the entry cursor and surfaced only
+`workspace-transaction-failed`. Both exact reported Session ranges were then
+replayed through a fresh real Chrome document and the real bars provider; they
+committed correctly through `11:59` and `22:59` New York time respectively.
+The user subsequently repeated the workflow successfully, so no deterministic
+target-resolution defect remained reproducible.
+
+The investigation did expose one independent failure-path defect: uppercase
+domain errors and bounded provider failures were being collapsed into the
+generic Workspace code. Workspace Transaction Runtime now normalizes owner
+codes and provider failure kinds without leaking transport detail. The main
+real-Chrome Workspace Harness also saves a custom `12:00` Next Day Open,
+crosses into the following day, asserts visible-through `11:59`, and requires
+the Workspace to remain ready before continuing with another Quick GoTo.
+
+The visible R6.9e gate remains open pending explicit human acceptance; this
+correction does not treat the later successful retry as acceptance.
