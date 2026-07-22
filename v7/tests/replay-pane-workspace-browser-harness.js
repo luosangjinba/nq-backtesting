@@ -467,6 +467,31 @@ try {
   assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
     /05\/04\/2026, 12:59 EDT/, 'exact GoTo uses a New York exclusive cutoff');
 
+  for (let cycle = 0; cycle < 3; cycle += 1) {
+    const beforeQuickCycle = Number(await evaluate(cdp,
+      `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+    await evaluate(cdp, `(() => {
+      document.querySelector('.goto-toggle').click();
+      document.querySelector('[data-goto-anchor="new-york-session"]').click();
+    })()`);
+    await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeQuickCycle}
+      && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+    assert.equal(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.viewState`), 'ready',
+      'repeated Exact/Quick navigation must retain one ready shared Workspace');
+    assert.equal(await evaluate(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
+      .some((host) => host.dataset.lastApplyError?.includes('CHART_CANDLES_NOT_PAINTED'))`), false,
+    'a current pane paint must receive bounded follow-up frames before failing the shared transaction');
+    const beforeExactCycle = Number(await evaluate(cdp,
+      `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
+    await evaluate(cdp, `(() => {
+      document.querySelector('.exact-goto-toggle').click();
+      document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-05-04T13:00';
+      document.querySelector('.exact-goto-dialog .goto-submit').click();
+    })()`);
+    await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeExactCycle}
+      && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  }
+
   await evaluate(cdp, `document.querySelector('[data-pane-id="pane-main"] .pane-reset').click()`);
   const beforeTruncation = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `document.querySelector('.replay-truncation').click()`);

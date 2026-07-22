@@ -39,3 +39,14 @@ fields, prior/next month navigation, full month grid, and time steppers all
 remain inside the one dialog. The real-Chrome Harness now clicks a selectable
 Session date and changes the minute through the visible controls before
 asserting the one normalized target value.
+
+The follow-up review reported `chart-candles-not-painted` after repeated Exact
+and Quick New York Session actions. An isolated real-data two-Pane probe ran
+twelve alternating Exact/Quick cycles over the reported `2026-03-10 10:45` to
+`2026-05-22 10:45` New York range: all target proposals reached the one shared
+cursor and no target-resolution conflict occurred. The failure source is the
+chart adapter's single transient pixel observation. Its bounded paint gate now
+checks up to four two-frame paint opportunities within the same two-second
+deadline before rejecting. The real-Chrome Workspace Harness additionally
+executes three Quick New York Session ↔ Exact cycles and requires ready state
+with no `CHART_CANDLES_NOT_PAINTED` receipt.
