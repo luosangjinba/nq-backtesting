@@ -1056,7 +1056,7 @@
       "id": "H058",
       "name": "quick-goto-settings-and-range-feedback",
       "owner": "replay-navigation-runtime",
-      "v6FailurePrevented": "Quick settings leaked across Replay Sessions, saving settings moved Replay, or expected range exhaustion replaced ready charts with a generic Workspace error",
+      "v6FailurePrevented": "Quick settings leaked across Replay Sessions, saving settings moved Replay, the configured anchor bar was revealed early, or expected range exhaustion replaced ready charts with a generic Workspace error",
       "activationStep": "R6",
       "state": "executable",
       "harness": "tests/replay-pane-workspace-browser-harness.js",
@@ -1069,7 +1069,7 @@
         "tests/replay-navigation-settings-harness.js",
         "tests/session-store-harness.js",
         "tests/replay-pane-workspace-browser-harness.js",
-        "tests/fixtures/replay-workspace/goto-settings-1440x900.png",
+        "tests/fixtures/replay-workspace/goto-settings-dialog.png",
         "docs/V7_QUICK_GOTO_SETTINGS_R6_9E.md"
       ],
       "negativeFixtures": [

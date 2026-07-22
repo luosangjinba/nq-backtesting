@@ -11,7 +11,7 @@ const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/multi-mixed-1440x900.png');
 const gotoSettingsVisualFile = path.join(
-  TEST_DIR, 'fixtures/replay-workspace/goto-settings-1440x900.png',
+  TEST_DIR, 'fixtures/replay-workspace/goto-settings-dialog.png',
 );
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
@@ -34,10 +34,19 @@ async function waitForDevtools() {
   throw new Error('Chrome DevTools endpoint did not start.');
 }
 
-async function capture(cdp, fixture = visualFile) {
+async function capture(cdp, fixture = visualFile, selector = null) {
   await new Promise((resolve) => setTimeout(resolve, 160));
   await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
-  const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+  const clip = selector === null ? undefined : await evaluate(cdp, `(() => {
+    const rect = document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();
+    return { height: rect.height, scale: 1, width: rect.width, x: rect.x, y: rect.y };
+  })()`);
+  const { data } = await cdp.send('Page.captureScreenshot', {
+    captureBeyondViewport: false,
+    clip,
+    format: 'png',
+    fromSurface: true,
+  });
   const actual = Buffer.from(data, 'base64');
   if (process.env.V7_UPDATE_VISUALS === '1') {
     fs.writeFileSync(fixture, actual);
@@ -70,6 +79,7 @@ function paneStateExpression() {
           canvasCount: host.querySelectorAll('canvas').length,
           instrumentId: host.dataset.instrumentId,
           hostWidth: host.getBoundingClientRect().width,
+          latestDisplayEpochMs: Number(host.dataset.latestDisplayEpochMs),
           paneId: pane.dataset.paneId,
           paneWidth: pane.getBoundingClientRect().width,
           sessionHoursMode: host.dataset.sessionHoursMode,
@@ -77,6 +87,7 @@ function paneStateExpression() {
           viewportOrigin: host.dataset.viewportOrigin,
           viewportRevision: Number(host.dataset.viewportRevision),
           visibleRevision: Number(host.dataset.visibleRevision),
+          visibleThroughEpochMs: Number(host.dataset.visibleThroughEpochMs),
         };
       }),
     };
@@ -331,7 +342,7 @@ try {
     `document.querySelector('.goto-settings-time[name="dayOpen"]').value`), '18:00',
   'Reset to defaults must restore the default Quick GoTo schedule before Save');
   await evaluate(cdp, `document.activeElement?.blur()`);
-  await capture(cdp, gotoSettingsVisualFile);
+  await capture(cdp, gotoSettingsVisualFile, '.goto-settings-dialog');
   const beforeSettings = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `(() => {
     document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value = '15:00';
@@ -365,7 +376,14 @@ try {
   state = await evaluate(cdp, paneStateExpression());
   assert.ok(state.panes.every(({ visibleRevision }) => visibleRevision >= 1));
   assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
-    /05\/04\/2026, 15:00 EDT/, 'saved Silver Bullet time must replace the active schedule immediately');
+    /05\/04\/2026, 14:59 EDT/,
+    'Quick GoTo must stop one minute before the saved Silver Bullet time');
+  const quickVisibleThrough = Date.parse('2026-05-04T18:59:00.000Z');
+  assert.ok(state.panes.every(({ visibleThroughEpochMs }) => visibleThroughEpochMs === quickVisibleThrough),
+    `every Pane must exclude source data at or after the configured 15:00 anchor: ${JSON.stringify(state.panes)}`);
+  assert.equal(state.panes.find(({ timeframeId }) => timeframeId === 'timeframe.display-1-minute')
+    ?.latestDisplayEpochMs, quickVisibleThrough,
+  'the 1m Pane latest candle must be exactly one minute before the configured shortcut time');
 
   await evaluate(cdp, `(() => {
     document.querySelector('.goto-toggle').click();

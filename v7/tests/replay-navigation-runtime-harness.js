@@ -406,7 +406,7 @@ await navigate('goto-exact', { targetEpochMs: epoch('2026-05-01T20:00:00.000Z') 
 anchorAttempts.length = 0;
 result = await navigate('goto-anchor', { anchor: 'new-york-session' });
 assert.equal(result.status, 'committed');
-assert.equal(new Date(replay.snapshot().cursorEpochMs).toISOString(), '2026-05-04T13:31:00.000Z');
+assert.equal(new Date(replay.snapshot().cursorEpochMs).toISOString(), '2026-05-04T13:30:00.000Z');
 assert.equal(anchorAttempts.length, 3, 'weekend anchors are skipped through bounded source lookup');
 
 traversalUnavailable = true;
@@ -542,6 +542,32 @@ const customDynamicTarget = await dynamicResolver.resolve({
 });
 assert.equal(customDynamicTarget.targetEpochMs - defaultDynamicTarget.targetEpochMs, 60 * MINUTE,
   'a saved settings replacement must affect the next resolution without rebuilding Replay');
+for (const anchor of [
+  'next-day-open',
+  'next-session',
+  'asian-session',
+  'london-session',
+  'new-york-session',
+  'silver-bullet-london',
+  'silver-bullet-new-york-am',
+  'silver-bullet-new-york-pm',
+]) {
+  const cursorEpochMs = epoch('2026-05-04T04:00:00.000Z');
+  const anchorPlan = planFor(createReplayPaneAction({ anchor, kind: 'goto-anchor' }), cursorEpochMs);
+  const expectedCutoff = schedule.candidates({
+    anchor, cursorEpochMs, endEpochMs: RANGE.endEpochMs,
+  })[0].targetEpochMs;
+  const resolvedTarget = await resolver(traversal({
+    eligibleAtOrAfter: async ({ anchorEpochMs }) => Object.freeze({
+      sourceEpochMs: anchorEpochMs,
+      targetEpochMs: anchorEpochMs + MINUTE,
+    }),
+  })).resolve({ range: RANGE, responsePlan: anchorPlan, signal });
+  assert.equal(resolvedTarget.targetEpochMs, expectedCutoff,
+    `${anchor} must stop at the exclusive wall-time cutoff instead of revealing its anchor bar`);
+  assert.equal(resolvedTarget.sourceEpochMs, null,
+    `${anchor} eligibility witness must not be exposed as a visible source completion`);
+}
 const directReplayPort = createReplayNavigationReplayPort({ replayRuntime: replay, targetResolver: resolver() });
 
 const negative = {

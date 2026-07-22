@@ -77,7 +77,10 @@ only Asian, London, and New York. Candidate generation is pure, strictly
 forward, bounded to 32 candidates by default, and does not invent weekend or
 holiday rules. Source traversal accepts a candidate only when a real eligible
 bar exists within the bounded 15-minute window; otherwise the next candidate
-is tried.
+is tried. The accepted source bar is only an eligibility witness. The resolved
+Replay cursor is the configured anchor itself, used as an exclusive cutoff;
+therefore `1m` presentation ends one minute before the shortcut and never
+reveals the anchor bar early.
 
 Unlike legacy V6's UTC-like wall timestamp domain, V7 has already normalized V4
 bars into real instants. R6.4 therefore converts New York wall anchors into real

@@ -34,6 +34,13 @@ Asian, London, and New York; it excludes Day Open and all Silver Bullet
 anchors. Every other quick action also uses strict-forward semantics, so an
 accepted cursor exactly at one anchor searches the next occurrence.
 
+The configured wall time is an exclusive Replay cutoff. Source traversal must
+confirm that the anchor has an eligible primary-source bar, but that bar is
+only an eligibility witness and is not revealed by the jump. On `1m` data a
+`09:30` shortcut therefore leaves `09:29` as the latest possible visible bar;
+the `09:30` bar appears only after a later Replay step. This applies uniformly
+to all eight Quick GoTo actions and every visible Pane.
+
 Candidate generation does not invent weekend or holiday knowledge. The source
 traversal owner accepts only a real eligible primary-instrument bar in the
 bounded anchor window and otherwise continues to the next candidate inside the

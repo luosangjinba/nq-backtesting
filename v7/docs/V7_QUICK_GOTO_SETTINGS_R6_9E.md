@@ -39,6 +39,12 @@ the latest accepted schedule when the next Quick GoTo command is dispatched.
 Different Replay Sessions therefore retain independent settings without
 creating another Replay owner.
 
+Each configured time is the unrevealed key moment, not the end of a candle to
+show. Quick GoTo commits an exclusive cutoff at that wall time after primary-
+source eligibility is confirmed. Consequently `15:00` displays through
+`14:59` on `1m` data, and no Pane may reveal the `15:00` bar before the next
+Replay step.
+
 Older uninitialized and Pane-layout-only records remain readable. Their first
 layout or navigation-settings save upgrades the workspace envelope and fills
 the missing half with its default value.
@@ -71,7 +77,8 @@ Replay cursor or become required by navigation.
 - Session Store evidence binds per-Session save/restore, layout preservation,
   schema upgrade, and isolation;
 - Replay Navigation evidence binds dynamic schedule replacement without a
-  second runtime or cursor;
+  second runtime or cursor and binds the exclusive pre-anchor cutoff for all
+  eight actions;
 - the real-Chrome Replay Pane Workspace Harness binds eight actions, five
   shortcuts, Reset/Discard/Save, immediate schedule use, zero-revision Save,
   non-blocking range-end feedback, and fixed `1440×900` output;

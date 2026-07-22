@@ -118,7 +118,10 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
           || accepted.sourceEpochMs > candidate.targetEpochMs + acceptedSchedule.maxAnchorDistanceMs) {
           failReplayNavigation('REPLAY_NAVIGATION_ANCHOR_DISTANCE', 'Resolved source is outside the anchor window.');
         }
-        resolved = accepted;
+        // The eligible source is only an anchor-validity witness. Replay uses
+        // an exclusive cutoff at the configured wall time, so that anchor bar
+        // and every later bar remain hidden until a subsequent Replay step.
+        resolved = Object.freeze({ sourceEpochMs: null, targetEpochMs: candidate.targetEpochMs });
         break;
       }
     } else {

@@ -1110,6 +1110,8 @@ redesign below instead of being applied in isolation.
   Pane Layout and restoring older records;
 - [x] apply saved settings immediately without moving Replay or issuing a
   Workspace transaction;
+- [x] treat every configured shortcut time as an exclusive cutoff so `1m`
+  presentation stops one minute before the anchor and exposes no future bar;
 - [x] present exhausted anchors as non-blocking range-end feedback while the
   Workspace stays ready and all accepted revisions remain unchanged;
 - [x] bind the menu, settings lifecycle, dynamic schedule, Session isolation,

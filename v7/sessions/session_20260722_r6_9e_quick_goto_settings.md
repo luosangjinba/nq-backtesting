@@ -37,3 +37,12 @@ Status: awaiting human interaction and visual review
 Review the menu, settings dialog, custom-time behavior, Session re-entry, and
 range-end feedback. Do not begin the separate Exact GoTo calendar slice until
 this visible interaction gate is accepted.
+
+## Review Correction
+
+Human review clarified that every Quick GoTo key time is an unrevealed future
+moment. Target resolution now uses the eligible anchor bar only as a validity
+witness and commits the configured wall time as an exclusive cutoff. Thus a
+saved `15:00` shortcut displays through `14:59` on `1m`, uniformly across all
+eight actions and all Panes. Exact GoTo and Replay Next/Previous semantics are
+unchanged.
