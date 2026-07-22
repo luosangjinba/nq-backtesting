@@ -965,7 +965,7 @@
       "id": "H054",
       "name": "pane-control-dock-is-vertical-and-scale-safe",
       "owner": "replay-workspace-ui",
-      "v6FailurePrevented": "Pane-local controls covered the price or time scale, or their horizontal footprint hid chart content",
+      "v6FailurePrevented": "Pane-local controls covered the price or time scale, their horizontal footprint hid chart content, or pointer focus pinned controls after the pointer left an active Pane",
       "activationStep": "R6",
       "state": "executable",
       "harness": "tests/replay-layout-workspace-browser-harness.js",

@@ -14,5 +14,12 @@
     "name": "reset-is-pane-local",
     "forbiddenSelector": ".replay-reset",
     "requiredSelector": ".workspace-pane .pane-reset"
+  },
+  {
+    "name": "pointer-focus-does-not-pin-controls",
+    "expectedExitedOpacity": "0",
+    "expectedHoveredOpacity": "1",
+    "expectedKeyboardOpacity": "1",
+    "preserveActivePane": true
   }
 ]

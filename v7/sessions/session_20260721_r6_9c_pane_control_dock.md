@@ -10,14 +10,26 @@ Status: awaiting focused human visual review
 - stacked Maximize/Restore above Reset View;
 - reserved a `76px` right inset and `32px` bottom inset so the controls do not
   cover the Lightweight Charts price or time scales;
-- preserved hover/focus reveal, real pointer activation, Pane-local Reset,
-  transient maximize, mounted chart hosts, and exact layout restoration.
+- preserved pointer-hover/keyboard-visible-focus reveal, real pointer
+  activation, Pane-local Reset, transient maximize, mounted chart hosts, and
+  exact layout restoration.
+
+## Review Correction
+
+The focused review found that clicking a Pane left its chart host focused, so
+the broad `:focus-within` visibility rule kept that active Pane's controls
+visible after pointer exit. Visibility now uses actual Pane hover or
+keyboard-visible focus. A pointer-selected Pane remains active when the pointer
+leaves, but every control dock hides until hovered again; clicking elsewhere in
+the application retains the same correct behavior.
 
 ## Evidence
 
 - the Replay Layout browser Harness measures vertical stacking, scale-safe
   insets, actual mouse clicks, exact restore geometry, and zero Replay/Workspace
   revisions;
+- a real pointer sequence proves hover-visible, click-to-activate,
+  pointer-exit-hidden, and unchanged active-Pane state;
 - updated `1440×900` fixtures cover maximized and multi-Pane output;
 - all 39 non-browser Harnesses pass;
 - all 6 serial Chrome Harnesses pass, including chart adapter, layout,

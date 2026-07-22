@@ -1035,7 +1035,9 @@ sync is not part of this correction.
   lower-right;
 - [x] stack Maximize/Restore above Reset View;
 - [x] keep the dock left of the price scale and above the time scale;
-- [x] preserve hover/focus reveal and actual pointer activation;
+- [x] reveal on pointer hover or keyboard-visible focus, but never let pointer
+  focus or active-Pane state pin the controls after pointer exit;
+- [x] preserve actual pointer activation;
 - [x] preserve Pane-local Reset, transient maximize, mounted chart hosts,
   exact restored geometry, and zero Replay/Workspace revisions;
 - [ ] obtain focused human visual confirmation of the final control position.

@@ -265,9 +265,11 @@ and human-accepted:
   with R6.9/R6.9a on 2026-07-21.
 - R6.9c moves the unchanged Pane-local Maximize/Restore and Reset actions into
   a vertical lower-right Canvas dock. Explicit right and bottom insets keep the
-  controls out of the price and time scales; hover/focus reveal, actual pointer
-  activation, mounted chart hosts, exact restore geometry, and zero Replay or
-  Workspace revisions remain enforced. It awaits focused visual confirmation.
+  controls out of the price and time scales. Visibility follows actual hover or
+  keyboard-visible focus rather than persistent active-Pane/pointer focus;
+  actual pointer activation, mounted chart hosts, exact restore geometry, and
+  zero Replay or Workspace revisions remain enforced. It awaits focused visual
+  confirmation.
 
 Latest corrective commits:
 

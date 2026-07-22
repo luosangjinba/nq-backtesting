@@ -481,7 +481,8 @@
   transition: opacity 80ms ease-out;
 }
 .workspace-pane:hover .pane-overlay-controls,
-.workspace-pane:focus-within .pane-overlay-controls {
+.workspace-pane:has(> .lightweight-chart-host:focus-visible) .pane-overlay-controls,
+.pane-overlay-controls:has(.pane-overlay-button:focus-visible) {
   opacity: 1;
   pointer-events: auto;
 }

@@ -472,6 +472,8 @@ request data, mutate series, persist state, or open a Workspace transaction.
 Reset View remains an explicit Pane-local Viewport intent. Pane-local controls
 occupy a lower-right plot-safe dock, vertically stacked left of the price scale
 and above the time scale; scale geometry remains owned by the chart adapter.
+Their visibility follows actual Pane hover or keyboard-visible focus and is
+independent from the persistent active-Pane selection.
 
 ## Session Isolation Invariant
 

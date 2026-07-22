@@ -11,7 +11,8 @@ right of each Pane Canvas, form a vertical stack, and avoid both chart scales.
 R6.9c keeps the accepted interaction unchanged:
 
 - Maximize/Restore remains the upper button and Reset View the lower button;
-- the stack appears only while the Pane is hovered or keyboard-focused;
+- the stack appears only while the Pane is hovered or has keyboard-visible
+  focus; pointer focus and active-Pane state do not pin it after pointer exit;
 - the stack is inset `76px` from the Pane right edge, clearing the adapter's
   `68px` minimum price scale, and `32px` above the bottom edge, clearing the
   time scale;
@@ -26,8 +27,10 @@ Viewport, Bar Data, Session, persistence, or Workspace ownership changes.
 The Replay Layout browser Harness measures vertical order, horizontal
 alignment, right and bottom safe insets, real pointer activation,
 Maximize/Restore geometry, mounted chart preservation, and unchanged
-Replay/Workspace revisions. Updated fixed visuals cover maximized, synchronized
-two-Pane, and mixed four-Pane states.
+Replay/Workspace revisions. It also physically clicks a Pane, verifies that it
+becomes active, moves the pointer outside every Pane, then proves all control
+docks hide while the active Pane remains unchanged. Updated fixed visuals cover
+maximized, synchronized two-Pane, and mixed four-Pane states.
 
 All 39 non-browser Harnesses and all 6 serial Chrome Harnesses pass. The visual
 Harness waits for the short control transition and chart reflow before capture,

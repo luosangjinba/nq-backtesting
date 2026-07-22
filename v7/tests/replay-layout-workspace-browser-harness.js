@@ -21,6 +21,7 @@ assert.deepEqual([...overlayCases.keys()], [
   'single-pane-maximize-unavailable',
   'maximize-is-transient-and-keeps-two-charts-mounted',
   'reset-is-pane-local',
+  'pointer-focus-does-not-pin-controls',
 ]);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-9-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
@@ -289,9 +290,55 @@ try {
   assert.deepEqual(state.panes.map(({ paneId }) => paneId), ['pane-main', 'pane-secondary']);
   const twoColumns = state;
 
-  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')
-    .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
+  const secondaryClickPoint = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
+      .getBoundingClientRect();
+    return { x: rect.left + rect.width * .45, y: rect.top + rect.height * .4 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: secondaryClickPoint.x, y: secondaryClickPoint.y, button: 'none', buttons: 0,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: secondaryClickPoint.x, y: secondaryClickPoint.y,
+    button: 'left', buttons: 1, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: secondaryClickPoint.x, y: secondaryClickPoint.y,
+    button: 'left', buttons: 0, clickCount: 1,
+  });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-secondary'`);
+  const pointerFocusCase = overlayCases.get('pointer-focus-does-not-pin-controls');
+  await waitFor(cdp, `getComputedStyle(document.querySelector(
+    '[data-pane-id="pane-secondary"] .pane-overlay-controls'
+  )).opacity === ${JSON.stringify(pointerFocusCase.expectedHoveredOpacity)}`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: 16, y: 18, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `[...document.querySelectorAll('.pane-overlay-controls')]
+    .every((controls) => getComputedStyle(controls).opacity === ${JSON.stringify(
+    pointerFocusCase.expectedExitedOpacity,
+  )})`);
+  if (pointerFocusCase.preserveActivePane) {
+    assert.equal(await evaluate(cdp,
+      `document.querySelector('.replay-workspace')?.dataset.activePaneId`), 'pane-secondary',
+    'pointer exit must hide controls without changing the active Pane');
+  }
+  await cdp.send('Input.dispatchKeyEvent', {
+    type: 'keyDown', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9,
+  });
+  await cdp.send('Input.dispatchKeyEvent', {
+    type: 'keyUp', key: 'Tab', code: 'Tab', windowsVirtualKeyCode: 9,
+  });
+  await waitFor(cdp, `document.activeElement?.matches(
+    '[data-pane-id="pane-secondary"] .pane-maximize:focus-visible'
+  )`);
+  await waitFor(cdp, `getComputedStyle(document.querySelector(
+    '[data-pane-id="pane-secondary"] .pane-overlay-controls'
+  )).opacity === ${JSON.stringify(pointerFocusCase.expectedKeyboardOpacity)}`);
+  await evaluate(cdp, 'document.activeElement.blur()');
+  await waitFor(cdp, `getComputedStyle(document.querySelector(
+    '[data-pane-id="pane-secondary"] .pane-overlay-controls'
+  )).opacity === ${JSON.stringify(pointerFocusCase.expectedExitedOpacity)}`);
   const borderEvidence = await evaluate(cdp, `(() => ({
     inactive: getComputedStyle(document.querySelector('[data-pane-id="pane-main"]'), '::after').borderTopColor,
     active: getComputedStyle(document.querySelector('[data-pane-id="pane-secondary"]'), '::after').borderTopColor,
