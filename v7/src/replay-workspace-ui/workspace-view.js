@@ -104,12 +104,8 @@ export function createReplayWorkspaceView({
   const restartButton = element('button', {
     className: 'button replay-action-button replay-restart', text: 'Restart', type: 'button',
   });
-  const resetButton = element('button', {
-    className: 'button replay-action-button replay-reset', text: 'Reset view', type: 'button',
-  });
   backButton.addEventListener('click', onBack);
   restartButton.addEventListener('click', onRestart);
-  resetButton.addEventListener('click', () => onReset(null));
 
   const timeframeControl = createTimeframeMenu({ groups: timeframeMenuGroups, onChoose: onTimeframe });
   const instrumentControl = createInstrumentSelect(instrumentOptions, onInstrument);
@@ -172,7 +168,6 @@ export function createReplayWorkspaceView({
       ]),
       element('div', { className: 'replay-actions' }, [
         status,
-        resetButton,
         restartButton,
         goto.root,
         element('span', { className: 'workspace-status replay-local-status' }, [
@@ -214,7 +209,6 @@ export function createReplayWorkspaceView({
       preserveVisual: stableRefresh && !intrinsicallyDisabled,
     });
     setAction(restartButton, unavailable);
-    setAction(resetButton, unavailable);
     timeframeControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
     instrumentControl.setDisabled(interactionLocked || instrumentUnavailable, stableRefresh && !instrumentUnavailable);

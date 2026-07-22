@@ -41,10 +41,12 @@ crosshairPresentation.setBars([
   { ...candle(2, 4), displayEpochMs: 2_000, startEpochMs: 1_900 },
 ]);
 assert.deepEqual(crosshairPresentation.selectedAt(1_000), {
-  bar: { close: 2, high: 3, low: 0, open: 1 }, displayEpochMs: 1_000, state: 'selected',
+  bar: { close: 2, high: 3, low: 0, open: 1 }, change: null,
+  displayEpochMs: 1_000, state: 'selected',
 });
 assert.deepEqual(crosshairPresentation.selectedAt(1_500), {
-  bar: { close: 4, high: 3, low: 0, open: 1 }, displayEpochMs: 2_000, state: 'latest',
+  bar: { close: 4, high: 3, low: 0, open: 1 }, change: { percent: 100, value: 2 },
+  displayEpochMs: 2_000, state: 'latest',
 });
 const crosshairNegativeCases = JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/lightweight-chart-adapter/negative/crosshair-cases.json',
@@ -116,6 +118,7 @@ try {
   const latestCrosshair = await evaluate(cdp, `globalThis.__adapter.crosshairObservation()`);
   assert.deepEqual(latestCrosshair, {
     bar: { close: 117, high: 122, low: 116, open: 119 },
+    change: { percent: -2.5, value: -3 },
     displayEpochMs: 2_170_000,
     state: 'latest',
   });

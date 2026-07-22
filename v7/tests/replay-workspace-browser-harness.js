@@ -305,7 +305,7 @@ try {
     const transport = document.querySelector('.replay-transport');
     const selectors = ['.replay-next', '.replay-previous', '.timeframe-toggle',
       '.session-hours-control [aria-pressed="true"]', '.pane-layout-toggle',
-      '.replay-step-select', '.replay-speed-select', '.goto-toggle', '.replay-reset'];
+      '.replay-step-select', '.replay-speed-select', '.goto-toggle'];
     const sample = () => selectors.map((selector) => {
       const control = root.querySelector(selector);
       return { opacity: getComputedStyle(control).opacity, selector };
@@ -474,7 +474,7 @@ try {
   assert.ok(Math.abs(manualAfter.offset - manualBefore.offset) < 0.001);
   assert.ok(Math.abs(manualAfter.span - manualBefore.span) < 0.001);
 
-  await evaluate(cdp, `document.querySelector('.replay-reset').click()`);
+  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-main"] .pane-reset').click()`);
   await waitFor(cdp, `document.querySelector('.lightweight-chart-host')?.dataset.viewportOrigin === 'default'`);
   assert.equal(await evaluate(cdp, `Number(document.querySelector('.lightweight-chart-host').dataset.latestOffsetBars)`), 12);
 

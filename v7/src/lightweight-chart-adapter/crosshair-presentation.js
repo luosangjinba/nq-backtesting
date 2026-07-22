@@ -8,9 +8,18 @@ function candle(bar) {
   });
 }
 
-function observation(bar, state) {
+function observation(entry, state) {
+  const bar = entry?.bar ?? null;
+  const previousClose = entry?.previousClose;
+  const changeValue = bar && Number.isFinite(previousClose)
+    ? Number(bar.close) - Number(previousClose)
+    : null;
   return Object.freeze({
     bar: candle(bar),
+    change: Number.isFinite(changeValue) ? Object.freeze({
+      percent: previousClose === 0 ? null : (changeValue / previousClose) * 100,
+      value: changeValue,
+    }) : null,
     displayEpochMs: bar?.displayEpochMs ?? null,
     state,
   });
@@ -32,8 +41,11 @@ export function createCrosshairPresentationIndex() {
       return selected ? observation(selected, 'selected') : latest();
     },
     setBars(nextBars) {
-      bars = Object.freeze([...nextBars]);
-      byDisplayEpochMs = new Map(bars.map((bar) => [bar.displayEpochMs, bar]));
+      bars = Object.freeze(nextBars.map((bar, index) => Object.freeze({
+        bar,
+        previousClose: index > 0 ? Number(nextBars[index - 1].close) : null,
+      })));
+      byDisplayEpochMs = new Map(bars.map((entry) => [entry.bar.displayEpochMs, entry]));
     },
   });
 }

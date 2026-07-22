@@ -941,6 +941,25 @@
       "negativeFixtures": ["tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
+    },
+    {
+      "id": "H053",
+      "name": "pane-canvas-overlay-controls-are-transient-and-local",
+      "owner": "replay-workspace-ui",
+      "v6FailurePrevented": "Pane metadata consumed Canvas height, Reset changed the wrong viewport, or maximize rewrote persistent layout and unmounted chart owners",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-layout-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/replay-workspace-ui/pane-overlay-view.js",
+        "src/replay-workspace-ui/pane-grid-view.js",
+        "src/replay-workspace-ui/styles.css",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/replay-workspace/negative/pane-overlay-cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

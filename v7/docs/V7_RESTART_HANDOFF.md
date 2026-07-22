@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.9a review corrections, awaiting human review
+Last updated: 2026-07-21 after R6.9b review corrections, awaiting human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -68,6 +68,7 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_8_fixed_replay_transport.md`.
 - `sessions/session_20260721_r6_9_resizable_pane_layouts.md`.
 - `sessions/session_20260721_r6_9a_pane_ohlc_crosshair_sync.md`.
+- `sessions/session_20260721_r6_9b_canvas_overlay_maximize.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -247,6 +248,14 @@ and human-accepted:
   target's latest OHLC, and the entire effect performs no Replay, data,
   Session, series-write, or Workspace transaction work. The readability floor
   is now `280×120px`. R6.9/R6.9a awaits combined human acceptance.
+- R6.9b integrates the symbol, compact TF, OHLC, and prior-close change into
+  the Canvas; removes the global Reset in favor of hover/focus Pane-local
+  controls; and adds transient multi-Pane Maximize/Restore. Every chart stays
+  mounted, exact split geometry returns on restore, and the display mode
+  changes no Pane Layout, Replay, Workspace, Session, Bar Data, or series state.
+  Neutral black Canvas surfaces, brighter text, and a stronger active border
+  complete the visual correction. Market-open status remains deliberately
+  omitted until a reliable product contract exists.
 
 Latest corrective commits:
 
@@ -367,10 +376,11 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Obtain explicit human acceptance for the combined R6.9/R6.9a gate: one-to-four
+Obtain explicit human acceptance for the combined R6.9/R6.9a/R6.9b gate: one-to-four
 Pane picker, every horizontal/vertical draggable divider, `280×120px` minimum
 geometry, layout persistence, clear active border, Pane-local selected/latest
-OHLC, Crosshair sync on/off, and mixed-Pane shared Replay/ETH-RTH behavior.
+OHLC/change overlay, hover Pane Reset and Maximize/Restore, Crosshair sync
+on/off, and mixed-Pane shared Replay/ETH-RTH behavior.
 After acceptance, execute the remaining R6.10 Symbol/Interval/Time/Date-range
 sync families as separate bounded work. Economic Calendar remains outside this
 foundation phase.

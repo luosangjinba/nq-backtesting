@@ -74,6 +74,7 @@ refresh restoration remain R7 work.
   architecture, source-quality, visual, Session Browser, and retained
   performance gates; `git diff --check` also passes.
 
-The review-required Crosshair portion is implemented by R6.9a. Remaining
-Symbol/Interval/Time/Date-range sync is deliberately deferred to R6.10.
-Economic Calendar remains an optional second-phase business module.
+The review-required Crosshair portion is implemented by R6.9a and the Canvas
+overlay plus transient Pane maximize corrections by R6.9b. Remaining Symbol/
+Interval/Time/Date-range sync is deliberately deferred to R6.10. Economic
+Calendar remains an optional second-phase business module.

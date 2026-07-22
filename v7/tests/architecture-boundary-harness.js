@@ -206,6 +206,7 @@ for (const rule of [
   'replay-navigation-shares-one-clock-and-pane-set-transaction',
   'versioned-pane-layout-persistence-and-resize-bounds',
   'pane-local-latest-ohlc-and-chart-only-crosshair-sync',
+  'pane-canvas-overlay-controls-are-transient-and-local',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

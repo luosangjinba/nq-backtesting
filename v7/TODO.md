@@ -920,7 +920,8 @@ Pane.
 
 ### R6.8 Fixed Bottom Replay Transport — Human Accepted
 
-- keep Reset View, Restart, Go to, and Local status in the compact top toolbar;
+- keep Reset View, Restart, Go to, and Local status in the compact top toolbar
+  for the R6.8 gate; R6.9b later moves Reset to each Pane;
 - move Previous bar, one stateful Play/Pause button, Replay step, Autoplay
   speed, and Next bar into one Workspace-level centered capsule;
 - place that capsule in a dedicated `38px` bottom rail outside the Pane grid,
@@ -991,14 +992,14 @@ Pane sizes; R6.9a pulls in the review-required Crosshair portion of layout sync.
 - bind the pure domain, Session persistence, real-browser geometry/input,
   visual, all-Pane Replay/RTH, re-entry, architecture, and regression gates.
 
-R6.9 changes interaction and visuals and therefore stops with R6.9a for one
-combined explicit human acceptance gate. Remaining R6.10 sync is not part of
-this correction.
+R6.9 changes interaction and visuals and therefore stops with R6.9a/R6.9b for
+one combined explicit human acceptance gate. Remaining R6.10 sync is not part
+of this correction.
 
 ### R6.9a Active Pane, OHLC, And Crosshair Review Correction — Awaiting Human Review
 
-- [x] make active focus unmistakable with a `2px` blue Pane boundary and local
-  header tint;
+- [x] make active focus unmistakable with a `2px` blue Pane boundary; R6.9b
+  replaces the temporary header tint with a neutral Canvas overlay;
 - [x] render symbol/TF plus Pane-local OHLC from the accepted chart snapshot;
 - [x] use selected candle OHLC on a native hit and latest Pane OHLC outside
   candle data, including empty fallback;
@@ -1010,7 +1011,23 @@ this correction.
   feedback source, and zero Replay/Workspace revisions;
 - [x] update real-browser visuals and retain the complete R6.9 layout,
   persistence, Replay/RTH, performance, architecture, and source-quality gates;
-- [ ] obtain explicit human interaction and visual acceptance for R6.9/R6.9a.
+- [ ] obtain explicit human interaction and visual acceptance for
+  R6.9/R6.9a/R6.9b.
+
+### R6.9b Canvas Overlay And Pane Maximize Review Correction — Awaiting Human Review
+
+- [x] remove the separate Pane header row and place short symbol, compact TF,
+  OHLC, change value, and change percentage over the Canvas;
+- [x] keep minute units implicit while retaining `s`/`h` and `D`/`W`/`M`;
+- [x] remove the global Reset and expose one hover/focus Pane-local Reset;
+- [x] add multi-Pane-only Maximize/Restore without changing or persisting Pane
+  Layout state;
+- [x] keep every chart host mounted, restore exact split geometry, and prove
+  zero Replay/Workspace revisions;
+- [x] use neutral black chart surfaces, brighter readouts/axes, and a stronger
+  active Pane boundary;
+- [x] omit market-open status until a reliable product contract exists;
+- [ ] obtain explicit human acceptance for R6.9/R6.9a/R6.9b.
 
 Do not start the remaining R6.10 Symbol/Interval/Time/Date-range sync families
 until this combined review gate is accepted.

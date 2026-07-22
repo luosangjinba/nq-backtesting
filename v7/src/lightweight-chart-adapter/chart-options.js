@@ -48,10 +48,11 @@ export const CHART_OPTIONS = Object.freeze({
   autoSize: true,
   localization: Object.freeze({ timeFormatter: exchangeTimePresentation.timeFormatter }),
   layout: Object.freeze({
-    background: Object.freeze({ color: '#050505', type: ColorType.Solid }),
+    background: Object.freeze({ color: '#000000', type: ColorType.Solid }),
     attributionLogo: false,
     fontFamily: 'Inter, ui-sans-serif, system-ui, sans-serif',
-    textColor: '#9a9a9a',
+    fontSize: 12,
+    textColor: '#b8bdc5',
   }),
   grid: Object.freeze({
     horzLines: Object.freeze({ color: '#181818' }),

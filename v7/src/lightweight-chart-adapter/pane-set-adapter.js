@@ -41,7 +41,7 @@ export function createLightweightPaneSetAdapter({
 
   function latestFor(paneId) {
     return adapters.get(paneId)?.crosshairObservation() ?? Object.freeze({
-      bar: null, displayEpochMs: null, state: 'empty',
+      bar: null, change: null, displayEpochMs: null, state: 'empty',
     });
   }
 

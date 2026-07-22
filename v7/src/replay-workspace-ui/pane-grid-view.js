@@ -3,6 +3,7 @@ import {
   readPaneLayout,
   resizePaneLayout,
 } from '../pane-layout-domain/public.js';
+import { createPaneOverlayView } from './pane-overlay-view.js';
 
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
@@ -14,19 +15,6 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
-function ohlcField(name) {
-  const value = element('span', { className: 'pane-ohlc-value', text: '--' });
-  const root = element('span', { className: 'pane-ohlc-field' }, [
-    element('span', { className: 'pane-ohlc-label', text: name }), value,
-  ]);
-  root.dataset.field = name.toLowerCase();
-  return Object.freeze({ root, value });
-}
-
-function formatPrice(value) {
-  return Number.isFinite(value) ? Number(value).toFixed(2) : '--';
-}
-
 /** Own product-Pane DOM/host identity plus a DOM-only resizable split tree. */
 export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onReset }) {
   const root = element('div', { className: 'workspace-pane-grid' });
@@ -34,7 +22,46 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
   const splitRecords = new Map();
   let layout = initialLayout ?? createPaneLayout();
   let paneIds = ['pane-main'];
+  let maximizedPaneId = null;
   let pending = false;
+
+  root.dataset.maximizedPaneId = 'none';
+
+  function updateOverlayControls() {
+    const multiPane = paneIds.length > 1;
+    for (const [paneId, record] of records) {
+      record.overlay.setControlState({
+        maximized: paneId === maximizedPaneId,
+        multiPane,
+        pending,
+      });
+    }
+  }
+
+  function setMaximizedPane(paneId, focus = true) {
+    const nextPaneId = paneId && paneIds.length > 1 && paneIds.includes(paneId) ? paneId : null;
+    maximizedPaneId = nextPaneId;
+    root.dataset.maximizedPaneId = nextPaneId ?? 'none';
+    root.classList.toggle('has-maximized-pane', Boolean(nextPaneId));
+    for (const [recordPaneId, record] of records) {
+      const visible = paneIds.includes(recordPaneId);
+      const layoutHidden = Boolean(nextPaneId) && visible && recordPaneId !== nextPaneId;
+      record.shell.classList.toggle('is-maximized', recordPaneId === nextPaneId);
+      record.shell.classList.toggle('is-layout-hidden', layoutHidden);
+      record.shell.style.opacity = layoutHidden ? '0' : '';
+      record.shell.style.pointerEvents = layoutHidden ? 'none' : '';
+      record.shell.style.visibility = layoutHidden ? 'hidden' : '';
+      if (visible && !record.shell.classList.contains('is-prepared')) {
+        record.shell.setAttribute('aria-hidden', String(layoutHidden));
+      }
+    }
+    updateOverlayControls();
+    if (nextPaneId && focus) onFocus(nextPaneId);
+  }
+
+  function toggleMaximizedPane(paneId) {
+    setMaximizedPane(maximizedPaneId === paneId ? null : paneId);
+  }
 
   function applyRatio(splitId, ratio) {
     const record = splitRecords.get(splitId);
@@ -141,34 +168,15 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
     splitRecords.clear();
     root.replaceChildren(renderNode(readPaneLayout(layout).tree));
     applyRatios();
+    setMaximizedPane(maximizedPaneId, false);
   }
 
   function createPane(paneId) {
-    const symbol = element('strong', { className: 'pane-symbol', text: '—' });
-    const timeframe = element('span', { className: 'pane-timeframe', text: '—' });
-    const ohlcFields = Object.freeze({
-      close: ohlcField('C'),
-      high: ohlcField('H'),
-      low: ohlcField('L'),
-      open: ohlcField('O'),
+    const overlay = createPaneOverlayView({
+      onMaximize: toggleMaximizedPane,
+      onReset,
+      paneId,
     });
-    const ohlc = element('span', { className: 'pane-ohlc' }, [
-      ohlcFields.open.root,
-      ohlcFields.high.root,
-      ohlcFields.low.root,
-      ohlcFields.close.root,
-    ]);
-    ohlc.dataset.state = 'empty';
-    const reset = element('button', {
-      ariaLabel: `Reset ${paneId} view`, className: 'pane-reset', text: 'Reset', type: 'button',
-    });
-    const header = element('header', { className: 'workspace-pane-header' }, [
-      element('span', { className: 'pane-status-line' }, [
-        element('span', { className: 'pane-identity' }, [symbol, timeframe]),
-        ohlc,
-      ]),
-      reset,
-    ]);
     const host = element('div', {
       ariaLabel: `${paneId} replay chart`, className: 'lightweight-chart-host',
     });
@@ -177,19 +185,18 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
     host.tabIndex = 0;
     const empty = element('div', { className: 'pane-empty-state', text: 'No eligible source bars' });
     empty.hidden = true;
-    const shell = element('section', { className: 'workspace-pane is-prepared' }, [header, host, empty]);
+    const shell = element('section', { className: 'workspace-pane is-prepared' }, [host, overlay.root, empty]);
     shell.dataset.paneId = paneId;
     shell.setAttribute('aria-hidden', 'true');
-    shell.addEventListener('pointerdown', () => onFocus(paneId), true);
-    shell.addEventListener('focusin', () => onFocus(paneId));
-    reset.addEventListener('click', (event) => {
-      event.stopPropagation();
-      onReset(paneId);
+    shell.addEventListener('pointerdown', (event) => {
+      if (!event.target.closest('.pane-overlay-controls')) onFocus(paneId);
+    }, true);
+    shell.addEventListener('focusin', (event) => {
+      if (!event.target.closest('.pane-overlay-controls')) onFocus(paneId);
     });
-    const record = {
-      empty, header, host, ohlc, ohlcFields, reset, shell, symbol, timeframe,
-    };
+    const record = { empty, host, overlay, shell };
     records.set(paneId, record);
+    updateOverlayControls();
     renderLayout();
     return record;
   }
@@ -206,6 +213,9 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
       const membershipChanged = nextPaneIds.length !== paneIds.length
         || nextPaneIds.some((paneId, index) => paneId !== paneIds[index]);
       paneIds = nextPaneIds;
+      if (maximizedPaneId && (!nextPaneIds.includes(maximizedPaneId) || nextPaneIds.length < 2)) {
+        setMaximizedPane(null, false);
+      }
       root.dataset.count = String(panes.length);
       const accepted = new Set(paneIds);
       let recordChanged = false;
@@ -229,6 +239,7 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
         recordChanged = true;
       }
       if (membershipChanged || recordChanged) renderLayout();
+      else setMaximizedPane(maximizedPaneId, false);
     },
     dispose() {
       records.clear();
@@ -244,6 +255,7 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
       }
       const unchanged = nextLayout === layout && nextPaneIds.length === paneIds.length
         && nextPaneIds.every((paneId, index) => paneId === paneIds[index]);
+      if (!unchanged && maximizedPaneId) setMaximizedPane(null, false);
       layout = nextLayout;
       paneIds = [...nextPaneIds];
       if (unchanged) applyRatios();
@@ -251,7 +263,7 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
     },
     setPending(disabled) {
       pending = disabled === true;
-      for (const record of records.values()) record.reset.disabled = pending;
+      updateOverlayControls();
       for (const { divider } of splitRecords.values()) {
         divider.setAttribute('aria-disabled', String(pending));
         divider.tabIndex = pending ? -1 : 0;
@@ -261,14 +273,8 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
       for (const pane of panes) {
         const record = records.get(pane.paneId);
         if (!record) continue;
-        const bar = pane.bar;
-        record.ohlc.dataset.state = pane.state;
+        record.overlay.setOhlc(pane);
         record.shell.dataset.ohlcState = pane.state;
-        record.ohlc.dataset.direction = !bar ? 'empty'
-          : bar.close > bar.open ? 'up' : bar.close < bar.open ? 'down' : 'flat';
-        for (const field of ['open', 'high', 'low', 'close']) {
-          record.ohlcFields[field].value.textContent = formatPrice(bar?.[field]);
-        }
       }
     },
     setTruncationSelection(active) {
@@ -283,13 +289,16 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
       root.dataset.count = String(panes.length);
       for (const pane of panes) {
         const record = records.get(pane.paneId) ?? createPane(pane.paneId);
-        record.symbol.textContent = labels.instrument(pane.instrumentId);
-        record.timeframe.textContent = labels.timeframe(pane.timeframeId);
+        record.overlay.setLabels({
+          instrument: labels.instrument(pane.instrumentId),
+          timeframe: labels.timeframe(pane.timeframeId),
+        });
         record.shell.classList.toggle('is-active', pane.paneId === activePaneId);
         record.shell.dataset.instrumentId = pane.instrumentId;
         record.shell.dataset.timeframeId = pane.timeframeId;
       }
       if (membershipChanged) renderLayout();
+      else updateOverlayControls();
     },
   });
 }

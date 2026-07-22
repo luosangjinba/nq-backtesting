@@ -12,6 +12,15 @@ const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-four-left-stack-1440x900.png');
 const syncVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-crosshair-sync-1440x900.png');
+const maximizeVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-maximized-1440x900.png');
+const overlayCases = new Map(JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/replay-workspace/negative/pane-overlay-cases.json',
+), 'utf8')).map((fixture) => [fixture.name, fixture]));
+assert.deepEqual([...overlayCases.keys()], [
+  'single-pane-maximize-unavailable',
+  'maximize-is-transient-and-keeps-two-charts-mounted',
+  'reset-is-pane-local',
+]);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-9-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -144,6 +153,26 @@ async function moveCrosshairToCandle(cdp, paneId) {
   throw new Error(`No candle crosshair point resolved for ${paneId}.`);
 }
 
+async function clickPaneControl(cdp, paneId, selector) {
+  const point = await evaluate(cdp, `(() => {
+    const rect = document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"] ${selector}`)})
+      .getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: point.x, y: point.y, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `getComputedStyle(document.querySelector(${JSON.stringify(
+    `[data-pane-id="${paneId}"] .pane-overlay-controls`,
+  )})).opacity === '1'`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: point.x, y: point.y, button: 'left', buttons: 1, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: point.x, y: point.y, button: 'left', buttons: 0, clickCount: 1,
+  });
+}
+
 let cdp;
 try {
   const debugPort = await waitForDevtools();
@@ -181,18 +210,49 @@ try {
 
   const singleHeader = await evaluate(cdp, `(() => {
     const pane = document.querySelector('[data-pane-id="pane-main"]');
+    const header = pane.querySelector('.workspace-pane-header');
+    const host = pane.querySelector('.lightweight-chart-host');
     const ohlc = pane.querySelector('.pane-ohlc');
     const activeBorder = getComputedStyle(pane, '::after');
+    const paneRect = pane.getBoundingClientRect();
+    const hostRect = host.getBoundingClientRect();
     return {
       borderColor: activeBorder.borderTopColor,
       borderWidth: activeBorder.borderTopWidth,
+      changeText: pane.querySelector('.pane-change').textContent,
+      controlsOpacity: getComputedStyle(pane.querySelector('.pane-overlay-controls')).opacity,
       crosshairDisabled: document.querySelector('.pane-crosshair-sync input').disabled,
+      headerFontSize: parseFloat(getComputedStyle(header).fontSize),
+      headerPosition: getComputedStyle(header).position,
+      hostTopDelta: Math.abs(hostRect.top - paneRect.top),
+      maximizeDisplay: getComputedStyle(pane.querySelector('.pane-maximize')).display,
       ohlcState: pane.dataset.ohlcState,
       ohlcText: ohlc.textContent,
+      timeframe: pane.querySelector('.pane-timeframe').textContent,
     };
   })()`);
   assert.equal(singleHeader.ohlcState, 'latest');
   assert.match(singleHeader.ohlcText, /O\d+\.\d{2}H\d+\.\d{2}L\d+\.\d{2}C\d+\.\d{2}/);
+  assert.match(singleHeader.changeText, /^[+-]?\d+\.\d{2}\([+-]?\d+\.\d{2}%\)$/);
+  assert.equal(singleHeader.timeframe, '1', 'minute Pane labels omit the m unit');
+  assert.equal(singleHeader.headerPosition, 'absolute');
+  assert.ok(singleHeader.headerFontSize >= 10);
+  assert.ok(singleHeader.hostTopDelta < 1, 'Pane Canvas must extend behind its integrated status overlay');
+  assert.equal(singleHeader.controlsOpacity, '0', 'Pane-local controls remain hidden until hover/focus');
+  assert.equal(singleHeader.maximizeDisplay,
+    overlayCases.get('single-pane-maximize-unavailable').expectedDisplay,
+    'single Pane does not expose a meaningless maximize action');
+  const resetCase = overlayCases.get('reset-is-pane-local');
+  assert.equal(await evaluate(cdp, `document.querySelector(${JSON.stringify(resetCase.forbiddenSelector)})`), null);
+  assert.equal(await evaluate(cdp, `document.querySelectorAll(${JSON.stringify(resetCase.requiredSelector)}).length`), 1);
+  const controlHoverPoint = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('[data-pane-id="pane-main"]').getBoundingClientRect();
+    return { x: rect.right - 14, y: rect.top + 14 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: controlHoverPoint.x, y: controlHoverPoint.y, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `getComputedStyle(document.querySelector('.pane-overlay-controls')).opacity === '1'`);
   assert.equal(singleHeader.borderWidth, '2px');
   assert.notEqual(singleHeader.borderColor, 'rgba(0, 0, 0, 0)');
   assert.equal(singleHeader.crosshairDisabled, true,
@@ -235,6 +295,59 @@ try {
   }))()`);
   assert.notEqual(borderEvidence.active, borderEvidence.inactive,
     `active Pane border must be visually distinct: ${JSON.stringify(borderEvidence)}`);
+
+  const beforeMaximize = await evaluate(cdp, layoutStateExpression());
+  const normalSecondary = beforeMaximize.panes.find(({ paneId }) => paneId === 'pane-secondary');
+  await clickPaneControl(cdp, 'pane-secondary', '.pane-maximize');
+  await waitFor(cdp, `document.querySelector('.workspace-pane-grid')?.dataset.maximizedPaneId === 'pane-secondary'`);
+  const maximized = await evaluate(cdp, `(() => {
+    const workspace = document.querySelector('.replay-workspace');
+    const grid = document.querySelector('.workspace-pane-grid');
+    const pane = document.querySelector('[data-pane-id="pane-secondary"]');
+    const other = document.querySelector('[data-pane-id="pane-main"]');
+    const button = pane.querySelector('.pane-maximize');
+    const gridRect = grid.getBoundingClientRect();
+    const paneRect = pane.getBoundingClientRect();
+    return {
+      buttonLabel: button.getAttribute('aria-label'),
+      buttonPressed: button.getAttribute('aria-pressed'),
+      mountedPaneCount: [...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
+        .filter((item) => item.querySelector('.lightweight-chart-host canvas')).length,
+      heightDelta: Math.abs(gridRect.height - paneRect.height),
+      layoutId: workspace.dataset.layoutId,
+      otherAriaHidden: other.getAttribute('aria-hidden'),
+      otherClass: other.className,
+      otherOpacity: other.style.opacity,
+      paneCount: Number(workspace.dataset.paneCount),
+      replayRevision: Number(workspace.dataset.replayRevision),
+      widthDelta: Math.abs(gridRect.width - paneRect.width),
+      workspaceRevision: Number(workspace.dataset.workspaceRevision),
+    };
+  })()`);
+  const maximizeCase = overlayCases.get('maximize-is-transient-and-keeps-two-charts-mounted');
+  assert.deepEqual(maximized, {
+    buttonLabel: 'Restore pane-secondary chart',
+    buttonPressed: 'true',
+    mountedPaneCount: maximizeCase.expectedPaneCount,
+    heightDelta: 0,
+    layoutId: 'layout.two-columns',
+    otherAriaHidden: 'true',
+    otherClass: 'workspace-pane is-layout-hidden',
+    otherOpacity: maximizeCase.expectedHiddenOpacity,
+    paneCount: 2,
+    replayRevision: beforeMaximize.replayRevision,
+    widthDelta: 0,
+    workspaceRevision: beforeMaximize.workspaceRevision,
+  }, 'maximize is a transient outer-DOM presentation and keeps every chart mounted');
+  await capture(cdp, maximizeVisualFile);
+  await clickPaneControl(cdp, 'pane-secondary', '.pane-maximize');
+  await waitFor(cdp, `document.querySelector('.workspace-pane-grid')?.dataset.maximizedPaneId === 'none'`);
+  const restoredSecondary = (await evaluate(cdp, layoutStateExpression())).panes
+    .find(({ paneId }) => paneId === 'pane-secondary');
+  assert.ok(Math.abs(restoredSecondary.left - normalSecondary.left) < 1
+    && Math.abs(restoredSecondary.width - normalSecondary.width) < 1,
+  'restore must recover the exact accepted layout geometry');
+
   const beforeCrosshair = await evaluate(cdp, layoutStateExpression());
   await moveCrosshairToCandle(cdp, 'pane-main');
   let crosshairState = await evaluate(cdp, `(() => ({
@@ -442,5 +555,5 @@ try {
 }
 
 console.log('v7 Replay Layout Workspace browser harness passed', {
-  scope: '12 layouts, active border, Pane OHLC, local/synced crosshair, resizable persistence, shared Replay/ETH-RTH',
+  scope: '12 layouts, Canvas OHLC/change, transient maximize, local/synced crosshair, resize persistence, shared Replay/ETH-RTH',
 });

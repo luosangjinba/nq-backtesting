@@ -29,7 +29,8 @@ References:
 
 ## Controls And Ownership
 
-Reset View, Restart, Go to, and Local status remain in the top toolbar. The
+Reset View, Restart, Go to, and Local status remain in the top toolbar for the
+R6.8 gate; R6.9b later moves Reset into each Pane. The
 bottom capsule owns only presentation and intent dispatch for:
 
 - Previous bar;

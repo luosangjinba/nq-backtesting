@@ -464,6 +464,13 @@ Blank chart output is never treated as a loading indicator. Runtime readiness
 must be explicit, and the prior accepted chart snapshot remains visible behind
 a bounded refresh gate whenever product semantics allow it.
 
+Product-Pane status is a read-only Canvas overlay owned by Replay Workspace UI;
+it does not reserve chart geometry or become a second chart state owner.
+Pane Maximize/Restore is transient outer-DOM presentation: it keeps all chart
+hosts mounted, never rewrites Pane Layout intent, and cannot move Replay,
+request data, mutate series, persist state, or open a Workspace transaction.
+Reset View remains an explicit Pane-local Viewport intent.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

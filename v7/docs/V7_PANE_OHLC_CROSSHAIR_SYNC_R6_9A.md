@@ -6,9 +6,9 @@ Status: implemented; awaiting human interaction and visual review (2026-07-21)
 
 R6.9a closes the first R6.9 visual review findings:
 
-- the active product Pane has a clearly visible `2px` blue boundary and a
-  subtly tinted local header;
-- every Pane header presents its own symbol, timeframe, and compact OHLC;
+- the active product Pane has a clearly visible `2px` blue boundary;
+- every Pane presents its own symbol, timeframe, and compact OHLC; R6.9b later
+  integrates this readout into the Canvas and removes the tinted header row;
 - a single Pane shows the crosshair-selected candle when one is hit and its
   latest visible candle when the crosshair is outside candle data;
 - with multiple Panes and Crosshair sync off, the Pane physically under the
@@ -55,7 +55,7 @@ cannot write the series.
 ## Layout Geometry Correction
 
 The minimum Pane width increases from `180px` to `280px` so symbol, timeframe,
-OHLC, and Reset remain readable. Minimum height remains `120px`. The pure Pane
+OHLC, and local controls remain readable. Minimum height remains `120px`. The pure Pane
 Layout Domain continues to clamp every nested split from measured subtree
 geometry, and accepted ratios remain Session-persisted.
 
@@ -74,5 +74,5 @@ geometry, and accepted ratios remain Session-persisted.
   Harnesses; `git diff --check` also passes.
 
 This is an R6.9 review correction and the first bounded Crosshair portion of
-layout synchronization. Symbol, interval, time, and date-range sync remain
-outside this slice.
+layout synchronization. R6.9b supplies the follow-up Canvas overlay and Pane
+controls; Symbol, interval, time, and date-range sync remain outside this slice.

@@ -1,0 +1,16 @@
+[
+  {
+    "name": "single-pane-maximize-unavailable",
+    "expectedDisplay": "none"
+  },
+  {
+    "name": "maximize-is-transient-and-keeps-two-charts-mounted",
+    "expectedHiddenOpacity": "0",
+    "expectedPaneCount": 2
+  },
+  {
+    "name": "reset-is-pane-local",
+    "forbiddenSelector": ".replay-reset",
+    "requiredSelector": ".workspace-pane .pane-reset"
+  }
+]

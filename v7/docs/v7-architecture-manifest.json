@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.9a-pane-ohlc-crosshair-sync-awaiting-human-review",
+  "status": "r6.9b-pane-canvas-overlay-maximize-awaiting-human-review",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -40,6 +40,7 @@
     "docs/V7_REPLAY_NAVIGATION_RUNTIME.md",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
+    "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md",
     "docs/V7_CHART_SNAPSHOT_APPLICATION.md",
     "docs/V7_VIEWPORT_RUNTIME.md",
     "docs/V7_LIGHTWEIGHT_CHART_SLICE.md",
@@ -227,6 +228,7 @@
     "complete-pane-set-materializes-and-applies-atomically",
     "replay-navigation-shares-one-clock-and-pane-set-transaction",
     "versioned-pane-layout-persistence-and-resize-bounds",
-    "pane-local-latest-ohlc-and-chart-only-crosshair-sync"
+    "pane-local-latest-ohlc-and-chart-only-crosshair-sync",
+    "pane-canvas-overlay-controls-are-transient-and-local"
   ]
 }

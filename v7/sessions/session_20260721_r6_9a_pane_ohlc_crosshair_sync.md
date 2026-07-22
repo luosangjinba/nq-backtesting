@@ -5,8 +5,8 @@ Status: awaiting human interaction and visual review
 
 ## Delivered
 
-- strengthened active Pane focus with a bright `2px` blue boundary and
-  Pane-local header tint;
+- strengthened active Pane focus with a bright `2px` blue boundary; R6.9b
+  subsequently removes the header tint while retaining that boundary;
 - added compact O/H/L/C beside every Pane's symbol and timeframe;
 - implemented the required selected/latest/empty OHLC rules for single and
   multi-Pane workspaces;
@@ -40,6 +40,6 @@ Status: awaiting human interaction and visual review
 
 ## Review Boundary
 
-R6.9a is an interaction and visual correction, so R6.9/R6.9a stops for explicit
-human acceptance. Remaining R6.10 Symbol/Interval/Time/Date-range sync is not
-part of this slice.
+R6.9a is an interaction and visual correction. Its R6.9b follow-up joins the
+same explicit human acceptance gate before remaining R6.10 Symbol/Interval/
+Time/Date-range sync.

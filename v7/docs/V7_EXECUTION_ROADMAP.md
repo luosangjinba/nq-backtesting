@@ -367,7 +367,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9a`: strengthen active focus, add accepted Pane-local OHLC, and implement
   chart-only Crosshair sync through adapter-owned official APIs without Replay,
   data, focus, Session, or Workspace transaction effects; awaiting combined
-  R6.9/R6.9a human review;
+  R6.9/R6.9a/R6.9b human review;
+- `R6.9b`: integrate compact symbol/TF/OHLC/change into the Canvas, move Reset
+  to each Pane, and add transient hover Maximize/Restore that keeps every chart
+  mounted and preserves exact layout, Replay, and Workspace state; awaiting the
+  combined R6.9/R6.9a/R6.9b human review;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;
