@@ -45,8 +45,24 @@ and Quick New York Session actions. An isolated real-data two-Pane probe ran
 twelve alternating Exact/Quick cycles over the reported `2026-03-10 10:45` to
 `2026-05-22 10:45` New York range: all target proposals reached the one shared
 cursor and no target-resolution conflict occurred. The failure source is the
-chart adapter's single transient pixel observation. Its bounded paint gate now
-checks up to four two-frame paint opportunities within the same two-second
-deadline before rejecting. The real-Chrome Workspace Harness additionally
-executes three Quick New York Session ↔ Exact cycles and requires ready state
-with no `CHART_CANDLES_NOT_PAINTED` receipt.
+chart adapter's transient raster-color observation. The real-Chrome Workspace
+Harness additionally executes three Quick New York Session ↔ Exact cycles and
+requires ready state with no `CHART_CANDLES_NOT_PAINTED` receipt.
+
+A second human review reproduced the same receipt at the deterministic
+`2026-03-12 23:59` boundary after several Next Day Open actions. Direct provider
+probes proved that ES rolls `ESH6 → ESM6` at `2026-03-13 00:00` and NQ rolls
+`NQH6 → NQM6` at `2026-03-16 00:00`; both sides contain consecutive source
+minutes, so neither GoTo nor Projection created a data hole. An isolated
+two-Pane browser probe then crossed both roll dates through eight consecutive
+Next Day Open transactions without a target or source failure, confirming that
+the remaining rejection was the raster-color assertion itself.
+
+The adapter now treats screenshot candle pixels as preferred diagnostic proof,
+not the sole transaction authority. After the same bounded two-frame paint
+opportunity, a missing color match falls back to the official series and
+coordinate surfaces: the series mutation revision must advance, its latest
+logical row must equal the submitted OHLC, and both time and price coordinates
+must be finite. Missing raster and missing series geometry still reject with
+`CHART_CANDLES_NOT_PAINTED`; transient raster sampling or future custom candle
+colors can no longer roll back an otherwise observable all-Pane commit.

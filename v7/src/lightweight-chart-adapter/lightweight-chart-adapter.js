@@ -228,8 +228,12 @@ export function createLightweightChartAdapter({
       await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
       host.dataset.lastPaintProof = 'series-change-two-frame';
     } else {
-      await requirePaintedCandles(chart, requestFrame);
-      host.dataset.lastPaintProof = 'screenshot-candle-pixels';
+      host.dataset.lastPaintProof = await requirePaintedCandles(chart, requestFrame, {
+        changed: () => seriesDataRevision > dataRevisionBefore,
+        latestBar: data.at(-1),
+        latestLogicalIndex: data.length - 1,
+        series,
+      });
     }
     return Object.freeze({ mutation, mutationEndedAt, paintedAt: performance.now(), startedAt });
   }

@@ -11,7 +11,10 @@ import {
   createFutureTimeAxisData,
   FUTURE_TIME_AXIS_POINT_COUNT,
 } from '../src/lightweight-chart-adapter/future-time-axis.js';
-import { requireTailUpdatePaint } from '../src/lightweight-chart-adapter/paint-gate.js';
+import {
+  requirePaintedCandles,
+  requireTailUpdatePaint,
+} from '../src/lightweight-chart-adapter/paint-gate.js';
 import { planVisibleLogicalRange } from '../src/lightweight-chart-adapter/logical-range-plan.js';
 import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
@@ -83,6 +86,38 @@ await assert.rejects(
   requireTailUpdatePaint({ changed: () => false, requestFrame: () => {} }),
   (error) => error?.code === 'CHART_TAIL_UPDATE_NOT_OBSERVED',
 );
+const coordinateProofBar = candle(1, 2);
+const emptyRaster = {
+  width: 1,
+  height: 1,
+  getContext: () => ({ getImageData: () => ({ data: new Uint8ClampedArray(4) }) }),
+};
+assert.equal(await requirePaintedCandles({
+  takeScreenshot: () => emptyRaster,
+  timeScale: () => ({ timeToCoordinate: () => 12 }),
+}, (callback) => callback(), {
+  changed: () => true,
+  latestBar: coordinateProofBar,
+  latestLogicalIndex: 0,
+  series: {
+    dataByIndex: () => coordinateProofBar,
+    priceToCoordinate: () => 34,
+  },
+}), 'series-data-coordinates',
+'validated series data and finite coordinates must survive an empty raster observation');
+await assert.rejects(requirePaintedCandles({
+  takeScreenshot: () => emptyRaster,
+  timeScale: () => ({ timeToCoordinate: () => null }),
+}, (callback) => callback(), {
+  changed: () => true,
+  latestBar: coordinateProofBar,
+  latestLogicalIndex: 0,
+  series: {
+    dataByIndex: () => coordinateProofBar,
+    priceToCoordinate: () => null,
+  },
+}), (error) => error?.code === 'CHART_CANDLES_NOT_PAINTED',
+'empty raster without finite series coordinates must still reject the transaction');
 
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-lwc-adapter-'));

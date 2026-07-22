@@ -1154,6 +1154,9 @@ redesign below instead of being applied in isolation.
 - [x] retain the existing exclusive-cutoff `goto-exact` action and atomic
   visible-Pane response;
 - [x] bind the interaction and fixed dialog visual in real Chrome;
+- [x] replace raster-color-only visible completion with bounded raster plus
+  validated series-data/coordinate proof after repeated GoTo and Next Day Open
+  exposed intermittent false rollback at futures roll boundaries;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 ### R6.9f Workstation Settings Catalog And Ownership — Completed Headlessly

@@ -26,18 +26,8 @@ async function boundedPaintOpportunity(requestFrame, work = () => crossPaintOppo
 async function observePaintedCandles(chart, requestFrame) {
   let observed = null;
   await boundedPaintOpportunity(requestFrame, async () => {
-    // A chart mutation can cross the JS rAF boundary before its raster surface
-    // is sampled. Keep this bounded to four two-frame observations so one
-    // transient empty snapshot cannot reject an otherwise current all-Pane
-    // Replay commit.
-    for (let attempt = 0; attempt < 4; attempt += 1) {
-      await crossPaintOpportunity(requestFrame);
-      const canvas = chart.takeScreenshot();
-      if (containsCandlePixels(canvas)) {
-        observed = canvas;
-        return;
-      }
-    }
+    await crossPaintOpportunity(requestFrame);
+    observed = chart.takeScreenshot();
   });
   return observed;
 }
@@ -58,13 +48,35 @@ function containsCandlePixels(canvas) {
   return false;
 }
 
-/** Wait across two rendering opportunities and prove candle pixels exist. */
-export async function requirePaintedCandles(chart, requestFrame) {
+function sameBar(left, right) {
+  return ['time', 'open', 'high', 'low', 'close']
+    .every((field) => left?.[field] === right?.[field]);
+}
+
+function seriesProjectionObserved({ chart, changed, latestBar, latestLogicalIndex, series }) {
+  if (typeof changed !== 'function' || changed() !== true) return false;
+  if (!latestBar || !Number.isSafeInteger(latestLogicalIndex) || latestLogicalIndex < 0) return false;
+  const stored = series?.dataByIndex?.(latestLogicalIndex) ?? null;
+  if (!sameBar(stored, latestBar)) return false;
+  const timeCoordinate = chart?.timeScale?.().timeToCoordinate(latestBar.time);
+  const priceCoordinate = series?.priceToCoordinate?.(latestBar.close);
+  return Number.isFinite(timeCoordinate) && Number.isFinite(priceCoordinate);
+}
+
+/**
+ * Cross the browser paint boundary and prove the current series mutation is
+ * observable. Raster candle colors are preferred diagnostic evidence, while
+ * the public series/coordinate APIs provide the stable hard proof when a
+ * transient or custom-colored screenshot contains no recognizable pixels.
+ */
+export async function requirePaintedCandles(chart, requestFrame, verification = {}) {
   const canvas = await observePaintedCandles(chart, requestFrame);
-  if (!containsCandlePixels(canvas)) {
-    failLightweightAdapter('CHART_CANDLES_NOT_PAINTED', 'No painted candle pixels were observed.');
-  }
-  return canvas;
+  if (containsCandlePixels(canvas)) return 'screenshot-candle-pixels';
+  if (seriesProjectionObserved({ chart, ...verification })) return 'series-data-coordinates';
+  failLightweightAdapter(
+    'CHART_CANDLES_NOT_PAINTED',
+    'No candle pixels or current series coordinates were observed.',
+  );
 }
 
 /** Prove a tail mutation reached the series, then cross its render opportunity. */
