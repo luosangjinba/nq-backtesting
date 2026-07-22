@@ -426,7 +426,6 @@ try {
   assert.equal(await evaluate(cdp,
     `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-05T15:00',
   'Exact GoTo must default to the current shared Replay cursor');
-  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-trigger').click()`);
   assert.deepEqual(await evaluate(cdp, `(() => {
     const find = (label) => document.querySelector('.exact-goto-dialog [aria-label="' + label + '"]');
     return {
@@ -438,9 +437,15 @@ try {
   })()`), {
     beforeDisabled: true, startState: 'start', endState: 'end', afterDisabled: true,
   }, 'Exact GoTo Calendar must highlight the Session range and disable outside dates');
-  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-trigger').click()`);
   await evaluate(cdp, `document.activeElement?.blur()`);
   await capture(cdp, exactGotoVisualFile, '.exact-goto-dialog');
+  await evaluate(cdp, `(() => {
+    document.querySelector('.exact-goto-dialog [aria-label="May 4, 2026"]').click();
+    document.querySelector('.exact-goto-dialog [aria-label="Increase minute"]').click();
+  })()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-04T15:01',
+  'the inline Calendar day and time controls must update the one exact target value');
   const beforeInvalidExact = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `(() => {
     document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-04-30T23:59';

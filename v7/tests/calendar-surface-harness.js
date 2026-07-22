@@ -49,11 +49,14 @@ const negativeActions = Object.freeze({
   'non-finite-epoch': () => formatLocalDateTimeValue(Number.NaN),
   'unsupported-precision': () => formatLocalDateTimeValue(minuteEpoch, 'tick'),
   'unsupported-placement': () => createDateTimeControl({ name: 'start', placement: 'middle' }),
+  'unsupported-presentation': () => createDateTimeControl({ name: 'start', presentation: 'modal' }),
   'invalid-calendar-date': () => createLocalDate({ year: 2026, month: 1, day: 31 }),
 });
 for (const fixture of negativeCases) {
   assert.throws(negativeActions[fixture.action], new RegExp(fixture.expectedMessage), fixture.name);
 }
+assert.throws(negativeActions['unsupported-presentation'], /Date-time presentation is unsupported/,
+  'Calendar consumers must opt into one supported presentation mode');
 
 const leapMonth = createMonthGrid({
   year: 2020, month: 1,

@@ -603,6 +603,10 @@
 .goto-validation { margin: 9px 0 0; color: #ffc4c9; font-size: 10px; }
 .exact-goto-toggle { min-width: 48px; }
 .exact-goto-dialog { width: min(430px, calc(100vw - 28px)); }
+.exact-goto-dialog .goto-dialog-body { overflow: visible; }
+.exact-goto-dialog .date-time-body { min-height: 0; }
+.exact-goto-dialog .date-time-actions { display: none; }
+.exact-goto-dialog .date-time-calendar { padding-bottom: 7px; }
 .exact-goto-range {
   margin: 0 0 12px;
   color: #c5c9cf;

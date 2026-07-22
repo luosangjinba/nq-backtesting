@@ -29,3 +29,13 @@ Status: awaiting human interaction and visual review
 Human review should cover the separate `Exact` entry, dialog visual hierarchy,
 range highlighting/disabled dates, explicit boundary feedback, and exact
 forward/backward/no-op behavior in single and multi-Pane layouts.
+
+## Review Correction
+
+The first review exposed a nested Calendar popover that opened above the Exact
+dialog and was clipped, making date selection unusable. Exact GoTo now requests
+the same Calendar Surface in an inline presentation: visible date and time
+fields, prior/next month navigation, full month grid, and time steppers all
+remain inside the one dialog. The real-Chrome Harness now clicks a selectable
+Session date and changes the minute through the visible controls before
+asserting the one normalized target value.

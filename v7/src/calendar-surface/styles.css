@@ -1,6 +1,28 @@
 .calendar-icon { width: 17px; height: 17px; display: inline-grid; place-items: center; flex: 0 0 auto; }
 .calendar-icon svg { width: 100%; height: 100%; }
 .date-time-control { position: relative; }
+.date-time-control.is-inline { position: static; }
+.date-time-inline-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  min-height: 38px;
+  margin-bottom: 10px;
+}
+.date-time-inline-date,
+.date-time-inline-time {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  padding: 0 11px;
+  border: 1px solid var(--border-strong);
+  border-radius: 7px;
+  background: #101114;
+  color: var(--text-primary);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.date-time-inline-time { justify-content: center; min-width: 74px; }
 .date-time-trigger {
   width: 100%; height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 0 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm);
@@ -15,6 +37,15 @@
   background: #090e14; box-shadow: 0 18px 54px rgba(0,0,0,.5);
 }
 .date-time-control.is-align-end .date-time-popover { right: 0; left: auto; }
+.date-time-control.is-inline .date-time-popover {
+  position: static;
+  width: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
 .date-time-nav { min-height: 36px; display: grid; grid-template-columns: 32px 1fr 32px; align-items: center; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); }
 .date-time-heading { display: flex; align-items: center; justify-content: center; gap: 12px; }
 .date-time-heading-button, .date-time-heading-static, .date-time-nav-button {

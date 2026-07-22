@@ -40,6 +40,7 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
     maxEpochMs: range.endEpochMs,
     minEpochMs: range.startEpochMs,
     name: 'goto-target',
+    presentation: 'inline',
     timeZone: 'America/New_York',
   });
   const validation = element('p', { className: 'goto-validation exact-goto-validation' });
@@ -76,6 +77,7 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
   function open(epochMs = getDefaultEpochMs()) {
     if (Number.isSafeInteger(epochMs)) dateTime.setEpochMs(epochMs);
     validation.hidden = true;
+    dateTime.open();
     dialog.showModal();
   }
 

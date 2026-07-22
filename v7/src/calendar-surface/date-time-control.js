@@ -101,13 +101,21 @@ export function parseLocalDateTimeValue(value, timeZone = null) {
     : Number.NaN;
 }
 
-function createStructure(name, label, placement) {
+function createStructure(name, label, placement, presentation) {
   const hiddenInput = element('input', { name, type: 'hidden' });
   const triggerText = element('span', { className: 'date-time-trigger-text', text: 'Select date and time' });
-  const trigger = element('button', {
+  const trigger = presentation === 'popover' ? element('button', {
     className: 'date-time-trigger', type: 'button', 'aria-haspopup': 'dialog', 'aria-expanded': 'false',
     'aria-label': `Choose ${label} date and time`,
-  }, [triggerText, icon('calendar')]);
+  }, [triggerText, icon('calendar')]) : null;
+  const inlineDate = presentation === 'inline'
+    ? element('span', { className: 'date-time-inline-date', text: 'Select date' }) : null;
+  const inlineTime = presentation === 'inline'
+    ? element('span', { className: 'date-time-inline-time', text: '00:00' }) : null;
+  const inlineSummary = presentation === 'inline'
+    ? element('div', { className: 'date-time-inline-summary', 'aria-label': `${label} date and time` }, [
+      inlineDate, inlineTime,
+    ]) : null;
   const heading = element('div', { className: 'date-time-heading' });
   const body = element('div', { className: 'date-time-body' });
   const popover = element('div', {
@@ -125,18 +133,21 @@ function createStructure(name, label, placement) {
     ]),
   ]);
   const root = element('div', {
-    className: `date-time-control${placement === 'end' ? ' is-align-end' : ''}`,
-  }, [hiddenInput, trigger, popover]);
-  return { root, hiddenInput, trigger, triggerText, heading, body, popover };
+    className: `date-time-control${placement === 'end' ? ' is-align-end' : ''}${presentation === 'inline' ? ' is-inline' : ''}`,
+  }, [hiddenInput, trigger, inlineSummary, popover]);
+  return {
+    root, hiddenInput, trigger, triggerText, inlineDate, inlineTime, heading, body, popover,
+  };
 }
 
 class DateTimeControl {
-  constructor({ dateRange, name, label, precision, placement, now, timeZone }) {
+  constructor({ dateRange, name, label, precision, placement, presentation, now, timeZone }) {
     this.dateRange = dateRange;
     this.precision = precision;
+    this.presentation = presentation;
     this.now = now;
     this.timeZone = timeZone;
-    this.nodes = createStructure(name, label, placement);
+    this.nodes = createStructure(name, label, placement, presentation);
     this.selected = null;
     const today = this.wallDate(this.now());
     this.displayYear = today.getFullYear();
@@ -153,7 +164,7 @@ class DateTimeControl {
 
   bind() {
     const { trigger, popover } = this.nodes;
-    trigger.addEventListener('click', () => (this.isOpen() ? this.close() : this.open()));
+    trigger?.addEventListener('click', () => (this.isOpen() ? this.close() : this.open()));
     popover.querySelector('.date-time-previous').addEventListener('click', () => this.navigate(-1));
     popover.querySelector('.date-time-next').addEventListener('click', () => this.navigate(1));
     popover.querySelector('.date-time-today').addEventListener('click', () => this.select(this.wallDate(this.now())));
@@ -163,19 +174,19 @@ class DateTimeControl {
       event.preventDefault();
       event.stopPropagation();
       this.close();
-      trigger.focus();
+      trigger?.focus();
     });
   }
 
   open() {
     this.nodes.popover.hidden = false;
-    this.nodes.trigger.setAttribute('aria-expanded', 'true');
+    this.nodes.trigger?.setAttribute('aria-expanded', 'true');
     this.render();
   }
 
   close() {
     this.nodes.popover.hidden = true;
-    this.nodes.trigger.setAttribute('aria-expanded', 'false');
+    this.nodes.trigger?.setAttribute('aria-expanded', 'false');
     this.view = VIEW.DAYS;
   }
 
@@ -187,6 +198,8 @@ class DateTimeControl {
     this.selected = null;
     this.nodes.hiddenInput.value = '';
     this.nodes.triggerText.textContent = 'Select date and time';
+    if (this.nodes.inlineDate) this.nodes.inlineDate.textContent = 'Select date';
+    if (this.nodes.inlineTime) this.nodes.inlineTime.textContent = '00:00';
     const today = this.wallDate(this.now());
     this.displayYear = today.getFullYear();
     this.displayMonth = today.getMonth();
@@ -196,7 +209,7 @@ class DateTimeControl {
 
   clear() {
     this.reset();
-    this.nodes.trigger.focus();
+    this.nodes.trigger?.focus();
   }
 
   dateState(date) {
@@ -217,6 +230,12 @@ class DateTimeControl {
     this.displayMonth = date.getMonth();
     this.nodes.hiddenInput.value = formatLocalDateTimeValue(date.getTime(), this.precision);
     this.nodes.triggerText.textContent = formatTrigger(date, this.precision);
+    if (this.nodes.inlineDate) {
+      this.nodes.inlineDate.textContent = `${pad(date.getFullYear())}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    }
+    if (this.nodes.inlineTime) {
+      this.nodes.inlineTime.textContent = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    }
     this.view = VIEW.DAYS;
     this.render();
   }
@@ -358,11 +377,15 @@ export function createDateTimeControl({
   label = name,
   precision = 'minute',
   placement = 'start',
+  presentation = 'popover',
   now = () => Date.now(),
   timeZone = null,
 }) {
   if (!Object.hasOwn(PRECISION_LENGTH, precision)) throw new TypeError('Date-time precision is unsupported.');
   if (placement !== 'start' && placement !== 'end') throw new TypeError('Date-time placement is unsupported.');
+  if (presentation !== 'popover' && presentation !== 'inline') {
+    throw new TypeError('Date-time presentation is unsupported.');
+  }
   if (timeZone !== null) {
     try {
       new Intl.DateTimeFormat('en', { timeZone }).format(0);
@@ -384,7 +407,9 @@ export function createDateTimeControl({
       start: formatLocalDateTimeValue(minEpochMs, 'minute', timeZone).slice(0, 10),
     });
   }
-  const controller = new DateTimeControl({ dateRange, name, label, precision, placement, now, timeZone });
+  const controller = new DateTimeControl({
+    dateRange, name, label, precision, placement, presentation, now, timeZone,
+  });
   return Object.freeze({
     element: controller.nodes.root,
     reset: () => controller.reset(),
@@ -394,6 +419,7 @@ export function createDateTimeControl({
       controller.select(new Date(value));
     },
     value: () => controller.nodes.hiddenInput.value,
+    open: () => controller.open(),
     close: () => controller.close(),
     isOpen: () => controller.isOpen(),
   });
