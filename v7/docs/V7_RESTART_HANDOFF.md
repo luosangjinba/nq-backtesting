@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after the headless R6.9f Workstation Settings catalog;
+Last updated: 2026-07-22 after the headless R6.9g Settings product refinement;
 R6.9c and R6.9e await focused human review
 
 This is the first document to read after a machine, server, or agent restart.
@@ -23,8 +23,9 @@ required for normal startup.
   visual review; R6.9d shared GoTo contract completed headlessly; R6.9e eight-
   action Quick GoTo, Session-persisted settings, and range feedback implemented
   and awaiting human review; R6.9f global Workstation Settings catalog and
-  ownership contract completed headlessly; R2.4 Session Browser readability
-  and confirmed durable delete human accepted
+  ownership contract plus R6.9g field-level product refinement completed
+  headlessly; R2.4 Session Browser readability and confirmed durable delete
+  human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -289,9 +290,16 @@ and human-accepted:
 - R6.9f freezes one global Workstation Settings scope, separate from Session
   Quick GoTo settings and Pane operational state. It retains the V6-proven
   draft/Save/Cancel/Reset semantics, routes each field to its real owner, and
-  defines R6.9h-j as bounded persistence, direct chart/candle, and optional
-  visibility slices after the separate R6.9g Exact GoTo delivery. It changes no
-  production behavior and was completed headlessly.
+  originally bounded persistence, direct chart/candle, and optional visibility
+  slices after Exact GoTo. It changes no production behavior and was completed
+  headlessly; R6.9g supersedes only the future ids and field detail below.
+- R6.9g records the user's detailed four-tab FXReplay audit without activating
+  a production control. Body/Border/Wick visibility, shared Precision, and
+  nullable Volume become real planned fields; Crosshair gains
+  opacity/width/style; Grid becomes visibility-only; Canvas border/session-break
+  noise is rejected; all eight current-price Name/Value/Line combinations and
+  practical New York/UTC/local date/hour presentation are retained. Future
+  unimplemented ids move to R6.9h-m rather than reusing the delivered R6.9g id.
 - R2.4 returns to the accepted Session Browser boundary for a bounded user
   follow-up: list-only deeper neutral surfaces, brighter/larger typography, and
   one confirmed Delete action per card. Browser UI dispatches only the command;
@@ -418,15 +426,16 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9f Settings planning is complete and changes no production behavior. R6.9e
+R6.9g Settings product refinement is complete and changes no production
+behavior. R6.9e
 Quick GoTo settings and range feedback still require human interaction/visual
-acceptance. After acceptance, execute R6.9g as one separate Exact GoTo slice:
+acceptance. After acceptance, execute R6.9h as one separate Exact GoTo slice:
 move Exact GoTo to its own Workspace-level entry and add Session-range-aware
-Calendar Surface presentation with explicit boundary validation. R6.9h-j then
-activate the planned global Settings foundation, direct chart/candle appearance,
-and bounded optional-element visibility before R6.10 sync. Economic Calendar
-remains outside this foundation phase. The outstanding R6.9c focused visual
-confirmation remains a separate gate.
+Calendar Surface presentation with explicit boundary validation. R6.9i-m then
+activate the planned global Settings foundation, Symbol, Status/current price,
+Canvas, and shared time slices before R6.10 sync. Economic Calendar remains
+outside this foundation phase. The outstanding R6.9c focused visual confirmation
+remains a separate gate.
 
 ## Standing Workflow
 

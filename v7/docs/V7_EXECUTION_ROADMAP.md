@@ -401,14 +401,22 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9f`: freeze the global Workstation Settings catalog, transactional draft,
   persistence scope, consumer routing, and all-Pane presentation invariants
   without activating production behavior;
-- `R6.9g`: after R6.9e acceptance, separate Exact GoTo into its own
+- `R6.9g`: refine the field catalog from the user-reviewed FXReplay audit:
+  price precision, nullable Volume, rich shared Crosshair, simplified Grid,
+  current-price controls, practical time formats, and explicit non-goals;
+- `R6.9h`: after R6.9e acceptance, separate Exact GoTo into its own
   Workspace-level entry with Session-range-aware Calendar presentation;
-- `R6.9h`: activate the versioned Workstation Settings owner, durable global
+- `R6.9i`: activate the versioned Workstation Settings owner, durable global
   record, transactional draft shell, and one honest Grid consumer;
-- `R6.9i`: activate direct Canvas and Candles appearance through chart-owned
-  native option fan-out without series-data or Replay mutation;
-- `R6.9j`: activate bounded OHLC/change/current-price/Pane-control visibility
-  without allowing essential Replay, failure, or active-Pane context to hide;
+- `R6.9j`: activate candle body/border/wick presentation plus Auto/manual
+  shared price formatting through chart-owned option fan-out;
+- `R6.9k`: activate bounded OHLC/change/Volume and current-price Name/Value/Line
+  controls, proving all eight price-label combinations without hiding essential
+  symbol/TF provenance;
+- `R6.9l`: activate solid Canvas background, shared rich Crosshair, scale text,
+  Pane-control visibility, and owner-routed top/bottom/right margins;
+- `R6.9m`: activate shared New York/UTC/local, date, weekday, and 12/24-hour
+  presentation without changing canonical instants or Replay semantics;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;

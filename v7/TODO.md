@@ -1118,7 +1118,7 @@ redesign below instead of being applied in isolation.
   range end, and fixed visual output in focused and real-Chrome Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
-After acceptance, R6.9g separates Exact GoTo into its own Workspace-level entry
+After acceptance, R6.9h separates Exact GoTo into its own Workspace-level entry
 and adds range-aware Calendar Surface presentation. It may not start another
 Replay path.
 
@@ -1143,10 +1143,36 @@ Replay path.
 - [x] verify native Lightweight Charts chart/series `applyOptions` support so
   presentation changes do not require custom rendering or data replacement.
 
-R6.9f changes no production behavior and requires no visual acceptance. After
-R6.9e human acceptance, R6.9g delivers Exact GoTo. R6.9h activates the Settings
-transaction/persistence foundation with one honest Grid consumer; R6.9i adds
-direct Canvas/Candles options; R6.9j adds bounded optional-element visibility.
+R6.9f changes no production behavior and requires no visual acceptance. Its
+field-level product catalog is refined by R6.9g below.
+
+### R6.9g Workstation Settings Product Refinement — Completed Headlessly
+
+- [x] promote Auto/Integer/1-15 decimal price precision into the active plan,
+  using exact Instrument `priceIncrement` for Auto, applying one formatter to
+  axis/current-price/OHLC/change, and rejecting fractions;
+- [x] retain Body/Border/Wick visibility and independent up/down colors while
+  requiring a verified adapter mapping for the non-native Body switch;
+- [x] promote nullable Volume visibility into the active readout plan with
+  honest `Vol —` presentation and no synthetic zero;
+- [x] expand shared Crosshair presentation to color, opacity, native width, and
+  solid/dashed/dotted style across every Pane;
+- [x] simplify Grid to one visibility switch and reject gradient background,
+  editable Grid color, Session breaks, Watermark, and Canvas boundary color;
+- [x] retain current-price Name/Value/Line as independent controls while
+  requiring all eight combinations to pass and rejecting percentage, scale
+  placement/modes, ratio lock, countdown, and plus;
+- [x] add simplified New York/UTC/local, four practical date formats, weekday,
+  and 12/24-hour presentation without changing canonical time or Replay;
+- [x] retain the four-tab Symbol/Status line/Scales and lines/Canvas shell with
+  Reset/Cancel/OK and omit Template/Apply to all;
+- [x] split future production delivery into focused owner/consumer slices.
+
+R6.9g changes no production behavior and requires no visual acceptance. After
+R6.9e human acceptance, R6.9h delivers Exact GoTo. R6.9i activates the Settings
+owner/persistence/shell with one real Grid consumer; R6.9j adds Symbol;
+R6.9k adds Status/current price; R6.9l adds Canvas; R6.9m adds shared time
+presentation.
 
 ## Standing Gates
 

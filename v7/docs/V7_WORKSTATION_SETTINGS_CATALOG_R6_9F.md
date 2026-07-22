@@ -1,7 +1,8 @@
 # V7 Workstation Settings Catalog And Ownership — R6.9f
 
-Status: planning contract completed headlessly with automated evidence
-(2026-07-22)
+Status: base planning contract completed headlessly on 2026-07-22; product
+catalog refined by R6.9g on 2026-07-22. This document contains the current
+combined binding catalog.
 
 ## Why This Step Lands Now
 
@@ -29,12 +30,32 @@ chart portions of this catalog:
 - chart layout, grid, crosshair, price-scale, and time-scale options cover the
   direct Canvas fields;
 - candlestick series options cover body, border, wick, current-price line, and
-  current-price label presentation.
+  current-price label presentation;
+- built-in/custom price formats cover metadata-derived Auto precision and
+  explicit display precision without changing accepted bar prices;
+- Crosshair line options natively cover color, width, and line style; adapter
+  color normalization can combine the chosen color and opacity;
+- series `title`, `lastValueVisible`, and `priceLineVisible` provide the native
+  starting point for current-price Name, Value, and Line, but all eight
+  combinations require focused verification before that catalog is activated.
+
+V7 also already owns the two data facts required by the R6.9g refinement:
+
+- every Instrument Definition carries an exact decimal `priceIncrement`, so
+  `Auto` precision has an honest metadata source;
+- raw and projected bars carry non-negative finite `volume` or explicit
+  `null`, and aggregate volume remains `null` when any contributing source
+  value is unavailable.
 
 Official references:
 
 - https://tradingview.github.io/lightweight-charts/docs/api/interfaces/IChartApi
 - https://tradingview.github.io/lightweight-charts/docs/api/interfaces/ISeriesApi
+- https://tradingview.github.io/lightweight-charts/docs/api/interfaces/PriceFormatBuiltIn
+- https://tradingview.github.io/lightweight-charts/docs/api/interfaces/PriceFormatCustom
+- https://tradingview.github.io/lightweight-charts/docs/api/interfaces/CrosshairLineOptions
+- https://tradingview.github.io/lightweight-charts/docs/api/interfaces/SeriesOptionsCommon
+- https://tradingview.github.io/lightweight-charts/docs/api/interfaces/TimeScaleOptions
 - https://tradingview.github.io/lightweight-charts/tutorials/customization/chart-colors
 - https://github.com/tradingview/awesome-tradingview
 
@@ -103,8 +124,9 @@ Consequences:
 | --- | --- | --- | --- |
 | Canvas native options | Workstation Settings | Lightweight Chart adapter through Pane-set fan-out | Apply to every mounted Pane and to future Pane construction without series data writes |
 | Candlestick presentation | Workstation Settings | Lightweight Chart adapter only | `series.applyOptions`; never `setData`/`update` for a style change |
+| Shared price formatting | Workstation Settings | Price-presentation formatter plus Lightweight Chart adapter | One precision across price axis, current-price value, OHLC, and absolute change; never round stored bars |
 | OHLC/change readout | Workstation Settings | Pane overlay/readout view | Preserve existing selected/latest Crosshair semantics |
-| Current-price line/label | Workstation Settings | Lightweight Chart adapter only | Presentation-only; no Replay or price calculation ownership |
+| Current-price line/label | Workstation Settings | Lightweight Chart adapter presentation | Preserve independent Name/Value/Line intent; do not silently couple unsupported native combinations |
 | Pane control visibility | Workstation Settings | Replay Workspace UI | Do not remove essential recovery/navigation access |
 | Workstation design tokens | Workstation Settings | Shared application presentation port | Apply consistently across Session Browser, Calendar, dialogs, and Replay Workspace |
 | Default right margin | Workstation Settings | Viewport Runtime | Update default/reset intent only; never overwrite a manual wall |
@@ -125,26 +147,34 @@ active. An inactive or deferred field must not appear as a working control.
 
 | Stable field id | Control | Consumer | Decision |
 | --- | --- | --- | --- |
-| `canvas.backgroundColor` | Canvas background | Chart adapter | Implement |
+| `canvas.backgroundColor` | Solid Canvas background | Chart adapter | Implement; no gradient mode |
 | `canvas.gridVisible` | Horizontal and vertical grid visibility | Chart adapter | Implement |
-| `canvas.gridColor` | Shared grid color | Chart adapter | Implement |
+| `canvas.gridColor` | User-selectable grid color | Chart adapter | Reject; use the design-token color behind one visibility switch |
 | `canvas.crosshairColor` | Shared Crosshair color | Chart adapter | Implement |
+| `canvas.crosshairOpacityPercent` | Shared Crosshair opacity | Chart adapter | Implement with a bounded percentage composed into both line colors |
+| `canvas.crosshairWidth` | Shared Crosshair thickness | Chart adapter | Implement with supported native line widths |
+| `canvas.crosshairStyle` | Solid / dashed / dotted | Chart adapter | Implement as one style for horizontal and vertical lines |
 | `canvas.scaleTextColor` | Price/time-axis text color | Chart adapter | Implement |
-| `canvas.axisBorderColor` | Price/time-axis border color | Chart adapter | Implement |
+| `canvas.axisBorderColor` | User-selectable Canvas/axis border color | Chart adapter | Reject; retain the design-token boundary |
 | `canvas.scaleFontSize` | Bounded axis font size | Chart adapter | Implement after direct colors |
 | `canvas.topMarginPercent` | Price-scale top margin | Chart adapter | Implement after direct colors |
 | `canvas.bottomMarginPercent` | Price-scale bottom margin | Chart adapter | Implement after direct colors |
-| `canvas.rightMarginBars` | Default/reset right wall | Viewport Runtime | Defer to a separate Viewport-owned slice |
+| `canvas.rightMarginBars` | Default/reset right wall | Viewport Runtime | Implement in R6.9l through the Viewport port; never overwrite a manual wall |
+| `canvas.sessionBreaks` | RTH/non-RTH special background | None | Reject; it adds visual noise and is not an accepted Calendar overlay |
+| `canvas.watermark` | Watermark | None | Reject for current product value |
 
 ### Candles — first direct series slice
 
 | Stable field id | Control | Consumer | Decision |
 | --- | --- | --- | --- |
+| `candles.bodyVisible` | Candle body visibility | Chart adapter | Implement through a verified adapter mapping; the library has no direct body-visible option |
 | `candles.upBodyColor` / `downBodyColor` | Up/down candle body | Chart adapter | Implement |
 | `candles.bordersVisible` | Candle borders | Chart adapter | Implement |
 | `candles.upBorderColor` / `downBorderColor` | Up/down border color | Chart adapter | Implement |
+| `candles.wicksVisible` | Candle wick visibility | Chart adapter | Implement with the native series option |
 | `candles.upWickColor` / `downWickColor` | Up/down wick color | Chart adapter | Implement |
-| `candles.pricePrecision` | Price decimals | Symbol metadata plus Chart adapter | Defer until metadata/default truth is selected |
+| `candles.pricePrecision` | Auto / integer / 1-15 decimals | Instrument metadata, shared price formatter, and Chart adapter | Implement; Auto derives from exact `priceIncrement`, manual modes use a tested formatter while preserving the real tick increment |
+| `candles.fractionalPrecision` | 1/2, 1/4, 1/8 and other fractional quotes | Instrument metadata | Reject until a supported instrument requires fractions |
 | `candles.colorByPreviousClose` | Alternate candle semantics | None | Reject; V7 retains open-versus-close candles |
 
 ### Pane information and price presentation
@@ -153,37 +183,70 @@ active. An inactive or deferred field must not appear as a working control.
 | --- | --- | --- | --- |
 | `paneReadout.ohlcVisible` | OHLC visibility | Pane overlay/readout | Implement |
 | `paneReadout.changeVisible` | Absolute/percent change visibility | Pane overlay/readout | Implement |
+| `paneReadout.volumeVisible` | Volume visibility | Pane overlay/readout | Implement, default off; render unavailable `null` honestly as `Vol —` |
 | `currentPrice.lineVisible` | Current-price line | Chart adapter | Implement |
-| `currentPrice.labelVisible` | Current-price value label | Chart adapter | Implement |
+| `currentPrice.nameVisible` | Symbol name in current-price label | Chart adapter | Implement |
+| `currentPrice.valueVisible` | Current-price value label | Chart adapter | Implement |
+| `currentPrice.percentageVisible` | Percentage in current-price label | None | Reject; adds no current Replay value |
 | `paneReadout.symbolVisible` | Symbol identity | Pane overlay/readout | Reject hiding; identity/provenance stays visible |
 | `paneReadout.timeframeVisible` | TF identity | Pane overlay/readout | Reject hiding; identity/provenance stays visible |
-| `paneReadout.marketStateVisible` | Market-open state | Calendar/readout | Defer until exchange-calendar truth exists |
-| `paneReadout.volumeVisible` | Volume | Data/readout | Defer until volume provenance is accepted |
+| `paneReadout.titleMode` | Description / ticker / both | Symbol/readout | Reject; retain compact symbol plus TF identity |
+| `paneReadout.marketStateVisible` | Market-open state | Calendar/readout | Reject until a future exchange-calendar journey requires it |
+| `paneReadout.background` | Separate status background | Pane overlay/readout | Reject; readout remains integrated into the Canvas |
 
 ### Interface
 
 | Stable field id | Control | Consumer | Decision |
 | --- | --- | --- | --- |
-| `interface.paneControlDock` | `hover` or `always` | Replay Workspace UI | Implement; `hidden` waits for alternate accessible actions |
+| `interface.paneControlDockVisibility` | `hover` / `always` / `hidden` | Replay Workspace UI | Implement for the existing lower-right Maximize/Reset dock |
 | `interface.theme` | Full dark/light interface | Shared token presentation | Defer until hard-coded replay surfaces consume shared tokens |
 | `interface.replayTransportVisible` | Replay transport visibility | Replay Workspace UI | Reject hiding; it is essential Replay state/control |
 | `interface.activePaneBoundaryVisible` | Active Pane boundary | Pane grid | Reject hiding in multi-Pane; active ownership must stay unambiguous |
 | `interface.failureStateVisible` | Loading/error/unavailable state | Owning UI surface | Reject hiding; failures must remain honest |
 
-The first visibility slice is deliberately small: grid, OHLC, change,
-current-price presentation, and Pane control-dock mode. Generic "hide any UI"
-would make essential Replay state and failure recovery inaccessible.
+The first visibility slice is deliberately small: grid, OHLC, change, volume,
+current-price name/value/line, and Pane control-dock mode. Generic "hide any
+UI" would make essential Replay state and failure recovery inaccessible.
+
+R6.9k must exercise all eight Name/Value/Line combinations against real
+Lightweight Charts 5.2. If native `title` and `lastValueVisible` cannot preserve
+one combination, the adapter must expose a bounded presentation mechanism or
+the product contract must return for review; it may not silently couple the
+three stored fields.
+
+### Scales and overlays
+
+| Stable field id | Control | Consumer | Decision |
+| --- | --- | --- | --- |
+| `scales.modeControlVisibility` | Auto/Log control visibility | None yet | Reject until those controls exist |
+| `scales.lockPriceToBarRatio` | Lock price/bar ratio | None | Reject |
+| `scales.placement` | Left/right/auto price axis | None | Reject; keep the price scale on the right |
+| `scales.noOverlappingLabels` | Label collision avoidance | Chart invariant | Always on; not a preference |
+| `scales.plusButtonVisible` | Quick plus action | Orders/drawing | Reject from Settings |
+| `scales.countdownVisible` | Countdown to bar close | None | Reject for completed-bar replay |
+| `overlays.previousDayClose` | Previous-close value/line | Future overlay owner | Defer as a business overlay, not an initial Settings field |
+| `overlays.highLow` | High/low value/line | Future overlay owner | Defer as a business overlay, not an initial Settings field |
+| `viewport.keepLeftEdgeOnIntervalChange` | Preserve left edge on TF change | Viewport Runtime | Reject; conflicts with accepted default/manual wall intent |
 
 ### Time presentation and session-aware overlays
 
 - New York Quick GoTo anchor values remain canonical Session settings and are
   not global presentation fields.
 - Replay Session range and stored instants never change with formatting.
-- User-selectable display timezone/date/time formats remain deferred until one
-  shared formatter can cover chart axes, Crosshair labels, calendars, Session
-  Browser, and Exact GoTo consistently.
+- `time.displayTimezone` implements only `America/New_York`, `UTC`, and browser
+  local presentation. It stores semantic identifiers rather than fixed
+  `UTC-4` offsets. New York remains the default.
+- `time.dateFormat` implements `YYYY-MM-DD`, `YYYY/MM/DD`, `DD/MM/YYYY`, and
+  `MM/DD/YYYY` with visibly different examples in the selector.
+- `time.dayOfWeekVisible` controls the weekday prefix on detailed Crosshair/
+  calendar labels without forcing a weekday onto every dense intraday tick.
+- `time.hourFormat` implements 12-hour and 24-hour presentation everywhere.
+- These fields activate only when one shared formatter can cover chart axes,
+  Crosshair labels, calendars, Session Browser, and Exact GoTo consistently.
 - Trading-day/ICT separators remain future Calendar-owned overlays, not direct
   Settings calculations.
+- FXReplay-style RTH `Session breaks` background remains rejected; it is not
+  the same product feature as a future ICT/trading-day boundary overlay.
 
 ## Persistence Boundary
 
@@ -212,7 +275,20 @@ Hydration rules:
   Save failure, keyboard focus, and reopen from latest committed state;
 - adapter tests: all current Panes plus newly created Panes, no `setData` or
   `update`, no Replay/Workspace/Pane revision, and complete rollback on failure;
+- Symbol tests: Body/Border/Wick visibility and colors survive every
+  combination; Auto precision derives from exact `priceIncrement`; manual
+  integer/1-15 decimal overrides format axis/current-price/OHLC/change
+  consistently without changing stored values or the real tick increment; and
+  fractional modes remain unavailable;
+- readout tests: OHLC/change behavior is unchanged, aggregate Volume is shown
+  only when enabled, `null` remains visibly unknown rather than zero, and all
+  eight current-price Name/Value/Line combinations are truthful;
+- Canvas tests: one grid toggle, solid background, shared Crosshair
+  color/opacity/width/style, text presentation, and all three control-dock
+  visibility modes apply to every Pane;
 - Viewport tests: a changed default right margin preserves every manual wall;
+- time tests: New York DST, UTC/local display, four real date formats,
+  weekday toggle, and 12/24-hour formatting never change canonical instants;
 - browser tests: Session A/B share global appearance while their Quick GoTo
   settings remain isolated; hard reload restores both scopes correctly;
 - stable-toolbar/performance tests: Settings application and later candle
@@ -223,18 +299,23 @@ Hydration rules:
 
 ## Delivery Order
 
-1. R6.9f freezes this catalog and ownership contract without production code.
-2. After R6.9e human acceptance, R6.9g delivers the already-designed separate
+1. R6.9f freezes the base catalog and ownership contract without production
+   code.
+2. R6.9g records the user-reviewed product refinement for Precision, Volume,
+   Crosshair, simplified Grid, current-price controls, and time presentation.
+3. After R6.9e human acceptance, R6.9h delivers the already-designed separate
    Exact GoTo Calendar surface.
-3. R6.9h activates the versioned Workstation Settings model, persistence,
-   runtime, transactional draft shell, and one honest Grid consumer.
-4. R6.9i activates the direct Canvas and Candles catalog through chart-owned
-   `applyOptions` fan-out.
-5. R6.9j activates the bounded Pane readout/current-price/control visibility
-   catalog.
-6. R6.10 returns to the remaining Symbol/Interval/Time/Date-range layout-sync
-   families. Deferred Viewport/time/theme fields receive later bounded steps
-   only when their owners are ready.
+4. R6.9i activates the versioned Workstation Settings model, persistence,
+   runtime, transactional four-tab shell, and one honest Grid consumer.
+5. R6.9j activates Symbol candle presentation and Auto/manual price precision.
+6. R6.9k activates OHLC/change/Volume and current-price name/value/line controls.
+7. R6.9l activates solid Canvas background, shared Crosshair presentation,
+   scale text, control-dock visibility, and owner-routed margins.
+8. R6.9m activates shared New York/UTC/local, date, weekday, and 12/24-hour
+   presentation.
+9. R6.10 returns to the remaining Symbol/Interval/Time/Date-range layout-sync
+   families. Full theme editing remains deferred until all surfaces consume
+   shared tokens.
 
 ## Stop Conditions
 
