@@ -68,6 +68,12 @@ can publish application completion. Any acquisition, projection, staging,
 application, stale, or cancellation failure leaves Replay, Workspace, and
 Chart accepted state unchanged.
 
+The real multi-chart adapter waits for every child apply to settle. If any child
+fails after crossing its visible mutation boundary, all successful and failed
+children receive the same transaction-local discard and restore their prior
+accepted chart surfaces before the Pane-set failure escapes. This prevents a
+mixed old/new Pane set even when one canvas fails later than another.
+
 The current real browser remains on the accepted single-Pane constructor. R6.5
 will migrate it to the Pane-set constructor while adding real multi-Pane hosts;
 R6.3 adds no browser-visible behavior and keeps both constructors inside the

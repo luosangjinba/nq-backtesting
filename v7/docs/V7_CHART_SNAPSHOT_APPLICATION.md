@@ -1,6 +1,7 @@
 # V7 Chart Snapshot Application
 
-Status: R4.3 single-Pane boundary plus R6.3 headless complete Pane-set extension
+Status: R4.3 single-Pane boundary plus R6.3 complete Pane-set extension and
+2026-07-22 post-mutation rollback hardening
 
 ## Ownership
 
@@ -29,11 +30,15 @@ adapter is a deterministic fake only.
    visible mutation;
 6. require a branded, exact-identity, exact-snapshot, monotonically increasing
    adapter receipt;
-7. publish accepted application metadata and return exact visible completion.
+7. restore the prior accepted data, OHLC index, scales, and visible metadata if
+   apply, paint, staleness, or outer receipt validation fails after mutation;
+8. publish accepted application metadata and return exact visible completion.
 
 Failed, stale, duplicate, foreign, forged, or disposed applications publish no
-completion. Cleanup cannot replace the original failure. Adapter failure before
-the visible mutation preserves the prior accepted chart state.
+completion. Cleanup cannot replace the original failure. The real adapter now
+keeps a transaction-local copy of the prior accepted chart surface, so failure
+both before and after visible mutation preserves that prior state. A newer
+mutation token always wins and cannot be overwritten by a late older rollback.
 
 ## Library Research Decision
 
@@ -67,4 +72,6 @@ inventory with 15 deterministic negative/race controls.
 
 `tests/pane-set-materialization-harness.js` additionally proves exact complete
 Pane-set validation, one visible apply, ready/empty Pane handling, failure
-preservation, and stale-result isolation with 22 negative/race controls.
+preservation, post-mutation child rollback, and stale-result isolation with 22
+negative/race controls. `tests/lightweight-chart-adapter-browser-harness.js`
+proves real-canvas rollback after paint-time staleness and after outer discard.

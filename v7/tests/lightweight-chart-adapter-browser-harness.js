@@ -115,6 +115,22 @@ try {
   assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
 
+  const rollback = await evaluate(cdp, `globalThis.__probeVisibleRollback()`);
+  assert.equal(rollback.staleCode, 'CHART_ADAPTER_STALE');
+  assert.equal(rollback.before.barCount, 20);
+  assert.equal(rollback.afterStale.barCount, 20,
+    'stale-after-paint must restore the previously accepted series');
+  assert.equal(rollback.afterStale.adapterRevision, rollback.before.adapterRevision);
+  assert.deepEqual(rollback.afterStale.logicalRange, rollback.before.logicalRange);
+  assert.equal(rollback.latestAfterStale.displayEpochMs, 2_170_000,
+    'stale rollback must restore the previous OHLC index');
+  assert.equal(rollback.beforeDiscard.barCount, 21);
+  assert.equal(rollback.afterDiscard.barCount, 20,
+    'outer receipt rejection must be able to discard a successful visible apply');
+  assert.equal(rollback.afterDiscard.adapterRevision, rollback.before.adapterRevision);
+  assert.deepEqual(rollback.afterDiscard.logicalRange, rollback.before.logicalRange);
+  assert.equal(rollback.latestAfterDiscard.displayEpochMs, 2_170_000);
+
   const latestCrosshair = await evaluate(cdp, `globalThis.__adapter.crosshairObservation()`);
   assert.deepEqual(latestCrosshair, {
     bar: { close: 117, high: 122, low: 116, open: 119 },

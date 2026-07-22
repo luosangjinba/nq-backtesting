@@ -66,6 +66,50 @@ globalThis.__crosshairObservations = crosshairObservations;
 globalThis.__truncationSelections = truncationSelections;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 
+globalThis.__probeVisibleRollback = async () => {
+  const candidateBar = Object.freeze({
+    close: 122,
+    displayEpochMs: 2_230_000,
+    high: 124,
+    low: 119,
+    open: 120,
+    startEpochMs: 2_200_000,
+    volume: 31,
+  });
+  const candidate = Object.freeze({ ...snapshot, bars: Object.freeze([...bars, candidateBar]) });
+  const apply = async (staged, isCurrent) => adapter.applyVisible({
+    identity, isCurrent, signal: new AbortController().signal, staged, workspaceSnapshot: candidate,
+  });
+  const before = adapter.snapshot();
+  const staleStage = await adapter.stage({
+    identity, signal: new AbortController().signal, workspaceSnapshot: candidate,
+  });
+  let currencyChecks = 0;
+  let staleCode = null;
+  try {
+    await apply(staleStage, () => currencyChecks++ === 0);
+  } catch (error) {
+    staleCode = error?.code ?? null;
+  }
+  const afterStale = adapter.snapshot();
+  const latestAfterStale = adapter.crosshairObservation();
+  const discardedStage = await adapter.stage({
+    identity, signal: new AbortController().signal, workspaceSnapshot: candidate,
+  });
+  await apply(discardedStage, () => true);
+  const beforeDiscard = adapter.snapshot();
+  await adapter.discard(discardedStage);
+  return {
+    afterDiscard: adapter.snapshot(),
+    afterStale,
+    before,
+    beforeDiscard,
+    latestAfterDiscard: adapter.crosshairObservation(),
+    latestAfterStale,
+    staleCode,
+  };
+};
+
 try {
   await application.present({
     identity,

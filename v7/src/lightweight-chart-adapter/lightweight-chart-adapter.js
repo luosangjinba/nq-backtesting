@@ -13,6 +13,11 @@ import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
 import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 import { planSeriesMutation } from './series-update-plan.js';
+import {
+  captureAdapterVisibleState,
+  restoreAdapterScaleState,
+  restoreAdapterVisibleState,
+} from './visible-state-rollback.js';
 
 function requirePort(port) {
   for (const method of ['captureManual', 'project', 'reset', 'snapshot']) {
@@ -64,6 +69,7 @@ export function createLightweightChartAdapter({
   });
   host.dataset.libraryVersion = lightweightChartsVersion();
   let adapterRevision = 0;
+  let appliedBars = Object.freeze([]);
   let appliedData = Object.freeze([]);
   let barCount = 0;
   let disposed = false;
@@ -72,6 +78,8 @@ export function createLightweightChartAdapter({
   let pointerWithinHost = false;
   let seriesDataRevision = 0;
   let maximumAppliedDisplayGapMs = 0;
+  let visibleMutationToken = 0;
+  const stagedApplications = new WeakMap();
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
   series.subscribeDataChanged(onSeriesDataChanged);
 
@@ -153,72 +161,118 @@ export function createLightweightChartAdapter({
   window.addEventListener('pointerup', onPointerUp, true);
   window.addEventListener('mouseup', onPointerUp, true);
 
+  function captureVisibleState() {
+    return captureAdapterVisibleState({
+      adapterRevision,
+      appliedBars,
+      appliedData,
+      barCount,
+      chart,
+      host,
+      maximumDisplayGapMs: maximumAppliedDisplayGapMs,
+      priceScale,
+    });
+  }
+
+  async function rollback(staged) {
+    const record = stagedApplications.get(staged);
+    if (!record || !record.mutated || record.rolledBack) return;
+    record.rolledBack = true;
+    if (disposed || record.token !== visibleMutationToken) return;
+    const dataRevisionBefore = seriesDataRevision;
+    const restored = restoreAdapterVisibleState({ chart, host, priceScale, series, state: record.previous });
+    adapterRevision = restored.adapterRevision;
+    appliedBars = restored.appliedBars;
+    appliedData = restored.appliedData;
+    barCount = restored.barCount;
+    maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
+    truncationInteraction.setBars(appliedBars);
+    crosshairPresentation.setBars(appliedBars);
+    await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
+    if (disposed || record.token !== visibleMutationToken) return;
+    restoreAdapterScaleState({ chart, priceScale, state: record.previous });
+  }
+
+  async function mutateAndPaint(data) {
+    const startedAt = performance.now();
+    const mutation = planSeriesMutation(appliedData, data);
+    const dataRevisionBefore = seriesDataRevision;
+    if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
+    else series.setData(data);
+    const mutationEndedAt = performance.now();
+    barCount = data.length;
+    applyViewport();
+    if (mutation.kind === 'tail-update') {
+      await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
+      host.dataset.lastPaintProof = 'series-change-two-frame';
+    } else {
+      await requirePaintedCandles(chart, requestFrame);
+      host.dataset.lastPaintProof = 'screenshot-candle-pixels';
+    }
+    return Object.freeze({ mutation, mutationEndedAt, paintedAt: performance.now(), startedAt });
+  }
+
+  function commitVisible(context, timing) {
+    const { mutation, mutationEndedAt, paintedAt, startedAt } = timing;
+    adapterRevision += 1;
+    maximumAppliedDisplayGapMs = mutation.kind === 'full-replace'
+      ? maximumDisplayGapMs(context.staged.data)
+      : Math.max(maximumAppliedDisplayGapMs, context.staged.data.length > appliedData.length
+        ? (context.staged.data.at(-1).time - appliedData.at(-1).time) * 1_000
+        : 0);
+    appliedBars = context.workspaceSnapshot.bars;
+    appliedData = context.staged.data;
+    truncationInteraction.setBars(appliedBars);
+    crosshairPresentation.setBars(appliedBars);
+    host.dataset.barCount = String(barCount);
+    host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
+    host.dataset.instrumentId = context.workspaceSnapshot.provenance.instrumentId;
+    host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
+    host.dataset.lastMutationMode = mutation.kind;
+    host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
+    host.dataset.lastPaintMs = (paintedAt - mutationEndedAt).toFixed(3);
+    host.dataset.maximumDisplayGapMs = String(maximumAppliedDisplayGapMs);
+    host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
+    host.dataset.painted = 'true';
+    host.dataset.sessionHoursMode = context.workspaceSnapshot.provenance.sessionHoursMode;
+    host.dataset.visibleThroughEpochMs = String(context.workspaceSnapshot.provenance.visibleThroughEpochMs);
+    host.dataset.visibleRevision = String(adapterRevision);
+    return createChartAdapterVisibleReceipt({
+      adapterRevision,
+      identity: context.identity,
+      workspaceSnapshot: context.workspaceSnapshot,
+    });
+  }
+
   return Object.freeze({
     async applyVisible(context) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
-      let mutation;
-      let mutationEndedAt;
-      let paintedAt;
-      const startedAt = performance.now();
+      const record = stagedApplications.get(context.staged);
+      if (!record || record.mutated) {
+        failLightweightAdapter('CHART_ADAPTER_STAGE_INVALID', 'Chart stage is missing or was already applied.');
+      }
+      record.previous = captureVisibleState();
+      record.token = ++visibleMutationToken;
+      record.mutated = true;
       try {
-        mutation = planSeriesMutation(appliedData, context.staged.data);
-        const dataRevisionBefore = seriesDataRevision;
-        if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
-        else series.setData(context.staged.data);
-        mutationEndedAt = performance.now();
-        barCount = context.staged.data.length;
-        applyViewport();
-        if (mutation.kind === 'tail-update') {
-          await requireTailUpdatePaint({
-            changed: () => seriesDataRevision > dataRevisionBefore,
-            requestFrame,
-          });
-          host.dataset.lastPaintProof = 'series-change-two-frame';
-        } else {
-          await requirePaintedCandles(chart, requestFrame);
-          host.dataset.lastPaintProof = 'screenshot-candle-pixels';
-        }
-        paintedAt = performance.now();
+        const timing = await mutateAndPaint(context.staged.data);
+        if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
+        const receipt = commitVisible(context, timing);
         delete host.dataset.lastApplyError;
+        return receipt;
       } catch (error) {
+        try { await rollback(context.staged); } catch { /* The original apply failure remains authoritative. */ }
         host.dataset.lastApplyError = `${error?.code ?? error?.name ?? 'error'}:${error?.message ?? error}`;
         throw error;
       }
-      if (!context.isCurrent()) failLightweightAdapter('CHART_ADAPTER_STALE', 'Chart application is stale.');
-      adapterRevision += 1;
-      maximumAppliedDisplayGapMs = mutation.kind === 'full-replace'
-        ? maximumDisplayGapMs(context.staged.data)
-        : Math.max(maximumAppliedDisplayGapMs, context.staged.data.length > appliedData.length
-          ? (context.staged.data.at(-1).time - appliedData.at(-1).time) * 1_000
-          : 0);
-      appliedData = context.staged.data;
-      truncationInteraction.setBars(context.workspaceSnapshot.bars);
-      crosshairPresentation.setBars(context.workspaceSnapshot.bars);
-      host.dataset.barCount = String(barCount);
-      host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
-      host.dataset.instrumentId = context.workspaceSnapshot.provenance.instrumentId;
-      host.dataset.lastApplyMs = (paintedAt - startedAt).toFixed(3);
-      host.dataset.lastMutationMode = mutation.kind;
-      host.dataset.lastMutationMs = (mutationEndedAt - startedAt).toFixed(3);
-      host.dataset.lastPaintMs = (paintedAt - mutationEndedAt).toFixed(3);
-      host.dataset.maximumDisplayGapMs = String(maximumAppliedDisplayGapMs);
-      host.dataset.latestDisplayEpochMs = String(context.staged.data.at(-1).time * 1_000);
-      host.dataset.painted = 'true';
-      host.dataset.sessionHoursMode = context.workspaceSnapshot.provenance.sessionHoursMode;
-      host.dataset.visibleThroughEpochMs = String(context.workspaceSnapshot.provenance.visibleThroughEpochMs);
-      host.dataset.visibleRevision = String(adapterRevision);
-      return createChartAdapterVisibleReceipt({
-        adapterRevision,
-        identity: context.identity,
-        workspaceSnapshot: context.workspaceSnapshot,
-      });
     },
-    async discard() {},
+    async discard(staged) { await rollback(staged); },
     dispose() {
       if (disposed) return;
       disposed = true;
       captureToken += 1;
+      visibleMutationToken += 1;
       host.removeEventListener('wheel', onWheel, true);
       host.removeEventListener('pointerenter', onCrosshairEnter);
       host.removeEventListener('pointerleave', onCrosshairLeave);
@@ -271,7 +325,9 @@ export function createLightweightChartAdapter({
     },
     async stage({ identity, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      return Object.freeze({ data: chartData(workspaceSnapshot), identity, signal, workspaceSnapshot });
+      const staged = Object.freeze({ data: chartData(workspaceSnapshot), identity, signal, workspaceSnapshot });
+      stagedApplications.set(staged, { mutated: false, previous: null, rolledBack: false, token: null });
+      return staged;
     },
   });
 }

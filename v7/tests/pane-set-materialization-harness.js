@@ -7,6 +7,7 @@ import {
   createChartAdapterVisibleReceipt,
   createPaneSetChartSnapshotApplication,
 } from '../src/chart-snapshot-application/public.js';
+import { createLightweightPaneSetAdapter } from '../src/lightweight-chart-adapter/public.js';
 import { createPaneWorkspace } from '../src/pane-workspace-domain/public.js';
 import {
   createEmptyPaneProjection,
@@ -368,6 +369,80 @@ async function presentSnapshot(snapshot, transactionIdentity = directIdentity) {
 }
 
 const validSnapshot = await completeSnapshot();
+
+function rollbackProbeAdapter() {
+  const children = new Map();
+  const commits = [];
+  let failingPaneId = 'pane-es';
+  const adapter = createLightweightPaneSetAdapter({
+    createPaneAdapter: ({ host }) => {
+      const state = { discards: 0, value: 'accepted' };
+      children.set(host.paneId, state);
+      return Object.freeze({
+        async applyVisible() {
+          state.value = 'candidate';
+          if (host.paneId === failingPaneId) throw new Error('child failed after visible mutation');
+        },
+        clearCrosshairPosition() {},
+        crosshairObservation: () => Object.freeze({ bar: null, state: 'empty' }),
+        async discard() { state.discards += 1; state.value = 'accepted'; },
+        dispose() {},
+        projectCrosshair: () => Object.freeze({ bar: null, state: 'empty' }),
+        setTruncationSelection() {},
+        snapshot: () => Object.freeze({ value: state.value }),
+        async stage(context) { return Object.freeze({ workspaceSnapshot: context.workspaceSnapshot }); },
+      });
+    },
+    requestFrame: (callback) => callback(),
+    resolveViewportPort: () => Object.freeze({}),
+    surfacePort: Object.freeze({
+      commitPaneSet(value) { commits.push(value); },
+      preparePane: (paneId) => Object.freeze({ paneId }),
+    }),
+  });
+  return Object.freeze({
+    adapter,
+    children,
+    commits,
+    stopFailing: () => { failingPaneId = null; },
+  });
+}
+
+const rollbackProbe = rollbackProbeAdapter();
+const failedStage = await rollbackProbe.adapter.stage({
+  identity: directIdentity, signal: directSignal, workspaceSnapshot: validSnapshot,
+});
+await assert.rejects(
+  () => rollbackProbe.adapter.applyVisible({
+    identity: directIdentity,
+    isCurrent: () => true,
+    signal: directSignal,
+    staged: failedStage,
+    workspaceSnapshot: validSnapshot,
+  }),
+  /child failed after visible mutation/,
+);
+assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['accepted', 'accepted'],
+  'one child failure must roll back every child that crossed the visible boundary');
+assert.equal(rollbackProbe.commits.length, 0, 'failed children must not commit the Pane surface');
+
+rollbackProbe.stopFailing();
+const successfulStage = await rollbackProbe.adapter.stage({
+  identity: directIdentity, signal: directSignal, workspaceSnapshot: validSnapshot,
+});
+await rollbackProbe.adapter.applyVisible({
+  identity: directIdentity,
+  isCurrent: () => true,
+  signal: directSignal,
+  staged: successfulStage,
+  workspaceSnapshot: validSnapshot,
+});
+assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['candidate', 'candidate']);
+await rollbackProbe.adapter.discard(successfulStage);
+assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['accepted', 'accepted'],
+  'outer receipt rejection must roll back every successfully applied child');
+rollbackProbe.adapter.dispose();
+
 const mutableRequestEntries = plan.affectedPaneIds.map((paneId) => Object.freeze({
   paneId,
   request: Object.freeze({ paneId }),
