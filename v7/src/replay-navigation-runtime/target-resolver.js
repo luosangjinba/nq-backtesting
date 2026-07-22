@@ -1,6 +1,7 @@
 import { readReplayStep, requireCursorInRange } from '../replay-contract/public.js';
 import { requireReplayPaneResponsePlan } from '../replay-pane-response-contract/public.js';
 import { failReplayNavigation } from './navigation-error.js';
+import { GOTO_TARGET_UNAVAILABLE_IN_RANGE } from './navigation-result.js';
 import { requireReplayNavigationSchedule } from './navigation-schedule.js';
 
 const RESULT_FIELDS = Object.freeze(['sourceEpochMs', 'targetEpochMs']);
@@ -109,6 +110,12 @@ export function createReplayNavigationTargetResolver({ schedule, sourceTraversal
     }
     requireSignal(signal);
     if (resolved === null) {
+      if (plan.actionKind === 'goto-anchor') {
+        failReplayNavigation(
+          GOTO_TARGET_UNAVAILABLE_IN_RANGE,
+          'No later eligible GoTo target exists inside the active Replay Session range.',
+        );
+      }
       failReplayNavigation('REPLAY_NAVIGATION_TARGET_UNAVAILABLE', 'No eligible primary-source target was found.');
     }
     const accepted = result(resolved, range);

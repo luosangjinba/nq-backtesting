@@ -1080,10 +1080,29 @@ Completed on 2026-07-22 with automated evidence:
 - [x] bind the corrections with provider-negative, headless multi-Pane, real
   Lightweight Charts, Replay Pane Workspace, and Replay Layout evidence.
 
-The code review's P2 GoTo item is intentionally not implemented. The user has
-reported that the current GoTo product design differs from the intended design;
-replace that interaction only after the revised behavior is specified, rather
-than applying the narrower disabled-shortcut patch in isolation.
+The code review's narrow P2 GoTo patch was superseded by the user-approved
+redesign below instead of being applied in isolation.
+
+### R6.9d Shared GoTo Redesign Contract — Completed Headlessly
+
+- [x] design Quick and Exact GoTo together over the one shared Replay cursor;
+- [x] expand the pure schedule/response contract from five to eight fixed
+  quick actions with New York DST-aware defaults;
+- [x] keep `Next Session` derived from only Asian/London/New York anchors;
+- [x] make every quick anchor strictly forward, including an exact wall-time
+  match;
+- [x] retain Exact GoTo as an exclusive cutoff inside the closed Replay
+  Session start/end cursor range;
+- [x] translate exhausted quick lookup into the non-mutating
+  `rejected/goto-target-unavailable-in-range` result;
+- [x] keep Calendar Surface reusable while preserving Economic Calendar as a
+  later independent business-event provider/consumer;
+- [x] bind the result with pure response-plan and navigation-runtime Harnesses.
+
+The next bounded GoTo slice implements the eight-item quick menu, simplified
+seven-time Custom Settings, and non-blocking range-end feedback. The following
+slice separates Exact GoTo into its Workspace-level entry and adds range-aware
+calendar presentation. Neither slice may start another Replay path.
 
 ## Standing Gates
 

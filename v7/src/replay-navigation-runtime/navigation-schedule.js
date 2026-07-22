@@ -9,7 +9,11 @@ const FIELD_BY_ANCHOR = Object.freeze({
   'london-session': 'londonSession',
   'new-york-session': 'newYorkSession',
   'next-day-open': 'dayOpen',
+  'silver-bullet-london': 'silverBulletLondon',
+  'silver-bullet-new-york-am': 'silverBulletNewYorkAm',
+  'silver-bullet-new-york-pm': 'silverBulletNewYorkPm',
 });
+// `Next Session` intentionally excludes Day Open and Silver Bullet anchors.
 const SESSION_ANCHORS = Object.freeze(['asian-session', 'london-session', 'new-york-session']);
 
 export const DEFAULT_REPLAY_NAVIGATION_ANCHORS = Object.freeze({
@@ -17,6 +21,9 @@ export const DEFAULT_REPLAY_NAVIGATION_ANCHORS = Object.freeze({
   dayOpen: '18:00',
   londonSession: '02:00',
   newYorkSession: '09:30',
+  silverBulletLondon: '03:00',
+  silverBulletNewYorkAm: '10:00',
+  silverBulletNewYorkPm: '14:00',
 });
 
 const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -54,7 +61,7 @@ function normalizeAnchors(value) {
   const fields = Object.keys(DEFAULT_REPLAY_NAVIGATION_ANCHORS);
   if (!value || typeof value !== 'object' || Array.isArray(value)
     || Object.keys(value).sort().join(',') !== fields.sort().join(',')) {
-    failReplayNavigation('REPLAY_NAVIGATION_ANCHORS_INVALID', 'Navigation anchors must contain four exact fields.');
+    failReplayNavigation('REPLAY_NAVIGATION_ANCHORS_INVALID', 'Navigation anchors must contain seven exact fields.');
   }
   return Object.freeze(Object.fromEntries(fields.map((field) => [field, normalizeTime(value[field], field)])));
 }
@@ -103,7 +110,7 @@ function dayCandidates(anchor, anchors, date) {
  * Owner: Replay navigation domain.
  * Purpose: generate bounded, strictly-forward New York schedule candidates;
  * holidays and market availability remain source-data decisions.
- * Inputs: four HH:mm anchors, candidate bound, and anchor-distance bound.
+ * Inputs: seven HH:mm anchors, candidate bound, and anchor-distance bound.
  * Outputs: branded immutable schedule with a pure candidates() query.
  * Side effects/lifecycle: none.
  * Errors: stable ReplayNavigationRuntimeError validation failures.

@@ -15,6 +15,9 @@ export const REPLAY_GOTO_ANCHORS = Object.freeze([
   'asian-session',
   'london-session',
   'new-york-session',
+  'silver-bullet-london',
+  'silver-bullet-new-york-am',
+  'silver-bullet-new-york-pm',
 ]);
 
 class ReplayPaneActionValue {

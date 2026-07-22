@@ -63,8 +63,10 @@ Primary V6 evidence:
 | Exact GoTo at cursor | current cutoff | no materialization transaction required |
 
 Quick GoTo anchors are `Next Day Open`, `Next Session`, `Asian Session`,
-`London Session`, and `New York Session`. Custom Settings configures those
-anchors; it is not another materialization path.
+`London Session`, `New York Session`, `SB London`, `SB New York AM`, and
+`SB New York PM`. `Next Session` considers only the three primary market
+sessions. Custom Settings configures the seven concrete New York wall times;
+it is not another materialization path.
 
 Exact GoTo is a separate action that accepts any valid cutoff within the Replay
 Session and may move forward or backward. A future Custom Range operation is a
@@ -123,7 +125,7 @@ runtime; browser transport/dialog/layout and Economic Calendar remain excluded.
 ## Gate
 
 `tests/replay-pane-response-contract-harness.js` covers all six action kinds,
-all five quick anchors, exact forward/backward/retain movement, single- and
+all eight quick anchors, exact forward/backward/retain movement, single- and
 mixed-instrument/mixed-TF multi-Pane plans, Session-level ETH/RTH, primary-clock
 authority, Viewport preservation, complete forward coverage, atomic failure and
 overlap policies, plus 19 negative controls.

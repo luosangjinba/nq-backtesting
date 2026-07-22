@@ -19,6 +19,8 @@ import {
   createReplayNavigationReplayPort,
   createReplayNavigationSchedule,
   createReplayNavigationTargetResolver,
+  DEFAULT_REPLAY_NAVIGATION_ANCHORS,
+  GOTO_TARGET_UNAVAILABLE_IN_RANGE,
   readReplayNavigationResult,
   requireReplayNavigationSchedule,
 } from '../src/replay-navigation-runtime/public.js';
@@ -109,13 +111,45 @@ const schedule = createReplayNavigationSchedule();
 const customSchedule = createReplayNavigationSchedule({
   anchors: Object.freeze({
     asianSession: '20:00', dayOpen: '17:45', londonSession: '03:00', newYorkSession: '10:15',
+    silverBulletLondon: '04:00', silverBulletNewYorkAm: '11:00', silverBulletNewYorkPm: '15:00',
   }),
+});
+assert.deepEqual(DEFAULT_REPLAY_NAVIGATION_ANCHORS, {
+  asianSession: '19:00',
+  dayOpen: '18:00',
+  londonSession: '02:00',
+  newYorkSession: '09:30',
+  silverBulletLondon: '03:00',
+  silverBulletNewYorkAm: '10:00',
+  silverBulletNewYorkPm: '14:00',
 });
 assert.equal(customSchedule.candidates({
   anchor: 'next-day-open',
   cursorEpochMs: epoch('2026-05-04T12:00:00.000Z'),
   endEpochMs: epoch('2026-05-05T12:00:00.000Z'),
 })[0].localTime, '17:45');
+assert.equal(customSchedule.candidates({
+  anchor: 'silver-bullet-new-york-pm',
+  cursorEpochMs: epoch('2026-05-04T12:00:00.000Z'),
+  endEpochMs: epoch('2026-05-05T22:00:00.000Z'),
+})[0].localTime, '15:00');
+assert.deepEqual(
+  [
+    'silver-bullet-london',
+    'silver-bullet-new-york-am',
+    'silver-bullet-new-york-pm',
+  ].map((anchor) => new Date(schedule.candidates({
+    anchor,
+    cursorEpochMs: epoch('2026-05-04T04:00:00.000Z'),
+    endEpochMs: epoch('2026-05-05T04:00:00.000Z'),
+  })[0].targetEpochMs).toISOString()),
+  [
+    '2026-05-04T07:00:00.000Z',
+    '2026-05-04T14:00:00.000Z',
+    '2026-05-04T18:00:00.000Z',
+  ],
+  'Silver Bullet defaults resolve from New York wall time to DST-aware instants',
+);
 assert.equal(
   new Date(schedule.candidates({
     anchor: 'new-york-session',
@@ -140,8 +174,18 @@ assert.deepEqual(
     endEpochMs: epoch('2026-05-05T12:00:00.000Z'),
   }).slice(0, 3).map(({ anchor }) => anchor),
   ['new-york-session', 'asian-session', 'london-session'],
+  'Next Session includes only the three primary Session anchors',
 );
-for (const anchor of ['next-day-open', 'next-session', 'asian-session', 'london-session', 'new-york-session']) {
+for (const anchor of [
+  'next-day-open',
+  'next-session',
+  'asian-session',
+  'london-session',
+  'new-york-session',
+  'silver-bullet-london',
+  'silver-bullet-new-york-am',
+  'silver-bullet-new-york-pm',
+]) {
   const candidates = schedule.candidates({
     anchor,
     cursorEpochMs: epoch('2026-05-04T12:00:00.000Z'),
@@ -150,6 +194,15 @@ for (const anchor of ['next-day-open', 'next-session', 'asian-session', 'london-
   assert.ok(candidates.length > 0);
   assert.ok(candidates.every(({ targetEpochMs }) => targetEpochMs > epoch('2026-05-04T12:00:00.000Z')));
 }
+assert.equal(
+  new Date(schedule.candidates({
+    anchor: 'new-york-session',
+    cursorEpochMs: epoch('2026-05-04T13:30:00.000Z'),
+    endEpochMs: epoch('2026-05-06T22:00:00.000Z'),
+  })[0].targetEpochMs).toISOString(),
+  '2026-05-05T13:30:00.000Z',
+  'a quick anchor is strictly forward when Replay is already at that wall time',
+);
 
 let traversalUnavailable = false;
 let traversalWrongDirection = false;
@@ -158,6 +211,7 @@ const anchorAttempts = [];
 const sourceTraversalPort = Object.freeze({
   async eligibleAtOrAfter(context) {
     anchorAttempts.push(context.anchorEpochMs);
+    if (traversalUnavailable) return null;
     const day = new Date(context.anchorEpochMs).getUTCDay();
     if (day === 0 || day === 6) return null;
     return Object.freeze({
@@ -355,6 +409,20 @@ assert.equal(result.status, 'committed');
 assert.equal(new Date(replay.snapshot().cursorEpochMs).toISOString(), '2026-05-04T13:31:00.000Z');
 assert.equal(anchorAttempts.length, 3, 'weekend anchors are skipped through bounded source lookup');
 
+traversalUnavailable = true;
+const cursorBeforeRangeEnd = replay.snapshot().cursorEpochMs;
+const applyBeforeRangeEnd = applyCount;
+const acquireBeforeRangeEnd = proposalWindows.length;
+result = await navigate('goto-anchor', { anchor: 'silver-bullet-london' });
+traversalUnavailable = false;
+assert.equal(result.status, 'rejected');
+assert.equal(result.code, GOTO_TARGET_UNAVAILABLE_IN_RANGE);
+assert.equal(result.terminal, null, 'expected range exhaustion is not exposed as a failed transaction');
+assert.equal(replay.snapshot().cursorEpochMs, cursorBeforeRangeEnd);
+assert.equal(replay.snapshot().playback, 'paused');
+assert.equal(proposalWindows.length, acquireBeforeRangeEnd, 'range exhaustion performs no Pane acquisition');
+assert.equal(applyCount, applyBeforeRangeEnd, 'range exhaustion performs no visible Pane application');
+
 comparisonEmpty = true;
 result = await navigate('manual-next');
 comparisonEmpty = false;
@@ -457,7 +525,10 @@ const directReplayPort = createReplayNavigationReplayPort({ replayRuntime: repla
 const negative = {
   'anchors-missing-field': () => createReplayNavigationSchedule({ anchors: { dayOpen: '18:00' } }),
   'anchor-time-invalid': () => createReplayNavigationSchedule({
-    anchors: { asianSession: '19:00', dayOpen: '18:00', londonSession: '2:00', newYorkSession: '09:30' },
+    anchors: {
+      asianSession: '19:00', dayOpen: '18:00', londonSession: '2:00', newYorkSession: '09:30',
+      silverBulletLondon: '03:00', silverBulletNewYorkAm: '10:00', silverBulletNewYorkPm: '14:00',
+    },
   }),
   'schedule-bounds': () => createReplayNavigationSchedule({ maxCandidates: 0 }),
   'schedule-lookalike': () => requireReplayNavigationSchedule(Object.freeze({ candidates() {} })),

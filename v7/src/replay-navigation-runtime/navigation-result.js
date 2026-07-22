@@ -3,6 +3,8 @@ import { failReplayNavigation } from './navigation-error.js';
 
 const RESULTS = new WeakSet();
 
+export const GOTO_TARGET_UNAVAILABLE_IN_RANGE = 'goto-target-unavailable-in-range';
+
 export function createReplayNavigationResult({ actionKind, code = null, status, terminal = null }) {
   if (typeof actionKind !== 'string' || !['cancelled', 'committed', 'failed', 'noop', 'rejected', 'stale'].includes(status)) {
     failReplayNavigation('REPLAY_NAVIGATION_RESULT_INVALID', 'Navigation result is invalid.');

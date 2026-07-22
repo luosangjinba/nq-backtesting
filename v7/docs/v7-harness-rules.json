@@ -1027,6 +1027,30 @@
       ],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260722_stage_review_p1_corrections.md"
+    },
+    {
+      "id": "H057",
+      "name": "goto-eight-anchor-shared-replay-contract",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "Quick and Exact GoTo created divergent Replay paths, Next Session included Silver Bullet anchors, or range exhaustion surfaced as a generic Workspace failure",
+      "activationStep": "R6",
+      "state": "accepted",
+      "harness": "tests/replay-navigation-runtime-harness.js",
+      "positiveEvidence": [
+        "src/replay-pane-response-contract/action-intent.js",
+        "src/replay-navigation-runtime/navigation-schedule.js",
+        "src/replay-navigation-runtime/target-resolver.js",
+        "src/replay-navigation-runtime/navigation-executor.js",
+        "tests/replay-pane-response-contract-harness.js",
+        "tests/replay-navigation-runtime-harness.js",
+        "docs/V7_GOTO_REDESIGN_CONTRACT_R6_9D.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/replay-pane-response-contract/negative/cases.json",
+        "tests/fixtures/replay-navigation-runtime/negative/cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260722_r6_9d_goto_redesign_contract.md"
     }
   ]
 }

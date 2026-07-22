@@ -60,19 +60,24 @@ creating Pane requests or a Workspace Transaction.
 
 ## Quick GoTo Schedule
 
-The five quick actions are:
+R6.9d expands the quick actions to:
 
 - Next Day Open;
 - Next Session;
 - Asian Session;
 - London Session;
-- New York Session.
+- New York Session;
+- SB London;
+- SB New York AM;
+- SB New York PM.
 
-Defaults are `18:00`, `19:00`, `02:00`, and `09:30` in
-`America/New_York`. Candidate generation is pure, strictly forward, bounded to
-32 candidates by default, and does not invent weekend or holiday rules. Source
-traversal accepts a candidate only when a real eligible bar exists within the
-bounded 15-minute window; otherwise the next candidate is tried.
+The seven concrete defaults are `18:00`, `19:00`, `02:00`, `09:30`, `03:00`,
+`10:00`, and `14:00` in `America/New_York`. `Next Session` remains derived from
+only Asian, London, and New York. Candidate generation is pure, strictly
+forward, bounded to 32 candidates by default, and does not invent weekend or
+holiday rules. Source traversal accepts a candidate only when a real eligible
+bar exists within the bounded 15-minute window; otherwise the next candidate
+is tried.
 
 Unlike legacy V6's UTC-like wall timestamp domain, V7 has already normalized V4
 bars into real instants. R6.4 therefore converts New York wall anchors into real
@@ -81,9 +86,15 @@ DST-aware instants: `09:30` is `14:30Z` before the 2026 spring transition and
 actual `America/New_York` fields, not by a fixed UTC offset.
 
 Custom anchor values are accepted by the pure schedule constructor. R6.5 mounts
-the five default quick actions, keyboard shortcuts, and exact New York calendar
-control over this same path. Custom-anchor persistence and settings remain
-later work and cannot create another Replay path.
+the original five default quick actions, keyboard shortcuts, and exact New York
+calendar control over this same path. R6.9d freezes the expanded headless
+contract; its quick-menu/settings and separate Exact GoTo presentation remain
+later bounded work and cannot create another Replay path.
+
+If source traversal exhausts the active Replay Session range for a Quick GoTo,
+Replay Navigation returns `rejected` with
+`goto-target-unavailable-in-range`. It preserves the accepted cursor and Pane
+set and is an expected product boundary, not a generic Workspace error.
 
 ## Complete Pane-set Semantics
 
@@ -108,7 +119,8 @@ preserves the last accepted Replay/workspace/chart state and pauses playback.
 ## Gate
 
 `tests/replay-navigation-runtime-harness.js` proves DST-aware schedules, all
-five quick actions, the one-step Autoplay primitive, Manual Next/Previous,
+eight quick actions, strict-forward and range-end behavior, the one-step
+Autoplay primitive, Manual Next/Previous,
 Restart/Back-to,
 exact forward/backward/no-op GoTo, continuous-range request intent, weekend
 anchor skipping, mixed NQ/ES and `1m`/`4h`, comparison-Pane absence,

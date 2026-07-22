@@ -5,7 +5,10 @@ import {
 } from '../replay-pane-response-contract/public.js';
 import { describeWorkspaceTransactionEnvelope } from '../workspace-transaction-contract/public.js';
 import { failReplayNavigation } from './navigation-error.js';
-import { createReplayNavigationResult } from './navigation-result.js';
+import {
+  createReplayNavigationResult,
+  GOTO_TARGET_UNAVAILABLE_IN_RANGE,
+} from './navigation-result.js';
 
 const EXECUTION_FIELDS = Object.freeze([
   'action', 'intent', 'paneWorkspace', 'replayRange', 'sessionHours',
@@ -107,6 +110,15 @@ export function createReplayNavigationExecutor({ paneRequestPort, replayRuntime,
       const terminal = await executeTransaction({ input, intent: execution.intent });
       const terminalValue = describeWorkspaceTransactionEnvelope(terminal);
       if (terminalValue.status !== 'committed') pause();
+      if (action.kind === 'goto-anchor' && terminalValue.status === 'failed'
+        && terminalValue.code === GOTO_TARGET_UNAVAILABLE_IN_RANGE) {
+        return createReplayNavigationResult({
+          actionKind: action.kind,
+          code: GOTO_TARGET_UNAVAILABLE_IN_RANGE,
+          status: 'rejected',
+          terminal: null,
+        });
+      }
       return createReplayNavigationResult({
         actionKind: action.kind,
         code: terminalValue.code,

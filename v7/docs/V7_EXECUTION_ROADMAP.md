@@ -390,6 +390,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9c`: move Pane-local Maximize/Restore and Reset to a vertical lower-right
   Canvas dock with explicit price/time-scale safe insets, retaining all
   accepted interaction and ownership semantics; awaiting focused visual review;
+- `R6.9d`: freeze the redesigned shared GoTo contract: eight strict-forward
+  New York anchors, primary-session-only Next Session, exact Session-range
+  semantics, and a non-mutating range-end rejection before later quick/exact
+  presentation slices;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;

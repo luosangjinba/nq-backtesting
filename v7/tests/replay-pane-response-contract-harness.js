@@ -91,6 +91,9 @@ assert.deepEqual(REPLAY_GOTO_ANCHORS, [
   'asian-session',
   'london-session',
   'new-york-session',
+  'silver-bullet-london',
+  'silver-bullet-new-york-am',
+  'silver-bullet-new-york-pm',
 ]);
 
 const stepCases = [
