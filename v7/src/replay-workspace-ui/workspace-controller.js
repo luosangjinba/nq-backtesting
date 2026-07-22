@@ -42,6 +42,7 @@ export function createReplayWorkspaceController({
   persistReplayNavigationSettings,
   record,
   view,
+  workstationSettings,
 }) {
   const market = createFoundationMarket(record);
   const range = record.configuration.historicalRange;
@@ -139,6 +140,10 @@ export function createReplayWorkspaceController({
     resolveViewportPort: paneState.viewportPort,
     surfacePort: view.surfacePort,
   });
+  const unregisterSettingsConsumer = workstationSettings.registerConsumer(
+    adapter.workstationSettingsConsumer,
+  );
+  view.setWorkstationSettings(workstationSettings.snapshot());
   const chartApplication = createPaneSetChartSnapshotApplication({
     activationGeneration: record.activationGeneration,
     adapter,
@@ -293,6 +298,7 @@ export function createReplayWorkspaceController({
     dispose() {
       if (disposed) return;
       disposed = true;
+      unregisterSettingsConsumer();
       autoplayScheduler.dispose();
       execution.dispose();
       runtime.dispose();
@@ -380,6 +386,21 @@ export function createReplayWorkspaceController({
         return Object.freeze({ accepted: true, message: null });
       } catch {
         return Object.freeze({ accepted: false, message: 'Quick GoTo settings could not be saved locally.' });
+      }
+    },
+    saveWorkstationSettings(settings) {
+      if (disposed) {
+        return Object.freeze({ accepted: false, message: 'Settings are no longer available.' });
+      }
+      try {
+        const snapshot = workstationSettings.save(settings);
+        view.setWorkstationSettings(snapshot);
+        return Object.freeze({ accepted: true, message: null });
+      } catch {
+        return Object.freeze({
+          accepted: false,
+          message: 'Settings could not be applied to every Pane and saved locally.',
+        });
       }
     },
     restart() {

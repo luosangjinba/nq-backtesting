@@ -1111,7 +1111,7 @@
       "owner": "replay-workspace-ui",
       "v6FailurePrevented": "Exact GoTo remained hidden inside Quick GoTo, accepted out-of-range wall times, or created a second active-Pane-local Replay path",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-pane-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/calendar-surface/calendar-model.js",
@@ -1127,6 +1127,31 @@
       "negativeFixtures": [
         "tests/fixtures/calendar-surface/negative/cases.json",
         "tests/fixtures/replay-pane-response-contract/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260722_r6_9h_exact_goto.md"
+    },
+    {
+      "id": "H061",
+      "name": "global-workstation-settings-transactional-all-pane",
+      "owner": "workstation-settings",
+      "v6FailurePrevented": "Visual settings leaked into Session records, a failed Save left mixed Pane presentation, existing and future Panes diverged, or appearance changes moved Replay/Workspace/chart data revisions",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-pane-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/workstation-settings/settings-value.js",
+        "src/workstation-settings/settings-runtime.js",
+        "src/replay-workspace-ui/workstation-settings-dialog.js",
+        "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "tests/workstation-settings-harness.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-pane-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/workstation-settings-dialog.png",
+        "docs/V7_WORKSTATION_SETTINGS_FOUNDATION_R6_9I.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/workstation-settings/negative/cases.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

@@ -3,6 +3,7 @@ import { createSessionRepository, createStorageAdapter } from '../src/session-pe
 import { createSessionStore } from '../src/session-store/public.js';
 import { createReplayNavigationPreferenceStore } from '../src/replay-navigation-preference-store/public.js';
 import { createReplayWorkspaceSurface } from '../src/replay-workspace-ui/public.js';
+import { createWorkstationSettingsRuntime } from '../src/workstation-settings/public.js';
 import { SESSION_BROWSER_CONFIG } from './config.js';
 import { createHashNavigation } from './hash-navigation.js';
 
@@ -23,7 +24,9 @@ function composeStores() {
     .sort((left, right) => right.metadata.updatedAtEpochMs - left.metadata.updatedAtEpochMs)
     .map(({ workspace }) => workspace.replayNavigationSettings);
   replayNavigationPreferences.initialize({ legacySettingsWires });
-  return Object.freeze({ replayNavigationPreferences, sessionStore });
+  const workstationSettings = createWorkstationSettingsRuntime({ storage });
+  workstationSettings.initialize();
+  return Object.freeze({ replayNavigationPreferences, sessionStore, workstationSettings });
 }
 
 let composed = null;
@@ -39,6 +42,7 @@ const browser = createSessionBrowser({
   root: document.querySelector('#app'),
   store: composed?.sessionStore ?? null,
   replayNavigationPreferences: composed?.replayNavigationPreferences ?? null,
+  workstationSettings: composed?.workstationSettings ?? null,
   unavailableMessage,
   navigation: createHashNavigation(window),
   instruments: SESSION_BROWSER_CONFIG.instruments,

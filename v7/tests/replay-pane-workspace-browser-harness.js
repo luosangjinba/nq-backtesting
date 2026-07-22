@@ -16,6 +16,9 @@ const gotoSettingsVisualFile = path.join(
 const exactGotoVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/exact-goto-dialog.png',
 );
+const workstationSettingsVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/workstation-settings-dialog.png',
+);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -205,6 +208,30 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-secondary'`);
   state = await evaluate(cdp, paneStateExpression());
   await capture(cdp);
+
+  await evaluate(cdp, `document.querySelector('.workstation-settings-open').click()`);
+  await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === true`);
+  assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.workstation-settings-tab')]
+    .map((tab) => tab.textContent)`), ['Symbol', 'Status line', 'Scales and lines', 'Canvas']);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[name="gridVisible"]').checked`), true);
+  await evaluate(cdp, `(() => {
+    document.querySelector('[name="gridVisible"]').click();
+    document.querySelector('.workstation-settings-cancel').click();
+    document.querySelector('.workstation-settings-open').click();
+  })()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[name="gridVisible"]').checked`), true,
+  'Cancel must discard the Settings draft');
+  await evaluate(cdp, `(() => {
+    document.querySelector('[name="gridVisible"]').click();
+    document.querySelector('.workstation-settings-reset').click();
+  })()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[name="gridVisible"]').checked`), true,
+  'Reset must restore defaults only in the open draft');
+  await capture(cdp, workstationSettingsVisualFile, '.workstation-settings-dialog');
+  await evaluate(cdp, `document.querySelector('.workstation-settings-cancel').click()`);
 
   const beforeSync = state;
   await evaluate(cdp, `document.querySelector('.replay-timeframe-sync input').click()`);
@@ -602,6 +629,23 @@ try {
   await evaluate(cdp, `document.querySelector('[data-layout-id="layout.single"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
     && document.querySelectorAll('.workspace-pane:not(.is-prepared)').length === 1`);
+  const beforeSettingsCommit = await evaluate(cdp, paneStateExpression());
+  await evaluate(cdp, `(() => {
+    document.querySelector('.workstation-settings-open').click();
+    document.querySelector('[name="gridVisible"]').click();
+    document.querySelector('.workstation-settings-save').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
+    && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'`);
+  const afterSettingsCommit = await evaluate(cdp, paneStateExpression());
+  assert.equal(afterSettingsCommit.replayRevision, beforeSettingsCommit.replayRevision,
+    'Settings must not move Replay');
+  assert.equal(afterSettingsCommit.workspaceRevision, beforeSettingsCommit.workspaceRevision,
+    'Settings must not issue a Workspace transaction');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.gridVisible === 'false')`), true,
+  'the committed Grid value must apply to every mounted Pane');
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
     && document.querySelector('.replay-workspace')?.dataset.paneCount === '1'`, 10_000);
@@ -614,6 +658,9 @@ try {
     `document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value`), '15:00',
   'hard Session re-entry must restore the global Quick GoTo settings alongside Pane layout');
   await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.gridVisible`), 'false',
+  'hard Session re-entry must restore the global Grid preference before ready paint');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
   await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);
@@ -640,6 +687,16 @@ try {
     silverBulletNewYorkPm: '15:00',
   }, 'a newly created Session must inherit the existing workstation-wide Quick GoTo settings');
   await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.gridVisible`), 'false',
+  'a newly created Session must inherit the global Grid preference');
+  await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.gridVisible === 'false')`), true,
+  'future Panes must inherit the latest committed Grid preference before ready paint');
   const preferenceStorage = await evaluate(cdp, `(() => {
     const preference = JSON.parse(localStorage.getItem('v7.replay-navigation-preferences'));
     const sessionRecords = Object.keys(localStorage)
@@ -647,13 +704,16 @@ try {
       .map((key) => JSON.parse(localStorage.getItem(key)).value);
     return {
       dayOpen: preference.replayNavigationSettings.anchors.dayOpen,
+      gridVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.canvas.gridVisible,
       sessionOwnsSettings: sessionRecords.some((record) => (
         Object.hasOwn(record.workspace, 'replayNavigationSettings')
       )),
     };
   })()`);
-  assert.deepEqual(preferenceStorage, { dayOpen: '12:00', sessionOwnsSettings: false },
-    'one global record must own Quick GoTo settings independently of Session workspace records');
+  assert.deepEqual(preferenceStorage, {
+    dayOpen: '12:00', gridVisible: false, sessionOwnsSettings: false,
+  }, 'independent global records must own Quick GoTo and visual Settings outside Sessions');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
   await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);

@@ -76,6 +76,7 @@ export function createLightweightChartAdapter({
     chart, host, onSelect: onTruncationSelect,
   });
   host.dataset.libraryVersion = lightweightChartsVersion();
+  host.dataset.gridVisible = 'true';
   let adapterRevision = 0;
   let appliedBars = Object.freeze([]);
   let appliedData = Object.freeze([]);
@@ -364,6 +365,19 @@ export function createLightweightChartAdapter({
       const projection = applyViewport();
       if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
     },
+    setGridVisible(visible) {
+      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+      if (typeof visible !== 'boolean') {
+        failLightweightAdapter('CHART_GRID_VISIBILITY_INVALID', 'Grid visibility must be boolean.');
+      }
+      chart.applyOptions({
+        grid: {
+          horzLines: { visible },
+          vertLines: { visible },
+        },
+      });
+      host.dataset.gridVisible = String(visible);
+    },
     clearCrosshairPosition() {
       chart.clearCrosshairPosition();
       return recordCrosshairObservation(crosshairPresentation.latest(), 'cleared');
@@ -401,6 +415,8 @@ export function createLightweightChartAdapter({
         logicalRange: chart.timeScale().getVisibleLogicalRange(),
         painted: host.dataset.painted === 'true',
         priceRange: priceScale.getVisibleRange(),
+        gridVisible: host.dataset.gridVisible === 'true',
+        seriesDataRevision,
         viewportIntent: viewport.snapshot(),
       });
     },

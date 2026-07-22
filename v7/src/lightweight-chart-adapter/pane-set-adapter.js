@@ -1,4 +1,5 @@
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
+import { readWorkstationSettings } from '../workstation-settings/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { createLightweightChartAdapter } from './lightweight-chart-adapter.js';
 
@@ -39,6 +40,9 @@ export function createLightweightPaneSetAdapter({
   let crosshairSource = null;
   let truncationSelectionActive = false;
   let visiblePaneIds = [];
+  let gridVisible = true;
+  let settingsRevision = 0;
+  const settingsStages = new WeakMap();
 
   function latestFor(paneId) {
     return adapters.get(paneId)?.crosshairObservation() ?? Object.freeze({
@@ -101,6 +105,14 @@ export function createLightweightPaneSetAdapter({
       requestFrame,
       viewportPort: viewportFor(paneId),
     });
+    if (typeof adapter.setGridVisible !== 'function') {
+      adapter.dispose?.();
+      failLightweightAdapter(
+        'CHART_PANE_SETTINGS_PORT_INVALID',
+        'Pane adapter requires setGridVisible().',
+      );
+    }
+    adapter.setGridVisible(gridVisible);
     adapter.setTruncationSelection(truncationSelectionActive);
     adapters.set(paneId, adapter);
     return adapter;
@@ -131,6 +143,67 @@ export function createLightweightPaneSetAdapter({
     try { await discardEntries(context.staged.entries); } catch { /* Preserve the first apply failure. */ }
     throw failure.reason;
   }
+
+  function settingsRecord(staged, expectedState) {
+    const record = settingsStages.get(staged);
+    if (!record || record.state !== expectedState) {
+      failLightweightAdapter(
+        'CHART_SETTINGS_STAGE_INVALID',
+        `Chart Settings stage must be ${expectedState}.`,
+      );
+    }
+    return record;
+  }
+
+  const workstationSettingsConsumer = Object.freeze({
+    id: 'adapter.lightweight-chart:pane-set',
+    stage(snapshot) {
+      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
+      if (!snapshot || !Number.isSafeInteger(snapshot.revision) || snapshot.revision < 0) {
+        failLightweightAdapter('CHART_SETTINGS_REVISION_INVALID', 'Chart Settings revision is invalid.');
+      }
+      const next = readWorkstationSettings(snapshot.settings).canvas.gridVisible;
+      const staged = Object.freeze({ revision: snapshot.revision });
+      settingsStages.set(staged, {
+        next,
+        previous: gridVisible,
+        previousRevision: settingsRevision,
+        state: 'staged',
+      });
+      return staged;
+    },
+    apply(staged) {
+      const record = settingsRecord(staged, 'staged');
+      const applied = [];
+      try {
+        for (const adapter of adapters.values()) {
+          adapter.setGridVisible(record.next);
+          applied.push(adapter);
+        }
+        record.state = 'applied';
+      } catch (error) {
+        for (const adapter of applied.reverse()) {
+          try { adapter.setGridVisible(record.previous); } catch { /* Preserve first failure. */ }
+        }
+        throw error;
+      }
+      return Object.freeze({ revision: staged.revision });
+    },
+    commit(staged) {
+      const record = settingsRecord(staged, 'applied');
+      gridVisible = record.next;
+      settingsRevision = staged.revision;
+      record.state = 'committed';
+    },
+    rollback(staged) {
+      const record = settingsStages.get(staged);
+      if (!record || record.state === 'rolled-back' || record.state === 'staged') return;
+      for (const adapter of adapters.values()) adapter.setGridVisible(record.previous);
+      gridVisible = record.previous;
+      settingsRevision = record.previousRevision;
+      record.state = 'rolled-back';
+    },
+  });
 
   return Object.freeze({
     async applyVisible(context) {
@@ -191,10 +264,12 @@ export function createLightweightPaneSetAdapter({
       return Object.freeze({
         adapterRevision,
         crosshairSync,
+        gridVisible,
         panes: Object.freeze([...adapters].map(([paneId, adapter]) => Object.freeze({
           paneId,
           snapshot: adapter.snapshot(),
         }))),
+        settingsRevision,
       });
     },
     async stage({ identity, signal, workspaceSnapshot }) {
@@ -225,5 +300,6 @@ export function createLightweightPaneSetAdapter({
       }));
       return Object.freeze({ entries: Object.freeze(entries), identity, signal, workspaceSnapshot });
     },
+    workstationSettingsConsumer,
   });
 }

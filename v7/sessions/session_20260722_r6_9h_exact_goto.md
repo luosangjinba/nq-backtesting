@@ -1,7 +1,7 @@
 # Session — R6.9h Exact GoTo
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: human accepted
 
 ## Delivered
 
@@ -66,3 +66,8 @@ logical row must equal the submitted OHLC, and both time and price coordinates
 must be finite. Missing raster and missing series geometry still reject with
 `CHART_CANDLES_NOT_PAINTED`; transient raster sampling or future custom candle
 colors can no longer roll back an otherwise observable all-Pane commit.
+
+## Human Acceptance
+
+The user accepted the corrected Exact GoTo and repeated Quick/Exact navigation
+behavior on 2026-07-22 after the roll-boundary visible-completion correction.

@@ -22,11 +22,12 @@ required for normal startup.
   accepted; R6.9c lower-right control dock implemented and awaiting focused
   visual review; R6.9d shared GoTo contract completed headlessly; R6.9e eight-
   action Quick GoTo, global settings, and range feedback human accepted;
-  R6.9e1 future time-axis continuity human accepted; R6.9f
-  global Workstation Settings catalog and
-  ownership contract plus R6.9g field-level product refinement completed
-  headlessly; R2.4 Session Browser readability and confirmed durable delete
-  human accepted
+  R6.9e1 future time-axis continuity and R6.9h Exact GoTo human accepted; R6.9f
+  global Workstation Settings catalog and ownership contract plus R6.9g
+  field-level product refinement completed headlessly; R6.9i global Settings
+  owner/persistence/shell with one Grid consumer implemented and awaiting human
+  review; R2.4 Session Browser readability and confirmed durable delete human
+  accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -306,7 +307,14 @@ and human-accepted:
 - R6.9h separates Exact GoTo from Quick GoTo, defaults it to the shared Replay
   cursor, and adds Session-range-aware Calendar dates plus closed-boundary
   New York validation. Invalid input retains the dialog and issues no Replay or
-  Workspace transaction. It awaits human interaction and visual review.
+  Workspace transaction. It was accepted on 2026-07-22 after the roll-boundary
+  visible-completion correction.
+- R6.9i activates one separate versioned global Workstation Settings record and
+  owner. Its four-tab draft shell exposes only Canvas Grid visibility; OK stages,
+  applies, persists, and commits all consumers atomically, while failures roll
+  presentation back. The Pane-set adapter converges every current and future
+  Pane without Replay, Workspace, series-data, or Viewport mutation. It awaits
+  human interaction and visual review.
 - R2.4 returns to the accepted Session Browser boundary for a bounded user
   follow-up: list-only deeper neutral surfaces, brighter/larger typography, and
   one confirmed Delete action per card. Browser UI dispatches only the command;
@@ -433,13 +441,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9h Exact GoTo is implemented and awaits human interaction and visual review.
-After acceptance, execute R6.9i: activate the versioned global Workstation
-Settings owner, durable record, transactional draft shell, and one honest Grid
-visibility consumer. R6.9j-m then add Symbol, Status/current price, Canvas, and
-shared time presentation before R6.10 sync. Economic Calendar remains outside
-this foundation phase. The outstanding R6.9c focused visual confirmation
-remains a separate gate.
+R6.9i Workstation Settings foundation is implemented and awaits human
+interaction and visual review. After acceptance, execute R6.9j: activate candle
+body/border/wick presentation and shared price precision through chart-owned
+option fan-out. R6.9k-m then add Status/current price, Canvas, and shared time
+presentation before R6.10 sync. Economic Calendar remains outside this
+foundation phase. The outstanding R6.9c focused visual confirmation remains a
+separate gate.
 
 ## Standing Workflow
 

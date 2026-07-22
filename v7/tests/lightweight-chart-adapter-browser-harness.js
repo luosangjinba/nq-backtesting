@@ -181,6 +181,28 @@ try {
   assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
 
+  const settingsPresentation = await evaluate(cdp, `(() => {
+    const host = document.querySelector('#chart');
+    const before = globalThis.__adapter.snapshot();
+    const visibleRevision = Number(host.dataset.visibleRevision);
+    globalThis.__adapter.setGridVisible(false);
+    const hidden = globalThis.__adapter.snapshot();
+    globalThis.__adapter.setGridVisible(true);
+    const restored = globalThis.__adapter.snapshot();
+    return { before, hidden, restored, visibleRevision,
+      finalVisibleRevision: Number(host.dataset.visibleRevision) };
+  })()`);
+  assert.equal(settingsPresentation.hidden.gridVisible, false);
+  assert.equal(settingsPresentation.restored.gridVisible, true);
+  assert.equal(settingsPresentation.hidden.adapterRevision, settingsPresentation.before.adapterRevision,
+    'grid presentation must not mutate the chart snapshot application revision');
+  assert.equal(settingsPresentation.hidden.seriesDataRevision,
+    settingsPresentation.before.seriesDataRevision,
+  'grid presentation must not call setData or update');
+  assert.equal(settingsPresentation.hidden.barCount, settingsPresentation.before.barCount);
+  assert.equal(settingsPresentation.finalVisibleRevision, settingsPresentation.visibleRevision,
+    'grid presentation must not publish a chart-visible Workspace receipt');
+
   const rollback = await evaluate(cdp, `globalThis.__probeVisibleRollback()`);
   assert.equal(rollback.staleCode, 'CHART_ADAPTER_STALE');
   assert.equal(rollback.before.barCount, 20);

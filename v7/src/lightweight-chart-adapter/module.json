@@ -6,7 +6,8 @@
   "publicEntry": "src/lightweight-chart-adapter/public.js",
   "requiredPorts": [
     "core.chart-snapshot-application",
-    "core.viewport-runtime"
+    "core.viewport-runtime",
+    "core.workstation-settings"
   ],
   "optionalPorts": [],
   "lifecycle": ["dispose"],

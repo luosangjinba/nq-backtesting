@@ -487,6 +487,22 @@ and above the time scale; scale geometry remains owned by the chart adapter.
 Their visibility follows actual Pane hover or keyboard-visible focus and is
 independent from the persistent active-Pane selection.
 
+### Workstation Settings
+
+R6.9i activates `core.workstation-settings` as the sole owner of one global,
+versioned visual-preference value, its revision, recovery state, persistence
+record, and presentation-only Save transaction. It is deliberately separate
+from Session records, Pane intent, and the global Replay Navigation preference.
+
+Consumers expose stage/apply/commit/rollback. The owner stages every consumer,
+applies all, writes the durable record, and only then commits and publishes the
+new revision; any failure rolls every applied consumer back and restores prior
+durable state when necessary. The Pane-set adapter is the only initial consumer:
+it fans Grid visibility to every current Lightweight Charts adapter and applies
+the committed value to future Panes before first data paint. Settings cannot
+open a Workspace transaction or mutate Replay, chart series data, bars,
+Viewport intent, or Pane operational state.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

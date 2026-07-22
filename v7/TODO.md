@@ -1139,7 +1139,7 @@ redesign below instead of being applied in isolation.
   multi-Pane Replay, and fixed visual output in real Chrome;
 - [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-### R6.9h Exact GoTo — Awaiting Human Review
+### R6.9h Exact GoTo — Human Accepted
 
 - [x] separate Exact GoTo from the Quick GoTo menu into its own Workspace-level
   entry;
@@ -1157,7 +1157,7 @@ redesign below instead of being applied in isolation.
 - [x] replace raster-color-only visible completion with bounded raster plus
   validated series-data/coordinate proof after repeated GoTo and Next Day Open
   exposed intermittent false rollback at futures roll boundaries;
-- [ ] obtain explicit human interaction and visual acceptance.
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
 ### R6.9f Workstation Settings Catalog And Ownership — Completed Headlessly
 
@@ -1211,6 +1211,27 @@ R6.9e human acceptance, R6.9h delivers Exact GoTo. R6.9i activates the Settings
 owner/persistence/shell with one real Grid consumer; R6.9j adds Symbol;
 R6.9k adds Status/current price; R6.9l adds Canvas; R6.9m adds shared time
 presentation.
+
+### R6.9i Workstation Settings Foundation — Awaiting Human Review
+
+- [x] activate one versioned global Workstation Settings owner and a separate
+  durable `v7.workstation-settings:global` record;
+- [x] recover missing/corrupt/unavailable records to defaults without touching
+  Session records or the Quick GoTo preference;
+- [x] implement stage/apply/persist/commit with all-consumer rollback on any
+  Save failure;
+- [x] expose the four-tab Symbol/Status line/Scales and lines/Canvas shell while
+  keeping future fields honest and inactive;
+- [x] retain draft-only Reset and discard through Cancel, close, Escape, or
+  backdrop click;
+- [x] activate only the Canvas Grid-lines visibility control;
+- [x] fan one committed revision to all mounted Panes and apply it to future
+  Panes before their first data paint;
+- [x] prove that Settings do not move Replay, Workspace, series-data, bar-count,
+  Pane intent, or Viewport revisions;
+- [x] bind durable hard-reload/cross-Session restore, current/future-Pane fan-out,
+  rollback, native chart mapping, and the dialog visual in focused Harnesses;
+- [ ] obtain explicit human interaction and visual acceptance.
 
 ## Standing Gates
 

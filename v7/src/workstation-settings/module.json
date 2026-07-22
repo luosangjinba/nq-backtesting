@@ -1,0 +1,12 @@
+{
+  "id": "core.workstation-settings",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workstation-settings",
+  "publicEntry": "src/workstation-settings/public.js",
+  "requiredPorts": ["adapter.session-persistence"],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/workstation-settings-harness.js",
+  "removable": false
+}

@@ -409,9 +409,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   current-price controls, practical time formats, and explicit non-goals;
 - `R6.9h`: separate Exact GoTo into its own Workspace-level entry, default it
   to the shared cursor, and add Session-range-aware Calendar presentation plus
-  closed-boundary validation; implemented and awaiting human review;
+  closed-boundary validation; accepted on 2026-07-22;
 - `R6.9i`: activate the versioned Workstation Settings owner, durable global
-  record, transactional draft shell, and one honest Grid consumer;
+  record, transactional draft shell, and one honest Grid consumer; implemented
+  and awaiting human review;
 - `R6.9j`: activate candle body/border/wick presentation plus Auto/manual
   shared price formatting through chart-owned option fan-out;
 - `R6.9k`: activate bounded OHLC/change/Volume and current-price Name/Value/Line

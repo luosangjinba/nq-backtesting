@@ -32,6 +32,7 @@ class SessionBrowserController {
     this.schedule = options.schedule;
     this.openedSessionSurface = options.openedSessionSurface ?? null;
     this.replayNavigationPreferences = options.replayNavigationPreferences ?? null;
+    this.workstationSettings = options.workstationSettings ?? null;
     this.unavailableMessage = options.unavailableMessage;
     this.records = [];
     this.stopped = false;
@@ -126,6 +127,7 @@ class SessionBrowserController {
             onPersistReplayNavigationSettings: (settings) => this.replayNavigationPreferences.save(settings),
             record,
             root: this.root.querySelector('.replay-workspace-slot'),
+            workstationSettings: this.workstationSettings,
           });
         }
       } catch {
@@ -182,6 +184,11 @@ export function createSessionBrowser(options) {
   if (options.openedSessionSurface) {
     requirePort(options.openedSessionSurface, ['mount', 'supports', 'unmount'], 'Opened Session surface');
     requirePort(options.replayNavigationPreferences, ['save', 'snapshot'], 'Replay navigation preferences');
+    requirePort(
+      options.workstationSettings,
+      ['registerConsumer', 'save', 'snapshot'],
+      'Workstation Settings',
+    );
   }
   const controller = new SessionBrowserController({
     ...options,

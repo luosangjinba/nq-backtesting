@@ -24,6 +24,7 @@ export function createReplayWorkspaceSurface() {
     dispose: unmount,
     mount({
       initialNavigationSettings,
+      workstationSettings,
       onBack,
       onPersistPaneLayout = () => {},
       onPersistReplayNavigationSettings = () => {},
@@ -51,6 +52,7 @@ export function createReplayWorkspaceSurface() {
         replayStep: null,
         restart: null,
         saveGotoSettings: null,
+        saveWorkstationSettings: null,
         sessionHours: null,
         timeframeSync: null,
         timeframe: null,
@@ -60,6 +62,7 @@ export function createReplayWorkspaceSurface() {
       const view = createReplayWorkspaceView({
         initialNavigationSettings,
         initialLayout,
+        getWorkstationSettings: () => workstationSettings.snapshot(),
         instrumentOptions: capabilities.instrumentOptions,
         layoutOptions: PANE_LAYOUT_OPTIONS,
         name: record.metadata.name,
@@ -80,6 +83,7 @@ export function createReplayWorkspaceSurface() {
         onReplayStep: (replayStepId) => callbacks.replayStep?.(replayStepId),
         onRestart: () => callbacks.restart?.(),
         onSaveGotoSettings: (settings) => callbacks.saveGotoSettings?.(settings),
+        onSaveWorkstationSettings: (settings) => callbacks.saveWorkstationSettings?.(settings),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframeSync: (enabled) => callbacks.timeframeSync?.(enabled),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
@@ -99,6 +103,7 @@ export function createReplayWorkspaceSurface() {
         persistReplayNavigationSettings: onPersistReplayNavigationSettings,
         record,
         view,
+        workstationSettings,
       });
       callbacks.autoplay = () => controller.autoplay();
       callbacks.crosshairSync = (enabled) => controller.changeCrosshairSync(enabled);
@@ -116,6 +121,7 @@ export function createReplayWorkspaceSurface() {
       callbacks.replayStep = (replayStepId) => controller.changeReplayStep(replayStepId);
       callbacks.restart = () => controller.restart();
       callbacks.saveGotoSettings = (settings) => controller.saveGotoSettings(settings);
+      callbacks.saveWorkstationSettings = (settings) => controller.saveWorkstationSettings(settings);
       callbacks.sessionHours = (mode) => controller.replaceSessionHours(mode);
       callbacks.timeframeSync = (enabled) => controller.changeTimeframeSync(enabled);
       callbacks.timeframe = (timeframeId) => controller.replaceTimeframe(timeframeId);

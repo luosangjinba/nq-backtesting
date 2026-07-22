@@ -64,6 +64,7 @@ for (const moduleId of activeModuleIds) visitModule(moduleId);
 assert.deepEqual(manifest.writerInventories, {
   sessionRecord: ['core.session-store'],
   replayNavigationPreferences: ['core.replay-navigation-preference-store'],
+  workstationSettings: ['core.workstation-settings'],
   calendarSurfaceDom: ['adapter.calendar-surface'],
   sessionBrowserDom: ['adapter.session-browser-ui'],
   replayWorkspaceDom: ['adapter.replay-workspace-ui'],
@@ -210,6 +211,7 @@ for (const rule of [
   'pane-canvas-overlay-controls-are-transient-and-local',
   'pane-control-dock-is-vertical-and-scale-safe',
   'session-browser-delete-is-confirmed-and-durable',
+  'global-workstation-settings-transactional-all-pane',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

@@ -1,6 +1,7 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
 import { readPaneLayout } from '../pane-layout-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
+import { readWorkstationSettings } from '../workstation-settings/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 import { createExactGotoDialog } from './exact-goto-dialog.js';
 import { createGotoControls } from './goto-controls.js';
@@ -8,6 +9,7 @@ import { createPaneGridView } from './pane-grid-view.js';
 import { createPaneLayoutMenu } from './pane-layout-menu.js';
 import { createReplayTransport } from './replay-transport.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
+import { createWorkstationSettingsControl } from './workstation-settings-dialog.js';
 
 export const REPLAY_WORKSPACE_STATES = Object.freeze([
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
@@ -72,6 +74,7 @@ function createInstrumentSelect(options, onChoose) {
 export function createReplayWorkspaceView({
   initialNavigationSettings,
   initialLayout,
+  getWorkstationSettings,
   instrumentOptions,
   layoutOptions,
   name,
@@ -89,6 +92,7 @@ export function createReplayWorkspaceView({
   onPrevious,
   onQuickGoto,
   onSaveGotoSettings,
+  onSaveWorkstationSettings,
   onReset,
   onReplayStep,
   onRestart,
@@ -135,6 +139,10 @@ export function createReplayWorkspaceView({
     onSubmit: onExactGoto,
     replayRange,
   });
+  const workstationSettings = createWorkstationSettingsControl({
+    getSnapshot: getWorkstationSettings,
+    onSave: onSaveWorkstationSettings,
+  });
   const paneGrid = createPaneGridView({
     initialLayout,
     onFocus: onFocusPane,
@@ -180,6 +188,7 @@ export function createReplayWorkspaceView({
         restartButton,
         goto.root,
         exactGoto.root,
+        workstationSettings.root,
         element('span', { className: 'workspace-status replay-local-status' }, [
           element('span', { className: 'status-dot' }),
           element('span', { text: 'Local' }),
@@ -194,6 +203,7 @@ export function createReplayWorkspaceView({
         className: 'replay-footer-owner', text: 'Focused Pane owns symbol, interval, and viewport',
       }),
     ]),
+    workstationSettings.dialog,
   ]);
   const instrumentLabels = new Map(instrumentOptions.map(({ id, label }) => [id, label]));
   const timeframeLabels = new Map(timeframeMenuGroups.flatMap(({ items }) => (
@@ -221,6 +231,7 @@ export function createReplayWorkspaceView({
       preserveVisual: stableRefresh && !intrinsicallyDisabled,
     });
     setAction(restartButton, unavailable);
+    workstationSettings.setDisabled(unavailable);
     timeframeControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     const instrumentUnavailable = unavailable || instrumentOptions.length < 2;
     instrumentControl.setDisabled(interactionLocked || instrumentUnavailable, stableRefresh && !instrumentUnavailable);
@@ -283,6 +294,7 @@ export function createReplayWorkspaceView({
       replayTransport.dispose();
       goto.dispose();
       exactGoto.dispose();
+      workstationSettings.dispose();
       paneGrid.dispose();
       root.remove();
     },
@@ -363,6 +375,10 @@ export function createReplayWorkspaceView({
     },
     setWall(paneId, origin) {
       if (paneId === activePaneId) root.dataset.wallOrigin = origin;
+    },
+    setWorkstationSettings(snapshot) {
+      root.dataset.settingsRevision = String(snapshot.revision);
+      root.dataset.gridVisible = String(readWorkstationSettings(snapshot.settings).canvas.gridVisible);
     },
     setWorkspace(workspace) {
       const value = readPaneWorkspace(workspace);

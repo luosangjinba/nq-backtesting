@@ -1,0 +1,7 @@
+[
+  { "case": "unknown-canvas-field", "expectedCode": "WORKSTATION_SETTINGS_CANVAS_FIELDS_INVALID" },
+  { "case": "invalid-grid-visible", "expectedCode": "WORKSTATION_SETTINGS_GRID_VISIBLE_INVALID" },
+  { "case": "unsupported-version", "expectedCode": "WORKSTATION_SETTINGS_VERSION_INVALID" },
+  { "case": "persistence-write-failure", "expectedCode": "WORKSTATION_SETTINGS_SAVE_FAILED" },
+  { "case": "consumer-apply-failure", "expectedCode": "WORKSTATION_SETTINGS_SAVE_FAILED" }
+]

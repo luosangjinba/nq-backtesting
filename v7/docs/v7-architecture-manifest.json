@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.9g-settings-product-refinement-complete-r6.9e-and-r6.9c-awaiting-human-review",
+  "status": "r6.9i-workstation-settings-foundation-awaiting-human-review",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -43,6 +43,7 @@
     "docs/V7_REPLAY_NAVIGATION_PREFERENCE_STORE.md",
     "docs/V7_WORKSTATION_SETTINGS_CATALOG_R6_9F.md",
     "docs/V7_WORKSTATION_SETTINGS_PRODUCT_REFINEMENT_R6_9G.md",
+    "docs/V7_WORKSTATION_SETTINGS_FOUNDATION_R6_9I.md",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
     "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md",
@@ -68,7 +69,8 @@
     "viewport-runtime",
     "pane-workspace-domain",
     "pane-layout-domain",
-    "calendar-surface"
+    "calendar-surface",
+    "workstation-settings"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -105,6 +107,7 @@
     "src/pane-layout-domain/module.json",
     "src/replay-navigation-settings/module.json",
     "src/replay-navigation-preference-store/module.json",
+    "src/workstation-settings/module.json",
     "src/replay-pane-response-contract/module.json",
     "src/pane-set-materialization/module.json",
     "src/replay-navigation-runtime/module.json",
@@ -182,6 +185,7 @@
   "writerInventories": {
     "sessionRecord": ["core.session-store"],
     "replayNavigationPreferences": ["core.replay-navigation-preference-store"],
+    "workstationSettings": ["core.workstation-settings"],
     "calendarSurfaceDom": ["adapter.calendar-surface"],
     "sessionBrowserDom": ["adapter.session-browser-ui"],
     "replayWorkspaceDom": ["adapter.replay-workspace-ui"],
@@ -241,6 +245,7 @@
     "pane-local-latest-ohlc-and-chart-only-crosshair-sync",
     "pane-canvas-overlay-controls-are-transient-and-local",
     "pane-control-dock-is-vertical-and-scale-safe",
-    "session-browser-delete-is-confirmed-and-durable"
+    "session-browser-delete-is-confirmed-and-durable",
+    "global-workstation-settings-transactional-all-pane"
   ]
 }
