@@ -398,10 +398,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Complete the requested stage code review without changing production behavior,
-then obtain the outstanding R6.9c visual confirmation that each Pane's vertical
-lower-right controls avoid both chart scales. After that gate passes, execute
-the remaining R6.10 Symbol/Interval/Time/Date-range sync families as separate
+The requested stage code review and its three P1 corrections are complete.
+Obtain the outstanding R6.9c visual confirmation that each Pane's vertical
+lower-right controls avoid both chart scales. Do not implement the review's P2
+GoTo disabled-shortcut suggestion in isolation: the user reports that the
+current GoTo product design differs from the intended behavior, so first record
+the revised interaction contract. After the R6.9c gate passes, execute the
+remaining R6.10 Symbol/Interval/Time/Date-range sync families as separate
 bounded work. Economic Calendar remains outside this foundation phase.
 
 ## Standing Workflow

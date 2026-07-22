@@ -1002,6 +1002,31 @@
       "negativeFixtures": ["tests/fixtures/session-store/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260721_r2_4_session_browser_readability_delete.md"
+    },
+    {
+      "id": "H056",
+      "name": "review-p1-market-identity-and-visible-rollback",
+      "owner": "chart-runtime-adapter",
+      "v6FailurePrevented": "Unknown symbols silently displayed NQ data, failed child charts left a mixed old/new Pane set, or empty Panes retained stale OHLC behind their overlay",
+      "activationStep": "R6",
+      "state": "accepted",
+      "harness": "tests/lightweight-chart-adapter-browser-harness.js",
+      "positiveEvidence": [
+        "src/v4-bars-provider-adapter/v4-bars-provider-adapter.js",
+        "src/lightweight-chart-adapter/visible-state-rollback.js",
+        "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "tests/v4-bars-provider-adapter-harness.js",
+        "tests/pane-set-materialization-harness.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "docs/V7_CHART_SNAPSHOT_APPLICATION.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/v4-bars-provider-adapter/negative/cases.json",
+        "tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260722_stage_review_p1_corrections.md"
     }
   ]
 }

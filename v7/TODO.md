@@ -1064,6 +1064,27 @@ sync is not part of this correction.
 Do not start the remaining R6.10 Symbol/Interval/Time/Date-range sync families
 until R6.9c receives focused visual confirmation.
 
+### Stage Code Review P1 Corrections — Completed
+
+Completed on 2026-07-22 with automated evidence:
+
+- [x] reject every V4 bar instrument except explicit NQ/ES identities before
+  transport, eliminating the silent unknown-instrument→NQ fallback;
+- [x] preserve and restore the previously accepted series, OHLC index, time
+  range, price range, adapter revision, and visible metadata after apply,
+  paint, stale, or outer-discard failure;
+- [x] settle all child chart applications and roll back the complete Pane set
+  when any child fails after visible mutation;
+- [x] make `ready → empty → ready` cross the same chart-writer boundary,
+  clearing series/OHLC/data attributes without leaking replacement adapters;
+- [x] bind the corrections with provider-negative, headless multi-Pane, real
+  Lightweight Charts, Replay Pane Workspace, and Replay Layout evidence.
+
+The code review's P2 GoTo item is intentionally not implemented. The user has
+reported that the current GoTo product design differs from the intended design;
+replace that interaction only after the revised behavior is specified, rather
+than applying the narrower disabled-shortcut patch in isolation.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

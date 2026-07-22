@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r2.4-accepted-and-r6.9c-awaiting-human-review",
+  "status": "stage-review-p1-corrected-and-r6.9c-awaiting-human-review",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
