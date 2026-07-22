@@ -121,6 +121,12 @@ class SessionBrowserController {
               layout,
               nowEpochMs: this.now(),
             }),
+            onPersistReplayNavigationSettings: (settings) => (
+              this.store.saveReplayNavigationSettings(record.sessionId, {
+                nowEpochMs: this.now(),
+                settings,
+              })
+            ),
             record,
             root: this.root.querySelector('.replay-workspace-slot'),
           });

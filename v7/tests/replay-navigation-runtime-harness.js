@@ -520,6 +520,28 @@ const resolver = (port = traversal()) => createReplayNavigationTargetResolver({
   schedule,
   sourceTraversalPort: port,
 });
+let activeSchedule = schedule;
+const dynamicResolver = createReplayNavigationTargetResolver({
+  resolveSchedule: () => activeSchedule,
+  sourceTraversalPort: traversal({
+    eligibleAtOrAfter: async ({ anchorEpochMs }) => Object.freeze({
+      sourceEpochMs: anchorEpochMs,
+      targetEpochMs: anchorEpochMs + MINUTE,
+    }),
+  }),
+});
+const dynamicPlan = planFor(createReplayPaneAction({
+  anchor: 'silver-bullet-new-york-pm', kind: 'goto-anchor',
+}));
+const defaultDynamicTarget = await dynamicResolver.resolve({
+  range: RANGE, responsePlan: dynamicPlan, signal,
+});
+activeSchedule = customSchedule;
+const customDynamicTarget = await dynamicResolver.resolve({
+  range: RANGE, responsePlan: dynamicPlan, signal,
+});
+assert.equal(customDynamicTarget.targetEpochMs - defaultDynamicTarget.targetEpochMs, 60 * MINUTE,
+  'a saved settings replacement must affect the next resolution without rebuilding Replay');
 const directReplayPort = createReplayNavigationReplayPort({ replayRuntime: replay, targetResolver: resolver() });
 
 const negative = {
@@ -532,6 +554,12 @@ const negative = {
   }),
   'schedule-bounds': () => createReplayNavigationSchedule({ maxCandidates: 0 }),
   'schedule-lookalike': () => requireReplayNavigationSchedule(Object.freeze({ candidates() {} })),
+  'schedule-port-both': () => createReplayNavigationTargetResolver({
+    resolveSchedule: () => schedule, schedule, sourceTraversalPort: traversal(),
+  }),
+  'schedule-port-invalid': () => createReplayNavigationTargetResolver({
+    resolveSchedule: true, sourceTraversalPort: traversal(),
+  }),
   'schedule-anchor': () => schedule.candidates({
     anchor: 'market-open', cursorEpochMs: RANGE.startEpochMs, endEpochMs: RANGE.endEpochMs,
   }),
@@ -608,7 +636,7 @@ const negative = {
   'result-lookalike': () => readReplayNavigationResult(Object.freeze({ status: 'committed' })),
 };
 
-assert.equal(negativeCases.length, 21);
+assert.equal(negativeCases.length, 23);
 for (const fixture of negativeCases) {
   assert.equal(typeof negative[fixture.case], 'function', `missing negative control ${fixture.case}`);
   await assert.rejects(

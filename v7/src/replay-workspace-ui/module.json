@@ -13,6 +13,7 @@
     "core.capability-contract",
     "core.replay-contract",
     "core.replay-runtime",
+    "core.replay-navigation-settings",
     "core.replay-pane-response-contract",
     "core.replay-navigation-runtime",
     "core.pane-layout-domain",

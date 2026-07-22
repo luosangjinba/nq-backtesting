@@ -10,6 +10,9 @@ import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/multi-mixed-1440x900.png');
+const gotoSettingsVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/goto-settings-1440x900.png',
+);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -31,17 +34,18 @@ async function waitForDevtools() {
   throw new Error('Chrome DevTools endpoint did not start.');
 }
 
-async function capture(cdp) {
+async function capture(cdp, fixture = visualFile) {
   await new Promise((resolve) => setTimeout(resolve, 160));
   await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
   const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
   const actual = Buffer.from(data, 'base64');
   if (process.env.V7_UPDATE_VISUALS === '1') {
-    fs.writeFileSync(visualFile, actual);
+    fs.writeFileSync(fixture, actual);
     return;
   }
-  assert.ok(fs.existsSync(visualFile), 'missing mixed multi-Pane visual fixture');
-  assert.equal(actual.equals(fs.readFileSync(visualFile)), true, 'mixed multi-Pane visual fixture changed');
+  assert.ok(fs.existsSync(fixture), `missing visual fixture ${path.basename(fixture)}`);
+  assert.equal(actual.equals(fs.readFileSync(fixture)), true,
+    `${path.basename(fixture)} visual fixture changed`);
 }
 
 function paneStateExpression() {
@@ -295,14 +299,73 @@ try {
   state = await evaluate(cdp, paneStateExpression());
   assert.equal(state.playback, 'paused');
 
+  await evaluate(cdp, `document.querySelector('.goto-toggle').click()`);
+  assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('[data-goto-anchor]')]
+    .map((button) => ({ anchor: button.dataset.gotoAnchor, key: button.querySelector('kbd')?.textContent ?? null }))`), [
+    { anchor: 'next-day-open', key: 'Y' },
+    { anchor: 'next-session', key: 'Z' },
+    { anchor: 'asian-session', key: 'I' },
+    { anchor: 'london-session', key: 'L' },
+    { anchor: 'new-york-session', key: 'N' },
+    { anchor: 'silver-bullet-new-york-am', key: null },
+    { anchor: 'silver-bullet-new-york-pm', key: null },
+    { anchor: 'silver-bullet-london', key: null },
+  ], 'Quick GoTo exposes eight fixed actions and only the five accepted shortcuts');
+  await evaluate(cdp, `document.querySelector('.goto-settings').click()`);
+  await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === true`);
+  assert.deepEqual(await evaluate(cdp, `Object.fromEntries([...document.querySelectorAll('.goto-settings-time')]
+    .map((input) => [input.name, input.value]))`), {
+    asianSession: '19:00',
+    dayOpen: '18:00',
+    londonSession: '02:00',
+    newYorkSession: '09:30',
+    silverBulletLondon: '03:00',
+    silverBulletNewYorkAm: '10:00',
+    silverBulletNewYorkPm: '14:00',
+  });
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-settings-time[name="dayOpen"]').value = '17:00';
+    document.querySelector('.goto-settings-reset').click();
+  })()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.goto-settings-time[name="dayOpen"]').value`), '18:00',
+  'Reset to defaults must restore the default Quick GoTo schedule before Save');
+  await evaluate(cdp, `document.activeElement?.blur()`);
+  await capture(cdp, gotoSettingsVisualFile);
+  const beforeSettings = await evaluate(cdp, paneStateExpression());
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value = '15:00';
+    document.querySelector('.goto-settings-save').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === false`);
+  state = await evaluate(cdp, paneStateExpression());
+  assert.equal(state.workspaceRevision, beforeSettings.workspaceRevision,
+    'saving GoTo settings must not issue a Pane transaction');
+  assert.equal(state.replayRevision, beforeSettings.replayRevision,
+    'saving GoTo settings must not move Replay');
   await evaluate(cdp, `(() => {
     document.querySelector('.goto-toggle').click();
-    document.querySelector('[data-goto-anchor="new-york-session"]').click();
+    document.querySelector('.goto-settings').click();
+    document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value = '16:00';
+    document.querySelector('.goto-settings-discard').click();
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('.goto-settings').click();
+  })()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value`), '15:00',
+  'Discard must restore the last saved Quick GoTo settings');
+  await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
+
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('[data-goto-anchor="silver-bullet-new-york-pm"]').click();
   })()`);
   const beforeQuick = state.workspaceRevision;
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeQuick}`, 10_000);
   state = await evaluate(cdp, paneStateExpression());
   assert.ok(state.panes.every(({ visibleRevision }) => visibleRevision >= 1));
+  assert.match(await evaluate(cdp, `document.querySelector('.replay-visible-through').textContent`),
+    /05\/04\/2026, 15:00 EDT/, 'saved Silver Bullet time must replace the active schedule immediately');
 
   await evaluate(cdp, `(() => {
     document.querySelector('.goto-toggle').click();
@@ -402,6 +465,21 @@ try {
     next: true, playback: true, previous: false, speed: true, step: false,
     syncTimeframe: false, truncation: false,
   }, 'Session completion must still allow Previous and Replay-step recovery');
+  const beforeRangeEnd = await evaluate(cdp, paneStateExpression());
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('[data-goto-anchor="silver-bullet-london"]').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.gotoFeedback.includes('Replay range ends')`);
+  const afterRangeEnd = await evaluate(cdp, paneStateExpression());
+  assert.equal(afterRangeEnd.workspaceRevision, beforeRangeEnd.workspaceRevision,
+    'Quick GoTo range exhaustion must not issue a Pane transaction');
+  assert.equal(afterRangeEnd.replayRevision, beforeRangeEnd.replayRevision,
+    'Quick GoTo range exhaustion must not move Replay');
+  assert.equal(await evaluate(cdp, `document.querySelector('.replay-workspace').dataset.viewState`), 'ready');
+  assert.match(await evaluate(cdp, `document.querySelector('.workspace-inline-status').textContent`),
+    /No later SB London is available.*05\/06\/2026, 16:00 EDT/,
+    'range-end feedback names the shortcut and Replay Session end');
   const beforeCompletedPrevious = Number(await evaluate(cdp,
     `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
   await evaluate(cdp, `document.querySelector('.replay-previous').click()`);
@@ -411,6 +489,18 @@ try {
   await evaluate(cdp, `document.querySelector('[data-layout-id="layout.single"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
     && document.querySelectorAll('.workspace-pane:not(.is-prepared)').length === 1`);
+  await cdp.send('Page.reload', { ignoreCache: true });
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
+    && document.querySelector('.replay-workspace')?.dataset.paneCount === '1'`, 10_000);
+  await evaluate(cdp, `(() => {
+    document.querySelector('.goto-toggle').click();
+    document.querySelector('.goto-settings').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === true`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.goto-settings-time[name="silverBulletNewYorkPm"]').value`), '15:00',
+  'hard Session re-entry must restore its accepted Quick GoTo settings alongside Pane layout');
+  await evaluate(cdp, `document.querySelector('.goto-settings-discard').click()`);
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 } finally {
   cdp?.close();

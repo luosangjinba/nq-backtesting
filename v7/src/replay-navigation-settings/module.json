@@ -1,0 +1,12 @@
+{
+  "id": "core.replay-navigation-settings",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "replay-navigation-runtime",
+  "publicEntry": "src/replay-navigation-settings/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/replay-navigation-settings-harness.js",
+  "removable": false
+}

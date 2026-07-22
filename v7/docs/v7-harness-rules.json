@@ -1051,6 +1051,33 @@
       ],
       "humanReviewRequired": false,
       "acceptanceEvidence": "sessions/session_20260722_r6_9d_goto_redesign_contract.md"
+    },
+    {
+      "id": "H058",
+      "name": "quick-goto-settings-and-range-feedback",
+      "owner": "replay-navigation-runtime",
+      "v6FailurePrevented": "Quick settings leaked across Replay Sessions, saving settings moved Replay, or expected range exhaustion replaced ready charts with a generic Workspace error",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-pane-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/replay-navigation-settings/navigation-settings.js",
+        "src/replay-workspace-ui/goto-quick-actions.js",
+        "src/replay-workspace-ui/goto-settings-dialog.js",
+        "src/replay-workspace-ui/workspace-controller.js",
+        "src/session-store/session-store.js",
+        "tests/replay-navigation-settings-harness.js",
+        "tests/session-store-harness.js",
+        "tests/replay-pane-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/goto-settings-1440x900.png",
+        "docs/V7_QUICK_GOTO_SETTINGS_R6_9E.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/replay-navigation-runtime/negative/cases.json",
+        "tests/fixtures/session-store/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

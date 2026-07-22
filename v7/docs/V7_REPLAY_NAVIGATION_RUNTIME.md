@@ -1,6 +1,6 @@
 # V7 Replay Navigation Runtime
 
-Status: R6.4 owner with R6.6 bar-step and R6.7 cadence integration (2026-07-21)
+Status: R6.4 owner with R6.6/R6.7 transport and R6.9e Quick GoTo settings integration (2026-07-22)
 
 ## Decision
 
@@ -85,11 +85,13 @@ DST-aware instants: `09:30` is `14:30Z` before the 2026 spring transition and
 `13:30Z` after it. Nonexistent and repeated wall times are handled by matching
 actual `America/New_York` fields, not by a fixed UTC offset.
 
-Custom anchor values are accepted by the pure schedule constructor. R6.5 mounts
-the original five default quick actions, keyboard shortcuts, and exact New York
-calendar control over this same path. R6.9d freezes the expanded headless
-contract; its quick-menu/settings and separate Exact GoTo presentation remain
-later bounded work and cannot create another Replay path.
+Custom anchor values are accepted by the pure schedule constructor. R6.9e
+mounts all eight fixed actions and a seven-time New York settings dialog.
+Accepted settings are versioned and persisted per explicit Replay Session by
+Session Store, then replace the resolver's schedule without moving Replay or
+issuing a Workspace transaction. Next Session remains derived. Exact GoTo
+still uses this same navigation path and awaits only its separate presentation
+slice.
 
 If source traversal exhausts the active Replay Session range for a Quick GoTo,
 Replay Navigation returns `rejected` with
@@ -113,7 +115,7 @@ preserves the last accepted Replay/workspace/chart state and pauses playback.
 ## Remaining Exclusions
 
 - no timer or speed ownership inside Replay Navigation Runtime;
-- no navigation-preference persistence;
+- no preference persistence outside the explicit Replay Session record;
 - no Economic Calendar or marker provider.
 
 ## Gate
@@ -125,7 +127,7 @@ Restart/Back-to,
 exact forward/backward/no-op GoTo, continuous-range request intent, weekend
 anchor skipping, mixed NQ/ES and `1m`/`4h`, comparison-Pane absence,
 primary-instrument visibility, overlap suppression, failure pause/preservation,
-and 21 negative/race controls.
+and 23 negative/race controls.
 
 `tests/replay-autoplay-scheduler-harness.js` separately proves R6.7 continuous
 cadence, completion-driven scheduling without backlog, Pause before and during

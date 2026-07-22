@@ -1099,10 +1099,26 @@ redesign below instead of being applied in isolation.
   later independent business-event provider/consumer;
 - [x] bind the result with pure response-plan and navigation-runtime Harnesses.
 
-The next bounded GoTo slice implements the eight-item quick menu, simplified
-seven-time Custom Settings, and non-blocking range-end feedback. The following
-slice separates Exact GoTo into its Workspace-level entry and adds range-aware
-calendar presentation. Neither slice may start another Replay path.
+### R6.9e Quick GoTo Settings And Range Feedback — Awaiting Human Review
+
+- [x] expose all eight fixed Quick GoTo actions and only the five accepted
+  keyboard shortcuts;
+- [x] add a simplified seven-time New York settings dialog with Reset,
+  Discard, Save, and derived Next Session guidance;
+- [x] validate and version the settings through a focused pure contract;
+- [x] persist accepted settings per explicit Replay Session while preserving
+  Pane Layout and restoring older records;
+- [x] apply saved settings immediately without moving Replay or issuing a
+  Workspace transaction;
+- [x] present exhausted anchors as non-blocking range-end feedback while the
+  Workspace stays ready and all accepted revisions remain unchanged;
+- [x] bind the menu, settings lifecycle, dynamic schedule, Session isolation,
+  range end, and fixed visual output in focused and real-Chrome Harnesses;
+- [ ] obtain explicit human interaction and visual acceptance.
+
+After acceptance, the next bounded slice separates Exact GoTo into its own
+Workspace-level entry and adds range-aware Calendar Surface presentation.
+Neither slice may start another Replay path.
 
 ## Standing Gates
 

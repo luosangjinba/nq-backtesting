@@ -2,6 +2,11 @@ import {
   createActivationGeneration,
   nextActivationGeneration,
 } from '../activation-generation/public.js';
+import { createPaneLayout, serializePaneLayout } from '../pane-layout-domain/public.js';
+import {
+  createReplayNavigationSettings,
+  serializeReplayNavigationSettings,
+} from '../replay-navigation-settings/public.js';
 import { requireSessionId, sessionIdsEqual } from '../session-identity/public.js';
 import {
   createSessionRecord,
@@ -10,7 +15,6 @@ import {
   SESSION_RECORD_INTERNALS,
   SessionStoreError,
 } from './session-record.js';
-import { serializePaneLayout } from '../pane-layout-domain/public.js';
 
 function fail(code, message) {
   throw new SessionStoreError(code, message);
@@ -40,6 +44,21 @@ function requireRepository(repository) {
  */
 export function createSessionStore({ repository, migrations = {} }) {
   const port = requireRepository(repository);
+
+  function configuredWorkspace(current, overrides = {}) {
+    return {
+      paneLayout: overrides.paneLayout
+        ?? (current.workspace.state === 'configured'
+          ? current.workspace.paneLayout
+          : serializePaneLayout(createPaneLayout())),
+      replayNavigationSettings: overrides.replayNavigationSettings
+        ?? (current.workspace.schemaVersion === 3
+          ? current.workspace.replayNavigationSettings
+          : serializeReplayNavigationSettings(createReplayNavigationSettings())),
+      schemaVersion: 3,
+      state: 'configured',
+    };
+  }
 
   function requireExisting(sessionId) {
     requireSessionId(sessionId);
@@ -92,11 +111,20 @@ export function createSessionStore({ repository, migrations = {} }) {
         ...current,
         revision: current.revision + 1,
         metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
-        workspace: {
-          paneLayout: serializePaneLayout(layout),
-          schemaVersion: 2,
-          state: 'configured',
-        },
+        workspace: configuredWorkspace(current, { paneLayout: serializePaneLayout(layout) }),
+      });
+      port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
+      return next;
+    },
+    saveReplayNavigationSettings(sessionId, { nowEpochMs, settings }) {
+      const current = requireExisting(sessionId);
+      const next = SESSION_RECORD_INTERNALS.freezeRecord({
+        ...current,
+        revision: current.revision + 1,
+        metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
+        workspace: configuredWorkspace(current, {
+          replayNavigationSettings: serializeReplayNavigationSettings(settings),
+        }),
       });
       port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
       return next;

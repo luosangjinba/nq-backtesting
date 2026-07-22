@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.9d-goto-contract-accepted-and-r6.9c-awaiting-human-review",
+  "status": "r6.9e-quick-goto-and-r6.9c-awaiting-human-review",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -39,6 +39,7 @@
     "docs/V7_PANE_SET_MATERIALIZATION.md",
     "docs/V7_REPLAY_NAVIGATION_RUNTIME.md",
     "docs/V7_GOTO_REDESIGN_CONTRACT_R6_9D.md",
+    "docs/V7_QUICK_GOTO_SETTINGS_R6_9E.md",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
     "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md",
@@ -52,6 +53,7 @@
   "owners": [
     "session-store",
     "replay-runtime",
+    "replay-navigation-runtime",
     "bar-data-runtime",
     "projection-domain",
     "session-hours-domain",
@@ -98,6 +100,7 @@
     "src/viewport-runtime/module.json",
     "src/pane-workspace-domain/module.json",
     "src/pane-layout-domain/module.json",
+    "src/replay-navigation-settings/module.json",
     "src/replay-pane-response-contract/module.json",
     "src/pane-set-materialization/module.json",
     "src/replay-navigation-runtime/module.json",

@@ -315,6 +315,7 @@
 .workspace-inline-status { color: #c5c5c5; }
 .workspace-inline-status.status-error { color: #ffc4c9; }
 .workspace-inline-status.status-selection { color: #8db9ff; }
+.workspace-inline-status.status-goto { color: #ffd27a; }
 .lightweight-chart-host { width: 100%; height: 100%; min-height: 0; }
 .workspace-pane-grid[data-truncation-selection="active"] .lightweight-chart-host,
 .lightweight-chart-host[data-truncation-selection="active"],
@@ -543,7 +544,7 @@
   z-index: 12;
   top: calc(100% + 6px);
   right: 0;
-  width: 190px;
+  width: 220px;
   padding: 6px;
   border: 1px solid #414141;
   border-radius: 8px;
@@ -577,7 +578,8 @@
   color: #bbb;
   font: inherit;
 }
-.goto-custom { margin-top: 5px; border-top: 1px solid #383838; border-radius: 0 0 5px 5px; }
+.goto-settings { margin-top: 5px; border-top: 1px solid #383838; }
+.goto-custom { border-radius: 0 0 5px 5px; }
 .goto-dialog {
   width: min(360px, calc(100vw - 28px));
   padding: 0;
@@ -602,6 +604,39 @@
 .goto-dialog-actions { padding: 10px 14px; border-top: 1px solid #3a3a3a; }
 .goto-dialog-actions .button { min-height: 30px; padding-inline: 13px; }
 .goto-submit { background: #ededed; color: #111; }
+.goto-settings-dialog { width: min(560px, calc(100vw - 28px)); background: #101010; }
+.goto-settings-header-actions { display: flex; align-items: center; gap: 12px; }
+.goto-settings-reset { min-height: 32px; border-color: #6a6d72; background: #484b50; color: #fff; }
+.goto-settings-body { display: grid; gap: 10px; max-height: min(610px, calc(100vh - 170px)); padding: 18px; overflow-y: auto; }
+.goto-settings-note { margin: 0 0 5px; color: #b5b8bd; font-size: 11px; line-height: 1.45; }
+.goto-settings-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 122px;
+  align-items: center;
+  gap: 18px;
+  min-height: 48px;
+  padding: 0 4px 0 10px;
+  border-bottom: 1px solid #2d2d2d;
+  color: #f2f2f2;
+  font-size: 13px;
+}
+.goto-settings-time {
+  width: 100%;
+  min-height: 36px;
+  box-sizing: border-box;
+  border: 1px solid #4b4e53;
+  border-radius: 8px;
+  background: #080808;
+  color: #fff;
+  padding: 0 10px;
+  font: inherit;
+  color-scheme: dark;
+}
+.goto-settings-time:focus { border-color: #238fff; outline: 1px solid #238fff; }
+.goto-settings-validation { margin: 2px 4px 0; color: #ffc4c9; font-size: 11px; }
+.goto-settings-dialog .goto-dialog-actions { justify-content: flex-end; gap: 9px; }
+.goto-settings-save { background: #1677ff; border-color: #1677ff; color: #fff; }
+.goto-settings-discard { background: #484b50; color: #fff; }
 
 .chart-state-overlay {
   position: absolute;

@@ -30,6 +30,19 @@
     "expectedCode": "INVALID_SESSION_WORKSPACE"
   },
   {
+    "name": "invalid replay navigation settings workspace",
+    "operation": "deserialize",
+    "patch": {
+      "workspace": {
+        "schemaVersion": 3,
+        "state": "configured",
+        "paneLayout": {},
+        "replayNavigationSettings": {}
+      }
+    },
+    "expectedCode": "INVALID_SESSION_WORKSPACE"
+  },
+  {
     "name": "unknown session",
     "operation": "getUnknown",
     "patch": {},

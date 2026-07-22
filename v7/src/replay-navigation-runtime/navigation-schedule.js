@@ -1,4 +1,9 @@
 import { REPLAY_GOTO_ANCHORS } from '../replay-pane-response-contract/public.js';
+import {
+  createReplayNavigationSettings,
+  DEFAULT_REPLAY_NAVIGATION_SETTINGS,
+  readReplayNavigationSettings,
+} from '../replay-navigation-settings/public.js';
 import { failReplayNavigation } from './navigation-error.js';
 
 const DAY_MS = 86_400_000;
@@ -16,15 +21,7 @@ const FIELD_BY_ANCHOR = Object.freeze({
 // `Next Session` intentionally excludes Day Open and Silver Bullet anchors.
 const SESSION_ANCHORS = Object.freeze(['asian-session', 'london-session', 'new-york-session']);
 
-export const DEFAULT_REPLAY_NAVIGATION_ANCHORS = Object.freeze({
-  asianSession: '19:00',
-  dayOpen: '18:00',
-  londonSession: '02:00',
-  newYorkSession: '09:30',
-  silverBulletLondon: '03:00',
-  silverBulletNewYorkAm: '10:00',
-  silverBulletNewYorkPm: '14:00',
-});
+export const DEFAULT_REPLAY_NAVIGATION_ANCHORS = DEFAULT_REPLAY_NAVIGATION_SETTINGS;
 
 const formatter = new Intl.DateTimeFormat('en-CA', {
   day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
@@ -46,24 +43,15 @@ function addDays(parts, offset) {
   return { day: value.getUTCDate(), month: value.getUTCMonth() + 1, year: value.getUTCFullYear() };
 }
 
-function normalizeTime(value, field) {
-  if (typeof value !== 'string' || !/^\d{2}:\d{2}$/.test(value)) {
-    failReplayNavigation('REPLAY_NAVIGATION_ANCHOR_TIME_INVALID', `${field} must use HH:mm.`);
-  }
-  const [hour, minute] = value.split(':').map(Number);
-  if (hour > 23 || minute > 59) {
-    failReplayNavigation('REPLAY_NAVIGATION_ANCHOR_TIME_INVALID', `${field} must be a valid time.`);
-  }
-  return value;
-}
-
 function normalizeAnchors(value) {
-  const fields = Object.keys(DEFAULT_REPLAY_NAVIGATION_ANCHORS);
-  if (!value || typeof value !== 'object' || Array.isArray(value)
-    || Object.keys(value).sort().join(',') !== fields.sort().join(',')) {
-    failReplayNavigation('REPLAY_NAVIGATION_ANCHORS_INVALID', 'Navigation anchors must contain seven exact fields.');
+  try {
+    return readReplayNavigationSettings(createReplayNavigationSettings(value));
+  } catch (error) {
+    const code = error?.code === 'REPLAY_NAVIGATION_SETTINGS_TIME_INVALID'
+      ? 'REPLAY_NAVIGATION_ANCHOR_TIME_INVALID'
+      : 'REPLAY_NAVIGATION_ANCHORS_INVALID';
+    failReplayNavigation(code, error?.message ?? 'Navigation anchors are invalid.');
   }
-  return Object.freeze(Object.fromEntries(fields.map((field) => [field, normalizeTime(value[field], field)])));
 }
 
 function wallClockInstants(date, time) {
@@ -119,8 +107,14 @@ export function createReplayNavigationSchedule({
   anchors = DEFAULT_REPLAY_NAVIGATION_ANCHORS,
   maxAnchorDistanceMs = 15 * 60_000,
   maxCandidates = 32,
+  settings = null,
 } = {}) {
-  const acceptedAnchors = normalizeAnchors(anchors);
+  if (settings !== null && anchors !== DEFAULT_REPLAY_NAVIGATION_ANCHORS) {
+    failReplayNavigation('REPLAY_NAVIGATION_ANCHORS_INVALID', 'Use settings or anchors, not both.');
+  }
+  const acceptedAnchors = settings === null
+    ? normalizeAnchors(anchors)
+    : readReplayNavigationSettings(settings);
   if (!Number.isSafeInteger(maxCandidates) || maxCandidates < 1 || maxCandidates > 366
     || !Number.isSafeInteger(maxAnchorDistanceMs) || maxAnchorDistanceMs < 1 || maxAnchorDistanceMs > DAY_MS) {
     failReplayNavigation('REPLAY_NAVIGATION_SCHEDULE_BOUNDS_INVALID', 'Navigation schedule bounds are invalid.');

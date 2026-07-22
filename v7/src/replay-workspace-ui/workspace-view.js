@@ -69,6 +69,7 @@ function createInstrumentSelect(options, onChoose) {
 
 /** Own the real one/multi-Pane workstation presentation and dispatch UI intents. */
 export function createReplayWorkspaceView({
+  initialNavigationSettings,
   initialLayout,
   instrumentOptions,
   layoutOptions,
@@ -86,6 +87,7 @@ export function createReplayWorkspaceView({
   onPlaybackSpeed,
   onPrevious,
   onQuickGoto,
+  onSaveGotoSettings,
   onReset,
   onReplayStep,
   onRestart,
@@ -123,8 +125,10 @@ export function createReplayWorkspaceView({
   let exactDefaultEpochMs = Date.now();
   const goto = createGotoControls({
     getExactDefault: () => exactDefaultEpochMs,
+    initialSettings: initialNavigationSettings,
     onExact: onExactGoto,
     onQuick: onQuickGoto,
+    onSaveSettings: onSaveGotoSettings,
   });
   const paneGrid = createPaneGridView({
     initialLayout,
@@ -193,6 +197,8 @@ export function createReplayWorkspaceView({
   let complete = false;
   let hasAcceptedChart = false;
   let interactionPending = false;
+  let gotoFeedback = null;
+  let gotoFeedbackTimeout = null;
   let playback = 'paused';
   let truncationError = null;
   let truncationSelectionActive = false;
@@ -229,9 +235,11 @@ export function createReplayWorkspaceView({
       return;
     }
     const visibleError = viewState === 'error' && hasAcceptedChart;
-    status.hidden = !visibleError;
-    status.className = `workspace-inline-status status-${viewState}`;
-    status.textContent = visibleError ? (workspaceError ?? 'Update failed') : '';
+    status.hidden = !visibleError && gotoFeedback === null;
+    status.className = `workspace-inline-status ${visibleError ? `status-${viewState}` : 'status-goto'}`;
+    status.textContent = visibleError
+      ? (workspaceError ?? 'Update failed')
+      : (gotoFeedback ?? '');
   }
 
   function setState(state, detail = {}) {
@@ -258,6 +266,7 @@ export function createReplayWorkspaceView({
 
   return Object.freeze({
     dispose() {
+      if (gotoFeedbackTimeout !== null) clearTimeout(gotoFeedbackTimeout);
       backButton.removeEventListener('click', onBack);
       restartButton.removeEventListener('click', onRestart);
       timeframeControl.dispose();
@@ -275,6 +284,21 @@ export function createReplayWorkspaceView({
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);
       root.dataset.workspaceRevision = String(workspaceRevision);
+    },
+    setGotoFeedback(message) {
+      if (gotoFeedbackTimeout !== null) clearTimeout(gotoFeedbackTimeout);
+      gotoFeedbackTimeout = null;
+      gotoFeedback = typeof message === 'string' && message.length > 0 ? message : null;
+      root.dataset.gotoFeedback = gotoFeedback ?? '';
+      renderStatus();
+      if (gotoFeedback !== null) {
+        gotoFeedbackTimeout = setTimeout(() => {
+          gotoFeedback = null;
+          gotoFeedbackTimeout = null;
+          root.dataset.gotoFeedback = '';
+          renderStatus();
+        }, 5_000);
+      }
     },
     setPending(value) {
       interactionPending = value === true;

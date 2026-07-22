@@ -1,5 +1,8 @@
 import { createPaneSetTransactionInput } from '../pane-set-materialization/public.js';
-import { readReplayNavigationResult } from '../replay-navigation-runtime/public.js';
+import {
+  GOTO_TARGET_UNAVAILABLE_IN_RANGE,
+  readReplayNavigationResult,
+} from '../replay-navigation-runtime/public.js';
 import { createReplayPaneAction, planReplayPaneResponse } from '../replay-pane-response-contract/public.js';
 import { createTransactionId } from '../transaction-identity/public.js';
 import {
@@ -86,6 +89,9 @@ export function createWorkspaceExecution({
       } else {
         paneData.reject();
         view.setReplay(replay.snapshot());
+        if (result.status === 'rejected' && result.code === GOTO_TARGET_UNAVAILABLE_IN_RANGE) {
+          return result;
+        }
         if (result.status !== 'noop') throw Object.assign(new Error(result.code), { code: result.code });
       }
       return result;

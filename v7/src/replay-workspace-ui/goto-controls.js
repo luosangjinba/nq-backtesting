@@ -1,13 +1,7 @@
 import { createDateTimeControl } from '../calendar-surface/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
-
-const QUICK_ACTIONS = Object.freeze([
-  Object.freeze({ anchor: 'next-day-open', key: 'Y', label: 'Next Day Open' }),
-  Object.freeze({ anchor: 'next-session', key: 'Z', label: 'Next Session' }),
-  Object.freeze({ anchor: 'asian-session', key: 'I', label: 'Asian Session' }),
-  Object.freeze({ anchor: 'london-session', key: 'L', label: 'London Session' }),
-  Object.freeze({ anchor: 'new-york-session', key: 'N', label: 'New York Session' }),
-]);
+import { QUICK_GOTO_ACTIONS } from './goto-quick-actions.js';
+import { createGotoSettingsDialog } from './goto-settings-dialog.js';
 
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
@@ -18,8 +12,14 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
-/** Own the two GoTo presentation forms; callbacks remain Replay intents only. */
-export function createGotoControls({ getExactDefault = () => Date.now(), onExact, onQuick }) {
+/** Own Quick GoTo plus the temporary pre-separation Exact GoTo entry. */
+export function createGotoControls({
+  getExactDefault = () => Date.now(),
+  initialSettings,
+  onExact,
+  onQuick,
+  onSaveSettings,
+}) {
   const root = element('div', { className: 'goto-anchor' });
   const toggle = element('button', { className: 'button replay-action-button goto-toggle', text: 'Go to', type: 'button' });
   toggle.setAttribute('aria-expanded', 'false');
@@ -28,9 +28,10 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
   menu.hidden = true;
   menu.setAttribute('role', 'menu');
   menu.setAttribute('aria-label', 'Go to replay time');
-  for (const item of QUICK_ACTIONS) {
+  for (const item of QUICK_GOTO_ACTIONS) {
+    const key = item.key === null ? null : element('kbd', { text: item.key });
     const button = element('button', { className: 'goto-menu-item', type: 'button' }, [
-      element('span', { text: item.label }), element('kbd', { text: item.key }),
+      element('span', { text: item.label }), key,
     ]);
     button.dataset.gotoAnchor = item.anchor;
     button.setAttribute('role', 'menuitem');
@@ -41,10 +42,16 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
     });
     menu.append(button);
   }
+  const settings = element('button', {
+    className: 'goto-menu-item goto-settings', text: 'Custom Settings…', type: 'button',
+  });
+  settings.setAttribute('role', 'menuitem');
   const custom = element('button', { className: 'goto-menu-item goto-custom', text: 'Custom date & time…', type: 'button' });
   custom.setAttribute('role', 'menuitem');
-  menu.append(custom);
+  menu.append(settings, custom);
   root.append(toggle, menu);
+
+  const settingsDialog = createGotoSettingsDialog({ initialSettings, onSave: onSaveSettings });
 
   const dateTime = createDateTimeControl({
     label: 'Replay target', name: 'goto-target', timeZone: 'America/New_York',
@@ -96,7 +103,7 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
   function onDocumentKeydown(event) {
     if (event.key === 'Escape') closeMenu();
     if (event.metaKey || event.ctrlKey || event.altKey || event.target?.matches?.('input, textarea, select')) return;
-    const match = QUICK_ACTIONS.find(({ key }) => key.toLowerCase() === event.key.toLowerCase());
+    const match = QUICK_GOTO_ACTIONS.find(({ key }) => key?.toLowerCase() === event.key.toLowerCase());
     if (!match) return;
     event.preventDefault();
     onQuick(match.anchor);
@@ -112,6 +119,10 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
     if (Number.isSafeInteger(defaultEpochMs)) dateTime.setEpochMs(defaultEpochMs);
     dialog.showModal();
   });
+  settings.addEventListener('click', () => {
+    closeMenu();
+    settingsDialog.open();
+  });
   dialog.querySelector('.goto-dialog-close').addEventListener('click', closeDialog);
   dialog.querySelector('.goto-cancel').addEventListener('click', closeDialog);
   dialog.querySelector('.goto-submit').addEventListener('click', submit);
@@ -125,6 +136,7 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
       document.removeEventListener('click', onDocumentClick);
       document.removeEventListener('keydown', onDocumentKeydown);
       closeDialog();
+      settingsDialog.dispose();
       dialog.remove();
       root.remove();
     },
@@ -138,6 +150,7 @@ export function createGotoControls({ getExactDefault = () => Date.now(), onExact
       const options = { disabled, preserveVisual };
       setControlDisabled(toggle, options);
       setControlsDisabled(menu.querySelectorAll('button'), options);
+      settingsDialog.setDisabled(disabled, preserveVisual);
     },
   });
 }

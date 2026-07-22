@@ -6,6 +6,11 @@ import { serializeActivationGeneration } from '../src/activation-generation/publ
 import { createSessionId, serializeSessionId, sessionIdsEqual } from '../src/session-identity/public.js';
 import { createPaneLayout, deserializePaneLayout, readPaneLayout } from '../src/pane-layout-domain/public.js';
 import {
+  createReplayNavigationSettings,
+  deserializeReplayNavigationSettings,
+  readReplayNavigationSettings,
+} from '../src/replay-navigation-settings/public.js';
+import {
   createSessionRepository,
   createStorageAdapter,
   SessionPersistenceError,
@@ -75,10 +80,44 @@ assert.equal(serializeActivationGeneration(savedLayoutA.activationGeneration).va
   serializeActivationGeneration(secondA.activationGeneration).value,
   'layout persistence must not create a new Session activation');
 assert.equal(savedLayoutA.workspace.state, 'configured');
+assert.equal(savedLayoutA.workspace.schemaVersion, 3);
 assert.equal(readPaneLayout(deserializePaneLayout(savedLayoutA.workspace.paneLayout)).variantId,
   'layout.four-grid');
 assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
   'layout persistence must remain isolated to its explicit Session');
+
+const customNavigationSettings = createReplayNavigationSettings({
+  asianSession: '20:00',
+  dayOpen: '17:45',
+  londonSession: '03:00',
+  newYorkSession: '10:15',
+  silverBulletLondon: '04:00',
+  silverBulletNewYorkAm: '11:00',
+  silverBulletNewYorkPm: '15:00',
+});
+const settingsRevision = savedLayoutA.revision;
+const savedSettingsA = store.saveReplayNavigationSettings(sessionA, {
+  nowEpochMs: 56,
+  settings: customNavigationSettings,
+});
+assert.equal(savedSettingsA.revision, settingsRevision + 1);
+assert.equal(readPaneLayout(deserializePaneLayout(savedSettingsA.workspace.paneLayout)).variantId,
+  'layout.four-grid', 'saving GoTo settings preserves the accepted Pane layout');
+assert.deepEqual(readReplayNavigationSettings(deserializeReplayNavigationSettings(
+  savedSettingsA.workspace.replayNavigationSettings,
+)), readReplayNavigationSettings(customNavigationSettings));
+assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
+  'GoTo settings persistence remains isolated to its explicit Session');
+const settingsOnlyB = store.saveReplayNavigationSettings(sessionB, {
+  nowEpochMs: 57,
+  settings: createReplayNavigationSettings(),
+});
+assert.equal(settingsOnlyB.workspace.schemaVersion, 3);
+assert.equal(readPaneLayout(deserializePaneLayout(settingsOnlyB.workspace.paneLayout)).variantId,
+  'layout.single', 'settings-first persistence must retain the default Pane layout');
+assert.deepEqual(readReplayNavigationSettings(deserializeReplayNavigationSettings(
+  settingsOnlyB.workspace.replayNavigationSettings,
+)), readReplayNavigationSettings(createReplayNavigationSettings()));
 
 store = createSessionStore({ repository: makeRepository() });
 const restoredA = store.getSession(sessionA);
@@ -86,9 +125,13 @@ const restoredB = store.getSession(sessionB);
 assert.equal(sessionIdsEqual(restoredA.sessionId, sessionA), true);
 assert.equal(restoredA.metadata.name, 'Alpha');
 assert.equal(restoredB.metadata.name, 'Beta');
+assert.equal(restoredB.workspace.schemaVersion, 3);
 assert.equal(serializeActivationGeneration(restoredA.activationGeneration).value, 2);
 assert.equal(restoredA.workspace.paneLayout.variantId, 'layout.four-grid');
 assert.equal(restoredA.workspace.paneLayout.ratios.root, 0.6);
+assert.equal(readReplayNavigationSettings(deserializeReplayNavigationSettings(
+  restoredA.workspace.replayNavigationSettings,
+)).silverBulletNewYorkPm, '15:00');
 assert.equal(store.activateSession(sessionA, { nowEpochMs: 60 }).activationGeneration.value(), 3,
   'runtime reconstruction must allocate a strictly later activation');
 const removableId = createSessionId('session-removable');

@@ -8,6 +8,10 @@ import {
   deserializePaneLayout,
   PANE_LAYOUT_OPTIONS,
 } from '../pane-layout-domain/public.js';
+import {
+  createReplayNavigationSettings,
+  deserializeReplayNavigationSettings,
+} from '../replay-navigation-settings/public.js';
 
 /** Own the professional replay-workspace DOM subtree mounted by the route UI. */
 export function createReplayWorkspaceSurface() {
@@ -22,11 +26,20 @@ export function createReplayWorkspaceSurface() {
 
   return Object.freeze({
     dispose: unmount,
-    mount({ onBack, onPersistPaneLayout = () => {}, record, root }) {
+    mount({
+      onBack,
+      onPersistPaneLayout = () => {},
+      onPersistReplayNavigationSettings = () => {},
+      record,
+      root,
+    }) {
       unmount();
       const initialLayout = record.workspace.state === 'configured'
         ? deserializePaneLayout(record.workspace.paneLayout)
         : createPaneLayout();
+      const initialNavigationSettings = record.workspace.schemaVersion === 3
+        ? deserializeReplayNavigationSettings(record.workspace.replayNavigationSettings)
+        : createReplayNavigationSettings();
       const callbacks = {
         autoplay: null,
         crosshairSync: null,
@@ -43,6 +56,7 @@ export function createReplayWorkspaceSurface() {
         reset: null,
         replayStep: null,
         restart: null,
+        saveGotoSettings: null,
         sessionHours: null,
         timeframeSync: null,
         timeframe: null,
@@ -50,6 +64,7 @@ export function createReplayWorkspaceSurface() {
       };
       const capabilities = createFoundationCapabilities(record.configuration.instrumentIds);
       const view = createReplayWorkspaceView({
+        initialNavigationSettings,
         initialLayout,
         instrumentOptions: capabilities.instrumentOptions,
         layoutOptions: PANE_LAYOUT_OPTIONS,
@@ -70,6 +85,7 @@ export function createReplayWorkspaceSurface() {
         onReset: (paneId) => callbacks.reset?.(paneId),
         onReplayStep: (replayStepId) => callbacks.replayStep?.(replayStepId),
         onRestart: () => callbacks.restart?.(),
+        onSaveGotoSettings: (settings) => callbacks.saveGotoSettings?.(settings),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframeSync: (enabled) => callbacks.timeframeSync?.(enabled),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
@@ -83,7 +99,9 @@ export function createReplayWorkspaceSurface() {
       root.replaceChildren(view.root);
       const controller = createReplayWorkspaceController({
         initialLayout,
+        initialNavigationSettings,
         persistPaneLayout: onPersistPaneLayout,
+        persistReplayNavigationSettings: onPersistReplayNavigationSettings,
         record,
         view,
       });
@@ -102,6 +120,7 @@ export function createReplayWorkspaceSurface() {
       callbacks.reset = (paneId) => controller.resetView(paneId);
       callbacks.replayStep = (replayStepId) => controller.changeReplayStep(replayStepId);
       callbacks.restart = () => controller.restart();
+      callbacks.saveGotoSettings = (settings) => controller.saveGotoSettings(settings);
       callbacks.sessionHours = (mode) => controller.replaceSessionHours(mode);
       callbacks.timeframeSync = (enabled) => controller.changeTimeframeSync(enabled);
       callbacks.timeframe = (timeframeId) => controller.replaceTimeframe(timeframeId);

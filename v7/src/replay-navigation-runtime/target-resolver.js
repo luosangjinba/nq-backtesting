@@ -66,8 +66,23 @@ function requireDirection(targetEpochMs, plan) {
  * Side effects: only delegated traversal; owns no cache, cursor, or chart state.
  * Errors: stable validation/unavailable/stale failures or delegated failures.
  */
-export function createReplayNavigationTargetResolver({ schedule, sourceTraversalPort }) {
-  const acceptedSchedule = requireReplayNavigationSchedule(schedule);
+export function createReplayNavigationTargetResolver({ resolveSchedule = null, schedule = null, sourceTraversalPort }) {
+  if (resolveSchedule !== null && (typeof resolveSchedule !== 'function' || schedule !== null)) {
+    failReplayNavigation(
+      'REPLAY_NAVIGATION_SCHEDULE_PORT_INVALID',
+      'Target resolver requires either one static schedule or one resolveSchedule function.',
+    );
+  }
+  const staticSchedule = schedule === null ? null : requireReplayNavigationSchedule(schedule);
+  if (staticSchedule === null && resolveSchedule === null) {
+    failReplayNavigation(
+      'REPLAY_NAVIGATION_SCHEDULE_PORT_INVALID',
+      'Target resolver requires either one static schedule or one resolveSchedule function.',
+    );
+  }
+  const currentSchedule = () => requireReplayNavigationSchedule(
+    staticSchedule ?? resolveSchedule(),
+  );
   const nextEligible = requireMethod(sourceTraversalPort, 'nextEligible');
   const previousEligible = requireMethod(sourceTraversalPort, 'previousEligible');
   const eligibleAtOrAfter = requireMethod(sourceTraversalPort, 'eligibleAtOrAfter');
@@ -81,6 +96,7 @@ export function createReplayNavigationTargetResolver({ schedule, sourceTraversal
     } else if (plan.actionKind === 'manual-previous') {
       resolved = await previousEligible(context(plan, range, signal));
     } else if (plan.actionKind === 'goto-anchor') {
+      const acceptedSchedule = currentSchedule();
       for (const candidate of acceptedSchedule.candidates({
         anchor: plan.anchor,
         cursorEpochMs: plan.fromCursorEpochMs,

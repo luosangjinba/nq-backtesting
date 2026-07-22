@@ -9,7 +9,9 @@ import {
   createReplayNavigationReplayPort,
   createReplayNavigationSchedule,
   createReplayNavigationTargetResolver,
+  GOTO_TARGET_UNAVAILABLE_IN_RANGE,
 } from '../replay-navigation-runtime/public.js';
+import { readReplayNavigationSettings } from '../replay-navigation-settings/public.js';
 import { createReplayRuntime } from '../replay-runtime/public.js';
 import { createPaneLayout, readPaneLayout } from '../pane-layout-domain/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
@@ -17,6 +19,7 @@ import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
 import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
 import { createFoundationMarket } from './foundation-market.js';
 import { createFoundationSourceTraversal } from './foundation-source-traversal.js';
+import { quickGotoLabel } from './goto-quick-actions.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneWorkspaceState } from './pane-workspace-state.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
@@ -32,7 +35,14 @@ function formatCursor(epochMs) {
 }
 
 /** Wire one real Session-scoped Replay clock to a uniform one/multi-Pane chart surface. */
-export function createReplayWorkspaceController({ initialLayout, persistPaneLayout, record, view }) {
+export function createReplayWorkspaceController({
+  initialLayout,
+  initialNavigationSettings,
+  persistPaneLayout,
+  persistReplayNavigationSettings,
+  record,
+  view,
+}) {
   const market = createFoundationMarket(record);
   const range = record.configuration.historicalRange;
   const replayStepById = new Map(market.replayStepOptions.map((option) => [option.id, option.step]));
@@ -54,6 +64,8 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
   let syncTimeframe = false;
   let truncationSelectionActive = false;
   let paneLayout = initialLayout ?? createPaneLayout();
+  readReplayNavigationSettings(initialNavigationSettings);
+  let navigationSchedule = createReplayNavigationSchedule({ settings: initialNavigationSettings });
 
   const paneState = createPaneWorkspaceState({
     initialCursorEpochMs: range.startEpochMs,
@@ -152,7 +164,7 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
     readCachedSourceBars: (instrumentId) => paneData.sourceBars(instrumentId),
   });
   const targetResolver = createReplayNavigationTargetResolver({
-    schedule: createReplayNavigationSchedule(),
+    resolveSchedule: () => navigationSchedule,
     sourceTraversalPort: traversal,
   });
   const replayPort = createReplayNavigationReplayPort({ replayRuntime: replay, targetResolver });
@@ -298,7 +310,16 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
       syncReplayStep();
     },
     gotoExact: (targetEpochMs) => execution.action('goto-exact', { targetEpochMs }, { allowDim: true }),
-    gotoQuick: (anchor) => execution.action('goto-anchor', { anchor }, { allowDim: true }),
+    async gotoQuick(anchor) {
+      view.setGotoFeedback(null);
+      const result = await execution.action('goto-anchor', { anchor }, { allowDim: true });
+      if (result?.code === GOTO_TARGET_UNAVAILABLE_IN_RANGE) {
+        view.setGotoFeedback(
+          `No later ${quickGotoLabel(anchor)} is available. Replay range ends ${formatCursor(range.endEpochMs)}.`,
+        );
+      }
+      return result;
+    },
     next: () => execution.action('manual-next'),
     pause() {
       if (disposed) return;
@@ -345,6 +366,21 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
     resetView(paneId = null) {
       const target = paneId ?? paneState.activePaneId();
       adapter.resetView(target, 12);
+    },
+    saveGotoSettings(settings) {
+      if (disposed || execution.isPending()) {
+        return Object.freeze({ accepted: false, message: 'Wait for the current Replay update to finish.' });
+      }
+      try {
+        readReplayNavigationSettings(settings);
+        const schedule = createReplayNavigationSchedule({ settings });
+        persistReplayNavigationSettings?.(settings);
+        navigationSchedule = schedule;
+        view.setGotoFeedback(null);
+        return Object.freeze({ accepted: true, message: null });
+      } catch {
+        return Object.freeze({ accepted: false, message: 'Quick GoTo settings could not be saved locally.' });
+      }
     },
     restart() {
       if (replay.snapshot().cursorEpochMs <= range.startEpochMs) return;

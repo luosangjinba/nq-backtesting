@@ -3,6 +3,8 @@
   { "case": "anchor-time-invalid", "expectedCode": "REPLAY_NAVIGATION_ANCHOR_TIME_INVALID" },
   { "case": "schedule-bounds", "expectedCode": "REPLAY_NAVIGATION_SCHEDULE_BOUNDS_INVALID" },
   { "case": "schedule-lookalike", "expectedCode": "REPLAY_NAVIGATION_SCHEDULE_REQUIRED" },
+  { "case": "schedule-port-both", "expectedCode": "REPLAY_NAVIGATION_SCHEDULE_PORT_INVALID" },
+  { "case": "schedule-port-invalid", "expectedCode": "REPLAY_NAVIGATION_SCHEDULE_PORT_INVALID" },
   { "case": "schedule-anchor", "expectedCode": "REPLAY_NAVIGATION_ANCHOR_INVALID" },
   { "case": "traversal-port-missing", "expectedCode": "REPLAY_NAVIGATION_TRAVERSAL_PORT_INVALID" },
   { "case": "target-signal-missing", "expectedCode": "REPLAY_NAVIGATION_SIGNAL_REQUIRED" },

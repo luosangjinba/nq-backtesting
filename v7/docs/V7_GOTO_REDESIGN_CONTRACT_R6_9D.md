@@ -86,8 +86,8 @@ training facts.
 ## Delivery Order
 
 1. R6.9d freezes the shared pure contract and eight-anchor schedule.
-2. The next bounded slice implements the eight-item quick menu, simplified
-   settings, and non-blocking range-end feedback.
+2. R6.9e implements the eight-item quick menu, simplified Session-persisted
+   settings, and non-blocking range-end feedback; it awaits human review.
 3. A following slice separates Exact GoTo and adds the range-aware calendar UI.
 4. Combined real-browser evidence covers single/multi Pane, mixed instrument
    and TF, ETH/RTH, DST/weekends, range end, and exact forward/backward/no-op.

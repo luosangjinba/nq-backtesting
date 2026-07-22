@@ -7,6 +7,7 @@
   "requiredPorts": [
     "core.replay-contract",
     "core.replay-runtime",
+    "core.replay-navigation-settings",
     "core.replay-pane-response-contract",
     "core.pane-set-materialization",
     "core.chart-snapshot-application",

@@ -394,6 +394,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   New York anchors, primary-session-only Next Session, exact Session-range
   semantics, and a non-mutating range-end rejection before later quick/exact
   presentation slices;
+- `R6.9e`: implement the eight-action Quick GoTo menu, one Session-persisted
+  seven-time New York settings value, Reset/Discard/Save behavior, immediate
+  dynamic schedule use, and non-blocking range-end feedback without Replay or
+  Pane transaction side effects; awaiting human interaction/visual review;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;

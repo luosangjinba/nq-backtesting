@@ -8,6 +8,7 @@
     "core.session-identity",
     "core.activation-generation",
     "core.pane-layout-domain",
+    "core.replay-navigation-settings",
     "adapter.session-persistence"
   ],
   "optionalPorts": [],

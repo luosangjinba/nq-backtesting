@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R2.4 Session Browser readability/delete
-acceptance; R6.9c awaits focused human review
+Last updated: 2026-07-22 after R6.9e Quick GoTo settings implementation;
+R6.9c and R6.9e await focused human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -20,8 +20,10 @@ required for normal startup.
   truncation, Sync timeframe, and text-only selectors human accepted;
   combined R6.9/R6.9a–b Pane layouts, overlays, and interactions human
   accepted; R6.9c lower-right control dock implemented and awaiting focused
-  visual review; R2.4 Session Browser readability and confirmed durable delete
-  human accepted
+  visual review; R6.9d shared GoTo contract completed headlessly; R6.9e eight-
+  action Quick GoTo, Session-persisted settings, and range feedback implemented
+  and awaiting human review; R2.4 Session Browser readability and confirmed
+  durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -76,6 +78,8 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_9b_canvas_overlay_maximize.md`.
 - `sessions/session_20260721_r6_9_combined_acceptance.md`.
 - `sessions/session_20260721_r6_9c_pane_control_dock.md`.
+- `sessions/session_20260722_r6_9d_goto_redesign_contract.md`.
+- `sessions/session_20260722_r6_9e_quick_goto_settings.md`.
 - `sessions/session_20260721_r2_4_session_browser_readability_delete.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -272,6 +276,15 @@ and human-accepted:
   actual pointer activation, mounted chart hosts, exact restore geometry, and
   zero Replay or Workspace revisions remain enforced. It awaits focused visual
   confirmation.
+- R6.9d freezes Quick and Exact GoTo as two presentations over the same Replay
+  cursor and expands Quick GoTo to eight strict-forward New York anchors.
+- R6.9e exposes those eight actions, keeps only five keyboard shortcuts, and
+  adds one seven-time Reset/Discard/Save settings dialog. A focused immutable
+  contract and Session Store workspace schema version 3 persist settings per
+  Replay Session alongside Pane Layout. Save replaces the schedule without
+  Replay or Workspace revision, and expected range exhaustion now leaves the
+  Workspace ready with an inline message naming the range end. This visible
+  slice awaits human interaction and visual review.
 - R2.4 returns to the accepted Session Browser boundary for a bounded user
   follow-up: list-only deeper neutral surfaces, brighter/larger typography, and
   one confirmed Delete action per card. Browser UI dispatches only the command;
@@ -398,15 +411,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-The requested stage review P1 corrections and the user-approved R6.9d GoTo
-redesign contract are complete. Execute the next bounded GoTo slice: implement
-the eight-item quick menu, simplified seven-time Custom Settings, and
-non-blocking range-end feedback over the existing shared Replay path. A later
-separate slice moves Exact GoTo to its own Workspace-level entry and adds
-range-aware Calendar Surface presentation. Economic Calendar remains outside
-this foundation phase. The outstanding R6.9c focused visual confirmation and
-remaining R6.10 Symbol/Interval/Time/Date-range sync families remain separate
-gates.
+R6.9e Quick GoTo settings and range feedback are implemented and now stop for
+human interaction/visual review. After acceptance, execute one separate Exact
+GoTo slice: move Exact GoTo to its own Workspace-level entry and add Session-
+range-aware Calendar Surface presentation with explicit boundary validation.
+Economic Calendar remains outside this foundation phase. The outstanding
+R6.9c focused visual confirmation and remaining R6.10 Symbol/Interval/Time/
+Date-range sync families remain separate gates.
 
 ## Standing Workflow
 
