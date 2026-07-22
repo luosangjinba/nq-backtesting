@@ -921,6 +921,26 @@
       "negativeFixtures": ["tests/fixtures/pane-layout-domain/negative/cases.json"],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
+    },
+    {
+      "id": "H052",
+      "name": "pane-local-latest-ohlc-and-chart-only-crosshair-sync",
+      "owner": "chart-runtime-adapter",
+      "v6FailurePrevented": "OHLC readouts were active-Pane placeholders, programmatic crosshair callbacks could feed back as new sources, or synchronization mutated Replay and Pane work",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/lightweight-chart-adapter-browser-harness.js",
+      "positiveEvidence": [
+        "src/lightweight-chart-adapter/crosshair-presentation.js",
+        "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "src/lightweight-chart-adapter/pane-set-adapter.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md"
+      ],
+      "negativeFixtures": ["tests/fixtures/lightweight-chart-adapter/negative/crosshair-cases.json"],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

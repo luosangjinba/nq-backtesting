@@ -117,6 +117,16 @@ under the explicit Session id. Same-count variant changes and resize commits do
 not request bars, move Replay, or create a Workspace transaction; Pane-count
 changes continue through the existing atomic complete Pane-set path.
 
+R6.9a keeps Pane OHLC and Crosshair synchronization on the chart-presentation
+side of that boundary. Each Lightweight Chart Adapter owns native crosshair
+subscription, accepted current/latest candle lookup, and the only calls to
+programmatic chart crosshair APIs. The Pane-set Adapter fans one ephemeral
+display timestamp across visible charts and accepts native movement only from
+the Pane physically under the pointer, preventing programmatic feedback loops.
+Replay Workspace UI renders Pane-local OHLC and dispatches the UI-local sync
+toggle. None of these operations requests bars, writes series, changes focus,
+moves Replay, persists Session state, or opens a Workspace transaction.
+
 ### Bar Data Runtime
 
 Is the only raw market-data requester and cache owner. Cache identity includes

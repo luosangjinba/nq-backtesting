@@ -7,6 +7,7 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
+import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
@@ -44,6 +45,7 @@ function maximumDisplayGapMs(data) {
 export function createLightweightChartAdapter({
   host,
   onHistoryBoundary = () => {},
+  onCrosshairMove = () => {},
   onTruncationSelect = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
@@ -56,6 +58,7 @@ export function createLightweightChartAdapter({
   const chart = createChart(host, CHART_OPTIONS);
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
   const priceScale = chart.priceScale('right');
+  const crosshairPresentation = createCrosshairPresentationIndex();
   const truncationInteraction = createReplayTruncationInteraction({
     chart, host, onSelect: onTruncationSelect,
   });
@@ -66,10 +69,38 @@ export function createLightweightChartAdapter({
   let disposed = false;
   let captureToken = 0;
   let nativePointerActive = false;
+  let pointerWithinHost = false;
   let seriesDataRevision = 0;
   let maximumAppliedDisplayGapMs = 0;
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
   series.subscribeDataChanged(onSeriesDataChanged);
+
+  function recordCrosshairObservation(value, origin) {
+    host.dataset.crosshairDisplayEpochMs = value.displayEpochMs === null
+      ? 'none' : String(value.displayEpochMs);
+    host.dataset.crosshairOrigin = origin;
+    host.dataset.crosshairState = value.state;
+    return value;
+  }
+
+  const onChartCrosshairMove = (event) => {
+    if (!pointerWithinHost && !host.matches(':hover')) return;
+    const displayEpochMs = typeof event.time === 'number' ? Math.round(event.time * 1_000) : null;
+    const hasSeriesBar = displayEpochMs !== null && event.seriesData?.has(series) === true;
+    const value = hasSeriesBar
+      ? crosshairPresentation.selectedAt(displayEpochMs)
+      : crosshairPresentation.latest();
+    onCrosshairMove(recordCrosshairObservation(value, 'native'));
+  };
+  chart.subscribeCrosshairMove(onChartCrosshairMove);
+
+  const onCrosshairEnter = () => { pointerWithinHost = true; };
+  const onCrosshairLeave = () => {
+    pointerWithinHost = false;
+    onCrosshairMove(recordCrosshairObservation(crosshairPresentation.latest(), 'native'));
+  };
+  host.addEventListener('pointerenter', onCrosshairEnter);
+  host.addEventListener('pointerleave', onCrosshairLeave);
 
   function applyViewport() {
     if (barCount < 1) return null;
@@ -163,6 +194,7 @@ export function createLightweightChartAdapter({
           : 0);
       appliedData = context.staged.data;
       truncationInteraction.setBars(context.workspaceSnapshot.bars);
+      crosshairPresentation.setBars(context.workspaceSnapshot.bars);
       host.dataset.barCount = String(barCount);
       host.dataset.displayTimeframeId = context.workspaceSnapshot.provenance.displayTimeframeId;
       host.dataset.instrumentId = context.workspaceSnapshot.provenance.instrumentId;
@@ -188,11 +220,14 @@ export function createLightweightChartAdapter({
       disposed = true;
       captureToken += 1;
       host.removeEventListener('wheel', onWheel, true);
+      host.removeEventListener('pointerenter', onCrosshairEnter);
+      host.removeEventListener('pointerleave', onCrosshairLeave);
       window.removeEventListener('pointerdown', onPointerDown, true);
       window.removeEventListener('mousedown', onPointerDown, true);
       window.removeEventListener('pointerup', onPointerUp, true);
       window.removeEventListener('mouseup', onPointerUp, true);
       series.unsubscribeDataChanged(onSeriesDataChanged);
+      chart.unsubscribeCrosshairMove(onChartCrosshairMove);
       truncationInteraction.dispose();
       chart.remove();
     },
@@ -201,6 +236,21 @@ export function createLightweightChartAdapter({
       priceScale.setAutoScale(true);
       const projection = applyViewport();
       if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
+    },
+    clearCrosshairPosition() {
+      chart.clearCrosshairPosition();
+      return recordCrosshairObservation(crosshairPresentation.latest(), 'cleared');
+    },
+    crosshairObservation(displayEpochMs = null) {
+      return displayEpochMs === null
+        ? crosshairPresentation.latest()
+        : crosshairPresentation.selectedAt(displayEpochMs);
+    },
+    projectCrosshair(displayEpochMs) {
+      const value = crosshairPresentation.selectedAt(displayEpochMs);
+      if (!value.bar || !Number.isSafeInteger(displayEpochMs)) return value;
+      chart.setCrosshairPosition(value.bar.close, displayEpochMs / 1_000, series);
+      return recordCrosshairObservation(value, 'projected');
     },
     setTruncationSelection(active) { truncationInteraction.setActive(active); },
     snapshot() {

@@ -12,7 +12,7 @@ Status: awaiting human interaction and visual review
 - added a pure, versioned Pane Layout Domain with deterministic split trees,
   persistence encoding, and measured subtree minimum constraints;
 - added pointer-draggable and keyboard-adjustable horizontal and vertical
-  boundaries with `180×120px` minimum Pane geometry;
+  boundaries with the corrected `280×120px` minimum Pane geometry;
 - persisted accepted layout variant and nested ratios per explicit Session and
   restored them on Session re-entry;
 - kept same-count layout changes and divider resizing outside Bar Data, Replay,
@@ -40,4 +40,6 @@ Status: awaiting human interaction and visual review
 ## Review Boundary
 
 This step changes interaction and visual layout, so it stops for human review.
-R6.10 layout sync does not begin until R6.9 is accepted.
+R6.9a supplies the review-required Crosshair/OHLC correction. Remaining R6.10
+Symbol/Interval/Time/Date-range sync does not begin until the combined gate is
+accepted.

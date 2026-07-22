@@ -6,11 +6,13 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { createExchangeTimePresentation } from '../src/lightweight-chart-adapter/chart-options.js';
+import { createCrosshairPresentationIndex } from '../src/lightweight-chart-adapter/crosshair-presentation.js';
 import { requireTailUpdatePaint } from '../src/lightweight-chart-adapter/paint-gate.js';
 import { planVisibleLogicalRange } from '../src/lightweight-chart-adapter/logical-range-plan.js';
 import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 
+const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const exchangeTime = createExchangeTimePresentation('en-US');
 assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-05-01T13:30:00Z') / 1_000, 3), '09:30');
 assert.equal(exchangeTime.tickMarkFormatter(Date.parse('2026-05-01T20:14:00Z') / 1_000, 3), '16:14');
@@ -32,12 +34,32 @@ assert.equal(planSeriesMutation([candle(1)], [candle(1, 2.5)]).kind, 'tail-updat
 assert.equal(planSeriesMutation([candle(1)], [candle(1), candle(2)]).kind, 'tail-update');
 assert.equal(planSeriesMutation([candle(1)], [candle(2)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1), candle(2)], [candle(1, 3), candle(2)]).kind, 'full-replace');
+const crosshairPresentation = createCrosshairPresentationIndex();
+assert.equal(crosshairPresentation.latest().state, 'empty');
+crosshairPresentation.setBars([
+  { ...candle(1), displayEpochMs: 1_000, startEpochMs: 900 },
+  { ...candle(2, 4), displayEpochMs: 2_000, startEpochMs: 1_900 },
+]);
+assert.deepEqual(crosshairPresentation.selectedAt(1_000), {
+  bar: { close: 2, high: 3, low: 0, open: 1 }, displayEpochMs: 1_000, state: 'selected',
+});
+assert.deepEqual(crosshairPresentation.selectedAt(1_500), {
+  bar: { close: 4, high: 3, low: 0, open: 1 }, displayEpochMs: 2_000, state: 'latest',
+});
+const crosshairNegativeCases = JSON.parse(fs.readFileSync(path.join(
+  TEST_DIR, 'fixtures/lightweight-chart-adapter/negative/crosshair-cases.json',
+), 'utf8'));
+for (const fixture of crosshairNegativeCases) {
+  const presentation = createCrosshairPresentationIndex();
+  presentation.setBars(fixture.bars);
+  assert.equal(presentation.selectedAt(fixture.targetDisplayEpochMs).state, fixture.expectedState,
+    fixture.name);
+}
 await assert.rejects(
   requireTailUpdatePaint({ changed: () => false, requestFrame: () => {} }),
   (error) => error?.code === 'CHART_TAIL_UPDATE_NOT_OBSERVED',
 );
 
-const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-lwc-adapter-'));
 const server = createStaticServer(REPOSITORY_ROOT);
@@ -90,6 +112,46 @@ try {
   assert.equal(result.painted, 'true');
   assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
+
+  const latestCrosshair = await evaluate(cdp, `globalThis.__adapter.crosshairObservation()`);
+  assert.deepEqual(latestCrosshair, {
+    bar: { close: 117, high: 122, low: 116, open: 119 },
+    displayEpochMs: 2_170_000,
+    state: 'latest',
+  });
+  assert.equal((await evaluate(cdp,
+    `globalThis.__adapter.projectCrosshair(1330000)`)).state, 'selected');
+  assert.equal((await evaluate(cdp,
+    `globalThis.__adapter.projectCrosshair(1350000)`)).state, 'latest');
+  await evaluate(cdp, `globalThis.__adapter.clearCrosshairPosition()`);
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const host = document.querySelector('#chart');
+    return { origin: host.dataset.crosshairOrigin, state: host.dataset.crosshairState };
+  })()`), { origin: 'cleared', state: 'latest' });
+
+  const crosshairBounds = await evaluate(cdp, `(() => {
+    const bounds = document.querySelector('#chart').getBoundingClientRect();
+    return { bottom: bounds.bottom, left: bounds.left, right: bounds.right, top: bounds.top };
+  })()`);
+  let selectedObservation = null;
+  for (const ratio of [.15, .25, .35, .45, .55, .65, .75]) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: crosshairBounds.left + (crosshairBounds.right - crosshairBounds.left) * ratio,
+      y: crosshairBounds.top + (crosshairBounds.bottom - crosshairBounds.top) * .45,
+      button: 'none',
+      buttons: 0,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    selectedObservation = await evaluate(cdp, `globalThis.__crosshairObservations.at(-1) ?? null`);
+    if (selectedObservation?.state === 'selected') break;
+  }
+  assert.equal(selectedObservation?.state, 'selected',
+    'native crosshair over a candle must publish that candle OHLC');
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: 970, y: 590, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `globalThis.__crosshairObservations.at(-1)?.state === 'latest'`);
 
   const truncationPoint = await evaluate(cdp, `(() => {
     globalThis.__adapter.setTruncationSelection(true);

@@ -359,11 +359,16 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.8b`: render Autoplay speed and Replay step as compact arrowless text
   selectors in speed-to-step order, retain native selection behavior, and keep
   the adjacent timeframe-sync switch icon-only with an accessible name;
-- `R6.9`: implemented awaiting human review: the exact reviewed one-to-four
+- `R6.9`: review corrections awaiting human review: the exact reviewed one-to-four
   Pane layout set, draggable and keyboard-adjustable horizontal/vertical
-  boundaries, nested minimum-size constraints, and Session-persisted accepted
-  ratios without data or Replay work;
-- `R6.10`: add the bounded Symbol, Interval, Crosshair, Time, and Date-range
+  boundaries, nested minimum-size constraints, Session-persisted accepted
+  ratios, and the corrected `280×120px` readability floor without data or
+  Replay work;
+- `R6.9a`: strengthen active focus, add accepted Pane-local OHLC, and implement
+  chart-only Crosshair sync through adapter-owned official APIs without Replay,
+  data, focus, Session, or Workspace transaction effects; awaiting combined
+  R6.9/R6.9a human review;
+- `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;

@@ -75,6 +75,7 @@ export function createReplayWorkspaceView({
   name,
   onAutoplay,
   onBack,
+  onCrosshairSync,
   onExactGoto,
   onFocusPane,
   onInstrument,
@@ -118,7 +119,11 @@ export function createReplayWorkspaceView({
     className: 'session-hours-control',
     onChoose: onSessionHours,
   });
-  const paneLayoutControl = createPaneLayoutMenu({ onChoose: onLayout, options: layoutOptions });
+  const paneLayoutControl = createPaneLayoutMenu({
+    onChoose: onLayout,
+    onCrosshairSync,
+    options: layoutOptions,
+  });
   let exactDefaultEpochMs = Date.now();
   const goto = createGotoControls({
     getExactDefault: () => exactDefaultEpochMs,
@@ -299,8 +304,14 @@ export function createReplayWorkspaceView({
       const value = readPaneLayout(layout);
       root.dataset.layoutId = value.variantId;
       paneLayoutControl.setValue(value.variantId);
+      paneLayoutControl.setPaneCount(value.paneCount);
       paneGrid.setLayout(layout, paneIds);
     },
+    setCrosshairSync(enabled) {
+      root.dataset.crosshairSync = String(enabled === true);
+      paneLayoutControl.setCrosshairSync(enabled);
+    },
+    setPaneOhlc(panes) { paneGrid.setPaneOhlc(panes); },
     setTimeframeSync(enabled) {
       root.dataset.syncTimeframe = String(enabled === true);
       replayTransport.setTimeframeSync(enabled);

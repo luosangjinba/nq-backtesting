@@ -15,6 +15,7 @@ function method(port, name, label) {
  * they only stage/apply the Pane snapshots supplied by the sole application.
  */
 export function createLightweightPaneSetAdapter({
+  onCrosshairChange = () => {},
   onHistoryBoundary = () => {},
   onTruncationSelect = () => {},
   onViewportIntent = () => {},
@@ -33,13 +34,66 @@ export function createLightweightPaneSetAdapter({
   const adapters = new Map();
   let adapterRevision = 0;
   let disposed = false;
+  let crosshairSync = false;
+  let crosshairSource = null;
   let truncationSelectionActive = false;
+  let visiblePaneIds = [];
+
+  function latestFor(paneId) {
+    return adapters.get(paneId)?.crosshairObservation() ?? Object.freeze({
+      bar: null, displayEpochMs: null, state: 'empty',
+    });
+  }
+
+  function publishCrosshair(sourcePaneId = null, sourceObservation = null) {
+    const synchronize = crosshairSync && !truncationSelectionActive
+      && sourceObservation?.state === 'selected';
+    const panes = visiblePaneIds.map((paneId) => {
+      const adapter = adapters.get(paneId);
+      let value;
+      if (paneId === sourcePaneId && sourceObservation) value = sourceObservation;
+      else if (synchronize && adapter) {
+        value = adapter.projectCrosshair(sourceObservation.displayEpochMs);
+      } else {
+        if (crosshairSync && adapter && paneId !== sourcePaneId) adapter.clearCrosshairPosition();
+        value = latestFor(paneId);
+      }
+      return Object.freeze({ ...value, paneId });
+    });
+    onCrosshairChange(Object.freeze({ panes: Object.freeze(panes), sourcePaneId }));
+  }
+
+  function acceptLocalCrosshair(paneId, observation) {
+    if (observation.state === 'selected') {
+      crosshairSource = Object.freeze({ displayEpochMs: observation.displayEpochMs, paneId });
+      publishCrosshair(paneId, observation);
+      return;
+    }
+    if (crosshairSource?.paneId === paneId) crosshairSource = null;
+    publishCrosshair();
+  }
+
+  function refreshCrosshair() {
+    if (!crosshairSource) {
+      publishCrosshair();
+      return;
+    }
+    const source = adapters.get(crosshairSource.paneId);
+    const observation = source?.crosshairObservation(crosshairSource.displayEpochMs) ?? null;
+    if (!observation || observation.state !== 'selected') {
+      crosshairSource = null;
+      publishCrosshair();
+      return;
+    }
+    publishCrosshair(crosshairSource.paneId, observation);
+  }
 
   function ensureAdapter(paneId) {
     if (adapters.has(paneId)) return adapters.get(paneId);
     const host = preparePane(paneId);
     const adapter = createLightweightChartAdapter({
       host,
+      onCrosshairMove: (observation) => acceptLocalCrosshair(paneId, observation),
       onHistoryBoundary: (range) => onHistoryBoundary(paneId, range),
       onTruncationSelect: (selection) => onTruncationSelect(paneId, selection),
       onViewportIntent: (intent) => onViewportIntent(paneId, intent),
@@ -54,6 +108,7 @@ export function createLightweightPaneSetAdapter({
   return Object.freeze({
     async applyVisible(context) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
+      visiblePaneIds = context.staged.entries.map(({ paneId }) => paneId);
       await Promise.all(context.staged.entries.map(async (entry) => {
         if (entry.status !== 'ready') return;
         await entry.adapter.applyVisible(Object.freeze({
@@ -81,6 +136,8 @@ export function createLightweightPaneSetAdapter({
         adapter.dispose();
         adapters.delete(paneId);
       }
+      if (crosshairSource && !adapters.has(crosshairSource.paneId)) crosshairSource = null;
+      refreshCrosshair();
       adapterRevision += 1;
       return createChartAdapterVisibleReceipt({
         adapterRevision,
@@ -94,6 +151,8 @@ export function createLightweightPaneSetAdapter({
       disposed = true;
       for (const adapter of adapters.values()) adapter.dispose();
       adapters.clear();
+      crosshairSource = null;
+      visiblePaneIds = [];
     },
     resetView(paneId, latestOffsetBars = 12) {
       adapters.get(paneId)?.resetView(latestOffsetBars);
@@ -101,10 +160,19 @@ export function createLightweightPaneSetAdapter({
     setTruncationSelection(active) {
       truncationSelectionActive = active === true;
       for (const adapter of adapters.values()) adapter.setTruncationSelection(truncationSelectionActive);
+      refreshCrosshair();
+    },
+    setCrosshairSync(active) {
+      crosshairSync = active === true;
+      for (const [paneId, adapter] of adapters) {
+        if (paneId !== crosshairSource?.paneId) adapter.clearCrosshairPosition();
+      }
+      refreshCrosshair();
     },
     snapshot() {
       return Object.freeze({
         adapterRevision,
+        crosshairSync,
         panes: Object.freeze([...adapters].map(([paneId, adapter]) => Object.freeze({
           paneId,
           snapshot: adapter.snapshot(),

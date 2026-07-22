@@ -50,6 +50,7 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
   let disposed = false;
   let execution = null;
   let autoplayScheduler = null;
+  let crosshairSync = false;
   let syncTimeframe = false;
   let truncationSelectionActive = false;
   let paneLayout = initialLayout ?? createPaneLayout();
@@ -63,6 +64,7 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
   view.setSessionRange({ end: formatCursor(range.endEpochMs), start: formatCursor(range.startEpochMs) });
   view.setSelection({ sessionHoursMode: market.defaultTarget.sessionHoursMode });
   view.setLayout(paneLayout, paneState.paneIds());
+  view.setCrosshairSync(false);
   view.setWorkspace(paneState.current());
   view.setTimeframeSync(false);
   view.setTruncationSelection({ active: false });
@@ -116,6 +118,7 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
   }
 
   const adapter = createLightweightPaneSetAdapter({
+    onCrosshairChange: ({ panes }) => view.setPaneOhlc(panes),
     onHistoryBoundary: (paneId, logicalRange) => {
       if (logicalRange.from < 24) void execution?.requestHistory(paneId);
     },
@@ -221,6 +224,12 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
 
   return Object.freeze({
     autoplay: () => autoplayScheduler.play(),
+    changeCrosshairSync(enabled) {
+      if (disposed || execution.isPending()) return;
+      crosshairSync = enabled === true;
+      adapter.setCrosshairSync(crosshairSync);
+      view.setCrosshairSync(crosshairSync);
+    },
     changeReplayStep(replayStepId) {
       if (disposed || execution.isPending() || syncTimeframe) return;
       setReplayStep(replayStepId);
@@ -343,6 +352,7 @@ export function createReplayWorkspaceController({ initialLayout, persistPaneLayo
     },
     snapshot: () => Object.freeze({
       chart: adapter.snapshot(),
+      crosshairSync,
       paneLayout,
       paneWorkspace: paneState.current(),
       replay: replay.snapshot(),

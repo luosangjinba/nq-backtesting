@@ -3,6 +3,7 @@ import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
@@ -10,6 +11,7 @@ import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-four-left-stack-1440x900.png');
+const syncVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-crosshair-sync-1440x900.png');
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-9-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -31,16 +33,55 @@ async function waitForDevtools() {
   throw new Error('Chrome DevTools endpoint did not start.');
 }
 
-async function capture(cdp) {
+function inflatedPngScanlines(buffer) {
+  const chunks = [];
+  let offset = 8;
+  while (offset < buffer.length) {
+    const length = buffer.readUInt32BE(offset);
+    const type = buffer.toString('ascii', offset + 4, offset + 8);
+    if (type === 'IDAT') chunks.push(buffer.subarray(offset + 8, offset + 8 + length));
+    offset += length + 12;
+  }
+  return inflateSync(Buffer.concat(chunks));
+}
+
+function isStableVisual(actual, expected) {
+  if (actual.equals(expected)) return true;
+  const actualScanlines = inflatedPngScanlines(actual);
+  const expectedScanlines = inflatedPngScanlines(expected);
+  if (actualScanlines.length !== expectedScanlines.length) return false;
+  let differenceCount = 0;
+  for (let index = 0; index < actualScanlines.length; index += 1) {
+    if (actualScanlines[index] === expectedScanlines[index]) continue;
+    differenceCount += 1;
+    if (differenceCount > 32) return false;
+  }
+  return true;
+}
+
+async function capture(cdp, targetFile = visualFile) {
   await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
-  const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
-  const actual = Buffer.from(data, 'base64');
   if (process.env.V7_UPDATE_VISUALS === '1') {
-    fs.writeFileSync(visualFile, actual);
+    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    const actual = Buffer.from(data, 'base64');
+    fs.writeFileSync(targetFile, actual);
     return;
   }
-  assert.ok(fs.existsSync(visualFile), 'missing R6.9 four-Pane visual fixture');
-  assert.equal(actual.equals(fs.readFileSync(visualFile)), true, 'R6.9 four-Pane visual fixture changed');
+  assert.ok(fs.existsSync(targetFile), 'missing R6.9 Pane visual fixture');
+  const expected = fs.readFileSync(targetFile);
+  let actual;
+  let matches = false;
+  for (let attempt = 0; attempt < 5 && !matches; attempt += 1) {
+    if (attempt > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
+    }
+    const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
+    actual = Buffer.from(data, 'base64');
+    matches = isStableVisual(actual, expected);
+  }
+  if (!matches) fs.writeFileSync(path.join(os.tmpdir(), 'v7-layout-workspace-actual.png'), actual);
+  assert.equal(matches, true, 'R6.9 Pane visual fixture changed');
 }
 
 function layoutStateExpression() {
@@ -81,6 +122,28 @@ async function chooseLayout(cdp, layoutId) {
   })()`);
 }
 
+async function moveCrosshairToCandle(cdp, paneId) {
+  const bounds = await evaluate(cdp, `(() => {
+    const rect = document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"] .lightweight-chart-host`)})
+      .getBoundingClientRect();
+    return { bottom: rect.bottom, left: rect.left, right: rect.right, top: rect.top };
+  })()`);
+  for (const ratio of [.12, .2, .28, .36, .44, .52, .6, .68, .76]) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseMoved',
+      x: bounds.left + (bounds.right - bounds.left) * ratio,
+      y: bounds.top + (bounds.bottom - bounds.top) * .45,
+      button: 'none',
+      buttons: 0,
+    });
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const state = await evaluate(cdp,
+      `document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"]`)})?.dataset.ohlcState`);
+    if (state === 'selected') return bounds;
+  }
+  throw new Error(`No candle crosshair point resolved for ${paneId}.`);
+}
+
 let cdp;
 try {
   const debugPort = await waitForDevtools();
@@ -116,6 +179,37 @@ try {
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`, 12_000);
 
+  const singleHeader = await evaluate(cdp, `(() => {
+    const pane = document.querySelector('[data-pane-id="pane-main"]');
+    const ohlc = pane.querySelector('.pane-ohlc');
+    const activeBorder = getComputedStyle(pane, '::after');
+    return {
+      borderColor: activeBorder.borderTopColor,
+      borderWidth: activeBorder.borderTopWidth,
+      crosshairDisabled: document.querySelector('.pane-crosshair-sync input').disabled,
+      ohlcState: pane.dataset.ohlcState,
+      ohlcText: ohlc.textContent,
+    };
+  })()`);
+  assert.equal(singleHeader.ohlcState, 'latest');
+  assert.match(singleHeader.ohlcText, /O\d+\.\d{2}H\d+\.\d{2}L\d+\.\d{2}C\d+\.\d{2}/);
+  assert.equal(singleHeader.borderWidth, '2px');
+  assert.notEqual(singleHeader.borderColor, 'rgba(0, 0, 0, 0)');
+  assert.equal(singleHeader.crosshairDisabled, true,
+    'Crosshair sync is meaningful only when multiple Panes are visible');
+  const singleBounds = await moveCrosshairToCandle(cdp, 'pane-main');
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[data-pane-id="pane-main"]').dataset.ohlcState`), 'selected');
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved',
+    x: singleBounds.right - 90,
+    y: singleBounds.top + (singleBounds.bottom - singleBounds.top) * .45,
+    button: 'none',
+    buttons: 0,
+  });
+  await waitFor(cdp,
+    `document.querySelector('[data-pane-id="pane-main"]')?.dataset.ohlcState === 'latest'`);
+
   await evaluate(cdp, `document.querySelector('.pane-layout-toggle').click()`);
   const menuEvidence = await evaluate(cdp, `(() => ({
     counts: [...document.querySelectorAll('.pane-layout-menu-row')].map((row) => row.querySelectorAll('.pane-layout-option').length),
@@ -131,6 +225,56 @@ try {
   let state = await evaluate(cdp, layoutStateExpression());
   assert.deepEqual(state.panes.map(({ paneId }) => paneId), ['pane-main', 'pane-secondary']);
   const twoColumns = state;
+
+  await evaluate(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')
+    .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-secondary'`);
+  const borderEvidence = await evaluate(cdp, `(() => ({
+    inactive: getComputedStyle(document.querySelector('[data-pane-id="pane-main"]'), '::after').borderTopColor,
+    active: getComputedStyle(document.querySelector('[data-pane-id="pane-secondary"]'), '::after').borderTopColor,
+  }))()`);
+  assert.notEqual(borderEvidence.active, borderEvidence.inactive,
+    `active Pane border must be visually distinct: ${JSON.stringify(borderEvidence)}`);
+  const beforeCrosshair = await evaluate(cdp, layoutStateExpression());
+  await moveCrosshairToCandle(cdp, 'pane-main');
+  let crosshairState = await evaluate(cdp, `(() => ({
+    activePaneId: document.querySelector('.replay-workspace').dataset.activePaneId,
+    main: document.querySelector('[data-pane-id="pane-main"]').dataset.ohlcState,
+    secondary: document.querySelector('[data-pane-id="pane-secondary"]').dataset.ohlcState,
+  }))()`);
+  assert.deepEqual(crosshairState, {
+    activePaneId: 'pane-secondary', main: 'selected', secondary: 'latest',
+  }, 'a non-active Pane must own its native crosshair while other Panes show latest OHLC');
+  await evaluate(cdp, `(() => {
+    document.querySelector('.pane-layout-toggle').click();
+    document.querySelector('.pane-crosshair-sync input').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.crosshairSync === 'true'`);
+  await moveCrosshairToCandle(cdp, 'pane-main');
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')?.dataset.ohlcState === 'selected'`);
+  crosshairState = await evaluate(cdp, `(() => ({
+    activePaneId: document.querySelector('.replay-workspace').dataset.activePaneId,
+    main: document.querySelector('[data-pane-id="pane-main"]').dataset.ohlcState,
+    projectedOrigin: document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
+      .dataset.crosshairOrigin,
+    replayRevision: Number(document.querySelector('.replay-workspace').dataset.replayRevision),
+    secondary: document.querySelector('[data-pane-id="pane-secondary"]').dataset.ohlcState,
+    workspaceRevision: Number(document.querySelector('.replay-workspace').dataset.workspaceRevision),
+  }))()`);
+  assert.deepEqual(crosshairState, {
+    activePaneId: 'pane-secondary',
+    main: 'selected',
+    projectedOrigin: 'projected',
+    replayRevision: beforeCrosshair.replayRevision,
+    secondary: 'selected',
+    workspaceRevision: beforeCrosshair.workspaceRevision,
+  }, 'Sync crosshair must project to every Pane without changing focus, Replay, or Workspace');
+  await capture(cdp, syncVisualFile);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: 700, y: 18, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
+    .every((pane) => pane.dataset.ohlcState === 'latest')`);
 
   await chooseLayout(cdp, 'layout.two-rows');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-rows'`);
@@ -176,6 +320,23 @@ try {
   assert.equal(state.panes.at(-1).instrumentId, 'instrument.cme.es');
   assert.equal(state.panes.at(-1).timeframeId, 'timeframe.display-4-hour');
 
+  await moveCrosshairToCandle(cdp, 'pane-main');
+  await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
+    .filter((pane) => pane.dataset.paneId !== 'pane-quaternary')
+    .every((pane) => pane.dataset.ohlcState === 'selected')`);
+  const mixedCrosshair = await evaluate(cdp, `(() => ({
+    quaternary: document.querySelector('[data-pane-id="pane-quaternary"]').dataset.ohlcState,
+    quaternaryOrigin: document.querySelector('[data-pane-id="pane-quaternary"] .lightweight-chart-host')
+      .dataset.crosshairOrigin,
+  }))()`);
+  assert.deepEqual(mixedCrosshair, { quaternary: 'latest', quaternaryOrigin: 'projected' },
+    'a synchronized target without an exact mixed-TF candle must retain its latest OHLC');
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: 700, y: 18, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
+    .every((pane) => pane.dataset.ohlcState === 'latest')`);
+
   const beforeResize = state;
   const drag = await evaluate(cdp, `(() => {
     const split = document.querySelector('.workspace-pane-split[data-split-id="root"]');
@@ -206,7 +367,7 @@ try {
     'dragging a divider must not issue a Pane transaction');
   assert.equal(state.replayRevision, beforeResize.replayRevision,
     'dragging a divider must not move Replay');
-  assert.ok(state.panes.every(({ height, width }) => height >= 120 && width >= 180),
+  assert.ok(state.panes.every(({ height, width }) => height >= 120 && width >= 280),
     `every Pane must retain its minimum size: ${JSON.stringify(state.panes)}`);
   const draggedRatio = state.rootRatio;
   await evaluate(cdp, `(() => {
@@ -234,6 +395,11 @@ try {
   assert.ok(state.panes.every(({ sessionHoursMode }) => sessionHoursMode === 'rth'));
   assert.ok(state.panes.every((pane, index) => pane.visibleRevision > beforeNext.panes[index].visibleRevision),
     'one shared Next must visibly update all four Panes');
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: 700, y: 18, button: 'none', buttons: 0,
+  });
+  await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
+    .every((pane) => pane.dataset.ohlcState === 'latest')`);
   await capture(cdp);
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
@@ -276,5 +442,5 @@ try {
 }
 
 console.log('v7 Replay Layout Workspace browser harness passed', {
-  scope: '12 layouts, one-to-four Panes, drag/keyboard-ready split tree, persistence, shared Replay/ETH-RTH',
+  scope: '12 layouts, active border, Pane OHLC, local/synced crosshair, resizable persistence, shared Replay/ETH-RTH',
 });

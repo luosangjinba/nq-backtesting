@@ -205,6 +205,7 @@ for (const rule of [
   'complete-pane-set-materializes-and-applies-atomically',
   'replay-navigation-shares-one-clock-and-pane-set-transaction',
   'versioned-pane-layout-persistence-and-resize-bounds',
+  'pane-local-latest-ohlc-and-chart-only-crosshair-sync',
 ]) {
   assert.ok(manifest.requiredRules.includes(rule), `missing binding architecture rule: ${rule}`);
 }

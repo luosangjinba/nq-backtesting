@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-21 after R6.9 implementation, awaiting human review
+Last updated: 2026-07-21 after R6.9a review corrections, awaiting human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -66,7 +66,8 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260721_r6_7c_contributing_history_windows.md`.
 - `sessions/session_20260721_r6_7d_stable_toolbar_refresh.md`.
 - `sessions/session_20260721_r6_8_fixed_replay_transport.md`.
-- `sessions/session_20260721_r6_4_replay_navigation_runtime.md`.
+- `sessions/session_20260721_r6_9_resizable_pane_layouts.md`.
+- `sessions/session_20260721_r6_9a_pane_ohlc_crosshair_sync.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
 - the revised human checklist at
@@ -238,6 +239,14 @@ and human-accepted:
   layout/resize changes do no data, Replay, or Workspace transaction work;
   count changes retain the atomic complete Pane-set path. This interaction and
   visual gate awaits explicit human acceptance.
+- R6.9a corrects the review-visible active focus and header: every Pane now
+  shows symbol/TF plus accepted selected-or-latest OHLC, non-active Panes retain
+  native hover without taking focus, and the Crosshair layout switch projects
+  display timestamps through adapter-owned official chart APIs. Programmatic
+  targets cannot feed back as new pointer sources, mixed-TF misses retain each
+  target's latest OHLC, and the entire effect performs no Replay, data,
+  Session, series-write, or Workspace transaction work. The readability floor
+  is now `280×120px`. R6.9/R6.9a awaits combined human acceptance.
 
 Latest corrective commits:
 
@@ -319,7 +328,8 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 ## Deliberately Not Implemented
 
 There is still no production-complete CME holiday dataset, calendar-aligned
-day/week/month policy, layout sync, or complete hard-refresh workspace restore.
+day/week/month policy, complete layout sync beyond Crosshair, or complete
+hard-refresh workspace restore.
 V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
 exchange-calendar or tick-level coverage.
 
@@ -357,10 +367,12 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-Obtain explicit human acceptance for R6.9's one-to-four Pane picker, every
-horizontal/vertical draggable divider, minimum geometry, layout persistence,
-and mixed-Pane shared Replay/ETH-RTH behavior. After acceptance, execute R6.10
-as a separate bounded layout-sync step. Economic Calendar remains outside this
+Obtain explicit human acceptance for the combined R6.9/R6.9a gate: one-to-four
+Pane picker, every horizontal/vertical draggable divider, `280×120px` minimum
+geometry, layout persistence, clear active border, Pane-local selected/latest
+OHLC, Crosshair sync on/off, and mixed-Pane shared Replay/ETH-RTH behavior.
+After acceptance, execute the remaining R6.10 Symbol/Interval/Time/Date-range
+sync families as separate bounded work. Economic Calendar remains outside this
 foundation phase.
 
 ## Standing Workflow

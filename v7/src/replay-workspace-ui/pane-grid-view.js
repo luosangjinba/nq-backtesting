@@ -14,6 +14,19 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
+function ohlcField(name) {
+  const value = element('span', { className: 'pane-ohlc-value', text: '--' });
+  const root = element('span', { className: 'pane-ohlc-field' }, [
+    element('span', { className: 'pane-ohlc-label', text: name }), value,
+  ]);
+  root.dataset.field = name.toLowerCase();
+  return Object.freeze({ root, value });
+}
+
+function formatPrice(value) {
+  return Number.isFinite(value) ? Number(value).toFixed(2) : '--';
+}
+
 /** Own product-Pane DOM/host identity plus a DOM-only resizable split tree. */
 export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onReset }) {
   const root = element('div', { className: 'workspace-pane-grid' });
@@ -133,11 +146,27 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
   function createPane(paneId) {
     const symbol = element('strong', { className: 'pane-symbol', text: '—' });
     const timeframe = element('span', { className: 'pane-timeframe', text: '—' });
+    const ohlcFields = Object.freeze({
+      close: ohlcField('C'),
+      high: ohlcField('H'),
+      low: ohlcField('L'),
+      open: ohlcField('O'),
+    });
+    const ohlc = element('span', { className: 'pane-ohlc' }, [
+      ohlcFields.open.root,
+      ohlcFields.high.root,
+      ohlcFields.low.root,
+      ohlcFields.close.root,
+    ]);
+    ohlc.dataset.state = 'empty';
     const reset = element('button', {
       ariaLabel: `Reset ${paneId} view`, className: 'pane-reset', text: 'Reset', type: 'button',
     });
     const header = element('header', { className: 'workspace-pane-header' }, [
-      element('span', { className: 'pane-identity' }, [symbol, timeframe]),
+      element('span', { className: 'pane-status-line' }, [
+        element('span', { className: 'pane-identity' }, [symbol, timeframe]),
+        ohlc,
+      ]),
       reset,
     ]);
     const host = element('div', {
@@ -157,7 +186,9 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
       event.stopPropagation();
       onReset(paneId);
     });
-    const record = { empty, header, host, reset, shell, symbol, timeframe };
+    const record = {
+      empty, header, host, ohlc, ohlcFields, reset, shell, symbol, timeframe,
+    };
     records.set(paneId, record);
     renderLayout();
     return record;
@@ -224,6 +255,20 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
       for (const { divider } of splitRecords.values()) {
         divider.setAttribute('aria-disabled', String(pending));
         divider.tabIndex = pending ? -1 : 0;
+      }
+    },
+    setPaneOhlc(panes) {
+      for (const pane of panes) {
+        const record = records.get(pane.paneId);
+        if (!record) continue;
+        const bar = pane.bar;
+        record.ohlc.dataset.state = pane.state;
+        record.shell.dataset.ohlcState = pane.state;
+        record.ohlc.dataset.direction = !bar ? 'empty'
+          : bar.close > bar.open ? 'up' : bar.close < bar.open ? 'down' : 'flat';
+        for (const field of ['open', 'high', 'low', 'close']) {
+          record.ohlcFields[field].value.textContent = formatPrice(bar?.[field]);
+        }
       }
     },
     setTruncationSelection(active) {

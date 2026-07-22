@@ -29,6 +29,7 @@ export function createReplayWorkspaceSurface() {
         : createPaneLayout();
       const callbacks = {
         autoplay: null,
+        crosshairSync: null,
         exactGoto: null,
         focusPane: null,
         instrument: null,
@@ -55,6 +56,7 @@ export function createReplayWorkspaceSurface() {
         name: record.metadata.name,
         onAutoplay: () => callbacks.autoplay?.(),
         onBack,
+        onCrosshairSync: (enabled) => callbacks.crosshairSync?.(enabled),
         onExactGoto: (epochMs) => callbacks.exactGoto?.(epochMs),
         onFocusPane: (paneId) => callbacks.focusPane?.(paneId),
         onInstrument: (instrumentId) => callbacks.instrument?.(instrumentId),
@@ -86,6 +88,7 @@ export function createReplayWorkspaceSurface() {
         view,
       });
       callbacks.autoplay = () => controller.autoplay();
+      callbacks.crosshairSync = (enabled) => controller.changeCrosshairSync(enabled);
       callbacks.exactGoto = (epochMs) => controller.gotoExact(epochMs);
       callbacks.focusPane = (paneId) => controller.focusPane(paneId);
       callbacks.instrument = (instrumentId) => controller.replaceInstrument(instrumentId);

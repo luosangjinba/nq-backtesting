@@ -964,11 +964,11 @@ Pane.
 
 The user accepted the combined R6.8/R6.8a–b gate on 2026-07-21 and reaffirmed
 that ETH/RTH is one Session-wide clock policy: switching it must atomically
-reproject every Pane even when Panes use different instruments. R6.9 is next:
-expand one-to-four layouts with draggable, persisted nested split ratios and
-minimum Pane sizes; layout sync follows as a separate bounded step.
+reproject every Pane even when Panes use different instruments. R6.9 expands
+one-to-four layouts with draggable, persisted nested split ratios and minimum
+Pane sizes; R6.9a pulls in the review-required Crosshair portion of layout sync.
 
-### R6.9 Resizable One-To-Four Pane Layouts — Awaiting Human Review
+### R6.9 Resizable One-To-Four Pane Layouts — Review Corrections In Progress
 
 - expose exactly 12 reviewed variants: single; two columns/rows; three
   columns/rows/two-left/one-right/one-left/two-right; four grid,
@@ -980,7 +980,7 @@ minimum Pane sizes; layout sync follows as a separate bounded step.
 - activate a pure Pane Layout Domain for versioned split-tree intent,
   deterministic leaf order, serialization, and measured resize constraints;
 - support pointer and keyboard resizing for every split while preserving at
-  least `180×120px` per Pane;
+  least `280×120px` per Pane after the OHLC readability correction;
 - persist accepted layout and nested ratios under an explicit Session id and
   restore them on Session re-entry;
 - make same-count variant changes and resize commits data-, Replay-, and
@@ -991,9 +991,29 @@ minimum Pane sizes; layout sync follows as a separate bounded step.
 - bind the pure domain, Session persistence, real-browser geometry/input,
   visual, all-Pane Replay/RTH, re-entry, architecture, and regression gates.
 
-R6.9 changes interaction and visuals and therefore stops here for explicit
-human acceptance. R6.10 layout sync remains the exact next implementation step
-after acceptance; it is not part of this commit.
+R6.9 changes interaction and visuals and therefore stops with R6.9a for one
+combined explicit human acceptance gate. Remaining R6.10 sync is not part of
+this correction.
+
+### R6.9a Active Pane, OHLC, And Crosshair Review Correction — Awaiting Human Review
+
+- [x] make active focus unmistakable with a `2px` blue Pane boundary and local
+  header tint;
+- [x] render symbol/TF plus Pane-local OHLC from the accepted chart snapshot;
+- [x] use selected candle OHLC on a native hit and latest Pane OHLC outside
+  candle data, including empty fallback;
+- [x] keep non-active Pane hover independent from active focus when Crosshair
+  sync is off;
+- [x] add the `Crosshair` switch and synchronize chart-only presentation via
+  the official adapter-owned crosshair APIs;
+- [x] prove same-TF selection, mixed-TF latest fallback, no programmatic
+  feedback source, and zero Replay/Workspace revisions;
+- [x] update real-browser visuals and retain the complete R6.9 layout,
+  persistence, Replay/RTH, performance, architecture, and source-quality gates;
+- [ ] obtain explicit human interaction and visual acceptance for R6.9/R6.9a.
+
+Do not start the remaining R6.10 Symbol/Interval/Time/Date-range sync families
+until this combined review gate is accepted.
 
 ## Standing Gates
 

@@ -47,11 +47,12 @@ Read in this order before V7 implementation work:
 40. `V7_STABLE_TOOLBAR_REFRESH_R6_7D.md`
 41. `V7_FIXED_REPLAY_TRANSPORT_R6_8.md`
 42. `V7_RESIZABLE_PANE_LAYOUTS_R6_9.md`
-43. `V7_CHART_SNAPSHOT_APPLICATION.md`
-44. `V7_VIEWPORT_RUNTIME.md`
-45. `V7_LIGHTWEIGHT_CHART_SLICE.md`
-46. `V7_EXECUTION_ROADMAP.md`
-47. `../TODO.md`
+43. `V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md`
+44. `V7_CHART_SNAPSHOT_APPLICATION.md`
+45. `V7_VIEWPORT_RUNTIME.md`
+46. `V7_LIGHTWEIGHT_CHART_SLICE.md`
+47. `V7_EXECUTION_ROADMAP.md`
+48. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.

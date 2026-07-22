@@ -29,7 +29,7 @@ function preview(variantId) {
 }
 
 /** Own the layout-picker DOM and dispatch only registered layout ids. */
-export function createPaneLayoutMenu({ onChoose, options }) {
+export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
   const root = element('div', { className: 'pane-layout-control' });
   const toggle = element('button', {
     ariaLabel: 'Pane layout', className: 'pane-layout-toggle', type: 'button',
@@ -41,6 +41,8 @@ export function createPaneLayoutMenu({ onChoose, options }) {
   menu.hidden = true;
   menu.setAttribute('role', 'menu');
   const buttons = new Map();
+  let controlDisabled = false;
+  let paneCount = 1;
 
   for (const count of [1, 2, 3, 4]) {
     const choices = options.filter((option) => option.paneCount === count);
@@ -67,6 +69,29 @@ export function createPaneLayoutMenu({ onChoose, options }) {
     menu.append(row);
   }
 
+  const crosshairSyncInput = element('input', {
+    ariaLabel: 'Sync crosshair across Panes', type: 'checkbox',
+  });
+  const crosshairSync = element('label', { className: 'pane-crosshair-sync' }, [
+    element('span', { className: 'pane-layout-sync-label', text: 'Crosshair' }),
+    crosshairSyncInput,
+    element('span', { className: 'pane-crosshair-sync-track' }),
+  ]);
+  crosshairSync.title = 'Crosshair is synchronized across all Panes in the layout';
+  const syncSection = element('section', { className: 'pane-layout-sync-section' }, [
+    element('span', { className: 'pane-layout-sync-title', text: 'SYNC IN LAYOUT' }),
+    crosshairSync,
+  ]);
+  syncSection.setAttribute('aria-label', 'Layout synchronization');
+  menu.append(syncSection);
+
+  function updateCrosshairAvailability(preserveVisual = false) {
+    setControlDisabled(crosshairSyncInput, {
+      disabled: controlDisabled || paneCount < 2,
+      preserveVisual: preserveVisual && paneCount >= 2,
+    });
+  }
+
   const onToggle = () => {
     menu.hidden = !menu.hidden;
     toggle.setAttribute('aria-expanded', String(!menu.hidden));
@@ -83,6 +108,8 @@ export function createPaneLayoutMenu({ onChoose, options }) {
     toggle.focus();
   };
   toggle.addEventListener('click', onToggle);
+  const onCrosshairSyncChange = () => onCrosshairSync(crosshairSyncInput.checked);
+  crosshairSyncInput.addEventListener('change', onCrosshairSyncChange);
   document.addEventListener('pointerdown', onDocumentPointerDown);
   document.addEventListener('keydown', onDocumentKeydown);
   root.append(toggle, menu);
@@ -90,13 +117,24 @@ export function createPaneLayoutMenu({ onChoose, options }) {
   return Object.freeze({
     dispose() {
       toggle.removeEventListener('click', onToggle);
+      crosshairSyncInput.removeEventListener('change', onCrosshairSyncChange);
       document.removeEventListener('pointerdown', onDocumentPointerDown);
       document.removeEventListener('keydown', onDocumentKeydown);
       root.remove();
     },
     root,
-    setDisabled(disabled, preserveVisual = false) {
-      setControlDisabled(toggle, { disabled, preserveVisual });
+    setDisabled(nextDisabled, preserveVisual = false) {
+      setControlDisabled(toggle, { disabled: nextDisabled, preserveVisual });
+      controlDisabled = nextDisabled === true;
+      updateCrosshairAvailability(preserveVisual);
+    },
+    setCrosshairSync(enabled) {
+      crosshairSyncInput.checked = enabled === true;
+      root.dataset.crosshairSync = String(enabled === true);
+    },
+    setPaneCount(count) {
+      paneCount = count;
+      updateCrosshairAvailability();
     },
     setValue(variantId) {
       toggle.replaceChildren(preview(variantId));

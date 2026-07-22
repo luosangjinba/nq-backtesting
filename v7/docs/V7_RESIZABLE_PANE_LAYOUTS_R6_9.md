@@ -54,7 +54,7 @@ sole chart-series writer.
 
 Each split uses a `5px` separator. Pointer dragging and focusable arrow-key
 resizing are supported. The pure domain clamps every split against the measured
-subtree so each Pane keeps at least `180px` width and `120px` height. Accepted
+subtree so each Pane keeps at least `280px` width and `120px` height. Accepted
 ratios serialize as `v7.pane-layout` version 1 inside the Session workspace
 envelope and restore when that Session is re-entered.
 
@@ -74,5 +74,6 @@ refresh restoration remain R7 work.
   architecture, source-quality, visual, Session Browser, and retained
   performance gates; `git diff --check` also passes.
 
-Layout sync is deliberately deferred to R6.10. Economic Calendar remains an
-optional second-phase business module.
+The review-required Crosshair portion is implemented by R6.9a. Remaining
+Symbol/Interval/Time/Date-range sync is deliberately deferred to R6.10.
+Economic Calendar remains an optional second-phase business module.

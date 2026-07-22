@@ -3,7 +3,7 @@ import { failPaneLayout } from './layout-error.js';
 const LAYOUT_SCHEMA = 'v7.pane-layout';
 const LAYOUT_VERSION = 1;
 const DIVIDER_SIZE_PX = 5;
-const MIN_PANE_WIDTH_PX = 180;
+const MIN_PANE_WIDTH_PX = 280;
 const MIN_PANE_HEIGHT_PX = 120;
 const RATIO_MINIMUM = 0.05;
 const RATIO_MAXIMUM = 0.95;

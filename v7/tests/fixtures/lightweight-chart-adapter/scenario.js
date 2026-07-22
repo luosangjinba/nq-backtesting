@@ -54,12 +54,15 @@ const viewport = createViewportController({
   }),
 });
 const truncationSelections = [];
+const crosshairObservations = [];
 const adapter = createLightweightChartAdapter({
   host,
+  onCrosshairMove: (observation) => crosshairObservations.push(observation),
   onTruncationSelect: (selection) => truncationSelections.push(selection),
   viewportPort: viewport,
 });
 globalThis.__adapter = adapter;
+globalThis.__crosshairObservations = crosshairObservations;
 globalThis.__truncationSelections = truncationSelections;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 
