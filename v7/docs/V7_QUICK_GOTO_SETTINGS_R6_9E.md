@@ -21,8 +21,10 @@ does not implement star-based visibility, Next News Event, Price, Future Date,
 or Days to skip.
 
 `Custom Settings…` opens one focused seven-time dialog. All values are exact
-New York `HH:mm` wall times. `Next Session` has no editable field because it is
-derived from the next Asian, London, or New York anchor. Reset changes the
+New York `HH:mm` wall times. Each field is a 24-hour selector with all 96
+quarter-hour values from `00:00` through `23:45`; the settings contract also
+rejects off-grid minute values. `Next Session` has no editable field because it
+is derived from the next Asian, London, or New York anchor. Reset changes the
 draft to defaults; Discard restores the last accepted settings; Save validates
 and applies the schedule immediately.
 
@@ -74,7 +76,8 @@ Replay cursor or become required by navigation.
 ## Gate
 
 - the Replay Navigation Settings Harness binds exact fields, defaults,
-  branding, versioned serialization, restoration, and seven negative controls;
+  branding, quarter-hour validation, versioned serialization, restoration, and
+  eight negative controls;
 - the Replay Navigation Preference Store Harness binds global save/restore,
   legacy migration, corruption fallback, and failed-write atomicity;
 - Session Store evidence binds legacy schema-3 readability and current
@@ -83,8 +86,9 @@ Replay cursor or become required by navigation.
   second runtime or cursor and binds the exclusive pre-anchor cutoff for all
   eight actions;
 - the real-Chrome Replay Pane Workspace Harness binds eight actions, five
-  shortcuts, Reset/Discard/Save, immediate schedule use, zero-revision Save,
-  cross-Session inheritance, Session-deletion independence, non-blocking
-  range-end feedback, and fixed `1440×900` output;
+  shortcuts, seven complete 96-option 24-hour selectors, Reset/Discard/Save,
+  immediate schedule use, zero-revision Save, cross-Session inheritance,
+  Session-deletion independence, non-blocking range-end feedback, and fixed
+  `1440×900` output;
 - this browser-visible slice stops for explicit human interaction and visual
   review before Exact GoTo begins.

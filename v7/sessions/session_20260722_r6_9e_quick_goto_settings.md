@@ -81,3 +81,12 @@ Existing schema-3 Session values remain valid migration evidence. When the
 global record is absent, application composition orders them by Session update
 time, seeds the first valid value globally once, and no longer consults Session
 records. Current Session workspace schema 4 contains Pane Layout only.
+
+## Quarter-Hour Selector Correction
+
+Human review replaced the browser-native minute input with one explicit
+24-hour dropdown per editable anchor. Every dropdown exposes exactly 96 values
+from `00:00` through `23:45` in 15-minute steps. The settings value contract
+now rejects off-grid minutes as well, so persisted or programmatic writes
+cannot bypass the visible selector rule. Global ownership, draft semantics,
+and Replay behavior are unchanged.

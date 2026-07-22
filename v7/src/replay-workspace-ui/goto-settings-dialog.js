@@ -15,16 +15,31 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
+const QUARTER_HOUR_OPTIONS = Object.freeze(Array.from({ length: 24 * 4 }, (_, index) => {
+  const hour = String(Math.floor(index / 4)).padStart(2, '0');
+  const minute = String((index % 4) * 15).padStart(2, '0');
+  return `${hour}:${minute}`;
+}));
+
+function createQuarterHourSelect({ field, label }) {
+  const select = element('select', { className: 'goto-settings-time' });
+  select.name = field;
+  select.setAttribute('aria-label', `${label} start in New York time`);
+  for (const value of QUARTER_HOUR_OPTIONS) {
+    const option = element('option', { text: value });
+    option.value = value;
+    select.append(option);
+  }
+  return select;
+}
+
 /** Own only the simplified seven-time Quick GoTo settings dialog. */
 export function createGotoSettingsDialog({ initialSettings, onSave }) {
   let current = initialSettings;
   readReplayNavigationSettings(current);
   const inputs = new Map();
   const rows = QUICK_GOTO_SETTING_FIELDS.map(({ field, label }) => {
-    const input = element('input', { className: 'goto-settings-time', type: 'time' });
-    input.name = field;
-    input.step = '60';
-    input.setAttribute('aria-label', `${label} start in New York time`);
+    const input = createQuarterHourSelect({ field, label });
     inputs.set(field, input);
     return element('label', { className: 'goto-settings-row' }, [
       element('span', { text: label }),
@@ -108,7 +123,7 @@ export function createGotoSettingsDialog({ initialSettings, onSave }) {
       dialog.showModal();
     },
     setDisabled(disabled, preserveVisual = false) {
-      setControlsDisabled(dialog.querySelectorAll('button, input'), { disabled, preserveVisual });
+      setControlsDisabled(dialog.querySelectorAll('button, input, select'), { disabled, preserveVisual });
     },
   });
 }

@@ -1105,6 +1105,8 @@ redesign below instead of being applied in isolation.
   keyboard shortcuts;
 - [x] add a simplified seven-time New York settings dialog with Reset,
   Discard, Save, and derived Next Session guidance;
+- [x] use explicit 24-hour dropdowns with all 96 quarter-hour values and
+  reject off-grid minutes in the settings contract;
 - [x] validate and version the settings through a focused pure contract;
 - [x] persist one accepted workstation-wide schedule outside Session Store,
   migrate the most recently updated legacy schema-3 value once, and keep

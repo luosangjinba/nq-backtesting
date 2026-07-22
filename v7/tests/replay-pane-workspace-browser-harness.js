@@ -324,6 +324,20 @@ try {
   ], 'Quick GoTo exposes eight fixed actions and only the five accepted shortcuts');
   await evaluate(cdp, `document.querySelector('.goto-settings').click()`);
   await waitFor(cdp, `document.querySelector('.goto-settings-dialog')?.open === true`);
+  assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.goto-settings-time')]
+    .map((select) => ({
+      element: select.tagName,
+      first: select.options[0]?.value,
+      last: select.options[select.options.length - 1]?.value,
+      optionCount: select.options.length,
+      offGrid: [...select.options].some((option) => Number(option.value.slice(3)) % 15 !== 0),
+    }))`), Array.from({ length: 7 }, () => ({
+    element: 'SELECT',
+    first: '00:00',
+    last: '23:45',
+    optionCount: 96,
+    offGrid: false,
+  })), 'each Quick GoTo time uses the complete 24-hour quarter-hour selector');
   assert.deepEqual(await evaluate(cdp, `Object.fromEntries([...document.querySelectorAll('.goto-settings-time')]
     .map((input) => [input.name, input.value]))`), {
     asianSession: '19:00',

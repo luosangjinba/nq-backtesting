@@ -45,8 +45,8 @@ function time(value, field) {
     fail('REPLAY_NAVIGATION_SETTINGS_TIME_INVALID', `${field} must use HH:mm.`);
   }
   const [hour, minute] = value.split(':').map(Number);
-  if (hour > 23 || minute > 59) {
-    fail('REPLAY_NAVIGATION_SETTINGS_TIME_INVALID', `${field} must be a valid time.`);
+  if (hour > 23 || minute > 59 || minute % 15 !== 0) {
+    fail('REPLAY_NAVIGATION_SETTINGS_TIME_INVALID', `${field} must be a valid 15-minute time.`);
   }
   return value;
 }

@@ -25,6 +25,7 @@ const negative = [
   [() => createReplayNavigationSettings({ dayOpen: '18:00' }), 'REPLAY_NAVIGATION_SETTINGS_FIELDS_INVALID'],
   [() => createReplayNavigationSettings({ ...DEFAULT_REPLAY_NAVIGATION_SETTINGS, dayOpen: '6:00' }), 'REPLAY_NAVIGATION_SETTINGS_TIME_INVALID'],
   [() => createReplayNavigationSettings({ ...DEFAULT_REPLAY_NAVIGATION_SETTINGS, dayOpen: '24:00' }), 'REPLAY_NAVIGATION_SETTINGS_TIME_INVALID'],
+  [() => createReplayNavigationSettings({ ...DEFAULT_REPLAY_NAVIGATION_SETTINGS, dayOpen: '18:01' }), 'REPLAY_NAVIGATION_SETTINGS_TIME_INVALID'],
   [() => readReplayNavigationSettings(Object.freeze(DEFAULT_REPLAY_NAVIGATION_SETTINGS)), 'REPLAY_NAVIGATION_SETTINGS_REQUIRED'],
   [() => deserializeReplayNavigationSettings({}), 'REPLAY_NAVIGATION_SETTINGS_WIRE_INVALID'],
   [() => deserializeReplayNavigationSettings({ ...wire, schema: 'v6.goto-settings' }), 'REPLAY_NAVIGATION_SETTINGS_SCHEMA_INVALID'],
