@@ -398,6 +398,17 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   seven-time New York settings value, Reset/Discard/Save behavior, immediate
   dynamic schedule use, and non-blocking range-end feedback without Replay or
   Pane transaction side effects; awaiting human interaction/visual review;
+- `R6.9f`: freeze the global Workstation Settings catalog, transactional draft,
+  persistence scope, consumer routing, and all-Pane presentation invariants
+  without activating production behavior;
+- `R6.9g`: after R6.9e acceptance, separate Exact GoTo into its own
+  Workspace-level entry with Session-range-aware Calendar presentation;
+- `R6.9h`: activate the versioned Workstation Settings owner, durable global
+  record, transactional draft shell, and one honest Grid consumer;
+- `R6.9i`: activate direct Canvas and Candles appearance through chart-owned
+  native option fan-out without series-data or Replay mutation;
+- `R6.9j`: activate bounded OHLC/change/current-price/Pane-control visibility
+  without allowing essential Replay, failure, or active-Pane context to hide;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;

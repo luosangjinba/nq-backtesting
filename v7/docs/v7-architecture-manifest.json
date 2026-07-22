@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.9e-quick-goto-and-r6.9c-awaiting-human-review",
+  "status": "r6.9f-settings-catalog-complete-r6.9e-and-r6.9c-awaiting-human-review",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -40,6 +40,7 @@
     "docs/V7_REPLAY_NAVIGATION_RUNTIME.md",
     "docs/V7_GOTO_REDESIGN_CONTRACT_R6_9D.md",
     "docs/V7_QUICK_GOTO_SETTINGS_R6_9E.md",
+    "docs/V7_WORKSTATION_SETTINGS_CATALOG_R6_9F.md",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
     "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md",

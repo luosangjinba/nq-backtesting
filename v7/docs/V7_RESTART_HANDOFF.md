@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after R6.9e Quick GoTo settings implementation;
+Last updated: 2026-07-22 after the headless R6.9f Workstation Settings catalog;
 R6.9c and R6.9e await focused human review
 
 This is the first document to read after a machine, server, or agent restart.
@@ -22,8 +22,9 @@ required for normal startup.
   accepted; R6.9c lower-right control dock implemented and awaiting focused
   visual review; R6.9d shared GoTo contract completed headlessly; R6.9e eight-
   action Quick GoTo, Session-persisted settings, and range feedback implemented
-  and awaiting human review; R2.4 Session Browser readability and confirmed
-  durable delete human accepted
+  and awaiting human review; R6.9f global Workstation Settings catalog and
+  ownership contract completed headlessly; R2.4 Session Browser readability
+  and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -285,6 +286,12 @@ and human-accepted:
   Replay or Workspace revision, and expected range exhaustion now leaves the
   Workspace ready with an inline message naming the range end. This visible
   slice awaits human interaction and visual review.
+- R6.9f freezes one global Workstation Settings scope, separate from Session
+  Quick GoTo settings and Pane operational state. It retains the V6-proven
+  draft/Save/Cancel/Reset semantics, routes each field to its real owner, and
+  defines R6.9h-j as bounded persistence, direct chart/candle, and optional
+  visibility slices after the separate R6.9g Exact GoTo delivery. It changes no
+  production behavior and was completed headlessly.
 - R2.4 returns to the accepted Session Browser boundary for a bounded user
   follow-up: list-only deeper neutral surfaces, brighter/larger typography, and
   one confirmed Delete action per card. Browser UI dispatches only the command;
@@ -411,13 +418,15 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9e Quick GoTo settings and range feedback are implemented and now stop for
-human interaction/visual review. After acceptance, execute one separate Exact
-GoTo slice: move Exact GoTo to its own Workspace-level entry and add Session-
-range-aware Calendar Surface presentation with explicit boundary validation.
-Economic Calendar remains outside this foundation phase. The outstanding
-R6.9c focused visual confirmation and remaining R6.10 Symbol/Interval/Time/
-Date-range sync families remain separate gates.
+R6.9f Settings planning is complete and changes no production behavior. R6.9e
+Quick GoTo settings and range feedback still require human interaction/visual
+acceptance. After acceptance, execute R6.9g as one separate Exact GoTo slice:
+move Exact GoTo to its own Workspace-level entry and add Session-range-aware
+Calendar Surface presentation with explicit boundary validation. R6.9h-j then
+activate the planned global Settings foundation, direct chart/candle appearance,
+and bounded optional-element visibility before R6.10 sync. Economic Calendar
+remains outside this foundation phase. The outstanding R6.9c focused visual
+confirmation remains a separate gate.
 
 ## Standing Workflow
 

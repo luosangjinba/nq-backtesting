@@ -1118,9 +1118,35 @@ redesign below instead of being applied in isolation.
   range end, and fixed visual output in focused and real-Chrome Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
-After acceptance, the next bounded slice separates Exact GoTo into its own
-Workspace-level entry and adds range-aware Calendar Surface presentation.
-Neither slice may start another Replay path.
+After acceptance, R6.9g separates Exact GoTo into its own Workspace-level entry
+and adds range-aware Calendar Surface presentation. It may not start another
+Replay path.
+
+### R6.9f Workstation Settings Catalog And Ownership — Completed Headlessly
+
+- [x] classify Workstation Settings as one global durable preference scope,
+  separate from Session-scoped Quick GoTo settings and Pane operational state;
+- [x] retain the V6-proven draft/Save/Cancel/Reset interaction while rejecting
+  its global command/event registry and large mixed-purpose shell;
+- [x] route Canvas/Candles only through the Chart adapter, OHLC/change only
+  through the Pane readout, default right margin only through Viewport, and
+  workstation tokens only through a shared presentation port;
+- [x] reject per-Pane appearance overrides, Apply-to-all, templates, and hiding
+  essential Replay/failure/active-Pane context without a new user journey;
+- [x] define the initial background/grid/axis/Crosshair/candle catalog and the
+  bounded OHLC/change/current-price/Pane-control visibility catalog;
+- [x] require all current and future Panes to receive one committed Settings
+  revision without Replay, Workspace, Pane, series-data, or manual-Viewport
+  mutation;
+- [x] keep inactive fields out of the UI until a real consumer and focused
+  acceptance evidence land in the same production step;
+- [x] verify native Lightweight Charts chart/series `applyOptions` support so
+  presentation changes do not require custom rendering or data replacement.
+
+R6.9f changes no production behavior and requires no visual acceptance. After
+R6.9e human acceptance, R6.9g delivers Exact GoTo. R6.9h activates the Settings
+transaction/persistence foundation with one honest Grid consumer; R6.9i adds
+direct Canvas/Candles options; R6.9j adds bounded optional-element visibility.
 
 ## Standing Gates
 
