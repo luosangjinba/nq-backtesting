@@ -1,4 +1,3 @@
-import { createDateTimeControl } from '../calendar-surface/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 import { QUICK_GOTO_ACTIONS } from './goto-quick-actions.js';
 import { createGotoSettingsDialog } from './goto-settings-dialog.js';
@@ -12,11 +11,9 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
-/** Own Quick GoTo plus the temporary pre-separation Exact GoTo entry. */
+/** Own only the fixed Quick GoTo actions and their global settings entry. */
 export function createGotoControls({
-  getExactDefault = () => Date.now(),
   initialSettings,
-  onExact,
   onQuick,
   onSaveSettings,
 }) {
@@ -46,56 +43,14 @@ export function createGotoControls({
     className: 'goto-menu-item goto-settings', text: 'Custom Settings…', type: 'button',
   });
   settings.setAttribute('role', 'menuitem');
-  const custom = element('button', { className: 'goto-menu-item goto-custom', text: 'Custom date & time…', type: 'button' });
-  custom.setAttribute('role', 'menuitem');
-  menu.append(settings, custom);
+  menu.append(settings);
   root.append(toggle, menu);
 
   const settingsDialog = createGotoSettingsDialog({ initialSettings, onSave: onSaveSettings });
 
-  const dateTime = createDateTimeControl({
-    label: 'Replay target', name: 'goto-target', timeZone: 'America/New_York',
-  });
-  const validation = element('p', { className: 'goto-validation' });
-  validation.hidden = true;
-  const dialogTitle = element('h2', { text: 'Go to' });
-  dialogTitle.id = 'replay-goto-title';
-  const closeButton = element('button', { className: 'goto-dialog-close', text: '×', type: 'button' });
-  closeButton.setAttribute('aria-label', 'Close Go to');
-  const dialog = element('dialog', { className: 'goto-dialog' }, [
-    element('header', { className: 'goto-dialog-header' }, [
-      element('div', {}, [
-        dialogTitle,
-        element('p', { text: 'Choose an exact New York date and time.' }),
-      ]),
-      closeButton,
-    ]),
-    element('div', { className: 'goto-dialog-body' }, [dateTime.element, validation]),
-    element('footer', { className: 'goto-dialog-actions' }, [
-      element('button', { className: 'button goto-cancel', text: 'Cancel', type: 'button' }),
-      element('button', { className: 'button goto-submit', text: 'Go to', type: 'button' }),
-    ]),
-  ]);
-  dialog.setAttribute('aria-labelledby', dialogTitle.id);
-
   function closeMenu() {
     menu.hidden = true;
     toggle.setAttribute('aria-expanded', 'false');
-  }
-  function closeDialog() {
-    dateTime.close();
-    if (dialog.open) dialog.close();
-  }
-  function submit() {
-    const epochMs = dateTime.readEpochMs();
-    if (!Number.isSafeInteger(epochMs)) {
-      validation.textContent = 'Choose a valid date and time.';
-      validation.hidden = false;
-      return;
-    }
-    validation.hidden = true;
-    closeDialog();
-    onExact(epochMs);
   }
   function onDocumentClick(event) {
     if (!root.contains(event.target)) closeMenu();
@@ -112,38 +67,19 @@ export function createGotoControls({
     menu.hidden = !menu.hidden;
     toggle.setAttribute('aria-expanded', String(!menu.hidden));
   });
-  custom.addEventListener('click', () => {
-    closeMenu();
-    validation.hidden = true;
-    const defaultEpochMs = getExactDefault();
-    if (Number.isSafeInteger(defaultEpochMs)) dateTime.setEpochMs(defaultEpochMs);
-    dialog.showModal();
-  });
   settings.addEventListener('click', () => {
     closeMenu();
     settingsDialog.open();
   });
-  dialog.querySelector('.goto-dialog-close').addEventListener('click', closeDialog);
-  dialog.querySelector('.goto-cancel').addEventListener('click', closeDialog);
-  dialog.querySelector('.goto-submit').addEventListener('click', submit);
   document.addEventListener('click', onDocumentClick);
   document.addEventListener('keydown', onDocumentKeydown);
-  document.body.append(dialog);
 
   return Object.freeze({
-    dialog,
     dispose() {
       document.removeEventListener('click', onDocumentClick);
       document.removeEventListener('keydown', onDocumentKeydown);
-      closeDialog();
       settingsDialog.dispose();
-      dialog.remove();
       root.remove();
-    },
-    openExact(epochMs) {
-      dateTime.setEpochMs(epochMs);
-      validation.hidden = true;
-      dialog.showModal();
     },
     root,
     setDisabled(disabled, preserveVisual = false) {

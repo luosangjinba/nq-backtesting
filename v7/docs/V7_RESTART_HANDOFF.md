@@ -303,6 +303,10 @@ and human-accepted:
   noise is rejected; all eight current-price Name/Value/Line combinations and
   practical New York/UTC/local date/hour presentation are retained. Future
   unimplemented ids move to R6.9h-m rather than reusing the delivered R6.9g id.
+- R6.9h separates Exact GoTo from Quick GoTo, defaults it to the shared Replay
+  cursor, and adds Session-range-aware Calendar dates plus closed-boundary
+  New York validation. Invalid input retains the dialog and issues no Replay or
+  Workspace transaction. It awaits human interaction and visual review.
 - R2.4 returns to the accepted Session Browser boundary for a bounded user
   follow-up: list-only deeper neutral surfaces, brighter/larger typography, and
   one confirmed Delete action per card. Browser UI dispatches only the command;
@@ -429,14 +433,12 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9g Settings product refinement changes no production behavior. R6.9e Quick
-GoTo and R6.9e1 future time-axis continuity are human accepted. Execute R6.9h
-as one separate Exact GoTo slice:
-move Exact GoTo to its own Workspace-level entry and add Session-range-aware
-Calendar Surface presentation with explicit boundary validation. R6.9i-m then
-activate the planned global Settings foundation, Symbol, Status/current price,
-Canvas, and shared time slices before R6.10 sync. Economic Calendar remains
-outside this foundation phase. The outstanding R6.9c focused visual confirmation
+R6.9h Exact GoTo is implemented and awaits human interaction and visual review.
+After acceptance, execute R6.9i: activate the versioned global Workstation
+Settings owner, durable record, transactional draft shell, and one honest Grid
+visibility consumer. R6.9j-m then add Symbol, Status/current price, Canvas, and
+shared time presentation before R6.10 sync. Economic Calendar remains outside
+this foundation phase. The outstanding R6.9c focused visual confirmation
 remains a separate gate.
 
 ## Standing Workflow

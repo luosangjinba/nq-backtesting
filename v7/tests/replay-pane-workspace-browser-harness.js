@@ -13,6 +13,9 @@ const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/multi-mixed-14
 const gotoSettingsVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/goto-settings-dialog.png',
 );
+const exactGotoVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/exact-goto-dialog.png',
+);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -416,11 +419,43 @@ try {
     ?.latestDisplayEpochMs, quickVisibleThrough,
   'the 1m Pane latest candle must be exactly one minute before the configured shortcut time');
 
+  assert.equal(await evaluate(cdp, `document.querySelector('.goto-menu .exact-goto-toggle') === null`), true,
+    'Exact GoTo must remain separate from the Quick GoTo menu');
+  await evaluate(cdp, `document.querySelector('.exact-goto-toggle').click()`);
+  await waitFor(cdp, `document.querySelector('.exact-goto-dialog')?.open === true`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.exact-goto-dialog [name="goto-target"]').value`), '2026-05-05T15:00',
+  'Exact GoTo must default to the current shared Replay cursor');
+  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-trigger').click()`);
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const find = (label) => document.querySelector('.exact-goto-dialog [aria-label="' + label + '"]');
+    return {
+      beforeDisabled: find('April 30, 2026').disabled,
+      startState: find('May 4, 2026').dataset.rangeState,
+      endState: find('May 6, 2026').dataset.rangeState,
+      afterDisabled: find('May 7, 2026').disabled,
+    };
+  })()`), {
+    beforeDisabled: true, startState: 'start', endState: 'end', afterDisabled: true,
+  }, 'Exact GoTo Calendar must highlight the Session range and disable outside dates');
+  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-trigger').click()`);
+  await evaluate(cdp, `document.activeElement?.blur()`);
+  await capture(cdp, exactGotoVisualFile, '.exact-goto-dialog');
+  const beforeInvalidExact = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `(() => {
-    document.querySelector('.goto-toggle').click();
-    document.querySelector('.goto-custom').click();
-    document.querySelector('.goto-dialog [name="goto-target"]').value = '2026-05-04T13:00';
-    document.querySelector('.goto-submit').click();
+    document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-04-30T23:59';
+    document.querySelector('.exact-goto-dialog .goto-submit').click();
+  })()`);
+  assert.equal(await evaluate(cdp, `document.querySelector('.exact-goto-dialog').open`), true,
+    'an out-of-range Exact GoTo must keep the dialog open');
+  assert.match(await evaluate(cdp,
+    `document.querySelector('.exact-goto-validation').textContent`), /Time must be between .*New York/,
+  'an out-of-range Exact GoTo must report the explicit Session boundary');
+  assert.deepEqual(await evaluate(cdp, paneStateExpression()), beforeInvalidExact,
+    'invalid Exact GoTo input must not issue a Replay or Workspace transaction');
+  await evaluate(cdp, `(() => {
+    document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-05-04T13:00';
+    document.querySelector('.exact-goto-dialog .goto-submit').click();
   })()`);
   const beforeExact = state.workspaceRevision;
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeExact}`, 10_000);
@@ -494,10 +529,9 @@ try {
   const beforeSessionEnd = Number(await evaluate(cdp,
     `document.querySelector('.replay-workspace').dataset.workspaceRevision`));
   await evaluate(cdp, `(() => {
-    document.querySelector('.goto-toggle').click();
-    document.querySelector('.goto-custom').click();
-    document.querySelector('.goto-dialog [name="goto-target"]').value = '2026-05-06T16:00';
-    document.querySelector('.goto-submit').click();
+    document.querySelector('.exact-goto-toggle').click();
+    document.querySelector('.exact-goto-dialog [name="goto-target"]').value = '2026-05-06T16:00';
+    document.querySelector('.exact-goto-dialog .goto-submit').click();
   })()`);
   await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.workspaceRevision) > ${beforeSessionEnd}
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);

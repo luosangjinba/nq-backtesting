@@ -407,8 +407,9 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9g`: refine the field catalog from the user-reviewed FXReplay audit:
   price precision, nullable Volume, rich shared Crosshair, simplified Grid,
   current-price controls, practical time formats, and explicit non-goals;
-- `R6.9h`: after R6.9e acceptance, separate Exact GoTo into its own
-  Workspace-level entry with Session-range-aware Calendar presentation;
+- `R6.9h`: separate Exact GoTo into its own Workspace-level entry, default it
+  to the shared cursor, and add Session-range-aware Calendar presentation plus
+  closed-boundary validation; implemented and awaiting human review;
 - `R6.9i`: activate the versioned Workstation Settings owner, durable global
   record, transactional draft shell, and one honest Grid consumer;
 - `R6.9j`: activate candle body/border/wick presentation plus Auto/manual

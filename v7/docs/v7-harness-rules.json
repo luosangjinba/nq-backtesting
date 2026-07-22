@@ -1104,6 +1104,32 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260722_r6_9e1_future_time_axis.md"
+    },
+    {
+      "id": "H060",
+      "name": "exact-goto-session-range-calendar",
+      "owner": "replay-workspace-ui",
+      "v6FailurePrevented": "Exact GoTo remained hidden inside Quick GoTo, accepted out-of-range wall times, or created a second active-Pane-local Replay path",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-pane-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/calendar-surface/calendar-model.js",
+        "src/calendar-surface/date-time-control.js",
+        "src/replay-workspace-ui/exact-goto-dialog.js",
+        "src/replay-workspace-ui/goto-controls.js",
+        "src/replay-workspace-ui/workspace-view.js",
+        "tests/calendar-surface-harness.js",
+        "tests/replay-pane-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/exact-goto-dialog.png",
+        "docs/V7_EXACT_GOTO_R6_9H.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/calendar-surface/negative/cases.json",
+        "tests/fixtures/replay-pane-response-contract/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

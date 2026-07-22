@@ -2,6 +2,7 @@ import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
 import { readPaneLayout } from '../pane-layout-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
+import { createExactGotoDialog } from './exact-goto-dialog.js';
 import { createGotoControls } from './goto-controls.js';
 import { createPaneGridView } from './pane-grid-view.js';
 import { createPaneLayoutMenu } from './pane-layout-menu.js';
@@ -96,6 +97,7 @@ export function createReplayWorkspaceView({
   onTimeframe,
   onTruncation,
   playbackSpeedOptions,
+  replayRange,
   replayStepOptions,
   sessionHoursModes,
   timeframeMenuGroups,
@@ -124,11 +126,14 @@ export function createReplayWorkspaceView({
   });
   let exactDefaultEpochMs = Date.now();
   const goto = createGotoControls({
-    getExactDefault: () => exactDefaultEpochMs,
     initialSettings: initialNavigationSettings,
-    onExact: onExactGoto,
     onQuick: onQuickGoto,
     onSaveSettings: onSaveGotoSettings,
+  });
+  const exactGoto = createExactGotoDialog({
+    getDefaultEpochMs: () => exactDefaultEpochMs,
+    onSubmit: onExactGoto,
+    replayRange,
   });
   const paneGrid = createPaneGridView({
     initialLayout,
@@ -174,6 +179,7 @@ export function createReplayWorkspaceView({
         status,
         restartButton,
         goto.root,
+        exactGoto.root,
         element('span', { className: 'workspace-status replay-local-status' }, [
           element('span', { className: 'status-dot' }),
           element('span', { text: 'Local' }),
@@ -221,6 +227,7 @@ export function createReplayWorkspaceView({
     sessionHoursControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     paneLayoutControl.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     goto.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
+    exactGoto.setDisabled(interactionLocked || unavailable, stableRefresh && !unavailable);
     replayTransport.setAvailability({ busy, complete, hasAcceptedChart, unavailable });
     paneGrid.setPending(interactionLocked || unavailable);
     root.setAttribute('aria-busy', String(busy));
@@ -275,10 +282,11 @@ export function createReplayWorkspaceView({
       paneLayoutControl.dispose();
       replayTransport.dispose();
       goto.dispose();
+      exactGoto.dispose();
       paneGrid.dispose();
       root.remove();
     },
-    openExactGoto: goto.openExact,
+    openExactGoto: exactGoto.open,
     root,
     setCursor(text) { root.dataset.cursorText = text; },
     setEvidence({ replayRevision, workspaceRevision }) {

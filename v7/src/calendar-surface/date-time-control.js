@@ -1,5 +1,7 @@
 import { calendarElement as element, calendarIcon as icon } from './calendar-dom.js';
 import {
+  calendarDateRangeState,
+  createCalendarDateRange,
   createDecadePage,
   createLocalDate,
   createMonthGrid,
@@ -129,7 +131,8 @@ function createStructure(name, label, placement) {
 }
 
 class DateTimeControl {
-  constructor({ name, label, precision, placement, now, timeZone }) {
+  constructor({ dateRange, name, label, precision, placement, now, timeZone }) {
+    this.dateRange = dateRange;
     this.precision = precision;
     this.now = now;
     this.timeZone = timeZone;
@@ -196,6 +199,18 @@ class DateTimeControl {
     this.nodes.trigger.focus();
   }
 
+  dateState(date) {
+    if (this.dateRange === null) return null;
+    return calendarDateRangeState(this.dateRange, {
+      day: date.getDate(), month: date.getMonth(), year: date.getFullYear(),
+    });
+  }
+
+  dateDisabled(date) {
+    const state = this.dateState(date);
+    return state === 'before' || state === 'after';
+  }
+
   select(date) {
     this.selected = new Date(date.getTime());
     this.displayYear = date.getFullYear();
@@ -256,16 +271,24 @@ class DateTimeControl {
     const weekdays = WEEKDAY_LABELS.map((label) => element('span', { className: 'date-time-weekday', text: label }));
     const days = createMonthGrid({
       year: this.displayYear, month: this.displayMonth, selected: this.selected, today: this.wallDate(this.now()),
-    }).map((item) => element('button', {
-      className: `date-time-day${item.outside ? ' is-outside' : ''}${item.selected ? ' is-selected' : ''}${item.today ? ' is-today' : ''}`,
-      type: 'button', text: String(item.day), 'aria-label': `${MONTH_LABELS[item.month]} ${item.day}, ${item.year}`,
-      onClick: () => {
-        const time = this.selected ?? this.wallDate(this.now());
-        this.select(createLocalDate({
-          ...item, hour: time.getHours(), minute: time.getMinutes(), second: time.getSeconds(),
-        }));
-      },
-    }));
+    }).map((item) => {
+      const date = createLocalDate(item);
+      const rangeState = this.dateState(date);
+      const disabled = rangeState === 'before' || rangeState === 'after';
+      const rangeClass = rangeState === null || disabled ? '' : ` is-in-range is-range-${rangeState}`;
+      return element('button', {
+        className: `date-time-day${item.outside ? ' is-outside' : ''}${item.selected ? ' is-selected' : ''}${item.today ? ' is-today' : ''}${rangeClass}`,
+        type: 'button', text: String(item.day), 'aria-label': `${MONTH_LABELS[item.month]} ${item.day}, ${item.year}`,
+        'data-range-state': rangeState,
+        disabled: disabled ? '' : null,
+        onClick: disabled ? null : () => {
+          const time = this.selected ?? this.wallDate(this.now());
+          this.select(createLocalDate({
+            ...item, hour: time.getHours(), minute: time.getMinutes(), second: time.getSeconds(),
+          }));
+        },
+      });
+    });
     return element('div', { className: 'date-time-calendar' }, [...weekdays, ...days]);
   }
 
@@ -313,6 +336,7 @@ class DateTimeControl {
     if (this.view === VIEW.MONTHS) replaceChildren(this.nodes.body, [this.renderMonths()]);
     else if (this.view === VIEW.YEARS) replaceChildren(this.nodes.body, [this.renderYears()]);
     else replaceChildren(this.nodes.body, [this.renderDays(), this.renderTime()]);
+    this.nodes.popover.querySelector('.date-time-today').disabled = this.dateDisabled(this.wallDate(this.now()));
   }
 }
 
@@ -328,6 +352,8 @@ class DateTimeControl {
  * so presentation replacement cannot fork value or reset semantics.
  */
 export function createDateTimeControl({
+  maxEpochMs = null,
+  minEpochMs = null,
   name,
   label = name,
   precision = 'minute',
@@ -344,7 +370,21 @@ export function createDateTimeControl({
       throw new TypeError('Date-time zone is unsupported.');
     }
   }
-  const controller = new DateTimeControl({ name, label, precision, placement, now, timeZone });
+  if ((minEpochMs === null) !== (maxEpochMs === null)) {
+    throw new TypeError('Date-time range requires both minimum and maximum epochs.');
+  }
+  let dateRange = null;
+  if (minEpochMs !== null) {
+    if (!Number.isSafeInteger(minEpochMs) || minEpochMs < 0
+      || !Number.isSafeInteger(maxEpochMs) || maxEpochMs < minEpochMs) {
+      throw new TypeError('Date-time range epochs are invalid.');
+    }
+    dateRange = createCalendarDateRange({
+      end: formatLocalDateTimeValue(maxEpochMs, 'minute', timeZone).slice(0, 10),
+      start: formatLocalDateTimeValue(minEpochMs, 'minute', timeZone).slice(0, 10),
+    });
+  }
+  const controller = new DateTimeControl({ dateRange, name, label, precision, placement, now, timeZone });
   return Object.freeze({
     element: controller.nodes.root,
     reset: () => controller.reset(),

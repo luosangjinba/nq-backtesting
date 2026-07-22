@@ -1139,9 +1139,22 @@ redesign below instead of being applied in isolation.
   multi-Pane Replay, and fixed visual output in real Chrome;
 - [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-After this focused gate, R6.9h separates Exact GoTo into its own Workspace-level
-entry and adds range-aware Calendar Surface presentation. It may not start
-another Replay path.
+### R6.9h Exact GoTo — Awaiting Human Review
+
+- [x] separate Exact GoTo from the Quick GoTo menu into its own Workspace-level
+  entry;
+- [x] default its New York date/time to the current shared Replay cursor;
+- [x] add immutable generic Calendar date-range presentation without adding
+  Replay or Economic Calendar ownership;
+- [x] highlight included Session dates and boundaries and disable outside
+  dates;
+- [x] validate boundary-date time against the closed Replay Session range;
+- [x] retain invalid input with explicit New York lower/upper bounds and no
+  Replay or Workspace transaction;
+- [x] retain the existing exclusive-cutoff `goto-exact` action and atomic
+  visible-Pane response;
+- [x] bind the interaction and fixed dialog visual in real Chrome;
+- [ ] obtain explicit human interaction and visual acceptance.
 
 ### R6.9f Workstation Settings Catalog And Ownership — Completed Headlessly
 

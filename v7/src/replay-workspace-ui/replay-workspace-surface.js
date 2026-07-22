@@ -85,6 +85,7 @@ export function createReplayWorkspaceSurface() {
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),
         onTruncation: () => callbacks.truncation?.(),
         playbackSpeedOptions: AUTOPLAY_SPEED_OPTIONS,
+        replayRange: record.configuration.historicalRange,
         replayStepOptions: capabilities.replayStepOptions,
         sessionHoursModes: capabilities.sessionHoursModes,
         timeframeMenuGroups: capabilities.timeframeMenuGroups,

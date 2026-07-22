@@ -5,6 +5,8 @@ export {
   parseLocalDateTimeValue,
 } from './date-time-control.js';
 export {
+  calendarDateRangeState,
+  createCalendarDateRange,
   createDecadePage,
   createLocalDate,
   createMonthGrid,

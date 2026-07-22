@@ -3,6 +3,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
+  calendarDateRangeState,
+  createCalendarDateRange,
   createDateTimeControl,
   formatLocalDateTimeValue,
   parseLocalDateTimeValue,
@@ -66,4 +68,25 @@ assert.equal(leapMonth.find((day) => day.selected)?.day, 29, 'leap day must rema
 assert.deepEqual(createDecadePage(2026), {
   start: 2020, end: 2029, years: [2020, 2021, 2022, 2023, 2024, 2025, 2026, 2027, 2028, 2029],
 });
-console.log('v7 Calendar Surface harness passed (value, month, decade, leap-day, negative controls)');
+
+const replayRange = createCalendarDateRange({ start: '2026-05-01', end: '2026-05-06' });
+assert.deepEqual([
+  createLocalDate({ year: 2026, month: 3, day: 30 }),
+  createLocalDate({ year: 2026, month: 4, day: 1 }),
+  createLocalDate({ year: 2026, month: 4, day: 3 }),
+  createLocalDate({ year: 2026, month: 4, day: 6 }),
+  createLocalDate({ year: 2026, month: 4, day: 7 }),
+].map((date) => calendarDateRangeState(replayRange, {
+  year: date.getFullYear(), month: date.getMonth(), day: date.getDate(),
+})), ['before', 'start', 'inside', 'end', 'after'],
+'Calendar range state must expose both boundaries and disable only outside dates');
+assert.equal(calendarDateRangeState(
+  createCalendarDateRange({ start: '2026-05-01', end: '2026-05-01' }),
+  { year: 2026, month: 4, day: 1 },
+), 'single');
+assert.throws(() => createCalendarDateRange({ start: '2026-02-31', end: '2026-03-01' }),
+  /ordered YYYY-MM-DD boundaries/);
+assert.throws(() => createCalendarDateRange({ start: '2026-05-07', end: '2026-05-06' }),
+  /ordered YYYY-MM-DD boundaries/);
+
+console.log('v7 Calendar Surface harness passed (value, range, month, decade, leap-day, negative controls)');

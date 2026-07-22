@@ -33,8 +33,19 @@
 }
 .date-time-day:hover { border-color: var(--border-strong); background: var(--bg-hover); }
 .date-time-day.is-outside { color: var(--text-muted); }
+.date-time-day.is-in-range { background: rgba(35,143,255,.09); }
+.date-time-day.is-range-start,
+.date-time-day.is-range-end,
+.date-time-day.is-range-single { border-color: rgba(35,143,255,.72); }
 .date-time-day.is-today { border-color: rgba(86,168,255,.48); color: #cfe7ff; }
 .date-time-day.is-selected { border-color: var(--accent); background: var(--accent-strong); color: #06111d; font-weight: 760; }
+.date-time-day:disabled {
+  border-color: transparent;
+  background: transparent;
+  color: #4f5359;
+  cursor: not-allowed;
+  opacity: .58;
+}
 .date-time-clock { min-height: 67px; display: flex; align-items: center; justify-content: center; gap: 5px; border-top: 1px solid var(--border-subtle); }
 .date-time-stepper { display: grid; grid-template-rows: 18px 24px 18px; place-items: center; }
 .date-time-step { width: 28px; height: 18px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--accent); cursor: pointer; }
