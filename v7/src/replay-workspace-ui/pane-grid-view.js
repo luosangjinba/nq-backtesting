@@ -35,8 +35,10 @@ export function createPaneGridView({
   let workstationSettings = initialWorkstationSettings;
 
   function updatePresentation(record) {
-    const { candles, paneReadout } = readWorkstationSettings(workstationSettings);
+    const { candles, interface: interfaceSettings, paneReadout }
+      = readWorkstationSettings(workstationSettings);
     record.overlay.setReadoutPresentation(paneReadout);
+    record.overlay.setControlVisibility(interfaceSettings.paneControlDockVisibility);
     if (record.instrumentId) {
       record.overlay.setPricePresentation(createPricePresentation({
         priceIncrement: resolvePriceIncrement(record.instrumentId),

@@ -1,7 +1,7 @@
 # Session — R6.9k Status Readout And Current Price
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: accepted by human interaction and visual review
 
 ## Delivered
 
@@ -27,10 +27,9 @@ Status: awaiting human interaction and visual review
 - full V7 domain/browser Harnesses, source quality, architecture, and visual
   baselines pass before commit.
 
-## Human Review Boundary
+## Human Acceptance
 
-Review all three Status line switches, all three current-price switches and
-their eight combinations, single/multi-Pane fan-out, hard reload, another
-Session, and unchanged Replay/candle position. Stop at this gate before R6.9l
-activates Canvas background, Crosshair, scale text, Pane-control visibility,
-and margins.
+The user accepted all three Status-line switches, all three current-price
+switches, their composed chart presentation, and the interaction/visual result
+on 2026-07-22. R6.9l may activate Canvas background, Crosshair, scale text,
+Pane-control visibility, and margins.

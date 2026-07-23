@@ -16,6 +16,7 @@ import {
   WorkstationSettingsError,
 } from '../src/workstation-settings/public.js';
 import { createMemoryWebStorage } from './support/memory-web-storage.js';
+import { createViewportSettingsConsumer } from '../src/replay-workspace-ui/viewport-settings-consumer.js';
 
 const negativeCases = JSON.parse(readFileSync(new URL(
   './fixtures/workstation-settings/negative/cases.json', import.meta.url,
@@ -27,12 +28,15 @@ function grid(settings) {
   return readWorkstationSettings(settings).canvas.gridVisible;
 }
 
-function settingsValue({ candles = {}, currentPrice = {}, gridVisible = true, paneReadout = {} } = {}) {
+function settingsValue({
+  candles = {}, canvas = {}, currentPrice = {}, gridVisible = true, interface: interfaceSettings = {}, paneReadout = {},
+} = {}) {
   const defaults = readWorkstationSettings(createWorkstationSettings());
   return createWorkstationSettings({
     candles: { ...defaults.candles, ...candles },
-    canvas: { gridVisible },
+    canvas: { ...defaults.canvas, ...canvas, gridVisible },
     currentPrice: { ...defaults.currentPrice, ...currentPrice },
+    interface: { ...defaults.interface, ...interfaceSettings },
     paneReadout: { ...defaults.paneReadout, ...paneReadout },
   });
 }
@@ -62,9 +66,26 @@ assert.equal(grid(defaults), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults)), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).canvas), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).currentPrice), true);
+assert.equal(Object.isFrozen(readWorkstationSettings(defaults).interface), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).paneReadout), true);
 assert.equal(grid(deserializeWorkstationSettings(serializeWorkstationSettings(defaults))), true);
-assert.equal(serializeWorkstationSettings(defaults).version, 4);
+assert.equal(serializeWorkstationSettings(defaults).version, 5);
+assert.deepEqual(readWorkstationSettings(defaults).canvas, {
+  backgroundColor: '#000000ff',
+  bottomMarginPercent: 12,
+  crosshairColor: '#758696ff',
+  crosshairOpacityPercent: 100,
+  crosshairStyle: 'dashed',
+  crosshairWidth: 1,
+  gridVisible: true,
+  rightMarginBars: 12,
+  scaleFontSize: 12,
+  scaleTextColor: '#b8bdc5ff',
+  topMarginPercent: 10,
+});
+assert.deepEqual(readWorkstationSettings(defaults).interface, {
+  paneControlDockVisibility: 'hover',
+});
 assert.deepEqual(readWorkstationSettings(defaults).currentPrice, {
   lineVisible: true, nameVisible: true, valueVisible: true,
 });
@@ -119,11 +140,26 @@ assert.deepEqual(readWorkstationSettings(migratedAlphaCandles).currentPrice,
 assert.deepEqual(readWorkstationSettings(migratedAlphaCandles).paneReadout,
   readWorkstationSettings(defaults).paneReadout,
   'R6.9j1 records must migrate to accepted readout defaults');
+const migratedStatusCurrentPrice = deserializeWorkstationSettings({
+  schema: 'v7.workstation-settings',
+  value: {
+    candles: readWorkstationSettings(defaults).candles,
+    canvas: { gridVisible: false },
+    currentPrice: { lineVisible: false, nameVisible: true, valueVisible: false },
+    paneReadout: { changeVisible: false, ohlcVisible: true, volumeVisible: true },
+  },
+  version: 4,
+});
+assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).canvas.gridVisible, false);
+assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).canvas.rightMarginBars, 12);
+assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).currentPrice.lineVisible, false);
+assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).paneReadout.volumeVisible, true);
 assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
-    canvas: { gridVisible: true, unknown: false },
+    canvas: { ...readWorkstationSettings(defaults).canvas, unknown: false },
     currentPrice: readWorkstationSettings(defaults).currentPrice,
+    interface: readWorkstationSettings(defaults).interface,
     paneReadout: readWorkstationSettings(defaults).paneReadout,
   }),
   (error) => error instanceof WorkstationSettingsError
@@ -150,10 +186,26 @@ assert.throws(
     && error.code === 'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
 );
 assert.throws(
+  () => settingsValue({ canvas: { crosshairOpacityPercent: 101 } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_CROSSHAIR_OPACITY_INVALID',
+);
+assert.throws(
+  () => settingsValue({ canvas: { bottomMarginPercent: 50, topMarginPercent: 50 } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_CANVAS_MARGIN_SUM_INVALID',
+);
+assert.throws(
+  () => settingsValue({ interface: { paneControlDockVisibility: 'sometimes' } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_PANE_CONTROL_VISIBILITY_INVALID',
+);
+assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
-    canvas: { gridVisible: 'yes' },
+    canvas: { ...readWorkstationSettings(defaults).canvas, gridVisible: 'yes' },
     currentPrice: readWorkstationSettings(defaults).currentPrice,
+    interface: readWorkstationSettings(defaults).interface,
     paneReadout: readWorkstationSettings(defaults).paneReadout,
   }),
   (error) => error instanceof WorkstationSettingsError
@@ -254,6 +306,39 @@ assert.throws(
 assert.equal(stablePresentation.gridVisible, true,
   'one consumer rejection must roll back earlier consumers and preserve authority');
 assert.equal(rejectingRuntime.snapshot().revision, 0);
+
+const viewportSettingsRuntime = createWorkstationSettingsRuntime({
+  storage: createStorageAdapter(createMemoryWebStorage()),
+});
+let rightMarginBars = 12;
+viewportSettingsRuntime.registerConsumer(createViewportSettingsConsumer({
+  viewportDefaultsPort: {
+    readDefaultRightMarginBars: () => rightMarginBars,
+    setDefaultRightMarginBars(value) { rightMarginBars = value; },
+  },
+}));
+viewportSettingsRuntime.save(settingsValue({ canvas: { rightMarginBars: 28 } }));
+assert.equal(rightMarginBars, 28,
+  'the Viewport consumer must receive the committed default without chart ownership');
+
+const rollbackViewportRuntime = createWorkstationSettingsRuntime({
+  storage: createStorageAdapter(createMemoryWebStorage()),
+});
+let rollbackRightMarginBars = 12;
+rollbackViewportRuntime.registerConsumer(createViewportSettingsConsumer({
+  viewportDefaultsPort: {
+    readDefaultRightMarginBars: () => rollbackRightMarginBars,
+    setDefaultRightMarginBars(value) { rollbackRightMarginBars = value; },
+  },
+}));
+rollbackViewportRuntime.registerConsumer(consumer(
+  'reject-after-viewport', { gridVisible: true }, { failApply: true },
+));
+assert.throws(() => rollbackViewportRuntime.save(settingsValue({
+  canvas: { rightMarginBars: 28 }, gridVisible: false,
+})));
+assert.equal(rollbackRightMarginBars, 12,
+  'a later Settings consumer failure must roll back the Viewport default');
 
 unregister();
 unregister();

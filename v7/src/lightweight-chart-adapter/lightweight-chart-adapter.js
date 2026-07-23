@@ -8,6 +8,7 @@ import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/
 import { readViewportIntent } from '../viewport-runtime/public.js';
 import { createWorkstationSettings, readWorkstationSettings } from '../workstation-settings/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
+import { createCanvasPresentation } from './canvas-presentation.js';
 import { createCandleSeriesPresentation } from './candle-presentation.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
@@ -385,12 +386,10 @@ export function createLightweightChartAdapter({
     const previousSettings = presentationSettings;
     const previousIncrement = presentationPriceIncrement;
     try {
-      chart.applyOptions({
-        grid: {
-          horzLines: { visible: value.canvas.gridVisible },
-          vertLines: { visible: value.canvas.gridVisible },
-        },
-      });
+      const canvasPresentation = createCanvasPresentation(settings);
+      chart.applyOptions(canvasPresentation.chartOptions);
+      priceScale.applyOptions(canvasPresentation.priceScaleOptions);
+      truncationInteraction.setNormalCrosshair(canvasPresentation.crosshairOptions);
       const { customNameOnlyVisible: _customNameOnlyVisible, ...currentPriceOptions }
         = createCurrentPriceSeriesPresentation(settings, instrumentLabel);
       series.applyOptions({
@@ -399,13 +398,10 @@ export function createLightweightChartAdapter({
       });
     } catch (error) {
       try {
-        const previous = readWorkstationSettings(previousSettings);
-        chart.applyOptions({
-          grid: {
-            horzLines: { visible: previous.canvas.gridVisible },
-            vertLines: { visible: previous.canvas.gridVisible },
-          },
-        });
+        const previousCanvasPresentation = createCanvasPresentation(previousSettings);
+        chart.applyOptions(previousCanvasPresentation.chartOptions);
+        priceScale.applyOptions(previousCanvasPresentation.priceScaleOptions);
+        truncationInteraction.setNormalCrosshair(previousCanvasPresentation.crosshairOptions);
         const { customNameOnlyVisible: _customNameOnlyVisible, ...previousCurrentPriceOptions }
           = createCurrentPriceSeriesPresentation(previousSettings, presentationInstrumentLabel);
         series.applyOptions({
@@ -421,8 +417,17 @@ export function createLightweightChartAdapter({
     presentationInstrumentLabel = instrumentLabel;
     syncCurrentPrice();
     host.dataset.bodyVisible = String(value.candles.bodyVisible);
+    host.dataset.canvasBackgroundColor = value.canvas.backgroundColor;
     host.dataset.bordersVisible = String(value.candles.bordersVisible);
+    host.dataset.crosshairColor = value.canvas.crosshairColor;
+    host.dataset.crosshairOpacityPercent = String(value.canvas.crosshairOpacityPercent);
+    host.dataset.crosshairStyle = value.canvas.crosshairStyle;
+    host.dataset.crosshairWidth = String(value.canvas.crosshairWidth);
     host.dataset.gridVisible = String(value.canvas.gridVisible);
+    host.dataset.scaleFontSize = String(value.canvas.scaleFontSize);
+    host.dataset.scaleTextColor = value.canvas.scaleTextColor;
+    host.dataset.scaleMarginBottomPercent = String(value.canvas.bottomMarginPercent);
+    host.dataset.scaleMarginTopPercent = String(value.canvas.topMarginPercent);
     host.dataset.pricePrecision = String(value.candles.pricePrecision);
     host.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
     host.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
@@ -482,10 +487,32 @@ export function createLightweightChartAdapter({
     snapshot() {
       const latestCandleTime = appliedData.at(-1)?.time ?? null;
       const firstFutureTime = appliedFutureTimeAxisData[0]?.time ?? null;
+      const chartOptions = chart.options();
+      const priceScaleOptions = priceScale.options();
       const seriesOptions = series.options();
       return Object.freeze({
         adapterRevision,
         barCount,
+        canvasPresentation: Object.freeze({
+          backgroundColor: chartOptions.layout.background.color,
+          crosshairColor: host.dataset.crosshairColor,
+          crosshairOpacityPercent: Number(host.dataset.crosshairOpacityPercent),
+          crosshairStyle: host.dataset.crosshairStyle,
+          crosshairWidth: Number(host.dataset.crosshairWidth),
+          nativeHorzCrosshair: Object.freeze({
+            color: chartOptions.crosshair.horzLine.color,
+            style: chartOptions.crosshair.horzLine.style,
+            width: chartOptions.crosshair.horzLine.width,
+          }),
+          nativeVertCrosshair: Object.freeze({
+            color: chartOptions.crosshair.vertLine.color,
+            style: chartOptions.crosshair.vertLine.style,
+            width: chartOptions.crosshair.vertLine.width,
+          }),
+          scaleFontSize: chartOptions.layout.fontSize,
+          scaleMargins: Object.freeze({ ...priceScaleOptions.scaleMargins }),
+          scaleTextColor: chartOptions.layout.textColor,
+        }),
         firstFutureTimeAxisCoordinate: firstFutureTime === null
           ? null : chart.timeScale().timeToCoordinate(firstFutureTime),
         futureTimeAxisPointCount: appliedFutureTimeAxisData.length,

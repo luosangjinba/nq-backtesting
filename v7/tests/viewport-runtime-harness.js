@@ -6,6 +6,7 @@ import { createActivationGeneration } from '../src/activation-generation/public.
 import { createSessionId } from '../src/session-identity/public.js';
 import {
   createInitialViewportIntent,
+  createViewportController,
   measureManualViewportWall,
   moveViewportIntentCursor,
   projectViewportIntent,
@@ -127,6 +128,21 @@ assert.deepEqual({
   revision: 2,
   spanBars: null,
 });
+
+const configuredController = createViewportController({
+  defaultLatestOffsetBars: 8,
+  defaultSpanBars: 80,
+  initialIntent: defaultIntent,
+});
+configuredController.captureManual({ latestLogicalIndex: 99, range: { from: 20, to: 105 } });
+const configuredManualBefore = readViewportIntent(configuredController.snapshot());
+configuredController.setDefaultLatestOffsetBars(24);
+assert.deepEqual(readViewportIntent(configuredController.snapshot()), configuredManualBefore,
+  'changing the reset default must not overwrite a manual wall or increment its revision');
+configuredController.reset();
+assert.equal(readViewportIntent(configuredController.snapshot()).latestOffsetBars, 24,
+  'Reset must consume the latest Viewport-owned right-margin default');
+assert.equal(readViewportIntent(configuredController.snapshot()).origin, 'default');
 
 const paneB = initial({ paneId: 'pane-b' });
 const sessionBIntent = initial({ sessionId: sessionB });

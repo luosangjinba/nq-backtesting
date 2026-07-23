@@ -14,6 +14,7 @@ import {
 import { readReplayNavigationSettings } from '../replay-navigation-settings/public.js';
 import { createReplayRuntime } from '../replay-runtime/public.js';
 import { createPaneLayout, readPaneLayout } from '../pane-layout-domain/public.js';
+import { readWorkstationSettings } from '../workstation-settings/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
 import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
 import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
@@ -24,6 +25,7 @@ import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneWorkspaceState } from './pane-workspace-state.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createWorkspaceExecution } from './workspace-execution.js';
+import { createViewportSettingsConsumer } from './viewport-settings-consumer.js';
 
 function formatCursor(epochMs) {
   if (epochMs === null) return 'No Session bar visible';
@@ -71,6 +73,9 @@ export function createReplayWorkspaceController({
   const paneState = createPaneWorkspaceState({
     initialCursorEpochMs: range.startEpochMs,
     initialPaneCount: readPaneLayout(paneLayout).paneCount,
+    initialRightMarginBars: readWorkstationSettings(
+      workstationSettings.snapshot().settings,
+    ).canvas.rightMarginBars,
     initialTarget: market.defaultTarget,
     record,
   });
@@ -150,6 +155,9 @@ export function createReplayWorkspaceController({
     resolveViewportPort: paneState.viewportPort,
     surfacePort: view.surfacePort,
   });
+  const unregisterViewportSettingsConsumer = workstationSettings.registerConsumer(
+    createViewportSettingsConsumer({ viewportDefaultsPort: paneState }),
+  );
   const unregisterSettingsConsumer = workstationSettings.registerConsumer(
     adapter.workstationSettingsConsumer,
   );
@@ -309,6 +317,7 @@ export function createReplayWorkspaceController({
       if (disposed) return;
       disposed = true;
       unregisterSettingsConsumer();
+      unregisterViewportSettingsConsumer();
       autoplayScheduler.dispose();
       execution.dispose();
       runtime.dispose();
@@ -381,7 +390,7 @@ export function createReplayWorkspaceController({
     },
     resetView(paneId = null) {
       const target = paneId ?? paneState.activePaneId();
-      adapter.resetView(target, 12);
+      adapter.resetView(target);
     },
     saveGotoSettings(settings) {
       if (disposed || execution.isPending()) {

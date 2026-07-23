@@ -537,6 +537,20 @@ label through an explicit Pane-set resolver, so the adapter never parses opaque
 Instrument ids. All fields remain one global presentation transaction and
 cannot move Replay, Workspace, Pane, Viewport, bars, or series-data revisions.
 
+R6.9l advances the Settings value to version 5 with Canvas, Crosshair, scale,
+margin, and Pane-control presentation. The Pane-set adapter remains the sole
+chart-presentation fan-out owner: each child maps solid background, shared Grid,
+Crosshair color/opacity/width/style, scale text, and top/bottom price margins
+through native Lightweight Charts options. Replay truncation temporarily owns
+its blue selection Crosshair while armed and restores the committed user
+Crosshair when it exits. Replay Workspace UI owns only hover/always/hidden DOM
+visibility for the existing Pane-control dock. A separate transactional
+Viewport consumer routes `rightMarginBars` into Viewport Runtime as the default
+for future/new Panes and explicit Reset View; changing Settings never rewrites
+an existing manual wall or increments its Viewport revision. All fields remain
+one global transaction and cannot mutate Replay, Workspace, Pane, bars,
+series-data, or chart-visible receipt state.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

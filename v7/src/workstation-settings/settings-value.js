@@ -5,10 +5,25 @@ import {
 
 const SETTINGS = new WeakSet();
 const SCHEMA = 'v7.workstation-settings';
-const VERSION = 4;
+const VERSION = 5;
 const CANVAS_ONLY_VERSION = 1;
 const OPAQUE_CANDLE_VERSION = 2;
 const ALPHA_CANDLE_VERSION = 3;
+const STATUS_CURRENT_PRICE_VERSION = 4;
+
+const CANVAS_FIELDS = Object.freeze([
+  'backgroundColor',
+  'bottomMarginPercent',
+  'crosshairColor',
+  'crosshairOpacityPercent',
+  'crosshairStyle',
+  'crosshairWidth',
+  'gridVisible',
+  'rightMarginBars',
+  'scaleFontSize',
+  'scaleTextColor',
+  'topMarginPercent',
+]);
 
 export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
   candles: Object.freeze({
@@ -23,12 +38,25 @@ export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
     upWickColor: '#089981ff',
     wicksVisible: true,
   }),
-  canvas: Object.freeze({ gridVisible: true }),
+  canvas: Object.freeze({
+    backgroundColor: '#000000ff',
+    bottomMarginPercent: 12,
+    crosshairColor: '#758696ff',
+    crosshairOpacityPercent: 100,
+    crosshairStyle: 'dashed',
+    crosshairWidth: 1,
+    gridVisible: true,
+    rightMarginBars: 12,
+    scaleFontSize: 12,
+    scaleTextColor: '#b8bdc5ff',
+    topMarginPercent: 10,
+  }),
   currentPrice: Object.freeze({
     lineVisible: true,
     nameVisible: true,
     valueVisible: true,
   }),
+  interface: Object.freeze({ paneControlDockVisibility: 'hover' }),
   paneReadout: Object.freeze({
     changeVisible: true,
     ohlcVisible: true,
@@ -80,6 +108,30 @@ function booleanField(value, code, message) {
   return value;
 }
 
+function canvasColor(value, field) {
+  if (!isNormalizedHexAlphaColor(value)) {
+    failWorkstationSettings(
+      'WORKSTATION_SETTINGS_CANVAS_COLOR_INVALID',
+      `Canvas ${field} must be an eight-digit hex-alpha color.`,
+    );
+  }
+  return value.toLowerCase();
+}
+
+function boundedInteger(value, { code, field, maximum, minimum }) {
+  if (!Number.isSafeInteger(value) || value < minimum || value > maximum) {
+    failWorkstationSettings(code, `${field} must be an integer from ${minimum} through ${maximum}.`);
+  }
+  return value;
+}
+
+function enumField(value, allowed, code, field) {
+  if (!allowed.includes(value)) {
+    failWorkstationSettings(code, `${field} must be one of ${allowed.join(', ')}.`);
+  }
+  return value;
+}
+
 function precision(value) {
   if (value !== 'auto' && (!Number.isSafeInteger(value) || value < 0 || value > 15)) {
     failWorkstationSettings(
@@ -105,20 +157,62 @@ class WorkstationSettingsValue {
 export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) {
   exactObject(
     value,
-    ['candles', 'canvas', 'currentPrice', 'paneReadout'],
+    ['candles', 'canvas', 'currentPrice', 'interface', 'paneReadout'],
     'WORKSTATION_SETTINGS_FIELDS_INVALID',
-    'Workstation Settings require exact candles, canvas, current-price, and readout values.',
+    'Workstation Settings require exact candles, canvas, current-price, interface, and readout values.',
   );
   exactObject(
     value.canvas,
-    ['gridVisible'],
+    CANVAS_FIELDS,
     'WORKSTATION_SETTINGS_CANVAS_FIELDS_INVALID',
-    'Canvas Settings require one exact gridVisible value.',
+    'Canvas Settings fields are invalid.',
   );
   if (typeof value.canvas.gridVisible !== 'boolean') {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_GRID_VISIBLE_INVALID',
       'Canvas gridVisible must be boolean.',
+    );
+  }
+  const canvas = Object.freeze({
+    backgroundColor: canvasColor(value.canvas.backgroundColor, 'backgroundColor'),
+    bottomMarginPercent: boundedInteger(value.canvas.bottomMarginPercent, {
+      code: 'WORKSTATION_SETTINGS_CANVAS_MARGIN_INVALID',
+      field: 'Canvas bottomMarginPercent', maximum: 50, minimum: 0,
+    }),
+    crosshairColor: canvasColor(value.canvas.crosshairColor, 'crosshairColor'),
+    crosshairOpacityPercent: boundedInteger(value.canvas.crosshairOpacityPercent, {
+      code: 'WORKSTATION_SETTINGS_CROSSHAIR_OPACITY_INVALID',
+      field: 'Canvas crosshairOpacityPercent', maximum: 100, minimum: 0,
+    }),
+    crosshairStyle: enumField(
+      value.canvas.crosshairStyle,
+      ['solid', 'dashed', 'dotted'],
+      'WORKSTATION_SETTINGS_CROSSHAIR_STYLE_INVALID',
+      'Canvas crosshairStyle',
+    ),
+    crosshairWidth: boundedInteger(value.canvas.crosshairWidth, {
+      code: 'WORKSTATION_SETTINGS_CROSSHAIR_WIDTH_INVALID',
+      field: 'Canvas crosshairWidth', maximum: 4, minimum: 1,
+    }),
+    gridVisible: value.canvas.gridVisible,
+    rightMarginBars: boundedInteger(value.canvas.rightMarginBars, {
+      code: 'WORKSTATION_SETTINGS_RIGHT_MARGIN_INVALID',
+      field: 'Canvas rightMarginBars', maximum: 100, minimum: 0,
+    }),
+    scaleFontSize: boundedInteger(value.canvas.scaleFontSize, {
+      code: 'WORKSTATION_SETTINGS_SCALE_FONT_SIZE_INVALID',
+      field: 'Canvas scaleFontSize', maximum: 24, minimum: 8,
+    }),
+    scaleTextColor: canvasColor(value.canvas.scaleTextColor, 'scaleTextColor'),
+    topMarginPercent: boundedInteger(value.canvas.topMarginPercent, {
+      code: 'WORKSTATION_SETTINGS_CANVAS_MARGIN_INVALID',
+      field: 'Canvas topMarginPercent', maximum: 50, minimum: 0,
+    }),
+  });
+  if (canvas.topMarginPercent + canvas.bottomMarginPercent > 90) {
+    failWorkstationSettings(
+      'WORKSTATION_SETTINGS_CANVAS_MARGIN_SUM_INVALID',
+      'Canvas top and bottom margins must total 90 percent or less.',
     );
   }
   exactObject(
@@ -167,6 +261,20 @@ export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) 
     ),
   });
   exactObject(
+    value.interface,
+    ['paneControlDockVisibility'],
+    'WORKSTATION_SETTINGS_INTERFACE_FIELDS_INVALID',
+    'Interface Settings fields are invalid.',
+  );
+  const interfaceSettings = Object.freeze({
+    paneControlDockVisibility: enumField(
+      value.interface.paneControlDockVisibility,
+      ['hover', 'always', 'hidden'],
+      'WORKSTATION_SETTINGS_PANE_CONTROL_VISIBILITY_INVALID',
+      'Interface paneControlDockVisibility',
+    ),
+  });
+  exactObject(
     value.paneReadout,
     ['changeVisible', 'ohlcVisible', 'volumeVisible'],
     'WORKSTATION_SETTINGS_PANE_READOUT_FIELDS_INVALID',
@@ -191,8 +299,9 @@ export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) 
   });
   const settings = new WorkstationSettingsValue(Object.freeze({
     candles,
-    canvas: Object.freeze({ gridVisible: value.canvas.gridVisible }),
+    canvas,
     currentPrice,
+    interface: interfaceSettings,
     paneReadout,
   }));
   SETTINGS.add(settings);
@@ -238,8 +347,9 @@ function migrateCanvasOnlyValue(value) {
   );
   return createWorkstationSettings({
     candles: DEFAULT_WORKSTATION_SETTINGS.candles,
-    canvas: { gridVisible: value.canvas.gridVisible },
+    canvas: { ...DEFAULT_WORKSTATION_SETTINGS.canvas, gridVisible: value.canvas.gridVisible },
     currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
+    interface: DEFAULT_WORKSTATION_SETTINGS.interface,
     paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
   });
 }
@@ -263,7 +373,9 @@ function migrateOpaqueCandleValue(value) {
   return createWorkstationSettings({
     ...value,
     candles,
+    canvas: { ...DEFAULT_WORKSTATION_SETTINGS.canvas, gridVisible: value.canvas.gridVisible },
     currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
+    interface: DEFAULT_WORKSTATION_SETTINGS.interface,
     paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
   });
 }
@@ -271,8 +383,18 @@ function migrateOpaqueCandleValue(value) {
 function migrateAlphaCandleValue(value) {
   return createWorkstationSettings({
     ...value,
+    canvas: { ...DEFAULT_WORKSTATION_SETTINGS.canvas, gridVisible: value.canvas.gridVisible },
     currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
+    interface: DEFAULT_WORKSTATION_SETTINGS.interface,
     paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
+  });
+}
+
+function migrateStatusCurrentPriceValue(value) {
+  return createWorkstationSettings({
+    ...value,
+    canvas: { ...DEFAULT_WORKSTATION_SETTINGS.canvas, gridVisible: value.canvas.gridVisible },
+    interface: DEFAULT_WORKSTATION_SETTINGS.interface,
   });
 }
 
@@ -293,6 +415,7 @@ export function deserializeWorkstationSettings(wire) {
   if (wire.version === CANVAS_ONLY_VERSION) return migrateCanvasOnlyValue(wire.value);
   if (wire.version === OPAQUE_CANDLE_VERSION) return migrateOpaqueCandleValue(wire.value);
   if (wire.version === ALPHA_CANDLE_VERSION) return migrateAlphaCandleValue(wire.value);
+  if (wire.version === STATUS_CURRENT_PRICE_VERSION) return migrateStatusCurrentPriceValue(wire.value);
   if (wire.version !== VERSION) {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_VERSION_INVALID',

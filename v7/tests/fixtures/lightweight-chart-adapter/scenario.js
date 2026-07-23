@@ -74,8 +74,13 @@ globalThis.__applySettings = (overrides = {}) => {
   const defaults = readWorkstationSettings(createWorkstationSettings());
   const settings = createWorkstationSettings({
     candles: { ...defaults.candles, ...(overrides.candles ?? {}) },
-    canvas: { gridVisible: overrides.gridVisible ?? defaults.canvas.gridVisible },
+    canvas: {
+      ...defaults.canvas,
+      ...(overrides.canvas ?? {}),
+      gridVisible: overrides.gridVisible ?? overrides.canvas?.gridVisible ?? defaults.canvas.gridVisible,
+    },
     currentPrice: { ...defaults.currentPrice, ...(overrides.currentPrice ?? {}) },
+    interface: { ...defaults.interface, ...(overrides.interface ?? {}) },
     paneReadout: { ...defaults.paneReadout, ...(overrides.paneReadout ?? {}) },
   });
   adapter.applyWorkstationSettings(

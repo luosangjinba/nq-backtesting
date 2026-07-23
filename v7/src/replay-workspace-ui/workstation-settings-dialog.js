@@ -1,6 +1,8 @@
 import {
   createWorkstationSettings,
   DEFAULT_WORKSTATION_SETTINGS,
+  hexColorOpacityPercent,
+  hexColorWithOpacity,
   readWorkstationSettings,
 } from '../workstation-settings/public.js';
 import { createColorPickerControl } from './color-picker-control.js';
@@ -36,6 +38,42 @@ function switchControl({ copy, label, name }) {
     ]),
   ]);
   return Object.freeze({ input, root });
+}
+
+function fieldControl({ control, copy, label }) {
+  return element('label', { className: 'workstation-settings-field-row' }, [
+    element('span', { className: 'workstation-settings-row-copy' }, [
+      element('strong', { text: label }),
+      copy ? element('small', { text: copy }) : null,
+    ]),
+    control,
+  ]);
+}
+
+function selectControl({ copy, label, name, options }) {
+  const select = element('select', { className: 'workstation-settings-select' });
+  select.name = name;
+  select.setAttribute('aria-label', label);
+  for (const option of options) {
+    const node = element('option', { text: option.label });
+    node.value = String(option.value);
+    select.append(node);
+  }
+  return Object.freeze({ root: fieldControl({ control: select, copy, label }), select });
+}
+
+function numberControl({ copy, label, maximum, minimum, name, suffix }) {
+  const input = element('input', { className: 'workstation-settings-number', type: 'number' });
+  input.name = name;
+  input.min = String(minimum);
+  input.max = String(maximum);
+  input.step = '1';
+  input.setAttribute('aria-label', label);
+  const control = element('span', { className: 'workstation-settings-number-shell' }, [
+    input,
+    element('span', { text: suffix }),
+  ]);
+  return Object.freeze({ input, root: fieldControl({ control, copy, label }) });
 }
 
 function candleStyleControl({
@@ -131,6 +169,30 @@ export function createWorkstationSettingsDialog({
     }),
   });
   for (const group of Object.values(candleControls)) pickerControls.push(group.up, group.down);
+  const canvasPickers = Object.freeze({
+    background: createColorPickerControl({
+      getRecentColors,
+      label: 'Canvas background color',
+      name: 'canvasBackgroundColor',
+      onChange: () => markColorTouched('canvasBackgroundColor'),
+      onOpen: () => closePickers(canvasPickers.background),
+    }),
+    crosshair: createColorPickerControl({
+      getRecentColors,
+      label: 'Crosshair color and opacity',
+      name: 'crosshairColorAndOpacity',
+      onChange: () => markColorTouched('crosshairColorAndOpacity'),
+      onOpen: () => closePickers(canvasPickers.crosshair),
+    }),
+    scaleText: createColorPickerControl({
+      getRecentColors,
+      label: 'Scale text color',
+      name: 'scaleTextColor',
+      onChange: () => markColorTouched('scaleTextColor'),
+      onOpen: () => closePickers(canvasPickers.scaleText),
+    }),
+  });
+  pickerControls.push(canvasPickers.background, canvasPickers.crosshair, canvasPickers.scaleText);
   const pickerByName = new Map(pickerControls.map((picker) => [picker.input.name, picker]));
   const precision = element('select', { className: 'workstation-settings-precision' });
   precision.name = 'pricePrecision';
@@ -145,6 +207,44 @@ export function createWorkstationSettingsDialog({
     option.value = String(digits);
     precision.append(option);
   }
+  const crosshairStyle = selectControl({
+    label: 'Line style', name: 'crosshairStyle', options: [
+      { label: 'Solid', value: 'solid' },
+      { label: 'Dashed', value: 'dashed' },
+      { label: 'Dotted', value: 'dotted' },
+    ],
+  });
+  const crosshairWidth = selectControl({
+    label: 'Line thickness', name: 'crosshairWidth', options: [1, 2, 3, 4].map((value) => ({
+      label: `${value} px`, value,
+    })),
+  });
+  const scaleFontSize = selectControl({
+    label: 'Scale font size', name: 'scaleFontSize', options: [8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24]
+      .map((value) => ({ label: `${value} px`, value })),
+  });
+  const paneControls = selectControl({
+    copy: 'Controls remain available through each Pane without changing chart state.',
+    label: 'Navigation controls',
+    name: 'paneControlDockVisibility',
+    options: [
+      { label: 'Visible on mouse over', value: 'hover' },
+      { label: 'Always visible', value: 'always' },
+      { label: 'Always hidden', value: 'hidden' },
+    ],
+  });
+  const margins = Object.freeze({
+    bottom: numberControl({
+      label: 'Bottom', maximum: 50, minimum: 0, name: 'bottomMarginPercent', suffix: '%',
+    }),
+    right: numberControl({
+      copy: 'Used for new Panes and the next Reset View; manual walls are preserved.',
+      label: 'Right', maximum: 100, minimum: 0, name: 'rightMarginBars', suffix: 'bars',
+    }),
+    top: numberControl({
+      label: 'Top', maximum: 50, minimum: 0, name: 'topMarginPercent', suffix: '%',
+    }),
+  });
   const panels = new Map([
     ['symbol', element('section', { className: 'workstation-settings-symbol' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Candles' }),
@@ -177,7 +277,25 @@ export function createWorkstationSettingsDialog({
     ])],
     ['canvas', element('section', { className: 'workstation-settings-canvas' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Chart basic styles' }),
+      fieldControl({ control: canvasPickers.background.root, label: 'Background' }),
       gridControl.root,
+      element('span', { className: 'workstation-settings-kicker workstation-settings-section-kicker', text: 'Crosshair' }),
+      fieldControl({
+        control: canvasPickers.crosshair.root,
+        copy: 'Opacity is adjusted inside the color picker.',
+        label: 'Color',
+      }),
+      crosshairWidth.root,
+      crosshairStyle.root,
+      element('span', { className: 'workstation-settings-kicker workstation-settings-section-kicker', text: 'Scales' }),
+      fieldControl({ control: canvasPickers.scaleText.root, label: 'Text color' }),
+      scaleFontSize.root,
+      element('span', { className: 'workstation-settings-kicker workstation-settings-section-kicker', text: 'Buttons' }),
+      paneControls.root,
+      element('span', { className: 'workstation-settings-kicker workstation-settings-section-kicker', text: 'Margins' }),
+      margins.top.root,
+      margins.bottom.root,
+      margins.right.root,
     ])],
   ]);
   const tabs = new Map();
@@ -265,7 +383,20 @@ export function createWorkstationSettingsDialog({
     candleControls.wicks.up.value = value.candles.upWickColor;
     candleControls.wicks.down.value = value.candles.downWickColor;
     precision.value = String(value.candles.pricePrecision);
+    canvasPickers.background.value = value.canvas.backgroundColor;
+    canvasPickers.crosshair.value = hexColorWithOpacity(
+      value.canvas.crosshairColor,
+      value.canvas.crosshairOpacityPercent,
+    );
+    canvasPickers.scaleText.value = value.canvas.scaleTextColor;
+    crosshairStyle.select.value = value.canvas.crosshairStyle;
+    crosshairWidth.select.value = String(value.canvas.crosshairWidth);
     grid.checked = value.canvas.gridVisible;
+    margins.bottom.input.value = String(value.canvas.bottomMarginPercent);
+    margins.right.input.value = String(value.canvas.rightMarginBars);
+    margins.top.input.value = String(value.canvas.topMarginPercent);
+    paneControls.select.value = value.interface.paneControlDockVisibility;
+    scaleFontSize.select.value = String(value.canvas.scaleFontSize);
     currentPriceControls.line.input.checked = value.currentPrice.lineVisible;
     currentPriceControls.name.input.checked = value.currentPrice.nameVisible;
     currentPriceControls.value.input.checked = value.currentPrice.valueVisible;
@@ -298,11 +429,26 @@ export function createWorkstationSettingsDialog({
           upWickColor: candleControls.wicks.up.value,
           wicksVisible: candleControls.wicks.visible.checked,
         },
-        canvas: { gridVisible: grid.checked },
+        canvas: {
+          backgroundColor: canvasPickers.background.value,
+          bottomMarginPercent: Number(margins.bottom.input.value),
+          crosshairColor: hexColorWithOpacity(canvasPickers.crosshair.value, 100),
+          crosshairOpacityPercent: hexColorOpacityPercent(canvasPickers.crosshair.value),
+          crosshairStyle: crosshairStyle.select.value,
+          crosshairWidth: Number(crosshairWidth.select.value),
+          gridVisible: grid.checked,
+          rightMarginBars: Number(margins.right.input.value),
+          scaleFontSize: Number(scaleFontSize.select.value),
+          scaleTextColor: canvasPickers.scaleText.value,
+          topMarginPercent: Number(margins.top.input.value),
+        },
         currentPrice: {
           lineVisible: currentPriceControls.line.input.checked,
           nameVisible: currentPriceControls.name.input.checked,
           valueVisible: currentPriceControls.value.input.checked,
+        },
+        interface: {
+          paneControlDockVisibility: paneControls.select.value,
         },
         paneReadout: {
           changeVisible: readoutControls.change.input.checked,
@@ -358,13 +504,12 @@ export function createWorkstationSettingsDialog({
         : 'Stored Settings were unavailable or invalid. Defaults are active until a successful save.';
       selectTab(activeTab);
       dialog.showModal();
-      (activeTab === 'canvas'
-        ? grid
-        : activeTab === 'symbol'
-          ? candleControls.body.visible
-          : activeTab === 'status'
-            ? readoutControls.ohlc.input
-            : currentPriceControls.name.input).focus();
+      if (activeTab === 'canvas') canvasPickers.background.focus();
+      else (activeTab === 'symbol'
+        ? candleControls.body.visible
+        : activeTab === 'status'
+          ? readoutControls.ohlc.input
+          : currentPriceControls.name.input).focus();
     },
   });
 }

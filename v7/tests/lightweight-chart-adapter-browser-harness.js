@@ -203,6 +203,45 @@ try {
   assert.equal(settingsPresentation.finalVisibleRevision, settingsPresentation.visibleRevision,
     'grid presentation must not publish a chart-visible Workspace receipt');
 
+  const canvasPresentation = await evaluate(cdp, `(() => {
+    const before = globalThis.__adapter.snapshot();
+    globalThis.__applySettings({ canvas: {
+      backgroundColor: '#101820ff',
+      bottomMarginPercent: 18,
+      crosshairColor: '#336699ff',
+      crosshairOpacityPercent: 45,
+      crosshairStyle: 'dotted',
+      crosshairWidth: 3,
+      gridVisible: false,
+      rightMarginBars: 24,
+      scaleFontSize: 16,
+      scaleTextColor: '#f1e9daff',
+      topMarginPercent: 14,
+    } });
+    const normal = globalThis.__adapter.snapshot();
+    globalThis.__adapter.setTruncationSelection(true);
+    const truncating = globalThis.__adapter.snapshot();
+    globalThis.__adapter.setTruncationSelection(false);
+    const restored = globalThis.__adapter.snapshot();
+    globalThis.__applySettings();
+    return { before, normal, restored, truncating };
+  })()`);
+  assert.equal(canvasPresentation.normal.canvasPresentation.backgroundColor, '#101820ff');
+  assert.equal(canvasPresentation.normal.canvasPresentation.nativeHorzCrosshair.color, '#33669973');
+  assert.equal(canvasPresentation.normal.canvasPresentation.nativeVertCrosshair.color, '#33669973');
+  assert.equal(canvasPresentation.normal.canvasPresentation.nativeHorzCrosshair.style, 1);
+  assert.equal(canvasPresentation.normal.canvasPresentation.nativeVertCrosshair.width, 3);
+  assert.deepEqual(canvasPresentation.normal.canvasPresentation.scaleMargins, { bottom: 0.18, top: 0.14 });
+  assert.equal(canvasPresentation.normal.canvasPresentation.scaleFontSize, 16);
+  assert.equal(canvasPresentation.normal.canvasPresentation.scaleTextColor, '#f1e9daff');
+  assert.equal(canvasPresentation.normal.seriesDataRevision,
+    canvasPresentation.before.seriesDataRevision,
+  'Canvas presentation must not call setData or update');
+  assert.equal(canvasPresentation.truncating.canvasPresentation.nativeVertCrosshair.color, '#2962ff',
+    'Replay truncation must retain its bounded blue selection Crosshair');
+  assert.equal(canvasPresentation.restored.canvasPresentation.nativeVertCrosshair.color, '#33669973',
+    'leaving truncation must restore the user Crosshair presentation');
+
   const candlePresentation = await evaluate(cdp, `(() => {
     const before = globalThis.__adapter.snapshot();
     globalThis.__applySettings({

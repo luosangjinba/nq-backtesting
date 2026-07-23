@@ -392,9 +392,16 @@ export function createReplayWorkspaceView({
       root.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
       root.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
       root.dataset.currentPriceValueVisible = String(value.currentPrice.valueVisible);
+      root.dataset.canvasBackgroundColor = value.canvas.backgroundColor;
+      root.dataset.crosshairOpacityPercent = String(value.canvas.crosshairOpacityPercent);
+      root.dataset.crosshairStyle = value.canvas.crosshairStyle;
+      root.dataset.crosshairWidth = String(value.canvas.crosshairWidth);
       root.dataset.gridVisible = String(value.canvas.gridVisible);
       root.dataset.ohlcVisible = String(value.paneReadout.ohlcVisible);
+      root.dataset.paneControlDockVisibility = value.interface.paneControlDockVisibility;
       root.dataset.pricePrecision = String(value.candles.pricePrecision);
+      root.dataset.rightMarginBars = String(value.canvas.rightMarginBars);
+      root.dataset.scaleFontSize = String(value.canvas.scaleFontSize);
       root.dataset.volumeVisible = String(value.paneReadout.volumeVisible);
       paneGrid.setWorkstationSettings(snapshot.settings);
     },

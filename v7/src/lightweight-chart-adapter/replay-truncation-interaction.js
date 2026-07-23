@@ -20,6 +20,7 @@ function indexedBars(bars) {
 export function createReplayTruncationInteraction({ chart, host, onSelect }) {
   let active = false;
   let barsByDisplayEpochMs = new Map();
+  let normalCrosshair = DEFAULT_CROSSHAIR;
 
   const onClick = (event) => {
     if (!active) return;
@@ -45,8 +46,12 @@ export function createReplayTruncationInteraction({ chart, host, onSelect }) {
     setActive(value) {
       active = value === true;
       host.dataset.truncationSelection = active ? 'active' : 'inactive';
-      chart.applyOptions({ crosshair: active ? TRUNCATION_CROSSHAIR : DEFAULT_CROSSHAIR });
+      chart.applyOptions({ crosshair: active ? TRUNCATION_CROSSHAIR : normalCrosshair });
     },
     setBars(bars) { barsByDisplayEpochMs = indexedBars(bars); },
+    setNormalCrosshair(value) {
+      normalCrosshair = value;
+      if (!active) chart.applyOptions({ crosshair: normalCrosshair });
+    },
   });
 }

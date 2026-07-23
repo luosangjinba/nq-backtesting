@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after R6.9e Quick GoTo and R6.9e1 future time-axis
-acceptance; R6.9c awaits focused human review
+Last updated: 2026-07-22 after R6.9k acceptance and R6.9l Canvas Settings
+implementation; R6.9l awaits focused human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -26,8 +26,9 @@ required for normal startup.
   global Workstation Settings catalog and ownership contract plus R6.9g
   field-level product refinement completed headlessly; R6.9i global Settings
   owner/persistence/shell with one Grid consumer, R6.9j Symbol presentation,
-  and R6.9j1 maintainable color picker human accepted; R6.9k Status/current-
-  price controls implemented and awaiting human review; R2.4 Session Browser
+  R6.9j1 maintainable color picker, and R6.9k Status/current-price controls
+  human accepted; R6.9l Canvas/Crosshair/scale/Pane-control/default-margin
+  settings implemented and awaiting human review; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -86,6 +87,8 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260722_r6_9d_goto_redesign_contract.md`.
 - `sessions/session_20260722_r6_9e_quick_goto_settings.md`.
 - `sessions/session_20260722_r6_9e1_future_time_axis.md`.
+- `sessions/session_20260722_r6_9k_status_current_price.md`.
+- `sessions/session_20260722_r6_9l_canvas_settings.md`.
 - `sessions/session_20260721_r2_4_session_browser_readability_delete.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -451,13 +454,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9j Symbol presentation and R6.9j1 maintainable color picker were accepted on
-2026-07-22. R6.9k Status-line and current-price controls are implemented and
-await human interaction and visual review. After acceptance, execute R6.9l:
-solid Canvas background, shared rich Crosshair, scale text, Pane-control
-visibility, and owner-routed margins. R6.9m then adds shared time presentation
-before R6.10 sync. Economic Calendar remains outside this foundation phase. The
-outstanding R6.9c focused visual confirmation remains a separate gate.
+R6.9k Status-line and current-price controls were accepted on 2026-07-22.
+R6.9l solid Canvas background, shared rich Crosshair, scale text,
+Pane-control visibility, and owner-routed margins are implemented and await
+human interaction and visual review. After acceptance, execute R6.9m shared
+time presentation before R6.10 sync. Economic Calendar remains outside this
+foundation phase. The outstanding R6.9c focused visual confirmation remains a
+separate gate.
 
 ## Standing Workflow
 

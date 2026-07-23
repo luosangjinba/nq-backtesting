@@ -422,9 +422,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   accepted on 2026-07-22;
 - `R6.9k`: activate bounded OHLC/change/Volume and current-price Name/Value/Line
   controls, proving all eight price-label combinations without hiding essential
-  symbol/TF provenance; implemented and awaiting human review;
+  symbol/TF provenance; accepted on 2026-07-22;
 - `R6.9l`: activate solid Canvas background, shared rich Crosshair, scale text,
   Pane-control visibility, and owner-routed top/bottom/right margins;
+  implemented and awaiting human review;
 - `R6.9m`: activate shared New York/UTC/local, date, weekday, and 12/24-hour
   presentation without changing canonical instants or Replay semantics;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range

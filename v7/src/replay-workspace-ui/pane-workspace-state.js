@@ -19,18 +19,26 @@ const PANE_IDS = Object.freeze([
 ]);
 
 /** Own the UI composition's accepted Pane Workspace and Pane viewport controllers. */
-export function createPaneWorkspaceState({ initialCursorEpochMs, initialPaneCount = 1, initialTarget, record }) {
+export function createPaneWorkspaceState({
+  initialCursorEpochMs,
+  initialPaneCount = 1,
+  initialRightMarginBars = 12,
+  initialTarget,
+  record,
+}) {
   const viewports = new Map();
   let accepted = null;
+  let defaultRightMarginBars = initialRightMarginBars;
 
   function viewport(paneId, cursorEpochMs = initialCursorEpochMs) {
     if (!viewports.has(paneId)) {
       viewports.set(paneId, createViewportController({
+        defaultLatestOffsetBars: defaultRightMarginBars,
         defaultSpanBars: 80,
         initialIntent: createInitialViewportIntent({
           activationGeneration: record.activationGeneration,
           cursorEpochMs,
-          latestOffsetBars: 12,
+          latestOffsetBars: defaultRightMarginBars,
           paneId,
           sessionId: record.sessionId,
         }),
@@ -133,6 +141,14 @@ export function createPaneWorkspaceState({ initialCursorEpochMs, initialPaneCoun
       return readPaneWorkspace(workspace).panes.map(({ paneId }) => paneId);
     },
     read: (workspace = accepted) => readPaneWorkspace(workspace),
+    readDefaultRightMarginBars: () => defaultRightMarginBars,
+    setDefaultRightMarginBars(value) {
+      if (!Number.isSafeInteger(value) || value < 0) {
+        throw new TypeError('Default right margin must be a non-negative integer.');
+      }
+      defaultRightMarginBars = value;
+      for (const controller of viewports.values()) controller.setDefaultLatestOffsetBars(value);
+    },
     viewportPort: (paneId) => viewport(paneId),
     wallOrigin(paneId) { return readViewportIntent(viewport(paneId).snapshot()).origin; },
   });

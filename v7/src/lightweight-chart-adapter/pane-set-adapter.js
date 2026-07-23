@@ -264,7 +264,7 @@ export function createLightweightPaneSetAdapter({
       crosshairSource = null;
       visiblePaneIds = [];
     },
-    resetView(paneId, latestOffsetBars = 12) {
+    resetView(paneId, latestOffsetBars = undefined) {
       adapters.get(paneId)?.resetView(latestOffsetBars);
     },
     setTruncationSelection(active) {

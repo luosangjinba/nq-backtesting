@@ -25,6 +25,9 @@ const workstationStatusVisualFile = path.join(
 const workstationCurrentPriceVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/workstation-settings-current-price-dialog.png',
 );
+const workstationCanvasVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/workstation-settings-canvas-dialog.png',
+);
 const colorPickerVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/color-picker.png',
 );
@@ -275,11 +278,25 @@ try {
     currentPriceValueVisible: true,
   });
   await capture(cdp, workstationCurrentPriceVisualFile, '.workstation-settings-dialog');
+  await evaluate(cdp, `document.querySelector('[data-settings-tab="canvas"]').click()`);
+  assert.deepEqual(await evaluate(cdp, `Object.fromEntries([
+    'crosshairStyle', 'crosshairWidth', 'scaleFontSize', 'paneControlDockVisibility',
+    'topMarginPercent', 'bottomMarginPercent', 'rightMarginBars',
+  ].map((name) => [name, document.querySelector('[name="' + name + '"]').value]))`), {
+    bottomMarginPercent: '12',
+    crosshairStyle: 'dashed',
+    crosshairWidth: '1',
+    paneControlDockVisibility: 'hover',
+    rightMarginBars: '12',
+    scaleFontSize: '12',
+    topMarginPercent: '10',
+  });
+  await capture(cdp, workstationCanvasVisualFile, '.workstation-settings-dialog');
   await evaluate(cdp, `document.querySelector('[data-settings-tab="symbol"]').click()`);
   assert.equal(await evaluate(cdp,
     `document.querySelector('[name="gridVisible"]').checked`), true);
   assert.equal(await evaluate(cdp,
-    `document.querySelectorAll('.workstation-color-picker-button').length`), 6);
+    `document.querySelectorAll('.workstation-color-picker-button').length`), 9);
   await evaluate(cdp, `document.querySelector('.workstation-color-picker-button').click()`);
   await waitFor(cdp, `document.querySelector('.workstation-color-picker-popover')?.hidden === false`);
   assert.equal(await evaluate(cdp,
@@ -292,7 +309,7 @@ try {
   assert.equal(await evaluate(cdp,
     `document.querySelector('.workstation-color-precise-panel').hidden`), false);
   assert.equal(await evaluate(cdp,
-    `document.querySelectorAll('hex-alpha-color-picker').length`), 6,
+    `document.querySelectorAll('hex-alpha-color-picker').length`), 9,
   'the precise engine must stay encapsulated inside each owned color control');
   await capture(cdp, colorPickerVisualFile, '.workstation-color-picker-popover');
   await evaluate(cdp, `(() => {
@@ -714,6 +731,22 @@ try {
   await evaluate(cdp, `document.querySelector('[data-layout-id="layout.single"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
     && document.querySelectorAll('.workspace-pane:not(.is-prepared)').length === 1`);
+  const manualWallPoint = await evaluate(cdp, `(() => {
+    const rect = document.querySelector('.lightweight-chart-host').getBoundingClientRect();
+    return { x: rect.left + rect.width * .55, y: rect.top + rect.height * .5 };
+  })()`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseWheel', x: manualWallPoint.x, y: manualWallPoint.y, deltaX: 140, deltaY: 0,
+  });
+  await waitFor(cdp, `document.querySelector('.lightweight-chart-host')?.dataset.viewportOrigin === 'manual'`);
+  const rightMarginWallBefore = await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      latestOffsetBars: host.dataset.latestOffsetBars,
+      origin: host.dataset.viewportOrigin,
+      revision: host.dataset.viewportRevision,
+    };
+  })()`);
   const beforeSettingsCommit = await evaluate(cdp, paneStateExpression());
   await evaluate(cdp, `(() => {
     document.querySelector('.workstation-settings-open').click();
@@ -730,6 +763,22 @@ try {
     document.querySelector('[name="changeVisible"]').click();
     document.querySelector('[name="volumeVisible"]').click();
     document.querySelector('[name="currentPriceValueVisible"]').click();
+    for (const [name, value] of Object.entries({
+      canvasBackgroundColor: '#101820ff',
+      crosshairColorAndOpacity: '#33669973',
+      scaleTextColor: '#f1e9daff',
+    })) {
+      const input = document.querySelector('[name="' + name + '"]');
+      input.value = value;
+      input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    document.querySelector('[name="crosshairStyle"]').value = 'dotted';
+    document.querySelector('[name="crosshairWidth"]').value = '3';
+    document.querySelector('[name="scaleFontSize"]').value = '16';
+    document.querySelector('[name="paneControlDockVisibility"]').value = 'always';
+    document.querySelector('[name="topMarginPercent"]').value = '14';
+    document.querySelector('[name="bottomMarginPercent"]').value = '18';
+    document.querySelector('[name="rightMarginBars"]').value = '24';
     document.querySelector('.workstation-settings-save').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
@@ -737,12 +786,23 @@ try {
   const afterSettingsCommit = await evaluate(cdp, paneStateExpression());
   assert.deepEqual(await evaluate(cdp, `JSON.parse(
     localStorage.getItem('v7.color-history:global')
-  ).colors.slice(0, 2)`), ['#ff7185cc', '#36c28fff'],
+  ).colors.slice(0, 5)`), [
+    '#f1e9daff', '#33669973', '#101820ff', '#ff7185cc', '#36c28fff',
+  ],
   'only successfully committed touched colors must enter global recent history');
   assert.equal(afterSettingsCommit.replayRevision, beforeSettingsCommit.replayRevision,
     'Settings must not move Replay');
   assert.equal(afterSettingsCommit.workspaceRevision, beforeSettingsCommit.workspaceRevision,
     'Settings must not issue a Workspace transaction');
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      latestOffsetBars: host.dataset.latestOffsetBars,
+      origin: host.dataset.viewportOrigin,
+      revision: host.dataset.viewportRevision,
+    };
+  })()`), rightMarginWallBefore,
+  'saving a right-margin default must not overwrite an existing manual wall');
   assert.equal(await evaluate(cdp,
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.gridVisible === 'false')`), true,
@@ -753,27 +813,49 @@ try {
     return {
       bodyVisible: host.dataset.bodyVisible,
       bordersVisible: host.dataset.bordersVisible,
+      canvasBackgroundColor: host.dataset.canvasBackgroundColor,
       changeHidden: pane.querySelector('.pane-change').hidden,
+      controlVisibility: pane.querySelector('.pane-overlay-controls').dataset.visibility,
+      crosshairOpacityPercent: host.dataset.crosshairOpacityPercent,
+      crosshairStyle: host.dataset.crosshairStyle,
+      crosshairWidth: host.dataset.crosshairWidth,
       currentPriceLineVisible: host.dataset.currentPriceLineVisible,
       currentPriceNameVisible: host.dataset.currentPriceNameVisible,
       currentPriceValueVisible: host.dataset.currentPriceValueVisible,
       ohlcHidden: pane.querySelector('.pane-ohlc').hidden,
       pricePrecision: host.dataset.pricePrecision,
+      scaleFontSize: host.dataset.scaleFontSize,
+      scaleMarginBottomPercent: host.dataset.scaleMarginBottomPercent,
+      scaleMarginTopPercent: host.dataset.scaleMarginTopPercent,
+      scaleTextColor: host.dataset.scaleTextColor,
       volumeHidden: pane.querySelector('.pane-volume').hidden,
-      volumeText: pane.querySelector('.pane-volume').textContent,
     };
   })()`), {
     bodyVisible: 'false',
     bordersVisible: 'true',
+    canvasBackgroundColor: '#101820ff',
     changeHidden: true,
+    controlVisibility: 'always',
+    crosshairOpacityPercent: '45',
+    crosshairStyle: 'dotted',
+    crosshairWidth: '3',
     currentPriceLineVisible: 'true',
     currentPriceNameVisible: 'true',
     currentPriceValueVisible: 'false',
     ohlcHidden: true,
     pricePrecision: '1',
+    scaleFontSize: '16',
+    scaleMarginBottomPercent: '18',
+    scaleMarginTopPercent: '14',
+    scaleTextColor: '#f1e9daff',
     volumeHidden: false,
-    volumeText: 'Vol 845',
   }, 'Symbol, readout, and name-only current-price settings must apply without moving Replay');
+  assert.match(await evaluate(cdp,
+    `document.querySelector('.pane-volume').textContent`), /^Vol \d/,
+  'enabled Volume must expose the latest source value without fixing one brittle bar');
+  await evaluate(cdp, `document.querySelector('.pane-reset').click()`);
+  await waitFor(cdp, `document.querySelector('.lightweight-chart-host')?.dataset.latestOffsetBars === '24'
+    && document.querySelector('.lightweight-chart-host')?.dataset.viewportOrigin === 'default'`);
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
     && document.querySelector('.replay-workspace')?.dataset.paneCount === '1'`, 10_000);
@@ -795,14 +877,18 @@ try {
   assert.deepEqual(await evaluate(cdp, `(() => {
     const root = document.querySelector('.replay-workspace');
     return {
+      canvasBackgroundColor: root.dataset.canvasBackgroundColor,
       changeVisible: root.dataset.changeVisible,
       currentPriceValueVisible: root.dataset.currentPriceValueVisible,
       ohlcVisible: root.dataset.ohlcVisible,
+      paneControlDockVisibility: root.dataset.paneControlDockVisibility,
+      rightMarginBars: root.dataset.rightMarginBars,
       volumeVisible: root.dataset.volumeVisible,
     };
   })()`), {
-    changeVisible: 'false', currentPriceValueVisible: 'false',
-    ohlcVisible: 'false', volumeVisible: 'true',
+    canvasBackgroundColor: '#101820ff', changeVisible: 'false',
+    currentPriceValueVisible: 'false', ohlcVisible: 'false',
+    paneControlDockVisibility: 'always', rightMarginBars: '24', volumeVisible: 'true',
   }, 'hard Session re-entry must restore Status/current-price settings');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
@@ -854,6 +940,21 @@ try {
         && host.dataset.currentPriceLineVisible === 'true')`), true,
   'future Panes must inherit the independent current-price combination before ready paint');
   assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.canvasBackgroundColor === '#101820ff'
+        && host.dataset.crosshairStyle === 'dotted'
+        && host.dataset.crosshairWidth === '3'
+        && host.dataset.scaleFontSize === '16')`), true,
+  'future Panes must inherit the committed Canvas presentation before ready paint');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.workspace-pane')]
+      .every((pane) => pane.querySelector('.pane-overlay-controls').dataset.visibility === 'always')`), true,
+  'future Panes must inherit the committed control-dock visibility');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.latestOffsetBars === '24')`), true,
+  'future Pane Viewports must start with the latest owner-routed right-margin default');
+  assert.equal(await evaluate(cdp,
     `[...document.querySelectorAll('.workspace-pane')]
       .every((pane) => pane.querySelector('.pane-ohlc').hidden
         && pane.querySelector('.pane-change').hidden
@@ -867,7 +968,11 @@ try {
   assert.deepEqual(await evaluate(cdp,
     `[...document.querySelectorAll('.workstation-color-recent .workstation-color-swatch')]
       .map((button) => button.getAttribute('aria-label'))`), [
-    'Choose recent color #ff7185cc', 'Choose recent color #36c28fff',
+    'Choose recent color #f1e9daff',
+    'Choose recent color #33669973',
+    'Choose recent color #101820ff',
+    'Choose recent color #ff7185cc',
+    'Choose recent color #36c28fff',
   ], 'recent colors must remain global across hard reload and a newly created Session');
   await evaluate(cdp, `(() => {
     document.querySelector('.workstation-color-picker-button').click();
@@ -887,12 +992,16 @@ try {
       .map((key) => JSON.parse(localStorage.getItem(key)).value);
     return {
       dayOpen: preference.replayNavigationSettings.anchors.dayOpen,
+      canvasBackgroundColor: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.canvas.backgroundColor,
       gridVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.canvas.gridVisible,
       currentPriceValueVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.currentPrice.valueVisible,
       pricePrecision: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.candles.pricePrecision,
+      rightMarginBars: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.canvas.rightMarginBars,
       settingsVersion: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.version,
       sessionOwnsSettings: sessionRecords.some((record) => (
@@ -903,12 +1012,14 @@ try {
     };
   })()`);
   assert.deepEqual(preferenceStorage, {
+    canvasBackgroundColor: '#101820ff',
     currentPriceValueVisible: false,
     dayOpen: '12:00',
     gridVisible: false,
     pricePrecision: 1,
+    rightMarginBars: 24,
     sessionOwnsSettings: false,
-    settingsVersion: 4,
+    settingsVersion: 5,
     volumeVisible: true,
   }, 'independent global records must own Quick GoTo and visual Settings outside Sessions');
 

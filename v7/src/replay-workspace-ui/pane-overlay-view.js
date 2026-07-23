@@ -138,6 +138,12 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
 
   return Object.freeze({
     root,
+    setControlVisibility(value) {
+      if (!['always', 'hidden', 'hover'].includes(value)) {
+        throw new TypeError('Pane controls require hover, always, or hidden visibility.');
+      }
+      controls.dataset.visibility = value;
+    },
     setControlState({ maximized, multiPane, pending }) {
       const maximizeLabel = `${maximized ? 'Restore' : 'Maximize'} ${paneId} chart`;
       maximize.hidden = !multiPane;

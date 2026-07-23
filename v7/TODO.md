@@ -1268,7 +1268,7 @@ presentation.
   restore, popup interaction, Cancel isolation, and a dedicated visual fixture;
 - [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-### R6.9k Status Readout And Current Price — Awaiting Human Review
+### R6.9k Status Readout And Current Price — Accepted
 
 - [x] migrate accepted version-3 records to schema version 4 while preserving
   every candle, precision, and Grid preference;
@@ -1288,6 +1288,31 @@ presentation.
   bar-count, or chart-visible receipt revisions;
 - [x] bind strict value/migration, nullable Volume, native/custom price-axis,
   all-Pane inheritance, and both active-tab visuals in focused Harnesses;
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
+
+### R6.9l Canvas, Crosshair, Scale And View Defaults — Awaiting Human Review
+
+- [x] migrate every accepted schema-version-4 record to version 5 while
+  retaining Grid, Symbol, Status-line, and current-price preferences;
+- [x] activate a solid Canvas background and retain one shared Grid visibility
+  switch through native chart options;
+- [x] activate shared Crosshair color, opacity, width, and
+  solid/dashed/dotted style across every Pane;
+- [x] keep Replay truncation's temporary blue Crosshair authoritative while it
+  is armed, then restore the committed user Crosshair on exit;
+- [x] activate scale text color/font size and top/bottom price-scale margins
+  through native chart/price-scale options;
+- [x] activate hover/always/hidden visibility for the existing lower-right
+  Pane Maximize/Restore and Reset View dock without changing active-Pane state;
+- [x] route right-margin bars to Viewport Runtime as the future/new-Pane and
+  Reset View default without moving or overwriting an existing manual wall;
+- [x] apply one global revision to all current/future Panes and restore it after
+  hard reload and across Sessions;
+- [x] prove Save cannot mutate Replay, Workspace, Pane, series-data, bar count,
+  chart-visible receipt, or existing manual Viewport intent/revision;
+- [x] bind strict schema/migration, native Lightweight Charts mapping,
+  truncation restoration, Viewport defaults, current/future Pane inheritance,
+  hard reload, and the active Canvas visual in focused Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 ## Standing Gates
