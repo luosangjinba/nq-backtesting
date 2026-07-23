@@ -1,6 +1,6 @@
 # V7 Real-time Time Sync Rollback — R6.10c2
 
-Status: executable; human interaction and visual review pending (2026-07-23)
+Status: accepted after human interaction and visual review (2026-07-23)
 
 ## Product Decision
 
@@ -55,5 +55,6 @@ this rollback commit.
 - visual baselines are regenerated after removal of the Time row while keeping
   the accepted P1-P4 labels.
 
-Stop after the isolated rollback commit for human interaction and visual
-review. After acceptance, finalize the explicit right-click location contract.
+Human interaction and visual review accepted the isolated rollback on
+2026-07-23. The next independent slice specifies explicit right-click time
+location; Date-range synchronization remains deferred.

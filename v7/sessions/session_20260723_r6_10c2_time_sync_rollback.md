@@ -1,7 +1,7 @@
 # Session — R6.10c2 Real-time Time Sync Rollback
 
 Date: 2026-07-23
-Status: executable; human interaction and visual review pending
+Status: accepted after human interaction and visual review
 
 ## Delivered
 
@@ -26,6 +26,6 @@ Status: executable; human interaction and visual review pending
 
 ## Next Boundary
 
-Stop for human review. After acceptance, specify the right-click time-location
-command and its P1-P4 target menu before implementing it. Date-range sync stays
-deferred.
+Human review accepted the rollback on 2026-07-23. Specify the right-click
+time-location command and its P1-P4 target menu before implementing it.
+Date-range sync stays deferred.

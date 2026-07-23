@@ -1237,7 +1237,7 @@
       "owner": "replay-workspace-ui",
       "v6FailurePrevented": "An ordinary Pane click silently moved every other Pane Viewport, coupling focus and Crosshair interaction to a low-precision real-time Time synchronization mode",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-layout-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/layout-sync-domain/layout-sync.js",
@@ -1253,7 +1253,7 @@
         "tests/fixtures/layout-sync-domain/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260723_r6_10c2_time_sync_rollback.md"
     }
   ]
 }

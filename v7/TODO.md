@@ -1424,7 +1424,7 @@ slice: execute the isolated real-time Time-sync rollback, then specify
 right-click time location using the now-stable P1-P4 target identities. R6.10d
 remains deferred.
 
-### R6.10c2 Real-time Time Sync Rollback — Executable
+### R6.10c2 Real-time Time Sync Rollback — Accepted
 
 - [x] remove the Time switch from Layout Sync without changing the accepted
   Symbol, Interval, or Crosshair controls;
@@ -1436,10 +1436,11 @@ remains deferred.
   Workspace, Bar Data, Crosshair, and chart-series ownership;
 - [x] bind the absent Time control and retained Pane-priority interaction in
   focused and real-browser Harnesses;
-- [ ] obtain explicit human interaction and visual acceptance of the rollback.
+- [x] obtain explicit human interaction and visual acceptance of the rollback.
 
-After acceptance, specify the replacement right-click time-location contract.
-Do not activate Date-range synchronization in this corrective sequence.
+Human interaction and visual review accepted on 2026-07-23. Next: specify and
+implement the replacement right-click time-location contract. Do not activate
+Date-range synchronization in this corrective sequence.
 
 ## Standing Gates
 
