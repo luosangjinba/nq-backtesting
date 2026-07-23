@@ -363,12 +363,15 @@ export function createReplayWorkspaceController({
     replaceInstrument(instrumentId) {
       if (disposed || execution.isPending()) return;
       const current = paneState.read();
-      const desiredWorkspace = paneState.desiredInstrument(instrumentId);
-      if (desiredWorkspace === paneState.current()) return;
+      const desiredWorkspace = paneState.desiredInstrument(
+        instrumentId,
+        layoutSyncController.read().symbol,
+      );
       const desired = paneState.read(desiredWorkspace);
       const requestKinds = new Map(desired.panes
         .filter((pane, index) => pane.instrumentId !== current.panes[index].instrumentId)
         .map(({ paneId }) => [paneId, { kind: 'instrument-replacement' }]));
+      if (requestKinds.size === 0) return;
       return execution.materialize({ desiredWorkspace, requestKinds });
     },
     replaceSessionHours(mode) {
@@ -377,11 +380,12 @@ export function createReplayWorkspaceController({
     replaceTimeframe(timeframeId) {
       if (disposed || execution.isPending()) return;
       const current = paneState.read();
-      const desiredWorkspace = paneState.desiredTimeframe(timeframeId);
+      const desiredWorkspace = paneState.desiredTimeframe(
+        timeframeId,
+        layoutSyncController.read().interval,
+      );
       const desired = paneState.read(desiredWorkspace);
-      const active = desired.panes.find(({ paneId }) => paneId === desired.activePaneId);
-      const prior = current.panes.find(({ paneId }) => paneId === current.activePaneId);
-      if (active.timeframeId === prior.timeframeId) return;
+      if (desired.panes.every((pane, index) => pane.timeframeId === current.panes[index].timeframeId)) return;
       return execution.materialize({ desiredWorkspace });
     },
     resizePaneLayout(nextLayout) {

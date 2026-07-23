@@ -191,4 +191,4 @@ export function createPaneWorkspaceFromAccepted(value) {
   return createValue(value);
 }
 
-export const PANE_WORKSPACE_INTERNALS = Object.freeze({ capabilityId, paneId });
+export const PANE_WORKSPACE_INTERNALS = Object.freeze({ capabilityId, normalizedSync, paneId });

@@ -29,7 +29,7 @@ function preview(variantId) {
 }
 
 /** Own the layout-picker DOM and dispatch only registered layout ids. */
-export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
+export function createPaneLayoutMenu({ onChoose, onLayoutSync, options }) {
   const root = element('div', { className: 'pane-layout-control' });
   const toggle = element('button', {
     ariaLabel: 'Pane layout', className: 'pane-layout-toggle', type: 'button',
@@ -69,27 +69,40 @@ export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
     menu.append(row);
   }
 
-  const crosshairSyncInput = element('input', {
-    ariaLabel: 'Sync crosshair across Panes', type: 'checkbox',
-  });
-  const crosshairSync = element('label', { className: 'pane-crosshair-sync' }, [
-    element('span', { className: 'pane-layout-sync-label', text: 'Crosshair' }),
-    crosshairSyncInput,
-    element('span', { className: 'pane-crosshair-sync-track' }),
-  ]);
-  crosshairSync.title = 'Crosshair is synchronized across all Panes in the layout';
+  const syncControls = new Map();
+  function createSyncControl(key, label, title) {
+    const input = element('input', {
+      ariaLabel: `Sync ${label.toLowerCase()} across Panes`, type: 'checkbox',
+    });
+    const control = element('label', {
+      className: `pane-layout-sync-control pane-${key}-sync`,
+    }, [
+      element('span', { className: 'pane-layout-sync-label', text: label }),
+      input,
+      element('span', { className: 'pane-layout-sync-track' }),
+    ]);
+    control.title = title;
+    const onChange = () => onLayoutSync(key, input.checked);
+    input.addEventListener('change', onChange);
+    syncControls.set(key, { control, input, onChange });
+    return control;
+  }
   const syncSection = element('section', { className: 'pane-layout-sync-section' }, [
     element('span', { className: 'pane-layout-sync-title', text: 'SYNC IN LAYOUT' }),
-    crosshairSync,
+    createSyncControl('symbol', 'Symbol', 'Symbol changes apply to every Pane in the layout'),
+    createSyncControl('interval', 'Interval', 'Interval changes apply to every Pane in the layout'),
+    createSyncControl('crosshair', 'Crosshair', 'Crosshair is synchronized across all Panes in the layout'),
   ]);
   syncSection.setAttribute('aria-label', 'Layout synchronization');
   menu.append(syncSection);
 
-  function updateCrosshairAvailability(preserveVisual = false) {
-    setControlDisabled(crosshairSyncInput, {
-      disabled: controlDisabled || paneCount < 2,
-      preserveVisual: preserveVisual && paneCount >= 2,
-    });
+  function updateSyncAvailability(preserveVisual = false) {
+    for (const { input } of syncControls.values()) {
+      setControlDisabled(input, {
+        disabled: controlDisabled || paneCount < 2,
+        preserveVisual: preserveVisual && paneCount >= 2,
+      });
+    }
   }
 
   const onToggle = () => {
@@ -108,8 +121,6 @@ export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
     toggle.focus();
   };
   toggle.addEventListener('click', onToggle);
-  const onCrosshairSyncChange = () => onCrosshairSync(crosshairSyncInput.checked);
-  crosshairSyncInput.addEventListener('change', onCrosshairSyncChange);
   document.addEventListener('pointerdown', onDocumentPointerDown);
   document.addEventListener('keydown', onDocumentKeydown);
   root.append(toggle, menu);
@@ -117,7 +128,9 @@ export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
   return Object.freeze({
     dispose() {
       toggle.removeEventListener('click', onToggle);
-      crosshairSyncInput.removeEventListener('change', onCrosshairSyncChange);
+      for (const { input, onChange } of syncControls.values()) {
+        input.removeEventListener('change', onChange);
+      }
       document.removeEventListener('pointerdown', onDocumentPointerDown);
       document.removeEventListener('keydown', onDocumentKeydown);
       root.remove();
@@ -126,15 +139,17 @@ export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
     setDisabled(nextDisabled, preserveVisual = false) {
       setControlDisabled(toggle, { disabled: nextDisabled, preserveVisual });
       controlDisabled = nextDisabled === true;
-      updateCrosshairAvailability(preserveVisual);
+      updateSyncAvailability(preserveVisual);
     },
     setSync(value) {
-      crosshairSyncInput.checked = value.crosshair === true;
-      root.dataset.crosshairSync = String(value.crosshair === true);
+      for (const [key, { input }] of syncControls) {
+        input.checked = value[key] === true;
+        root.dataset[`${key}Sync`] = String(value[key] === true);
+      }
     },
     setPaneCount(count) {
       paneCount = count;
-      updateCrosshairAvailability();
+      updateSyncAvailability();
     },
     setValue(variantId) {
       toggle.replaceChildren(preview(variantId));

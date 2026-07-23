@@ -1,4 +1,9 @@
 /** Public facade for uniform one-to-many pane intent and Session-asset semantics. */
 export { PaneWorkspaceDomainError } from './domain-error.js';
 export { createPaneWorkspace, readPaneWorkspace } from './pane-workspace.js';
-export { changePaneInstrument, focusPane } from './pane-transitions.js';
+export {
+  changePaneInstrument,
+  changePaneTimeframe,
+  focusPane,
+  setPaneInstrumentSync,
+} from './pane-transitions.js';

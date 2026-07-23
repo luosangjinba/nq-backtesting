@@ -1,6 +1,6 @@
 # V7 Pane Workspace Domain
 
-Status: R6.1 pure one-to-many pane intent foundation (2026-07-21)
+Status: R6.1 foundation with R6.10b Symbol/Interval transitions (2026-07-22)
 
 ## Ownership
 
@@ -42,6 +42,12 @@ owner is involved. With `instrumentSync: pane`, only the targeted Pane record
 changes. With `instrumentSync: all`, the intent fans out to every Pane. Both
 forms preserve every Viewport intent and the shared cursor.
 
+`setPaneInstrumentSync` changes only the effective future-command policy
+snapshot. `changePaneTimeframe` accepts an explicit local/all-Pane choice and
+retains every Viewport intent. Neither transition requests bars, mutates the
+accepted Workspace, or moves Replay; one later Workspace Transaction owns
+materialization.
+
 ## R6.1 Exclusions
 
 - no multi-Pane acquisition or Projection orchestration;
@@ -60,5 +66,6 @@ runtime.
 `tests/pane-workspace-domain-harness.js` proves one-Pane/multi-Pane shape
 identity, Session asset enforcement, active focus isolation, pane-local and
 synchronized instrument transitions, shared-cursor preservation, immutable
-Viewport retention, structural rejection of Pane-local Replay fields, and 20
-negative controls.
+Viewport retention, structural rejection of Pane-local Replay fields, and 24
+negative controls including local/all-Pane timeframe and instrument-policy
+transitions.

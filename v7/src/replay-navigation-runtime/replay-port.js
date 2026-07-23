@@ -29,7 +29,7 @@ function direction(cursorEpochMs, targetEpochMs) {
   return targetEpochMs > cursorEpochMs ? 'forward' : targetEpochMs < cursorEpochMs ? 'backward' : 'retain';
 }
 
-function primaryVisibleThrough(snapshot, plan) {
+function primaryVisibleThrough(snapshot, plan, resolvedSourceEpochMs) {
   let visibleThroughEpochMs = null;
   const targetEpochMs = readReplayCursorProposal(snapshot.cursorProposal).targetEpochMs;
   for (let index = 0; index < snapshot.panes.length; index += 1) {
@@ -42,7 +42,7 @@ function primaryVisibleThrough(snapshot, plan) {
       visibleThroughEpochMs = candidate;
     }
   }
-  return visibleThroughEpochMs;
+  return visibleThroughEpochMs ?? resolvedSourceEpochMs;
 }
 
 /**
@@ -62,6 +62,7 @@ export function createReplayNavigationReplayPort({ replayRuntime, targetResolver
   const commitTarget = requireMethod(replayRuntime, 'commitVisible', 'Replay Runtime');
   const rejectTarget = requireMethod(replayRuntime, 'reject', 'Replay Runtime');
   const resolveTarget = requireMethod(targetResolver, 'resolve', 'Target resolver');
+  const resolvedSourceByProposal = new WeakMap();
 
   return Object.freeze({
     async propose({ identity, input, operation, signal }) {
@@ -77,25 +78,42 @@ export function createReplayNavigationReplayPort({ replayRuntime, targetResolver
       if (replay.replayStep !== plan.replayStep) {
         failReplayNavigation('REPLAY_NAVIGATION_STEP_STALE', 'Response plan does not match the accepted Replay step.');
       }
-      const targetEpochMs = plan.target.requestedTargetEpochMs ?? (await resolveTarget({
-        range: replay.range,
-        responsePlan: plan,
-        signal,
-      })).targetEpochMs;
+      const hasCursorAuthorityPane = plan.paneResponses.some(
+        ({ instrumentId }) => instrumentId === plan.cursorAuthorityInstrumentId,
+      );
+      let resolvedSourceEpochMs = null;
+      let targetEpochMs = plan.target.requestedTargetEpochMs;
+      if (targetEpochMs === null || !hasCursorAuthorityPane) {
+        const resolution = await resolveTarget({
+          range: replay.range,
+          requireSourceEvidence: !hasCursorAuthorityPane,
+          responsePlan: plan,
+          signal,
+        });
+        targetEpochMs = resolution.targetEpochMs;
+        resolvedSourceEpochMs = resolution.sourceEpochMs;
+      }
       requireSignal(signal);
       if (direction(replay.cursorEpochMs, targetEpochMs) !== plan.target.direction) {
         failReplayNavigation('REPLAY_NAVIGATION_TARGET_DIRECTION', 'Replay target direction does not match its plan.');
       }
-      return proposeTarget({ identity, targetEpochMs });
+      const proposal = proposeTarget({ identity, targetEpochMs });
+      resolvedSourceByProposal.set(proposal, resolvedSourceEpochMs);
+      return proposal;
     },
     commitVisible(proposal, workspaceSnapshot) {
       const proposalValue = readReplayCursorProposal(proposal);
       const snapshot = requireProjectedPaneSetSnapshot(workspaceSnapshot, proposalValue.identity);
       const plan = requireReplayPaneResponsePlan(snapshot.responsePlan);
+      const resolvedSourceEpochMs = resolvedSourceByProposal.get(proposal) ?? null;
+      resolvedSourceByProposal.delete(proposal);
       return commitTarget(proposal, {
-        visibleThroughEpochMs: primaryVisibleThrough(snapshot, plan),
+        visibleThroughEpochMs: primaryVisibleThrough(snapshot, plan, resolvedSourceEpochMs),
       });
     },
-    reject: (proposal) => rejectTarget(proposal),
+    reject(proposal) {
+      resolvedSourceByProposal.delete(proposal);
+      return rejectTarget(proposal);
+    },
   });
 }

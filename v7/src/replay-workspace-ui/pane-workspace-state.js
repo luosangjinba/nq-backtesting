@@ -1,8 +1,10 @@
 import {
   changePaneInstrument,
+  changePaneTimeframe,
   createPaneWorkspace,
   focusPane,
   readPaneWorkspace,
+  setPaneInstrumentSync,
 } from '../pane-workspace-domain/public.js';
 import {
   createInitialViewportIntent,
@@ -92,11 +94,15 @@ export function createPaneWorkspaceState({
     },
     activePaneId: () => readPaneWorkspace(accepted).activePaneId,
     current: () => accepted,
-    desiredInstrument(instrumentId) {
+    desiredInstrument(instrumentId, synchronize = false) {
+      const workspace = setPaneInstrumentSync({
+        instrumentSync: synchronize ? 'all' : 'pane',
+        workspace: accepted,
+      });
       return changePaneInstrument({
         instrumentId,
-        paneId: readPaneWorkspace(accepted).activePaneId,
-        workspace: accepted,
+        paneId: readPaneWorkspace(workspace).activePaneId,
+        workspace,
       });
     },
     desiredPaneCount(count, cursorEpochMs) {
@@ -124,13 +130,13 @@ export function createPaneWorkspaceState({
         };
       });
     },
-    desiredTimeframe(timeframeId) {
-      return rebuild(accepted, (current) => ({
-        ...current,
-        panes: current.panes.map((pane) => pane.paneId === current.activePaneId
-          ? { ...pane, timeframeId }
-          : pane),
-      }));
+    desiredTimeframe(timeframeId, synchronize = false) {
+      return changePaneTimeframe({
+        paneId: readPaneWorkspace(accepted).activePaneId,
+        synchronize,
+        timeframeId,
+        workspace: accepted,
+      });
     },
     dispose() { viewports.clear(); },
     focus(paneId) {

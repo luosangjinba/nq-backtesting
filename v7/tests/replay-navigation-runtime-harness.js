@@ -107,6 +107,31 @@ function workspace(cursorEpochMs) {
   });
 }
 
+function comparisonOnlyWorkspace(cursorEpochMs) {
+  return createPaneWorkspace({
+    activationGeneration,
+    activePaneId: 'pane-es',
+    allowedInstrumentIds: [NQ, ES],
+    instrumentSync: 'all',
+    panes: [
+      {
+        instrumentId: ES,
+        paneId: 'pane-nq',
+        timeframeId: 'timeframe.fixed.1-minute',
+        viewportIntent: viewport('pane-nq', cursorEpochMs),
+      },
+      {
+        instrumentId: ES,
+        paneId: 'pane-es',
+        timeframeId: 'timeframe.fixed.4-hour',
+        viewportIntent: viewport('pane-es', cursorEpochMs),
+      },
+    ],
+    primaryInstrumentId: NQ,
+    sessionId,
+  });
+}
+
 const schedule = createReplayNavigationSchedule();
 const customSchedule = createReplayNavigationSchedule({
   anchors: Object.freeze({
@@ -234,6 +259,12 @@ const sourceTraversalPort = Object.freeze({
     const targetEpochMs = context.cursorEpochMs - context.replayStep.durationMs;
     return Object.freeze({ sourceEpochMs: targetEpochMs - MINUTE, targetEpochMs });
   },
+  async visibleBefore(context) {
+    return Object.freeze({
+      sourceEpochMs: context.targetEpochMs - MINUTE,
+      targetEpochMs: context.targetEpochMs,
+    });
+  },
 });
 const targetResolver = createReplayNavigationTargetResolver({ schedule, sourceTraversalPort });
 const replay = createReplayRuntime({
@@ -332,12 +363,12 @@ const executor = createReplayNavigationExecutor({
   transactionRuntime,
 });
 
-async function navigate(kind, options = {}) {
+async function navigate(kind, options = {}, paneWorkspace = workspace(replay.snapshot().cursorEpochMs)) {
   const action = createReplayPaneAction({ kind, ...options });
   return readReplayNavigationResult(await executor.execute({
     action,
     intent: createWorkspaceTransactionIntent({ identity: identity(kind), operation: kind }),
-    paneWorkspace: workspace(replay.snapshot().cursorEpochMs),
+    paneWorkspace,
     replayRange: RANGE,
     sessionHours: HOURS,
   }));
@@ -351,10 +382,20 @@ assert.equal(applyCount, 1);
 assert.deepEqual(visibleSnapshot.panes.map(({ paneId }) => paneId), ['pane-nq', 'pane-es']);
 assert.equal(replay.snapshot().visibleThroughEpochMs, epoch('2026-05-01T12:41:00.000Z'));
 
+result = await navigate(
+  'manual-next',
+  {},
+  comparisonOnlyWorkspace(replay.snapshot().cursorEpochMs),
+);
+assert.equal(result.status, 'committed');
+assert.ok(visibleSnapshot.panes.every(({ snapshot }) => snapshot.provenance.instrumentId === ES));
+assert.equal(replay.snapshot().visibleThroughEpochMs, replay.snapshot().cursorEpochMs - MINUTE,
+  'primary-source Replay evidence survives when every visible Pane displays a comparison instrument');
+
 result = await navigate('autoplay-next');
 assert.equal(result.status, 'committed');
 assert.equal(replay.snapshot().playback, 'playing');
-assert.equal(replay.snapshot().cursorEpochMs, epoch('2026-05-01T12:43:00.000Z'));
+assert.equal(replay.snapshot().cursorEpochMs, epoch('2026-05-01T12:44:00.000Z'));
 
 acquireGate = deferred();
 const slowAuto = navigate('autoplay-next');
@@ -514,6 +555,10 @@ const traversal = (overrides = {}) => Object.freeze({
     sourceEpochMs: cursorEpochMs - replayStep.durationMs - MINUTE,
     targetEpochMs: cursorEpochMs - replayStep.durationMs,
   }),
+  visibleBefore: async ({ targetEpochMs }) => Object.freeze({
+    sourceEpochMs: targetEpochMs - MINUTE,
+    targetEpochMs,
+  }),
   ...overrides,
 });
 const resolver = (port = traversal()) => createReplayNavigationTargetResolver({
@@ -592,7 +637,18 @@ const negative = {
   'traversal-port-missing': () => createReplayNavigationTargetResolver({
     schedule, sourceTraversalPort: Object.freeze({}),
   }),
+  'traversal-visible-before-missing': () => createReplayNavigationTargetResolver({
+    schedule,
+    sourceTraversalPort: Object.freeze({
+      eligibleAtOrAfter: async () => null,
+      nextEligible: async () => null,
+      previousEligible: async () => null,
+    }),
+  }),
   'target-signal-missing': () => resolver().resolve({ responsePlan: nextPlan, range: RANGE }),
+  'target-source-evidence-invalid': () => resolver().resolve({
+    range: RANGE, requireSourceEvidence: 'yes', responsePlan: nextPlan, signal,
+  }),
   'target-result-mutable': () => resolver(traversal({
     nextEligible: async ({ cursorEpochMs }) => ({ sourceEpochMs: cursorEpochMs, targetEpochMs: cursorEpochMs + MINUTE }),
   })).resolve({ responsePlan: nextPlan, range: RANGE, signal }),
@@ -662,7 +718,7 @@ const negative = {
   'result-lookalike': () => readReplayNavigationResult(Object.freeze({ status: 'committed' })),
 };
 
-assert.equal(negativeCases.length, 23);
+assert.equal(negativeCases.length, 25);
 for (const fixture of negativeCases) {
   assert.equal(typeof negative[fixture.case], 'function', `missing negative control ${fixture.case}`);
   await assert.rejects(

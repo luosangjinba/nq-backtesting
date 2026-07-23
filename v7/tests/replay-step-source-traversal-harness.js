@@ -112,6 +112,44 @@ assert.deepEqual(resolved, {
   targetEpochMs: epoch('2026-05-01T20:15:00.000Z'),
 }, 'Previous bar skips empty weekend buckets symmetrically');
 
+resolved = await traversal.visibleBefore(Object.freeze({
+  ...context({
+    cursor: '2026-05-04T13:35:00.000Z',
+    durationMinutes: 5,
+  }),
+  targetEpochMs: epoch('2026-05-04T13:32:00.000Z'),
+}));
+assert.deepEqual(resolved, {
+  sourceEpochMs: epoch('2026-05-04T13:31:00.000Z'),
+  targetEpochMs: epoch('2026-05-04T13:32:00.000Z'),
+}, 'hidden clock authority evidence resolves the latest eligible source before an exact cutoff');
+
+const cachedEvidenceTraversal = createFoundationSourceTraversal({
+  barData: Object.freeze({
+    async acquire(request) {
+      requests.push(request);
+      return Object.freeze({ bars: Object.freeze([]) });
+    },
+  }),
+  market,
+  readCachedSourceBars: () => Object.freeze([bar('2026-05-01T12:00:00.000Z')]),
+});
+const requestsBeforeCachedEvidence = requests.length;
+resolved = await cachedEvidenceTraversal.visibleBefore(Object.freeze({
+  ...context({
+    cursor: '2026-05-01T12:01:00.000Z',
+    durationMinutes: 1,
+    mode: 'eth',
+  }),
+  targetEpochMs: epoch('2026-05-01T12:01:00.000Z'),
+}));
+assert.deepEqual(resolved, {
+  sourceEpochMs: epoch('2026-05-01T12:00:00.000Z'),
+  targetEpochMs: epoch('2026-05-01T12:01:00.000Z'),
+});
+assert.equal(requests.length, requestsBeforeCachedEvidence,
+  'the first Session cutoff reuses accepted authority evidence instead of issuing a one-minute provider window');
+
 setBars(['2026-05-01T20:14:00.000Z']);
 resolved = await traversal.nextEligible(context({
   cursor: '2026-05-01T18:01:00.000Z',
@@ -123,5 +161,5 @@ assert.equal(resolved.targetEpochMs, epoch('2026-05-02T00:00:00.000Z'),
 
 assert.ok(requests.length >= 5, 'target lookup remains delegated through Bar Data Runtime');
 console.log('v7 Replay step source traversal harness passed', {
-  scope: 'completion grid, missing minute, RTH weekend gap, Previous symmetry, 12h partial',
+  scope: 'completion grid, missing minute, RTH weekend gap, Previous symmetry, hidden authority evidence, 12h partial',
 });

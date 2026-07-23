@@ -46,6 +46,17 @@ function previousCompletedStep(bars, context) {
   return targetEpochMs === null ? null : Object.freeze({ sourceEpochMs, targetEpochMs });
 }
 
+function latestSourceBefore(bars, targetEpochMs) {
+  let sourceEpochMs = null;
+  for (const bar of bars) {
+    if (bar.startEpochMs >= targetEpochMs) continue;
+    if (sourceEpochMs === null || bar.startEpochMs > sourceEpochMs) {
+      sourceEpochMs = bar.startEpochMs;
+    }
+  }
+  return sourceEpochMs;
+}
+
 /** Resolve Replay targets from real primary-instrument bars via Bar Data Runtime. */
 export function createFoundationSourceTraversal({ barData, market, readCachedSourceBars = () => [] }) {
   function selection(context) {
@@ -131,6 +142,32 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
       return context.cursorEpochMs > context.range.startEpochMs
         ? Object.freeze({ sourceEpochMs: null, targetEpochMs: context.range.startEpochMs })
         : null;
+    },
+    async visibleBefore(context) {
+      const targetEpochMs = context.targetEpochMs;
+      if (targetEpochMs <= context.range.startEpochMs) {
+        return Object.freeze({ sourceEpochMs: null, targetEpochMs });
+      }
+      const cachedSourceEpochMs = latestSourceBefore(
+        cached(context, context.range.startEpochMs, targetEpochMs),
+        targetEpochMs,
+      );
+      if (cachedSourceEpochMs !== null && cachedSourceEpochMs >= targetEpochMs - MINUTE) {
+        return Object.freeze({ sourceEpochMs: cachedSourceEpochMs, targetEpochMs });
+      }
+      let end = Math.min(targetEpochMs, context.range.endEpochMs);
+      while (end > context.range.startEpochMs) {
+        const start = Math.max(context.range.startEpochMs, end - SEARCH_WINDOW_MS);
+        const requestEnd = end - start <= MINUTE
+          ? Math.min(context.range.endEpochMs, end + MINUTE)
+          : end;
+        if (requestEnd <= start) break;
+        const bars = await acquire(context, start, requestEnd);
+        const sourceEpochMs = latestSourceBefore(bars, targetEpochMs);
+        if (sourceEpochMs !== null) return Object.freeze({ sourceEpochMs, targetEpochMs });
+        end = start;
+      }
+      return Object.freeze({ sourceEpochMs: null, targetEpochMs });
     },
   });
 }

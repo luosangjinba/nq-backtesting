@@ -195,6 +195,19 @@ try {
     'instrument.cme.nq', 'instrument.cme.nq',
   ]);
 
+  const beforeLocalSymbolPolicy = state;
+  await evaluate(cdp, `(() => {
+    document.querySelector('.pane-layout-toggle').click();
+    document.querySelector('.pane-symbol-sync input').click();
+    document.querySelector('.pane-layout-toggle').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.layoutSyncSymbol === 'false'`);
+  state = await evaluate(cdp, paneStateExpression());
+  assert.equal(state.workspaceRevision, beforeLocalSymbolPolicy.workspaceRevision,
+    'changing Symbol policy alone must not materialize a Pane set');
+  assert.equal(state.replayRevision, beforeLocalSymbolPolicy.replayRevision,
+    'changing Symbol policy alone must not move Replay');
+
   const focusRevision = state.workspaceRevision;
   await evaluate(cdp, `document.querySelector('[data-pane-id="pane-secondary"]')
     .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);

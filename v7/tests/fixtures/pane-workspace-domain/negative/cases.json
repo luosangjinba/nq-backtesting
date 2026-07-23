@@ -18,5 +18,9 @@
   { "case": "change-target-missing", "expectedCode": "PANE_WORKSPACE_TARGET_PANE_MISSING" },
   { "case": "change-instrument-outside-session", "expectedCode": "PANE_WORKSPACE_INSTRUMENT_OUTSIDE_SESSION" },
   { "case": "transition-extra-field", "expectedCode": "PANE_WORKSPACE_TRANSITION_FIELDS_INVALID" },
+  { "case": "timeframe-target-missing", "expectedCode": "PANE_WORKSPACE_TARGET_PANE_MISSING" },
+  { "case": "timeframe-invalid-capability", "expectedCode": "PANE_WORKSPACE_CAPABILITY_ID_INVALID" },
+  { "case": "timeframe-invalid-sync", "expectedCode": "PANE_WORKSPACE_TIMEFRAME_SYNC_INVALID" },
+  { "case": "instrument-policy-extra-field", "expectedCode": "PANE_WORKSPACE_TRANSITION_FIELDS_INVALID" },
   { "case": "workspace-lookalike", "expectedCode": "PANE_WORKSPACE_REQUIRED" }
 ]

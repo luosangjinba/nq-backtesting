@@ -153,7 +153,7 @@
   border-top: 1px solid #3a3a3a;
 }
 .pane-layout-sync-title { color: #777e87; font-size: 8px; letter-spacing: .05em; }
-.pane-crosshair-sync {
+.pane-layout-sync-control {
   position: relative;
   display: flex;
   align-items: center;
@@ -163,13 +163,13 @@
   font-size: 10px;
   cursor: pointer;
 }
-.pane-crosshair-sync input {
+.pane-layout-sync-control input {
   position: absolute;
   width: 1px;
   height: 1px;
   opacity: 0;
 }
-.pane-crosshair-sync-track {
+.pane-layout-sync-track {
   position: relative;
   width: 30px;
   height: 16px;
@@ -178,7 +178,7 @@
   background: #4a4d54;
   transition: background 120ms ease-out;
 }
-.pane-crosshair-sync-track::after {
+.pane-layout-sync-track::after {
   content: '';
   position: absolute;
   top: 2px;
@@ -189,16 +189,16 @@
   background: #101114;
   transition: transform 120ms ease-out, background 120ms ease-out;
 }
-.pane-crosshair-sync input:checked + .pane-crosshair-sync-track { background: #2962ff; }
-.pane-crosshair-sync input:checked + .pane-crosshair-sync-track::after {
+.pane-layout-sync-control input:checked + .pane-layout-sync-track { background: #2962ff; }
+.pane-layout-sync-control input:checked + .pane-layout-sync-track::after {
   background: #fff;
   transform: translateX(14px);
 }
-.pane-crosshair-sync input:focus-visible + .pane-crosshair-sync-track {
+.pane-layout-sync-control input:focus-visible + .pane-layout-sync-track {
   outline: 1px solid #8ab4ff;
   outline-offset: 2px;
 }
-.pane-crosshair-sync:has(input:disabled) { cursor: not-allowed; opacity: .45; }
+.pane-layout-sync-control:has(input:disabled) { cursor: not-allowed; opacity: .45; }
 .pane-layout-preview,
 .pane-layout-preview-split,
 .pane-layout-preview-branch { min-width: 0; min-height: 0; display: flex; flex: 1 1 0; }

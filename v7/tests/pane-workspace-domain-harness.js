@@ -5,9 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { createActivationGeneration } from '../src/activation-generation/public.js';
 import {
   changePaneInstrument,
+  changePaneTimeframe,
   createPaneWorkspace,
   focusPane,
   readPaneWorkspace,
+  setPaneInstrumentSync,
 } from '../src/pane-workspace-domain/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createInitialViewportIntent, readViewportIntent } from '../src/viewport-runtime/public.js';
@@ -27,6 +29,7 @@ const ES = 'instrument.cme.es';
 const YM = 'instrument.cme.ym';
 const ONE_MINUTE = 'timeframe.fixed.1-minute';
 const FIVE_MINUTE = 'timeframe.fixed.5-minute';
+const FIFTEEN_MINUTE = 'timeframe.fixed.15-minute';
 
 function viewport(paneId, overrides = {}) {
   return createInitialViewportIntent({
@@ -123,6 +126,27 @@ assert.deepEqual(
   'sync fan-out cannot fork or advance Replay',
 );
 
+const localTimeframe = changePaneTimeframe({
+  paneId: 'pane-a', synchronize: false, timeframeId: FIFTEEN_MINUTE, workspace,
+});
+assert.deepEqual(readPaneWorkspace(localTimeframe).panes.map(({ timeframeId }) => timeframeId),
+  [FIFTEEN_MINUTE, FIVE_MINUTE]);
+assert.equal(readPaneWorkspace(localTimeframe).panes[1], original.panes[1],
+  'a pane-local timeframe change retains every unaffected Pane record');
+const synchronizedTimeframe = changePaneTimeframe({
+  paneId: 'pane-a', synchronize: true, timeframeId: FIFTEEN_MINUTE, workspace,
+});
+assert.deepEqual(readPaneWorkspace(synchronizedTimeframe).panes.map(({ timeframeId }) => timeframeId),
+  [FIFTEEN_MINUTE, FIFTEEN_MINUTE]);
+assert.deepEqual(readPaneWorkspace(synchronizedTimeframe).panes.map(({ viewportIntent }) => viewportIntent),
+  original.panes.map(({ viewportIntent }) => viewportIntent),
+  'synchronized timeframe intent preserves every Viewport and the shared Replay cursor');
+
+const allInstrumentPolicy = setPaneInstrumentSync({ instrumentSync: 'all', workspace });
+assert.equal(readPaneWorkspace(allInstrumentPolicy).instrumentSync, 'all');
+assert.equal(readPaneWorkspace(allInstrumentPolicy).panes, original.panes,
+  'changing the effective policy snapshot performs no Pane data change');
+
 const negative = {
   'workspace-extra-field': () => createPaneWorkspace({ ...input(), replay: {} }),
   'empty-assets': () => createPaneWorkspace(input({ allowedInstrumentIds: [] })),
@@ -166,10 +190,22 @@ const negative = {
     workspace,
   }),
   'transition-extra-field': () => focusPane({ paneId: 'pane-a', replay: {}, workspace }),
+  'timeframe-target-missing': () => changePaneTimeframe({
+    paneId: 'pane-c', synchronize: true, timeframeId: FIVE_MINUTE, workspace,
+  }),
+  'timeframe-invalid-capability': () => changePaneTimeframe({
+    paneId: 'pane-a', synchronize: true, timeframeId: '5m', workspace,
+  }),
+  'timeframe-invalid-sync': () => changePaneTimeframe({
+    paneId: 'pane-a', synchronize: 'all', timeframeId: FIVE_MINUTE, workspace,
+  }),
+  'instrument-policy-extra-field': () => setPaneInstrumentSync({
+    instrumentSync: 'all', replay: {}, workspace,
+  }),
   'workspace-lookalike': () => readPaneWorkspace(Object.freeze(original)),
 };
 
-assert.equal(negativeCases.length, 20);
+assert.equal(negativeCases.length, 24);
 assert.equal(new Set(negativeCases.map(({ case: name }) => name)).size, negativeCases.length);
 for (const fixture of negativeCases) {
   assert.equal(typeof negative[fixture.case], 'function', `missing negative control ${fixture.case}`);

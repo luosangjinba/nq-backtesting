@@ -140,6 +140,41 @@ async function chooseLayout(cdp, layoutId) {
   })()`);
 }
 
+async function setLayoutSync(cdp, key, enabled) {
+  await evaluate(cdp, `(() => {
+    const toggle = document.querySelector('.pane-layout-toggle');
+    if (toggle.getAttribute('aria-expanded') !== 'true') toggle.click();
+    const input = document.querySelector(${JSON.stringify(`.pane-${key}-sync input`)});
+    if (input.checked !== ${enabled === true}) input.click();
+    toggle.click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset[
+    ${JSON.stringify(`layoutSync${key[0].toUpperCase()}${key.slice(1)}`)}
+  ] === ${JSON.stringify(String(enabled === true))}`);
+}
+
+async function chooseInstrument(cdp, instrumentId) {
+  await evaluate(cdp, `(() => {
+    const select = document.querySelector('.market-symbol-select');
+    select.value = ${JSON.stringify(instrumentId)};
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  })()`);
+}
+
+async function chooseTimeframe(cdp, timeframeId) {
+  await evaluate(cdp, `(() => {
+    document.querySelector('.timeframe-toggle').click();
+    document.querySelector(${JSON.stringify(`[data-timeframe-id="${timeframeId}"]`)}).click();
+  })()`);
+}
+
+async function focusPane(cdp, paneId) {
+  await evaluate(cdp, `document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"]`)})
+    .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId
+    === ${JSON.stringify(paneId)}`);
+}
+
 async function moveCrosshairToCandle(cdp, paneId) {
   const bounds = await evaluate(cdp, `(() => {
     const rect = document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"] .lightweight-chart-host`)})
@@ -243,7 +278,8 @@ try {
       borderWidth: activeBorder.borderTopWidth,
       changeText: pane.querySelector('.pane-change').textContent,
       controlsOpacity: getComputedStyle(pane.querySelector('.pane-overlay-controls')).opacity,
-      crosshairDisabled: document.querySelector('.pane-crosshair-sync input').disabled,
+      syncDisabled: [...document.querySelectorAll('.pane-layout-sync-control input')]
+        .map((input) => input.disabled),
       headerFontSize: parseFloat(getComputedStyle(header).fontSize),
       headerPosition: getComputedStyle(header).position,
       hostTopDelta: Math.abs(hostRect.top - paneRect.top),
@@ -277,8 +313,8 @@ try {
   await waitFor(cdp, `getComputedStyle(document.querySelector('.pane-overlay-controls')).opacity === '1'`);
   assert.equal(singleHeader.borderWidth, '2px');
   assert.notEqual(singleHeader.borderColor, 'rgba(0, 0, 0, 0)');
-  assert.equal(singleHeader.crosshairDisabled, true,
-    'Crosshair sync is meaningful only when multiple Panes are visible');
+  assert.deepEqual(singleHeader.syncDisabled, [true, true, true],
+    'Layout synchronization is meaningful only when multiple Panes are visible');
   const singleBounds = await moveCrosshairToCandle(cdp, 'pane-main');
   assert.equal(await evaluate(cdp,
     `document.querySelector('[data-pane-id="pane-main"]').dataset.ohlcState`), 'selected');
@@ -297,8 +333,21 @@ try {
     counts: [...document.querySelectorAll('.pane-layout-menu-row')].map((row) => row.querySelectorAll('.pane-layout-option').length),
     expanded: document.querySelector('.pane-layout-toggle').getAttribute('aria-expanded'),
     optionCount: document.querySelectorAll('.pane-layout-option').length,
+    sync: [...document.querySelectorAll('.pane-layout-sync-control')].map((control) => ({
+      checked: control.querySelector('input').checked,
+      label: control.querySelector('.pane-layout-sync-label').textContent,
+    })),
   }))()`);
-  assert.deepEqual(menuEvidence, { counts: [1, 2, 4, 5], expanded: 'true', optionCount: 12 });
+  assert.deepEqual(menuEvidence, {
+    counts: [1, 2, 4, 5],
+    expanded: 'true',
+    optionCount: 12,
+    sync: [
+      { checked: true, label: 'Symbol' },
+      { checked: false, label: 'Interval' },
+      { checked: false, label: 'Crosshair' },
+    ],
+  });
   await evaluate(cdp, `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
 
   await chooseLayout(cdp, 'layout.two-columns');
@@ -306,7 +355,6 @@ try {
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
   let state = await evaluate(cdp, layoutStateExpression());
   assert.deepEqual(state.panes.map(({ paneId }) => paneId), ['pane-main', 'pane-secondary']);
-  const twoColumns = state;
 
   const secondaryClickPoint = await evaluate(cdp, `(() => {
     const rect = document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
@@ -484,12 +532,75 @@ try {
   await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
     .every((pane) => pane.dataset.ohlcState === 'latest')`);
 
+  const beforeSymbolSync = await evaluate(cdp, layoutStateExpression());
+  await chooseInstrument(cdp, 'instrument.cme.es');
+  await waitFor(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
+    .every((host) => host.dataset.instrumentId === 'instrument.cme.es')
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  let synchronizedReplacement = await evaluate(cdp, layoutStateExpression());
+  assert.equal(synchronizedReplacement.workspaceRevision, beforeSymbolSync.workspaceRevision + 1);
+  assert.equal(synchronizedReplacement.replayRevision, beforeSymbolSync.replayRevision + 1);
+  assert.equal(synchronizedReplacement.cursor, beforeSymbolSync.cursor,
+    'Symbol synchronization may visibly recommit Replay but must not move its cursor');
+  assert.ok(synchronizedReplacement.panes.every((pane, index) =>
+    pane.visibleRevision > beforeSymbolSync.panes[index].visibleRevision),
+  'one Symbol command must visibly replace the complete Pane set');
+
+  const beforeSymbolPolicy = synchronizedReplacement;
+  await setLayoutSync(cdp, 'symbol', false);
+  synchronizedReplacement = await evaluate(cdp, layoutStateExpression());
+  assert.equal(synchronizedReplacement.workspaceRevision, beforeSymbolPolicy.workspaceRevision);
+  assert.equal(synchronizedReplacement.replayRevision, beforeSymbolPolicy.replayRevision,
+    'changing a Layout Sync policy alone must issue no Workspace or Replay transition');
+  await focusPane(cdp, 'pane-main');
+  await chooseInstrument(cdp, 'instrument.cme.nq');
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
+    ?.dataset.instrumentId === 'instrument.cme.nq'
+    && document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
+      ?.dataset.instrumentId === 'instrument.cme.es'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  await focusPane(cdp, 'pane-secondary');
+  await chooseInstrument(cdp, 'instrument.cme.nq');
+  await waitFor(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
+    .every((host) => host.dataset.instrumentId === 'instrument.cme.nq')
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+
+  await setLayoutSync(cdp, 'interval', true);
+  const beforeIntervalSync = await evaluate(cdp, layoutStateExpression());
+  await chooseTimeframe(cdp, 'timeframe.display-5-minute');
+  await waitFor(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
+    .every((host) => host.dataset.displayTimeframeId === 'timeframe.display-5-minute')
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  synchronizedReplacement = await evaluate(cdp, layoutStateExpression());
+  assert.equal(synchronizedReplacement.workspaceRevision, beforeIntervalSync.workspaceRevision + 1);
+  assert.equal(synchronizedReplacement.replayRevision, beforeIntervalSync.replayRevision + 1);
+  assert.equal(synchronizedReplacement.cursor, beforeIntervalSync.cursor,
+    'Interval synchronization may visibly recommit Replay but must not move its cursor');
+  assert.ok(synchronizedReplacement.panes.every((pane, index) =>
+    pane.visibleRevision > beforeIntervalSync.panes[index].visibleRevision),
+  'one Interval command must visibly replace the complete Pane set');
+
+  await setLayoutSync(cdp, 'interval', false);
+  await chooseTimeframe(cdp, 'timeframe.display-1-minute');
+  await waitFor(cdp, `document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
+    ?.dataset.displayTimeframeId === 'timeframe.display-1-minute'
+    && document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
+      ?.dataset.displayTimeframeId === 'timeframe.display-5-minute'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  await focusPane(cdp, 'pane-main');
+  await chooseTimeframe(cdp, 'timeframe.display-1-minute');
+  await waitFor(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
+    .every((host) => host.dataset.displayTimeframeId === 'timeframe.display-1-minute')
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  await focusPane(cdp, 'pane-secondary');
+
+  const beforeTwoRows = await evaluate(cdp, layoutStateExpression());
   await chooseLayout(cdp, 'layout.two-rows');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-rows'`);
   state = await evaluate(cdp, layoutStateExpression());
-  assert.equal(state.workspaceRevision, twoColumns.workspaceRevision,
+  assert.equal(state.workspaceRevision, beforeTwoRows.workspaceRevision,
     'same-count layout changes must not issue a Pane materialization');
-  assert.equal(state.replayRevision, twoColumns.replayRevision,
+  assert.equal(state.replayRevision, beforeTwoRows.replayRevision,
     'same-count layout changes must not move Replay');
 
   await chooseLayout(cdp, 'layout.three-right-stack');
@@ -627,8 +738,10 @@ try {
   assert.deepEqual(await evaluate(cdp, `(() => ({
     checked: document.querySelector('.pane-crosshair-sync input').checked,
     crosshair: document.querySelector('.replay-workspace').dataset.layoutSyncCrosshair,
-  }))()`), { checked: true, crosshair: 'true' },
-  'Session re-entry must restore the accepted Crosshair synchronization policy');
+    interval: document.querySelector('.replay-workspace').dataset.layoutSyncInterval,
+    symbol: document.querySelector('.replay-workspace').dataset.layoutSyncSymbol,
+  }))()`), { checked: true, crosshair: 'true', interval: 'false', symbol: 'false' },
+  'Session re-entry must restore every accepted Layout Sync policy');
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 } finally {
   cdp?.close();
@@ -655,5 +768,5 @@ try {
 }
 
 console.log('v7 Replay Layout Workspace browser harness passed', {
-  scope: '12 layouts, Canvas OHLC/change, transient maximize, Layout Sync persistence, resize persistence, shared Replay/ETH-RTH',
+  scope: '12 layouts, Canvas OHLC/change, atomic Symbol/Interval sync, Crosshair sync, resize persistence, shared Replay/ETH-RTH',
 });

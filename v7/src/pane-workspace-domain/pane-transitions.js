@@ -6,7 +6,7 @@ import {
   readPaneWorkspace,
 } from './pane-workspace.js';
 
-const { capabilityId, paneId } = PANE_WORKSPACE_INTERNALS;
+const { capabilityId, normalizedSync, paneId } = PANE_WORKSPACE_INTERNALS;
 
 function exactTransition(value, fields) {
   if (!value || typeof value !== 'object' || Array.isArray(value)
@@ -81,5 +81,42 @@ export function changePaneInstrument(value) {
   if (panes.some((pane) => readViewportIntent(pane.viewportIntent).cursorEpochMs !== cursorEpochMs)) {
     failPaneWorkspace('PANE_WORKSPACE_SHARED_CURSOR_MISMATCH', 'Pane cursor equality was not preserved.');
   }
+  return createPaneWorkspaceFromAccepted({ ...workspace, panes });
+}
+
+/** Change the effective instrument-policy snapshot without changing Pane data. */
+export function setPaneInstrumentSync(value) {
+  exactTransition(value, ['instrumentSync', 'workspace']);
+  const workspace = readPaneWorkspace(value.workspace);
+  const instrumentSync = normalizedSync(value.instrumentSync);
+  if (workspace.instrumentSync === instrumentSync) return value.workspace;
+  return createPaneWorkspaceFromAccepted({ ...workspace, instrumentSync });
+}
+
+/**
+ * Owner: Pane Workspace Domain.
+ * Purpose: apply one pane-local or complete-layout timeframe intent.
+ * Protected invariant: every target retains its exact Viewport and shared cursor.
+ */
+export function changePaneTimeframe(value) {
+  exactTransition(value, ['paneId', 'synchronize', 'timeframeId', 'workspace']);
+  const workspace = readPaneWorkspace(value.workspace);
+  const targetPaneId = requireExistingPane(workspace, value.paneId);
+  const timeframeId = capabilityId(value.timeframeId, 'timeframeId');
+  if (typeof value.synchronize !== 'boolean') {
+    failPaneWorkspace(
+      'PANE_WORKSPACE_TIMEFRAME_SYNC_INVALID',
+      'Timeframe synchronization must be boolean.',
+    );
+  }
+  let changed = false;
+  const panes = Object.freeze(workspace.panes.map((pane) => {
+    if ((!value.synchronize && pane.paneId !== targetPaneId) || pane.timeframeId === timeframeId) {
+      return pane;
+    }
+    changed = true;
+    return Object.freeze({ ...pane, timeframeId });
+  }));
+  if (!changed) return value.workspace;
   return createPaneWorkspaceFromAccepted({ ...workspace, panes });
 }

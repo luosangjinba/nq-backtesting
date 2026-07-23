@@ -1373,6 +1373,32 @@ presentation.
 Next bounded slice: R6.10b activates Symbol and Interval policies through one
 atomic complete-Pane Workspace replacement, not per-Pane event fan-out.
 
+### R6.10b Symbol And Interval Layout Sync — Executable
+
+- [x] expose Symbol, Interval, and Crosshair only after each has a real owner
+  and consumer; keep Time and Date range absent;
+- [x] retain reviewed defaults: Symbol on, Interval/Crosshair off;
+- [x] make a toggle affect only later commands rather than immediately forcing
+  existing mixed Panes to converge;
+- [x] add pure local/all-Pane timeframe and instrument-policy transitions while
+  retaining exact Viewport intents and the shared cursor;
+- [x] calculate one complete target Pane Workspace for the next synchronized
+  Symbol or Interval choice and issue exactly one Workspace Transaction;
+- [x] restore Pane-local behavior after disabling either policy and restore all
+  accepted switch values after Session re-entry;
+- [x] keep Replay-control `Sync timeframe` separate from Layout Sync Interval;
+- [x] retain Session primary-instrument clock authority when synchronized
+  Symbol leaves every visible Pane on a comparison instrument;
+- [x] reuse accepted authority cache at the first Session cutoff and otherwise
+  resolve bounded source evidence only through Bar Data Runtime;
+- [x] prove policy-only zero-transaction behavior, atomic complete-set commits,
+  comparison-only authority, strict failures, real-browser behavior, and the
+  updated Layout menu visual.
+
+Interaction gate: review Symbol/Interval menu semantics, synchronized and
+Pane-local changes, mixed-Pane non-convergence on toggle alone, and Session
+re-entry before starting R6.10c Time synchronization.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

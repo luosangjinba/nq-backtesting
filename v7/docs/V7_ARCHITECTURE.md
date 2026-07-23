@@ -132,6 +132,15 @@ Future Symbol/Interval policies must produce one complete Workspace replacement,
 while Time/Date-range policies must remain adapter/Viewport projections rather
 than per-Pane event chains or persisted chart coordinates.
 
+R6.10b activates those Symbol/Interval consumers. Pane Workspace Domain owns
+the pure local/all-Pane intent transition; Replay Workspace UI reads one
+accepted policy and submits one complete desired Pane set; Workspace
+Transaction Runtime remains the only atomic materializer. Enabling a policy is
+not itself a convergence command. If synchronized Symbol leaves no visible
+primary-instrument Pane, Replay Navigation obtains bounded primary-source
+`visibleThrough` evidence through its Bar Data-owned traversal port. A
+comparison Pane never becomes clock authority and no hidden chart is created.
+
 R6.9a keeps Pane OHLC and Crosshair synchronization on the chart-presentation
 side of that boundary. Each Lightweight Chart Adapter owns native crosshair
 subscription, accepted current/latest candle lookup, and the only calls to

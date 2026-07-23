@@ -59,8 +59,9 @@ function requireDirection(targetEpochMs, plan) {
 
 /**
  * Owner: Replay navigation runtime boundary.
- * Purpose: resolve primary-source Next/Previous and quick New York anchors
- * through an injected source traversal owner without requesting bars directly.
+ * Purpose: resolve primary-source Next/Previous, quick New York anchors, and
+ * hidden clock-authority evidence through an injected source traversal owner
+ * without requesting bars directly.
  * Inputs: branded schedule and source traversal port.
  * Outputs: frozen async resolve() port returning an exact source/target pair.
  * Side effects: only delegated traversal; owns no cache, cursor, or chart state.
@@ -86,9 +87,16 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
   const nextEligible = requireMethod(sourceTraversalPort, 'nextEligible');
   const previousEligible = requireMethod(sourceTraversalPort, 'previousEligible');
   const eligibleAtOrAfter = requireMethod(sourceTraversalPort, 'eligibleAtOrAfter');
+  const visibleBefore = requireMethod(sourceTraversalPort, 'visibleBefore');
 
-  async function resolve({ responsePlan, range, signal }) {
+  async function resolve({ requireSourceEvidence = false, responsePlan, range, signal }) {
     const plan = requireReplayPaneResponsePlan(responsePlan);
+    if (typeof requireSourceEvidence !== 'boolean') {
+      failReplayNavigation(
+        'REPLAY_NAVIGATION_SOURCE_EVIDENCE_INVALID',
+        'Source evidence requirement must be a boolean.',
+      );
+    }
     requireSignal(signal);
     let resolved = null;
     if (plan.actionKind === 'manual-next' || plan.actionKind === 'autoplay-next') {
@@ -121,9 +129,16 @@ export function createReplayNavigationTargetResolver({ resolveSchedule = null, s
         // The eligible source is only an anchor-validity witness. Replay uses
         // an exclusive cutoff at the configured wall time, so that anchor bar
         // and every later bar remain hidden until a subsequent Replay step.
-        resolved = Object.freeze({ sourceEpochMs: null, targetEpochMs: candidate.targetEpochMs });
+        resolved = requireSourceEvidence
+          ? await visibleBefore(context(plan, range, signal, { targetEpochMs: candidate.targetEpochMs }))
+          : Object.freeze({ sourceEpochMs: null, targetEpochMs: candidate.targetEpochMs });
         break;
       }
+    } else if ((plan.actionKind === 'goto-exact' || plan.actionKind === 'restart-back-to')
+      && requireSourceEvidence) {
+      resolved = await visibleBefore(context(plan, range, signal, {
+        targetEpochMs: plan.target.requestedTargetEpochMs,
+      }));
     } else {
       failReplayNavigation('REPLAY_NAVIGATION_RESOLUTION_NOT_REQUIRED', 'Exact targets do not use traversal resolution.');
     }

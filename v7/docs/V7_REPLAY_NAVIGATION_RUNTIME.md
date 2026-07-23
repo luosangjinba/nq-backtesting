@@ -42,7 +42,9 @@ The injected source-traversal port resolves:
 
 - the next non-empty aligned primary-instrument Replay-step completion;
 - the previous non-empty aligned primary-instrument Replay-step completion;
-- the first eligible source bar inside each bounded quick-GoTo anchor window.
+- the first eligible source bar inside each bounded quick-GoTo anchor window;
+- the last eligible primary-source minute before an exact cutoff when no
+  planned visible Pane carries the Session clock-authority instrument.
 
 R6.6 makes Replay step an explicit Session-level branded grid rather than an
 implicit source-minute step. Resolution skips empty closed-session/weekend
@@ -55,8 +57,10 @@ transaction AbortSignal covers target lookup before acquisition, so superseded
 resolution cannot issue a live proposal.
 
 Exact GoTo and Restart/Back-to already carry their requested cutoff and bypass
-source traversal. Exact GoTo at the current cursor returns a no-op without
-creating Pane requests or a Workspace Transaction.
+target traversal while a primary-instrument Pane remains visible. If none is
+planned, traversal supplies only the primary-source visibility witness; it does
+not change the exact target. Exact GoTo at the current cursor returns a no-op
+without creating Pane requests or a Workspace Transaction.
 
 ## Quick GoTo Schedule
 
@@ -129,8 +133,8 @@ Autoplay primitive, Manual Next/Previous,
 Restart/Back-to,
 exact forward/backward/no-op GoTo, continuous-range request intent, weekend
 anchor skipping, mixed NQ/ES and `1m`/`4h`, comparison-Pane absence,
-primary-instrument visibility, overlap suppression, failure pause/preservation,
-and 23 negative/race controls.
+comparison-only visible Pane sets with retained primary-source authority,
+overlap suppression, failure pause/preservation, and 25 negative/race controls.
 
 `tests/replay-autoplay-scheduler-harness.js` separately proves R6.7 continuous
 cadence, completion-driven scheduling without backlog, Pause before and during
@@ -139,4 +143,5 @@ owner while exercising only its public one-step action.
 
 `tests/replay-step-source-traversal-harness.js` additionally proves `5m` and
 `1h` completion, missing-minute stability, RTH weekend skipping, symmetric
-Previous, and partial `12h` RTH completion without a synthesized source bar.
+Previous, hidden primary-source evidence including the first Session cutoff,
+and partial `12h` RTH completion without a synthesized source bar.

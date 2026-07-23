@@ -82,7 +82,7 @@ export function createReplayWorkspaceView({
   name,
   onAutoplay,
   onBack,
-  onCrosshairSync,
+  onLayoutSync,
   onExactGoto,
   onFocusPane,
   onInstrument,
@@ -134,7 +134,7 @@ export function createReplayWorkspaceView({
   });
   const paneLayoutControl = createPaneLayoutMenu({
     onChoose: onLayout,
-    onCrosshairSync,
+    onLayoutSync,
     options: layoutOptions,
   });
   let activeWorkstationSettings = getWorkstationSettings().settings;

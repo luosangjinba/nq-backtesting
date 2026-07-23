@@ -1,6 +1,6 @@
 {
   "id": "core.pane-workspace-domain",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "kind": "core",
   "owner": "pane-workspace-domain",
   "publicEntry": "src/pane-workspace-domain/public.js",
