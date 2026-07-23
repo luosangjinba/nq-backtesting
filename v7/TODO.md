@@ -1212,7 +1212,7 @@ owner/persistence/shell with one real Grid consumer; R6.9j adds Symbol;
 R6.9k adds Status/current price; R6.9l adds Canvas; R6.9m adds shared time
 presentation.
 
-### R6.9i Workstation Settings Foundation — Awaiting Human Review
+### R6.9i Workstation Settings Foundation — Accepted
 
 - [x] activate one versioned global Workstation Settings owner and a separate
   durable `v7.workstation-settings:global` record;
@@ -1231,6 +1231,23 @@ presentation.
   Pane intent, or Viewport revisions;
 - [x] bind durable hard-reload/cross-Session restore, current/future-Pane fan-out,
   rollback, native chart mapping, and the dialog visual in focused Harnesses;
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
+
+### R6.9j Symbol Candles And Shared Precision — Awaiting Human Review
+
+- [x] migrate accepted R6.9i version-1 records without losing Grid preference;
+- [x] activate independent Body/Border/Wick visibility and up/down colors;
+- [x] map style changes through native series options without `setData`/`update`;
+- [x] derive Auto precision from each Pane instrument's exact `priceIncrement`;
+- [x] preserve tick size when manual precision requires a custom formatter;
+- [x] share one precision across the price scale, current-price value, OHLC, and
+  absolute change while preserving raw bars and percent precision;
+- [x] apply one committed revision to all current and future Panes and restore it
+  after hard reload and across Sessions;
+- [x] prove presentation changes do not move Replay, Workspace, Viewport, Pane,
+  bar-count, series-data, or chart-visible receipt revisions;
+- [x] bind strict value/migration/formatter, native chart mapping, all-Pane
+  inheritance, and the Symbol dialog visual in focused Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 ## Standing Gates

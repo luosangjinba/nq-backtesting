@@ -9,6 +9,10 @@ import {
   createViewportController,
 } from '../../../src/viewport-runtime/public.js';
 import { createWorkspaceTransactionIdentity } from '../../../src/workspace-transaction-contract/public.js';
+import {
+  createWorkstationSettings,
+  readWorkstationSettings,
+} from '../../../src/workstation-settings/public.js';
 
 const host = document.querySelector('#chart');
 const sessionId = createSessionId('adapter-session');
@@ -62,6 +66,14 @@ const adapter = createLightweightChartAdapter({
   viewportPort: viewport,
 });
 globalThis.__adapter = adapter;
+globalThis.__applySettings = (overrides = {}) => {
+  const defaults = readWorkstationSettings(createWorkstationSettings());
+  const settings = createWorkstationSettings({
+    candles: { ...defaults.candles, ...(overrides.candles ?? {}) },
+    canvas: { gridVisible: overrides.gridVisible ?? defaults.canvas.gridVisible },
+  });
+  adapter.applyWorkstationSettings(settings, overrides.priceIncrement ?? '0.25');
+};
 globalThis.__crosshairObservations = crosshairObservations;
 globalThis.__truncationSelections = truncationSelections;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });

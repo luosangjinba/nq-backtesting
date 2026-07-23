@@ -25,7 +25,8 @@ required for normal startup.
   R6.9e1 future time-axis continuity and R6.9h Exact GoTo human accepted; R6.9f
   global Workstation Settings catalog and ownership contract plus R6.9g
   field-level product refinement completed headlessly; R6.9i global Settings
-  owner/persistence/shell with one Grid consumer implemented and awaiting human
+  owner/persistence/shell with one Grid consumer human accepted; R6.9j Symbol
+  candle presentation and shared precision implemented and awaiting human
   review; R2.4 Session Browser readability and confirmed durable delete human
   accepted
 - expected worktree after this handoff commit: clean
@@ -313,14 +314,17 @@ and human-accepted:
   owner. Its four-tab draft shell exposes only Canvas Grid visibility; OK stages,
   applies, persists, and commits all consumers atomically, while failures roll
   presentation back. The Pane-set adapter converges every current and future
-  Pane without Replay, Workspace, series-data, or Viewport mutation. It awaits
-  human interaction and visual review.
+  Pane without Replay, Workspace, series-data, or Viewport mutation. It was
+  accepted on 2026-07-22.
 - R2.4 returns to the accepted Session Browser boundary for a bounded user
   follow-up: list-only deeper neutral surfaces, brighter/larger typography, and
   one confirmed Delete action per card. Browser UI dispatches only the command;
   Session Store validates identity/revision and Repository removes index plus
-  record while preserving every other Session. It awaits human interaction and
-  visual review.
+  record while preserving every other Session. It was accepted on 2026-07-22.
+- R6.9j activates independent Body/Border/Wick visibility and up/down colors plus
+  Auto/manual shared price precision. Native series options never write data;
+  each Pane derives Auto from its instrument increment and the OHLC readout uses
+  the same formatter. It awaits human interaction and visual review.
 
 Latest corrective commits:
 
@@ -441,13 +445,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9i Workstation Settings foundation is implemented and awaits human
-interaction and visual review. After acceptance, execute R6.9j: activate candle
-body/border/wick presentation and shared price precision through chart-owned
-option fan-out. R6.9k-m then add Status/current price, Canvas, and shared time
-presentation before R6.10 sync. Economic Calendar remains outside this
-foundation phase. The outstanding R6.9c focused visual confirmation remains a
-separate gate.
+R6.9i Workstation Settings foundation was accepted on 2026-07-22. R6.9j Symbol
+candle presentation and shared price precision are implemented and await human
+interaction and visual review. After acceptance, execute R6.9k: bounded
+Status-line and current-price visibility controls. R6.9l-m then add Canvas and
+shared time presentation before R6.10 sync. Economic Calendar remains outside
+this foundation phase. The outstanding R6.9c focused visual confirmation remains
+a separate gate.
 
 ## Standing Workflow
 

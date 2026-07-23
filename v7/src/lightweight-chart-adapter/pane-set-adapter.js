@@ -1,5 +1,5 @@
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
-import { readWorkstationSettings } from '../workstation-settings/public.js';
+import { createWorkstationSettings, readWorkstationSettings } from '../workstation-settings/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
 import { createLightweightChartAdapter } from './lightweight-chart-adapter.js';
 
@@ -22,6 +22,7 @@ export function createLightweightPaneSetAdapter({
   onTruncationSelect = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
+  resolvePriceIncrement,
   resolveViewportPort,
   surfacePort,
 }) {
@@ -33,6 +34,12 @@ export function createLightweightPaneSetAdapter({
       'CHART_PANE_SET_VIEWPORT_INVALID',
       'Pane-set adapter requires resolveViewportPort().',
     );
+  const priceIncrementFor = typeof resolvePriceIncrement === 'function'
+    ? resolvePriceIncrement
+    : () => failLightweightAdapter(
+      'CHART_PANE_SET_PRICE_INCREMENT_INVALID',
+      'Pane-set adapter requires resolvePriceIncrement().',
+    );
   const adapters = new Map();
   let adapterRevision = 0;
   let disposed = false;
@@ -40,7 +47,7 @@ export function createLightweightPaneSetAdapter({
   let crosshairSource = null;
   let truncationSelectionActive = false;
   let visiblePaneIds = [];
-  let gridVisible = true;
+  let workstationSettings = createWorkstationSettings();
   let settingsRevision = 0;
   const settingsStages = new WeakMap();
 
@@ -93,7 +100,7 @@ export function createLightweightPaneSetAdapter({
     publishCrosshair(crosshairSource.paneId, observation);
   }
 
-  function ensureAdapter(paneId) {
+  function ensureAdapter(paneId, instrumentId) {
     if (adapters.has(paneId)) return adapters.get(paneId);
     const host = preparePane(paneId);
     const adapter = createPaneAdapter({
@@ -105,14 +112,14 @@ export function createLightweightPaneSetAdapter({
       requestFrame,
       viewportPort: viewportFor(paneId),
     });
-    if (typeof adapter.setGridVisible !== 'function') {
+    if (typeof adapter.applyWorkstationSettings !== 'function') {
       adapter.dispose?.();
       failLightweightAdapter(
         'CHART_PANE_SETTINGS_PORT_INVALID',
-        'Pane adapter requires setGridVisible().',
+        'Pane adapter requires applyWorkstationSettings().',
       );
     }
-    adapter.setGridVisible(gridVisible);
+    adapter.applyWorkstationSettings(workstationSettings, priceIncrementFor(instrumentId));
     adapter.setTruncationSelection(truncationSelectionActive);
     adapters.set(paneId, adapter);
     return adapter;
@@ -162,11 +169,12 @@ export function createLightweightPaneSetAdapter({
       if (!snapshot || !Number.isSafeInteger(snapshot.revision) || snapshot.revision < 0) {
         failLightweightAdapter('CHART_SETTINGS_REVISION_INVALID', 'Chart Settings revision is invalid.');
       }
-      const next = readWorkstationSettings(snapshot.settings).canvas.gridVisible;
+      readWorkstationSettings(snapshot.settings);
+      const next = snapshot.settings;
       const staged = Object.freeze({ revision: snapshot.revision });
       settingsStages.set(staged, {
         next,
-        previous: gridVisible,
+        previous: workstationSettings,
         previousRevision: settingsRevision,
         state: 'staged',
       });
@@ -177,13 +185,13 @@ export function createLightweightPaneSetAdapter({
       const applied = [];
       try {
         for (const adapter of adapters.values()) {
-          adapter.setGridVisible(record.next);
+          adapter.applyWorkstationSettings(record.next);
           applied.push(adapter);
         }
         record.state = 'applied';
       } catch (error) {
         for (const adapter of applied.reverse()) {
-          try { adapter.setGridVisible(record.previous); } catch { /* Preserve first failure. */ }
+          try { adapter.applyWorkstationSettings(record.previous); } catch { /* Preserve first failure. */ }
         }
         throw error;
       }
@@ -191,15 +199,15 @@ export function createLightweightPaneSetAdapter({
     },
     commit(staged) {
       const record = settingsRecord(staged, 'applied');
-      gridVisible = record.next;
+      workstationSettings = record.next;
       settingsRevision = staged.revision;
       record.state = 'committed';
     },
     rollback(staged) {
       const record = settingsStages.get(staged);
       if (!record || record.state === 'rolled-back' || record.state === 'staged') return;
-      for (const adapter of adapters.values()) adapter.setGridVisible(record.previous);
-      gridVisible = record.previous;
+      for (const adapter of adapters.values()) adapter.applyWorkstationSettings(record.previous);
+      workstationSettings = record.previous;
       settingsRevision = record.previousRevision;
       record.state = 'rolled-back';
     },
@@ -264,7 +272,7 @@ export function createLightweightPaneSetAdapter({
       return Object.freeze({
         adapterRevision,
         crosshairSync,
-        gridVisible,
+        gridVisible: readWorkstationSettings(workstationSettings).canvas.gridVisible,
         panes: Object.freeze([...adapters].map(([paneId, adapter]) => Object.freeze({
           paneId,
           snapshot: adapter.snapshot(),
@@ -274,10 +282,12 @@ export function createLightweightPaneSetAdapter({
     },
     async stage({ identity, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
-      const entries = await Promise.all(workspaceSnapshot.panes.map(async (result) => {
+      const entries = await Promise.all(workspaceSnapshot.panes.map(async (result, index) => {
+        const instrumentId = workspaceSnapshot.responsePlan.paneResponses[index].instrumentId;
+        const priceIncrement = priceIncrementFor(instrumentId);
         if (result.status === 'empty') {
-          const adapter = ensureAdapter(result.paneId);
-          const staged = await adapter.stageEmpty({ identity, signal });
+          const adapter = ensureAdapter(result.paneId, instrumentId);
+          const staged = await adapter.stageEmpty({ identity, priceIncrement, signal });
           return Object.freeze({
             adapter,
             paneId: result.paneId,
@@ -287,8 +297,10 @@ export function createLightweightPaneSetAdapter({
             status: 'empty',
           });
         }
-        const adapter = ensureAdapter(result.paneId);
-        const staged = await adapter.stage({ identity, signal, workspaceSnapshot: result.snapshot });
+        const adapter = ensureAdapter(result.paneId, instrumentId);
+        const staged = await adapter.stage({
+          identity, priceIncrement, signal, workspaceSnapshot: result.snapshot,
+        });
         return Object.freeze({
           adapter,
           paneId: result.paneId,

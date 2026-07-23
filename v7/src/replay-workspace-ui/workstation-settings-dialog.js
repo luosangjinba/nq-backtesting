@@ -27,6 +27,31 @@ function informationalPanel(title, copy) {
   ]);
 }
 
+function candleStyleControl({ downName, label, upName, visibleName }) {
+  const visible = element('input', { type: 'checkbox' });
+  visible.name = visibleName;
+  visible.setAttribute('aria-label', `Show candle ${label.toLowerCase()}`);
+  const up = element('input', { type: 'color' });
+  up.name = upName;
+  up.title = `Up candle ${label.toLowerCase()} color`;
+  up.setAttribute('aria-label', up.title);
+  const down = element('input', { type: 'color' });
+  down.name = downName;
+  down.title = `Down candle ${label.toLowerCase()} color`;
+  down.setAttribute('aria-label', down.title);
+  const root = element('div', { className: 'workstation-settings-candle-row' }, [
+    element('label', { className: 'workstation-settings-candle-toggle' }, [
+      visible,
+      element('strong', { text: label }),
+    ]),
+    element('span', { className: 'workstation-settings-color-pair' }, [
+      element('label', {}, [element('small', { text: 'Up' }), up]),
+      element('label', {}, [element('small', { text: 'Down' }), down]),
+    ]),
+  ]);
+  return Object.freeze({ down, root, up, visible });
+}
+
 /** Own one disposable Settings draft and no committed/persistence/chart state. */
 export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
   if (typeof getSnapshot !== 'function' || typeof onSave !== 'function') {
@@ -42,11 +67,44 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
     ]),
     element('span', { className: 'workstation-settings-switch' }, [grid, gridTrack]),
   ]);
+  const candleControls = Object.freeze({
+    body: candleStyleControl({
+      downName: 'downBodyColor', label: 'Body', upName: 'upBodyColor', visibleName: 'bodyVisible',
+    }),
+    borders: candleStyleControl({
+      downName: 'downBorderColor', label: 'Borders', upName: 'upBorderColor', visibleName: 'bordersVisible',
+    }),
+    wicks: candleStyleControl({
+      downName: 'downWickColor', label: 'Wicks', upName: 'upWickColor', visibleName: 'wicksVisible',
+    }),
+  });
+  const precision = element('select', { className: 'workstation-settings-precision' });
+  precision.name = 'pricePrecision';
+  precision.setAttribute('aria-label', 'Price precision');
+  const autoOption = element('option', { text: 'Auto — instrument tick size' });
+  autoOption.value = 'auto';
+  precision.append(autoOption);
+  for (let digits = 0; digits <= 15; digits += 1) {
+    const option = element('option', {
+      text: digits === 0 ? 'Integer' : `${digits} decimal${digits === 1 ? '' : 's'}`,
+    });
+    option.value = String(digits);
+    precision.append(option);
+  }
   const panels = new Map([
-    ['symbol', informationalPanel(
-      'Symbol',
-      'Candle appearance and price precision remain on the current chart defaults.',
-    )],
+    ['symbol', element('section', { className: 'workstation-settings-symbol' }, [
+      element('span', { className: 'workstation-settings-kicker', text: 'Candles' }),
+      candleControls.body.root,
+      candleControls.borders.root,
+      candleControls.wicks.root,
+      element('div', { className: 'workstation-settings-precision-row' }, [
+        element('span', { className: 'workstation-settings-row-copy' }, [
+          element('strong', { text: 'Precision' }),
+          element('small', { text: 'Auto follows each pane instrument tick size.' }),
+        ]),
+        precision,
+      ]),
+    ])],
     ['status', informationalPanel(
       'Status line',
       'Symbol, interval, OHLC, and change remain visible with their accepted behavior.',
@@ -117,7 +175,7 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
   const dialog = element('dialog', { className: 'workstation-settings-dialog' }, [content]);
   dialog.setAttribute('aria-labelledby', 'workstation-settings-title');
   content.querySelector('h2').id = 'workstation-settings-title';
-  let activeTab = 'canvas';
+  let activeTab = 'symbol';
 
   function selectTab(id) {
     if (!tabs.has(id)) return;
@@ -132,6 +190,16 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
 
   function populate(settings) {
     const value = readWorkstationSettings(settings);
+    candleControls.body.visible.checked = value.candles.bodyVisible;
+    candleControls.body.up.value = value.candles.upBodyColor;
+    candleControls.body.down.value = value.candles.downBodyColor;
+    candleControls.borders.visible.checked = value.candles.bordersVisible;
+    candleControls.borders.up.value = value.candles.upBorderColor;
+    candleControls.borders.down.value = value.candles.downBorderColor;
+    candleControls.wicks.visible.checked = value.candles.wicksVisible;
+    candleControls.wicks.up.value = value.candles.upWickColor;
+    candleControls.wicks.down.value = value.candles.downWickColor;
+    precision.value = String(value.candles.pricePrecision);
     grid.checked = value.canvas.gridVisible;
     validation.hidden = true;
     validation.textContent = '';
@@ -146,6 +214,18 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
     let outcome;
     try {
       outcome = onSave(createWorkstationSettings({
+        candles: {
+          bodyVisible: candleControls.body.visible.checked,
+          bordersVisible: candleControls.borders.visible.checked,
+          downBodyColor: candleControls.body.down.value,
+          downBorderColor: candleControls.borders.down.value,
+          downWickColor: candleControls.wicks.down.value,
+          pricePrecision: precision.value === 'auto' ? 'auto' : Number(precision.value),
+          upBodyColor: candleControls.body.up.value,
+          upBorderColor: candleControls.borders.up.value,
+          upWickColor: candleControls.wicks.up.value,
+          wicksVisible: candleControls.wicks.visible.checked,
+        },
         canvas: { gridVisible: grid.checked },
       }));
     } catch (error) {
@@ -187,7 +267,9 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
         : 'Stored Settings were unavailable or invalid. Defaults are active until a successful save.';
       selectTab(activeTab);
       dialog.showModal();
-      (activeTab === 'canvas' ? grid : tabs.get(activeTab)).focus();
+      (activeTab === 'canvas'
+        ? grid
+        : activeTab === 'symbol' ? candleControls.body.visible : tabs.get(activeTab)).focus();
     },
   });
 }

@@ -137,6 +137,11 @@ export function createReplayWorkspaceController({
     },
     onTruncationSelect: handleTruncationSelect,
     onViewportIntent: (paneId, intent) => view.setWall(paneId, intent.origin),
+    resolvePriceIncrement: (instrumentId) => {
+      const instrument = market.instruments.find(({ id }) => id === instrumentId);
+      if (!instrument) throw new TypeError(`Unknown instrument ${instrumentId}.`);
+      return instrument.priceIncrement;
+    },
     resolveViewportPort: paneState.viewportPort,
     surfacePort: view.surfacePort,
   });

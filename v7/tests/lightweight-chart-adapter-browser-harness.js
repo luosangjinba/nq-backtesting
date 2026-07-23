@@ -185,9 +185,9 @@ try {
     const host = document.querySelector('#chart');
     const before = globalThis.__adapter.snapshot();
     const visibleRevision = Number(host.dataset.visibleRevision);
-    globalThis.__adapter.setGridVisible(false);
+    globalThis.__applySettings({ gridVisible: false });
     const hidden = globalThis.__adapter.snapshot();
-    globalThis.__adapter.setGridVisible(true);
+    globalThis.__applySettings({ gridVisible: true });
     const restored = globalThis.__adapter.snapshot();
     return { before, hidden, restored, visibleRevision,
       finalVisibleRevision: Number(host.dataset.visibleRevision) };
@@ -202,6 +202,42 @@ try {
   assert.equal(settingsPresentation.hidden.barCount, settingsPresentation.before.barCount);
   assert.equal(settingsPresentation.finalVisibleRevision, settingsPresentation.visibleRevision,
     'grid presentation must not publish a chart-visible Workspace receipt');
+
+  const candlePresentation = await evaluate(cdp, `(() => {
+    const before = globalThis.__adapter.snapshot();
+    globalThis.__applySettings({
+      candles: {
+        bodyVisible: false,
+        bordersVisible: false,
+        downBodyColor: '#9b1c31',
+        downBorderColor: '#f04b62',
+        downWickColor: '#f78da0',
+        pricePrecision: 1,
+        upBodyColor: '#146c54',
+        upBorderColor: '#22b889',
+        upWickColor: '#72d7b7',
+        wicksVisible: true,
+      },
+      priceIncrement: '0.25',
+    });
+    return { before, after: globalThis.__adapter.snapshot() };
+  })()`);
+  assert.equal(candlePresentation.after.bodyVisible, false);
+  assert.equal(candlePresentation.after.bordersVisible, false);
+  assert.equal(candlePresentation.after.seriesPresentation.upColor, 'rgba(0, 0, 0, 0)');
+  assert.equal(candlePresentation.after.seriesPresentation.lastValueVisible, true);
+  assert.equal(candlePresentation.after.seriesPresentation.priceLineVisible, true);
+  assert.equal(candlePresentation.after.seriesPresentation.priceLineColor, '#787b86',
+    'hidden bodies must retain a visible neutral current-price line and label');
+  assert.equal(candlePresentation.after.seriesPresentation.borderUpColor, '#22b889');
+  assert.equal(candlePresentation.after.seriesPresentation.wickDownColor, '#f78da0');
+  assert.equal(candlePresentation.after.seriesPresentation.priceFormat.type, 'custom',
+    'manual precision below tick decimals must use a formatter without changing minMove');
+  assert.equal(candlePresentation.after.seriesPresentation.priceFormat.minMove, 0.25);
+  assert.equal(candlePresentation.after.seriesDataRevision,
+    candlePresentation.before.seriesDataRevision,
+  'candle presentation must never call setData or update');
+  assert.equal(candlePresentation.after.adapterRevision, candlePresentation.before.adapterRevision);
 
   const rollback = await evaluate(cdp, `globalThis.__probeVisibleRollback()`);
   assert.equal(rollback.staleCode, 'CHART_ADAPTER_STALE');

@@ -389,7 +389,7 @@ function rollbackProbeAdapter() {
         async discard() { state.discards += 1; state.value = 'accepted'; },
         dispose() {},
         projectCrosshair: () => Object.freeze({ bar: null, state: 'empty' }),
-        setGridVisible(value) { state.gridVisible = value; },
+        applyWorkstationSettings(value) { state.workstationSettings = value; },
         setTruncationSelection() {},
         snapshot: () => Object.freeze({ value: state.value }),
         async stage(context) { return Object.freeze({ workspaceSnapshot: context.workspaceSnapshot }); },
@@ -397,6 +397,7 @@ function rollbackProbeAdapter() {
       });
     },
     requestFrame: (callback) => callback(),
+    resolvePriceIncrement: () => '0.25',
     resolveViewportPort: () => Object.freeze({}),
     surfacePort: Object.freeze({
       commitPaneSet(value) { commits.push(value); },

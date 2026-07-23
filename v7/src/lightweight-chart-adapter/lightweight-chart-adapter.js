@@ -6,7 +6,9 @@ import {
 } from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
 import { createChartAdapterVisibleReceipt } from '../chart-snapshot-application/public.js';
 import { readViewportIntent } from '../viewport-runtime/public.js';
+import { createWorkstationSettings, readWorkstationSettings } from '../workstation-settings/public.js';
 import { failLightweightAdapter } from './adapter-error.js';
+import { createCandleSeriesPresentation } from './candle-presentation.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
 import { createFutureTimeAxisData } from './future-time-axis.js';
@@ -88,6 +90,8 @@ export function createLightweightChartAdapter({
   let pointerWithinHost = false;
   let seriesDataRevision = 0;
   let maximumAppliedDisplayGapMs = 0;
+  let presentationPriceIncrement = '0.01';
+  let presentationSettings = createWorkstationSettings();
   let visibleMutationToken = 0;
   const stagedApplications = new WeakMap();
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
@@ -205,6 +209,9 @@ export function createLightweightChartAdapter({
     appliedFutureTimeAxisData = restored.appliedFutureTimeAxisData;
     barCount = restored.barCount;
     maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
+    if (record.presentationMutated) {
+      applyWorkstationSettings(record.previousSettings, record.previousPriceIncrement);
+    }
     truncationInteraction.setBars(appliedBars);
     crosshairPresentation.setBars(appliedBars);
     await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
@@ -315,9 +322,16 @@ export function createLightweightChartAdapter({
       failLightweightAdapter('CHART_ADAPTER_STAGE_INVALID', 'Chart stage is missing, mismatched, or already applied.');
     }
     record.previous = captureVisibleState();
+    record.previousPriceIncrement = presentationPriceIncrement;
+    record.previousSettings = presentationSettings;
     record.token = ++visibleMutationToken;
     record.mutated = true;
     try {
+      record.presentationMutated = context.staged.priceIncrement !== null
+        && context.staged.priceIncrement !== presentationPriceIncrement;
+      if (record.presentationMutated) {
+        applyWorkstationSettings(presentationSettings, context.staged.priceIncrement);
+      }
       const timing = await mutateAndPaint(
         context.staged.data,
         context.staged.futureTimeAxisData,
@@ -332,6 +346,41 @@ export function createLightweightChartAdapter({
       host.dataset.lastApplyError = `${error?.code ?? error?.name ?? 'error'}:${error?.message ?? error}`;
       throw error;
     }
+  }
+
+  function applyWorkstationSettings(settings, priceIncrement = presentationPriceIncrement) {
+    if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
+    const value = readWorkstationSettings(settings);
+    const previousSettings = presentationSettings;
+    const previousIncrement = presentationPriceIncrement;
+    try {
+      chart.applyOptions({
+        grid: {
+          horzLines: { visible: value.canvas.gridVisible },
+          vertLines: { visible: value.canvas.gridVisible },
+        },
+      });
+      series.applyOptions(createCandleSeriesPresentation(settings, priceIncrement));
+    } catch (error) {
+      try {
+        const previous = readWorkstationSettings(previousSettings);
+        chart.applyOptions({
+          grid: {
+            horzLines: { visible: previous.canvas.gridVisible },
+            vertLines: { visible: previous.canvas.gridVisible },
+          },
+        });
+        series.applyOptions(createCandleSeriesPresentation(previousSettings, previousIncrement));
+      } catch { /* Preserve the first native option failure. */ }
+      throw error;
+    }
+    presentationSettings = settings;
+    presentationPriceIncrement = priceIncrement;
+    host.dataset.bodyVisible = String(value.candles.bodyVisible);
+    host.dataset.bordersVisible = String(value.candles.bordersVisible);
+    host.dataset.gridVisible = String(value.canvas.gridVisible);
+    host.dataset.pricePrecision = String(value.candles.pricePrecision);
+    host.dataset.wicksVisible = String(value.candles.wicksVisible);
   }
 
   return Object.freeze({
@@ -365,19 +414,7 @@ export function createLightweightChartAdapter({
       const projection = applyViewport();
       if (projection) onViewportIntent(readViewportIntent(viewport.snapshot()));
     },
-    setGridVisible(visible) {
-      if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
-      if (typeof visible !== 'boolean') {
-        failLightweightAdapter('CHART_GRID_VISIBILITY_INVALID', 'Grid visibility must be boolean.');
-      }
-      chart.applyOptions({
-        grid: {
-          horzLines: { visible },
-          vertLines: { visible },
-        },
-      });
-      host.dataset.gridVisible = String(visible);
-    },
+    applyWorkstationSettings,
     clearCrosshairPosition() {
       chart.clearCrosshairPosition();
       return recordCrosshairObservation(crosshairPresentation.latest(), 'cleared');
@@ -397,6 +434,7 @@ export function createLightweightChartAdapter({
     snapshot() {
       const latestCandleTime = appliedData.at(-1)?.time ?? null;
       const firstFutureTime = appliedFutureTimeAxisData[0]?.time ?? null;
+      const seriesOptions = series.options();
       return Object.freeze({
         adapterRevision,
         barCount,
@@ -416,11 +454,33 @@ export function createLightweightChartAdapter({
         painted: host.dataset.painted === 'true',
         priceRange: priceScale.getVisibleRange(),
         gridVisible: host.dataset.gridVisible === 'true',
+        bodyVisible: host.dataset.bodyVisible === 'true',
+        bordersVisible: host.dataset.bordersVisible === 'true',
+        pricePrecision: host.dataset.pricePrecision ?? 'auto',
         seriesDataRevision,
+        seriesPresentation: Object.freeze({
+          borderDownColor: seriesOptions.borderDownColor,
+          borderUpColor: seriesOptions.borderUpColor,
+          borderVisible: seriesOptions.borderVisible,
+          downColor: seriesOptions.downColor,
+          lastValueVisible: seriesOptions.lastValueVisible,
+          priceFormat: Object.freeze({
+            minMove: seriesOptions.priceFormat.minMove,
+            precision: seriesOptions.priceFormat.precision ?? null,
+            type: seriesOptions.priceFormat.type,
+          }),
+          priceLineColor: seriesOptions.priceLineColor,
+          priceLineVisible: seriesOptions.priceLineVisible,
+          upColor: seriesOptions.upColor,
+          wickDownColor: seriesOptions.wickDownColor,
+          wickUpColor: seriesOptions.wickUpColor,
+          wickVisible: seriesOptions.wickVisible,
+        }),
+        wicksVisible: host.dataset.wicksVisible === 'true',
         viewportIntent: viewport.snapshot(),
       });
     },
-    async stage({ identity, signal, workspaceSnapshot }) {
+    async stage({ identity, priceIncrement = presentationPriceIncrement, signal, workspaceSnapshot }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       const data = chartData(workspaceSnapshot);
       return registerStage({
@@ -431,17 +491,19 @@ export function createLightweightChartAdapter({
         }),
         identity,
         kind: 'ready',
+        priceIncrement,
         signal,
         workspaceSnapshot,
       });
     },
-    async stageEmpty({ identity, signal }) {
+    async stageEmpty({ identity, priceIncrement = presentationPriceIncrement, signal }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       return registerStage({
         data: Object.freeze([]),
         futureTimeAxisData: Object.freeze([]),
         identity,
         kind: 'empty',
+        priceIncrement,
         signal,
         workspaceSnapshot: null,
       });

@@ -1,7 +1,7 @@
 # Session — R6.9i Workstation Settings Foundation
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: accepted by human review
 
 ## Delivered
 
@@ -34,3 +34,8 @@ Review the Settings launcher and modal hierarchy, all discard paths, draft Reset
 immediate all-Pane grid hide/show, future Pane inheritance, hard-reload and
 cross-Session persistence, and unchanged Replay cursor/candles. Stop at this
 gate before R6.9j activates Symbol controls.
+
+## Human Acceptance
+
+The user explicitly reported that the manual review passed on 2026-07-22 and
+authorized the next step. R6.9j was therefore started without reopening R6.9i.

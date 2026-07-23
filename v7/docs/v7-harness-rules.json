@@ -1137,7 +1137,7 @@
       "owner": "workstation-settings",
       "v6FailurePrevented": "Visual settings leaked into Session records, a failed Save left mixed Pane presentation, existing and future Panes diverged, or appearance changes moved Replay/Workspace/chart data revisions",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-pane-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/workstation-settings/settings-value.js",
@@ -1149,6 +1149,32 @@
         "tests/replay-pane-workspace-browser-harness.js",
         "tests/fixtures/replay-workspace/workstation-settings-dialog.png",
         "docs/V7_WORKSTATION_SETTINGS_FOUNDATION_R6_9I.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/workstation-settings/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260722_r6_9i_workstation_settings_foundation.md"
+    },
+    {
+      "id": "H062",
+      "name": "symbol-candles-shared-price-precision",
+      "owner": "workstation-settings",
+      "v6FailurePrevented": "Candle appearance rewrote series data, manual precision rounded bars or changed tick size, or current/future Panes and OHLC/axis values used divergent presentation",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-pane-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/workstation-settings/price-presentation.js",
+        "src/lightweight-chart-adapter/candle-presentation.js",
+        "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "src/replay-workspace-ui/workstation-settings-dialog.js",
+        "src/replay-workspace-ui/pane-overlay-view.js",
+        "tests/workstation-settings-harness.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-pane-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/workstation-settings-dialog.png",
+        "docs/V7_WORKSTATION_SETTINGS_SYMBOL_R6_9J.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/workstation-settings/negative/cases.json"

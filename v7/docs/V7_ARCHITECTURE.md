@@ -503,6 +503,16 @@ the committed value to future Panes before first data paint. Settings cannot
 open a Workspace transaction or mutate Replay, chart series data, bars,
 Viewport intent, or Pane operational state.
 
+R6.9j extends the same branded value and transaction with Symbol presentation.
+The Pane-set remains the sole fan-out owner, while each child chart adapter maps
+Body/Border/Wick intent through `series.applyOptions` and never through series
+data mutation. Auto precision is derived from the current Pane instrument's
+exact decimal `priceIncrement`; manual precision changes formatting only and
+retains the real `minMove`. One pure price-presentation helper is shared by the
+series price scale and the Pane OHLC/absolute-change readout. Instrument changes
+apply their formatter inside the existing fallible chart transaction and restore
+the prior formatter if that transaction is rejected.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

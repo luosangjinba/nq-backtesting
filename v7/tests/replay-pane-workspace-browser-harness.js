@@ -633,6 +633,10 @@ try {
   await evaluate(cdp, `(() => {
     document.querySelector('.workstation-settings-open').click();
     document.querySelector('[name="gridVisible"]').click();
+    document.querySelector('[name="bodyVisible"]').click();
+    document.querySelector('[name="upBorderColor"]').value = '#36c28f';
+    document.querySelector('[name="downWickColor"]').value = '#ff7185';
+    document.querySelector('[name="pricePrecision"]').value = '1';
     document.querySelector('.workstation-settings-save').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
@@ -646,6 +650,17 @@ try {
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.gridVisible === 'false')`), true,
   'the committed Grid value must apply to every mounted Pane');
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      bodyVisible: host.dataset.bodyVisible,
+      bordersVisible: host.dataset.bordersVisible,
+      pricePrecision: host.dataset.pricePrecision,
+      readoutMatches: /^-?\\d+\\.\\d$/.test(document.querySelector('.pane-ohlc-value').textContent),
+    };
+  })()`), {
+    bodyVisible: 'false', bordersVisible: 'true', pricePrecision: '1', readoutMatches: true,
+  }, 'Symbol settings must apply without moving Replay and share precision with the OHLC readout');
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
     && document.querySelector('.replay-workspace')?.dataset.paneCount === '1'`, 10_000);
@@ -661,6 +676,9 @@ try {
   assert.equal(await evaluate(cdp,
     `document.querySelector('.lightweight-chart-host').dataset.gridVisible`), 'false',
   'hard Session re-entry must restore the global Grid preference before ready paint');
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.lightweight-chart-host').dataset.pricePrecision`), '1',
+  'hard Session re-entry must restore Symbol precision before ready paint');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
   await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);
@@ -697,6 +715,21 @@ try {
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.gridVisible === 'false')`), true,
   'future Panes must inherit the latest committed Grid preference before ready paint');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.bodyVisible === 'false' && host.dataset.pricePrecision === '1')`), true,
+  'future Panes must inherit the committed Symbol presentation before ready paint');
+  await evaluate(cdp, `(() => {
+    document.querySelector('.workstation-settings-open').click();
+    document.querySelector('[name="wicksVisible"]').click();
+    document.querySelector('.workstation-settings-save').click();
+  })()`);
+  await waitFor(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
+    .every((host) => host.dataset.wicksVisible === 'false')`);
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.wicksVisible === 'false')`), true,
+  'one Symbol save must update every currently mounted Pane');
   const preferenceStorage = await evaluate(cdp, `(() => {
     const preference = JSON.parse(localStorage.getItem('v7.replay-navigation-preferences'));
     const sessionRecords = Object.keys(localStorage)
@@ -706,13 +739,15 @@ try {
       dayOpen: preference.replayNavigationSettings.anchors.dayOpen,
       gridVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.canvas.gridVisible,
+      pricePrecision: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.candles.pricePrecision,
       sessionOwnsSettings: sessionRecords.some((record) => (
         Object.hasOwn(record.workspace, 'replayNavigationSettings')
       )),
     };
   })()`);
   assert.deepEqual(preferenceStorage, {
-    dayOpen: '12:00', gridVisible: false, sessionOwnsSettings: false,
+    dayOpen: '12:00', gridVisible: false, pricePrecision: 1, sessionOwnsSettings: false,
   }, 'independent global records must own Quick GoTo and visual Settings outside Sessions');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);

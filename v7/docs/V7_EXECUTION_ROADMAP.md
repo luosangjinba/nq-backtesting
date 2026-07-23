@@ -411,10 +411,11 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   to the shared cursor, and add Session-range-aware Calendar presentation plus
   closed-boundary validation; accepted on 2026-07-22;
 - `R6.9i`: activate the versioned Workstation Settings owner, durable global
-  record, transactional draft shell, and one honest Grid consumer; implemented
-  and awaiting human review;
+  record, transactional draft shell, and one honest Grid consumer; accepted on
+  2026-07-22;
 - `R6.9j`: activate candle body/border/wick presentation plus Auto/manual
-  shared price formatting through chart-owned option fan-out;
+  shared price formatting through chart-owned option fan-out; implemented and
+  awaiting human review;
 - `R6.9k`: activate bounded OHLC/change/Volume and current-price Name/Value/Line
   controls, proving all eight price-label combinations without hiding essential
   symbol/TF provenance;

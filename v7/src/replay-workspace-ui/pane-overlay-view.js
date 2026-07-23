@@ -28,16 +28,6 @@ function ohlcField(name) {
   return Object.freeze({ root, value });
 }
 
-function formatPrice(value) {
-  return Number.isFinite(value) ? Number(value).toFixed(2) : '--';
-}
-
-function formatSigned(value) {
-  if (!Number.isFinite(value)) return '--';
-  const number = Number(value);
-  return `${number > 0 ? '+' : ''}${number.toFixed(2)}`;
-}
-
 function formatPercent(value) {
   if (!Number.isFinite(value)) return '(--%)';
   const number = Number(value);
@@ -91,6 +81,30 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
     ]),
   ]);
   const root = element('div', { className: 'pane-overlay-layer' }, [header, controls]);
+  let observation = Object.freeze({ bar: null, change: null, state: 'empty' });
+  let pricePresentation = Object.freeze({
+    format: (value) => Number.isFinite(value) ? Number(value).toFixed(2) : '--',
+    formatSigned(value) {
+      if (!Number.isFinite(value)) return '--';
+      const number = Number(value);
+      return `${number > 0 ? '+' : ''}${number.toFixed(2)}`;
+    },
+  });
+
+  function renderOhlc() {
+    const { bar, change: changeObservation, state } = observation;
+    const direction = !bar ? 'empty'
+      : bar.close > bar.open ? 'up' : bar.close < bar.open ? 'down' : 'flat';
+    ohlc.dataset.direction = direction;
+    ohlc.dataset.state = state;
+    for (const field of ['open', 'high', 'low', 'close']) {
+      fields[field].value.textContent = pricePresentation.format(bar?.[field]);
+    }
+    change.dataset.direction = !changeObservation ? 'empty'
+      : changeObservation.value > 0 ? 'up' : changeObservation.value < 0 ? 'down' : 'flat';
+    changeValue.textContent = pricePresentation.formatSigned(changeObservation?.value);
+    changePercent.textContent = formatPercent(changeObservation?.percent);
+  }
 
   maximize.addEventListener('click', (event) => {
     event.stopPropagation();
@@ -117,18 +131,16 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
       symbol.textContent = instrument;
       timeframe.textContent = formatPaneTimeframeLabel(timeframeLabel);
     },
-    setOhlc({ bar, change: changeObservation, state }) {
-      const direction = !bar ? 'empty'
-        : bar.close > bar.open ? 'up' : bar.close < bar.open ? 'down' : 'flat';
-      ohlc.dataset.direction = direction;
-      ohlc.dataset.state = state;
-      for (const field of ['open', 'high', 'low', 'close']) {
-        fields[field].value.textContent = formatPrice(bar?.[field]);
+    setOhlc(value) {
+      observation = Object.freeze({ bar: value.bar, change: value.change, state: value.state });
+      renderOhlc();
+    },
+    setPricePresentation(value) {
+      if (typeof value?.format !== 'function' || typeof value?.formatSigned !== 'function') {
+        throw new TypeError('Pane price presentation requires format() and formatSigned().');
       }
-      change.dataset.direction = !changeObservation ? 'empty'
-        : changeObservation.value > 0 ? 'up' : changeObservation.value < 0 ? 'down' : 'flat';
-      changeValue.textContent = formatSigned(changeObservation?.value);
-      changePercent.textContent = formatPercent(changeObservation?.percent);
+      pricePresentation = value;
+      renderOhlc();
     },
   });
 }

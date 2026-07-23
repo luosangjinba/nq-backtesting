@@ -4,6 +4,8 @@ import { createStorageAdapter } from '../src/session-persistence/public.js';
 import {
   createWorkstationSettings,
   createWorkstationSettingsRuntime,
+  createPricePresentation,
+  decimalPlacesForIncrement,
   deserializeWorkstationSettings,
   readWorkstationSettings,
   serializeWorkstationSettings,
@@ -19,6 +21,14 @@ assert.equal(negativeCases.length, 5, 'all declared negative Settings cases must
 
 function grid(settings) {
   return readWorkstationSettings(settings).canvas.gridVisible;
+}
+
+function settingsValue({ candles = {}, gridVisible = true } = {}) {
+  const defaults = readWorkstationSettings(createWorkstationSettings());
+  return createWorkstationSettings({
+    candles: { ...defaults.candles, ...candles },
+    canvas: { gridVisible },
+  });
 }
 
 function consumer(id, presentation, { failApply = false } = {}) {
@@ -46,13 +56,46 @@ assert.equal(grid(defaults), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults)), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).canvas), true);
 assert.equal(grid(deserializeWorkstationSettings(serializeWorkstationSettings(defaults))), true);
+assert.equal(decimalPlacesForIncrement('0.25'), 2);
+assert.equal(decimalPlacesForIncrement('0.00010'), 4);
+assert.equal(createPricePresentation({ priceIncrement: '0.25', pricePrecision: 'auto' }).format(1.5), '1.50');
+const customPrice = createPricePresentation({ priceIncrement: '0.25', pricePrecision: 1 });
+assert.equal(customPrice.priceFormat.type, 'custom');
+assert.equal(customPrice.priceFormat.minMove, 0.25,
+  'manual display precision must preserve the real instrument tick size');
+assert.equal(customPrice.formatSigned(1.25), '+1.3');
+const migrated = deserializeWorkstationSettings({
+  schema: 'v7.workstation-settings',
+  value: { canvas: { gridVisible: false } },
+  version: 1,
+});
+assert.equal(grid(migrated), false, 'R6.9i records must preserve the committed Grid choice');
+assert.deepEqual(readWorkstationSettings(migrated).candles,
+  readWorkstationSettings(defaults).candles,
+  'R6.9i records must migrate to accepted candle defaults');
 assert.throws(
-  () => createWorkstationSettings({ canvas: { gridVisible: true, unknown: false } }),
+  () => createWorkstationSettings({
+    candles: readWorkstationSettings(defaults).candles,
+    canvas: { gridVisible: true, unknown: false },
+  }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('unknown-canvas-field'),
 );
 assert.throws(
-  () => createWorkstationSettings({ canvas: { gridVisible: 'yes' } }),
+  () => settingsValue({ candles: { pricePrecision: 16 } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_PRICE_PRECISION_INVALID',
+);
+assert.throws(
+  () => settingsValue({ candles: { upBodyColor: 'red' } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_CANDLE_COLOR_INVALID',
+);
+assert.throws(
+  () => createWorkstationSettings({
+    candles: readWorkstationSettings(defaults).candles,
+    canvas: { gridVisible: 'yes' },
+  }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('invalid-grid-visible'),
 );
@@ -73,7 +116,7 @@ assert.deepEqual(runtime.initialize(), {
 const mounted = { gridVisible: null };
 const unregister = runtime.registerConsumer(consumer('mounted-chart', mounted));
 assert.equal(mounted.gridVisible, true, 'a mounted consumer must receive the current revision immediately');
-const hiddenGrid = createWorkstationSettings({ canvas: { gridVisible: false } });
+const hiddenGrid = settingsValue({ gridVisible: false });
 assert.equal(runtime.save(hiddenGrid).revision, 1);
 assert.equal(mounted.gridVisible, false);
 assert.equal(grid(runtime.snapshot().settings), false);

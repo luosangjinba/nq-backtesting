@@ -3,6 +3,7 @@ import {
   readPaneLayout,
   resizePaneLayout,
 } from '../pane-layout-domain/public.js';
+import { createPricePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { createPaneOverlayView } from './pane-overlay-view.js';
 
 function element(tag, options = {}, children = []) {
@@ -16,7 +17,14 @@ function element(tag, options = {}, children = []) {
 }
 
 /** Own product-Pane DOM/host identity plus a DOM-only resizable split tree. */
-export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onReset }) {
+export function createPaneGridView({
+  initialLayout,
+  initialWorkstationSettings,
+  onFocus,
+  onLayoutResize,
+  onReset,
+  resolvePriceIncrement,
+}) {
   const root = element('div', { className: 'workspace-pane-grid' });
   const records = new Map();
   const splitRecords = new Map();
@@ -24,6 +32,16 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
   let paneIds = ['pane-main'];
   let maximizedPaneId = null;
   let pending = false;
+  let workstationSettings = initialWorkstationSettings;
+
+  function updatePricePresentation(record) {
+    if (!record.instrumentId) return;
+    const { candles } = readWorkstationSettings(workstationSettings);
+    record.overlay.setPricePresentation(createPricePresentation({
+      priceIncrement: resolvePriceIncrement(record.instrumentId),
+      pricePrecision: candles.pricePrecision,
+    }));
+  }
 
   root.dataset.maximizedPaneId = 'none';
 
@@ -194,7 +212,7 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
     shell.addEventListener('focusin', (event) => {
       if (!event.target.closest('.pane-overlay-controls')) onFocus(paneId);
     });
-    const record = { empty, host, overlay, shell };
+    const record = { empty, host, instrumentId: null, overlay, shell };
     records.set(paneId, record);
     updateOverlayControls();
     renderLayout();
@@ -280,6 +298,11 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
     setTruncationSelection(active) {
       root.dataset.truncationSelection = active === true ? 'active' : 'inactive';
     },
+    setWorkstationSettings(settings) {
+      readWorkstationSettings(settings);
+      workstationSettings = settings;
+      for (const record of records.values()) updatePricePresentation(record);
+    },
     setWorkspace({ activePaneId, panes }, labels) {
       const nextPaneIds = panes.map(({ paneId }) => paneId);
       const membershipChanged = nextPaneIds.length !== paneIds.length
@@ -293,6 +316,8 @@ export function createPaneGridView({ initialLayout, onFocus, onLayoutResize, onR
           instrument: labels.instrument(pane.instrumentId),
           timeframe: labels.timeframe(pane.timeframeId),
         });
+        record.instrumentId = pane.instrumentId;
+        updatePricePresentation(record);
         record.shell.classList.toggle('is-active', pane.paneId === activePaneId);
         record.shell.dataset.instrumentId = pane.instrumentId;
         record.shell.dataset.timeframeId = pane.timeframeId;

@@ -213,7 +213,9 @@ export function createFoundationCapabilities(instrumentIds = undefined) {
     defaultSelection: catalog.get(defaultTarget),
     defaultTarget,
     instrument,
-    instrumentOptions: Object.freeze(instruments.map(({ id, symbol }) => Object.freeze({ id, label: symbol }))),
+    instrumentOptions: Object.freeze(instruments.map(({ id, priceIncrement, symbol }) => Object.freeze({
+      id, label: symbol, priceIncrement,
+    }))),
     instruments,
     replayStepOptions,
     sessionHoursModes: Object.freeze(['eth', 'rth']),

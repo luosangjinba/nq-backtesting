@@ -106,6 +106,10 @@ export function createReplayWorkspaceView({
   sessionHoursModes,
   timeframeMenuGroups,
 }) {
+  const instrumentLabels = new Map(instrumentOptions.map(({ id, label }) => [id, label]));
+  const instrumentPriceIncrements = new Map(
+    instrumentOptions.map(({ id, priceIncrement }) => [id, priceIncrement]),
+  );
   const backButton = element('button', {
     className: 'button replay-action-button replay-back', text: '← All sessions', type: 'button',
   });
@@ -145,9 +149,11 @@ export function createReplayWorkspaceView({
   });
   const paneGrid = createPaneGridView({
     initialLayout,
+    initialWorkstationSettings: getWorkstationSettings().settings,
     onFocus: onFocusPane,
     onLayoutResize,
     onReset,
+    resolvePriceIncrement: (instrumentId) => instrumentPriceIncrements.get(instrumentId),
   });
   const replayTransport = createReplayTransport({
     onAutoplay,
@@ -205,7 +211,6 @@ export function createReplayWorkspaceView({
     ]),
     workstationSettings.dialog,
   ]);
-  const instrumentLabels = new Map(instrumentOptions.map(({ id, label }) => [id, label]));
   const timeframeLabels = new Map(timeframeMenuGroups.flatMap(({ items }) => (
     items.map(({ id, label }) => [id, label])
   )));
@@ -378,7 +383,10 @@ export function createReplayWorkspaceView({
     },
     setWorkstationSettings(snapshot) {
       root.dataset.settingsRevision = String(snapshot.revision);
-      root.dataset.gridVisible = String(readWorkstationSettings(snapshot.settings).canvas.gridVisible);
+      const value = readWorkstationSettings(snapshot.settings);
+      root.dataset.gridVisible = String(value.canvas.gridVisible);
+      root.dataset.pricePrecision = String(value.candles.pricePrecision);
+      paneGrid.setWorkstationSettings(snapshot.settings);
     },
     setWorkspace(workspace) {
       const value = readPaneWorkspace(workspace);
