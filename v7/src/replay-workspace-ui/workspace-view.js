@@ -348,6 +348,7 @@ export function createReplayWorkspaceView({
     root,
     setCursor(epochMs) {
       cursorEpochMs = epochMs;
+      root.dataset.cursorEpochMs = epochMs === null ? '' : String(epochMs);
       renderTimePresentation();
     },
     setEvidence({ replayRevision, workspaceRevision }) {
@@ -380,6 +381,7 @@ export function createReplayWorkspaceView({
       const replayStep = readReplayStep(snapshot.replayStep);
       exactDefaultEpochMs = snapshot.cursorEpochMs;
       root.dataset.replayPlayback = playback;
+      root.dataset.replayCursorEpochMs = String(snapshot.cursorEpochMs);
       root.dataset.replayStepId = replayStep.id;
       replayTransport.setReplay({ playback, replayStepId: replayStep.id });
       renderAvailability();

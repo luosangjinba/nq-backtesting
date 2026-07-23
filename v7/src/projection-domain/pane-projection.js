@@ -1,4 +1,4 @@
-import { isEpochVisibleAtReplayCursor } from '../replay-contract/public.js';
+import { isEpochVisibleAtReplayCursor, readReplayCursorProposal } from '../replay-contract/public.js';
 import { normalizeProjectedBars } from './projected-bar.js';
 import { failProjection } from './projection-error.js';
 import { createProjectionInput } from './projection-input.js';
@@ -56,15 +56,51 @@ function provenance(input, sourceIdentity) {
   });
 }
 
-/**
- * Purely project one pane from validated raw source bars under one Replay proposal.
- * Eligibility and exclusive no-future filtering always precede aggregation.
- */
-export function projectPaneSnapshot(value) {
-  const input = createProjectionInput(value);
-  const source = collectProjectionSourceBars(input);
-  const eligibleBars = eligibleVisibleBars(input, source.bars);
-  const projectedValues = input.aggregationPolicy.project(eligibleBars, Object.freeze({
+const ADVANCE_COMPATIBILITY_FIELDS = Object.freeze([
+  'aggregationPolicyId',
+  'aggregationPolicyRevision',
+  'calendarId',
+  'calendarRevision',
+  'calendarVersion',
+  'datasetRevision',
+  'displayTimeframeDurationMs',
+  'displayTimeframeId',
+  'displayTimeframeVersion',
+  'instrumentId',
+  'instrumentVersion',
+  'providerId',
+  'sessionHoursPolicyId',
+  'sessionHoursPolicyRevision',
+  'sessionHoursMode',
+  'sourceResolutionId',
+]);
+
+function requireAdvanceSnapshot(value, input, expected) {
+  if (!value || !Object.isFrozen(value) || value.schemaVersion !== 1
+    || value.paneId !== input.paneId || !Array.isArray(value.bars) || value.bars.length === 0
+    || !value.provenance || !Object.isFrozen(value.provenance)) {
+    failProjection(
+      'PROJECTION_ADVANCE_ACCEPTED_SNAPSHOT_INVALID',
+      'Replay advance requires one immutable accepted Pane snapshot.',
+    );
+  }
+  for (const field of ADVANCE_COMPATIBILITY_FIELDS) {
+    if (value.provenance[field] !== expected[field]) {
+      failProjection('PROJECTION_ADVANCE_SNAPSHOT_MISMATCH', `Replay advance changed ${field}.`);
+    }
+  }
+  const acceptedCursor = readReplayCursorProposal(value.provenance.cursorProposal);
+  if (acceptedCursor.targetEpochMs >= input.cursor.targetEpochMs) {
+    failProjection(
+      'PROJECTION_ADVANCE_CURSOR_INVALID',
+      'Replay advance requires a strictly later cursor than the accepted snapshot.',
+    );
+  }
+  return value;
+}
+
+function projectValues(input, sourceBars) {
+  return input.aggregationPolicy.project(sourceBars, Object.freeze({
     aggregationPolicyRevision: input.aggregationPolicy.revision,
     calendar: input.calendar,
     cursorProposal: input.cursorProposal,
@@ -73,8 +109,11 @@ export function projectPaneSnapshot(value) {
     sessionHoursPolicyId: input.sessionHoursPolicy.id,
     sessionHoursPolicyRevision: input.sessionHoursPolicy.revision,
     sessionHoursMode: input.sessionHoursPolicy.mode,
-    sourceResolutionId: source.sourceIdentity.sourceResolutionId,
+    sourceResolutionId: input.sourceBatches[0].request.sourceResolutionId,
   }));
+}
+
+function snapshot(input, source, eligibleBars, projectedValues) {
   return Object.freeze({
     bars: normalizeProjectedBars(projectedValues, input.cursor.targetEpochMs),
     paneId: input.paneId,
@@ -82,6 +121,40 @@ export function projectPaneSnapshot(value) {
       ...provenance(input, source.sourceIdentity),
       visibleThroughEpochMs: eligibleBars.at(-1).startEpochMs,
     }),
+    schemaVersion: 1,
+  });
+}
+
+/**
+ * Purely project one pane from validated raw source bars under one Replay proposal.
+ * Eligibility and exclusive no-future filtering always precede aggregation.
+ */
+export function projectPaneSnapshot(value) {
+  const input = createProjectionInput(value);
+  const source = collectProjectionSourceBars(input);
+  const eligibleBars = eligibleVisibleBars(input, source.bars);
+  return snapshot(input, source, eligibleBars, projectValues(input, eligibleBars));
+}
+
+/** Recompute only the accepted tail bucket for one strictly-forward Replay step. */
+export function projectPaneReplayAdvance({ acceptedSnapshot, ...value }) {
+  const input = createProjectionInput(value);
+  const expected = provenance(input, input.sourceBatches[0].request);
+  const accepted = requireAdvanceSnapshot(acceptedSnapshot, input, expected);
+  const recomputeFromEpochMs = accepted.bars.at(-1).startEpochMs;
+  const source = collectProjectionSourceBars(input, { fromEpochMs: recomputeFromEpochMs });
+  const eligibleBars = eligibleVisibleBars(input, source.bars);
+  const tail = snapshot(input, source, eligibleBars, projectValues(input, eligibleBars));
+  if (tail.bars[0].startEpochMs !== recomputeFromEpochMs) {
+    failProjection(
+      'PROJECTION_ADVANCE_BOUNDARY_MISMATCH',
+      'Replay advance must reproduce the accepted tail bucket boundary.',
+    );
+  }
+  return Object.freeze({
+    bars: Object.freeze([...accepted.bars.slice(0, -1), ...tail.bars]),
+    paneId: tail.paneId,
+    provenance: tail.provenance,
     schemaVersion: 1,
   });
 }

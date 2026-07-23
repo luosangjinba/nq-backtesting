@@ -31,14 +31,27 @@ function requireCapabilityCompatibility(input, request) {
   }
 }
 
+function lowerBound(bars, targetEpochMs) {
+  let low = 0;
+  let high = bars.length;
+  while (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    if (bars[middle].startEpochMs < targetEpochMs) low = middle + 1;
+    else high = middle;
+  }
+  return low;
+}
+
 /** Collect contiguous ordered chunks without silently sorting, deduplicating, or merging. */
-export function collectProjectionSourceBars(input) {
+export function collectProjectionSourceBars(input, { fromEpochMs = 0 } = {}) {
+  if (!Number.isSafeInteger(fromEpochMs) || fromEpochMs < 0) {
+    failProjection('PROJECTION_SOURCE_CUTOFF_INVALID', 'Projection source cutoff must be a non-negative epoch.');
+  }
   const [firstBatch] = input.sourceBatches;
   const expected = firstBatch.request;
   requireCapabilityCompatibility(input, expected);
   const bars = [];
   let previousWindowEnd = -1;
-  let previousBarStart = -1;
   for (const batch of input.sourceBatches) {
     requireCommonSource(batch.request, expected);
     requireCapabilityCompatibility(input, batch.request);
@@ -55,16 +68,8 @@ export function collectProjectionSourceBars(input) {
       );
     }
     previousWindowEnd = batch.request.windowEndEpochMs;
-    for (const bar of batch.bars) {
-      if (bar.startEpochMs <= previousBarStart) {
-        failProjection(
-          'PROJECTION_SOURCE_BARS_NOT_ORDERED',
-          'Projection source bars must remain globally ordered and unique.',
-        );
-      }
-      previousBarStart = bar.startEpochMs;
-      bars.push(bar);
-    }
+    const startIndex = fromEpochMs === 0 ? 0 : lowerBound(batch.bars, fromEpochMs);
+    for (let index = startIndex; index < batch.bars.length; index += 1) bars.push(batch.bars[index]);
   }
   if (bars.length === 0) {
     failProjection('PROJECTION_SOURCE_EMPTY', 'Projection source contains no bars.');

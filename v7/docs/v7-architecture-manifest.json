@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r7.1-workspace-checkpoint-accepted",
+  "status": "r7.2-restored-workspace-performance-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -46,6 +46,8 @@
     "docs/V7_WORKSTATION_SETTINGS_FOUNDATION_R6_9I.md",
     "docs/V7_LAYOUT_SYNC_CONTRACT_R6_10A.md",
     "docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md",
+    "docs/V7_RESTORED_WORKSPACE_PERFORMANCE_R7_2.md",
+    "docs/v7-restored-workspace-performance-matrix.json",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
     "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md",
@@ -258,6 +260,7 @@
     "stable-pane-priority-identity",
     "session-browser-delete-is-confirmed-and-durable",
     "global-workstation-settings-transactional-all-pane",
-    "versioned-session-layout-sync-policy"
+    "versioned-session-layout-sync-policy",
+    "restored-workspace-cache-race-and-foundation-performance-closed"
   ]
 }

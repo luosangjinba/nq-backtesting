@@ -201,6 +201,14 @@ failures and late post-dispose completions cannot write cache state. Real
 transport, overlapping coverage, revision discovery, gap policy, retry,
 deadline, and prefetch remain inactive after R3.2a.
 
+R7.2 keeps restored Replay traversal on the same buffered exact request
+identity used by Pane materialization. It never creates a per-step
+current-minute-to-range-end request. A Pane composition may reuse one exact
+already-accepted raw batch before consulting the bounded LRU; the batch remains
+accepted projection input and does not become a second raw cache/request owner.
+Closed periods advance by bounded request ends until real source evidence is
+found.
+
 R3.2b1 adds `core.provider-policy-contract` as a pure transport-neutral policy
 boundary. Provider revision freshness, request limits, failure deadline,
 bounded retries, stable error kinds, and the adapter port are declared before
@@ -278,6 +286,13 @@ Replay retention proposals distinguish projection-only replacement from time
 advancement; exact projection provenance supplies explicit Session Hours mode
 and source-level visible-through. Acquisition/presentation races and failures
 cannot publish a stale selection, chart snapshot, cursor, or visibility value.
+
+R7.2 adds a pure strictly-forward incremental projection path for Manual Next
+and Autoplay. It first validates accepted capability, request, policy, and
+cursor provenance, then reprojects only the accepted last aggregation bucket
+plus the newly eligible raw tail. Its result must be identical to a complete
+projection at the same cutoff. Backward/GoTo/history/replacement or incompatible
+inputs always retain the complete path.
 
 R5.6 activates `adapter.v4-bars-provider` as the concrete local market-data
 boundary. It converts real request instants to V4 New York wall-clock strings,

@@ -56,23 +56,24 @@ Read in this order before V7 implementation work:
 49. `V7_PANE_TIME_LOCATION_R6_10C3.md`
 50. `V7_DATE_RANGE_SYNC_DEFER_AND_R6_CLOSURE.md`
 51. `V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md`
-52. `V7_REAL_PANE_WORKSPACE_R6_5.md`
-53. `V7_REPLAY_BAR_STEP_R6_6.md`
-54. `V7_CONTINUOUS_AUTOPLAY_R6_7.md`
-55. `V7_MULTI_PANE_RTH_HISTORY_R6_7A.md`
-56. `V7_MANUAL_VIEWPORT_SPAN_R6_7B.md`
-57. `V7_CONTRIBUTING_HISTORY_WINDOWS_R6_7C.md`
-58. `V7_STABLE_TOOLBAR_REFRESH_R6_7D.md`
-59. `V7_FIXED_REPLAY_TRANSPORT_R6_8.md`
-60. `V7_RESIZABLE_PANE_LAYOUTS_R6_9.md`
-61. `V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md`
-62. `V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md`
-63. `V7_PANE_CONTROL_DOCK_R6_9C.md`
-64. `V7_CHART_SNAPSHOT_APPLICATION.md`
-65. `V7_VIEWPORT_RUNTIME.md`
-66. `V7_LIGHTWEIGHT_CHART_SLICE.md`
-67. `V7_EXECUTION_ROADMAP.md`
-68. `../TODO.md`
+52. `V7_RESTORED_WORKSPACE_PERFORMANCE_R7_2.md`
+53. `V7_REAL_PANE_WORKSPACE_R6_5.md`
+54. `V7_REPLAY_BAR_STEP_R6_6.md`
+55. `V7_CONTINUOUS_AUTOPLAY_R6_7.md`
+56. `V7_MULTI_PANE_RTH_HISTORY_R6_7A.md`
+57. `V7_MANUAL_VIEWPORT_SPAN_R6_7B.md`
+58. `V7_CONTRIBUTING_HISTORY_WINDOWS_R6_7C.md`
+59. `V7_STABLE_TOOLBAR_REFRESH_R6_7D.md`
+60. `V7_FIXED_REPLAY_TRANSPORT_R6_8.md`
+61. `V7_RESIZABLE_PANE_LAYOUTS_R6_9.md`
+62. `V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md`
+63. `V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md`
+64. `V7_PANE_CONTROL_DOCK_R6_9C.md`
+65. `V7_CHART_SNAPSHOT_APPLICATION.md`
+66. `V7_VIEWPORT_RUNTIME.md`
+67. `V7_LIGHTWEIGHT_CHART_SLICE.md`
+68. `V7_EXECUTION_ROADMAP.md`
+69. `../TODO.md`
 
 Executable architecture metadata lives in
 `v7-architecture-manifest.json`. Its harness must pass before every V7 commit.
@@ -82,3 +83,5 @@ Foundation/unplanned-candidate interaction ownership and visible-completion meta
 in `v7-foundation-interactions.json`.
 Cache identity, prefetch, latency tiers, refresh behavior, and chunked history
 budgets live in `v7-cache-latency-contract.json`.
+Restored Workspace performance/race coverage and full foundation-axis evidence
+live in `v7-restored-workspace-performance-matrix.json`.

@@ -1,7 +1,9 @@
+import { rawBarRequestKey } from '../bar-data-contract/public.js';
 import { createEmptyPaneProjection } from '../pane-set-materialization/public.js';
 import { readReplayCursorProposal } from '../replay-contract/public.js';
 import {
   projectPaneHistoryExtension,
+  projectPaneReplayAdvance,
   projectPaneSnapshot,
   ProjectionDomainError,
 } from '../projection-domain/public.js';
@@ -53,7 +55,14 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
           : historyRequest
             ? market.requestBefore(descriptor.oldestEpochMs, selected)
             : market.requestThrough(readReplayCursorProposal(context.proposal).targetEpochMs, selected);
-        const batch = await barData.acquire(request);
+        // An accepted Pane source batch is already validated projection state,
+        // so reuse its exact request identity before asking the bounded Bar
+        // Data cache. This keeps restored workspaces cache-hit even when deep
+        // automatic history has legitimately evicted the forward batch from
+        // the runtime LRU.
+        const paneLedger = ledger(context.paneResponse.paneId);
+        const batch = paneLedger.acceptedBatch(rawBarRequestKey(request))
+          ?? await barData.acquire(request);
         return Object.freeze({ batch, descriptor, selection: selected });
       },
     }),
@@ -85,8 +94,13 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
           sourceBatches: batches,
         };
         try {
-          if (!historyRequest) return projectPaneSnapshot(input);
           const accepted = acceptedPane(context.paneResponse.paneId);
+          const replayAdvance = descriptor.kind === 'navigation'
+            && ['autoplay-next', 'manual-next'].includes(descriptor.responsePlan.actionKind);
+          if (!historyRequest && replayAdvance && accepted?.status === 'ready') {
+            return projectPaneReplayAdvance({ ...input, acceptedSnapshot: accepted.snapshot });
+          }
+          if (!historyRequest) return projectPaneSnapshot(input);
           if (!accepted || accepted.status !== 'ready') return projectPaneSnapshot(input);
           return projectPaneHistoryExtension({
             ...input,

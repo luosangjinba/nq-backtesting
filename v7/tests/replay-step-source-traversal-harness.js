@@ -4,7 +4,9 @@ import { createFoundationCapabilities, FOUNDATION_IDS } from '../src/replay-work
 import { createFoundationSourceTraversal } from '../src/replay-workspace-ui/foundation-source-traversal.js';
 
 const MINUTE = 60_000;
+const FORWARD_BUFFER_MINUTES = 500;
 const epoch = (value) => Date.parse(value);
+const RANGE_START_EPOCH_MS = epoch('2026-05-01T12:00:00.000Z');
 const capabilities = createFoundationCapabilities();
 const bars = [];
 const requests = [];
@@ -27,6 +29,20 @@ function setBars(values) {
 const market = Object.freeze({
   catalog: capabilities.catalog,
   defaultTarget: capabilities.defaultTarget,
+  requestThrough(exclusiveEndEpochMs, selection) {
+    const requiredMinutes = Math.max(
+      1,
+      Math.ceil((exclusiveEndEpochMs - RANGE_START_EPOCH_MS) / MINUTE),
+    );
+    const bufferedMinutes = Math.ceil(
+      requiredMinutes / FORWARD_BUFFER_MINUTES,
+    ) * FORWARD_BUFFER_MINUTES;
+    return Object.freeze({
+      instrumentId: selection.instrument.id,
+      windowEndEpochMs: RANGE_START_EPOCH_MS + (bufferedMinutes * MINUTE),
+      windowStartEpochMs: RANGE_START_EPOCH_MS,
+    });
+  },
   requestWindow({ instrumentId, windowEndEpochMs, windowStartEpochMs }) {
     return Object.freeze({ instrumentId, windowEndEpochMs, windowStartEpochMs });
   },
@@ -39,6 +55,7 @@ const traversal = createFoundationSourceTraversal({
         bars: Object.freeze(bars.filter(({ startEpochMs }) => (
           startEpochMs >= request.windowStartEpochMs && startEpochMs < request.windowEndEpochMs
         ))),
+        request,
       });
     },
   }),

@@ -1,0 +1,7 @@
+{
+  "expectedFailureCode": "RESTORED_PERFORMANCE_AXIS_VALUE_MISSING",
+  "remove": {
+    "axis": "transportMode",
+    "value": "go-to"
+  }
+}

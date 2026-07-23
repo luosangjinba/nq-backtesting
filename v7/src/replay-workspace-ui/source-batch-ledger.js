@@ -33,6 +33,10 @@ export function createSourceBatchLedger() {
       staged = null;
       return accepted;
     },
+    acceptedBatch(requestKey) {
+      if (typeof requestKey !== 'string' || requestKey.length === 0) return null;
+      return accepted.find((batch) => batch.requestKey === requestKey) ?? null;
+    },
     acceptedBatches: () => accepted,
     oldestEpochMs() { return accepted[0]?.request.windowStartEpochMs ?? null; },
     reject() { staged = null; },

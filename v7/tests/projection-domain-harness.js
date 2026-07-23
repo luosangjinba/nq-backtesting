@@ -9,7 +9,11 @@ import {
   defineTimeframe,
   defineTradingCalendar,
 } from '../src/capability-contract/public.js';
-import { projectPaneHistoryExtension, projectPaneSnapshot } from '../src/projection-domain/public.js';
+import {
+  projectPaneHistoryExtension,
+  projectPaneReplayAdvance,
+  projectPaneSnapshot,
+} from '../src/projection-domain/public.js';
 import { createReplayAdvanceInput, createReplayCursorProposal } from '../src/replay-contract/public.js';
 import { createSessionId } from '../src/session-identity/public.js';
 import { createTransactionId } from '../src/transaction-identity/public.js';
@@ -198,6 +202,29 @@ assert.equal(accepted.provenance.calendarVersion, '1.0.0');
 assert.equal(accepted.provenance.cursorProposal, proposal);
 assertDeepFrozen(accepted);
 assert.deepEqual(projectPaneSnapshot(projectionInput()), accepted, 'pure projection must be deterministic');
+
+const nextProposal = createReplayCursorProposal({
+  advance: createReplayAdvanceInput({ source: 'manual', durationMs: 60_000 }),
+  baseRevision: 1,
+  cursorEpochMs: 1_300_000,
+  identity: transactionIdentity,
+  range: { startEpochMs: 1_000_000, endEpochMs: 2_000_000 },
+});
+const advanceEligibilityCalls = [];
+const advanceInput = projectionInput({
+  cursorProposal: nextProposal,
+  ...policies({ eligibility: (candidate) => {
+    advanceEligibilityCalls.push(candidate.startEpochMs);
+    return true;
+  } }),
+});
+const advanced = projectPaneReplayAdvance({ ...advanceInput, acceptedSnapshot: accepted });
+assert.deepEqual(advanced, projectPaneSnapshot(advanceInput),
+  'incremental Replay projection must equal a complete projection at the same cursor');
+assert.deepEqual(advanceEligibilityCalls, [1_240_000, 1_300_000,
+  1_000_000, 1_060_000, 1_120_000, 1_180_000, 1_240_000, 1_300_000],
+'Replay advance must evaluate only the accepted tail bucket before the full-equivalence control');
+assertDeepFrozen(advanced);
 
 let aggregationInput = null;
 const eligibleBeforeAggregation = projectPaneSnapshot(projectionInput({

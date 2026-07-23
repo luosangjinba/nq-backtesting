@@ -35,9 +35,11 @@ const workspaceState = `(() => {
   return {
     activePaneId: root.dataset.activePaneId,
     crosshairSync: root.dataset.crosshairSync,
+    cursorEpochMs: Number(root.dataset.cursorEpochMs),
     cursorText: root.dataset.cursorText,
     layoutId: root.dataset.layoutId,
     playback: root.dataset.replayPlayback,
+    replayCursorEpochMs: Number(root.dataset.replayCursorEpochMs),
     replayRevision: Number(root.dataset.replayRevision),
     sessionHoursMode: root.dataset.sessionHoursMode,
     panes: [...document.querySelectorAll('.workspace-pane:not(.is-prepared)')].map((pane) => {
@@ -79,6 +81,17 @@ function assertRestored(actual, before, checkpoint) {
   assert.equal(restoredMain.viewportOrigin, 'manual');
   assert.ok(Math.abs(restoredMain.latestOffsetBars - savedMain.viewport.latestOffsetBars) < 0.001);
   assert.ok(Math.abs(restoredMain.spanBars - savedMain.viewport.spanBars) < 0.001);
+}
+
+function summarizeLatency(samples) {
+  const sorted = [...samples].sort((left, right) => left - right);
+  const percentile = (ratio) => sorted[Math.ceil(sorted.length * ratio) - 1];
+  return Object.freeze({
+    maxMs: Math.max(...samples),
+    p95Ms: percentile(.95),
+    p99Ms: percentile(.99),
+    samples: samples.length,
+  });
 }
 
 let cdp;
@@ -208,7 +221,8 @@ try {
     .find((card) => card.textContent.includes('R7 restore'))
     .querySelector('.open-session-button').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
-    && document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-columns'`, 12_000);
+    && document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-columns'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
   const softRestored = await evaluate(cdp, workspaceState);
   assertRestored(softRestored, before, saved.checkpoint);
   assert.equal((await evaluate(cdp, persistedWorkspace)).checkpoint.cursorEpochMs,
@@ -217,15 +231,120 @@ try {
   await cdp.send('Page.reload', { ignoreCache: true });
   await new Promise((resolve) => setTimeout(resolve, 150));
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
-    && document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-columns'`, 12_000);
+    && document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-columns'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
   const hardRestored = await evaluate(cdp, workspaceState);
   assertRestored(hardRestored, before, saved.checkpoint);
   assert.equal((await evaluate(cdp, persistedWorkspace)).checkpoint.cursorEpochMs,
     saved.checkpoint.cursorEpochMs);
+
+  await evaluate(cdp, `performance.clearResourceTimings()`);
+  const warmupRevision = hardRestored.replayRevision;
+  await evaluate(cdp, `document.querySelector('.replay-next').click()`);
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.replayRevision)
+    === ${warmupRevision + 1}
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  const restoredWarmupProviderRequestCount = Number(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`));
+  assert.ok(restoredWarmupProviderRequestCount <= 1,
+    'restored workspace warmup may refill at most one evicted primary forward window');
+  await evaluate(cdp, `performance.clearResourceTimings()`);
+  const restoredRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.replayRevision`));
+  const cadenceEvidence = await evaluate(cdp, `(async () => {
+    const root = document.querySelector('.replay-workspace');
+    const next = document.querySelector('.replay-next');
+    const samples = [];
+    const adapterApply = [];
+    const adapterMutation = [];
+    const adapterPaint = [];
+    const mutationModes = new Set();
+    function awaitVisibleRevision(expected) {
+      return new Promise((resolve, reject) => {
+        const timeout = setTimeout(() => {
+          observer.disconnect();
+          reject(new Error('restored cadence timed out at revision ' + expected));
+        }, 10_000);
+        const check = () => {
+          if (Number(root.dataset.replayRevision) !== expected
+            || root.getAttribute('aria-busy') !== 'false') return;
+          clearTimeout(timeout);
+          observer.disconnect();
+          resolve();
+        };
+        const observer = new MutationObserver(check);
+        observer.observe(root, { attributes: true });
+        check();
+      });
+    }
+    for (let index = 0; index < 100; index += 1) {
+      const expected = ${restoredRevision} + index + 1;
+      const visible = awaitVisibleRevision(expected);
+      const startedAt = performance.now();
+      next.click();
+      await visible;
+      samples.push(performance.now() - startedAt);
+      for (const host of document.querySelectorAll(
+        '.workspace-pane:not(.is-prepared) .lightweight-chart-host'
+      )) {
+        mutationModes.add(host.dataset.lastMutationMode);
+        adapterApply.push(Number(host.dataset.lastApplyMs));
+        adapterMutation.push(Number(host.dataset.lastMutationMs));
+        adapterPaint.push(Number(host.dataset.lastPaintMs));
+      }
+    }
+    return { adapterApply, adapterMutation, adapterPaint,
+      mutationModes: [...mutationModes], samples };
+  })()`);
+  assert.deepEqual(cadenceEvidence.mutationModes, ['tail-update'],
+    'restored mixed-Pane Next must retain the bounded tail-update path');
+  const restoredLatency = Object.freeze({
+    ...summarizeLatency(cadenceEvidence.samples),
+    adapterApply: summarizeLatency(cadenceEvidence.adapterApply),
+    adapterMutation: summarizeLatency(cadenceEvidence.adapterMutation),
+    adapterPaint: summarizeLatency(cadenceEvidence.adapterPaint),
+    providerRequestCount: Number(await evaluate(cdp,
+      `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`)),
+  });
+  assert.ok(restoredLatency.p95Ms < 100,
+    `restored mixed-Pane Next p95 exceeded budget: ${JSON.stringify(restoredLatency)}`);
+  assert.ok(restoredLatency.p99Ms < 150,
+    `restored mixed-Pane Next p99 exceeded budget: ${JSON.stringify(restoredLatency)}`);
+  assert.ok(restoredLatency.maxMs < 250,
+    `restored mixed-Pane Next max exceeded budget: ${JSON.stringify(restoredLatency)}`);
+  assert.equal(restoredLatency.providerRequestCount, 0,
+    `100 restored cache-hit Next actions must issue zero provider requests: ${JSON.stringify(restoredLatency)}`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')?.dataset.viewportOrigin`),
+  'manual', 'restored cache-hit advancement must retain the manual Viewport');
+
+  const postCadenceState = await evaluate(cdp, workspaceState);
+  const postCadencePersisted = await evaluate(cdp, persistedWorkspace);
+  assert.equal(postCadencePersisted.checkpoint.cursorEpochMs, postCadenceState.replayCursorEpochMs,
+    `restored cache-hit checkpoint must match its Replay cursor: ${JSON.stringify({
+      persisted: postCadencePersisted.checkpoint.cursorEpochMs,
+      replay: postCadenceState.replayCursorEpochMs,
+    })}`);
+  const requestsBeforeAutoplay = Number(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`));
+  await evaluate(cdp, `document.querySelector('.replay-autoplay').click()`);
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.replayRevision)
+    >= ${postCadenceState.replayRevision + 3}`, 12_000);
+  await evaluate(cdp, `document.querySelector('.replay-pause').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'paused'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+  assert.equal(Number(await evaluate(cdp,
+    `performance.getEntriesByType('resource').filter((entry) => entry.name.includes('/v4/bars?')).length`)),
+  requestsBeforeAutoplay, 'restored cache-hit Autoplay must issue zero provider requests');
+  const postAutoplayState = await evaluate(cdp, workspaceState);
+  await waitFor(cdp, `${persistedWorkspace}?.checkpoint?.cursorEpochMs
+    === ${postAutoplayState.replayCursorEpochMs}`, 5_000);
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 
   console.log('v7 Workspace checkpoint restore browser harness passed', {
-    scope: 'multi-session first-save, Next/Autoplay, soft re-entry, hard refresh, complete Workspace restore',
+    restoredWarmupProviderRequestCount,
+    restoredLatency,
+    scope: 'multi-session first-save, Next/Autoplay, soft re-entry, hard refresh, restored mixed-Pane cache-hit performance',
   });
 } finally {
   try { await cdp?.close(); } catch { /* best effort */ }

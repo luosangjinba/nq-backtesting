@@ -1504,6 +1504,34 @@ retained the accepted Replay position.
 After acceptance, R7.2 reruns cache/reordering and full foundation
 cross-product performance gates against restored workspaces.
 
+### R7.2 Restored Workspace Performance And Race Closure — Accepted
+
+- [x] run 100 warm-cache Manual Next samples after schema-6 soft re-entry and
+  hard refresh with NQ `1m`, ES `4h`, RTH, two Panes, and a manual Viewport;
+- [x] retain the binding p95 `<100ms`, p99 `<150ms`, max `<250ms` budget,
+  `tail-update` mutation, and zero provider requests during measured samples;
+- [x] verify restored Autoplay advances continuously, adds no warm-cache
+  provider request, pauses, and persists the final accepted Replay cursor;
+- [x] share one buffered forward request identity between Replay traversal and
+  Pane materialization instead of issuing one current-minute range request per
+  Next;
+- [x] add a provenance-checked strictly-forward incremental Projection path
+  and prove exact equality with complete Projection;
+- [x] rerun delayed, stale, reordered, all-or-none Pane-set, source traversal,
+  and visible-completion evidence;
+- [x] map all nine foundation cross-product axes and every declared value to
+  executable evidence with one intentional missing-axis negative control;
+- [x] close without manual review because production interaction and visuals
+  are unchanged.
+
+The accepted Chrome run measured p95 `63.2ms`, p99 `74.6ms`, max `75.9ms`,
+and zero provider requests across the 100 measured restored mixed-Pane Next
+actions. R7 now closes the shared chart/replay foundation.
+
+Next bounded slice: specify the phase-two module boundary and evidence model for
+Backtesting and Journal over the existing shared foundation. Do not implement
+Economic Calendar or create another Replay/chart owner in that planning step.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

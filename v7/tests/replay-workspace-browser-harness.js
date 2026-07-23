@@ -23,13 +23,17 @@ assert.equal(new Set(negativeCases).size, 6);
 assert.deepEqual(REPLAY_WORKSPACE_STATES, [
   'loading', 'empty', 'unavailable', 'stale', 'error', 'ready',
 ]);
-const sourceWindow = (windowStartEpochMs, windowEndEpochMs) => Object.freeze({
+const sourceWindow = (windowStartEpochMs, windowEndEpochMs, requestKey = null) => Object.freeze({
   request: Object.freeze({ windowEndEpochMs, windowStartEpochMs }),
+  requestKey,
 });
 const sourceLedger = createSourceBatchLedger();
-const firstWindow = sourceWindow(100, 200);
+const firstWindow = sourceWindow(100, 200, 'accepted-forward-window');
 sourceLedger.stage(firstWindow, 'chart-entry');
 sourceLedger.accept();
+assert.equal(sourceLedger.acceptedBatch('accepted-forward-window'), firstWindow,
+  'an accepted exact source identity remains reusable independently of the Bar Data LRU');
+assert.equal(sourceLedger.acceptedBatch('not-accepted'), null);
 const earlierWindow = sourceWindow(0, 100);
 sourceLedger.stage(earlierWindow, 'history-extension');
 sourceLedger.accept();

@@ -456,4 +456,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   after automated contract/Store/real-Chrome gates and human re-entry review
   on 2026-07-23;
 - `R7.2`: rerun and close cache-hit, delayed/reordered-response, and full
-  foundation cross-product performance gates against restored workspaces.
+  foundation cross-product performance gates against restored workspaces;
+  automatically accepted on 2026-07-23 with no interaction/visual change.
+
+R7 closes the shared replay/chart foundation. The next bounded step is a
+product-boundary plan for Backtesting and Journal modules over the same runtime
+owners; it must not introduce a second chart or Replay product. Economic
+Calendar remains a later independent business module.

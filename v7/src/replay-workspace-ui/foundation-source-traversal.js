@@ -97,6 +97,18 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
     return eligibleBars(batch, selection(context));
   }
 
+  async function acquireForwardBucket(context, exclusiveEndEpochMs) {
+    if (typeof market.requestThrough !== 'function') return null;
+    active(context.signal);
+    const selected = selection(context);
+    const batch = await barData.acquire(market.requestThrough(exclusiveEndEpochMs, selected));
+    active(context.signal);
+    return Object.freeze({
+      bars: eligibleBars(batch, selected),
+      windowEndEpochMs: batch.request.windowEndEpochMs,
+    });
+  }
+
   return Object.freeze({
     async eligibleAtOrAfter(context) {
       const cachedBars = cached(context, context.anchorEpochMs, context.windowEndEpochMs);
@@ -118,6 +130,26 @@ export function createFoundationSourceTraversal({ barData, market, readCachedSou
         context,
       );
       if (cachedTarget) return cachedTarget;
+
+      // Pane projection and Replay clock traversal share one exact-window Bar
+      // Data Runtime. Probe the same buffered request identity used by pane
+      // materialization so repeated Next/Autoplay actions stay cache hits.
+      // Advancing by the accepted request end still skips weekends/holidays
+      // without creating a new current-minute-to-range-end request each step.
+      if (typeof market.requestThrough === 'function') {
+        let probeEpochMs = Math.min(context.range.endEpochMs, context.cursorEpochMs + MINUTE);
+        while (probeEpochMs <= context.range.endEpochMs) {
+          const acquired = await acquireForwardBucket(context, probeEpochMs);
+          const target = nextCompletedStep(acquired.bars, context);
+          if (target) return target;
+          if (acquired.windowEndEpochMs >= context.range.endEpochMs) return null;
+          if (acquired.windowEndEpochMs < probeEpochMs) {
+            throw new TypeError('Buffered Replay source request did not advance its window.');
+          }
+          probeEpochMs = acquired.windowEndEpochMs + MINUTE;
+        }
+        return null;
+      }
       for (let start = searchStart; start < context.range.endEpochMs;) {
         const end = Math.min(context.range.endEpochMs, start + SEARCH_WINDOW_MS);
         const bars = await acquire(context, start, end);

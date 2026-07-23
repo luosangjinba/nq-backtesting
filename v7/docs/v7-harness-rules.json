@@ -1329,6 +1329,34 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260723_r7_1_workspace_checkpoint.md"
+    },
+    {
+      "id": "H069",
+      "name": "restored-workspace-cache-race-and-foundation-performance-closure",
+      "owner": "workspace-transaction-runtime",
+      "v6FailurePrevented": "A restored mixed Workspace lost its forward cache, issued one range request per Replay step, reprojected all raw history, exceeded visible latency budgets, or allowed delayed/reordered work to overwrite the final accepted Pane set",
+      "activationStep": "R7",
+      "state": "accepted",
+      "harness": "tests/restored-workspace-performance-contract-harness.js",
+      "positiveEvidence": [
+        "src/projection-domain/pane-projection.js",
+        "src/projection-domain/source-bar-collection.js",
+        "src/replay-workspace-ui/foundation-source-traversal.js",
+        "src/replay-workspace-ui/pane-data-composition.js",
+        "tests/projection-domain-harness.js",
+        "tests/replay-step-source-traversal-harness.js",
+        "tests/workspace-transaction-runtime-harness.js",
+        "tests/pane-set-materialization-harness.js",
+        "tests/workspace-checkpoint-restore-browser-harness.js",
+        "tests/restored-workspace-performance-contract-harness.js",
+        "docs/v7-restored-workspace-performance-matrix.json",
+        "docs/V7_RESTORED_WORKSPACE_PERFORMANCE_R7_2.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/restored-workspace-performance/negative/missing-axis-value.json"
+      ],
+      "humanReviewRequired": false,
+      "acceptanceEvidence": "sessions/session_20260723_r7_2_foundation_performance.md"
     }
   ]
 }

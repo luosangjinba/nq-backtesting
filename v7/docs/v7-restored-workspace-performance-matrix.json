@@ -1,0 +1,81 @@
+{
+  "schemaVersion": 1,
+  "status": "accepted",
+  "restoredWorkspaceProfile": {
+    "harness": "tests/workspace-checkpoint-restore-browser-harness.js",
+    "lifecycle": ["reopen", "hard-refresh"],
+    "paneCount": "multiple",
+    "instrumentCount": "pane-local-multiple",
+    "timeframes": ["registered-source", "registered-higher"],
+    "sessionHours": "RTH",
+    "viewportIntent": "manual",
+    "manualNextSamples": 100,
+    "warmCacheProviderRequests": 0,
+    "requiredMutationMode": "tail-update",
+    "performanceProfile": "manual-next-cache-tiered",
+    "autoplayCheckpointRequired": true
+  },
+  "raceEvidence": {
+    "delayed": [
+      "tests/cache-latency-contract-harness.js",
+      "tests/workspace-transaction-runtime-harness.js"
+    ],
+    "stale": [
+      "tests/workspace-transaction-runtime-harness.js",
+      "tests/replay-navigation-runtime-harness.js"
+    ],
+    "reordered": [
+      "tests/workspace-transaction-runtime-harness.js",
+      "tests/pane-set-materialization-harness.js"
+    ]
+  },
+  "axisEvidence": {
+    "timeframe": {
+      "registered-source": ["tests/workspace-checkpoint-restore-browser-harness.js"],
+      "registered-higher": ["tests/replay-workspace-browser-harness.js", "tests/projection-domain-harness.js"],
+      "custom-future": ["tests/capability-contract-harness.js", "tests/fixed-timeframe-domain-harness.js"]
+    },
+    "sessionHours": {
+      "ETH": ["tests/replay-workspace-browser-harness.js"],
+      "RTH": ["tests/workspace-checkpoint-restore-browser-harness.js", "tests/replay-multi-pane-rth-history-browser-harness.js"]
+    },
+    "paneCount": {
+      "single": ["tests/replay-workspace-browser-harness.js"],
+      "multiple": ["tests/workspace-checkpoint-restore-browser-harness.js", "tests/replay-layout-workspace-browser-harness.js"]
+    },
+    "instrumentCount": {
+      "single": ["tests/replay-workspace-browser-harness.js"],
+      "pane-local-multiple": ["tests/workspace-checkpoint-restore-browser-harness.js", "tests/replay-pane-workspace-browser-harness.js"]
+    },
+    "cacheState": {
+      "hit": ["tests/workspace-checkpoint-restore-browser-harness.js", "tests/replay-workspace-browser-harness.js"],
+      "miss": ["tests/bar-data-runtime-harness.js", "tests/cache-latency-contract-harness.js"],
+      "delayed": ["tests/provider-execution-runtime-harness.js", "tests/workspace-transaction-runtime-harness.js"]
+    },
+    "responseOrdering": {
+      "in-order": ["tests/workspace-checkpoint-restore-browser-harness.js"],
+      "stale": ["tests/workspace-transaction-runtime-harness.js", "tests/replay-navigation-runtime-harness.js"],
+      "reordered": ["tests/workspace-transaction-runtime-harness.js", "tests/pane-set-materialization-harness.js"]
+    },
+    "lifecycle": {
+      "create": ["tests/session-browser-browser-harness.js"],
+      "open": ["tests/session-browser-browser-harness.js"],
+      "leave": ["tests/workspace-checkpoint-restore-browser-harness.js"],
+      "reopen": ["tests/workspace-checkpoint-restore-browser-harness.js"],
+      "hard-refresh": ["tests/workspace-checkpoint-restore-browser-harness.js"]
+    },
+    "viewportIntent": {
+      "default-wall": ["tests/viewport-runtime-harness.js", "tests/replay-workspace-browser-harness.js"],
+      "manual": ["tests/workspace-checkpoint-restore-browser-harness.js", "tests/viewport-runtime-harness.js"],
+      "reset": ["tests/viewport-runtime-harness.js", "tests/replay-pane-workspace-browser-harness.js"],
+      "follow": ["tests/viewport-runtime-harness.js"]
+    },
+    "transportMode": {
+      "manual-next": ["tests/workspace-checkpoint-restore-browser-harness.js"],
+      "auto": ["tests/workspace-checkpoint-restore-browser-harness.js", "tests/replay-autoplay-scheduler-harness.js"],
+      "previous": ["tests/replay-pane-workspace-browser-harness.js", "tests/replay-navigation-runtime-harness.js"],
+      "restart": ["tests/replay-pane-workspace-browser-harness.js", "tests/replay-navigation-runtime-harness.js"],
+      "go-to": ["tests/replay-pane-workspace-browser-harness.js", "tests/replay-navigation-runtime-harness.js"]
+    }
+  }
+}

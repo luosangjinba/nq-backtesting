@@ -1,6 +1,6 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-23 after R7.1 durable Workspace checkpoint acceptance
+Last updated: 2026-07-23 after R7.2 restored Workspace performance closure
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -36,7 +36,10 @@ required for normal startup.
   correction; Date-range synchronization deliberately deferred beyond the
   foundation; R7.1 versioned Session Workspace checkpoint plus atomic soft
   re-entry/hard-refresh restore human accepted after automated and manual
-  re-entry gates; R2.4 Session Browser
+  re-entry gates; R7.2 restored mixed-Pane cache-hit performance, buffered
+  source traversal, incremental Projection, and complete foundation race/axis
+  gates automatically accepted with no visual or interaction change; R2.4
+  Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -507,9 +510,15 @@ work is closed. Date-range synchronization is deliberately deferred and is not
 an R7 prerequisite.
 
 R7.1's versioned Session Workspace checkpoint and atomic restore path for
-UX-FND-004 are human accepted. Exact next slice: R7.2 reruns cache-hit,
-delayed/reordered-response, and full foundation cross-product performance
-gates against restored workspaces.
+UX-FND-004 are human accepted. R7.2's restored mixed-Pane cache-hit,
+delayed/reordered-response, and full foundation-axis performance gates are
+automatically accepted with no visual/interaction change. The chart/Replay
+foundation is closed.
+
+Exact next slice: specify the phase-two Backtesting and Journal module and
+semantic-evidence boundaries over the existing shared runtime owners. Do not
+implement Economic Calendar or introduce another chart/Replay product during
+that planning step.
 
 ## Standing Workflow
 
