@@ -1309,7 +1309,7 @@
       "owner": "workspace-checkpoint-domain",
       "v6FailurePrevented": "Soft re-entry or hard refresh reset Replay/Panes/Viewports, restored a partial mixed workspace, persisted native chart coordinates or cached bars, or advanced one hidden future bar during reconstruction",
       "activationStep": "R7",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/workspace-checkpoint-restore-browser-harness.js",
       "positiveEvidence": [
         "src/workspace-checkpoint-domain/workspace-checkpoint.js",
@@ -1328,7 +1328,7 @@
         "tests/fixtures/workspace-checkpoint-domain/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260723_r7_1_workspace_checkpoint.md"
     }
   ]
 }

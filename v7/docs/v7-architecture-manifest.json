@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r7.1-workspace-checkpoint-executable",
+  "status": "r7.1-workspace-checkpoint-accepted",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [

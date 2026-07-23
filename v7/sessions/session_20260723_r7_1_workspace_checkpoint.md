@@ -1,7 +1,7 @@
 # Session — R7.1 Durable Workspace Checkpoint
 
 Date: 2026-07-23
-Status: automated gates pass; human review pending
+Status: human accepted on 2026-07-23
 
 ## Delivered
 
@@ -34,3 +34,10 @@ Follow `docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md`. Review both returning to
 the Session list and opening the same Session again, then browser refresh. The
 saved Replay point must not advance one bar and no partial/default Pane state
 may flash as the accepted result.
+
+Accepted on 2026-07-23. The first observation of a cursor returning to the
+Session start was traced to a still-open pre-R7.1 browser module: its persisted
+record was demonstrably schema 5 and contained no checkpoint. After a forced
+reload upgraded the same Session to schema 6, re-entry retained the Replay
+position. The real-Chrome gate was additionally hardened with an unrelated
+earlier Session and both Next and Autoplay advancement.

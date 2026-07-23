@@ -1479,7 +1479,7 @@ human review passed on 2026-07-23.
 
 R6 interaction work is closed. Date-range synchronization is not an R7 task.
 
-### R7.1 Durable Session Workspace Checkpoint — Implemented, Review Pending
+### R7.1 Durable Session Workspace Checkpoint — Accepted
 
 - [x] activate one versioned, data-independent Workspace Checkpoint domain;
 - [x] persist Replay cursor, Session Hours, active Pane, Pane
@@ -1494,7 +1494,12 @@ R6 interaction work is closed. Date-range synchronization is not an R7 task.
 - [x] skip equal checkpoint writes and reject layout/checkpoint count splits;
 - [x] bind domain, Store, Viewport, Pane state, soft re-entry, and hard-refresh
   behavior in focused and real-Chrome Harnesses;
-- [ ] obtain explicit human review of mixed-Pane re-entry and hard refresh.
+- [x] obtain explicit human review of mixed-Pane re-entry and hard refresh.
+
+Human review passed on 2026-07-23 after confirming that a stale pre-R7.1
+browser module was the only observed non-persisting path; a forced reload
+upgraded the Session to schema 6 and both soft re-entry and hard refresh
+retained the accepted Replay position.
 
 After acceptance, R7.2 reruns cache/reordering and full foundation
 cross-product performance gates against restored workspaces.
