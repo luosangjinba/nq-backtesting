@@ -24,6 +24,7 @@ export function createReplayWorkspaceSurface() {
     dispose: unmount,
     mount({
       initialNavigationSettings,
+      colorHistory,
       workstationSettings,
       onBack,
       onPersistPaneLayout = () => {},
@@ -63,6 +64,7 @@ export function createReplayWorkspaceSurface() {
         initialNavigationSettings,
         initialLayout,
         getWorkstationSettings: () => workstationSettings.snapshot(),
+        getRecentColors: () => colorHistory.snapshot(),
         instrumentOptions: capabilities.instrumentOptions,
         layoutOptions: PANE_LAYOUT_OPTIONS,
         name: record.metadata.name,
@@ -84,6 +86,7 @@ export function createReplayWorkspaceSurface() {
         onRestart: () => callbacks.restart?.(),
         onSaveGotoSettings: (settings) => callbacks.saveGotoSettings?.(settings),
         onSaveWorkstationSettings: (settings) => callbacks.saveWorkstationSettings?.(settings),
+        onRecordRecentColors: (colors) => colorHistory.record(colors),
         onSessionHours: (mode) => callbacks.sessionHours?.(mode),
         onTimeframeSync: (enabled) => callbacks.timeframeSync?.(enabled),
         onTimeframe: (timeframeId) => callbacks.timeframe?.(timeframeId),

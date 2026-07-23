@@ -416,6 +416,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9j`: activate candle body/border/wick presentation plus Auto/manual
   shared price formatting through chart-owned option fan-out; implemented and
   awaiting human review;
+- `R6.9j1`: replace native color inputs with a V7-owned palette/recent/opacity
+  shell around a small precise-picker engine, migrate colors to normalized
+  hex-alpha, and keep recent history global but outside Settings transactions;
+  implemented and awaiting human review;
 - `R6.9k`: activate bounded OHLC/change/Volume and current-price Name/Value/Line
   controls, proving all eight price-label combinations without hiding essential
   symbol/TF provenance;

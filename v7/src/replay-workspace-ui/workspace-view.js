@@ -75,6 +75,7 @@ export function createReplayWorkspaceView({
   initialNavigationSettings,
   initialLayout,
   getWorkstationSettings,
+  getRecentColors,
   instrumentOptions,
   layoutOptions,
   name,
@@ -93,6 +94,7 @@ export function createReplayWorkspaceView({
   onQuickGoto,
   onSaveGotoSettings,
   onSaveWorkstationSettings,
+  onRecordRecentColors,
   onReset,
   onReplayStep,
   onRestart,
@@ -145,6 +147,8 @@ export function createReplayWorkspaceView({
   });
   const workstationSettings = createWorkstationSettingsControl({
     getSnapshot: getWorkstationSettings,
+    getRecentColors,
+    onRecordRecentColors,
     onSave: onSaveWorkstationSettings,
   });
   const paneGrid = createPaneGridView({

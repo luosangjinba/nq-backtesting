@@ -513,6 +513,18 @@ series price scale and the Pane OHLC/absolute-change readout. Instrument changes
 apply their formatter inside the existing fallible chart transaction and restore
 the prior formatter if that transaction is rejected.
 
+R6.9j1 keeps the six color controls replaceable by separating three owners. The
+version-3 Settings value owns normalized `#RRGGBBAA` presentation intent and
+deterministically migrates version-2 opaque colors. A small MIT-licensed
+`vanilla-colorful` Web Component owns only precise color/alpha interaction. The
+V7 UI adapter owns the popup, fixed palette, accessibility, draft behavior, and
+commit boundary. Recent colors live in the distinct global
+`v7.color-history:global` convenience record: only colors touched by a
+successfully accepted Settings Save enter that record. Cancel, Reset without a
+color choice, Escape, backdrop dismissal, and rejected Saves have no history
+side effects. Color-history persistence failure cannot roll back an already
+accepted Settings transaction.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

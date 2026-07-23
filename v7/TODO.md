@@ -1250,6 +1250,24 @@ presentation.
   inheritance, and the Symbol dialog visual in focused Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
+### R6.9j1 Maintainable Color Picker — Awaiting Human Review
+
+- [x] replace browser-native color inputs with a V7-owned fixed palette,
+  opacity control, recent-color row, and optional precise editor;
+- [x] use exact-pinned `vanilla-colorful` only as the replaceable precise
+  hex-alpha interaction engine rather than as Settings or popup owner;
+- [x] migrate version-2 six-digit colors to normalized version-3
+  `#RRGGBBAA` values while preserving every accepted candle choice;
+- [x] persist at most eight deduplicated recent colors in the separate global
+  `v7.color-history:global` record and restore them across Sessions/reloads;
+- [x] add recent colors only after an accepted Settings Save; Cancel, Escape,
+  backdrop dismissal, and rejected Saves remain side-effect free;
+- [x] prove alpha reaches native series presentation without Replay, Workspace,
+  Viewport, Pane, series-data, or bar-count mutation;
+- [x] bind migration/value/history contracts, real chart mapping, cross-Session
+  restore, popup interaction, Cancel isolation, and a dedicated visual fixture;
+- [ ] obtain explicit human interaction and visual acceptance.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

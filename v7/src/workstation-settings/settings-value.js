@@ -1,20 +1,25 @@
+import {
+  isNormalizedHexAlphaColor,
+  migrateOpaqueHexColor,
+} from './color-value.js';
+
 const SETTINGS = new WeakSet();
 const SCHEMA = 'v7.workstation-settings';
-const VERSION = 2;
-const LEGACY_VERSION = 1;
-const COLOR_PATTERN = /^#[0-9a-f]{6}$/i;
+const VERSION = 3;
+const CANVAS_ONLY_VERSION = 1;
+const OPAQUE_CANDLE_VERSION = 2;
 
 export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
   candles: Object.freeze({
     bodyVisible: true,
     bordersVisible: true,
-    downBodyColor: '#f23645',
-    downBorderColor: '#f23645',
-    downWickColor: '#f23645',
+    downBodyColor: '#f23645ff',
+    downBorderColor: '#f23645ff',
+    downWickColor: '#f23645ff',
     pricePrecision: 'auto',
-    upBodyColor: '#089981',
-    upBorderColor: '#089981',
-    upWickColor: '#089981',
+    upBodyColor: '#089981ff',
+    upBorderColor: '#089981ff',
+    upWickColor: '#089981ff',
     wicksVisible: true,
   }),
   canvas: Object.freeze({ gridVisible: true }),
@@ -40,10 +45,10 @@ function exactObject(value, fields, code, message) {
 }
 
 function color(value, field) {
-  if (typeof value !== 'string' || !COLOR_PATTERN.test(value)) {
+  if (!isNormalizedHexAlphaColor(value)) {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_CANDLE_COLOR_INVALID',
-      `Candles ${field} must be a six-digit hex color.`,
+      `Candles ${field} must be an eight-digit hex-alpha color.`,
     );
   }
   return value.toLowerCase();
@@ -154,7 +159,7 @@ export function serializeWorkstationSettings(settings) {
   });
 }
 
-function migrateLegacyValue(value) {
+function migrateCanvasOnlyValue(value) {
   exactObject(
     value,
     ['canvas'],
@@ -173,6 +178,25 @@ function migrateLegacyValue(value) {
   });
 }
 
+function migrateOpaqueCandleValue(value) {
+  const fields = [
+    'downBodyColor', 'downBorderColor', 'downWickColor',
+    'upBodyColor', 'upBorderColor', 'upWickColor',
+  ];
+  const candles = { ...value?.candles };
+  for (const field of fields) {
+    const migrated = migrateOpaqueHexColor(candles[field]);
+    if (migrated === null) {
+      failWorkstationSettings(
+        'WORKSTATION_SETTINGS_CANDLE_COLOR_INVALID',
+        `Legacy candles ${field} must be a six-digit hex color.`,
+      );
+    }
+    candles[field] = migrated;
+  }
+  return createWorkstationSettings({ ...value, candles });
+}
+
 /** Restore the current wire or deterministically migrate the accepted R6.9i shape. */
 export function deserializeWorkstationSettings(wire) {
   exactObject(
@@ -187,7 +211,8 @@ export function deserializeWorkstationSettings(wire) {
       'Workstation Settings schema is unsupported.',
     );
   }
-  if (wire.version === LEGACY_VERSION) return migrateLegacyValue(wire.value);
+  if (wire.version === CANVAS_ONLY_VERSION) return migrateCanvasOnlyValue(wire.value);
+  if (wire.version === OPAQUE_CANDLE_VERSION) return migrateOpaqueCandleValue(wire.value);
   if (wire.version !== VERSION) {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_VERSION_INVALID',

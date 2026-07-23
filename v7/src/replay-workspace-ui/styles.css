@@ -426,14 +426,125 @@
 .workstation-settings-color-pair { display: inline-flex; align-items: center; gap: 10px; }
 .workstation-settings-color-pair label { display: grid; justify-items: center; gap: 4px; }
 .workstation-settings-color-pair small { color: #aeb3b9; font-size: 9px; text-transform: uppercase; }
-.workstation-settings-color-pair input[type="color"] {
+.workstation-color-picker { position: relative; display: inline-flex; }
+.workstation-color-picker-button {
+  position: relative;
   width: 42px;
   height: 32px;
   padding: 3px;
   border: 1px solid #666;
   border-radius: 6px;
-  background: #1b1b1b;
+  background-color: #1b1b1b;
+  background-image:
+    linear-gradient(45deg, #777 25%, transparent 25%),
+    linear-gradient(-45deg, #777 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #777 75%),
+    linear-gradient(-45deg, transparent 75%, #777 75%);
+  background-position: 0 0, 0 5px, 5px -5px, -5px 0;
+  background-size: 10px 10px;
   cursor: pointer;
+}
+.workstation-color-picker-button:hover,
+.workstation-color-picker-button[aria-expanded="true"] { border-color: #b5b5b5; }
+.workstation-color-picker-button:focus-visible,
+.workstation-color-swatch:focus-visible,
+.workstation-color-precise-toggle:focus-visible,
+.workstation-color-hex-input:focus-visible {
+  outline: 2px solid #68adff;
+  outline-offset: 2px;
+}
+.workstation-color-picker-preview { display: block; width: 100%; height: 100%; border-radius: 3px; }
+.workstation-color-picker-popover {
+  position: fixed;
+  z-index: 30;
+  width: 294px;
+  padding: 12px;
+  border: 1px solid #555;
+  border-radius: 8px;
+  background: #262626;
+  box-shadow: 0 18px 48px rgba(0,0,0,.72);
+}
+.workstation-color-palette {
+  display: grid;
+  grid-template-columns: repeat(10, 22px);
+  gap: 5px;
+}
+.workstation-color-swatch {
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background-color: #9a9a9a;
+  background-image:
+    linear-gradient(var(--swatch-color), var(--swatch-color)),
+    linear-gradient(45deg, #777 25%, transparent 25%),
+    linear-gradient(-45deg, #777 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, #777 75%),
+    linear-gradient(-45deg, transparent 75%, #777 75%);
+  background-position: 0 0, 0 0, 0 4px, 4px -4px, -4px 0;
+  background-size: auto, 8px 8px, 8px 8px, 8px 8px, 8px 8px;
+  cursor: pointer;
+}
+.workstation-color-swatch:hover { transform: scale(1.12); border-color: #eee; }
+.workstation-color-swatch[aria-pressed="true"] { outline: 2px solid #f4f4f4; outline-offset: 1px; }
+.workstation-color-recent-section { margin-top: 10px; padding-top: 9px; border-top: 1px solid #484848; }
+.workstation-color-picker-section-label { display: block; margin-bottom: 7px; color: #aaa; font-size: 10px; }
+.workstation-color-recent { display: grid; grid-template-columns: repeat(8, 22px); gap: 6px; }
+.workstation-color-picker-tools { margin-top: 9px; padding-top: 9px; border-top: 1px solid #484848; }
+.workstation-color-precise-toggle {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: #eee;
+  font-size: 22px;
+  cursor: pointer;
+}
+.workstation-color-precise-toggle:hover { background: #3a3a3a; }
+.workstation-color-opacity {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) 48px;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  color: #bcbcbc;
+  font-size: 11px;
+}
+.workstation-color-opacity input { width: 100%; accent-color: #f1f1f1; }
+.workstation-color-opacity-value {
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #626262;
+  border-radius: 5px;
+  color: #f2f2f2;
+}
+.workstation-color-precise-panel { margin-top: 10px; }
+.workstation-color-precise-picker { width: 100%; height: 174px; }
+.workstation-color-precise-picker::part(saturation) { border-radius: 6px; }
+.workstation-color-precise-picker::part(hue),
+.workstation-color-precise-picker::part(alpha) { height: 16px; border-radius: 999px; }
+.workstation-color-precise-picker::part(hue-pointer),
+.workstation-color-precise-picker::part(alpha-pointer),
+.workstation-color-precise-picker::part(saturation-pointer) {
+  width: 18px;
+  height: 18px;
+  border-width: 2px;
+}
+.workstation-color-hex-input {
+  width: 100%;
+  height: 32px;
+  margin-top: 8px;
+  padding: 0 9px;
+  border: 1px solid #626262;
+  border-radius: 5px;
+  background: #171717;
+  color: #f2f2f2;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  text-transform: uppercase;
 }
 .workstation-settings-precision {
   width: 194px;

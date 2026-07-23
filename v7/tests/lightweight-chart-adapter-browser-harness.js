@@ -209,13 +209,13 @@ try {
       candles: {
         bodyVisible: false,
         bordersVisible: false,
-        downBodyColor: '#9b1c31',
-        downBorderColor: '#f04b62',
-        downWickColor: '#f78da0',
+        downBodyColor: '#9b1c31ff',
+        downBorderColor: '#f04b62ff',
+        downWickColor: '#f78da0cc',
         pricePrecision: 1,
-        upBodyColor: '#146c54',
-        upBorderColor: '#22b889',
-        upWickColor: '#72d7b7',
+        upBodyColor: '#146c54ff',
+        upBorderColor: '#22b889ff',
+        upWickColor: '#72d7b7ff',
         wicksVisible: true,
       },
       priceIncrement: '0.25',
@@ -229,8 +229,8 @@ try {
   assert.equal(candlePresentation.after.seriesPresentation.priceLineVisible, true);
   assert.equal(candlePresentation.after.seriesPresentation.priceLineColor, '#787b86',
     'hidden bodies must retain a visible neutral current-price line and label');
-  assert.equal(candlePresentation.after.seriesPresentation.borderUpColor, '#22b889');
-  assert.equal(candlePresentation.after.seriesPresentation.wickDownColor, '#f78da0');
+  assert.equal(candlePresentation.after.seriesPresentation.borderUpColor, '#22b889ff');
+  assert.equal(candlePresentation.after.seriesPresentation.wickDownColor, '#f78da0cc');
   assert.equal(candlePresentation.after.seriesPresentation.priceFormat.type, 'custom',
     'manual precision below tick decimals must use a formatter without changing minMove');
   assert.equal(candlePresentation.after.seriesPresentation.priceFormat.minMove, 0.25);

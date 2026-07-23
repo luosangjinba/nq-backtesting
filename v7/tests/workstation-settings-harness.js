@@ -4,11 +4,15 @@ import { createStorageAdapter } from '../src/session-persistence/public.js';
 import {
   createWorkstationSettings,
   createWorkstationSettingsRuntime,
+  createColorHistoryStore,
   createPricePresentation,
   decimalPlacesForIncrement,
   deserializeWorkstationSettings,
   readWorkstationSettings,
   serializeWorkstationSettings,
+  hexColorOpacityPercent,
+  hexColorWithOpacity,
+  normalizeHexAlphaColor,
   WorkstationSettingsError,
 } from '../src/workstation-settings/public.js';
 import { createMemoryWebStorage } from './support/memory-web-storage.js';
@@ -56,6 +60,11 @@ assert.equal(grid(defaults), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults)), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).canvas), true);
 assert.equal(grid(deserializeWorkstationSettings(serializeWorkstationSettings(defaults))), true);
+assert.equal(serializeWorkstationSettings(defaults).version, 3);
+assert.equal(normalizeHexAlphaColor('#abc'), '#aabbccff');
+assert.equal(normalizeHexAlphaColor('#abcd'), '#aabbccdd');
+assert.equal(hexColorWithOpacity('#089981', 50), '#08998180');
+assert.equal(hexColorOpacityPercent('#08998180'), 50);
 assert.equal(decimalPlacesForIncrement('0.25'), 2);
 assert.equal(decimalPlacesForIncrement('0.00010'), 4);
 assert.equal(createPricePresentation({ priceIncrement: '0.25', pricePrecision: 'auto' }).format(1.5), '1.50');
@@ -73,6 +82,18 @@ assert.equal(grid(migrated), false, 'R6.9i records must preserve the committed G
 assert.deepEqual(readWorkstationSettings(migrated).candles,
   readWorkstationSettings(defaults).candles,
   'R6.9i records must migrate to accepted candle defaults');
+const migratedOpaqueCandles = deserializeWorkstationSettings({
+  schema: 'v7.workstation-settings',
+  value: {
+    candles: Object.fromEntries(Object.entries(readWorkstationSettings(defaults).candles).map(
+      ([field, value]) => [field, typeof value === 'string' && value.startsWith('#') ? value.slice(0, 7) : value],
+    )),
+    canvas: { gridVisible: true },
+  },
+  version: 2,
+});
+assert.equal(readWorkstationSettings(migratedOpaqueCandles).candles.upBodyColor, '#089981ff',
+  'R6.9j six-digit candle colors must migrate to opaque hex-alpha');
 assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
@@ -109,6 +130,18 @@ assert.throws(
 
 const webStorage = createMemoryWebStorage();
 const storage = createStorageAdapter(webStorage);
+const colorHistory = createColorHistoryStore({ storage, limit: 3 });
+assert.deepEqual(colorHistory.initialize(), []);
+assert.deepEqual(colorHistory.record(['#11223380', '#abcdef', '#11223380']), [
+  '#11223380', '#abcdefff',
+]);
+assert.deepEqual(colorHistory.record(['#000', '#11223380', '#fedcba40']), [
+  '#000000ff', '#11223380', '#fedcba40',
+]);
+assert.deepEqual(createColorHistoryStore({ storage, limit: 3 }).initialize(), [
+  '#000000ff', '#11223380', '#fedcba40',
+], 'recent colors must survive reconstruction in their separate global record');
+assert.equal(webStorage.keys().includes('v7.color-history:global'), true);
 const runtime = createWorkstationSettingsRuntime({ storage });
 assert.deepEqual(runtime.initialize(), {
   recoveryCode: null, revision: 0, settings: defaults,

@@ -3,6 +3,7 @@ import {
   DEFAULT_WORKSTATION_SETTINGS,
   readWorkstationSettings,
 } from '../workstation-settings/public.js';
+import { createColorPickerControl } from './color-picker-control.js';
 
 const TABS = Object.freeze([
   Object.freeze({ id: 'symbol', label: 'Symbol' }),
@@ -27,33 +28,52 @@ function informationalPanel(title, copy) {
   ]);
 }
 
-function candleStyleControl({ downName, label, upName, visibleName }) {
+function candleStyleControl({
+  downName,
+  getRecentColors,
+  label,
+  onColorChange,
+  onPickerOpen,
+  upName,
+  visibleName,
+}) {
   const visible = element('input', { type: 'checkbox' });
   visible.name = visibleName;
   visible.setAttribute('aria-label', `Show candle ${label.toLowerCase()}`);
-  const up = element('input', { type: 'color' });
-  up.name = upName;
-  up.title = `Up candle ${label.toLowerCase()} color`;
-  up.setAttribute('aria-label', up.title);
-  const down = element('input', { type: 'color' });
-  down.name = downName;
-  down.title = `Down candle ${label.toLowerCase()} color`;
-  down.setAttribute('aria-label', down.title);
+  const up = createColorPickerControl({
+    getRecentColors,
+    label: `Up candle ${label.toLowerCase()} color`,
+    name: upName,
+    onChange: () => onColorChange(upName),
+    onOpen: () => onPickerOpen(up),
+  });
+  const down = createColorPickerControl({
+    getRecentColors,
+    label: `Down candle ${label.toLowerCase()} color`,
+    name: downName,
+    onChange: () => onColorChange(downName),
+    onOpen: () => onPickerOpen(down),
+  });
   const root = element('div', { className: 'workstation-settings-candle-row' }, [
     element('label', { className: 'workstation-settings-candle-toggle' }, [
       visible,
       element('strong', { text: label }),
     ]),
     element('span', { className: 'workstation-settings-color-pair' }, [
-      element('label', {}, [element('small', { text: 'Up' }), up]),
-      element('label', {}, [element('small', { text: 'Down' }), down]),
+      element('label', {}, [element('small', { text: 'Up' }), up.root]),
+      element('label', {}, [element('small', { text: 'Down' }), down.root]),
     ]),
   ]);
   return Object.freeze({ down, root, up, visible });
 }
 
 /** Own one disposable Settings draft and no committed/persistence/chart state. */
-export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
+export function createWorkstationSettingsDialog({
+  getRecentColors = () => [],
+  getSnapshot,
+  onRecordRecentColors = () => {},
+  onSave,
+}) {
   if (typeof getSnapshot !== 'function' || typeof onSave !== 'function') {
     throw new TypeError('Workstation Settings dialog requires getSnapshot() and onSave().');
   }
@@ -67,17 +87,35 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
     ]),
     element('span', { className: 'workstation-settings-switch' }, [grid, gridTrack]),
   ]);
+  const pickerControls = [];
+  let touchedColors = [];
+  const markColorTouched = (name) => {
+    touchedColors = [name, ...touchedColors.filter((candidate) => candidate !== name)];
+  };
+  const closePickers = (except = null) => {
+    for (const picker of pickerControls) if (picker !== except) picker.close();
+  };
+  const pickerOptions = {
+    getRecentColors,
+    onColorChange: markColorTouched,
+    onPickerOpen: (picker) => closePickers(picker),
+  };
   const candleControls = Object.freeze({
     body: candleStyleControl({
+      ...pickerOptions,
       downName: 'downBodyColor', label: 'Body', upName: 'upBodyColor', visibleName: 'bodyVisible',
     }),
     borders: candleStyleControl({
+      ...pickerOptions,
       downName: 'downBorderColor', label: 'Borders', upName: 'upBorderColor', visibleName: 'bordersVisible',
     }),
     wicks: candleStyleControl({
+      ...pickerOptions,
       downName: 'downWickColor', label: 'Wicks', upName: 'upWickColor', visibleName: 'wicksVisible',
     }),
   });
+  for (const group of Object.values(candleControls)) pickerControls.push(group.up, group.down);
+  const pickerByName = new Map(pickerControls.map((picker) => [picker.input.name, picker]));
   const precision = element('select', { className: 'workstation-settings-precision' });
   precision.name = 'pricePrecision';
   precision.setAttribute('aria-label', 'Price precision');
@@ -179,6 +217,7 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
 
   function selectTab(id) {
     if (!tabs.has(id)) return;
+    closePickers();
     activeTab = id;
     for (const [tabId, button] of tabs) {
       const active = tabId === id;
@@ -189,6 +228,8 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
   }
 
   function populate(settings) {
+    closePickers();
+    touchedColors = [];
     const value = readWorkstationSettings(settings);
     candleControls.body.visible.checked = value.candles.bodyVisible;
     candleControls.body.up.value = value.candles.upBodyColor;
@@ -206,6 +247,7 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
   }
 
   function discard() {
+    closePickers();
     if (dialog.open) dialog.close();
   }
 
@@ -232,6 +274,12 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
       outcome = Object.freeze({ accepted: false, message: error?.message });
     }
     if (outcome?.accepted === true) {
+      if (touchedColors.length > 0) {
+        try {
+          onRecordRecentColors(touchedColors.map((name) => pickerByName.get(name).value));
+        } catch { /* A convenience history failure cannot roll back accepted Settings. */ }
+      }
+      closePickers();
       dialog.close();
       return;
     }
@@ -256,7 +304,10 @@ export function createWorkstationSettingsDialog({ getSnapshot, onSave }) {
   selectTab(activeTab);
 
   return Object.freeze({
-    dispose() { dialog.remove(); },
+    dispose() {
+      for (const picker of pickerControls) picker.dispose();
+      dialog.remove();
+    },
     element: dialog,
     open() {
       const snapshot = getSnapshot();

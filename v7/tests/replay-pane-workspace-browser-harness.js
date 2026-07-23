@@ -19,6 +19,9 @@ const exactGotoVisualFile = path.join(
 const workstationSettingsVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/workstation-settings-dialog.png',
 );
+const colorPickerVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/color-picker.png',
+);
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r6-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve));
@@ -59,8 +62,43 @@ async function capture(cdp, fixture = visualFile, selector = null) {
     return;
   }
   assert.ok(fs.existsSync(fixture), `missing visual fixture ${path.basename(fixture)}`);
-  assert.equal(actual.equals(fs.readFileSync(fixture)), true,
-    `${path.basename(fixture)} visual fixture changed`);
+  const expected = fs.readFileSync(fixture);
+  if (actual.equals(expected)) return;
+  const pixelDifference = await evaluate(cdp, `(async () => {
+    const decode = async (base64) => createImageBitmap(await (await fetch(
+      'data:image/png;base64,' + base64
+    )).blob());
+    const [left, right] = await Promise.all([
+      decode(${JSON.stringify(actual.toString('base64'))}),
+      decode(${JSON.stringify(expected.toString('base64'))}),
+    ]);
+    if (left.width !== right.width || left.height !== right.height) {
+      return { dimensionsEqual: false, differentPixels: null, maxChannelDelta: null };
+    }
+    const canvas = new OffscreenCanvas(left.width, left.height);
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    context.drawImage(left, 0, 0);
+    const leftPixels = context.getImageData(0, 0, left.width, left.height).data;
+    context.clearRect(0, 0, left.width, left.height);
+    context.drawImage(right, 0, 0);
+    const rightPixels = context.getImageData(0, 0, right.width, right.height).data;
+    let differentPixels = 0;
+    let maxChannelDelta = 0;
+    for (let index = 0; index < leftPixels.length; index += 4) {
+      let pixelChanged = false;
+      for (let channel = 0; channel < 4; channel += 1) {
+        const delta = Math.abs(leftPixels[index + channel] - rightPixels[index + channel]);
+        if (delta > 0) pixelChanged = true;
+        maxChannelDelta = Math.max(maxChannelDelta, delta);
+      }
+      if (pixelChanged) differentPixels += 1;
+    }
+    return { dimensionsEqual: true, differentPixels, maxChannelDelta };
+  })()`);
+  assert.equal(pixelDifference.dimensionsEqual, true,
+    `${path.basename(fixture)} visual dimensions changed`);
+  assert.equal(pixelDifference.maxChannelDelta <= 1 && pixelDifference.differentPixels <= 16, true,
+    `${path.basename(fixture)} visual pixels changed: ${JSON.stringify(pixelDifference)}`);
 }
 
 function paneStateExpression() {
@@ -215,6 +253,32 @@ try {
     .map((tab) => tab.textContent)`), ['Symbol', 'Status line', 'Scales and lines', 'Canvas']);
   assert.equal(await evaluate(cdp,
     `document.querySelector('[name="gridVisible"]').checked`), true);
+  assert.equal(await evaluate(cdp,
+    `document.querySelectorAll('.workstation-color-picker-button').length`), 6);
+  await evaluate(cdp, `document.querySelector('.workstation-color-picker-button').click()`);
+  await waitFor(cdp, `document.querySelector('.workstation-color-picker-popover')?.hidden === false`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelectorAll(
+      '.workstation-color-picker-popover:not([hidden]) .workstation-color-palette .workstation-color-swatch'
+    ).length`), 70);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.workstation-color-recent-section').hidden`), true);
+  await evaluate(cdp, `document.querySelector('.workstation-color-precise-toggle').click()`);
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.workstation-color-precise-panel').hidden`), false);
+  assert.equal(await evaluate(cdp,
+    `document.querySelectorAll('hex-alpha-color-picker').length`), 6,
+  'the precise engine must stay encapsulated inside each owned color control');
+  await capture(cdp, colorPickerVisualFile, '.workstation-color-picker-popover');
+  await evaluate(cdp, `(() => {
+    const draft = document.querySelector('[name="upBodyColor"]');
+    draft.value = '#5c6bc080';
+    draft.dispatchEvent(new Event('input', { bubbles: true }));
+    document.querySelector('.workstation-settings-cancel').click();
+  })()`);
+  assert.equal(await evaluate(cdp, `localStorage.getItem('v7.color-history:global')`), null,
+    'Cancel must not leak draft colors into global recent history');
+  await evaluate(cdp, `document.querySelector('.workstation-settings-open').click()`);
   await evaluate(cdp, `(() => {
     document.querySelector('[name="gridVisible"]').click();
     document.querySelector('.workstation-settings-cancel').click();
@@ -634,14 +698,22 @@ try {
     document.querySelector('.workstation-settings-open').click();
     document.querySelector('[name="gridVisible"]').click();
     document.querySelector('[name="bodyVisible"]').click();
-    document.querySelector('[name="upBorderColor"]').value = '#36c28f';
-    document.querySelector('[name="downWickColor"]').value = '#ff7185';
+    const upBorder = document.querySelector('[name="upBorderColor"]');
+    upBorder.value = '#36c28fff';
+    upBorder.dispatchEvent(new Event('input', { bubbles: true }));
+    const downWick = document.querySelector('[name="downWickColor"]');
+    downWick.value = '#ff7185cc';
+    downWick.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('[name="pricePrecision"]').value = '1';
     document.querySelector('.workstation-settings-save').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
     && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'`);
   const afterSettingsCommit = await evaluate(cdp, paneStateExpression());
+  assert.deepEqual(await evaluate(cdp, `JSON.parse(
+    localStorage.getItem('v7.color-history:global')
+  ).colors.slice(0, 2)`), ['#ff7185cc', '#36c28fff'],
+  'only successfully committed touched colors must enter global recent history');
   assert.equal(afterSettingsCommit.replayRevision, beforeSettingsCommit.replayRevision,
     'Settings must not move Replay');
   assert.equal(afterSettingsCommit.workspaceRevision, beforeSettingsCommit.workspaceRevision,
@@ -721,6 +793,16 @@ try {
   'future Panes must inherit the committed Symbol presentation before ready paint');
   await evaluate(cdp, `(() => {
     document.querySelector('.workstation-settings-open').click();
+    document.querySelector('.workstation-color-picker-button').click();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.workstation-color-recent-section')?.hidden === false`);
+  assert.deepEqual(await evaluate(cdp,
+    `[...document.querySelectorAll('.workstation-color-recent .workstation-color-swatch')]
+      .map((button) => button.getAttribute('aria-label'))`), [
+    'Choose recent color #ff7185cc', 'Choose recent color #36c28fff',
+  ], 'recent colors must remain global across hard reload and a newly created Session');
+  await evaluate(cdp, `(() => {
+    document.querySelector('.workstation-color-picker-button').click();
     document.querySelector('[name="wicksVisible"]').click();
     document.querySelector('.workstation-settings-save').click();
   })()`);

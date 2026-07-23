@@ -33,6 +33,7 @@ class SessionBrowserController {
     this.openedSessionSurface = options.openedSessionSurface ?? null;
     this.replayNavigationPreferences = options.replayNavigationPreferences ?? null;
     this.workstationSettings = options.workstationSettings ?? null;
+    this.colorHistory = options.colorHistory ?? null;
     this.unavailableMessage = options.unavailableMessage;
     this.records = [];
     this.stopped = false;
@@ -128,6 +129,7 @@ class SessionBrowserController {
             record,
             root: this.root.querySelector('.replay-workspace-slot'),
             workstationSettings: this.workstationSettings,
+            colorHistory: this.colorHistory,
           });
         }
       } catch {
@@ -189,6 +191,7 @@ export function createSessionBrowser(options) {
       ['registerConsumer', 'save', 'snapshot'],
       'Workstation Settings',
     );
+    requirePort(options.colorHistory, ['record', 'snapshot'], 'Color history');
   }
   const controller = new SessionBrowserController({
     ...options,
