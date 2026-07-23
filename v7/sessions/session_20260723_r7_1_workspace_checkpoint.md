@@ -21,8 +21,9 @@ Status: automated gates pass; human review pending
 - Workspace Checkpoint Domain, Session Store, Viewport Runtime, and Pane
   Workspace State Harnesses pass;
 - the dedicated real-Chrome Harness passes first-save, route re-entry, and hard
-  refresh with two mixed-capability Panes, RTH, Crosshair sync, manual Viewport,
-  exact cursor retention, and paused playback;
+  refresh with an unrelated earlier Session, Next plus Autoplay advancement,
+  two mixed-capability Panes, RTH, Crosshair sync, manual Viewport, exact cursor
+  retention, and paused playback;
 - existing Replay Pane and Layout Workspace browser Harnesses remain green;
 - all 56 focused/runtime/real-Chrome Harnesses pass, including the existing
   Replay Workspace latency gate, and `git diff --check` passes.

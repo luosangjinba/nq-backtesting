@@ -118,8 +118,9 @@ rules.
 - `tests/pane-workspace-state-harness.js` binds active Pane, per-Pane
   configuration, stable priority identity, and semantic Viewport restore.
 - `tests/workspace-checkpoint-restore-browser-harness.js` proves first-save,
-  soft re-entry, and hard refresh against real Lightweight Charts with mixed
-  Pane capabilities, RTH, Layout Sync, manual Viewport, paused transport, and no
+  Next and Autoplay persistence, soft re-entry, and hard refresh against real
+  Lightweight Charts with an unrelated earlier Session, mixed Pane
+  capabilities, RTH, Layout Sync, manual Viewport, paused transport, and no
   extra Replay advance.
 
 ## Human Review Gate

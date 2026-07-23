@@ -55,9 +55,11 @@ const workspaceState = `(() => {
 })()`;
 
 const persistedWorkspace = `(() => {
-  const key = Object.keys(localStorage).find((candidate) =>
-    candidate.startsWith('v7.session-browser:record:'));
-  return key ? JSON.parse(localStorage.getItem(key)).value.workspace : null;
+  const prefix = '#/session/';
+  if (!location.hash.startsWith(prefix)) return null;
+  const token = decodeURIComponent(location.hash.slice(prefix.length));
+  const key = 'v7.session-browser:record:' + encodeURIComponent(token);
+  return JSON.parse(localStorage.getItem(key))?.value?.workspace ?? null;
 })()`;
 
 function assertRestored(actual, before, checkpoint) {
@@ -101,6 +103,21 @@ try {
   });
   await cdp.send('Page.navigate', { url: `http://127.0.0.1:${webPort}/v7/app/` });
   await waitFor(cdp, `document.querySelector('#app')?.dataset.viewState === 'empty'`);
+
+  await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
+  await evaluate(cdp, `(() => {
+    const form = document.querySelector('.create-form');
+    form.elements.name.value = 'Earlier Session';
+    form.querySelector('[name="instrument"]').checked = true;
+    form.elements.start.value = '2026-05-01T12:40';
+    form.elements.end.value = '2026-05-02T16:00';
+    form.requestSubmit();
+  })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`);
+  await evaluate(cdp, `document.querySelector('.replay-back').click()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
+
   await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
   await waitFor(cdp, `document.querySelector('.create-dialog')?.open === true`);
   await evaluate(cdp, `(() => {
@@ -152,6 +169,15 @@ try {
       && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
   }
 
+  const autoplayRevision = Number(await evaluate(cdp,
+    `document.querySelector('.replay-workspace').dataset.replayRevision`));
+  await evaluate(cdp, `document.querySelector('.replay-autoplay').click()`);
+  await waitFor(cdp, `Number(document.querySelector('.replay-workspace')?.dataset.replayRevision)
+    >= ${autoplayRevision + 3}`, 12_000);
+  await evaluate(cdp, `document.querySelector('.replay-pause').click()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.replayPlayback === 'paused'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
+
   const point = await evaluate(cdp, `(() => {
     const rect = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host')
       .getBoundingClientRect();
@@ -177,8 +203,10 @@ try {
   assert.equal(saved.paneLayout.variantId, 'layout.two-columns');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
-  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 1`);
-  await evaluate(cdp, `document.querySelector('.session-card .open-session-button').click()`);
+  await waitFor(cdp, `document.querySelectorAll('.session-card').length === 2`);
+  await evaluate(cdp, `[...document.querySelectorAll('.session-card')]
+    .find((card) => card.textContent.includes('R7 restore'))
+    .querySelector('.open-session-button').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
     && document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.two-columns'`, 12_000);
   const softRestored = await evaluate(cdp, workspaceState);
@@ -197,7 +225,7 @@ try {
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 
   console.log('v7 Workspace checkpoint restore browser harness passed', {
-    scope: 'first-save, soft re-entry, hard refresh, cursor/panes/viewport/layout/session-hours restore',
+    scope: 'multi-session first-save, Next/Autoplay, soft re-entry, hard refresh, complete Workspace restore',
   });
 } finally {
   try { await cdp?.close(); } catch { /* best effort */ }
