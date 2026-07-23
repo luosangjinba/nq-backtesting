@@ -43,6 +43,19 @@
     "expectedCode": "INVALID_SESSION_WORKSPACE"
   },
   {
+    "name": "invalid layout sync workspace",
+    "operation": "deserialize",
+    "patch": {
+      "workspace": {
+        "schemaVersion": 5,
+        "state": "configured",
+        "paneLayout": {},
+        "layoutSync": {}
+      }
+    },
+    "expectedCode": "INVALID_SESSION_WORKSPACE"
+  },
+  {
     "name": "unknown session",
     "operation": "getUnknown",
     "patch": {},

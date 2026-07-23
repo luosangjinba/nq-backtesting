@@ -128,9 +128,9 @@ export function createPaneLayoutMenu({ onChoose, onCrosshairSync, options }) {
       controlDisabled = nextDisabled === true;
       updateCrosshairAvailability(preserveVisual);
     },
-    setCrosshairSync(enabled) {
-      crosshairSyncInput.checked = enabled === true;
-      root.dataset.crosshairSync = String(enabled === true);
+    setSync(value) {
+      crosshairSyncInput.checked = value.crosshair === true;
+      root.dataset.crosshairSync = String(value.crosshair === true);
     },
     setPaneCount(count) {
       paneCount = count;

@@ -1,0 +1,9 @@
+[
+  { "name": "forged policy value", "operation": "readForged", "expectedCode": "LAYOUT_SYNC_REQUIRED" },
+  { "name": "extra policy field", "operation": "createExtra", "expectedCode": "LAYOUT_SYNC_FIELDS_INVALID" },
+  { "name": "non-boolean policy value", "operation": "createNonBoolean", "expectedCode": "LAYOUT_SYNC_VALUE_INVALID" },
+  { "name": "unsupported policy key", "operation": "setUnknown", "expectedCode": "LAYOUT_SYNC_KEY_INVALID" },
+  { "name": "non-boolean toggle target", "operation": "setNonBoolean", "expectedCode": "LAYOUT_SYNC_VALUE_INVALID" },
+  { "name": "unsupported wire version", "operation": "deserializeVersion", "expectedCode": "LAYOUT_SYNC_WIRE_INVALID" },
+  { "name": "extra wire field", "operation": "deserializeExtra", "expectedCode": "LAYOUT_SYNC_WIRE_INVALID" }
+]

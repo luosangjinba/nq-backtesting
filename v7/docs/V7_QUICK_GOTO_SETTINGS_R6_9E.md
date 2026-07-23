@@ -49,8 +49,9 @@ Replay step.
 
 Older uninitialized, Pane-layout-only, and schema-3 records remain readable.
 If the global record is absent, the most recently updated valid schema-3 value
-seeds it once. Current schema 4 stores Pane Layout only; deleting a Session
-cannot reset the global schedule.
+seeds it once. Schema 4 stored Pane Layout only; current schema 5 also stores
+the unrelated Session-scoped Layout Sync policy. Deleting a Session cannot
+reset the global schedule.
 
 ## Range-End Feedback
 
@@ -80,8 +81,8 @@ Replay cursor or become required by navigation.
   eight negative controls;
 - the Replay Navigation Preference Store Harness binds global save/restore,
   legacy migration, corruption fallback, and failed-write atomicity;
-- Session Store evidence binds legacy schema-3 readability and current
-  Pane-layout-only schema 4;
+- Session Store evidence binds legacy schema-3 readability and navigation-
+  preference removal from current schema 5;
 - Replay Navigation evidence binds dynamic schedule replacement without a
   second runtime or cursor and binds the exclusive pre-anchor cutoff for all
   eight actions;

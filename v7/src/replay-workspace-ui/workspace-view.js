@@ -1,5 +1,6 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
 import { readPaneLayout } from '../pane-layout-domain/public.js';
+import { readLayoutSync } from '../layout-sync-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
@@ -386,9 +387,13 @@ export function createReplayWorkspaceView({
       paneLayoutControl.setPaneCount(value.paneCount);
       paneGrid.setLayout(layout, paneIds);
     },
-    setCrosshairSync(enabled) {
-      root.dataset.crosshairSync = String(enabled === true);
-      paneLayoutControl.setCrosshairSync(enabled);
+    setLayoutSync(layoutSync) {
+      const value = readLayoutSync(layoutSync);
+      root.dataset.crosshairSync = String(value.crosshair);
+      for (const [key, enabled] of Object.entries(value)) {
+        root.dataset[`layoutSync${key[0].toUpperCase()}${key.slice(1)}`] = String(enabled);
+      }
+      paneLayoutControl.setSync(value);
     },
     setPaneOhlc(panes) { paneGrid.setPaneOhlc(panes); },
     setTimeframeSync(enabled) {

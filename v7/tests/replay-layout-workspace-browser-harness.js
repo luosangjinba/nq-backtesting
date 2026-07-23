@@ -217,6 +217,19 @@ try {
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'`, 12_000);
 
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const root = document.querySelector('.replay-workspace');
+    return {
+      symbol: root.dataset.layoutSyncSymbol,
+      interval: root.dataset.layoutSyncInterval,
+      crosshair: root.dataset.layoutSyncCrosshair,
+      time: root.dataset.layoutSyncTime,
+      dateRange: root.dataset.layoutSyncDateRange,
+    };
+  })()`), {
+    symbol: 'true', interval: 'false', crosshair: 'false', time: 'false', dateRange: 'false',
+  }, 'a newly configured Session must project the reviewed Layout Sync defaults');
+
   const singleHeader = await evaluate(cdp, `(() => {
     const pane = document.querySelector('[data-pane-id="pane-main"]');
     const header = pane.querySelector('.workspace-pane-header');
@@ -611,6 +624,11 @@ try {
   assert.ok(Math.abs(restored.rootRatio - persistedRatio) <= 1,
     `Session re-entry must restore the accepted divider ratio: ${JSON.stringify({ persistedRatio, restored: restored.rootRatio })}`);
   assert.equal(restored.panes.length, 4);
+  assert.deepEqual(await evaluate(cdp, `(() => ({
+    checked: document.querySelector('.pane-crosshair-sync input').checked,
+    crosshair: document.querySelector('.replay-workspace').dataset.layoutSyncCrosshair,
+  }))()`), { checked: true, crosshair: 'true' },
+  'Session re-entry must restore the accepted Crosshair synchronization policy');
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 } finally {
   cdp?.close();
@@ -637,5 +655,5 @@ try {
 }
 
 console.log('v7 Replay Layout Workspace browser harness passed', {
-  scope: '12 layouts, Canvas OHLC/change, transient maximize, local/synced crosshair, resize persistence, shared Replay/ETH-RTH',
+  scope: '12 layouts, Canvas OHLC/change, transient maximize, Layout Sync persistence, resize persistence, shared Replay/ETH-RTH',
 });

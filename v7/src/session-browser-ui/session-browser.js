@@ -126,6 +126,10 @@ class SessionBrowserController {
           this.openedSessionSurface.mount({
             initialNavigationSettings: this.replayNavigationPreferences.snapshot(),
             onBack: this.actions.onBack,
+            onPersistLayoutSync: (layoutSync) => this.store.saveLayoutSync(record.sessionId, {
+              layoutSync,
+              nowEpochMs: this.now(),
+            }),
             onPersistPaneLayout: (layout) => this.store.savePaneLayout(record.sessionId, {
               layout,
               nowEpochMs: this.now(),

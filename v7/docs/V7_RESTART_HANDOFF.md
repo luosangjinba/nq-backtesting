@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after R6.9l acceptance and R6.9m shared time-
-presentation implementation; R6.9m awaits focused human review
+Last updated: 2026-07-22 after R6.9m acceptance and R6.10a Layout Sync contract,
+schema, and durable Crosshair migration
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -30,7 +30,8 @@ required for normal startup.
   human accepted; R6.9l Canvas/Crosshair/scale/Pane-control/default-margin
   settings plus owner-managed live-preview/Cancel-restore correction human
   accepted; R6.9m New York/UTC/local, date, weekday, and 12/24-hour
-  presentation implemented and awaiting human review; R2.4 Session Browser
+  presentation human accepted; R6.10a versioned Session Layout Sync policy and
+  durable Crosshair restoration executable; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -91,6 +92,8 @@ R6-relevant architecture/roadmap documents plus:
 - `sessions/session_20260722_r6_9e1_future_time_axis.md`.
 - `sessions/session_20260722_r6_9k_status_current_price.md`.
 - `sessions/session_20260722_r6_9l_canvas_settings.md`.
+- `sessions/session_20260722_r6_9m_time_presentation.md`.
+- `sessions/session_20260722_r6_10a_layout_sync_contract.md`.
 - `sessions/session_20260721_r2_4_session_browser_readability_delete.md`.
 - this handoff plus `docs/V7_V6_INTERACTION_CARRY_FORWARD.md`.
 - the V6 ETH/RTH Phase A1/A2/A3 documents targeted by R5.2.
@@ -293,7 +296,8 @@ and human-accepted:
   adds one seven-time Reset/Discard/Save settings dialog. A focused immutable
   contract and global Replay Navigation Preference Store persist one schedule
   for every Replay Session; legacy Session workspace schema 3 remains one-time
-  migration input while current schema 4 stores Pane Layout only. Save replaces the schedule without
+  migration input while current schema 5 stores Pane Layout plus the unrelated
+  Layout Sync policy. Save replaces the schedule without
   Replay or Workspace revision, and expected range exhaustion now leaves the
   Workspace ready with an inline message naming the range end. This visible
   slice awaits human interaction and visual review.
@@ -345,7 +349,13 @@ and human-accepted:
   browser-local, date-order, detailed-weekday, and 12/24-hour presentation for
   native chart formatters, Replay Workspace, Exact GoTo, and Session Browser.
   Session creation and Quick GoTo retain their New York domain clocks; no
-  canonical instant or Replay state moves. It awaits human review.
+  canonical instant or Replay state moves. It was accepted on 2026-07-22.
+- R6.10a adds one pure versioned Layout Sync policy with reviewed Symbol-on and
+  other-switches-off defaults. Session Store now persists Pane Layout plus the
+  policy in configured workspace schema 5 and lazily migrates schemas 1–4.
+  The already accepted Crosshair switch now saves and restores per Session;
+  Symbol, Interval, Time, and Date-range controls remain absent until their
+  real consumers land. Replay and ETH/RTH remain always Session-wide.
 
 Latest corrective commits:
 
@@ -427,7 +437,7 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 ## Deliberately Not Implemented
 
 There is still no production-complete CME holiday dataset, calendar-aligned
-day/week/month policy, complete layout sync beyond Crosshair, or complete
+day/week/month policy, active layout sync beyond Crosshair, or complete
 hard-refresh workspace restore.
 V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
 exchange-calendar or tick-level coverage.
@@ -466,13 +476,12 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9l Canvas Settings and live-preview/discard restoration were accepted on
-2026-07-22. R6.9m shared time presentation is implemented and awaits focused
-human review. Verify all timezones/date/hour formats across charts, Exact GoTo,
-footer text, and Session Browser without Replay movement. After acceptance,
-execute R6.10 layout sync. Economic Calendar remains outside this foundation
-phase. The outstanding R6.9c focused visual confirmation remains a separate
-gate.
+R6.9m shared time presentation was accepted on 2026-07-22. R6.10a now binds the
+versioned Session Layout Sync policy and migrates the existing Crosshair switch
+to durable restoration. Next implement R6.10b Symbol and Interval switches as
+one atomic complete-Pane replacement. Do not implement per-Pane event fan-out,
+Time/Date-range projection, or Economic Calendar in that slice. The combined
+R6.10 interaction gate follows the bounded consumer slices.
 
 ## Standing Workflow
 

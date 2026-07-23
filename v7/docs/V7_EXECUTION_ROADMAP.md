@@ -429,9 +429,16 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.9m`: activate shared New York/UTC/local, date, weekday, and 12/24-hour
   presentation across native chart formatters, Replay Workspace, Exact GoTo,
   and Session Browser without changing canonical instants or Replay semantics;
-  implemented and awaiting human review;
-- `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
-  layout-sync families over explicit owners;
+  accepted on 2026-07-22;
+- `R6.10a`: define one versioned Session-workspace Layout Sync policy, advance
+  configured workspaces to schema 5, and migrate the existing Crosshair switch
+  to durable restoration without exposing inert future controls;
+- `R6.10b`: activate Symbol and Interval synchronization through one atomic
+  complete-Pane Workspace replacement;
+- `R6.10c`: activate Time synchronization through adapter-owned time-point
+  projection without Replay or persisted chart-coordinate ownership;
+- `R6.10d`: activate Date-range synchronization through bounded visible-range
+  projection and the combined R6.10 human gate;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.

@@ -1110,7 +1110,7 @@ redesign below instead of being applied in isolation.
 - [x] validate and version the settings through a focused pure contract;
 - [x] persist one accepted workstation-wide schedule outside Session Store,
   migrate the most recently updated legacy schema-3 value once, and keep
-  current Session schema 4 limited to Pane Layout;
+  then-current Session schema 4 limited to Pane Layout;
 - [x] apply saved settings immediately without moving Replay or issuing a
   Workspace transaction;
 - [x] treat every configured shortcut time as an exclusive cutoff so `1m`
@@ -1325,7 +1325,7 @@ presentation.
   manual Viewport wall;
 - [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-### R6.9m Shared Time Presentation — Awaiting Human Review
+### R6.9m Shared Time Presentation — Accepted
 
 - [x] record R6.9l live-preview acceptance before starting the next bounded
   slice;
@@ -1348,7 +1348,30 @@ presentation.
 - [x] bind version migration, DST/local/UTC formatting, native chart mapping,
   Exact Calendar, hard reload, cross-Session/future-Pane inheritance, Session
   Browser, and updated visual baselines in focused Harnesses;
-- [ ] obtain explicit human interaction and visual acceptance.
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
+
+### R6.10a Layout Sync Contract And Crosshair Persistence — Executable
+
+- [x] define one immutable, versioned Session-workspace policy for Symbol,
+  Interval, Crosshair, Time, and Date range;
+- [x] retain reviewed defaults: Symbol on and the other four switches off;
+- [x] keep Replay and ETH/RTH outside the switches because they are always
+  Session-wide;
+- [x] advance configured Session workspaces to schema version 5 while retaining
+  schemas 1–4 as lazy migration inputs;
+- [x] make Session Store the sole durable policy writer and preserve A/B
+  isolation plus revision CAS;
+- [x] migrate the existing Crosshair switch from a component-local boolean to
+  the accepted policy without Replay, Workspace, bars, series, focus, or
+  Viewport mutation;
+- [x] restore accepted Crosshair synchronization after Session re-entry;
+- [x] keep unimplemented Symbol/Interval/Time/Date-range controls out of the UI
+  until each real owner/consumer lands;
+- [x] bind fixture-backed domain failures, persistence/migration, real-browser
+  projection, architecture, and source-quality evidence.
+
+Next bounded slice: R6.10b activates Symbol and Interval policies through one
+atomic complete-Pane Workspace replacement, not per-Pane event fan-out.
 
 ## Standing Gates
 

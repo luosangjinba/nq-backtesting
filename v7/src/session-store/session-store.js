@@ -3,6 +3,10 @@ import {
   nextActivationGeneration,
 } from '../activation-generation/public.js';
 import { createPaneLayout, serializePaneLayout } from '../pane-layout-domain/public.js';
+import {
+  createLayoutSync,
+  serializeLayoutSync,
+} from '../layout-sync-domain/public.js';
 import { requireSessionId, sessionIdsEqual } from '../session-identity/public.js';
 import {
   createSessionRecord,
@@ -43,11 +47,15 @@ export function createSessionStore({ repository, migrations = {} }) {
 
   function configuredWorkspace(current, overrides = {}) {
     return {
+      layoutSync: overrides.layoutSync
+        ?? (current.workspace.state === 'configured' && current.workspace.schemaVersion >= 5
+          ? current.workspace.layoutSync
+          : serializeLayoutSync(createLayoutSync())),
       paneLayout: overrides.paneLayout
         ?? (current.workspace.state === 'configured'
           ? current.workspace.paneLayout
           : serializePaneLayout(createPaneLayout())),
-      schemaVersion: 4,
+      schemaVersion: 5,
       state: 'configured',
     };
   }
@@ -104,6 +112,18 @@ export function createSessionStore({ repository, migrations = {} }) {
         revision: current.revision + 1,
         metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
         workspace: configuredWorkspace(current, { paneLayout: serializePaneLayout(layout) }),
+      });
+      port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
+      return next;
+    },
+    saveLayoutSync(sessionId, { layoutSync, nowEpochMs }) {
+      const current = requireExisting(sessionId);
+      const serialized = serializeLayoutSync(layoutSync);
+      const next = SESSION_RECORD_INTERNALS.freezeRecord({
+        ...current,
+        revision: current.revision + 1,
+        metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
+        workspace: configuredWorkspace(current, { layoutSync: serialized }),
       });
       port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
       return next;

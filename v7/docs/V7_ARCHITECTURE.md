@@ -122,6 +122,16 @@ under the explicit Session id. Same-count variant changes and resize commits do
 not request bars, move Replay, or create a Workspace transaction; Pane-count
 changes continue through the existing atomic complete Pane-set path.
 
+R6.10a activates `core.layout-sync-domain` as the pure owner of the exact
+Symbol/Interval/Crosshair/Time/Date-range policy and its versioned wire schema.
+Session Store is the only durable writer and stores the complete policy beside
+Pane Layout in configured workspace schema 5. Replay Workspace UI owns only the
+menu projection; the existing Crosshair consumer remains chart-adapter-owned.
+Replay and ETH/RTH remain always Session-wide and are not optional sync keys.
+Future Symbol/Interval policies must produce one complete Workspace replacement,
+while Time/Date-range policies must remain adapter/Viewport projections rather
+than per-Pane event chains or persisted chart coordinates.
+
 R6.9a keeps Pane OHLC and Crosshair synchronization on the chart-presentation
 side of that boundary. Each Lightweight Chart Adapter owns native crosshair
 subscription, accepted current/latest candle lookup, and the only calls to

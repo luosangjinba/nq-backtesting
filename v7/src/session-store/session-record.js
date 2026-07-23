@@ -9,6 +9,7 @@ import {
   serializeSessionId,
 } from '../session-identity/public.js';
 import { deserializePaneLayout, serializePaneLayout } from '../pane-layout-domain/public.js';
+import { deserializeLayoutSync, serializeLayoutSync } from '../layout-sync-domain/public.js';
 import {
   deserializeReplayNavigationSettings,
   serializeReplayNavigationSettings,
@@ -101,6 +102,19 @@ function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }) 
       });
     } catch (cause) {
       fail('INVALID_SESSION_WORKSPACE', 'Session workspace Pane layout is invalid.', { cause });
+    }
+  }
+  if (value?.schemaVersion === 5 && value.state === 'configured'
+    && Object.keys(value).sort().join(',') === 'layoutSync,paneLayout,schemaVersion,state') {
+    try {
+      return Object.freeze({
+        layoutSync: serializeLayoutSync(deserializeLayoutSync(value.layoutSync)),
+        paneLayout: serializePaneLayout(deserializePaneLayout(value.paneLayout)),
+        schemaVersion: 5,
+        state: 'configured',
+      });
+    } catch (cause) {
+      fail('INVALID_SESSION_WORKSPACE', 'Session workspace layout configuration is invalid.', { cause });
     }
   }
   fail('INVALID_SESSION_WORKSPACE', 'Session workspace envelope is unsupported.');

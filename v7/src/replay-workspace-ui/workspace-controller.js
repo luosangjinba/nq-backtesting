@@ -21,6 +21,7 @@ import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
 import { createFoundationMarket } from './foundation-market.js';
 import { createFoundationSourceTraversal } from './foundation-source-traversal.js';
 import { quickGotoLabel } from './goto-quick-actions.js';
+import { createLayoutSyncController } from './layout-sync-controller.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneWorkspaceState } from './pane-workspace-state.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
@@ -36,7 +37,9 @@ function formatCursor(settings, epochMs) {
 /** Wire one real Session-scoped Replay clock to a uniform one/multi-Pane chart surface. */
 export function createReplayWorkspaceController({
   initialLayout,
+  initialLayoutSync,
   initialNavigationSettings,
+  persistLayoutSync,
   persistPaneLayout,
   persistReplayNavigationSettings,
   record,
@@ -60,7 +63,6 @@ export function createReplayWorkspaceController({
   let disposed = false;
   let execution = null;
   let autoplayScheduler = null;
-  let crosshairSync = false;
   let syncTimeframe = false;
   let truncationSelectionActive = false;
   let paneLayout = initialLayout ?? createPaneLayout();
@@ -79,7 +81,6 @@ export function createReplayWorkspaceController({
   view.setSessionRange({ endEpochMs: range.endEpochMs, startEpochMs: range.startEpochMs });
   view.setSelection({ sessionHoursMode: market.defaultTarget.sessionHoursMode });
   view.setLayout(paneLayout, paneState.paneIds());
-  view.setCrosshairSync(false);
   view.setWorkspace(paneState.current());
   view.setTimeframeSync(false);
   view.setTruncationSelection({ active: false });
@@ -151,6 +152,12 @@ export function createReplayWorkspaceController({
     },
     resolveViewportPort: paneState.viewportPort,
     surfacePort: view.surfacePort,
+  });
+  const layoutSyncController = createLayoutSyncController({
+    adapter,
+    initialLayoutSync,
+    persist: persistLayoutSync,
+    view,
   });
   const unregisterViewportSettingsConsumer = workstationSettings.registerConsumer(
     createViewportSettingsConsumer({ viewportDefaultsPort: paneState }),
@@ -258,11 +265,9 @@ export function createReplayWorkspaceController({
 
   return Object.freeze({
     autoplay: () => autoplayScheduler.play(),
-    changeCrosshairSync(enabled) {
-      if (disposed || execution.isPending()) return;
-      crosshairSync = enabled === true;
-      adapter.setCrosshairSync(crosshairSync);
-      view.setCrosshairSync(crosshairSync);
+    changeLayoutSync(key, enabled) {
+      if (disposed || execution.isPending()) return false;
+      return layoutSyncController.change(key, enabled);
     },
     changeReplayStep(replayStepId) {
       if (disposed || execution.isPending() || syncTimeframe) return;
@@ -459,7 +464,8 @@ export function createReplayWorkspaceController({
     },
     snapshot: () => Object.freeze({
       chart: adapter.snapshot(),
-      crosshairSync,
+      crosshairSync: layoutSyncController.read().crosshair,
+      layoutSync: layoutSyncController.snapshot(),
       paneLayout,
       paneWorkspace: paneState.current(),
       replay: replay.snapshot(),

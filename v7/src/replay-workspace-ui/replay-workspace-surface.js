@@ -8,6 +8,7 @@ import {
   deserializePaneLayout,
   PANE_LAYOUT_OPTIONS,
 } from '../pane-layout-domain/public.js';
+import { createLayoutSync, deserializeLayoutSync } from '../layout-sync-domain/public.js';
 
 /** Own the professional replay-workspace DOM subtree mounted by the route UI. */
 export function createReplayWorkspaceSurface() {
@@ -27,6 +28,7 @@ export function createReplayWorkspaceSurface() {
       colorHistory,
       workstationSettings,
       onBack,
+      onPersistLayoutSync = () => {},
       onPersistPaneLayout = () => {},
       onPersistReplayNavigationSettings = () => {},
       record,
@@ -36,6 +38,10 @@ export function createReplayWorkspaceSurface() {
       const initialLayout = record.workspace.state === 'configured'
         ? deserializePaneLayout(record.workspace.paneLayout)
         : createPaneLayout();
+      const initialLayoutSync = record.workspace.state === 'configured'
+        && record.workspace.schemaVersion >= 5
+        ? deserializeLayoutSync(record.workspace.layoutSync)
+        : createLayoutSync();
       const callbacks = {
         autoplay: null,
         cancelWorkstationSettingsPreview: null,
@@ -105,7 +111,9 @@ export function createReplayWorkspaceSurface() {
       root.replaceChildren(view.root);
       const controller = createReplayWorkspaceController({
         initialLayout,
+        initialLayoutSync,
         initialNavigationSettings,
+        persistLayoutSync: onPersistLayoutSync,
         persistPaneLayout: onPersistPaneLayout,
         persistReplayNavigationSettings: onPersistReplayNavigationSettings,
         record,
@@ -114,7 +122,7 @@ export function createReplayWorkspaceSurface() {
       });
       callbacks.autoplay = () => controller.autoplay();
       callbacks.cancelWorkstationSettingsPreview = () => controller.cancelWorkstationSettingsPreview();
-      callbacks.crosshairSync = (enabled) => controller.changeCrosshairSync(enabled);
+      callbacks.crosshairSync = (enabled) => controller.changeLayoutSync('crosshair', enabled);
       callbacks.exactGoto = (epochMs) => controller.gotoExact(epochMs);
       callbacks.focusPane = (paneId) => controller.focusPane(paneId);
       callbacks.instrument = (instrumentId) => controller.replaceInstrument(instrumentId);

@@ -1,7 +1,7 @@
 # Session — R6.9m Shared Time Presentation
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: human accepted
 
 ## Delivered
 
@@ -38,10 +38,7 @@ options and adds no plugin or dependency.
 - architecture, source-quality, visual baselines, and `git diff --check` pass
   before commit.
 
-## Human Review Boundary
+## Human Review Result
 
-Review all three display timezones, all four date formats, weekday visibility,
-and 12/24-hour presentation in single and multi-Pane charts, Exact GoTo, footer
-text, and Session Browser. Confirm changing or cancelling these fields does not
-move Replay or expose another candle. Stop at this interaction/visual gate
-before R6.10 layout sync.
+Accepted by the user on 2026-07-22 after review of the Settings live-preview and
+Cancel restoration behavior. R6.10 Layout Sync is unblocked.

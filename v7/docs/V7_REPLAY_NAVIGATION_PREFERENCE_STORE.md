@@ -32,9 +32,10 @@ schema-3 candidates by most recently updated Session, chooses the first valid
 settings wire, and immediately persists it globally. Once the global record
 exists, Session records are never consulted again.
 
-Current Session workspace schema 4 stores Pane Layout only. The next Pane
-Layout save of a legacy schema-3 Session rewrites it as schema 4 and removes the
-retired Session-scoped settings field.
+Session workspace schema 4 stored Pane Layout only. Current schema 5 stores Pane
+Layout plus the separate Session-scoped Layout Sync policy. The next Pane Layout
+or Layout Sync save of a legacy schema-3 Session rewrites it as schema 5 and
+removes the retired Session-scoped navigation-settings field.
 
 ## Gate
 

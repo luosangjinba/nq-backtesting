@@ -1,0 +1,12 @@
+{
+  "id": "core.layout-sync-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "layout-sync-domain",
+  "publicEntry": "src/layout-sync-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/layout-sync-domain-harness.js",
+  "removable": false
+}

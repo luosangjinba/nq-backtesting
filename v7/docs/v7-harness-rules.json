@@ -1181,6 +1181,30 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
+    },
+    {
+      "id": "H063",
+      "name": "versioned-session-layout-sync-policy",
+      "owner": "layout-sync-domain",
+      "v6FailurePrevented": "Layout switches were local DOM booleans, changed one Pane by event fanout, or lost their accepted value when a Session was reopened",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/layout-sync-domain-harness.js",
+      "positiveEvidence": [
+        "src/layout-sync-domain/layout-sync.js",
+        "src/session-store/session-store.js",
+        "src/replay-workspace-ui/layout-sync-controller.js",
+        "tests/layout-sync-domain-harness.js",
+        "tests/layout-sync-controller-harness.js",
+        "tests/session-store-harness.js",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "docs/V7_LAYOUT_SYNC_CONTRACT_R6_10A.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/layout-sync-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

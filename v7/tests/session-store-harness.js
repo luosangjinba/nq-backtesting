@@ -11,6 +11,12 @@ import {
   serializePaneLayout,
 } from '../src/pane-layout-domain/public.js';
 import {
+  createLayoutSync,
+  deserializeLayoutSync,
+  readLayoutSync,
+  setLayoutSync,
+} from '../src/layout-sync-domain/public.js';
+import {
   createReplayNavigationSettings,
   deserializeReplayNavigationSettings,
   readReplayNavigationSettings,
@@ -87,11 +93,26 @@ assert.equal(serializeActivationGeneration(savedLayoutA.activationGeneration).va
   serializeActivationGeneration(secondA.activationGeneration).value,
   'layout persistence must not create a new Session activation');
 assert.equal(savedLayoutA.workspace.state, 'configured');
-assert.equal(savedLayoutA.workspace.schemaVersion, 4);
+assert.equal(savedLayoutA.workspace.schemaVersion, 5);
 assert.equal(readPaneLayout(deserializePaneLayout(savedLayoutA.workspace.paneLayout)).variantId,
   'layout.four-grid');
+assert.deepEqual(readLayoutSync(deserializeLayoutSync(savedLayoutA.workspace.layoutSync)),
+  readLayoutSync(createLayoutSync()),
+  'a legacy/uninitialized workspace gains the reviewed Layout Sync defaults');
 assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
   'layout persistence must remain isolated to its explicit Session');
+
+const syncedLayoutA = store.saveLayoutSync(sessionA, {
+  layoutSync: setLayoutSync(createLayoutSync(), 'crosshair', true),
+  nowEpochMs: 56,
+});
+assert.equal(syncedLayoutA.revision, savedLayoutA.revision + 1);
+assert.equal(serializeActivationGeneration(syncedLayoutA.activationGeneration).value,
+  serializeActivationGeneration(secondA.activationGeneration).value,
+  'Layout Sync persistence must not create a new Session activation');
+assert.equal(readLayoutSync(deserializeLayoutSync(syncedLayoutA.workspace.layoutSync)).crosshair, true);
+assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
+  'Layout Sync persistence must remain isolated to its explicit Session');
 
 const legacyNavigationSettings = createReplayNavigationSettings({
   asianSession: '20:00',
@@ -124,7 +145,7 @@ assert.deepEqual(readReplayNavigationSettings(deserializeReplayNavigationSetting
 assert.equal(store.savePaneLayout(legacyId, {
   layout: createPaneLayout(),
   nowEpochMs: 58,
-}).workspace.schemaVersion, 4,
+}).workspace.schemaVersion, 5,
 'the next Session workspace save must remove the retired Session-scoped preference field');
 
 repository = makeRepository();
@@ -138,7 +159,8 @@ assert.equal(restoredB.workspace.state, 'uninitialized');
 assert.equal(serializeActivationGeneration(restoredA.activationGeneration).value, 2);
 assert.equal(restoredA.workspace.paneLayout.variantId, 'layout.four-grid');
 assert.equal(restoredA.workspace.paneLayout.ratios.root, 0.6);
-assert.equal(restoredA.workspace.schemaVersion, 4);
+assert.equal(restoredA.workspace.schemaVersion, 5);
+assert.equal(readLayoutSync(deserializeLayoutSync(restoredA.workspace.layoutSync)).crosshair, true);
 assert.equal(Object.hasOwn(restoredA.workspace, 'replayNavigationSettings'), false);
 assert.equal(store.activateSession(sessionA, { nowEpochMs: 60 }).activationGeneration.value(), 3,
   'runtime reconstruction must allocate a strictly later activation');
