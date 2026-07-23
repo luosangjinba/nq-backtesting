@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-23 after R6 interaction closure and the accepted
-Date-range synchronization deferral
+Last updated: 2026-07-23 after R7.1 durable Workspace checkpoint automated
+closure; human re-entry review is pending
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -35,7 +35,9 @@ required for normal startup.
   real-time Time-sync rollback human accepted; R6.10c3 explicit right-click
   Pane time location accepted after the owner-routed automatic left-history
   correction; Date-range synchronization deliberately deferred beyond the
-  foundation; R2.4 Session Browser
+  foundation; R7.1 versioned Session Workspace checkpoint plus atomic soft
+  re-entry/hard-refresh restore implemented with automated gates passing and
+  human review pending; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -455,9 +457,8 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 ## Deliberately Not Implemented
 
 There is still no production-complete CME holiday dataset, calendar-aligned
-day/week/month policy, Date-range sync, or complete hard-refresh Workspace
-restore. Active Layout Sync is intentionally limited to Symbol, Interval, and
-Crosshair.
+day/week/month policy, or Date-range sync. Active Layout Sync is intentionally
+limited to Symbol, Interval, and Crosshair.
 V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
 exchange-calendar or tick-level coverage.
 
@@ -506,11 +507,13 @@ after correcting automatic post-location left-history fill. R6 interaction
 work is closed. Date-range synchronization is deliberately deferred and is not
 an R7 prerequisite.
 
-Exact next slice: R7.1 specifies one versioned Session Workspace checkpoint and
-atomic restore path for UX-FND-004. Soft re-entry and hard refresh must restore
-the shared Replay boundary, Pane layout/configuration/Viewport intents,
-Session Hours, and accepted Layout Sync policy through existing runtime owners,
-while volatile transport/menu/maximize state resets safely.
+R7.1 now implements the versioned Session Workspace checkpoint and atomic
+restore path for UX-FND-004. Its focused, architecture, source-quality, and
+real-Chrome soft re-entry/hard-refresh gates pass. The exact next action is the
+documented human review in `docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md`.
+After explicit acceptance, R7.2 reruns cache-hit, delayed/reordered-response,
+and full foundation cross-product performance gates against restored
+workspaces.
 
 ## Standing Workflow
 

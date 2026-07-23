@@ -452,6 +452,7 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 ## R7 — Restore And Performance
 
 - `R7.1`: define and implement one versioned Session Workspace checkpoint plus
-  atomic soft re-entry and hard-refresh restoration for UX-FND-004;
+  atomic soft re-entry and hard-refresh restoration for UX-FND-004; automated
+  contract/Store/real-Chrome gates pass, with human re-entry review pending;
 - `R7.2`: rerun and close cache-hit, delayed/reordered-response, and full
   foundation cross-product performance gates against restored workspaces.

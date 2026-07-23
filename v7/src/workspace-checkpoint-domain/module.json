@@ -1,0 +1,12 @@
+{
+  "id": "core.workspace-checkpoint-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "workspace-checkpoint-domain",
+  "publicEntry": "src/workspace-checkpoint-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/workspace-checkpoint-domain-harness.js",
+  "removable": false
+}

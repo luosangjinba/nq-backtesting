@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "status": "r6.10a-layout-sync-contract-executable",
+  "status": "r7.1-workspace-checkpoint-executable",
   "productionRoots": ["v7/src", "v7/app"],
   "legacyRuntimeImportRoots": ["v4/src", "v5/src", "v6/src"],
   "requiredDocuments": [
@@ -45,6 +45,7 @@
     "docs/V7_WORKSTATION_SETTINGS_PRODUCT_REFINEMENT_R6_9G.md",
     "docs/V7_WORKSTATION_SETTINGS_FOUNDATION_R6_9I.md",
     "docs/V7_LAYOUT_SYNC_CONTRACT_R6_10A.md",
+    "docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md",
     "docs/V7_RESIZABLE_PANE_LAYOUTS_R6_9.md",
     "docs/V7_PANE_OHLC_CROSSHAIR_SYNC_R6_9A.md",
     "docs/V7_PANE_CANVAS_OVERLAY_MAXIMIZE_R6_9B.md",
@@ -73,7 +74,8 @@
     "pane-time-location-domain",
     "layout-sync-domain",
     "calendar-surface",
-    "workstation-settings"
+    "workstation-settings",
+    "workspace-checkpoint-domain"
   ],
   "requiredIdentityFields": [
     "sessionId",
@@ -110,6 +112,7 @@
     "src/pane-layout-domain/module.json",
     "src/pane-time-location-domain/module.json",
     "src/layout-sync-domain/module.json",
+    "src/workspace-checkpoint-domain/module.json",
     "src/replay-navigation-settings/module.json",
     "src/replay-navigation-preference-store/module.json",
     "src/workstation-settings/module.json",
@@ -189,6 +192,7 @@
   },
   "writerInventories": {
     "sessionRecord": ["core.session-store"],
+    "workspaceCheckpoint": ["core.session-store"],
     "layoutSyncPolicy": ["core.session-store"],
     "replayNavigationPreferences": ["core.replay-navigation-preference-store"],
     "workstationSettings": ["core.workstation-settings"],

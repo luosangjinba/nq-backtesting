@@ -1,6 +1,6 @@
 {
   "id": "core.session-store",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "kind": "core",
   "owner": "session-store",
   "publicEntry": "src/session-store/public.js",
@@ -9,6 +9,7 @@
     "core.activation-generation",
     "core.pane-layout-domain",
     "core.layout-sync-domain",
+    "core.workspace-checkpoint-domain",
     "adapter.session-persistence"
   ],
   "optionalPorts": [],

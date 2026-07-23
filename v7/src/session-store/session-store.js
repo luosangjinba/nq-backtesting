@@ -7,6 +7,7 @@ import {
   createLayoutSync,
   serializeLayoutSync,
 } from '../layout-sync-domain/public.js';
+import { serializeWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.js';
 import { requireSessionId, sessionIdsEqual } from '../session-identity/public.js';
 import {
   createSessionRecord,
@@ -46,7 +47,7 @@ export function createSessionStore({ repository, migrations = {} }) {
   const port = requireRepository(repository);
 
   function configuredWorkspace(current, overrides = {}) {
-    return {
+    const base = {
       layoutSync: overrides.layoutSync
         ?? (current.workspace.state === 'configured' && current.workspace.schemaVersion >= 5
           ? current.workspace.layoutSync
@@ -55,9 +56,15 @@ export function createSessionStore({ repository, migrations = {} }) {
         ?? (current.workspace.state === 'configured'
           ? current.workspace.paneLayout
           : serializePaneLayout(createPaneLayout())),
-      schemaVersion: 5,
       state: 'configured',
     };
+    const checkpoint = overrides.checkpoint
+      ?? (current.workspace.state === 'configured' && current.workspace.schemaVersion >= 6
+        ? current.workspace.checkpoint
+        : null);
+    return checkpoint === null
+      ? { ...base, schemaVersion: 5 }
+      : { ...base, checkpoint, schemaVersion: 6 };
   }
 
   function requireExisting(sessionId) {
@@ -124,6 +131,26 @@ export function createSessionStore({ repository, migrations = {} }) {
         revision: current.revision + 1,
         metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
         workspace: configuredWorkspace(current, { layoutSync: serialized }),
+      });
+      port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
+      return next;
+    },
+    saveWorkspaceCheckpoint(sessionId, {
+      checkpoint,
+      layout,
+      layoutSync,
+      nowEpochMs,
+    }) {
+      const current = requireExisting(sessionId);
+      const next = SESSION_RECORD_INTERNALS.freezeRecord({
+        ...current,
+        revision: current.revision + 1,
+        metadata: { ...current.metadata, updatedAtEpochMs: nowEpochMs },
+        workspace: configuredWorkspace(current, {
+          checkpoint: serializeWorkspaceCheckpoint(checkpoint),
+          layoutSync: serializeLayoutSync(layoutSync),
+          paneLayout: serializePaneLayout(layout),
+        }),
       });
       port.compareAndSwap(sessionId, current.revision, serializeSessionRecord(next));
       return next;

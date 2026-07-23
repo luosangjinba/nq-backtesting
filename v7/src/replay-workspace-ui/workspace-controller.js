@@ -13,7 +13,11 @@ import {
 } from '../replay-navigation-runtime/public.js';
 import { readReplayNavigationSettings } from '../replay-navigation-settings/public.js';
 import { createReplayRuntime } from '../replay-runtime/public.js';
-import { createPaneLayout, readPaneLayout } from '../pane-layout-domain/public.js';
+import {
+  createPaneLayout,
+  readPaneLayout,
+} from '../pane-layout-domain/public.js';
+import { readWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.js';
 import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
 import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
@@ -25,7 +29,9 @@ import { createLayoutSyncController } from './layout-sync-controller.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
 import { createPaneTimeLocationController } from './pane-time-location-controller.js';
 import { createPaneWorkspaceState } from './pane-workspace-state.js';
+import { WORKSPACE_PANE_IDS } from './pane-identity.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
+import { createWorkspaceCheckpointPersistence } from './workspace-checkpoint-persistence.js';
 import { createWorkspaceExecution } from './workspace-execution.js';
 import { createViewportSettingsConsumer } from './viewport-settings-consumer.js';
 import { createWorkstationSettingsViewConsumer } from './workstation-settings-view-consumer.js';
@@ -39,9 +45,9 @@ function formatCursor(settings, epochMs) {
 export function createReplayWorkspaceController({
   initialLayout,
   initialLayoutSync,
+  initialCheckpoint = null,
   initialNavigationSettings,
-  persistLayoutSync,
-  persistPaneLayout,
+  persistWorkspaceCheckpoint,
   persistReplayNavigationSettings,
   record,
   view,
@@ -53,9 +59,22 @@ export function createReplayWorkspaceController({
   const replayStepIdByTimeframeId = new Map(
     market.timeframes.map(({ id, replayStepId }) => [id, replayStepId]),
   );
+  const restored = initialCheckpoint === null ? null : readWorkspaceCheckpoint(initialCheckpoint);
+  if (restored && !market.sessionHoursModes.includes(restored.sessionHoursMode)) {
+    throw new TypeError('Restored Session Hours mode is not supported by this workspace.');
+  }
+  if (restored && restored.panes.some(
+    (pane, index) => pane.paneId !== WORKSPACE_PANE_IDS[index]
+      || !market.timeframes.some(({ id }) => id === pane.timeframeId)
+      || !market.instruments.some(({ id }) => id === pane.instrumentId),
+  )) {
+    throw new TypeError('Restored Pane capabilities are not supported by this workspace.');
+  }
+  const initialCursorEpochMs = restored?.cursorEpochMs ?? range.startEpochMs;
+  const initialSessionHoursMode = restored?.sessionHoursMode ?? market.defaultTarget.sessionHoursMode;
   const replay = createReplayRuntime({
     activationGeneration: record.activationGeneration,
-    initialCursorEpochMs: range.startEpochMs,
+    initialCursorEpochMs,
     initialReplayStep: market.replayStepOptions[0].step,
     range,
     sessionId: record.sessionId,
@@ -64,6 +83,7 @@ export function createReplayWorkspaceController({
   let disposed = false;
   let execution = null;
   let autoplayScheduler = null;
+  let layoutSyncController = null;
   let syncTimeframe = false;
   let truncationSelectionActive = false;
   let paneLayout = initialLayout ?? createPaneLayout();
@@ -71,7 +91,8 @@ export function createReplayWorkspaceController({
   let navigationSchedule = createReplayNavigationSchedule({ settings: initialNavigationSettings });
 
   const paneState = createPaneWorkspaceState({
-    initialCursorEpochMs: range.startEpochMs,
+    initialCheckpoint,
+    initialCursorEpochMs,
     initialPaneCount: readPaneLayout(paneLayout).paneCount,
     initialRightMarginBars: readWorkstationSettings(
       workstationSettings.snapshot().settings,
@@ -80,7 +101,7 @@ export function createReplayWorkspaceController({
     record,
   });
   view.setSessionRange({ endEpochMs: range.endEpochMs, startEpochMs: range.startEpochMs });
-  view.setSelection({ sessionHoursMode: market.defaultTarget.sessionHoursMode });
+  view.setSelection({ sessionHoursMode: initialSessionHoursMode });
   view.setLayout(paneLayout, paneState.paneIds());
   view.setWorkspace(paneState.current());
   view.setTimeframeSync(false);
@@ -107,15 +128,19 @@ export function createReplayWorkspaceController({
     view.setTruncationSelection({ active: truncationSelectionActive, error });
   }
 
-  function persistLayout(layout) {
-    try {
-      persistPaneLayout?.(layout);
-      return true;
-    } catch {
-      view.setState('error', { message: 'Pane layout could not be saved locally.' });
-      return false;
-    }
-  }
+  const checkpointPersistence = createWorkspaceCheckpointPersistence({
+    initialCheckpoint,
+    initialLayout: paneLayout,
+    initialLayoutSync,
+    paneState,
+    persist: persistWorkspaceCheckpoint,
+    readCursorEpochMs: () => replay.snapshot().cursorEpochMs,
+    readLayout: () => paneLayout,
+    readLayoutSync: () => layoutSyncController?.snapshot() ?? initialLayoutSync,
+    readSessionHoursMode: () => execution?.sessionHoursMode() ?? initialSessionHoursMode,
+    record,
+    view,
+  });
 
   async function handleTruncationSelect(_paneId, selection) {
     if (disposed || !truncationSelectionActive || execution.isPending()) return;
@@ -140,7 +165,10 @@ export function createReplayWorkspaceController({
       if (logicalRange.from < 24) void execution?.requestHistory(paneId);
     },
     onTruncationSelect: handleTruncationSelect,
-    onViewportIntent: (paneId, intent) => view.setWall(paneId, intent.origin),
+    onViewportIntent: (paneId, intent) => {
+      view.setWall(paneId, intent.origin);
+      checkpointPersistence.save({ message: 'Pane viewport could not be saved locally.' });
+    },
     resolveInstrumentLabel: (instrumentId) => {
       const instrument = market.instrumentOptions.find(({ id }) => id === instrumentId);
       if (!instrument) throw new TypeError(`Unknown instrument ${instrumentId}.`);
@@ -154,10 +182,10 @@ export function createReplayWorkspaceController({
     resolveViewportPort: paneState.viewportPort,
     surfacePort: view.surfacePort,
   });
-  const layoutSyncController = createLayoutSyncController({
+  layoutSyncController = createLayoutSyncController({
     adapter,
     initialLayoutSync,
-    persist: persistLayoutSync,
+    persist: (layoutSync) => checkpointPersistence.save({ layoutSync, rethrow: true }),
     view,
   });
   const unregisterViewportSettingsConsumer = workstationSettings.registerConsumer(
@@ -240,10 +268,21 @@ export function createReplayWorkspaceController({
     view.setWorkspace(paneState.current());
     view.setWall(activePaneId, paneState.wallOrigin(activePaneId));
     view.setState(readyPanes.length === 0 ? 'empty' : 'ready');
+    checkpointPersistence.save({ sessionHoursMode: desiredMode });
   }
 
   execution = createWorkspaceExecution({
-    acceptVisibleState, market, navigation, paneData, paneState, range, record, replay, runtime, view,
+    acceptVisibleState,
+    initialSessionHoursMode,
+    market,
+    navigation,
+    paneData,
+    paneState,
+    range,
+    record,
+    replay,
+    runtime,
+    view,
   });
   const paneTimeLocation = createPaneTimeLocationController({
     adapter,
@@ -298,7 +337,10 @@ export function createReplayWorkspaceController({
       if (desired.paneCount === previous.paneCount) {
         paneLayout = desiredLayout;
         view.setLayout(paneLayout, paneState.paneIds());
-        if (!persistLayout(paneLayout)) {
+        if (!checkpointPersistence.save({
+          layout: paneLayout,
+          message: 'Pane layout could not be saved locally.',
+        })) {
           paneLayout = previousLayout;
           view.setLayout(paneLayout, paneState.paneIds());
         }
@@ -317,7 +359,6 @@ export function createReplayWorkspaceController({
         view.setLayout(paneLayout, current.panes.map(({ paneId }) => paneId));
         return null;
       }
-      persistLayout(paneLayout);
       return terminal;
     },
     changePlaybackSpeed(speedId) {
@@ -346,9 +387,15 @@ export function createReplayWorkspaceController({
     },
     focusPane(paneId) {
       if (disposed || execution.isPending()) return;
+      const previousPaneId = paneState.activePaneId();
       view.setWorkspace(paneState.focus(paneId));
       view.setWall(paneId, paneState.wallOrigin(paneId));
       syncReplayStep();
+      if (!checkpointPersistence.save({ message: 'Active Pane could not be saved locally.' })) {
+        view.setWorkspace(paneState.focus(previousPaneId));
+        view.setWall(previousPaneId, paneState.wallOrigin(previousPaneId));
+        syncReplayStep();
+      }
     },
     locatePaneTime: (request) => paneTimeLocation.locate(request),
     openPaneTimeLocation: (request) => paneTimeLocation.open(request),
@@ -408,7 +455,10 @@ export function createReplayWorkspaceController({
       const previousLayout = paneLayout;
       paneLayout = nextLayout;
       view.setLayout(paneLayout, paneState.paneIds());
-      if (!persistLayout(paneLayout)) {
+      if (!checkpointPersistence.save({
+        layout: paneLayout,
+        message: 'Pane layout could not be saved locally.',
+      })) {
         paneLayout = previousLayout;
         view.setLayout(paneLayout, paneState.paneIds());
       }
@@ -488,7 +538,12 @@ export function createReplayWorkspaceController({
       workspace: runtime.snapshot(),
     }),
     start() {
-      return execution.action('manual-next', {}, { loading: true });
+      return restored === null
+        ? execution.action('manual-next', {}, { loading: true })
+        : execution.materialize(
+          { desiredMode: restored.sessionHoursMode },
+          { allowDim: true, loading: true },
+        );
     },
     toggleTruncationSelection() {
       if (disposed || execution.isPending()) return;

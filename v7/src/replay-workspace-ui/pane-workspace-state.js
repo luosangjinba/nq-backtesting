@@ -10,7 +10,9 @@ import {
   createInitialViewportIntent,
   createViewportController,
   readViewportIntent,
+  restoreViewportIntent,
 } from '../viewport-runtime/public.js';
+import { readWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.js';
 import { WORKSPACE_PANE_IDS } from './pane-identity.js';
 
 const PANE_MAIN = WORKSPACE_PANE_IDS[0];
@@ -18,6 +20,7 @@ const PANE_MAIN = WORKSPACE_PANE_IDS[0];
 /** Own the UI composition's accepted Pane Workspace and Pane viewport controllers. */
 export function createPaneWorkspaceState({
   initialCursorEpochMs,
+  initialCheckpoint = null,
   initialPaneCount = 1,
   initialRightMarginBars = 12,
   initialTarget,
@@ -26,19 +29,43 @@ export function createPaneWorkspaceState({
   const viewports = new Map();
   let accepted = null;
   let defaultRightMarginBars = initialRightMarginBars;
+  const restored = initialCheckpoint === null ? null : readWorkspaceCheckpoint(initialCheckpoint);
+  if (restored && restored.cursorEpochMs !== initialCursorEpochMs) {
+    throw new TypeError('Restored Pane Workspace cursor must match the Replay checkpoint cursor.');
+  }
+  if (restored && restored.panes.length !== initialPaneCount) {
+    throw new TypeError('Restored Pane Workspace must match its Pane Layout count.');
+  }
+  if (restored && restored.panes.some(
+    ({ paneId }, index) => paneId !== WORKSPACE_PANE_IDS[index],
+  )) {
+    throw new TypeError('Restored Pane Workspace must use the stable P1-P4 priority prefix.');
+  }
+  const restoredPanes = new Map(restored?.panes.map((pane) => [pane.paneId, pane]) ?? []);
 
   function viewport(paneId, cursorEpochMs = initialCursorEpochMs) {
     if (!viewports.has(paneId)) {
+      const saved = restoredPanes.get(paneId)?.viewport ?? null;
       viewports.set(paneId, createViewportController({
         defaultLatestOffsetBars: defaultRightMarginBars,
         defaultSpanBars: 80,
-        initialIntent: createInitialViewportIntent({
-          activationGeneration: record.activationGeneration,
-          cursorEpochMs,
-          latestOffsetBars: defaultRightMarginBars,
-          paneId,
-          sessionId: record.sessionId,
-        }),
+        initialIntent: saved === null
+          ? createInitialViewportIntent({
+            activationGeneration: record.activationGeneration,
+            cursorEpochMs,
+            latestOffsetBars: defaultRightMarginBars,
+            paneId,
+            sessionId: record.sessionId,
+          })
+          : restoreViewportIntent({
+            activationGeneration: record.activationGeneration,
+            cursorEpochMs,
+            latestOffsetBars: saved.latestOffsetBars,
+            origin: saved.origin,
+            paneId,
+            sessionId: record.sessionId,
+            spanBars: saved.spanBars,
+          }),
       }));
     }
     return viewports.get(paneId);
@@ -71,14 +98,19 @@ export function createPaneWorkspaceState({
     });
   }
 
-  accepted = build({
-    activePaneId: PANE_MAIN,
-    panes: WORKSPACE_PANE_IDS.slice(0, initialPaneCount).map((paneId) => ({
-      instrumentId: initialTarget.instrumentId,
-      paneId,
-      timeframeId: initialTarget.timeframeId,
-    })),
-  });
+  accepted = build(restored === null
+    ? {
+      activePaneId: PANE_MAIN,
+      panes: WORKSPACE_PANE_IDS.slice(0, initialPaneCount).map((paneId) => ({
+        instrumentId: initialTarget.instrumentId,
+        paneId,
+        timeframeId: initialTarget.timeframeId,
+      })),
+    }
+    : {
+      activePaneId: restored.activePaneId,
+      panes: restored.panes,
+    });
 
   return Object.freeze({
     accept(workspace, cursorEpochMs) {

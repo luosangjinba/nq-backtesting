@@ -15,6 +15,7 @@ import { createRefreshFeedback } from './refresh-feedback.js';
 /** Own transient UI dispatch/pending policy around the sole Workspace Transaction coordinator. */
 export function createWorkspaceExecution({
   acceptVisibleState,
+  initialSessionHoursMode,
   market,
   navigation,
   paneData,
@@ -29,7 +30,7 @@ export function createWorkspaceExecution({
   const queuedHistoryPaneIds = new Set();
   let disposed = false;
   let pending = false;
-  let sessionHoursMode = market.defaultTarget.sessionHoursMode;
+  let sessionHoursMode = initialSessionHoursMode ?? market.defaultTarget.sessionHoursMode;
   let sessionHoursRevision = 0;
   let transactionSequence = 0;
 
@@ -103,7 +104,7 @@ export function createWorkspaceExecution({
     desiredRevision = sessionHoursRevision,
     desiredWorkspace = paneState.current(),
     requestKinds = new Map(),
-  } = {}) {
+  } = {}, runOptions = { allowDim: true }) {
     return run(async () => {
       const replayAction = createReplayPaneAction({
         kind: 'goto-exact', targetEpochMs: replay.snapshot().cursorEpochMs,
@@ -134,7 +135,7 @@ export function createWorkspaceExecution({
       sessionHoursRevision = desiredRevision;
       acceptVisibleState(desiredWorkspace, desiredMode);
       return terminal;
-    }, { allowDim: true });
+    }, runOptions);
   }
 
   function requestHistory(paneId) {

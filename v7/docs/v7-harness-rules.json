@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "currentStep": "R6",
+  "currentStep": "R7",
   "stepOrder": ["R0", "R0.1", "R0.2", "R0.3", "R0.4", "R1.1", "R1.2", "R1.3", "R1.4", "R1.5", "R2.1", "R2.2", "R2.3", "R2.4", "R3.1", "R3.2a", "R3.2b1", "R3.2b2", "R3.2b3", "R3.3", "R3", "R4.1", "R4.2", "R4.3", "R4.4", "R4.5", "R4", "R5.1", "R5.2", "R5.3", "R5.4", "R5.5", "R5.6", "R5", "R6.1", "R6.2", "R6.3", "R6.4", "R6", "R7"],
   "allowedStates": ["declared", "scaffolded", "executable", "accepted"],
   "rules": [
@@ -1302,6 +1302,33 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260723_r6_interaction_closure.md"
+    },
+    {
+      "id": "H068",
+      "name": "versioned-session-workspace-checkpoint-atomic-restore",
+      "owner": "workspace-checkpoint-domain",
+      "v6FailurePrevented": "Soft re-entry or hard refresh reset Replay/Panes/Viewports, restored a partial mixed workspace, persisted native chart coordinates or cached bars, or advanced one hidden future bar during reconstruction",
+      "activationStep": "R7",
+      "state": "executable",
+      "harness": "tests/workspace-checkpoint-restore-browser-harness.js",
+      "positiveEvidence": [
+        "src/workspace-checkpoint-domain/workspace-checkpoint.js",
+        "src/session-store/session-store.js",
+        "src/replay-workspace-ui/workspace-checkpoint-persistence.js",
+        "src/replay-workspace-ui/workspace-controller.js",
+        "src/replay-workspace-ui/pane-workspace-state.js",
+        "tests/workspace-checkpoint-domain-harness.js",
+        "tests/session-store-harness.js",
+        "tests/viewport-runtime-harness.js",
+        "tests/pane-workspace-state-harness.js",
+        "tests/workspace-checkpoint-restore-browser-harness.js",
+        "docs/V7_SESSION_WORKSPACE_CHECKPOINT_R7_1.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/workspace-checkpoint-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

@@ -34,6 +34,11 @@ import {
   serializeSessionRecord,
   SessionStoreError,
 } from '../src/session-store/public.js';
+import {
+  createWorkspaceCheckpoint,
+  deserializeWorkspaceCheckpoint,
+  readWorkspaceCheckpoint,
+} from '../src/workspace-checkpoint-domain/public.js';
 import { createMemoryWebStorage } from './support/memory-web-storage.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -114,6 +119,47 @@ assert.equal(readLayoutSync(deserializeLayoutSync(syncedLayoutA.workspace.layout
 assert.equal(store.getSession(sessionB).workspace.state, 'uninitialized',
   'Layout Sync persistence must remain isolated to its explicit Session');
 
+const checkpointA = createWorkspaceCheckpoint({
+  activePaneId: 'pane-secondary',
+  cursorEpochMs: 150,
+  panes: ['pane-main', 'pane-secondary', 'pane-tertiary', 'pane-quaternary'].map(
+    (paneId, index) => ({
+      instrumentId: 'instrument.nq',
+      paneId,
+      timeframeId: index === 1 ? 'timeframe.display-4-hour' : 'timeframe.display-1-minute',
+      viewport: index === 1
+        ? { latestOffsetBars: -2, origin: 'manual', spanBars: 64 }
+        : { latestOffsetBars: 12, origin: 'default', spanBars: null },
+    }),
+  ),
+  sessionHoursMode: 'rth',
+}, base);
+const checkpointedA = store.saveWorkspaceCheckpoint(sessionA, {
+  checkpoint: checkpointA,
+  layout: fourPaneLayout,
+  layoutSync: setLayoutSync(createLayoutSync(), 'crosshair', true),
+  nowEpochMs: 57,
+});
+assert.equal(checkpointedA.workspace.schemaVersion, 6);
+assert.equal(checkpointedA.revision, syncedLayoutA.revision + 1);
+assert.deepEqual(readWorkspaceCheckpoint(deserializeWorkspaceCheckpoint(
+  checkpointedA.workspace.checkpoint,
+  checkpointedA.configuration,
+)), readWorkspaceCheckpoint(checkpointA));
+assert.equal(readPaneLayout(deserializePaneLayout(checkpointedA.workspace.paneLayout)).paneCount, 4);
+assert.throws(
+  () => store.savePaneLayout(sessionA, { layout: createPaneLayout(), nowEpochMs: 58 }),
+  (error) => error instanceof SessionStoreError && error.code === 'INVALID_SESSION_WORKSPACE',
+  'legacy partial writes must not split a schema-6 layout from its complete checkpoint',
+);
+const preservedCheckpointA = store.saveLayoutSync(sessionA, {
+  layoutSync: createLayoutSync(),
+  nowEpochMs: 59,
+});
+assert.equal(preservedCheckpointA.workspace.schemaVersion, 6);
+assert.deepEqual(preservedCheckpointA.workspace.checkpoint, checkpointedA.workspace.checkpoint,
+  'compatible legacy Layout Sync writes must retain the complete checkpoint');
+
 const legacyNavigationSettings = createReplayNavigationSettings({
   asianSession: '20:00',
   dayOpen: '17:45',
@@ -159,8 +205,12 @@ assert.equal(restoredB.workspace.state, 'uninitialized');
 assert.equal(serializeActivationGeneration(restoredA.activationGeneration).value, 2);
 assert.equal(restoredA.workspace.paneLayout.variantId, 'layout.four-grid');
 assert.equal(restoredA.workspace.paneLayout.ratios.root, 0.6);
-assert.equal(restoredA.workspace.schemaVersion, 5);
-assert.equal(readLayoutSync(deserializeLayoutSync(restoredA.workspace.layoutSync)).crosshair, true);
+assert.equal(restoredA.workspace.schemaVersion, 6);
+assert.equal(readLayoutSync(deserializeLayoutSync(restoredA.workspace.layoutSync)).crosshair, false);
+assert.equal(readWorkspaceCheckpoint(deserializeWorkspaceCheckpoint(
+  restoredA.workspace.checkpoint,
+  restoredA.configuration,
+)).activePaneId, 'pane-secondary');
 assert.equal(Object.hasOwn(restoredA.workspace, 'replayNavigationSettings'), false);
 assert.equal(store.activateSession(sessionA, { nowEpochMs: 60 }).activationGeneration.value(), 3,
   'runtime reconstruction must allocate a strictly later activation');

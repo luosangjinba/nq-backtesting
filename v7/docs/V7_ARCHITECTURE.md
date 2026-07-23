@@ -36,6 +36,15 @@ confirmation and never manipulates storage directly.
 
 It does not request bars, advance Replay, project bars, or write charts.
 
+R7.1 activates `core.workspace-checkpoint-domain` and configured Session
+workspace schema 6. Session Store writes Pane Layout, Layout Sync, and the
+complete semantic checkpoint in one revision. The checkpoint contains Replay
+cursor, Session Hours, active Pane, Pane instrument/timeframe, and semantic
+Viewport intent only; bars, native logical/pixel coordinates, activation
+identity, revisions, and transient playback/presentation state remain absent.
+Soft re-entry and hard refresh rebrand Viewports under the new activation and
+materialize every Pane once at the saved cursor through Workspace Transaction.
+
 ### Replay Runtime
 
 Owns the accepted cursor, revealed-through boundary, playback state, and source

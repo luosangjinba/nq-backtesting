@@ -9,6 +9,7 @@ import {
   PANE_LAYOUT_OPTIONS,
 } from '../pane-layout-domain/public.js';
 import { createLayoutSync, deserializeLayoutSync } from '../layout-sync-domain/public.js';
+import { deserializeWorkspaceCheckpoint, readWorkspaceCheckpoint } from '../workspace-checkpoint-domain/public.js';
 
 /** Own the professional replay-workspace DOM subtree mounted by the route UI. */
 export function createReplayWorkspaceSurface() {
@@ -28,8 +29,7 @@ export function createReplayWorkspaceSurface() {
       colorHistory,
       workstationSettings,
       onBack,
-      onPersistLayoutSync = () => {},
-      onPersistPaneLayout = () => {},
+      onPersistWorkspaceCheckpoint = () => {},
       onPersistReplayNavigationSettings = () => {},
       record,
       root,
@@ -42,6 +42,10 @@ export function createReplayWorkspaceSurface() {
         && record.workspace.schemaVersion >= 5
         ? deserializeLayoutSync(record.workspace.layoutSync)
         : createLayoutSync();
+      const initialCheckpoint = record.workspace.state === 'configured'
+        && record.workspace.schemaVersion >= 6
+        ? deserializeWorkspaceCheckpoint(record.workspace.checkpoint, record.configuration)
+        : null;
       const callbacks = {
         autoplay: null,
         cancelWorkstationSettingsPreview: null,
@@ -111,14 +115,18 @@ export function createReplayWorkspaceSurface() {
         sessionHoursModes: capabilities.sessionHoursModes,
         timeframeMenuGroups: capabilities.timeframeMenuGroups,
       });
-      view.setSelection({ sessionHoursMode: capabilities.defaultTarget.sessionHoursMode });
+      view.setSelection({
+        sessionHoursMode: initialCheckpoint === null
+          ? capabilities.defaultTarget.sessionHoursMode
+          : readWorkspaceCheckpoint(initialCheckpoint).sessionHoursMode,
+      });
       root.replaceChildren(view.root);
       const controller = createReplayWorkspaceController({
         initialLayout,
         initialLayoutSync,
+        initialCheckpoint,
         initialNavigationSettings,
-        persistLayoutSync: onPersistLayoutSync,
-        persistPaneLayout: onPersistPaneLayout,
+        persistWorkspaceCheckpoint: onPersistWorkspaceCheckpoint,
         persistReplayNavigationSettings: onPersistReplayNavigationSettings,
         record,
         view,

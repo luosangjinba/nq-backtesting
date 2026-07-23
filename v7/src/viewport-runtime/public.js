@@ -5,6 +5,7 @@ export {
   promoteViewportIntentToManual,
   readViewportIntent,
   resetViewportIntentToDefault,
+  restoreViewportIntent,
 } from './viewport-intent.js';
 export { measureManualViewportWall, projectViewportIntent } from './logical-projection.js';
 export { createViewportController } from './viewport-controller.js';

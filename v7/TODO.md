@@ -1478,9 +1478,26 @@ human review passed on 2026-07-23.
 - [x] require concrete comparison-workflow evidence before reconsideration.
 
 R6 interaction work is closed. Date-range synchronization is not an R7 task.
-The next bounded foundation slice is R7.1: specify the durable Session Workspace
-checkpoint and atomic soft re-entry/hard-refresh restore contract for
-UX-FND-004.
+
+### R7.1 Durable Session Workspace Checkpoint — Implemented, Review Pending
+
+- [x] activate one versioned, data-independent Workspace Checkpoint domain;
+- [x] persist Replay cursor, Session Hours, active Pane, Pane
+  instrument/timeframe, and semantic Viewport intent with Pane Layout and
+  Layout Sync in one Session workspace schema-6 revision;
+- [x] keep bars, native chart coordinates, activation/revisions, autoplay,
+  maximize, menus, and other transient presentation outside persistence;
+- [x] lazily upgrade schema 1–5 only after an opened Session reaches a successful
+  visible commit;
+- [x] restore Replay paused at the exact saved cursor and rebrand Viewports under
+  the new activation before one all-Pane atomic materialization;
+- [x] skip equal checkpoint writes and reject layout/checkpoint count splits;
+- [x] bind domain, Store, Viewport, Pane state, soft re-entry, and hard-refresh
+  behavior in focused and real-Chrome Harnesses;
+- [ ] obtain explicit human review of mixed-Pane re-entry and hard refresh.
+
+After acceptance, R7.2 reruns cache/reordering and full foundation
+cross-product performance gates against restored workspaces.
 
 ## Standing Gates
 

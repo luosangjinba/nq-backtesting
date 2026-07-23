@@ -1,0 +1,11 @@
+[
+  { "name": "extra checkpoint field", "kind": "extra-field", "expectedCode": "WORKSPACE_CHECKPOINT_FIELDS_INVALID" },
+  { "name": "cursor before Session range", "kind": "cursor-before", "expectedCode": "WORKSPACE_CHECKPOINT_CURSOR_OUTSIDE_SESSION" },
+  { "name": "cursor after Session range", "kind": "cursor-after", "expectedCode": "WORKSPACE_CHECKPOINT_CURSOR_OUTSIDE_SESSION" },
+  { "name": "active Pane missing", "kind": "active-missing", "expectedCode": "WORKSPACE_CHECKPOINT_ACTIVE_PANE_MISSING" },
+  { "name": "invalid Session Hours token", "kind": "session-hours", "expectedCode": "WORKSPACE_CHECKPOINT_SESSION_HOURS_INVALID" },
+  { "name": "duplicate Pane id", "kind": "duplicate-pane", "expectedCode": "WORKSPACE_CHECKPOINT_PANE_DUPLICATE" },
+  { "name": "instrument outside Session", "kind": "outside-instrument", "expectedCode": "WORKSPACE_CHECKPOINT_INSTRUMENT_OUTSIDE_SESSION" },
+  { "name": "default negative offset", "kind": "default-negative-offset", "expectedCode": "WORKSPACE_CHECKPOINT_VIEWPORT_OFFSET_INVALID" },
+  { "name": "manual null span", "kind": "manual-null-span", "expectedCode": "WORKSPACE_CHECKPOINT_VIEWPORT_SPAN_INVALID" }
+]

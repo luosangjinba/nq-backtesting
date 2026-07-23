@@ -87,6 +87,30 @@ export function createInitialViewportIntent({
   });
 }
 
+/**
+ * Rebrand one durable semantic viewport for a newly activated Session runtime.
+ * Persisted values never retain activation scope, cursor revision, or native
+ * chart coordinates; those are reconstructed here under the current owners.
+ */
+export function restoreViewportIntent({
+  activationGeneration,
+  cursorEpochMs,
+  latestOffsetBars,
+  origin,
+  paneId,
+  sessionId,
+  spanBars,
+}) {
+  return createIntent({
+    cursorEpochMs,
+    latestOffsetBars,
+    origin,
+    revision: 0,
+    scope: createViewportPaneScope({ activationGeneration, paneId, sessionId }),
+    spanBars,
+  });
+}
+
 function nextRevision(revision) {
   if (revision === Number.MAX_SAFE_INTEGER) {
     failViewport('VIEWPORT_REVISION_EXHAUSTED', 'Viewport revision is exhausted.');

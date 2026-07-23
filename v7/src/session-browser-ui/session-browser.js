@@ -126,14 +126,14 @@ class SessionBrowserController {
           this.openedSessionSurface.mount({
             initialNavigationSettings: this.replayNavigationPreferences.snapshot(),
             onBack: this.actions.onBack,
-            onPersistLayoutSync: (layoutSync) => this.store.saveLayoutSync(record.sessionId, {
-              layoutSync,
-              nowEpochMs: this.now(),
-            }),
-            onPersistPaneLayout: (layout) => this.store.savePaneLayout(record.sessionId, {
-              layout,
-              nowEpochMs: this.now(),
-            }),
+            onPersistWorkspaceCheckpoint: ({ checkpoint, layout, layoutSync }) => (
+              this.store.saveWorkspaceCheckpoint(record.sessionId, {
+                checkpoint,
+                layout,
+                layoutSync,
+                nowEpochMs: this.now(),
+              })
+            ),
             onPersistReplayNavigationSettings: (settings) => this.replayNavigationPreferences.save(settings),
             record,
             root: this.root.querySelector('.replay-workspace-slot'),

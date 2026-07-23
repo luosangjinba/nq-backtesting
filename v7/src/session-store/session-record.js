@@ -8,12 +8,21 @@ import {
   requireSessionId,
   serializeSessionId,
 } from '../session-identity/public.js';
-import { deserializePaneLayout, serializePaneLayout } from '../pane-layout-domain/public.js';
+import {
+  deserializePaneLayout,
+  readPaneLayout,
+  serializePaneLayout,
+} from '../pane-layout-domain/public.js';
 import { deserializeLayoutSync, serializeLayoutSync } from '../layout-sync-domain/public.js';
 import {
   deserializeReplayNavigationSettings,
   serializeReplayNavigationSettings,
 } from '../replay-navigation-settings/public.js';
+import {
+  deserializeWorkspaceCheckpoint,
+  readWorkspaceCheckpoint,
+  serializeWorkspaceCheckpoint,
+} from '../workspace-checkpoint-domain/public.js';
 
 const RECORD_SCHEMA = 'v7.session-record';
 const RECORD_VERSION = 1;
@@ -60,7 +69,7 @@ function requireConfiguration(value) {
   });
 }
 
-function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }) {
+function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }, configuration) {
   if (value?.schemaVersion === 1 && value.state === 'uninitialized'
     && Object.keys(value).sort().join(',') === 'schemaVersion,state') {
     return Object.freeze({ schemaVersion: 1, state: 'uninitialized' });
@@ -117,6 +126,29 @@ function requireWorkspace(value = { schemaVersion: 1, state: 'uninitialized' }) 
       fail('INVALID_SESSION_WORKSPACE', 'Session workspace layout configuration is invalid.', { cause });
     }
   }
+  if (value?.schemaVersion === 6 && value.state === 'configured'
+    && Object.keys(value).sort().join(',') === 'checkpoint,layoutSync,paneLayout,schemaVersion,state') {
+    try {
+      const paneLayout = deserializePaneLayout(value.paneLayout);
+      const checkpoint = deserializeWorkspaceCheckpoint(value.checkpoint, configuration);
+      if (readPaneLayout(paneLayout).paneCount !== readWorkspaceCheckpoint(checkpoint).panes.length) {
+        fail(
+          'INVALID_SESSION_WORKSPACE',
+          'Session workspace Pane layout and checkpoint Pane count must match.',
+        );
+      }
+      return Object.freeze({
+        checkpoint: serializeWorkspaceCheckpoint(checkpoint),
+        layoutSync: serializeLayoutSync(deserializeLayoutSync(value.layoutSync)),
+        paneLayout: serializePaneLayout(paneLayout),
+        schemaVersion: 6,
+        state: 'configured',
+      });
+    } catch (cause) {
+      if (cause instanceof SessionStoreError) throw cause;
+      fail('INVALID_SESSION_WORKSPACE', 'Session workspace checkpoint is invalid.', { cause });
+    }
+  }
   fail('INVALID_SESSION_WORKSPACE', 'Session workspace envelope is unsupported.');
 }
 
@@ -133,6 +165,7 @@ function freezeRecord(value) {
   if (updatedAtEpochMs < createdAtEpochMs) {
     fail('INVALID_SESSION_TIMESTAMP_ORDER', 'Session update time cannot precede creation time.');
   }
+  const configuration = requireConfiguration(value.configuration);
   return Object.freeze({
     sessionId: value.sessionId,
     revision: value.revision,
@@ -142,8 +175,8 @@ function freezeRecord(value) {
       createdAtEpochMs,
       updatedAtEpochMs,
     }),
-    configuration: requireConfiguration(value.configuration),
-    workspace: requireWorkspace(value.workspace),
+    configuration,
+    workspace: requireWorkspace(value.workspace, configuration),
   });
 }
 

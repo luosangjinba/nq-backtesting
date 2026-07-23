@@ -13,6 +13,7 @@ import {
   promoteViewportIntentToManual,
   readViewportIntent,
   resetViewportIntentToDefault,
+  restoreViewportIntent,
 } from '../src/viewport-runtime/public.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -128,6 +129,32 @@ assert.deepEqual({
   revision: 2,
   spanBars: null,
 });
+
+const restoredManual = readViewportIntent(restoreViewportIntent({
+  activationGeneration: generationTwo,
+  cursorEpochMs: 7_000,
+  latestOffsetBars: -4,
+  origin: 'manual',
+  paneId: 'pane-b',
+  sessionId: sessionB,
+  spanBars: 72,
+}));
+assert.deepEqual({
+  cursorEpochMs: restoredManual.cursorEpochMs,
+  latestOffsetBars: restoredManual.latestOffsetBars,
+  origin: restoredManual.origin,
+  revision: restoredManual.revision,
+  spanBars: restoredManual.spanBars,
+}, {
+  cursorEpochMs: 7_000,
+  latestOffsetBars: -4,
+  origin: 'manual',
+  revision: 0,
+  spanBars: 72,
+}, 'durable semantic restore must reset transient viewport revision');
+assert.equal(restoredManual.scope.paneId, 'pane-b');
+assert.equal(restoredManual.scope.sessionId, sessionB);
+assert.equal(restoredManual.scope.activationGeneration, generationTwo);
 
 const configuredController = createViewportController({
   defaultLatestOffsetBars: 8,
