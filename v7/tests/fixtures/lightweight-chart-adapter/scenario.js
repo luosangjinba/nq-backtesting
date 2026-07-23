@@ -82,6 +82,7 @@ globalThis.__applySettings = (overrides = {}) => {
     currentPrice: { ...defaults.currentPrice, ...(overrides.currentPrice ?? {}) },
     interface: { ...defaults.interface, ...(overrides.interface ?? {}) },
     paneReadout: { ...defaults.paneReadout, ...(overrides.paneReadout ?? {}) },
+    time: { ...defaults.time, ...(overrides.time ?? {}) },
   });
   adapter.applyWorkstationSettings(
     settings,

@@ -1290,7 +1290,7 @@ presentation.
   all-Pane inheritance, and both active-tab visuals in focused Harnesses;
 - [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-### R6.9l Canvas, Crosshair, Scale And View Defaults — Awaiting Human Review
+### R6.9l Canvas, Crosshair, Scale And View Defaults — Accepted
 
 - [x] migrate every accepted schema-version-4 record to version 5 while
   retaining Grid, Symbol, Status-line, and current-price preferences;
@@ -1323,6 +1323,31 @@ presentation.
   failures restore every previewed consumer;
 - [x] prove right-margin preview still cannot move or replace an existing
   manual Viewport wall;
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
+
+### R6.9m Shared Time Presentation — Awaiting Human Review
+
+- [x] record R6.9l live-preview acceptance before starting the next bounded
+  slice;
+- [x] migrate every accepted schema-version-5 record to version 6 without
+  changing any prior visual preference;
+- [x] activate New York/UTC/browser-local, four practical date formats,
+  optional detailed weekday, and 12/24-hour presentation;
+- [x] centralize canonical-epoch formatting under Workstation Settings and
+  reuse it for native chart axes/Crosshair, Replay Workspace, Exact GoTo, and
+  Session Browser;
+- [x] retain Session creation and Quick GoTo as explicit New York market-time
+  domain behavior regardless of display timezone;
+- [x] add injected Calendar date/time presentation and an explicit AM/PM
+  control without adding Replay, Settings, or Economic Calendar ownership;
+- [x] retain live preview, OK persistence, and complete Cancel/close/Escape/
+  backdrop/disposal/failure rollback across all current and future Panes;
+- [x] prove format changes do not move Replay, change Session bounds or visible
+  cutoff, issue a Workspace transaction, rewrite series data, or mutate Pane/
+  Viewport revisions;
+- [x] bind version migration, DST/local/UTC formatting, native chart mapping,
+  Exact Calendar, hard reload, cross-Session/future-Pane inheritance, Session
+  Browser, and updated visual baselines in focused Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 ## Standing Gates

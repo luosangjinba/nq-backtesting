@@ -5,11 +5,12 @@ import {
 
 const SETTINGS = new WeakSet();
 const SCHEMA = 'v7.workstation-settings';
-const VERSION = 5;
+const VERSION = 6;
 const CANVAS_ONLY_VERSION = 1;
 const OPAQUE_CANDLE_VERSION = 2;
 const ALPHA_CANDLE_VERSION = 3;
 const STATUS_CURRENT_PRICE_VERSION = 4;
+const CANVAS_PRESENTATION_VERSION = 5;
 
 const CANVAS_FIELDS = Object.freeze([
   'backgroundColor',
@@ -61,6 +62,12 @@ export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
     changeVisible: true,
     ohlcVisible: true,
     volumeVisible: false,
+  }),
+  time: Object.freeze({
+    dateFormat: 'MM/DD/YYYY',
+    dayOfWeekVisible: false,
+    displayTimezone: 'America/New_York',
+    hourFormat: '24-hour',
   }),
 });
 
@@ -157,9 +164,9 @@ class WorkstationSettingsValue {
 export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) {
   exactObject(
     value,
-    ['candles', 'canvas', 'currentPrice', 'interface', 'paneReadout'],
+    ['candles', 'canvas', 'currentPrice', 'interface', 'paneReadout', 'time'],
     'WORKSTATION_SETTINGS_FIELDS_INVALID',
-    'Workstation Settings require exact candles, canvas, current-price, interface, and readout values.',
+    'Workstation Settings require exact candles, canvas, current-price, interface, readout, and time values.',
   );
   exactObject(
     value.canvas,
@@ -297,12 +304,44 @@ export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) 
       'Pane readout volumeVisible must be boolean.',
     ),
   });
+  exactObject(
+    value.time,
+    ['dateFormat', 'dayOfWeekVisible', 'displayTimezone', 'hourFormat'],
+    'WORKSTATION_SETTINGS_TIME_FIELDS_INVALID',
+    'Time presentation Settings fields are invalid.',
+  );
+  const time = Object.freeze({
+    dateFormat: enumField(
+      value.time.dateFormat,
+      ['YYYY-MM-DD', 'YYYY/MM/DD', 'DD/MM/YYYY', 'MM/DD/YYYY'],
+      'WORKSTATION_SETTINGS_DATE_FORMAT_INVALID',
+      'Time dateFormat',
+    ),
+    dayOfWeekVisible: booleanField(
+      value.time.dayOfWeekVisible,
+      'WORKSTATION_SETTINGS_DAY_OF_WEEK_INVALID',
+      'Time dayOfWeekVisible must be boolean.',
+    ),
+    displayTimezone: enumField(
+      value.time.displayTimezone,
+      ['America/New_York', 'UTC', 'local'],
+      'WORKSTATION_SETTINGS_DISPLAY_TIMEZONE_INVALID',
+      'Time displayTimezone',
+    ),
+    hourFormat: enumField(
+      value.time.hourFormat,
+      ['12-hour', '24-hour'],
+      'WORKSTATION_SETTINGS_HOUR_FORMAT_INVALID',
+      'Time hourFormat',
+    ),
+  });
   const settings = new WorkstationSettingsValue(Object.freeze({
     candles,
     canvas,
     currentPrice,
     interface: interfaceSettings,
     paneReadout,
+    time,
   }));
   SETTINGS.add(settings);
   return settings;
@@ -351,6 +390,7 @@ function migrateCanvasOnlyValue(value) {
     currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
     interface: DEFAULT_WORKSTATION_SETTINGS.interface,
     paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
+    time: DEFAULT_WORKSTATION_SETTINGS.time,
   });
 }
 
@@ -377,6 +417,7 @@ function migrateOpaqueCandleValue(value) {
     currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
     interface: DEFAULT_WORKSTATION_SETTINGS.interface,
     paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
+    time: DEFAULT_WORKSTATION_SETTINGS.time,
   });
 }
 
@@ -387,6 +428,7 @@ function migrateAlphaCandleValue(value) {
     currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
     interface: DEFAULT_WORKSTATION_SETTINGS.interface,
     paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
+    time: DEFAULT_WORKSTATION_SETTINGS.time,
   });
 }
 
@@ -395,6 +437,14 @@ function migrateStatusCurrentPriceValue(value) {
     ...value,
     canvas: { ...DEFAULT_WORKSTATION_SETTINGS.canvas, gridVisible: value.canvas.gridVisible },
     interface: DEFAULT_WORKSTATION_SETTINGS.interface,
+    time: DEFAULT_WORKSTATION_SETTINGS.time,
+  });
+}
+
+function migrateCanvasPresentationValue(value) {
+  return createWorkstationSettings({
+    ...value,
+    time: DEFAULT_WORKSTATION_SETTINGS.time,
   });
 }
 
@@ -416,6 +466,7 @@ export function deserializeWorkstationSettings(wire) {
   if (wire.version === OPAQUE_CANDLE_VERSION) return migrateOpaqueCandleValue(wire.value);
   if (wire.version === ALPHA_CANDLE_VERSION) return migrateAlphaCandleValue(wire.value);
   if (wire.version === STATUS_CURRENT_PRICE_VERSION) return migrateStatusCurrentPriceValue(wire.value);
+  if (wire.version === CANVAS_PRESENTATION_VERSION) return migrateCanvasPresentationValue(wire.value);
   if (wire.version !== VERSION) {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_VERSION_INVALID',

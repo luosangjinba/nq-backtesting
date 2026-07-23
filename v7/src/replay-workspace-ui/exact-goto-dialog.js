@@ -1,4 +1,5 @@
 import { createDateTimeControl } from '../calendar-surface/public.js';
+import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 
 function element(tag, options = {}, children = []) {
@@ -20,46 +21,38 @@ function requireRange(range) {
   return Object.freeze({ endEpochMs, startEpochMs });
 }
 
-function formatBound(epochMs) {
-  return new Intl.DateTimeFormat(undefined, {
-    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
-    month: 'short', timeZone: 'America/New_York', year: 'numeric',
-  }).format(new Date(epochMs));
-}
-
 /** Own the separate Workspace-level Exact GoTo trigger and range-aware dialog. */
-export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange }) {
+export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange, workstationSettings }) {
   const range = requireRange(replayRange);
-  const rangeText = `${formatBound(range.startEpochMs)} – ${formatBound(range.endEpochMs)} New York`;
+  readWorkstationSettings(workstationSettings);
+  let activeSettings = workstationSettings;
+  let presentation = createTimePresentation(activeSettings);
+  let rangeText = '';
   const toggle = element('button', {
     className: 'button replay-action-button exact-goto-toggle', text: 'Exact', type: 'button',
   });
   toggle.setAttribute('aria-label', 'Go to exact date and time');
-  const dateTime = createDateTimeControl({
-    label: 'Replay target',
-    maxEpochMs: range.endEpochMs,
-    minEpochMs: range.startEpochMs,
-    name: 'goto-target',
-    presentation: 'inline',
-    timeZone: 'America/New_York',
-  });
+  const dateTimeHost = element('div', { className: 'exact-goto-date-time-host' });
+  let dateTime = null;
   const validation = element('p', { className: 'goto-validation exact-goto-validation' });
   validation.hidden = true;
   const title = element('h2', { text: 'Go to date & time' });
   title.id = 'replay-exact-goto-title';
+  const instruction = element('p');
+  const rangeCopy = element('p', { className: 'exact-goto-range' });
   const close = element('button', { className: 'goto-dialog-close', text: '×', type: 'button' });
   close.setAttribute('aria-label', 'Close exact Go to');
   const dialog = element('dialog', { className: 'goto-dialog exact-goto-dialog' }, [
     element('header', { className: 'goto-dialog-header' }, [
       element('div', {}, [
         title,
-        element('p', { text: 'Choose an exact New York date and time.' }),
+        instruction,
       ]),
       close,
     ]),
     element('div', { className: 'goto-dialog-body' }, [
-      element('p', { className: 'exact-goto-range', text: `Replay Session · ${rangeText}` }),
-      dateTime.element,
+      rangeCopy,
+      dateTimeHost,
       validation,
     ]),
     element('footer', { className: 'goto-dialog-actions' }, [
@@ -68,6 +61,35 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
     ]),
   ]);
   dialog.setAttribute('aria-labelledby', title.id);
+
+  function replaceDateTime(settings, preserveEpochMs = null) {
+    readWorkstationSettings(settings);
+    activeSettings = settings;
+    presentation = createTimePresentation(activeSettings);
+    const selectedEpochMs = Number.isSafeInteger(preserveEpochMs)
+      ? preserveEpochMs
+      : dateTime?.readEpochMs();
+    dateTime?.close();
+    dateTime = createDateTimeControl({
+      dateTimePresentation: presentation.calendarPresentation,
+      label: 'Replay target',
+      maxEpochMs: range.endEpochMs,
+      minEpochMs: range.startEpochMs,
+      name: 'goto-target',
+      presentation: 'inline',
+      timeZone: presentation.timeZone,
+    });
+    dateTimeHost.replaceChildren(dateTime.element);
+    if (Number.isSafeInteger(selectedEpochMs)) dateTime.setEpochMs(selectedEpochMs);
+    rangeText = `${presentation.formatDateTime(range.startEpochMs, { timeZoneName: false })} – `
+      + `${presentation.formatDateTime(range.endEpochMs, { timeZoneName: false })}`
+      + ` · ${presentation.timeZoneLabel}`;
+    rangeCopy.textContent = `Replay Session · ${rangeText}`;
+    instruction.textContent = `Choose an exact date and time in ${presentation.timeZoneLabel}.`;
+    dialog.dataset.displayTimezone = presentation.timeZone;
+  }
+
+  replaceDateTime(activeSettings);
 
   function closeDialog() {
     dateTime.close();
@@ -84,7 +106,7 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
   function submit() {
     const epochMs = dateTime.readEpochMs();
     if (!Number.isSafeInteger(epochMs)) {
-      validation.textContent = 'Choose a valid New York date and time.';
+      validation.textContent = `Choose a valid date and time in ${presentation.timeZoneLabel}.`;
       validation.hidden = false;
       return;
     }
@@ -113,6 +135,10 @@ export function createExactGotoDialog({ getDefaultEpochMs, onSubmit, replayRange
     },
     open,
     root: toggle,
+    setWorkstationSettings(settings) {
+      const selected = dateTime.readEpochMs();
+      replaceDateTime(settings, selected);
+    },
     setDisabled(disabled, preserveVisual = false) {
       const options = { disabled, preserveVisual };
       setControlDisabled(toggle, options);

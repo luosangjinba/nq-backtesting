@@ -3,37 +3,38 @@ import {
   CrosshairMode,
   TickMarkType,
 } from '../../node_modules/lightweight-charts/dist/lightweight-charts.standalone.production.mjs';
+import {
+  createTimePresentation,
+  createWorkstationSettings,
+} from '../workstation-settings/public.js';
 
 export const EXCHANGE_TIME_ZONE = 'America/New_York';
 
-/** Build chart-only New York presentation without changing real bar instants. */
-export function createExchangeTimePresentation(locale = undefined) {
-  const options = { timeZone: EXCHANGE_TIME_ZONE };
-  const time = new Intl.DateTimeFormat(locale, {
-    ...options, hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
-  });
-  const day = new Intl.DateTimeFormat(locale, {
-    ...options, day: '2-digit', month: 'short', year: '2-digit',
-  });
-  const month = new Intl.DateTimeFormat(locale, { ...options, month: 'short', year: 'numeric' });
-  const year = new Intl.DateTimeFormat(locale, { ...options, year: 'numeric' });
-  const crosshair = new Intl.DateTimeFormat(locale, {
-    ...options,
-    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: 'short', year: 'numeric',
-  });
+function semanticTickType(type) {
+  if (type === TickMarkType.Year) return 'year';
+  if (type === TickMarkType.Month) return 'month';
+  if (type === TickMarkType.DayOfMonth) return 'day';
+  if (type === TickMarkType.TimeWithSeconds) return 'time-with-seconds';
+  return 'time';
+}
+
+/** Map one Settings value to native Lightweight Charts time-formatting options. */
+export function createChartTimePresentation(settings = createWorkstationSettings()) {
+  const presentation = createTimePresentation(settings);
   return Object.freeze({
     tickMarkFormatter(value, type) {
-      const date = new Date(Number(value) * 1_000);
-      if (type === TickMarkType.Year) return year.format(date);
-      if (type === TickMarkType.Month) return month.format(date);
-      if (type === TickMarkType.DayOfMonth) return day.format(date);
-      return time.format(date);
+      return presentation.formatAxisTick(Number(value) * 1_000, semanticTickType(type));
     },
-    timeFormatter: (value) => crosshair.format(new Date(Number(value) * 1_000)),
+    timeFormatter: (value) => presentation.formatChartCrosshair(Number(value) * 1_000),
   });
 }
 
-const exchangeTimePresentation = createExchangeTimePresentation();
+/** Backward-compatible default New York formatter used by adapter evidence. */
+export function createExchangeTimePresentation(_locale = undefined) {
+  return createChartTimePresentation(createWorkstationSettings());
+}
+
+const exchangeTimePresentation = createChartTimePresentation();
 
 export const CANDLE_OPTIONS = Object.freeze({
   borderDownColor: '#f23645',

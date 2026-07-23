@@ -1,3 +1,8 @@
+import {
+  createTimePresentation,
+  createWorkstationSettings,
+} from '../workstation-settings/public.js';
+
 const ICON_PATHS = Object.freeze({
   arrowLeft: '<path d="m15 18-6-6 6-6"/><path d="M9 12h10"/>',
   calendar: '<path d="M8 2v4M16 2v4M3 10h18"/><rect width="18" height="18" x="3" y="4" rx="2"/>',
@@ -39,13 +44,10 @@ export function element(tag, attributes = {}, children = []) {
   return node;
 }
 
-export function formatDateTime(epochMs) {
-  return new Intl.DateTimeFormat(undefined, {
-    year: 'numeric', month: 'short', day: '2-digit',
-    hour: '2-digit', hourCycle: 'h23', minute: '2-digit', timeZone: 'America/New_York',
-  }).format(new Date(epochMs));
+export function formatDateTime(epochMs, settings = createWorkstationSettings()) {
+  return createTimePresentation(settings).formatDateTime(epochMs);
 }
 
-export function formatDateRange(startEpochMs, endEpochMs) {
-  return `${formatDateTime(startEpochMs)} — ${formatDateTime(endEpochMs)}`;
+export function formatDateRange(startEpochMs, endEpochMs, settings = createWorkstationSettings()) {
+  return `${formatDateTime(startEpochMs, settings)} — ${formatDateTime(endEpochMs, settings)}`;
 }

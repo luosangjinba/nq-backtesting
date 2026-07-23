@@ -24,7 +24,7 @@ function statePanel(state, message, onRetry) {
   ]);
 }
 
-function sessionCard(card, actions) {
+function sessionCard(card, actions, workstationSettings) {
   const instruments = element('div', { className: 'instrument-tags', 'aria-label': 'Instruments' });
   card.instruments.forEach((instrument) => instruments.append(
     element('span', { className: 'instrument-tag', text: instrument.label }),
@@ -72,19 +72,21 @@ function sessionCard(card, actions) {
       element('div', { className: 'session-card-heading' }, [
         element('div', {}, [
           element('h3', { text: card.name }),
-          element('p', { text: `Created ${formatDateTime(card.createdAtEpochMs)}` }),
+          element('p', { text: `Created ${formatDateTime(card.createdAtEpochMs, workstationSettings)}` }),
         ]),
         instruments,
       ]),
       element('div', { className: 'session-card-meta' }, [
-        element('span', {}, [icon('calendar'), element('span', { text: formatDateRange(card.startEpochMs, card.endEpochMs) })]),
+        element('span', {}, [icon('calendar'), element('span', {
+          text: formatDateRange(card.startEpochMs, card.endEpochMs, workstationSettings),
+        })]),
       ]),
     ]),
     element('div', { className: 'session-card-action-slot' }, [standardActions, confirmation]),
   ]);
 }
 
-function listScreen(model, actions) {
+function listScreen(model, actions, workstationSettings) {
   const header = element('header', { className: 'page-header' }, [
     element('div', {}, [
       element('span', { className: 'eyebrow', text: 'Practice workspace' }),
@@ -126,7 +128,9 @@ function listScreen(model, actions) {
         ]),
         element('button', { className: 'icon-button', type: 'button', 'aria-label': 'Refresh sessions', onClick: actions.onRetry }, [icon('refresh')]),
       ]),
-      element('div', { className: 'session-list' }, model.cards.map((card) => sessionCard(card, actions))),
+      element('div', { className: 'session-list' }, model.cards.map(
+        (card) => sessionCard(card, actions, workstationSettings),
+      )),
     ]);
     if (model.state === 'stale') section.append(element('div', { className: 'refresh-gate', 'aria-label': 'Refreshing sessions' }, [
       element('span', { className: 'spinner' }), element('span', { text: 'Updating sessions…' }),
@@ -136,7 +140,7 @@ function listScreen(model, actions) {
   return element('div', { className: 'page page-sessions' }, [header, content]);
 }
 
-function openedScreen(model, actions) {
+function openedScreen(model, actions, workstationSettings) {
   const content = element('div', { className: 'page-content opened-content' });
   if (model.state === 'loading' || model.state === 'error' || model.state === 'unavailable') {
     content.append(statePanel(model.state, model.message, model.state === 'error' ? actions.onBack : null));
@@ -162,12 +166,14 @@ function openedScreen(model, actions) {
         element('article', { className: 'summary-card' }, [
           element('span', { className: 'summary-icon' }, [icon('calendar')]),
           element('span', { className: 'summary-label', text: 'Historical window' }),
-          element('strong', { text: formatDateRange(session.startEpochMs, session.endEpochMs) }),
+          element('strong', {
+            text: formatDateRange(session.startEpochMs, session.endEpochMs, workstationSettings),
+          }),
         ]),
         element('article', { className: 'summary-card' }, [
           element('span', { className: 'summary-icon' }, [icon('clock')]),
           element('span', { className: 'summary-label', text: 'Last opened' }),
-          element('strong', { text: formatDateTime(session.updatedAtEpochMs) }),
+          element('strong', { text: formatDateTime(session.updatedAtEpochMs, workstationSettings) }),
         ]),
       ]),
       element('section', { className: 'foundation-notice' }, [
@@ -207,8 +213,10 @@ function shell(content, { immersive = false } = {}) {
 }
 
 /** Render one complete, atomic Session Browser snapshot into its owned root. */
-export function renderSessionBrowserSurface(root, model, actions) {
-  const content = model.screen === 'opened' ? openedScreen(model, actions) : listScreen(model, actions);
+export function renderSessionBrowserSurface(root, model, actions, workstationSettings) {
+  const content = model.screen === 'opened'
+    ? openedScreen(model, actions, workstationSettings)
+    : listScreen(model, actions, workstationSettings);
   root.replaceChildren(shell(content, { immersive: model.screen === 'opened' && model.workspace }));
   root.dataset.viewState = model.state;
   root.dataset.screen = model.screen;

@@ -242,6 +242,30 @@ try {
   assert.equal(canvasPresentation.restored.canvasPresentation.nativeVertCrosshair.color, '#33669973',
     'leaving truncation must restore the user Crosshair presentation');
 
+  const timePresentation = await evaluate(cdp, `(() => {
+    const before = globalThis.__adapter.snapshot();
+    globalThis.__applySettings({ time: {
+      dateFormat: 'YYYY-MM-DD',
+      dayOfWeekVisible: true,
+      displayTimezone: 'UTC',
+      hourFormat: '12-hour',
+    } });
+    return { before, after: globalThis.__adapter.snapshot() };
+  })()`);
+  assert.deepEqual(timePresentation.after.timePresentation, {
+    dateFormat: 'YYYY-MM-DD',
+    dayOfWeekVisible: true,
+    displayTimezone: 'UTC',
+    hourFormat: '12-hour',
+    sampleCrosshair: 'Fri 2026-05-01, 12:43 PM',
+    sampleTimeTick: '12:43 PM',
+  });
+  assert.equal(timePresentation.after.seriesDataRevision,
+    timePresentation.before.seriesDataRevision,
+  'time presentation must use native formatters without replacing series data');
+  assert.equal(timePresentation.after.adapterRevision, timePresentation.before.adapterRevision,
+    'time presentation must not publish a chart-visible Workspace receipt');
+
   const candlePresentation = await evaluate(cdp, `(() => {
     const before = globalThis.__adapter.snapshot();
     globalThis.__applySettings({

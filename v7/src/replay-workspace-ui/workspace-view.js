@@ -1,7 +1,7 @@
 import { readPaneWorkspace } from '../pane-workspace-domain/public.js';
 import { readPaneLayout } from '../pane-layout-domain/public.js';
 import { readReplayStep } from '../replay-contract/public.js';
-import { readWorkstationSettings } from '../workstation-settings/public.js';
+import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { setControlDisabled, setControlsDisabled } from './control-availability.js';
 import { createExactGotoDialog } from './exact-goto-dialog.js';
 import { createGotoControls } from './goto-controls.js';
@@ -136,6 +136,8 @@ export function createReplayWorkspaceView({
     onCrosshairSync,
     options: layoutOptions,
   });
+  let activeWorkstationSettings = getWorkstationSettings().settings;
+  readWorkstationSettings(activeWorkstationSettings);
   let exactDefaultEpochMs = Date.now();
   const goto = createGotoControls({
     initialSettings: initialNavigationSettings,
@@ -146,6 +148,7 @@ export function createReplayWorkspaceView({
     getDefaultEpochMs: () => exactDefaultEpochMs,
     onSubmit: onExactGoto,
     replayRange,
+    workstationSettings: activeWorkstationSettings,
   });
   const workstationSettings = createWorkstationSettingsControl({
     getSnapshot: getWorkstationSettings,
@@ -157,7 +160,7 @@ export function createReplayWorkspaceView({
   });
   const paneGrid = createPaneGridView({
     initialLayout,
-    initialWorkstationSettings: getWorkstationSettings().settings,
+    initialWorkstationSettings: activeWorkstationSettings,
     onFocus: onFocusPane,
     onLayoutResize,
     onReset,
@@ -233,6 +236,28 @@ export function createReplayWorkspaceView({
   let truncationSelectionActive = false;
   let viewState = 'loading';
   let workspaceError = null;
+  let cursorEpochMs = null;
+  let sessionRangeEpochs = null;
+  let visibleThroughState = null;
+
+  function renderTimePresentation() {
+    const presentation = createTimePresentation(activeWorkstationSettings);
+    root.dataset.cursorText = cursorEpochMs === null
+      ? 'No Session bar visible'
+      : presentation.formatDateTime(cursorEpochMs);
+    if (sessionRangeEpochs !== null) {
+      sessionRange.textContent = `Session · ${presentation.formatDateTime(sessionRangeEpochs.startEpochMs)}`
+        + ` → ${presentation.formatDateTime(sessionRangeEpochs.endEpochMs)}`;
+    }
+    if (visibleThroughState !== null) {
+      const { barCount, paneCount, visibleThroughEpochMs } = visibleThroughState;
+      const visibleThroughText = visibleThroughEpochMs === null
+        ? 'No Session bar visible'
+        : presentation.formatDateTime(visibleThroughEpochMs);
+      visibleThrough.textContent = `Visible through · ${visibleThroughText}`
+        + ` · ${barCount} bars${paneCount > 1 ? ` · ${paneCount} panes` : ''}`;
+    }
+  }
 
   function renderAvailability() {
     const busy = interactionPending || viewState === 'loading' || viewState === 'stale';
@@ -313,7 +338,10 @@ export function createReplayWorkspaceView({
     },
     openExactGoto: exactGoto.open,
     root,
-    setCursor(text) { root.dataset.cursorText = text; },
+    setCursor(epochMs) {
+      cursorEpochMs = epochMs;
+      renderTimePresentation();
+    },
     setEvidence({ replayRevision, workspaceRevision }) {
       root.dataset.replayRevision = String(replayRevision);
       root.dataset.workspaceRevision = String(workspaceRevision);
@@ -381,10 +409,14 @@ export function createReplayWorkspaceView({
       root.dataset.sessionHoursMode = sessionHoursMode;
       sessionHoursControl.setValue(sessionHoursMode);
     },
-    setSessionRange({ end, start }) { sessionRange.textContent = `Session · ${start} → ${end}`; },
+    setSessionRange({ endEpochMs, startEpochMs }) {
+      sessionRangeEpochs = Object.freeze({ endEpochMs, startEpochMs });
+      renderTimePresentation();
+    },
     setState,
-    setVisibleThrough({ barCount, paneCount, text }) {
-      visibleThrough.textContent = `Visible through · ${text} · ${barCount} bars${paneCount > 1 ? ` · ${paneCount} panes` : ''}`;
+    setVisibleThrough({ barCount, paneCount, visibleThroughEpochMs }) {
+      visibleThroughState = Object.freeze({ barCount, paneCount, visibleThroughEpochMs });
+      renderTimePresentation();
     },
     setWall(paneId, origin) {
       if (paneId === activePaneId) root.dataset.wallOrigin = origin;
@@ -392,6 +424,7 @@ export function createReplayWorkspaceView({
     setWorkstationSettings(snapshot) {
       root.dataset.settingsRevision = String(snapshot.revision);
       const value = readWorkstationSettings(snapshot.settings);
+      activeWorkstationSettings = snapshot.settings;
       root.dataset.changeVisible = String(value.paneReadout.changeVisible);
       root.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
       root.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
@@ -406,8 +439,14 @@ export function createReplayWorkspaceView({
       root.dataset.pricePrecision = String(value.candles.pricePrecision);
       root.dataset.rightMarginBars = String(value.canvas.rightMarginBars);
       root.dataset.scaleFontSize = String(value.canvas.scaleFontSize);
+      root.dataset.dateFormat = value.time.dateFormat;
+      root.dataset.dayOfWeekVisible = String(value.time.dayOfWeekVisible);
+      root.dataset.displayTimezone = value.time.displayTimezone;
+      root.dataset.hourFormat = value.time.hourFormat;
       root.dataset.volumeVisible = String(value.paneReadout.volumeVisible);
+      exactGoto.setWorkstationSettings(snapshot.settings);
       paneGrid.setWorkstationSettings(snapshot.settings);
+      renderTimePresentation();
     },
     setWorkspace(workspace) {
       const value = readPaneWorkspace(workspace);

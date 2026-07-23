@@ -22,3 +22,4 @@ export {
   decimalPlacesForIncrement,
   resolvePricePrecision,
 } from './price-presentation.js';
+export { createTimePresentation } from './time-presentation.js';

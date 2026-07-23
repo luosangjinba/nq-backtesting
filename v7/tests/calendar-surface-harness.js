@@ -57,6 +57,11 @@ for (const fixture of negativeCases) {
 }
 assert.throws(negativeActions['unsupported-presentation'], /Date-time presentation is unsupported/,
   'Calendar consumers must opt into one supported presentation mode');
+assert.throws(() => createDateTimeControl({
+  dateTimePresentation: { formatDate() {}, formatTime() {}, hourFormat: 'civil' },
+  name: 'invalid-time-presentation',
+}), /Date-time format presentation is unsupported/,
+'Calendar formatting remains an explicit bounded injection rather than implicit Settings state');
 
 const leapMonth = createMonthGrid({
   year: 2020, month: 1,

@@ -1,7 +1,7 @@
 # Session — R6.9l Canvas Settings
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: human accepted
 
 ## Delivered
 
@@ -52,5 +52,5 @@ Review the Canvas background, Grid, Crosshair color/opacity/width/style, scale
 text color/size, top/bottom margins, Pane-control visibility, and right-margin
 Reset behavior in single and multi-Pane layouts. Confirm a Settings Save does
 not move a manually positioned wall, but Reset View uses the saved right-margin
-default. Stop at this visual/interaction gate before R6.9m shared time
-presentation.
+default. The user accepted this visual/interaction gate on 2026-07-22 and
+authorized R6.9m shared time presentation.

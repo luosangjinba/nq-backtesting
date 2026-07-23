@@ -424,10 +424,12 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   controls, proving all eight price-label combinations without hiding essential
   symbol/TF provenance; accepted on 2026-07-22;
 - `R6.9l`: activate solid Canvas background, shared rich Crosshair, scale text,
-  Pane-control visibility, and owner-routed top/bottom/right margins;
-  implemented and awaiting human review;
+  Pane-control visibility, owner-routed top/bottom/right margins, and complete
+  live-preview/discard restoration; accepted on 2026-07-22;
 - `R6.9m`: activate shared New York/UTC/local, date, weekday, and 12/24-hour
-  presentation without changing canonical instants or Replay semantics;
+  presentation across native chart formatters, Replay Workspace, Exact GoTo,
+  and Session Browser without changing canonical instants or Replay semantics;
+  implemented and awaiting human review;
 - `R6.10`: add the remaining bounded Symbol, Interval, Time, and Date-range
   layout-sync families over explicit owners;
 - same pane model from one to many panes;

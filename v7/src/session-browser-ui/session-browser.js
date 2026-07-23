@@ -54,7 +54,12 @@ class SessionBrowserController {
   commit(model) {
     if (this.stopped) return;
     this.openedSessionSurface?.unmount();
-    renderSessionBrowserSurface(this.root, model, this.actions);
+    renderSessionBrowserSurface(
+      this.root,
+      model,
+      this.actions,
+      this.workstationSettings?.snapshot().settings,
+    );
     this.root.append(this.dialog.element);
   }
 

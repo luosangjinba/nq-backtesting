@@ -14,7 +14,7 @@ import {
 import { readReplayNavigationSettings } from '../replay-navigation-settings/public.js';
 import { createReplayRuntime } from '../replay-runtime/public.js';
 import { createPaneLayout, readPaneLayout } from '../pane-layout-domain/public.js';
-import { readWorkstationSettings } from '../workstation-settings/public.js';
+import { createTimePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
 import { createWorkspaceTransactionRuntime } from '../workspace-transaction-runtime/public.js';
 import { createReplayAutoplayScheduler } from './autoplay-scheduler.js';
 import { DEFAULT_AUTOPLAY_SPEED, readAutoplaySpeed } from './autoplay-speed.js';
@@ -28,13 +28,9 @@ import { createWorkspaceExecution } from './workspace-execution.js';
 import { createViewportSettingsConsumer } from './viewport-settings-consumer.js';
 import { createWorkstationSettingsViewConsumer } from './workstation-settings-view-consumer.js';
 
-function formatCursor(epochMs) {
+function formatCursor(settings, epochMs) {
   if (epochMs === null) return 'No Session bar visible';
-  const formatter = new Intl.DateTimeFormat(undefined, {
-    day: '2-digit', hour: '2-digit', hourCycle: 'h23', minute: '2-digit', month: '2-digit',
-    timeZone: 'America/New_York', timeZoneName: 'short', year: 'numeric',
-  });
-  return formatter.format(new Date(epochMs));
+  return createTimePresentation(settings).formatDateTime(epochMs);
 }
 
 /** Wire one real Session-scoped Replay clock to a uniform one/multi-Pane chart surface. */
@@ -80,7 +76,7 @@ export function createReplayWorkspaceController({
     initialTarget: market.defaultTarget,
     record,
   });
-  view.setSessionRange({ end: formatCursor(range.endEpochMs), start: formatCursor(range.startEpochMs) });
+  view.setSessionRange({ endEpochMs: range.endEpochMs, startEpochMs: range.startEpochMs });
   view.setSelection({ sessionHoursMode: market.defaultTarget.sessionHoursMode });
   view.setLayout(paneLayout, paneState.paneIds());
   view.setCrosshairSync(false);
@@ -220,7 +216,7 @@ export function createReplayWorkspaceController({
       ?? workspaceSnapshot.panes[0];
     const readyPanes = workspaceSnapshot.panes.filter(({ status }) => status === 'ready');
     const visibleThroughEpochMs = replaySnapshot.visibleThroughEpochMs;
-    view.setCursor(formatCursor(visibleThroughEpochMs));
+    view.setCursor(visibleThroughEpochMs);
     view.setEvidence({
       replayRevision: replaySnapshot.revision,
       workspaceRevision: runtime.snapshot().acceptedRevision,
@@ -230,7 +226,7 @@ export function createReplayWorkspaceController({
     view.setVisibleThrough({
       barCount: active.status === 'ready' ? active.snapshot.bars.length : 0,
       paneCount: workspaceSnapshot.panes.length,
-      text: formatCursor(visibleThroughEpochMs),
+      visibleThroughEpochMs,
     });
     view.setLayout(paneLayout, paneState.paneIds());
     view.setWorkspace(paneState.current());
@@ -345,7 +341,10 @@ export function createReplayWorkspaceController({
       const result = await execution.action('goto-anchor', { anchor }, { allowDim: true });
       if (result?.code === GOTO_TARGET_UNAVAILABLE_IN_RANGE) {
         view.setGotoFeedback(
-          `No later ${quickGotoLabel(anchor)} is available. Replay range ends ${formatCursor(range.endEpochMs)}.`,
+          `No later ${quickGotoLabel(anchor)} is available. Replay range ends ${formatCursor(
+            workstationSettings.snapshot().settings,
+            range.endEpochMs,
+          )}.`,
         );
       }
       return result;

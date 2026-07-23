@@ -21,12 +21,33 @@ function replaceChildren(node, children) {
   node.replaceChildren(...children);
 }
 
-function formatTrigger(date, precision) {
+function defaultFormatTrigger(date, precision) {
   return new Intl.DateTimeFormat(undefined, {
     year: 'numeric', month: '2-digit', day: '2-digit',
     hour: '2-digit', hourCycle: 'h23', minute: '2-digit',
     second: precision === 'second' ? '2-digit' : undefined,
   }).format(date);
+}
+
+const DEFAULT_PRESENTATION = Object.freeze({
+  formatDate(date) {
+    return `${pad(date.getFullYear())}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  },
+  formatTime(date, { seconds = false } = {}) {
+    return `${pad(date.getHours())}:${pad(date.getMinutes())}`
+      + (seconds ? `:${pad(date.getSeconds())}` : '');
+  },
+  hourFormat: '24-hour',
+});
+
+function requirePresentation(candidate) {
+  const presentation = candidate ?? DEFAULT_PRESENTATION;
+  if (!presentation || typeof presentation.formatDate !== 'function'
+    || typeof presentation.formatTime !== 'function'
+    || !['12-hour', '24-hour'].includes(presentation.hourFormat)) {
+    throw new TypeError('Date-time format presentation is unsupported.');
+  }
+  return presentation;
 }
 
 /**
@@ -141,12 +162,13 @@ function createStructure(name, label, placement, presentation) {
 }
 
 class DateTimeControl {
-  constructor({ dateRange, name, label, precision, placement, presentation, now, timeZone }) {
+  constructor({ dateRange, dateTimePresentation, name, label, precision, placement, presentation, now, timeZone }) {
     this.dateRange = dateRange;
     this.precision = precision;
     this.presentation = presentation;
     this.now = now;
     this.timeZone = timeZone;
+    this.dateTimePresentation = dateTimePresentation;
     this.nodes = createStructure(name, label, placement, presentation);
     this.selected = null;
     const today = this.wallDate(this.now());
@@ -199,7 +221,10 @@ class DateTimeControl {
     this.nodes.hiddenInput.value = '';
     this.nodes.triggerText.textContent = 'Select date and time';
     if (this.nodes.inlineDate) this.nodes.inlineDate.textContent = 'Select date';
-    if (this.nodes.inlineTime) this.nodes.inlineTime.textContent = '00:00';
+    if (this.nodes.inlineTime) {
+      this.nodes.inlineTime.textContent = this.dateTimePresentation.hourFormat === '12-hour'
+        ? '12:00 AM' : '00:00';
+    }
     const today = this.wallDate(this.now());
     this.displayYear = today.getFullYear();
     this.displayMonth = today.getMonth();
@@ -229,12 +254,18 @@ class DateTimeControl {
     this.displayYear = date.getFullYear();
     this.displayMonth = date.getMonth();
     this.nodes.hiddenInput.value = formatLocalDateTimeValue(date.getTime(), this.precision);
-    this.nodes.triggerText.textContent = formatTrigger(date, this.precision);
+    this.nodes.triggerText.textContent = this.dateTimePresentation === DEFAULT_PRESENTATION
+      ? defaultFormatTrigger(date, this.precision)
+      : `${this.dateTimePresentation.formatDate(date)} ${this.dateTimePresentation.formatTime(date, {
+        seconds: this.precision === 'second',
+      })}`;
     if (this.nodes.inlineDate) {
-      this.nodes.inlineDate.textContent = `${pad(date.getFullYear())}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+      this.nodes.inlineDate.textContent = this.dateTimePresentation.formatDate(date);
     }
     if (this.nodes.inlineTime) {
-      this.nodes.inlineTime.textContent = `${pad(date.getHours())}:${pad(date.getMinutes())}`;
+      this.nodes.inlineTime.textContent = this.dateTimePresentation.formatTime(date, {
+        seconds: this.precision === 'second',
+      });
     }
     this.view = VIEW.DAYS;
     this.render();
@@ -314,7 +345,10 @@ class DateTimeControl {
   renderTime() {
     const parts = ['hour', 'minute', ...(this.precision === 'second' ? ['second'] : [])];
     const date = this.selected ?? this.wallDate(this.now());
-    const values = { hour: date.getHours(), minute: date.getMinutes(), second: date.getSeconds() };
+    const hour = this.dateTimePresentation.hourFormat === '12-hour'
+      ? (date.getHours() % 12 || 12)
+      : date.getHours();
+    const values = { hour, minute: date.getMinutes(), second: date.getSeconds() };
     const children = [];
     parts.forEach((part, index) => {
       if (index > 0) children.push(element('span', { className: 'date-time-separator', text: ':' }));
@@ -330,6 +364,13 @@ class DateTimeControl {
         }, [icon('chevronDown')]),
       ]));
     });
+    if (this.dateTimePresentation.hourFormat === '12-hour') {
+      children.push(element('button', {
+        className: 'date-time-period', type: 'button', text: date.getHours() < 12 ? 'AM' : 'PM',
+        'aria-label': 'Toggle AM or PM',
+        onClick: () => this.setTimePart('hour', 12),
+      }));
+    }
     return element('div', { className: 'date-time-clock', 'aria-label': 'Time' }, children);
   }
 
@@ -371,6 +412,7 @@ class DateTimeControl {
  * so presentation replacement cannot fork value or reset semantics.
  */
 export function createDateTimeControl({
+  dateTimePresentation = null,
   maxEpochMs = null,
   minEpochMs = null,
   name,
@@ -386,6 +428,7 @@ export function createDateTimeControl({
   if (presentation !== 'popover' && presentation !== 'inline') {
     throw new TypeError('Date-time presentation is unsupported.');
   }
+  const formattedPresentation = requirePresentation(dateTimePresentation);
   if (timeZone !== null) {
     try {
       new Intl.DateTimeFormat('en', { timeZone }).format(0);
@@ -408,7 +451,8 @@ export function createDateTimeControl({
     });
   }
   const controller = new DateTimeControl({
-    dateRange, name, label, precision, placement, presentation, now, timeZone,
+    dateRange, dateTimePresentation: formattedPresentation, name, label, precision,
+    placement, presentation, now, timeZone,
   });
   return Object.freeze({
     element: controller.nodes.root,

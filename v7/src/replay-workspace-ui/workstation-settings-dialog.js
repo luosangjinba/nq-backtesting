@@ -239,6 +239,42 @@ export function createWorkstationSettingsDialog({
       { label: 'Always hidden', value: 'hidden' },
     ],
   });
+  const timeControls = Object.freeze({
+    dateFormat: selectControl({
+      copy: 'Examples use the same date in each supported format.',
+      label: 'Date format',
+      name: 'dateFormat',
+      options: [
+        { label: 'YYYY-MM-DD · 2026-05-01', value: 'YYYY-MM-DD' },
+        { label: 'YYYY/MM/DD · 2026/05/01', value: 'YYYY/MM/DD' },
+        { label: 'DD/MM/YYYY · 01/05/2026', value: 'DD/MM/YYYY' },
+        { label: 'MM/DD/YYYY · 05/01/2026', value: 'MM/DD/YYYY' },
+      ],
+    }),
+    dayOfWeek: switchControl({
+      copy: 'Prefix detailed chart and calendar labels with the weekday.',
+      label: 'Day of week',
+      name: 'dayOfWeekVisible',
+    }),
+    hourFormat: selectControl({
+      label: 'Time format',
+      name: 'hourFormat',
+      options: [
+        { label: '24-hour · 13:45', value: '24-hour' },
+        { label: '12-hour · 1:45 PM', value: '12-hour' },
+      ],
+    }),
+    timezone: selectControl({
+      copy: 'Presentation only. Replay and Session instants never move.',
+      label: 'Display timezone',
+      name: 'displayTimezone',
+      options: [
+        { label: 'New York', value: 'America/New_York' },
+        { label: 'UTC', value: 'UTC' },
+        { label: 'Browser local', value: 'local' },
+      ],
+    }),
+  });
   const margins = Object.freeze({
     bottom: numberControl({
       label: 'Bottom', maximum: 50, minimum: 0, name: 'bottomMarginPercent', suffix: '%',
@@ -280,6 +316,14 @@ export function createWorkstationSettingsDialog({
         className: 'workstation-settings-panel-note',
         text: 'Name, value, and line are independent on every pane.',
       }),
+      element('span', {
+        className: 'workstation-settings-kicker workstation-settings-section-kicker',
+        text: 'Time scale',
+      }),
+      timeControls.timezone.root,
+      timeControls.dateFormat.root,
+      timeControls.dayOfWeek.root,
+      timeControls.hourFormat.root,
     ])],
     ['canvas', element('section', { className: 'workstation-settings-canvas' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Chart basic styles' }),
@@ -409,6 +453,10 @@ export function createWorkstationSettingsDialog({
     readoutControls.change.input.checked = value.paneReadout.changeVisible;
     readoutControls.ohlc.input.checked = value.paneReadout.ohlcVisible;
     readoutControls.volume.input.checked = value.paneReadout.volumeVisible;
+    timeControls.dateFormat.select.value = value.time.dateFormat;
+    timeControls.dayOfWeek.input.checked = value.time.dayOfWeekVisible;
+    timeControls.hourFormat.select.value = value.time.hourFormat;
+    timeControls.timezone.select.value = value.time.displayTimezone;
     validation.hidden = true;
     validation.textContent = '';
   }
@@ -464,6 +512,12 @@ export function createWorkstationSettingsDialog({
           changeVisible: readoutControls.change.input.checked,
           ohlcVisible: readoutControls.ohlc.input.checked,
           volumeVisible: readoutControls.volume.input.checked,
+        },
+        time: {
+          dateFormat: timeControls.dateFormat.select.value,
+          dayOfWeekVisible: timeControls.dayOfWeek.input.checked,
+          displayTimezone: timeControls.timezone.select.value,
+          hourFormat: timeControls.hourFormat.select.value,
         },
       });
   }

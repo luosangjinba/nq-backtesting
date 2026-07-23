@@ -277,6 +277,15 @@ try {
     currentPriceNameVisible: true,
     currentPriceValueVisible: true,
   });
+  assert.deepEqual(await evaluate(cdp, `Object.fromEntries([
+    'displayTimezone', 'dateFormat', 'hourFormat',
+  ].map((name) => [name, document.querySelector('[name="' + name + '"]').value]))`), {
+    dateFormat: 'MM/DD/YYYY',
+    displayTimezone: 'America/New_York',
+    hourFormat: '24-hour',
+  });
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('[name="dayOfWeekVisible"]').checked`), false);
   await capture(cdp, workstationCurrentPriceVisualFile, '.workstation-settings-dialog');
   await evaluate(cdp, `document.querySelector('[data-settings-tab="canvas"]').click()`);
   assert.deepEqual(await evaluate(cdp, `Object.fromEntries([
@@ -317,18 +326,54 @@ try {
     draft.value = '#5c6bc080';
     draft.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('[name="gridVisible"]').click();
+    for (const [name, value] of Object.entries({
+      dateFormat: 'YYYY-MM-DD', displayTimezone: 'UTC', hourFormat: '12-hour',
+    })) {
+      const control = document.querySelector('[name="' + name + '"]');
+      control.value = value;
+      control.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    document.querySelector('[name="dayOfWeekVisible"]').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'
+    && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'UTC'
+    && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'YYYY-MM-DD'
+    && document.querySelector('.replay-workspace')?.dataset.hourFormat === '12-hour'
+    && document.querySelector('.replay-workspace')?.dataset.dayOfWeekVisible === 'true'
     && [...document.querySelectorAll('.lightweight-chart-host')]
-      .every((host) => host.dataset.gridVisible === 'false')`);
+      .every((host) => host.dataset.gridVisible === 'false'
+        && host.dataset.displayTimezone === 'UTC'
+        && host.dataset.dateFormat === 'YYYY-MM-DD'
+        && host.dataset.hourFormat === '12-hour'
+        && host.dataset.dayOfWeekVisible === 'true')`);
+  assert.match(await evaluate(cdp,
+    `document.querySelector('.replay-session-range').textContent`),
+  /Mon 2026-05-04, 4:40 PM UTC.*Wed 2026-05-06, 8:00 PM UTC/,
+  'live preview must reformat the shared Session range without changing either instant');
+  assert.deepEqual(await evaluate(cdp, `(() => ({
+    range: document.querySelector('.exact-goto-range').textContent,
+    timeZone: document.querySelector('.exact-goto-dialog').dataset.displayTimezone,
+  }))()`), {
+    range: 'Replay Session · Mon 2026-05-04, 4:40 PM – Wed 2026-05-06, 8:00 PM · UTC',
+    timeZone: 'UTC',
+  }, 'Exact GoTo must consume the same live time presentation');
   assert.equal(await evaluate(cdp,
     `localStorage.getItem('v7.workstation-settings:global')`), null,
   'live preview must not write durable Settings');
   await evaluate(cdp, `document.querySelector('.workstation-settings-cancel').click()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
     && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'true'
+    && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'America/New_York'
+    && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'MM/DD/YYYY'
+    && document.querySelector('.replay-workspace')?.dataset.hourFormat === '24-hour'
+    && document.querySelector('.replay-workspace')?.dataset.dayOfWeekVisible === 'false'
     && [...document.querySelectorAll('.lightweight-chart-host')]
-      .every((host) => host.dataset.gridVisible === 'true')`);
+      .every((host) => host.dataset.gridVisible === 'true'
+        && host.dataset.displayTimezone === 'America/New_York')`);
+  assert.match(await evaluate(cdp,
+    `document.querySelector('.replay-session-range').textContent`),
+  /05\/04\/2026, 12:40 EDT.*05\/06\/2026, 16:00 EDT/,
+  'Cancel must restore the committed time presentation on every shared surface');
   assert.equal(await evaluate(cdp, `localStorage.getItem('v7.color-history:global')`), null,
     'Cancel must not leak draft colors into global recent history');
   await evaluate(cdp, `document.querySelector('.workstation-settings-open').click()`);
@@ -803,11 +848,16 @@ try {
     document.querySelector('[name="crosshairWidth"]').value = '3';
     document.querySelector('[name="scaleFontSize"]').value = '16';
     document.querySelector('[name="paneControlDockVisibility"]').value = 'always';
+    document.querySelector('[name="displayTimezone"]').value = 'UTC';
+    document.querySelector('[name="dateFormat"]').value = 'YYYY-MM-DD';
+    document.querySelector('[name="dayOfWeekVisible"]').click();
+    document.querySelector('[name="hourFormat"]').value = '12-hour';
     document.querySelector('[name="topMarginPercent"]').value = '14';
     document.querySelector('[name="bottomMarginPercent"]').value = '18';
     document.querySelector('[name="rightMarginBars"]').value = '24';
     for (const name of [
       'crosshairStyle', 'crosshairWidth', 'scaleFontSize', 'paneControlDockVisibility',
+      'displayTimezone', 'dateFormat', 'hourFormat',
       'topMarginPercent', 'bottomMarginPercent', 'rightMarginBars',
     ]) document.querySelector('[name="' + name + '"]')
       .dispatchEvent(new Event('input', { bubbles: true }));
@@ -815,6 +865,10 @@ try {
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === true
     && document.querySelector('.replay-workspace')?.dataset.canvasBackgroundColor === '#101820ff'
     && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'
+    && document.querySelector('.replay-workspace')?.dataset.displayTimezone === 'UTC'
+    && document.querySelector('.replay-workspace')?.dataset.dateFormat === 'YYYY-MM-DD'
+    && document.querySelector('.replay-workspace')?.dataset.dayOfWeekVisible === 'true'
+    && document.querySelector('.replay-workspace')?.dataset.hourFormat === '12-hour'
     && document.querySelector('.lightweight-chart-host')?.dataset.crosshairStyle === 'dotted'
     && document.querySelector('.lightweight-chart-host')?.dataset.scaleFontSize === '16'`);
   assert.equal(await evaluate(cdp,
@@ -843,6 +897,28 @@ try {
     'Settings must not move Replay');
   assert.equal(afterSettingsCommit.workspaceRevision, beforeSettingsCommit.workspaceRevision,
     'Settings must not issue a Workspace transaction');
+  assert.match(await evaluate(cdp,
+    `document.querySelector('.replay-session-range').textContent`),
+  /Mon 2026-05-04, 4:40 PM UTC.*Wed 2026-05-06, 8:00 PM UTC/,
+  'committed time presentation must retain canonical Session bounds');
+  await evaluate(cdp, `document.querySelector('.exact-goto-toggle').click()`);
+  await waitFor(cdp, `document.querySelector('.exact-goto-dialog')?.open === true`);
+  assert.deepEqual(await evaluate(cdp, `(() => ({
+    date: document.querySelector('.exact-goto-dialog .date-time-inline-date').textContent,
+    hourFormat: document.querySelector('.replay-workspace').dataset.hourFormat,
+    time: document.querySelector('.exact-goto-dialog .date-time-inline-time').textContent,
+    timeZone: document.querySelector('.exact-goto-dialog').dataset.displayTimezone,
+  }))()`), {
+    date: 'Wed 2026-05-06', hourFormat: '12-hour', time: '7:55 PM', timeZone: 'UTC',
+  }, 'Exact GoTo must share the committed timezone, date, weekday, and hour format');
+  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-period').click()`);
+  assert.deepEqual(await evaluate(cdp, `(() => ({
+    time: document.querySelector('.exact-goto-dialog .date-time-inline-time').textContent,
+    value: document.querySelector('.exact-goto-dialog [name="goto-target"]').value,
+  }))()`), { time: '7:55 AM', value: '2026-05-06T07:55' },
+  '12-hour Exact GoTo must offer an explicit AM/PM toggle over the same wall value');
+  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .date-time-period').click()`);
+  await evaluate(cdp, `document.querySelector('.exact-goto-dialog .goto-dialog-close').click()`);
   assert.deepEqual(await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
     return {
@@ -929,6 +1005,10 @@ try {
       canvasBackgroundColor: root.dataset.canvasBackgroundColor,
       changeVisible: root.dataset.changeVisible,
       currentPriceValueVisible: root.dataset.currentPriceValueVisible,
+      dateFormat: root.dataset.dateFormat,
+      dayOfWeekVisible: root.dataset.dayOfWeekVisible,
+      displayTimezone: root.dataset.displayTimezone,
+      hourFormat: root.dataset.hourFormat,
       ohlcVisible: root.dataset.ohlcVisible,
       paneControlDockVisibility: root.dataset.paneControlDockVisibility,
       rightMarginBars: root.dataset.rightMarginBars,
@@ -937,7 +1017,9 @@ try {
   })()`), {
     canvasBackgroundColor: '#101820ff', changeVisible: 'false',
     currentPriceValueVisible: 'false', ohlcVisible: 'false',
-    paneControlDockVisibility: 'always', rightMarginBars: '24', volumeVisible: 'true',
+    dateFormat: 'YYYY-MM-DD', dayOfWeekVisible: 'true', displayTimezone: 'UTC',
+    hourFormat: '12-hour', paneControlDockVisibility: 'always',
+    rightMarginBars: '24', volumeVisible: 'true',
   }, 'hard Session re-entry must restore Status/current-price settings');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
@@ -996,6 +1078,13 @@ try {
         && host.dataset.scaleFontSize === '16')`), true,
   'future Panes must inherit the committed Canvas presentation before ready paint');
   assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.displayTimezone === 'UTC'
+        && host.dataset.dateFormat === 'YYYY-MM-DD'
+        && host.dataset.dayOfWeekVisible === 'true'
+        && host.dataset.hourFormat === '12-hour')`), true,
+  'future Panes must inherit the shared time presentation before ready paint');
+  assert.equal(await evaluate(cdp,
     `[...document.querySelectorAll('.workspace-pane')]
       .every((pane) => pane.querySelector('.pane-overlay-controls').dataset.visibility === 'always')`), true,
   'future Panes must inherit the committed control-dock visibility');
@@ -1043,8 +1132,16 @@ try {
       dayOpen: preference.replayNavigationSettings.anchors.dayOpen,
       canvasBackgroundColor: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.canvas.backgroundColor,
+      dateFormat: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.time.dateFormat,
+      dayOfWeekVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.time.dayOfWeekVisible,
+      displayTimezone: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.time.displayTimezone,
       gridVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.canvas.gridVisible,
+      hourFormat: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.time.hourFormat,
       currentPriceValueVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.currentPrice.valueVisible,
       pricePrecision: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
@@ -1063,12 +1160,16 @@ try {
   assert.deepEqual(preferenceStorage, {
     canvasBackgroundColor: '#101820ff',
     currentPriceValueVisible: false,
+    dateFormat: 'YYYY-MM-DD',
     dayOpen: '12:00',
+    dayOfWeekVisible: true,
+    displayTimezone: 'UTC',
     gridVisible: false,
+    hourFormat: '12-hour',
     pricePrecision: 1,
     rightMarginBars: 24,
     sessionOwnsSettings: false,
-    settingsVersion: 5,
+    settingsVersion: 6,
     volumeVisible: true,
   }, 'independent global records must own Quick GoTo and visual Settings outside Sessions');
 

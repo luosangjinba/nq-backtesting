@@ -587,6 +587,7 @@
   font-size: 12px;
 }
 .workstation-settings-select { width: 194px; padding: 0 10px; }
+.workstation-settings-scales .workstation-settings-select { width: 224px; }
 .workstation-settings-number-shell {
   display: inline-flex;
   align-items: center;

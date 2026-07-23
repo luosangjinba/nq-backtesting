@@ -10,7 +10,7 @@ import { createWorkstationSettings, readWorkstationSettings } from '../workstati
 import { failLightweightAdapter } from './adapter-error.js';
 import { createCanvasPresentation } from './canvas-presentation.js';
 import { createCandleSeriesPresentation } from './candle-presentation.js';
-import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
+import { CANDLE_OPTIONS, CHART_OPTIONS, createChartTimePresentation } from './chart-options.js';
 import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
 import {
   createCurrentPriceNamePrimitive,
@@ -387,7 +387,12 @@ export function createLightweightChartAdapter({
     const previousIncrement = presentationPriceIncrement;
     try {
       const canvasPresentation = createCanvasPresentation(settings);
-      chart.applyOptions(canvasPresentation.chartOptions);
+      const timePresentation = createChartTimePresentation(settings);
+      chart.applyOptions({
+        ...canvasPresentation.chartOptions,
+        localization: { timeFormatter: timePresentation.timeFormatter },
+        timeScale: { tickMarkFormatter: timePresentation.tickMarkFormatter },
+      });
       priceScale.applyOptions(canvasPresentation.priceScaleOptions);
       truncationInteraction.setNormalCrosshair(canvasPresentation.crosshairOptions);
       const { customNameOnlyVisible: _customNameOnlyVisible, ...currentPriceOptions }
@@ -399,7 +404,12 @@ export function createLightweightChartAdapter({
     } catch (error) {
       try {
         const previousCanvasPresentation = createCanvasPresentation(previousSettings);
-        chart.applyOptions(previousCanvasPresentation.chartOptions);
+        const previousTimePresentation = createChartTimePresentation(previousSettings);
+        chart.applyOptions({
+          ...previousCanvasPresentation.chartOptions,
+          localization: { timeFormatter: previousTimePresentation.timeFormatter },
+          timeScale: { tickMarkFormatter: previousTimePresentation.tickMarkFormatter },
+        });
         priceScale.applyOptions(previousCanvasPresentation.priceScaleOptions);
         truncationInteraction.setNormalCrosshair(previousCanvasPresentation.crosshairOptions);
         const { customNameOnlyVisible: _customNameOnlyVisible, ...previousCurrentPriceOptions }
@@ -432,6 +442,10 @@ export function createLightweightChartAdapter({
     host.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
     host.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
     host.dataset.currentPriceValueVisible = String(value.currentPrice.valueVisible);
+    host.dataset.dateFormat = value.time.dateFormat;
+    host.dataset.dayOfWeekVisible = String(value.time.dayOfWeekVisible);
+    host.dataset.displayTimezone = value.time.displayTimezone;
+    host.dataset.hourFormat = value.time.hourFormat;
     host.dataset.wicksVisible = String(value.candles.wicksVisible);
   }
 
@@ -528,6 +542,14 @@ export function createLightweightChartAdapter({
         logicalRange: chart.timeScale().getVisibleLogicalRange(),
         painted: host.dataset.painted === 'true',
         priceRange: priceScale.getVisibleRange(),
+        timePresentation: Object.freeze({
+          dateFormat: host.dataset.dateFormat,
+          dayOfWeekVisible: host.dataset.dayOfWeekVisible === 'true',
+          displayTimezone: host.dataset.displayTimezone,
+          hourFormat: host.dataset.hourFormat,
+          sampleCrosshair: chartOptions.localization.timeFormatter(1_777_639_400),
+          sampleTimeTick: chartOptions.timeScale.tickMarkFormatter(1_777_639_400, 3, 'en-US'),
+        }),
         gridVisible: host.dataset.gridVisible === 'true',
         bodyVisible: host.dataset.bodyVisible === 'true',
         bordersVisible: host.dataset.bordersVisible === 'true',

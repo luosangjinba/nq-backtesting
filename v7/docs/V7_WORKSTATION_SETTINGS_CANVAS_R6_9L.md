@@ -1,6 +1,6 @@
 # V7 Workstation Settings Canvas — R6.9l
 
-Status: implemented, awaiting human interaction and visual review (2026-07-22)
+Status: human accepted (2026-07-22)
 
 ## Product Boundary
 
@@ -104,7 +104,7 @@ draft inputs and dispatches preview/confirm/discard intent.
 R6.9l intentionally does not add gradient background, editable Grid color,
 Session breaks, watermark, Canvas border, price-scale placement/modes, plus
 button, countdown, per-Pane settings, Template, or Apply to all. Timezone, date,
-weekday, and 12/24-hour presentation remain R6.9m.
+weekday, and 12/24-hour presentation are delivered separately by R6.9m.
 
 ## Acceptance Evidence
 
@@ -125,6 +125,6 @@ weekday, and 12/24-hour presentation remain R6.9m.
   the focused dialog visual baseline;
 - the full V7 pure-domain and browser Harness suite passes before commit.
 
-Human review is required because this slice changes live Canvas styling,
-Crosshair presentation, control visibility, price margins, and Reset View's
-durable default.
+Human review accepted the live Canvas styling, reversible preview, Crosshair,
+control visibility, price margins, and Reset View durable default on
+2026-07-22.

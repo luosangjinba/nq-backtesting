@@ -78,6 +78,9 @@
   opacity: .58;
 }
 .date-time-clock { min-height: 67px; display: flex; align-items: center; justify-content: center; gap: 5px; border-top: 1px solid var(--border-subtle); }
+.date-time-period { min-width: 28px; padding: 4px 2px; border: 0; border-radius: 4px; background: transparent; color: var(--text-primary); cursor: pointer; font-size: 11px; font-weight: 750; }
+.date-time-period:hover,
+.date-time-period:focus-visible { background: var(--bg-hover); color: var(--accent); outline: none; }
 .date-time-stepper { display: grid; grid-template-rows: 18px 24px 18px; place-items: center; }
 .date-time-step { width: 28px; height: 18px; display: grid; place-items: center; padding: 0; border: 0; background: transparent; color: var(--accent); cursor: pointer; }
 .date-time-step .calendar-icon { width: 14px; height: 14px; }

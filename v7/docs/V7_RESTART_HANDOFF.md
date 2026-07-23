@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after R6.9k acceptance and R6.9l Canvas Settings
-implementation; R6.9l awaits focused human review
+Last updated: 2026-07-22 after R6.9l acceptance and R6.9m shared time-
+presentation implementation; R6.9m awaits focused human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -28,8 +28,9 @@ required for normal startup.
   owner/persistence/shell with one Grid consumer, R6.9j Symbol presentation,
   R6.9j1 maintainable color picker, and R6.9k Status/current-price controls
   human accepted; R6.9l Canvas/Crosshair/scale/Pane-control/default-margin
-  settings plus owner-managed live-preview/Cancel-restore correction
-  implemented and awaiting human review; R2.4 Session Browser
+  settings plus owner-managed live-preview/Cancel-restore correction human
+  accepted; R6.9m New York/UTC/local, date, weekday, and 12/24-hour
+  presentation implemented and awaiting human review; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -333,8 +334,18 @@ and human-accepted:
 - R6.9k advances global Settings to schema version 4 and activates independent
   OHLC/change/Volume plus current-price Name/Value/Line controls. A bounded
   adapter primitive covers name-only price-axis presentation; compact symbol
-  labels come from explicit Instrument metadata. It awaits human interaction
-  and visual review.
+  labels come from explicit Instrument metadata. It was accepted on
+  2026-07-22.
+- R6.9l advances Settings to schema version 5 and activates Canvas, shared
+  Crosshair, scale, Pane-control, and owner-routed margin presentation. Its
+  review correction previews valid drafts immediately and restores the full
+  committed presentation on every discard/failure path. It was accepted on
+  2026-07-22.
+- R6.9m advances Settings to schema version 6 and centralizes New York/UTC/
+  browser-local, date-order, detailed-weekday, and 12/24-hour presentation for
+  native chart formatters, Replay Workspace, Exact GoTo, and Session Browser.
+  Session creation and Quick GoTo retain their New York domain clocks; no
+  canonical instant or Replay state moves. It awaits human review.
 
 Latest corrective commits:
 
@@ -455,14 +466,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9k Status-line and current-price controls were accepted on 2026-07-22.
-R6.9l solid Canvas background, shared rich Crosshair, scale text,
-Pane-control visibility, owner-routed margins, and live preview with complete
-discard rollback are implemented and await human interaction and visual review.
-After acceptance, execute R6.9m shared
-time presentation before R6.10 sync. Economic Calendar remains outside this
-foundation phase. The outstanding R6.9c focused visual confirmation remains a
-separate gate.
+R6.9l Canvas Settings and live-preview/discard restoration were accepted on
+2026-07-22. R6.9m shared time presentation is implemented and awaits focused
+human review. Verify all timezones/date/hour formats across charts, Exact GoTo,
+footer text, and Session Browser without Replay movement. After acceptance,
+execute R6.10 layout sync. Economic Calendar remains outside this foundation
+phase. The outstanding R6.9c focused visual confirmation remains a separate
+gate.
 
 ## Standing Workflow
 

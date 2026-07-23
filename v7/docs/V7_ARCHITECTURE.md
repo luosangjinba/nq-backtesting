@@ -564,6 +564,25 @@ directly. Replay Workspace presentation is itself a formal reversible consumer,
 so Pane readouts/control visibility cannot escape the same transaction as chart
 and Viewport presentation.
 
+R6.9m advances the Settings value to version 6 with one shared time-
+presentation family. `core.workstation-settings` owns the pure conversion from
+canonical epoch milliseconds to New York, UTC, or resolved browser-local text,
+including date order, optional detailed weekday, and 12/24-hour presentation.
+The chart adapter consumes it only through Lightweight Charts'
+`localization.timeFormatter` and `timeScale.tickMarkFormatter`; Replay
+Workspace, Exact GoTo, and Session Browser consume the same public helper.
+Calendar Surface accepts an injected wall-date/time presentation port and owns
+only its DOM/control conversion. It does not depend on Workstation Settings or
+acquire Replay, market-session, Quick GoTo, or Economic Calendar state.
+
+Display timezone is deliberately not a domain timezone. Session creation and
+Quick GoTo anchors remain New York wall-time contracts. Exact GoTo converts the
+selected display-zone wall value back to a canonical epoch before dispatch and
+retains its existing Session-range and exclusive-cutoff rules. Preview and
+commit can therefore reformat every mounted and future Pane without moving the
+Replay cursor, changing visibility, requesting bars, issuing a Workspace
+transaction, rewriting series data, or changing Pane/Viewport revisions.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

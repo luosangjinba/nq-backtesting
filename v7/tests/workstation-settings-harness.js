@@ -6,6 +6,7 @@ import {
   createWorkstationSettingsRuntime,
   createColorHistoryStore,
   createPricePresentation,
+  createTimePresentation,
   decimalPlacesForIncrement,
   deserializeWorkstationSettings,
   readWorkstationSettings,
@@ -32,7 +33,8 @@ function grid(settings) {
 }
 
 function settingsValue({
-  candles = {}, canvas = {}, currentPrice = {}, gridVisible = true, interface: interfaceSettings = {}, paneReadout = {},
+  candles = {}, canvas = {}, currentPrice = {}, gridVisible = true, interface: interfaceSettings = {},
+  paneReadout = {}, time = {},
 } = {}) {
   const defaults = readWorkstationSettings(createWorkstationSettings());
   return createWorkstationSettings({
@@ -41,6 +43,7 @@ function settingsValue({
     currentPrice: { ...defaults.currentPrice, ...currentPrice },
     interface: { ...defaults.interface, ...interfaceSettings },
     paneReadout: { ...defaults.paneReadout, ...paneReadout },
+    time: { ...defaults.time, ...time },
   });
 }
 
@@ -71,8 +74,9 @@ assert.equal(Object.isFrozen(readWorkstationSettings(defaults).canvas), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).currentPrice), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).interface), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).paneReadout), true);
+assert.equal(Object.isFrozen(readWorkstationSettings(defaults).time), true);
 assert.equal(grid(deserializeWorkstationSettings(serializeWorkstationSettings(defaults))), true);
-assert.equal(serializeWorkstationSettings(defaults).version, 5);
+assert.equal(serializeWorkstationSettings(defaults).version, 6);
 assert.deepEqual(readWorkstationSettings(defaults).canvas, {
   backgroundColor: '#000000ff',
   bottomMarginPercent: 12,
@@ -94,6 +98,10 @@ assert.deepEqual(readWorkstationSettings(defaults).currentPrice, {
 });
 assert.deepEqual(readWorkstationSettings(defaults).paneReadout, {
   changeVisible: true, ohlcVisible: true, volumeVisible: false,
+});
+assert.deepEqual(readWorkstationSettings(defaults).time, {
+  dateFormat: 'MM/DD/YYYY', dayOfWeekVisible: false,
+  displayTimezone: 'America/New_York', hourFormat: '24-hour',
 });
 assert.equal(normalizeHexAlphaColor('#abc'), '#aabbccff');
 assert.equal(normalizeHexAlphaColor('#abcd'), '#aabbccdd');
@@ -157,6 +165,20 @@ assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).canvas.gridVisi
 assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).canvas.rightMarginBars, 12);
 assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).currentPrice.lineVisible, false);
 assert.equal(readWorkstationSettings(migratedStatusCurrentPrice).paneReadout.volumeVisible, true);
+const migratedCanvasPresentation = deserializeWorkstationSettings({
+  schema: 'v7.workstation-settings',
+  value: {
+    candles: readWorkstationSettings(defaults).candles,
+    canvas: readWorkstationSettings(defaults).canvas,
+    currentPrice: readWorkstationSettings(defaults).currentPrice,
+    interface: readWorkstationSettings(defaults).interface,
+    paneReadout: readWorkstationSettings(defaults).paneReadout,
+  },
+  version: 5,
+});
+assert.deepEqual(readWorkstationSettings(migratedCanvasPresentation).time,
+  readWorkstationSettings(defaults).time,
+  'R6.9l records must migrate to the accepted shared time defaults');
 assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
@@ -164,6 +186,7 @@ assert.throws(
     currentPrice: readWorkstationSettings(defaults).currentPrice,
     interface: readWorkstationSettings(defaults).interface,
     paneReadout: readWorkstationSettings(defaults).paneReadout,
+    time: readWorkstationSettings(defaults).time,
   }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('unknown-canvas-field'),
@@ -210,6 +233,7 @@ assert.throws(
     currentPrice: readWorkstationSettings(defaults).currentPrice,
     interface: readWorkstationSettings(defaults).interface,
     paneReadout: readWorkstationSettings(defaults).paneReadout,
+    time: readWorkstationSettings(defaults).time,
   }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('invalid-grid-visible'),
@@ -221,6 +245,29 @@ assert.throws(
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('unsupported-version'),
 );
+
+const summerEpochMs = Date.parse('2026-05-01T13:30:00Z');
+const winterEpochMs = Date.parse('2026-01-02T14:30:00Z');
+const defaultTime = createTimePresentation(defaults, { localTimeZone: 'America/Los_Angeles' });
+assert.equal(defaultTime.formatDateTime(summerEpochMs), '05/01/2026, 09:30 EDT');
+assert.equal(defaultTime.formatTime(winterEpochMs), '09:30',
+  'New York presentation must retain DST-aware winter behavior');
+const utcTime = createTimePresentation(settingsValue({ time: {
+  dateFormat: 'YYYY-MM-DD', dayOfWeekVisible: true, displayTimezone: 'UTC', hourFormat: '12-hour',
+} }), { localTimeZone: 'America/Los_Angeles' });
+assert.equal(utcTime.formatDateTime(summerEpochMs), 'Fri 2026-05-01, 1:30 PM UTC');
+assert.equal(utcTime.formatAxisTick(summerEpochMs, 'day'), '26-05-01',
+  'dense axis dates must honor date order without adding weekday text');
+const localTime = createTimePresentation(settingsValue({ time: {
+  dateFormat: 'DD/MM/YYYY', displayTimezone: 'local', hourFormat: '24-hour',
+} }), { localTimeZone: 'America/Los_Angeles' });
+assert.equal(localTime.formatDateTime(summerEpochMs), '01/05/2026, 06:30 PDT');
+assert.equal(localTime.timeZone, 'America/Los_Angeles');
+assert.throws(() => settingsValue({ time: { displayTimezone: 'UTC-4' } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_DISPLAY_TIMEZONE_INVALID');
+assert.equal(summerEpochMs, Date.parse('2026-05-01T13:30:00Z'),
+  'time presentation must never mutate the canonical instant');
 
 const webStorage = createMemoryWebStorage();
 const storage = createStorageAdapter(webStorage);
