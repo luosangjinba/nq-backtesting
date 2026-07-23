@@ -1212,7 +1212,7 @@
       "owner": "pane-layout-domain",
       "v6FailurePrevented": "Pane identity followed reading order or active focus, so reducing a layout retained the wrong instrument/timeframe/Viewport and later Pane-target commands had ambiguous destinations",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/pane-layout-domain-harness.js",
       "positiveEvidence": [
         "src/pane-layout-domain/pane-layout.js",
@@ -1227,6 +1227,30 @@
       ],
       "negativeFixtures": [
         "tests/fixtures/pane-layout-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260723_r6_10c1_pane_priority_identity.md"
+    },
+    {
+      "id": "H065",
+      "name": "ordinary-click-time-sync-is-absent",
+      "owner": "replay-workspace-ui",
+      "v6FailurePrevented": "An ordinary Pane click silently moved every other Pane Viewport, coupling focus and Crosshair interaction to a low-precision real-time Time synchronization mode",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/replay-layout-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/layout-sync-domain/layout-sync.js",
+        "src/replay-workspace-ui/layout-sync-controller.js",
+        "src/replay-workspace-ui/pane-layout-menu.js",
+        "src/lightweight-chart-adapter/lightweight-chart-adapter.js",
+        "tests/layout-sync-controller-harness.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "docs/V7_LAYOUT_SYNC_TIME_ROLLBACK_R6_10C2.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/layout-sync-domain/negative/cases.json"
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null

@@ -197,26 +197,6 @@ async function moveCrosshairToCandle(cdp, paneId) {
   throw new Error(`No candle crosshair point resolved for ${paneId}.`);
 }
 
-async function clickChartAtRatio(cdp, paneId, ratio) {
-  const point = await evaluate(cdp, `(() => {
-    const rect = document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"] .lightweight-chart-host`)})
-      .getBoundingClientRect();
-    return {
-      x: rect.left + (rect.width * ${Number(ratio)}),
-      y: rect.top + (rect.height * 0.45),
-    };
-  })()`);
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mouseMoved', x: point.x, y: point.y, button: 'none', buttons: 0,
-  });
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mousePressed', x: point.x, y: point.y, button: 'left', buttons: 1, clickCount: 1,
-  });
-  await cdp.send('Input.dispatchMouseEvent', {
-    type: 'mouseReleased', x: point.x, y: point.y, button: 'left', buttons: 0, clickCount: 1,
-  });
-}
-
 async function clickPaneControl(cdp, paneId, selector) {
   const point = await evaluate(cdp, `(() => {
     const rect = document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"] ${selector}`)})
@@ -333,7 +313,7 @@ try {
   await waitFor(cdp, `getComputedStyle(document.querySelector('.pane-overlay-controls')).opacity === '1'`);
   assert.equal(singleHeader.borderWidth, '2px');
   assert.notEqual(singleHeader.borderColor, 'rgba(0, 0, 0, 0)');
-  assert.deepEqual(singleHeader.syncDisabled, [true, true, true, true],
+  assert.deepEqual(singleHeader.syncDisabled, [true, true, true],
     'Layout synchronization is meaningful only when multiple Panes are visible');
   const singleBounds = await moveCrosshairToCandle(cdp, 'pane-main');
   assert.equal(await evaluate(cdp,
@@ -366,9 +346,10 @@ try {
       { checked: true, label: 'Symbol' },
       { checked: false, label: 'Interval' },
       { checked: false, label: 'Crosshair' },
-      { checked: false, label: 'Time' },
     ],
-  });
+  }, 'Layout Sync must expose Symbol, Interval, and Crosshair only after the real-time Time rollback');
+  assert.equal(await evaluate(cdp, `document.querySelector('.pane-time-sync')`), null,
+    'the rejected real-time Time control must not remain hidden in the Layout menu');
   await evaluate(cdp, `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
 
   await chooseLayout(cdp, 'layout.two-columns');
@@ -560,75 +541,6 @@ try {
   await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
     .every((pane) => pane.dataset.ohlcState === 'latest')`);
 
-  const beforeTimeSync = await evaluate(cdp, layoutStateExpression());
-  await clickChartAtRatio(cdp, 'pane-main', 0.42);
-  await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
-  assert.equal(await evaluate(cdp, `document.querySelector(
-    '[data-pane-id="pane-secondary"] .lightweight-chart-host'
-  ).dataset.timeSyncProjectionCount ?? null`), null, 'Time sync defaults off');
-  const sourceTimeClickCountBefore = await evaluate(cdp, `Number(document.querySelector(
-    '[data-pane-id="pane-secondary"] .lightweight-chart-host'
-  ).dataset.timeClickCount || 0)`);
-  await setLayoutSync(cdp, 'time', true);
-  const targetTimeRangeBefore = await evaluate(cdp, `(() => {
-    const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
-    return { from: Number(host.dataset.logicalFrom), to: Number(host.dataset.logicalTo) };
-  })()`);
-  await clickChartAtRatio(cdp, 'pane-secondary', 0.42);
-  await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
-  const sourceTimeClick = await evaluate(cdp, `(() => {
-    const host = document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host');
-    return {
-      count: Number(host.dataset.timeClickCount || 0),
-      displayEpochMs: Number(host.dataset.timeClickDisplayEpochMs || 0),
-      layoutSyncTime: document.querySelector('.replay-workspace').dataset.layoutSyncTime,
-      positionRatio: Number(host.dataset.timeClickPositionRatio || -1),
-    };
-  })()`);
-  assert.ok(sourceTimeClick.count > sourceTimeClickCountBefore
-    && Number.isSafeInteger(sourceTimeClick.displayEpochMs),
-    `the source adapter must publish one native click: ${JSON.stringify(sourceTimeClick)}`);
-  assert.equal(sourceTimeClick.layoutSyncTime, 'true');
-  const targetTimeAttempt = await evaluate(cdp, `(() => {
-    const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
-    return {
-      count: Number(host.dataset.timeSyncAttemptCount || 0),
-      displayEpochMs: Number(host.dataset.timeSyncAttemptDisplayEpochMs || 0),
-      result: host.dataset.timeSyncAttemptResult || null,
-      sourcePaneId: host.dataset.timeSyncAttemptSourcePaneId || null,
-    };
-  })()`);
-  assert.ok(targetTimeAttempt.count > 0,
-    `the Pane-set adapter must route the source click: ${JSON.stringify(targetTimeAttempt)}`);
-  await waitFor(cdp, `document.querySelector(
-    '[data-pane-id="pane-main"] .lightweight-chart-host'
-  )?.dataset.timeSyncProjectionCount === '1'`);
-  const timeSyncEvidence = await evaluate(cdp, `(() => {
-    const root = document.querySelector('.replay-workspace');
-    const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
-    return {
-      displayEpochMs: Number(host.dataset.timeSyncDisplayEpochMs),
-      from: Number(host.dataset.logicalFrom),
-      origin: host.dataset.viewportOrigin,
-      positionRatio: Number(host.dataset.timeSyncPositionRatio),
-      replayRevision: Number(root.dataset.replayRevision),
-      sourcePaneId: host.dataset.timeSyncSourcePaneId,
-      to: Number(host.dataset.logicalTo),
-      workspaceRevision: Number(root.dataset.workspaceRevision),
-    };
-  })()`);
-  assert.ok(Number.isSafeInteger(timeSyncEvidence.displayEpochMs));
-  assert.equal(timeSyncEvidence.sourcePaneId, 'pane-secondary');
-  assert.equal(timeSyncEvidence.origin, 'manual');
-  assert.ok(timeSyncEvidence.positionRatio > 0.3 && timeSyncEvidence.positionRatio < 0.55);
-  assert.ok(Math.abs(
-    (timeSyncEvidence.to - timeSyncEvidence.from)
-      - (targetTimeRangeBefore.to - targetTimeRangeBefore.from),
-  ) < 0.001, 'Time sync preserves the target Pane zoom span');
-  assert.equal(timeSyncEvidence.workspaceRevision, beforeTimeSync.workspaceRevision);
-  assert.equal(timeSyncEvidence.replayRevision, beforeTimeSync.replayRevision,
-    'Time sync changes only target Viewport presentation');
-
   const beforeSymbolSync = await evaluate(cdp, layoutStateExpression());
   await chooseInstrument(cdp, 'instrument.cme.es');
   await waitFor(cdp, `[...document.querySelectorAll('.lightweight-chart-host')]
@@ -736,39 +648,6 @@ try {
   })()`);
   await waitFor(cdp, `document.querySelector('[data-pane-id="pane-quaternary"]')?.dataset.timeframeId === 'timeframe.display-4-hour'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
-
-  const mixedTimeBefore = await evaluate(cdp, `(() => {
-    const root = document.querySelector('.replay-workspace');
-    const host = document.querySelector('[data-pane-id="pane-quaternary"] .lightweight-chart-host');
-    return {
-      from: Number(host.dataset.logicalFrom),
-      replayRevision: Number(root.dataset.replayRevision),
-      to: Number(host.dataset.logicalTo),
-      workspaceRevision: Number(root.dataset.workspaceRevision),
-    };
-  })()`);
-  await clickChartAtRatio(cdp, 'pane-main', 0.55);
-  await waitFor(cdp, `document.querySelector(
-    '[data-pane-id="pane-quaternary"] .lightweight-chart-host'
-  )?.dataset.timeSyncProjectionCount === '1'`);
-  const mixedTimeAfter = await evaluate(cdp, `(() => {
-    const root = document.querySelector('.replay-workspace');
-    const host = document.querySelector('[data-pane-id="pane-quaternary"] .lightweight-chart-host');
-    return {
-      from: Number(host.dataset.logicalFrom),
-      replayRevision: Number(root.dataset.replayRevision),
-      sourcePaneId: host.dataset.timeSyncSourcePaneId,
-      to: Number(host.dataset.logicalTo),
-      workspaceRevision: Number(root.dataset.workspaceRevision),
-    };
-  })()`);
-  assert.ok(Math.abs(
-    (mixedTimeAfter.to - mixedTimeAfter.from) - (mixedTimeBefore.to - mixedTimeBefore.from),
-  ) < 0.001, 'mixed-TF Time sync keeps the 4h target zoom span');
-  assert.equal(mixedTimeAfter.sourcePaneId, 'pane-main');
-  assert.equal(mixedTimeAfter.workspaceRevision, mixedTimeBefore.workspaceRevision);
-  assert.equal(mixedTimeAfter.replayRevision, mixedTimeBefore.replayRevision,
-    'mixed-TF Time sync cannot move the shared Replay cursor');
 
   const beforeSameCount = await evaluate(cdp, layoutStateExpression());
   await chooseLayout(cdp, 'layout.four-left-stack');
@@ -882,16 +761,7 @@ try {
     crosshair: document.querySelector('.replay-workspace').dataset.layoutSyncCrosshair,
     interval: document.querySelector('.replay-workspace').dataset.layoutSyncInterval,
     symbol: document.querySelector('.replay-workspace').dataset.layoutSyncSymbol,
-    time: document.querySelector('.replay-workspace').dataset.layoutSyncTime,
-    timeChecked: document.querySelector('.pane-time-sync input').checked,
-  }))()`), {
-    checked: true,
-    crosshair: 'true',
-    interval: 'false',
-    symbol: 'false',
-    time: 'true',
-    timeChecked: true,
-  },
+  }))()`), { checked: true, crosshair: 'true', interval: 'false', symbol: 'false' },
   'Session re-entry must restore every accepted Layout Sync policy');
 
   await chooseLayout(cdp, 'layout.four-grid');
@@ -950,5 +820,5 @@ try {
 }
 
 console.log('v7 Replay Layout Workspace browser harness passed', {
-  scope: '12 priority layouts, 4-to-3-to-1 retention, Canvas OHLC/change, Symbol/Interval/Crosshair/Time sync, resize, shared Replay',
+  scope: '12 priority layouts, 4-to-3-to-1 retention, Canvas OHLC/change, Symbol/Interval/Crosshair sync, resize, shared Replay/ETH-RTH',
 });

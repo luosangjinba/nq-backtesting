@@ -22,7 +22,6 @@ import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
 import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 import { planSeriesMutation } from './series-update-plan.js';
-import { observeTimePointClick, planTimePointProjection } from './time-point-projection.js';
 import {
   captureAdapterVisibleState,
   restoreAdapterScaleState,
@@ -62,7 +61,6 @@ export function createLightweightChartAdapter({
   onHistoryBoundary = () => {},
   onCrosshairMove = () => {},
   onTruncationSelect = () => {},
-  onTimePointClick = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
   viewportPort,
@@ -83,6 +81,9 @@ export function createLightweightChartAdapter({
   }));
   const priceScale = chart.priceScale('right');
   const crosshairPresentation = createCrosshairPresentationIndex();
+  const truncationInteraction = createReplayTruncationInteraction({
+    chart, host, onSelect: onTruncationSelect,
+  });
   host.dataset.libraryVersion = lightweightChartsVersion();
   host.dataset.gridVisible = 'true';
   let adapterRevision = 0;
@@ -96,7 +97,6 @@ export function createLightweightChartAdapter({
   let pointerDownPoint = null;
   let nativePointerDragged = false;
   let pointerWithinHost = false;
-  let truncationSelectionActive = false;
   let seriesDataRevision = 0;
   let maximumAppliedDisplayGapMs = 0;
   let presentationInstrumentLabel = '';
@@ -134,27 +134,6 @@ export function createLightweightChartAdapter({
   };
   chart.subscribeCrosshairMove(onChartCrosshairMove);
 
-  const onChartClick = (event) => {
-    if (truncationSelectionActive || typeof event.time !== 'number') return;
-    const observation = observeTimePointClick({
-      displayEpochMs: Math.round(event.time * 1_000),
-      logical: event.logical,
-      visibleRange: chart.timeScale().getVisibleLogicalRange(),
-    });
-    if (observation) {
-      host.dataset.timeClickDisplayEpochMs = String(observation.displayEpochMs);
-      host.dataset.timeClickPositionRatio = String(observation.positionRatio);
-      host.dataset.timeClickCount = String(Number(host.dataset.timeClickCount || 0) + 1);
-      onTimePointClick(observation);
-    }
-  };
-  // Register before Replay truncation so an active time-machine selection is
-  // rejected before that interaction completes and disables itself.
-  chart.subscribeClick(onChartClick);
-  const truncationInteraction = createReplayTruncationInteraction({
-    chart, host, onSelect: onTruncationSelect,
-  });
-
   const onCrosshairEnter = () => { pointerWithinHost = true; };
   const onCrosshairLeave = () => {
     pointerWithinHost = false;
@@ -177,16 +156,6 @@ export function createLightweightChartAdapter({
     return projection;
   }
 
-  function publishViewportIntent() {
-    const value = readViewportIntent(viewport.snapshot());
-    host.dataset.latestOffsetBars = String(value.latestOffsetBars);
-    host.dataset.spanBars = String(value.spanBars);
-    host.dataset.viewportOrigin = value.origin;
-    host.dataset.viewportRevision = String(value.revision);
-    onViewportIntent(value);
-    return value;
-  }
-
   async function captureNativeViewport() {
     const token = ++captureToken;
     await new Promise((resolve) => requestFrame(resolve));
@@ -196,50 +165,13 @@ export function createLightweightChartAdapter({
     host.dataset.logicalFrom = String(range.from);
     host.dataset.logicalTo = String(range.to);
     viewport.captureManual({ latestLogicalIndex: barCount - 1, range });
-    publishViewportIntent();
+    const value = readViewportIntent(viewport.snapshot());
+    host.dataset.latestOffsetBars = String(value.latestOffsetBars);
+    host.dataset.spanBars = String(value.spanBars);
+    host.dataset.viewportOrigin = value.origin;
+    host.dataset.viewportRevision = String(value.revision);
+    onViewportIntent(value);
     onHistoryBoundary(Object.freeze({ from: range.from, to: range.to }));
-  }
-
-  function projectTimePoint({ displayEpochMs, positionRatio, sourcePaneId = '' }) {
-    if (barCount < 1) return null;
-    host.dataset.timeSyncAttemptCount = String(Number(host.dataset.timeSyncAttemptCount || 0) + 1);
-    host.dataset.timeSyncAttemptDisplayEpochMs = String(displayEpochMs);
-    host.dataset.timeSyncAttemptSourcePaneId = sourcePaneId;
-    const projection = planTimePointProjection({
-      displayEpochMs,
-      maximumProjectableEpochMs: Number.isSafeInteger(Number(host.dataset.visibleThroughEpochMs))
-        ? Number(host.dataset.visibleThroughEpochMs)
-        : null,
-      positionRatio,
-      timelineEpochMs: [
-        ...appliedData.map(({ time }) => Math.round(time * 1_000)),
-        ...appliedFutureTimeAxisData.map(({ time }) => Math.round(time * 1_000)),
-      ],
-      visibleRange: chart.timeScale().getVisibleLogicalRange(),
-    });
-    if (!projection) {
-      host.dataset.timeSyncAttemptResult = 'outside-loaded-timeline';
-      return null;
-    }
-    host.dataset.timeSyncAttemptResult = 'projected';
-    const range = Object.freeze({ from: projection.from, to: projection.to });
-    chart.timeScale().setVisibleLogicalRange(range);
-    host.dataset.logicalFrom = String(range.from);
-    host.dataset.logicalTo = String(range.to);
-    viewport.captureManual({ latestLogicalIndex: barCount - 1, range });
-    const intent = publishViewportIntent();
-    host.dataset.timeSyncDisplayEpochMs = String(projection.displayEpochMs);
-    host.dataset.timeSyncPositionRatio = String(projection.positionRatio);
-    host.dataset.timeSyncProjectionCount = String(
-      Number(host.dataset.timeSyncProjectionCount || 0) + 1,
-    );
-    host.dataset.timeSyncSourcePaneId = sourcePaneId;
-    return Object.freeze({
-      ...projection,
-      sourcePaneId,
-      viewportOrigin: intent.origin,
-      viewportRevision: intent.revision,
-    });
   }
 
   const onPointerDown = (event) => {
@@ -371,12 +303,6 @@ export function createLightweightChartAdapter({
     host.dataset.painted = 'true';
     host.dataset.visibleRevision = String(adapterRevision);
     for (const field of [
-      'timeSyncAttemptCount', 'timeSyncAttemptDisplayEpochMs',
-      'timeSyncAttemptResult', 'timeSyncAttemptSourcePaneId',
-      'timeSyncDisplayEpochMs', 'timeSyncPositionRatio',
-      'timeSyncProjectionCount', 'timeSyncSourcePaneId',
-    ]) delete host.dataset[field];
-    for (const field of [
       'displayTimeframeId', 'instrumentId', 'latestDisplayEpochMs',
       'latestFutureTimeAxisEpochMs', 'sessionHoursMode', 'visibleThroughEpochMs',
     ]) delete host.dataset[field];
@@ -412,12 +338,6 @@ export function createLightweightChartAdapter({
     host.dataset.sessionHoursMode = context.workspaceSnapshot.provenance.sessionHoursMode;
     host.dataset.visibleThroughEpochMs = String(context.workspaceSnapshot.provenance.visibleThroughEpochMs);
     host.dataset.visibleRevision = String(adapterRevision);
-    for (const field of [
-      'timeSyncAttemptCount', 'timeSyncAttemptDisplayEpochMs',
-      'timeSyncAttemptResult', 'timeSyncAttemptSourcePaneId',
-      'timeSyncDisplayEpochMs', 'timeSyncPositionRatio',
-      'timeSyncProjectionCount', 'timeSyncSourcePaneId',
-    ]) delete host.dataset[field];
     return createChartAdapterVisibleReceipt({
       adapterRevision,
       identity: context.identity,
@@ -568,7 +488,6 @@ export function createLightweightChartAdapter({
       window.removeEventListener('mouseup', onPointerUp, true);
       series.unsubscribeDataChanged(onSeriesDataChanged);
       chart.unsubscribeCrosshairMove(onChartCrosshairMove);
-      chart.unsubscribeClick(onChartClick);
       truncationInteraction.dispose();
       series.detachPrimitive(currentPriceName.primitive);
       chart.remove();
@@ -595,11 +514,7 @@ export function createLightweightChartAdapter({
       chart.setCrosshairPosition(value.bar.close, displayEpochMs / 1_000, series);
       return recordCrosshairObservation(value, 'projected');
     },
-    projectTimePoint,
-    setTruncationSelection(active) {
-      truncationSelectionActive = active === true;
-      truncationInteraction.setActive(truncationSelectionActive);
-    },
+    setTruncationSelection(active) { truncationInteraction.setActive(active); },
     snapshot() {
       const latestCandleTime = appliedData.at(-1)?.time ?? null;
       const firstFutureTime = appliedFutureTimeAxisData[0]?.time ?? null;

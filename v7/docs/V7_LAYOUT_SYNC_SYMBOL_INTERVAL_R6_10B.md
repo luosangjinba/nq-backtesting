@@ -72,5 +72,5 @@ that preserves V7's sole-writer and atomic-commit rules.
   pass before the bounded commit.
 
 The reviewed menu semantics and synchronized Symbol/Interval behavior were
-accepted on 2026-07-23. R6.10c may therefore activate Time as a presentation-
-only projection without changing the accepted Workspace transaction contract.
+accepted on 2026-07-23. The later real-time Time-sync rollback does not change
+this accepted Workspace transaction contract.

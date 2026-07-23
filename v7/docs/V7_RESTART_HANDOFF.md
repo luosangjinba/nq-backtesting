@@ -477,13 +477,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 ## Exact Next Step
 
 R6.10b Symbol/Interval synchronization was human accepted on 2026-07-23.
-R6.10c real-time Time synchronization is automated but not human accepted; the
-product direction now favors explicit right-click location in selected target
-Panes. R6.10c1 first corrects stable Pane identity and count-reduction priority:
-right before left, and top before bottom when right edges match. It is awaiting
-human interaction and visual review. After acceptance, revert or replace the
-separate R6.10c Time behavior and design its explicit P1-P4 target menu. Do not
-start Date-range synchronization or Economic Calendar in that corrective step.
+R6.10c1 stable Pane identity and count-reduction priority were human accepted
+on 2026-07-23: right before left, and top before bottom when right edges match.
+R6.10c2 removes the rejected real-time ordinary-click Time projection while
+retaining the persisted field as inert compatibility data. Stop for human
+review of that rollback. Then specify explicit right-click time location using
+P1-P4 targets. Do not start Date-range synchronization or Economic Calendar in
+this corrective sequence.
 
 ## Standing Workflow
 

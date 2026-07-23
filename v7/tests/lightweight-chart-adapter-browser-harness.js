@@ -17,10 +17,6 @@ import {
 } from '../src/lightweight-chart-adapter/paint-gate.js';
 import { planVisibleLogicalRange } from '../src/lightweight-chart-adapter/logical-range-plan.js';
 import { planSeriesMutation } from '../src/lightweight-chart-adapter/series-update-plan.js';
-import {
-  observeTimePointClick,
-  planTimePointProjection,
-} from '../src/lightweight-chart-adapter/time-point-projection.js';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -63,59 +59,6 @@ assert.equal(planSeriesMutation([candle(1)], [candle(1, 2.5)]).kind, 'tail-updat
 assert.equal(planSeriesMutation([candle(1)], [candle(1), candle(2)]).kind, 'tail-update');
 assert.equal(planSeriesMutation([candle(1)], [candle(2)]).kind, 'full-replace');
 assert.equal(planSeriesMutation([candle(1), candle(2)], [candle(1, 3), candle(2)]).kind, 'full-replace');
-assert.deepEqual(observeTimePointClick({
-  displayEpochMs: 2_000,
-  logical: 5,
-  visibleRange: { from: 0, to: 20 },
-}), { displayEpochMs: 2_000, positionRatio: 0.25 });
-assert.equal(observeTimePointClick({
-  displayEpochMs: null, logical: 5, visibleRange: { from: 0, to: 20 },
-}), null);
-assert.deepEqual(planTimePointProjection({
-  displayEpochMs: 3_000,
-  positionRatio: 0.25,
-  timelineEpochMs: [1_000, 2_000, 4_000],
-  visibleRange: { from: 0, to: 10 },
-}), {
-  displayEpochMs: 3_000,
-  from: -1,
-  logical: 1.5,
-  positionRatio: 0.25,
-  spanBars: 10,
-  to: 9,
-}, 'mixed-TF interpolation must preserve span and horizontal click position');
-assert.equal(planTimePointProjection({
-  displayEpochMs: 500,
-  positionRatio: 0.5,
-  timelineEpochMs: [1_000, 2_000],
-  visibleRange: { from: 0, to: 10 },
-}), null, 'missing target history is a bounded no-op');
-assert.deepEqual(planTimePointProjection({
-  displayEpochMs: 2_500,
-  maximumProjectableEpochMs: 3_000,
-  positionRatio: 0.5,
-  timelineEpochMs: [1_000, 2_000],
-  visibleRange: { from: 0, to: 10 },
-}), {
-  displayEpochMs: 2_500,
-  from: -4,
-  logical: 1,
-  positionRatio: 0.5,
-  spanBars: 10,
-  to: 6,
-}, 'an accepted cursor may align to the latest completed calendar aggregate without future data');
-assert.throws(() => planTimePointProjection({
-  displayEpochMs: 1_000,
-  positionRatio: 2,
-  timelineEpochMs: [1_000],
-  visibleRange: { from: 0, to: 10 },
-}), (error) => error?.code === 'CHART_TIME_POINT_POSITION_INVALID');
-assert.throws(() => planTimePointProjection({
-  displayEpochMs: 1_000,
-  positionRatio: 0.5,
-  timelineEpochMs: [1_000, 1_000],
-  visibleRange: { from: 0, to: 10 },
-}), (error) => error?.code === 'CHART_TIME_POINT_TIMELINE_INVALID');
 const crosshairPresentation = createCrosshairPresentationIndex();
 assert.equal(crosshairPresentation.latest().state, 'empty');
 crosshairPresentation.setBars([
@@ -238,46 +181,47 @@ try {
   assert.equal(result.mutationMode, 'full-replace');
   assert.equal(result.visibleRevision, 1);
 
-  const timeProjection = await evaluate(cdp, `(async () => {
-    const host = document.querySelector('#chart');
-    const before = globalThis.__adapter.snapshot().logicalRange;
-    const projection = globalThis.__adapter.projectTimePoint({
-      displayEpochMs: 1900000,
-      positionRatio: 0.35,
-      sourcePaneId: 'source-pane',
-    });
-    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-    const after = globalThis.__adapter.snapshot().logicalRange;
-    const value = {
-      after,
-      before,
-      dataset: {
-        displayEpochMs: host.dataset.timeSyncDisplayEpochMs,
-        origin: host.dataset.viewportOrigin,
-        positionRatio: host.dataset.timeSyncPositionRatio,
-        projectionCount: host.dataset.timeSyncProjectionCount,
-        sourcePaneId: host.dataset.timeSyncSourcePaneId,
-      },
-      projection,
-    };
-    globalThis.__adapter.resetView();
-    return value;
+  const pointerCapturePoint = await evaluate(cdp, `(() => {
+    const bounds = document.querySelector('#chart').getBoundingClientRect();
+    return { x: bounds.left + bounds.width * .6, y: bounds.top + bounds.height * .5 };
   })()`);
-  assert.ok(Math.abs(
-    (timeProjection.after.to - timeProjection.after.from)
-      - (timeProjection.before.to - timeProjection.before.from),
-  ) < 0.0001, 'Time projection must preserve the target Pane zoom span');
-  assert.ok(Math.abs(
-    (timeProjection.projection.logical - timeProjection.after.from)
-      / (timeProjection.after.to - timeProjection.after.from) - 0.35,
-  ) < 0.0001, `the clicked time must retain its horizontal position: ${JSON.stringify(timeProjection)}`);
-  assert.deepEqual(timeProjection.dataset, {
-    displayEpochMs: '1900000',
-    origin: 'manual',
-    positionRatio: '0.35',
-    projectionCount: '1',
-    sourcePaneId: 'source-pane',
+  const viewportRevisionBeforeClick = await evaluate(cdp,
+    `Number(document.querySelector('#chart').dataset.viewportRevision)`);
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: pointerCapturePoint.x, y: pointerCapturePoint.y,
+    button: 'left', buttons: 1, clickCount: 1,
   });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: pointerCapturePoint.x, y: pointerCapturePoint.y,
+    button: 'left', buttons: 0, clickCount: 1,
+  });
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.deepEqual(await evaluate(cdp, `({
+    boundaryCount: globalThis.__historyBoundaries.length,
+    intentCount: globalThis.__viewportIntents.length,
+    revision: Number(document.querySelector('#chart').dataset.viewportRevision),
+  })`), {
+    boundaryCount: 0,
+    intentCount: 0,
+    revision: viewportRevisionBeforeClick,
+  }, 'an ordinary chart click must not publish a manual viewport or history-boundary intent');
+
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: pointerCapturePoint.x, y: pointerCapturePoint.y,
+    button: 'left', buttons: 1, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseMoved', x: pointerCapturePoint.x + 20, y: pointerCapturePoint.y,
+    button: 'left', buttons: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: pointerCapturePoint.x + 20, y: pointerCapturePoint.y,
+    button: 'left', buttons: 0, clickCount: 1,
+  });
+  await waitFor(cdp, `globalThis.__historyBoundaries.length === 1
+    && globalThis.__viewportIntents.length === 1`);
+  assert.ok((await evaluate(cdp, `globalThis.__viewportIntents.at(-1).revision`))
+    > viewportRevisionBeforeClick, 'a real chart drag must still publish the captured viewport');
 
   const settingsPresentation = await evaluate(cdp, `(() => {
     const host = document.querySelector('#chart');

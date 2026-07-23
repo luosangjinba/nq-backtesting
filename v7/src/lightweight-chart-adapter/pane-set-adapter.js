@@ -52,7 +52,6 @@ export function createLightweightPaneSetAdapter({
   let disposed = false;
   let crosshairSync = false;
   let crosshairSource = null;
-  let timeSync = false;
   let truncationSelectionActive = false;
   let visiblePaneIds = [];
   let workstationSettings = createWorkstationSettings();
@@ -108,17 +107,6 @@ export function createLightweightPaneSetAdapter({
     publishCrosshair(crosshairSource.paneId, observation);
   }
 
-  function acceptLocalTimePoint(sourcePaneId, observation) {
-    if (!timeSync || truncationSelectionActive || !visiblePaneIds.includes(sourcePaneId)) return [];
-    return visiblePaneIds
-      .filter((paneId) => paneId !== sourcePaneId)
-      .map((paneId) => adapters.get(paneId)?.projectTimePoint({
-        ...observation,
-        sourcePaneId,
-      }) ?? null)
-      .filter(Boolean);
-  }
-
   function ensureAdapter(paneId, instrumentId, instrumentLabel) {
     if (adapters.has(paneId)) return adapters.get(paneId);
     const host = preparePane(paneId);
@@ -126,7 +114,6 @@ export function createLightweightPaneSetAdapter({
       host,
       onCrosshairMove: (observation) => acceptLocalCrosshair(paneId, observation),
       onHistoryBoundary: (range) => onHistoryBoundary(paneId, range),
-      onTimePointClick: (observation) => acceptLocalTimePoint(paneId, observation),
       onTruncationSelect: (selection) => onTruncationSelect(paneId, selection),
       onViewportIntent: (intent) => onViewportIntent(paneId, intent),
       requestFrame,
@@ -137,13 +124,6 @@ export function createLightweightPaneSetAdapter({
       failLightweightAdapter(
         'CHART_PANE_SETTINGS_PORT_INVALID',
         'Pane adapter requires applyWorkstationSettings().',
-      );
-    }
-    if (typeof adapter.projectTimePoint !== 'function') {
-      adapter.dispose?.();
-      failLightweightAdapter(
-        'CHART_PANE_TIME_PROJECTION_PORT_INVALID',
-        'Pane adapter requires projectTimePoint().',
       );
     }
     adapter.applyWorkstationSettings(
@@ -299,7 +279,6 @@ export function createLightweightPaneSetAdapter({
       }
       refreshCrosshair();
     },
-    setTimeSync(active) { timeSync = active === true; },
     snapshot() {
       return Object.freeze({
         adapterRevision,
@@ -310,7 +289,6 @@ export function createLightweightPaneSetAdapter({
           snapshot: adapter.snapshot(),
         }))),
         settingsRevision,
-        timeSync,
       });
     },
     async stage({ identity, signal, workspaceSnapshot }) {

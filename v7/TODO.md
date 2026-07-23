@@ -1400,31 +1400,6 @@ Pane-local changes, mixed-Pane non-convergence on toggle alone, and Session
 re-entry before starting R6.10c Time synchronization. Human accepted on
 2026-07-23.
 
-### R6.10c Time Layout Sync — Executable
-
-- [x] expose Time only after its real adapter consumer lands, retain the
-  reviewed off default, and avoid immediate convergence when it is enabled;
-- [x] interpret an ordinary chart click as one semantic display epoch plus its
-  horizontal position within the source Pane;
-- [x] project that epoch into every other visible Pane at the same horizontal
-  ratio while retaining each target Pane's own visible logical span;
-- [x] route every accepted target projection through Viewport `captureManual`
-  rather than Replay, Workspace, Bar Data, series, or persisted native chart-
-  coordinate ownership;
-- [x] retain mixed-symbol/mixed-TF behavior, including interpolation between
-  target bars and the latest completed calendar aggregate at an accepted
-  cursor;
-- [x] make missing loaded past a bounded no-op, suppress Time projection while
-  replay truncation selection is active, and require real pointer displacement
-  before treating a click sequence as a drag/history-load request;
-- [x] restore the accepted Time switch after Session re-entry and prove default-
-  off, enabled projection, source exclusion, Replay/Workspace immobility,
-  mixed-TF span retention, and visual menu behavior in focused Harnesses.
-
-Interaction gate: review ordinary click projection across same and mixed TFs,
-disabled behavior, truncation suppression, missing-history no-op, and Session
-re-entry before starting R6.10d Date-range synchronization.
-
 ### R6.10c1 Stable Pane Priority Identity — Executable
 
 - [x] define stable P1-P4 identities independently of active focus;
@@ -1448,6 +1423,23 @@ Human interaction and visual review accepted on 2026-07-23. Next corrective
 slice: execute the isolated real-time Time-sync rollback, then specify
 right-click time location using the now-stable P1-P4 target identities. R6.10d
 remains deferred.
+
+### R6.10c2 Real-time Time Sync Rollback — Executable
+
+- [x] remove the Time switch from Layout Sync without changing the accepted
+  Symbol, Interval, or Crosshair controls;
+- [x] remove ordinary-click time projection and its adapter/domain consumer so
+  an ordinary Pane click cannot move another Pane's Viewport;
+- [x] retain the versioned `time` preference only as an inert compatibility
+  field, allowing existing Session records to reopen without schema churn;
+- [x] preserve stable P1-P4 identities, priority count reduction, Replay,
+  Workspace, Bar Data, Crosshair, and chart-series ownership;
+- [x] bind the absent Time control and retained Pane-priority interaction in
+  focused and real-browser Harnesses;
+- [ ] obtain explicit human interaction and visual acceptance of the rollback.
+
+After acceptance, specify the replacement right-click time-location contract.
+Do not activate Date-range synchronization in this corrective sequence.
 
 ## Standing Gates
 

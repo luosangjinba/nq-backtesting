@@ -63,10 +63,14 @@ const viewport = createViewportController({
 });
 const truncationSelections = [];
 const crosshairObservations = [];
+const historyBoundaries = [];
+const viewportIntents = [];
 const adapter = createLightweightChartAdapter({
   host,
   onCrosshairMove: (observation) => crosshairObservations.push(observation),
+  onHistoryBoundary: (boundary) => historyBoundaries.push(boundary),
   onTruncationSelect: (selection) => truncationSelections.push(selection),
+  onViewportIntent: (intent) => viewportIntents.push(intent),
   viewportPort: viewport,
 });
 globalThis.__adapter = adapter;
@@ -91,7 +95,9 @@ globalThis.__applySettings = (overrides = {}) => {
   );
 };
 globalThis.__crosshairObservations = crosshairObservations;
+globalThis.__historyBoundaries = historyBoundaries;
 globalThis.__truncationSelections = truncationSelections;
+globalThis.__viewportIntents = viewportIntents;
 const application = createChartSnapshotApplication({ activationGeneration, adapter, sessionId });
 
 globalThis.__probeVisibleRollback = async () => {

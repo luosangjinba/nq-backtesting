@@ -92,7 +92,6 @@ export function createPaneLayoutMenu({ onChoose, onLayoutSync, options }) {
     createSyncControl('symbol', 'Symbol', 'Symbol changes apply to every Pane in the layout'),
     createSyncControl('interval', 'Interval', 'Interval changes apply to every Pane in the layout'),
     createSyncControl('crosshair', 'Crosshair', 'Crosshair is synchronized across all Panes in the layout'),
-    createSyncControl('time', 'Time', 'Clicking a Pane aligns every Pane to the same point of time'),
   ]);
   syncSection.setAttribute('aria-label', 'Layout synchronization');
   menu.append(syncSection);
