@@ -431,9 +431,9 @@
   position: relative;
   width: 42px;
   height: 32px;
-  padding: 3px;
-  border: 1px solid #666;
-  border-radius: 6px;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
   background-color: #1b1b1b;
   background-image:
     linear-gradient(45deg, #777 25%, transparent 25%),
@@ -444,8 +444,6 @@
   background-size: 10px 10px;
   cursor: pointer;
 }
-.workstation-color-picker-button:hover,
-.workstation-color-picker-button[aria-expanded="true"] { border-color: #b5b5b5; }
 .workstation-color-picker-button:focus-visible,
 .workstation-color-swatch:focus-visible,
 .workstation-color-precise-toggle:focus-visible,
@@ -453,7 +451,7 @@
   outline: 2px solid #68adff;
   outline-offset: 2px;
 }
-.workstation-color-picker-preview { display: block; width: 100%; height: 100%; border-radius: 3px; }
+.workstation-color-picker-preview { display: block; width: 100%; height: 100%; border-radius: inherit; }
 .workstation-color-picker-popover {
   position: fixed;
   z-index: 30;

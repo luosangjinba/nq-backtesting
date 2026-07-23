@@ -6,6 +6,8 @@ Status: awaiting human interaction and visual review
 ## Delivered
 
 - replaced six native color fields with a V7-owned TradingView-style picker;
+- removed the framed inset around each Settings color button so the selected
+  color fills the full swatch while transparency remains visible within it;
 - added a fixed palette, opacity, eight global recent colors, and an expandable
   precise saturation/hue/alpha editor;
 - exact-pinned the MIT `vanilla-colorful` engine behind the V7 UI boundary;
