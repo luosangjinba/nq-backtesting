@@ -1442,6 +1442,28 @@ Human interaction and visual review accepted on 2026-07-23. Next: specify and
 implement the replacement right-click time-location contract. Do not activate
 Date-range synchronization in this corrective sequence.
 
+### R6.10c3 Explicit Right-click Pane Time Location — Executable
+
+- [x] require an exact real source candle and carry its canonical market start
+  time rather than compressed chart-display time;
+- [x] expose one explicit context menu with stable P1-P4, instrument, and
+  timeframe target labels plus `All other panes`;
+- [x] preserve each target's current logical span and center only a real target
+  candle that contains the selected market instant;
+- [x] request missing target history only through bounded Bar Data and atomic
+  Workspace Transaction owners, with finite serial retry;
+- [x] keep source focus, Replay, Pane configuration, ETH/RTH, and non-target
+  Viewports unchanged, and never snap an unavailable target to unrelated data;
+- [x] bind negative fixtures, pure-domain/controller Harnesses, real adapter
+  hit-testing, mixed-instrument/timeframe four-Pane behavior, and a dedicated
+  visual baseline;
+- [ ] obtain explicit human interaction and visual acceptance before starting
+  R6.10d Date-range synchronization.
+
+Interaction gate: review exact-candle selection, stable target labels,
+single-target and all-target location, missing-history behavior, blank-space
+rejection, RTH gaps, unchanged Replay/source focus, and menu dismissal.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

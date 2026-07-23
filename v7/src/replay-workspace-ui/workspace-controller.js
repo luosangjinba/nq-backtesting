@@ -23,6 +23,7 @@ import { createFoundationSourceTraversal } from './foundation-source-traversal.j
 import { quickGotoLabel } from './goto-quick-actions.js';
 import { createLayoutSyncController } from './layout-sync-controller.js';
 import { createPaneDataComposition } from './pane-data-composition.js';
+import { createPaneTimeLocationController } from './pane-time-location-controller.js';
 import { createPaneWorkspaceState } from './pane-workspace-state.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createWorkspaceExecution } from './workspace-execution.js';
@@ -244,6 +245,14 @@ export function createReplayWorkspaceController({
   execution = createWorkspaceExecution({
     acceptVisibleState, market, navigation, paneData, paneState, range, record, replay, runtime, view,
   });
+  const paneTimeLocation = createPaneTimeLocationController({
+    adapter,
+    execution,
+    market,
+    paneState,
+    readSettings: () => workstationSettings.snapshot().settings,
+    view,
+  });
   autoplayScheduler = createReplayAutoplayScheduler({
     cadenceMs: DEFAULT_AUTOPLAY_SPEED.cadenceMs,
     playbackPort: Object.freeze({
@@ -325,6 +334,7 @@ export function createReplayWorkspaceController({
       unregisterSettingsConsumer();
       unregisterViewportSettingsConsumer();
       autoplayScheduler.dispose();
+      paneTimeLocation.dispose();
       execution.dispose();
       runtime.dispose();
       chartApplication.dispose();
@@ -340,6 +350,8 @@ export function createReplayWorkspaceController({
       view.setWall(paneId, paneState.wallOrigin(paneId));
       syncReplayStep();
     },
+    locatePaneTime: (request) => paneTimeLocation.locate(request),
+    openPaneTimeLocation: (request) => paneTimeLocation.open(request),
     gotoExact: (targetEpochMs) => execution.action('goto-exact', { targetEpochMs }, { allowDim: true }),
     async gotoQuick(anchor) {
       view.setGotoFeedback(null);

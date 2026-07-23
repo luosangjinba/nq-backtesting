@@ -42,22 +42,32 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
       async acquirePane(context) {
         const descriptor = context.paneRequest.request;
         const selected = selection(context.paneResponse, descriptor.responsePlan);
-        const request = descriptor.kind === 'history-extension'
-          ? market.requestBefore(descriptor.oldestEpochMs, selected)
-          : market.requestThrough(readReplayCursorProposal(context.proposal).targetEpochMs, selected);
+        const historyRequest = descriptor.kind === 'history-extension'
+          || descriptor.kind === 'time-location-history';
+        const request = descriptor.kind === 'time-location-history'
+          ? market.requestForTimeLocation(
+            descriptor.oldestEpochMs,
+            descriptor.targetEpochMs,
+            selected,
+          )
+          : historyRequest
+            ? market.requestBefore(descriptor.oldestEpochMs, selected)
+            : market.requestThrough(readReplayCursorProposal(context.proposal).targetEpochMs, selected);
         const batch = await barData.acquire(request);
         return Object.freeze({ batch, descriptor, selection: selected });
       },
     }),
-    createRequest({ kind = 'navigation', oldestEpochMs = null, responsePlan }) {
-      return Object.freeze({ kind, oldestEpochMs, responsePlan });
+    createRequest({ kind = 'navigation', oldestEpochMs = null, responsePlan, targetEpochMs = null }) {
+      return Object.freeze({ kind, oldestEpochMs, responsePlan, targetEpochMs });
     },
     oldestEpochMs(paneId) { return ledger(paneId).oldestEpochMs(); },
     projectionPort: Object.freeze({
       projectPane(context) {
         const { batch, descriptor, selection: selected } = context.acquired;
         const paneLedger = ledger(context.paneResponse.paneId);
-        const ledgerOperation = descriptor.kind === 'history-extension'
+        const historyRequest = descriptor.kind === 'history-extension'
+          || descriptor.kind === 'time-location-history';
+        const ledgerOperation = historyRequest
           ? 'history-extension'
           : descriptor.kind === 'instrument-replacement'
             ? 'pane-source-replacement' : 'navigation';
@@ -75,7 +85,7 @@ export function createPaneDataComposition({ barData, market, readAcceptedSnapsho
           sourceBatches: batches,
         };
         try {
-          if (descriptor.kind !== 'history-extension') return projectPaneSnapshot(input);
+          if (!historyRequest) return projectPaneSnapshot(input);
           const accepted = acceptedPane(context.paneResponse.paneId);
           if (!accepted || accepted.status !== 'ready') return projectPaneSnapshot(input);
           return projectPaneHistoryExtension({

@@ -1254,6 +1254,32 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": "sessions/session_20260723_r6_10c2_time_sync_rollback.md"
+    },
+    {
+      "id": "H066",
+      "name": "explicit-context-pane-time-location",
+      "owner": "pane-time-location-domain",
+      "v6FailurePrevented": "Ordinary clicks or compressed display time moved other Pane Viewports, missing history bypassed runtime owners, or an unavailable market instant snapped to an unrelated session or future candle",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/pane-time-location-domain-harness.js",
+      "positiveEvidence": [
+        "src/pane-time-location-domain/pane-time-location.js",
+        "src/lightweight-chart-adapter/pane-time-location-adapter.js",
+        "src/replay-workspace-ui/pane-time-location-controller.js",
+        "src/replay-workspace-ui/pane-time-location-menu.js",
+        "tests/pane-time-location-domain-harness.js",
+        "tests/pane-time-location-controller-harness.js",
+        "tests/lightweight-chart-adapter-browser-harness.js",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/layout-time-location-menu-1440x900.png",
+        "docs/V7_PANE_TIME_LOCATION_R6_10C3.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/pane-time-location-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

@@ -22,6 +22,7 @@ export function createPaneGridView({
   initialLayout,
   initialWorkstationSettings,
   onFocus,
+  onPaneContext,
   onLayoutResize,
   onReset,
   resolvePriceIncrement,
@@ -208,6 +209,19 @@ export function createPaneGridView({
     host.dataset.paneNumber = String(paneIdentity.number);
     host.setAttribute('role', 'application');
     host.tabIndex = 0;
+    host.addEventListener('contextmenu', (event) => {
+      if (pending) return;
+      const rect = host.getBoundingClientRect();
+      const handled = onPaneContext({
+        clientX: event.clientX,
+        clientY: event.clientY,
+        coordinateX: event.clientX - rect.left,
+        paneId,
+      }) === true;
+      if (!handled) return;
+      event.preventDefault();
+      event.stopPropagation();
+    });
     const empty = element('div', { className: 'pane-empty-state', text: 'No eligible source bars' });
     empty.hidden = true;
     const shell = element('section', { className: 'workspace-pane is-prepared' }, [host, overlay.root, empty]);

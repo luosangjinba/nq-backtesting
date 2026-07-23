@@ -80,6 +80,29 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
       windowStartEpochMs: contributingHistoryStart(windowEndEpochMs, sourceBars, selection),
     });
   }
+  function requestForTimeLocation(
+    oldestEpochMs,
+    targetEpochMs,
+    selection = capabilities.defaultSelection,
+  ) {
+    if (!Number.isSafeInteger(oldestEpochMs) || !Number.isSafeInteger(targetEpochMs)
+      || oldestEpochMs <= 0 || targetEpochMs < 0 || targetEpochMs >= oldestEpochMs) {
+      throw Object.assign(new Error('Time-location history requires an earlier target epoch.'), {
+        code: 'foundation-time-location-history-invalid',
+      });
+    }
+    const sourceBars = historySourceBars(selection);
+    const boundedStart = Math.max(0, oldestEpochMs - (MAXIMUM_REQUEST_SOURCE_BARS * MINUTE));
+    const targetContextStart = Math.max(0, targetEpochMs - (sourceBars * MINUTE));
+    return rawRequest({
+      instrumentId: selection.instrument.id,
+      windowEndEpochMs: oldestEpochMs,
+      windowStartEpochMs: Math.max(
+        boundedStart,
+        Math.min(targetContextStart, oldestEpochMs - MINUTE),
+      ),
+    });
+  }
   const request = requestThrough(range.startEpochMs + MINUTE);
   function planEligibleMinutes({ count, cursorEpochMs, selection }) {
     let remaining = count;
@@ -109,6 +132,7 @@ export function createFoundationMarket(record, { provider = createV4BarsProvider
     provider,
     request,
     requestBefore,
+    requestForTimeLocation,
     requestThrough,
     requestWindow: rawRequest,
   });

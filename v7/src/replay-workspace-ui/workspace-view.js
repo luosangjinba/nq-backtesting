@@ -8,6 +8,7 @@ import { createExactGotoDialog } from './exact-goto-dialog.js';
 import { createGotoControls } from './goto-controls.js';
 import { createPaneGridView } from './pane-grid-view.js';
 import { createPaneLayoutMenu } from './pane-layout-menu.js';
+import { createPaneTimeLocationMenu } from './pane-time-location-menu.js';
 import { createReplayTransport } from './replay-transport.js';
 import { createTimeframeMenu } from './timeframe-menu.js';
 import { createWorkstationSettingsControl } from './workstation-settings-dialog.js';
@@ -90,6 +91,8 @@ export function createReplayWorkspaceView({
   onLayoutResize,
   onNext,
   onPause,
+  onPaneContext,
+  onPaneTimeLocation,
   onPlaybackSpeed,
   onPrevious,
   onPreviewWorkstationSettings,
@@ -163,10 +166,12 @@ export function createReplayWorkspaceView({
     initialLayout,
     initialWorkstationSettings: activeWorkstationSettings,
     onFocus: onFocusPane,
+    onPaneContext,
     onLayoutResize,
     onReset,
     resolvePriceIncrement: (instrumentId) => instrumentPriceIncrements.get(instrumentId),
   });
+  const paneTimeLocationMenu = createPaneTimeLocationMenu({ onChoose: onPaneTimeLocation });
   const replayTransport = createReplayTransport({
     onAutoplay,
     onNext,
@@ -213,7 +218,7 @@ export function createReplayWorkspaceView({
         ]),
       ]),
     ]),
-    element('div', { className: 'chart-frame' }, [paneGrid.root, overlay]),
+    element('div', { className: 'chart-frame' }, [paneGrid.root, overlay, paneTimeLocationMenu.root]),
     element('footer', { className: 'replay-workspace-footer' }, [
       element('div', { className: 'replay-footer-context' }, [sessionRange, visibleThrough]),
       replayTransport.root,
@@ -335,9 +340,11 @@ export function createReplayWorkspaceView({
       exactGoto.dispose();
       workstationSettings.dispose();
       paneGrid.dispose();
+      paneTimeLocationMenu.dispose();
       root.remove();
     },
     openExactGoto: exactGoto.open,
+    openPaneTimeLocationMenu: paneTimeLocationMenu.open,
     root,
     setCursor(epochMs) {
       cursorEpochMs = epochMs;
@@ -364,6 +371,7 @@ export function createReplayWorkspaceView({
     },
     setPending(value) {
       interactionPending = value === true;
+      if (interactionPending) paneTimeLocationMenu.close();
       renderAvailability();
     },
     setReplay(snapshot) {

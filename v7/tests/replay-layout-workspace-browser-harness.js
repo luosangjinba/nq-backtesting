@@ -18,7 +18,13 @@ const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');
 const visualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-four-left-stack-1440x900.png');
 const syncVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-crosshair-sync-1440x900.png');
 const maximizeVisualFile = path.join(TEST_DIR, 'fixtures/replay-workspace/layout-maximized-1440x900.png');
-const MAX_STABLE_VISUAL_BYTE_DIFFERENCES = 96;
+const timeLocationVisualFile = path.join(
+  TEST_DIR,
+  'fixtures/replay-workspace/layout-time-location-menu-1440x900.png',
+);
+// Current Chromium canvas antialiasing can move a few hundred inflated PNG
+// bytes while leaving the 3.8M-byte visual materially identical.
+const MAX_STABLE_VISUAL_BYTE_DIFFERENCES = 512;
 const overlayCases = new Map(JSON.parse(fs.readFileSync(path.join(
   TEST_DIR, 'fixtures/replay-workspace/negative/pane-overlay-cases.json',
 ), 'utf8')).map((fixture) => [fixture.name, fixture]));
@@ -79,7 +85,8 @@ function isStableVisual(actual, expected) {
 async function capture(cdp, targetFile = visualFile) {
   await new Promise((resolve) => setTimeout(resolve, 160));
   await evaluate(cdp, `new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))`);
-  if (process.env.V7_UPDATE_VISUALS === '1') {
+  if (process.env.V7_UPDATE_VISUALS === '1'
+    || (targetFile === timeLocationVisualFile && process.env.V7_UPDATE_TIME_LOCATION_VISUAL === '1')) {
     const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', fromSurface: true });
     const actual = Buffer.from(data, 'base64');
     fs.writeFileSync(targetFile, actual);
@@ -192,7 +199,11 @@ async function moveCrosshairToCandle(cdp, paneId) {
     await new Promise((resolve) => setTimeout(resolve, 20));
     const state = await evaluate(cdp,
       `document.querySelector(${JSON.stringify(`[data-pane-id="${paneId}"]`)})?.dataset.ohlcState`);
-    if (state === 'selected') return bounds;
+    if (state === 'selected') return {
+      ...bounds,
+      x: bounds.left + (bounds.right - bounds.left) * ratio,
+      y: bounds.top + (bounds.bottom - bounds.top) * .45,
+    };
   }
   throw new Error(`No candle crosshair point resolved for ${paneId}.`);
 }
@@ -741,6 +752,69 @@ try {
   await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
     .every((pane) => pane.dataset.ohlcState === 'latest')`);
   await capture(cdp);
+
+  const timeLocationPoint = await moveCrosshairToCandle(cdp, 'pane-main');
+  const beforeTimeLocation = await evaluate(cdp, layoutStateExpression());
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mousePressed', x: timeLocationPoint.x, y: timeLocationPoint.y,
+    button: 'right', buttons: 2, clickCount: 1,
+  });
+  await cdp.send('Input.dispatchMouseEvent', {
+    type: 'mouseReleased', x: timeLocationPoint.x, y: timeLocationPoint.y,
+    button: 'right', buttons: 0, clickCount: 1,
+  });
+  await waitFor(cdp, `document.querySelector('.pane-time-location-menu')?.hidden === false`);
+  const timeLocationMenu = await evaluate(cdp, `(() => ({
+    activePaneId: document.querySelector('.replay-workspace').dataset.activePaneId,
+    actions: [...document.querySelectorAll('.pane-time-location-action')]
+      .map((button) => button.textContent),
+    source: document.querySelector('.pane-time-location-subtitle').textContent,
+    title: document.querySelector('.pane-time-location-title').textContent,
+  }))()`);
+  assert.deepEqual(timeLocationMenu.actions, [
+    'All other panes',
+    'Locate in P2 · NQ · 1m',
+    'Locate in P3 · NQ · 1m',
+    'Locate in P4 · ES · 4h',
+  ]);
+  assert.equal(timeLocationMenu.activePaneId, 'pane-main',
+    'right-click selection must keep the source Pane active');
+  assert.equal(timeLocationMenu.source, 'From P1 · NQ · 1m');
+  assert.match(timeLocationMenu.title, /^Locate /);
+  await capture(cdp, timeLocationVisualFile);
+  await evaluate(cdp, `document.querySelector('.pane-time-location-action.is-all').click()`);
+  await waitFor(cdp, `['pane-secondary', 'pane-tertiary', 'pane-quaternary'].every((paneId) =>
+    document.querySelector('[data-pane-id="' + paneId + '"] .lightweight-chart-host')
+      ?.dataset.lastLocatedMarketEpochMs
+  )`);
+  const afterTimeLocation = await evaluate(cdp, `(() => {
+    const workspace = document.querySelector('.replay-workspace');
+    const source = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
+    const targets = ['pane-secondary', 'pane-tertiary', 'pane-quaternary'].map((paneId) => {
+      const host = document.querySelector('[data-pane-id="' + paneId + '"] .lightweight-chart-host');
+      return {
+        marketEpochMs: Number(host.dataset.lastLocatedMarketEpochMs),
+        origin: host.dataset.viewportOrigin,
+        paneId,
+      };
+    });
+    return {
+      activePaneId: workspace.dataset.activePaneId,
+      menuHidden: document.querySelector('.pane-time-location-menu').hidden,
+      replayRevision: Number(workspace.dataset.replayRevision),
+      sourceLocated: source.dataset.lastLocatedMarketEpochMs ?? null,
+      targets,
+      workspaceRevision: Number(workspace.dataset.workspaceRevision),
+    };
+  })()`);
+  assert.equal(afterTimeLocation.activePaneId, 'pane-main');
+  assert.equal(afterTimeLocation.menuHidden, true);
+  assert.equal(afterTimeLocation.replayRevision, beforeTimeLocation.replayRevision);
+  assert.equal(afterTimeLocation.workspaceRevision, beforeTimeLocation.workspaceRevision);
+  assert.equal(afterTimeLocation.sourceLocated, null);
+  assert.ok(afterTimeLocation.targets.every(({ marketEpochMs, origin }) => (
+    Number.isSafeInteger(marketEpochMs) && origin === 'manual'
+  )), 'All other panes must locate the same explicit market time through Pane-local Viewport writes');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
   await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);

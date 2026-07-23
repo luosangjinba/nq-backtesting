@@ -70,6 +70,7 @@
     "viewport-runtime",
     "pane-workspace-domain",
     "pane-layout-domain",
+    "pane-time-location-domain",
     "layout-sync-domain",
     "calendar-surface",
     "workstation-settings"
@@ -107,6 +108,7 @@
     "src/viewport-runtime/module.json",
     "src/pane-workspace-domain/module.json",
     "src/pane-layout-domain/module.json",
+    "src/pane-time-location-domain/module.json",
     "src/layout-sync-domain/module.json",
     "src/replay-navigation-settings/module.json",
     "src/replay-navigation-preference-store/module.json",

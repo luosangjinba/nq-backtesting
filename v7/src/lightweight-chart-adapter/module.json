@@ -6,6 +6,7 @@
   "publicEntry": "src/lightweight-chart-adapter/public.js",
   "requiredPorts": [
     "core.chart-snapshot-application",
+    "core.pane-time-location-domain",
     "core.viewport-runtime",
     "core.workstation-settings"
   ],

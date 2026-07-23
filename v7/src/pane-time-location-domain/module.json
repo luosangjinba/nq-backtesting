@@ -1,0 +1,12 @@
+{
+  "id": "core.pane-time-location-domain",
+  "version": "1.0.0",
+  "kind": "core",
+  "owner": "pane-time-location-domain",
+  "publicEntry": "src/pane-time-location-domain/public.js",
+  "requiredPorts": [],
+  "optionalPorts": [],
+  "lifecycle": [],
+  "independentHarness": "tests/pane-time-location-domain-harness.js",
+  "removable": false
+}

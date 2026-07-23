@@ -438,10 +438,13 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.10c`: real-time ordinary-click Time synchronization was implemented but
   rejected as a product interaction and removed in R6.10c2; the versioned
   preference remains inert for compatibility;
-- `R6.10c2`: replace real-time coupling with a separately specified explicit
-  right-click time-location command targeting stable P1-P4 identities;
+- `R6.10c2`: remove rejected real-time coupling while retaining its persisted
+  preference only as inert compatibility data; accepted on 2026-07-23;
+- `R6.10c3`: replace real-time coupling with an explicit right-click
+  market-time command targeting stable P1-P4 identities; executable and
+  awaiting human interaction/visual review;
 - `R6.10d`: activate Date-range synchronization through bounded visible-range
-  projection only after the corrective Time-location interaction is accepted;
+  projection only after R6.10c3 is human accepted;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.

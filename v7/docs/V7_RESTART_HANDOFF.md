@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-22 after R6.9m acceptance and R6.10a Layout Sync contract,
-schema, and durable Crosshair migration
+Last updated: 2026-07-23 after R6.10c3 explicit Pane time location became
+executable and entered human review
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -30,8 +30,10 @@ required for normal startup.
   human accepted; R6.9l Canvas/Crosshair/scale/Pane-control/default-margin
   settings plus owner-managed live-preview/Cancel-restore correction human
   accepted; R6.9m New York/UTC/local, date, weekday, and 12/24-hour
-  presentation human accepted; R6.10a versioned Session Layout Sync policy and
-  durable Crosshair restoration executable; R2.4 Session Browser
+  presentation human accepted; R6.10a versioned Session Layout Sync policy,
+  R6.10b Symbol/Interval sync, R6.10c1 stable Pane priority, and R6.10c2
+  real-time Time-sync rollback human accepted; R6.10c3 explicit right-click
+  Pane time location executable and awaiting human review; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -356,6 +358,10 @@ and human-accepted:
   The already accepted Crosshair switch now saves and restores per Session;
   Symbol, Interval, Time, and Date-range controls remain absent until their
   real consumers land. Replay and ETH/RTH remain always Session-wide.
+- R6.10c3 adds a separately owned explicit right-click command. It selects one
+  exact source candle by canonical market time, targets stable P1-P4 identities,
+  preserves target span, and uses bounded owner-routed history when required.
+  It does not restore ordinary-click coupling or activate Date-range sync.
 
 Latest corrective commits:
 
@@ -481,9 +487,10 @@ R6.10c1 stable Pane identity and count-reduction priority were human accepted
 on 2026-07-23: right before left, and top before bottom when right edges match.
 R6.10c2 removes the rejected real-time ordinary-click Time projection while
 retaining the persisted field as inert compatibility data; human interaction
-and visual review accepted the rollback on 2026-07-23. Next specify and
-implement explicit right-click time location using P1-P4 targets. Do not start
-Date-range synchronization or Economic Calendar in this corrective sequence.
+and visual review accepted the rollback on 2026-07-23. R6.10c3 now implements
+explicit right-click market-time location using stable P1-P4 targets and is
+waiting at its human interaction/visual gate. Do not start R6.10d Date-range
+synchronization or Economic Calendar before that acceptance.
 
 ## Standing Workflow
 

@@ -223,6 +223,73 @@ try {
   assert.ok((await evaluate(cdp, `globalThis.__viewportIntents.at(-1).revision`))
     > viewportRevisionBeforeClick, 'a real chart drag must still publish the captured viewport');
 
+  const timeLocation = await evaluate(cdp, `(async () => {
+    const before = globalThis.__adapter.snapshot();
+    const latestSelection = globalThis.__adapter.resolveTimeLocationSelection(
+      before.latestCandleCoordinate,
+    );
+    const futureSelection = globalThis.__adapter.resolveTimeLocationSelection(
+      before.firstFutureTimeAxisCoordinate,
+    );
+    const boundaryCount = globalThis.__historyBoundaries.length;
+    const intentCount = globalThis.__viewportIntents.length;
+    const located = globalThis.__adapter.locateMarketTime(1900000);
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    const afterLocated = globalThis.__adapter.snapshot();
+    const rangeAfterLocated = { ...afterLocated.logicalRange };
+    const beforeMissing = { ...rangeAfterLocated };
+    const historyRequired = globalThis.__adapter.locateMarketTime(500000);
+    const afterHistoryRequired = globalThis.__adapter.snapshot();
+    const unavailable = globalThis.__adapter.locateMarketTime(5000000);
+    const afterUnavailable = globalThis.__adapter.snapshot();
+    return {
+      afterHistoryRequired,
+      afterUnavailable,
+      boundaryCount,
+      before,
+      beforeMissing,
+      futureSelection,
+      historyRequired,
+      intentCount,
+      latestSelection,
+      located,
+      rangeAfterLocated,
+      unavailable,
+      viewportOrigin: document.querySelector('#chart').dataset.viewportOrigin,
+      viewportIntentCount: globalThis.__viewportIntents.length,
+      historyBoundaryCount: globalThis.__historyBoundaries.length,
+    };
+  })()`);
+  assert.deepEqual(timeLocation.latestSelection, {
+    displayEpochMs: 2_170_000,
+    marketEpochMs: 2_140_000,
+  }, 'context selection must resolve an exact real candle back to market time');
+  assert.equal(timeLocation.futureSelection, null,
+    'future whitespace must never become a Pane time-location source');
+  assert.equal(timeLocation.located.status, 'located');
+  assert.equal(timeLocation.located.logical, 15);
+  assert.equal(
+    timeLocation.rangeAfterLocated.to - timeLocation.rangeAfterLocated.from,
+    timeLocation.before.logicalRange.to - timeLocation.before.logicalRange.from,
+    'explicit time location must preserve the target Pane logical span',
+  );
+  assert.equal(
+    (timeLocation.rangeAfterLocated.from + timeLocation.rangeAfterLocated.to) / 2,
+    15,
+    'the selected market time must be centered in the target Pane',
+  );
+  assert.equal(timeLocation.viewportOrigin, 'manual');
+  assert.deepEqual(timeLocation.afterHistoryRequired.logicalRange, timeLocation.beforeMissing,
+    'missing older history must be a non-mutating history-required result');
+  assert.deepEqual(timeLocation.afterUnavailable.logicalRange, timeLocation.beforeMissing,
+    'a market time outside target candles must not snap to another candle');
+  assert.equal(timeLocation.historyRequired.status, 'history-required');
+  assert.equal(timeLocation.unavailable.status, 'unavailable');
+  assert.equal(timeLocation.historyBoundaryCount, timeLocation.boundaryCount,
+    'programmatic time location must not masquerade as native left-boundary history drag');
+  assert.equal(timeLocation.viewportIntentCount, timeLocation.intentCount + 1,
+    'one explicit located command publishes exactly one target Viewport intent');
+
   const settingsPresentation = await evaluate(cdp, `(() => {
     const host = document.querySelector('#chart');
     const before = globalThis.__adapter.snapshot();

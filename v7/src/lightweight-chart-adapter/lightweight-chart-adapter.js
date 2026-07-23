@@ -19,6 +19,7 @@ import {
 import { createFutureTimeAxisData } from './future-time-axis.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
+import { createPaneTimeLocationChartPort } from './pane-time-location-adapter.js';
 import { applyPriceScaleWheel } from './price-scale-wheel.js';
 import { createReplayTruncationInteraction } from './replay-truncation-interaction.js';
 import { planSeriesMutation } from './series-update-plan.js';
@@ -90,6 +91,7 @@ export function createLightweightChartAdapter({
   let appliedBars = Object.freeze([]);
   let appliedData = Object.freeze([]);
   let appliedFutureTimeAxisData = Object.freeze([]);
+  let appliedTimeframeDurationMs = null;
   let barCount = 0;
   let disposed = false;
   let captureToken = 0;
@@ -155,6 +157,29 @@ export function createLightweightChartAdapter({
     host.dataset.viewportRevision = String(projection.revision);
     return projection;
   }
+
+  function applyPaneTimeLocationRange(range, plan) {
+    chart.timeScale().setVisibleLogicalRange(range);
+    viewport.captureManual({ latestLogicalIndex: barCount - 1, range });
+    priceScale.setAutoScale(true);
+    const value = readViewportIntent(viewport.snapshot());
+    host.dataset.logicalFrom = String(range.from);
+    host.dataset.logicalTo = String(range.to);
+    host.dataset.latestOffsetBars = String(value.latestOffsetBars);
+    host.dataset.spanBars = String(value.spanBars);
+    host.dataset.viewportOrigin = value.origin;
+    host.dataset.viewportRevision = String(value.revision);
+    host.dataset.lastLocatedDisplayEpochMs = String(plan.displayEpochMs);
+    host.dataset.lastLocatedMarketEpochMs = String(plan.marketEpochMs);
+    onViewportIntent(value);
+  }
+
+  const paneTimeLocation = createPaneTimeLocationChartPort({
+    applyVisibleRange: applyPaneTimeLocationRange,
+    chart,
+    readBars: () => appliedBars,
+    readTimeframeDurationMs: () => appliedTimeframeDurationMs,
+  });
 
   async function captureNativeViewport() {
     const token = ++captureToken;
@@ -238,6 +263,7 @@ export function createLightweightChartAdapter({
     appliedBars = restored.appliedBars;
     appliedData = restored.appliedData;
     appliedFutureTimeAxisData = restored.appliedFutureTimeAxisData;
+    appliedTimeframeDurationMs = record.previousTimeframeDurationMs;
     barCount = restored.barCount;
     maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
     if (record.presentationMutated) {
@@ -289,6 +315,7 @@ export function createLightweightChartAdapter({
     appliedBars = Object.freeze([]);
     appliedData = Object.freeze([]);
     appliedFutureTimeAxisData = Object.freeze([]);
+    appliedTimeframeDurationMs = null;
     barCount = 0;
     maximumAppliedDisplayGapMs = 0;
     truncationInteraction.setBars(appliedBars);
@@ -319,6 +346,7 @@ export function createLightweightChartAdapter({
     appliedBars = context.workspaceSnapshot.bars;
     appliedData = context.staged.data;
     appliedFutureTimeAxisData = context.staged.futureTimeAxisData;
+    appliedTimeframeDurationMs = context.workspaceSnapshot.provenance.displayTimeframeDurationMs;
     truncationInteraction.setBars(appliedBars);
     crosshairPresentation.setBars(appliedBars);
     host.dataset.barCount = String(barCount);
@@ -362,6 +390,7 @@ export function createLightweightChartAdapter({
     record.previousPriceIncrement = presentationPriceIncrement;
     record.previousInstrumentLabel = presentationInstrumentLabel;
     record.previousSettings = presentationSettings;
+    record.previousTimeframeDurationMs = appliedTimeframeDurationMs;
     record.token = ++visibleMutationToken;
     record.mutated = true;
     try {
@@ -514,6 +543,8 @@ export function createLightweightChartAdapter({
       chart.setCrosshairPosition(value.bar.close, displayEpochMs / 1_000, series);
       return recordCrosshairObservation(value, 'projected');
     },
+    locateMarketTime: paneTimeLocation.locateMarketTime,
+    resolveTimeLocationSelection: paneTimeLocation.resolveSelection,
     setTruncationSelection(active) { truncationInteraction.setActive(active); },
     snapshot() {
       const latestCandleTime = appliedData.at(-1)?.time ?? null;

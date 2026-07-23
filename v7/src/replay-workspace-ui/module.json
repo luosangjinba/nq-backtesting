@@ -18,6 +18,7 @@
     "core.replay-pane-response-contract",
     "core.replay-navigation-runtime",
     "core.pane-layout-domain",
+    "core.pane-time-location-domain",
     "core.layout-sync-domain",
     "core.pane-workspace-domain",
     "core.pane-set-materialization",

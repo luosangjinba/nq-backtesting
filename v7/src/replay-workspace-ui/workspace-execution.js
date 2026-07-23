@@ -120,6 +120,7 @@ export function createWorkspaceExecution({
         request: paneData.createRequest({
           kind: requestKinds.get(paneResponse.paneId)?.kind ?? 'navigation',
           oldestEpochMs: requestKinds.get(paneResponse.paneId)?.oldestEpochMs ?? null,
+          targetEpochMs: requestKinds.get(paneResponse.paneId)?.targetEpochMs ?? null,
           responsePlan,
         }),
       })));
@@ -149,6 +150,19 @@ export function createWorkspaceExecution({
     });
   }
 
+  function requestTimeLocationHistory(paneId, targetEpochMs) {
+    if (disposed || pending) return undefined;
+    const oldestEpochMs = paneData.oldestEpochMs(paneId);
+    if (oldestEpochMs === null || oldestEpochMs <= 0 || targetEpochMs >= oldestEpochMs) return undefined;
+    return materialize({
+      requestKinds: new Map([[paneId, {
+        kind: 'time-location-history',
+        oldestEpochMs,
+        targetEpochMs,
+      }]]),
+    });
+  }
+
   return Object.freeze({
     action,
     dispose() {
@@ -159,6 +173,7 @@ export function createWorkspaceExecution({
     isPending: () => pending,
     materialize,
     requestHistory,
+    requestTimeLocationHistory,
     replaceSessionHours(mode) {
       if (mode === sessionHoursMode) return undefined;
       return materialize({ desiredMode: mode, desiredRevision: sessionHoursRevision + 1 });

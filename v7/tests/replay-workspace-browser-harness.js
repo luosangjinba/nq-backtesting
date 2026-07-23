@@ -101,6 +101,24 @@ assert.equal(
   Date.parse('2026-05-01T16:15:00Z'),
   'one RTH history request at Monday 09:30 must cross the weekend without repeated empty loads',
 );
+const nearTimeLocationRequest = fridayMarket.requestForTimeLocation(
+  Date.parse('2026-05-04T13:30:00Z'),
+  Date.parse('2026-04-20T13:30:00Z'),
+  rthOneMinute,
+);
+assert.ok(nearTimeLocationRequest.windowStartEpochMs <= Date.parse('2026-04-20T13:30:00Z'),
+  'one target-aware request must reach a nearby explicitly selected market time');
+assert.equal(nearTimeLocationRequest.windowEndEpochMs, Date.parse('2026-05-04T13:30:00Z'));
+const farTimeLocationRequest = fridayMarket.requestForTimeLocation(
+  Date.parse('2026-05-04T13:30:00Z'),
+  Date.parse('2026-02-01T13:30:00Z'),
+  rthOneMinute,
+);
+assert.equal(
+  farTimeLocationRequest.windowStartEpochMs,
+  Date.parse('2026-03-30T13:30:00Z'),
+  'a far target must extend one bounded 35-day contiguous window per transaction',
+);
 fridayMarket.dispose();
 const userDataDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'v7-r4-5-chrome-'));
 const server = createStaticServer(REPOSITORY_ROOT);

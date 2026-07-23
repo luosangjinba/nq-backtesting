@@ -53,6 +53,8 @@ export function createReplayWorkspaceSurface() {
         layoutResize: null,
         next: null,
         pause: null,
+        paneContext: null,
+        paneTimeLocation: null,
         playbackSpeed: null,
         previous: null,
         previewWorkstationSettings: null,
@@ -86,6 +88,8 @@ export function createReplayWorkspaceSurface() {
         onLayoutResize: (layout) => callbacks.layoutResize?.(layout),
         onNext: () => callbacks.next?.(),
         onPause: () => callbacks.pause?.(),
+        onPaneContext: (request) => callbacks.paneContext?.(request) ?? false,
+        onPaneTimeLocation: (request) => callbacks.paneTimeLocation?.(request),
         onPlaybackSpeed: (speedId) => callbacks.playbackSpeed?.(speedId),
         onPrevious: () => callbacks.previous?.(),
         onPreviewWorkstationSettings: (settings) => callbacks.previewWorkstationSettings?.(settings),
@@ -130,6 +134,8 @@ export function createReplayWorkspaceSurface() {
       callbacks.layoutResize = (layout) => controller.resizePaneLayout(layout);
       callbacks.next = () => controller.next();
       callbacks.pause = () => controller.pause();
+      callbacks.paneContext = (request) => controller.openPaneTimeLocation(request);
+      callbacks.paneTimeLocation = (request) => controller.locatePaneTime(request);
       callbacks.playbackSpeed = (speedId) => controller.changePlaybackSpeed(speedId);
       callbacks.previous = () => controller.previous();
       callbacks.previewWorkstationSettings = (settings) => controller.previewWorkstationSettings(settings);

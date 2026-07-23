@@ -141,6 +141,16 @@ primary-instrument Pane, Replay Navigation obtains bounded primary-source
 `visibleThrough` evidence through its Bar Data-owned traversal port. A
 comparison Pane never becomes clock authority and no hidden chart is created.
 
+R6.10c3 activates explicit cross-Pane time location without restoring real-time
+Time sync. Pane Time Location Domain brands the exact source-candle market
+instant and purely plans a target result. Replay Workspace UI owns the
+right-click menu and serial target coordination; Lightweight Chart Adapter is
+the only native coordinate reader and Viewport writer. Missing target history
+uses bounded Workspace Transaction and Bar Data paths. Replay cursor/reveal,
+Pane configuration, source focus, and non-target Viewports remain unchanged;
+an instant without a containing target candle is unavailable and never snaps
+to an unrelated session. Date-range sync remains inactive.
+
 R6.9a keeps Pane OHLC and Crosshair synchronization on the chart-presentation
 side of that boundary. Each Lightweight Chart Adapter owns native crosshair
 subscription, accepted current/latest candle lookup, and the only calls to

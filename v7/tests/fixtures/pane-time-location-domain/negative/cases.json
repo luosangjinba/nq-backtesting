@@ -1,0 +1,12 @@
+[
+  { "name": "selection requires a safe epoch", "operation": "selectionEpoch", "expectedCode": "PANE_TIME_LOCATION_EPOCH_INVALID" },
+  { "name": "selection requires a Pane id", "operation": "selectionPane", "expectedCode": "PANE_TIME_LOCATION_SOURCE_INVALID" },
+  { "name": "selection rejects lookalikes", "operation": "selectionLookalike", "expectedCode": "PANE_TIME_LOCATION_SELECTION_REQUIRED" },
+  { "name": "command requires targets", "operation": "commandEmpty", "expectedCode": "PANE_TIME_LOCATION_TARGETS_INVALID" },
+  { "name": "command excludes source", "operation": "commandSource", "expectedCode": "PANE_TIME_LOCATION_TARGETS_INVALID" },
+  { "name": "command rejects duplicate targets", "operation": "commandDuplicate", "expectedCode": "PANE_TIME_LOCATION_TARGETS_INVALID" },
+  { "name": "command rejects lookalikes", "operation": "commandLookalike", "expectedCode": "PANE_TIME_LOCATION_COMMAND_REQUIRED" },
+  { "name": "projection requires an increasing range", "operation": "range", "expectedCode": "PANE_TIME_LOCATION_RANGE_INVALID" },
+  { "name": "projection requires a positive duration", "operation": "duration", "expectedCode": "PANE_TIME_LOCATION_DURATION_INVALID" },
+  { "name": "projection requires a strict timeline", "operation": "timeline", "expectedCode": "PANE_TIME_LOCATION_TIMELINE_INVALID" }
+]
