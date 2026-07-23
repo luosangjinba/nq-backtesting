@@ -1441,12 +1441,13 @@ re-entry before starting R6.10d Date-range synchronization.
   accessibility labels while hiding redundant P1 in single Pane;
 - [x] bind all layout placements, stable identity lookup, priority-preserving
   state reduction, real geometry, and updated visual baselines;
-- [ ] obtain explicit human interaction and visual acceptance before changing
+- [x] obtain explicit human interaction and visual acceptance before changing
   the separate R6.10c Time implementation.
 
-Next corrective slice after acceptance: decide and execute the isolated
-real-time Time-sync rollback, then specify right-click time location using the
-now-stable P1-P4 target identities. R6.10d remains deferred.
+Human interaction and visual review accepted on 2026-07-23. Next corrective
+slice: execute the isolated real-time Time-sync rollback, then specify
+right-click time location using the now-stable P1-P4 target identities. R6.10d
+remains deferred.
 
 ## Standing Gates
 

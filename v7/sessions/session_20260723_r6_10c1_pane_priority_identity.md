@@ -1,7 +1,7 @@
 # Session — R6.10c1 Stable Pane Priority Identity
 
 Date: 2026-07-23
-Status: executable; human interaction and visual review pending
+Status: human interaction and visual review accepted
 
 ## Delivered
 
@@ -31,5 +31,6 @@ visual fixtures, but it does not require reverting stable Pane identity.
 
 ## Next Boundary
 
-Stop for human review. After acceptance, decide the Time rollback and specify
-the right-click target-Pane location interaction against P1-P4.
+Human acceptance was recorded on 2026-07-23. Execute the isolated real-time
+Time rollback next, then specify right-click target-Pane location against the
+accepted P1-P4 identities.

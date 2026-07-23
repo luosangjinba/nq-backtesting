@@ -1,6 +1,6 @@
 # V7 Pane Priority Identity — R6.10c1
 
-Status: executable; human interaction and visual review pending (2026-07-23)
+Status: human interaction and visual review accepted (2026-07-23)
 
 ## Product Decision
 
@@ -86,6 +86,6 @@ required.
 - updated visual fixtures expose the compact identity labels only in
   multi-Pane layouts.
 
-Stop after the independent commit for human interaction and visual review.
-Only after acceptance should the separate real-time Time-sync rollback and
-right-click time-location target design proceed.
+Human interaction and visual review accepted the stable identities, spatial
+priority, and count-reduction behavior on 2026-07-23. The separate real-time
+Time-sync rollback and right-click time-location target design may now proceed.
