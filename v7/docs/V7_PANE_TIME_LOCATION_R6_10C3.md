@@ -26,6 +26,9 @@ market instant:
 - exact source selection requires a real plotted candle; future whitespace,
   axes, and inter-bar gaps do not open the V7 menu;
 - the target keeps its current logical span and centers the containing candle;
+- the accepted post-location range is immediately reported to the existing
+  history-boundary owner, so a newly exposed left edge can fill without a
+  follow-up mouse event;
 - if the selected instant predates loaded target history, Bar Data and
   Workspace Transaction owners load bounded older history before retrying;
 - if no target candle contains the instant, the command reports unavailable
@@ -82,8 +85,8 @@ Date-range synchronization remains absent and is still reserved for R6.10d.
   retry, partial unavailability, unchanged active source, and blank-space
   rejection;
 - real chart-adapter Chrome covers exact candle hit testing, future-whitespace
-  rejection, target centering, manual Viewport capture, and no mutation on
-  unavailable plans;
+  rejection, target centering, manual Viewport capture, immediate history-
+  boundary publication, and no mutation on unavailable plans;
 - real four-Pane Chrome covers P1-P4 labels, mixed NQ 1m / ES 4h targets,
   `All other panes`, unchanged Replay/Workspace revisions, and a dedicated
   context-menu visual;
@@ -102,8 +105,10 @@ Date-range synchronization remains absent and is still reserved for R6.10d.
    layout, symbol, timeframe, and ETH/RTH stay unchanged.
 5. Right-click future whitespace, an axis, and an inter-bar gap; confirm the V7
    menu does not open.
-6. Select an older source candle whose target history is not loaded. Confirm
-   bounded history loads without UI lockup and the exact market time is used.
+6. Select an older source candle whose target history is not loaded, or whose
+   centered target Viewport exposes blank space at the left. Without clicking,
+   dragging, or zooming afterward, confirm bounded history fills automatically
+   and the exact market time stays centered.
 7. Repeat in RTH across an overnight/weekend boundary. Confirm no target snaps
    to an unrelated RTH session when no containing candle exists.
 8. Confirm Escape, outside click, resize, layout change, or a pending Workspace

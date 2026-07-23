@@ -1273,7 +1273,8 @@
         "tests/lightweight-chart-adapter-browser-harness.js",
         "tests/replay-layout-workspace-browser-harness.js",
         "tests/fixtures/replay-workspace/layout-time-location-menu-1440x900.png",
-        "docs/V7_PANE_TIME_LOCATION_R6_10C3.md"
+        "docs/V7_PANE_TIME_LOCATION_R6_10C3.md",
+        "sessions/session_20260723_r6_10c3_location_history_correction.md"
       ],
       "negativeFixtures": [
         "tests/fixtures/pane-time-location-domain/negative/cases.json"

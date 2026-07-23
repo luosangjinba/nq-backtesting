@@ -285,8 +285,8 @@ try {
     'a market time outside target candles must not snap to another candle');
   assert.equal(timeLocation.historyRequired.status, 'history-required');
   assert.equal(timeLocation.unavailable.status, 'unavailable');
-  assert.equal(timeLocation.historyBoundaryCount, timeLocation.boundaryCount,
-    'programmatic time location must not masquerade as native left-boundary history drag');
+  assert.equal(timeLocation.historyBoundaryCount, timeLocation.boundaryCount + 1,
+    'programmatic time location must publish its new range for automatic left-history fill');
   assert.equal(timeLocation.viewportIntentCount, timeLocation.intentCount + 1,
     'one explicit located command publishes exactly one target Viewport intent');
 

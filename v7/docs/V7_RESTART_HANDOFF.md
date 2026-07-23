@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-23 after R6.10c3 explicit Pane time location became
-executable and entered human review
+Last updated: 2026-07-23 after the R6.10c3 post-location history-fill review
+correction became executable
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -33,7 +33,9 @@ required for normal startup.
   presentation human accepted; R6.10a versioned Session Layout Sync policy,
   R6.10b Symbol/Interval sync, R6.10c1 stable Pane priority, and R6.10c2
   real-time Time-sync rollback human accepted; R6.10c3 explicit right-click
-  Pane time location executable and awaiting human review; R2.4 Session Browser
+  Pane time location first review rejected because left history waited for a
+  mouse event; the owner-routed correction is executable and awaiting repeat
+  review; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -362,6 +364,11 @@ and human-accepted:
   exact source candle by canonical market time, targets stable P1-P4 identities,
   preserves target span, and uses bounded owner-routed history when required.
   It does not restore ordinary-click coupling or activate Date-range sync.
+  Its first human review found that a newly exposed left edge waited for a
+  later mouse event before history extension. The correction immediately
+  publishes the accepted programmatic range through the existing
+  history-boundary port; Workspace/Bar Data owners still decide and execute
+  the fill.
 
 Latest corrective commits:
 
@@ -489,8 +496,9 @@ R6.10c2 removes the rejected real-time ordinary-click Time projection while
 retaining the persisted field as inert compatibility data; human interaction
 and visual review accepted the rollback on 2026-07-23. R6.10c3 now implements
 explicit right-click market-time location using stable P1-P4 targets and is
-waiting at its human interaction/visual gate. Do not start R6.10d Date-range
-synchronization or Economic Calendar before that acceptance.
+waiting at a repeat human interaction/visual gate after correcting automatic
+post-location left-history fill. Do not start R6.10d Date-range synchronization
+or Economic Calendar before that acceptance.
 
 ## Standing Workflow
 

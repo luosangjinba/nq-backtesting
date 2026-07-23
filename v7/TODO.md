@@ -1464,6 +1464,11 @@ Interaction gate: review exact-candle selection, stable target labels,
 single-target and all-target location, missing-history behavior, blank-space
 rejection, RTH gaps, unchanged Replay/source focus, and menu dismissal.
 
+First human review on 2026-07-23 found that post-location left blank space did
+not request history until another mouse interaction. The adapter now publishes
+the accepted programmatic range to the existing history-boundary owner; repeat
+review must confirm extension starts without click, drag, or wheel input.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

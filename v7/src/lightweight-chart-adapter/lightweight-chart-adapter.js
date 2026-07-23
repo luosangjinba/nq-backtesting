@@ -172,6 +172,10 @@ export function createLightweightChartAdapter({
     host.dataset.lastLocatedDisplayEpochMs = String(plan.displayEpochMs);
     host.dataset.lastLocatedMarketEpochMs = String(plan.marketEpochMs);
     onViewportIntent(value);
+    // Programmatic location can expose unloaded history just like a native
+    // drag. Publish the accepted range through the same owner boundary so the
+    // caller can fill it without waiting for a later mouse event.
+    onHistoryBoundary(Object.freeze({ from: range.from, to: range.to }));
   }
 
   const paneTimeLocation = createPaneTimeLocationChartPort({
