@@ -1,6 +1,6 @@
 # V7 Layout Sync Symbol And Interval — R6.10b
 
-Status: executable interaction slice; human review pending (2026-07-22)
+Status: human accepted (2026-07-23)
 
 ## Product Behavior
 
@@ -71,5 +71,6 @@ that preserves V7's sole-writer and atomic-commit rules.
 - Full architecture, module-host, source-quality, Harness, and diff gates must
   pass before the bounded commit.
 
-R6.10b stops at the interaction gate. R6.10c may begin only after the reviewed
-menu semantics and synchronized Symbol/Interval behavior are accepted.
+The reviewed menu semantics and synchronized Symbol/Interval behavior were
+accepted on 2026-07-23. R6.10c may therefore activate Time as a presentation-
+only projection without changing the accepted Workspace transaction contract.

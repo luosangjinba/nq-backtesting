@@ -434,10 +434,10 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   configured workspaces to schema 5, and migrate the existing Crosshair switch
   to durable restoration without exposing inert future controls;
 - `R6.10b`: activate Symbol and Interval synchronization through one atomic
-  complete-Pane Workspace replacement; executable and awaiting human review
-  on 2026-07-22;
+  complete-Pane Workspace replacement; accepted on 2026-07-23;
 - `R6.10c`: activate Time synchronization through adapter-owned time-point
   projection without Replay or persisted chart-coordinate ownership;
+  executable and awaiting human review on 2026-07-23;
 - `R6.10d`: activate Date-range synchronization through bounded visible-range
   projection and the combined R6.10 human gate;
 - same pane model from one to many panes;

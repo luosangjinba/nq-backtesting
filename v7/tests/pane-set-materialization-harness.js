@@ -375,8 +375,13 @@ function rollbackProbeAdapter() {
   const commits = [];
   let failingPaneId = 'pane-es';
   const adapter = createLightweightPaneSetAdapter({
-    createPaneAdapter: ({ host }) => {
-      const state = { discards: 0, value: 'accepted' };
+    createPaneAdapter: ({ host, onTimePointClick }) => {
+      const state = {
+        discards: 0,
+        onTimePointClick,
+        timePointProjections: [],
+        value: 'accepted',
+      };
       children.set(host.paneId, state);
       return Object.freeze({
         async applyEmpty() { state.value = 'empty'; },
@@ -389,6 +394,10 @@ function rollbackProbeAdapter() {
         async discard() { state.discards += 1; state.value = 'accepted'; },
         dispose() {},
         projectCrosshair: () => Object.freeze({ bar: null, state: 'empty' }),
+        projectTimePoint(value) {
+          state.timePointProjections.push(value);
+          return Object.freeze({ ...value, viewportOrigin: 'manual' });
+        },
         applyWorkstationSettings(value) { state.workstationSettings = value; },
         setTruncationSelection() {},
         snapshot: () => Object.freeze({ value: state.value }),
@@ -443,6 +452,24 @@ await rollbackProbe.adapter.applyVisible({
   workspaceSnapshot: validSnapshot,
 });
 assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['candidate', 'candidate']);
+const [timeSource, timeTarget] = [...rollbackProbe.children.values()];
+const timeObservation = Object.freeze({ displayEpochMs: 1_500, positionRatio: 0.4 });
+timeSource.onTimePointClick(timeObservation);
+assert.equal(timeTarget.timePointProjections.length, 0, 'Time sync defaults off');
+rollbackProbe.adapter.setTimeSync(true);
+timeSource.onTimePointClick(timeObservation);
+assert.deepEqual(timeTarget.timePointProjections, [{
+  ...timeObservation,
+  sourcePaneId: 'pane-nq',
+}], 'an enabled Time policy projects one source click to every other visible Pane');
+assert.equal(timeSource.timePointProjections.length, 0, 'the source Pane keeps its native viewport');
+assert.equal(rollbackProbe.adapter.snapshot().timeSync, true);
+rollbackProbe.adapter.setTruncationSelection(true);
+timeSource.onTimePointClick(Object.freeze({ displayEpochMs: 2_000, positionRatio: 0.5 }));
+assert.equal(timeTarget.timePointProjections.length, 1,
+  'Replay truncation selection must suppress Time synchronization');
+rollbackProbe.adapter.setTruncationSelection(false);
+rollbackProbe.adapter.setTimeSync(false);
 await rollbackProbe.adapter.discard(successfulStage);
 assert.deepEqual([...rollbackProbe.children.values()].map(({ value }) => value), ['accepted', 'accepted'],
   'outer receipt rejection must roll back every successfully applied child');

@@ -15,6 +15,7 @@ export function createLayoutSyncController({ adapter, initialLayoutSync, persist
   function project(candidate) {
     const settings = readLayoutSync(candidate);
     adapter.setCrosshairSync(settings.crosshair);
+    adapter.setTimeSync(settings.time);
     view.setLayoutSync(candidate);
   }
 

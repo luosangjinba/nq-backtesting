@@ -1397,7 +1397,33 @@ atomic complete-Pane Workspace replacement, not per-Pane event fan-out.
 
 Interaction gate: review Symbol/Interval menu semantics, synchronized and
 Pane-local changes, mixed-Pane non-convergence on toggle alone, and Session
-re-entry before starting R6.10c Time synchronization.
+re-entry before starting R6.10c Time synchronization. Human accepted on
+2026-07-23.
+
+### R6.10c Time Layout Sync — Executable
+
+- [x] expose Time only after its real adapter consumer lands, retain the
+  reviewed off default, and avoid immediate convergence when it is enabled;
+- [x] interpret an ordinary chart click as one semantic display epoch plus its
+  horizontal position within the source Pane;
+- [x] project that epoch into every other visible Pane at the same horizontal
+  ratio while retaining each target Pane's own visible logical span;
+- [x] route every accepted target projection through Viewport `captureManual`
+  rather than Replay, Workspace, Bar Data, series, or persisted native chart-
+  coordinate ownership;
+- [x] retain mixed-symbol/mixed-TF behavior, including interpolation between
+  target bars and the latest completed calendar aggregate at an accepted
+  cursor;
+- [x] make missing loaded past a bounded no-op, suppress Time projection while
+  replay truncation selection is active, and require real pointer displacement
+  before treating a click sequence as a drag/history-load request;
+- [x] restore the accepted Time switch after Session re-entry and prove default-
+  off, enabled projection, source exclusion, Replay/Workspace immobility,
+  mixed-TF span retention, and visual menu behavior in focused Harnesses.
+
+Interaction gate: review ordinary click projection across same and mixed TFs,
+disabled behavior, truncation suppression, missing-history no-op, and Session
+re-entry before starting R6.10d Date-range synchronization.
 
 ## Standing Gates
 
