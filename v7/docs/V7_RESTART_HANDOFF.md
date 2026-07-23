@@ -25,10 +25,10 @@ required for normal startup.
   R6.9e1 future time-axis continuity and R6.9h Exact GoTo human accepted; R6.9f
   global Workstation Settings catalog and ownership contract plus R6.9g
   field-level product refinement completed headlessly; R6.9i global Settings
-  owner/persistence/shell with one Grid consumer human accepted; R6.9j Symbol
-  candle presentation and shared precision implemented and awaiting human
-  review; R2.4 Session Browser readability and confirmed durable delete human
-  accepted
+  owner/persistence/shell with one Grid consumer, R6.9j Symbol presentation,
+  and R6.9j1 maintainable color picker human accepted; R6.9k Status/current-
+  price controls implemented and awaiting human review; R2.4 Session Browser
+  readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
   `http://127.0.0.1:8007/v7/app/`
@@ -324,7 +324,13 @@ and human-accepted:
 - R6.9j activates independent Body/Border/Wick visibility and up/down colors plus
   Auto/manual shared price precision. Native series options never write data;
   each Pane derives Auto from its instrument increment and the OHLC readout uses
-  the same formatter. It awaits human interaction and visual review.
+  the same formatter. R6.9j and its R6.9j1 color-picker refinement were accepted
+  on 2026-07-22.
+- R6.9k advances global Settings to schema version 4 and activates independent
+  OHLC/change/Volume plus current-price Name/Value/Line controls. A bounded
+  adapter primitive covers name-only price-axis presentation; compact symbol
+  labels come from explicit Instrument metadata. It awaits human interaction
+  and visual review.
 
 Latest corrective commits:
 
@@ -445,13 +451,13 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9i Workstation Settings foundation was accepted on 2026-07-22. R6.9j Symbol
-candle presentation and shared price precision are implemented and await human
-interaction and visual review. After acceptance, execute R6.9k: bounded
-Status-line and current-price visibility controls. R6.9l-m then add Canvas and
-shared time presentation before R6.10 sync. Economic Calendar remains outside
-this foundation phase. The outstanding R6.9c focused visual confirmation remains
-a separate gate.
+R6.9j Symbol presentation and R6.9j1 maintainable color picker were accepted on
+2026-07-22. R6.9k Status-line and current-price controls are implemented and
+await human interaction and visual review. After acceptance, execute R6.9l:
+solid Canvas background, shared rich Crosshair, scale text, Pane-control
+visibility, and owner-routed margins. R6.9m then adds shared time presentation
+before R6.10 sync. Economic Calendar remains outside this foundation phase. The
+outstanding R6.9c focused visual confirmation remains a separate gate.
 
 ## Standing Workflow
 

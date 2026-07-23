@@ -7,6 +7,11 @@ import { inflateSync } from 'node:zlib';
 import { fileURLToPath } from 'node:url';
 import { createStaticServer } from '../scripts/static-server.mjs';
 import { connectCdp, evaluate, waitFor } from './support/cdp-client.js';
+import { formatPaneVolume } from '../src/replay-workspace-ui/pane-overlay-view.js';
+
+assert.equal(formatPaneVolume(null), '—');
+assert.equal(formatPaneVolume(845), '845');
+assert.equal(formatPaneVolume(2_730), '2.73K');
 
 const TEST_DIR = path.dirname(fileURLToPath(import.meta.url));
 const REPOSITORY_ROOT = path.resolve(TEST_DIR, '../..');

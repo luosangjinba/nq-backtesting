@@ -137,6 +137,11 @@ export function createReplayWorkspaceController({
     },
     onTruncationSelect: handleTruncationSelect,
     onViewportIntent: (paneId, intent) => view.setWall(paneId, intent.origin),
+    resolveInstrumentLabel: (instrumentId) => {
+      const instrument = market.instrumentOptions.find(({ id }) => id === instrumentId);
+      if (!instrument) throw new TypeError(`Unknown instrument ${instrumentId}.`);
+      return instrument.label;
+    },
     resolvePriceIncrement: (instrumentId) => {
       const instrument = market.instruments.find(({ id }) => id === instrumentId);
       if (!instrument) throw new TypeError(`Unknown instrument ${instrumentId}.`);

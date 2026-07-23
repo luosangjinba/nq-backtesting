@@ -11,6 +11,10 @@ import { failLightweightAdapter } from './adapter-error.js';
 import { createCandleSeriesPresentation } from './candle-presentation.js';
 import { CANDLE_OPTIONS, CHART_OPTIONS } from './chart-options.js';
 import { createCrosshairPresentationIndex } from './crosshair-presentation.js';
+import {
+  createCurrentPriceNamePrimitive,
+  createCurrentPriceSeriesPresentation,
+} from './current-price-presentation.js';
 import { createFutureTimeAxisData } from './future-time-axis.js';
 import { planVisibleLogicalRange } from './logical-range-plan.js';
 import { requirePaintedCandles, requireTailUpdatePaint } from './paint-gate.js';
@@ -66,6 +70,8 @@ export function createLightweightChartAdapter({
   const viewport = requirePort(viewportPort);
   const chart = createChart(host, CHART_OPTIONS);
   const series = chart.addSeries(CandlestickSeries, CANDLE_OPTIONS);
+  const currentPriceName = createCurrentPriceNamePrimitive();
+  series.attachPrimitive(currentPriceName.primitive);
   const futureTimeAxisSeries = chart.addSeries(LineSeries, Object.freeze({
     crosshairMarkerVisible: false,
     lastValueVisible: false,
@@ -90,12 +96,21 @@ export function createLightweightChartAdapter({
   let pointerWithinHost = false;
   let seriesDataRevision = 0;
   let maximumAppliedDisplayGapMs = 0;
+  let presentationInstrumentLabel = '';
   let presentationPriceIncrement = '0.01';
   let presentationSettings = createWorkstationSettings();
   let visibleMutationToken = 0;
   const stagedApplications = new WeakMap();
   const onSeriesDataChanged = () => { seriesDataRevision += 1; };
   series.subscribeDataChanged(onSeriesDataChanged);
+
+  function syncCurrentPrice(data = appliedData) {
+    currentPriceName.update({
+      bar: data.at(-1) ?? null,
+      instrumentLabel: presentationInstrumentLabel,
+      settings: presentationSettings,
+    });
+  }
 
   function recordCrosshairObservation(value, origin) {
     host.dataset.crosshairDisplayEpochMs = value.displayEpochMs === null
@@ -210,8 +225,13 @@ export function createLightweightChartAdapter({
     barCount = restored.barCount;
     maximumAppliedDisplayGapMs = restored.maximumDisplayGapMs;
     if (record.presentationMutated) {
-      applyWorkstationSettings(record.previousSettings, record.previousPriceIncrement);
+      applyWorkstationSettings(
+        record.previousSettings,
+        record.previousPriceIncrement,
+        record.previousInstrumentLabel,
+      );
     }
+    syncCurrentPrice();
     truncationInteraction.setBars(appliedBars);
     crosshairPresentation.setBars(appliedBars);
     await requireTailUpdatePaint({ changed: () => seriesDataRevision > dataRevisionBefore, requestFrame });
@@ -226,6 +246,7 @@ export function createLightweightChartAdapter({
     futureTimeAxisSeries.setData(futureTimeAxisData);
     if (mutation.kind === 'tail-update') series.update({ ...mutation.bar });
     else series.setData(data);
+    syncCurrentPrice(data);
     const mutationEndedAt = performance.now();
     barCount = data.length;
     applyViewport();
@@ -323,14 +344,20 @@ export function createLightweightChartAdapter({
     }
     record.previous = captureVisibleState();
     record.previousPriceIncrement = presentationPriceIncrement;
+    record.previousInstrumentLabel = presentationInstrumentLabel;
     record.previousSettings = presentationSettings;
     record.token = ++visibleMutationToken;
     record.mutated = true;
     try {
       record.presentationMutated = context.staged.priceIncrement !== null
-        && context.staged.priceIncrement !== presentationPriceIncrement;
+        && (context.staged.priceIncrement !== presentationPriceIncrement
+          || context.staged.instrumentLabel !== presentationInstrumentLabel);
       if (record.presentationMutated) {
-        applyWorkstationSettings(presentationSettings, context.staged.priceIncrement);
+        applyWorkstationSettings(
+          presentationSettings,
+          context.staged.priceIncrement,
+          context.staged.instrumentLabel,
+        );
       }
       const timing = await mutateAndPaint(
         context.staged.data,
@@ -348,7 +375,11 @@ export function createLightweightChartAdapter({
     }
   }
 
-  function applyWorkstationSettings(settings, priceIncrement = presentationPriceIncrement) {
+  function applyWorkstationSettings(
+    settings,
+    priceIncrement = presentationPriceIncrement,
+    instrumentLabel = presentationInstrumentLabel,
+  ) {
     if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
     const value = readWorkstationSettings(settings);
     const previousSettings = presentationSettings;
@@ -360,7 +391,12 @@ export function createLightweightChartAdapter({
           vertLines: { visible: value.canvas.gridVisible },
         },
       });
-      series.applyOptions(createCandleSeriesPresentation(settings, priceIncrement));
+      const { customNameOnlyVisible: _customNameOnlyVisible, ...currentPriceOptions }
+        = createCurrentPriceSeriesPresentation(settings, instrumentLabel);
+      series.applyOptions({
+        ...createCandleSeriesPresentation(settings, priceIncrement),
+        ...currentPriceOptions,
+      });
     } catch (error) {
       try {
         const previous = readWorkstationSettings(previousSettings);
@@ -370,16 +406,27 @@ export function createLightweightChartAdapter({
             vertLines: { visible: previous.canvas.gridVisible },
           },
         });
-        series.applyOptions(createCandleSeriesPresentation(previousSettings, previousIncrement));
+        const { customNameOnlyVisible: _customNameOnlyVisible, ...previousCurrentPriceOptions }
+          = createCurrentPriceSeriesPresentation(previousSettings, presentationInstrumentLabel);
+        series.applyOptions({
+          ...createCandleSeriesPresentation(previousSettings, previousIncrement),
+          ...previousCurrentPriceOptions,
+        });
+        syncCurrentPrice();
       } catch { /* Preserve the first native option failure. */ }
       throw error;
     }
     presentationSettings = settings;
     presentationPriceIncrement = priceIncrement;
+    presentationInstrumentLabel = instrumentLabel;
+    syncCurrentPrice();
     host.dataset.bodyVisible = String(value.candles.bodyVisible);
     host.dataset.bordersVisible = String(value.candles.bordersVisible);
     host.dataset.gridVisible = String(value.canvas.gridVisible);
     host.dataset.pricePrecision = String(value.candles.pricePrecision);
+    host.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
+    host.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
+    host.dataset.currentPriceValueVisible = String(value.currentPrice.valueVisible);
     host.dataset.wicksVisible = String(value.candles.wicksVisible);
   }
 
@@ -406,6 +453,7 @@ export function createLightweightChartAdapter({
       series.unsubscribeDataChanged(onSeriesDataChanged);
       chart.unsubscribeCrosshairMove(onChartCrosshairMove);
       truncationInteraction.dispose();
+      series.detachPrimitive(currentPriceName.primitive);
       chart.remove();
     },
     resetView(latestOffsetBars) {
@@ -463,6 +511,7 @@ export function createLightweightChartAdapter({
           borderUpColor: seriesOptions.borderUpColor,
           borderVisible: seriesOptions.borderVisible,
           downColor: seriesOptions.downColor,
+          currentPriceNameOnly: currentPriceName.snapshot(),
           lastValueVisible: seriesOptions.lastValueVisible,
           priceFormat: Object.freeze({
             minMove: seriesOptions.priceFormat.minMove,
@@ -471,6 +520,7 @@ export function createLightweightChartAdapter({
           }),
           priceLineColor: seriesOptions.priceLineColor,
           priceLineVisible: seriesOptions.priceLineVisible,
+          title: seriesOptions.title,
           upColor: seriesOptions.upColor,
           wickDownColor: seriesOptions.wickDownColor,
           wickUpColor: seriesOptions.wickUpColor,
@@ -480,7 +530,13 @@ export function createLightweightChartAdapter({
         viewportIntent: viewport.snapshot(),
       });
     },
-    async stage({ identity, priceIncrement = presentationPriceIncrement, signal, workspaceSnapshot }) {
+    async stage({
+      identity,
+      instrumentLabel = presentationInstrumentLabel,
+      priceIncrement = presentationPriceIncrement,
+      signal,
+      workspaceSnapshot,
+    }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       const data = chartData(workspaceSnapshot);
       return registerStage({
@@ -490,18 +546,25 @@ export function createLightweightChartAdapter({
           latestDisplayEpochMs: data.at(-1).time * 1_000,
         }),
         identity,
+        instrumentLabel,
         kind: 'ready',
         priceIncrement,
         signal,
         workspaceSnapshot,
       });
     },
-    async stageEmpty({ identity, priceIncrement = presentationPriceIncrement, signal }) {
+    async stageEmpty({
+      identity,
+      instrumentLabel = presentationInstrumentLabel,
+      priceIncrement = presentationPriceIncrement,
+      signal,
+    }) {
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Chart adapter is disposed.');
       return registerStage({
         data: Object.freeze([]),
         futureTimeAxisData: Object.freeze([]),
         identity,
+        instrumentLabel,
         kind: 'empty',
         priceIncrement,
         signal,

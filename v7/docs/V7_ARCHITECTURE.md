@@ -525,6 +525,18 @@ color choice, Escape, backdrop dismissal, and rejected Saves have no history
 side effects. Color-history persistence failure cannot roll back an already
 accepted Settings transaction.
 
+R6.9k advances the Settings value to version 4 with `paneReadout` and
+`currentPrice` presentation families. The Pane overlay owns OHLC, bar-change,
+and nullable Volume visibility while symbol and timeframe provenance remain
+mandatory. The chart adapter owns current-price Name, Value, and Line. Native
+series title/value/line options cover the six combinations where Name is off or
+Value is on; one adapter-owned series primitive covers both name-only/no-value
+combinations without creating a second series-data writer. Foundation metadata
+supplies the compact instrument
+label through an explicit Pane-set resolver, so the adapter never parses opaque
+Instrument ids. All fields remain one global presentation transaction and
+cannot move Replay, Workspace, Pane, Viewport, bars, or series-data revisions.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

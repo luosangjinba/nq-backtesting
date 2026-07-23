@@ -34,6 +34,20 @@ function formatPercent(value) {
   return `(${number > 0 ? '+' : ''}${number.toFixed(2)}%)`;
 }
 
+/** Format one optional source-volume value for the compact Pane status line. */
+export function formatPaneVolume(value) {
+  if (!Number.isFinite(value)) return '—';
+  const number = Number(value);
+  const units = [
+    { divisor: 1_000_000_000, suffix: 'B' },
+    { divisor: 1_000_000, suffix: 'M' },
+    { divisor: 1_000, suffix: 'K' },
+  ];
+  const unit = units.find(({ divisor }) => Math.abs(number) >= divisor);
+  if (!unit) return String(number);
+  return `${(number / unit.divisor).toFixed(2).replace(/\.?0+$/, '')}${unit.suffix}`;
+}
+
 export function formatPaneTimeframeLabel(label) {
   const value = String(label ?? '—');
   return /^\d+m$/.test(value) ? value.slice(0, -1) : value;
@@ -64,6 +78,11 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
   const changePercent = element('span', { className: 'pane-change-percent', text: '(--%)' });
   const change = element('span', { className: 'pane-change' }, [changeValue, changePercent]);
   change.dataset.direction = 'empty';
+  const volumeValue = element('span', { className: 'pane-volume-value', text: '—' });
+  const volume = element('span', { className: 'pane-volume' }, [
+    element('span', { className: 'pane-volume-label', text: 'Vol ' }), volumeValue,
+  ]);
+  volume.hidden = true;
 
   const maximize = iconButton({
     ariaLabel: `Maximize ${paneId} chart`, className: 'pane-maximize', icon: MAXIMIZE_ICON,
@@ -78,6 +97,7 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
       element('span', { className: 'pane-identity' }, [symbol, timeframe]),
       ohlc,
       change,
+      volume,
     ]),
   ]);
   const root = element('div', { className: 'pane-overlay-layer' }, [header, controls]);
@@ -104,6 +124,7 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
       : changeObservation.value > 0 ? 'up' : changeObservation.value < 0 ? 'down' : 'flat';
     changeValue.textContent = pricePresentation.formatSigned(changeObservation?.value);
     changePercent.textContent = formatPercent(changeObservation?.percent);
+    volumeValue.textContent = formatPaneVolume(bar?.volume);
   }
 
   maximize.addEventListener('click', (event) => {
@@ -141,6 +162,19 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
       }
       pricePresentation = value;
       renderOhlc();
+    },
+    setReadoutPresentation(value) {
+      if (!value || typeof value.ohlcVisible !== 'boolean'
+        || typeof value.changeVisible !== 'boolean'
+        || typeof value.volumeVisible !== 'boolean') {
+        throw new TypeError('Pane readout presentation requires three visibility values.');
+      }
+      ohlc.hidden = !value.ohlcVisible;
+      change.hidden = !value.changeVisible;
+      volume.hidden = !value.volumeVisible;
+      root.dataset.changeVisible = String(value.changeVisible);
+      root.dataset.ohlcVisible = String(value.ohlcVisible);
+      root.dataset.volumeVisible = String(value.volumeVisible);
     },
   });
 }

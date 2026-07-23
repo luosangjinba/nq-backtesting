@@ -5,9 +5,10 @@ import {
 
 const SETTINGS = new WeakSet();
 const SCHEMA = 'v7.workstation-settings';
-const VERSION = 3;
+const VERSION = 4;
 const CANVAS_ONLY_VERSION = 1;
 const OPAQUE_CANDLE_VERSION = 2;
+const ALPHA_CANDLE_VERSION = 3;
 
 export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
   candles: Object.freeze({
@@ -23,6 +24,16 @@ export const DEFAULT_WORKSTATION_SETTINGS = Object.freeze({
     wicksVisible: true,
   }),
   canvas: Object.freeze({ gridVisible: true }),
+  currentPrice: Object.freeze({
+    lineVisible: true,
+    nameVisible: true,
+    valueVisible: true,
+  }),
+  paneReadout: Object.freeze({
+    changeVisible: true,
+    ohlcVisible: true,
+    volumeVisible: false,
+  }),
 });
 
 export class WorkstationSettingsError extends Error {
@@ -64,6 +75,11 @@ function visibility(value, field) {
   return value;
 }
 
+function booleanField(value, code, message) {
+  if (typeof value !== 'boolean') failWorkstationSettings(code, message);
+  return value;
+}
+
 function precision(value) {
   if (value !== 'auto' && (!Number.isSafeInteger(value) || value < 0 || value > 15)) {
     failWorkstationSettings(
@@ -89,9 +105,9 @@ class WorkstationSettingsValue {
 export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) {
   exactObject(
     value,
-    ['candles', 'canvas'],
+    ['candles', 'canvas', 'currentPrice', 'paneReadout'],
     'WORKSTATION_SETTINGS_FIELDS_INVALID',
-    'Workstation Settings require exact candles and canvas values.',
+    'Workstation Settings require exact candles, canvas, current-price, and readout values.',
   );
   exactObject(
     value.canvas,
@@ -127,9 +143,57 @@ export function createWorkstationSettings(value = DEFAULT_WORKSTATION_SETTINGS) 
     upWickColor: color(value.candles.upWickColor, 'upWickColor'),
     wicksVisible: visibility(value.candles.wicksVisible, 'wicksVisible'),
   });
+  exactObject(
+    value.currentPrice,
+    ['lineVisible', 'nameVisible', 'valueVisible'],
+    'WORKSTATION_SETTINGS_CURRENT_PRICE_FIELDS_INVALID',
+    'Current-price Settings fields are invalid.',
+  );
+  const currentPrice = Object.freeze({
+    lineVisible: booleanField(
+      value.currentPrice.lineVisible,
+      'WORKSTATION_SETTINGS_CURRENT_PRICE_VISIBILITY_INVALID',
+      'Current-price lineVisible must be boolean.',
+    ),
+    nameVisible: booleanField(
+      value.currentPrice.nameVisible,
+      'WORKSTATION_SETTINGS_CURRENT_PRICE_VISIBILITY_INVALID',
+      'Current-price nameVisible must be boolean.',
+    ),
+    valueVisible: booleanField(
+      value.currentPrice.valueVisible,
+      'WORKSTATION_SETTINGS_CURRENT_PRICE_VISIBILITY_INVALID',
+      'Current-price valueVisible must be boolean.',
+    ),
+  });
+  exactObject(
+    value.paneReadout,
+    ['changeVisible', 'ohlcVisible', 'volumeVisible'],
+    'WORKSTATION_SETTINGS_PANE_READOUT_FIELDS_INVALID',
+    'Pane readout Settings fields are invalid.',
+  );
+  const paneReadout = Object.freeze({
+    changeVisible: booleanField(
+      value.paneReadout.changeVisible,
+      'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+      'Pane readout changeVisible must be boolean.',
+    ),
+    ohlcVisible: booleanField(
+      value.paneReadout.ohlcVisible,
+      'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+      'Pane readout ohlcVisible must be boolean.',
+    ),
+    volumeVisible: booleanField(
+      value.paneReadout.volumeVisible,
+      'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+      'Pane readout volumeVisible must be boolean.',
+    ),
+  });
   const settings = new WorkstationSettingsValue(Object.freeze({
     candles,
     canvas: Object.freeze({ gridVisible: value.canvas.gridVisible }),
+    currentPrice,
+    paneReadout,
   }));
   SETTINGS.add(settings);
   return settings;
@@ -175,6 +239,8 @@ function migrateCanvasOnlyValue(value) {
   return createWorkstationSettings({
     candles: DEFAULT_WORKSTATION_SETTINGS.candles,
     canvas: { gridVisible: value.canvas.gridVisible },
+    currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
+    paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
   });
 }
 
@@ -194,10 +260,23 @@ function migrateOpaqueCandleValue(value) {
     }
     candles[field] = migrated;
   }
-  return createWorkstationSettings({ ...value, candles });
+  return createWorkstationSettings({
+    ...value,
+    candles,
+    currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
+    paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
+  });
 }
 
-/** Restore the current wire or deterministically migrate the accepted R6.9i shape. */
+function migrateAlphaCandleValue(value) {
+  return createWorkstationSettings({
+    ...value,
+    currentPrice: DEFAULT_WORKSTATION_SETTINGS.currentPrice,
+    paneReadout: DEFAULT_WORKSTATION_SETTINGS.paneReadout,
+  });
+}
+
+/** Restore the current wire or deterministically migrate every accepted prior shape. */
 export function deserializeWorkstationSettings(wire) {
   exactObject(
     wire,
@@ -213,6 +292,7 @@ export function deserializeWorkstationSettings(wire) {
   }
   if (wire.version === CANVAS_ONLY_VERSION) return migrateCanvasOnlyValue(wire.value);
   if (wire.version === OPAQUE_CANDLE_VERSION) return migrateOpaqueCandleValue(wire.value);
+  if (wire.version === ALPHA_CANDLE_VERSION) return migrateAlphaCandleValue(wire.value);
   if (wire.version !== VERSION) {
     failWorkstationSettings(
       'WORKSTATION_SETTINGS_VERSION_INVALID',

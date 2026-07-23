@@ -1233,7 +1233,7 @@ presentation.
   rollback, native chart mapping, and the dialog visual in focused Harnesses;
 - [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-### R6.9j Symbol Candles And Shared Precision — Awaiting Human Review
+### R6.9j Symbol Candles And Shared Precision — Accepted
 
 - [x] migrate accepted R6.9i version-1 records without losing Grid preference;
 - [x] activate independent Body/Border/Wick visibility and up/down colors;
@@ -1248,9 +1248,9 @@ presentation.
   bar-count, series-data, or chart-visible receipt revisions;
 - [x] bind strict value/migration/formatter, native chart mapping, all-Pane
   inheritance, and the Symbol dialog visual in focused Harnesses;
-- [ ] obtain explicit human interaction and visual acceptance.
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
 
-### R6.9j1 Maintainable Color Picker — Awaiting Human Review
+### R6.9j1 Maintainable Color Picker — Accepted
 
 - [x] replace browser-native color inputs with a V7-owned fixed palette,
   opacity control, recent-color row, and optional precise editor;
@@ -1266,6 +1266,28 @@ presentation.
   Viewport, Pane, series-data, or bar-count mutation;
 - [x] bind migration/value/history contracts, real chart mapping, cross-Session
   restore, popup interaction, Cancel isolation, and a dedicated visual fixture;
+- [x] obtain explicit human interaction and visual acceptance on 2026-07-22.
+
+### R6.9k Status Readout And Current Price — Awaiting Human Review
+
+- [x] migrate accepted version-3 records to schema version 4 while preserving
+  every candle, precision, and Grid preference;
+- [x] activate independent OHLC, bar-change, and Volume visibility while
+  keeping compact symbol and TF provenance permanently visible;
+- [x] render explicit unknown Volume as `Vol —` and format finite source Volume
+  compactly without inventing zero;
+- [x] activate independent current-price Symbol name, Price value, and Price
+  line controls with defaults on;
+- [x] route compact instrument labels explicitly from foundation metadata
+  without parsing opaque Instrument ids inside the chart adapter;
+- [x] prove all eight Name/Value/Line combinations against real Lightweight
+  Charts 5.2, including bounded name-only price-axis presentation;
+- [x] apply one global revision to all current/future Panes and restore it after
+  hard reload and across Sessions;
+- [x] prove Settings do not move Replay, Workspace, Pane, Viewport, series-data,
+  bar-count, or chart-visible receipt revisions;
+- [x] bind strict value/migration, nullable Volume, native/custom price-axis,
+  all-Pane inheritance, and both active-tab visuals in focused Harnesses;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 ## Standing Gates

@@ -397,6 +397,7 @@ function rollbackProbeAdapter() {
       });
     },
     requestFrame: (callback) => callback(),
+    resolveInstrumentLabel: () => 'NQ',
     resolvePriceIncrement: () => '0.25',
     resolveViewportPort: () => Object.freeze({}),
     surfacePort: Object.freeze({
@@ -563,6 +564,15 @@ const negative = {
       }),
     ]),
   })),
+  'chart-instrument-label-port-missing': () => createLightweightPaneSetAdapter({
+    requestFrame: (callback) => callback(),
+    resolvePriceIncrement: () => '0.25',
+    resolveViewportPort: () => Object.freeze({}),
+    surfacePort: Object.freeze({
+      commitPaneSet() {},
+      preparePane: (paneId) => Object.freeze({ paneId }),
+    }),
+  }).stage({ identity: directIdentity, signal: directSignal, workspaceSnapshot: validSnapshot }),
   'chart-target-mismatch': async () => {
     const exactPlan = responsePlan(2_000, createReplayPaneAction({ kind: 'goto-exact', targetEpochMs: 4_000 }));
     const exactInput = transactionInput(exactPlan, 'exact-mismatch');
@@ -578,7 +588,7 @@ const negative = {
   },
 };
 
-assert.equal(negativeCases.length, 22);
+assert.equal(negativeCases.length, 23);
 for (const fixtureCase of negativeCases) {
   assert.equal(typeof negative[fixtureCase.case], 'function', `missing negative control ${fixtureCase.case}`);
   await assert.rejects(

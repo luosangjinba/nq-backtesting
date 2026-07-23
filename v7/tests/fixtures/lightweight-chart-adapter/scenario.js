@@ -44,7 +44,11 @@ const bars = Object.freeze(Array.from({ length: 20 }, (_, index) => {
 const snapshot = Object.freeze({
   bars,
   paneId: 'adapter-pane',
-  provenance: Object.freeze({ cursorProposal: proposal, displayTimeframeDurationMs: 60_000 }),
+  provenance: Object.freeze({
+    cursorProposal: proposal,
+    displayTimeframeDurationMs: 60_000,
+    instrumentId: 'NQ',
+  }),
   schemaVersion: 1,
 });
 const viewport = createViewportController({
@@ -71,8 +75,14 @@ globalThis.__applySettings = (overrides = {}) => {
   const settings = createWorkstationSettings({
     candles: { ...defaults.candles, ...(overrides.candles ?? {}) },
     canvas: { gridVisible: overrides.gridVisible ?? defaults.canvas.gridVisible },
+    currentPrice: { ...defaults.currentPrice, ...(overrides.currentPrice ?? {}) },
+    paneReadout: { ...defaults.paneReadout, ...(overrides.paneReadout ?? {}) },
   });
-  adapter.applyWorkstationSettings(settings, overrides.priceIncrement ?? '0.25');
+  adapter.applyWorkstationSettings(
+    settings,
+    overrides.priceIncrement ?? '0.25',
+    overrides.instrumentId ?? 'NQ',
+  );
 };
 globalThis.__crosshairObservations = crosshairObservations;
 globalThis.__truncationSelections = truncationSelections;

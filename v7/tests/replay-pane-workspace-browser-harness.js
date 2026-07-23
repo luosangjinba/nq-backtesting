@@ -19,6 +19,12 @@ const exactGotoVisualFile = path.join(
 const workstationSettingsVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/workstation-settings-dialog.png',
 );
+const workstationStatusVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/workstation-settings-status-dialog.png',
+);
+const workstationCurrentPriceVisualFile = path.join(
+  TEST_DIR, 'fixtures/replay-workspace/workstation-settings-current-price-dialog.png',
+);
 const colorPickerVisualFile = path.join(
   TEST_DIR, 'fixtures/replay-workspace/color-picker.png',
 );
@@ -251,6 +257,25 @@ try {
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === true`);
   assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.workstation-settings-tab')]
     .map((tab) => tab.textContent)`), ['Symbol', 'Status line', 'Scales and lines', 'Canvas']);
+  await evaluate(cdp, `document.querySelector('[data-settings-tab="status"]').click()`);
+  assert.deepEqual(await evaluate(cdp, `Object.fromEntries(
+    ['ohlcVisible', 'changeVisible', 'volumeVisible'].map((name) => [
+      name, document.querySelector('[name="' + name + '"]').checked,
+    ])
+  )`), { changeVisible: true, ohlcVisible: true, volumeVisible: false });
+  await capture(cdp, workstationStatusVisualFile, '.workstation-settings-dialog');
+  await evaluate(cdp, `document.querySelector('[data-settings-tab="scales"]').click()`);
+  assert.deepEqual(await evaluate(cdp, `Object.fromEntries(
+    ['currentPriceNameVisible', 'currentPriceValueVisible', 'currentPriceLineVisible'].map((name) => [
+      name, document.querySelector('[name="' + name + '"]').checked,
+    ])
+  )`), {
+    currentPriceLineVisible: true,
+    currentPriceNameVisible: true,
+    currentPriceValueVisible: true,
+  });
+  await capture(cdp, workstationCurrentPriceVisualFile, '.workstation-settings-dialog');
+  await evaluate(cdp, `document.querySelector('[data-settings-tab="symbol"]').click()`);
   assert.equal(await evaluate(cdp,
     `document.querySelector('[name="gridVisible"]').checked`), true);
   assert.equal(await evaluate(cdp,
@@ -592,12 +617,8 @@ try {
   const truncationPoint = await evaluate(cdp, `(() => {
     const host = document.querySelector('[data-pane-id="pane-main"] .lightweight-chart-host');
     const bounds = host.getBoundingClientRect();
-    const from = Number(host.dataset.logicalFrom);
-    const to = Number(host.dataset.logicalTo);
-    const barCount = Number(host.dataset.barCount);
-    const plotWidth = bounds.width - 70;
     return {
-      x: bounds.left + (((barCount - 3) - from) / (to - from)) * plotWidth,
+      x: bounds.left + bounds.width * 0.65,
       y: bounds.top + bounds.height / 2,
     };
   })()`);
@@ -705,6 +726,10 @@ try {
     downWick.value = '#ff7185cc';
     downWick.dispatchEvent(new Event('input', { bubbles: true }));
     document.querySelector('[name="pricePrecision"]').value = '1';
+    document.querySelector('[name="ohlcVisible"]').click();
+    document.querySelector('[name="changeVisible"]').click();
+    document.querySelector('[name="volumeVisible"]').click();
+    document.querySelector('[name="currentPriceValueVisible"]').click();
     document.querySelector('.workstation-settings-save').click();
   })()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
@@ -724,15 +749,31 @@ try {
   'the committed Grid value must apply to every mounted Pane');
   assert.deepEqual(await evaluate(cdp, `(() => {
     const host = document.querySelector('.lightweight-chart-host');
+    const pane = document.querySelector('.workspace-pane');
     return {
       bodyVisible: host.dataset.bodyVisible,
       bordersVisible: host.dataset.bordersVisible,
+      changeHidden: pane.querySelector('.pane-change').hidden,
+      currentPriceLineVisible: host.dataset.currentPriceLineVisible,
+      currentPriceNameVisible: host.dataset.currentPriceNameVisible,
+      currentPriceValueVisible: host.dataset.currentPriceValueVisible,
+      ohlcHidden: pane.querySelector('.pane-ohlc').hidden,
       pricePrecision: host.dataset.pricePrecision,
-      readoutMatches: /^-?\\d+\\.\\d$/.test(document.querySelector('.pane-ohlc-value').textContent),
+      volumeHidden: pane.querySelector('.pane-volume').hidden,
+      volumeText: pane.querySelector('.pane-volume').textContent,
     };
   })()`), {
-    bodyVisible: 'false', bordersVisible: 'true', pricePrecision: '1', readoutMatches: true,
-  }, 'Symbol settings must apply without moving Replay and share precision with the OHLC readout');
+    bodyVisible: 'false',
+    bordersVisible: 'true',
+    changeHidden: true,
+    currentPriceLineVisible: 'true',
+    currentPriceNameVisible: 'true',
+    currentPriceValueVisible: 'false',
+    ohlcHidden: true,
+    pricePrecision: '1',
+    volumeHidden: false,
+    volumeText: 'Vol 845',
+  }, 'Symbol, readout, and name-only current-price settings must apply without moving Replay');
   await cdp.send('Page.reload', { ignoreCache: true });
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.viewState === 'ready'
     && document.querySelector('.replay-workspace')?.dataset.paneCount === '1'`, 10_000);
@@ -751,6 +792,18 @@ try {
   assert.equal(await evaluate(cdp,
     `document.querySelector('.lightweight-chart-host').dataset.pricePrecision`), '1',
   'hard Session re-entry must restore Symbol precision before ready paint');
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const root = document.querySelector('.replay-workspace');
+    return {
+      changeVisible: root.dataset.changeVisible,
+      currentPriceValueVisible: root.dataset.currentPriceValueVisible,
+      ohlcVisible: root.dataset.ohlcVisible,
+      volumeVisible: root.dataset.volumeVisible,
+    };
+  })()`), {
+    changeVisible: 'false', currentPriceValueVisible: 'false',
+    ohlcVisible: 'false', volumeVisible: 'true',
+  }, 'hard Session re-entry must restore Status/current-price settings');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);
   await waitFor(cdp, `document.querySelector('#app')?.dataset.screen === 'list'`);
@@ -780,6 +833,9 @@ try {
   assert.equal(await evaluate(cdp,
     `document.querySelector('.lightweight-chart-host').dataset.gridVisible`), 'false',
   'a newly created Session must inherit the global Grid preference');
+  assert.equal(await evaluate(cdp,
+    `document.querySelector('.pane-volume').hidden`), false,
+  'a newly created Session must inherit the global Volume readout preference');
   await evaluate(cdp, `document.querySelector('[data-layout-id="layout.two-columns"]').click()`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
@@ -791,6 +847,18 @@ try {
     `[...document.querySelectorAll('.lightweight-chart-host')]
       .every((host) => host.dataset.bodyVisible === 'false' && host.dataset.pricePrecision === '1')`), true,
   'future Panes must inherit the committed Symbol presentation before ready paint');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.currentPriceNameVisible === 'true'
+        && host.dataset.currentPriceValueVisible === 'false'
+        && host.dataset.currentPriceLineVisible === 'true')`), true,
+  'future Panes must inherit the independent current-price combination before ready paint');
+  assert.equal(await evaluate(cdp,
+    `[...document.querySelectorAll('.workspace-pane')]
+      .every((pane) => pane.querySelector('.pane-ohlc').hidden
+        && pane.querySelector('.pane-change').hidden
+        && !pane.querySelector('.pane-volume').hidden)`), true,
+  'future Panes must inherit the Status readout combination');
   await evaluate(cdp, `(() => {
     document.querySelector('.workstation-settings-open').click();
     document.querySelector('.workstation-color-picker-button').click();
@@ -821,15 +889,27 @@ try {
       dayOpen: preference.replayNavigationSettings.anchors.dayOpen,
       gridVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.canvas.gridVisible,
+      currentPriceValueVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.currentPrice.valueVisible,
       pricePrecision: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
         .settings.value.candles.pricePrecision,
+      settingsVersion: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.version,
       sessionOwnsSettings: sessionRecords.some((record) => (
         Object.hasOwn(record.workspace, 'replayNavigationSettings')
       )),
+      volumeVisible: JSON.parse(localStorage.getItem('v7.workstation-settings:global'))
+        .settings.value.paneReadout.volumeVisible,
     };
   })()`);
   assert.deepEqual(preferenceStorage, {
-    dayOpen: '12:00', gridVisible: false, pricePrecision: 1, sessionOwnsSettings: false,
+    currentPriceValueVisible: false,
+    dayOpen: '12:00',
+    gridVisible: false,
+    pricePrecision: 1,
+    sessionOwnsSettings: false,
+    settingsVersion: 4,
+    volumeVisible: true,
   }, 'independent global records must own Quick GoTo and visual Settings outside Sessions');
 
   await evaluate(cdp, `document.querySelector('.replay-back').click()`);

@@ -388,8 +388,14 @@ export function createReplayWorkspaceView({
     setWorkstationSettings(snapshot) {
       root.dataset.settingsRevision = String(snapshot.revision);
       const value = readWorkstationSettings(snapshot.settings);
+      root.dataset.changeVisible = String(value.paneReadout.changeVisible);
+      root.dataset.currentPriceLineVisible = String(value.currentPrice.lineVisible);
+      root.dataset.currentPriceNameVisible = String(value.currentPrice.nameVisible);
+      root.dataset.currentPriceValueVisible = String(value.currentPrice.valueVisible);
       root.dataset.gridVisible = String(value.canvas.gridVisible);
+      root.dataset.ohlcVisible = String(value.paneReadout.ohlcVisible);
       root.dataset.pricePrecision = String(value.candles.pricePrecision);
+      root.dataset.volumeVisible = String(value.paneReadout.volumeVisible);
       paneGrid.setWorkstationSettings(snapshot.settings);
     },
     setWorkspace(workspace) {

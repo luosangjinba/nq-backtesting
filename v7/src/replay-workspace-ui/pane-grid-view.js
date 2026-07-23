@@ -34,13 +34,15 @@ export function createPaneGridView({
   let pending = false;
   let workstationSettings = initialWorkstationSettings;
 
-  function updatePricePresentation(record) {
-    if (!record.instrumentId) return;
-    const { candles } = readWorkstationSettings(workstationSettings);
-    record.overlay.setPricePresentation(createPricePresentation({
-      priceIncrement: resolvePriceIncrement(record.instrumentId),
-      pricePrecision: candles.pricePrecision,
-    }));
+  function updatePresentation(record) {
+    const { candles, paneReadout } = readWorkstationSettings(workstationSettings);
+    record.overlay.setReadoutPresentation(paneReadout);
+    if (record.instrumentId) {
+      record.overlay.setPricePresentation(createPricePresentation({
+        priceIncrement: resolvePriceIncrement(record.instrumentId),
+        pricePrecision: candles.pricePrecision,
+      }));
+    }
   }
 
   root.dataset.maximizedPaneId = 'none';
@@ -214,6 +216,7 @@ export function createPaneGridView({
     });
     const record = { empty, host, instrumentId: null, overlay, shell };
     records.set(paneId, record);
+    updatePresentation(record);
     updateOverlayControls();
     renderLayout();
     return record;
@@ -301,7 +304,7 @@ export function createPaneGridView({
     setWorkstationSettings(settings) {
       readWorkstationSettings(settings);
       workstationSettings = settings;
-      for (const record of records.values()) updatePricePresentation(record);
+      for (const record of records.values()) updatePresentation(record);
     },
     setWorkspace({ activePaneId, panes }, labels) {
       const nextPaneIds = panes.map(({ paneId }) => paneId);
@@ -317,7 +320,7 @@ export function createPaneGridView({
           timeframe: labels.timeframe(pane.timeframeId),
         });
         record.instrumentId = pane.instrumentId;
-        updatePricePresentation(record);
+        updatePresentation(record);
         record.shell.classList.toggle('is-active', pane.paneId === activePaneId);
         record.shell.dataset.instrumentId = pane.instrumentId;
         record.shell.dataset.timeframeId = pane.timeframeId;

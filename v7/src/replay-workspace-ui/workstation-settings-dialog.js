@@ -21,11 +21,21 @@ function element(tag, options = {}, children = []) {
   return node;
 }
 
-function informationalPanel(title, copy) {
-  return element('section', { className: 'workstation-settings-info' }, [
-    element('span', { className: 'workstation-settings-kicker', text: title }),
-    element('p', { text: copy }),
+function switchControl({ copy, label, name }) {
+  const input = element('input', { type: 'checkbox' });
+  input.name = name;
+  input.setAttribute('aria-label', label);
+  const root = element('label', { className: 'workstation-settings-row' }, [
+    element('span', { className: 'workstation-settings-row-copy' }, [
+      element('strong', { text: label }),
+      copy ? element('small', { text: copy }) : null,
+    ]),
+    element('span', { className: 'workstation-settings-switch' }, [
+      input,
+      element('span', { className: 'workstation-settings-switch-track' }),
+    ]),
   ]);
+  return Object.freeze({ input, root });
 }
 
 function candleStyleControl({
@@ -77,16 +87,22 @@ export function createWorkstationSettingsDialog({
   if (typeof getSnapshot !== 'function' || typeof onSave !== 'function') {
     throw new TypeError('Workstation Settings dialog requires getSnapshot() and onSave().');
   }
-  const grid = element('input', { type: 'checkbox' });
-  grid.name = 'gridVisible';
-  const gridTrack = element('span', { className: 'workstation-settings-switch-track' });
-  const gridRow = element('label', { className: 'workstation-settings-row' }, [
-    element('span', { className: 'workstation-settings-row-copy' }, [
-      element('strong', { text: 'Grid lines' }),
-      element('small', { text: 'Show horizontal and vertical chart guides.' }),
-    ]),
-    element('span', { className: 'workstation-settings-switch' }, [grid, gridTrack]),
-  ]);
+  const gridControl = switchControl({
+    copy: 'Show horizontal and vertical chart guides.', label: 'Grid lines', name: 'gridVisible',
+  });
+  const grid = gridControl.input;
+  const readoutControls = Object.freeze({
+    change: switchControl({ label: 'Bar change values', name: 'changeVisible' }),
+    ohlc: switchControl({ label: 'Chart values (OHLC)', name: 'ohlcVisible' }),
+    volume: switchControl({
+      copy: 'Unavailable source volume is shown as Vol —.', label: 'Volume', name: 'volumeVisible',
+    }),
+  });
+  const currentPriceControls = Object.freeze({
+    line: switchControl({ label: 'Price line', name: 'currentPriceLineVisible' }),
+    name: switchControl({ label: 'Symbol name', name: 'currentPriceNameVisible' }),
+    value: switchControl({ label: 'Price value', name: 'currentPriceValueVisible' }),
+  });
   const pickerControls = [];
   let touchedColors = [];
   const markColorTouched = (name) => {
@@ -143,17 +159,25 @@ export function createWorkstationSettingsDialog({
         precision,
       ]),
     ])],
-    ['status', informationalPanel(
-      'Status line',
-      'Symbol, interval, OHLC, and change remain visible with their accepted behavior.',
-    )],
-    ['scales', informationalPanel(
-      'Scales and lines',
-      'Current-price labels and lines remain on their accepted chart defaults.',
-    )],
+    ['status', element('section', { className: 'workstation-settings-status' }, [
+      element('span', { className: 'workstation-settings-kicker', text: 'Content' }),
+      readoutControls.ohlc.root,
+      readoutControls.change.root,
+      readoutControls.volume.root,
+    ])],
+    ['scales', element('section', { className: 'workstation-settings-scales' }, [
+      element('span', { className: 'workstation-settings-kicker', text: 'Current price' }),
+      currentPriceControls.name.root,
+      currentPriceControls.value.root,
+      currentPriceControls.line.root,
+      element('p', {
+        className: 'workstation-settings-panel-note',
+        text: 'Name, value, and line are independent on every pane.',
+      }),
+    ])],
     ['canvas', element('section', { className: 'workstation-settings-canvas' }, [
       element('span', { className: 'workstation-settings-kicker', text: 'Chart basic styles' }),
-      gridRow,
+      gridControl.root,
     ])],
   ]);
   const tabs = new Map();
@@ -242,6 +266,12 @@ export function createWorkstationSettingsDialog({
     candleControls.wicks.down.value = value.candles.downWickColor;
     precision.value = String(value.candles.pricePrecision);
     grid.checked = value.canvas.gridVisible;
+    currentPriceControls.line.input.checked = value.currentPrice.lineVisible;
+    currentPriceControls.name.input.checked = value.currentPrice.nameVisible;
+    currentPriceControls.value.input.checked = value.currentPrice.valueVisible;
+    readoutControls.change.input.checked = value.paneReadout.changeVisible;
+    readoutControls.ohlc.input.checked = value.paneReadout.ohlcVisible;
+    readoutControls.volume.input.checked = value.paneReadout.volumeVisible;
     validation.hidden = true;
     validation.textContent = '';
   }
@@ -269,6 +299,16 @@ export function createWorkstationSettingsDialog({
           wicksVisible: candleControls.wicks.visible.checked,
         },
         canvas: { gridVisible: grid.checked },
+        currentPrice: {
+          lineVisible: currentPriceControls.line.input.checked,
+          nameVisible: currentPriceControls.name.input.checked,
+          valueVisible: currentPriceControls.value.input.checked,
+        },
+        paneReadout: {
+          changeVisible: readoutControls.change.input.checked,
+          ohlcVisible: readoutControls.ohlc.input.checked,
+          volumeVisible: readoutControls.volume.input.checked,
+        },
       }));
     } catch (error) {
       outcome = Object.freeze({ accepted: false, message: error?.message });
@@ -320,7 +360,11 @@ export function createWorkstationSettingsDialog({
       dialog.showModal();
       (activeTab === 'canvas'
         ? grid
-        : activeTab === 'symbol' ? candleControls.body.visible : tabs.get(activeTab)).focus();
+        : activeTab === 'symbol'
+          ? candleControls.body.visible
+          : activeTab === 'status'
+            ? readoutControls.ohlc.input
+            : currentPriceControls.name.input).focus();
     },
   });
 }

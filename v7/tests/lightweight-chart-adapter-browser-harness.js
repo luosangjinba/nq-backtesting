@@ -62,15 +62,15 @@ assert.equal(planSeriesMutation([candle(1), candle(2)], [candle(1, 3), candle(2)
 const crosshairPresentation = createCrosshairPresentationIndex();
 assert.equal(crosshairPresentation.latest().state, 'empty');
 crosshairPresentation.setBars([
-  { ...candle(1), displayEpochMs: 1_000, startEpochMs: 900 },
-  { ...candle(2, 4), displayEpochMs: 2_000, startEpochMs: 1_900 },
+  { ...candle(1), displayEpochMs: 1_000, startEpochMs: 900, volume: null },
+  { ...candle(2, 4), displayEpochMs: 2_000, startEpochMs: 1_900, volume: 25 },
 ]);
 assert.deepEqual(crosshairPresentation.selectedAt(1_000), {
-  bar: { close: 2, high: 3, low: 0, open: 1 }, change: null,
+  bar: { close: 2, high: 3, low: 0, open: 1, volume: null }, change: null,
   displayEpochMs: 1_000, state: 'selected',
 });
 assert.deepEqual(crosshairPresentation.selectedAt(1_500), {
-  bar: { close: 4, high: 3, low: 0, open: 1 }, change: { percent: 100, value: 2 },
+  bar: { close: 4, high: 3, low: 0, open: 1, volume: 25 }, change: { percent: 100, value: 2 },
   displayEpochMs: 2_000, state: 'latest',
 });
 const crosshairNegativeCases = JSON.parse(fs.readFileSync(path.join(
@@ -239,6 +239,49 @@ try {
   'candle presentation must never call setData or update');
   assert.equal(candlePresentation.after.adapterRevision, candlePresentation.before.adapterRevision);
 
+  const currentPriceCombinations = await evaluate(cdp, `(() => {
+    const before = globalThis.__adapter.snapshot();
+    const combinations = [];
+    for (const nameVisible of [false, true]) {
+      for (const valueVisible of [false, true]) {
+        for (const lineVisible of [false, true]) {
+          globalThis.__applySettings({ currentPrice: { lineVisible, nameVisible, valueVisible } });
+          const snapshot = globalThis.__adapter.snapshot();
+          combinations.push({
+            custom: snapshot.seriesPresentation.currentPriceNameOnly,
+            lineVisible,
+            nameVisible,
+            nativeLine: snapshot.seriesPresentation.priceLineVisible,
+            nativeTitle: snapshot.seriesPresentation.title,
+            nativeValue: snapshot.seriesPresentation.lastValueVisible,
+            seriesDataRevision: snapshot.seriesDataRevision,
+            valueVisible,
+          });
+        }
+      }
+    }
+    globalThis.__applySettings();
+    return { before, combinations, restored: globalThis.__adapter.snapshot() };
+  })()`);
+  assert.equal(currentPriceCombinations.combinations.length, 8);
+  for (const combination of currentPriceCombinations.combinations) {
+    assert.equal(combination.nativeLine, combination.lineVisible);
+    assert.equal(combination.nativeValue, combination.valueVisible);
+    assert.equal(combination.nativeTitle,
+      combination.nameVisible && combination.valueVisible ? 'NQ' : '');
+    assert.equal(combination.custom.visible,
+      combination.nameVisible && !combination.valueVisible,
+    'name-only intent must use the bounded price-axis primitive');
+    assert.equal(combination.custom.name, 'NQ');
+    assert.equal(combination.custom.price, 117);
+    assert.equal(combination.seriesDataRevision,
+      currentPriceCombinations.before.seriesDataRevision,
+    'current-price presentation must not call setData or update');
+  }
+  assert.equal(currentPriceCombinations.restored.seriesPresentation.title, 'NQ');
+  assert.equal(currentPriceCombinations.restored.seriesPresentation.lastValueVisible, true);
+  assert.equal(currentPriceCombinations.restored.seriesPresentation.priceLineVisible, true);
+
   const rollback = await evaluate(cdp, `globalThis.__probeVisibleRollback()`);
   assert.equal(rollback.staleCode, 'CHART_ADAPTER_STALE');
   assert.equal(rollback.before.barCount, 20);
@@ -267,7 +310,7 @@ try {
 
   const latestCrosshair = await evaluate(cdp, `globalThis.__adapter.crosshairObservation()`);
   assert.deepEqual(latestCrosshair, {
-    bar: { close: 117, high: 122, low: 116, open: 119 },
+    bar: { close: 117, high: 122, low: 116, open: 119, volume: 29 },
     change: { percent: -2.5, value: -3 },
     displayEpochMs: 2_170_000,
     state: 'latest',

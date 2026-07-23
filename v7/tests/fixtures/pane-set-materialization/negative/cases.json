@@ -19,6 +19,7 @@
   { "case": "chart-pane-order", "expectedCode": "CHART_PANE_SET_ORDER" },
   { "case": "chart-empty-invalid", "expectedCode": "CHART_PANE_SET_EMPTY_INVALID" },
   { "case": "chart-provenance-mismatch", "expectedCode": "CHART_PANE_SET_PROVENANCE_MISMATCH" },
+  { "case": "chart-instrument-label-port-missing", "expectedCode": "CHART_PANE_SET_INSTRUMENT_LABEL_INVALID" },
   { "case": "chart-target-mismatch", "expectedCode": "CHART_PANE_SET_TARGET_MISMATCH" },
   { "case": "chart-cursor-mismatch", "expectedCode": "CHART_PANE_SET_CURSOR_MISMATCH" }
 ]

@@ -5,6 +5,7 @@ function candle(bar) {
     high: Number(bar.high),
     low: Number(bar.low),
     open: Number(bar.open),
+    volume: bar.volume === null ? null : Number(bar.volume),
   });
 }
 

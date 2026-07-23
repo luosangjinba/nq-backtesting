@@ -27,11 +27,13 @@ function grid(settings) {
   return readWorkstationSettings(settings).canvas.gridVisible;
 }
 
-function settingsValue({ candles = {}, gridVisible = true } = {}) {
+function settingsValue({ candles = {}, currentPrice = {}, gridVisible = true, paneReadout = {} } = {}) {
   const defaults = readWorkstationSettings(createWorkstationSettings());
   return createWorkstationSettings({
     candles: { ...defaults.candles, ...candles },
     canvas: { gridVisible },
+    currentPrice: { ...defaults.currentPrice, ...currentPrice },
+    paneReadout: { ...defaults.paneReadout, ...paneReadout },
   });
 }
 
@@ -59,8 +61,16 @@ const defaults = createWorkstationSettings();
 assert.equal(grid(defaults), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults)), true);
 assert.equal(Object.isFrozen(readWorkstationSettings(defaults).canvas), true);
+assert.equal(Object.isFrozen(readWorkstationSettings(defaults).currentPrice), true);
+assert.equal(Object.isFrozen(readWorkstationSettings(defaults).paneReadout), true);
 assert.equal(grid(deserializeWorkstationSettings(serializeWorkstationSettings(defaults))), true);
-assert.equal(serializeWorkstationSettings(defaults).version, 3);
+assert.equal(serializeWorkstationSettings(defaults).version, 4);
+assert.deepEqual(readWorkstationSettings(defaults).currentPrice, {
+  lineVisible: true, nameVisible: true, valueVisible: true,
+});
+assert.deepEqual(readWorkstationSettings(defaults).paneReadout, {
+  changeVisible: true, ohlcVisible: true, volumeVisible: false,
+});
 assert.equal(normalizeHexAlphaColor('#abc'), '#aabbccff');
 assert.equal(normalizeHexAlphaColor('#abcd'), '#aabbccdd');
 assert.equal(hexColorWithOpacity('#089981', 50), '#08998180');
@@ -94,10 +104,27 @@ const migratedOpaqueCandles = deserializeWorkstationSettings({
 });
 assert.equal(readWorkstationSettings(migratedOpaqueCandles).candles.upBodyColor, '#089981ff',
   'R6.9j six-digit candle colors must migrate to opaque hex-alpha');
+const migratedAlphaCandles = deserializeWorkstationSettings({
+  schema: 'v7.workstation-settings',
+  value: {
+    candles: readWorkstationSettings(defaults).candles,
+    canvas: { gridVisible: false },
+  },
+  version: 3,
+});
+assert.equal(readWorkstationSettings(migratedAlphaCandles).canvas.gridVisible, false);
+assert.deepEqual(readWorkstationSettings(migratedAlphaCandles).currentPrice,
+  readWorkstationSettings(defaults).currentPrice,
+  'R6.9j1 records must migrate to accepted current-price defaults');
+assert.deepEqual(readWorkstationSettings(migratedAlphaCandles).paneReadout,
+  readWorkstationSettings(defaults).paneReadout,
+  'R6.9j1 records must migrate to accepted readout defaults');
 assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
     canvas: { gridVisible: true, unknown: false },
+    currentPrice: readWorkstationSettings(defaults).currentPrice,
+    paneReadout: readWorkstationSettings(defaults).paneReadout,
   }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('unknown-canvas-field'),
@@ -113,9 +140,21 @@ assert.throws(
     && error.code === 'WORKSTATION_SETTINGS_CANDLE_COLOR_INVALID',
 );
 assert.throws(
+  () => settingsValue({ currentPrice: { nameVisible: 'yes' } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_CURRENT_PRICE_VISIBILITY_INVALID',
+);
+assert.throws(
+  () => settingsValue({ paneReadout: { volumeVisible: 'yes' } }),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_PANE_READOUT_VISIBILITY_INVALID',
+);
+assert.throws(
   () => createWorkstationSettings({
     candles: readWorkstationSettings(defaults).candles,
     canvas: { gridVisible: 'yes' },
+    currentPrice: readWorkstationSettings(defaults).currentPrice,
+    paneReadout: readWorkstationSettings(defaults).paneReadout,
   }),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('invalid-grid-visible'),

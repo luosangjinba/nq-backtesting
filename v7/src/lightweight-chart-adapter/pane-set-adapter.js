@@ -22,6 +22,7 @@ export function createLightweightPaneSetAdapter({
   onTruncationSelect = () => {},
   onViewportIntent = () => {},
   requestFrame = window.requestAnimationFrame.bind(window),
+  resolveInstrumentLabel,
   resolvePriceIncrement,
   resolveViewportPort,
   surfacePort,
@@ -39,6 +40,12 @@ export function createLightweightPaneSetAdapter({
     : () => failLightweightAdapter(
       'CHART_PANE_SET_PRICE_INCREMENT_INVALID',
       'Pane-set adapter requires resolvePriceIncrement().',
+    );
+  const instrumentLabelFor = typeof resolveInstrumentLabel === 'function'
+    ? resolveInstrumentLabel
+    : () => failLightweightAdapter(
+      'CHART_PANE_SET_INSTRUMENT_LABEL_INVALID',
+      'Pane-set adapter requires resolveInstrumentLabel().',
     );
   const adapters = new Map();
   let adapterRevision = 0;
@@ -100,7 +107,7 @@ export function createLightweightPaneSetAdapter({
     publishCrosshair(crosshairSource.paneId, observation);
   }
 
-  function ensureAdapter(paneId, instrumentId) {
+  function ensureAdapter(paneId, instrumentId, instrumentLabel) {
     if (adapters.has(paneId)) return adapters.get(paneId);
     const host = preparePane(paneId);
     const adapter = createPaneAdapter({
@@ -119,7 +126,11 @@ export function createLightweightPaneSetAdapter({
         'Pane adapter requires applyWorkstationSettings().',
       );
     }
-    adapter.applyWorkstationSettings(workstationSettings, priceIncrementFor(instrumentId));
+    adapter.applyWorkstationSettings(
+      workstationSettings,
+      priceIncrementFor(instrumentId),
+      instrumentLabel,
+    );
     adapter.setTruncationSelection(truncationSelectionActive);
     adapters.set(paneId, adapter);
     return adapter;
@@ -284,10 +295,19 @@ export function createLightweightPaneSetAdapter({
       if (disposed) failLightweightAdapter('CHART_ADAPTER_DISPOSED', 'Pane-set adapter is disposed.');
       const entries = await Promise.all(workspaceSnapshot.panes.map(async (result, index) => {
         const instrumentId = workspaceSnapshot.responsePlan.paneResponses[index].instrumentId;
+        const instrumentLabel = instrumentLabelFor(instrumentId);
+        if (typeof instrumentLabel !== 'string' || instrumentLabel.trim().length === 0) {
+          failLightweightAdapter(
+            'CHART_PANE_SET_INSTRUMENT_LABEL_INVALID',
+            `Pane instrument ${instrumentId} requires a non-empty display label.`,
+          );
+        }
         const priceIncrement = priceIncrementFor(instrumentId);
         if (result.status === 'empty') {
-          const adapter = ensureAdapter(result.paneId, instrumentId);
-          const staged = await adapter.stageEmpty({ identity, priceIncrement, signal });
+          const adapter = ensureAdapter(result.paneId, instrumentId, instrumentLabel);
+          const staged = await adapter.stageEmpty({
+            identity, instrumentLabel, priceIncrement, signal,
+          });
           return Object.freeze({
             adapter,
             paneId: result.paneId,
@@ -297,9 +317,9 @@ export function createLightweightPaneSetAdapter({
             status: 'empty',
           });
         }
-        const adapter = ensureAdapter(result.paneId, instrumentId);
+        const adapter = ensureAdapter(result.paneId, instrumentId, instrumentLabel);
         const staged = await adapter.stage({
-          identity, priceIncrement, signal, workspaceSnapshot: result.snapshot,
+          identity, instrumentLabel, priceIncrement, signal, workspaceSnapshot: result.snapshot,
         });
         return Object.freeze({
           adapter,

@@ -414,15 +414,15 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
   record, transactional draft shell, and one honest Grid consumer; accepted on
   2026-07-22;
 - `R6.9j`: activate candle body/border/wick presentation plus Auto/manual
-  shared price formatting through chart-owned option fan-out; implemented and
-  awaiting human review;
+  shared price formatting through chart-owned option fan-out; accepted on
+  2026-07-22;
 - `R6.9j1`: replace native color inputs with a V7-owned palette/recent/opacity
   shell around a small precise-picker engine, migrate colors to normalized
   hex-alpha, and keep recent history global but outside Settings transactions;
-  implemented and awaiting human review;
+  accepted on 2026-07-22;
 - `R6.9k`: activate bounded OHLC/change/Volume and current-price Name/Value/Line
   controls, proving all eight price-label combinations without hiding essential
-  symbol/TF provenance;
+  symbol/TF provenance; implemented and awaiting human review;
 - `R6.9l`: activate solid Canvas background, shared rich Crosshair, scale text,
   Pane-control visibility, and owner-routed top/bottom/right margins;
 - `R6.9m`: activate shared New York/UTC/local, date, weekday, and 12/24-hour

@@ -1,7 +1,7 @@
 # Session — R6.9j Symbol Candles And Shared Precision
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: accepted by human interaction and visual review on 2026-07-22
 
 ## Delivered
 
@@ -24,7 +24,6 @@ Status: awaiting human interaction and visual review
 
 ## Human Review Boundary
 
-Review Symbol layout, all six color pickers, three visibility toggles, Auto and
-manual precision, current and future multi-Pane behavior, hard reload, and
-unchanged Replay/candle position. Stop at this gate before R6.9k activates
-Status-line and current-price visibility controls.
+Accepted after review of Symbol layout, all six color controls, three visibility
+toggles, Auto/manual precision, current/future multi-Pane behavior, hard reload,
+and unchanged Replay/candle position.

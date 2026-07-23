@@ -1,7 +1,7 @@
 # Session — R6.9j1 Maintainable Color Picker
 
 Date: 2026-07-22
-Status: awaiting human interaction and visual review
+Status: accepted by human interaction and visual review on 2026-07-22
 
 ## Delivered
 
@@ -28,6 +28,7 @@ Status: awaiting human interaction and visual review
 
 ## Human Review Boundary
 
-Review all six buttons, fixed swatches, opacity, `+` precise editor, recent-color
-ordering after OK, Cancel isolation, hard reload, and current/future multi-Pane
-appearance. Stop at this gate before R6.9k.
+Accepted after review of all six buttons, fixed swatches, opacity, `+` precise
+editor, recent-color ordering after OK, Cancel isolation, hard reload, full
+swatch fill without the former inset frame, and current/future multi-Pane
+appearance.
