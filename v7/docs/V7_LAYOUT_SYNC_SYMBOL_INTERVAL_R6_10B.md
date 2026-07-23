@@ -6,8 +6,10 @@ Status: human accepted (2026-07-23)
 
 The Layout menu now exposes the first three real consumers of the versioned
 Session policy: Symbol, Interval, and Crosshair. Symbol retains its reviewed
-default of on; Interval and Crosshair retain their defaults of off. Time and
-Date range remain absent until their owners land.
+default of on; Interval and Crosshair retain their defaults of off. Time remains
+absent after its rejected real-time interaction, and Date range remains absent
+under the accepted R6 deferral decision. Both persisted fields are inert
+compatibility data.
 
 Changing a switch changes only the policy used by a later command. It never
 forces already different Panes to converge. After Symbol or Interval sync is
@@ -53,7 +55,7 @@ Pane, chart, series write, or second Workspace transaction.
 
 Official Lightweight Charts synchronization examples operate through chart-
 instance crosshair and visible-range APIs. Those APIs are appropriate for the
-later Time/Date-range presentation consumers, but Symbol and Interval change
+possible Time/Date-range presentation consumers, but Symbol and Interval change
 the data identity of a Pane and therefore belong in the existing V7 complete-
 Pane materialization path. The awesome-tradingview catalog supplied no owner
 that preserves V7's sole-writer and atomic-commit rules.

@@ -128,9 +128,11 @@ Session Store is the only durable writer and stores the complete policy beside
 Pane Layout in configured workspace schema 5. Replay Workspace UI owns only the
 menu projection; the existing Crosshair consumer remains chart-adapter-owned.
 Replay and ETH/RTH remain always Session-wide and are not optional sync keys.
-Future Symbol/Interval policies must produce one complete Workspace replacement,
-while Time/Date-range policies must remain adapter/Viewport projections rather
-than per-Pane event chains or persisted chart coordinates.
+Symbol/Interval policies produce one complete Workspace replacement. Rejected
+real-time Time and deliberately deferred Date-range values remain inert
+compatibility fields with no production consumer; if either is reconsidered,
+it must remain an adapter/Viewport projection rather than a per-Pane event chain
+or persisted chart coordinate.
 
 R6.10b activates those Symbol/Interval consumers. Pane Workspace Domain owns
 the pure local/all-Pane intent transition; Replay Workspace UI reads one
@@ -149,7 +151,8 @@ the only native coordinate reader and Viewport writer. Missing target history
 uses bounded Workspace Transaction and Bar Data paths. Replay cursor/reveal,
 Pane configuration, source focus, and non-target Viewports remain unchanged;
 an instant without a containing target candle is unavailable and never snaps
-to an unrelated session. Date-range sync remains inactive.
+to an unrelated session. The R6 closure deliberately defers Date-range sync;
+native pan and zoom remain Pane-local.
 
 R6.9a keeps Pane OHLC and Crosshair synchronization on the chart-presentation
 side of that boundary. Each Lightweight Chart Adapter owns native crosshair

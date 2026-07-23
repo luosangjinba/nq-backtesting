@@ -1,7 +1,7 @@
 # Session — R6.9c Pane Control Dock
 
 Date: 2026-07-21
-Status: awaiting focused human visual review
+Status: human accepted after the hover-dismissal correction
 
 ## Delivered
 

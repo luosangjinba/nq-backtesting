@@ -441,15 +441,17 @@ are not cached, runtimes are isolated, and disposal blocks late writes.
 - `R6.10c2`: remove rejected real-time coupling while retaining its persisted
   preference only as inert compatibility data; accepted on 2026-07-23;
 - `R6.10c3`: replace real-time coupling with an explicit right-click
-  market-time command targeting stable P1-P4 identities; executable and
-  awaiting human interaction/visual review;
-- `R6.10d`: activate Date-range synchronization through bounded visible-range
-  projection only after R6.10c3 is human accepted;
+  market-time command targeting stable P1-P4 identities; accepted after its
+  post-location history-fill correction on 2026-07-23;
+- `R6.10d`: deliberately defer Date-range synchronization beyond the chart
+  foundation; keep its versioned key inert and native pan/zoom Pane-local;
 - same pane model from one to many panes;
 - all panes switch/restore atomically;
 - pane-local instrument with one shared Replay clock.
 
 ## R7 — Restore And Performance
 
-- soft re-entry and hard refresh restore;
-- cache-hit and delayed/reordered response gates.
+- `R7.1`: define and implement one versioned Session Workspace checkpoint plus
+  atomic soft re-entry and hard-refresh restoration for UX-FND-004;
+- `R7.2`: rerun and close cache-hit, delayed/reordered-response, and full
+  foundation cross-product performance gates against restored workspaces.

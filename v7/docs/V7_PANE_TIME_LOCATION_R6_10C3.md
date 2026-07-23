@@ -1,6 +1,6 @@
 # V7 Explicit Pane Time Location — R6.10c3
 
-Status: executable; human interaction and visual review required
+Status: human accepted on 2026-07-23 after the post-location history-fill correction
 
 ## Product Decision
 
@@ -75,7 +75,9 @@ configuration. Partial `All other panes` failure leaves successful targets
 located, leaves unavailable targets untouched, and names the unavailable
 targets without substituting other candles.
 
-Date-range synchronization remains absent and is still reserved for R6.10d.
+Date-range synchronization remains absent. The R6 closure decision deliberately
+defers it beyond the chart foundation; its persisted key remains inert
+compatibility data only.
 
 ## Automated Gate
 
@@ -115,5 +117,6 @@ Date-range synchronization remains absent and is still reserved for R6.10d.
    operation closes the menu; ordinary left-clicks still never move another
    Pane.
 
-Human acceptance evidence remains intentionally empty until this review is
-reported complete.
+The user completed the repeat review on 2026-07-23 and accepted the corrected
+automatic left-history extension. Acceptance evidence is recorded in
+`sessions/session_20260723_r6_10c3_location_history_correction.md`.

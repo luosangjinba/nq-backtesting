@@ -11,15 +11,17 @@ Layout Sync is one Session-workspace policy with exactly five switches:
 | Symbol | on | Pane Workspace instrument replacement |
 | Interval | off | Pane Workspace timeframe replacement |
 | Crosshair | off | Chart adapter crosshair projection |
-| Time | off | Viewport time-position projection |
-| Date range | off | Viewport visible-range projection |
+| Time | off | inert compatibility field; no real-time consumer |
+| Date range | off | inert compatibility field; deliberately deferred |
 
 ETH/RTH and Replay are deliberately absent. Both remain Session-wide and always
 apply to every Pane because all Panes share one Replay clock.
 
 R6.10a exposes no inert future controls. It migrates only the already accepted
-Crosshair control into this policy. Symbol, Interval, Time, and Date range are
-activated only with their real consumers in later bounded R6.10 slices.
+Crosshair control into this policy. Symbol and Interval later received real
+consumers. Real-time Time was rejected and removed, while Date range was
+deliberately deferred at R6 closure; both fields remain serialized only for
+compatibility and have no production controls or projections.
 
 ## Ownership
 
@@ -33,11 +35,11 @@ activated only with their real consumers in later bounded R6.10 slices.
 - `adapter.lightweight-chart` remains the only owner that changes native chart
   Crosshair behavior.
 
-The policy is not a second workflow coordinator. Future Symbol and Interval
-consumers must issue one complete Workspace replacement intent, never fan out
-one command per Pane. Future Time and Date-range consumers must use official
-chart range/crosshair APIs behind the adapter and cannot become persisted chart
-coordinates.
+The policy is not a second workflow coordinator. Symbol and Interval consumers
+issue one complete Workspace replacement intent, never one command per Pane.
+If Time or Date range is ever reconsidered from new product evidence, it must
+use official chart APIs behind the adapter, suppress projection feedback, and
+cannot become persisted chart coordinates.
 
 ## Session Workspace Schema
 
@@ -72,12 +74,12 @@ The migration does not move Replay or activation identity.
 
 ## Existing-Approach Audit
 
-Lightweight Charts 5.2 already provides the primitives needed by the later
-consumers: `subscribeCrosshairMove` plus `setCrosshairPosition` /
+Lightweight Charts 5.2 already provides relevant presentation primitives:
+`subscribeCrosshairMove` plus `setCrosshairPosition` /
 `clearCrosshairPosition`, and visible logical/time-range subscriptions plus
-setters. `setVisibleRange` clips to existing data, so future Date-range work
-must deliberately choose logical-range behavior where time extrapolation is
-required. The awesome-tradingview catalog contains no multi-chart synchronization
+setters. `setVisibleRange` clips to existing data, so any reconsidered
+Date-range work would need to choose logical-range behavior deliberately where
+time extrapolation is required. The awesome-tradingview catalog contains no multi-chart synchronization
 owner that fits V7's one-way ownership and atomic replacement rules.
 
 V6 is retained only as product evidence for the five labels/defaults. Its

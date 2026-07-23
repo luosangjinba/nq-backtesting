@@ -361,6 +361,8 @@ try {
   }, 'Layout Sync must expose Symbol, Interval, and Crosshair only after the real-time Time rollback');
   assert.equal(await evaluate(cdp, `document.querySelector('.pane-time-sync')`), null,
     'the rejected real-time Time control must not remain hidden in the Layout menu');
+  assert.equal(await evaluate(cdp, `document.querySelector('.pane-dateRange-sync')`), null,
+    'the deliberately deferred Date-range control must not remain hidden in the Layout menu');
   await evaluate(cdp, `document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }))`);
 
   await chooseLayout(cdp, 'layout.two-columns');

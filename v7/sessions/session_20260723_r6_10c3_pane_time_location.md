@@ -1,7 +1,7 @@
 # Session — R6.10c3 Explicit Pane Time Location
 
 Date: 2026-07-23
-Status: first human review rejected; corrective review pending
+Status: human accepted after correction on 2026-07-23
 
 ## Delivered
 
@@ -37,13 +37,13 @@ Follow `docs/V7_PANE_TIME_LOCATION_R6_10C3.md`, especially exact-candle versus
 blank-space selection, one/all targets, older unloaded target history, RTH
 gaps, source focus/Replay invariants, and dismissal behavior.
 
-Do not mark H066 accepted and do not start R6.10d Date-range synchronization
-until the user reports this interaction and visual review complete.
+The repeat review completed on 2026-07-23 and H066 is accepted. Date-range
+synchronization was subsequently deferred by a separate product decision.
 
 ## First Review Finding
 
 Human review found that a located target could expose unloaded space on its
 left without automatically extending history. A later mouse interaction made
 extension resume. The root cause and correction are recorded in
-`session_20260723_r6_10c3_location_history_correction.md`; repeat review is
-required.
+`session_20260723_r6_10c3_location_history_correction.md`; repeat review passed
+on 2026-07-23.

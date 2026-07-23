@@ -1,7 +1,7 @@
 # V7 Restart Handoff
 
-Last updated: 2026-07-23 after the R6.10c3 post-location history-fill review
-correction became executable
+Last updated: 2026-07-23 after R6 interaction closure and the accepted
+Date-range synchronization deferral
 
 This is the first document to read after a machine, server, or agent restart.
 It records the exact continuation point; historical session notes are not
@@ -33,9 +33,9 @@ required for normal startup.
   presentation human accepted; R6.10a versioned Session Layout Sync policy,
   R6.10b Symbol/Interval sync, R6.10c1 stable Pane priority, and R6.10c2
   real-time Time-sync rollback human accepted; R6.10c3 explicit right-click
-  Pane time location first review rejected because left history waited for a
-  mouse event; the owner-routed correction is executable and awaiting repeat
-  review; R2.4 Session Browser
+  Pane time location accepted after the owner-routed automatic left-history
+  correction; Date-range synchronization deliberately deferred beyond the
+  foundation; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -358,8 +358,9 @@ and human-accepted:
   other-switches-off defaults. Session Store now persists Pane Layout plus the
   policy in configured workspace schema 5 and lazily migrates schemas 1–4.
   The already accepted Crosshair switch now saves and restores per Session;
-  Symbol, Interval, Time, and Date-range controls remain absent until their
-  real consumers land. Replay and ETH/RTH remain always Session-wide.
+  Symbol and Interval now have accepted consumers. Time and Date range remain
+  absent/inert by explicit product decision. Replay and ETH/RTH remain always
+  Session-wide.
 - R6.10c3 adds a separately owned explicit right-click command. It selects one
   exact source candle by canonical market time, targets stable P1-P4 identities,
   preserves target span, and uses bounded owner-routed history when required.
@@ -368,7 +369,11 @@ and human-accepted:
   later mouse event before history extension. The correction immediately
   publishes the accepted programmatic range through the existing
   history-boundary port; Workspace/Bar Data owners still decide and execute
-  the fill.
+  the fill. Repeat human review accepted the correction on 2026-07-23.
+- R6 closure deliberately defers Date-range sync rather than carrying it as an
+  unfinished R6.10d task. Its versioned field remains false/inert, the Layout
+  menu exposes no control, and native pan/zoom remains Pane-local. R7 starts
+  with complete Session Workspace restoration instead.
 
 Latest corrective commits:
 
@@ -450,8 +455,9 @@ R4.1–R4.5 are the commits after this handoff's original R3.3 baseline.
 ## Deliberately Not Implemented
 
 There is still no production-complete CME holiday dataset, calendar-aligned
-day/week/month policy, active layout sync beyond Crosshair, or complete
-hard-refresh workspace restore.
+day/week/month policy, Date-range sync, or complete hard-refresh Workspace
+restore. Active Layout Sync is intentionally limited to Symbol, Interval, and
+Crosshair.
 V7 now uses real local V4/DuckDB NQ history, but this does not imply complete
 exchange-calendar or tick-level coverage.
 
@@ -494,11 +500,17 @@ R6.10c1 stable Pane identity and count-reduction priority were human accepted
 on 2026-07-23: right before left, and top before bottom when right edges match.
 R6.10c2 removes the rejected real-time ordinary-click Time projection while
 retaining the persisted field as inert compatibility data; human interaction
-and visual review accepted the rollback on 2026-07-23. R6.10c3 now implements
-explicit right-click market-time location using stable P1-P4 targets and is
-waiting at a repeat human interaction/visual gate after correcting automatic
-post-location left-history fill. Do not start R6.10d Date-range synchronization
-or Economic Calendar before that acceptance.
+and visual review accepted the rollback on 2026-07-23. R6.10c3 explicit
+right-click market-time location using stable P1-P4 targets is also accepted
+after correcting automatic post-location left-history fill. R6 interaction
+work is closed. Date-range synchronization is deliberately deferred and is not
+an R7 prerequisite.
+
+Exact next slice: R7.1 specifies one versioned Session Workspace checkpoint and
+atomic restore path for UX-FND-004. Soft re-entry and hard refresh must restore
+the shared Replay boundary, Pane layout/configuration/Viewport intents,
+Session Hours, and accepted Layout Sync policy through existing runtime owners,
+while volatile transport/menu/maximize state resets safely.
 
 ## Standing Workflow
 

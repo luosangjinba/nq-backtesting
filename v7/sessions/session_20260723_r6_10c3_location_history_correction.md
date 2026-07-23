@@ -1,7 +1,7 @@
 # Session — R6.10c3 Post-location History Fill Correction
 
 Date: 2026-07-23
-Status: executable; awaiting repeat human review
+Status: human accepted on 2026-07-23
 
 ## Human Review Finding
 
@@ -28,5 +28,7 @@ boundary notification, which explains why history loading then resumed.
 - a real browser assertion now requires the notification during explicit
   location, without any follow-up mouse event.
 
-H066 remains executable rather than accepted until the user repeats the
-interaction review and confirms automatic left extension.
+The user repeated the interaction review and reported acceptance on
+2026-07-23. H066 is accepted: programmatic Pane time location now triggers the
+same owner-routed left-history extension as native navigation without waiting
+for a later mouse event.

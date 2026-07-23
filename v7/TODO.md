@@ -1442,7 +1442,7 @@ Human interaction and visual review accepted on 2026-07-23. Next: specify and
 implement the replacement right-click time-location contract. Do not activate
 Date-range synchronization in this corrective sequence.
 
-### R6.10c3 Explicit Right-click Pane Time Location — Executable
+### R6.10c3 Explicit Right-click Pane Time Location — Accepted
 
 - [x] require an exact real source candle and carry its canonical market start
   time rather than compressed chart-display time;
@@ -1457,8 +1457,8 @@ Date-range synchronization in this corrective sequence.
 - [x] bind negative fixtures, pure-domain/controller Harnesses, real adapter
   hit-testing, mixed-instrument/timeframe four-Pane behavior, and a dedicated
   visual baseline;
-- [ ] obtain explicit human interaction and visual acceptance before starting
-  R6.10d Date-range synchronization.
+- [x] obtain explicit human interaction and visual acceptance after correcting
+  automatic post-location left-history extension.
 
 Interaction gate: review exact-candle selection, stable target labels,
 single-target and all-target location, missing-history behavior, blank-space
@@ -1466,8 +1466,21 @@ rejection, RTH gaps, unchanged Replay/source focus, and menu dismissal.
 
 First human review on 2026-07-23 found that post-location left blank space did
 not request history until another mouse interaction. The adapter now publishes
-the accepted programmatic range to the existing history-boundary owner; repeat
-review must confirm extension starts without click, drag, or wheel input.
+the accepted programmatic range to the existing history-boundary owner. Repeat
+human review passed on 2026-07-23.
+
+### R6.10d Date-range Synchronization — Deliberately Deferred
+
+- [x] decide that native pan/zoom remains Pane-local in the chart foundation;
+- [x] retain `dateRange: false` only as inert versioned compatibility data;
+- [x] keep the control and all visible-range fan-out absent from production;
+- [x] bind that absence with H067 and the real Layout Workspace browser Harness;
+- [x] require concrete comparison-workflow evidence before reconsideration.
+
+R6 interaction work is closed. Date-range synchronization is not an R7 task.
+The next bounded foundation slice is R7.1: specify the durable Session Workspace
+checkpoint and atomic soft re-entry/hard-refresh restore contract for
+UX-FND-004.
 
 ## Standing Gates
 

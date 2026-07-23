@@ -342,7 +342,7 @@
       "owner": "test-governance",
       "v6FailurePrevented": "single-case fixes missed TF, hours, pane, source, and lifecycle combinations",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-layout-workspace-browser-harness.js",
       "positiveEvidence": [
         "tests/replay-layout-workspace-browser-harness.js",
@@ -352,7 +352,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/pane-layout-domain/negative/cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260723_r6_interaction_closure.md"
     },
     {
       "id": "H022",
@@ -968,7 +968,7 @@
       "owner": "replay-workspace-ui",
       "v6FailurePrevented": "Pane-local controls covered the price or time scale, their horizontal footprint hid chart content, or pointer focus pinned controls after the pointer left an active Pane",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-layout-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/replay-workspace-ui/pane-overlay-view.js",
@@ -978,7 +978,7 @@
       ],
       "negativeFixtures": ["tests/fixtures/replay-workspace/negative/pane-overlay-cases.json"],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260723_r6_interaction_closure.md"
     },
     {
       "id": "H055",
@@ -1162,7 +1162,7 @@
       "owner": "workstation-settings",
       "v6FailurePrevented": "Candle appearance rewrote series data, manual precision rounded bars or changed tick size, or current/future Panes and OHLC/axis values used divergent presentation",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/replay-pane-workspace-browser-harness.js",
       "positiveEvidence": [
         "src/workstation-settings/price-presentation.js",
@@ -1180,7 +1180,7 @@
         "tests/fixtures/workstation-settings/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260722_r6_9j_symbol_settings.md"
     },
     {
       "id": "H063",
@@ -1188,7 +1188,7 @@
       "owner": "layout-sync-domain",
       "v6FailurePrevented": "Layout switches were local DOM booleans, changed one Pane by event fanout, or lost their accepted value when a Session was reopened",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/layout-sync-domain-harness.js",
       "positiveEvidence": [
         "src/layout-sync-domain/layout-sync.js",
@@ -1204,7 +1204,7 @@
         "tests/fixtures/layout-sync-domain/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260723_r6_interaction_closure.md"
     },
     {
       "id": "H064",
@@ -1261,7 +1261,7 @@
       "owner": "pane-time-location-domain",
       "v6FailurePrevented": "Ordinary clicks or compressed display time moved other Pane Viewports, missing history bypassed runtime owners, or an unavailable market instant snapped to an unrelated session or future candle",
       "activationStep": "R6",
-      "state": "executable",
+      "state": "accepted",
       "harness": "tests/pane-time-location-domain-harness.js",
       "positiveEvidence": [
         "src/pane-time-location-domain/pane-time-location.js",
@@ -1280,7 +1280,28 @@
         "tests/fixtures/pane-time-location-domain/negative/cases.json"
       ],
       "humanReviewRequired": true,
-      "acceptanceEvidence": null
+      "acceptanceEvidence": "sessions/session_20260723_r6_10c3_location_history_correction.md"
+    },
+    {
+      "id": "H067",
+      "name": "real-time-date-range-sync-is-deferred",
+      "owner": "replay-workspace-ui",
+      "v6FailurePrevented": "Native pan and zoom events fanned visible ranges across Panes, creating feedback loops, unnecessary history requests, performance coupling, and loss of independent Pane analysis",
+      "activationStep": "R6",
+      "state": "accepted",
+      "harness": "tests/replay-layout-workspace-browser-harness.js",
+      "positiveEvidence": [
+        "src/layout-sync-domain/layout-sync.js",
+        "src/replay-workspace-ui/layout-sync-controller.js",
+        "src/replay-workspace-ui/pane-layout-menu.js",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "docs/V7_DATE_RANGE_SYNC_DEFER_AND_R6_CLOSURE.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/layout-sync-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": "sessions/session_20260723_r6_interaction_closure.md"
     }
   ]
 }
