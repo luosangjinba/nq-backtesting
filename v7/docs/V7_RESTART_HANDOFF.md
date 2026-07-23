@@ -476,14 +476,14 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 ## Exact Next Step
 
-R6.9m shared time presentation was accepted on 2026-07-22. R6.10a binds the
-versioned Session Layout Sync policy and durable Crosshair restoration. R6.10b
-now exposes Symbol and Interval and routes each later synchronized choice
-through one atomic complete-Pane replacement while retaining hidden primary-
-source clock evidence when every visible Pane is a comparison instrument. It
-is awaiting human interaction review. After acceptance, implement R6.10c Time
-synchronization through adapter-owned time-point projection. Do not add per-
-Pane event fan-out, Date-range projection, or Economic Calendar in that slice.
+R6.10b Symbol/Interval synchronization was human accepted on 2026-07-23.
+R6.10c real-time Time synchronization is automated but not human accepted; the
+product direction now favors explicit right-click location in selected target
+Panes. R6.10c1 first corrects stable Pane identity and count-reduction priority:
+right before left, and top before bottom when right edges match. It is awaiting
+human interaction and visual review. After acceptance, revert or replace the
+separate R6.10c Time behavior and design its explicit P1-P4 target menu. Do not
+start Date-range synchronization or Economic Calendar in that corrective step.
 
 ## Standing Workflow
 

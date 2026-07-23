@@ -1205,6 +1205,31 @@
       ],
       "humanReviewRequired": true,
       "acceptanceEvidence": null
+    },
+    {
+      "id": "H064",
+      "name": "stable-pane-priority-identity",
+      "owner": "pane-layout-domain",
+      "v6FailurePrevented": "Pane identity followed reading order or active focus, so reducing a layout retained the wrong instrument/timeframe/Viewport and later Pane-target commands had ambiguous destinations",
+      "activationStep": "R6",
+      "state": "executable",
+      "harness": "tests/pane-layout-domain-harness.js",
+      "positiveEvidence": [
+        "src/pane-layout-domain/pane-layout.js",
+        "src/replay-workspace-ui/pane-identity.js",
+        "src/replay-workspace-ui/pane-workspace-state.js",
+        "tests/pane-layout-domain-harness.js",
+        "tests/pane-identity-harness.js",
+        "tests/pane-workspace-state-harness.js",
+        "tests/replay-layout-workspace-browser-harness.js",
+        "tests/fixtures/replay-workspace/layout-four-left-stack-1440x900.png",
+        "docs/V7_PANE_PRIORITY_IDENTITY_R6_10C1.md"
+      ],
+      "negativeFixtures": [
+        "tests/fixtures/pane-layout-domain/negative/cases.json"
+      ],
+      "humanReviewRequired": true,
+      "acceptanceEvidence": null
     }
   ]
 }

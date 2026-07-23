@@ -51,10 +51,11 @@ function readState(cdp) {
           logicalFrom: Number(host.dataset.logicalFrom),
           logicalTo: Number(host.dataset.logicalTo),
           paneId: pane.dataset.paneId,
+          paneNumber: Number(pane.dataset.paneNumber),
           spanBars: Number(host.dataset.spanBars),
           visibleRevision: Number(host.dataset.visibleRevision),
         };
-      }),
+      }).sort((left, right) => left.paneNumber - right.paneNumber),
     };
   })()`);
 }
@@ -163,6 +164,8 @@ try {
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 10_000);
   const singleBefore = await readState(cdp);
   assert.equal(singleBefore.panes.length, 1);
+  assert.equal(singleBefore.panes[0].paneId, 'pane-main',
+    'two-to-one must retain P1 even though P1 occupied the right column');
   assert.ok(singleBefore.panes[0].spanBars >= 40
     && singleBefore.panes[0].logicalTo - singleBefore.panes[0].logicalFrom >= 40,
     `two-to-one Pane replacement must preserve a usable RTH wall: ${JSON.stringify(singleBefore)}`);

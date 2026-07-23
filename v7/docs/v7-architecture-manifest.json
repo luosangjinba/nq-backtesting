@@ -249,6 +249,7 @@
     "pane-local-latest-ohlc-and-chart-only-crosshair-sync",
     "pane-canvas-overlay-controls-are-transient-and-local",
     "pane-control-dock-is-vertical-and-scale-safe",
+    "stable-pane-priority-identity",
     "session-browser-delete-is-confirmed-and-durable",
     "global-workstation-settings-transactional-all-pane",
     "versioned-session-layout-sync-policy"

@@ -1,3 +1,5 @@
+import { readWorkspacePaneIdentity } from './pane-identity.js';
+
 function element(tag, options = {}, children = []) {
   const node = document.createElement(tag);
   if (options.className) node.className = options.className;
@@ -59,6 +61,8 @@ const RESET_ICON = '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M5 5H2V
 
 /** Own the DOM-only status and local chart controls over one Pane Canvas. */
 export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
+  const paneIdentity = readWorkspacePaneIdentity(paneId);
+  const paneNumber = element('span', { className: 'pane-number', text: paneIdentity.label });
   const symbol = element('strong', { className: 'pane-symbol', text: '—' });
   const timeframe = element('span', { className: 'pane-timeframe', text: '—' });
   const fields = Object.freeze({
@@ -85,16 +89,16 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
   volume.hidden = true;
 
   const maximize = iconButton({
-    ariaLabel: `Maximize ${paneId} chart`, className: 'pane-maximize', icon: MAXIMIZE_ICON,
+    ariaLabel: `Maximize Pane ${paneIdentity.number} chart`, className: 'pane-maximize', icon: MAXIMIZE_ICON,
   });
   maximize.setAttribute('aria-pressed', 'false');
   const reset = iconButton({
-    ariaLabel: `Reset ${paneId} view`, className: 'pane-reset', icon: RESET_ICON,
+    ariaLabel: `Reset Pane ${paneIdentity.number} view`, className: 'pane-reset', icon: RESET_ICON,
   });
   const controls = element('span', { className: 'pane-overlay-controls' }, [maximize, reset]);
   const header = element('header', { className: 'workspace-pane-header' }, [
     element('span', { className: 'pane-status-line' }, [
-      element('span', { className: 'pane-identity' }, [symbol, timeframe]),
+      element('span', { className: 'pane-identity' }, [paneNumber, symbol, timeframe]),
       ohlc,
       change,
       volume,
@@ -145,7 +149,7 @@ export function createPaneOverlayView({ onMaximize, onReset, paneId }) {
       controls.dataset.visibility = value;
     },
     setControlState({ maximized, multiPane, pending }) {
-      const maximizeLabel = `${maximized ? 'Restore' : 'Maximize'} ${paneId} chart`;
+      const maximizeLabel = `${maximized ? 'Restore' : 'Maximize'} Pane ${paneIdentity.number} chart`;
       maximize.hidden = !multiPane;
       maximize.disabled = pending;
       maximize.setAttribute('aria-label', maximizeLabel);

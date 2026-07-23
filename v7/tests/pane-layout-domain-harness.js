@@ -31,13 +31,32 @@ function leafSlots(node, result = []) {
   return result;
 }
 
+const expectedSpatialSlots = new Map([
+  ['layout.single', [0]],
+  ['layout.two-columns', [1, 0]],
+  ['layout.two-rows', [0, 1]],
+  ['layout.three-columns', [2, 1, 0]],
+  ['layout.three-rows', [0, 1, 2]],
+  ['layout.three-left-stack', [1, 2, 0]],
+  ['layout.three-right-stack', [2, 0, 1]],
+  ['layout.four-grid', [2, 0, 3, 1]],
+  ['layout.four-left-stack', [1, 2, 3, 0]],
+  ['layout.four-right-stack', [3, 0, 1, 2]],
+  ['layout.four-one-over-three', [0, 3, 2, 1]],
+  ['layout.four-three-over-one', [3, 2, 0, 1]],
+]);
+
 for (const option of PANE_LAYOUT_OPTIONS) {
   const layout = createPaneLayout({ variantId: option.id });
   const value = readPaneLayout(layout);
   assert.equal(Object.isFrozen(layout), true);
   assert.equal(Object.isFrozen(value), true);
   assert.equal(value.paneCount, option.paneCount);
-  assert.deepEqual(leafSlots(value.tree), Array.from({ length: option.paneCount }, (_, index) => index));
+  const spatialSlots = leafSlots(value.tree);
+  assert.deepEqual(spatialSlots, expectedSpatialSlots.get(option.id),
+    `${option.id} must place Pane priority slots in reviewed geometry`);
+  assert.deepEqual([...spatialSlots].sort(), Array.from({ length: option.paneCount }, (_, index) => index),
+    `${option.id} must contain every Pane priority exactly once`);
   assert.deepEqual(readPaneLayout(deserializePaneLayout(serializePaneLayout(layout))).ratios, value.ratios);
 }
 

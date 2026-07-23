@@ -829,6 +829,13 @@
   white-space: nowrap;
 }
 .pane-identity { display: flex; flex: 0 0 auto; align-items: center; gap: 5px; }
+.pane-number {
+  color: #8f99a5;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+.workspace-pane-grid[data-count="1"] .pane-number { display: none; }
 .pane-symbol { color: #f4f6f8; font-size: 13px; }
 .pane-timeframe { color: #c6cbd2; font-size: 12px; }
 .pane-ohlc {

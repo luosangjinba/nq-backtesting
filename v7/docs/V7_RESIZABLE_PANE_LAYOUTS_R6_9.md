@@ -16,6 +16,9 @@ Every product Pane retains one independent Lightweight Charts host. Existing
 Pane identities remain stable when the count changes, so a retained Pane keeps
 its instrument, timeframe, Viewport owner, and chart instance.
 
+R6.10c1 subsequently defines the exact user-facing P1-P4 geometry and replaces
+the original reading-order leaves. See `V7_PANE_PRIORITY_IDENTITY_R6_10C1.md`.
+
 ## Existing-Capability Decision
 
 Lightweight Charts has native vertical panes, draggable pane separators, and a

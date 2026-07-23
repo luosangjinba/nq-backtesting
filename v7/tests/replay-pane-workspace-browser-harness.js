@@ -134,6 +134,7 @@ function paneStateExpression() {
           hostWidth: host.getBoundingClientRect().width,
           latestDisplayEpochMs: Number(host.dataset.latestDisplayEpochMs),
           paneId: pane.dataset.paneId,
+          paneNumber: Number(pane.dataset.paneNumber),
           paneWidth: pane.getBoundingClientRect().width,
           sessionHoursMode: host.dataset.sessionHoursMode,
           timeframeId: host.dataset.displayTimeframeId,
@@ -142,7 +143,7 @@ function paneStateExpression() {
           visibleRevision: Number(host.dataset.visibleRevision),
           visibleThroughEpochMs: Number(host.dataset.visibleThroughEpochMs),
         };
-      }),
+      }).sort((left, right) => left.paneNumber - right.paneNumber),
     };
   })()`;
 }

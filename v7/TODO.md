@@ -1425,6 +1425,29 @@ Interaction gate: review ordinary click projection across same and mixed TFs,
 disabled behavior, truncation suppression, missing-history no-op, and Session
 re-entry before starting R6.10d Date-range synchronization.
 
+### R6.10c1 Stable Pane Priority Identity — Executable
+
+- [x] define stable P1-P4 identities independently of active focus;
+- [x] place Pane priorities by farther-right first, then higher first when right
+  edges match, across all 12 layouts;
+- [x] make two-column P1 right, two-row P1 top, and four-grid P1/P2/P3/P4 map
+  to right-top/right-bottom/left-top/left-bottom;
+- [x] retain P1..Pn on every count reduction, including 4-to-3 and multi-to-one,
+  while preserving retained Pane instrument, timeframe, Viewport, and chart
+  identity;
+- [x] ignore active focus when choosing survivors and fall back to P1 if the
+  active lower-priority Pane is removed;
+- [x] expose compact P1-P4 labels in multi-Pane status lines and semantic DOM/
+  accessibility labels while hiding redundant P1 in single Pane;
+- [x] bind all layout placements, stable identity lookup, priority-preserving
+  state reduction, real geometry, and updated visual baselines;
+- [ ] obtain explicit human interaction and visual acceptance before changing
+  the separate R6.10c Time implementation.
+
+Next corrective slice after acceptance: decide and execute the isolated
+real-time Time-sync rollback, then specify right-click time location using the
+now-stable P1-P4 target identities. R6.10d remains deferred.
+
 ## Standing Gates
 
 - every bounded step has one focused commit;

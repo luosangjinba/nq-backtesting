@@ -375,7 +375,14 @@ try {
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '2'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
   let state = await evaluate(cdp, layoutStateExpression());
-  assert.deepEqual(state.panes.map(({ paneId }) => paneId), ['pane-main', 'pane-secondary']);
+  assert.deepEqual(state.panes.map(({ paneId }) => paneId), ['pane-secondary', 'pane-main'],
+    'two-column DOM order follows left-to-right geometry while Pane identity remains priority ordered');
+  const twoColumnPanes = new Map(state.panes.map((pane) => [pane.paneId, pane]));
+  assert.ok(twoColumnPanes.get('pane-main').left > twoColumnPanes.get('pane-secondary').left,
+    'P1 must occupy the right side of a two-column layout');
+  assert.deepEqual(await evaluate(cdp, `[...document.querySelectorAll('.pane-number')]
+    .map((node) => node.textContent)`), ['P2', 'P1'],
+  'the left-to-right status labels make the reviewed P2/P1 geometry explicit');
 
   const secondaryClickPoint = await evaluate(cdp, `(() => {
     const rect = document.querySelector('[data-pane-id="pane-secondary"] .lightweight-chart-host')
@@ -487,7 +494,7 @@ try {
     };
   })()`);
   assert.deepEqual(maximized, {
-    buttonLabel: 'Restore pane-secondary chart',
+    buttonLabel: 'Restore Pane 2 chart',
     buttonPressed: 'true',
     mountedPaneCount: maximizeCase.expectedPaneCount,
     heightDelta: 0,
@@ -692,6 +699,9 @@ try {
     'same-count layout changes must not issue a Pane materialization');
   assert.equal(state.replayRevision, beforeTwoRows.replayRevision,
     'same-count layout changes must not move Replay');
+  const twoRowPanes = new Map(state.panes.map((pane) => [pane.paneId, pane]));
+  assert.ok(twoRowPanes.get('pane-main').top < twoRowPanes.get('pane-secondary').top,
+    'P1 must occupy the top of a two-row layout');
 
   await chooseLayout(cdp, 'layout.three-right-stack');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '3'
@@ -703,6 +713,13 @@ try {
   await chooseLayout(cdp, 'layout.four-grid');
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '4'
     && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  state = await evaluate(cdp, layoutStateExpression());
+  const gridPanes = new Map(state.panes.map((pane) => [pane.paneId, pane]));
+  assert.ok(gridPanes.get('pane-main').left > gridPanes.get('pane-tertiary').left
+    && gridPanes.get('pane-main').top < gridPanes.get('pane-secondary').top
+    && gridPanes.get('pane-secondary').left > gridPanes.get('pane-quaternary').left
+    && gridPanes.get('pane-tertiary').top < gridPanes.get('pane-quaternary').top,
+  'four-grid geometry must be P1 right-top, P2 right-bottom, P3 left-top, P4 left-bottom');
   await evaluate(cdp, `document.querySelector('[data-pane-id="pane-quaternary"]')
     .dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }))`);
   await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.activePaneId === 'pane-quaternary'`);
@@ -759,8 +776,10 @@ try {
   state = await evaluate(cdp, layoutStateExpression());
   assert.equal(state.workspaceRevision, beforeSameCount.workspaceRevision);
   assert.equal(state.replayRevision, beforeSameCount.replayRevision);
-  assert.equal(state.panes.at(-1).instrumentId, 'instrument.cme.es');
-  assert.equal(state.panes.at(-1).timeframeId, 'timeframe.display-4-hour');
+  assert.equal(state.panes.find(({ paneId }) => paneId === 'pane-quaternary').instrumentId,
+    'instrument.cme.es');
+  assert.equal(state.panes.find(({ paneId }) => paneId === 'pane-quaternary').timeframeId,
+    'timeframe.display-4-hour');
 
   await moveCrosshairToCandle(cdp, 'pane-main');
   await waitFor(cdp, `[...document.querySelectorAll('.workspace-pane:not(.is-prepared)')]
@@ -874,6 +893,37 @@ try {
     timeChecked: true,
   },
   'Session re-entry must restore every accepted Layout Sync policy');
+
+  await chooseLayout(cdp, 'layout.four-grid');
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.layoutId === 'layout.four-grid'`);
+  const beforePriorityReduction = await evaluate(cdp, layoutStateExpression());
+  const retainedBefore = new Map(beforePriorityReduction.panes
+    .filter(({ paneId }) => paneId !== 'pane-quaternary')
+    .map((pane) => [pane.paneId, {
+      instrumentId: pane.instrumentId, timeframeId: pane.timeframeId,
+    }]));
+  await chooseLayout(cdp, 'layout.three-right-stack');
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '3'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  const afterThree = await evaluate(cdp, layoutStateExpression());
+  assert.deepEqual(new Set(afterThree.panes.map(({ paneId }) => paneId)),
+    new Set(['pane-main', 'pane-secondary', 'pane-tertiary']),
+  'four-grid to three must retain P1, P2, and P3 and remove P4');
+  assert.deepEqual(new Map(afterThree.panes.map((pane) => [pane.paneId, {
+    instrumentId: pane.instrumentId, timeframeId: pane.timeframeId,
+  }])), retainedBefore, 'four-grid to three must retain each survivor content by identity');
+  assert.equal(afterThree.cursor, beforePriorityReduction.cursor,
+    'priority reduction must retain the Replay cursor');
+  await chooseLayout(cdp, 'layout.single');
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.paneCount === '1'
+    && document.querySelector('.replay-workspace')?.getAttribute('aria-busy') === 'false'`, 12_000);
+  const afterSingle = await evaluate(cdp, layoutStateExpression());
+  assert.equal(afterSingle.panes[0].paneId, 'pane-main');
+  assert.deepEqual({
+    instrumentId: afterSingle.panes[0].instrumentId,
+    timeframeId: afterSingle.panes[0].timeframeId,
+  }, retainedBefore.get('pane-main'), 'multi-to-one must retain P1 content');
+  assert.equal(afterSingle.cursor, beforePriorityReduction.cursor);
   assert.deepEqual(await evaluate(cdp, `globalThis.__browserErrors`), []);
 } finally {
   cdp?.close();
@@ -900,5 +950,5 @@ try {
 }
 
 console.log('v7 Replay Layout Workspace browser harness passed', {
-  scope: '12 layouts, Canvas OHLC/change, atomic Symbol/Interval sync, Crosshair/Time sync, resize persistence, shared Replay/ETH-RTH',
+  scope: '12 priority layouts, 4-to-3-to-1 retention, Canvas OHLC/change, Symbol/Interval/Crosshair/Time sync, resize, shared Replay',
 });

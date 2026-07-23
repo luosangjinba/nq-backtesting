@@ -4,6 +4,7 @@ import {
   resizePaneLayout,
 } from '../pane-layout-domain/public.js';
 import { createPricePresentation, readWorkstationSettings } from '../workstation-settings/public.js';
+import { readWorkspacePaneIdentity } from './pane-identity.js';
 import { createPaneOverlayView } from './pane-overlay-view.js';
 
 function element(tag, options = {}, children = []) {
@@ -194,21 +195,24 @@ export function createPaneGridView({
   }
 
   function createPane(paneId) {
+    const paneIdentity = readWorkspacePaneIdentity(paneId);
     const overlay = createPaneOverlayView({
       onMaximize: toggleMaximizedPane,
       onReset,
       paneId,
     });
     const host = element('div', {
-      ariaLabel: `${paneId} replay chart`, className: 'lightweight-chart-host',
+      ariaLabel: `Pane ${paneIdentity.number} replay chart`, className: 'lightweight-chart-host',
     });
     host.dataset.paneId = paneId;
+    host.dataset.paneNumber = String(paneIdentity.number);
     host.setAttribute('role', 'application');
     host.tabIndex = 0;
     const empty = element('div', { className: 'pane-empty-state', text: 'No eligible source bars' });
     empty.hidden = true;
     const shell = element('section', { className: 'workspace-pane is-prepared' }, [host, overlay.root, empty]);
     shell.dataset.paneId = paneId;
+    shell.dataset.paneNumber = String(paneIdentity.number);
     shell.setAttribute('aria-hidden', 'true');
     shell.addEventListener('pointerdown', (event) => {
       if (!event.target.closest('.pane-overlay-controls')) onFocus(paneId);

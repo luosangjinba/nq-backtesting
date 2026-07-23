@@ -11,14 +11,9 @@ import {
   createViewportController,
   readViewportIntent,
 } from '../viewport-runtime/public.js';
+import { WORKSPACE_PANE_IDS } from './pane-identity.js';
 
-const PANE_MAIN = 'pane-main';
-const PANE_IDS = Object.freeze([
-  PANE_MAIN,
-  'pane-secondary',
-  'pane-tertiary',
-  'pane-quaternary',
-]);
+const PANE_MAIN = WORKSPACE_PANE_IDS[0];
 
 /** Own the UI composition's accepted Pane Workspace and Pane viewport controllers. */
 export function createPaneWorkspaceState({
@@ -78,7 +73,7 @@ export function createPaneWorkspaceState({
 
   accepted = build({
     activePaneId: PANE_MAIN,
-    panes: PANE_IDS.slice(0, initialPaneCount).map((paneId) => ({
+    panes: WORKSPACE_PANE_IDS.slice(0, initialPaneCount).map((paneId) => ({
       instrumentId: initialTarget.instrumentId,
       paneId,
       timeframeId: initialTarget.timeframeId,
@@ -107,12 +102,12 @@ export function createPaneWorkspaceState({
     },
     desiredPaneCount(count, cursorEpochMs) {
       return rebuild(accepted, (current) => {
-        if (!Number.isInteger(count) || count < 1 || count > PANE_IDS.length) {
+        if (!Number.isInteger(count) || count < 1 || count > WORKSPACE_PANE_IDS.length) {
           throw new TypeError('Pane count must be an integer from one through four.');
         }
         const activePane = current.panes.find(({ paneId }) => paneId === current.activePaneId);
         const panesById = new Map(current.panes.map((pane) => [pane.paneId, pane]));
-        const panes = PANE_IDS.slice(0, count).map((paneId) => {
+        const panes = WORKSPACE_PANE_IDS.slice(0, count).map((paneId) => {
           const retained = panesById.get(paneId);
           if (retained) return retained;
           viewport(paneId, cursorEpochMs).moveCursor(cursorEpochMs);

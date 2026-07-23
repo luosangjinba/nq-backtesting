@@ -19,11 +19,15 @@ function triplet(axis, id, slots) {
   ));
 }
 
+// A leaf slot is a stable Pane priority, not reading order: slot 0 is P1.
+// Product geometry orders Panes by right edge first, then top edge. This makes
+// P1 the right Pane in columns and the top Pane in rows, and lets count
+// reduction retain P1..Pn without consulting focus, Replay, or chart state.
 const DEFINITIONS = Object.freeze([
   Object.freeze({ id: 'layout.single', label: 'Single', paneCount: 1, tree: leaf(0) }),
   Object.freeze({
     id: 'layout.two-columns', label: 'Two columns', paneCount: 2,
-    tree: split('root', 'x', 1 / 2, leaf(0), leaf(1)),
+    tree: split('root', 'x', 1 / 2, leaf(1), leaf(0)),
   }),
   Object.freeze({
     id: 'layout.two-rows', label: 'Two rows', paneCount: 2,
@@ -31,7 +35,7 @@ const DEFINITIONS = Object.freeze([
   }),
   Object.freeze({
     id: 'layout.three-columns', label: 'Three columns', paneCount: 3,
-    tree: triplet('x', 'root', [0, 1, 2]),
+    tree: triplet('x', 'root', [2, 1, 0]),
   }),
   Object.freeze({
     id: 'layout.three-rows', label: 'Three rows', paneCount: 3,
@@ -40,34 +44,34 @@ const DEFINITIONS = Object.freeze([
   Object.freeze({
     id: 'layout.three-left-stack', label: 'Two left, one right', paneCount: 3,
     tree: split('root', 'x', 1 / 2,
-      split('root.first', 'y', 1 / 2, leaf(0), leaf(1)), leaf(2)),
+      split('root.first', 'y', 1 / 2, leaf(1), leaf(2)), leaf(0)),
   }),
   Object.freeze({
     id: 'layout.three-right-stack', label: 'One left, two right', paneCount: 3,
-    tree: split('root', 'x', 1 / 2, leaf(0),
-      split('root.second', 'y', 1 / 2, leaf(1), leaf(2))),
+    tree: split('root', 'x', 1 / 2, leaf(2),
+      split('root.second', 'y', 1 / 2, leaf(0), leaf(1))),
   }),
   Object.freeze({
     id: 'layout.four-grid', label: 'Four grid', paneCount: 4,
     tree: split('root', 'y', 1 / 2,
-      split('root.first', 'x', 1 / 2, leaf(0), leaf(1)),
-      split('root.second', 'x', 1 / 2, leaf(2), leaf(3))),
+      split('root.first', 'x', 1 / 2, leaf(2), leaf(0)),
+      split('root.second', 'x', 1 / 2, leaf(3), leaf(1))),
   }),
   Object.freeze({
     id: 'layout.four-left-stack', label: 'Three left, one right', paneCount: 4,
-    tree: split('root', 'x', 1 / 2, triplet('y', 'root.first', [0, 1, 2]), leaf(3)),
+    tree: split('root', 'x', 1 / 2, triplet('y', 'root.first', [1, 2, 3]), leaf(0)),
   }),
   Object.freeze({
     id: 'layout.four-right-stack', label: 'One left, three right', paneCount: 4,
-    tree: split('root', 'x', 1 / 2, leaf(0), triplet('y', 'root.second', [1, 2, 3])),
+    tree: split('root', 'x', 1 / 2, leaf(3), triplet('y', 'root.second', [0, 1, 2])),
   }),
   Object.freeze({
     id: 'layout.four-one-over-three', label: 'One top, three bottom', paneCount: 4,
-    tree: split('root', 'y', 1 / 2, leaf(0), triplet('x', 'root.second', [1, 2, 3])),
+    tree: split('root', 'y', 1 / 2, leaf(0), triplet('x', 'root.second', [3, 2, 1])),
   }),
   Object.freeze({
     id: 'layout.four-three-over-one', label: 'Three top, one bottom', paneCount: 4,
-    tree: split('root', 'y', 1 / 2, triplet('x', 'root.first', [0, 1, 2]), leaf(3)),
+    tree: split('root', 'y', 1 / 2, triplet('x', 'root.first', [3, 2, 0]), leaf(1)),
   }),
 ]);
 
