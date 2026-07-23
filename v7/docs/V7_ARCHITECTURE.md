@@ -551,6 +551,19 @@ an existing manual wall or increments its Viewport revision. All fields remain
 one global transaction and cannot mutate Replay, Workspace, Pane, bars,
 series-data, or chart-visible receipt state.
 
+The R6.9l review correction adds one owner-managed preview layer above the
+durable value. Each valid dialog draft stages and applies every Settings
+consumer synchronously but does not commit a consumer, write persistence, or
+replace the authoritative revision. Replacing a preview first rolls its stages
+back to the committed value, then applies the next complete draft. OK persists
+and commits the currently applied stages as one revision. Cancel, close,
+Escape, backdrop dismissal, or Workspace disposal rolls the preview stages
+back in reverse order. Preview/apply/persistence failures also restore the
+committed presentation; the dialog never writes chart or Viewport surfaces
+directly. Replay Workspace presentation is itself a formal reversible consumer,
+so Pane readouts/control visibility cannot escape the same transaction as chart
+and Viewport presentation.
+
 ## Session Isolation Invariant
 
 All mutable records and async results carry:

@@ -38,6 +38,7 @@ export function createReplayWorkspaceSurface() {
         : createPaneLayout();
       const callbacks = {
         autoplay: null,
+        cancelWorkstationSettingsPreview: null,
         crosshairSync: null,
         exactGoto: null,
         focusPane: null,
@@ -48,6 +49,7 @@ export function createReplayWorkspaceSurface() {
         pause: null,
         playbackSpeed: null,
         previous: null,
+        previewWorkstationSettings: null,
         quickGoto: null,
         reset: null,
         replayStep: null,
@@ -80,7 +82,9 @@ export function createReplayWorkspaceSurface() {
         onPause: () => callbacks.pause?.(),
         onPlaybackSpeed: (speedId) => callbacks.playbackSpeed?.(speedId),
         onPrevious: () => callbacks.previous?.(),
+        onPreviewWorkstationSettings: (settings) => callbacks.previewWorkstationSettings?.(settings),
         onQuickGoto: (anchor) => callbacks.quickGoto?.(anchor),
+        onCancelWorkstationSettingsPreview: () => callbacks.cancelWorkstationSettingsPreview?.(),
         onReset: (paneId) => callbacks.reset?.(paneId),
         onReplayStep: (replayStepId) => callbacks.replayStep?.(replayStepId),
         onRestart: () => callbacks.restart?.(),
@@ -109,6 +113,7 @@ export function createReplayWorkspaceSurface() {
         workstationSettings,
       });
       callbacks.autoplay = () => controller.autoplay();
+      callbacks.cancelWorkstationSettingsPreview = () => controller.cancelWorkstationSettingsPreview();
       callbacks.crosshairSync = (enabled) => controller.changeCrosshairSync(enabled);
       callbacks.exactGoto = (epochMs) => controller.gotoExact(epochMs);
       callbacks.focusPane = (paneId) => controller.focusPane(paneId);
@@ -119,6 +124,7 @@ export function createReplayWorkspaceSurface() {
       callbacks.pause = () => controller.pause();
       callbacks.playbackSpeed = (speedId) => controller.changePlaybackSpeed(speedId);
       callbacks.previous = () => controller.previous();
+      callbacks.previewWorkstationSettings = (settings) => controller.previewWorkstationSettings(settings);
       callbacks.quickGoto = (anchor) => controller.gotoQuick(anchor);
       callbacks.reset = (paneId) => controller.resetView(paneId);
       callbacks.replayStep = (replayStepId) => controller.changeReplayStep(replayStepId);

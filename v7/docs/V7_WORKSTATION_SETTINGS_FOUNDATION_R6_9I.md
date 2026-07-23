@@ -56,8 +56,10 @@ The Workspace toolbar opens one four-tab modal: Symbol, Status line, Scales and
 lines, and Canvas. Inactive tabs identify their later bounded delivery rather
 than presenting fake controls. The modal owns draft DOM state only:
 
-- `Reset` restores defaults in the draft without applying or persisting;
-- `Cancel`, close, Escape, and backdrop click discard the draft;
+- `Reset` restores defaults in the draft and, after the R6.9l review
+  correction, previews them without persisting;
+- `Cancel`, close, Escape, and backdrop click discard the draft and restore the
+  committed presentation after any R6.9l live preview;
 - `OK` requests one owner Save and closes only after acceptance.
 
 ## Chart Mapping

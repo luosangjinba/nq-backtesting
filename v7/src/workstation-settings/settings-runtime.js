@@ -76,7 +76,7 @@ function snapshotValue({ recoveryCode, revision, settings }) {
 }
 
 /**
- * Own the one global durable Settings value and its presentation transaction.
+ * Own the one global durable Settings value plus reversible preview/save transactions.
  * Consumers stage/apply/rollback without touching Replay, Workspace, or bars.
  */
 export function createWorkstationSettingsRuntime({
@@ -92,6 +92,7 @@ export function createWorkstationSettingsRuntime({
   }
   const consumers = new Map();
   let current = null;
+  let preview = null;
 
   function initialize() {
     if (current !== null) return current;
@@ -124,6 +125,12 @@ export function createWorkstationSettingsRuntime({
 
   function registerConsumer(candidate) {
     const consumer = requireConsumer(candidate);
+    if (preview !== null) {
+      failWorkstationSettings(
+        'WORKSTATION_SETTINGS_PREVIEW_ACTIVE',
+        'Settings consumers cannot change while a preview is active.',
+      );
+    }
     if (consumers.has(consumer.id)) {
       failWorkstationSettings(
         'WORKSTATION_SETTINGS_CONSUMER_DUPLICATE',
@@ -135,9 +142,74 @@ export function createWorkstationSettingsRuntime({
     let registered = true;
     return () => {
       if (!registered) return;
+      if (preview !== null) {
+        failWorkstationSettings(
+          'WORKSTATION_SETTINGS_PREVIEW_ACTIVE',
+          'Settings consumers cannot change while a preview is active.',
+        );
+      }
       registered = false;
       consumers.delete(consumer.id);
     };
+  }
+
+  function rollbackEntries(entries) {
+    let firstFailure = null;
+    for (const entry of [...entries].reverse()) {
+      try { entry.consumer.rollback(entry.staged); } catch (error) { firstFailure ??= error; }
+    }
+    if (firstFailure !== null) throw firstFailure;
+  }
+
+  function cancelPreview() {
+    if (preview === null) return initialize();
+    const active = preview;
+    preview = null;
+    try {
+      rollbackEntries(active.entries);
+      return initialize();
+    } catch (cause) {
+      failWorkstationSettings(
+        'WORKSTATION_SETTINGS_PREVIEW_ROLLBACK_FAILED',
+        'Workstation Settings preview could not be restored.',
+        { cause },
+      );
+    }
+  }
+
+  function previewSettings(settings) {
+    readWorkstationSettings(settings);
+    const committed = initialize();
+    if (preview !== null && workstationSettingsEqual(preview.candidate.settings, settings)) {
+      return preview.candidate;
+    }
+    if (preview !== null) cancelPreview();
+    if (workstationSettingsEqual(committed.settings, settings)) return committed;
+    const candidate = snapshotValue({
+      recoveryCode: null,
+      revision: committed.revision + 1,
+      settings,
+    });
+    const entries = [];
+    try {
+      const stages = [...consumers.values()].map((consumer) => Object.freeze({
+        consumer,
+        staged: consumer.stage(candidate),
+      }));
+      for (const entry of stages) {
+        entry.consumer.apply(entry.staged);
+        entries.push(entry);
+      }
+      preview = Object.freeze({ candidate, entries: Object.freeze(entries) });
+      return candidate;
+    } catch (cause) {
+      try { rollbackEntries(entries); } catch { /* Preserve the first failure. */ }
+      failWorkstationSettings(
+        'WORKSTATION_SETTINGS_PREVIEW_FAILED',
+        'Workstation Settings preview could not be applied to every consumer.',
+        { cause },
+      );
+    }
   }
 
   function restoreStorage(previousRaw) {
@@ -147,11 +219,16 @@ export function createWorkstationSettingsRuntime({
 
   function save(settings) {
     readWorkstationSettings(settings);
-    const previous = initialize();
+    let previous = initialize();
+    if (preview !== null && !workstationSettingsEqual(preview.candidate.settings, settings)) {
+      cancelPreview();
+      previous = initialize();
+    }
     if (previous.recoveryCode === null && workstationSettingsEqual(previous.settings, settings)) {
       return previous;
     }
-    const candidate = snapshotValue({
+    const activePreview = preview;
+    const candidate = activePreview?.candidate ?? snapshotValue({
       recoveryCode: null,
       revision: previous.revision + 1,
       settings,
@@ -160,6 +237,9 @@ export function createWorkstationSettingsRuntime({
     try {
       previousRaw = port.read(storageKey);
     } catch (cause) {
+      if (preview !== null) {
+        try { cancelPreview(); } catch { /* Preserve the persistence failure. */ }
+      }
       failWorkstationSettings(
         'WORKSTATION_SETTINGS_PERSISTENCE_FAILED',
         'Workstation Settings could not read durable state.',
@@ -169,23 +249,26 @@ export function createWorkstationSettingsRuntime({
     const applied = [];
     let durableChanged = false;
     try {
-      const stages = [...consumers.values()].map((consumer) => Object.freeze({
+      const stages = activePreview?.entries ?? [...consumers.values()].map((consumer) => Object.freeze({
         consumer,
         staged: consumer.stage(candidate),
       }));
-      for (const entry of stages) {
-        entry.consumer.apply(entry.staged);
-        applied.push(entry);
+      if (activePreview !== null) applied.push(...stages);
+      else {
+        for (const entry of stages) {
+          entry.consumer.apply(entry.staged);
+          applied.push(entry);
+        }
       }
       port.write(storageKey, JSON.stringify(recordWire(settings, candidate.revision)));
       durableChanged = true;
       for (const entry of stages) entry.consumer.commit(entry.staged);
       current = candidate;
+      preview = null;
       return current;
     } catch (cause) {
-      for (const entry of applied.reverse()) {
-        try { entry.consumer.rollback(entry.staged); } catch { /* Preserve first failure. */ }
-      }
+      preview = null;
+      try { rollbackEntries(applied); } catch { /* Preserve first failure. */ }
       if (durableChanged) {
         try { restoreStorage(previousRaw); } catch { /* Prior in-memory authority remains. */ }
       }
@@ -200,7 +283,9 @@ export function createWorkstationSettingsRuntime({
   }
 
   return Object.freeze({
+    cancelPreview,
     initialize,
+    preview: previewSettings,
     registerConsumer,
     save,
     snapshot: () => current ?? initialize(),

@@ -316,8 +316,19 @@ try {
     const draft = document.querySelector('[name="upBodyColor"]');
     draft.value = '#5c6bc080';
     draft.dispatchEvent(new Event('input', { bubbles: true }));
-    document.querySelector('.workstation-settings-cancel').click();
+    document.querySelector('[name="gridVisible"]').click();
   })()`);
+  await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'
+    && [...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.gridVisible === 'false')`);
+  assert.equal(await evaluate(cdp,
+    `localStorage.getItem('v7.workstation-settings:global')`), null,
+  'live preview must not write durable Settings');
+  await evaluate(cdp, `document.querySelector('.workstation-settings-cancel').click()`);
+  await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
+    && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'true'
+    && [...document.querySelectorAll('.lightweight-chart-host')]
+      .every((host) => host.dataset.gridVisible === 'true')`);
   assert.equal(await evaluate(cdp, `localStorage.getItem('v7.color-history:global')`), null,
     'Cancel must not leak draft colors into global recent history');
   await evaluate(cdp, `document.querySelector('.workstation-settings-open').click()`);
@@ -338,6 +349,22 @@ try {
   'Reset must restore defaults only in the open draft');
   await capture(cdp, workstationSettingsVisualFile, '.workstation-settings-dialog');
   await evaluate(cdp, `document.querySelector('.workstation-settings-cancel').click()`);
+  for (const dismiss of [
+    `document.querySelector('.workstation-settings-close').click()`,
+    `document.querySelector('.workstation-settings-dialog')
+      .dispatchEvent(new Event('cancel', { cancelable: true }))`,
+    `document.querySelector('.workstation-settings-dialog')
+      .dispatchEvent(new MouseEvent('click', { bubbles: true }))`,
+  ]) {
+    await evaluate(cdp, `(() => {
+      document.querySelector('.workstation-settings-open').click();
+      document.querySelector('[name="gridVisible"]').click();
+    })()`);
+    await waitFor(cdp, `document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'`);
+    await evaluate(cdp, dismiss);
+    await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
+      && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'true'`);
+  }
 
   const beforeSync = state;
   await evaluate(cdp, `document.querySelector('.replay-timeframe-sync input').click()`);
@@ -779,10 +806,32 @@ try {
     document.querySelector('[name="topMarginPercent"]').value = '14';
     document.querySelector('[name="bottomMarginPercent"]').value = '18';
     document.querySelector('[name="rightMarginBars"]').value = '24';
-    document.querySelector('.workstation-settings-save').click();
+    for (const name of [
+      'crosshairStyle', 'crosshairWidth', 'scaleFontSize', 'paneControlDockVisibility',
+      'topMarginPercent', 'bottomMarginPercent', 'rightMarginBars',
+    ]) document.querySelector('[name="' + name + '"]')
+      .dispatchEvent(new Event('input', { bubbles: true }));
   })()`);
+  await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === true
+    && document.querySelector('.replay-workspace')?.dataset.canvasBackgroundColor === '#101820ff'
+    && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'
+    && document.querySelector('.lightweight-chart-host')?.dataset.crosshairStyle === 'dotted'
+    && document.querySelector('.lightweight-chart-host')?.dataset.scaleFontSize === '16'`);
+  assert.equal(await evaluate(cdp,
+    `localStorage.getItem('v7.workstation-settings:global')`), null,
+  'even a complete live preview must remain non-durable before OK');
+  assert.deepEqual(await evaluate(cdp, `(() => {
+    const host = document.querySelector('.lightweight-chart-host');
+    return {
+      latestOffsetBars: host.dataset.latestOffsetBars,
+      origin: host.dataset.viewportOrigin,
+      revision: host.dataset.viewportRevision,
+    };
+  })()`), rightMarginWallBefore,
+  'live right-margin preview must not overwrite an existing manual wall');
+  await evaluate(cdp, `document.querySelector('.workstation-settings-save').click()`);
   await waitFor(cdp, `document.querySelector('.workstation-settings-dialog')?.open === false
-    && document.querySelector('.replay-workspace')?.dataset.gridVisible === 'false'`);
+    && localStorage.getItem('v7.workstation-settings:global') !== null`);
   const afterSettingsCommit = await evaluate(cdp, paneStateExpression());
   assert.deepEqual(await evaluate(cdp, `JSON.parse(
     localStorage.getItem('v7.color-history:global')

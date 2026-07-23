@@ -1313,6 +1313,16 @@ presentation.
 - [x] bind strict schema/migration, native Lightweight Charts mapping,
   truncation restoration, Viewport defaults, current/future Pane inheritance,
   hard reload, and the active Canvas visual in focused Harnesses;
+- [x] add owner-managed live preview for every valid draft without persistence
+  writes or committed revision movement;
+- [x] make Cancel, close, Escape, backdrop dismissal, and Workspace disposal
+  restore the complete committed presentation after any preview;
+- [x] promote Replay Workspace readout/control presentation to a formal
+  reversible Settings consumer instead of controller-side post-commit writes;
+- [x] let OK commit the already-visible preview while read/write/consumer
+  failures restore every previewed consumer;
+- [x] prove right-margin preview still cannot move or replace an existing
+  manual Viewport wall;
 - [ ] obtain explicit human interaction and visual acceptance.
 
 ## Standing Gates

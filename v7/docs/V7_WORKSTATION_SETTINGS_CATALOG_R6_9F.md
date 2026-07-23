@@ -86,8 +86,11 @@ request bars, move Replay, or issue a Workspace transaction.
 - Opening Settings copies the latest committed snapshot into a UI-local draft.
 - Editing the draft has no external effect in the first implementation.
 - Save validates and submits the complete draft as one change.
-- Cancel, close, backdrop close, and Escape discard the draft.
-- Reset restores defaults only in the draft and persists only after Save.
+- Valid draft changes use owner-managed reversible presentation preview.
+- Cancel, close, backdrop close, and Escape discard the draft and restore the
+  committed presentation.
+- Reset restores and previews defaults only in the draft and persists only
+  after Save.
 - A failed Save keeps the dialog open, reports the specific failure, and leaves
   the prior committed/durable value and every mounted consumer unchanged.
 - A successful Save closes only after persistence and all currently mounted

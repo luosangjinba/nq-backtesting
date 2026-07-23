@@ -91,7 +91,9 @@ export function createReplayWorkspaceView({
   onPause,
   onPlaybackSpeed,
   onPrevious,
+  onPreviewWorkstationSettings,
   onQuickGoto,
+  onCancelWorkstationSettingsPreview,
   onSaveGotoSettings,
   onSaveWorkstationSettings,
   onRecordRecentColors,
@@ -148,6 +150,8 @@ export function createReplayWorkspaceView({
   const workstationSettings = createWorkstationSettingsControl({
     getSnapshot: getWorkstationSettings,
     getRecentColors,
+    onCancelPreview: onCancelWorkstationSettingsPreview,
+    onPreview: onPreviewWorkstationSettings,
     onRecordRecentColors,
     onSave: onSaveWorkstationSettings,
   });

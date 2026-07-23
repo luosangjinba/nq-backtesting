@@ -119,11 +119,16 @@ function candleStyleControl({
 export function createWorkstationSettingsDialog({
   getRecentColors = () => [],
   getSnapshot,
+  onCancelPreview,
+  onPreview,
   onRecordRecentColors = () => {},
   onSave,
 }) {
-  if (typeof getSnapshot !== 'function' || typeof onSave !== 'function') {
-    throw new TypeError('Workstation Settings dialog requires getSnapshot() and onSave().');
+  if (typeof getSnapshot !== 'function' || typeof onCancelPreview !== 'function'
+    || typeof onPreview !== 'function' || typeof onSave !== 'function') {
+    throw new TypeError(
+      'Workstation Settings dialog requires snapshot, preview, cancel-preview, and save ports.',
+    );
   }
   const gridControl = switchControl({
     copy: 'Show horizontal and vertical chart guides.', label: 'Grid lines', name: 'gridVisible',
@@ -145,6 +150,7 @@ export function createWorkstationSettingsDialog({
   let touchedColors = [];
   const markColorTouched = (name) => {
     touchedColors = [name, ...touchedColors.filter((candidate) => candidate !== name)];
+    previewDraft();
   };
   const closePickers = (except = null) => {
     for (const picker of pickerControls) if (picker !== except) picker.close();
@@ -409,14 +415,18 @@ export function createWorkstationSettingsDialog({
 
   function discard() {
     closePickers();
-    if (dialog.open) dialog.close();
+    const outcome = onCancelPreview();
+    if (outcome?.accepted === true) {
+      if (dialog.open) dialog.close();
+      return;
+    }
+    validation.textContent = outcome?.message ?? 'The Settings preview could not be restored.';
+    validation.hidden = false;
+    cancel.focus();
   }
 
-  function saveDraft() {
-    validation.hidden = true;
-    let outcome;
-    try {
-      outcome = onSave(createWorkstationSettings({
+  function readDraft() {
+    return createWorkstationSettings({
         candles: {
           bodyVisible: candleControls.body.visible.checked,
           bordersVisible: candleControls.borders.visible.checked,
@@ -455,8 +465,26 @@ export function createWorkstationSettingsDialog({
           ohlcVisible: readoutControls.ohlc.input.checked,
           volumeVisible: readoutControls.volume.input.checked,
         },
-      }));
+      });
+  }
+
+  function previewDraft() {
+    if (!dialog.open) return;
+    validation.hidden = true;
+    try {
+      const outcome = onPreview(readDraft());
+      if (outcome?.accepted === true) return;
+      validation.textContent = outcome?.message ?? 'Settings preview could not be applied.';
     } catch (error) {
+      validation.textContent = error?.message ?? 'Settings preview could not be applied.';
+    }
+    validation.hidden = false;
+  }
+
+  function saveDraft() {
+    validation.hidden = true;
+    let outcome;
+    try { outcome = onSave(readDraft()); } catch (error) {
       outcome = Object.freeze({ accepted: false, message: error?.message });
     }
     if (outcome?.accepted === true) {
@@ -474,9 +502,10 @@ export function createWorkstationSettingsDialog({
     save.focus();
   }
 
-  reset.addEventListener('click', () => populate(createWorkstationSettings(
-    DEFAULT_WORKSTATION_SETTINGS,
-  )));
+  reset.addEventListener('click', () => {
+    populate(createWorkstationSettings(DEFAULT_WORKSTATION_SETTINGS));
+    previewDraft();
+  });
   cancel.addEventListener('click', discard);
   close.addEventListener('click', discard);
   save.addEventListener('click', saveDraft);
@@ -487,10 +516,16 @@ export function createWorkstationSettingsDialog({
   dialog.addEventListener('click', (event) => {
     if (event.target === dialog) discard();
   });
+  dialog.addEventListener('input', (event) => {
+    if (event.target.matches('input[type="checkbox"], input[type="number"], select')) {
+      previewDraft();
+    }
+  });
   selectTab(activeTab);
 
   return Object.freeze({
     dispose() {
+      if (dialog.open) onCancelPreview();
       for (const picker of pickerControls) picker.dispose();
       dialog.remove();
     },

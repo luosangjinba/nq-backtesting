@@ -80,9 +80,11 @@ overlay consumer. Any rejection restores the prior presentation. A successful
 Save cannot increment Replay, Workspace, Pane, Viewport, bar-count,
 series-data, or chart-visible receipt revisions.
 
-Reset changes only the dialog draft. Cancel, close, Escape, and backdrop
-dismissal apply nothing. A committed value survives hard reload, another
-Session, and future Pane creation.
+Reset changes only the authoritative dialog draft. The later R6.9l review
+correction previews valid draft changes through reversible consumer stages;
+Cancel, close, Escape, and backdrop dismissal restore the committed
+presentation. A committed value survives hard reload, another Session, and
+future Pane creation.
 
 ## Acceptance Evidence
 

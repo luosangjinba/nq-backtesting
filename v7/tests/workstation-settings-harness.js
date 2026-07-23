@@ -17,6 +17,9 @@ import {
 } from '../src/workstation-settings/public.js';
 import { createMemoryWebStorage } from './support/memory-web-storage.js';
 import { createViewportSettingsConsumer } from '../src/replay-workspace-ui/viewport-settings-consumer.js';
+import {
+  createWorkstationSettingsViewConsumer,
+} from '../src/replay-workspace-ui/workstation-settings-view-consumer.js';
 
 const negativeCases = JSON.parse(readFileSync(new URL(
   './fixtures/workstation-settings/negative/cases.json', import.meta.url,
@@ -241,6 +244,16 @@ const mounted = { gridVisible: null };
 const unregister = runtime.registerConsumer(consumer('mounted-chart', mounted));
 assert.equal(mounted.gridVisible, true, 'a mounted consumer must receive the current revision immediately');
 const hiddenGrid = settingsValue({ gridVisible: false });
+const previewSnapshot = runtime.preview(hiddenGrid);
+assert.equal(previewSnapshot.revision, 1);
+assert.equal(mounted.gridVisible, false, 'preview must apply to mounted consumers immediately');
+assert.equal(runtime.snapshot().revision, 0, 'preview must not advance committed authority');
+assert.equal(grid(runtime.snapshot().settings), true, 'preview must not replace committed Settings');
+assert.equal(webStorage.keys().includes('v7.workstation-settings:global'), false,
+  'preview must not write durable Settings');
+assert.equal(runtime.cancelPreview().revision, 0);
+assert.equal(mounted.gridVisible, true, 'cancel must restore the committed consumer presentation');
+assert.equal(runtime.preview(hiddenGrid).revision, 1);
 assert.equal(runtime.save(hiddenGrid).revision, 1);
 assert.equal(mounted.gridVisible, false);
 assert.equal(grid(runtime.snapshot().settings), false);
@@ -283,14 +296,41 @@ const atomicRuntime = createWorkstationSettingsRuntime({
 const atomicPresentation = { gridVisible: null };
 atomicRuntime.registerConsumer(consumer('atomic-chart', atomicPresentation));
 rejectWrites = true;
+atomicRuntime.preview(hiddenGrid);
+assert.equal(atomicPresentation.gridVisible, false);
 assert.throws(
   () => atomicRuntime.save(hiddenGrid),
   (error) => error instanceof WorkstationSettingsError
     && error.code === negativeCode('persistence-write-failure'),
 );
 assert.equal(atomicPresentation.gridVisible, true,
-  'a persistence failure must roll back every already-applied consumer');
+  'a persistence failure must roll back every previewed consumer');
 assert.equal(atomicRuntime.snapshot().revision, 0);
+
+let rejectReads = false;
+const readFailurePort = createStorageAdapter(createMemoryWebStorage());
+const readFailureRuntime = createWorkstationSettingsRuntime({
+  storage: {
+    read(key) {
+      if (rejectReads) throw new Error('read unavailable');
+      return readFailurePort.read(key);
+    },
+    remove: readFailurePort.remove,
+    write: readFailurePort.write,
+  },
+});
+const readFailurePresentation = { gridVisible: null };
+readFailureRuntime.registerConsumer(consumer('read-failure-chart', readFailurePresentation));
+readFailureRuntime.preview(hiddenGrid);
+rejectReads = true;
+assert.throws(
+  () => readFailureRuntime.save(hiddenGrid),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_PERSISTENCE_FAILED',
+);
+assert.equal(readFailurePresentation.gridVisible, true,
+  'a pre-write persistence-read failure must also restore the preview');
+assert.equal(readFailureRuntime.snapshot().revision, 0);
 
 const rejectingRuntime = createWorkstationSettingsRuntime({
   storage: createStorageAdapter(createMemoryWebStorage()),
@@ -298,6 +338,13 @@ const rejectingRuntime = createWorkstationSettingsRuntime({
 const stablePresentation = { gridVisible: null };
 rejectingRuntime.registerConsumer(consumer('stable-chart', stablePresentation));
 rejectingRuntime.registerConsumer(consumer('rejecting-chart', { gridVisible: true }, { failApply: true }));
+assert.throws(
+  () => rejectingRuntime.preview(hiddenGrid),
+  (error) => error instanceof WorkstationSettingsError
+    && error.code === 'WORKSTATION_SETTINGS_PREVIEW_FAILED',
+);
+assert.equal(stablePresentation.gridVisible, true,
+  'one preview rejection must restore every earlier preview consumer');
 assert.throws(
   () => rejectingRuntime.save(hiddenGrid),
   (error) => error instanceof WorkstationSettingsError
@@ -317,9 +364,39 @@ viewportSettingsRuntime.registerConsumer(createViewportSettingsConsumer({
     setDefaultRightMarginBars(value) { rightMarginBars = value; },
   },
 }));
+viewportSettingsRuntime.preview(settingsValue({ canvas: { rightMarginBars: 28 } }));
+assert.equal(rightMarginBars, 28, 'preview must reach the Viewport-owned future/reset default');
+viewportSettingsRuntime.cancelPreview();
+assert.equal(rightMarginBars, 12, 'cancel must restore the committed Viewport default');
+viewportSettingsRuntime.preview(settingsValue({ canvas: { rightMarginBars: 28 } }));
 viewportSettingsRuntime.save(settingsValue({ canvas: { rightMarginBars: 28 } }));
 assert.equal(rightMarginBars, 28,
   'the Viewport consumer must receive the committed default without chart ownership');
+
+const viewSettingsRuntime = createWorkstationSettingsRuntime({
+  storage: createStorageAdapter(createMemoryWebStorage()),
+});
+const viewPresentation = { gridVisible: null, revisions: [] };
+viewSettingsRuntime.registerConsumer(createWorkstationSettingsViewConsumer({
+  view: {
+    setWorkstationSettings(snapshot) {
+      viewPresentation.gridVisible = grid(snapshot.settings);
+      viewPresentation.revisions.push(snapshot.revision);
+    },
+  },
+}));
+assert.equal(viewPresentation.gridVisible, true);
+viewSettingsRuntime.preview(hiddenGrid);
+assert.equal(viewPresentation.gridVisible, false,
+  'Replay Workspace UI must participate in live preview as a formal consumer');
+viewSettingsRuntime.cancelPreview();
+assert.equal(viewPresentation.gridVisible, true,
+  'Replay Workspace UI must restore its committed presentation on cancel');
+viewSettingsRuntime.preview(hiddenGrid);
+viewSettingsRuntime.save(hiddenGrid);
+assert.equal(viewPresentation.gridVisible, false);
+assert.deepEqual(viewPresentation.revisions, [0, 1, 0, 1],
+  'UI consumer must initialize, preview, roll back, and reuse the final preview on commit');
 
 const rollbackViewportRuntime = createWorkstationSettingsRuntime({
   storage: createStorageAdapter(createMemoryWebStorage()),

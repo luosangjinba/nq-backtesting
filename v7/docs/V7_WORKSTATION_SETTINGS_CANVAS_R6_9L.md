@@ -89,6 +89,18 @@ persistence write restores all already-applied presentation and the previous
 Viewport default. A successful Save reaches current Panes, future Panes, hard
 reloads, and another Session without moving Replay or an existing manual wall.
 
+The human-review correction makes every valid draft change a live reversible
+preview. The Settings owner, not the dialog, stages and applies the complete
+candidate to all consumers while keeping durable Settings and their revision
+unchanged. A later draft replaces the prior preview atomically. `OK` persists
+and commits the already-visible candidate; `Cancel`, close, Escape, backdrop
+dismissal, and Workspace disposal roll every previewed consumer back to the
+snapshot that was committed when the dialog opened. `Reset` previews defaults
+but remains non-durable until `OK`. A persistence read/write or consumer failure
+also restores the committed presentation. Replay Workspace DOM presentation is
+a formal consumer alongside chart and Viewport consumers; the dialog owns only
+draft inputs and dispatches preview/confirm/discard intent.
+
 R6.9l intentionally does not add gradient background, editable Grid color,
 Session breaks, watermark, Canvas border, price-scale placement/modes, plus
 button, countdown, per-Pane settings, Template, or Apply to all. Timezone, date,
@@ -105,9 +117,10 @@ weekday, and 12/24-hour presentation remain R6.9m.
 - `tests/viewport-runtime-harness.js` proves changing the right-margin default
   cannot alter a manual intent/revision and that Reset View consumes the new
   default;
-- `tests/replay-pane-workspace-browser-harness.js` proves draft/Cancel/Save,
-  all-current/future-Pane fan-out, a preserved manual wall, explicit Reset,
-  hard reload, and cross-Session inheritance;
+- `tests/replay-pane-workspace-browser-harness.js` proves immediate non-durable
+  preview, Cancel/close/Escape/backdrop rollback, OK persistence,
+  all-current/future-Pane fan-out, a preserved manual wall during preview and
+  Save, explicit Reset, hard reload, and cross-Session inheritance;
 - `tests/fixtures/replay-workspace/workstation-settings-canvas-dialog.png` is
   the focused dialog visual baseline;
 - the full V7 pure-domain and browser Harness suite passes before commit.

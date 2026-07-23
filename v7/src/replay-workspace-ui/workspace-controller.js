@@ -26,6 +26,7 @@ import { createPaneWorkspaceState } from './pane-workspace-state.js';
 import { resolveReplayTruncationTarget } from './replay-truncation.js';
 import { createWorkspaceExecution } from './workspace-execution.js';
 import { createViewportSettingsConsumer } from './viewport-settings-consumer.js';
+import { createWorkstationSettingsViewConsumer } from './workstation-settings-view-consumer.js';
 
 function formatCursor(epochMs) {
   if (epochMs === null) return 'No Session bar visible';
@@ -161,7 +162,9 @@ export function createReplayWorkspaceController({
   const unregisterSettingsConsumer = workstationSettings.registerConsumer(
     adapter.workstationSettingsConsumer,
   );
-  view.setWorkstationSettings(workstationSettings.snapshot());
+  const unregisterViewSettingsConsumer = workstationSettings.registerConsumer(
+    createWorkstationSettingsViewConsumer({ view }),
+  );
   const chartApplication = createPaneSetChartSnapshotApplication({
     activationGeneration: record.activationGeneration,
     adapter,
@@ -315,7 +318,9 @@ export function createReplayWorkspaceController({
     },
     dispose() {
       if (disposed) return;
+      try { workstationSettings.cancelPreview(); } catch { /* Disposal still owns teardown. */ }
       disposed = true;
+      unregisterViewSettingsConsumer();
       unregisterSettingsConsumer();
       unregisterViewportSettingsConsumer();
       autoplayScheduler.dispose();
@@ -392,6 +397,34 @@ export function createReplayWorkspaceController({
       const target = paneId ?? paneState.activePaneId();
       adapter.resetView(target);
     },
+    cancelWorkstationSettingsPreview() {
+      if (disposed) {
+        return Object.freeze({ accepted: false, message: 'Settings are no longer available.' });
+      }
+      try {
+        workstationSettings.cancelPreview();
+        return Object.freeze({ accepted: true, message: null });
+      } catch {
+        return Object.freeze({
+          accepted: false,
+          message: 'The Settings preview could not be restored on every Pane.',
+        });
+      }
+    },
+    previewWorkstationSettings(settings) {
+      if (disposed) {
+        return Object.freeze({ accepted: false, message: 'Settings are no longer available.' });
+      }
+      try {
+        workstationSettings.preview(settings);
+        return Object.freeze({ accepted: true, message: null });
+      } catch {
+        return Object.freeze({
+          accepted: false,
+          message: 'Settings preview could not be applied to every Pane.',
+        });
+      }
+    },
     saveGotoSettings(settings) {
       if (disposed || execution.isPending()) {
         return Object.freeze({ accepted: false, message: 'Wait for the current Replay update to finish.' });
@@ -412,8 +445,7 @@ export function createReplayWorkspaceController({
         return Object.freeze({ accepted: false, message: 'Settings are no longer available.' });
       }
       try {
-        const snapshot = workstationSettings.save(settings);
-        view.setWorkstationSettings(snapshot);
+        workstationSettings.save(settings);
         return Object.freeze({ accepted: true, message: null });
       } catch {
         return Object.freeze({

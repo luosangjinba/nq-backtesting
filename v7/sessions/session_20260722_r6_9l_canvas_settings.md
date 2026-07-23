@@ -17,6 +17,13 @@ Status: awaiting human interaction and visual review
   future/new-Pane and explicit Reset View default;
 - preserved existing manual walls, Replay/Workspace/Pane state, bars,
   series-data, and chart-visible receipt revisions.
+- added the human-review correction: every valid draft now previews immediately
+  through Settings-owner stages, OK persists it, and every discard path restores
+  the committed presentation;
+- retained non-durable preview revision semantics and rollback on consumer or
+  persistence failure.
+- promoted Replay Workspace Settings presentation to a formal reversible UI
+  consumer so Pane DOM, charts, and Viewport defaults share one preview boundary.
 
 ## Reference Decision
 
@@ -32,9 +39,10 @@ adds no new chart plugin or dependency.
 - real Lightweight Charts Harness covers native option mapping, no series-data
   write, and truncation Crosshair restoration;
 - Viewport Harness covers manual-wall preservation and Reset's new default;
-- Pane Workspace browser Harness covers the Canvas dialog, draft semantics,
-  current/future Pane inheritance, hard reload, another Session, manual-wall
-  preservation, and explicit Reset;
+- Pane Workspace browser Harness covers immediate preview, zero pre-OK storage,
+  Cancel/close/Escape/backdrop restoration, OK persistence, current/future Pane
+  inheritance, hard reload, another Session, manual-wall preservation, and
+  explicit Reset;
 - source-quality, architecture, full Harness, visual-baseline, and diff checks
   pass before commit.
 

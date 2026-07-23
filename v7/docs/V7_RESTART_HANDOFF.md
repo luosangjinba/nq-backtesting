@@ -28,7 +28,8 @@ required for normal startup.
   owner/persistence/shell with one Grid consumer, R6.9j Symbol presentation,
   R6.9j1 maintainable color picker, and R6.9k Status/current-price controls
   human accepted; R6.9l Canvas/Crosshair/scale/Pane-control/default-margin
-  settings implemented and awaiting human review; R2.4 Session Browser
+  settings plus owner-managed live-preview/Cancel-restore correction
+  implemented and awaiting human review; R2.4 Session Browser
   readability and confirmed durable delete human accepted
 - expected worktree after this handoff commit: clean
 - browser URL when the static service is running:
@@ -456,8 +457,9 @@ curl -s -o /dev/null -w '%{http_code}\n' http://127.0.0.1:8007/v7/app/
 
 R6.9k Status-line and current-price controls were accepted on 2026-07-22.
 R6.9l solid Canvas background, shared rich Crosshair, scale text,
-Pane-control visibility, and owner-routed margins are implemented and await
-human interaction and visual review. After acceptance, execute R6.9m shared
+Pane-control visibility, owner-routed margins, and live preview with complete
+discard rollback are implemented and await human interaction and visual review.
+After acceptance, execute R6.9m shared
 time presentation before R6.10 sync. Economic Calendar remains outside this
 foundation phase. The outstanding R6.9c focused visual confirmation remains a
 separate gate.
