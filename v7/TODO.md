@@ -1601,6 +1601,8 @@ It does not reopen R6 ownership or add a chart-runtime fullscreen mode.
   Session picker without changing Exact GoTo calendar behavior;
 - [x] keep a partially populated latest date selectable while rejecting a
   Start/End wall minute beyond the selected instruments' shared source bounds;
+- [x] prevent rapid repeated time-stepper clicks from selecting weekday, date,
+  or time text while preserving button and keyboard interaction;
 - [x] bind service, HTTP adapter, provider adapter, intersection/bounds policy,
   real-browser interaction, and updated visual evidence;
 - [ ] obtain explicit human interaction and visual acceptance.

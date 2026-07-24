@@ -14,6 +14,11 @@ The Session picker also disables the grey previous/next-month placeholders.
 This is an opt-in Calendar Surface behavior, so Exact GoTo and other calendar
 consumers retain their existing cross-month behavior.
 
+The calendar popover is a non-textual interaction surface. Rapid repeated
+clicks on its time steppers no longer trigger browser text selection across
+weekday, date, or clock labels; button focus and keyboard activation remain
+unchanged.
+
 ## Edge-time rule
 
 The first and latest source dates remain selectable even when they contain only
@@ -63,3 +68,5 @@ The real configured database returned HTTP `200` from
    one minute later and confirm the boundary error.
 5. Update market data, reopen Create Session, and confirm the newly available
    date/minute is recognized without restarting the web page.
+6. Rapidly click a time up/down arrow and confirm weekday, date, and clock text
+   never enters the browser's blue text-selection state.

@@ -336,6 +336,30 @@ try {
   assert.deepEqual(deleteStorageEvidence, { indexedCount: 1, recordNames: ['Session Alpha'] },
     'confirmed deletion must remove both the indexed identity and persisted Session record');
 
+  await evaluate(cdp, `document.querySelector('.page-header .button-primary').click()`);
+  await waitFor(cdp, `document.querySelector('.create-dialog')?.dataset.dateAvailabilityState === 'ready'`);
+  await evaluate(cdp, `document.querySelector('.date-time-trigger').click()`);
+  const rapidClickPoint = await evaluate(cdp, `(() => {
+    document.getSelection().removeAllRanges();
+    const button = document.querySelector('.date-time-step[aria-label="Increase hour"]');
+    const rect = button.getBoundingClientRect();
+    return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+  })()`);
+  for (const clickCount of [1, 2]) {
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mousePressed', button: 'left', buttons: 1, clickCount, ...rapidClickPoint,
+    });
+    await cdp.send('Input.dispatchMouseEvent', {
+      type: 'mouseReleased', button: 'left', buttons: 0, clickCount, ...rapidClickPoint,
+    });
+  }
+  assert.deepEqual(await evaluate(cdp, `(() => ({
+    selectedText: document.getSelection().toString(),
+    userSelect: getComputedStyle(document.querySelector('.date-time-popover')).userSelect,
+  }))()`), {
+    selectedText: '', userSelect: 'none',
+  }, 'rapid time-stepper clicks must not select calendar text');
+
   console.log('v7 Session Browser browser harness passed (create, A/B navigation, confirmed delete, 6 visual fixtures)');
 } finally {
   cdp?.close();
